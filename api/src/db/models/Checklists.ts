@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+import { debugError } from '../../debuggers';
 
 import {
   checklistItemSchema,
@@ -221,7 +222,9 @@ export const loadItemClass = () => {
                 action: 'create'
               }
             });
-          } catch (e) {}
+          } catch (e) {
+            debugError(`cloneChecklistItems putActivityLog error ${e.message}`);
+          }
         }
       }
 
