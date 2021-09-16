@@ -8,7 +8,6 @@ import {
   Stages
 } from '../../db/models';
 import { getCollection, getNewOrder } from '../../db/models/boardUtils';
-import { IChecklistItemDocument } from '../../db/models/definitions/checklists';
 import { IConformityAdd } from '../../db/models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
