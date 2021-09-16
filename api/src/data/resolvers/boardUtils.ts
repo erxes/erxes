@@ -213,20 +213,23 @@ export const createConformity = async ({
   mainType: string;
   mainTypeId: string;
 }) => {
+  const companyConformities: IConformityAdd[] = (companyIds || []).map(
+    companyId => ({
+      mainType,
+      mainTypeId,
+      relType: 'company',
+      relTypeId: companyId
+    })
+  );
 
-  const companyConformities: IConformityAdd[] = (companyIds || []).map(companyId => ({
-    mainType,
-    mainTypeId,
-    relType: 'company',
-    relTypeId: companyId
-  }));
-
-  const customerConformities: IConformityAdd[] = (customerIds || []).map(customerId => ({
-    mainType,
-    mainTypeId,
-    relType: 'customer',
-    relTypeId: customerId
-  }));
+  const customerConformities: IConformityAdd[] = (customerIds || []).map(
+    customerId => ({
+      mainType,
+      mainTypeId,
+      relType: 'customer',
+      relTypeId: customerId
+    })
+  );
 
   const allConformities = companyConformities.concat(customerConformities);
 
@@ -308,7 +311,7 @@ export const copyChecklists = async (params: IChecklistParams) => {
       {
         contentType,
         contentTypeId: targetContentId,
-        title: `${list.title}-copied`
+        title: list.title
       },
       user
     );
