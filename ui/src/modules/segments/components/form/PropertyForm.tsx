@@ -11,7 +11,6 @@ import Button from 'modules/common/components/Button';
 
 type Props = {
   field: IField;
-  onClickBack: () => void;
   segment: ISegmentMap;
   addCondition: (
     condition: ISegmentCondition,
@@ -22,6 +21,7 @@ type Props = {
   propertyType: string;
   pipelineId: string;
   boardId: string;
+  condition?: ISegmentCondition;
 };
 
 type State = {
@@ -33,7 +33,23 @@ class PropertyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { chosenOperator: undefined, currentValue: '' };
+    const { field, condition } = this.props;
+
+    let chosenOperator = undefined;
+
+    let currentValue = '';
+
+    if (field && condition) {
+      const operators = OPERATORS[field.type || ''] || OPERATORS.string;
+
+      chosenOperator = operators.find(
+        operator => operator.value === condition.propertyOperator
+      );
+
+      currentValue = condition.propertyValue || '';
+    }
+
+    this.state = { chosenOperator, currentValue };
   }
 
   onClickOperator = operator => {
@@ -156,13 +172,15 @@ class PropertyForm extends React.Component<Props, State> {
       field,
       propertyType,
       boardId,
-      pipelineId
+      pipelineId,
+      condition
     } = this.props;
     const { chosenOperator, currentValue } = this.state;
 
     return addCondition(
       {
         type: 'property',
+        key: condition ? condition.key : '',
         propertyType,
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
