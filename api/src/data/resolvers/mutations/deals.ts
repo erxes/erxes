@@ -27,7 +27,7 @@ const dealMutations = {
     doc: IDeal & { proccessId: string; aboveItemId: string },
     { user, docModifier }: IContext
   ) {
-    return itemsAdd(doc, 'deal', user, docModifier, Deals.createDeal);
+    return itemsAdd(doc, 'deal', Deals.createDeal, user, docModifier);
   },
 
   /**

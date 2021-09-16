@@ -7,7 +7,7 @@ import {
 import { graphqlPubsub } from '../../../pubsub';
 
 const publishHelper = async (type: string, itemId: string) => {
-  const item = await getItem(type, itemId);
+  const item = await getItem(type, { _id: itemId });
   const stage = await Stages.getStage(item.stageId);
 
   graphqlPubsub.publish('pipelinesChanged', {
