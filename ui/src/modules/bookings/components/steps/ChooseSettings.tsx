@@ -10,7 +10,6 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components/form';
-import { __ } from 'modules/common/utils';
 import { FlexItem } from 'modules/layout/styles';
 import { FlexItem as FlexItemContainer } from './style';
 import React from 'react';

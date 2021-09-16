@@ -16,13 +16,22 @@ import {
   WidgetBackgrounds
 } from 'modules/settings/styles';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from 'modules/bookings/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 
+type Name =
+  | 'itemShape'
+  | 'widgetColor'
+  | 'productAvailable'
+  | 'productUnavailable'
+  | 'productSelected'
+  | 'textAvailable'
+  | 'textUnavailable'
+  | 'textSelected';
+
 type Props = {
-  onChangeStyle: (key: string, value: any) => void;
+  onChangeStyle: (name: Name, value: any) => void;
 
   itemShape: string;
   widgetColor: string;
@@ -47,14 +56,6 @@ function Style({
   textUnavailable,
   textSelected
 }: Props) {
-  const handleShapeChange = e => {
-    onChangeStyle('itemShape', e.value);
-  };
-
-  const onColorChange = (item, e) => {
-    onChangeStyle(item, e.hex);
-  };
-
   const renderColorSelect = (item, color) => {
     const popoverBottom = (
       <Popover id="color-picker">
@@ -62,7 +63,7 @@ function Style({
           width="266px"
           triangle="hide"
           color={color}
-          onChange={e => onColorChange(item, e)}
+          onChange={e => onChangeStyle(item, e.hex)}
           colors={COLORS}
         />
       </Popover>
@@ -92,7 +93,7 @@ function Style({
               <Select
                 clearable={false}
                 value={itemShape}
-                onChange={handleShapeChange}
+                onChange={(e: any) => onChangeStyle('itemShape', e.value)}
                 options={BOOKING_ITEM_SHAPE.ALL_LIST.map(e => ({
                   value: e.value,
                   label: e.label

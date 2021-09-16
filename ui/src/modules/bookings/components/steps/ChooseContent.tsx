@@ -41,16 +41,6 @@ function ChooseContent({
   userFilters,
   productCategoryId
 }: Props) {
-  const onChangeFunction = (key: Name, e: any) => {
-    let value = e;
-
-    if (e.target) {
-      value = e.target.value;
-    }
-
-    onChange(key, value);
-  };
-
   const attachment = (image && extractAttachment([image])) || [];
 
   const renderGeneralSettings = () => {
@@ -65,7 +55,7 @@ function ChooseContent({
               <FormControl
                 type="text"
                 value={name}
-                onChange={e => onChangeFunction('name', e)}
+                onChange={(e: any) => onChange('name', e.target.value)}
               />
             </FormGroup>
           </FlexItem>
@@ -90,7 +80,7 @@ function ChooseContent({
           <FormControl
             type="text"
             value={description}
-            onChange={e => onChangeFunction('description', e)}
+            onChange={(e: any) => onChange('description', e.target.value)}
           />
         </FormGroup>
 
@@ -99,7 +89,7 @@ function ChooseContent({
           <Select
             multi={true}
             value={userFilters}
-            onChange={e => onChangeFunction('userFilters', e)}
+            onChange={(e: any) => onChange('userFilters', e)}
             options={USER_FILTERS.ALL_LIST.map(el => ({
               value: el.value,
               label: el.label
@@ -189,7 +179,7 @@ function ChooseContent({
           organize your product first.`}
           </Description>
           <SelectProductCategory
-            onChange={el => onChangeFunction('productCategoryId', el.value)}
+            onChange={(el: any) => onChange('productCategoryId', el.value)}
             value={productCategoryId}
             placeholder="Choose product category"
           />
