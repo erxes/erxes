@@ -218,7 +218,7 @@ export const loadItemClass = () => {
               data: {
                 item: result,
                 contentType: 'checklistItem',
-                action: 'add'
+                action: 'create'
               }
             });
           } catch (e) {}
