@@ -182,7 +182,7 @@ export const loadItemClass = () => {
         data: {
           item: checklistItem,
           contentType: 'checklistItem',
-          action: 'add'
+          action: 'create'
         }
       });
 
@@ -194,7 +194,6 @@ export const loadItemClass = () => {
       user: IUserDocument,
       newChecklistId: string
     ): Promise<any> {
-      
       const newCreatedDate = new Date();
 
       const itemsToInsert = itemsToClone.map(({ content, order }) => ({
@@ -206,10 +205,13 @@ export const loadItemClass = () => {
         order
       }));
 
-      const results: IChecklistItemDocument[] = await ChecklistItems.insertMany(itemsToInsert, { ordered: false, rawResult: false});
+      const results: IChecklistItemDocument[] = await ChecklistItems.insertMany(
+        itemsToInsert,
+        { ordered: false, rawResult: false }
+      );
 
       if (results) {
-        for(const result of results) {
+        for (const result of results) {
           try {
             putActivityLog({
               action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
