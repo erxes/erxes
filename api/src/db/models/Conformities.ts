@@ -54,7 +54,10 @@ export const loadConformityClass = () => {
     }
 
     public static async addConformities(docs: IConformityAdd[]) {
-      const result = await Conformities.insertMany(docs, { ordered: false, rawResult: true });
+      const result = await Conformities.insertMany(docs, {
+        ordered: false,
+        rawResult: false
+      });
       return result;
     }
 
