@@ -17,14 +17,16 @@ const exmFeedMutations = [
     ) => {
       await checkPermission('manageExm', user);
 
+      
       const exmFeed = await models.ExmFeed.createExmFeed(
         models,
         docModifier(doc),
         user
-      );
-
-      await putCreateLog(
-        messageBroker,
+        );
+        
+        
+        await putCreateLog(
+          messageBroker,
         gatherDescriptions,
         {
           type: 'exmFeed',
@@ -33,25 +35,25 @@ const exmFeedMutations = [
           extraParams: { models }
         },
         user
-      );
-
-      return exmFeed;
-    }
-  },
-
-  {
+        );
+        
+        return exmFeed;
+      }
+    },
+    
+    {
     name: 'exmFeedEdit',
     handler: async (
       _root,
       { _id, ...doc },
       { messageBroker, checkPermission, user, docModifier, models }
-    ) => {
+      ) => {
       await checkPermission('manageExm', user);
-
+        
       const exmFeed = await models.ExmFeed.findOne({
         _id
       });
-
+      
       const updated = await models.ExmFeed.updateExmFeed(
         models,
         _id,

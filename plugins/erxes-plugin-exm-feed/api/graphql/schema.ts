@@ -4,6 +4,10 @@ export const types = `
     title: String
     description: String
     contentType: String
+    visibility: String
+    where: String
+    startDate: Date
+    endDate: Date
     commentCount: Int
     likeCount: Int
     isLiked: Boolean
@@ -68,6 +72,11 @@ export const types = `
     recieved
     sent
   }
+
+  enum Visibility {
+    Public
+    Private
+  }
 `;
 
 export const queries = `
@@ -85,6 +94,10 @@ const feedCommonParams = `
   images: [JSON]
   attachments: [JSON]
   recipientIds: [String]
+  visibility: Visibility
+  where: String
+  startDate: Date
+  endDate: Date
 `;
 
 const thankCommonParams = `
