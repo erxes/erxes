@@ -17,7 +17,7 @@ export interface IChecklistModel extends Model<IChecklistDocument> {
   createChecklist(
     { contentType, contentTypeId, ...fields }: IChecklist,
     user: IUserDocument,
-    isCopy: boolean
+    isCopy?: boolean
   ): Promise<IChecklistDocument>;
 
   updateChecklist(_id: string, doc: IChecklist): Promise<IChecklistDocument>;
