@@ -1,11 +1,8 @@
 import { Departments } from "../../../db/models"
 
 const departmentQueries = {
-    async departments(_root, { perPage, page, ...doc }) {
-        return {
-            list: await Departments.find(doc),
-            totalCount: await Departments.find(doc).countDocuments()
-        }
+    departments(_root) {
+        return Departments.find()
     },
 
     departmentDetail(_root, { _id }) {

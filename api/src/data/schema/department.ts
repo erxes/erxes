@@ -6,15 +6,10 @@ export const types = `
         users: [User]
         userIds: [String]
     }
-
-    type DepartmentListResponse {
-        list: [Department]
-        totalCount: Int
-    }
 `;
 
 export const queries = `
-    departments(perPage: Int, page: Int): DepartmentListResponse
+    departments(perPage: Int, page: Int): [Department]
     departmentDetail(_id: String!): Department
 `;
 

@@ -75,11 +75,37 @@ const userSkills = `
   }
 `;
 
+const departmentField = `
+  _id
+  title
+  description
+  parentId
+  userIds
+`;
+
+const departments = `
+  query departments {
+    departments {
+      ${departmentField}
+    }
+  }
+`;
+
+const departmentDetail = `
+  query departmentDetail($_id: String) {
+    departmentDetail(_id: $_id) {
+      ${departmentField}
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
   userConversations,
   users,
   usersTotalCount,
-  allUsers
+  allUsers,
+  departments,
+  departmentDetail
 };
