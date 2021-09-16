@@ -76,14 +76,31 @@ class SetProperty extends React.Component<Props, State> {
     this.onChangeField('module', type);
   };
 
+  renderOptions = (chosenField?: FieldsCombinedByType) => {
+    if (!chosenField || !chosenField.selectOptions) {
+      return '';
+    }
+
+    const { config } = this.state;
+    const onChangeValue = e => this.onChangeField('value', e.target.value);
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Default options</ControlLabel>
+        <FormControl
+          componentClass="select"
+          onChange={onChangeValue}
+          value={config.value}
+          options={[{ value: '', label: '' }, ...chosenField.selectOptions]}
+        />
+      </FormGroup>
+    );
+  };
+
   renderContent() {
     const { config, fields, type } = this.state;
-    const chosenField = fields.filter(f => f.name === config.field);
-    const fieldType = (chosenField.length
-      ? chosenField[0]
-      : { type: 'Default' }
-    ).type;
-
+    const chosenField = fields.find(f => f.name === config.field);
+    const fieldType = chosenField ? chosenField.type : 'Default';
     const operators = PROPERTY_OPERATOR[fieldType] || PROPERTY_OPERATOR.Default;
 
     const onChangeSelect = (field, e) => this.onChangeField(field, e.value);
@@ -146,6 +163,7 @@ class SetProperty extends React.Component<Props, State> {
             </div>
             <FormControl onChange={onChangeValue} value={config.value} />
           </FormGroup>
+          {this.renderOptions(chosenField)}
         </BoardHeader>
       </DrawerDetail>
     );

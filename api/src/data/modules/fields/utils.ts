@@ -693,7 +693,7 @@ export const fieldsCombinedByContentType = async ({
 
     const assignedUserOptions = await generateUsersOptions(
       'productsData.assignUserId',
-      'Assigned to',
+      'Assigned to (product)',
       'user'
     );
 
