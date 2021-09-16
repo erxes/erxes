@@ -213,18 +213,14 @@ export const loadItemClass = () => {
 
       if (results) {
         for (const result of results) {
-          try {
-            putActivityLog({
-              action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
-              data: {
-                item: result,
-                contentType: 'checklistItem',
-                action: 'create'
-              }
-            });
-          } catch (e) {
-            debugError(`cloneChecklistItems putActivityLog error ` + e);
-          }
+          putActivityLog({
+            action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+            data: {
+              item: result,
+              contentType: 'checklistItem',
+              action: 'create'
+            }
+          });
         }
       }
 
