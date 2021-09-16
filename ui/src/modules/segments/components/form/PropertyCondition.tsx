@@ -57,20 +57,6 @@ class PropertyCondition extends React.Component<Props, State> {
     this.setState({ chosenField: undefined, searchValue: '' });
   };
 
-  renderFields = fields => {
-    return fields.map(field => {
-      return (
-        <FormControl
-          key={Math.random()}
-          componentClass="radio"
-          onChange={this.onClickField.bind(this, field)}
-        >
-          {field.label}
-        </FormControl>
-      );
-    });
-  };
-
   renderFieldDetail = () => {
     const { chosenField, propertyType, pipelineId, boardId } = this.state;
 
@@ -80,7 +66,6 @@ class PropertyCondition extends React.Component<Props, State> {
           {...this.props}
           boardId={boardId}
           pipelineId={pipelineId}
-          onClickBack={this.onClickBack}
           propertyType={propertyType}
           field={chosenField}
         />
@@ -229,7 +214,6 @@ class PropertyCondition extends React.Component<Props, State> {
         </SegmentBackIcon>
         <PropertyForm
           {...this.props}
-          onClickBack={this.onClickBack}
           propertyType={propertyType}
           field={chosenField}
           boardId={boardId}

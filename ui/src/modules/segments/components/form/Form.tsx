@@ -253,7 +253,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   addCondition = (
     condition: ISegmentCondition,
     segmentKey?: string,
-    boardId?: string,
     pipelineId?: string
   ) => {
     const segments = [...this.state.segments];
@@ -264,10 +263,16 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
 
     if (foundedSegment) {
-      foundedSegment.conditions = [
-        ...foundedSegment.conditions,
-        { key: Math.random().toString(), ...condition }
-      ];
+      if (condition.key) {
+        const foundedConditionIndex = foundedSegment.conditions.findIndex(
+          value => value.key === condition.key
+        );
+
+        foundedSegment.conditions[foundedConditionIndex] = condition;
+      } else {
+        condition.key = Math.random().toString();
+        foundedSegment.conditions = [...foundedSegment.conditions, condition];
+      }
 
       if (pipelineId) {
         foundedSegment.pipelineId = pipelineId;
@@ -292,13 +297,11 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         condition => condition.key === key
       );
 
-      if (foundedConIndex === 0) {
+      if (foundedConIndex === 0 && foundedSegment.conditions.length === 1) {
         segments.splice(foundedSegmentIndex, 1);
 
         return this.setState({ segments });
-      }
-
-      if (foundedConIndex > -1 && foundedConIndex !== 0) {
+      } else {
         foundedSegment.conditions.splice(foundedConIndex, 1);
       }
 
