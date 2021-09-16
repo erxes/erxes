@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { IAttachment, QueryResponse } from 'modules/common/types';
+import { QueryResponse } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { ITag } from 'modules/tags/types';
 
@@ -18,7 +18,7 @@ export interface IStyle {
 export interface IBooking {
   // content
   name?: string;
-  image?: IAttachment[];
+  image?: any;
   description?: string;
   userFilters?: string[];
 

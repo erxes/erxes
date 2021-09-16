@@ -36,7 +36,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
   const [state, setState] = useState({
     // content
     name: booking.name || '',
-    // image: booking.image || [],
+    image: booking.image,
     description: booking.description || '',
     userFilters: booking.userFilters || [],
 
@@ -59,12 +59,13 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
     widgetColor: bookingStyles.widgetColor || colors.colorPrimary,
 
     productAvailable: bookingStyles.productAvailable || colors.colorPrimary,
-    productUnavailable: bookingStyles.productUnavailable || colors.colorPrimary,
-    productSelected: bookingStyles.productSelected || colors.colorPrimary,
+    productUnavailable:
+      bookingStyles.productUnavailable || colors.colorCoreGray,
+    productSelected: bookingStyles.productSelected || colors.colorCoreOrange,
 
     textAvailable: bookingStyles.textAvailable || colors.colorPrimary,
-    textUnavailable: bookingStyles.textUnavailable || colors.colorPrimary,
-    textSelected: bookingStyles.textSelected || colors.colorPrimary
+    textUnavailable: bookingStyles.textUnavailable || colors.colorLightGray,
+    textSelected: bookingStyles.textSelected || colors.colorCoreYellow
   });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
@@ -161,7 +162,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 onChange={onChange}
                 name={state.name}
                 description={state.description}
-                image={[]}
+                image={state.image}
                 productCategoryId={state.productCategoryId}
                 userFilters={state.userFilters}
               />

@@ -8,7 +8,7 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import { LeftItem } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
+import { extractAttachment, __ } from 'modules/common/utils';
 import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer, Title } from './style';
 
@@ -28,7 +28,7 @@ type Props = {
   onChange: (name: Name, value: any) => void;
   name: string;
   description: string;
-  image: IAttachment[];
+  image: IAttachment;
   userFilters: string[];
   productCategoryId: string;
 };
@@ -51,6 +51,8 @@ function ChooseContent({
     onChange(key, value);
   };
 
+  const attachment = (image && extractAttachment([image])) || [];
+
   const renderGeneralSettings = () => {
     return (
       <>
@@ -72,8 +74,10 @@ function ChooseContent({
             <FormGroup>
               <ControlLabel>Image</ControlLabel>
               <Uploader
-                defaultFileList={image}
-                onChange={e => onChangeFunction('image', e)}
+                defaultFileList={attachment}
+                onChange={(e: IAttachment[]) =>
+                  onChange('image', e.length ? e[0] : null)
+                }
                 multiple={false}
                 single={true}
               />
