@@ -46,8 +46,8 @@ const commonFieldsGroups = `
 `;
 
 const fieldsGroups = `
-  query fieldsGroups($contentType: String!, $boardId: String, $pipelineId: String) {
-    fieldsGroups(contentType: $contentType, boardId: $boardId, pipelineId: $pipelineId) {
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $boardId: String, $pipelineId: String) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, boardId: $boardId, pipelineId: $pipelineId) {
       ${commonFieldsGroups}
   }
 `;
