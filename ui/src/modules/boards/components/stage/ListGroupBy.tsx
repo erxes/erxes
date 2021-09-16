@@ -7,7 +7,8 @@ import {
   StageFooter,
   StageTitle,
   ActionButton,
-  ActionList
+  ActionList,
+  GroupTitle
 } from 'modules/boards/styles/stage';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
@@ -29,6 +30,7 @@ type Props = {
   index: number;
   length: number;
   items: IItem[];
+  itemsTotalCount: number;
   options: IOptions;
   loadMore: () => void;
   refetch: () => void;
@@ -183,15 +185,15 @@ class ListStage extends React.Component<Props, State> {
       <ListContainer>
         <Header>
           <StageTitle>
-            <div>
-              {groupType === 'assign' ? (
+            <GroupTitle>
+              {groupType === 'assignee' ? (
                 <NameCard user={groupObj} avatarSize={30} singleLine={true} />
               ) : (
-                groupObj.name
+                groupObj.name.charAt(0).toUpperCase() + groupObj.name.slice(1)
               )}
 
-              <span>{groupObj.itemsTotalCount}</span>
-            </div>
+              <span>{this.props.itemsTotalCount}</span>
+            </GroupTitle>
             {this.renderCtrl()}
           </StageTitle>
         </Header>
@@ -201,7 +203,7 @@ class ListStage extends React.Component<Props, State> {
               <tr>
                 <th>{__('Card Title')}</th>
                 <th>{groupType === 'stage' ? __('Label') : __('Stage')}</th>
-                {groupType === 'assign' || groupType === 'dueDate' ? (
+                {groupType === 'assignee' || groupType === 'dueDate' ? (
                   <th>{__('Label')}</th>
                 ) : (
                   ''
@@ -210,7 +212,7 @@ class ListStage extends React.Component<Props, State> {
                   {groupType === 'priority' ? __('Label') : __('Priority')}
                 </th>
                 <th>{__('Due Date')}</th>
-                {groupType === 'assign' ? '' : <th>{__('Assignee')}</th>}
+                {groupType === 'assignee' ? '' : <th>{__('Assignee')}</th>}
                 <th>{__('Associated Customer')}</th>
                 <th>{__('Associated Company')}</th>
               </tr>
@@ -230,7 +232,11 @@ class ListStage extends React.Component<Props, State> {
             </tbody>
           </Table>
         </ListBody>
-        <Footer>{this.renderAddItemTrigger()}</Footer>
+        {groupType === 'stage' ? (
+          <Footer>{this.renderAddItemTrigger()}</Footer>
+        ) : (
+          ''
+        )}
       </ListContainer>
     );
   }

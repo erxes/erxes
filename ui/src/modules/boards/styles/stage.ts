@@ -146,6 +146,7 @@ export const ListBody = styled.div`
   position: relative;
   overflow-y: overlay;
   max-height: 300px;
+  margin-top: 10px;
 `;
 
 export const Footer = styled.div`
@@ -199,6 +200,10 @@ export const StageTitle = styled.h4`
   position: relative;
   display: flex;
   justify-content: space-between;
+`;
+
+export const GroupTitle = styled.div`
+  display: flex;
 `;
 
 export const ActionList = styled(PopoverList)`

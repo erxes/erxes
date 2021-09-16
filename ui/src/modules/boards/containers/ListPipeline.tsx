@@ -72,20 +72,38 @@ class WithStages extends Component<WithStagesProps> {
     } else if (queryParams.groupBy === 'priority') {
       groups = PRIORITIES.map(p => ({ _id: p, name: p } || []));
       groupType = 'priority';
-    } else if (queryParams.groupBy === 'assign') {
+    } else if (queryParams.groupBy === 'assignee') {
       groups = pipelineAssigneeQuery.pipelineAssignedUsers || [];
-      groupType = 'assign';
+      groupType = 'assignee';
     } else if (queryParams.groupBy === 'dueDate') {
-      const getDueDate = () => [
+      const renderLink = () => [
         {
           _id: 'overDue',
           name: 'Overdue',
-          startDate: null,
-          endDate: new Date()
+          value: 'overdue'
+        },
+        {
+          _id: 'dueTomorrow',
+          name: 'Due tomorrow',
+          value: 'nextDay'
+        },
+        {
+          _id: 'dueWeek',
+          name: 'Due next week',
+          value: 'nextWeek'
+        },
+        {
+          _id: 'dueMonth',
+          name: 'Due next month',
+          value: 'nextMonth'
+        },
+        {
+          _id: 'noCloseDate',
+          name: 'Has no close date',
+          value: 'noCloseDate'
         }
       ];
-
-      groups = getDueDate();
+      groups = renderLink();
       groupType = 'dueDate';
     } else {
       groups = stagesQuery.stages || [];
@@ -96,8 +114,8 @@ class WithStages extends Component<WithStagesProps> {
       return (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No stage in this pipeline"
-          size="small"
+          text="No value in this pipeline"
+          size="large"
           light={true}
         />
       );

@@ -19,6 +19,7 @@ export interface IOptions {
   title: string;
   queriesName: {
     itemsQuery: string;
+    itemsTotalCountQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
@@ -34,6 +35,7 @@ export interface IOptions {
   };
   queries: {
     itemsQuery: string;
+    itemsTotalCountQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;

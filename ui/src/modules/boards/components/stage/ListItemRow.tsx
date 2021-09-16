@@ -49,7 +49,7 @@ class ListItemRow extends React.PureComponent<Props> {
 
   renderLabel = () => {
     const { item, groupType } = this.props;
-    if (groupType === 'assign' || groupType === 'dueDate') {
+    if (groupType === 'assignee' || groupType === 'dueDate') {
       return (
         <td>
           {item.labels.length > 0 ? <Labels labels={item.labels} /> : '-'}
@@ -62,7 +62,7 @@ class ListItemRow extends React.PureComponent<Props> {
 
   renderAssign = () => {
     const { item, groupType } = this.props;
-    if (groupType === 'assign') {
+    if (groupType === 'assignee') {
       return null;
     }
 
@@ -93,12 +93,15 @@ class ListItemRow extends React.PureComponent<Props> {
   };
 
   render() {
+    const styleTr = {
+      cursor: 'pointer'
+    };
     const { item, onClick, groupType } = this.props;
     const { customers, companies, closeDate, isComplete, priority } = item;
 
     return (
       <>
-        <tr onClick={onClick} key={item._id}>
+        <tr onClick={onClick} key={item._id} style={styleTr}>
           <td>
             <h5>{item.name}</h5>
             <LastUpdate>

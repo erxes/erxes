@@ -61,7 +61,7 @@ const TaskMainActionBar = (props: Props) => {
       <ButtonGroup>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
-            <Button btnStyle="simple">
+            <Button>
               {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
               <Icon icon="angle-down" />
             </Button>
@@ -91,30 +91,6 @@ const TaskMainActionBar = (props: Props) => {
                 {__('List')}
               </Link>
             </li>
-            <li key="chart">
-              <Link
-                to={boardLink}
-                className={viewType === 'board' ? 'active' : ''}
-              >
-                {__('Chart')}
-              </Link>
-            </li>
-            <li key="activity">
-              <Link
-                to={boardLink}
-                className={viewType === 'board' ? 'active' : ''}
-              >
-                {__('Activity')}
-              </Link>
-            </li>
-            <li>
-              <a
-                href="#verifyPhone"
-                // onClick={this.verifyCustomers.bind(this, 'phone')}
-              >
-                {__('Gantt timeline')}
-              </a>
-            </li>
           </Dropdown.Menu>
         </Dropdown>
       </ButtonGroup>
@@ -136,7 +112,7 @@ const TaskMainActionBar = (props: Props) => {
       const labelLink = onFilterType('label');
       const stageLink = onFilterType('stage');
       const priorityLink = onFilterType('priority');
-      const assignLink = onFilterType('assign');
+      const assignLink = onFilterType('assignee');
       const dueDateLink = onFilterType('dueDate');
 
       const typeName = queryParams.groupBy;

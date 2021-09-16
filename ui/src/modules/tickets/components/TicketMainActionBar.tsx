@@ -94,30 +94,6 @@ const TicketMainActionBar = (props: Props) => {
                 {__('List')}
               </Link>
             </li>
-            <li key="chart">
-              <Link
-                to={boardLink}
-                className={viewType === 'board' ? 'active' : ''}
-              >
-                {__('Chart')}
-              </Link>
-            </li>
-            <li key="activity">
-              <Link
-                to={boardLink}
-                className={viewType === 'board' ? 'active' : ''}
-              >
-                {__('Activity')}
-              </Link>
-            </li>
-            <li>
-              <a
-                href="#verifyPhone"
-                // onClick={this.verifyCustomers.bind(this, 'phone')}
-              >
-                {__('Gantt timeline')}
-              </a>
-            </li>
           </Dropdown.Menu>
         </Dropdown>
       </ButtonGroup>
@@ -139,7 +115,7 @@ const TicketMainActionBar = (props: Props) => {
       const stageLink = onFilterType('stage');
       const labelLink = onFilterType('label');
       const priorityLink = onFilterType('priority');
-      const assignLink = onFilterType('assign');
+      const assignLink = onFilterType('assignee');
       const dueDateLink = onFilterType('dueDate');
 
       const typeName = queryParams.groupBy;

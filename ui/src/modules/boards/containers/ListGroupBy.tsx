@@ -27,39 +27,49 @@ type StageProps = {
 
 type FinalStageProps = {
   addMutation: SaveItemMutation;
-  itemsQuery?: ItemsQueryResponse;
+  itemsQuery: ItemsQueryResponse;
+  itemsTotalCountQuery: any;
   removeStageMutation: RemoveStageMutation;
 } & StageProps;
 
 type State = {
   items: any[];
+  itemsTotalCount: number;
 };
 
 class StageContainer extends React.PureComponent<FinalStageProps, State> {
   constructor(props) {
     super(props);
 
+    const { itemsQuery, itemsTotalCountQuery, options } = props;
+
     this.state = {
-      items: []
+      items: itemsQuery[options.queriesName.itemsQuery] || [],
+      itemsTotalCount:
+        itemsTotalCountQuery[options.queriesName.itemsTotalCountQuery || ''] ||
+        0
     };
   }
 
   componentWillReceiveProps(nextProps: FinalStageProps) {
-    const { itemsQuery, options } = nextProps;
+    const { itemsQuery, itemsTotalCountQuery, options } = nextProps;
 
-    if (itemsQuery && !itemsQuery.loading) {
+    if (!itemsQuery.loading && !itemsTotalCountQuery.loading) {
       const items = itemsQuery[options.queriesName.itemsQuery] || [];
+      const itemsTotalCount =
+        itemsTotalCountQuery[options.queriesName.itemsTotalCountQuery || ''] ||
+        0;
 
-      this.setState({ items });
+      this.setState({ items, itemsTotalCount });
     }
   }
 
   loadMore = () => {
     const { groupObj, groupType, queryParams, options } = this.props;
 
-    const items = this.state.items;
+    const { items, itemsTotalCount } = this.state;
 
-    if (items.length === groupObj.itemsTotalCount) {
+    if (items.length === itemsTotalCount) {
       return;
     }
 
@@ -67,6 +77,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
       .query({
         query: gql(options.queries.itemsQuery),
         variables: {
+          skip: items.length,
           ...getFilterParams(
             groupObj,
             groupType,
@@ -169,14 +180,14 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     } = this.props;
 
     const refetch = () => {
-      if (itemsQuery) {
-        itemsQuery.refetch().then(({ data }) => {
-          this.setState({
-            items: data[options.queriesName.itemsQuery] || []
-          });
+      itemsQuery.refetch().then(({ data }) => {
+        this.setState({
+          items: data[options.queriesName.itemsQuery] || []
         });
-      }
+      });
     };
+
+    const { items, itemsTotalCount } = this.state;
 
     return (
       <ListGroupBy
@@ -185,7 +196,8 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
         groupType={groupType}
         index={index}
         length={length}
-        items={this.state.items}
+        items={items}
+        itemsTotalCount={itemsTotalCount}
         loadMore={this.loadMore}
         onAddItem={refetch}
         onRemoveItem={refetch}
@@ -226,15 +238,12 @@ const getFilterParams = (
 
   if (groupType === 'label') {
     selectType.labelIds = [groupObj._id];
-  } else if (groupType === 'assignee') {
-    selectType.assignedUserIds = [groupObj._id];
   } else if (groupType === 'priority') {
     selectType.priority = [groupObj._id];
-  } else if (groupType === 'assign') {
+  } else if (groupType === 'assignee') {
     selectType.assignedUserIds = [groupObj._id];
   } else if (groupType === 'dueDate') {
-    selectType.startDate = groupObj.startDate;
-    selectType.endDate = groupObj.endDate;
+    selectType.closeDateType = groupObj.value;
   } else {
     selectType.stageId = groupObj._id;
   }
@@ -248,14 +257,23 @@ const withQuery = ({ options }) => {
       graphql<StageProps>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
         options: ({ groupObj, groupType, queryParams }) => ({
-          variables: {
-            ...getFilterParams(
-              groupObj,
-              groupType,
-              queryParams,
-              options.getExtraParams
-            )
-          }
+          variables: getFilterParams(
+            groupObj,
+            groupType,
+            queryParams,
+            options.getExtraParams
+          )
+        })
+      }),
+      graphql<StageProps>(gql(options.queries.itemsTotalCountQuery), {
+        name: 'itemsTotalCountQuery',
+        options: ({ groupObj, groupType, queryParams }) => ({
+          variables: getFilterParams(
+            groupObj,
+            groupType,
+            queryParams,
+            options.getExtraParams
+          )
         })
       }),
       graphql<StageProps>(gql(mutations.stagesRemove), {
