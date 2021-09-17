@@ -34,10 +34,6 @@ const exmFeedCommentMutations = [
     ) => {
       await checkPermission('manageExm', user);
 
-      const comment = await models.ExmFeedComments.findOne({
-        _id
-      });
-
       const updated = await models.ExmFeedComments.updateComment(
         models,
         _id,
