@@ -75,6 +75,7 @@ const SegmentsForm = (props: Props) => {
     headSegments,
     boards,
     isModal,
+    isAutomation,
     closeModal,
     segments,
     previewCount
@@ -102,6 +103,7 @@ const SegmentsForm = (props: Props) => {
       segments={segments}
       closeModal={closeModal}
       isModal={isModal}
+      isAutomation={isAutomation}
       previewCount={previewCount}
     />
   );

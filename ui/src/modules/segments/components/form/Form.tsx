@@ -49,6 +49,7 @@ type Props = {
   }) => void;
 
   isModal?: boolean;
+  isAutomation?: boolean;
 };
 
 type State = {
@@ -63,6 +64,9 @@ type State = {
   state: string;
   showAddGroup: boolean;
   chosenSegment?: ISegmentMap;
+
+  chosenField?: IField;
+  chosenCondition?: ISegmentCondition;
 };
 
 class SegmentFormAutomations extends React.Component<Props, State> {
@@ -171,10 +175,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderDetailForm = (formProps: IFormProps) => {
-    const { isModal } = this.props;
+    const { isAutomation } = this.props;
     const { name, description, color } = this.state;
 
-    if (isModal) {
+    if (isAutomation) {
       return;
     }
 
@@ -272,7 +276,13 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
       segments[foundedSegmentIndex] = foundedSegment;
 
-      this.setState({ segments, state: 'list', showAddGroup: true });
+      this.setState({
+        segments,
+        state: 'list',
+        showAddGroup: true,
+        chosenField: undefined,
+        chosenCondition: undefined
+      });
     }
   };
 
@@ -304,7 +314,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   onClickBackToList = () => {
-    this.setState({ chosenSegment: undefined, state: 'list' });
+    this.setState({
+      chosenSegment: undefined,
+      state: 'list',
+      chosenField: undefined,
+      chosenCondition: undefined
+    });
   };
 
   removeSegment = (segmentKey: string) => {
@@ -370,7 +385,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       segments,
       state,
       chosenSegment,
-      conditionsConjunction
+      conditionsConjunction,
+      chosenField,
+      chosenCondition
     } = this.state;
 
     if (state !== 'form') {
@@ -390,6 +407,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               segment={segment}
               addCondition={this.addCondition}
               changeSubSegmentConjunction={this.changeSubSegmentConjunction}
+              onClickField={this.onClickField}
+              chosenField={chosenField}
+              chosenCondition={chosenCondition}
             />
           </>
         );
@@ -411,6 +431,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     }
 
     return <></>;
+  };
+
+  onClickField = (field, condition) => {
+    this.setState({
+      chosenField: field,
+      chosenCondition: condition,
+      showAddGroup: false
+    });
   };
 
   renderFilterItem = () => {
