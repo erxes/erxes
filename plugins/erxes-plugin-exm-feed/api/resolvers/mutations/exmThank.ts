@@ -42,7 +42,7 @@ const exmThankMutations = [
     handler: async (
       _root,
       { _id, ...doc },
-      { messageBroker, checkPermission, user, docModifier, models }
+      { checkPermission, user, docModifier, models }
     ) => {
       await checkPermission('manageExm', user);
 
@@ -59,11 +59,7 @@ const exmThankMutations = [
 
   {
     name: 'exmThankRemove',
-    handler: async (
-      _root,
-      { _id },
-      { messageBroker, models, checkPermission, user }
-    ) => {
+    handler: async (_root, { _id }, { models, checkPermission, user }) => {
       await checkPermission('manageExm', user);
 
       const exmThank = models.ExmThanks.removeThank(models, _id);

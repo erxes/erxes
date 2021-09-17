@@ -13,7 +13,7 @@ const exmFeedMutations = [
     handler: async (
       _root,
       doc,
-      { checkPermission, user, docModifier, models, messageBroker }
+      { checkPermission, user, docModifier, models }
     ) => {
       await checkPermission('manageExm', user);
 
@@ -44,13 +44,9 @@ const exmFeedMutations = [
     handler: async (
       _root,
       { _id, ...doc },
-      { messageBroker, checkPermission, user, docModifier, models }
+      { checkPermission, user, docModifier, models }
     ) => {
       await checkPermission('manageExm', user);
-
-      const exmFeed = await models.ExmFeed.findOne({
-        _id
-      });
 
       const updated = await models.ExmFeed.updateExmFeed(
         models,
@@ -78,11 +74,7 @@ const exmFeedMutations = [
 
   {
     name: 'exmFeedRemove',
-    handler: async (
-      _root,
-      { _id },
-      { messageBroker, models, checkPermission, user }
-    ) => {
+    handler: async (_root, { _id }, { models, checkPermission, user }) => {
       await checkPermission('manageExm', user);
 
       const exmFeed = await models.ExmFeed.removeExmFeed(models, _id);
