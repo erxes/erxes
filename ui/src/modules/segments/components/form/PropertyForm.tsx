@@ -56,8 +56,8 @@ class PropertyForm extends React.Component<Props, State> {
       chosenOperator,
       currentValue,
       propertyType: condition ? condition.propertyType : propertyType,
-      pipelineId: condition ? condition.propertyType : pipelineId,
-      boardId: condition ? condition.propertyType : boardId
+      pipelineId: condition ? condition.pipelineId : pipelineId,
+      boardId: condition ? condition.boardId : boardId
     };
   }
 
