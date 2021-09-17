@@ -302,13 +302,11 @@ describe('boardQueries', () => {
     const user = await userFactory();
     const pipeline = await pipelineFactory();
     const stage = await stageFactory({ pipelineId: pipeline._id });
-    dealFactory({ stageId: stage._id, assignedUserIds: [user._id] });
+    await dealFactory({ stageId: stage._id, assignedUserIds: [user._id] });
 
-    const response = await graphqlRequest(
-      qry,
-      'pipelineAssignedUsers',
-      { _id: pipeline._id }
-    );
+    const response = await graphqlRequest(qry, 'pipelineAssignedUsers', {
+      _id: pipeline._id
+    });
 
     expect(response[0]._id).toBe(user._id);
   });
