@@ -38,6 +38,7 @@ class IfForm extends React.Component<Props, State> {
           closeModal={this.props.closeModal}
           activeTrigger={activeAction}
           id={config.contentId}
+          isAutomation={true}
         />
       </ScrolledContent>
     );

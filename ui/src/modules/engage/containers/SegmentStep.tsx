@@ -1,13 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
-import { queries as formQueries } from 'modules/forms/graphql';
 import {
   AddMutationResponse,
-  AddMutationVariables,
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse
 } from 'modules/segments/types';
@@ -15,7 +11,7 @@ import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/t
 import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentStep from '../components/step/SegmentStep';
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import { sumCounts } from '../utils';
 
 type Props = {
@@ -43,12 +39,7 @@ type FinalProps = {
   Props;
 
 const SegmentStepContainer = (props: FinalProps) => {
-  const {
-    segmentsQuery,
-    headSegmentsQuery,
-    customerCountsQuery,
-    combinedFieldsQuery
-  } = props;
+  const { segmentsQuery, customerCountsQuery } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
     bySegment: {}
@@ -57,52 +48,17 @@ const SegmentStepContainer = (props: FinalProps) => {
   const countValues = customerCounts.bySegment || {};
   const customersCount = (ids: string[]) => sumCounts(ids, countValues);
 
-  const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
-    ? combinedFieldsQuery.fieldsCombinedByContentType.map(
-        ({ name, label }) => ({
-          _id: name,
-          title: label,
-          selectedBy: 'none'
-        })
-      )
-    : [];
-
   const count = () => {
     customerCountsQuery.refetch();
   };
 
-  const renderButton = ({
-    values,
-    isSubmitted,
-    callback
-  }: IButtonMutateProps) => {
-    const callBackResponse = () => {
-      segmentsQuery.refetch();
-      customerCountsQuery.refetch();
-
-      if (callback) {
-        callback();
-      }
-    };
-
-    return (
-      <ButtonMutate
-        mutation={mutations.segmentsAdd}
-        variables={values}
-        callback={callBackResponse}
-        isSubmitted={isSubmitted}
-        btnSize="small"
-        type="submit"
-        successMessage={`You successfully added a segment`}
-      />
-    );
+  const afterSave = () => {
+    segmentsQuery.refetch();
   };
 
   const updatedProps = {
     ...props,
-    headSegments: headSegmentsQuery.segmentsGetHeads || [],
-    segmentFields,
-    renderButton,
+    afterSave,
     segments: segmentsQuery.segments || [],
     targetCount: countValues,
     customersCount,
@@ -132,24 +88,6 @@ export default withProps<Props>(
             source: 'engages'
           },
           fetchPolicy: 'network-only'
-        }
-      }
-    ),
-    graphql<Props, HeadSegmentsQueryResponse>(gql(queries.headSegments), {
-      name: 'headSegmentsQuery'
-    }),
-    graphql<Props, AddMutationResponse, AddMutationVariables>(
-      gql(mutations.segmentsAdd),
-      { name: 'segmentsAdd' }
-    ),
-    graphql<Props, FieldsCombinedByTypeQueryResponse>(
-      gql(formQueries.fieldsCombinedByContentType),
-      {
-        name: 'combinedFieldsQuery',
-        options: {
-          variables: {
-            contentType: 'customer'
-          }
         }
       }
     )
