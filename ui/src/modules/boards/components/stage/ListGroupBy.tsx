@@ -86,12 +86,16 @@ class ListGroupBy extends React.Component<Props> {
 
   renderHeader = () => {
     const { groupType, groupObj } = this.props;
+
     if (groupType === 'assignee') {
-      return <NameCard user={groupObj} avatarSize={25} />;
+      return <NameCard user={groupObj} avatarSize={30} />;
     }
 
     return (
-      <>{groupObj.name.charAt(0).toUpperCase() + groupObj.name.slice(1)}</>
+      <>
+        {groupObj.name.charAt(0).toUpperCase() + groupObj.name.slice(1)}
+        <p>{this.props.itemsTotalCount}</p>
+      </>
     );
   };
 
@@ -106,10 +110,7 @@ class ListGroupBy extends React.Component<Props> {
       <ListContainer>
         <Header>
           <StageTitle>
-            <GroupTitle>
-              {this.renderHeader()}
-              <p>{this.props.itemsTotalCount}</p>
-            </GroupTitle>
+            <GroupTitle>{this.renderHeader()}</GroupTitle>
           </StageTitle>
         </Header>
         <ListBody onScroll={this.onScroll}>
