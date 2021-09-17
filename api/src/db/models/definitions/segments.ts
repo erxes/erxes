@@ -54,6 +54,9 @@ export interface ICondition {
 
   subSegmentId?: string;
   subSegmentForPreview?: ISegment;
+
+  pipelineId?: string;
+  boardId?: string;
 }
 
 export interface IConditionDocument extends ICondition, Document {}
@@ -130,7 +133,17 @@ export const conditionSchema = new Schema(
 
     eventAttributeFilters: field({ type: [eventAttributeSchema] }),
 
-    subSegmentId: field({ type: String, optional: true })
+    subSegmentId: field({ type: String, optional: true }),
+
+    pipelineId: field({
+      type: String,
+      optional: true
+    }),
+
+    boardId: field({
+      type: String,
+      optional: true
+    })
   },
   { _id: false }
 );

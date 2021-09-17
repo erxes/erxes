@@ -8,12 +8,13 @@ import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/t
 import React from 'react';
 import { graphql } from 'react-apollo';
 
-import { ISegmentCondition } from '../../types';
+import { IField, ISegmentCondition } from '../../types';
 
 type Props = {
   condition: ISegmentCondition;
   pipelineId?: string;
   segmentId?: string;
+  onClickField: (field: IField, condition) => void;
 };
 
 type FinalProps = {
@@ -28,11 +29,21 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
       return <></>;
     }
 
-    const fields = fieldsQuery.fieldsCombinedByContentType;
+    const fields = fieldsQuery.fieldsCombinedByContentType as any;
 
-    const chosenField = fields.find(field => {
+    let chosenField = fields.find(field => {
       return field.name === condition.propertyName;
     });
+
+    chosenField = {
+      value: chosenField.name || chosenField._id,
+      label: chosenField.label || chosenField.title,
+      type: (chosenField.type || '').toLowerCase(),
+      group: chosenField.group || '',
+      selectOptions: chosenField.selectOptions || [],
+
+      choiceOptions: chosenField.options || []
+    };
 
     return (
       <ConditionDetail
@@ -48,14 +59,14 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ condition, pipelineId, segmentId }) => ({
+      options: ({ condition, segmentId }) => ({
         variables: {
           contentType: ['visitor', 'lead', 'customer'].includes(
             condition.propertyType || ''
           )
             ? 'customer'
             : condition.propertyType,
-          pipelineId,
+          pipelineId: condition.pipelineId,
           segmentId
         }
       })

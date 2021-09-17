@@ -29,6 +29,8 @@ class PropertyListContationer extends React.Component<FinalProps, {}> {
       return <Spinner />;
     }
 
+    console.log(this.props);
+
     const fields = fieldsQuery.fieldsCombinedByContentType as any[];
 
     const condition = new RegExp(searchValue, 'i');

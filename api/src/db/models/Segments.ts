@@ -107,6 +107,8 @@ export const loadClass = () => {
     public static async removeSegment(_id: string) {
       const segmentObj = await Segments.findOne({ _id });
 
+      const subSegmentIds: string[] = [];
+
       if (!segmentObj) {
         throw new Error(`Segment not found with id ${_id}`);
       }
@@ -114,10 +116,12 @@ export const loadClass = () => {
       if (segmentObj.conditions) {
         for (const condition of segmentObj.conditions) {
           if (condition.subSegmentId) {
-            await Segments.remove({ _id: condition.subSegmentId });
+            subSegmentIds.push(condition.subSegmentId);
           }
         }
       }
+
+      await Segments.remove({ _id: { $in: subSegmentIds } });
 
       return segmentObj.remove();
     }

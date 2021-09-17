@@ -11,7 +11,6 @@ import Button from 'modules/common/components/Button';
 
 type Props = {
   field: IField;
-  onClickBack: () => void;
   segment: ISegmentMap;
   addCondition: (
     condition: ISegmentCondition,
@@ -19,21 +18,47 @@ type Props = {
     boardId?: string,
     pipelineId?: string
   ) => void;
-  propertyType: string;
-  pipelineId: string;
-  boardId: string;
+  propertyType?: string;
+  pipelineId?: string;
+  boardId?: string;
+  condition?: ISegmentCondition;
 };
 
 type State = {
   chosenOperator?: any;
   currentValue?: any;
+  propertyType?: string;
+  pipelineId?: string;
+  boardId?: string;
 };
 
 class PropertyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { chosenOperator: undefined, currentValue: '' };
+    const { field, condition, propertyType, boardId, pipelineId } = this.props;
+
+    let chosenOperator;
+
+    let currentValue = '';
+
+    if (field && condition) {
+      const operators = OPERATORS[field.type || ''] || OPERATORS.string;
+
+      chosenOperator = operators.find(
+        operator => operator.value === condition.propertyOperator
+      );
+
+      currentValue = condition.propertyValue || '';
+    }
+
+    this.state = {
+      chosenOperator,
+      currentValue,
+      propertyType: condition ? condition.propertyType : propertyType,
+      pipelineId: condition ? condition.pipelineId : pipelineId,
+      boardId: condition ? condition.boardId : boardId
+    };
   }
 
   onClickOperator = operator => {
@@ -150,27 +175,29 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
+    const { segment, addCondition, field, condition } = this.props;
     const {
-      segment,
-      addCondition,
-      field,
+      chosenOperator,
+      currentValue,
       propertyType,
       boardId,
       pipelineId
-    } = this.props;
-    const { chosenOperator, currentValue } = this.state;
+    } = this.state;
+
+    console.log(this.state);
 
     return addCondition(
       {
         type: 'property',
+        key: condition ? condition.key : '',
         propertyType,
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
-        propertyValue: currentValue
+        propertyValue: currentValue,
+        boardId,
+        pipelineId
       },
-      segment.key,
-      boardId,
-      pipelineId
+      segment.key
     );
   };
 

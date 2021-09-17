@@ -20,7 +20,7 @@ import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
-import { isUsingElk } from '../../utils';
+import { getConfig, isUsingElk } from '../../utils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
 const generateBasicInfosFromSchema = async (
@@ -280,6 +280,51 @@ const generateUsersOptions = async (
   const options: Array<{ label: string; value: any }> = users.map(user => ({
     value: user._id,
     label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const generateProductsOptions = async (
+  name: string,
+  label: string,
+  type: string
+) => {
+  const products = await getDocumentList('products', {});
+
+  const options: Array<{ label: string; value: any }> = products.map(
+    product => ({
+      value: product._id,
+      label: `${product.code} - ${product.name}`
+    })
+  );
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const generateConfigOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  configCode: string
+) => {
+  const configs = (await getConfig(configCode)) || [];
+
+  const options: Array<{ label: string; value: any }> = configs.map(item => ({
+    value: item,
+    label: item
   }));
 
   return {
@@ -641,6 +686,39 @@ export const fieldsCombinedByContentType = async ({
         assignedUserOptions,
         watchedUserOptions
       ]
+    ];
+  }
+
+  if (contentType === 'deal') {
+    const productOptions = await generateProductsOptions(
+      'productsData.productId',
+      'Product',
+      'product'
+    );
+
+    const assignedUserOptions = await generateUsersOptions(
+      'productsData.assignUserId',
+      'Assigned to (product)',
+      'user'
+    );
+
+    const uomOptions = await generateConfigOptions(
+      'productsData.uom',
+      'UOM',
+      'uom',
+      'dealUOM'
+    );
+
+    const currenciesOptions = await generateConfigOptions(
+      'productsData.currency',
+      'Currency',
+      'currency',
+      'dealCurrency'
+    );
+
+    fields = [
+      ...fields,
+      ...[productOptions, assignedUserOptions, uomOptions, currenciesOptions]
     ];
   }
 

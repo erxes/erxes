@@ -1,4 +1,4 @@
-import { ISegmentCondition } from 'modules/segments/types';
+import { IField, ISegmentCondition } from 'modules/segments/types';
 import React from 'react';
 import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 import { ConditionDetailText, PropertyText } from '../styles';
@@ -6,9 +6,16 @@ import { ConditionDetailText, PropertyText } from '../styles';
 type Props = {
   condition: ISegmentCondition;
   field: any;
+  onClickField: (field: IField, condition: ISegmentCondition) => void;
 };
 
 class PropertyDetail extends React.Component<Props, {}> {
+  onClickField = () => {
+    const { field, onClickField, condition } = this.props;
+
+    onClickField(field, condition);
+  };
+
   renderOperator = () => {
     const { condition, field } = this.props;
 
@@ -86,7 +93,7 @@ class PropertyDetail extends React.Component<Props, {}> {
     return (
       <ConditionDetailText>
         <span>{`${propertyTypeText}'s`} </span>
-        <PropertyText>{label}</PropertyText>
+        <PropertyText onClick={this.onClickField}>{label}</PropertyText>
         {valueText}
       </ConditionDetailText>
     );

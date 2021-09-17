@@ -1,7 +1,7 @@
 import Button from 'modules/common/components/Button';
 import { FlexRightItem } from 'modules/layout/styles';
 import PropertyCondition from 'modules/segments/containers/form/PropertyCondition';
-import { ISegmentCondition, ISegmentMap } from 'modules/segments/types';
+import { IField, ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import { CenterContent } from 'erxes-ui/lib/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
@@ -11,9 +11,12 @@ import {
   ConditionRemove,
   ConjunctionButtons,
   ConjunctionButtonsVertical,
-  FilterRow
+  FilterRow,
+  SegmentBackIcon
 } from '../styles';
 import ConditionDetail from '../../containers/preview/ConditionDetail';
+import PropertyForm from '../form/PropertyForm';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   segment: ISegmentMap;
@@ -37,9 +40,25 @@ type Props = {
   ) => void;
 };
 
-type State = {};
+type State = {
+  chosenField?: IField;
+  chosenCondition?: ISegmentCondition;
+};
 
 class ConditionsList extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = { chosenField: undefined, chosenCondition: undefined };
+  }
+
+  onClickField = (field, condition) => {
+    this.setState({
+      chosenField: field,
+      chosenCondition: condition
+    });
+  };
+
   addProperty = () => {
     const { segment, addNewProperty } = this.props;
     return addNewProperty(segment.key);
@@ -152,6 +171,7 @@ class ConditionsList extends React.Component<Props, State> {
       <ConditionItem useMargin={useMargin} key={Math.random()}>
         <FilterRow>
           <ConditionDetail
+            onClickField={this.onClickField}
             condition={condition}
             pipelineId={segment.pipelineId}
             segmentId={segment._id}
@@ -171,12 +191,33 @@ class ConditionsList extends React.Component<Props, State> {
     );
   }
 
+  onClickBack = () => {
+    this.setState({ chosenField: undefined, chosenCondition: undefined });
+  };
+
   render() {
-    const { segment, index } = this.props;
+    const { segment, index, addCondition } = this.props;
+    const { chosenField, chosenCondition } = this.state;
     const { conditions } = segment;
 
     if (conditions.length === 0 && index === 0) {
       return <PropertyCondition {...this.props} hideBackButton={true} />;
+    }
+
+    if (chosenField && chosenCondition) {
+      return (
+        <>
+          <SegmentBackIcon onClick={this.onClickBack}>
+            <Icon icon="angle-left" size={20} /> back
+          </SegmentBackIcon>
+          <PropertyForm
+            field={chosenField}
+            condition={chosenCondition}
+            segment={segment}
+            addCondition={addCondition}
+          />
+        </>
+      );
     }
 
     return (
