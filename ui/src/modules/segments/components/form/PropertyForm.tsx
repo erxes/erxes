@@ -184,8 +184,6 @@ class PropertyForm extends React.Component<Props, State> {
       pipelineId
     } = this.state;
 
-    console.log(this.state);
-
     return addCondition(
       {
         type: 'property',
