@@ -33,7 +33,7 @@ export default function General(props: Props) {
     exmFeatures.length > 0 ? exmFeatures : [getEmptyFeature()]
   );
 
-  const onChangeFeature = (type: String, _id?: string) => {
+  const onChangeFeature = (type: string, _id?: string) => {
     if (type === 'add') {
       setFeatures([...features, getEmptyFeature()]);
     } else {
@@ -43,11 +43,11 @@ export default function General(props: Props) {
     }
   };
 
-  const onChangeFeatureItem = (_id: string, name: string, value: any) => {
+  const onChangeFeatureItem = (_id: string, key: string, value: any) => {
     const feature = features.find(f => f._id === _id);
 
     if (feature) {
-      feature[name] = value;
+      feature[key] = value;
 
       setFeatures([...features]);
     }

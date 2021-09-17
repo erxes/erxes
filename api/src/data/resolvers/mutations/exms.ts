@@ -9,10 +9,6 @@ const exmMutations = {
   },
 
   async exmsEdit(_root, { _id, ...doc }: any) {
-    if (!(await Exms.findOne({ _id }))) {
-      throw new Error('Exm not found');
-    }
-
     const updated = await Exms.updateExm(_id, doc);
 
     return updated;
