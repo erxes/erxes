@@ -114,6 +114,10 @@ function LeftSidebar({
             <SidebarCounter>{details.position || '-'}</SidebarCounter>
           </li>
           <li>
+            <FieldStyle>{__('Score')}:</FieldStyle>
+            <SidebarCounter>{user.score || '-'}</SidebarCounter>
+          </li>
+          <li>
             <FieldStyle>{__('Description')}:</FieldStyle>
             <SidebarCounter nowrap={true}>
               {details.description || '-'}

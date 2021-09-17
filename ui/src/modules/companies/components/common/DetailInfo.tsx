@@ -83,6 +83,7 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('location', company.location)}
         {this.renderRow('businessType', company.businessType)}
         {this.renderRow('isSubscribed', company.isSubscribed)}
+        {this.renderRow('score', company.score)}
         {this.renderDescription(company.description)}
       </SidebarList>
     );

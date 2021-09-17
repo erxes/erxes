@@ -387,6 +387,7 @@ export const CUSTOMER_BASIC_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   code: 'Code',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Avatar', canHide: false },
@@ -413,7 +414,8 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'owner', label: 'Owner', canHide: true },
     { field: 'pronoun', label: 'Pronoun', canHide: true },
     { field: 'birthDate', label: 'Birthday', canHide: true },
-    { field: 'code', label: 'Code', canHide: true }
+    { field: 'code', label: 'Code', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 
@@ -430,6 +432,7 @@ export const COMPANY_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   location: 'Headquarters Country',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Logo', canHide: false },
@@ -454,7 +457,8 @@ export const COMPANY_INFO = {
     { field: 'code', label: 'Code', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
     { field: 'isSubscribed', label: 'Subscribed', canHide: true },
-    { field: 'location', label: 'Headquarters Country', canHide: true }
+    { field: 'location', label: 'Headquarters Country', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 

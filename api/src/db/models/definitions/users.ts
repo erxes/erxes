@@ -46,6 +46,7 @@ export interface IUser {
   isSubscribed?: string;
   sessionCode?: string;
   isShowNotification?: boolean;
+  score?: number;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -146,6 +147,12 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: false,
       label: 'Check if user shows'
+    }),
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
+      esType: 'number'
     })
   }),
   'erxes_users'
