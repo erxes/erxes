@@ -53,8 +53,10 @@ export interface IDepartmentModel extends Model<IDepartmentDocument> {
       /*
       * Remove an department
       */
-      public static removeDepartment(_id: string) {
-        return Departments.deleteOne({ _id });
+      public static async removeDepartment(_id: string) {
+        const department = await Departments.getDepartment({ _id });
+
+        return department.remove();
       }
     }
     

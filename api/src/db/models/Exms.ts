@@ -5,7 +5,6 @@ import { IUserDocument } from './definitions/users';
 
 export interface IExmModel extends Model<IExmDocument> {
   getExm(_id: string): Promise<IExmDocument>;
-  removeExms(ids: string[]): void;
   createExm(doc: IExm, user: IUserDocument): Promise<IExmDocument>;
   updateExm(_id: string, doc: IExm): Promise<IExmDocument>;
   removeExm(_id: string): void;
@@ -21,10 +20,6 @@ export const loadClass = () => {
       }
 
       return exm;
-    }
-
-    public static async removeExms(ids: string[]) {
-      await Exms.deleteMany({ _id: { $in: ids } });
     }
 
     /*
@@ -53,11 +48,7 @@ export const loadClass = () => {
      * Remove exm
      */
     public static async removeExm(_id: string) {
-      const exmObj = await Exms.findOne({ _id });
-
-      if (!exmObj) {
-        throw new Error(`Exm not found with id ${_id}`);
-      }
+      const exmObj = await Exms.getExm(_id);
 
       return exmObj.remove();
     }

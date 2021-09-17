@@ -67,8 +67,6 @@ class UserListContainer extends React.Component<
 }
 
 export const options = ({ queryParams }: { queryParams: any }): any => {
-  console.log('queryParams: ', queryParams)
-
   return {
     variables: {
       ...generatePaginationParams(queryParams),

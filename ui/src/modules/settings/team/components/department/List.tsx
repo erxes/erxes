@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Box from 'modules/common/components/Box';
 import { SidebarList } from 'modules/layout/styles';
@@ -6,28 +6,19 @@ import Icon from 'modules/common/components/Icon';
 import Collapse from 'react-bootstrap/Collapse';
 import { __ } from 'modules/common/utils';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Form from './Form'
+import Form from '../../containers/department/Form';
 
 type Props = {
     listQuery: any
 }
 
 export default function List({ listQuery }: Props) {
-    const [isBoxVisible, setIsBoxVisibile] = useState(true);
-
-    const toggleBox = e => {
-        e.preventDefault();
-    
-        setIsBoxVisibile(!isBoxVisible);
-      };
-
-
-    const renderForm = formProps => {
-        return <Form {...formProps} />
+    const renderForm = ({ closeModal }) => {
+        return <Form closeModal={closeModal} />
     }
     
     const trigger = (
-        <a href="#settings" tabIndex={0} onClick={toggleBox}>
+        <a href="#settings" tabIndex={0}>
             <Icon icon="plus" size={10} />
         </a>
     );
@@ -46,9 +37,9 @@ export default function List({ listQuery }: Props) {
             name="showTags"
             extraButtons={extraButtons}
         >
-          <Collapse in={isBoxVisible}>
+          <Collapse>
             <SidebarList className="no-link">
-                {(listQuery.departments || []).map(item => <li key={item._id}>{item.title}</li>)}
+                {(listQuery.data.departments || []).map(item => <li key={item._id}>{item.title}</li>)}
             </SidebarList>
             </Collapse>
         </Box>
