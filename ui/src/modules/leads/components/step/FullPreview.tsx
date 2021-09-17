@@ -29,7 +29,7 @@ type Props = {
   color: string;
   theme: string;
   image?: string;
-  imgWidth?: string;
+  imgSize?: string;
   onChange: (name: 'carousel', value: string) => void;
   onDocChange?: (doc: IFormData) => void;
   carousel: string;
