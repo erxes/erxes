@@ -28,7 +28,9 @@ type Props = {
   id?: string;
   closeModal: () => void;
   activeTrigger?: ITrigger;
-  addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
+  addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
+  afterSave?: () => void;
+  isAutomation?: boolean;
 };
 
 type FinalProps = {

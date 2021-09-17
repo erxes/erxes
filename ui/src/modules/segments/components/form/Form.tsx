@@ -49,6 +49,7 @@ type Props = {
   }) => void;
 
   isModal?: boolean;
+  isAutomation?: boolean;
 };
 
 type State = {
@@ -171,10 +172,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderDetailForm = (formProps: IFormProps) => {
-    const { isModal } = this.props;
+    const { isAutomation } = this.props;
     const { name, description, color } = this.state;
 
-    if (isModal) {
+    if (isAutomation) {
       return;
     }
 

@@ -4,7 +4,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
 import { TargetCount } from 'modules/engage/types';
-import { ISegment, ISegmentDoc } from 'modules/segments/types';
+import { ISegmentDoc } from 'modules/segments/types';
 import { ITag } from 'modules/tags/types';
 import React from 'react';
 import Targets from '../Targets';
@@ -21,9 +21,9 @@ type Props<Target, OnSubmit> = {
   Form: any;
   formProps?: {
     count?: (segment: ISegmentDoc) => void;
-    headSegments?: ISegment[];
-    segmentFields?: any[];
     tags?: ITag[];
+    segmentType?: string;
+    afterSave?: () => void;
   };
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;
@@ -58,6 +58,12 @@ class Common<Target, OnSubmit> extends React.Component<
   }
 
   toggleForm = () => {
+    const { formProps } = this.props;
+
+    if (formProps && formProps.afterSave) {
+      formProps.afterSave();
+    }
+
     this.setState(s => ({ show: !s.show }));
   };
 
@@ -139,6 +145,7 @@ class Common<Target, OnSubmit> extends React.Component<
       return (
         <Form
           {...formProps}
+          {...this.props}
           renderButton={renderButton}
           save={onSubmit}
           afterSave={this.toggleForm}

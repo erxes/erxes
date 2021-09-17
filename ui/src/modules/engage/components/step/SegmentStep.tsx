@@ -12,10 +12,7 @@ type Props = {
   targetCount: TargetCount;
   segmentIds: string[];
   segments: ISegment[];
-  headSegments: ISegment[];
-  segmentFields: any[];
   customersCount: (ids: string[]) => number;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   onChange: (name: string, value: string[]) => void;
   renderContent: ({
     actionSelector,
@@ -26,11 +23,12 @@ type Props = {
     selectedComponent: React.ReactNode;
     customerCounts: React.ReactNode;
   }) => React.ReactNode;
+  segmentType: string;
+  afterSave: () => void;
 };
 
 const SegmentStep = (props: Props) => {
   const {
-    renderButton,
     onChange,
     segments,
     segmentIds,
@@ -38,13 +36,13 @@ const SegmentStep = (props: Props) => {
     customersCount,
     messageType,
     renderContent,
-    segmentFields,
-    headSegments
+    segmentType,
+    afterSave
   } = props;
 
   const formProps = {
-    fields: segmentFields,
-    headSegments
+    segmentType,
+    afterSave
   };
 
   const orderedSegments: ISegment[] = [];
@@ -75,7 +73,6 @@ const SegmentStep = (props: Props) => {
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      renderButton={renderButton}
       Form={SegmentsForm}
       content={renderContent}
       formProps={formProps}
