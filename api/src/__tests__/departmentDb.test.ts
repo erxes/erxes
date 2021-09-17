@@ -7,10 +7,12 @@ describe('Test department model', () => {
   let department;
 
   beforeEach(async () => {
+    // Creating test data
     department = await departmentFactory({});
   });
 
   afterEach(async () => {
+    // Clearing test data
     await Departments.deleteMany({});
   });
 
