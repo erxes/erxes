@@ -47,57 +47,66 @@ class ListItemRow extends React.PureComponent<Props> {
     );
   };
 
-  renderLabel = () => {
+  renderStage = () => {
     const { item, groupType } = this.props;
-    if (groupType === 'assignee' || groupType === 'dueDate') {
+    const { labels, stage } = item;
+
+    if (groupType === 'stage') {
       return (
-        <td>
-          {item.labels.length > 0 ? <Labels labels={item.labels} /> : '-'}
-        </td>
+        <>
+          {this.checkNull(
+            Boolean(labels.length > 0),
+            <Labels labels={labels} />
+          )}
+        </>
       );
     }
 
-    return null;
+    return stage ? stage.name : '-';
   };
 
-  renderAssign = () => {
+  renderPriority = () => {
     const { item, groupType } = this.props;
-    if (groupType === 'assignee') {
-      return null;
+    const { priority, labels } = item;
+
+    if (groupType === 'priority') {
+      return <Labels labels={labels} />;
     }
 
     return (
-      <td>
-        {item.assignedUsers.length ? (
-          <PriceContainer>
-            <Left>
-              <Assignees users={item.assignedUsers} />
-            </Left>
-          </PriceContainer>
+      <>
+        {priority ? (
+          <PriorityIndicator isFullBackground={true} value={priority} />
         ) : (
           '-'
         )}
-      </td>
+      </>
     );
   };
 
-  renderStage = () => {
-    const { item, groupType } = this.props;
-    if (groupType === 'stage') {
-      return (
-        <>{item.labels.length > 0 ? <Labels labels={item.labels} /> : '-'}</>
-      );
+  checkNull = (statement: boolean, Component: React.ReactNode) => {
+    if (statement) {
+      return Component;
     }
 
-    return item.stage ? item.stage.name : '-';
+    return '-';
   };
 
   render() {
     const styleTr = {
       cursor: 'pointer'
     };
+
     const { item, onClick, groupType } = this.props;
-    const { customers, companies, closeDate, isComplete, priority } = item;
+
+    const {
+      customers,
+      companies,
+      closeDate,
+      isComplete,
+      labels,
+      assignedUsers
+    } = item;
 
     return (
       <>
@@ -109,36 +118,43 @@ class ListItemRow extends React.PureComponent<Props> {
             </LastUpdate>
           </td>
           <td>{this.renderStage()}</td>
-          {this.renderLabel()}
+          {(groupType === 'assignee' || groupType === 'dueDate') && (
+            <td>
+              {this.checkNull(
+                Boolean(labels.length > 0),
+                <Labels labels={labels} />
+              )}
+            </td>
+          )}
+          <td>{this.renderPriority()}</td>
           <td>
-            {groupType === 'priority' ? (
-              <Labels labels={item.labels} />
-            ) : priority ? (
-              <PriorityIndicator isFullBackground={true} value={priority} />
-            ) : (
-              '-'
-            )}
-          </td>
-          <td>
-            {closeDate || isComplete ? (
+            {this.checkNull(
+              Boolean(closeDate || isComplete),
               <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
-            ) : (
-              '-'
             )}
           </td>
-          {this.renderAssign()}
+          {groupType !== 'assignee' && (
+            <td>
+              {this.checkNull(
+                Boolean(assignedUsers.length > 0),
+                <PriceContainer>
+                  <Left>
+                    <Assignees users={assignedUsers} />
+                  </Left>
+                </PriceContainer>
+              )}
+            </td>
+          )}
           <td>
-            {item.customers ? (
+            {this.checkNull(
+              Boolean(customers && customers.length > 0),
               <Details color="#F7CE53" items={customers || []} />
-            ) : (
-              '-'
             )}
           </td>
           <td>
-            {item.customers ? (
+            {this.checkNull(
+              Boolean(companies && companies.length > 0),
               <Details color="#EA475D" items={companies || []} />
-            ) : (
-              '-'
             )}
           </td>
         </tr>

@@ -11,7 +11,6 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { __ } from 'modules/common/utils';
 import Button from 'modules/common/components/Button';
-import { GroupByContent } from 'modules/boards/styles/common';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -38,7 +37,9 @@ const TaskMainActionBar = (props: Props) => {
 
   if (window.location.href.includes('calendar')) {
     viewType = 'calendar';
-  } else if (window.location.href.includes('list')) {
+  }
+
+  if (window.location.href.includes('list')) {
     viewType = 'list';
   }
 
@@ -61,7 +62,7 @@ const TaskMainActionBar = (props: Props) => {
       <ButtonGroup>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
-            <Button>
+            <Button btnStyle="primary" icon="list-ui-alt">
               {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
               <Icon icon="angle-down" />
             </Button>
@@ -97,63 +98,6 @@ const TaskMainActionBar = (props: Props) => {
     );
   };
 
-  const renderGroupBy = () => {
-    if (viewType === 'list') {
-      const onFilterType = (type: string) => {
-        const { currentBoard, currentPipeline } = props;
-
-        if (currentBoard && currentPipeline) {
-          return `/task/list?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&groupBy=${type}`;
-        }
-
-        return `/task/${type}`;
-      };
-
-      const labelLink = onFilterType('label');
-      const stageLink = onFilterType('stage');
-      const priorityLink = onFilterType('priority');
-      const assignLink = onFilterType('assignee');
-      const dueDateLink = onFilterType('dueDate');
-
-      const typeName = queryParams.groupBy;
-
-      return (
-        <GroupByContent>
-          <Icon icon="list-2" />
-          <span>{__('Group by:')}</span>
-          <Dropdown>
-            <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
-              <Button btnStyle="primary" size="small">
-                {typeName
-                  ? typeName.charAt(0).toUpperCase() + typeName.slice(1)
-                  : __('Stage')}
-                <Icon icon="angle-down" />
-              </Button>
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <li>
-                <Link to={stageLink}>{__('Stage')}</Link>
-              </li>
-              <li>
-                <Link to={labelLink}>{__('Label')}</Link>
-              </li>
-              <li>
-                <Link to={priorityLink}>{__('Priority')}</Link>
-              </li>
-              <li>
-                <Link to={assignLink}>{__('Assignee')}</Link>
-              </li>
-              <li>
-                <Link to={dueDateLink}>{__('Due Date')}</Link>
-              </li>
-            </Dropdown.Menu>
-          </Dropdown>
-        </GroupByContent>
-      );
-    }
-    return null;
-  };
-
   const extraFilter = (
     <>
       <SelectCompanies
@@ -175,12 +119,11 @@ const TaskMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    groupContent: renderGroupBy,
     link: `/task/${viewType}`,
     rightContent: viewChooser
   };
 
-  return <MainActionBar {...extendedProps} />;
+  return <MainActionBar viewType={viewType} {...extendedProps} />;
 };
 
 export default TaskMainActionBar;

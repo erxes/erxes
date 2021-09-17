@@ -77,7 +77,6 @@ export const Footer = styled.div`
 
 export const LastUpdate = styled.div`
   margin-top: -18px;
-  border-top: 1px dotted #eee;
   font-size: 9px;
 
   span {

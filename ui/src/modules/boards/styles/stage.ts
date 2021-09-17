@@ -1,5 +1,5 @@
 import { PopoverList } from 'modules/common/components/filterableList/styles';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, stageWidth } from './common';
@@ -132,13 +132,12 @@ const Amount = styled.ul`
 `;
 const ListContainer = styled.div`
   min-height: 200px;
-  border: 1px solid ${colors.colorCoreLightGray};
-  border-radius: 16px;
-  margin: 18px 13px;
-  padding: 10px;
-  width: 98%;
+  border: 1px solid rgb(238, 238, 238);
+  border-radius: ${dimensions.unitSpacing - 4}px;
+  margin: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
   transition: background-color 0.3s ease;
-  box-shadow: 0px 0px 8px rgb(0 4 3 / 0.18);
+  box-shadow: 0px 0px 20px 2px rgb(0 0 0 / 10%);
 `;
 
 export const ListBody = styled.div`
@@ -146,16 +145,23 @@ export const ListBody = styled.div`
   position: relative;
   overflow-y: overlay;
   max-height: 300px;
-  margin-top: 10px;
+  margin-top: ${dimensions.unitSpacing}px;
 `;
 
 export const Footer = styled.div`
   background: rgb(250, 250, 250);
-  display: flex;
   border-top: 1px solid rgb(238, 238, 238);
-  margin-top: -1px;
-  position: relative;
-  align-items: right;
+  display: flex;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+`;
+
+export const ListStageFooter = styled.div`
+  border-radius: 0 0 3px 3px;
+  background: rgba(101, 105, 223, 0.15);
+  align-self: center;
+  margin-left: auto;
+  width: 200px;
 `;
 
 const AddNew = styled.a`
@@ -204,6 +210,23 @@ export const StageTitle = styled.h4`
 
 export const GroupTitle = styled.div`
   display: flex;
+
+  p {
+    border-radius: 14px;
+    padding: ${dimensions.unitSpacing - 9}px ${dimensions.unitSpacing - 1}px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-size: 11px;
+    margin-left: ${dimensions.unitSpacing - 5}px;
+    display: inline-block;
+    line-height: 1.32857143;
+    background: rgba(101, 105, 223, 0.15);
+    color: ${colors.textPrimary};
+    border: none;
+    font-weight: 500;
+    -webkit-animation: none;
+    animation: none;
+  }
 `;
 
 export const ActionList = styled(PopoverList)`

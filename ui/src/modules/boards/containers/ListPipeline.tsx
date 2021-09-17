@@ -28,6 +28,7 @@ type WithStagesProps = {
   pipelineLabelsQuery: any;
   pipelineAssigneeQuery: any;
 } & Props;
+
 class WithStages extends Component<WithStagesProps> {
   componentWillReceiveProps(nextProps: WithStagesProps) {
     const { stagesQuery, queryParams } = this.props;
@@ -50,10 +51,6 @@ class WithStages extends Component<WithStagesProps> {
     return false;
   };
 
-  countStages(obj) {
-    return Object.keys(obj).length;
-  }
-
   render() {
     const {
       options,
@@ -64,18 +61,24 @@ class WithStages extends Component<WithStagesProps> {
     } = this.props;
 
     let groupType = 'stage';
-    let groups: any[] = [];
+    let groups: any[] = stagesQuery.stages || [];
 
     if (queryParams.groupBy === 'label') {
       groups = pipelineLabelsQuery.pipelineLabels || [];
       groupType = 'label';
-    } else if (queryParams.groupBy === 'priority') {
+    }
+
+    if (queryParams.groupBy === 'priority') {
       groups = PRIORITIES.map(p => ({ _id: p, name: p } || []));
       groupType = 'priority';
-    } else if (queryParams.groupBy === 'assignee') {
+    }
+
+    if (queryParams.groupBy === 'assignee') {
       groups = pipelineAssigneeQuery.pipelineAssignedUsers || [];
       groupType = 'assignee';
-    } else if (queryParams.groupBy === 'dueDate') {
+    }
+
+    if (queryParams.groupBy === 'dueDate') {
       const renderLink = () => [
         {
           _id: 'overDue',
@@ -105,9 +108,6 @@ class WithStages extends Component<WithStagesProps> {
       ];
       groups = renderLink();
       groupType = 'dueDate';
-    } else {
-      groups = stagesQuery.stages || [];
-      groupType = 'stage';
     }
 
     if (groups.length === 0) {

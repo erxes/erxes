@@ -17,6 +17,8 @@ import {
 } from '../styles/header';
 import { IBoard, IOptions, IPipeline } from '../types';
 import RightMenu from './RightMenu';
+import { GroupByContent } from '../styles/common';
+import Button from 'modules/common/components/Button';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -36,6 +38,7 @@ type Props = {
   boardText?: string;
   pipelineText?: string;
   options: IOptions;
+  viewType?: string;
 };
 
 class MainActionBar extends React.Component<Props> {
@@ -160,12 +163,72 @@ class MainActionBar extends React.Component<Props> {
     );
   }
 
+  renderGroupBy = () => {
+    const { viewType, queryParams } = this.props;
+
+    if (viewType !== 'list') {
+      return null;
+    }
+
+    const onFilterType = (selectType: string) => {
+      const { currentBoard, currentPipeline, options } = this.props;
+      const pipelineType = options.type;
+
+      if (currentBoard && currentPipeline) {
+        return `/${pipelineType}/list?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&groupBy=${selectType}`;
+      }
+
+      return `/${pipelineType}/${selectType}`;
+    };
+
+    const labelLink = onFilterType('label');
+    const stageLink = onFilterType('stage');
+    const priorityLink = onFilterType('priority');
+    const assignLink = onFilterType('assignee');
+    const dueDateLink = onFilterType('dueDate');
+
+    const typeName = queryParams.groupBy;
+
+    return (
+      <GroupByContent>
+        <Icon icon="list-2" />
+        <span>{__('Group by:')}</span>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
+            <Button btnStyle="primary" size="small">
+              {typeName
+                ? typeName.charAt(0).toUpperCase() + typeName.slice(1)
+                : __('Stage')}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <li>
+              <Link to={stageLink}>{__('Stage')}</Link>
+            </li>
+            <li>
+              <Link to={labelLink}>{__('Label')}</Link>
+            </li>
+            <li>
+              <Link to={priorityLink}>{__('Priority')}</Link>
+            </li>
+            <li>
+              <Link to={assignLink}>{__('Assignee')}</Link>
+            </li>
+            <li>
+              <Link to={dueDateLink}>{__('Due Date')}</Link>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      </GroupByContent>
+    );
+  };
+
   render() {
     const {
       currentBoard,
       currentPipeline,
       middleContent,
-      groupContent,
       options,
       rightContent,
       boardText,
@@ -181,7 +244,7 @@ class MainActionBar extends React.Component<Props> {
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
-            <HeaderButton rightIconed={true} hasBorder={true} boxShadow={true}>
+            <HeaderButton rightIconed={true}>
               {(currentBoard && currentBoard.name) || __('Choose board')}
               <Icon icon="angle-down" />
             </HeaderButton>
@@ -193,7 +256,7 @@ class MainActionBar extends React.Component<Props> {
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-pipeline">
-            <HeaderButton rightIconed={true} hasBorder={true} boxShadow={true}>
+            <HeaderButton rightIconed={true}>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
               <Icon icon="angle-down" />
@@ -225,7 +288,7 @@ class MainActionBar extends React.Component<Props> {
       <BarItems>
         {middleContent && middleContent()}
 
-        {groupContent && groupContent()}
+        {this.renderGroupBy()}
 
         {rightContent && rightContent()}
 

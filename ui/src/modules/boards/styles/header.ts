@@ -1,4 +1,4 @@
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import { BarItems as BarItemsCommon } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -56,34 +56,28 @@ export const HeaderButton = styledTS<{
   hasBackground?: boolean;
   rightIconed?: boolean;
   isActive?: boolean;
-  hasBorder?: boolean;
-  boxShadow?: boolean;
 }>(styled.div)`
-  padding: 0 13px;
-  line-height: 28px;
-  height: 32px;
-  border: ${props => props.hasBorder && '1px solid rgba(0, 0, 0, 0.08)'};
-  box-shadow: ${props => props.boxShadow && '0 0 6px 0 rgba(0, 0, 0, 0.08);'}; 
-  color: ${colors.colorCoreDarkGray};
-  border-radius: 4px;
+  padding: 0 ${dimensions.unitSpacing}px;
+  line-height: ${dimensions.coreSpacing + 10}px;
+  height: ${dimensions.coreSpacing + 12}px; 
+  border-radius: ${dimensions.unitSpacing - 6}px;
   transition: background 0.3s ease;
-  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.045)'};
-  font-weight: 500;
+  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
+  font-weight: ${typography.fontWeightMedium};
   display: inline-block;
   vertical-align: middle;
-  font-size: 12px;
+  font-size: ${typography.fontSizeHeading8}px;
 
   > i {
     color: ${props =>
       props.isActive ? colors.colorCoreLightGray : colors.colorCoreGray};
-    margin-right: 5px;
-    font-size: 15px;
+    margin-right: ${dimensions.unitSpacing - 5}px;
 
     ${props =>
       props.rightIconed &&
       css`
         margin-right: -3px;
-        margin-left: 5px;
+        margin-left: ${dimensions.unitSpacing - 5}px;
       `};
   }
 

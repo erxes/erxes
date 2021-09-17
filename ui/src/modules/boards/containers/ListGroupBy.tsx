@@ -37,7 +37,7 @@ type State = {
   itemsTotalCount: number;
 };
 
-class StageContainer extends React.PureComponent<FinalStageProps, State> {
+class ListGroupByContainer extends React.PureComponent<FinalStageProps, State> {
   constructor(props) {
     super(props);
 
@@ -176,6 +176,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
       groupObj,
       groupType,
       itemsQuery,
+      itemsTotalCountQuery,
       options
     } = this.props;
 
@@ -185,6 +186,8 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
           items: data[options.queriesName.itemsQuery] || []
         });
       });
+
+      itemsTotalCountQuery.refetch();
     };
 
     const { items, itemsTotalCount } = this.state;
@@ -202,9 +205,6 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
         onAddItem={refetch}
         onRemoveItem={refetch}
         refetch={refetch}
-        archiveList={this.archiveList}
-        removeStage={this.removeStage}
-        archiveItems={this.archiveItems}
       />
     );
   }
@@ -236,16 +236,30 @@ const getFilterParams = (
     ...getExtraParams(queryParams)
   };
 
-  if (groupType === 'label') {
-    selectType.labelIds = [groupObj._id];
-  } else if (groupType === 'priority') {
-    selectType.priority = [groupObj._id];
-  } else if (groupType === 'assignee') {
-    selectType.assignedUserIds = [groupObj._id];
-  } else if (groupType === 'dueDate') {
-    selectType.closeDateType = groupObj.value;
-  } else {
-    selectType.stageId = groupObj._id;
+  switch (groupType) {
+    case 'label': {
+      selectType.labelIds = [groupObj._id];
+
+      break;
+    }
+    case 'priority': {
+      selectType.priority = [groupObj._id];
+
+      break;
+    }
+    case 'assignee': {
+      selectType.assignedUserIds = [groupObj._id];
+
+      break;
+    }
+    case 'dueDate': {
+      selectType.closeDateType = groupObj.value;
+
+      break;
+    }
+    default: {
+      selectType.stageId = groupObj._id;
+    }
   }
 
   return selectType;
@@ -279,7 +293,7 @@ const withQuery = ({ options }) => {
       graphql<StageProps>(gql(mutations.stagesRemove), {
         name: 'removeStageMutation'
       })
-    )(StageContainer)
+    )(ListGroupByContainer)
   );
 };
 
