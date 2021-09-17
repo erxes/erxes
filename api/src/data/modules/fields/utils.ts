@@ -319,7 +319,7 @@ const generateConfigOptions = async (
   type: string,
   configCode: string
 ) => {
-  const configs = await getConfig(configCode);
+  const configs = (await getConfig(configCode)) || [];
 
   const options: Array<{ label: string; value: any }> = configs.map(item => ({
     value: item,
