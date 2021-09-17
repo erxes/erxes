@@ -47,7 +47,7 @@ export interface ISubSegment {
   conditions?: ISegmentCondition[];
 }
 
-export interface ConditionsForPreview {
+export interface IConditionsForPreview {
   type: string;
   subSegmentForPreview: ISegmentMap;
 }
