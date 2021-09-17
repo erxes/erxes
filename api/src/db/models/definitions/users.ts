@@ -47,6 +47,7 @@ export interface IUser {
   sessionCode?: string;
   isShowNotification?: boolean;
   customFieldsData?: ICustomField[];
+  score?: number;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -152,6 +153,12 @@ export const userSchema = schemaHooksWrapper(
       type: [customFieldSchema],
       optional: true,
       label: 'Custom fields data'
+    }),
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
+      esType: 'number'
     })
   }),
   'erxes_users'
