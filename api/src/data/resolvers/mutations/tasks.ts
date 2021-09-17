@@ -28,7 +28,7 @@ const taskMutations = {
     doc: ITask & { proccessId: string; aboveItemId: string },
     { user, docModifier }: IContext
   ) {
-    return itemsAdd(doc, 'task', user, docModifier, Tasks.createTask);
+    return itemsAdd(doc, 'task', Tasks.createTask, user, docModifier);
   },
 
   /**
