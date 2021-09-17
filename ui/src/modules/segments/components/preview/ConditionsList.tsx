@@ -38,12 +38,12 @@ type Props = {
     segmentKey: string,
     conjunction: string
   ) => void;
-};
-
-type State = {
+  onClickField?: (field, condition) => void;
   chosenField?: IField;
   chosenCondition?: ISegmentCondition;
 };
+
+type State = {};
 
 class ConditionsList extends React.Component<Props, State> {
   constructor(props) {
@@ -53,10 +53,11 @@ class ConditionsList extends React.Component<Props, State> {
   }
 
   onClickField = (field, condition) => {
-    this.setState({
-      chosenField: field,
-      chosenCondition: condition
-    });
+    if (this.props.onClickField) {
+      return this.props.onClickField(field, condition);
+    }
+
+    return;
   };
 
   addProperty = () => {
@@ -191,13 +192,16 @@ class ConditionsList extends React.Component<Props, State> {
     );
   }
 
-  onClickBack = () => {
-    this.setState({ chosenField: undefined, chosenCondition: undefined });
-  };
-
   render() {
-    const { segment, index, addCondition } = this.props;
-    const { chosenField, chosenCondition } = this.state;
+    const {
+      segment,
+      index,
+      addCondition,
+      chosenField,
+      chosenCondition,
+      onClickBackToList
+    } = this.props;
+
     const { conditions } = segment;
 
     if (conditions.length === 0 && index === 0) {
@@ -207,7 +211,7 @@ class ConditionsList extends React.Component<Props, State> {
     if (chosenField && chosenCondition) {
       return (
         <>
-          <SegmentBackIcon onClick={this.onClickBack}>
+          <SegmentBackIcon onClick={onClickBackToList}>
             <Icon icon="angle-left" size={20} /> back
           </SegmentBackIcon>
           <PropertyForm
