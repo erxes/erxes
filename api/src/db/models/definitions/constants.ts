@@ -545,7 +545,8 @@ export const NOTIFICATION_TYPES = {
     'taskDueDate',
     'taskDelete',
     'customerMention',
-    'companyMention'
+    'companyMention',
+    'plugin'
   ]
 };
 

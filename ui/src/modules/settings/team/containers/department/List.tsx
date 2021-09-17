@@ -7,13 +7,11 @@ import List from '../../components/department/List';
 import { queries } from '../../graphql'
 
 export default function ListContainer() {
-    const { data, loading } = useQuery(gql(queries.departments));
+    const listQuery = useQuery(gql(queries.departments));
 
-    if (loading) {
+    if (listQuery.loading) {
         return <Spinner />
     }
 
-    const list = data.departments as any[] || [];
-
-    return <List list={list} />
+    return <List listQuery={listQuery} />
 }
