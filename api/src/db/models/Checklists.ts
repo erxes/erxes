@@ -31,13 +31,6 @@ export interface IChecklistItemModel extends Model<IChecklistItemDocument> {
     { checklistId, ...fields }: IChecklistItem,
     user: IUserDocument
   ): Promise<IChecklistItemDocument>;
-
-  cloneChecklistItems(
-    itemsToClone: IChecklistItemDocument[],
-    user: IUserDocument,
-    newChecklistId: string
-  ): Promise<any>;
-
   updateChecklistItem(
     _id: string,
     doc: IChecklistItem
@@ -191,30 +184,6 @@ export const loadItemClass = () => {
       });
 
       return checklistItem;
-    }
-
-    public static async cloneChecklistItems(
-      itemsToClone: IChecklistItemDocument[],
-      user: IUserDocument,
-      newChecklistId: string
-    ): Promise<any> {
-      const newCreatedDate = new Date();
-
-      const itemsToInsert = itemsToClone.map(({ content, order }) => ({
-        checklistId: newChecklistId,
-        isChecked: false,
-        createdUserId: user._id,
-        createdDate: newCreatedDate,
-        content,
-        order
-      }));
-
-      const results: IChecklistItemDocument[] = await ChecklistItems.insertMany(
-        itemsToInsert,
-        { ordered: false, rawResult: false }
-      );
-
-      return results;
     }
 
     /*

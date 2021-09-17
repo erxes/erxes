@@ -322,7 +322,7 @@ export const copyChecklists = async (params: IChecklistParams) => {
 
   const originalChecklistIdToClonedId = new Map<string, string>();
 
-  for (const i in originalChecklists) {
+  for (let i = 0; i < originalChecklists.length; i++) {
     originalChecklistIdToClonedId.set(
       originalChecklists[i]._id,
       clonedChecklists[i]._id
