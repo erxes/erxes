@@ -1,4 +1,4 @@
-import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
+// import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 
 export const gatherDescriptions = async () => {
   let extraDesc = [];
@@ -17,43 +17,41 @@ const exmFeedMutations = [
     ) => {
       await checkPermission('manageExm', user);
 
-      
       const exmFeed = await models.ExmFeed.createExmFeed(
         models,
         docModifier(doc),
         user
-        );
-        
-        
-        await putCreateLog(
-          messageBroker,
-        gatherDescriptions,
-        {
-          type: 'exmFeed',
-          newData: doc,
-          object: exmFeed,
-          extraParams: { models }
-        },
-        user
-        );
-        
-        return exmFeed;
-      }
-    },
-    
-    {
+      );
+
+      // await putCreateLog(
+      //   messageBroker,
+      // gatherDescriptions,
+      // {
+      //   type: 'exmFeed',
+      //   newData: doc,
+      //   object: exmFeed,
+      //   extraParams: { models }
+      // },
+      // user
+      // );
+
+      return exmFeed;
+    }
+  },
+
+  {
     name: 'exmFeedEdit',
     handler: async (
       _root,
       { _id, ...doc },
       { messageBroker, checkPermission, user, docModifier, models }
-      ) => {
+    ) => {
       await checkPermission('manageExm', user);
-        
+
       const exmFeed = await models.ExmFeed.findOne({
         _id
       });
-      
+
       const updated = await models.ExmFeed.updateExmFeed(
         models,
         _id,
@@ -61,18 +59,18 @@ const exmFeedMutations = [
         user
       );
 
-      await putUpdateLog(
-        messageBroker,
-        gatherDescriptions,
-        {
-          type: 'exmFeed',
-          object: exmFeed,
-          newData: { ...doc },
-          updatedDocument: updated,
-          extraParams: { models }
-        },
-        user
-      );
+      // await putUpdateLog(
+      //   messageBroker,
+      //   gatherDescriptions,
+      //   {
+      //     type: 'exmFeed',
+      //     object: exmFeed,
+      //     newData: { ...doc },
+      //     updatedDocument: updated,
+      //     extraParams: { models }
+      //   },
+      //   user
+      // );
 
       return updated;
     }
@@ -89,16 +87,16 @@ const exmFeedMutations = [
 
       const exmFeed = await models.ExmFeed.removeExmFeed(models, _id);
 
-      await putDeleteLog(
-        messageBroker,
-        gatherDescriptions,
-        {
-          type: 'exmFeed',
-          object: exmFeed,
-          extraParams: { models }
-        },
-        user
-      );
+      // await putDeleteLog(
+      //   messageBroker,
+      //   gatherDescriptions,
+      //   {
+      //     type: 'exmFeed',
+      //     object: exmFeed,
+      //     extraParams: { models }
+      //   },
+      //   user
+      // );
 
       return exmFeed;
     }

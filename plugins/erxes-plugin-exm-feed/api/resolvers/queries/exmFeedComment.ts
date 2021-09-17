@@ -3,18 +3,15 @@ const exmFeedCommentQueries = [
     name: 'exmFeedComments',
     handler: async (
       _root,
-      { limit, feedId, parentId },
+      { limit, feedId },
       { models, checkPermission, user }
     ) => {
       await checkPermission('showExm', user);
 
       const doc: any = {
         feedId,
-        $or: [
-          { parentId: { $exists: false } },
-          { parentId: { $eq: null } }
-        ]
-      }
+        $or: [{ parentId: { $exists: false } }, { parentId: { $eq: null } }]
+      };
 
       return {
         list: await models.ExmFeedComments.find(doc)

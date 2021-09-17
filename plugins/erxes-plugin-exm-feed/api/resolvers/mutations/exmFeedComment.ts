@@ -1,5 +1,3 @@
-import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
-
 export const gatherDescriptions = async () => {
   let extraDesc = [];
   let description = 'description';
@@ -20,18 +18,6 @@ const exmFeedCommentMutations = [
       const comment = await models.ExmFeedComments.createComment(
         models,
         docModifier(doc),
-        user
-      );
-
-      await putCreateLog(
-        messageBroker,
-        gatherDescriptions,
-        {
-          type: 'exmFeedComment',
-          newData: doc,
-          object: comment,
-          extraParams: { models }
-        },
         user
       );
 
@@ -59,19 +45,6 @@ const exmFeedCommentMutations = [
         user
       );
 
-      await putUpdateLog(
-        messageBroker,
-        gatherDescriptions,
-        {
-          type: 'exmFeedComment',
-          object: comment,
-          newData: { ...doc },
-          updatedDocument: updated,
-          extraParams: { models }
-        },
-        user
-      );
-
       return updated;
     }
   },
@@ -86,17 +59,6 @@ const exmFeedCommentMutations = [
       await checkPermission('manageExm', user);
 
       const comment = await models.ExmFeedComments.removeComment(models, _id);
-
-      await putDeleteLog(
-        messageBroker,
-        gatherDescriptions,
-        {
-          type: 'exmFeedComment',
-          object: comment,
-          extraParams: { models }
-        },
-        user
-      );
 
       return comment;
     }
