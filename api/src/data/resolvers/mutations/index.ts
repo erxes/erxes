@@ -44,6 +44,8 @@ import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
+import exms from './exms';
+import departments from './departments';
 
 export default {
   ...users,
@@ -88,5 +90,7 @@ export default {
   ...skillTypesMutations,
   ...skillsMutations,
   ...clientPortal,
-  ...automationsMutations
+  ...automationsMutations,
+  ...exms,
+  ...departments
 };

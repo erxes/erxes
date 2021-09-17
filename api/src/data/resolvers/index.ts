@@ -50,6 +50,7 @@ import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
 import AutomationNote from './automationNote';
+import Department from './departments';
 
 const resolvers: any = {
   ...customScalars,
@@ -104,7 +105,8 @@ const resolvers: any = {
   CalendarBoard,
   Tag,
   CPTicket,
-  AutomationNote
+  AutomationNote,
+  Department
 };
 
 export default resolvers;

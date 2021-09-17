@@ -230,6 +230,12 @@ class Settings extends React.PureComponent {
               calendarActions,
               'New'
             )}
+            {this.renderBox(
+              'EXM',
+              '/images/icons/erxes-02.svg',
+              '/settings/exm',
+              'exmsAll'
+            )}
           </div>
         </Row>
         <Divider />

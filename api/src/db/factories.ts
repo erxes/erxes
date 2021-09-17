@@ -22,9 +22,11 @@ import {
   DashboardItems,
   Dashboards,
   Deals,
+  Departments,
   EmailDeliveries,
   EmailTemplates,
   EngageMessages,
+  Exms,
   Fields,
   FieldsGroups,
   Forms,
@@ -1741,4 +1743,24 @@ export const ticketCommentFactory = async (params: {
   });
 
   return comment.save();
+};
+
+export const departmentFactory = async (params: any) => {
+  const department = new Departments({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    parentId: params.parentId,
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return department.save();
+};
+
+export const exmFactory = async (params: any) => {
+  const exm = new Exms({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word()
+  });
+
+  return exm.save();
 };
