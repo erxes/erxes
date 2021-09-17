@@ -42,7 +42,6 @@ type Props = {
   isForm?: boolean;
   closeModal?: () => void;
   afterSave?: () => void;
-  fetchFields?: (pipelineId?: string) => void;
 
   previewCount?: (args: {
     conditions: ConditionsForPreview[];
@@ -250,11 +249,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
   };
 
-  addCondition = (
-    condition: ISegmentCondition,
-    segmentKey?: string,
-    pipelineId?: string
-  ) => {
+  addCondition = (condition: ISegmentCondition, segmentKey?: string) => {
     const segments = [...this.state.segments];
 
     const foundedSegment = segments.find(segment => segment.key === segmentKey);
@@ -271,11 +266,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         foundedSegment.conditions[foundedConditionIndex] = condition;
       } else {
         condition.key = Math.random().toString();
-        foundedSegment.conditions = [...foundedSegment.conditions, condition];
-      }
 
-      if (pipelineId) {
-        foundedSegment.pipelineId = pipelineId;
+        foundedSegment.conditions = [...foundedSegment.conditions, condition];
       }
 
       segments[foundedSegmentIndex] = foundedSegment;

@@ -27,6 +27,9 @@ export interface ISegmentCondition {
   eventAttributeFilters?: IConditionFilter[];
 
   subSegmentId?: string;
+
+  boardId?: string;
+  pipelineId?: string;
 }
 
 export interface ISegmentMap {

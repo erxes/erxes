@@ -204,20 +204,16 @@ class ConditionsList extends React.Component<Props, State> {
       return <PropertyCondition {...this.props} hideBackButton={true} />;
     }
 
-    if (chosenField) {
+    if (chosenField && chosenCondition) {
       return (
         <>
-          {' '}
           <SegmentBackIcon onClick={this.onClickBack}>
             <Icon icon="angle-left" size={20} /> back
           </SegmentBackIcon>
           <PropertyForm
             field={chosenField}
             condition={chosenCondition}
-            boardId={'123'}
-            pipelineId={'123'}
             segment={segment}
-            propertyType={'customer'}
             addCondition={addCondition}
           />
         </>

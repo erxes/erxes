@@ -59,14 +59,14 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ condition, pipelineId, segmentId }) => ({
+      options: ({ condition, segmentId }) => ({
         variables: {
           contentType: ['visitor', 'lead', 'customer'].includes(
             condition.propertyType || ''
           )
             ? 'customer'
             : condition.propertyType,
-          pipelineId,
+          pipelineId: condition.pipelineId,
           segmentId
         }
       })

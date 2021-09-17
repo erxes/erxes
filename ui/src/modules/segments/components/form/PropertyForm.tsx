@@ -18,22 +18,25 @@ type Props = {
     boardId?: string,
     pipelineId?: string
   ) => void;
-  propertyType: string;
-  pipelineId: string;
-  boardId: string;
+  propertyType?: string;
+  pipelineId?: string;
+  boardId?: string;
   condition?: ISegmentCondition;
 };
 
 type State = {
   chosenOperator?: any;
   currentValue?: any;
+  propertyType?: string;
+  pipelineId?: string;
+  boardId?: string;
 };
 
 class PropertyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { field, condition } = this.props;
+    const { field, condition, propertyType, boardId, pipelineId } = this.props;
 
     let chosenOperator = undefined;
 
@@ -49,7 +52,13 @@ class PropertyForm extends React.Component<Props, State> {
       currentValue = condition.propertyValue || '';
     }
 
-    this.state = { chosenOperator, currentValue };
+    this.state = {
+      chosenOperator,
+      currentValue,
+      propertyType: condition ? condition.propertyType : propertyType,
+      pipelineId: condition ? condition.propertyType : pipelineId,
+      boardId: condition ? condition.propertyType : boardId
+    };
   }
 
   onClickOperator = operator => {
@@ -166,16 +175,16 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
+    const { segment, addCondition, field, condition } = this.props;
     const {
-      segment,
-      addCondition,
-      field,
+      chosenOperator,
+      currentValue,
       propertyType,
       boardId,
-      pipelineId,
-      condition
-    } = this.props;
-    const { chosenOperator, currentValue } = this.state;
+      pipelineId
+    } = this.state;
+
+    console.log(this.state);
 
     return addCondition(
       {
@@ -184,11 +193,11 @@ class PropertyForm extends React.Component<Props, State> {
         propertyType,
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
-        propertyValue: currentValue
+        propertyValue: currentValue,
+        boardId,
+        pipelineId
       },
-      segment.key,
-      boardId,
-      pipelineId
+      segment.key
     );
   };
 
