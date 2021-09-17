@@ -1,3 +1,4 @@
+import { ListFormat } from 'typescript';
 import {
   Boards,
   ChecklistItems,
@@ -303,23 +304,46 @@ interface IChecklistParams {
 export const copyChecklists = async (params: IChecklistParams) => {
   const { contentType, contentTypeId, targetContentId, user } = params;
 
-  const checklists = await Checklists.find({ contentType, contentTypeId });
+  const originalChecklists = await Checklists.find({
+    contentType,
+    contentTypeId
+  });
 
-  for (const list of checklists) {
-    const checklist = await Checklists.createChecklist(
-      {
-        contentType,
-        contentTypeId: targetContentId,
-        title: list.title
-      },
-      user,
-      true
+  const clonedChecklists = await Checklists.insertMany(
+    originalChecklists.map(originalChecklist => ({
+      contentType,
+      contentTypeId: targetContentId,
+      title: originalChecklist.title,
+      createdUserId: user._id,
+      createdDate: new Date()
+    })),
+    { ordered: true }
+  );
+
+  const originalChecklistIdToClonedId = new Map<string, string>();
+
+  for (const i in originalChecklists) {
+    originalChecklistIdToClonedId.set(
+      originalChecklists[i]._id,
+      clonedChecklists[i]._id
     );
+  }
 
-    const items = await ChecklistItems.find({ checklistId: list._id });
+  const originalChecklistItems = await ChecklistItems.find({
+    checklistId: { $in: originalChecklists.map(x => x._id) }
+  });
 
-    await ChecklistItems.cloneChecklistItems(items, user, checklist._id);
-  } // end checklist loop
+  await ChecklistItems.insertMany(
+    originalChecklistItems.map(({ content, order, checklistId }) => ({
+      checklistId: originalChecklistIdToClonedId.get(checklistId),
+      isChecked: false,
+      createdUserId: user._id,
+      createdDate: new Date(),
+      content,
+      order
+    })),
+    { ordered: false }
+  );
 };
 
 export const prepareBoardItemDoc = async (
