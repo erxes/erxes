@@ -23,12 +23,16 @@ const Home = (props: FinalProps) => {
       localStorage.getItem('erxes_recent_dashboard')
     ) {
       return props.history.replace(
-        `/dashboard/${localStorage.getItem('erxes_recent_dashboard')}`
+        `/dashboard/${localStorage.getItem('erxes_recent_dashboard')}${
+          window.location.search
+        }`
       );
     }
 
     if (!props.loading && props.dashboards.length > 0) {
-      return props.history.replace(`/dashboard/${props.dashboards[0]._id}`);
+      return props.history.replace(
+        `/dashboard/${props.dashboards[0]._id}${window.location.search}`
+      );
     }
   });
 

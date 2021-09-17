@@ -39,7 +39,6 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   background-color: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
   overflow: auto;
-  height: 100%;
 
   button {
     width: 100%;
@@ -239,6 +238,17 @@ const ThankContent = styled.div`
   text-align: center;
 `;
 
+const PrintButton = styled.div`
+  button {
+    margin-right: ${dimensions.unitSpacing}px;
+    float: right;
+
+    i:before {
+      font-size: ${dimensions.coreSpacing}px;
+    }
+  }
+`;
+
 export {
   PreviewTitle,
   PreviewBody,
@@ -252,5 +262,6 @@ export {
   OverlayTrigger,
   Embedded,
   ThankContent,
-  PreviewContainer
+  PreviewContainer,
+  PrintButton
 };

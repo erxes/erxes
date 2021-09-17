@@ -42,9 +42,11 @@ const Version = (props: Props) => {
               <div>
                 <h3>{__('New Release Available')}</h3>
                 <p>
-                  {__("Please upgrade your erxes. Find out what's ")}{' '}
+                  {`${__('Please upgrade your erxes')}.${__(
+                    'Find out whats'
+                  )}.`}
                   <Link to="/settings/release-info">
-                    <strong>new in erxes</strong>
+                    <strong>{__('new in erxes')}</strong>
                   </Link>
                 </p>
 
@@ -52,7 +54,7 @@ const Version = (props: Props) => {
                   href="https://github.com/erxes/erxes/releases"
                   target="_blank"
                 >
-                  See Releases
+                  {__('See Releases')}
                 </Button>
               </div>
             </Wrapper>

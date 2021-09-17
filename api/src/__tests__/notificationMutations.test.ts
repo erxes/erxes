@@ -78,4 +78,20 @@ describe('testing mutations', () => {
 
     expect(dealNotification.isRead).toBe(true);
   });
+
+  test('Mark as show notifications', async () => {
+    const mutation = `
+      mutation notificationsShow {
+        notificationsShow
+      }
+    `;
+
+    const user = await userFactory({ isShowNotification: false });
+
+    await graphqlRequest(mutation, 'notificationsMarkAsRead', {}, { user });
+
+    const updatedUser = await Users.getUser(user._id);
+
+    expect(updatedUser.isShowNotification).toBeTruthy();
+  });
 });

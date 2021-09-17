@@ -91,6 +91,7 @@ interface IContentTypeParams {
 
 export interface IVisitorLogParams {
   visitorId: string;
+  scopeBrandIds?: string[];
   integrationId?: string;
   location?: IBrowserInfo;
 }
@@ -928,7 +929,7 @@ const gatherPipelineTemplateFieldNames = async (
   }
 
   options = await gatherUsernames({
-    idFields: [doc.createdBy],
+    idFields: [doc.createdBy || ''],
     foreignKey: 'createdBy',
     prevList: options
   });
@@ -1485,7 +1486,7 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
 
   return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1501,7 +1502,7 @@ export const putUpdateLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
 
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1517,7 +1518,7 @@ export const putDeleteLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1570,6 +1571,12 @@ interface IActivityLogParams {
 }
 
 export const putActivityLog = async (params: IActivityLogParams) => {
+  const { action, data } = params;
+
+  if ([ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG].includes(action)) {
+    await sendToWebhook(action, data.contentType, params);
+  }
+
   try {
     return messageBroker().sendMessage('putActivityLog', params);
   } catch (e) {

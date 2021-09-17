@@ -133,7 +133,7 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         Add Product / Service
       </Button>
     );
@@ -151,7 +151,7 @@ class List extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
         <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
+          <Button btnStyle="simple" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
         </Link>
@@ -280,7 +280,11 @@ class List extends React.Component<IProps, State> {
           <HeaderDescription
             icon="/images/actions/30.svg"
             title={'Product & Service'}
-            description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+            description={`${__(
+              'All information and know-how related to your business products and services are found here'
+            )}.${__(
+              'Create and add in unlimited products and servicess so that you and your team members can edit and share'
+            )}`}
           />
         }
         actionBar={

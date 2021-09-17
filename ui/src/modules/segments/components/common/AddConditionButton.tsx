@@ -38,7 +38,6 @@ function AddConditionButton(props: Props) {
         id="segment-add-events"
         btnStyle="primary"
         icon="computer-mouse"
-        uppercase={false}
         onClick={addEventCondition}
       >
         {__('Add Events')}
@@ -53,7 +52,6 @@ function AddConditionButton(props: Props) {
           id="segment-add-properties"
           btnStyle="primary"
           icon="subject"
-          uppercase={false}
           onClick={addPropertyCondition}
         >
           {__('Add Properties')}

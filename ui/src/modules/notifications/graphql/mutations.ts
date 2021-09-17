@@ -4,6 +4,13 @@ const markAsRead = `
   }
 `;
 
+const showNotification = `
+  mutation notificationsShow {
+    notificationsShow
+  }
+`;
+
 export default {
-  markAsRead
+  markAsRead,
+  showNotification
 };

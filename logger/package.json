@@ -28,7 +28,7 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "erxes-inmemory-storage": "^1.0.20",
-    "erxes-message-broker": "^1.0.27",
+    "erxes-message-broker": "^1.0.29",
     "express": "^4.16.4",
     "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",

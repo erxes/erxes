@@ -1,4 +1,5 @@
 import {
+  companyFactory,
   dealFactory,
   fieldFactory,
   productCategoryFactory,
@@ -69,6 +70,11 @@ describe('Test products model', () => {
     args.code = '234';
     productObj = await Products.createProduct(args);
 
+    // testing product vendor
+    args.vendorCode = (await companyFactory({ code: '1234' })).code;
+    args.code = '2345';
+    productObj = await Products.createProduct(args);
+
     expect(productObj.categoryId).toBe(productCategory._id);
   });
 
@@ -93,7 +99,8 @@ describe('Test products model', () => {
     // testing custom field data
     const field1 = await fieldFactory({
       contentType: 'product',
-      contentTypeId: product._id
+      contentTypeId: product._id,
+      validation: 'number'
     });
     const field2 = await fieldFactory({
       contentType: 'product',
