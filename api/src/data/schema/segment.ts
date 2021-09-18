@@ -18,6 +18,7 @@ export const types = `
   input SegmentCondition {
     type: String,
 
+    propertyType: String,
     propertyName: String,
     propertyOperator: String,
     propertyValue: String,

@@ -276,6 +276,7 @@ describe('customerQueries', () => {
       conditions: [
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'firstName',
           propertyOperator: 'c',
           propertyValue: 'bat'
@@ -292,6 +293,7 @@ describe('customerQueries', () => {
         },
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'leadStatus',
           propertyOperator: 'c',
           propertyValue: 'new'

@@ -113,7 +113,8 @@ export const fetchSegment = async (
       index,
       body: {
         query: selector
-      }
+      },
+      defaultValue: { count: -1 }
     });
 
     return countResponse.count;
