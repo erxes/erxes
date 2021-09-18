@@ -173,8 +173,6 @@ const PasswordWithEye = styled.div`
 `;
 
 const LeftNavigation = styledTS<{ collapsed: boolean }>(styled.aside)`
-  width: ${props =>
-    props.collapsed ? wideNavigation : dimensions.headerSpacingWide}px;
   background: ${colors.colorPrimaryDark};
   box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
   z-index: 11;
@@ -183,6 +181,8 @@ const LeftNavigation = styledTS<{ collapsed: boolean }>(styled.aside)`
   left: 0;
   top: 0;
   bottom: 0;
+  width: ${props => props.collapsed ? wideNavigation : dimensions.headerSpacingWide}px;
+  transition: all 1s ease;
 
   > a {
     display: flex;
@@ -190,8 +190,9 @@ const LeftNavigation = styledTS<{ collapsed: boolean }>(styled.aside)`
     height: ${dimensions.headerSpacing}px;
     justify-content: center;
     align-items: center;
+    transition: all 1s ease;
 
-    img {
+    img { 
       max-height: ${props => (props.collapsed ? '35' : '28')}px;
       transition: all 0.3s ease;
       max-width: 80%;
@@ -220,11 +221,12 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
     i, label {
       opacity: .8;
       cursor: pointer;
+      transition: all 1s ease;
     }
 
     i {
       padding: ${props => props.collapsed && '0 15px 0 20px'};
-      transition: all 0.3s ease;
+      transition: all 0.8s ease;
     }
 
     span {
