@@ -1,10 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import client from 'apolloClient';
-import { __, withProps, confirm, Alert } from 'modules/common/utils';
+import { __, withProps, Alert } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries } from 'modules/boards/graphql';
 import ListGroupBy from '../components/stage/ListGroupBy';
 import { mutations } from '../graphql';
 import {
@@ -90,78 +89,6 @@ class ListGroupByContainer extends React.PureComponent<FinalStageProps, State> {
       .then(({ data }) => {
         this.setState({
           items: [...items, ...(data[options.queriesName.itemsQuery] || [])]
-        });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
-  archiveList = () => {
-    const { groupObj, refetchStages, options } = this.props;
-
-    confirm(__('Archive this list?')).then(() => {
-      client
-        .mutate({
-          mutation: gql(mutations.stagesEdit),
-          variables: {
-            _id: groupObj._id,
-            type: options.type,
-            status: 'archived'
-          }
-        })
-        .then(() => {
-          Alert.success('Archive List has been archived.');
-
-          refetchStages({ pipelineId: groupObj.pipelineId });
-        })
-        .catch((e: Error) => {
-          Alert.error(e.message);
-        });
-    });
-  };
-
-  archiveItems = () => {
-    const { options, groupObj } = this.props;
-
-    const stageId = groupObj._id;
-
-    confirm(__('Archive All Cards in This List?')).then(() => {
-      const proccessId = Math.random().toString();
-      localStorage.setItem('proccessId', proccessId);
-
-      client
-        .mutate({
-          mutation: gql(options.mutations.archiveMutation),
-          variables: { stageId },
-          refetchQueries: [
-            {
-              query: gql(queries.stageDetail),
-              variables: { _id: stageId, proccessId }
-            }
-          ]
-        })
-        .then(() => {
-          Alert.success('Archive Items has been archived.');
-        })
-        .catch((e: Error) => {
-          Alert.error(e.message);
-        });
-    });
-  };
-
-  removeStage = (id: string) => {
-    const { removeStageMutation, refetchStages, groupObj } = this.props;
-
-    const message =
-      'This will permanently delete any items related to this stage. Are you absolutely sure?';
-
-    confirm(message, { hasDeleteConfirm: true })
-      .then(() => {
-        removeStageMutation({ variables: { _id: id } }).then(() => {
-          Alert.success('You have successfully removed a stage');
-
-          refetchStages({ pipelineId: groupObj.pipelineId });
         });
       })
       .catch(e => {

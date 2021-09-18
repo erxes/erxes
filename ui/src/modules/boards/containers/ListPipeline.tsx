@@ -12,7 +12,7 @@ import { PRIORITIES } from '../constants';
 import ListGroupBy from './ListGroupBy';
 
 const Container = styled.div`
-  min-height: 480px;
+  min-height: 500px;
   overflow: auto;
   background-color: white;
 `;

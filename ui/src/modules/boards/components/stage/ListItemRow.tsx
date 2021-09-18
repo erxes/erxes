@@ -62,7 +62,7 @@ class ListItemRow extends React.PureComponent<Props> {
       );
     }
 
-    return stage ? stage.name : '-';
+    return <h6>{stage ? stage.name : '-'}</h6>;
   };
 
   renderPriority = () => {

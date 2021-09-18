@@ -75,9 +75,12 @@ class ListGroupBy extends React.Component<Props> {
   }
 
   onClick = (item: any) => {
-    const { history } = this.props;
+    const { history, groupObj } = this.props;
 
-    routerUtils.setParams(history, { itemId: item._id, key: '' });
+    routerUtils.setParams(history, {
+      itemId: `${item._id}${groupObj._id}`,
+      key: ''
+    });
   };
 
   beforePopupClose = () => {
@@ -143,6 +146,7 @@ class ListGroupBy extends React.Component<Props> {
                     beforePopupClose={this.beforePopupClose}
                     options={options}
                     groupType={groupType}
+                    groupObj={groupObj}
                     itemComponent={ListItemRow}
                   />
                 ))}
