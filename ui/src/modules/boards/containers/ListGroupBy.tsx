@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import client from 'apolloClient';
-import { __, withProps, Alert } from 'modules/common/utils';
+import { withProps, Alert } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ListGroupBy from '../components/stage/ListGroupBy';
@@ -203,7 +203,8 @@ const withQuery = ({ options }) => {
             groupType,
             queryParams,
             options.getExtraParams
-          )
+          ),
+          fetchPolicy: 'network-only'
         })
       }),
       graphql<StageProps>(gql(options.queries.itemsTotalCountQuery), {
@@ -214,7 +215,8 @@ const withQuery = ({ options }) => {
             groupType,
             queryParams,
             options.getExtraParams
-          )
+          ),
+          fetchPolicy: 'network-only'
         })
       }),
       graphql<StageProps>(gql(mutations.stagesRemove), {
