@@ -1,9 +1,16 @@
-import React from 'react';
-import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from 'erxes-ui';
-import FilterableListStyles from 'erxes-ui/lib/components/filterableList/styles';
-import dayjs from 'dayjs';
-
-import Form from '../containers/Form';
+import React from "react";
+import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from "erxes-ui";
+import FilterableListStyles from "erxes-ui/lib/components/filterableList/styles";
+import dayjs from "dayjs";
+import Form from "../containers/Form";
+import {
+  BodyFeed,
+  FirstSection,
+  HeaderFeed,
+  Hours,
+  NewsFeedLayout,
+  TypeOfContent,
+} from "../styles";
 
 const AvatarImg = FilterableListStyles.AvatarImg;
 
@@ -14,18 +21,18 @@ type Props = {
 };
 
 export default function List({ list, deleteItem, totalCount }: Props) {
-  const editItem = item => {
+  const editItem = (item) => {
     const trigger = (
-      <span style={{ padding: '0 15px' }}>
+      <span style={{ padding: "0 15px" }}>
         <a>Edit</a>
       </span>
     );
 
-    const content = props => {
+    const content = (props) => {
       return <Form contentType={item.contentType} item={item} {...props} />;
     };
 
-    return <ModalTrigger title='Edit' trigger={trigger} content={content} />;
+    return <ModalTrigger title="Edit" trigger={trigger} content={content} />;
   };
 
   const renderItem = (item: any, index: number) => {
@@ -33,35 +40,45 @@ export default function List({ list, deleteItem, totalCount }: Props) {
 
     return (
       <li key={item._id}>
-        Number: {index} <br />#{item.contentType} <br />
-        <AvatarImg
-          alt={
-            (createdUser &&
-              createdUser.details &&
-              createdUser.details.fullName) ||
-            'author'
-          }
-          src={getUserAvatar(createdUser)}
-        />
-        {__('Created By')}
-        <div>
-          {createdUser &&
-            ((createdUser.details && createdUser.details.fullName) ||
-              createdUser.username ||
-              createdUser.email)}
-        </div>
-        {dayjs(item.createdAt).format('lll')} <br />
-        {item.title} <br />
-        {item.description} <br />
-        {(item.images || []).map((image, index) => (
-          <img key={index} alt={image.name} src={readFile(image.url)} />
-        ))}
-        {(item.attachments || []).map((a, index) => (
-          <a key={index} href={readFile(a.url)}>
-            {a.name}
-          </a>
-        ))}
-        {editItem(item)} <br />
+        <HeaderFeed>
+          <FirstSection>
+            <AvatarImg
+              alt={
+                (createdUser &&
+                  createdUser.details &&
+                  createdUser.details.fullName) ||
+                "author"
+              }
+              src={getUserAvatar(createdUser)}
+            />
+            <TypeOfContent>
+              <b>
+                {createdUser &&
+                  ((createdUser.details && createdUser.details.fullName) ||
+                    createdUser.username ||
+                    createdUser.email)}
+              </b>
+              <p>#{item.contentType}</p>
+            </TypeOfContent>
+          </FirstSection>
+          <Hours>{dayjs(item.createdAt).format("lll")}</Hours>
+        </HeaderFeed>
+        <BodyFeed>
+          <b dangerouslySetInnerHTML={{ __html: item.title }} />
+          <p dangerouslySetInnerHTML={{ __html: item.description }} />
+
+          {(item.images || []).map((image, index) => {
+            return (
+              <img key={index} alt={image.name} src={readFile(image.url)} />
+            );
+          })}
+          {(item.attachments || []).map((a, index) => (
+            <a key={index} href={readFile(a.url)}>
+              {a.name}
+            </a>
+          ))}
+        </BodyFeed>
+        {editItem(item)}
         <a onClick={() => deleteItem(item._id)}>Delete</a>
       </li>
     );
@@ -69,13 +86,10 @@ export default function List({ list, deleteItem, totalCount }: Props) {
 
   const renderList = () => {
     return (
-      <>
-        <h3>Feed</h3>
-        <ul style={{ padding: '20px', marginLeft: '40px' }}>
-          {list.map((item, index) => renderItem(item, index + 1))}
-        </ul>
+      <NewsFeedLayout>
+        <ul>{list.map((item, index) => renderItem(item, index + 1))}</ul>
         <LoadMore perPage={20} all={totalCount} />
-      </>
+      </NewsFeedLayout>
     );
   };
 
