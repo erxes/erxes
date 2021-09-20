@@ -17,6 +17,7 @@ import React from 'react';
 // import { SubHeading } from 'modules/settings/styles';
 import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
+import SelectForm from 'modules/bookings/containers/SelectForm';
 
 type Props = {
   onChange: (name: string, value: any) => void;
@@ -37,16 +38,6 @@ function ChooseSettings({
   formId,
   buttonText
 }: Props) {
-  const onChangeFunction = (key: string, e: any) => {
-    let value = e;
-
-    if (e.target) {
-      value = e.target.value;
-    }
-
-    onChange(key, value);
-  };
-
   return (
     <FlexItemContainer>
       <LeftItem>
@@ -57,7 +48,7 @@ function ChooseSettings({
           </Description>
           <FormControl
             type="text"
-            onChange={e => onChangeFunction('title', e)}
+            onChange={e => onChange('title', e)}
             defaultValue={title}
           />
         </FormGroup>
@@ -66,14 +57,14 @@ function ChooseSettings({
           <SelectBrand
             required={true}
             defaultValue={brandId}
-            onChange={e => onChangeFunction('brandId', e)}
+            onChange={e => onChange('brandId', e)}
           />
         </FormGroup>
 
         <FormGroup>
           <SelectChannels
             defaultValue={channelIds}
-            onChange={e => onChangeFunction('channelIds', e)}
+            onChange={e => onChange('channelIds', e)}
           />
         </FormGroup>
 
@@ -86,7 +77,7 @@ function ChooseSettings({
               value: el.value
             }))}
             value={languageCode}
-            onChange={e => onChangeFunction('languageCode', e.value)}
+            onChange={e => onChange('languageCode', e.value)}
           />
         </FormGroup>
 
@@ -94,7 +85,11 @@ function ChooseSettings({
           <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Form to display</ControlLabel>
-              <Select placeholder="Choose form" />
+              <SelectForm
+                value={formId}
+                onChange={e => onChange('formId', e.value)}
+                placeholder="Choose a form"
+              />
             </FormGroup>
           </FlexItem>
           <FlexItem hasSpace={true}>
@@ -104,7 +99,7 @@ function ChooseSettings({
                 placeholder="Button text"
                 type="text"
                 defaultValue={buttonText}
-                onChange={e => onChangeFunction('buttonText', e)}
+                onChange={e => onChange('buttonText', e)}
               />
             </FormGroup>
           </FlexItem>
