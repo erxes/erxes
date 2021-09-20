@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - temp-office
     paths:
       - '.github/workflows/api_base.yaml'
       - 'api/base.Dockerfile'

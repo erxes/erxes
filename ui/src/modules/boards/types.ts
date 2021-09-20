@@ -156,6 +156,7 @@ export interface IItem {
   customFieldsData?: {
     [key: string]: any;
   };
+  score?: number;
 }
 
 export interface IDraggableLocation {

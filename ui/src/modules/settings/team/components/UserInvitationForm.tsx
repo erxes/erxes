@@ -21,7 +21,6 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
   channels: IChannel[];
-  refetchQueries: any;
 } & ICommonFormProps;
 
 type State = {

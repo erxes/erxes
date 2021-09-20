@@ -138,7 +138,7 @@ class Navigation extends React.Component<IProps> {
     if (!childrens || childrens.length === 0) {
       if (!collapsed) {
         return (
-          <Tip placement="right" text={__(text)}>
+          <Tip placement="right" key={Math.random()} text={__(text)}>
             <NavItem>
               <NavLink to={url}>
                 <NavIcon className={icon} />
@@ -330,7 +330,7 @@ class Navigation extends React.Component<IProps> {
             'showKnowledgeBase',
             __('Support'),
             '/knowledgeBase',
-            'icon-circular',
+            'icon-leaf',
             [
               {
                 permission: 'showTickets',
@@ -343,12 +343,6 @@ class Navigation extends React.Component<IProps> {
                 link: '/knowledgeBase',
                 value: 'Knowledgebase',
                 icon: 'icon-book-open'
-              },
-              {
-                permission: 'showForum',
-                link: '/forum',
-                value: 'Forum',
-                icon: 'icon-list-ui-alt'
               }
             ]
           )}
@@ -379,6 +373,12 @@ class Navigation extends React.Component<IProps> {
                 icon: 'icon-calendar-alt'
               }
             ]
+          )}
+          {this.renderNavItem(
+            'showAutomations',
+            __('Automations'),
+            '/automations',
+            'icon-circular'
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}

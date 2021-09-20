@@ -3,7 +3,8 @@ import {
   Conversations,
   EmailDeliveries,
   InternalNotes,
-  Tasks
+  Tasks,
+  TicketComments
 } from '../../../db/models';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
@@ -61,6 +62,14 @@ const activityLogQueries = {
             result._id = item._id;
             result.contentType = type;
             result.createdAt = item.closeDate || item.createdAt;
+          }
+
+          if (type === 'ticket_comments') {
+            result._id = item._id;
+            result.contentType = type;
+            result.createdAt = item.createdAt;
+            result.content = item.content;
+            result.createdBy = item.userId || item.customerId;
           }
 
           activities.push(result);
@@ -141,6 +150,15 @@ const activityLogQueries = {
       );
     };
 
+    const collectTicketComments = async () => {
+      collectItems(
+        await TicketComments.find({ ticketId: contentId }).sort({
+          createdAt: -1
+        }),
+        'ticket_comments'
+      );
+    };
+
     const collectTasks = async () => {
       if (contentType !== 'task') {
         collectItems(
@@ -205,6 +223,10 @@ const activityLogQueries = {
 
         case ACTIVITY_CONTENT_TYPES.SMS:
           await collectSms();
+          break;
+
+        case 'ticket_comments':
+          await collectTicketComments();
           break;
 
         case ACTIVITY_CONTENT_TYPES.CAMPAIGN:

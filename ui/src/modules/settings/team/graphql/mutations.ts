@@ -96,6 +96,36 @@ const userAddSkill = `
   }
 `;
 
+const commonDeparmentParamsDef = `
+  $title: String,
+  $description: String,
+  $parentId: String
+  $userIds: [String]
+`;
+
+const commonDeparmentParams = `
+  title: $title,
+  description: $description
+  parentId: $parentId
+  userIds: $userIds
+`;
+
+const departmentsAdd = `
+  mutation departmentsAdd(${commonDeparmentParamsDef}) {
+    departmentsAdd(${commonDeparmentParams}) {
+      _id
+    }
+  }
+`;
+
+const departmentsEdit = `
+  mutation departmentsEdit(_id: String!, ${commonDeparmentParamsDef}) {
+    departmentsEdit($_id: _id, ${commonDeparmentParams}) {
+      _id
+    }
+  }
+`;
+
 export default {
   usersEditProfile,
   usersEdit,
@@ -105,5 +135,7 @@ export default {
   usersSetActiveStatus,
   usersResetMemberPassword,
   userAddSkill,
-  userExcludeSkill
+  userExcludeSkill,
+  departmentsAdd,
+  departmentsEdit
 };

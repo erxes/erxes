@@ -83,9 +83,9 @@ export const initBroker = async server => {
         return ActivityLogs.createCocLogs(data);
       }
       case 'createSegmentLog': {
-        const { segment, customerIds, type } = data;
+        const { segment, contentIds, type } = data;
 
-        return ActivityLogs.createSegmentLog(segment, customerIds, type);
+        return ActivityLogs.createSegmentLog(segment, contentIds, type);
       }
       case 'sendEmailCampaign':
       case 'sendSmsCampaign':

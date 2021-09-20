@@ -4,6 +4,7 @@ import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
 import CalendarRoutes from './calendars/routes';
 import ChannelsRoutes from './channels/routes';
+import ClientPortalRoutes from './clientPortal/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
@@ -23,6 +24,7 @@ import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 import WebhookRoutes from './webhook/routes';
 import SmsDeliveryRoutes from './smsDeliveries/routes';
+import ExmRoutes from './exm/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -48,7 +50,9 @@ const routes = () => (
     <WebhookRoutes key="WebhookRoutes" />
     <CalendarRoutes key="CalendarRoutes" />
     <SkillsRoutes key="SkillsRoutes" />
+    <ClientPortalRoutes key="ClientPortalRoutes" />
     <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
+    <ExmRoutes key="ExmRoutes" />
   </React.Fragment>
 );
 

@@ -22,10 +22,7 @@ import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 import * as sinon from 'sinon';
 import * as utils from '../data/utils';
-import {
-  ICustomer,
-  ICustomerDocument
-} from '../db/models/definitions/customers';
+import { ICustomer } from '../db/models/definitions/customers';
 import './setup.ts';
 
 describe('Customers model tests', () => {
@@ -671,7 +668,7 @@ describe('Customers model tests', () => {
 
   test('getWidgetCustomer()', async () => {
     // emails, primaryEmail ==============
-    let customer: ICustomerDocument | null = await customerFactory({
+    let customer = await customerFactory({
       primaryEmail: 'customer@gmail.com',
       emails: ['main@gmail.com']
     });

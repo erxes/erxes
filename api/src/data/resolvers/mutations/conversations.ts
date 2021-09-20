@@ -734,7 +734,7 @@ const conversationMutations = {
       doc.customerIds = [conversation.customerId];
       doc.assignedUserIds = [conversation.assignedUserId];
 
-      const item = await itemsAdd(doc, type, user, docModifier, create);
+      const item = await itemsAdd(doc, type, create, user, docModifier);
 
       return item._id;
     }
