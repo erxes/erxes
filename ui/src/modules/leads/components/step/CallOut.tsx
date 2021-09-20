@@ -29,7 +29,7 @@ type Props = {
       | 'logo'
       | 'logoPreviewStyle'
       | "defaultValue"
-      | "imgWidth",
+      | "imgSize",
     value: string | boolean | object | any
   ) => void;
   calloutTitle?: string;
@@ -39,7 +39,7 @@ type Props = {
   theme: string;
   image?: string;
   skip?: boolean;
-  imgWidth?: string;
+  imgSize?: string;
 };
 
 type State = {
@@ -50,7 +50,7 @@ type State = {
   bodyValue?: string;
   calloutTitle?: string;
   isSkip?: boolean;
-  imgWidth?: string;
+  imgSize?: string;
 };
 
 class CallOut extends React.Component<Props, State> {
@@ -186,7 +186,7 @@ class CallOut extends React.Component<Props, State> {
   };
 
   render() {
-    const { skip, calloutTitle, bodyValue, calloutBtnText, imgWidth} = this.props;
+    const { skip, calloutTitle, bodyValue, calloutBtnText, imgSize} = this.props;
 
     const onChangeTitle = (e: React.FormEvent<HTMLElement>) =>
       this.onChangeFunction(
@@ -208,7 +208,7 @@ class CallOut extends React.Component<Props, State> {
 
     const onChangeImageWidth = (e) =>
       this.onChangeFunction(
-        "imgWidth",
+        "imgSize",
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -260,15 +260,15 @@ class CallOut extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Image width</ControlLabel>
+              <ControlLabel>Callout image size</ControlLabel>
               <FormControl
                 id="validation"
                 componentClass="select"
-                value={imgWidth}
+                value={imgSize}
                 onChange={onChangeImageWidth}
               >
-                <option value={"100%"}>Full width</option>
-                <option value={"50%"}>Half width</option>
+                <option value={"100%"}>{__('Full width')}</option>
+                <option value={"50%"}>{__('Half width')}</option>
               </FormControl>
             </FormGroup>
             
