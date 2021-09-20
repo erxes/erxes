@@ -16,8 +16,7 @@ export interface IChecklistModel extends Model<IChecklistDocument> {
   removeChecklists(contentType: string, contentTypeIds: string[]): void;
   createChecklist(
     { contentType, contentTypeId, ...fields }: IChecklist,
-    user: IUserDocument,
-    isCopy?: boolean
+    user: IUserDocument
   ): Promise<IChecklistDocument>;
 
   updateChecklist(_id: string, doc: IChecklist): Promise<IChecklistDocument>;
@@ -79,8 +78,7 @@ export const loadClass = () => {
      */
     public static async createChecklist(
       { contentType, contentTypeId, ...fields }: IChecklist,
-      user: IUserDocument,
-      isCopy: boolean = false
+      user: IUserDocument
     ) {
       const checklist = await Checklists.create({
         contentType,
@@ -90,16 +88,14 @@ export const loadClass = () => {
         ...fields
       });
 
-      if (!isCopy) {
-        putActivityLog({
-          action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
-          data: {
-            item: checklist,
-            contentType: 'checklist',
-            action: 'create'
-          }
-        });
-      }
+      putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+        data: {
+          item: checklist,
+          contentType: 'checklist',
+          action: 'create'
+        }
+      });
 
       return checklist;
     }

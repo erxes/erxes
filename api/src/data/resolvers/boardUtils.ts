@@ -7,10 +7,11 @@ import {
   Pipelines,
   Stages
 } from '../../db/models';
-import { getCollection, getNewOrder } from '../../db/models/boardUtils';
+import { getNewOrder } from '../../db/models/boardUtils';
 import { IConformityAdd } from '../../db/models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
+import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IUserDocument } from '../../db/models/definitions/users';
@@ -346,15 +347,13 @@ export const copyChecklists = async (params: IChecklistParams) => {
 };
 
 export const prepareBoardItemDoc = async (
-  _id: string,
-  type: string,
+  item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
+  collection: string,
   userId: string
 ) => {
-  const { collection } = await getCollection(type);
-  const item = await collection.findOne({ _id });
-
   const doc = {
     ...item,
+    _id: undefined,
     userId,
     modifiedBy: userId,
     watchedUserIds: [userId],
@@ -378,8 +377,6 @@ export const prepareBoardItemDoc = async (
       size: a.size
     }))
   };
-
-  delete doc._id;
 
   return doc;
 };
