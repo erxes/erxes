@@ -112,6 +112,7 @@ const calendarActions = [
   'calendarGroupsEdit',
   'calendarGroupsRemove'
 ];
+const exmActions = ['showExms', 'manageExms'];
 
 class Settings extends React.PureComponent {
   renderBox(
@@ -234,7 +235,8 @@ class Settings extends React.PureComponent {
               'EXM',
               '/images/icons/erxes-02.svg',
               '/settings/exm',
-              'exmsAll'
+              'exmsAll',
+              exmActions
             )}
           </div>
         </Row>

@@ -1,4 +1,5 @@
 import { Exms } from '../../../db/models';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 const exmMutations = {
@@ -18,5 +19,7 @@ const exmMutations = {
     return Exms.removeExm(_id);
   }
 };
+
+moduleCheckPermission(exmMutations, 'manageExms');
 
 export default exmMutations;

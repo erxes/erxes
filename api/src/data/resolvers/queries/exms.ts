@@ -1,4 +1,5 @@
 import { Exms } from '../../../db/models';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 const exmQueries = {
   async exms(_root, args: any) {
@@ -16,5 +17,7 @@ const exmQueries = {
     return Exms.findOne().sort({ createdAt: -1 });
   }
 };
+
+moduleCheckPermission(exmQueries, 'showExms');
 
 export default exmQueries;
