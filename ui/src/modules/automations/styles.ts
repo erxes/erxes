@@ -755,7 +755,7 @@ export const ZoomActions = styled.div`
   position: absolute;
   align-items: center;
   font-size: 11px;
-  z-index: 999;
+  z-index: 10;
 
   > .icon-wrapper {
     border: 1px solid ${colors.borderDarker};

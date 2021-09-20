@@ -16,7 +16,8 @@ import {
   ScrolledContent,
   BackIcon,
   CenterBar,
-  ToggleWrapper
+  ToggleWrapper,
+  ZoomActions
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -76,6 +77,7 @@ type State = {
   activeTrigger: ITrigger;
   activeAction: IAction;
   selectedContentId?: string;
+  isZoomable: boolean;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -108,6 +110,7 @@ class AutomationForm extends React.Component<Props, State> {
       showTrigger: false,
       showDrawer: false,
       showAction: false,
+      isZoomable: false,
       activeAction: {} as IAction
     };
   }
@@ -316,6 +319,8 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ activeAction });
   };
 
+  onZoom = () => {};
+
   onClickTrigger = (trigger: ITrigger) => {
     const config = trigger && trigger.config;
     const selectedContentId = config && config.contentId;
@@ -369,7 +374,10 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (data: ITrigger, triggerId?: string, config?: any) => {
     const { triggers, activeTrigger } = this.state;
 
-    let trigger: any = { ...data, id: this.getNewId(triggers.map(t => t.id)) };
+    let trigger: any = {
+      ...data,
+      id: this.getNewId(triggers.map(t => t.id))
+    };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
@@ -676,6 +684,18 @@ class AutomationForm extends React.Component<Props, State> {
     return null;
   }
 
+  renderZoomActions() {
+    return (
+      <ZoomActions>
+        <div className="icon-wrapper">
+          <Icon icon="plus" onClick={this.onZoom} />
+          <Icon icon="minus" />
+        </div>
+        <span>100%</span>
+      </ZoomActions>
+    );
+  }
+
   renderContent() {
     const { triggers, actions } = this.state;
 
@@ -705,6 +725,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <Container>
+        {this.renderZoomActions()}
         <div id="canvas" />
       </Container>
     );
