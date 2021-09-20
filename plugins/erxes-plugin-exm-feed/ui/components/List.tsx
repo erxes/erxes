@@ -14,6 +14,9 @@ import {
   NewsFeedLayout,
   TypeOfContent,
   NavItem,
+  Attachments,
+  AttachmentsIcon,
+  AttachmentsTitle,
 } from "../styles";
 
 const AvatarImg = FilterableListStyles.AvatarImg;
@@ -94,11 +97,18 @@ export default function List({ list, deleteItem, totalCount }: Props) {
               <img key={index} alt={image.name} src={readFile(image.url)} />
             );
           })}
-          {(item.attachments || []).map((a, index) => (
-            <a key={index} href={readFile(a.url)}>
-              {a.name}
-            </a>
-          ))}
+          {(item.attachments || []).map((a, index) => {
+            return (
+              <Attachments>
+                <a key={index} href={readFile(a.url)}>
+                  <AttachmentsIcon>
+                    <Icon icon="doc" />
+                  </AttachmentsIcon>
+                  <AttachmentsTitle>{a.name}</AttachmentsTitle>
+                </a>
+              </Attachments>
+            );
+          })}
         </BodyFeed>
         {commentItem()}
       </li>

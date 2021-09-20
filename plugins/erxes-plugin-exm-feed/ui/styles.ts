@@ -113,3 +113,31 @@ export const BodyFeed = styled.div`
   }
 
 `;
+
+export const Attachments = styled.div`
+  a {
+    display: flex;
+  }
+
+  &:hover {
+    background: rgba(10,30,65,0.08);
+    cursor: pointer;
+  }
+`;
+
+export const AttachmentsIcon = styled.div`
+  width: 100px;
+  border-radius: 4px;
+  font-size: 36px;
+  padding: 20px;
+  text-align: center;
+  color: #6569DF;
+  background: rgba(10,30,65,0.08);
+`;
+
+export const AttachmentsTitle = styled.div`
+  padding: 20px 30px;
+  font-size: 24px;
+  color: black;
+  align-items: center;
+`;
