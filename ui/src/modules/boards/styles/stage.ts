@@ -135,7 +135,6 @@ const ListContainer = styled.div`
   border: 1px solid rgb(238, 238, 238);
   border-radius: ${dimensions.unitSpacing - 4}px;
   margin: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing}px;
   transition: background-color 0.3s ease;
   box-shadow: 0px 0px 20px 2px rgb(0 0 0 / 10%);
 `;
@@ -145,7 +144,6 @@ export const ListBody = styled.div`
   position: relative;
   overflow-y: overlay;
   max-height: 300px;
-  margin-top: ${dimensions.unitSpacing}px;
 `;
 
 export const Footer = styled.div`
