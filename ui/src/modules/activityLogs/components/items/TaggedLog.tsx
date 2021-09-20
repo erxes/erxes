@@ -28,7 +28,7 @@ class TaggedLog extends React.Component<IActivityLogItemProps> {
     const { tags } = contentDetail;
 
     const tagNames = tags.map(tag => {
-      return <Tags tags={[tag]} size="medium" />;
+      return <Tags key={tag._id} tags={[tag]} size="medium" />;
     });
 
     return (
