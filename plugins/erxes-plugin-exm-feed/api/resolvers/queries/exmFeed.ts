@@ -2,7 +2,7 @@ const exmFeedQueries = [
   {
     name: 'exmFeedDetail',
     handler: async (_root, params, { models, checkPermission, user }) => {
-      await checkPermission('showExmFeed', user);
+      await checkPermission('showExm', user);
 
       return models.ExmFeed.findOne({ _id: params._id });
     }
@@ -14,7 +14,7 @@ const exmFeedQueries = [
       { title, contentType, limit, recipientType, type },
       { models, checkPermission, user }
     ) => {
-      await checkPermission('showExmFeed', user);
+      await checkPermission('showExm', user);
 
       const doc: any = {};
 
