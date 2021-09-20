@@ -1,9 +1,16 @@
-import { Conformities } from '../../../db/models';
+import { Conformities, Stages } from '../../../db/models';
+import { getItem } from '../../../db/models/boardUtils';
 import {
   IConformityAdd,
   IConformityEdit
 } from '../../../db/models/definitions/conformities';
 import { publishHelperItemsConformities } from './boardUtils';
+
+const publishHelper = async (type: string, itemId: string) => {
+  const item = await getItem(type, { _id: itemId });
+  const stage = await Stages.getStage(item.stageId);
+  await publishHelperItemsConformities(item, stage);
+};
 
 const conformityMutations = {
   /**
@@ -27,7 +34,7 @@ const conformityMutations = {
       targetTypes.includes(doc.mainType) &&
       targetRelTypes.includes(doc.relType)
     ) {
-      await publishHelperItemsConformities(doc.mainType, doc.mainTypeId);
+      await publishHelper(doc.mainType, doc.mainTypeId);
     }
 
     if (
@@ -35,7 +42,7 @@ const conformityMutations = {
       targetRelTypes.includes(doc.mainType)
     ) {
       for (const typeId of addedTypeIds.concat(removedTypeIds)) {
-        await publishHelperItemsConformities(doc.relType, typeId);
+        await publishHelper(doc.relType, typeId);
       }
     }
   }

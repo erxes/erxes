@@ -593,7 +593,7 @@ export const itemsCopy = async (
     }
   });
 
-  await publishHelperItemsConformities(type, _id);
+  await publishHelperItemsConformities(clone, stage);
 
   return clone;
 };
@@ -647,12 +647,9 @@ export const itemsArchive = async (
 };
 
 export const publishHelperItemsConformities = async (
-  type: string,
-  itemId: string
+  item: IDealDocument | ITicketDocument | ITaskDocument | IGrowthHackDocument,
+  stage: IStageDocument
 ) => {
-  const item = await getItem(type, { _id: itemId });
-  const stage = await Stages.getStage(item.stageId);
-
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
       _id: stage.pipelineId,
@@ -660,7 +657,7 @@ export const publishHelperItemsConformities = async (
       action: 'itemOfConformitiesUpdate',
       data: {
         item: {
-          ...item._doc
+          ...item
         }
       }
     }
