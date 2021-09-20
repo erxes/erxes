@@ -23,6 +23,23 @@ const checkCompanyFieldsExists = async doc => {
   return false;
 };
 
+const removeContacts = async (type: string, params: any[]) => {
+  const idsToRemove: string[] = [];
+
+  const model: any = type === 'customer' ? Customers : Companies;
+
+  for (const where of params) {
+    const companyToRemove = await model.findOne(where);
+    if (companyToRemove) {
+      idsToRemove.push(companyToRemove._id);
+    }
+  }
+
+  if (idsToRemove.length > 0) {
+    await model.deleteMany({ _id: { $in: idsToRemove } });
+  }
+};
+
 const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
   prevCustomFieldsData = prevCustomFieldsData || [];
 
@@ -320,21 +337,30 @@ const webhookMiddleware = async (req, res, next) => {
       });
     }
 
-    let bulkData: any;
-
+    // create/update multiple customers
     if (params.customers) {
-      bulkData = { type: 'customer', data: params.customers };
-    }
-
-    if (params.companies) {
-      bulkData = { type: 'company', data: params.companies };
-    }
-
-    if (bulkData) {
       await messageBroker().sendRPCMessage(
         RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
-        bulkData
+        { type: 'customer', data: params.customers }
       );
+    }
+
+    // create/update multiple companies
+    if (params.companies) {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
+        { type: 'company', data: params.companies }
+      );
+    }
+
+    // remove companies
+    if (params.companiesRemove) {
+      await removeContacts('company', params.companiesRemove);
+    }
+
+    // remove customers
+    if (params.customersRemove) {
+      await removeContacts('customer', params.customersRemove);
     }
 
     return res.send('ok');

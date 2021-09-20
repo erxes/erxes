@@ -73,12 +73,12 @@ class Form extends React.Component<Props, State> {
         nextProps.formData
           ? { ...nextProps.formData }
           : {
-            title,
-            description: desc,
-            buttonText,
-            fields,
-            type
-          }
+              title,
+              description: desc,
+              buttonText,
+              fields,
+              type
+            }
       );
     }
   }
