@@ -12,7 +12,7 @@ import { extractAttachment, __ } from 'modules/common/utils';
 import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer, Title } from './style';
 
-import { PRODUCT_PROPERTIES, USER_FILTERS } from 'modules/bookings/constants';
+import { USER_FILTERS } from 'modules/bookings/constants';
 import Uploader from 'modules/common/components/Uploader';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import { IAttachment } from 'modules/common/types';
@@ -102,66 +102,66 @@ function ChooseContent({
     );
   };
 
-  const renderDisplayBlock = () => {
-    return (
-      <>
-        <FlexContent>
-          <FlexItem count={3}>
-            <FormGroup>
-              <ControlLabel>Display blocks</ControlLabel>
-              <Select
-                options={[
-                  { label: 'Horizontally', value: 'horizontally' },
-                  { label: 'Vertically', value: 'vertically' }
-                ].map(el => ({
-                  label: el.label,
-                  value: el.value
-                }))}
-                placeholder="Choose shape"
-              />
-            </FormGroup>
-          </FlexItem>
+  // const renderDisplayBlock = () => {
+  //   return (
+  //     <>
+  //       <FlexContent>
+  //         <FlexItem count={3}>
+  //           <FormGroup>
+  //             <ControlLabel>Display blocks</ControlLabel>
+  //             <Select
+  //               options={[
+  //                 { label: 'Horizontally', value: 'horizontally' },
+  //                 { label: 'Vertically', value: 'vertically' }
+  //               ].map(el => ({
+  //                 label: el.label,
+  //                 value: el.value
+  //               }))}
+  //               placeholder="Choose shape"
+  //             />
+  //           </FormGroup>
+  //         </FlexItem>
 
-          <FlexItem hasSpace={true}>
-            <FormGroup>
-              <ControlLabel>Columns</ControlLabel>
-              <FormControl type="number" />
-            </FormGroup>
-          </FlexItem>
+  //         <FlexItem hasSpace={true}>
+  //           <FormGroup>
+  //             <ControlLabel>Columns</ControlLabel>
+  //             <FormControl type="number" />
+  //           </FormGroup>
+  //         </FlexItem>
 
-          <FlexItem hasSpace={true}>
-            <FormGroup>
-              <ControlLabel>Rows</ControlLabel>
-              <FormControl type="number" />
-            </FormGroup>
-          </FlexItem>
+  //         <FlexItem hasSpace={true}>
+  //           <FormGroup>
+  //             <ControlLabel>Rows</ControlLabel>
+  //             <FormControl type="number" />
+  //           </FormGroup>
+  //         </FlexItem>
 
-          <FlexItem hasSpace={true}>
-            <FormGroup>
-              <ControlLabel>Margin</ControlLabel>
-              <FormControl type="number" />
-            </FormGroup>
-          </FlexItem>
-        </FlexContent>
+  //         <FlexItem hasSpace={true}>
+  //           <FormGroup>
+  //             <ControlLabel>Margin</ControlLabel>
+  //             <FormControl type="number" />
+  //           </FormGroup>
+  //         </FlexItem>
+  //       </FlexContent>
 
-        <FormGroup>
-          <Title>Product Details</Title>
-          <Description>
-            Select properties to display in the product detail page.
-          </Description>
-          <Select
-            multi={true}
-            // value={productDetail.properties}
-            options={PRODUCT_PROPERTIES.ALL_LIST.map(el => ({
-              value: el.value,
-              label: el.label
-            }))}
-            placeholder="Choose properties"
-          />
-        </FormGroup>
-      </>
-    );
-  };
+  //       <FormGroup>
+  //         <Title>Product Details</Title>
+  //         <Description>
+  //           Select properties to display in the product detail page.
+  //         </Description>
+  //         <Select
+  //           multi={true}
+  //           // value={productDetail.properties}
+  //           options={PRODUCT_PROPERTIES.ALL_LIST.map(el => ({
+  //             value: el.value,
+  //             label: el.label
+  //           }))}
+  //           placeholder="Choose properties"
+  //         />
+  //       </FormGroup>
+  //     </>
+  //   );
+  // };
 
   const renderProductDetail = () => {
     return (
@@ -185,7 +185,7 @@ function ChooseContent({
           />
         </FormGroup>
 
-        {renderDisplayBlock()}
+        {/* {renderDisplayBlock()} */}
       </>
     );
   };

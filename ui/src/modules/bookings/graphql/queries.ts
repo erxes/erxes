@@ -36,9 +36,10 @@ const bookingFields = `
   brandId
   channelIds
   languageCode
-  productStatus
   formId
   buttonText
+
+  productCategoryId
 
   styles {
     itemShape

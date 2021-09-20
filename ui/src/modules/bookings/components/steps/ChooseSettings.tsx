@@ -24,7 +24,6 @@ type Props = {
   brandId: string;
   channelIds: string[];
   languageCode: string;
-  productStatus: string;
   formId: string;
   buttonText: string;
 };
@@ -35,7 +34,6 @@ function ChooseSettings({
   brandId,
   channelIds,
   languageCode,
-  productStatus,
   formId,
   buttonText
 }: Props) {
@@ -92,11 +90,6 @@ function ChooseSettings({
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Product Availability Status</ControlLabel>
-          <Select placeholder="Choose status" />
-        </FormGroup>
-
         <FlexContent>
           <FlexItem>
             <FormGroup>
@@ -108,6 +101,7 @@ function ChooseSettings({
             <FormGroup>
               <ControlLabel required={true}>Form Button Text</ControlLabel>
               <FormControl
+                placeholder="Button text"
                 type="text"
                 defaultValue={buttonText}
                 onChange={e => onChangeFunction('buttonText', e)}

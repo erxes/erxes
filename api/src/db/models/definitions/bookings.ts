@@ -39,7 +39,6 @@ export interface IBooking {
   brandId?: string;
   channelIds?: string[];
   languageCode?: string;
-  productStatus?: string;
   formId?: string;
   buttonText?: string;
 
@@ -111,7 +110,6 @@ export const bookingSchema = new Schema({
   brandId: field({ type: String, optional: true, label: 'Brand' }),
   channelIds: field({ type: [String], optional: true, label: 'Channel' }),
   languageCode: field({ type: String, optional: true, label: 'Language' }),
-  productStatus: field({ type: String, optional: true, label: 'Status' }),
   formId: field({ type: String, optional: true, label: 'Form' }),
   buttonText: field({ type: String, optional: true, label: 'Button text' }),
 

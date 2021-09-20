@@ -47,7 +47,6 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
     brandId: booking.brandId || '',
     channelIds: booking.channelIds || [],
     languageCode: booking.languageCode || '',
-    productStatus: booking.productStatus || '',
     formId: booking.formId || '',
     buttonText: booking.buttonText || ''
   });
@@ -179,7 +178,6 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 brandId={state.brandId}
                 channelIds={state.channelIds}
                 languageCode={state.languageCode}
-                productStatus={state.productStatus}
                 formId={state.formId}
                 buttonText={state.buttonText}
               />

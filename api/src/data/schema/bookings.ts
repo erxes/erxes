@@ -39,7 +39,6 @@ export const types = `
     brandId: String,
     channelIds: [String],
     languageCode: String,
-    productStatus: String,
     formId: String,
     buttonText: String,
 
@@ -79,7 +78,6 @@ const bookingMutationParams = `
   brandId: String,
   channelIds: [String],
   languageCode: String,
-  productStatus: String,
   formId: String,
   buttonText: String,
   tagIds: [String]

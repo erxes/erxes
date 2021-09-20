@@ -38,7 +38,12 @@ export default compose(
   graphql<{}, ProductCategoriesQueryResponse, { parentId: string }>(
     gql(queries.productCategories),
     {
-      name: 'productCategoriesQuery'
+      name: 'productCategoriesQuery',
+      options: () => ({
+        variables: {
+          parentId: 'parent'
+        }
+      })
     }
   )
 )(SelectProductCategory);

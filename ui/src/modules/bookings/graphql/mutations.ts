@@ -8,9 +8,8 @@ const bookingMutationParamsDef = `
   $brandId: String,
   $channelIds: [String],
   $languageCode: String,
-  $productStatus: String,
   $formId: String,
-  $buttonText: String
+  $buttonText: String,
 
   $styles: BookingStylesInput
 `;
@@ -25,7 +24,6 @@ const bookingMutationParamsVal = `
   brandId: $brandId,
   channelIds: $channelIds,
   languageCode: $languageCode,
-  productStatus: $productStatus,
   formId: $formId,
   buttonText: $buttonText
 
