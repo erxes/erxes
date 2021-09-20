@@ -160,6 +160,7 @@ export const ACTIVITY_LOG_ACTIONS = {
   CREATE_COC_LOGS: 'createCocLogs',
   CREATE_SEGMENT_LOG: 'createSegmentLog',
   CREATE_CHECKLIST_LOG: 'createChecklistLog',
+  CREATE_TAG_LOG: 'createTagLog',
   REMOVE_ACTIVITY_LOG: 'removeActivityLog',
   REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
 };
@@ -1593,6 +1594,13 @@ export const putActivityLog = async (params: IActivityLogParams) => {
   }
 
   try {
+    if (data.target) {
+      messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+        type: `${data.contentType}`,
+        targets: [data.target]
+      });
+    }
+
     return messageBroker().sendMessage('putActivityLog', params);
   } catch (e) {
     return e.message;

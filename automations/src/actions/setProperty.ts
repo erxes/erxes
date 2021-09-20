@@ -30,15 +30,27 @@ export type Output = {
   result: number;
 }
 
+const getToChangeObjects = async ({ triggerType, target, module }) => {
+  if (module === triggerType) {
+    return [target];
+  }
+
+  // if (Object.keys(target).includes(`${module}Id`)) {
+  //   return [await sendRPCMessage('findOneObject', { model: module, selector: { _id: target._id } })];
+  // }
+
+  if (['customer', 'company'].includes(module) && triggerType === 'conversation') {
+    return sendRPCMessage('findObjects', {
+      model: module === 'company' ? 'Companies' : 'Customers', selector: { _id: target[`${module}Id`] }
+    });
+  }
+
+  return await sendRPCMessage('findConformities', { mainType: triggerType, mainTypeId: target._id, relType: module });
+}
+
 export const setProperty = async ({ triggerType, actionConfig, target }) => {
   const { module, field, operator, value } = actionConfig;
-  let conformities = [];
-
-  if (module === triggerType) {
-    conformities = [target]
-  } else {
-    conformities = await sendRPCMessage('findConformities', { mainType: triggerType, mainTypeId: target._id, relType: module });
-  }
+  const conformities = await getToChangeObjects({ triggerType, target, module });
 
   for (const conformity of conformities) {
     let op1 = conformity[field];

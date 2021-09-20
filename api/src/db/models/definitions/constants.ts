@@ -216,6 +216,7 @@ export const ACTIVITY_ACTIONS = {
   MOVED: 'moved',
   CONVERT: 'convert',
   ASSIGNEE: 'assignee',
+  TAGGED: 'tagged',
 
   ALL: [
     'create',
@@ -225,7 +226,8 @@ export const ACTIVITY_ACTIONS = {
     'send',
     'moved',
     'convert',
-    'assignee'
+    'assignee',
+    'tagged'
   ]
 };
 
@@ -545,7 +547,8 @@ export const NOTIFICATION_TYPES = {
     'taskDueDate',
     'taskDelete',
     'customerMention',
-    'companyMention'
+    'companyMention',
+    'plugin'
   ]
 };
 

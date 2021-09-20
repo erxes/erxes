@@ -632,6 +632,10 @@ const getIndexByContentType = (contentType: string) => {
     index = 'tickets';
   }
 
+  if (contentType === 'conversation') {
+    index = 'conversations';
+  }
+
   return index;
 };
 
