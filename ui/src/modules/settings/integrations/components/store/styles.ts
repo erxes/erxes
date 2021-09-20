@@ -201,14 +201,15 @@ const Content = styled(Contents)`
   padding-left: ${dimensions.unitSpacing}px;
 `;
 
-const SearchInput = styled.div`
+const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
   position: relative;
 
   input {
     border: 1px solid ${colors.borderPrimary};
     padding: 20px 20px 20px 30px;
     border-radius: 5px;
-    min-width: 500px;
+    width: ${props => (props.isInPopover ? '250px' : '500px')};
+    margin:  ${props => props.isInPopover && '5px 5px 0'};
     background: ${colors.colorWhite};
 
     @media (max-width: 1300px) {
