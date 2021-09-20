@@ -251,7 +251,6 @@ const robotQueries = {
       );
 
       if (showModule) {
-        console.log(feature, value);
         let steps: string[] = [];
 
         if (showSettings) {

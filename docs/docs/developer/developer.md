@@ -7,9 +7,9 @@ sidebar_label: Developer
 This document describes how to set up your development environment to develop and test Erxes. It also explains the basic mechanics of using `git`, `node`, and `yarn`.
 
 - [Prerequisite Software](#prerequisite-software)
-- [Getting the Sources](#getting-the-sources)
-- [Installing NPM Modules](#installing-npm-modules)
-- [Running Tests Locally](#running-tests-locally)
+- [Installing prerequisite software](#installing-prerequisite-software)
+- [Getting the Sources and running locally](#getting-the-sources-and-running-locally)
+- [Checkout running website](#checkout-running-website)
 
 See the [contribution guidelines](contributing) if you'd like to contribute to erxes.
 
@@ -21,8 +21,28 @@ Before you can develop and test erxes, you must install and configure the follow
 - [Node.js](http://nodejs.org), v10.x LTS which is used to run a development web server, run tests, and generate distributable files.
 - [Yarn](https://yarnpkg.com) which is used to install dependencies.
 - [MongoDB](https://www.mongodb.com) version 3.6.x
-- [RabbitMQ](https://www.rabbitmq.com/download.html) version 3.8.x
-- [Redis](https://redis.io) version 3.x +
+
+
+## Installing prerequisite software 
+```sh
+# install git 
+sudo apt install git
+
+#install nodejs
+sudo apt install curl
+curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+sudo apt-get install nodejs
+
+#install mongodb
+sudo apt-get install mongodb
+sudo apt-get update 
+sudo service mongodb start
+
+#install yarn 
+sudo apt install npm
+sudo npm install --global yarn
+
+```
 
 ## Getting the Sources and running locally
 
@@ -34,22 +54,19 @@ Before you can develop and test erxes, you must install and configure the follow
 
 ```sh
 # Clone your GitHub repository:
-git clone git@github.com:erxes/erxes-api.git
+git clone git@github.com:erxes/erxes.git
 
 # Go to the erxes directory:
-cd erxes-api
+cd erxes/api
 
 # Copy preconfigured environment variables:
 cp .env.sample .env
 
+# Opening .env file in your editor
+You should delete Redis & RabbitMQ code
+
 # Install dependencies (package.json)
 yarn install
-
-# Create admin user & save the returned password
-yarn initProject
-
-# Load sample data
-yarn loadInitialData
 
 # Run
 yarn dev
@@ -58,14 +75,8 @@ yarn dev
 4. Run Erxes frontend.
 
 ```sh
-# Clone your GitHub repository:
-git clone git@github.com:erxes/erxes.git
-
-# Go to the erxes directory:
-cd erxes
-
 #Go to the ui folder 
-cd ui/
+cd erxes/ui
 
 # Copy preconfigured environment variables:
 cp .env.sample .env
@@ -81,7 +92,3 @@ yarn start
 
 Visit http://localhost:3000 and login using following credentials
 
-```
-username: admin@erxes.io
-password: the password generated during initProject
-```
