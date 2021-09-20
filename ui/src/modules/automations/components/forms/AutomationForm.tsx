@@ -570,7 +570,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon={'check-circle'}
           onClick={this.handleSubmit}
         >
-          Publish to site
+          {__('Save changes')}
         </Button>
       </BarItems>
     );

@@ -3,12 +3,6 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const Form = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "AutomationBlank" */ './containers/forms/CreateAutomation'
-  )
-);
-
 const Details = asyncComponent(() =>
   import(
     /* webpackChunkName: "AutomationDetails" */ './containers/forms/EditAutomation'
@@ -25,10 +19,6 @@ const details = ({ match }) => {
   return <Details id={id} />;
 };
 
-const form = () => {
-  return <Form />;
-};
-
 const list = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -43,12 +33,6 @@ const routes = () => {
         exact={true}
         path="/automations/details/:id"
         component={details}
-      />
-      <Route
-        key="/automations/blank"
-        exact={true}
-        path="/automations/blank"
-        component={form}
       />
       <Route
         path="/automations"
