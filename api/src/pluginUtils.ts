@@ -242,8 +242,8 @@ export const extendViaPlugins = (
         crons
       }) => {
         routes.forEach(route => {
-          app[route.method.toLowerCase()](route.path, (req, res) => {
-            return res.send(route.handler({ req, models: allModels }));
+          app[route.method.toLowerCase()](route.path, async (req, res) => {
+            return res.send(await route.handler({ req, models: allModels }));
           });
         });
 

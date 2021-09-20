@@ -10,10 +10,11 @@ import { Route } from 'react-router-dom';
 import pluginModules from './plugins';
 import { ISubNav } from 'modules/layout/components/Navigation';
 
-export const pluginsOfRoutes = (currentUser: IUser) => {
+export const pluginsOfRoutes = (currentUser?: IUser) => {
   const plugins: any = [];
   const pluginRoutes: any = [];
   const specialPluginRoutes: any = [];
+  let preAuth: any = {};
 
   for (const pluginName of Object.keys(pluginModules)) {
     const plugin = pluginModules[pluginName]();
@@ -22,6 +23,10 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
       name: pluginName,
       ...plugin
     });
+
+    if (plugin.preAuth) {
+      preAuth = plugin.preAuth;
+    }
 
     if (plugin.response) {
       const Component = plugin.response;
@@ -42,7 +47,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
     }
   }
 
-  return { plugins, pluginRoutes, specialPluginRoutes };
+  return { plugins, pluginRoutes, preAuth, specialPluginRoutes };
 };
 
 const PluginsWrapper = ({
