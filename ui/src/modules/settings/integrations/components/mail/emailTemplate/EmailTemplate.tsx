@@ -5,6 +5,7 @@ import {
   PopoverFooter,
   PopoverList
 } from 'modules/common/components/filterableList/styles';
+import FormControl from "modules/common/components/form/Control";
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
@@ -15,6 +16,7 @@ import Popover from 'react-bootstrap/Popover';
 import { CenterContent } from 'modules/common/styles/main';
 import { Link } from 'react-router-dom';
 import { PopoverLinkWrapper } from '../styles';
+import { SearchInput } from "../../store/styles";
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
@@ -25,6 +27,7 @@ type Props = {
 
 type State = {
   page: number;
+  searchValue: string;
 };
 
 class EmailTemplate extends React.Component<Props, State> {
@@ -34,8 +37,14 @@ class EmailTemplate extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      page: 1
+      page: 1,
+      searchValue:""
     };
+  }
+
+  onSearch = (e) => {
+    const searchValue = e.target.value.toLowerCase();
+    this.setState({ searchValue });
   }
 
   handleFetch = () => {
@@ -58,16 +67,21 @@ class EmailTemplate extends React.Component<Props, State> {
     this.overlayRef.hide();
   };
 
+  filterByValue(array, value) {
+    return array.filter( (o) => o.label.toLowerCase().includes(value.toLowerCase()));
+  }
+
   renderContent() {
     const { targets = [] } = this.props;
+    const { searchValue } = this.state;
 
-    if (!targets || targets.length === 0) {
+    const filteredTargets = searchValue === "" ? targets : this.filterByValue(targets, searchValue);
+
+    if (!filteredTargets || filteredTargets.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
-    targets.unshift({ value: '', label: 'Clear' });
-
-    return targets.map(item => {
+    return filteredTargets.map(item => {
       const onClick = () => this.handleClick(item.value);
 
       return (
@@ -105,6 +119,14 @@ class EmailTemplate extends React.Component<Props, State> {
         <Popover.Title as="h3">{__('Email Templates')}</Popover.Title>
         <Popover.Content>
           <PopoverBody>
+            <SearchInput isInPopover={true}>
+                <Icon icon="search-1" />
+                <FormControl
+                  type="text"
+                  placeholder={__("Type to search")}
+                  onChange={this.onSearch}
+                />
+              </SearchInput>
             <PopoverList>
               {this.renderContent()}
               {this.renderLoadMore()}

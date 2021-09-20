@@ -93,7 +93,7 @@ class Home extends React.Component<Props, State> {
 
   renderSearch() {
     return (
-      <SearchInput>
+      <SearchInput isInPopover={false}>
         <Icon icon="search-1" />
         <FormControl
           type="text"

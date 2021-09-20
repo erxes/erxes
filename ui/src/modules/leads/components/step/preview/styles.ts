@@ -173,16 +173,17 @@ const CenterContainer = styled.div`
   height: 100%;
 `;
 
-const CallOutBody = styled.div`
+const CallOutBody = styledTS<{ imgSize?: string }>(styled.div)`
   color: #5c5c5c;
   font-size: 14px;
   display: inline-block;
   margin-bottom: ${dimensions.unitSpacing}px;
 
   img {
-    max-width: 100px;
+    width: ${props => props.imgSize || '100%'};
     float: left;
     margin-right: ${dimensions.unitSpacing}px;
+    padding-bottom: ${props => props.imgSize === '100%' && '10px'};
   }
 `;
 
