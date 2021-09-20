@@ -9,16 +9,18 @@ module.exports = {
   modulePathIgnorePatterns: [
     'utils.ts',
     'setup.ts',
+    'esMappings.ts',
     'conversationCronJob.test.ts',
     'coverage/'
   ],
   coverageDirectory: 'src/__tests__/coverage/',
-  collectCoverage: true,
+  // collectCoverage: true,
   collectCoverageFrom: [
     'src/db/models/**',
     '!src/db/models/Robot.ts',
     '!src/db/models/definitions/**',
     'src/data/resolvers/**',
+    'src/data/modules/segments/**',
     '!src/data/resolvers/customScalars.ts',
     '!src/data/resolvers/mutations/robot.ts',
     '!src/data/resolvers/queries/robot.ts',

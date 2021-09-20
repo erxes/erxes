@@ -6,6 +6,7 @@ const segmentFields = `
   subOf
   color
   conditions
+  conditionsConjunction
 
   boardId
   pipelineId
@@ -28,6 +29,10 @@ const segmentDetail = `
     segmentDetail(_id: $_id) {
       ${segmentFields}
       getSubSegments {
+        ${segmentFields}
+      }
+      getConditionSegments
+      {
         ${segmentFields}
       }
     }

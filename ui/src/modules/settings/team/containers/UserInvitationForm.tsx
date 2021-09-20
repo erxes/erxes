@@ -13,7 +13,6 @@ import UserInvitationForm from '../components/UserInvitationForm';
 type WrapperProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
-  refetchQueries: any;
 } & ICommonFormProps;
 
 type Props = {

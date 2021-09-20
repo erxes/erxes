@@ -30,6 +30,7 @@ function TagsSidebar() {
         {ListItem('/segments/task', 'Task')}
         {ListItem('/segments/ticket', 'Ticket')}
         {ListItem('/segments/user', 'Team member')}
+        {ListItem('/segments/conversation', 'Conversation')}
         <li>
           <a
             target="_blank"

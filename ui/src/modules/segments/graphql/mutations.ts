@@ -1,11 +1,13 @@
 const paramDefs = `
-  $name: String!,
+  $name: String,
   $description: String,
   $subOf: String,
   $color: String,
   $conditions: [SegmentCondition],
+  $conditionSegments: [SubSegment]
   $boardId: String,
   $pipelineId: String,
+  $conditionsConjunction: String
 `;
 
 const params = `
@@ -16,6 +18,8 @@ const params = `
   conditions: $conditions,
   boardId: $boardId,
   pipelineId: $pipelineId,
+  conditionsConjunction: $conditionsConjunction
+  conditionSegments: $conditionSegments
 `;
 
 const segmentsAdd = `

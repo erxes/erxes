@@ -201,12 +201,14 @@ export const getCollection = (type: string) => {
   let collection;
   let create;
   let update;
+  let remove;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
       collection = Deals;
       create = Deals.createDeal;
       update = Deals.updateDeal;
+      remove = Deals.removeDeals;
       break;
     }
     case BOARD_TYPES.GROWTH_HACK: {
@@ -219,21 +221,23 @@ export const getCollection = (type: string) => {
       collection = Tasks;
       create = Tasks.createTask;
       update = Tasks.updateTask;
+      remove = Tasks.removeTasks;
       break;
     }
     case BOARD_TYPES.TICKET: {
       collection = Tickets;
       create = Tickets.createTicket;
       update = Tickets.updateTicket;
+      remove = Tickets.removeTickets;
       break;
     }
   }
 
-  return { collection, create, update };
+  return { collection, create, update, remove };
 };
 
-export const getItem = async (type: string, _id: string) => {
-  const item = await getCollection(type).collection.findOne({ _id });
+export const getItem = async (type: string, doc: any) => {
+  const item = await getCollection(type).collection.findOne({ ...doc });
 
   if (!item) {
     throw new Error(`${type} not found`);

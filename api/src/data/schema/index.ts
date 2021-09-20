@@ -3,6 +3,11 @@ import {
   types as ActivityLogTypes
 } from './activityLog';
 import {
+  mutations as AutomationMutations,
+  queries as AutomationQueries,
+  types as AutomationTypes
+} from './automations';
+import {
   mutations as BoardMutations,
   queries as BoardQueries,
   types as BoardTypes
@@ -27,6 +32,11 @@ import {
   queries as ChecklistQueries,
   types as ChecklistTypes
 } from './checklist';
+import {
+  mutations as ClientPortalMutations,
+  queries as ClientPortalQueries,
+  types as ClientPortalTypes
+} from './clientPortal';
 import { types as CommonTypes } from './common';
 import {
   mutations as CompanyMutations,
@@ -109,7 +119,6 @@ import {
   queries as InternalNoteQueries,
   types as InternalNoteTypes
 } from './internalNote';
-
 import {
   mutations as KnowledgeBaseMutations,
   queries as KnowledgeBaseQueries,
@@ -205,6 +214,16 @@ import {
   queries as SmsDeliveryQueries,
   types as SmsDeliveryTypes
 } from './smsDelivery';
+import {
+  mutations as ExmMutations,
+  queries as ExmQueries,
+  types as ExmTypes
+} from './exm';
+import {
+  mutations as DepartmentMutations,
+  queries as DepartmentQueries,
+  types as DepartmentTypes
+} from './department';
 
 export let types = `
   scalar JSON
@@ -219,6 +238,7 @@ export let types = `
   ${IntegrationTypes}
   ${ResponseTemplate}
   ${Script}
+  ${ClientPortalTypes}
   ${SkillTypes}
   ${EmailTemplate}
   ${EngageTypes}
@@ -253,6 +273,9 @@ export let types = `
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
+  ${AutomationTypes}
+  ${ExmTypes}
+  ${DepartmentTypes}
 `;
 
 export let queries = `
@@ -265,6 +288,7 @@ export let queries = `
   ${ScriptQueries}
   ${SkillQueries}
   ${EmailTemplateQueries}
+  ${ClientPortalQueries}
   ${EmailDeliveryQueries}
   ${FieldQueries}
   ${EngageQueries}
@@ -298,6 +322,9 @@ export let queries = `
   ${CalendarQueries}
   ${MessengerAppQueries}
   ${SmsDeliveryQueries}
+  ${AutomationQueries}
+  ${ExmQueries}
+  ${DepartmentQueries}
 `;
 
 export let mutations = `
@@ -311,6 +338,7 @@ export let mutations = `
   ${ResponseTemplateMutations}
   ${ScriptMutations}
   ${EmailTemplateMutations}
+  ${ClientPortalMutations}
   ${InternalNoteMutations}
   ${CustomerMutations}
   ${SegmentMutations}
@@ -340,6 +368,9 @@ export let mutations = `
   ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
+  ${AutomationMutations}
+  ${ExmMutations}
+  ${DepartmentMutations}
 `;
 
 export let subscriptions = `

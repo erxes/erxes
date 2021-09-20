@@ -1,5 +1,6 @@
 import {
   Companies,
+  Conversations,
   Customers,
   Deals,
   Fields,
@@ -19,7 +20,7 @@ import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
-import { isUsingElk } from '../../utils';
+import { getConfig, isUsingElk } from '../../utils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
 const generateBasicInfosFromSchema = async (
@@ -290,6 +291,51 @@ const generateUsersOptions = async (
   };
 };
 
+const generateProductsOptions = async (
+  name: string,
+  label: string,
+  type: string
+) => {
+  const products = await getDocumentList('products', {});
+
+  const options: Array<{ label: string; value: any }> = products.map(
+    product => ({
+      value: product._id,
+      label: `${product.code} - ${product.name}`
+    })
+  );
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const generateConfigOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  configCode: string
+) => {
+  const configs = (await getConfig(configCode)) || [];
+
+  const options: Array<{ label: string; value: any }> = configs.map(item => ({
+    value: item,
+    label: item
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
 const getStageOptions = async pipelineId => {
   const stages = await Stages.find({ pipelineId });
   const options: Array<{ label: string; value: any }> = [];
@@ -351,6 +397,50 @@ const getTags = async (type: string) => {
   };
 };
 
+const getFroms = async () => {
+  const forms = await Integrations.aggregate([
+    { $match: { kind: 'lead' } },
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
+
+  return {
+    _id: Math.random(),
+    name: 'formIds',
+    group: 'Form & Form fields',
+    label: 'Form',
+    type: 'form',
+    selectOptions: forms
+  };
+};
+
+const getFormFields = async () => {
+  const fields = await Fields.aggregate([
+    { $match: { contentType: 'form' } },
+    {
+      $project: {
+        _id: 0,
+        label: '$text',
+        value: '$_id'
+      }
+    }
+  ]);
+
+  return {
+    _id: Math.random(),
+    name: 'formFieldIds',
+    group: 'Form & Form fields',
+    label: 'Form field',
+    type: 'formField',
+    selectOptions: fields
+  };
+};
+
 /*
  * Generates fields using given schema
  */
@@ -409,6 +499,7 @@ export const fieldsCombinedByContentType = async ({
   let fields: Array<{
     _id: number;
     name: string;
+    group?: string;
     label?: string;
     type?: string;
     validation?: string;
@@ -430,6 +521,10 @@ export const fieldsCombinedByContentType = async ({
       schema = Customers.schema;
       break;
 
+    case 'conversation':
+      schema = Conversations.schema;
+      break;
+
     case 'deal':
       schema = Deals.schema;
       break;
@@ -447,18 +542,20 @@ export const fieldsCombinedByContentType = async ({
       break;
   }
 
-  // generate list using customer or company schema
-  fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+  if (schema) {
+    // generate list using customer or company schema
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
-  for (const name of Object.keys(schema.paths)) {
-    const path = schema.paths[name];
+    for (const name of Object.keys(schema.paths)) {
+      const path = schema.paths[name];
 
-    // extend fields list using sub schema fields
-    if (path.schema) {
-      fields = [
-        ...fields,
-        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
-      ];
+      // extend fields list using sub schema fields
+      if (path.schema) {
+        fields = [
+          ...fields,
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+        ];
+      }
     }
   }
 
@@ -488,7 +585,11 @@ export const fieldsCombinedByContentType = async ({
     extendFields = EXTEND_FIELDS.CUSTOMER;
   }
 
-  if (contentType === 'customer' || contentType === 'company') {
+  if (
+    contentType === 'customer' ||
+    contentType === 'company' ||
+    contentType === 'conversation'
+  ) {
     const tags = await getTags(contentType);
     fields = [...fields, ...[tags]];
 
@@ -502,6 +603,40 @@ export const fieldsCombinedByContentType = async ({
         selectOptions: integrations
       });
     }
+  }
+
+  if (contentType === 'conversation') {
+    const integrations = await getIntegrations();
+
+    fields.push({
+      _id: Math.random(),
+      name: 'integrationId',
+      label: 'Related integration',
+      selectOptions: integrations
+    });
+
+    const assignedUserOptions = await generateUsersOptions(
+      'assignedUserId',
+      'Assigned to',
+      'user'
+    );
+
+    const participatedUserOptions = await generateUsersOptions(
+      'participatedUserIds',
+      'Participating team member',
+      'user'
+    );
+
+    const closedUserOptions = await generateUsersOptions(
+      'closedUserId',
+      'Resolved by',
+      'user'
+    );
+
+    fields = [
+      ...fields,
+      ...[participatedUserOptions, assignedUserOptions, closedUserOptions]
+    ];
   }
 
   if (['deal', 'task', 'ticket'].includes(contentType)) {
@@ -519,7 +654,7 @@ export const fieldsCombinedByContentType = async ({
 
     const assignedUserOptions = await generateUsersOptions(
       'assignedUserIds',
-      'Assigned users',
+      'Assigned to',
       'user'
     );
 
@@ -554,6 +689,39 @@ export const fieldsCombinedByContentType = async ({
     ];
   }
 
+  if (contentType === 'deal') {
+    const productOptions = await generateProductsOptions(
+      'productsData.productId',
+      'Product',
+      'product'
+    );
+
+    const assignedUserOptions = await generateUsersOptions(
+      'productsData.assignUserId',
+      'Assigned to (product)',
+      'user'
+    );
+
+    const uomOptions = await generateConfigOptions(
+      'productsData.uom',
+      'UOM',
+      'uom',
+      'dealUOM'
+    );
+
+    const currenciesOptions = await generateConfigOptions(
+      'productsData.currency',
+      'Currency',
+      'currency',
+      'dealCurrency'
+    );
+
+    fields = [
+      ...fields,
+      ...[productOptions, assignedUserOptions, uomOptions, currenciesOptions]
+    ];
+  }
+
   for (const extendField of extendFields) {
     fields.push({
       _id: Math.random(),
@@ -565,6 +733,30 @@ export const fieldsCombinedByContentType = async ({
     const ownerOptions = await generateUsersOptions('ownerId', 'Owner', 'user');
 
     fields = [...fields, ownerOptions];
+  }
+
+  if (contentType === 'form_submission') {
+    const forms = await getFroms();
+    const formFeilds = await getFormFields();
+    const formFieldsValues = await getCustomFields('form');
+
+    fields = [...fields, ...[forms], ...[formFeilds]];
+
+    for (const formField of formFieldsValues) {
+      const form = await Integrations.findOne({
+        formId: formField.contentTypeId
+      });
+
+      fields.push({
+        _id: Math.random(),
+        name: formField._id,
+        group: form ? form.name : 'Form field',
+        label: formField.text,
+        options: formField.options,
+        validation: formField.validation,
+        type: formField.type
+      });
+    }
   }
 
   if (

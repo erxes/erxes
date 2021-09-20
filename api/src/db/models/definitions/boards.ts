@@ -48,6 +48,7 @@ export interface IItemCommonFields {
     startDate?: string;
   };
   customFieldsData?: ICustomField[];
+  score?: number;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -155,7 +156,12 @@ const timeTrackSchema = new Schema(
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   userId: field({ type: String, esType: 'keyword' }),
-  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  createdAt: field({
+    type: Date,
+    label: 'Created at',
+    esType: 'date',
+    default: Date.now
+  }),
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
@@ -208,6 +214,12 @@ export const commonItemFieldsSchema = {
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
+  }),
+  score: field({
+    type: Number,
+    optional: true,
+    label: 'Score',
+    esType: 'number'
   })
 };
 

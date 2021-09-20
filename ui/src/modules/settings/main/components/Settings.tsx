@@ -230,6 +230,12 @@ class Settings extends React.PureComponent {
               calendarActions,
               'New'
             )}
+            {this.renderBox(
+              'EXM',
+              '/images/icons/erxes-02.svg',
+              '/settings/exm',
+              'exmsAll'
+            )}
           </div>
         </Row>
         <Divider />
@@ -348,6 +354,14 @@ class Settings extends React.PureComponent {
               '/settings/boards/growthHack',
               'growthHacksAll',
               growthHackPermissions
+            )}
+            {this.renderBox(
+              'Client Portal',
+              '/images/icons/erxes-32.png',
+              '/settings/client-portal',
+              '',
+              [],
+              'New'
             )}
           </div>
         </Row>

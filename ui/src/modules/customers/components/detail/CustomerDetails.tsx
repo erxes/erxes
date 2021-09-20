@@ -53,7 +53,7 @@ class CustomerDetails extends React.Component<Props> {
         dialogClassName="middle"
         title="Email"
         trigger={triggerEmail}
-        size="lg"
+        size="xl"
         content={content}
         paddingContent="less-padding"
         enforceFocus={false}

@@ -19,7 +19,8 @@ const segmentQueries = {
   ) {
     const selector: any = {
       ...commonQuerySelector,
-      contentType: { $in: contentTypes }
+      contentType: { $in: contentTypes },
+      name: { $exists: true }
     };
 
     if (boardId) {
@@ -39,6 +40,7 @@ const segmentQueries = {
   async segmentsGetHeads(_root, _args, { commonQuerySelector }: IContext) {
     return Segments.find({
       ...commonQuerySelector,
+      name: { $exists: true },
       $or: [{ subOf: { $exists: false } }, { subOf: '' }]
     });
   },
@@ -46,7 +48,7 @@ const segmentQueries = {
   /**
    * Get one segment
    */
-  segmentDetail(_root, { _id }: { _id: string }) {
+  async segmentDetail(_root, { _id }: { _id: string }) {
     return Segments.findOne({ _id });
   },
 
@@ -118,15 +120,18 @@ const segmentQueries = {
       pipelineId?: string;
     }
   ) {
-    return fetchSegment('count', {
-      name: 'preview',
-      color: '#fff',
-      subOf: subOf || '',
-      boardId,
-      pipelineId,
-      contentType,
-      conditions
-    });
+    return fetchSegment(
+      {
+        name: 'preview',
+        color: '#fff',
+        subOf: subOf || '',
+        boardId,
+        pipelineId,
+        contentType,
+        conditions
+      },
+      { returnCount: true }
+    );
   }
 };
 

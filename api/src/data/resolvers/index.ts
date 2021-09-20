@@ -8,6 +8,7 @@ import {
 } from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
+import CPTicket from './clientPortals';
 import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -48,6 +49,8 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import AutomationNote from './automationNote';
+import Department from './departments';
 
 const resolvers: any = {
   ...customScalars,
@@ -100,7 +103,10 @@ const resolvers: any = {
   GrowthHack,
   CalendarGroup,
   CalendarBoard,
-  Tag
+  Tag,
+  CPTicket,
+  AutomationNote,
+  Department
 };
 
 export default resolvers;
