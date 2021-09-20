@@ -1,6 +1,9 @@
 import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "modules/common/components/DropdownToggle";
 import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from "erxes-ui";
 import FilterableListStyles from "erxes-ui/lib/components/filterableList/styles";
+import Icon from "modules/common/components/Icon";
 import dayjs from "dayjs";
 import Form from "../containers/Form";
 import {
@@ -10,6 +13,7 @@ import {
   Hours,
   NewsFeedLayout,
   TypeOfContent,
+  NavItem,
 } from "../styles";
 
 const AvatarImg = FilterableListStyles.AvatarImg;
@@ -23,7 +27,7 @@ type Props = {
 export default function List({ list, deleteItem, totalCount }: Props) {
   const editItem = (item) => {
     const trigger = (
-      <span style={{ padding: "0 15px" }}>
+      <span>
         <a>Edit</a>
       </span>
     );
@@ -33,6 +37,10 @@ export default function List({ list, deleteItem, totalCount }: Props) {
     };
 
     return <ModalTrigger title="Edit" trigger={trigger} content={content} />;
+  };
+
+  const commentItem = () => {
+    return <div>hello</div>;
   };
 
   const renderItem = (item: any, index: number) => {
@@ -58,10 +66,24 @@ export default function List({ list, deleteItem, totalCount }: Props) {
                     createdUser.username ||
                     createdUser.email)}
               </b>
-              <p>#{item.contentType}</p>
+              <Hours>
+                {dayjs(item.createdAt).format("lll")} <p>#{item.contentType}</p>
+              </Hours>
             </TypeOfContent>
           </FirstSection>
-          <Hours>{dayjs(item.createdAt).format("lll")}</Hours>
+          <NavItem>
+            <Dropdown alignRight={true}>
+              <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+                <Icon icon="angle-down" size={14} />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <li>{editItem(item)}</li>
+                <li>
+                  <a onClick={() => deleteItem(item._id)}>Delete</a>
+                </li>
+              </Dropdown.Menu>
+            </Dropdown>
+          </NavItem>
         </HeaderFeed>
         <BodyFeed>
           <b dangerouslySetInnerHTML={{ __html: item.title }} />
@@ -78,8 +100,7 @@ export default function List({ list, deleteItem, totalCount }: Props) {
             </a>
           ))}
         </BodyFeed>
-        {editItem(item)}
-        <a onClick={() => deleteItem(item._id)}>Delete</a>
+        {commentItem()}
       </li>
     );
   };

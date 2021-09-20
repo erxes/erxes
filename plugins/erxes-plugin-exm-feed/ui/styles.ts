@@ -1,5 +1,41 @@
 import styled from 'styled-components';
 
+export const NavItem = styled.div`
+  width: 36px;
+  height: 36px;
+  margin-top: 3px;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: #DDD;
+    cursor: pointer;
+  }
+
+  .dropdown {
+    display: table;
+    text-align: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    
+    div:first-child {
+      display: table-cell;
+      vertical-align: middle;
+      height: 100%;
+    }
+  }
+
+  .dropdown-menu {
+    min-width: 150px;
+    li {
+      margin-bottom: 0;
+      padding: 0;
+      box-shadow: none;
+      border-radius: 0;
+    }
+  }
+`;
+
 export const FeedLayout = styled.div`
   display: flex;
   justify-content: space-around;
@@ -59,7 +95,7 @@ export const TypeOfContent = styled.div`
 `;
 
 export const Hours = styled.div`
-
+  display: flex;
 `;
 
 export const BodyFeed = styled.div`
