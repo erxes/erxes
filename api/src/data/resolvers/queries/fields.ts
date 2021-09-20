@@ -179,9 +179,15 @@ const fieldsGroupQueries = {
     _root,
     {
       contentType,
+      isDefinedByErxes,
       boardId,
       pipelineId
-    }: { contentType: string; boardId: string; pipelineId: string },
+    }: {
+      contentType: string;
+      isDefinedByErxes: boolean;
+      boardId: string;
+      pipelineId: string;
+    },
     { commonQuerySelector }: IContext
   ) {
     let query: any = commonQuerySelector;
@@ -221,6 +227,10 @@ const fieldsGroupQueries = {
       };
     }
 
+    if (isDefinedByErxes !== undefined) {
+      query.isDefinedByErxes = isDefinedByErxes;
+    }
+
     const groups = await FieldsGroups.find(query);
 
     return groups
@@ -238,12 +248,8 @@ const fieldsGroupQueries = {
       });
   },
 
-  getSystemFieldsGroup(
-    _root,
-    { contentType }: { contentType: string },
-    { commonQuerySelector }: IContext
-  ) {
-    const query: any = commonQuerySelector;
+  getSystemFieldsGroup(_root, { contentType }: { contentType: string }) {
+    const query: any = {};
 
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;

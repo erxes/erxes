@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import Sidebar from 'modules/layout/components/Sidebar';
 import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
@@ -9,11 +10,11 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { FieldsGroupsQueryResponse } from '../../../settings/properties/types';
-import { mutations } from '../../graphql';
-import { EditMutationResponse, ICustomer } from '../../types';
+import { mutations } from '../graphql';
+import { EditMutationResponse } from '../types';
 
 type Props = {
-  customer: ICustomer;
+  user: IUser;
   loading?: boolean;
   isDetail: boolean;
 };
@@ -24,13 +25,7 @@ type FinalProps = {
   EditMutationResponse;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  const {
-    customer,
-    customersEdit,
-    fieldsGroupsQuery,
-    loading,
-    isDetail
-  } = props;
+  const { user, usersEdit, fieldsGroupsQuery, loading, isDetail } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -40,10 +35,10 @@ const CustomFieldsSection = (props: FinalProps) => {
     );
   }
 
-  const { _id } = customer;
+  const { _id } = user;
 
   const save = (variables, callback) => {
-    customersEdit({
+    usersEdit({
       variables: { _id, ...variables }
     })
       .then(() => {
@@ -57,7 +52,7 @@ const CustomFieldsSection = (props: FinalProps) => {
   const updatedProps = {
     save,
     loading,
-    customFieldsData: customer.customFieldsData,
+    customFieldsData: user.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
     isDetail
   };
@@ -73,7 +68,7 @@ export default withProps<Props>(
         name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
+            contentType: FIELDS_GROUPS_CONTENT_TYPES.USER,
             isDefinedByErxes: false
           }
         })
@@ -81,14 +76,11 @@ export default withProps<Props>(
     ),
 
     // mutations
-    graphql<Props, EditMutationResponse, ICustomer>(
-      gql(mutations.customersEdit),
-      {
-        name: 'customersEdit',
-        options: () => ({
-          refetchQueries: ['customerDetail']
-        })
-      }
-    )
+    graphql<Props, EditMutationResponse, IUser>(gql(mutations.usersEdit), {
+      name: 'usersEdit',
+      options: () => ({
+        refetchQueries: ['userDetail']
+      })
+    })
   )(CustomFieldsSection)
 );

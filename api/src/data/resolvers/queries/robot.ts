@@ -7,9 +7,14 @@ import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 const features: {
-  [key: string]: { settings: string[]; settingsPermissions: string[] };
+  [key: string]: {
+    feature: string;
+    settings: string[];
+    settingsPermissions: string[];
+  };
 } = {
   generalSettings: {
+    feature: 'generalSettings',
     settings: [
       'generalSettingsCreate',
       'generalSettingsUploadCreate',
@@ -19,11 +24,13 @@ const features: {
   },
 
   channelBrands: {
+    feature: 'brands',
     settings: ['brandCreate', 'channelCreate'],
     settingsPermissions: ['brandCreate', 'channelCreate']
   },
 
   integrationOtherApps: {
+    feature: 'integrations',
     settings: ['integrationsCreate', 'connectIntegrationsToChannel'],
     settingsPermissions: [
       'integrationsCreateMessengerIntegration',
@@ -32,11 +39,13 @@ const features: {
   },
 
   customizeDatabase: {
+    feature: 'forms',
     settings: ['fieldGroupCreate', 'fieldCreate'],
     settingsPermissions: ['manageForms']
   },
 
   importExistingContacts: {
+    feature: 'importHistories',
     settings: [
       'fieldGroupCreate',
       'fieldCreate',
@@ -47,60 +56,71 @@ const features: {
   },
 
   inviteTeamMembers: {
+    feature: 'users',
     settings: ['userGroupCreate', 'usersInvite'],
     settingsPermissions: ['usersInvite']
   },
 
   salesPipeline: {
+    feature: 'deals',
     settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd']
   },
 
   createProductServices: {
+    feature: 'products',
     settings: ['productCategoryCreate', 'productCreate'],
     settingsPermissions: ['manageProducts']
   },
 
   customizeTickets: {
+    feature: 'tickets',
     settings: ['ticketBoardsCreate', 'ticketPipelinesCreate', 'ticketCreate'],
     settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd']
   },
 
   customizeTasks: {
+    feature: 'tasks',
     settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
     settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd']
   },
 
   customizeGrowthHacking: {
+    feature: 'growthHacks',
     settings: ['growthHackBoardCreate', 'pipelineTemplate'],
     settingsPermissions: ['growthHackStagesAdd', 'growthHackTemplatesAdd']
   },
 
   customizeSegmentation: {
+    feature: 'segments',
     settings: ['segmentCreate', 'subSegmentCreate'],
     settingsPermissions: ['manageSegments']
   },
 
   prepareMailResponseTemplates: {
+    feature: 'emailTemplates',
     settings: ['createResponseTemplate', 'createEmailTemplate'],
     settingsPermissions: ['manageEmailTemplate']
   },
 
   prepareContentTemplates: {
+    feature: 'responseTemplates',
     settings: [
       'createResponseTemplate',
       'createEmailTemplate',
       'pipelineTemplate'
     ],
-    settingsPermissions: ['manageEmailTemplate']
+    settingsPermissions: ['manageEmailTemplate', 'manageResponseTemplate']
   },
 
   automateCampaigns: {
+    feature: 'engages',
     settings: ['engageVerifyEmail', 'engageSendTestEmail', 'engageCreate'],
     settingsPermissions: ['engageMessageAdd']
   },
 
   customizeKnowledgeBase: {
+    feature: 'knowledgeBase',
     settings: [
       'knowledgeBaseTopicCreate',
       'knowledgeBaseCategoryCreate',
@@ -111,16 +131,19 @@ const features: {
   },
 
   customizeReports: {
+    feature: 'dashboards',
     settings: ['dashboardCreate', 'dashboardItemCreate'],
     settingsPermissions: ['dashboardAdd', 'dashboardItemAdd']
   },
 
   createLeadGenerationForm: {
+    feature: 'integrations',
     settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
     settingsPermissions: ['manageForms']
   },
 
   installErxesWidgets: {
+    feature: 'integrations',
     settings: ['messengerIntegrationCreate'],
     settingsPermissions: ['integrationsCreateMessengerIntegration']
   }
@@ -129,7 +152,8 @@ const features: {
 const checkShowModule = (
   user: IUserDocument,
   actionsMap,
-  moduleName: string
+  moduleName: string,
+  featureName: string
 ): { showModule: boolean; showSettings: boolean } => {
   if (user.isOwner) {
     return {
@@ -138,7 +162,7 @@ const checkShowModule = (
     };
   }
 
-  const module: IModuleMap = moduleObjects[moduleName];
+  const module: IModuleMap = moduleObjects[featureName];
 
   interface IAction {
     name: string;
@@ -150,11 +174,11 @@ const checkShowModule = (
   let showSettings = true;
 
   if (!module) {
-    if (moduleName === 'leads') {
+    if (featureName === 'leads') {
       actions = [{ name: 'integrationsCreateLeadIntegration' }];
     }
 
-    if (moduleName === 'properties') {
+    if (featureName === 'properties') {
       actions = [{ name: 'manageForms' }];
     }
   } else {
@@ -216,11 +240,13 @@ const robotQueries = {
     }> = [];
     const actionsMap = await getUserAllowedActions(user);
 
-    for (const feature of Object.keys(features)) {
-      const { settings } = features[feature];
+    for (const value of Object.keys(features)) {
+      const { settings, feature } = features[value];
+
       const { showModule, showSettings } = checkShowModule(
         user,
         actionsMap,
+        value,
         feature
       );
 
@@ -231,10 +257,13 @@ const robotQueries = {
           steps = [...steps, ...settings];
         }
 
-        const selector = { userId: user._id, completedSteps: { $all: steps } };
+        const selector = {
+          userId: user._id,
+          completedSteps: { $all: steps }
+        };
 
         results.push({
-          name: feature,
+          name: value,
           settings,
           showSettings,
           isComplete:

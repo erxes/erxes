@@ -19,6 +19,7 @@ export const PROPERTY_TYPES = {
   ],
 
   conversation: [{ label: 'Conversation', value: 'conversation' }],
+  user: [{ label: 'User', value: 'user' }],
 
   lead: [
     { label: 'Lead', value: 'lead' },

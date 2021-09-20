@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { ILink } from './common';
+import { customFieldSchema, ICustomField, ILink } from './common';
 import { IPermissionDocument } from './permissions';
 import { field, schemaHooksWrapper } from './utils';
 
@@ -47,6 +47,7 @@ export interface IUser {
   sessionCode?: string;
   isShowNotification?: boolean;
   score?: number;
+  customFieldsData?: ICustomField[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -153,6 +154,11 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       label: 'Score',
       esType: 'number'
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
     })
   }),
   'erxes_users'

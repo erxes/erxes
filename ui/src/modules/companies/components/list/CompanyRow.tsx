@@ -2,6 +2,7 @@ import _ from 'lodash';
 import FormControl from 'modules/common/components/form/Control';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
+import TextInfo from 'modules/common/components/TextInfo';
 import { formatValue } from 'modules/common/utils';
 import { ClickableRow } from 'modules/customers/styles';
 import React from 'react';
@@ -41,6 +42,10 @@ function displayValue(company, name) {
         {formatValue(company.primaryName)}
       </FlexItem>
     );
+  }
+
+  if (name === 'code') {
+    return <TextInfo>{value}</TextInfo>;
   }
 
   if (name.includes('customFieldsData')) {

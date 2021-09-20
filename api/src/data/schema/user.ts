@@ -46,6 +46,7 @@ export const types = `
     brandIds: [String]
     isSubscribed: String
     isShowNotification: Boolean
+    customFieldsData: JSON
 
     brands: [Brand]
     isOwner: Boolean
@@ -70,6 +71,7 @@ const commonParams = `
   channelIds: [String],
   groupIds: [String]
   brandIds: [String]
+  customFieldsData: JSON
 `;
 
 const commonSelector = `

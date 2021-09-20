@@ -308,11 +308,20 @@ describe('fieldQueries', () => {
     };
 
     await fieldGroupFactory({
+      contentType: 'task',
+      isDefinedByErxes: true,
+      order: 1,
+      boardIds: [board._id],
+      pipelineIds: [pipeline._id]
+    });
+
+    await fieldGroupFactory({
       ...fieldGroupCommonFields,
       order: 1,
       boardIds: [board._id],
       pipelineIds: [pipeline._id]
     });
+
     await fieldGroupFactory({
       ...fieldGroupCommonFields,
       order: 2,
@@ -331,8 +340,8 @@ describe('fieldQueries', () => {
     });
 
     const qry = `
-      query fieldsGroups($contentType: String, $boardId: String, $pipelineId: String) {
-        fieldsGroups(contentType: $contentType, boardId: $boardId, pipelineId: $pipelineId) {
+      query fieldsGroups($contentType: String, $isDefinedByErxes: Boolean, $boardId: String, $pipelineId: String) {
+        fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, boardId: $boardId, pipelineId: $pipelineId) {
           _id
           lastUpdatedUser {
             _id
@@ -348,7 +357,8 @@ describe('fieldQueries', () => {
     const responses = await graphqlRequest(qry, 'fieldsGroups', {
       contentType: 'task',
       boardId: board._id,
-      pipelineId: pipeline._id
+      pipelineId: pipeline._id,
+      isDefinedByErxes: false
     });
 
     expect(responses.length).toBe(3);

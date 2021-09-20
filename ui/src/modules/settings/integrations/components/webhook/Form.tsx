@@ -6,8 +6,8 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
+import { WEBHOOK_DOC_URL } from '../../constants';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 import { Description } from '../../styles';
@@ -18,52 +18,6 @@ type Props = {
   onChannelChange: () => void;
   channelIds: string[];
 };
-
-const examplePayload = `{
-  "customerPrimaryEmail": "example@gmail.com",
-  "customerPrimaryPhone": 99999999,
-  "customerCode": 99999,
-  "customerFirstName": "John",
-  "customerLastName": "Michael",
-  "customerMiddleName": "Doe",
-  "content": "Content",
-  "attachments": [{
-      "url": "/images/example.png",
-      "text": "Example",
-      "size": 1048576,
-      "type": "image/png"
-  }],
-  "data": {
-      "key": "value",
-      "another key": "another value"
-  },
-  "customFields": [{
-      "name": "custom field name",
-      "value": "custom field value"
-  }],
-  "companyPrimaryEmail": "example@company.com",
-  "companyPrimaryPhone": "+123456789",
-  "companyPrimaryName": "example llc",
-  "companyWebsite": "https://company.com",
-  "companyIndustry": "Automobiles",
-  "companyBusinessType": "Investor",
-  "companyCode": "123456",
-  "companyData": {
-      "custom field key": "value"
-  },
-  "parentCompany": {
-      "companyPrimaryEmail": "example@company.com",
-      "companyPrimaryPhone": "+123456789",
-      "companyPrimaryName": "example llc",
-      "companyCode": "123456",
-      "companyWebsite": "https://company.com",
-      "companyIndustry": "Automobiles",
-      "companyBusinessType": "Investor",
-      "companyData": {
-          "custom field key": "value"
-      },
-  }
-}`;
 
 class Webhook extends React.Component<Props> {
   generateDoc = (values: {
@@ -138,13 +92,6 @@ class Webhook extends React.Component<Props> {
           <FormControl {...formProps} name="script" componentClass="textarea" />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Example payload</ControlLabel>
-          <MarkdownWrapper>
-            <pre>{examplePayload}</pre>
-          </MarkdownWrapper>
-        </FormGroup>
-
         <SelectBrand
           isRequired={true}
           formProps={formProps}
@@ -158,6 +105,15 @@ class Webhook extends React.Component<Props> {
           isRequired={true}
           onChange={onChannelChange}
         />
+
+        <FormGroup>
+          <p>
+            {'For more information, go to '}
+            <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
+              documentaion
+            </a>
+          </p>
+        </FormGroup>
 
         <ModalFooter>
           <Button
