@@ -217,7 +217,7 @@ describe('fieldQueries', () => {
       contentType: 'customer'
     });
 
-    expect(responses.length).toBe(8);
+    expect(responses.length).toBe(9);
     expect(responses[0].name).toBe('location.country');
     expect(responses[1].name).toBe('firstName');
     expect(responses[2].name).toBe('lastName');
@@ -228,7 +228,7 @@ describe('fieldQueries', () => {
       contentType: 'company'
     });
 
-    expect(responses.length).toBe(7);
+    expect(responses.length).toBe(8);
     expect(responses[0].name).toBe('primaryName');
     expect(responses[1].name).toBe('size');
     expect(responses[3].name).toBe('industry');
