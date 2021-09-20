@@ -93,4 +93,13 @@ const productCategories = `
   }
 `;
 
-export default { bookingDetail, bookings, productCategories };
+const forms = `
+  query forms {
+    forms {
+      _id
+      title
+    }
+  }
+`;
+
+export default { bookingDetail, bookings, productCategories, forms };
