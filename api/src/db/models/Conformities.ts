@@ -25,6 +25,7 @@ import {
 
 export interface IConformityModel extends Model<IConformityDocument> {
   addConformity(doc: IConformityAdd): Promise<IConformityDocument>;
+  addConformities(docs: IConformityAdd[]): Promise<any>;
   editConformity(
     doc: IConformityEdit
   ): Promise<{ addedTypeIds: string[]; removedTypeIds: string[] }>;
@@ -50,6 +51,14 @@ export const loadConformityClass = () => {
       }
 
       return conformity;
+    }
+
+    public static async addConformities(docs: IConformityAdd[]) {
+      const result = await Conformities.insertMany(docs, {
+        ordered: false,
+        rawResult: false
+      });
+      return result;
     }
 
     public static async editConformity(doc: IConformityEdit) {

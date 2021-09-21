@@ -22,6 +22,7 @@ export interface IChecklistItem {
 
 export interface IChecklistItemDocument extends IChecklistItem, Document {
   _id: string;
+  order: number;
   createdUserId: string;
   createdDate: Date;
 }
