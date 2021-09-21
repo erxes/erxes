@@ -421,6 +421,10 @@ export const CenterBar = styled.div`
       }
     }
   }
+
+  @media (max-width: 1600px) {
+    left: 30%;
+  }
 `;
 
 export const AutomationFormContainer = styled(Contents)`
@@ -511,6 +515,19 @@ export const Description = styled.div`
   > p {
     margin: ${dimensions.unitSpacing - 5}px 0 0 0;
     color: ${colors.colorCoreGray};
+  }
+`;
+
+export const ActionBarButtonsWrapper = styled.div`
+  @media (max-width: 1450px) {
+    max-width: 350px;
+    white-space: normal;
+    text-align: right;
+    margin-bottom: ${dimensions.unitSpacing}px;
+
+    > button {
+      margin-top: ${dimensions.unitSpacing - 5}px;
+    }
   }
 `;
 

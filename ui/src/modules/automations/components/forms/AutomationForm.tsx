@@ -18,7 +18,8 @@ import {
   CenterBar,
   ToggleWrapper,
   ZoomActions,
-  ZoomIcon
+  ZoomIcon,
+  ActionBarButtonsWrapper
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -594,40 +595,42 @@ class AutomationForm extends React.Component<Props, State> {
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
           <span className={!isActive ? 'active' : ''}>Active</span>
         </ToggleWrapper>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'triggers')}
-        >
-          Add a Trigger
-        </Button>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'actions')}
-        >
-          Add an Action
-        </Button>
-        {
+        <ActionBarButtonsWrapper>
           <Button
             btnStyle="primary"
             size="small"
-            icon={'check-circle'}
-            onClick={this.handleTemplateModal}
+            icon="plus-circle"
+            onClick={this.toggleDrawer.bind(this, 'triggers')}
           >
-            Save as a template
+            Add a Trigger
           </Button>
-        }
-        <Button
-          btnStyle="success"
-          size="small"
-          icon={'check-circle'}
-          onClick={this.handleSubmit}
-        >
-          {__('Save')}
-        </Button>
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon="plus-circle"
+            onClick={this.toggleDrawer.bind(this, 'actions')}
+          >
+            Add an Action
+          </Button>
+          {
+            <Button
+              btnStyle="primary"
+              size="small"
+              icon={'check-circle'}
+              onClick={this.handleTemplateModal}
+            >
+              Save as a template
+            </Button>
+          }
+          <Button
+            btnStyle="success"
+            size="small"
+            icon={'check-circle'}
+            onClick={this.handleSubmit}
+          >
+            {__('Save')}
+          </Button>
+        </ActionBarButtonsWrapper>
       </BarItems>
     );
   }
