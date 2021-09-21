@@ -56,7 +56,6 @@ class SmsForm extends React.Component<Props, State> {
     if (!character) {
       return maxChar;
     }
-    console.log('calc', maxChar - character.length);
 
     return maxChar - character.length;
   }
