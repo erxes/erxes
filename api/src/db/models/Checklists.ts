@@ -30,7 +30,6 @@ export interface IChecklistItemModel extends Model<IChecklistItemDocument> {
     { checklistId, ...fields }: IChecklistItem,
     user: IUserDocument
   ): Promise<IChecklistItemDocument>;
-
   updateChecklistItem(
     _id: string,
     doc: IChecklistItem
@@ -89,7 +88,7 @@ export const loadClass = () => {
         ...fields
       });
 
-      await putActivityLog({
+      putActivityLog({
         action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
         data: {
           item: checklist,
@@ -176,7 +175,7 @@ export const loadItemClass = () => {
         data: {
           item: checklistItem,
           contentType: 'checklistItem',
-          action: 'delete'
+          action: 'create'
         }
       });
 
