@@ -17,7 +17,8 @@ import {
   BackIcon,
   CenterBar,
   ToggleWrapper,
-  ZoomActions
+  ZoomActions,
+  ZoomIcon
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -336,34 +337,37 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ activeAction });
   };
 
-  doZoom = (step: number) => {
+  doZoom = (step: number, inRange: boolean) => {
     const { isZoomable, zoom } = this.state;
 
-    this.setState({ zoom: zoom + step });
-    this.setZoom(zoom, jsPlumb, null, jquery('#canvas')[0]);
-
-    if (isZoomable) {
+    if (inRange) {
       this.setState({ zoom: zoom + step });
-      setTimeout(() => this.doZoom(step), 100);
+      this.setZoom(zoom, jsPlumb, null, jquery('#canvas')[0]);
+
+      if (isZoomable) {
+        this.setState({ zoom: zoom + step });
+        setTimeout(() => this.doZoom(step, inRange), 100);
+      }
     }
   };
 
-  zoomIn = () => {
-    console.log('heeweee');
-    this.setState({ isZoomable: true });
+  onZoom = (type: string) => {
+    const { zoomStep, zoom } = this.state;
 
-    this.doZoom(+this.state.zoomStep);
-  };
+    this.setState({ isZoomable: true }, () => {
+      let step = 0 - zoomStep;
+      const max = zoom <= 1;
+      const min = zoom >= 0.399;
 
-  zoomOut = () => {
-    this.setState({ isZoomable: true });
+      if (type === 'zoomIn') {
+        step = +zoomStep;
+        this.doZoom(step, max);
+      }
 
-    this.doZoom(0 - this.state.zoomStep);
-  };
-
-  kk = () => {
-    console.log('hhhhh');
-    this.setState({ isZoomable: false });
+      if (type === 'zoomOut') {
+        this.doZoom(step, min);
+      }
+    });
   };
 
   onClickTrigger = (trigger: ITrigger) => {
@@ -732,15 +736,20 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <ZoomActions>
         <div className="icon-wrapper">
-          <div onMouseDown={this.zoomIn} onMouseUp={this.kk}>
+          <ZoomIcon
+            disabled={this.state.zoom >= 1}
+            onMouseDown={this.onZoom.bind(this, 'zoomIn')}
+            onMouseUp={() => this.setState({ isZoomable: false })}
+          >
             <Icon icon="plus" />
-          </div>
-          <div
-            onMouseDown={this.zoomOut}
+          </ZoomIcon>
+          <ZoomIcon
+            disabled={this.state.zoom <= 0.399}
+            onMouseDown={this.onZoom.bind(this, 'zoomOut')}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
             <Icon icon="minus" />{' '}
-          </div>
+          </ZoomIcon>
         </div>
         <span>100%</span>
       </ZoomActions>

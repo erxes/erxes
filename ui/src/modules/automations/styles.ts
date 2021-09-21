@@ -759,27 +759,35 @@ export const ZoomActions = styled.div`
 
   > .icon-wrapper {
     border: 1px solid ${colors.borderDarker};
-    border-radius: 4px;
-    padding: 3px;
-    margin-bottom: 5px;
+    border-radius: ${dimensions.unitSpacing - 6}px;
+    margin-bottom: ${dimensions.unitSpacing - 5}px;
+  }
+`;
 
-    > div > i {
-      display: block;
-      font-weight: 500;
-      font-size: 11px;
-      padding: 0 3px;
-      cursor: pointer;
-      background: ${colors.colorWhite};
+export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
+  padding: ${dimensions.unitSpacing - 6}px;
+  background: ${props =>
+    props.disabled ? colors.bgActive : colors.colorWhite};
+  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+  transition: all ease .3s;
 
-      &:before {
-        font-weight: 700;
-      }
+  > i {
+    font-weight: 500;
+    font-size: 11px;
 
-      &:first-child {
-        border-bottom: 1px solid ${colors.borderDarker};
-        padding-bottom: 3px;
-      }
+    &:before {
+      font-weight: 700;
     }
+  }
+
+  &:first-child {
+    border-bottom: 1px solid ${colors.borderDarker};
+    padding-bottom: 3px;
+  }
+
+  &:hover {
+    background: ${colors.bgLight};
+    opacity: .8;
   }
 `;
 
