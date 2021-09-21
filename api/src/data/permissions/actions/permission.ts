@@ -1235,5 +1235,37 @@ export const moduleObjects = {
         description: 'Remove calendar groups'
       }
     ]
+  },
+  productTemplates: {
+    name: 'productTemplates',
+    description: 'Product templates',
+    actions: [
+      {
+        name: 'productTemplateAll',
+        description: 'All',
+        use: [
+          'showProductTemplate',
+          'productTemplatesAdd',
+          'productTemplatesEdit',
+          'productTemplatesRemove'
+        ]
+      },
+      {
+        name: 'showProductTemplate',
+        description: 'Show ProductTemplates'
+      },
+      {
+        name: 'productTemplatesAdd',
+        description: 'Add productTemplates'
+      },
+      {
+        name: 'productTemplatesEdit',
+        description: 'Edit productTemplates'
+      },
+      {
+        name: 'productTemplatesRemove',
+        description: 'Remove productTemplates'
+      }
+    ]
   }
 };

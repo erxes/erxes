@@ -68,6 +68,7 @@ const dealPermissions = [
   'dealStagesRemove'
 ];
 const productPermissions = ['showProducts', 'manageProducts'];
+const templatePermissions = ['showTemplates', 'manageTemplates'];
 const growthHackPermissions = [
   'growthHackBoardsAdd',
   'growthHackBoardsEdit',
@@ -311,6 +312,13 @@ class Settings extends React.PureComponent {
               '/images/icons/erxes-11.svg',
               '/settings/webhooks',
               ''
+            )}
+            {this.renderBox(
+              'Template',
+              '/images/icons/erxes-09.svg',
+              '/settings/template',
+              '',
+              templatePermissions
             )}
           </div>
         </Row>
