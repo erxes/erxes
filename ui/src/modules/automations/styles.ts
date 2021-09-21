@@ -763,7 +763,7 @@ export const ZoomActions = styled.div`
     padding: 3px;
     margin-bottom: 5px;
 
-    > i {
+    > div > i {
       display: block;
       font-weight: 500;
       font-size: 11px;
