@@ -1,12 +1,6 @@
 import Label from 'modules/common/components/Label';
 import WithPermission from 'modules/common/components/WithPermission';
-import {
-  __,
-  getEnv,
-  setBadge,
-  readFile,
-  preAuthCheck
-} from 'modules/common/utils';
+import { __, getEnv, setBadge, readFile } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -53,22 +47,14 @@ class Navigation extends React.Component<IProps, State> {
 
     this.state = {
       isReady: false,
-      pluginsData: { error: 'not defined branding' }
+      pluginsData: {}
     };
   }
   async componentDidMount(): Promise<void> {
-    const { preAuth } = pluginsOfRoutes();
-    const { REACT_APP_API_URL } = getEnv();
-
-    this.setState({ isReady: true });
-
-    if (typeof preAuth === 'function') {
-      const preAuthData = await preAuthCheck(
-        preAuth({ API_URL: REACT_APP_API_URL })
-      );
-      this.setState({ pluginsData: preAuthData });
-    }
+    const { preAuthData } = pluginsOfRoutes();
+    this.setState({ ...preAuthData });
   }
+
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
     const { pluginsData } = this.state;
@@ -217,15 +203,13 @@ class Navigation extends React.Component<IProps, State> {
 
     let logo = collapsed ? '/images/logo.png' : '/images/erxes.png';
 
-    if (!pluginsData.error) {
-      if (pluginsData.mainIcon) {
-        logo = readFile(pluginsData.mainIcon);
-      }
+    if (pluginsData.mainIcon) {
+      logo = readFile(pluginsData.mainIcon);
+    }
 
-      if (pluginsData.favicon) {
-        const favicon = document.getElementById('favicon') as HTMLLinkElement;
-        favicon.href = readFile(pluginsData.favicon);
-      }
+    if (pluginsData.favicon) {
+      const favicon = document.getElementById('favicon') as HTMLLinkElement;
+      favicon.href = readFile(pluginsData.favicon);
     }
 
     const unreadIndicator = unreadConversationsCount !== 0 && (

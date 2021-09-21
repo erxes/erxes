@@ -1,7 +1,7 @@
 import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import { IItem } from 'modules/boards/types';
-import { __ } from 'modules/common/utils';
+import { getEnv, __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
@@ -47,7 +47,29 @@ export const pluginsOfRoutes = (currentUser?: IUser) => {
     }
   }
 
-  return { plugins, pluginRoutes, preAuth, specialPluginRoutes };
+  const { REACT_APP_API_URL } = getEnv();
+
+  const preAuthData: {
+    isReady: boolean;
+    pluginsData: any;
+  } = {
+    isReady: false,
+    pluginsData: {}
+  };
+
+  if (typeof preAuth === 'function') {
+    preAuth({ API_URL: REACT_APP_API_URL }).then(result => {
+      preAuthData.isReady = true;
+
+      if (result && !result.error) {
+        preAuthData.pluginsData = Object.assign({}, result);
+      }
+    });
+  } else {
+    preAuthData.isReady = true;
+  }
+
+  return { plugins, pluginRoutes, preAuthData, specialPluginRoutes };
 };
 
 const PluginsWrapper = ({

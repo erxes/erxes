@@ -1,11 +1,5 @@
 import Button from 'modules/common/components/Button';
-import {
-  __,
-  bustIframe,
-  getEnv,
-  readFile,
-  preAuthCheck
-} from 'modules/common/utils';
+import { __, bustIframe, readFile } from 'modules/common/utils';
 import { pluginsOfRoutes } from 'pluginUtils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
@@ -29,7 +23,7 @@ type State = {
   pluginsData: any;
 };
 
-class AuthLayout extends React.Component<Props & { pluginsData? }, {}> {
+class AuthLayout extends React.Component<Props & { pluginsData }, {}> {
   renderContent(desciption: string, link: string) {
     return (
       <MobileRecommend>
@@ -80,22 +74,20 @@ class AuthLayout extends React.Component<Props & { pluginsData? }, {}> {
     const content =
       'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.';
 
-    if (pluginsData && !pluginsData.error) {
-      if (pluginsData.url) {
-        url = pluginsData.url;
-      }
+    if (pluginsData.url) {
+      url = pluginsData.url;
+    }
 
-      if (pluginsData.pageDesc) {
-        descriptions = pluginsData.pageDesc;
-      }
+    if (pluginsData.pageDesc) {
+      descriptions = pluginsData.pageDesc;
+    }
 
-      if (pluginsData.loginPageLogo) {
-        src = readFile(pluginsData.loginPageLogo);
-      }
+    if (pluginsData.loginPageLogo) {
+      src = readFile(pluginsData.loginPageLogo);
+    }
 
-      if (pluginsData.textColor) {
-        textColor = pluginsData.textColor;
-      }
+    if (pluginsData.textColor) {
+      textColor = pluginsData.textColor;
     }
 
     return (
@@ -115,7 +107,7 @@ class AuthLayout extends React.Component<Props & { pluginsData? }, {}> {
   render() {
     const { content, col = { first: 6, second: 5 }, pluginsData } = this.props;
     let backgroundColor = '';
-    if (pluginsData && !pluginsData.error && pluginsData.backgroundColor) {
+    if (pluginsData.backgroundColor) {
       backgroundColor = pluginsData.backgroundColor;
     }
 
@@ -140,22 +132,13 @@ class AuthLayoutWrapper extends React.Component<Props, State> {
 
     this.state = {
       isReady: false,
-      pluginsData: { error: 'not defined branding' }
+      pluginsData: {}
     };
   }
 
   async componentDidMount(): Promise<void> {
-    const { preAuth } = pluginsOfRoutes();
-    const { REACT_APP_API_URL } = getEnv();
-
-    this.setState({ isReady: true });
-
-    if (typeof preAuth === 'function') {
-      const preAuthData = await preAuthCheck(
-        preAuth({ API_URL: REACT_APP_API_URL })
-      );
-      this.setState({ pluginsData: preAuthData });
-    }
+    const { preAuthData } = pluginsOfRoutes();
+    this.setState({ ...preAuthData });
   }
 
   render() {

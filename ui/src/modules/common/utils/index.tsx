@@ -39,8 +39,6 @@ import {
   withProps
 } from 'erxes-ui/lib/utils';
 
-import { preAuthCheck } from './preAuthCheck';
-
 export {
   Alert,
   getEnv,
@@ -79,6 +77,5 @@ export {
   withProps,
   renderWithProps,
   formatValue,
-  isEmptyContent,
-  preAuthCheck
+  isEmptyContent
 };
