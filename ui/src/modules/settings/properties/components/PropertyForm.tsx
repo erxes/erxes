@@ -99,8 +99,10 @@ class PropertyForm extends React.Component<Props, State> {
 
   onTypeChange = e => {
     const value = e.target.value;
-
-    let doc = { hasOptions: false, options: [] };
+    let doc: { hasOptions: boolean; options: any[] } = {
+      hasOptions: false,
+      options: []
+    };
 
     if (
       value === 'select' ||
@@ -108,7 +110,7 @@ class PropertyForm extends React.Component<Props, State> {
       value === 'check' ||
       value === 'radio'
     ) {
-      doc = { hasOptions: true, options: [] };
+      doc = { hasOptions: true, options: this.state.options };
     }
 
     this.setState({ type: value, ...doc });
