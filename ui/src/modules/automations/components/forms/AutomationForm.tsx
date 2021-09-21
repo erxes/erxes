@@ -626,7 +626,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon={'check-circle'}
           onClick={this.handleSubmit}
         >
-          {__('Save changes')}
+          {__('Save')}
         </Button>
       </BarItems>
     );
