@@ -113,7 +113,8 @@ export const fetchSegment = async (
       index,
       body: {
         query: selector
-      }
+      },
+      defaultValue: { count: -1 }
     });
 
     return countResponse.count;
@@ -629,6 +630,10 @@ const getIndexByContentType = (contentType: string) => {
 
   if (contentType === 'ticket') {
     index = 'tickets';
+  }
+
+  if (contentType === 'conversation') {
+    index = 'conversations';
   }
 
   return index;

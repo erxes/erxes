@@ -150,8 +150,6 @@ class GeneralSettings extends React.Component<Props, State> {
       { title: __('General system config') }
     ];
 
-    console.log(configsMap);
-
     const actionButtons = (
       <Button
         id="generalSettingsSave"

@@ -133,9 +133,12 @@ export const loadProductClass = () => {
       }
 
       if (usedIds.length > 0) {
-        await Products.findByIdAndUpdate(usedIds, {
-          $set: { status: PRODUCT_STATUSES.DELETED }
-        });
+        await Products.updateMany(
+          { _id: { $in: usedIds } },
+          {
+            $set: { status: PRODUCT_STATUSES.DELETED }
+          }
+        );
         response = 'updated';
       }
 

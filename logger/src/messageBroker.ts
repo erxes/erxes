@@ -61,6 +61,8 @@ export const initBroker = async server => {
         return ActivityLogs.createArchiveLog(data);
       case 'createAssigneLog':
         return ActivityLogs.createAssigneLog(data);
+      case 'createTagLog':
+        return ActivityLogs.createTagLog(data);
       case 'createBoardItems':
         return ActivityLogs.createBoardItemsLog(data);
       case 'removeActivityLogs': {

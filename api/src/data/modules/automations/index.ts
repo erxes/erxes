@@ -1,6 +1,7 @@
+import * as allModels from '../../../db/models';
 import { isInSegment } from '../segments/queryBuilder';
 import { receiveRpcMessageBoardItem } from './boardItems';
-import { sendSuccess } from './utils';
+import { sendError, sendSuccess } from './utils';
 
 export const receiveRpcMessage = async msg => {
   const { action, payload } = msg;
@@ -11,6 +12,14 @@ export const receiveRpcMessage = async msg => {
     return sendSuccess({
       check: await isInSegment(doc.segmentId, doc.targetId)
     });
+  }
+
+  if (action === 'findObjects') {
+    if (!Object.keys(allModels).includes(doc.model)) {
+      return sendError('undefined model');
+    }
+
+    return sendSuccess(await allModels[doc.model].find({ ...doc.selector }));
   }
 
   return receiveRpcMessageBoardItem(action, doc);

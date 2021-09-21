@@ -13,7 +13,6 @@ const createOrUpdateSubSegments = async (segments: ISegment[]) => {
 
   for (const segment of segments) {
     const _id = segment._id;
-    console.log(segment);
 
     if (_id) {
       updatedSubSugments.push({
@@ -75,10 +74,10 @@ export const loadClass = () => {
       doc: ISegment,
       conditionSegments: ISegment[]
     ) {
-      console.log(conditionSegments);
-      const conditions = await createOrUpdateSubSegments(conditionSegments);
+      const conditions = await createOrUpdateSubSegments(
+        conditionSegments || []
+      );
 
-      console.log(conditions);
       doc.conditions = conditions;
 
       return Segments.create(doc);
@@ -92,7 +91,9 @@ export const loadClass = () => {
       doc: ISegment,
       conditionSegments: ISegment[]
     ) {
-      const conditions = await createOrUpdateSubSegments(conditionSegments);
+      const conditions = await createOrUpdateSubSegments(
+        conditionSegments || []
+      );
 
       doc.conditions = conditions;
 

@@ -8,7 +8,7 @@ import { __, Alert, confirm, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import React from 'react';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import { IAutomation } from '../types';
 import Row from './Row';
@@ -25,6 +25,7 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
+  addAutomation: () => void;
   removeAutomations: (
     doc: { automationIds: string[] },
     emptyBulk: () => void
@@ -104,7 +105,8 @@ class AutomationsList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      isExpand
+      isExpand,
+      addAutomation
     } = this.props;
 
     const automations = this.props.automations || [];
@@ -178,11 +180,15 @@ class AutomationsList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Link to="/automations/blank">
-          <Button btnStyle="success" size="small" icon="plus-circle">
-            {__('Create an automation')}
-          </Button>
-        </Link>
+
+        <Button
+          btnStyle="success"
+          size="small"
+          icon="plus-circle"
+          onClick={addAutomation}
+        >
+          {__('Create an automation')}
+        </Button>
       </BarItems>
     );
 

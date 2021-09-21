@@ -11,6 +11,7 @@ import { ISkillDocument } from 'modules/settings/skills/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
+import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
 
 type Props = {
@@ -114,6 +115,10 @@ function LeftSidebar({
             <SidebarCounter>{details.position || '-'}</SidebarCounter>
           </li>
           <li>
+            <FieldStyle>{__('Score')}:</FieldStyle>
+            <SidebarCounter>{user.score || '-'}</SidebarCounter>
+          </li>
+          <li>
             <FieldStyle>{__('Description')}:</FieldStyle>
             <SidebarCounter nowrap={true}>
               {details.description || '-'}
@@ -183,6 +188,7 @@ function LeftSidebar({
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
+      <CustomFieldsSection user={user} isDetail={true} />
       {renderChannels()}
       {renderSkills()}
     </Sidebar>

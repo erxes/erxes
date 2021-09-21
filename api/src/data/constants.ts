@@ -368,6 +368,12 @@ export const PROPERTY_GROUPS = [
       { value: 'deal', label: 'Sales pipeline' },
       { value: 'product', label: 'Products & services' }
     ]
+  },
+  {
+    label: 'Team member',
+    value: 'user',
+    description: 'description',
+    types: [{ value: 'user', label: 'Sales pipeline' }]
   }
 ];
 
@@ -387,6 +393,7 @@ export const CUSTOMER_BASIC_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   code: 'Code',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Avatar', canHide: false },
@@ -413,7 +420,8 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'owner', label: 'Owner', canHide: true },
     { field: 'pronoun', label: 'Pronoun', canHide: true },
     { field: 'birthDate', label: 'Birthday', canHide: true },
-    { field: 'code', label: 'Code', canHide: true }
+    { field: 'code', label: 'Code', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 
@@ -430,6 +438,7 @@ export const COMPANY_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   location: 'Headquarters Country',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Logo', canHide: false },
@@ -454,7 +463,8 @@ export const COMPANY_INFO = {
     { field: 'code', label: 'Code', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
     { field: 'isSubscribed', label: 'Subscribed', canHide: true },
-    { field: 'location', label: 'Headquarters Country', canHide: true }
+    { field: 'location', label: 'Headquarters Country', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 
@@ -509,5 +519,14 @@ export const DEVICE_PROPERTIES_INFO = {
     { field: 'hostName', label: 'Hostname' },
     { field: 'language', label: 'Language' },
     { field: 'agent', label: 'User Agent' }
+  ]
+};
+
+export const USER_PROPERTIES_INFO = {
+  email: 'Primary email',
+  username: 'User name',
+  ALL: [
+    { field: 'email', label: 'Primary email', canHide: false },
+    { field: 'username', label: 'User name' }
   ]
 };

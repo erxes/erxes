@@ -67,6 +67,13 @@ interface IAssigneeParams {
   content: object;
 }
 
+interface ITagParams {
+  contentId: string;
+  userId: string;
+  contentType: string;
+  content: object;
+}
+
 interface IChecklistParams {
   item: any;
   contentType: string;
@@ -119,6 +126,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     content: object
   ): Promise<IActivityLogDocument>;
   createAssigneLog(params: IAssigneeParams): Promise<IActivityLogDocument>;
+  createTagLog(params: ITagParams): Promise<IActivityLogDocument>;
   createChecklistLog(params: IChecklistParams): Promise<IActivityLogDocument>;
 
   createArchiveLog(params: IArchiveParams): Promise<IActivityLogDocument>;
@@ -162,6 +170,21 @@ export const loadClass = () => {
         contentType,
         contentId,
         action: 'assignee',
+        content,
+        createdBy: userId || ''
+      });
+    }
+
+    public static async createTagLog({
+      contentId,
+      userId,
+      contentType,
+      content
+    }: ITagParams) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId,
+        action: 'tagged',
         content,
         createdBy: userId || ''
       });

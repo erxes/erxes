@@ -216,6 +216,7 @@ export const ACTIVITY_ACTIONS = {
   MOVED: 'moved',
   CONVERT: 'convert',
   ASSIGNEE: 'assignee',
+  TAGGED: 'tagged',
 
   ALL: [
     'create',
@@ -225,7 +226,8 @@ export const ACTIVITY_ACTIONS = {
     'send',
     'moved',
     'convert',
-    'assignee'
+    'assignee',
+    'tagged'
   ]
 };
 
@@ -275,6 +277,7 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   VISITOR: 'visitor',
   LEAD: 'lead',
   FORM: 'form',
+  USER: 'user',
   ALL: [
     'customer',
     'company',
@@ -286,7 +289,8 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
     'deal',
     'visitor',
     'lead',
-    'form'
+    'form',
+    'user'
   ]
 };
 
@@ -543,7 +547,8 @@ export const NOTIFICATION_TYPES = {
     'taskDueDate',
     'taskDelete',
     'customerMention',
-    'companyMention'
+    'companyMention',
+    'plugin'
   ]
 };
 
@@ -758,6 +763,22 @@ export const WEBHOOK_ACTIONS = [
   { label: 'Company created', action: 'create', type: 'company' },
   { label: 'Company updated', action: 'update', type: 'company' },
   { label: 'Company deleted', action: 'delete', type: 'company' },
+  { label: 'Deal created', action: 'create', type: 'deal' },
+  { label: 'Deal updated', action: 'update', type: 'deal' },
+  { label: 'Deal deleted', action: 'delete', type: 'deal' },
+  { label: 'Deal moved', action: 'createBoardItemMovementLog', type: 'deal' },
+  { label: 'Task created', action: 'create', type: 'task' },
+  { label: 'Task updated', action: 'update', type: 'task' },
+  { label: 'Task deleted', action: 'delete', type: 'task' },
+  { label: 'Task moved', action: 'createBoardItemMovementLog', type: 'task' },
+  { label: 'Ticket created', action: 'create', type: 'ticket' },
+  { label: 'Ticket updated', action: 'update', type: 'ticket' },
+  { label: 'Ticket deleted', action: 'delete', type: 'ticket' },
+  {
+    label: 'Ticket moved',
+    action: 'createBoardItemMovementLog',
+    type: 'ticket'
+  },
   {
     label: 'Knowledge Base created',
     action: 'create',
@@ -801,6 +822,9 @@ export const WEBHOOK_TYPES = {
   FORM_SUBMITTED: 'popupSubmitted',
   KNOWLEDGEBASE: 'knowledgeBaseArticle',
   CAMPAIGN: 'engageMessages',
+  DEAL: 'deal',
+  TASK: 'task',
+  TICKET: 'ticket',
   ALL: [
     'customer',
     'company',
@@ -809,7 +833,10 @@ export const WEBHOOK_TYPES = {
     'customerMessages',
     'popupSubmitted',
     'knowledgeBaseArticle',
-    'engageMessages'
+    'engageMessages',
+    'deal',
+    'task',
+    'ticket'
   ]
 };
 

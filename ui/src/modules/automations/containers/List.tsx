@@ -11,6 +11,8 @@ import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/typ
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
+  AddMutationResponse,
+  IAutomationDoc,
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
@@ -26,7 +28,8 @@ type FinalProps = {
   automationsListConfigQuery: DefaultColumnsConfigQueryResponse;
 } & Props &
   IRouterProps &
-  RemoveMutationResponse;
+  RemoveMutationResponse &
+  AddMutationResponse;
 
 type State = {
   loading: boolean;
@@ -56,7 +59,31 @@ class ListContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { automationsMainQuery, automationsRemove } = this.props;
+    const {
+      automationsMainQuery,
+      automationsRemove,
+      addAutomationMutation,
+      history
+    } = this.props;
+
+    const addAutomation = () => {
+      addAutomationMutation({
+        variables: {
+          name: 'Your automation title',
+          status: 'draft',
+          triggers: [],
+          actions: []
+        }
+      })
+        .then(data => {
+          history.push(`/automations/details/${data.data.automationsAdd._id}`);
+          Alert.success(`You successfully created an automation`);
+        })
+
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
     const removeAutomations = ({ automationIds }, emptyBulk) => {
       automationsRemove({
@@ -86,6 +113,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       searchValue,
       automations: list,
       loading: automationsMainQuery.loading || this.state.loading,
+      addAutomation,
       removeAutomations,
       refetch: this.refetchWithDelay
     };
@@ -140,6 +168,15 @@ export default withProps<Props>(
       }
     ),
     // mutations
+    graphql<{}, AddMutationResponse, IAutomationDoc>(
+      gql(mutations.automationsAdd),
+      {
+        name: 'addAutomationMutation',
+        options: () => ({
+          refetchQueries: ['automations', 'automationsMain', 'automationDetail']
+        })
+      }
+    ),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.automationsRemove),
       {

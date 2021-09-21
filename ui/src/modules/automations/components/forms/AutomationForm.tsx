@@ -53,15 +53,13 @@ const plumb: any = jsPlumb;
 let instance;
 
 type Props = {
-  id?: string;
-  automation?: IAutomation;
+  automation: IAutomation;
   automationNotes?: IAutomationNote[];
   save: (params: any) => void;
 };
 
 type State = {
   name: string;
-  status: string;
   currentTab: string;
   activeId: string;
   showDrawer: boolean;
@@ -86,18 +84,10 @@ class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const {
-      automation = {
-        name: 'Your automation title',
-        status: 'draft',
-        triggers: [],
-        actions: []
-      }
-    } = this.props;
+    const { automation } = this.props;
 
     this.state = {
       name: automation.name,
-      status: automation.status,
       actions: automation.actions || [],
       triggers: automation.triggers || [],
       activeTrigger: {} as ITrigger,
@@ -245,8 +235,8 @@ class AutomationForm extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { name, status, triggers, actions } = this.state;
-    const { id, save } = this.props;
+    const { name, isActive, triggers, actions } = this.state;
+    const { automation, save } = this.props;
 
     if (!name) {
       return Alert.error('Enter an Automation name');
@@ -254,9 +244,9 @@ class AutomationForm extends React.Component<Props, State> {
 
     const generateValues = () => {
       const finalValues = {
-        _id: id,
+        _id: automation._id,
         name,
-        status,
+        status: isActive ? 'active' : 'draft',
         triggers: triggers.map(t => ({
           id: t.id,
           type: t.type,
@@ -537,7 +527,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   rendeRightActionBar() {
     const { isActive } = this.state;
-    const { id } = this.props;
 
     return (
       <BarItems>
@@ -562,7 +551,7 @@ class AutomationForm extends React.Component<Props, State> {
         >
           Add an Action
         </Button>
-        {id && (
+        {
           <Button
             btnStyle="primary"
             size="small"
@@ -571,14 +560,14 @@ class AutomationForm extends React.Component<Props, State> {
           >
             Save as a template
           </Button>
-        )}
+        }
         <Button
           btnStyle="success"
           size="small"
           icon={'check-circle'}
           onClick={this.handleSubmit}
         >
-          Publish to site
+          {__('Save changes')}
         </Button>
       </BarItems>
     );

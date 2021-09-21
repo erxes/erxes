@@ -17,6 +17,7 @@ const userDetail = `
       links
       emailSignatures
       getNotificationByEmail
+      customFieldsData
     }
   }
 `;
