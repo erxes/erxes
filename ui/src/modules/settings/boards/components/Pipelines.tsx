@@ -7,6 +7,7 @@ import Table from 'modules/common/components/table';
 import { Count, Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import SortHandler from 'modules/common/components/SortHandler';
 import Wrapper from 'modules/layout/components/Wrapper';
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
@@ -17,6 +18,7 @@ import { Link, withRouter } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
 import PipelineRow from './PipelineRow';
+import { router } from '../../../common/utils';
 
 type Props = {
   type: string;
@@ -35,6 +37,24 @@ type State = {
   pipelines: IPipeline[];
   isDragDisabled: boolean;
 };
+
+function sortItems(arr, direction, field) {
+  if (!field || !direction) {
+    return;
+  }
+  arr.sort(function(a, b) {
+    const valueA = a[field].toLowerCase();
+    const valueB = b[field].toLowerCase();
+
+    if (valueA < valueB) {
+      return -direction;
+    }
+    if (valueA > valueB) {
+      return direction;
+    }
+    return 0;
+  });
+}
 
 class Pipelines extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -93,10 +113,19 @@ class Pipelines extends React.Component<Props, State> {
   };
 
   renderRows() {
-    const { renderButton, type, options } = this.props;
+    const { renderButton, type, options, history } = this.props;
     const { pipelines } = this.state;
 
-    return pipelines.map(pipeline => (
+    const sortDirection = router.getParam(history, 'sortDirection');
+    const sortField = router.getParam(history, 'sortField');
+
+    const sortedPipelines = [...pipelines];
+
+    if (sortDirection && sortField) {
+      sortItems(sortedPipelines, sortDirection, sortField);
+    }
+
+    return sortedPipelines.map(pipeline => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
@@ -112,6 +141,7 @@ class Pipelines extends React.Component<Props, State> {
   renderContent() {
     const { pipelines, options, type } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
+    const columnsConfig = [{ name: 'name', label: __('pipelineName') }];
 
     if (pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
@@ -144,7 +174,11 @@ class Pipelines extends React.Component<Props, State> {
         <Table>
           <thead>
             <tr>
-              <th>{__('pipelineName')}</th>
+              {columnsConfig.map(({ name, label }) => (
+                <th key={name}>
+                  <SortHandler sortField={name} label={__(label)} />
+                </th>
+              ))}
               <th>{__('Actions')}</th>
             </tr>
           </thead>
