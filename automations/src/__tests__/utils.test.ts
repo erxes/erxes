@@ -158,7 +158,7 @@ describe('executeActions (if)', () => {
 
     expect(execution.triggerId).toBe('1');
     expect(execution.waitingActionId).toBe(null);
-    expect(execution.lastCheckedWaitDate).toBe(null);
+    expect(execution.startWaitingDate).toBe(null);
 
     mock.restore();
 
@@ -245,7 +245,7 @@ describe('executeActions (wait)', () => {
     const execution = await Executions.findOne();
 
     expect(execution.waitingActionId).toBe('2');
-    expect(execution.lastCheckedWaitDate).not.toBe(null);
+    expect(execution.startWaitingDate).not.toBe(null);
 
     mock.restore();
 

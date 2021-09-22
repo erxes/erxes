@@ -1,44 +1,79 @@
 import { Document, Model, model, Schema } from 'mongoose';
 
-export interface IActionData {
+export interface IExecAction {
+  createdAt?: Date;
   actionId: string;
-  data: any;
+  actionType: string;
+  actionConfig?: any;
+  nextActionId?: string;
 }
 
 export interface IExecution {
-  createdAt: Date;
+  createdAt?: Date;
+  modifiedAt?: Date;
   automationId: string;
   triggerId: string;
   triggerType: string;
+  triggerConfig: any;
+  nextActionId?: string;
   targetId: string;
   target: any;
   status: string;
-  lastCheckedWaitDate: Date;
-  waitingActionId: string;
+  description: string;
+  actions?: IExecAction[];
+  startWaitingDate?: Date;
+  waitingActionId?: string;
 }
 
 export interface IExecutionDocument extends IExecution, Document {
   _id: string;
 }
 
-export const actionDataSchema = new Schema({
-  actionId: { type: String, required: true },
-  data: { type: Object }
-}, { _id: false });
+export const EXECUTION_STATUS = {
+  ACTIVE: 'active',
+  WAITING: 'waiting',
+  ERROR: 'error',
+  MISSID: 'missed',
+  COMPLETE: 'complete',
+  ALL: ['active', 'waiting', 'error', 'missed', 'complete']
+}
+
+const execActionSchema = new Schema({
+  createdAt: { type: Date, default: Date.now(), required: true },
+  actionId: { type: String },
+  actionType: { type: String },
+  actionConfig: { type: Object },
+  nextActionId: { type: String },
+  description: { type: String }
+})
 
 export const executionSchema = new Schema({
-  createdAt: { type: Date, required: true },
-  automationId: { type: String, required: true },
-  triggerId: { type: String, required: true },
-  triggerType: { type: String, required: true },
-  targetId: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now(), required: true },
+  modifiedAt: { type: Date, default: Date.now(), required: true },
+  automationId: { type: String, required: true, index: true },
+  triggerId: { type: String, required: true, index: true },
+  triggerType: { type: String },
+  triggerConfig: { type: Object },
+  nextActionId: { type: String },
+  targetId: { type: String, required: true, index: true },
   target: { type: Object },
-  lastCheckedWaitDate: { type: Date },
+  status: {
+    type: String,
+    enum: EXECUTION_STATUS.ALL,
+    default: EXECUTION_STATUS.ACTIVE,
+    label: 'Status',
+    index: true
+  },
+  description: { type: String, required: true },
+  actions: { type: [execActionSchema] },
+  startWaitingDate: { type: Date },
   waitingActionId: { type: String },
 });
 
 export interface IExecutionModel extends Model<IExecutionDocument> {
-  createExecution(doc: any): IExecutionDocument
+  createExecution(doc: IExecution): IExecutionDocument;
+  getExecution(selector: any): IExecutionDocument;
+  removeExecutions(automationIds: string[]): void;
 }
 
 export const loadClass = () => {
@@ -50,6 +85,11 @@ export const loadClass = () => {
     public static async getExecution(selector) {
       return Executions.findOne(selector);
     }
+
+    public static async removeExecutions(automationIds) {
+      return Executions.deleteMany({ automationId: { $in: automationIds } });
+    }
+
   }
 
   executionSchema.loadClass(Execution);
