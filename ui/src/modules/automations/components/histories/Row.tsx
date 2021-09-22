@@ -76,14 +76,14 @@ class HistoryRow extends React.Component<Props, State> {
     return (
       <>
         <tr key={Math.random()} style={{ backgroundColor: '#ececec' }}>
-          <td></td>
+          <td>{}</td>
           <td colSpan={2}>{__('Sub Time')}</td>
           <td colSpan={2}>{__('Action Type')}</td>
         </tr>
 
         {actions.map(action => (
           <tr key={action.actionId}>
-            <td></td>
+            <td>{}</td>
             <td colSpan={2}>{action.createdAt}</td>
             <td colSpan={2}>{actionsByType[action.actionType]}</td>
           </tr>

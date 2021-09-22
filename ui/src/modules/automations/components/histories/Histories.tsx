@@ -15,15 +15,11 @@ class Histories extends React.Component<Props> {
   render() {
     const triggersByType = {};
     TRIGGERS.forEach(t => {
-      {
-        triggersByType[t.type] = `${t.label} based`;
-      }
+      triggersByType[t.type] = `${t.label} based`;
     });
     const actionsByType = {};
     ACTIONS.forEach(a => {
-      {
-        actionsByType[a.type] = a.label;
-      }
+      actionsByType[a.type] = a.label;
     });
 
     const renderContent = () => {
@@ -47,6 +43,7 @@ class Histories extends React.Component<Props> {
             <tbody id="automationHistories">
               {histories.map(history => (
                 <Row
+                  key={history._id}
                   history={history}
                   triggersByType={triggersByType}
                   actionsByType={actionsByType}
