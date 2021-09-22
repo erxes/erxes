@@ -97,3 +97,13 @@ export const EMPTY_CONTENT_TASK = {
     }
   ]
 };
+
+export const SEARCH_ACTIVITY_CHECKBOX = [
+  'Added new card',
+  'Moved card position in the stage',
+  'Moved card to different pipeline',
+  'Moved card to different board',
+  'Archived card',
+  'Deleted archived card',
+  'Added notes'
+];

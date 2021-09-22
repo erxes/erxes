@@ -45,6 +45,12 @@ const boards = ({ location }) => {
   return <TaskBoard queryParams={queryParams} />;
 };
 
+const activity = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="activity" queryParams={queryParams} />;
+};
+
 const calendar = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -76,6 +82,13 @@ const routes = () => {
         exact={true}
         path="/task/calendar"
         component={calendar}
+      />
+
+      <Route
+        key="task/activity"
+        exact={true}
+        path="/task/activity"
+        component={activity}
       />
     </>
   );

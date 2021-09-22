@@ -13,6 +13,7 @@ import { queries } from '../graphql';
 import { RootBack, ScrolledContent } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
+import ActivityLogs from '../components/activityLogs/ActivityLogs';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -21,7 +22,7 @@ type Props = {
 
 class Board extends React.Component<Props> {
   render() {
-    const { pipelineDetailQuery, queryParams, options } = this.props;
+    const { pipelineDetailQuery, queryParams, options, viewType } = this.props;
 
     if (pipelineDetailQuery && pipelineDetailQuery.loading) {
       return <Spinner />;
@@ -51,6 +52,16 @@ class Board extends React.Component<Props> {
 
     const pipeline = pipelineDetailQuery.pipelineDetail;
 
+    if (viewType === 'activity') {
+      return (
+        <ActivityLogs
+          key={pipeline._id}
+          options={options}
+          queryParams={queryParams}
+        />
+      );
+    }
+
     return (
       <RootBack style={{ backgroundColor: pipeline.bgColor }}>
         <ScrolledContent>
@@ -69,6 +80,7 @@ class Board extends React.Component<Props> {
 type WrapperProps = {
   queryParams: any;
   options: IOptions;
+  viewType?: string;
 };
 
 export default withProps<WrapperProps>(
