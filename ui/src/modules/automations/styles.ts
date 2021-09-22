@@ -421,6 +421,10 @@ export const CenterBar = styled.div`
       }
     }
   }
+
+  @media (max-width: 1600px) {
+    left: 30%;
+  }
 `;
 
 export const AutomationFormContainer = styled(Contents)`
@@ -514,6 +518,19 @@ export const Description = styled.div`
   }
 `;
 
+export const ActionBarButtonsWrapper = styled.div`
+  @media (max-width: 1450px) {
+    max-width: 350px;
+    white-space: normal;
+    text-align: right;
+    margin-bottom: ${dimensions.unitSpacing}px;
+
+    > button {
+      margin-top: ${dimensions.unitSpacing - 5}px;
+    }
+  }
+`;
+
 export const ToggleWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -572,36 +589,21 @@ export const Status = styledTS<{ isActive: boolean }>(styled.div)`
   }
 `;
 
-export const EnrollmentWrapper = styled.div`
+export const EnrollmentWrapper = styledTS<{ noMargin?: boolean }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
-  margin-top: ${dimensions.unitSpacing}px;
+  margin: ${props => (props.noMargin ? '0 0 10px' : '10px 0 0')};
   border-radius: 5px;
 
   > div {
-    margin-top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    > span {
-      margin-right: ${dimensions.headerSpacing}px;
-
-      b {
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: ${dimensions.unitSpacing}px;
-      }
-
-      p {
-        color: ${colors.colorCoreGray};
-      }
+    p {
+      color: ${colors.colorCoreGray};
+      margin: 0 ${dimensions.headerSpacing}px 0 0;
     }
-  }
-
-  > p {
-    margin-top: ${dimensions.unitSpacing}px;
-    font-weight: 500;
   }
 `;
 
@@ -613,20 +615,20 @@ export const StyledToggle = styled.div`
   border-radius: 5px;
 
   .react-toggle-track {
-    background-color: #aeb0eb;
+    background-color: #bcbeed;
   }
 
   .react-toggle-thumb {
-    border-color: #aeb0eb;
+    border-color: #bcbeed;
   }
 
   .react-toggle--checked .react-toggle-track,
   .react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
-    background-color: ${colors.colorSecondary} !important;
+    background-color: ${colors.colorCoreGreen} !important;
   }
 
   .react-toggle--checked .react-toggle-thumb {
-    border-color: ${colors.colorSecondary} !important;
+    border-color: ${colors.colorCoreGreen} !important;
   }
 `;
 
@@ -755,31 +757,39 @@ export const ZoomActions = styled.div`
   position: absolute;
   align-items: center;
   font-size: 11px;
-  z-index: 999;
+  z-index: 10;
 
   > .icon-wrapper {
     border: 1px solid ${colors.borderDarker};
-    border-radius: 4px;
-    padding: 3px;
-    margin-bottom: 5px;
+    border-radius: ${dimensions.unitSpacing - 6}px;
+    margin-bottom: ${dimensions.unitSpacing - 5}px;
+  }
+`;
 
-    > i {
-      display: block;
-      font-weight: 500;
-      font-size: 11px;
-      padding: 0 3px;
-      cursor: pointer;
-      background: ${colors.colorWhite};
+export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
+  padding: ${dimensions.unitSpacing - 6}px;
+  background: ${props =>
+    props.disabled ? colors.bgActive : colors.colorWhite};
+  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+  transition: all ease .3s;
 
-      &:before {
-        font-weight: 700;
-      }
+  > i {
+    font-weight: 500;
+    font-size: 11px;
 
-      &:first-child {
-        border-bottom: 1px solid ${colors.borderDarker};
-        padding-bottom: 3px;
-      }
+    &:before {
+      font-weight: 700;
     }
+  }
+
+  &:first-child {
+    border-bottom: 1px solid ${colors.borderDarker};
+    padding-bottom: 3px;
+  }
+
+  &:hover {
+    background: ${colors.bgLight};
+    opacity: .8;
   }
 `;
 

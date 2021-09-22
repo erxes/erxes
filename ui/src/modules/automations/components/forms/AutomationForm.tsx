@@ -16,7 +16,10 @@ import {
   ScrolledContent,
   BackIcon,
   CenterBar,
-  ToggleWrapper
+  ToggleWrapper,
+  ZoomActions,
+  ZoomIcon,
+  ActionBarButtonsWrapper
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -74,10 +77,14 @@ type State = {
   activeTrigger: ITrigger;
   activeAction: IAction;
   selectedContentId?: string;
+  isZoomable: boolean;
+  zoomStep: number;
+  zoom: number;
 };
 
 class AutomationForm extends React.Component<Props, State> {
   private wrapperRef;
+  private setZoom;
 
   constructor(props) {
     super(props);
@@ -98,6 +105,9 @@ class AutomationForm extends React.Component<Props, State> {
       showTrigger: false,
       showDrawer: false,
       showAction: false,
+      isZoomable: false,
+      zoomStep: 0.025,
+      zoom: 1,
       activeAction: {} as IAction
     };
   }
@@ -130,6 +140,28 @@ class AutomationForm extends React.Component<Props, State> {
     if (isActionTab && isActionTab !== prevState.isActionTab) {
       this.connectInstance();
     }
+
+    this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
+      transformOrigin = transformOrigin || [0.5, 0.5];
+      instanceZoom = instanceZoom || jsPlumb;
+      el = el || instanceZoom.getContainer();
+
+      const p = ['webkit', 'moz', 'ms', 'o'];
+      const s = 'scale(' + zoom + ')';
+      const oString =
+        transformOrigin[0] * 100 + '% ' + transformOrigin[1] * 100 + '%';
+
+      // tslint:disable-next-line:prefer-for-of
+      for (let i = 0; i < p.length; i++) {
+        el.style[p[i] + 'Transform'] = s;
+        el.style[p[i] + 'TransformOrigin'] = oString;
+      }
+
+      el.style.transform = s;
+      el.style.transformOrigin = oString;
+
+      instanceZoom.setZoom(zoom);
+    };
   }
 
   componentWillUnmount() {
@@ -306,6 +338,39 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ activeAction });
   };
 
+  doZoom = (step: number, inRange: boolean) => {
+    const { isZoomable, zoom } = this.state;
+
+    if (inRange) {
+      this.setState({ zoom: zoom + step });
+      this.setZoom(zoom, jsPlumb, null, jquery('#canvas')[0]);
+
+      if (isZoomable) {
+        this.setState({ zoom: zoom + step });
+        setTimeout(() => this.doZoom(step, inRange), 100);
+      }
+    }
+  };
+
+  onZoom = (type: string) => {
+    const { zoomStep, zoom } = this.state;
+
+    this.setState({ isZoomable: true }, () => {
+      let step = 0 - zoomStep;
+      const max = zoom <= 1;
+      const min = zoom >= 0.399;
+
+      if (type === 'zoomIn') {
+        step = +zoomStep;
+        this.doZoom(step, max);
+      }
+
+      if (type === 'zoomOut') {
+        this.doZoom(step, min);
+      }
+    });
+  };
+
   onClickTrigger = (trigger: ITrigger) => {
     const config = trigger && trigger.config;
     const selectedContentId = config && config.contentId;
@@ -359,7 +424,10 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (data: ITrigger, triggerId?: string, config?: any) => {
     const { triggers, activeTrigger } = this.state;
 
-    let trigger: any = { ...data, id: this.getNewId(triggers.map(t => t.id)) };
+    let trigger: any = {
+      ...data,
+      id: this.getNewId(triggers.map(t => t.id))
+    };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
@@ -527,40 +595,42 @@ class AutomationForm extends React.Component<Props, State> {
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
           <span className={!isActive ? 'active' : ''}>Active</span>
         </ToggleWrapper>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'triggers')}
-        >
-          Add a Trigger
-        </Button>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'actions')}
-        >
-          Add an Action
-        </Button>
-        {
+        <ActionBarButtonsWrapper>
           <Button
             btnStyle="primary"
             size="small"
-            icon={'check-circle'}
-            onClick={this.handleTemplateModal}
+            icon="plus-circle"
+            onClick={this.toggleDrawer.bind(this, 'triggers')}
           >
-            Save as a template
+            Add a Trigger
           </Button>
-        }
-        <Button
-          btnStyle="success"
-          size="small"
-          icon={'check-circle'}
-          onClick={this.handleSubmit}
-        >
-          {__('Save changes')}
-        </Button>
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon="plus-circle"
+            onClick={this.toggleDrawer.bind(this, 'actions')}
+          >
+            Add an Action
+          </Button>
+          {
+            <Button
+              btnStyle="primary"
+              size="small"
+              icon={'check-circle'}
+              onClick={this.handleTemplateModal}
+            >
+              Save as a template
+            </Button>
+          }
+          <Button
+            btnStyle="success"
+            size="small"
+            icon={'check-circle'}
+            onClick={this.handleSubmit}
+          >
+            {__('Save')}
+          </Button>
+        </ActionBarButtonsWrapper>
       </BarItems>
     );
   }
@@ -665,6 +735,30 @@ class AutomationForm extends React.Component<Props, State> {
     return null;
   }
 
+  renderZoomActions() {
+    return (
+      <ZoomActions>
+        <div className="icon-wrapper">
+          <ZoomIcon
+            disabled={this.state.zoom >= 1}
+            onMouseDown={this.onZoom.bind(this, 'zoomIn')}
+            onMouseUp={() => this.setState({ isZoomable: false })}
+          >
+            <Icon icon="plus" />
+          </ZoomIcon>
+          <ZoomIcon
+            disabled={this.state.zoom <= 0.399}
+            onMouseDown={this.onZoom.bind(this, 'zoomOut')}
+            onMouseUp={() => this.setState({ isZoomable: false })}
+          >
+            <Icon icon="minus" />{' '}
+          </ZoomIcon>
+        </div>
+        <span>100%</span>
+      </ZoomActions>
+    );
+  }
+
   renderContent() {
     const { triggers, actions } = this.state;
 
@@ -694,6 +788,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <Container>
+        {this.renderZoomActions()}
         <div id="canvas" />
       </Container>
     );

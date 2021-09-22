@@ -179,7 +179,11 @@ class Settings extends React.Component<Props, State> {
               ?
             </p>
             <DateControlWrapper>
-              {this.state.dates.map(date => this.renderDate(date))}
+              {this.state.dates.map((date, index) => (
+                <React.Fragment key={index}>
+                  {this.renderDate(date)}
+                </React.Fragment>
+              ))}
               <Button
                 btnStyle="success"
                 size="small"
