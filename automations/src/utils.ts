@@ -53,7 +53,7 @@ export const executeActions = async (
   triggerType: string,
   execution: IExecutionDocument,
   actionsMap: IActionsMap,
-  currentActionId?: string
+  currentActionId?: string,
 ): Promise<string> => {
   if (!currentActionId) {
     execution.waitingActionId = null;
@@ -66,93 +66,104 @@ export const executeActions = async (
 
   const action = actionsMap[currentActionId];
 
-  if (action.type === ACTIONS.WAIT) {
-    execution.waitingActionId = action.id;
-    execution.lastCheckedWaitDate = new Date();
-    await execution.save();
+  try {
 
-    return 'paused';
-  }
+    if (action.type === ACTIONS.WAIT) {
+      execution.waitingActionId = action.id;
+      execution.lastCheckedWaitDate = new Date();
+      await execution.save();
 
-  if (action.type === ACTIONS.IF) {
-    let ifActionId;
-
-    if (await isInSegment(action.config.contentId, execution.targetId)) {
-      ifActionId = action.config.yes;
-    } else {
-      ifActionId = action.config.no;
+      return 'paused';
     }
 
+    if (action.type === ACTIONS.IF) {
+      let ifActionId;
+
+      if (await isInSegment(action.config.contentId, execution.targetId)) {
+        ifActionId = action.config.yes;
+      } else {
+        ifActionId = action.config.no;
+      }
+
+      await AutomationHistories.createHistory({
+        actionId: currentActionId,
+        actionType: action.type,
+        triggerType,
+        description: `Continuing on the ${action.config.yes}`,
+        automationId: execution.automationId,
+        target: execution.target
+      });
+
+      return executeActions(triggerType, execution, actionsMap, ifActionId);
+    }
+
+    if (action.type === ACTIONS.GO_TO) {
+      return executeActions(
+        triggerType,
+        execution,
+        actionsMap,
+        action.config.toId
+      );
+    }
+
+    if (action.type === ACTIONS.SET_PROPERTY) {
+      await setProperty({
+        triggerType,
+        actionConfig: action.config,
+        target: execution.target
+      });
+
+      await AutomationHistories.createHistory({
+        actionId: currentActionId,
+        actionType: action.type,
+        triggerType,
+        description: 'Set property',
+        automationId: execution.automationId,
+        target: execution.target
+      });
+    }
+
+    if (action.type === ACTIONS.ADD_TAGS) {
+      tags = [...tags, ...action.config.names];
+    }
+
+    if (action.type === ACTIONS.REMOVE_TAGS) {
+      tags = tags.filter(t => !action.config.names.includes(t));
+    }
+
+    if (
+      action.type === ACTIONS.CREATE_TASK ||
+      action.type === ACTIONS.CREATE_TICKET ||
+      action.type === ACTIONS.CREATE_DEAL
+    ) {
+      const type = action.type.substring(6).toLocaleLowerCase();
+
+      await addBoardItem({ action, execution, type });
+
+      await AutomationHistories.createHistory({
+        actionId: currentActionId,
+        actionType: action.type,
+        triggerType,
+        description: `Created a ${type}`,
+        automationId: execution.automationId,
+        target: execution.target
+      });
+    }
+
+    if (action.type === ACTIONS.REMOVE_DEAL) {
+      deals = deals.filter(t => !action.config.names.includes(t));
+    }
+
+    await execution.save();
+  } catch (e) {
     await AutomationHistories.createHistory({
       actionId: currentActionId,
       actionType: action.type,
-      triggerType,
-      description: `Continuing on the ${action.config.yes}`,
-      automationId: execution.automationId,
-      target: execution.target
-    });
-
-    return executeActions(triggerType, execution, actionsMap, ifActionId);
-  }
-
-  if (action.type === ACTIONS.GO_TO) {
-    return executeActions(
-      triggerType,
-      execution,
-      actionsMap,
-      action.config.toId
-    );
-  }
-
-  if (action.type === ACTIONS.SET_PROPERTY) {
-    await setProperty({
-      triggerType,
-      actionConfig: action.config,
-      target: execution.target
-    });
-
-    await AutomationHistories.createHistory({
-      actionId: currentActionId,
-      actionType: action.type,
-      triggerType,
-      description: 'Set property',
+      description: 'An error occurred while checking the is in segment',
       automationId: execution.automationId,
       target: execution.target
     });
   }
-
-  if (action.type === ACTIONS.ADD_TAGS) {
-    tags = [...tags, ...action.config.names];
-  }
-
-  if (action.type === ACTIONS.REMOVE_TAGS) {
-    tags = tags.filter(t => !action.config.names.includes(t));
-  }
-
-  if (
-    action.type === ACTIONS.CREATE_TASK ||
-    action.type === ACTIONS.CREATE_TICKET ||
-    action.type === ACTIONS.CREATE_DEAL
-  ) {
-    const type = action.type.substring(6).toLocaleLowerCase();
-
-    await addBoardItem({ action, execution, type });
-
-    await AutomationHistories.createHistory({
-      actionId: currentActionId,
-      actionType: action.type,
-      triggerType,
-      description: `Created a ${type}`,
-      automationId: execution.automationId,
-      target: execution.target
-    });
-  }
-
-  if (action.type === ACTIONS.REMOVE_DEAL) {
-    deals = deals.filter(t => !action.config.names.includes(t));
-  }
-
-  await execution.save();
 
   return executeActions(
     triggerType,
@@ -173,9 +184,18 @@ export const calculateExecution = async ({
 }): Promise<IExecutionDocument> => {
   const { id, type, config } = trigger;
   const { reEnrollment, reEnrollmentRules, contentId } = config;
-
-  if (!await isInSegment(contentId, target._id)) {
-    return;
+  try {
+    if (!await isInSegment(contentId, target._id)) {
+      return;
+    }
+  } catch (e) {
+    await AutomationHistories.createHistory({
+      triggerId: trigger.id,
+      triggerType: trigger.type,
+      description: 'An error occurred while checking the is in segment',
+      automationId,
+      target
+    });
   }
 
   const executions = await Executions.find({

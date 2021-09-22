@@ -75,7 +75,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Company',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts'
+      'Start with a blank workflow that enralls and is triggered off company'
   },
   {
     type: 'conversation',
@@ -83,7 +83,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Conversation',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts'
+      'Start with a blank workflow that enralls and is triggered off conversation'
   },
   {
     type: 'task',
@@ -91,7 +91,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Task',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts'
+      'Start with a blank workflow that enralls and is triggered off task'
   },
   {
     type: 'ticket',
@@ -99,7 +99,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Ticket',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts'
+      'Start with a blank workflow that enralls and is triggered off ticket'
   },
   {
     type: 'deal',
@@ -107,6 +107,14 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Sales pipeline',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts'
+      'Start with a blank workflow that enralls and is triggered off sales pipeline item'
+  },
+  {
+    type: 'user',
+    img: 'automation4.svg',
+    icon: 'file-plus',
+    label: 'Team member',
+    description:
+      'Start with a blank workflow that enralls and is triggered off team members'
   }
 ];
