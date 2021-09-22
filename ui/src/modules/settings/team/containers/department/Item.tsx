@@ -9,6 +9,7 @@ import Item from '../../components/department/Item';
 type Props = {
   department: any;
   refetch: () => void;
+  depth?: number;
 };
 
 export default function ItemContainer(props: Props) {

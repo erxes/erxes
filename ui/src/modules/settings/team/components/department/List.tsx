@@ -13,6 +13,20 @@ type Props = {
 };
 
 export default function List({ listQuery }: Props) {
+  const renderChildren = parentId => {
+    const allDepartments = listQuery.data.departments || [];
+
+    const departments = allDepartments.filter(d => d.parentId === parentId);
+
+    return departments.map(department => (
+      <Item
+        key={department._id}
+        department={department}
+        refetch={listQuery.refetch}
+      />
+    ));
+  };
+
   const renderForm = ({ closeModal }) => {
     return <Form closeModal={closeModal} />;
   };
@@ -37,11 +51,7 @@ export default function List({ listQuery }: Props) {
       name="showDepartments"
       extraButtons={extraButtons}
     >
-      <SidebarList className="no-link">
-        {(listQuery.data.departments || []).map(department => (
-          <Item department={department} refetch={listQuery.refetch} />
-        ))}
-      </SidebarList>
+      <SidebarList className="no-link">{renderChildren(null)}</SidebarList>
     </Box>
   );
 }

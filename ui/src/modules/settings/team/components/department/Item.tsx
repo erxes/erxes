@@ -8,9 +8,15 @@ type Props = {
   department: any;
   deleteDepartment: (_id: string, callback: () => void) => void;
   refetch: () => void;
+  depth?: number;
 };
 
-export default function Item({ department, refetch, deleteDepartment }: Props) {
+export default function Item({
+  department,
+  depth,
+  refetch,
+  deleteDepartment
+}: Props) {
   const renderForm = ({ closeModal }) => {
     return <Form department={department} closeModal={closeModal} />;
   };
@@ -29,7 +35,9 @@ export default function Item({ department, refetch, deleteDepartment }: Props) {
 
   return (
     <li key={department._id} style={{ justifyContent: 'space-between' }}>
-      <span>{department.title}</span>
+      <span>
+        {depth || ''} {department.title}
+      </span>
       <span>
         {editButton}
         <Icon

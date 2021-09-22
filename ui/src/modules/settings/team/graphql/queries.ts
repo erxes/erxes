@@ -79,6 +79,8 @@ const departmentField = `
   _id
   title
   description
+  parentId
+  userIds
   users {
     _id
     details {
@@ -86,7 +88,6 @@ const departmentField = `
       fullName
     }
   }
-  userIds
 `;
 
 const departments = `
