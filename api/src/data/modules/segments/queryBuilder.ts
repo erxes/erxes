@@ -243,6 +243,8 @@ export const generateQueryBySegment = async (args: {
         value: condition.propertyValue || ''
       });
 
+      negativeQuery = negativeQuery;
+
       if (isCardTyped(condition.propertyType)) {
         const stageIds = await generateConditionStageIds(condition, options);
 
@@ -253,11 +255,11 @@ export const generateQueryBySegment = async (args: {
                 positiveQuery,
                 {
                   terms: {
-                    stageId: stageIds,
-                  },
-                },
-              ],
-            },
+                    stageId: stageIds
+                  }
+                }
+              ]
+            }
           };
         }
       }
@@ -713,7 +715,10 @@ const associationPropertyFilter = async ({
   return [];
 };
 
-const generateConditionStageIds = async (condition: ICondition, options: IOptions) => {
+const generateConditionStageIds = async (
+  condition: ICondition,
+  options: IOptions
+) => {
   let pipelineIds: string[] = [];
 
   if (options && options.pipelineId) {
@@ -728,18 +733,18 @@ const generateConditionStageIds = async (condition: ICondition, options: IOption
         _id: {
           $in: condition.pipelineId
             ? [condition.pipelineId]
-            : board.pipelines || [],
-        },
+            : board.pipelines || []
+        }
       },
       { _id: 1 }
     );
 
-    pipelineIds = pipelines.map((p) => p._id);
+    pipelineIds = pipelines.map(p => p._id);
   }
 
   const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
 
-  return stages.map((s) => s._id);
+  return stages.map(s => s._id);
 };
 
-const isCardTyped = (type: string) => ['deal', 'task', 'ticket'].includes(type)
+const isCardTyped = (type: string) => ['deal', 'task', 'ticket'].includes(type);
