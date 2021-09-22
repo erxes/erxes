@@ -132,9 +132,9 @@ class AutomationsList extends React.Component<IProps, State> {
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
             {(automations || []).map(automation => (
               <Row
+                key={automation._id}
                 automation={automation}
                 isChecked={bulk.includes(automation)}
-                key={automation._id}
                 history={history}
                 toggleBulk={toggleBulk}
               />
@@ -199,10 +199,7 @@ class AutomationsList extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__(`Automations`) + ` (${totalCount})`}
-            queryParams={queryParams}
-          />
+          <Wrapper.Header title={__(`Automations`)} queryParams={queryParams} />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

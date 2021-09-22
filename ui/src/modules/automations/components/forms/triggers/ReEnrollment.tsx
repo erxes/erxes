@@ -80,6 +80,7 @@ class ReEnrollment extends React.Component<Props, State> {
 
   renderCheckbox = condition => {
     const { checked, reEnroll } = this.state;
+
     return condition.conditions.map(cond => (
       <FormControl
         key={Math.random()}
@@ -103,26 +104,26 @@ class ReEnrollment extends React.Component<Props, State> {
     }
     return (
       <>
-        <EnrollmentWrapper>
-          <span>
-            <b>{__('Re-enrollment')}</b>
+        <EnrollmentWrapper noMargin={true}>
+          <b>{__('Re-enrollment')}</b>
+          <div>
             <p>
               {__(
                 'This will allow you that meet the trigger criteria to re-enroll'
               )}
               .
             </p>
-          </span>
-          <StyledToggle>
-            <Toggle
-              checked={reEnroll}
-              onChange={this.onSwitchHandler}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-            />
-          </StyledToggle>
+            <StyledToggle>
+              <Toggle
+                checked={reEnroll}
+                onChange={this.onSwitchHandler}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </StyledToggle>
+          </div>
         </EnrollmentWrapper>
         <p>
           {__(

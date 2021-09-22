@@ -4,12 +4,15 @@ import {
   isInSegment
 } from '../data/modules/segments/queryBuilder';
 import {
+  boardFactory,
   customerFactory,
   dealFactory,
   fieldFactory,
   formFactory,
   formSubmissionFactory,
-  segmentFactory
+  pipelineFactory,
+  segmentFactory,
+  stageFactory
 } from '../db/factories';
 import { Customers, Segments } from '../db/models';
 import { trackCustomEvent } from '../events';
@@ -601,5 +604,84 @@ describe('Segments mutations', () => {
 
     expect(result.length).toBe(1);
     expect(result[0]).toBe(customer._id);
+  });
+
+  test('fetchBySegment: boardId & pipelineId', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+
+    const customer = await customerFactory({}, false, true);
+    const customer2 = await customerFactory({}, false, true);
+    
+    const pipeline = await pipelineFactory({});
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const board1 = await boardFactory({});
+    const board2 = await boardFactory({});
+    const b1p1 = await pipelineFactory({ boardId: board1._id });
+    const b2p1 = await pipelineFactory({ boardId: board2._id });
+    const p1s1 = await stageFactory({ pipelineId: b1p1._id });
+    const p2s1 = await stageFactory({ pipelineId: b2p1._id });
+
+    await dealFactory({}, true);
+    await dealFactory({}, true);
+    const deal = await dealFactory({ stageId: p1s1._id, name: 'p1test', customerIds: [customer._id] }, true);
+    const deal2 = await dealFactory({ name: 'p1test', customerIds: [customer2._id], stageId: stage._id }, true);
+    await dealFactory({ stageId: p1s1._id }, true);
+    await dealFactory({ stageId: p2s1._id, name: 'p2test', customerIds: [customer._id] }, true);
+    await dealFactory({ stageId: p2s1._id }, true);
+
+    await sleep(2000);
+
+    // different content type
+    let segment = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'and',
+
+      conditions: [
+        {
+          boardId: board1._id,
+          pipelineId: b1p1._id,
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'test'
+        }
+      ]
+    });
+
+    let result = await fetchSegment(segment);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(customer._id);
+
+    // same content type
+    segment = await segmentFactory({
+      contentType: 'deal',
+      conditionsConjunction: 'and',
+
+      conditions: [
+        {
+          boardId: board1._id,
+          pipelineId: b1p1._id,
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'test'
+        }
+      ]
+    });
+
+    result = await fetchSegment(segment);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(deal._id);
+
+    // pipelineId in options
+    result = await fetchSegment(segment, { pipelineId: pipeline._id });
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(deal2._id);
   });
 });
