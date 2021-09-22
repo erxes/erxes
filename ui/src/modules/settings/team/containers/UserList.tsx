@@ -17,13 +17,11 @@ type Props = ICommonListProps &
   ICommonFormProps & {
     statusChangedMutation: any;
     listQuery: any;
+    totalCountQuery: any;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
   };
 
-class UserListContainer extends React.Component<
-  Props
-> {
-
+class UserListContainer extends React.Component<Props> {
   changeStatus = (id: string): void => {
     const { statusChangedMutation, listQuery } = this.props;
 
@@ -55,12 +53,15 @@ class UserListContainer extends React.Component<
   }
 
   render() {
+    const { totalCountQuery, renderButton } = this.props;
+
     return (
       <UserList
         {...this.props}
         changeStatus={this.changeStatus}
         resendInvitation={this.resendInvitation}
-        renderButton={this.props.renderButton}
+        renderButton={renderButton}
+        totalCount={totalCountQuery.usersTotalCount || 0}
       />
     );
   }
@@ -115,5 +116,5 @@ export default commonListComposer<{ queryParams: any; history: any }>({
     name: 'totalCountQuery',
     options
   }),
-  ListComponent: UserListContainer,
+  ListComponent: UserListContainer
 });

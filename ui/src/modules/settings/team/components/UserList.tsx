@@ -11,6 +11,7 @@ import Tip from 'modules/common/components/Tip';
 import Toggle from 'modules/common/components/Toggle';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
@@ -22,6 +23,7 @@ type IProps = {
   changeStatus: (id: string) => void;
   resendInvitation: (email: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  totalCount: number;
   queryParams?: any;
 };
 
@@ -174,19 +176,23 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   renderContent = props => {
+    console.log('this.props.totalCount: ', this.props.totalCount);
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Full name')}</th>
-            <th>{__('Invitation status')}</th>
-            <th>{__('Email')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
+      <>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__('Full name')}</th>
+              <th>{__('Invitation status')}</th>
+              <th>{__('Email')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRows(props)}</tbody>
+        </Table>
+        <Pagination count={this.props.totalCount} />
+      </>
     );
   };
 
