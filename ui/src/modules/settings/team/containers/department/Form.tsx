@@ -2,7 +2,8 @@ import React from 'react';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import Form from '../../components/department/Form';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
+import gql from 'graphql-tag';
 
 type Props = {
   department?: any;
@@ -22,6 +23,11 @@ const FormContainer = (props: Props) => {
         mutation={
           object._id ? mutations.departmentsEdit : mutations.departmentsAdd
         }
+        refetchQueries={[
+          {
+            query: gql(queries.departments)
+          }
+        ]}
         variables={values}
         isSubmitted={isSubmitted}
         type="submit"

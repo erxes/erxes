@@ -86,6 +86,7 @@ const departmentField = `
       fullName
     }
   }
+  userIds
 `;
 
 const departments = `

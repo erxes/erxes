@@ -6,13 +6,13 @@ import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Form from '../../containers/department/Form';
+import Item from '../../containers/department/Item';
 
 type Props = {
   listQuery: any;
-  deleteDepartment: (_id: string, callback: () => void) => void;
 };
 
-export default function List({ listQuery, deleteDepartment }: Props) {
+export default function List({ listQuery }: Props) {
   const renderForm = ({ closeModal }) => {
     return <Form closeModal={closeModal} />;
   };
@@ -38,17 +38,8 @@ export default function List({ listQuery, deleteDepartment }: Props) {
       extraButtons={extraButtons}
     >
       <SidebarList className="no-link">
-        {(listQuery.data.departments || []).map(item => (
-          <li key={item._id} style={{ justifyContent: 'space-between' }}>
-            <span>{item.title}</span>
-            <span>
-              <Icon
-                color="red"
-                icon="trash"
-                onClick={() => deleteDepartment(item._id, listQuery.refetch)}
-              />
-            </span>
-          </li>
+        {(listQuery.data.departments || []).map(department => (
+          <Item department={department} refetch={listQuery.refetch} />
         ))}
       </SidebarList>
     </Box>
