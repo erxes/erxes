@@ -199,41 +199,6 @@ export const generateQueryBySegment = async (args: {
     });
   }
 
-  if (['deal', 'task', 'ticket'].includes(contentType)) {
-    let pipelineIds: string[] = [];
-
-    if (options && options.pipelineId) {
-      pipelineIds = [options.pipelineId];
-    }
-
-    if (segment.boardId) {
-      const board = await Boards.getBoard(segment.boardId);
-
-      const pipelines = await Pipelines.find(
-        {
-          _id: {
-            $in: segment.pipelineId
-              ? [segment.pipelineId]
-              : board.pipelines || []
-          }
-        },
-        { _id: 1 }
-      );
-
-      pipelineIds = pipelines.map(p => p._id);
-    }
-
-    const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
-
-    if (stages.length > 0) {
-      propertiesPositive.push({
-        terms: {
-          stageId: stages.map(s => s._id)
-        }
-      });
-    }
-  }
-
   const propertyConditions: ICondition[] = [];
   const eventConditions: ICondition[] = [];
 
@@ -271,12 +236,31 @@ export const generateQueryBySegment = async (args: {
     const field = condition.propertyName;
 
     if (field && condition.propertyType) {
-      const [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
+      let [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
         field,
         type: typesMap[field],
         operator: condition.propertyOperator || '',
         value: condition.propertyValue || ''
       });
+
+      if (isCardTyped(condition.propertyType)) {
+        const stageIds = await generateConditionStageIds(condition, options);
+
+        if (stageIds.length > 0) {
+          positiveQuery = {
+            bool: {
+              must: [
+                positiveQuery,
+                {
+                  terms: {
+                    stageId: stageIds,
+                  },
+                },
+              ],
+            },
+          };
+        }
+      }
 
       if (contentType === condition.propertyType) {
         if (positiveQuery) {
@@ -728,3 +712,34 @@ const associationPropertyFilter = async ({
 
   return [];
 };
+
+const generateConditionStageIds = async (condition: ICondition, options: IOptions) => {
+  let pipelineIds: string[] = [];
+
+  if (options && options.pipelineId) {
+    pipelineIds = [options.pipelineId];
+  }
+
+  if (condition.boardId && !options.pipelineId) {
+    const board = await Boards.getBoard(condition.boardId);
+
+    const pipelines = await Pipelines.find(
+      {
+        _id: {
+          $in: condition.pipelineId
+            ? [condition.pipelineId]
+            : board.pipelines || [],
+        },
+      },
+      { _id: 1 }
+    );
+
+    pipelineIds = pipelines.map((p) => p._id);
+  }
+
+  const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
+
+  return stages.map((s) => s._id);
+};
+
+const isCardTyped = (type: string) => ['deal', 'task', 'ticket'].includes(type)
