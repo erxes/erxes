@@ -4,6 +4,7 @@ import Table from 'modules/common/components/table';
 import { __, renderFullName } from 'modules/common/utils';
 import { Link } from 'react-router-dom';
 import withTableWrapper from 'modules/common/components/table/withTableWrapper';
+import EmptyState from 'modules/common/components/EmptyState';
 
 const generateName = ({ triggerType, target }: any) => {
   switch (triggerType) {
@@ -38,30 +39,36 @@ const generateName = ({ triggerType, target }: any) => {
 };
 
 export default function Histories(props: any) {
-  const renderContent = () => {
+  if (!props.histories || props.histories.length === 0) {
     return (
-      <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
-          <thead>
-            <tr>
-              <th>{__('Title')}</th>
-              <th>{__('Description')}</th>
-              <th>{__('Time')}</th>
-            </tr>
-          </thead>
-          <tbody id="automationHistories">
-            {props.histories.map((row, index) => (
-              <tr key={index}>
-                <td>{generateName(row)}</td>
-                <td>{row.description}</td>
-                <td>{dayjs(row.createdAt).format('lll')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </withTableWrapper.Wrapper>
+      <EmptyState
+        image="/images/actions/14.svg"
+        text="There is no history at the moment"
+        size="full"
+      />
     );
-  };
+  }
 
-  return renderContent();
+  return (
+    <withTableWrapper.Wrapper>
+      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <thead>
+          <tr>
+            <th>{__('Title')}</th>
+            <th>{__('Description')}</th>
+            <th>{__('Time')}</th>
+          </tr>
+        </thead>
+        <tbody id="automationHistories">
+          {props.histories.map((row, index) => (
+            <tr key={index}>
+              <td>{generateName(row)}</td>
+              <td>{row.description}</td>
+              <td>{dayjs(row.createdAt).format('lll')}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </withTableWrapper.Wrapper>
+  );
 }
