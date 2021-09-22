@@ -393,25 +393,23 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     if (state !== 'form') {
       return segments.map((segment, index) => {
         return (
-          <>
-            <ConditionsList
-              key={Math.random()}
-              conditionsConjunction={conditionsConjunction}
-              changeConditionsConjunction={this.changeConditionsConjunction}
-              addNewProperty={this.addNewProperty}
-              onClickBackToList={this.onClickBackToList}
-              removeCondition={this.removeCondition}
-              removeSegment={this.removeSegment}
-              contentType={contentType}
-              index={index}
-              segment={segment}
-              addCondition={this.addCondition}
-              changeSubSegmentConjunction={this.changeSubSegmentConjunction}
-              onClickField={this.onClickField}
-              chosenField={chosenField}
-              chosenCondition={chosenCondition}
-            />
-          </>
+          <ConditionsList
+            key={Math.random()}
+            conditionsConjunction={conditionsConjunction}
+            changeConditionsConjunction={this.changeConditionsConjunction}
+            addNewProperty={this.addNewProperty}
+            onClickBackToList={this.onClickBackToList}
+            removeCondition={this.removeCondition}
+            removeSegment={this.removeSegment}
+            contentType={contentType}
+            index={index}
+            segment={segment}
+            addCondition={this.addCondition}
+            changeSubSegmentConjunction={this.changeSubSegmentConjunction}
+            onClickField={this.onClickField}
+            chosenField={chosenField}
+            chosenCondition={chosenCondition}
+          />
         );
       });
     }
@@ -537,7 +535,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     return (
       <>
-        {this.renderDetailForm(formProps)}
+        {/* {this.renderDetailForm(formProps)} */}
         {this.renderFilterItem()}
 
         <ModalFooter id="button-group">
