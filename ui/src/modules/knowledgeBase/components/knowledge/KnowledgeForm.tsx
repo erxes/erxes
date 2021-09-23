@@ -16,6 +16,7 @@ import {
 import { __, getEnv } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
+import { LANGUAGES } from 'modules/settings/general/constants';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import {
   ColorPick,
@@ -30,6 +31,7 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
+import Select from 'react-select-plus';
 
 type Props = {
   topic: ITopic;
@@ -46,6 +48,7 @@ type State = {
   tag: string;
   color: string;
   backgroundImage: string;
+  languageCode?: string;
 };
 
 class KnowledgeForm extends React.Component<Props, State> {
@@ -106,7 +109,8 @@ class KnowledgeForm extends React.Component<Props, State> {
       code,
       tag,
       color,
-      backgroundImage
+      backgroundImage,
+      languageCode: topic && topic.languageCode
     };
   }
 
@@ -199,10 +203,9 @@ class KnowledgeForm extends React.Component<Props, State> {
     title: string;
     description: string;
     brandId: string;
-    languageCode: string;
   }) => {
     const { topic } = this.props;
-    const { color, backgroundImage } = this.state;
+    const { color, backgroundImage, languageCode } = this.state;
     const finalValues = values;
 
     if (topic) {
@@ -214,7 +217,7 @@ class KnowledgeForm extends React.Component<Props, State> {
       doc: {
         brandId: finalValues.brandId,
         description: finalValues.description,
-        languageCode: finalValues.languageCode,
+        languageCode,
         title: finalValues.title,
         color,
         backgroundImage
@@ -223,9 +226,13 @@ class KnowledgeForm extends React.Component<Props, State> {
   };
 
   renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
-    const { color, backgroundImage } = this.state;
+    const { color, backgroundImage, languageCode } = this.state;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
+
+    const languageOnChange = selectLanguage => {
+      this.setState({ languageCode: selectLanguage.value });
+    };
 
     const popoverTop = (
       <Popover id="kb-color-picker">
@@ -272,17 +279,14 @@ class KnowledgeForm extends React.Component<Props, State> {
           <ExpandWrapper>
             <FormGroup>
               <ControlLabel>Language</ControlLabel>
-
-              <FormControl
-                {...formProps}
-                componentClass="select"
-                defaultValue={topic.languageCode || 'en'}
-                name="languageCode"
-              >
-                <option />
-                <option value="mn">Монгол</option>
-                <option value="en">English</option>
-              </FormControl>
+              <Select
+                id="languageCode"
+                value={languageCode || 'en'}
+                options={LANGUAGES}
+                onChange={languageOnChange}
+                formProps={formProps}
+                clearable={false}
+              />
             </FormGroup>
           </ExpandWrapper>
 

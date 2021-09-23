@@ -11,7 +11,8 @@ import {
   Stages,
   Tags,
   Tasks,
-  Tickets
+  Tickets,
+  Users
 } from '../../../db/models';
 import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
@@ -439,6 +440,10 @@ export const fieldsCombinedByContentType = async ({
 
     case 'ticket':
       schema = Tickets.schema;
+      break;
+
+    case 'user':
+      schema = Users.schema;
       break;
   }
 

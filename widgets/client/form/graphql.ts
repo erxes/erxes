@@ -5,6 +5,7 @@ export const formDetailQuery = `
       description
       buttonText
       numberOfPages
+      code
 
       fields {
         _id
@@ -45,6 +46,7 @@ export const formConnectMutation = `
         _id
         name
         leadData
+        languageCode
       }
     }
   }

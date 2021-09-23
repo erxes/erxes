@@ -36,8 +36,8 @@ const FunnelImpact = asyncComponent(() =>
   )
 );
 
-const growthHack = () => {
-  const growthHacksLink = '/growthHack/home';
+const growthHack = ({ location }) => {
+  const growthHacksLink = `/growthHack/home${location.search}`;
 
   return <Redirect to={growthHacksLink} />;
 };

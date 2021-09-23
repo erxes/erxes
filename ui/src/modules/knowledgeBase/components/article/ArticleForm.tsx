@@ -112,7 +112,15 @@ class ArticleForm extends React.Component<Props, State> {
     const onChange = e => {
       e.preventDefault();
 
-      self.setState({ topicId: e.target.value, categoryId: '' });
+      const selectedTopicId = e.target.value;
+
+      const topic = topics.find(t => t._id === selectedTopicId);
+      const categories = topic ? topic.categories || [] : [];
+
+      self.setState({
+        topicId: selectedTopicId,
+        categoryId: categories.length > 0 ? categories[0]._id : ''
+      });
     };
 
     return (
@@ -137,7 +145,7 @@ class ArticleForm extends React.Component<Props, State> {
   renderCategories(formProps: IFormProps) {
     const self = this;
     const topic = this.props.topics.find(t => t._id === self.state.topicId);
-    const categories = topic ? topic.categories : [];
+    const categories = topic ? topic.categories || [] : [];
 
     const onChange = e => {
       e.preventDefault();

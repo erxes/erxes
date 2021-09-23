@@ -33,7 +33,7 @@ export const graphRequest = {
   }
 };
 
-export const getPageList = async (accessToken?: string) => {
+export const getPageList = async (accessToken?: string, kind?: string) => {
   const response: any = await graphRequest.get(
     '/me/accounts?limit=100',
     accessToken
@@ -43,7 +43,8 @@ export const getPageList = async (accessToken?: string) => {
 
   for (const page of response.data) {
     const integration = await Integrations.findOne({
-      facebookPageIds: page.id
+      facebookPageIds: page.id,
+      kind
     });
 
     pages.push({

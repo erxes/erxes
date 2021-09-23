@@ -13,6 +13,7 @@ import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as request from 'request';
+import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
@@ -127,6 +128,8 @@ const datadogMiddleware = connect_datadog({
 app.use(datadogMiddleware);
 
 app.disable('x-powered-by');
+
+app.use(serverTimingMiddleware({}));
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {
@@ -282,6 +285,8 @@ app.get(
   '/template-export',
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
+
+    registerOnboardHistory({ type: `importDownloadTemplate`, user: req.user });
 
     const { name, response } = await templateExport(req.query);
 

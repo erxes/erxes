@@ -70,12 +70,12 @@ describe('Test deals model', () => {
 
   test('Get item on deal', async () => {
     try {
-      await getItem('deal', 'fakeId');
+      await getItem('deal', { _id: 'fakeId' });
     } catch (e) {
       expect(e.message).toBe('deal not found');
     }
 
-    const response = await getItem('deal', deal._id);
+    const response = await getItem('deal', { _id: deal._id });
 
     expect(response).toBeDefined();
   });

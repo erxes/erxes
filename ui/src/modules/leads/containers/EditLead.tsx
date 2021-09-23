@@ -150,6 +150,7 @@ export default withProps<FinalProps>(
       {
         name: 'integrationDetailQuery',
         options: ({ contentTypeId }) => ({
+          fetchPolicy: 'cache-and-network',
           variables: {
             _id: contentTypeId
           }

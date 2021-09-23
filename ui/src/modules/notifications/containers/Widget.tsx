@@ -9,14 +9,16 @@ const WidgetContainer = () => (
       notifications,
       isLoading,
       showNotifications,
-      markAsRead
+      markAsRead,
+      currentUser
     }) => {
       const updatedProps = {
         unreadCount,
         notifications,
         isLoading,
         showNotifications,
-        markAsRead
+        markAsRead,
+        currentUser
       };
       return <Widget {...updatedProps} />;
     }}
