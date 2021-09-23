@@ -1,4 +1,5 @@
 import React from 'react';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Label from 'modules/common/components/Label';
 import { __ } from 'modules/common/utils';
 import Tip from 'modules/common/components/Tip';
@@ -15,6 +16,7 @@ import { Capitalize } from 'modules/settings/permissions/styles';
 import dayjs from 'dayjs';
 import { DateWrapper } from 'modules/common/styles/main';
 import Tags from 'modules/common/components/Tags';
+import Manage from './Manage';
 
 type Props = {
   isChecked: boolean;
@@ -69,6 +71,29 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
     );
   };
 
+  const renderEditAction = booking => {
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Install code')} placement="top">
+          <Icon icon="code" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => <Manage booking={booking} {...props} />;
+
+    return (
+      <ModalTrigger
+        title={`Install code of ${booking.name}`}
+        size="lg"
+        trigger={trigger}
+        content={content}
+        // isOpen={this.props.showCode}
+        isAnimate={true}
+      />
+    );
+  };
+
   return (
     <tr>
       <td>
@@ -113,6 +138,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
       <td>
         <ActionButtons>
           {manageAction(booking)}
+          {renderEditAction(booking)}
           {renderRemoveAction()}
         </ActionButtons>
       </td>
