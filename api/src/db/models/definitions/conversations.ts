@@ -113,3 +113,9 @@ conversationSchema.index(
   { userRelevance: 1 },
   { partialFilterExpression: { userRelevance: { $exists: true } } }
 );
+
+conversationSchema.index({
+  status: 1,
+  integrationId: 1,
+  userRelevance: 1
+});

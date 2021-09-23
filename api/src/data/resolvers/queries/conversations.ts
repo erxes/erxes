@@ -1,3 +1,4 @@
+import { createImportSpecifier } from 'typescript';
 import { ConversationMessages, Conversations } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
@@ -173,35 +174,49 @@ const conversationQueries = {
       ...queries.extended
     };
 
-    // unassigned count
-    response.unassigned = await count({
-      ...mainQuery,
-      ...qb.unassignedFilter()
-    });
+    const aggregationPipeline = [
+      {
+        $facet: {
+          unnassigned: [
+            { $match: { ...mainQuery, ...qb.unassignedFilter() } },
+            { $count: 'count' }
+          ],
+          participating: [
+            { $match: { ...mainQuery, ...qb.participatingFilter() } },
+            { $count: 'count' }
+          ],
+          starred: [
+            { $match: { ...mainQuery, ...qb.starredFilter() } },
+            { $count: 'count' }
+          ],
+          resolved: [
+            { $match: { ...mainQuery, ...qb.statusFilter(['closed']) } },
+            { $count: 'count' }
+          ],
+          awaitingResponse: [
+            { $match: { ...mainQuery, ...qb.awaitingResponse() } },
+            { $count: 'count' }
+          ]
+        }
+      },
+      {
+        $project: {
+          unnassigned: { $arrayElemAt: ['$unnassigned.count', 0] },
+          participating: { $arrayElemAt: ['$participating.count', 0] },
+          starred: { $arrayElemAt: ['$starred.count', 0] },
+          resolved: { $arrayElemAt: ['$resolved.count', 0] },
+          awaitingResponse: { $arrayElemAt: ['$awaitingResponse.count', 0] }
+        }
+      }
+    ];
 
-    // participating count
-    response.participating = await count({
-      ...mainQuery,
-      ...qb.participatingFilter()
-    });
+    const result = await Conversations.aggregate(aggregationPipeline);
 
-    // starred count
-    response.starred = await count({
-      ...mainQuery,
-      ...qb.starredFilter()
-    });
-
-    // resolved count
-    response.resolved = await count({
-      ...mainQuery,
-      ...qb.statusFilter(['closed'])
-    });
-
-    // awaiting response count
-    response.awaitingResponse = await count({
-      ...mainQuery,
-      ...qb.awaitingResponse()
-    });
+    response.unassigned = (result[0] || {}).unassigned || 0;
+    response.participating = (result[0] || {}).participating || 0;
+    response.starred = (result[0] || {}).starred || 0;
+    response.resolved = (result[0] || {}).resolved || 0;
+    response.awaitingResponse = (result[0] || {}).awaitingResponse || 0;
 
     return response;
   },
