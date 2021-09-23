@@ -1,4 +1,3 @@
-import { createImportSpecifier } from 'typescript';
 import { ConversationMessages, Conversations } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
@@ -17,13 +16,6 @@ interface ICountBy {
 interface IConversationRes {
   [index: string]: number | ICountBy;
 }
-
-// count helper
-const count = async (query: any): Promise<number> => {
-  const result = await Conversations.find(query).countDocuments();
-
-  return Number(result);
-};
 
 const conversationQueries = {
   /**
