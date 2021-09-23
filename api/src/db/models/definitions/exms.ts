@@ -13,11 +13,12 @@ export interface IExmDocument extends IExm, Document {
 
 const featureSchema = new Schema({
   _id: field({ pkey: true }),
-  contentType: field({ type: String }),
   icon: field({ type: String }),
   name: field({ type: String }),
   description: field({ type: String }),
-  contentId: field({ type: String })
+  contentType: field({ type: String }),
+  contentId: field({ type: String }),
+  subContentId: field({ type: String })
 });
 
 // Mongoose schemas =======================

@@ -63,7 +63,7 @@ export default function General(props: Props) {
     return kbTopics.map(c => ({ value: c._id, label: c.title }));
   };
 
-  const getCategoryValues = (categories, parentId, level = 0) => {
+  const generateTreeOptions = (categories, parentId) => {
     return categories
       .filter(c => c.parentCategoryId === parentId)
       .reduce(
@@ -73,10 +73,20 @@ export default function General(props: Props) {
             value: node._id,
             label: `${node.parentCategoryId ? '---' : ''} ${node.title}`
           },
-          ...getCategoryValues(categories, node._id, level++)
+          ...generateTreeOptions(categories, node._id)
         ],
         []
       );
+  };
+
+  const getCategoryValues = (contentId, categories, parentId) => {
+    if (!categories) {
+      getKbCategories(contentId);
+
+      return [];
+    } else {
+      return generateTreeOptions(categories, parentId);
+    }
   };
 
   const onSave = () => {
@@ -188,14 +198,15 @@ export default function General(props: Props) {
             <FeatureRowItem>
               <Select
                 placeholder={__('Choose a category')}
-                value={feature.categoryId}
+                value={feature.subContentId}
                 options={getCategoryValues(
-                  kbCategories[feature.contentId] || [],
+                  feature.contentId,
+                  kbCategories[feature.contentId],
                   null
                 )}
                 style={{ width: 200 }}
                 onChange={item =>
-                  onChangeFeatureItem(feature._id, 'categoryId', item.value)
+                  onChangeFeatureItem(feature._id, 'subContentId', item.value)
                 }
                 clearable={false}
               />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { useLazyQuery, useQuery } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 import General from '../components/General';
 import { queries as leadQueries } from 'modules/leads/graphql';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
@@ -15,9 +16,6 @@ export default function GeneralContainer(props: Props) {
     variables: { kind: 'lead' }
   });
   const kbQuery = useQuery(gql(kbQueries.knowledgeBaseTopics));
-  const [kbCategoriesQuery, { data }] = useLazyQuery(
-    gql(kbQueries.knowledgeBaseCategories)
-  );
   const [kbCategories, setKbCategories] = useState({});
 
   if (integrationQuery.loading || kbQuery.loading) {
@@ -25,12 +23,18 @@ export default function GeneralContainer(props: Props) {
   }
 
   const getKbCategories = (topicId: string) => {
-    kbCategoriesQuery({ variables: { topicIds: [topicId] } });
-
-    setKbCategories({
-      ...kbCategories,
-      [topicId]: data ? data.knowledgeBaseCategories : []
-    });
+    client
+      .query({
+        query: gql(kbQueries.knowledgeBaseCategories),
+        fetchPolicy: 'network-only',
+        variables: { topicIds: [topicId] }
+      })
+      .then(({ data }) => {
+        setKbCategories({
+          ...kbCategories,
+          [topicId]: data ? data.knowledgeBaseCategories : []
+        });
+      });
   };
 
   return (
