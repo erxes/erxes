@@ -14,7 +14,8 @@ import {
   SubNavItem,
   DropSubNav,
   DropSubNavItem,
-  ExpandIcon
+  ExpandIcon,
+  SmallLabel
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
 import Icon from 'modules/common/components/Icon';
@@ -135,30 +136,32 @@ class Navigation extends React.Component<IProps> {
   ) => {
     const { collapsed } = this.props;
 
+    const item = (
+      <NavItem>
+        <NavLink to={this.getLink(url)}>
+          <NavIcon className={icon} />
+          {collapsed && <label>{__(text)}</label>}
+          {label}
+        </NavLink>
+        {this.renderChildren(collapsed, url, text, childrens)}
+      </NavItem>
+    );
+
     if (!childrens || childrens.length === 0) {
       if (!collapsed) {
         return (
-          <Tip placement="right" key={Math.random()} text={__(text)}>
-            <NavItem>
-              <NavLink to={url}>
-                <NavIcon className={icon} />
-              </NavLink>
-            </NavItem>
-          </Tip>
+          <WithPermission key={url} action={permission}>
+            <Tip placement="right" key={Math.random()} text={__(text)}>
+              {item}
+            </Tip>
+          </WithPermission>
         );
       }
     }
 
     return (
       <WithPermission key={url} action={permission}>
-        <NavItem>
-          <NavLink to={this.getLink(url)}>
-            <NavIcon className={icon} />
-            {collapsed && <label>{__(text)}</label>}
-            {label}
-          </NavLink>
-          {this.renderChildren(collapsed, url, text, childrens)}
-        </NavItem>
+        {item}
       </WithPermission>
     );
   };
@@ -187,6 +190,8 @@ class Navigation extends React.Component<IProps> {
         {unreadConversationsCount}
       </Label>
     );
+
+    const lbl = <SmallLabel>Beta</SmallLabel>;
 
     return (
       <LeftNavigation collapsed={collapsed}>
@@ -378,7 +383,9 @@ class Navigation extends React.Component<IProps> {
             'showAutomations',
             __('Automations'),
             '/automations',
-            'icon-circular'
+            'icon-circular',
+            [],
+            lbl
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}

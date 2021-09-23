@@ -510,6 +510,15 @@ const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
 }
 `;
 
+const SmallLabel = styled.div`
+  position: absolute;
+  text-transform: uppercase;
+  font-size: ${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreSunYellow};
+  right: ${dimensions.unitSpacing - 5}px;
+  top: 3px;
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -549,5 +558,6 @@ export {
   DropSubNav,
   DropSubNavItem,
   DropNav,
-  ExpandIcon
+  ExpandIcon,
+  SmallLabel
 };
