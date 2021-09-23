@@ -1,5 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import Form from '../components/Form';
 import BravoForm from '../components/BravoForm';
@@ -14,7 +15,15 @@ type Props = {
 };
 
 export default function FormContainer(props: Props) {
-  const { item } = props;
+  const { contentType, item } = props;
+
+  const { data } = useQuery(gql(queries.fields), {
+    variables: {
+      contentType: `exmFeed${contentType
+        .substring(0, 1)
+        .toUpperCase()}${contentType.substring(1)}`
+    }
+  });
 
   const renderButton = ({
     values,
@@ -45,8 +54,8 @@ export default function FormContainer(props: Props) {
         successMessage={`You successfully ${
           variables._id ? 'edited' : 'added'
         }`}
-        type='submit'
-        icon='check-circle'
+        type="submit"
+        icon="check-circle"
       />
     );
   };
@@ -59,5 +68,11 @@ export default function FormContainer(props: Props) {
     return <EventForm {...props} renderButton={renderButton} />;
   }
 
-  return <BravoForm {...props} renderButton={renderButton} />;
+  return (
+    <BravoForm
+      fields={(data && data.fields) || []}
+      {...props}
+      renderButton={renderButton}
+    />
+  );
 }

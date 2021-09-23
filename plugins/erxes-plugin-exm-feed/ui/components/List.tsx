@@ -1,11 +1,11 @@
-import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from "erxes-ui";
-import FilterableListStyles from "erxes-ui/lib/components/filterableList/styles";
-import Icon from "modules/common/components/Icon";
-import dayjs from "dayjs";
-import Form from "../containers/Form";
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from 'erxes-ui';
+import FilterableListStyles from 'erxes-ui/lib/components/filterableList/styles';
+import Icon from 'modules/common/components/Icon';
+import dayjs from 'dayjs';
+import Form from '../containers/Form';
 import {
   BodyFeed,
   FirstSection,
@@ -16,8 +16,8 @@ import {
   NavItem,
   Attachments,
   AttachmentsIcon,
-  AttachmentsTitle,
-} from "../styles";
+  AttachmentsTitle
+} from '../styles';
 
 const AvatarImg = FilterableListStyles.AvatarImg;
 
@@ -28,14 +28,16 @@ type Props = {
 };
 
 export default function List({ list, deleteItem, totalCount }: Props) {
-  const editItem = (item) => {
+  const editItem = item => {
     const trigger = (
       <span>
         <a>Edit</a>
       </span>
     );
 
-    const content = (props) => {
+    console.log('item: ', item);
+
+    const content = props => {
       return <Form contentType={item.contentType} item={item} {...props} />;
     };
 
@@ -58,7 +60,7 @@ export default function List({ list, deleteItem, totalCount }: Props) {
                 (createdUser &&
                   createdUser.details &&
                   createdUser.details.fullName) ||
-                "author"
+                'author'
               }
               src={getUserAvatar(createdUser)}
             />
@@ -70,7 +72,7 @@ export default function List({ list, deleteItem, totalCount }: Props) {
                     createdUser.email)}
               </b>
               <Hours>
-                {dayjs(item.createdAt).format("lll")} <p>#{item.contentType}</p>
+                {dayjs(item.createdAt).format('lll')} <p>#{item.contentType}</p>
               </Hours>
             </TypeOfContent>
           </FirstSection>

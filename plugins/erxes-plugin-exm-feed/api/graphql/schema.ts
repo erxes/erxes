@@ -19,6 +19,7 @@ export const types = `
     updatedAt: Date
     createdUser: User
     updatedUser: User
+    customFieldsData: JSON
   }
 
   type ExmThank {
@@ -98,6 +99,7 @@ const feedCommonParams = `
   where: String
   startDate: Date
   endDate: Date
+  customFieldsData: JSON
 `;
 
 const thankCommonParams = `

@@ -7,6 +7,11 @@ const attachmentSchema = {
   size: { type: Number, optional: true }
 };
 
+const customFieldSchema = {
+  field: { type: String },
+  value: { type: JSON }
+};
+
 export const feedSchema = {
   _id: { pkey: true },
   title: { type: String, label: 'Title' },
@@ -16,9 +21,15 @@ export const feedSchema = {
   contentType: { type: String },
   recipientIds: { type: [String] },
   visibility: { type: String, enum: ['Public', 'Private'] },
+  customFieldsData: {
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Custom fields data'
+  },
   where: { type: String },
+  impacted: { type: String },
   startDate: { type: Date },
-  endDate: { type: Date}, 
+  endDate: { type: Date },
   createdBy: { type: String, label: 'Created by' },
   createdAt: { type: Date, label: 'Created at' },
   updatedBy: { type: String, label: 'Updated by' },
