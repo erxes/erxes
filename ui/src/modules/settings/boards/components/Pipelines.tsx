@@ -8,6 +8,7 @@ import { Count, Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import SortHandler from 'modules/common/components/SortHandler';
+import FormControl from 'modules/common/components/form/Control';
 import Wrapper from 'modules/layout/components/Wrapper';
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
@@ -18,6 +19,7 @@ import { Link, withRouter } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
 import PipelineRow from './PipelineRow';
+import { BarItems } from '../../../layout/styles';
 import { router } from '../../../common/utils';
 
 type Props = {
@@ -36,6 +38,7 @@ type State = {
   showModal: boolean;
   pipelines: IPipeline[];
   isDragDisabled: boolean;
+  searchValue: string;
 };
 
 function sortItems(arr, direction, field) {
@@ -67,7 +70,8 @@ class Pipelines extends React.Component<Props, State> {
     this.state = {
       showModal,
       pipelines: props.pipelines,
-      isDragDisabled: false
+      isDragDisabled: false,
+      searchValue: ''
     };
   }
 
@@ -110,6 +114,25 @@ class Pipelines extends React.Component<Props, State> {
     const { isDragDisabled } = this.state;
 
     this.setState({ isDragDisabled: !isDragDisabled });
+  };
+
+  searchHandler = event => {
+    const searchValue = event.target.value.toLowerCase();
+
+    const { history, pipelines } = this.props;
+
+    router.setParams(history, { searchValue: event.target.value });
+
+    let updatedPipelines;
+    if (searchValue) {
+      updatedPipelines = pipelines.filter(p =>
+        p.name.toLowerCase().includes(searchValue)
+      );
+    } else {
+      updatedPipelines = pipelines;
+    }
+
+    this.setState({ pipelines: updatedPipelines });
   };
 
   renderRows() {
@@ -205,7 +228,7 @@ class Pipelines extends React.Component<Props, State> {
   };
 
   renderButton() {
-    const { options, boardId } = this.props;
+    const { options, boardId, history } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (!boardId) {
@@ -213,7 +236,15 @@ class Pipelines extends React.Component<Props, State> {
     }
 
     return (
-      <>
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={this.searchHandler}
+          value={router.getParam(history, 'searchValue')}
+          autoFocus={true}
+        />
+
         {this.renderAdditionalButton()}
         <Button
           btnStyle="success"
@@ -222,7 +253,7 @@ class Pipelines extends React.Component<Props, State> {
         >
           Add {pipelineName}
         </Button>
-      </>
+      </BarItems>
     );
   }
 
