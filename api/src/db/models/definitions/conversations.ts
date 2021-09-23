@@ -80,8 +80,9 @@ export const conversationSchema = new Schema({
 
   status: field({
     type: String,
-    enum: CONVERSATION_STATUSES.ALL,
-    index: true
+    enum: CONVERSATION_STATUSES.ALL
+    // compound index that starts with status already exists
+    // index: true
   }),
   messageCount: field({ type: Number }),
   tagIds: field({ type: [String] }),
@@ -114,8 +115,18 @@ conversationSchema.index(
   { partialFilterExpression: { userRelevance: { $exists: true } } }
 );
 
+// Begin: For accelerating status count
 conversationSchema.index({
   status: 1,
   integrationId: 1,
-  userRelevance: 1
+  userRelevance: 1,
+  assignedUserId: 1,
+  participatedUserIds: 1
 });
+conversationSchema.index({
+  status: 1,
+  integrationId: 1,
+  userRelevance: 1,
+  isCustomerRespondedLast: 1
+});
+// End: For accelerating status count
