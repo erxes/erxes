@@ -175,12 +175,14 @@ export const generateQueryBySegment = async (args: {
   const selectorNegativeList =
     cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
 
-  const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
-  const parentSegment = embeddedParentSegment;
+  const parentSegment = await Segments.findOne({ _id: segment.subOf });
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
+    selectorPositiveList.push({ bool: {} });
+
     await generateQueryBySegment({
       ...args,
+      selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
       segment: parentSegment,
       isInitialCall: false
     });

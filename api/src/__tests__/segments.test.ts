@@ -684,4 +684,50 @@ describe('Segments mutations', () => {
     expect(result.length).toBe(1);
     expect(result[0]).toBe(deal2._id);
   });
+
+  test('fetchBySegment: parent segment', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+    await customerFactory({ lastName: 'dombo' }, false, true);
+    await customerFactory({ lastName: 'gombo' }, false, true);
+    const customer = await customerFactory({ lastName: 'dombo gombo' }, false, true);
+
+    await sleep(2000);
+
+    const parent = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'and',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'c',
+          propertyValue: 'gombo'
+        }
+      ]
+    });
+
+    const sub = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'and',
+      subOf: parent._id,
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'c',
+          propertyValue: 'dombo'
+        }
+      ]
+    });
+
+    const result = await fetchSegment(sub);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(customer._id);
+  });
 });
