@@ -1,9 +1,7 @@
 import {
   Boards,
   Checklists,
-  Companies,
   Conformities,
-  Customers,
   Deals,
   GrowthHacks,
   InternalNotes,
@@ -15,9 +13,7 @@ import {
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
-import { ICompanyDocument } from './definitions/companies';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
-import { ICustomerDocument } from './definitions/customers';
 
 interface ISetOrderParam {
   collection: any;
@@ -246,34 +242,30 @@ export const getItem = async (type: string, doc: any) => {
   return item;
 };
 
-export const getCompanies = async (
+export const getCompanyIds = async (
   mainType: string,
   mainTypeId: string
-): Promise<ICompanyDocument[]> => {
+): Promise<string[]> => {
   const conformities = await Conformities.find({
     mainType,
     mainTypeId,
     relType: 'company'
   });
 
-  const companyIds = conformities.map(c => c.relTypeId);
-
-  return Companies.find({ _id: { $in: companyIds } });
+  return conformities.map(c => c.relTypeId);
 };
 
-export const getCustomers = async (
+export const getCustomerIds = async (
   mainType: string,
   mainTypeId: string
-): Promise<ICustomerDocument[]> => {
+): Promise<string[]> => {
   const conformities = await Conformities.find({
     mainType,
     mainTypeId,
     relType: 'customer'
   });
 
-  const customerIds = conformities.map(c => c.relTypeId);
-
-  return Customers.find({ _id: { $in: customerIds } });
+  return conformities.map(c => c.relTypeId);
 };
 
 // Removes all board item related things
