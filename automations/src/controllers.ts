@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { debugError, debugAutomations, debugRequest } from './debuggers';
 import Automations from './models/Automations';
-import AutomationHistories from './models/Histories';
+import { Executions } from './models/Executions';
 import { Notes } from './models/Notes';
 
 export const routeErrorHandling = (fn, callback?: any) => {
@@ -83,6 +83,7 @@ router.post(
     }
 
     await Automations.deleteMany({ _id: { $in: automationIds } });
+    await Executions.removeExecutions(automationIds);
 
     return res.json({ status: 'ok', segmentIds });
   })
@@ -106,8 +107,8 @@ router.get(
   routeErrorHandling(async (req, res) => {
     const { page, perPage, status, searchValue } = req.query;
 
-    const _page = Number(page || '1');
     const _limit = Number(perPage || '20');
+    const _skip = (Number(page || '1') - 1) * _limit;
 
     const filter: any = {};
 
@@ -122,9 +123,9 @@ router.get(
     }
 
     const automations = await Automations.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(_skip)
       .limit(_limit)
-      .skip((_page - 1) * _limit)
-      .sort({ createdAt: -1 });
 
     if (!automations) {
       return res.json({ list: [], totalCount: 0 });
@@ -217,12 +218,37 @@ router.get(
   '/histories',
   routeErrorHandling(async (req, res) => {
     debugRequest(debugAutomations, req);
+    const { page, perPage, automationId, triggerType, triggerId, status, beginDate, endDate } = req.query;
 
-    const selector = req.query;
+    const _limit = Number(perPage || '20');
+    const _skip = (Number(page || '1') - 1) * _limit;
 
-    const histories = await AutomationHistories.find(selector).sort({
-      createdAt: -1
-    });
+    const filter: any = { automationId };
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (triggerId) {
+      filter.triggerId = triggerId
+    }
+
+    if (triggerType) {
+      filter.triggerType = triggerType
+    }
+
+    if(beginDate) {
+      filter.createdAt = {$gte: beginDate}
+    }
+
+    if (endDate) {
+      filter.createdAt = { $lte: endDate }
+    }
+
+    const histories = await Executions.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(_skip || 0)
+      .limit(_limit);
 
     return res.json(histories);
   })

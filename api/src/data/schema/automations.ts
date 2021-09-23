@@ -47,15 +47,20 @@ export const types = `
 
   type AutomationHistory {
     _id: String
+    createdAt: Date
+    modifiedAt: Date
     automationId: String
     triggerId: String
     triggerType: String
-    actionId: String
-    actionType: String
-    description: String
-    createdAt: Date
-    createdBy: String
+    triggerConfig: JSON
+    nextActionId: String
+    targetId: String
     target: JSON
+    status: String
+    description: String
+    actions: [JSON]
+    startWaitingDate: Date
+    waitingActionId: String
   }
 
   input TriggerInput {
@@ -92,12 +97,23 @@ const queryParams = `
   status: String
 `;
 
+const historiesParams = `
+  automationId: String!,
+  page: Int,
+  perPage: Int,
+  status: String,
+  triggerId: String,
+  triggerType: String,
+  beginDate: Date,
+  endDate: Date,
+`;
+
 export const queries = `
   automationsMain(${queryParams}): AutomationsListResponse
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
-  automationHistories(automationId: String): [AutomationHistory]
+  automationHistories(${historiesParams}): [AutomationHistory]
 `;
 
 const commonFields = `
@@ -118,7 +134,7 @@ export const mutations = `
   automationsAdd(${commonFields}): Automation
   automationsEdit(_id: String, ${commonFields}): Automation
   automationsRemove(automationIds: [String]): [String]
-  
+
   automationsSaveAsTemplate(_id: String!, name: String!): Automation
   automationsCreateFromTemplate(_id: String): Automation
 

@@ -49,7 +49,7 @@ import Toggle from 'modules/common/components/Toggle';
 import Modal from 'react-bootstrap/Modal';
 import NoteFormContainer from 'modules/automations/containers/forms/NoteForm';
 import TemplateForm from '../../containers/forms/TemplateForm';
-import Histories from 'modules/automations/containers/Histories';
+import Histories from 'modules/automations/components/histories/Wrapper';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -783,7 +783,7 @@ class AutomationForm extends React.Component<Props, State> {
         return <div />;
       }
 
-      return <Histories automationId={automation._id} />;
+      return <Histories automation={automation} />;
     }
 
     return (

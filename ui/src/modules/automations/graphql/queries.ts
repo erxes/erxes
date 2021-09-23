@@ -103,15 +103,46 @@ export const automationNotes = `
   }
 `;
 
+const historiesParamDef = `
+  $automationId: String!,
+  $page: Int,
+  $perPage: Int,
+  $status: String,
+  $triggerId: String,
+  $triggerType: String,
+  $beginDate: Date,
+  $endDate: Date,
+`;
+
+const historiesParamValue = `
+  automationId: $automationId,
+  page: $page,
+  perPage: $perPage,
+  status: $status,
+  triggerId: $triggerId,
+  triggerType: $triggerType,
+  beginDate: $beginDate,
+  endDate: $endDate,
+`;
+
 export const automationHistories = `
-  query automationHistories($automationId: String) {
-    automationHistories(automationId: $automationId) {
+  query automationHistories(${historiesParamDef}) {
+    automationHistories(${historiesParamValue}) {
       _id
-      target
-      triggerType
-      actionType
-      description
       createdAt
+      modifiedAt
+      automationId
+      triggerId
+      triggerType
+      triggerConfig
+      nextActionId
+      targetId
+      target
+      status
+      description
+      actions
+      startWaitingDate
+      waitingActionId
     }
   }
 `;

@@ -11,6 +11,17 @@ interface IListArgs {
   sortDirection: number;
 }
 
+interface IHistoriesParams {
+  automationId: string;
+  page?: number;
+  perPage?: number;
+  status?: string;
+  triggerId?: string;
+  triggerType?: string;
+  beginDate?: Date;
+  endDate?: Date;
+}
+
 const automationQueries = {
   /**
    * Automations list
@@ -49,7 +60,7 @@ const automationQueries = {
    */
   automationHistories(
     _root,
-    params: { automationId: string },
+    params: IHistoriesParams,
     { dataSources }: IContext
   ) {
     return dataSources.AutomationsAPI.getAutomationHistories(params);
