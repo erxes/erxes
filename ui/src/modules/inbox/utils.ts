@@ -6,6 +6,7 @@ import { IConversation } from './types';
 
 export const generateParams = queryParams => ({
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
+  perPage: queryParams.perPage ? parseInt(queryParams.perPage) : 10,
   channelId: queryParams.channelId,
   status: queryParams.status,
   unassigned: queryParams.unassigned,

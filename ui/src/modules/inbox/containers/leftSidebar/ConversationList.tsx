@@ -30,7 +30,25 @@ type FinalProps = {
   updateCountsForNewMessage: () => void;
 } & Props;
 
-class ConversationListContainer extends React.PureComponent<FinalProps> {
+class ConversationListContainer extends React.PureComponent<FinalProps, { conversations: IConversation[] }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      conversations: []
+    }
+  }
+
+  componentWillReceiveProps(nextProps: FinalProps): void {
+    const { conversationsQuery } = nextProps;
+
+    if (conversationsQuery && !conversationsQuery.loading) {
+      this.setState({
+        conversations: this.state.conversations.concat(conversationsQuery.conversations.filter((item) => this.state.conversations.indexOf(item) < 0))
+      });
+    }
+  }
+
   componentWillMount() {
     const {
       currentUser,
@@ -56,8 +74,6 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
   render() {
     const { history, conversationsQuery, totalCountQuery } = this.props;
 
-    const conversations = conversationsQuery.conversations || [];
-
     // on change conversation
     const onChangeConversation = conversation => {
       routerUtils.setParams(history, { _id: conversation._id });
@@ -67,7 +83,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      conversations,
+      conversations: this.state.conversations,
       onChangeConversation,
       totalCount,
       loading: conversationsQuery.loading
@@ -90,7 +106,8 @@ const ConversationListContainerWithRefetch = props => (
 
 const generateOptions = queryParams => ({
   ...queryParams,
-  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10
+  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
+  perPage: queryParams.perPage ? parseInt(queryParams.perPage) : 10
 });
 
 export default withProps<Props>(
