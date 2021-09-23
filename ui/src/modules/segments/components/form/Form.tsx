@@ -537,7 +537,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       <>
         {this.renderDetailForm(formProps)}
         {this.renderFilterItem()}
-
         <ModalFooter id="button-group">
           <Button.Group>
             {isModal ? (
