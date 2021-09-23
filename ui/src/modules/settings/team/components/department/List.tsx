@@ -13,18 +13,23 @@ type Props = {
 };
 
 export default function List({ listQuery }: Props) {
+  const generateTree = (categories, parentId, parentKey = 'parentId') => {
+    return categories
+      .filter(c => c[parentKey] === parentId)
+      .reduce(
+        (tree, node) => [
+          ...tree,
+          <Item key={node._id} department={node} refetch={listQuery.refetch} />,
+          ...generateTree(categories, node._id, parentKey)
+        ],
+        []
+      );
+  };
+
   const renderChildren = parentId => {
     const allDepartments = listQuery.data.departments || [];
 
-    const departments = allDepartments.filter(d => d.parentId === parentId);
-
-    return departments.map(department => (
-      <Item
-        key={department._id}
-        department={department}
-        refetch={listQuery.refetch}
-      />
-    ));
+    return generateTree(allDepartments, parentId);
   };
 
   const renderForm = ({ closeModal }) => {
