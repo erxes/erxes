@@ -176,7 +176,6 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   renderContent = props => {
-    console.log('this.props.totalCount: ', this.props.totalCount);
     return (
       <>
         <Table>

@@ -17,6 +17,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Button from 'modules/common/components/Button';
 import { IButtonMutateProps } from 'modules/common/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
+import { dimensions } from 'modules/common/styles';
 
 type Props = {
   queryParams: any;
@@ -80,11 +81,10 @@ export default function Home(props: Props) {
   };
 
   const renderFilter = (
-    <FilterContainer>
+    <FilterContainer style={{ paddingTop: dimensions.coreSpacing - 10 }}>
       <FlexRow>
         {renderBrandChooser()}
         <FlexItem>
-          <ControlLabel>{__('Search')}</ControlLabel>
           <FormControl
             placeholder={__('Search')}
             name="searchValue"
@@ -96,7 +96,6 @@ export default function Home(props: Props) {
         </FlexItem>
 
         <FlexItem>
-          <ControlLabel>{__('Status')}</ControlLabel>
           <Select
             placeholder={__('Choose status')}
             value={queryParams.isActive || true}
