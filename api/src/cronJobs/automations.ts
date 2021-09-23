@@ -21,6 +21,6 @@ schedule.scheduleJob('0 0 * * *', () => {
 
 schedule.scheduleJob('*/10 * * * *', () => {
   return messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    actionType: 'wait'
+    actionType: 'waiting'
   });
 });

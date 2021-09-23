@@ -23,9 +23,9 @@ class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { config = {} } = this.props.activeAction;
+    const { config } = this.props.activeAction;
 
-    this.state = { config };
+    this.state = { config: config || {} };
   }
 
   componentWillReceiveProps(nextProps) {

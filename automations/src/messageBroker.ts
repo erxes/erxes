@@ -23,7 +23,7 @@ export const initBroker = async (server?) => {
 
     const { type, actionType, targets } = param;
 
-    if (actionType && actionType === 'wait') {
+    if (actionType && actionType === 'waiting') {
       await playWait();
       return;
     }

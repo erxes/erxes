@@ -9,8 +9,7 @@ import Automations, {
   ITrigger,
   TriggerType
 } from './models/Automations';
-import AutomationHistories from './models/Histories';
-import { Executions, IExecutionDocument } from './models/Executions';
+import { Executions, EXECUTION_STATUS, IExecutionDocument } from './models/Executions';
 
 export const getEnv = ({
   name,
@@ -56,23 +55,35 @@ export const executeActions = async (
   currentActionId?: string,
 ): Promise<string> => {
   if (!currentActionId) {
-    execution.waitingActionId = null;
-    execution.lastCheckedWaitDate = null;
-
-    await execution.save();
+    execution.status = EXECUTION_STATUS.COMPLETE
+    execution.save();
 
     return 'finished';
   }
 
   const action = actionsMap[currentActionId];
+  if (!action) {
+    execution.status = EXECUTION_STATUS.MISSID;
+    execution.save()
+
+    return 'missed action'
+  }
+
+  execution.status = EXECUTION_STATUS.ACTIVE;
+  execution.actions = [...(execution.actions || []), {
+    actionId: currentActionId,
+    actionType: action.type,
+    actionConfig: action.config,
+    nextActionId: action.nextActionId
+  }];
+  execution.save();
 
   try {
-
     if (action.type === ACTIONS.WAIT) {
       execution.waitingActionId = action.id;
-      execution.lastCheckedWaitDate = new Date();
-      await execution.save();
-
+      execution.startWaitingDate = new Date();
+      execution.status = EXECUTION_STATUS.WAITING;
+      execution.save();
       return 'paused';
     }
 
@@ -84,15 +95,6 @@ export const executeActions = async (
       } else {
         ifActionId = action.config.no;
       }
-
-      await AutomationHistories.createHistory({
-        actionId: currentActionId,
-        actionType: action.type,
-        triggerType,
-        description: `Continuing on the ${action.config.yes}`,
-        automationId: execution.automationId,
-        target: execution.target
-      });
 
       return executeActions(triggerType, execution, actionsMap, ifActionId);
     }
@@ -112,23 +114,6 @@ export const executeActions = async (
         actionConfig: action.config,
         target: execution.target
       });
-
-      await AutomationHistories.createHistory({
-        actionId: currentActionId,
-        actionType: action.type,
-        triggerType,
-        description: 'Set property',
-        automationId: execution.automationId,
-        target: execution.target
-      });
-    }
-
-    if (action.type === ACTIONS.ADD_TAGS) {
-      tags = [...tags, ...action.config.names];
-    }
-
-    if (action.type === ACTIONS.REMOVE_TAGS) {
-      tags = tags.filter(t => !action.config.names.includes(t));
     }
 
     if (
@@ -139,30 +124,16 @@ export const executeActions = async (
       const type = action.type.substring(6).toLocaleLowerCase();
 
       await addBoardItem({ action, execution, type });
-
-      await AutomationHistories.createHistory({
-        actionId: currentActionId,
-        actionType: action.type,
-        triggerType,
-        description: `Created a ${type}`,
-        automationId: execution.automationId,
-        target: execution.target
-      });
     }
 
     if (action.type === ACTIONS.REMOVE_DEAL) {
       deals = deals.filter(t => !action.config.names.includes(t));
     }
-
-    await execution.save();
   } catch (e) {
-    await AutomationHistories.createHistory({
-      actionId: currentActionId,
-      actionType: action.type,
-      description: 'An error occurred while checking the is in segment',
-      automationId: execution.automationId,
-      target: execution.target
-    });
+    execution.status = EXECUTION_STATUS.ERROR
+    execution.description = `An error occurred while working action: ${e.message}`
+    execution.save()
+    return;
   }
 
   return executeActions(
@@ -189,24 +160,26 @@ export const calculateExecution = async ({
       return;
     }
   } catch (e) {
-    await AutomationHistories.createHistory({
-      triggerId: trigger.id,
-      triggerType: trigger.type,
-      description: 'An error occurred while checking the is in segment',
+    await Executions.createExecution({
       automationId,
-      target
+      triggerId: id,
+      triggerType: type,
+      triggerConfig: config,
+      targetId: target._id,
+      target,
+      status: EXECUTION_STATUS.ERROR,
+      description: `An error occurred while checking the is in segment: "${e.message}"`
     });
+    return;
   }
 
   const executions = await Executions.find({
     automationId,
     triggerId: id,
     targetId: target._id
-  });
+  }).sort({ createdAt: -1 }).limit(1).lean();
 
-  const latestExecution = executions
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-    .pop();
+  const latestExecution: IExecutionDocument = executions.length && executions[0];
 
   if (latestExecution) {
     if (!reEnrollment || !reEnrollmentRules.length) {
@@ -231,8 +204,11 @@ export const calculateExecution = async ({
     automationId,
     triggerId: id,
     triggerType: type,
+    triggerConfig: config,
     targetId: target._id,
-    target
+    target,
+    status: EXECUTION_STATUS.ACTIVE,
+    description: `Met enrollement criteria`
   });
 };
 
@@ -250,7 +226,7 @@ export const receiveTrigger = async ({
     const automations = await Automations.find({
       status: 'active',
       'triggers.type': { $in: [type] }
-    });
+    }).lean();
 
     if (!automations.length) {
       return;
@@ -269,14 +245,6 @@ export const receiveTrigger = async ({
         });
 
         if (execution) {
-          await AutomationHistories.createHistory({
-            triggerId: trigger.id,
-            triggerType: trigger.type,
-            description: 'Met enrollement criteria',
-            automationId: automation._id,
-            target
-          });
-
           await executeActions(
             trigger.type,
             execution,

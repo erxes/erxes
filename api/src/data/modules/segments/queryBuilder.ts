@@ -175,12 +175,14 @@ export const generateQueryBySegment = async (args: {
   const selectorNegativeList =
     cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
 
-  const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
-  const parentSegment = embeddedParentSegment;
+  const parentSegment = await Segments.findOne({ _id: segment.subOf });
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
+    selectorPositiveList.push({ bool: {} });
+
     await generateQueryBySegment({
       ...args,
+      selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
       segment: parentSegment,
       isInitialCall: false
     });
@@ -200,37 +202,14 @@ export const generateQueryBySegment = async (args: {
   }
 
   if (['deal', 'task', 'ticket'].includes(contentType)) {
-    let pipelineIds: string[] = [];
+    const stageIds = await generateConditionStageIds({
+      boardId: segment.boardId,
+      pipelineId: segment.pipelineId,
+      options
+    });
 
-    if (options && options.pipelineId) {
-      pipelineIds = [options.pipelineId];
-    }
-
-    if (segment.boardId) {
-      const board = await Boards.getBoard(segment.boardId);
-
-      const pipelines = await Pipelines.find(
-        {
-          _id: {
-            $in: segment.pipelineId
-              ? [segment.pipelineId]
-              : board.pipelines || []
-          }
-        },
-        { _id: 1 }
-      );
-
-      pipelineIds = pipelines.map(p => p._id);
-    }
-
-    const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
-
-    if (stages.length > 0) {
-      propertiesPositive.push({
-        terms: {
-          stageId: stages.map(s => s._id)
-        }
-      });
+    if (stageIds.length > 0) {
+      propertiesPositive.push({ terms: { stageId: stageIds } });
     }
   }
 
@@ -271,12 +250,36 @@ export const generateQueryBySegment = async (args: {
     const field = condition.propertyName;
 
     if (field && condition.propertyType) {
-      const [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
+      let [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
         field,
         type: typesMap[field],
         operator: condition.propertyOperator || '',
         value: condition.propertyValue || ''
       });
+
+      negativeQuery = negativeQuery;
+
+      if (isCardTyped(condition.propertyType)) {
+        const stageIds = await generateConditionStageIds({
+          boardId: condition.boardId,
+          pipelineId: condition.pipelineId
+        });
+
+        if (stageIds.length > 0) {
+          positiveQuery = {
+            bool: {
+              must: [
+                positiveQuery,
+                {
+                  terms: {
+                    stageId: stageIds
+                  }
+                }
+              ]
+            }
+          };
+        }
+      }
 
       if (contentType === condition.propertyType) {
         if (positiveQuery) {
@@ -728,3 +731,40 @@ const associationPropertyFilter = async ({
 
   return [];
 };
+
+const generateConditionStageIds = async ({
+  boardId,
+  pipelineId,
+  options
+}: {
+  boardId?: string;
+  pipelineId?: string;
+  options?: IOptions;
+}) => {
+  let pipelineIds: string[] = [];
+
+  if (options && options.pipelineId) {
+    pipelineIds = [options.pipelineId];
+  }
+
+  if (boardId && (!options || !options.pipelineId)) {
+    const board = await Boards.getBoard(boardId);
+
+    const pipelines = await Pipelines.find(
+      {
+        _id: {
+          $in: pipelineId ? [pipelineId] : board.pipelines || []
+        }
+      },
+      { _id: 1 }
+    );
+
+    pipelineIds = pipelines.map(p => p._id);
+  }
+
+  const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
+
+  return stages.map(s => s._id);
+};
+
+const isCardTyped = (type: string) => ['deal', 'task', 'ticket'].includes(type);

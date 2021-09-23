@@ -45,6 +45,32 @@ export interface IAutomation extends IAutomationDoc {
   _id: string;
 }
 
+export interface IAutomationHistoryAction {
+  createdAt?: Date;
+  actionId: string;
+  actionType: string;
+  actionConfig?: any;
+  nextActionId?: string;
+}
+
+export interface IAutomationHistory {
+  _id: string;
+  createdAt: Date;
+  modifiedAt?: Date;
+  automationId: string;
+  triggerId: string;
+  triggerType: string;
+  triggerConfig?: any;
+  nextActionId?: string;
+  targetId: string;
+  target: any;
+  status: string;
+  description: string;
+  actions?: IAutomationHistoryAction[];
+  startWaitingDate?: Date;
+  waitingActionId?: string;
+}
+
 export interface IAutomationNote extends IAutomationNoteDoc {
   _id: string;
 }
@@ -115,5 +141,10 @@ export type AutomationsNoteQueryResponse = {
 
 export type DetailQueryResponse = {
   automationDetail: IAutomation;
+  loading: boolean;
+};
+
+export type AutomationHistoriesQueryResponse = {
+  automationHistories: IAutomationHistory[];
   loading: boolean;
 };

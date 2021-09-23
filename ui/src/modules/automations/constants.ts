@@ -9,7 +9,7 @@ export const ACTIONS = [
   {
     type: 'setProperty',
     icon: 'calcualtor',
-    label: 'Manage properies',
+    label: 'Manage properties',
     description:
       'Update existing default or custom properties for Contacts, Companies, Cards, Conversations',
     isAvailable: true
