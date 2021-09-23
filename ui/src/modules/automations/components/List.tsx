@@ -125,10 +125,11 @@ class AutomationsList extends React.Component<IProps, State> {
               </th>
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
+              <th>{__('Triggers')}</th>
+              <th>{__('Actions')}</th>
               <th>{__('Created by')}</th>
               <th>{__('Last update')}</th>
               <th>{__('Created date')}</th>
-              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>

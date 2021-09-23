@@ -5,11 +5,8 @@ import dayjs from 'dayjs';
 import Label from 'modules/common/components/Label';
 import Icon from 'modules/common/components/Icon';
 import { DateWrapper } from 'modules/common/styles/main';
-import ActionButtons from 'modules/common/components/ActionButtons';
-import Button from 'modules/common/components/Button';
-import Tip from 'modules/common/components/Tip';
 import { __, formatValue } from 'modules/common/utils';
-import { Link } from 'react-router-dom';
+import s from 'underscore.string';
 import { FlexItem } from 'modules/companies/styles';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 
@@ -35,7 +32,7 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
     history.push(`/automations/details/${automation._id}`);
   };
 
-  const { _id, name, status, updatedAt, createdAt } = automation;
+  const { name, status, updatedAt, createdAt, triggers, actions } = automation;
 
   const isActive = status !== 'draft' ? true : false;
   const labelStyle = isActive ? 'success' : 'simple';
@@ -53,11 +50,19 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
       <td>
         <Label lblStyle={labelStyle}>{status}</Label>
       </td>
+      <td className="text-primary">
+        <Icon icon="swatchbook" />
+        <b> {s.numberFormat(triggers.length)}</b>
+      </td>
+      <td className="text-warning">
+        <Icon icon="share-alt" />
+        <b> {s.numberFormat(actions.length)}</b>
+      </td>
       <td>
         <FlexItem>
           <NameCard.Avatar customer={{ firstName: 'Anu-Ujin' }} size={30} />
           &emsp;
-          {formatValue('Anu-Ujin')}
+          {formatValue('Anu-Ujin Bat-Ulzii')}
         </FlexItem>
       </td>
       <td>
@@ -67,17 +72,6 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
       <td>
         <Icon icon="calender" />{' '}
         <DateWrapper>{dayjs(createdAt || new Date()).format('ll')}</DateWrapper>
-      </td>
-      <td>
-        <ActionButtons>
-          <Link to={`/automations/details/${_id}`}>
-            <Button btnStyle="link">
-              <Tip text={__('Edit automation')} placement="top">
-                <Icon icon="edit-3" />
-              </Tip>
-            </Button>
-          </Link>
-        </ActionButtons>
       </td>
     </tr>
   );
