@@ -84,7 +84,7 @@ class HistoryRow extends React.Component<Props, State> {
         {actions.map(action => (
           <tr key={action.actionId}>
             <td>{}</td>
-            <td colSpan={2}>{action.createdAt}</td>
+            <td>{dayjs(action.createdAt).format('lll')}</td>
             <td colSpan={2}>{actionsByType[action.actionType]}</td>
           </tr>
         ))}
