@@ -2,7 +2,16 @@ import FormControl from 'modules/common/components/form/Control';
 import React from 'react';
 import { IAutomation } from '../types';
 import dayjs from 'dayjs';
-import { Status } from '../styles';
+import Label from 'modules/common/components/Label';
+import Icon from 'modules/common/components/Icon';
+import { DateWrapper } from 'modules/common/styles/main';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Tip from 'modules/common/components/Tip';
+import { __, formatValue } from 'modules/common/utils';
+import { Link } from 'react-router-dom';
+import { FlexItem } from 'modules/companies/styles';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 
 type Props = {
   automation: IAutomation;
@@ -26,12 +35,10 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
     history.push(`/automations/details/${automation._id}`);
   };
 
-  const renderStatus = () => {
-    const status = automation.status;
-    const isActive = status !== 'draft' ? true : false;
+  const { _id, name, status, updatedAt, createdAt } = automation;
 
-    return <Status isActive={isActive}>{status}</Status>;
-  };
+  const isActive = status !== 'draft' ? true : false;
+  const labelStyle = isActive ? 'success' : 'simple';
 
   return (
     <tr onClick={onTrClick}>
@@ -42,15 +49,35 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
           onChange={onChange}
         />
       </td>
-      <td> {automation.name} </td>
-      <td> {renderStatus()} </td>
+      <td> {name} </td>
       <td>
-        {' '}
-        {dayjs(automation.updatedAt || new Date()).format('MM/DD/YYYY')}{' '}
+        <Label lblStyle={labelStyle}>{status}</Label>
       </td>
       <td>
-        {' '}
-        {dayjs(automation.createdAt || new Date()).format('MM/DD/YYYY')}{' '}
+        <FlexItem>
+          <NameCard.Avatar customer={{ firstName: 'Anu-Ujin' }} size={30} />
+          &emsp;
+          {formatValue('Anu-Ujin')}
+        </FlexItem>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(createdAt || new Date()).format('ll')}</DateWrapper>
+      </td>
+      <td>
+        <ActionButtons>
+          <Link to={`/automations/details/${_id}`}>
+            <Button btnStyle="link">
+              <Tip text={__('Edit automation')} placement="top">
+                <Icon icon="edit-3" />
+              </Tip>
+            </Button>
+          </Link>
+        </ActionButtons>
       </td>
     </tr>
   );

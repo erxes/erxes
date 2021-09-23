@@ -125,8 +125,10 @@ class AutomationsList extends React.Component<IProps, State> {
               </th>
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
+              <th>{__('Created by')}</th>
               <th>{__('Last update')}</th>
               <th>{__('Created date')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
@@ -199,7 +201,11 @@ class AutomationsList extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__(`Automations`)} queryParams={queryParams} />
+          <Wrapper.Header
+            title={__('Automations')}
+            breadcrumb={[{ title: __('Automations') }]}
+            queryParams={queryParams}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

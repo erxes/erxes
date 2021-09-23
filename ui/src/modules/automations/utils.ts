@@ -5,7 +5,7 @@ import { rgba } from 'modules/common/styles/color';
 
 export const connectorPaintStyle = {
   strokeWidth: 2,
-  stroke: rgba(colors.colorBlack, 0.5)
+  stroke: '#a1a1a1'
 };
 
 export const hoverPaintStyle = {

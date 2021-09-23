@@ -21,10 +21,6 @@ export const Container = styled.div`
     position: relative;
     height: 100%;
 
-    .show-action-menu .custom-menu {
-      visibility: visible;
-    }
-
     .note-badge {
       position: absolute;
       right: -${dimensions.unitSpacing}px;
@@ -48,13 +44,18 @@ export const Container = styled.div`
       }
     }
 
+    .show-action-menu .custom-menu {
+      visibility: visible;
+      top: -35px;
+    }
+
     .custom-menu {
-      z-index: 1000;
       position: absolute;
       right: 0;
       margin: 0;
-      top: -35px;
+      top: ${dimensions.unitSpacing}px;
       visibility: hidden;
+      transition: all 0.2s linear;
 
       i {
         background: #e3deee;
@@ -64,7 +65,8 @@ export const Container = styled.div`
         color: ${colors.colorSecondary};
         cursor: pointer;
         border: 1px solid ${colors.colorSecondary};
-        transition: all ease 0.3s;
+        transition: transform 0.5s;
+        transform: scale(1.5);
 
         &.note {
           background: ${rgba(colors.colorSecondary, 0.12)};
@@ -179,7 +181,7 @@ export const Container = styled.div`
     .trigger-header {
       background: ${rgba(colors.colorCoreOrange, 0.12)};
 
-      i {
+      > div > i {
         color: ${colors.colorCoreOrange} !important;
       }
     }
@@ -571,24 +573,6 @@ export const EmptyContent = styled.div`
   }
 `;
 
-export const Status = styledTS<{ isActive: boolean }>(styled.div)`
-  color: ${props =>
-    props.isActive ? colors.colorCoreGreen : colors.colorCoreGray};
-  display: flex;
-  align-items: center;
-  text-transform: capitalize;
-
-  &:before {
-    content: '';
-    width: 10px;
-    height: 10px;
-    border-radius: 10px;
-    margin-right: 5px;
-    background: ${props =>
-      props.isActive ? colors.colorCoreGreen : colors.colorCoreGray};
-  }
-`;
-
 export const EnrollmentWrapper = styledTS<{ noMargin?: boolean }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
@@ -749,17 +733,13 @@ export const ActionFooter = styled.div`
   bottom: ${dimensions.coreSpacing}px;
 `;
 
-export const NoteContainer = styled.div``;
-
 export const ZoomActions = styled.div`
-  display: flex;
-  flex-direction: column;
   position: absolute;
-  align-items: center;
   font-size: 11px;
-  z-index: 10;
+  z-index: ${dimensions.unitSpacing};
 
   > .icon-wrapper {
+    display: table;
     border: 1px solid ${colors.borderDarker};
     border-radius: ${dimensions.unitSpacing - 6}px;
     margin-bottom: ${dimensions.unitSpacing - 5}px;
@@ -767,10 +747,14 @@ export const ZoomActions = styled.div`
 `;
 
 export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing - 6}px;
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
+  line-height: ${dimensions.coreSpacing}px;
+  text-align: center;
   background: ${props =>
     props.disabled ? colors.bgActive : colors.colorWhite};
   cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+  margin: 0;
   transition: all ease .3s;
 
   > i {
