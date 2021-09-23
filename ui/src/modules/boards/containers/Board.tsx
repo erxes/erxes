@@ -13,7 +13,7 @@ import { queries } from '../graphql';
 import { RootBack, ScrolledContent } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
-import ActivityLogs from '../components/activityLogs/ActivityLogs';
+import PipelineActivity from './PipelineActivity';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -54,10 +54,11 @@ class Board extends React.Component<Props> {
 
     if (viewType === 'activity') {
       return (
-        <ActivityLogs
+        <PipelineActivity
           key={pipeline._id}
           options={options}
           queryParams={queryParams}
+          pipeline={pipeline}
         />
       );
     }

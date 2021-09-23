@@ -139,12 +139,3 @@ export const ItemContainer = styledTS<{
   justify-content: space-between;
   will-change: transform;
 `;
-
-export const RowFill = styled.div`
-  display: flex;
-  padding: 5px 5px 5px 20px;
-`;
-
-export const FieldStyle = styled.div`
-  margin: 2px 0 0 5px;
-`;

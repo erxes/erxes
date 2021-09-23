@@ -5,7 +5,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import FormControl from 'modules/common/components/form/Control';
 import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
-import { RowFill, FieldStyle } from '../../styles/common';
+import { RowFill, FieldStyle } from '../../styles/viewtype';
 import Wrapper from 'modules/layout/components/Wrapper';
 
 const { Section } = Wrapper.Sidebar;
