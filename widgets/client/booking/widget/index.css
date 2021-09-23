@@ -1,0 +1,29 @@
+#erxes-knowledge-container {
+  min-height: 100%;
+  background: #fcfcfc;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.erxes-knowledge-container-shoutbox {
+  /* shoutbox css below */
+  position: absolute;
+  right: 0;
+  max-width: 300px;
+  min-width: 300px;
+}
+
+#erxes-knowledge-iframe {
+  width: 100%;
+  border: none;
+  min-height: 100%;
+  position: absolute;
+}
+
+@media only screen and (max-width: 420px) {
+  #erxes-knowledge-container {
+    width: 100%;
+    max-height: none;
+  }
+}

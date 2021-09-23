@@ -55,10 +55,24 @@ app.get('/knowledgebase', (req, res) => {
   });
 });
 
-app.get('/test', (req, res) => {
-  const { form_id, brand_id, topic_id } = req.query;
+app.get('/booking', (req, res) => {
+  res.render('widget', {
+    type: 'booking',
+    env: getEnv(),
+    bookingId: req.query.bookingId
+  });
+});
 
-  res.render(`widget-${req.query.type}-test`, { topic_id, brand_id, form_id, env: getEnv() });
+app.get('/test', (req, res) => {
+  const { form_id, brand_id, topic_id, booking_id } = req.query;
+
+  res.render(`widget-${req.query.type}-test`, {
+    topic_id,
+    brand_id,
+    form_id,
+    booking_id,
+    env: getEnv()
+  });
 });
 
 const port = process.env.PORT || 3200;
