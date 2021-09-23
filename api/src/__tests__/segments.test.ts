@@ -679,6 +679,23 @@ describe('Segments mutations', () => {
     expect(result[0]).toBe(deal._id);
 
     // pipelineId in options
+    segment = await segmentFactory({
+      contentType: 'deal',
+      conditionsConjunction: 'and',
+      boardId: board1._id,
+      pipelineId: b1p1._id,
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'test'
+        }
+      ]
+    });
+
     result = await fetchSegment(segment, { pipelineId: pipeline._id });
 
     expect(result.length).toBe(1);
