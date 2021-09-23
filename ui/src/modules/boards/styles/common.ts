@@ -142,4 +142,9 @@ export const ItemContainer = styledTS<{
 
 export const RowFill = styled.div`
   display: flex;
+  padding: 5px 5px 5px 20px;
+`;
+
+export const FieldStyle = styled.div`
+  margin: 2px 0 0 5px;
 `;

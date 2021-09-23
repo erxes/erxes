@@ -1,11 +1,11 @@
 import { __ } from 'modules/common/utils';
 import LeftSidebar from 'modules/layout/components/Sidebar';
-import { SidebarList, FieldStyle } from 'modules/layout/styles';
+import { SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import FormControl from 'modules/common/components/form/Control';
 import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
-import { RowFill } from '../../styles/common';
+import { RowFill, FieldStyle } from '../../styles/common';
 import Wrapper from 'modules/layout/components/Wrapper';
 
 const { Section } = Wrapper.Sidebar;
@@ -34,9 +34,9 @@ class Sidebar extends React.Component<Props> {
     return (
       <LeftSidebar full={true}>
         <LeftSidebar.Header uppercase={true}>
-          {__('Segments type')}
+          {__('General')}
         </LeftSidebar.Header>
-        <SidebarList id={'SegmentSidebar'}>
+        <SidebarList id={'ActivitySidebar'}>
           {SEARCH_ACTIVITY_CHECKBOX.map((p, index) => (
             <li key={index}>
               <RowFill>
