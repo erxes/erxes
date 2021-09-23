@@ -50,14 +50,12 @@ const ConversationCustomFieldsSection = (props: FinalProps) => {
       });
   };
 
-  const groups = fieldsGroupsQuery.fieldsGroups || [];
-
   const updatedProps = {
     save,
     loading,
     isDetail: false,
     customFieldsData: conversation.customFieldsData,
-    fieldsGroups: groups.filter(e => !e.isDefinedByErxes)
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -73,7 +71,8 @@ export default (props: Props) => {
           name: 'fieldsGroupsQuery',
           options: () => ({
             variables: {
-              contentType: 'conversation'
+              contentType: 'conversation',
+              isDefinedByErxes: false
             }
           })
         }

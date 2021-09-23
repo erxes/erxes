@@ -682,7 +682,8 @@ export const solveSubmissions = async (args: {
       size,
       isSubscribed: companyIsSubscribed,
       description: companyDescription,
-      businessType
+      businessType,
+      scopeBrandIds: [integration.brandId || '']
     };
 
     if (logo.length > 0) {
@@ -727,6 +728,14 @@ export const solveSubmissions = async (args: {
     }
 
     company = await Companies.updateCompany(company._id, companyDoc);
+
+    // if company scopeBrandIds does not contain brandId
+    if (company.scopeBrandIds.indexOf(integration.brandId) === -1) {
+      await Companies.update(
+        { _id: company._id },
+        { $push: { scopeBrandIds: integration.brandId } }
+      );
+    }
 
     conformityIds[groupId] = {
       companyId: company._id,
