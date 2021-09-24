@@ -10,6 +10,7 @@ export const types = `
     endDate: Date
     commentCount: Int
     likeCount: Int
+    heartCount: Int
     isHearted: Boolean
     isLiked: Boolean
     images: JSON

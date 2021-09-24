@@ -41,6 +41,16 @@ const exmFeedResolvers = [
   },
   {
     type: 'ExmFeed',
+    field: 'heartCount',
+    handler: (exmFeed, {}, { models }) => {
+      return models.ExmFeedEmojis.find({
+        feedId: exmFeed._id,
+        type: 'heart'
+      }).countDocuments();
+    }
+  },
+  {
+    type: 'ExmFeed',
     field: 'isHearted',
     handler: async (exmFeed, {}, { models, user }) => {
       const emoji = await models.ExmFeedEmojis.findOne({
