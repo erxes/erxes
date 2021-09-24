@@ -59,7 +59,7 @@ export const commentSchema = {
 
 export const emojiSchema = {
   _id: { pkey: true },
-  type: { type: String, default: 'like' },
+  type: { type: String, default: 'heart' },
   feedId: { type: String },
   userId: { type: String },
   createdAt: { type: Date, label: 'Created at' },

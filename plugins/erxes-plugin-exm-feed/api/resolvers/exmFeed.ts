@@ -41,6 +41,19 @@ const exmFeedResolvers = [
   },
   {
     type: 'ExmFeed',
+    field: 'isHearted',
+    handler: async (exmFeed, {}, { models, user }) => {
+      const emoji = await models.ExmFeedEmojis.findOne({
+        feedId: exmFeed._id,
+        type: 'heart',
+        userId: user._id
+      });
+
+      return Boolean(emoji);
+    }
+  },
+  {
+    type: 'ExmFeed',
     field: 'isLiked',
     handler: async (exmFeed, {}, { models, user }) => {
       const emoji = await models.ExmFeedEmojis.findOne({
