@@ -169,7 +169,7 @@ const conversationQueries = {
     const aggregationPipeline = [
       {
         $facet: {
-          unnassigned: [
+          unassigned: [
             { $match: { ...mainQuery, ...qb.unassignedFilter() } },
             { $count: 'count' }
           ],
@@ -193,7 +193,7 @@ const conversationQueries = {
       },
       {
         $project: {
-          unnassigned: { $arrayElemAt: ['$unnassigned.count', 0] },
+          unassigned: { $arrayElemAt: ['$unassigned.count', 0] },
           participating: { $arrayElemAt: ['$participating.count', 0] },
           starred: { $arrayElemAt: ['$starred.count', 0] },
           resolved: { $arrayElemAt: ['$resolved.count', 0] },
