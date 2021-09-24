@@ -84,7 +84,7 @@ export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
   exmFeed(contentType: ContentType, type: SourceType, recipientType: RecipientType, title: String, limit: Int): ExmFeedResponse
   exmThanks(limit: Int, type: SourceType): ExmThankResponse
-  exmFeedComments(feedId: String, parentId: String, limit: Int): ExmFeedCommentResponse
+  exmFeedComments(feedId: String, parentId: String, limit: Int. skip: Int): ExmFeedCommentResponse
   exmFeedLikedUsers(feedId: String!): [User]
 `;
 

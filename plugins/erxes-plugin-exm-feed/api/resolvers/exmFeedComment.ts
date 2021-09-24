@@ -8,11 +8,11 @@ const exmFeedCommentResolvers = [
   },
   {
     type: 'ExmFeedComment',
-    field: 'children',
+    field: 'childCount',
     handler: (comment, {}, { models }) => {
       return models.ExmFeedComments.find({
         parentId: comment._id
-      });
+      }).countDocuments();
     }
   }
 ];
