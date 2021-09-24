@@ -9,11 +9,11 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import {
   ActivityList,
-  ListFields,
   NameCardStyle,
   DescText,
   ActionText
 } from 'modules/boards/styles/viewtype';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   queryParams: any;
@@ -31,23 +31,22 @@ type commonProps = {
 class ActivityLogs extends React.Component<Props> {
   renderContent() {
     const { logs } = this.props;
-    console.log(logs);
 
     return logs.map((log: any) => (
       <ActivityList>
-        <ListFields>
-          <span>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
-          <NameCardStyle>
-            <NameCard
-              user={log.newData.assignedUserId}
-              singleLine={true}
-              avatarSize={30}
-            />
-            <p>{log.unicode}</p>
-          </NameCardStyle>
-          <ActionText>{log.action}</ActionText>
-          <DescText>{log.description}</DescText>
-        </ListFields>
+        <span>{dayjs(log.createdAt).format('MMM D')}</span>
+        <Icon icon="edit-3" size={25} color="#FDA50D" />
+        <NameCardStyle>
+          <NameCard
+            user={log.newData.assignedUserId}
+            singleLine={true}
+            avatarSize={30}
+          />
+          <span>{log.unicode}</span>
+        </NameCardStyle>
+        <ActionText>{log.action}</ActionText>
+        <DescText>{log.description}</DescText>
+        <span>{dayjs(log.createdAt).format('h:mm A')}</span>
       </ActivityList>
     ));
   }

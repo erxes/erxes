@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { dimensions } from 'modules/common/styles';
 import { colors } from 'modules/common/styles';
 
-const secondaryText = '#6a818c';
+const linkText = 'rgb(23, 133, 252);';
 
 export const RowFill = styled.div`
   display: flex;
@@ -14,45 +14,48 @@ export const FieldStyle = styled.div`
 `;
 
 export const ActivityList = styled.div`
-  border: 1px solid rgb(238, 238, 238);
-  border-radius: ${dimensions.unitSpacing - 4}px;
-  margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0
-    ${dimensions.coreSpacing}px;
-  transition: background-color 0.3s ease 0s;
-  box-shadow: rgb(0 0 0 / 10%) 0px 0px 20px 2px;
-  height: ${dimensions.headerSpacing + 10}px;
-  font-weight: 600;
+  padding: ${dimensions.coreSpacing}px;
+  position: relative;
+  overflow: visible;
+  margin: ${dimensions.coreSpacing}px;
+  border-radius: 2px;
+  height: auto;
+  transition: height 0.3s ease-out 0s;
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgb(0 0 0 / 8%) 0px 0px 6px 1px;
+  word-break: break-word;
+  font-weight: 500;
   font-size: 12px;
+  display: flex;
 
   span {
+    align-self: center;
     color: ${colors.colorLightGray};
-    margin-left: ${dimensions.coreSpacing}px;
+  }
+
+  i {
+    margin-left: 10px;
   }
 `;
 
-export const ListFields = styled.div`
-  display: flex;
-  flex: 1;
-  margin-top: 20px;
-`;
-
 export const NameCardStyle = styled.div`
-  margin: ${dimensions.unitSpacing - 20}px ${dimensions.coreSpacing}px 0
-    ${dimensions.coreSpacing}px;
+  margin-left: ${dimensions.coreSpacing}px;
   display: flex;
 
-  p {
-    margin-top: 12px;
-    color: ${secondaryText};
+  span {
+    align-self: center;
+    color: ${linkText};
   }
 `;
 
 export const ActionText = styled.div`
+  align-self: center;
   margin-left: ${dimensions.coreSpacing}px;
-  color: ${colors.colorSecondary};
 `;
 
 export const DescText = styled.div`
+  align-self: center;
+  flex: 1 1 0%;
   margin-left: ${dimensions.coreSpacing}px;
-  color: ${secondaryText};
+  color: ${linkText};
 `;
