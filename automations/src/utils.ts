@@ -9,7 +9,7 @@ import Automations, {
   ITrigger,
   TriggerType
 } from './models/Automations';
-import { Executions, EXECUTION_STATUS, IExecutionDocument } from './models/Executions';
+import { Executions, EXECUTION_STATUS, IExecAction, IExecutionDocument } from './models/Executions';
 
 export const getEnv = ({
   name,
@@ -36,18 +36,6 @@ export const isInSegment = async (segmentId: string, targetId: string) => {
   return response.check;
 };
 
-export let tags: any[] = [];
-export let tasks: any[] = [];
-export let deals: any[] = [];
-export let customers: any[] = [];
-
-export const reset = () => {
-  tags = [];
-  tasks = [];
-  deals = [];
-  customers = [];
-};
-
 export const executeActions = async (
   triggerType: string,
   execution: IExecutionDocument,
@@ -64,25 +52,26 @@ export const executeActions = async (
   const action = actionsMap[currentActionId];
   if (!action) {
     execution.status = EXECUTION_STATUS.MISSID;
-    await execution.save()
+    await execution.save();
 
     return 'missed action'
   }
 
   execution.status = EXECUTION_STATUS.ACTIVE;
-  execution.actions = [...(execution.actions || []), {
+  const execAction: IExecAction = {
     actionId: currentActionId,
     actionType: action.type,
     actionConfig: action.config,
     nextActionId: action.nextActionId
-  }];
-  await execution.save();
+  };
+  let actionResponse = null;
 
   try {
     if (action.type === ACTIONS.WAIT) {
       execution.waitingActionId = action.id;
       execution.startWaitingDate = new Date();
       execution.status = EXECUTION_STATUS.WAITING;
+      execution.actions = [...(execution.actions || []), execAction]
       await execution.save();
       return 'paused';
     }
@@ -90,26 +79,23 @@ export const executeActions = async (
     if (action.type === ACTIONS.IF) {
       let ifActionId;
 
-      if (await isInSegment(action.config.contentId, execution.targetId)) {
+      const isIn = await isInSegment(action.config.contentId, execution.targetId)
+      if (isIn) {
         ifActionId = action.config.yes;
       } else {
         ifActionId = action.config.no;
       }
 
+      execAction.nextActionId = ifActionId;
+      execAction.result = { condition: isIn };
+      execution.actions = [...(execution.actions || []), execAction]
+      execution = await execution.save();
+
       return executeActions(triggerType, execution, actionsMap, ifActionId);
     }
 
-    if (action.type === ACTIONS.GO_TO) {
-      return executeActions(
-        triggerType,
-        execution,
-        actionsMap,
-        action.config.toId
-      );
-    }
-
     if (action.type === ACTIONS.SET_PROPERTY) {
-      await setProperty({
+      actionResponse = await setProperty({
         triggerType,
         actionConfig: action.config,
         target: execution.target
@@ -123,18 +109,20 @@ export const executeActions = async (
     ) {
       const type = action.type.substring(6).toLocaleLowerCase();
 
-      await addBoardItem({ action, execution, type });
-    }
-
-    if (action.type === ACTIONS.REMOVE_DEAL) {
-      deals = deals.filter(t => !action.config.names.includes(t));
+      actionResponse = await addBoardItem({ action, execution, type });
     }
   } catch (e) {
+    execAction.result = { error: e.message };
+    execution.actions = [...(execution.actions || []), execAction]
     execution.status = EXECUTION_STATUS.ERROR
-    execution.description = `An error occurred while working action: ${e.message}`
-    await execution.save()
+    execution.description = `An error occurred while working action: ${action.type}`
+    await execution.save();
     return;
   }
+
+  execAction.result = actionResponse;
+  execution.actions = [...(execution.actions || []), execAction]
+  execution = await execution.save();
 
   return executeActions(
     triggerType,

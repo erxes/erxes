@@ -78,7 +78,7 @@ const detailSchema = new Schema(
     operatorPhone: field({
       type: String,
       optional: true,
-      label: 'Company phone'
+      label: 'Operator phone'
     })
   },
   { _id: false }

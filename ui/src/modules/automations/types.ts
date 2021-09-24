@@ -55,6 +55,7 @@ export interface IAutomationHistoryAction {
   actionType: string;
   actionConfig?: any;
   nextActionId?: string;
+  result?: any;
 }
 
 export interface IAutomationHistory {

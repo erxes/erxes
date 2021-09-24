@@ -6,6 +6,7 @@ export interface IExecAction {
   actionType: string;
   actionConfig?: any;
   nextActionId?: string;
+  result?: any;
 }
 
 export interface IExecution {
@@ -43,7 +44,8 @@ const execActionSchema = new Schema({
   actionId: { type: String },
   actionType: { type: String },
   actionConfig: { type: Object },
-  nextActionId: { type: String }
+  nextActionId: { type: String },
+  result: { type: Object }
 })
 
 export const executionSchema = new Schema({

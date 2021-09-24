@@ -39,11 +39,25 @@ export const addBoardItem = async ({ action, execution, type }) => {
     }
   }
 
-  sendRPCMessage(`add-${type}`, {
+  if (execution.triggerType === 'conversation') {
+    newData.sourceConversationIds = [execution.targetId]
+  }
+
+  const response = await sendRPCMessage(`add-${type}`, {
     type,
     ...newData,
     conformity
   });
 
-  return newData;
+  if (response.error) {
+    return response
+  }
+
+  return {
+    name: response.name,
+    itemId: response._id,
+    stageId: response.stageId,
+    pipelineId: newData.pipelineId,
+    boardId: newData.boardId
+  };
 }

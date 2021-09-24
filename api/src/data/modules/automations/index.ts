@@ -19,7 +19,19 @@ export const receiveRpcMessage = async msg => {
       return sendError('undefined model');
     }
 
-    return sendSuccess(await allModels[doc.model].find({ ...doc.selector }));
+    return sendSuccess(
+      await allModels[doc.model].find({ ...doc.selector }).lean()
+    );
+  }
+
+  if (action === 'getObject') {
+    if (!Object.keys(allModels).includes(doc.model)) {
+      return sendError('undefined model');
+    }
+
+    return sendSuccess(
+      await allModels[doc.model].findOne({ ...doc.selector }).lean()
+    );
   }
 
   return receiveRpcMessageBoardItem(action, doc);

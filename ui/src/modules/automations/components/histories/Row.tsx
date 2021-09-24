@@ -1,5 +1,8 @@
 import dayjs from 'dayjs';
-import { IAutomationHistory } from 'modules/automations/types';
+import {
+  IAutomationHistory,
+  IAutomationHistoryAction
+} from 'modules/automations/types';
 import { __, renderFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -68,6 +71,44 @@ class HistoryRow extends React.Component<Props, State> {
     }
   };
 
+  generateActionResult = (action: IAutomationHistoryAction) => {
+    if (!action.result) {
+      return 'Result has not been recorded yet';
+    }
+
+    if (action.result.error) {
+      return action.result.error;
+    }
+
+    const { result } = action;
+
+    if (
+      ['createTask', 'createDeal', 'createTicket'].includes(action.actionType)
+    ) {
+      const type = action.actionType.substr(6).toLowerCase();
+      return (
+        <Link
+          target="_blank"
+          to={`/${type}/board?_id=${result.boardId}&itemId=${result.itemId}&key=&pipelineId=${result.pipelineId}`}
+        >
+          {`Created ${type}: ${result.name}`}
+        </Link>
+      );
+    }
+
+    if (action.actionType === 'setProperty') {
+      return `${result.module} in ${result.field}: ${(result.result || [])
+        .map(r => `${r.error ? r.error : r._id}`)
+        .join(', ')}`;
+    }
+
+    if (action.actionType === 'if') {
+      return `Condition: ${result.condition}`;
+    }
+
+    return JSON.stringify(result);
+  };
+
   renderDetail = () => {
     const { isShowDetail } = this.state;
 
@@ -92,15 +133,17 @@ class HistoryRow extends React.Component<Props, State> {
       <>
         <tr key={Math.random()} style={{ backgroundColor: '#ececec' }}>
           <td>{}</td>
-          <td colSpan={2}>{__('Sub Time')}</td>
-          <td colSpan={2}>{__('Action Type')}</td>
+          <td>{__('Sub Time')}</td>
+          <td>{__('Action Type')}</td>
+          <td colSpan={2}>{__('Results')}</td>
         </tr>
 
         {actions.map(action => (
           <tr key={action.actionId}>
             <td>{}</td>
-            <td colSpan={2}>{dayjs(action.createdAt).format('lll')}</td>
-            <td colSpan={2}>{actionsByType[action.actionType]}</td>
+            <td>{dayjs(action.createdAt).format('lll')}</td>
+            <td>{actionsByType[action.actionType]}</td>
+            <td colSpan={2}>{this.generateActionResult(action)}</td>
           </tr>
         ))}
       </>
