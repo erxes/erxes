@@ -1,3 +1,12 @@
+const userFields = `
+  _id
+  username
+  email
+  details {
+    avatar
+    fullName
+  }
+`;
 export const automationFields = `
   _id
   name
@@ -22,6 +31,16 @@ export const automationFields = `
     label
     description
   }
+  createdAt
+  updatedAt
+  createdBy
+  updatedBy
+  createdUser {
+    ${userFields}
+  }
+  updatedUser {
+    ${userFields}
+  }
 `;
 
 export const automationNoteFields = `
@@ -30,13 +49,7 @@ export const automationNoteFields = `
   triggerId
   actionId
   createdUser {
-    _id
-    username
-    email
-    details {
-      avatar
-      fullName
-    }
+    ${userFields}
   }
   createdAt
 `;
@@ -78,8 +91,22 @@ export const automationsMain = `
         _id
         name
         status
+        triggers {
+          id
+        }
+        actions {
+          id
+        }
         createdAt
         updatedAt
+        createdBy
+        updatedBy
+        createdUser {
+          ${userFields}
+        }
+        updatedUser {
+          ${userFields}
+        }
       }
 
       totalCount

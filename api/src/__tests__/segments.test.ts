@@ -612,7 +612,7 @@ describe('Segments mutations', () => {
 
     const customer = await customerFactory({}, false, true);
     const customer2 = await customerFactory({}, false, true);
-    
+
     const pipeline = await pipelineFactory({});
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const board1 = await boardFactory({});
@@ -624,10 +624,19 @@ describe('Segments mutations', () => {
 
     await dealFactory({}, true);
     await dealFactory({}, true);
-    const deal = await dealFactory({ stageId: p1s1._id, name: 'p1test', customerIds: [customer._id] }, true);
-    const deal2 = await dealFactory({ name: 'p1test', customerIds: [customer2._id], stageId: stage._id }, true);
+    const deal = await dealFactory(
+      { stageId: p1s1._id, name: 'p1test', customerIds: [customer._id] },
+      true
+    );
+    const deal2 = await dealFactory(
+      { name: 'p1test', customerIds: [customer2._id], stageId: stage._id },
+      true
+    );
     await dealFactory({ stageId: p1s1._id }, true);
-    await dealFactory({ stageId: p2s1._id, name: 'p2test', customerIds: [customer._id] }, true);
+    await dealFactory(
+      { stageId: p2s1._id, name: 'p2test', customerIds: [customer._id] },
+      true
+    );
     await dealFactory({ stageId: p2s1._id }, true);
 
     await sleep(2000);
@@ -679,9 +688,76 @@ describe('Segments mutations', () => {
     expect(result[0]).toBe(deal._id);
 
     // pipelineId in options
+    segment = await segmentFactory({
+      contentType: 'deal',
+      conditionsConjunction: 'and',
+      boardId: board1._id,
+      pipelineId: b1p1._id,
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'test'
+        }
+      ]
+    });
+
     result = await fetchSegment(segment, { pipelineId: pipeline._id });
 
     expect(result.length).toBe(1);
     expect(result[0]).toBe(deal2._id);
+  });
+
+  test('fetchBySegment: parent segment', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+    await customerFactory({ lastName: 'dombo' }, false, true);
+    await customerFactory({ lastName: 'gombo' }, false, true);
+    const customer = await customerFactory(
+      { lastName: 'dombo gombo' },
+      false,
+      true
+    );
+
+    await sleep(2000);
+
+    const parent = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'and',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'c',
+          propertyValue: 'gombo'
+        }
+      ]
+    });
+
+    const sub = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'and',
+      subOf: parent._id,
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'c',
+          propertyValue: 'dombo'
+        }
+      ]
+    });
+
+    const result = await fetchSegment(sub);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(customer._id);
   });
 });

@@ -1,10 +1,9 @@
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-
 import Icon from 'modules/common/components/Icon';
-import { Attributes } from 'modules/automations/styles';
 import { FieldsCombinedByType } from 'modules/settings/properties/types';
+import { Attributes } from './styles';
 
 type Props = {
   config: any;

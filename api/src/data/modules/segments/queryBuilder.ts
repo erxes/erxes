@@ -175,12 +175,14 @@ export const generateQueryBySegment = async (args: {
   const selectorNegativeList =
     cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
 
-  const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
-  const parentSegment = embeddedParentSegment;
+  const parentSegment = await Segments.findOne({ _id: segment.subOf });
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
+    selectorPositiveList.push({ bool: {} });
+
     await generateQueryBySegment({
       ...args,
+      selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
       segment: parentSegment,
       isInitialCall: false
     });
@@ -197,6 +199,18 @@ export const generateQueryBySegment = async (args: {
         status: 'deleted'
       }
     });
+  }
+
+  if (['deal', 'task', 'ticket'].includes(contentType)) {
+    const stageIds = await generateConditionStageIds({
+      boardId: segment.boardId,
+      pipelineId: segment.pipelineId,
+      options
+    });
+
+    if (stageIds.length > 0) {
+      propertiesPositive.push({ terms: { stageId: stageIds } });
+    }
   }
 
   const propertyConditions: ICondition[] = [];
@@ -246,7 +260,10 @@ export const generateQueryBySegment = async (args: {
       negativeQuery = negativeQuery;
 
       if (isCardTyped(condition.propertyType)) {
-        const stageIds = await generateConditionStageIds(condition, options);
+        const stageIds = await generateConditionStageIds({
+          boardId: condition.boardId,
+          pipelineId: condition.pipelineId
+        });
 
         if (stageIds.length > 0) {
           positiveQuery = {
@@ -715,25 +732,28 @@ const associationPropertyFilter = async ({
   return [];
 };
 
-const generateConditionStageIds = async (
-  condition: ICondition,
-  options: IOptions
-) => {
+const generateConditionStageIds = async ({
+  boardId,
+  pipelineId,
+  options
+}: {
+  boardId?: string;
+  pipelineId?: string;
+  options?: IOptions;
+}) => {
   let pipelineIds: string[] = [];
 
   if (options && options.pipelineId) {
     pipelineIds = [options.pipelineId];
   }
 
-  if (condition.boardId && !options.pipelineId) {
-    const board = await Boards.getBoard(condition.boardId);
+  if (boardId && (!options || !options.pipelineId)) {
+    const board = await Boards.getBoard(boardId);
 
     const pipelines = await Pipelines.find(
       {
         _id: {
-          $in: condition.pipelineId
-            ? [condition.pipelineId]
-            : board.pipelines || []
+          $in: pipelineId ? [pipelineId] : board.pipelines || []
         }
       },
       { _id: 1 }

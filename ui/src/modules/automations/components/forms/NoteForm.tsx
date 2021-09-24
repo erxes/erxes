@@ -1,6 +1,6 @@
 import React from 'react';
 import { ModalFooter } from 'modules/common/styles/main';
-import { NoteContainer, Notes } from 'modules/automations/styles';
+import { Notes } from 'modules/automations/styles';
 import FormControl from 'modules/common/components/form/Control';
 import { IFormProps } from 'modules/common/types';
 import Button from 'modules/common/components/Button';
@@ -145,7 +145,7 @@ class NoteForm extends React.Component<Props, State> {
     const { values } = formProps;
 
     return (
-      <NoteContainer>
+      <div>
         <Notes>{this.renderNotes()}</Notes>
         <FormControl
           name="description"
@@ -173,7 +173,7 @@ class NoteForm extends React.Component<Props, State> {
             {__('Save')}
           </Button>
         </ModalFooter>
-      </NoteContainer>
+      </div>
     );
   }
 }

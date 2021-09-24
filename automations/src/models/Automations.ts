@@ -81,7 +81,9 @@ export const automationSchema = new Schema({
     default: new Date(),
     label: 'Created date'
   },
-  updatedAt: { type: Date, label: 'Updated date' }
+  createdBy: { type: String },
+  updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
+  updatedBy: { type: String },
 });
 
 export interface IAutomationModel extends Model<IAutomationDocument> {

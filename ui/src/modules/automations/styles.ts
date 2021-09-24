@@ -1,12 +1,11 @@
 import styled from 'styled-components';
-import colors from 'modules/common/styles/colors';
-import { dimensions } from 'erxes-ui/lib/styles/eindex';
 import styledTS from 'styled-components-ts';
 import { RightMenuContainer } from 'modules/boards/styles/rightMenu';
 import { Contents } from 'modules/layout/styles';
 import { rgba } from 'modules/common/styles/color';
 import { DateWrapper } from 'modules/forms/styles';
 import { HeaderContent } from 'modules/boards/styles/item';
+import { dimensions, colors } from 'modules/common/styles';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -20,10 +19,6 @@ export const Container = styled.div`
   #canvas {
     position: relative;
     height: 100%;
-
-    .show-action-menu .custom-menu {
-      visibility: visible;
-    }
 
     .note-badge {
       position: absolute;
@@ -48,13 +43,18 @@ export const Container = styled.div`
       }
     }
 
+    .show-action-menu .custom-menu {
+      visibility: visible;
+      top: -35px;
+    }
+
     .custom-menu {
-      z-index: 1000;
       position: absolute;
       right: 0;
       margin: 0;
-      top: -35px;
+      top: ${dimensions.unitSpacing}px;
       visibility: hidden;
+      transition: all 0.2s linear;
 
       i {
         background: #e3deee;
@@ -64,7 +64,8 @@ export const Container = styled.div`
         color: ${colors.colorSecondary};
         cursor: pointer;
         border: 1px solid ${colors.colorSecondary};
-        transition: all ease 0.3s;
+        transition: transform 0.5s;
+        transform: scale(1.5);
 
         &.note {
           background: ${rgba(colors.colorSecondary, 0.12)};
@@ -179,7 +180,7 @@ export const Container = styled.div`
     .trigger-header {
       background: ${rgba(colors.colorCoreOrange, 0.12)};
 
-      i {
+      > div > i {
         color: ${colors.colorCoreOrange} !important;
       }
     }
@@ -209,56 +210,6 @@ export const TriggerBox = styledTS<{ selected?: boolean }>(styled.div)`
 
   &:hover {
     box-shadow: 0 6px 10px 1px rgba(136, 136, 136, 0.12);
-  }
-`;
-
-export const ActionBox = styledTS<{
-  isFavourite: boolean;
-  isAvailable: boolean;
-}>(styled(TriggerBox))`
-  flex-direction: row;
-  margin-top: ${dimensions.unitSpacing}px;
-  margin-right: 0;
-  position: relative;
-  pointer-events: ${props => !props.isAvailable && 'none'};
-
-  > i {
-    margin-right: ${dimensions.unitSpacing}px;
-    background: ${rgba(colors.colorPrimary, 0.12)};
-    border-radius: 4px;
-    width: 45px;
-    height: 45px;
-    line-height: 45px;
-    text-align: center;
-    font-size: 22px;
-    flex-shrink: 0;
-    color: ${colors.textPrimary};
-  }
-
-  > div {
-    b {
-      color: ${colors.textPrimary};
-    }
-    p {
-      margin: 0;
-      max-width: 350px;
-    }
-    span {
-      padding-left: ${dimensions.unitSpacing}px;
-      color: ${colors.colorCoreOrange};
-      font-weight: 500;
-    }
-  }
-
-  .favourite-action {
-    position: absolute;
-    width: 30px;
-    text-align: right;
-    right: ${dimensions.coreSpacing}px;
-
-    > i {
-      color: ${props => props.isFavourite && colors.colorCoreOrange}
-    }
   }
 `;
 
@@ -571,24 +522,6 @@ export const EmptyContent = styled.div`
   }
 `;
 
-export const Status = styledTS<{ isActive: boolean }>(styled.div)`
-  color: ${props =>
-    props.isActive ? colors.colorCoreGreen : colors.colorCoreGray};
-  display: flex;
-  align-items: center;
-  text-transform: capitalize;
-
-  &:before {
-    content: '';
-    width: 10px;
-    height: 10px;
-    border-radius: 10px;
-    margin-right: 5px;
-    background: ${props =>
-      props.isActive ? colors.colorCoreGreen : colors.colorCoreGray};
-  }
-`;
-
 export const EnrollmentWrapper = styledTS<{ noMargin?: boolean }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
@@ -744,22 +677,13 @@ export const DrawerDetail = styled.div`
   border-radius: 5px;
 `;
 
-export const ActionFooter = styled.div`
-  position: absolute;
-  bottom: ${dimensions.coreSpacing}px;
-`;
-
-export const NoteContainer = styled.div``;
-
 export const ZoomActions = styled.div`
-  display: flex;
-  flex-direction: column;
   position: absolute;
-  align-items: center;
   font-size: 11px;
-  z-index: 10;
+  z-index: ${dimensions.unitSpacing};
 
   > .icon-wrapper {
+    display: table;
     border: 1px solid ${colors.borderDarker};
     border-radius: ${dimensions.unitSpacing - 6}px;
     margin-bottom: ${dimensions.unitSpacing - 5}px;
@@ -767,10 +691,14 @@ export const ZoomActions = styled.div`
 `;
 
 export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing - 6}px;
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
+  line-height: ${dimensions.coreSpacing}px;
+  text-align: center;
   background: ${props =>
     props.disabled ? colors.bgActive : colors.colorWhite};
   cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+  margin: 0;
   transition: all ease .3s;
 
   > i {
@@ -802,32 +730,6 @@ export const BoardHeader = styled(HeaderContent)`
       color: ${colors.colorSecondary};
       font-weight: 500;
       cursor: pointer;
-    }
-  }
-`;
-
-export const Attributes = styled.ul`
-  list-style: none;
-  margin: 0;
-  right: 20px;
-  height: 200px;
-  overflow: auto;
-  padding: ${dimensions.unitSpacing}px;
-  border-radius: ${dimensions.unitSpacing - 5}px;
-
-  b {
-    margin-bottom: ${dimensions.unitSpacing + 10}px;
-    color: black;
-  }
-
-  li {
-    color: ${colors.colorCoreGray};
-    padding-bottom: ${dimensions.unitSpacing - 5}px;
-    cursor: pointer;
-    transition: all ease 0.3s;
-
-    &:hover {
-      color: ${colors.textPrimary};
     }
   }
 `;

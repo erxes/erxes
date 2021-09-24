@@ -43,8 +43,7 @@ const execActionSchema = new Schema({
   actionId: { type: String },
   actionType: { type: String },
   actionConfig: { type: Object },
-  nextActionId: { type: String },
-  description: { type: String }
+  nextActionId: { type: String }
 })
 
 export const executionSchema = new Schema({

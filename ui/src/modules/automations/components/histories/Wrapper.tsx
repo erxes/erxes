@@ -1,12 +1,15 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
-import { ControlLabel, FormControl } from 'modules/common/components/form';
-import { FilterWrapper } from 'modules/settings/permissions/styles';
 import React from 'react';
 import { TRIGGERS } from '../../constants';
 import Histories from '../../containers/Histories';
 import { IAutomation } from '../../types';
+import { HistoriesWrapper, FilterWrapper } from './styles';
+import { FilterItem } from 'modules/settings/permissions/styles';
+import { __ } from 'modules/common/utils';
+import Icon from 'modules/common/components/Icon';
+import Select from 'react-select-plus';
 
 type Props = {
   automation: IAutomation;
@@ -34,9 +37,12 @@ class HistoriesHeader extends React.Component<Props, State> {
     };
   }
 
-  onSelect = e => {
-    const value = e.target.value;
-    const name = e.target.name;
+  onSelect = (
+    name: string,
+    selectedItem: string & { value: string; label?: string }
+  ) => {
+    const value = selectedItem ? selectedItem.value : '';
+
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
@@ -54,29 +60,40 @@ class HistoriesHeader extends React.Component<Props, State> {
   };
 
   onFilter = e => {
+    const { status, triggerId, triggerType, beginDate, endDate } = this.state;
+
     this.setState({
       filterParams: {
-        status: this.state.status,
-        triggerId: this.state.triggerId,
-        triggerType: this.state.triggerType,
-        beginDate: this.state.beginDate,
-        endDate: this.state.endDate
+        status,
+        triggerId,
+        triggerType,
+        beginDate,
+        endDate
       }
     });
   };
 
   renderDateFilter = (name: string) => {
+    const props = {
+      value: this.state[name],
+      inputProps: {
+        placeholder: `${__(`Filter by ${name}`)}`
+      }
+    };
+
     return (
-      <>
-        <ControlLabel>{`${name} date`}:</ControlLabel>
-        <Datetime
-          value={this.state[name]}
-          dateFormat="YYYY/MM/DD"
-          timeFormat="HH:mm"
-          closeOnSelect={true}
-          onChange={this.onDateChange.bind(this, name)}
-        />
-      </>
+      <FilterItem>
+        <div className="icon-option">
+          <Icon icon="calendar-alt" />
+          <Datetime
+            {...props}
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
+            onChange={this.onDateChange.bind(this, name)}
+            closeOnSelect={true}
+          />
+        </div>
+      </FilterItem>
     );
   };
 
@@ -85,48 +102,56 @@ class HistoriesHeader extends React.Component<Props, State> {
     const { status, triggerId, triggerType, filterParams } = this.state;
 
     return (
-      <>
-        <FilterWrapper style={{ padding: '10px 0px' }}>
-          <strong>{'Filters'}:</strong>
-          {this.renderDateFilter('start')}
-          {this.renderDateFilter('end')}
-          <ControlLabel>Status:</ControlLabel>
-          <FormControl
-            componentClass="select"
-            name="status"
-            defaultValue={status}
-            onChange={this.onSelect}
-            options={[
-              { value: '', label: '' },
-              { value: 'active', label: 'Active' },
-              { value: 'waiting', label: 'Waiting' },
-              { value: 'error', label: 'Error' },
-              { value: 'missed', label: 'Missed' },
-              { value: 'complete', label: 'Complete' }
-            ]}
-          />
-          <ControlLabel>Trigger:</ControlLabel>
-          <FormControl
-            componentClass="select"
-            name="triggerId"
-            defaultValue={triggerId}
-            onChange={this.onSelect}
-            options={[
-              { value: '', label: '' },
-              ...automation.triggers.map(t => ({ value: t.id, label: t.label }))
-            ]}
-          />
-          <ControlLabel>Trigger Type:</ControlLabel>
-          <FormControl
-            componentClass="select"
-            name="triggerType"
-            defaultValue={triggerType}
-            onChange={this.onSelect}
-            options={[
-              { value: '', label: '' },
-              ...TRIGGERS.map(t => ({ value: t.type, label: t.label }))
-            ]}
-          />
+      <HistoriesWrapper>
+        <FilterWrapper>
+          {this.renderDateFilter('beginDate')}
+          {this.renderDateFilter('endDate')}
+          <FilterItem>
+            <div className="icon-option">
+              <Icon icon="checked-1" />
+              <Select
+                placeholder={__('Filter by Status')}
+                value={status}
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'waiting', label: 'Waiting' },
+                  { value: 'error', label: 'Error' },
+                  { value: 'missed', label: 'Missed' },
+                  { value: 'complete', label: 'Complete' }
+                ]}
+                onChange={this.onSelect.bind(this, 'status')}
+              />
+            </div>
+          </FilterItem>
+          <FilterItem>
+            <div className="icon-option">
+              <Icon icon="swatchbook" />
+              <Select
+                placeholder={__('Filter by Trigger')}
+                value={triggerId}
+                options={[
+                  ...automation.triggers.map(t => ({
+                    value: t.id,
+                    label: t.label
+                  }))
+                ]}
+                onChange={this.onSelect.bind(this, 'triggerId')}
+              />
+            </div>
+          </FilterItem>
+          <FilterItem>
+            <div className="icon-option">
+              <Icon icon="cell" />
+              <Select
+                placeholder={__('Filter by Trigger Type')}
+                value={triggerType}
+                options={[
+                  ...TRIGGERS.map(t => ({ value: t.type, label: t.label }))
+                ]}
+                onChange={this.onSelect.bind(this, 'triggerType')}
+              />
+            </div>
+          </FilterItem>
           <Button
             btnStyle="primary"
             icon="filter-1"
@@ -137,7 +162,7 @@ class HistoriesHeader extends React.Component<Props, State> {
           </Button>
         </FilterWrapper>
         <Histories {...this.props} filterParams={filterParams} />
-      </>
+      </HistoriesWrapper>
     );
   }
 }
