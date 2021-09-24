@@ -26,7 +26,12 @@ class Histories extends React.Component<Props> {
     });
 
     if (!histories || histories.length === 0) {
-      return <EmptyState icon="book" text="History has not yet been created" />;
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="History has not yet been created"
+        />
+      );
     }
 
     return (
@@ -34,11 +39,11 @@ class Histories extends React.Component<Props> {
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
-              <th>{__('Time')}</th>
-              <th>{__('trigger')}</th>
               <th>{__('Title')}</th>
-              <th>{__('Status')}</th>
               <th>{__('Description')}</th>
+              <th>{__('trigger')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Time')}</th>
             </tr>
           </thead>
           <tbody id="automationHistories">
