@@ -27,8 +27,13 @@ export const types = `
     status: String
     createdAt: Date
     updatedAt: Date
+    createdBy: String
+    updatedBy: String
     triggers: [Trigger]
     actions: [Action]
+
+    createdUser: User
+    updatedUser: User
   }
 
   type AutomationNote {

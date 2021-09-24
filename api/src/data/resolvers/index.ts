@@ -48,6 +48,7 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import Automation from './automation';
 import AutomationNote from './automationNote';
 
 const resolvers: any = {
@@ -102,6 +103,7 @@ const resolvers: any = {
   CalendarGroup,
   CalendarBoard,
   Tag,
+  Automation,
   AutomationNote
 };
 

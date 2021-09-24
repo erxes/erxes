@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 import Label from 'modules/common/components/Label';
 import Icon from 'modules/common/components/Icon';
 import { DateWrapper } from 'modules/common/styles/main';
-import { formatValue } from 'modules/common/utils';
 import s from 'underscore.string';
 import { FlexItem } from 'modules/companies/styles';
 import NameCard from 'modules/common/components/nameCard/NameCard';
@@ -32,7 +31,16 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
     history.push(`/automations/details/${automation._id}`);
   };
 
-  const { name, status, updatedAt, createdAt, triggers, actions } = automation;
+  const {
+    name,
+    status,
+    updatedAt,
+    createdAt,
+    createdUser,
+    updatedUser,
+    triggers,
+    actions
+  } = automation;
 
   const isActive = status !== 'draft' ? true : false;
   const labelStyle = isActive ? 'success' : 'simple';
@@ -60,14 +68,17 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
       </td>
       <td>
         <FlexItem>
-          <NameCard.Avatar customer={{ firstName: 'Anu-Ujin' }} size={30} />
-          &emsp;
-          {formatValue('Anu-Ujin Bat-Ulzii')}
+          <NameCard user={updatedUser} avatarSize={30} />
         </FlexItem>
       </td>
       <td>
         <Icon icon="calender" />{' '}
         <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
+      </td>
+      <td>
+        <FlexItem>
+          <NameCard user={createdUser} avatarSize={30} />
+        </FlexItem>
       </td>
       <td>
         <Icon icon="calender" />{' '}

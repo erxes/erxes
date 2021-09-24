@@ -33,7 +33,7 @@ const automationMutations = {
     { user, docModifier, dataSources }: IContext
   ) {
     const automation = await dataSources.AutomationsAPI.createAutomation(
-      docModifier(doc)
+      docModifier({ ...doc, createdBy: user._id, updatedBy: user._id })
     );
 
     await putCreateLog(
@@ -62,7 +62,8 @@ const automationMutations = {
 
     const updated = await dataSources.AutomationsAPI.updateAutomation({
       _id,
-      ...doc
+      ...doc,
+      updatedBy: user._id
     });
 
     await putUpdateLog(

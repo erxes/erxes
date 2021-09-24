@@ -31,6 +31,10 @@ export interface IAutomationDoc {
   actions: IAction[];
   updatedAt?: Date;
   createdAt?: Date;
+  updatedBy?: String;
+  createdBy?: String;
+  updatedUser?: IUser;
+  createdUser?: IUser;
 }
 
 export interface IAutomationNoteDoc {
