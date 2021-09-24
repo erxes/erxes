@@ -53,9 +53,11 @@ class HistoryRow extends React.Component<Props, State> {
       }
 
       case 'conversation': {
+        let title: string = target.content || 'Conversation';
+        title = title.length > 100 ? `${title.substring(0, 200)}...` : title;
         return (
-          <Link target="_blank" to={`inbox/index?_id=${target._id}`}>
-            {`${(target.content || 'Conversation').substr(1, 100)}...`}
+          <Link target="_blank" to={`/inbox/index?_id=${target._id}`}>
+            {title}
           </Link>
         );
       }
