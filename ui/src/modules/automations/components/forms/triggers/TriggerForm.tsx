@@ -2,8 +2,6 @@ import React from 'react';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __, confirm } from 'modules/common/utils';
 import { TRIGGERS } from 'modules/automations/constants';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import {
   TypeBox,
   ScrolledContent,
@@ -16,6 +14,8 @@ import client from 'erxes-ui/lib/apolloClient';
 import gql from 'graphql-tag';
 import { mutations, queries } from 'modules/automations/graphql';
 import Icon from 'modules/common/components/Icon';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;

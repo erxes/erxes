@@ -41,7 +41,7 @@ function displayObjectListItem(customer, customerFieldName, subFieldName) {
 
 function displayValue(customer, name) {
   const value = _.get(customer, name);
-
+  console.log(customer);
   if (name === 'firstName') {
     return (
       <FlexItem>

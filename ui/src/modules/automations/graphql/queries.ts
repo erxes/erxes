@@ -78,6 +78,12 @@ export const automationsMain = `
         _id
         name
         status
+        triggers {
+          id
+        }
+        actions {
+          id
+        }
         createdAt
         updatedAt
       }

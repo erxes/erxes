@@ -65,7 +65,6 @@ class SetProperty extends React.Component<Props, State> {
         variables: { contentType: type }
       })
       .then(data => {
-        console.log(data.data.fieldsCombinedByContentType);
         this.setState({ fields: data.data.fieldsCombinedByContentType });
       })
       .catch(e => {

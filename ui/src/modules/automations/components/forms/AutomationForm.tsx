@@ -80,6 +80,7 @@ type State = {
   isZoomable: boolean;
   zoomStep: number;
   zoom: number;
+  percentage: number;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -108,6 +109,7 @@ class AutomationForm extends React.Component<Props, State> {
       isZoomable: false,
       zoomStep: 0.025,
       zoom: 1,
+      percentage: 100,
       activeAction: {} as IAction
     };
   }
@@ -165,6 +167,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
+    console.log('why?');
     document.removeEventListener('click', this.handleClickOutside, true);
   }
 
@@ -175,18 +178,6 @@ class AutomationForm extends React.Component<Props, State> {
       HoverPaintStyle: connectorHoverStyle,
       EndpointStyle: { radius: 10 },
       EndpointHoverStyle: hoverPaintStyle,
-      ConnectionOverlays: [
-        [
-          'Arrow',
-          {
-            location: 1,
-            visible: true,
-            width: 15,
-            length: 15,
-            id: 'ARROW'
-          }
-        ]
-      ],
       Container: 'canvas'
     });
 
@@ -215,18 +206,13 @@ class AutomationForm extends React.Component<Props, State> {
       // delete connections ===================
       deleteConnection(instance);
 
-      // toggle action control when click mouse 2 ===================
-      jquery('#canvas').on('contextmenu', '.control', event => {
+      // hover action control ===================
+      jquery('#canvas .control').hover(event => {
         event.preventDefault();
 
         jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
 
         this.setState({ activeId: event.currentTarget.id });
-      });
-
-      // remove action control =============
-      jquery('#canvas').bind('click', () => {
-        jquery('div.control').removeClass('show-action-menu');
       });
 
       // delete control ===================
@@ -267,8 +253,8 @@ class AutomationForm extends React.Component<Props, State> {
     const { name, isActive, triggers, actions } = this.state;
     const { automation, save } = this.props;
 
-    if (!name) {
-      return Alert.error('Enter an Automation name');
+    if (!name || name === 'Your automation title') {
+      return Alert.error('Enter an Automation title');
     }
 
     const generateValues = () => {
@@ -353,7 +339,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   onZoom = (type: string) => {
-    const { zoomStep, zoom } = this.state;
+    const { zoomStep, zoom, percentage } = this.state;
 
     this.setState({ isZoomable: true }, () => {
       let step = 0 - zoomStep;
@@ -362,11 +348,14 @@ class AutomationForm extends React.Component<Props, State> {
 
       if (type === 'zoomIn') {
         step = +zoomStep;
+
         this.doZoom(step, max);
+        this.setState({ percentage: max ? percentage + 10 : 100 });
       }
 
       if (type === 'zoomOut') {
         this.doZoom(step, min);
+        this.setState({ percentage: min ? percentage - 10 : 0 });
       }
     });
   };
@@ -412,7 +401,11 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleClickOutside = event => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+    if (
+      this.wrapperRef &&
+      !this.wrapperRef.contains(event.target) &&
+      this.state.isActionTab
+    ) {
       this.setState({ showDrawer: false });
     }
   };
@@ -585,6 +578,33 @@ class AutomationForm extends React.Component<Props, State> {
     }
   };
 
+  renderButtons() {
+    if (!this.state.isActionTab) {
+      return null;
+    }
+
+    return (
+      <>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.toggleDrawer.bind(this, 'triggers')}
+        >
+          Add a Trigger
+        </Button>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.toggleDrawer.bind(this, 'actions')}
+        >
+          Add an Action
+        </Button>
+      </>
+    );
+  }
+
   rendeRightActionBar() {
     const { isActive } = this.state;
 
@@ -596,22 +616,7 @@ class AutomationForm extends React.Component<Props, State> {
           <span className={!isActive ? 'active' : ''}>Active</span>
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
-          <Button
-            btnStyle="primary"
-            size="small"
-            icon="plus-circle"
-            onClick={this.toggleDrawer.bind(this, 'triggers')}
-          >
-            Add a Trigger
-          </Button>
-          <Button
-            btnStyle="primary"
-            size="small"
-            icon="plus-circle"
-            onClick={this.toggleDrawer.bind(this, 'actions')}
-          >
-            Add an Action
-          </Button>
+          {this.renderButtons()}
           {
             <Button
               btnStyle="primary"
@@ -754,7 +759,7 @@ class AutomationForm extends React.Component<Props, State> {
             <Icon icon="minus" />{' '}
           </ZoomIcon>
         </div>
-        <span>100%</span>
+        <span>{`${this.state.percentage}%`}</span>
       </ZoomActions>
     );
   }

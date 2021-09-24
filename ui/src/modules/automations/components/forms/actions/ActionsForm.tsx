@@ -1,15 +1,13 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import {
-  ActionBox,
-  TriggerTabs,
-  ScrolledContent
-} from 'modules/automations/styles';
+import { TriggerTabs, ScrolledContent } from 'modules/automations/styles';
 import Icon from 'modules/common/components/Icon';
 import { ACTIONS } from 'modules/automations/constants';
 import { IAction } from 'modules/automations/types';
 import { TabTitle, Tabs } from 'modules/common/components/tabs';
 import Tip from 'modules/common/components/Tip';
+import EmptyState from 'modules/common/components/EmptyState';
+import { ActionBox } from './styles';
 
 type Props = {
   onClickAction: (action: IAction) => void;
@@ -91,6 +89,16 @@ class ActionsForm extends React.Component<Props, State> {
 
     const actions =
       this.state.currentTab === 'favourite' ? localStorageActions : ACTIONS;
+
+    if (actions.length === 0 && localStorageActions.length === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="Add your favourite actions"
+          size="small"
+        />
+      );
+    }
 
     return actions.map((action, index) => {
       const isFavourite = localStorageActions.some(

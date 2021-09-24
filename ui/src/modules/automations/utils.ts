@@ -1,11 +1,11 @@
 import { ITrigger, IAction } from './types';
 import { confirm, Alert } from 'modules/common/utils';
-import { colors } from 'erxes-ui/lib/styles/eindex';
 import { rgba } from 'modules/common/styles/color';
+import { colors } from 'modules/common/styles';
 
 export const connectorPaintStyle = {
   strokeWidth: 2,
-  stroke: rgba(colors.colorBlack, 0.5)
+  stroke: '#a1a1a1'
 };
 
 export const hoverPaintStyle = {

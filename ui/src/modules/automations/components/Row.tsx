@@ -2,7 +2,13 @@ import FormControl from 'modules/common/components/form/Control';
 import React from 'react';
 import { IAutomation } from '../types';
 import dayjs from 'dayjs';
-import { Status } from '../styles';
+import Label from 'modules/common/components/Label';
+import Icon from 'modules/common/components/Icon';
+import { DateWrapper } from 'modules/common/styles/main';
+import { formatValue } from 'modules/common/utils';
+import s from 'underscore.string';
+import { FlexItem } from 'modules/companies/styles';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 
 type Props = {
   automation: IAutomation;
@@ -26,12 +32,10 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
     history.push(`/automations/details/${automation._id}`);
   };
 
-  const renderStatus = () => {
-    const status = automation.status;
-    const isActive = status !== 'draft' ? true : false;
+  const { name, status, updatedAt, createdAt, triggers, actions } = automation;
 
-    return <Status isActive={isActive}>{status}</Status>;
-  };
+  const isActive = status !== 'draft' ? true : false;
+  const labelStyle = isActive ? 'success' : 'simple';
 
   return (
     <tr onClick={onTrClick}>
@@ -42,15 +46,32 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
           onChange={onChange}
         />
       </td>
-      <td> {automation.name} </td>
-      <td> {renderStatus()} </td>
+      <td> {name} </td>
       <td>
-        {' '}
-        {dayjs(automation.updatedAt || new Date()).format('MM/DD/YYYY')}{' '}
+        <Label lblStyle={labelStyle}>{status}</Label>
+      </td>
+      <td className="text-primary">
+        <Icon icon="swatchbook" />
+        <b> {s.numberFormat(triggers.length)}</b>
+      </td>
+      <td className="text-warning">
+        <Icon icon="share-alt" />
+        <b> {s.numberFormat(actions.length)}</b>
       </td>
       <td>
-        {' '}
-        {dayjs(automation.createdAt || new Date()).format('MM/DD/YYYY')}{' '}
+        <FlexItem>
+          <NameCard.Avatar customer={{ firstName: 'Anu-Ujin' }} size={30} />
+          &emsp;
+          {formatValue('Anu-Ujin Bat-Ulzii')}
+        </FlexItem>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(createdAt || new Date()).format('ll')}</DateWrapper>
       </td>
     </tr>
   );

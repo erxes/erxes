@@ -612,7 +612,7 @@ describe('Segments mutations', () => {
 
     const customer = await customerFactory({}, false, true);
     const customer2 = await customerFactory({}, false, true);
-    
+
     const pipeline = await pipelineFactory({});
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const board1 = await boardFactory({});
@@ -624,10 +624,19 @@ describe('Segments mutations', () => {
 
     await dealFactory({}, true);
     await dealFactory({}, true);
-    const deal = await dealFactory({ stageId: p1s1._id, name: 'p1test', customerIds: [customer._id] }, true);
-    const deal2 = await dealFactory({ name: 'p1test', customerIds: [customer2._id], stageId: stage._id }, true);
+    const deal = await dealFactory(
+      { stageId: p1s1._id, name: 'p1test', customerIds: [customer._id] },
+      true
+    );
+    const deal2 = await dealFactory(
+      { name: 'p1test', customerIds: [customer2._id], stageId: stage._id },
+      true
+    );
     await dealFactory({ stageId: p1s1._id }, true);
-    await dealFactory({ stageId: p2s1._id, name: 'p2test', customerIds: [customer._id] }, true);
+    await dealFactory(
+      { stageId: p2s1._id, name: 'p2test', customerIds: [customer._id] },
+      true
+    );
     await dealFactory({ stageId: p2s1._id }, true);
 
     await sleep(2000);
@@ -707,7 +716,11 @@ describe('Segments mutations', () => {
     await customerFactory({}, false, true);
     await customerFactory({ lastName: 'dombo' }, false, true);
     await customerFactory({ lastName: 'gombo' }, false, true);
-    const customer = await customerFactory({ lastName: 'dombo gombo' }, false, true);
+    const customer = await customerFactory(
+      { lastName: 'dombo gombo' },
+      false,
+      true
+    );
 
     await sleep(2000);
 

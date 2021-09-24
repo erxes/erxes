@@ -3,6 +3,8 @@ import { IAutomationHistory } from 'modules/automations/types';
 import { __, renderFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import EmptyState from 'modules/common/components/EmptyState';
+import Label from 'modules/common/components/Label';
 
 type Props = {
   history: IAutomationHistory;
@@ -66,6 +68,7 @@ class HistoryRow extends React.Component<Props, State> {
 
   renderDetail = () => {
     const { isShowDetail } = this.state;
+
     if (!isShowDetail) {
       return '';
     }
@@ -73,10 +76,12 @@ class HistoryRow extends React.Component<Props, State> {
     const { history, actionsByType } = this.props;
     const { actions = [] } = history;
 
-    if (!actions.length) {
+    if (!actions || actions.length === 0) {
       return (
         <tr key={Math.random()}>
-          <td colSpan={5}> The item has not been created yet!!!</td>
+          <td colSpan={5}>
+            <EmptyState icon="book" text="Item has not been created yet" />
+          </td>
         </tr>
       );
     }
@@ -109,14 +114,19 @@ class HistoryRow extends React.Component<Props, State> {
       this.setState({ isShowDetail: !isShowDetail });
     };
 
+    const isActive = status === 'active' ? true : false;
+    const labelStyle = isActive ? 'success' : 'warning';
+
     return (
       <>
         <tr id={_id} key={_id} onClick={trClick}>
-          <td>{dayjs(createdAt).format('lll')}</td>
-          <td>{triggersByType[triggerType]}</td>
           <td>{this.generateName()}</td>
-          <td>{status}</td>
           <td>{description}</td>
+          <td>{triggersByType[triggerType]}</td>
+          <td>
+            <Label lblStyle={labelStyle}>{status}</Label>
+          </td>
+          <td>{dayjs(createdAt).format('lll')}</td>
         </tr>
         {this.renderDetail()}
       </>
