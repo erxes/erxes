@@ -50,6 +50,14 @@ class HistoryRow extends React.Component<Props, State> {
         return target.name;
       }
 
+      case 'conversation': {
+        return (
+          <Link target="_blank" to={`inbox/index?_id=${target._id}`}>
+            {`${(target.content || 'Conversation').substr(1, 100)}...`}
+          </Link>
+        );
+      }
+
       default: {
         return '';
       }
@@ -84,7 +92,7 @@ class HistoryRow extends React.Component<Props, State> {
         {actions.map(action => (
           <tr key={action.actionId}>
             <td>{}</td>
-            <td>{dayjs(action.createdAt).format('lll')}</td>
+            <td colSpan={2}>{dayjs(action.createdAt).format('lll')}</td>
             <td colSpan={2}>{actionsByType[action.actionType]}</td>
           </tr>
         ))}

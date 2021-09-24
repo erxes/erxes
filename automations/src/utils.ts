@@ -56,7 +56,7 @@ export const executeActions = async (
 ): Promise<string> => {
   if (!currentActionId) {
     execution.status = EXECUTION_STATUS.COMPLETE
-    execution.save();
+    await execution.save();
 
     return 'finished';
   }
@@ -64,7 +64,7 @@ export const executeActions = async (
   const action = actionsMap[currentActionId];
   if (!action) {
     execution.status = EXECUTION_STATUS.MISSID;
-    execution.save()
+    await execution.save()
 
     return 'missed action'
   }
@@ -76,14 +76,14 @@ export const executeActions = async (
     actionConfig: action.config,
     nextActionId: action.nextActionId
   }];
-  execution.save();
+  await execution.save();
 
   try {
     if (action.type === ACTIONS.WAIT) {
       execution.waitingActionId = action.id;
       execution.startWaitingDate = new Date();
       execution.status = EXECUTION_STATUS.WAITING;
-      execution.save();
+      await execution.save();
       return 'paused';
     }
 
@@ -132,7 +132,7 @@ export const executeActions = async (
   } catch (e) {
     execution.status = EXECUTION_STATUS.ERROR
     execution.description = `An error occurred while working action: ${e.message}`
-    execution.save()
+    await execution.save()
     return;
   }
 
