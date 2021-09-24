@@ -120,7 +120,7 @@ class ListGroupBy extends React.Component<Props> {
           {!items || items.length === 0 ? (
             <EmptyState icon="grid" text="No item" size="small" />
           ) : (
-            <Table whiteSpace="nowrap" hover={true} bordered={true}>
+            <Table hover={true} bordered={true}>
               <thead>
                 <tr>
                   <th>{__('Card Title')}</th>
@@ -135,6 +135,7 @@ class ListGroupBy extends React.Component<Props> {
                   {groupType !== 'assignee' && <th>{__('Assignee')}</th>}
                   <th>{__('Associated Customer')}</th>
                   <th>{__('Associated Company')}</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody id="groupbylist">

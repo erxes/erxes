@@ -97,6 +97,10 @@ class ListItemRow extends React.PureComponent<Props> {
       cursor: 'pointer'
     };
 
+    const cartWidth = {
+      width: '500px'
+    };
+
     const { item, onClick, groupType } = this.props;
 
     const {
@@ -111,7 +115,7 @@ class ListItemRow extends React.PureComponent<Props> {
     return (
       <>
         <tr onClick={onClick} key={item._id} style={styleTr}>
-          <td>
+          <td style={cartWidth}>
             <h5>{item.name}</h5>
             <LastUpdate>
               {__('Last updated')}: {this.renderDate(item.modifiedAt)}
@@ -157,6 +161,7 @@ class ListItemRow extends React.PureComponent<Props> {
               <Details color="#EA475D" items={companies || []} />
             )}
           </td>
+          <td></td>
         </tr>
         {this.renderForm()}
       </>
