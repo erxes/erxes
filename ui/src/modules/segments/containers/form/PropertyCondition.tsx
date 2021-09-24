@@ -19,10 +19,13 @@ type Props = {
   ) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
+  isAutomation: boolean;
   changeSubSegmentConjunction: (
     segmentKey: string,
     conjunction: string
   ) => void;
+  boardId: string;
+  pipelineId: string;
 };
 
 export default class PropertyConditionContainer extends React.Component<

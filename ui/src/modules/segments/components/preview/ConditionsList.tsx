@@ -41,6 +41,9 @@ type Props = {
   onClickField?: (field, condition) => void;
   chosenField?: IField;
   chosenCondition?: ISegmentCondition;
+  isAutomation: boolean;
+  boardId: string;
+  pipelineId: string;
 };
 
 type State = {};

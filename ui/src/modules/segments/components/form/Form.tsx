@@ -10,6 +10,7 @@ import { __, generateRandomColorCode } from 'modules/common/utils';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
+import Select from 'react-select-plus';
 import {
   IConditionsForPreview,
   IEvent,
@@ -28,6 +29,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { FilterBox, SegmentWrapper } from '../styles';
 import PropertyCondition from '../../containers/form/PropertyCondition';
 import { Link } from 'react-router-dom';
+import { isBoardKind } from 'modules/segments/utils';
 
 type Props = {
   contentType: string;
@@ -59,6 +61,8 @@ type State = {
   subOf: string;
   color: string;
   conditionsConjunction: string;
+  boardId: string;
+  pipelineId: string;
 
   segments: ISegmentMap[];
   state: string;
@@ -82,6 +86,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       subOf: '',
       color: generateRandomColorCode(),
       conditionsConjunction: 'and',
+      boardId: '',
+      pipelineId: '',
       getConditionSegments: [
         {
           contentType: props.contentType || 'customer',
@@ -174,13 +180,38 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
+  generatePipelineOptions = () => {
+    const { boardId } = this.state;
+
+    const board = (this.props.boards || []).find(b => b._id === boardId);
+
+    if (!board) {
+      return [];
+    }
+
+    return (board.pipelines || []).map(p => ({
+      value: p._id,
+      label: p.name
+    }));
+  };
+
   renderDetailForm = (formProps: IFormProps) => {
-    const { isAutomation } = this.props;
-    const { name, description, color } = this.state;
+    const { isAutomation, contentType, boards = [] } = this.props;
+    const { name, description, color, boardId, pipelineId } = this.state;
 
     if (isAutomation) {
       return;
     }
+
+    const onChangeBoardItem = (key, e) => {
+      const value = e ? e.value : '';
+
+      if (this.state[key] !== value) {
+        this.setState({ segments: [] });
+      }
+
+      this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+    };
 
     const nameOnChange = (e: React.FormEvent) =>
       this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
@@ -249,6 +280,33 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             </FormGroup>
           </FlexItem>
         </FlexContent>
+        {isBoardKind(contentType) ? (
+          <>
+            <FlexContent>
+              <FlexItem>
+                <FormGroup>
+                  <ControlLabel>Board</ControlLabel>
+                  <Select
+                    value={boardId}
+                    options={boards.map(b => ({ value: b._id, label: b.name }))}
+                    onChange={onChangeBoardItem.bind(this, 'boardId')}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Pipeline</ControlLabel>
+
+                  <Select
+                    value={pipelineId}
+                    onChange={onChangeBoardItem.bind(this, 'pipelineId')}
+                    options={this.generatePipelineOptions()}
+                  />
+                </FormGroup>
+              </FlexItem>
+            </FlexContent>
+          </>
+        ) : (
+          <></>
+        )}
       </>
     );
   };
@@ -380,14 +438,16 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderConditionsList = () => {
-    const { contentType } = this.props;
+    const { contentType, isAutomation } = this.props;
     const {
       segments,
       state,
       chosenSegment,
       conditionsConjunction,
       chosenField,
-      chosenCondition
+      chosenCondition,
+      boardId,
+      pipelineId
     } = this.state;
 
     if (state !== 'form') {
@@ -409,6 +469,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             onClickField={this.onClickField}
             chosenField={chosenField}
             chosenCondition={chosenCondition}
+            isAutomation={isAutomation || false}
+            boardId={boardId}
+            pipelineId={pipelineId}
           />
         );
       });
@@ -423,7 +486,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           contentType={contentType}
           segment={chosenSegment}
           addCondition={this.addCondition}
+          isAutomation={isAutomation || false}
           changeSubSegmentConjunction={this.changeSubSegmentConjunction}
+          boardId={boardId}
+          pipelineId={pipelineId}
         />
       );
     }
@@ -479,7 +545,13 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     conditionsConjunction: string;
   }) => {
     const { contentType, segment } = this.props;
-    const { segments, conditionsConjunction, color } = this.state;
+    const {
+      segments,
+      conditionsConjunction,
+      color,
+      boardId,
+      pipelineId
+    } = this.state;
     const finalValues = values;
 
     const conditionSegments: ISubSegment[] = [];
@@ -499,7 +571,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       color,
       conditionsConjunction,
       contentType,
-      conditionSegments
+      conditionSegments,
+      boardId,
+      pipelineId
     };
   };
 
