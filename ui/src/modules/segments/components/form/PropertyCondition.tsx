@@ -111,14 +111,14 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   renderBoardFields = () => {
-    const { boards = [], isAutomation } = this.props;
+    const { boards = [], isAutomation, contentType } = this.props;
     const { boardId, pipelineId, propertyType } = this.state;
 
     if (!isBoardKind(propertyType)) {
       return null;
     }
 
-    if (isBoardKind(propertyType) && !isAutomation) {
+    if (!isAutomation && isBoardKind(contentType)) {
       return null;
     }
 
