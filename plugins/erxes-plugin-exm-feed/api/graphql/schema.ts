@@ -10,6 +10,8 @@ export const types = `
     endDate: Date
     commentCount: Int
     likeCount: Int
+    heartCount: Int
+    isHearted: Boolean
     isLiked: Boolean
     images: JSON
     attachments: JSON
@@ -126,6 +128,5 @@ export const mutations = `
   exmFeedCommentEdit(_id: String, ${commentCommonParams}): ExmFeedComment
   exmFeedCommentRemove(_id: String!): JSON
 
-  exmFeedEmojiLike(feedId: String!): String
-  exmFeedEmojiUnLike(feedId: String!): String
+  exmFeedEmojiReact(feedId: String!, type: String): String
 `;
