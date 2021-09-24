@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { IAction } from 'modules/automations/types';
 import { ModalFooter } from 'modules/common/styles/main';
 import Button from 'modules/common/components/Button';
-import { ActionFooter } from 'modules/automations/styles';
+import { ActionFooter } from './styles';
 
 type Props = {
   closeModal: () => void;
