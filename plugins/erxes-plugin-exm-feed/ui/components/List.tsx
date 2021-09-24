@@ -10,7 +10,6 @@ import {
   BodyFeed,
   FirstSection,
   HeaderFeed,
-  Hours,
   NewsFeedLayout,
   TypeOfContent,
   NavItem,
@@ -42,10 +41,6 @@ export default function List({ list, deleteItem, totalCount }: Props) {
     return <ModalTrigger title="Edit" trigger={trigger} content={content} />;
   };
 
-  const commentItem = () => {
-    return <div>hello</div>;
-  };
-
   const renderItem = (item: any, index: number) => {
     const createdUser = item.createdUser || {};
 
@@ -69,9 +64,9 @@ export default function List({ list, deleteItem, totalCount }: Props) {
                     createdUser.username ||
                     createdUser.email)}
               </b>
-              <Hours>
-                {dayjs(item.createdAt).format("lll")} <p>#{item.contentType}</p>
-              </Hours>
+              <p>
+                {dayjs(item.createdAt).format("lll")} #{item.contentType}
+              </p>
             </TypeOfContent>
           </FirstSection>
           <NavItem>
@@ -99,8 +94,8 @@ export default function List({ list, deleteItem, totalCount }: Props) {
           })}
           {(item.attachments || []).map((a, index) => {
             return (
-              <Attachments>
-                <a key={index} href={readFile(a.url)}>
+              <Attachments key={index}>
+                <a href={readFile(a.url)}>
                   <AttachmentsIcon>
                     <Icon icon="doc" />
                   </AttachmentsIcon>
@@ -110,7 +105,6 @@ export default function List({ list, deleteItem, totalCount }: Props) {
             );
           })}
         </BodyFeed>
-        {commentItem()}
       </li>
     );
   };
@@ -118,7 +112,7 @@ export default function List({ list, deleteItem, totalCount }: Props) {
   const renderList = () => {
     return (
       <NewsFeedLayout>
-        <ul>{list.map((item, index) => renderItem(item, index + 1))}</ul>
+        {list.map((item, index) => renderItem(item, index + 1))}
         <LoadMore perPage={20} all={totalCount} />
       </NewsFeedLayout>
     );
