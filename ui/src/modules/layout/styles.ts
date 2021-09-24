@@ -513,8 +513,9 @@ const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
 const SmallLabel = styled.div`
   position: absolute;
   text-transform: uppercase;
+  font-weight: 500;
   font-size: ${dimensions.unitSpacing}px;
-  color: ${colors.colorCoreSunYellow};
+  color: ${colors.colorCoreTeal};
   right: ${dimensions.unitSpacing - 5}px;
   top: 3px;
 `;

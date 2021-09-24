@@ -167,6 +167,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
+    console.log('why?');
     document.removeEventListener('click', this.handleClickOutside, true);
   }
 
@@ -400,7 +401,11 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleClickOutside = event => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+    if (
+      this.wrapperRef &&
+      !this.wrapperRef.contains(event.target) &&
+      this.state.isActionTab
+    ) {
       this.setState({ showDrawer: false });
     }
   };
@@ -573,6 +578,33 @@ class AutomationForm extends React.Component<Props, State> {
     }
   };
 
+  renderButtons() {
+    if (!this.state.isActionTab) {
+      return null;
+    }
+
+    return (
+      <>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.toggleDrawer.bind(this, 'triggers')}
+        >
+          Add a Trigger
+        </Button>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.toggleDrawer.bind(this, 'actions')}
+        >
+          Add an Action
+        </Button>
+      </>
+    );
+  }
+
   rendeRightActionBar() {
     const { isActive } = this.state;
 
@@ -584,22 +616,7 @@ class AutomationForm extends React.Component<Props, State> {
           <span className={!isActive ? 'active' : ''}>Active</span>
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
-          <Button
-            btnStyle="primary"
-            size="small"
-            icon="plus-circle"
-            onClick={this.toggleDrawer.bind(this, 'triggers')}
-          >
-            Add a Trigger
-          </Button>
-          <Button
-            btnStyle="primary"
-            size="small"
-            icon="plus-circle"
-            onClick={this.toggleDrawer.bind(this, 'actions')}
-          >
-            Add an Action
-          </Button>
+          {this.renderButtons()}
           {
             <Button
               btnStyle="primary"

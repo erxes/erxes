@@ -1,12 +1,11 @@
 import styled from 'styled-components';
-import colors from 'modules/common/styles/colors';
-import { dimensions } from 'erxes-ui/lib/styles/eindex';
 import styledTS from 'styled-components-ts';
 import { RightMenuContainer } from 'modules/boards/styles/rightMenu';
 import { Contents } from 'modules/layout/styles';
 import { rgba } from 'modules/common/styles/color';
 import { DateWrapper } from 'modules/forms/styles';
 import { HeaderContent } from 'modules/boards/styles/item';
+import { dimensions, colors } from 'modules/common/styles';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;

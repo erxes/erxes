@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import Label from 'modules/common/components/Label';
 import Icon from 'modules/common/components/Icon';
 import { DateWrapper } from 'modules/common/styles/main';
-import { __, formatValue } from 'modules/common/utils';
+import { formatValue } from 'modules/common/utils';
 import s from 'underscore.string';
 import { FlexItem } from 'modules/companies/styles';
 import NameCard from 'modules/common/components/nameCard/NameCard';
