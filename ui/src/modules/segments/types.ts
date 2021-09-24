@@ -68,6 +68,8 @@ export interface ISegmentDoc {
   subOf: string;
   subSegments?: ISubSegment[];
   conditionsConjunction: string;
+  boardId: string;
+  pipelineId: string;
 }
 
 export interface ISegment extends ISegmentDoc {

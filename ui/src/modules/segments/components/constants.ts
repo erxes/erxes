@@ -1,5 +1,8 @@
 export const PROPERTY_TYPES = {
-  deal: [{ label: 'deal', value: 'deal' }],
+  deal: [
+    { label: 'Deal', value: 'deal' },
+    { label: 'Customer', value: 'customer' }
+  ],
 
   customer: [
     { label: 'Customer', value: 'customer' },

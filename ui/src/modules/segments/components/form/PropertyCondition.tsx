@@ -25,11 +25,14 @@ type Props = {
   ) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
+  isAutomation: boolean;
   changeSubSegmentConjunction: (
     segmentKey: string,
     conjunction: string
   ) => void;
   fetchFields: (type: string) => void;
+  boardId: string;
+  pipelineId: string;
 };
 
 type State = {
@@ -44,9 +47,14 @@ class PropertyCondition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const propertyType = props.contentType;
+    const { boardId = '', contentType, pipelineId = '' } = props;
 
-    this.state = { propertyType, searchValue: '', boardId: '', pipelineId: '' };
+    this.state = {
+      propertyType: contentType,
+      searchValue: '',
+      boardId,
+      pipelineId
+    };
   }
 
   onClickField = field => {
@@ -103,10 +111,14 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   renderBoardFields = () => {
-    const { boards = [] } = this.props;
+    const { boards = [], isAutomation, contentType } = this.props;
     const { boardId, pipelineId, propertyType } = this.state;
 
     if (!isBoardKind(propertyType)) {
+      return null;
+    }
+
+    if (!isAutomation && isBoardKind(contentType)) {
       return null;
     }
 
