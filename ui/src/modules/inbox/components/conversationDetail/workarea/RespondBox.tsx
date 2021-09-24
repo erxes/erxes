@@ -132,9 +132,7 @@ class RespondBox extends React.Component<Props, State> {
 
   // save editor current content to state
   onEditorContentChange = (content: string) => {
-    this.setState({
-      content
-    });
+    this.setState({ content });
 
     if (this.isContentWritten()) {
       localStorage.setItem(this.props.conversation._id, content);
@@ -276,11 +274,11 @@ class RespondBox extends React.Component<Props, State> {
 
   calcCharacterCount = (maxlength: number) => {
     const { content } = this.state;
-    let cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
+    const cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
     if (!cleanContent) {
       return maxlength;
     }
-    let ret = maxlength - cleanContent.length;
+    const ret = maxlength - cleanContent.length;
     return ret > 0 ? ret : 0;
   };
   addMessage = () => {
