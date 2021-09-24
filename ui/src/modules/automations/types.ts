@@ -31,8 +31,8 @@ export interface IAutomationDoc {
   actions: IAction[];
   updatedAt?: Date;
   createdAt?: Date;
-  updatedBy?: String;
-  createdBy?: String;
+  updatedBy?: string;
+  createdBy?: string;
   updatedUser?: IUser;
   createdUser?: IUser;
 }
