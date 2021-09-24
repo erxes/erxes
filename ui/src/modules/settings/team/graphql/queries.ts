@@ -79,6 +79,8 @@ const departmentField = `
   _id
   title
   description
+  parentId
+  userIds
   users {
     _id
     details {

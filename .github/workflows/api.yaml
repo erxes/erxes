@@ -3,10 +3,11 @@ name: Api CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "api/**"
-      - ".github/workflows/api.yaml"
+      - 'api/**'
+      - 'plugins/**'
+      - '.github/workflows/api.yaml'
   pull_request:
     branches:
       - master
@@ -14,8 +15,8 @@ on:
       - crons
       - workers
     paths:
-      - "api/**"
-      - ".github/workflows/api.yaml"
+      - 'api/**'
+      - '.github/workflows/api.yaml'
 
 jobs:
   api:

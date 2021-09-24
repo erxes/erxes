@@ -19,6 +19,7 @@ export const types = `
     updatedAt: Date
     createdUser: User
     updatedUser: User
+    customFieldsData: JSON
   }
 
   type ExmThank {
@@ -36,7 +37,7 @@ export const types = `
     feedId: String
     parentId: String
     comment: String
-    children: [ExmFeedComment]
+    childCount: Int
     createdAt: Date
     updatedAt: Date
     createdUser: User
@@ -83,7 +84,7 @@ export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
   exmFeed(contentType: ContentType, type: SourceType, recipientType: RecipientType, title: String, limit: Int): ExmFeedResponse
   exmThanks(limit: Int, type: SourceType): ExmThankResponse
-  exmFeedComments(feedId: String, parentId: String, limit: Int): ExmFeedCommentResponse
+  exmFeedComments(feedId: String, parentId: String, limit: Int, skip: Int): ExmFeedCommentResponse
   exmFeedLikedUsers(feedId: String!): [User]
 `;
 
@@ -98,6 +99,7 @@ const feedCommonParams = `
   where: String
   startDate: Date
   endDate: Date
+  customFieldsData: JSON
 `;
 
 const thankCommonParams = `

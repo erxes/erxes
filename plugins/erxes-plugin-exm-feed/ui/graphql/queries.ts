@@ -24,6 +24,7 @@ const commonFeedFields = `
   updatedUser {
     ${userFields}
   }
+  customFieldsData
 `;
 
 const feed = `
@@ -59,4 +60,15 @@ const thanks = `
   }
 `;
 
-export default { feed, thanks };
+const fields = `
+  query fields($contentType: String!) {
+    fields(contentType: $contentType) {
+      _id
+      text
+      options
+      type
+    }
+  }
+`;
+
+export default { feed, thanks, fields };

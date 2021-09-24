@@ -20,10 +20,12 @@ type Props = {
   edit: (variables: any) => void;
   forms: any[];
   kbTopics: any[];
+  kbCategories: any;
+  getKbCategories: (topicId: string) => void;
 };
 
 export default function General(props: Props) {
-  const { forms, kbTopics, exm, edit } = props;
+  const { forms, kbTopics, exm, edit, getKbCategories, kbCategories } = props;
 
   const exmFeatures = exm.features || [];
 
@@ -59,6 +61,32 @@ export default function General(props: Props) {
     }
 
     return kbTopics.map(c => ({ value: c._id, label: c.title }));
+  };
+
+  const generateTreeOptions = (categories, parentId) => {
+    return categories
+      .filter(c => c.parentCategoryId === parentId)
+      .reduce(
+        (tree, node) => [
+          ...tree,
+          {
+            value: node._id,
+            label: `${node.parentCategoryId ? '---' : ''} ${node.title}`
+          },
+          ...generateTreeOptions(categories, node._id)
+        ],
+        []
+      );
+  };
+
+  const getCategoryValues = (contentId, categories, parentId) => {
+    if (!categories) {
+      getKbCategories(contentId);
+
+      return [];
+    } else {
+      return generateTreeOptions(categories, parentId);
+    }
   };
 
   const onSave = () => {
@@ -97,9 +125,9 @@ export default function General(props: Props) {
                   label: 'Knowledge base'
                 }
               ]}
-              onChange={(e: any) =>
-                onChangeFeatureItem(feature._id, 'contentType', e.target.value)
-              }
+              onChange={(e: any) => {
+                onChangeFeatureItem(feature._id, 'contentType', e.target.value);
+              }}
             />
           </FeatureRowItem>
           <FeatureRowItem>
@@ -155,12 +183,35 @@ export default function General(props: Props) {
               placeholder={__('Choose a content')}
               value={feature.contentId}
               options={getContentValues(feature.contentType)}
-              onChange={item =>
-                onChangeFeatureItem(feature._id, 'contentId', item.value)
-              }
+              onChange={item => {
+                if (feature.contentType === 'knowledgeBase') {
+                  getKbCategories(item.value);
+                }
+
+                onChangeFeatureItem(feature._id, 'contentId', item.value);
+              }}
               clearable={false}
             />
           </FeatureRowItem>
+
+          {feature.contentType === 'knowledgeBase' && (
+            <FeatureRowItem>
+              <Select
+                placeholder={__('Choose a category')}
+                value={feature.subContentId}
+                options={getCategoryValues(
+                  feature.contentId,
+                  kbCategories[feature.contentId],
+                  null
+                )}
+                style={{ width: 200 }}
+                onChange={item =>
+                  onChangeFeatureItem(feature._id, 'subContentId', item.value)
+                }
+                clearable={false}
+              />
+            </FeatureRowItem>
+          )}
 
           <button onClick={() => onChangeFeature('remove', feature._id)}>
             X

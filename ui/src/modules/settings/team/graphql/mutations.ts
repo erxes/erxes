@@ -119,10 +119,16 @@ const departmentsAdd = `
 `;
 
 const departmentsEdit = `
-  mutation departmentsEdit(_id: String!, ${commonDeparmentParamsDef}) {
-    departmentsEdit($_id: _id, ${commonDeparmentParams}) {
+  mutation departmentsEdit($_id: String!, ${commonDeparmentParamsDef}) {
+    departmentsEdit(_id: $_id, ${commonDeparmentParams}) {
       _id
     }
+  }
+`;
+
+const departmentsRemove = `
+  mutation departmentsRemove($_id: String!) {
+    departmentsRemove(_id: $_id)
   }
 `;
 
@@ -137,5 +143,6 @@ export default {
   userAddSkill,
   userExcludeSkill,
   departmentsAdd,
-  departmentsEdit
+  departmentsEdit,
+  departmentsRemove
 };

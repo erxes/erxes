@@ -3,6 +3,7 @@ export const types = `
         _id: String!
         title: String
         description: String
+        parentId: String
         users: [User]
         userIds: [String]
     }

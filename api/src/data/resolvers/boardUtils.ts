@@ -7,9 +7,11 @@ import {
   Pipelines,
   Stages
 } from '../../db/models';
-import { getCollection, getNewOrder } from '../../db/models/boardUtils';
+import { getNewOrder } from '../../db/models/boardUtils';
+import { IConformityAdd } from '../../db/models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
+import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IUserDocument } from '../../db/models/definitions/users';
@@ -211,23 +213,27 @@ export const createConformity = async ({
   mainType: string;
   mainTypeId: string;
 }) => {
-  for (const companyId of companyIds || []) {
-    await Conformities.addConformity({
+  const companyConformities: IConformityAdd[] = (companyIds || []).map(
+    companyId => ({
       mainType,
       mainTypeId,
       relType: 'company',
       relTypeId: companyId
-    });
-  }
+    })
+  );
 
-  for (const customerId of customerIds || []) {
-    await Conformities.addConformity({
+  const customerConformities: IConformityAdd[] = (customerIds || []).map(
+    customerId => ({
       mainType,
       mainTypeId,
       relType: 'customer',
       relTypeId: customerId
-    });
-  }
+    })
+  );
+
+  const allConformities = companyConformities.concat(customerConformities);
+
+  await Conformities.addConformities(allConformities);
 };
 
 interface ILabelParams {
@@ -298,43 +304,56 @@ interface IChecklistParams {
 export const copyChecklists = async (params: IChecklistParams) => {
   const { contentType, contentTypeId, targetContentId, user } = params;
 
-  const checklists = await Checklists.find({ contentType, contentTypeId });
+  const originalChecklists = await Checklists.find({
+    contentType,
+    contentTypeId
+  });
 
-  for (const list of checklists) {
-    const checklist = await Checklists.createChecklist(
-      {
-        contentType,
-        contentTypeId: targetContentId,
-        title: `${list.title}-copied`
-      },
-      user
+  const clonedChecklists = await Checklists.insertMany(
+    originalChecklists.map(originalChecklist => ({
+      contentType,
+      contentTypeId: targetContentId,
+      title: originalChecklist.title,
+      createdUserId: user._id,
+      createdDate: new Date()
+    })),
+    { ordered: true }
+  );
+
+  const originalChecklistIdToClonedId = new Map<string, string>();
+
+  for (let i = 0; i < originalChecklists.length; i++) {
+    originalChecklistIdToClonedId.set(
+      originalChecklists[i]._id,
+      clonedChecklists[i]._id
     );
+  }
 
-    const items = await ChecklistItems.find({ checklistId: list._id });
+  const originalChecklistItems = await ChecklistItems.find({
+    checklistId: { $in: originalChecklists.map(x => x._id) }
+  });
 
-    for (const item of items) {
-      await ChecklistItems.createChecklistItem(
-        {
-          isChecked: false,
-          checklistId: checklist._id,
-          content: item.content
-        },
-        user
-      );
-    }
-  } // end checklist loop
+  await ChecklistItems.insertMany(
+    originalChecklistItems.map(({ content, order, checklistId }) => ({
+      checklistId: originalChecklistIdToClonedId.get(checklistId),
+      isChecked: false,
+      createdUserId: user._id,
+      createdDate: new Date(),
+      content,
+      order
+    })),
+    { ordered: false }
+  );
 };
 
 export const prepareBoardItemDoc = async (
-  _id: string,
-  type: string,
+  item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
+  collection: string,
   userId: string
 ) => {
-  const { collection } = await getCollection(type);
-  const item = await collection.findOne({ _id });
-
   const doc = {
     ...item,
+    _id: undefined,
     userId,
     modifiedBy: userId,
     watchedUserIds: [userId],
@@ -358,8 +377,6 @@ export const prepareBoardItemDoc = async (
       size: a.size
     }))
   };
-
-  delete doc._id;
 
   return doc;
 };
