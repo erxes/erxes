@@ -17,6 +17,8 @@ const commonFeedFields = `
   attachments
   createdAt
   updatedAt
+  likeCount
+  commentCount
   recipientIds
   createdUser {
     ${userFields}

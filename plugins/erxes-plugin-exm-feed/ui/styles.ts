@@ -16,6 +16,7 @@ export const TabLayout = styled.div`
   margin-top: 30px;
 
   > div:first-child {
+    justify-content: space-around;
     border: none;
     span {
       display: flex;
@@ -36,19 +37,8 @@ export const TabLayout = styled.div`
 
 export const FormContainer = styled.div`
   margin-top: 15px;
-  padding: 0px 26px;
+  padding: 0px 16.25px;
   flex: 1;
-`;
-
-export const ItemUpload = styled.div`
-  display: flex;
-  > div {
-    display: flex;
-    align-items: center;
-    > div {
-      margin: 0;
-    }
-  }
 `;
 
 export const NewsFeedLayout = styled.div`
@@ -114,9 +104,36 @@ export const NavItem = styled.div`
   }
 `;
 
+export const UploadItems = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+export const LikeCommentShare = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+
+  > div:first-child {
+      display: flex;
+      justify-content: space-between;
+      width: 130px;
+  }
+
+  > div:last-child {
+    color: #3B85F4;
+  }
+
+`;
+
 export const TypeOfContent = styled.div`
   > p {
     margin-bottom: 0px;
+    b {
+      color: hsl(118.39999999999998,59.2%,40.8%);
+    }
   }
 `;
 

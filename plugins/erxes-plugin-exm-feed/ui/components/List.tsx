@@ -1,11 +1,11 @@
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from 'erxes-ui';
-import FilterableListStyles from 'erxes-ui/lib/components/filterableList/styles';
-import Icon from 'modules/common/components/Icon';
-import dayjs from 'dayjs';
-import Form from '../containers/Form';
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from "erxes-ui";
+import FilterableListStyles from "erxes-ui/lib/components/filterableList/styles";
+import Icon from "modules/common/components/Icon";
+import dayjs from "dayjs";
+import Form from "../containers/Form";
 import {
   BodyFeed,
   FirstSection,
@@ -15,8 +15,9 @@ import {
   NavItem,
   Attachments,
   AttachmentsIcon,
-  AttachmentsTitle
-} from '../styles';
+  AttachmentsTitle,
+  LikeCommentShare,
+} from "../styles";
 
 const AvatarImg = FilterableListStyles.AvatarImg;
 
@@ -27,16 +28,16 @@ type Props = {
 };
 
 export default function List({ list, deleteItem, totalCount }: Props) {
-  const editItem = item => {
+  const editItem = (item) => {
     const trigger = (
       <span>
         <a>Edit</a>
       </span>
     );
 
-    console.log('item: ', item);
+    console.log("item: ", item);
 
-    const content = props => {
+    const content = (props) => {
       return <Form contentType={item.contentType} item={item} {...props} />;
     };
 
@@ -55,7 +56,7 @@ export default function List({ list, deleteItem, totalCount }: Props) {
                 (createdUser &&
                   createdUser.details &&
                   createdUser.details.fullName) ||
-                'author'
+                "author"
               }
               src={getUserAvatar(createdUser)}
             />
@@ -67,7 +68,7 @@ export default function List({ list, deleteItem, totalCount }: Props) {
                     createdUser.email)}
               </b>
               <p>
-                {dayjs(item.createdAt).format("lll")} #{item.contentType}
+                {dayjs(item.createdAt).format("lll")} <b>#{item.contentType}</b>
               </p>
             </TypeOfContent>
           </FirstSection>
@@ -88,7 +89,6 @@ export default function List({ list, deleteItem, totalCount }: Props) {
         <BodyFeed>
           <b dangerouslySetInnerHTML={{ __html: item.title }} />
           <p dangerouslySetInnerHTML={{ __html: item.description }} />
-
           {(item.images || []).map((image, index) => {
             return (
               <img key={index} alt={image.name} src={readFile(image.url)} />
@@ -107,6 +107,17 @@ export default function List({ list, deleteItem, totalCount }: Props) {
             );
           })}
         </BodyFeed>
+        <LikeCommentShare>
+          <div>
+            <b style={{ color: "#5629B6" }}>{item.likeCount} Like</b>
+            <b style={{ color: "hsl(118.39999999999998,59.2%,40.8%)" }}>
+              {item.commentCount} Comment
+            </b>
+          </div>
+          <div>
+            <Icon icon="doc" /> <b>Share</b>
+          </div>
+        </LikeCommentShare>
       </li>
     );
   };

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, FormControl, Uploader } from "erxes-ui";
 import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
-import { ItemUpload } from "../styles";
+import { UploadItems } from "../styles";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -36,7 +36,7 @@ export default function PostForm(props: Props) {
           name="description"
           defaultValue={item.description}
         />
-        <ItemUpload>
+        <UploadItems>
           <div>
             Add attachments:
             <Uploader
@@ -44,13 +44,11 @@ export default function PostForm(props: Props) {
               onChange={setAttachment}
             />
           </div>
-
           <div>
             Add image:
             <Uploader defaultFileList={images || []} onChange={setImage} />
           </div>
-        </ItemUpload>
-
+        </UploadItems>
         {renderButton({
           values: {
             ...values,
