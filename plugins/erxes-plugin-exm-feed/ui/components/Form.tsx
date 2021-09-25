@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Form, FormControl, Uploader } from 'erxes-ui';
-import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
+import React, { useState } from "react";
+import { Form, FormControl, Uploader } from "erxes-ui";
+import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
+import { UploadItems } from "../styles";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -19,51 +20,46 @@ export default function PostForm(props: Props) {
     const { renderButton, closeModal } = props;
 
     return (
-      <>
-        <div>
-          <FormControl
-            {...formProps}
-            placeholder='Title'
-            type='text'
-            name='title'
-            defaultValue={item.title}
-          />
+      <div>
+        <FormControl
+          {...formProps}
+          placeholder="Title"
+          type="text"
+          name="title"
+          defaultValue={item.title}
+        />
 
-          <FormControl
-            {...formProps}
-            placeholder='Description'
-            componentClass='textarea'
-            name='description'
-            defaultValue={item.description}
-          />
-
-          <br />
-
+        <FormControl
+          {...formProps}
+          placeholder="Description"
+          componentClass="textarea"
+          name="description"
+          defaultValue={item.description}
+        />
+        <UploadItems>
           <div>
-            <div>Add attachments: </div>
+            Add attachments:
             <Uploader
               defaultFileList={attachments || []}
               onChange={setAttachment}
             />
           </div>
-
           <div>
-            <div>Add image: </div>
+            Add image:
             <Uploader defaultFileList={images || []} onChange={setImage} />
           </div>
-
-          {renderButton({
-            values: {
-              ...values,
-              contentType: 'post',
-              images,
-              attachments
-            },
-            isSubmitted,
-            callback: closeModal
-          })}
-        </div>
-      </>
+        </UploadItems>
+        {renderButton({
+          values: {
+            ...values,
+            contentType: "post",
+            images,
+            attachments,
+          },
+          isSubmitted,
+          callback: closeModal,
+        })}
+      </div>
     );
   };
 
