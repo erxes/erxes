@@ -20,7 +20,7 @@ const execCommand = (command) => {
 
       console.log(stdout);
       console.log(stderr);
-
+      console.log("monilll");
       return resolve('done')
     });
   });
