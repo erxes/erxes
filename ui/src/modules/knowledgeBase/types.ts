@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { QueryResponse } from 'modules/common/types';
+import { IAttachment, QueryResponse } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
 
 export interface IArticle {
@@ -17,6 +17,7 @@ export interface IArticle {
   modifiedDate: Date;
   topicId: string;
   categoryId: string;
+  attachments: [IAttachment];
 }
 
 export interface ITopic {

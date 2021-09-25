@@ -14,6 +14,7 @@ export const types = `
     modifiedDate: Date
     topicId: String
     categoryId: String
+    attachments: [Attachment]
   }
 
   input KnowledgeBaseArticleDoc {
@@ -25,6 +26,7 @@ export const types = `
     categoryIds: [String]
     topicId: String
     categoryId: String
+    attachments: [AttachmentInput]
   }
 
   type KnowledgeBaseCategory {

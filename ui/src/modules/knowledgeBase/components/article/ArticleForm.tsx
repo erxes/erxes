@@ -4,9 +4,15 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps,
+  IOption
+} from 'modules/common/types';
+import { extractAttachment, __ } from 'modules/common/utils';
 import { articleReactions } from 'modules/knowledgeBase/icons.constant';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import React from 'react';
@@ -27,6 +33,7 @@ type State = {
   reactionChoices: string[];
   topicId?: string;
   categoryId: string;
+  attachments: IAttachment[];
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -34,12 +41,15 @@ class ArticleForm extends React.Component<Props, State> {
     super(props);
 
     const article = props.article || { content: '' };
+    const attachments =
+      (article.attachments && extractAttachment(article.attachments)) || [];
 
     this.state = {
       content: article.content,
       reactionChoices: article.reactionChoices || [],
       topicId: article.topicId,
-      categoryId: article.categoryId
+      categoryId: article.categoryId,
+      attachments
     };
   }
 
@@ -58,7 +68,13 @@ class ArticleForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { article, currentCategoryId } = this.props;
-    const { content, reactionChoices, topicId, categoryId } = this.state;
+    const {
+      attachments,
+      content,
+      reactionChoices,
+      topicId,
+      categoryId
+    } = this.state;
 
     const finalValues = values;
 
@@ -76,6 +92,7 @@ class ArticleForm extends React.Component<Props, State> {
         status: finalValues.status,
         categoryIds: [currentCategoryId],
         topicId,
+        attachments,
         categoryId
       }
     };
@@ -88,6 +105,9 @@ class ArticleForm extends React.Component<Props, State> {
   onChangeReactions = (options: IOption[]) => {
     this.setState({ reactionChoices: options.map(option => option.value) });
   };
+
+  onChangeAttachments = (attachments: IAttachment[]) =>
+    this.setState({ attachments });
 
   renderOption = option => {
     return (
@@ -174,7 +194,7 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
-    const { reactionChoices, content } = this.state;
+    const { attachments, reactionChoices, content } = this.state;
 
     const { isSubmitted, values } = formProps;
 
@@ -244,6 +264,13 @@ class ArticleForm extends React.Component<Props, State> {
             {this.renderCategories(formProps)}
           </FlexItem>
         </FlexContent>
+
+        <FormGroup>
+          <Uploader
+            defaultFileList={attachments}
+            onChange={this.onChangeAttachments}
+          />
+        </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
