@@ -39,7 +39,7 @@ With erxes, achieving growth and unity within your company is possible. We desig
 - Stay in sync with your customers and staff with **Team Inbox**
 - Connect with your customers in continuous real-time omnichannel with **Messenger**
 - Educate both your customers and staff with **Knowledge Base**
-- Create a more collaborative, self-reliant, and cross-linked team with **Task Management**
+- Create a more **collaborative**, **self-reliant**, and **cross-linked team** with **Task Management**
 - Manage different **Brands** using one account with no branding
 - Analyze different areas of your business with **Reports (a.k.a Dashboard)** through any properties and events tracked with erxes script
 - Access some of your most important CRM and web chat tools on the go with iOS and Android **Mobile Apps**
