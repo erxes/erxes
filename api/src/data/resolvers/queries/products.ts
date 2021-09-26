@@ -48,7 +48,7 @@ const productQueries = {
       const product_category_ids = await ProductCategories.find(
         { order: { $regex: new RegExp(category.order) } },
         { _id: 1 }
-      );
+      ).lean();
       filter.categoryId = { $in: product_category_ids };
     }
 
@@ -62,17 +62,10 @@ const productQueries = {
 
     // search =========
     if (searchValue) {
-      const fields = [
-        {
-          name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-        },
-        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
-      ];
-
+      const fields = [{$text: {$search: escapeRegExp(searchValue)}}]
       filter.$or = fields;
     }
-
-    return paginate(Products.find(filter).sort('code'), pagintationArgs);
+    return paginate(Products.find(filter).select({name: 1, code: 1, type: 1, categoryId: 1, unitPrice: 1, sku: 1, tagIds: 1}).sort('code').lean(), pagintationArgs);
   },
 
   /**
