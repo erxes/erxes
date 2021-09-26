@@ -55,6 +55,7 @@ export const types = `
     configsConstants: [JSON]
     onboardingHistory: OnboardingHistory
     exm: Exm
+    department: Department
   }
 
   type UserConversationListResponse {
