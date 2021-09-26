@@ -13,14 +13,13 @@ type Props = {
 
 const FormContainer = (props: Props) => {
   const { data, loading } = useQuery(gql(queries.departments), {
-    variables: { parentId: null }
+    variables: { parentId: null },
+    fetchPolicy: 'network-only'
   });
 
   if (loading) {
     return <div>...</div>;
   }
-
-  console.log('data: ', data);
 
   const renderButton = ({
     name,
