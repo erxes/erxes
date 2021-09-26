@@ -199,6 +199,9 @@ describe('userQueries', () => {
           exm {
             _id
           }
+          department {
+            _id
+          }
           onboardingHistory {
             _id
           }
