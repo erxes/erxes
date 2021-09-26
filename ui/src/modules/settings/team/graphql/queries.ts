@@ -91,8 +91,8 @@ const departmentField = `
 `;
 
 const departments = `
-  query departments {
-    departments {
+  query departments($parentId: String) {
+    departments(parentId: $parentId) {
       ${departmentField}
     }
   }

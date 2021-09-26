@@ -1,8 +1,8 @@
 import { Departments } from '../../../db/models';
 
 const departmentQueries = {
-  departments() {
-    return Departments.find().sort({ title: 1 });
+  departments(_root, args: { parentId?: string }) {
+    return Departments.find(args).sort({ title: 1 });
   },
 
   departmentDetail(_root, { _id }) {

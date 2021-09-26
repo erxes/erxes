@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Select from 'react-select-plus';
 import { FormControl, FormGroup } from 'modules/common/components/form';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import Form from 'modules/common/components/form/Form';
@@ -7,18 +8,21 @@ import ControlLabel from 'modules/common/components/form/Label';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
 import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   department?: any;
   closeModal: () => void;
+  parentDepartments: any[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton } = props;
+  const { closeModal, renderButton, parentDepartments } = props;
   const object = props.department || ({} as any);
 
   const [userIds, setUserIds] = useState(object.userIds || []);
+  const [parentId, setParentId] = useState(object.parentId);
 
   const generateDoc = values => {
     const finalValues = values;
@@ -29,8 +33,13 @@ export default function DepartmentForm(props: Props) {
 
     return {
       userIds,
+      parentId,
       ...finalValues
     };
+  };
+
+  const onChangeParent = (parent: any) => {
+    setParentId(parent.value);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -39,7 +48,7 @@ export default function DepartmentForm(props: Props) {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Title</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -49,7 +58,7 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>Description</ControlLabel>
+          <ControlLabel required={true}>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -58,9 +67,23 @@ export default function DepartmentForm(props: Props) {
             componentClass="textarea"
           />
         </FormGroup>
+        {(!object._id || (object._id && object.parentId)) && (
+          <FormGroup>
+            <ControlLabel required={true}>{__('Parent')}</ControlLabel>
+            <Select
+              placeholder={__('Choose parent')}
+              value={parentId}
+              onChange={onChangeParent}
+              options={parentDepartments.map(d => ({
+                value: d._id,
+                label: d.title
+              }))}
+            />
+          </FormGroup>
+        )}
         <FormGroup>
           <SelectMemberStyled zIndex={2002}>
-            <ControlLabel>Team Members</ControlLabel>
+            <ControlLabel>{__('Team Members')}</ControlLabel>
 
             <SelectTeamMembers
               label="Choose team members"

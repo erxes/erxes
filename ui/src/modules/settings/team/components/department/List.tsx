@@ -19,7 +19,12 @@ export default function List({ listQuery }: Props) {
       .reduce(
         (tree, node) => [
           ...tree,
-          <Item key={node._id} department={node} refetch={listQuery.refetch} />,
+          <Item
+            key={node._id}
+            depth={parentId ? 1 : 0}
+            department={node}
+            refetch={listQuery.refetch}
+          />,
           ...generateTree(categories, node._id, parentKey)
         ],
         []

@@ -33,10 +33,21 @@ export default function Item({
     />
   );
 
+  const generatePrefix = () => {
+    let prefix = ' ';
+
+    for (let i = 0; i < (depth || 0); i++) {
+      prefix += '--- ';
+    }
+
+    return prefix;
+  };
+
   return (
     <li key={department._id} style={{ justifyContent: 'space-between' }}>
       <span>
-        {depth || ''} {department.title}
+        {generatePrefix()}
+        {department.title}
       </span>
       <span>
         {editButton}

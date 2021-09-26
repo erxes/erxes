@@ -10,7 +10,7 @@ export const types = `
 `;
 
 export const queries = `
-    departments(perPage: Int, page: Int): [Department]
+    departments(parentId: String): [Department]
     departmentDetail(_id: String!): Department
 `;
 

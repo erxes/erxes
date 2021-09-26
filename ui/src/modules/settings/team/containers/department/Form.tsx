@@ -4,6 +4,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import Form from '../../components/department/Form';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 
 type Props = {
   department?: any;
@@ -11,6 +12,16 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
+  const { data, loading } = useQuery(gql(queries.departments), {
+    variables: { parentId: null }
+  });
+
+  if (loading) {
+    return <div>...</div>;
+  }
+
+  console.log('data: ', data);
+
   const renderButton = ({
     name,
     values,
@@ -39,7 +50,13 @@ const FormContainer = (props: Props) => {
     );
   };
 
-  return <Form {...props} renderButton={renderButton} />;
+  return (
+    <Form
+      parentDepartments={data.departments}
+      {...props}
+      renderButton={renderButton}
+    />
+  );
 };
 
 export default FormContainer;
