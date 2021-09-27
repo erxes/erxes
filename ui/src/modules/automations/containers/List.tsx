@@ -16,7 +16,8 @@ import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
+  CountQueryResponse
 } from '../types';
 
 type Props = {
@@ -25,6 +26,7 @@ type Props = {
 
 type FinalProps = {
   automationsMainQuery: MainQueryResponse;
+  automationsTotalCountQuery: CountQueryResponse;
   automationsListConfigQuery: DefaultColumnsConfigQueryResponse;
 } & Props &
   IRouterProps &
@@ -61,10 +63,15 @@ class ListContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       automationsMainQuery,
+      automationsTotalCountQuery,
       automationsRemove,
       addAutomationMutation,
       history
     } = this.props;
+
+    const counts = automationsTotalCountQuery
+      ? automationsTotalCountQuery.automationsTotalCount
+      : null;
 
     const addAutomation = () => {
       addAutomationMutation({
@@ -110,6 +117,7 @@ class ListContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
+      counts,
       totalCount,
       searchValue,
       automations: list,
@@ -135,9 +143,7 @@ class ListContainer extends React.Component<FinalProps, State> {
 const generateParams = ({ queryParams }) => {
   return {
     ...generatePaginationParams(queryParams),
-    segment: queryParams.segment,
-    tag: queryParams.tag,
-    brand: queryParams.brand,
+    status: queryParams.status,
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,
@@ -168,6 +174,14 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<Props, CountQueryResponse>(gql(queries.automationsTotalCount), {
+      name: 'automationsTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          status: queryParams.status
+        }
+      })
+    }),
     // mutations
     graphql<{}, AddMutationResponse, IAutomationDoc>(
       gql(mutations.automationsAdd),

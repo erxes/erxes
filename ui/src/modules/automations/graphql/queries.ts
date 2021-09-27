@@ -152,7 +152,7 @@ const historiesParamValue = `
   endDate: $endDate,
 `;
 
-export const automationHistories = `
+const automationHistories = `
   query automationHistories(${historiesParamDef}) {
     automationHistories(${historiesParamValue}) {
       _id
@@ -174,10 +174,20 @@ export const automationHistories = `
   }
 `;
 
+const automationsTotalCount = `
+  query automationsTotalCount($status: String){
+    automationsTotalCount(status: $status){
+      byStatus
+      total
+    }
+  }
+`;
+
 export default {
   automations,
   automationsMain,
   automationDetail,
   automationNotes,
-  automationHistories
+  automationHistories,
+  automationsTotalCount
 };

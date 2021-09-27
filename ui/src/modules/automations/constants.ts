@@ -118,3 +118,8 @@ export const TRIGGERS = [
       'Start with a blank workflow that enralls and is triggered off team members'
   }
 ];
+
+export const statusFilters = [
+  { key: 'active', value: 'Active' },
+  { key: 'draft', value: 'Draft' }
+];

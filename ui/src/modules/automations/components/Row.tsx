@@ -72,13 +72,13 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
         </FlexItem>
       </td>
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
-      </td>
-      <td>
         <FlexItem>
           <NameCard user={createdUser} avatarSize={30} />
         </FlexItem>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
       </td>
       <td>
         <Icon icon="calender" />{' '}

@@ -153,3 +153,16 @@ export type AutomationHistoriesQueryResponse = {
   automationHistories: IAutomationHistory[];
   loading: boolean;
 };
+
+export type Counts = {
+  [key: string]: number;
+};
+
+export type AutomationsCount = {
+  total: number;
+  byStatus: Counts;
+};
+
+export type CountQueryResponse = {
+  automationsTotalCount: AutomationsCount;
+} & QueryResponse;

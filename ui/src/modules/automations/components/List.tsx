@@ -10,9 +10,10 @@ import { BarItems } from 'modules/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
-import { IAutomation } from '../types';
+import { IAutomation, AutomationsCount } from '../types';
 import Row from './Row';
 import { EmptyContent } from '../styles';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   automations: IAutomation[];
@@ -35,6 +36,7 @@ interface IProps extends IRouterProps {
   refetch?: () => void;
   renderExpandButton?: any;
   isExpand?: boolean;
+  counts: AutomationsCount;
 }
 
 type State = {
@@ -106,6 +108,7 @@ class AutomationsList extends React.Component<IProps, State> {
       totalCount,
       queryParams,
       isExpand,
+      counts,
       addAutomation
     } = this.props;
 
@@ -128,8 +131,8 @@ class AutomationsList extends React.Component<IProps, State> {
               <th>{__('Triggers')}</th>
               <th>{__('Actions')}</th>
               <th>{__('Last updated by')}</th>
-              <th>{__('Last update')}</th>
               <th>{__('Created by')}</th>
+              <th>{__('Last update')}</th>
               <th>{__('Created date')}</th>
             </tr>
           </thead>
@@ -210,6 +213,7 @@ class AutomationsList extends React.Component<IProps, State> {
           />
         }
         actionBar={actionBar}
+        leftSidebar={<Sidebar counts={counts || {}} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
