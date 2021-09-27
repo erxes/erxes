@@ -4,6 +4,7 @@ export const types = `
         title: String
         description: String
         parentId: String
+        parent: Department
         children: [Department]
         users: [User]
         userIds: [String]

@@ -6,6 +6,10 @@ export default {
     return Users.find({ _id: { $in: department.userIds || [] } });
   },
 
+  parent(department: IDepartmentDocument) {
+    return Departments.findOne({ parentId: department._id });
+  },
+
   children(department: IDepartmentDocument) {
     return Departments.find({ parentId: department._id });
   }

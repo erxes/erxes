@@ -15,6 +15,9 @@ describe('Department queries', () => {
                     users {
                         _id
                     }
+                    parent {
+                      _id
+                    }
                     children {
                       _id
                     }
