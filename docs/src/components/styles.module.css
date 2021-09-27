@@ -232,14 +232,14 @@ li {
 	/* height: 100vh; */
 }
 
-.exampleTab {
+.tab {
 	width: 900px;
 	height: 300px;
 	border-radius: 10px;
 	border: 2px solid #EBEDF0;
 }
 
-.styledButtons {
+.styled {
 	padding: 5px;
 }
 
