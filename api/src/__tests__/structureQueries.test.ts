@@ -5,12 +5,12 @@ import './setup.ts';
 
 describe('Department queries', () => {
   test('Get departments', async () => {
-    await departmentFactory({});
-    await departmentFactory({});
+    const parent = await departmentFactory({});
+    await departmentFactory({ parentId: parent._id });
 
     const query = `
-            query departments {
-                departments {
+            query departments($depthType: String) {
+                departments(depthType: $depthType) {
                     _id
                     users {
                         _id
@@ -25,9 +25,21 @@ describe('Department queries', () => {
             }
         `;
 
-    const response = await graphqlRequest(query, 'departments');
+    let response = await graphqlRequest(query, 'departments');
 
     expect(response.length).toBe(2);
+
+    response = await graphqlRequest(query, 'departments', {
+      depthType: 'children'
+    });
+
+    expect(response.length).toBe(1);
+
+    response = await graphqlRequest(query, 'departments', {
+      depthType: 'parent'
+    });
+
+    expect(response.length).toBe(1);
   });
 
   test('Get department', async () => {
