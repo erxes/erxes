@@ -229,7 +229,7 @@ const activityLogQueries = {
     return activities;
   },
 
-  async activityLogsByType(_root, { contentType, action }) {
+  async activityLogsByAction(_root, { contentType, action }) {
     const logs = await fetchLogs(
       {
         contentType,
