@@ -7,6 +7,7 @@ import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { uniqArray } from '../../../inbox/utils'
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
@@ -40,11 +41,21 @@ class ConversationListContainer extends React.PureComponent<FinalProps, { conver
   }
 
   componentWillReceiveProps(nextProps: FinalProps): void {
-    const { conversationsQuery } = nextProps;
-
+    const { conversationsQuery, queryParams, history } = nextProps;
+    const { queryParams: prevParams } = this.props
+    if(prevParams.brandId !== queryParams.brandId 
+      || prevParams.channelId !== queryParams.channelId
+      ||  prevParams.tag !== queryParams.tag) {
+      routerUtils.setParams(history, { limit: 10 });
+    }
     if (conversationsQuery && !conversationsQuery.loading) {
+      const filterConversation = this.state.conversations.filter(item => 
+        (!queryParams.brandId || item.integration.brand._id === queryParams.brandId)
+        && (!queryParams.channelId || item.integration.channels.filter(channel => channel._id === queryParams.channelId))
+        && (!queryParams.tag || (item.tagIds && item.tagIds.indexOf(queryParams.tag) > -1 ))
+        && (!queryParams.integrationType || item.integration.kind === queryParams.integrationType))
       this.setState({
-        conversations: this.state.conversations.concat(conversationsQuery.conversations.filter((item) => this.state.conversations.indexOf(item) < 0))
+        conversations: uniqArray([...filterConversation, ...conversationsQuery.conversations])
       });
     }
   }

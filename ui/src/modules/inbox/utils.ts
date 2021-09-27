@@ -84,3 +84,14 @@ export const urlify = (text: string) => {
     return `<a href="http://${url}" target="_blank">${url}</a>`;
   });
 };
+
+export const uniqArray = (array: Array<any>): Array<any> =>{
+  var a = array.concat();
+  for(var i=0; i<a.length; ++i) {
+      for(var j=i+1; j<a.length; ++j) {
+          if(a[i]._id === a[j]._id)
+              a.splice(j--, 1);
+      }
+  }
+  return a;
+}
