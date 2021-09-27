@@ -175,10 +175,10 @@ table tr td > img {
 .componentsContainer {
 	padding: 0;
 	margin: 0;
-	height: 100vh;
+	/* height: 100vh; */
 }
 
 .page {
 	margin-left: 350px;
-	height: 100vh;
+	/* height: 100vh; */
 }

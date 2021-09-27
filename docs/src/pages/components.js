@@ -80,7 +80,6 @@ export default function Components() {
                 </Switch>
               </div>
               
-
             </Router>
         </div>
       </main>

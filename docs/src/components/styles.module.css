@@ -229,5 +229,21 @@ li {
 
 .page {
 	margin: 300px;
-	height: 100vh;
+	/* height: 100vh; */
+}
+
+.exampleTab {
+	width: 900px;
+	height: 300px;
+	border-radius: 10px;
+	border: 2px solid #EBEDF0;
+}
+
+.styledButtons {
+	padding: 5px;
+}
+
+.codes {
+	background-color: #292C33;
+	color: white;
 }
