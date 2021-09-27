@@ -13,11 +13,11 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "AutomationsList" */ './containers/List')
 );
 
-const details = ({ match, location, history }) => {
+const details = ({ match, location }) => {
   const id = match.params.id;
   const queryParams = queryString.parse(location.search);
 
-  return <Details id={id} history={history} queryParams={queryParams} />;
+  return <Details id={id} queryParams={queryParams} />;
 };
 
 const list = ({ location }) => {

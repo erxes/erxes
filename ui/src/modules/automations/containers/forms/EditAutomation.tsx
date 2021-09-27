@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps, Alert } from 'modules/common/utils';
+import { router, withProps, Alert } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
@@ -14,11 +14,11 @@ import {
   IAutomation,
   AutomationsNoteQueryResponse
 } from '../../types';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from 'modules/common/types';
 
 type Props = {
   id: string;
-  mainType: string;
-  history: any;
   queryParams: any;
 };
 
@@ -28,17 +28,21 @@ type FinalProps = {
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
-  EditMutationResponse;
+  EditMutationResponse &
+  IRouterProps;
 
 const AutomationDetailsContainer = (props: FinalProps) => {
   const {
     automationDetailQuery,
     automationNotesQuery,
     currentUser,
+    history,
     editAutomationMutation
   } = props;
 
   const save = (doc: IAutomation) => {
+    router.removeParams(history, 'isCreate');
+
     editAutomationMutation({
       variables: {
         ...doc
@@ -111,5 +115,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(AutomationDetailsContainer)
+  )(withRouter<FinalProps>(AutomationDetailsContainer))
 );

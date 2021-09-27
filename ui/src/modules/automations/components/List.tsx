@@ -56,6 +56,7 @@ class AutomationsList extends React.Component<IProps, State> {
 
   onChange = () => {
     const { toggleAll, automations } = this.props;
+
     toggleAll(automations, 'automations');
   };
 
@@ -68,6 +69,7 @@ class AutomationsList extends React.Component<IProps, State> {
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
+
     this.timer = setTimeout(() => {
       router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
