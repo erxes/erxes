@@ -23,7 +23,7 @@ export const types = `
 `;
 
 export const queries = `
-    departments(parentId: String): [Department]
+    departments(depthType: String): [Department]
     departmentDetail(_id: String!): Department
 
     units: [Unit]

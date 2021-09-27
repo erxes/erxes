@@ -13,7 +13,7 @@ type Props = {
 
 const FormContainer = (props: Props) => {
   const { data, loading } = useQuery(gql(queries.departments), {
-    variables: { parentId: null },
+    variables: { depthType: 'children' },
     fetchPolicy: 'network-only'
   });
 
