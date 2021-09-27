@@ -1,3 +1,7 @@
+.intro-container {
+  height: 100%;
+}
+
 .erxes-widget-container {
   height: 100%;
   background-size: cover;
@@ -6,7 +10,7 @@
   overflow: auto;
 }
 
-.erxes-knowledge-container {
+.erxes-booking-container {
   color: $text-color;
   margin: $kb-spacing;
   max-width: 900px;
@@ -29,12 +33,12 @@
   background: $white;
   border: 1px solid $border-color;
   border-radius: $border-radius;
-  box-shadow: 0 6px 8px 0 rgba($black, .07);
+  box-shadow: 0 6px 8px 0 rgba($black, 0.07);
   display: block;
   margin-bottom: $kb-spacing;
   padding: $kb-spacing 35px;
   text-decoration: none;
-  transition: box-shadow .3s ease;
+  transition: box-shadow 0.3s ease;
   cursor: pointer;
 
   &:last-child {
@@ -81,7 +85,7 @@
   }
 
   &:hover {
-    box-shadow: 0 6px 8px 0 rgba($black, .13);
+    box-shadow: 0 6px 8px 0 rgba($black, 0.13);
   }
 }
 
@@ -111,38 +115,6 @@
 
   &.spaced {
     margin-bottom: $kb-spacing;
-  }
-}
-
-.avatars {
-  display: flex;
-  margin-right: 10px;
-
-  img {
-    border: 2px solid $white;
-    border-radius: 18px;
-    height: 32px;
-    width: 32px;
-    z-index: 6;
-
-    &:nth-child(n+2) {
-      margin-left: -13px;
-    }
-
-    &:nth-child(2) {
-      opacity: .7;
-      z-index: 5;
-    }
-
-    &:nth-child(3) {
-      opacity: .5;
-      z-index: 4;
-    }
-
-    &:nth-child(4) {
-      opacity: .4;
-      z-index: 3;
-    }
   }
 }
 
@@ -178,7 +150,7 @@
 }
 
 .category-container {
-  background: rgba($black, .044);
+  background: rgba($black, 0.044);
   border-radius: $border-radius;
   padding: $kb-spacing;
 }

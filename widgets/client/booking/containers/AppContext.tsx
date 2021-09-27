@@ -1,13 +1,16 @@
 import * as React from 'react';
+import { IBooking, IProductCategory } from '../types';
 
 interface IState {
   activeRoute: string;
-  activeBooking: null;
+  activeBooking: IBooking | null;
+  activeBlock: IProductCategory | null;
 }
 
 interface IStore extends IState {
-  goToBooking: (booking: any) => void;
   goToIntro: () => void;
+  goToBooking: (booking: any) => void;
+  goToBlock: (block: any) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -20,16 +23,10 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.state = {
       activeRoute: 'INTRO',
-      activeBooking: null
+      activeBooking: null,
+      activeBlock: null
     };
   }
-
-  goToBooking = (booking: any) => {
-    this.setState({
-      activeRoute: 'CATEGORY_DETAIL',
-      activeBooking: booking
-    });
-  };
 
   goToIntro = () => {
     this.setState({
@@ -38,13 +35,29 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  goToBooking = (booking: any) => {
+    this.setState({
+      activeRoute: 'BOOKING',
+      activeBooking: booking
+    });
+  };
+
+  goToBlock = (block: any) => {
+    this.setState({
+      activeRoute: 'BLOCK_DETAIL',
+      activeBlock: block
+    });
+  };
+
   render() {
+    console.log(this.state.activeRoute);
     return (
       <AppContext.Provider
         value={{
           ...this.state,
           goToBooking: this.goToBooking,
-          goToIntro: this.goToIntro
+          goToIntro: this.goToIntro,
+          goToBlock: this.goToBlock
         }}
       >
         {this.props.children}

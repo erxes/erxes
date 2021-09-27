@@ -1,4 +1,4 @@
-#erxes-knowledge-container {
+#erxes-booking-container {
   min-height: 100%;
   background: #fcfcfc;
   border-radius: 10px;
@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.erxes-knowledge-container-shoutbox {
+.erxes-booking-container-shoutbox {
   /* shoutbox css below */
   position: absolute;
   right: 0;
@@ -14,7 +14,7 @@
   min-width: 300px;
 }
 
-#erxes-knowledge-iframe {
+#erxes-booking-iframe {
   width: 100%;
   border: none;
   min-height: 100%;
@@ -22,7 +22,7 @@
 }
 
 @media only screen and (max-width: 420px) {
-  #erxes-knowledge-container {
+  #erxes-booking-container {
     width: 100%;
     max-height: none;
   }

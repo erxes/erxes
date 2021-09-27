@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Intro } from '../containers';
+import { Booking, Intro, BlockDetail } from '../containers';
 import { IBooking } from '../types';
 
 type Props = {
@@ -7,22 +7,24 @@ type Props = {
   booking: IBooking;
 };
 
-function App(props: Props) {
+function App({ booking, activeRoute }: Props) {
   const renderContent = () => {
-    const { activeRoute } = props;
-
     if (activeRoute === 'INTRO') {
-      return <Intro />;
+      return <Intro booking={booking} />;
+    }
+
+    if (activeRoute === 'BOOKING') {
+      return <Booking />;
+    }
+
+    if (activeRoute === 'BLOCK_DETAIL') {
+      return <BlockDetail />;
     }
 
     return null;
   };
 
-  return (
-    <div id="erxes-container" className="erxes-content">
-      {renderContent()}
-    </div>
-  );
+  return <div id="erxes-widget-container">{renderContent()}</div>;
 }
 
 export default App;

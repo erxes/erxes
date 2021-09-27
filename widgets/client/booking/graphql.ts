@@ -1,3 +1,24 @@
+const productCategoryFields = `
+  _id
+  name
+  description
+  code
+  parentId
+`;
+
+const styleFields = `
+  itemShape
+  widgetColor
+
+  productAvailable
+  productUnavailable
+  productSelected
+
+  textAvailable
+  textUnavailable
+  textSelected
+`;
+
 const bookingFields = `
   _id
   name
@@ -8,57 +29,41 @@ const bookingFields = `
     size
   }
 
-  tagIds
-
-  tags {
-    _id
-    name
-  }
-
   description
-  createdDate
-  brand {
-    _id
-    name
-  }
-
-  createdUser {
-    _id
-
-    details {
-      avatar
-      fullName
-      position
-    }
-  }
-  
   title
-  brandId
-  channelIds
   languageCode
   formId
   buttonText
-
   productCategoryId
 
+  childCategories {
+    ${productCategoryFields}
+  }
+
   styles {
-    itemShape
-    widgetColor
-
-    productAvailable
-    productUnavailable
-    productSelected
-
-    textAvailable
-    textUnavailable
-    textSelected
+    ${styleFields}
   }
 `;
 
-export const bookingDetail = `
+const bookingDetail = `
   query bookingDetail($_id: String!) {
     bookingDetail(_id: $_id) {
       ${bookingFields}
     }
   }
 `;
+
+const productCategories = `
+  query widgetsProductCategories($parentId: String) {
+    widgetsProductCategories(parentId: $parentId) {
+      _id
+      name
+      code
+      description
+      order
+      parentId
+    }
+  }
+`;
+
+export { bookingDetail, productCategories };

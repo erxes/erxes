@@ -14,8 +14,8 @@ meta.name = 'viewport';
 meta.content = 'initial-scale=1, width=device-width';
 document.getElementsByTagName('head')[0].appendChild(meta);
 
-const iframeId = 'erxes-knowledge-iframe';
-const container = 'erxes-knowledge-container';
+const iframeId = 'erxes-booking-iframe';
+const container = 'erxes-booking-container';
 
 // container
 const erxesContainer = document.createElement('div');
