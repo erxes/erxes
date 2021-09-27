@@ -56,7 +56,7 @@ class ActivityLogs extends React.Component<Props> {
     return (
       <Wrapper
         footer={<Pagination count={count} />}
-        content={<DataWithLoader data={this.renderContent()} />}
+        content={<DataWithLoader loading={false} data={this.renderContent()} />}
         leftSidebar={<Sidebar />}
       />
     );
