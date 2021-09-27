@@ -55,6 +55,7 @@ import {
   Tags,
   Tasks,
   Tickets,
+  Units,
   Users,
   UsersGroups,
   Webhooks
@@ -1652,6 +1653,17 @@ export const departmentFactory = async (params: any) => {
   });
 
   return department.save();
+};
+
+export const unitFactory = async (params: any) => {
+  const unit = new Units({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    departmentId: params.departmentId,
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return unit.save();
 };
 
 export const exmFactory = async (params: any) => {

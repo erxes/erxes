@@ -48,7 +48,8 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
-import Department from './departments'
+import Department from './departments';
+import Unit from './units';
 
 const resolvers: any = {
   ...customScalars,
@@ -102,7 +103,8 @@ const resolvers: any = {
   CalendarGroup,
   CalendarBoard,
   Tag,
-  Department
+  Department,
+  Unit
 };
 
 export default resolvers;

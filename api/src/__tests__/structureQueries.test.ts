@@ -1,5 +1,5 @@
 import { graphqlRequest } from '../db/connection';
-import { departmentFactory } from '../db/factories';
+import { departmentFactory, unitFactory } from '../db/factories';
 
 import './setup.ts';
 
@@ -44,6 +44,48 @@ describe('Department queries', () => {
 
     const response = await graphqlRequest(query, 'departmentDetail', {
       _id: department._id
+    });
+
+    expect(response).toBeDefined();
+  });
+
+  test('Get units', async () => {
+    await unitFactory({});
+    await unitFactory({});
+
+    const query = `
+          query units {
+              units {
+                  _id
+                  users {
+                      _id
+                  }
+                  department {
+                    _id
+                  }
+              }
+          }
+      `;
+
+    const response = await graphqlRequest(query, 'units');
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Get unit', async () => {
+    const unit = await unitFactory({});
+
+    const query = `
+          query unitDetail($_id: String!) {
+              unitDetail(_id: $_id) {
+                  _id
+                  title
+              }
+          }
+      `;
+
+    const response = await graphqlRequest(query, 'unitDetail', {
+      _id: unit._id
     });
 
     expect(response).toBeDefined();

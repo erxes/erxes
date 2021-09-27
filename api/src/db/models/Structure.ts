@@ -1,8 +1,10 @@
 import { Model, model } from 'mongoose';
 import {
   IDepartmentDocument,
-  departmentSchema
-} from './definitions/departments';
+  departmentSchema,
+  unitSchema,
+  IUnitDocument
+} from './definitions/structures';
 import { IUserDocument } from './definitions/users';
 
 export interface IDepartmentModel extends Model<IDepartmentDocument> {
@@ -16,7 +18,7 @@ export interface IDepartmentModel extends Model<IDepartmentDocument> {
   removeDepartment(_id: string): IDepartmentDocument;
 }
 
-export const loadClass = () => {
+export const loadDepartmentClass = () => {
   class Department {
     /*
      * Get a department
@@ -79,7 +81,7 @@ export const loadClass = () => {
   departmentSchema.loadClass(Department);
 };
 
-loadClass();
+loadDepartmentClass();
 
 // tslint:disable-next-line
 const Departments = model<IDepartmentDocument, IDepartmentModel>(
@@ -87,4 +89,73 @@ const Departments = model<IDepartmentDocument, IDepartmentModel>(
   departmentSchema
 );
 
-export default Departments;
+export interface IUnitModel extends Model<IUnitDocument> {
+  getUnit(doc: any): IUnitDocument;
+  createUnit(doc: any, user: IUserDocument): IUnitDocument;
+  updateUnit(_id: string, doc: any, user: IUserDocument): IUnitDocument;
+  removeUnit(_id: string): IUnitDocument;
+}
+
+export const loadUnitClass = () => {
+  class Unit {
+    /*
+     * Get a unit
+     */
+    public static async getUnit(doc: any) {
+      const unit = await Units.findOne(doc);
+
+      if (!unit) {
+        throw new Error('Unit not found');
+      }
+
+      return unit;
+    }
+
+    /*
+     * Create an unit
+     */
+    public static async createUnit(doc: any, user: IUserDocument) {
+      const unit = await Units.create({
+        ...doc,
+        createdAt: new Date(),
+        createdBy: user._id
+      });
+
+      return unit;
+    }
+
+    /*
+     * Update an unit
+     */
+    public static async updateUnit(_id: string, doc: any, user: IUserDocument) {
+      await Units.update(
+        { _id },
+        {
+          ...doc,
+          updatedAt: new Date(),
+          updatedBy: user._id
+        }
+      );
+
+      return Units.findOne({ _id });
+    }
+
+    /*
+     * Remove an unit
+     */
+    public static async removeUnit(_id: string) {
+      const unit = await Units.getUnit({ _id });
+
+      return unit.remove();
+    }
+  }
+
+  unitSchema.loadClass(Unit);
+};
+
+loadUnitClass();
+
+// tslint:disable-next-line
+const Units = model<IUnitDocument, IUnitModel>('units', unitSchema);
+
+export { Departments, Units };

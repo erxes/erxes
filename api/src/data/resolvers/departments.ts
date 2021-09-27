@@ -1,5 +1,5 @@
 import { Departments, Users } from '../../db/models';
-import { IDepartmentDocument } from '../../db/models/definitions/departments';
+import { IDepartmentDocument } from '../../db/models/definitions/structures';
 
 export default {
   users(department: IDepartmentDocument) {

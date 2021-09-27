@@ -211,10 +211,10 @@ import {
   types as ExmTypes
 } from './exm';
 import {
-  mutations as DepartmentMutations,
-  queries as DepartmentQueries,
-  types as DepartmentTypes
-} from './department';
+  mutations as StructureMutations,
+  queries as StructureQueries,
+  types as StructureTypes
+} from './structure';
 
 export let types = `
   scalar JSON
@@ -264,7 +264,7 @@ export let types = `
   ${CalendarTypes}
   ${SmsDeliveryTypes}
   ${ExmTypes}
-  ${DepartmentTypes}
+  ${StructureTypes}
 `;
 
 export let queries = `
@@ -311,7 +311,7 @@ export let queries = `
   ${MessengerAppQueries}
   ${SmsDeliveryQueries}
   ${ExmQueries}
-  ${DepartmentQueries}
+  ${StructureQueries}
 `;
 
 export let mutations = `
@@ -355,7 +355,7 @@ export let mutations = `
   ${WebhookMutations}
   ${CalendarMutations}
   ${ExmMutations}
-  ${DepartmentMutations}
+  ${StructureMutations}
 `;
 
 export let subscriptions = `

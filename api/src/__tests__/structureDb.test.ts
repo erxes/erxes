@@ -1,17 +1,21 @@
-import { departmentFactory, userFactory } from '../db/factories';
-import { Departments } from '../db/models';
+import { departmentFactory, unitFactory, userFactory } from '../db/factories';
+import { Departments, Units } from '../db/models';
 
 import './setup.ts';
 
 describe('Test department model', () => {
   let department;
+  let unit;
 
   beforeEach(async () => {
     department = await departmentFactory({});
+    unit = await unitFactory({});
   });
 
   afterEach(async () => {
     await Departments.deleteMany({});
+
+    await Units.deleteMany({});
   });
 
   test('Get department ', async () => {
@@ -51,5 +55,44 @@ describe('Test department model', () => {
     await Departments.removeDepartment(department._id);
 
     expect(await Departments.find().countDocuments()).toBe(0);
+  });
+
+  test('Get unit ', async () => {
+    const response = await Units.getUnit({ _id: unit._id });
+
+    expect(response).toBeDefined();
+  });
+
+  test('Get unit Error: Unit not found', async () => {
+    try {
+      await Units.getUnit({ _id: 'fakeId' });
+    } catch (e) {
+      expect(e.message).toBe('Unit not found');
+    }
+  });
+
+  test('Create unit ', async () => {
+    const response = await Units.createUnit(
+      { title: 'test' },
+      await userFactory()
+    );
+
+    expect(response).toBeDefined();
+  });
+
+  test('Update unit ', async () => {
+    const response = await Units.updateUnit(
+      unit._id,
+      { title: 'test update' },
+      await userFactory()
+    );
+
+    expect(response.title).toBe('test update');
+  });
+
+  test('Remove unit ', async () => {
+    await Units.removeUnit(unit._id);
+
+    expect(await Units.find().countDocuments()).toBe(0);
   });
 });
