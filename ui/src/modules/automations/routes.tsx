@@ -2,7 +2,7 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Confirmation from './containers/Confirmation';
+import Confirmation from './containers/forms/Confirmation';
 
 const Details = asyncComponent(() =>
   import(

@@ -3,11 +3,11 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { mutations } from '../graphql';
-import { RemoveMutationResponse, RemoveMutationVariables } from '../types';
-import { getRefetchQueries } from './List';
-import Confirmation from '../components/confirmation';
-import ConfirmationPopup from '../components/confirmation/popup';
+import { mutations } from '../../graphql';
+import { RemoveMutationResponse, RemoveMutationVariables } from '../../types';
+import { getRefetchQueries } from '../List';
+import Confirmation from '../../components/forms/confirmation';
+import ConfirmationPopup from '../../components/forms/confirmation/popup';
 
 type Props = {
   id: string;
