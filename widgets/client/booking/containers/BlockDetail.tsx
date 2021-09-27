@@ -6,36 +6,43 @@ import BlockDetail from '../components/BlockDetail';
 import { AppConsumer } from './AppContext';
 import { IProductCategory } from '../types';
 
+type Props = {
+  goToBookings: () => void;
+  block: IProductCategory | null;
+};
+
 type QueryResponse = {
   widgetsProductCategories: IProductCategory[];
 };
 
-function BlockDetailContainer(props: ChildProps<{}, QueryResponse>) {
+function BlockDetailContainer(props: ChildProps<Props, QueryResponse>) {
   const { data } = props;
 
   if (!data || data.loading) {
     return null;
   }
 
-  return <BlockDetail floors={data.widgetsProductCategories || []} />;
+  const extendedProps = {
+    ...props,
+    floors: data.widgetsProductCategories || []
+  };
+
+  return <BlockDetail {...extendedProps} />;
 }
 
-const WithData = graphql<{ block: IProductCategory | null }, QueryResponse>(
-  gql(productCategories),
-  {
-    options: ({ block }) => ({
-      variables: {
-        parentId: block && block._id
-      }
-    })
-  }
-)(BlockDetailContainer);
+const WithData = graphql<Props, QueryResponse>(gql(productCategories), {
+  options: ({ block }) => ({
+    variables: {
+      parentId: block && block._id
+    }
+  })
+})(BlockDetailContainer);
 
 const WithContext = () => {
   return (
     <AppConsumer>
-      {({ activeBlock }) => {
-        return <WithData block={activeBlock} />;
+      {({ activeBlock, goToBookings }) => {
+        return <WithData block={activeBlock} goToBookings={goToBookings} />;
       }}
     </AppConsumer>
   );

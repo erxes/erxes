@@ -1,5 +1,20 @@
-.intro-container {
+.erxes-booking {
   height: 100%;
+  text-align: center;
+
+  img {
+    max-width: 900px;
+    width: 900px;
+    height: 30%;
+  }
+
+  h1 {
+    background-color: $text-color;
+  }
+
+  p {
+    background-color: $main-color;
+  }
 }
 
 .erxes-widget-container {

@@ -11,10 +11,10 @@ function Intro({ booking, onClick }: Props) {
   const { title, description, image } = booking;
 
   return (
-    <div className="intro-container">
+    <div>
       <h1>{title}</h1>
       <p>{description}</p>
-      <img height="300" src={readFile(image.name)} alt="hello" />
+      <img src={readFile(image.url)} alt="hello" />
       <button
         style={{ backgroundColor: '#5629B6' }}
         className="erxes-button"

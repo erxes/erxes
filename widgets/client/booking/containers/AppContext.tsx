@@ -10,6 +10,7 @@ interface IState {
 interface IStore extends IState {
   goToIntro: () => void;
   goToBooking: (booking: any) => void;
+  goToBookings: () => void;
   goToBlock: (block: any) => void;
 }
 
@@ -42,6 +43,13 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  goToBookings = () => {
+    this.setState({
+      activeRoute: 'BOOKING',
+      activeBlock: null
+    });
+  };
+
   goToBlock = (block: any) => {
     this.setState({
       activeRoute: 'BLOCK_DETAIL',
@@ -57,7 +65,8 @@ export class AppProvider extends React.Component<{}, IState> {
           ...this.state,
           goToBooking: this.goToBooking,
           goToIntro: this.goToIntro,
-          goToBlock: this.goToBlock
+          goToBlock: this.goToBlock,
+          goToBookings: this.goToBookings
         }}
       >
         {this.props.children}

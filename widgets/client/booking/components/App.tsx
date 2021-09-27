@@ -24,7 +24,11 @@ function App({ booking, activeRoute }: Props) {
     return null;
   };
 
-  return <div id="erxes-widget-container">{renderContent()}</div>;
+  return (
+    <div id="erxes-widget-container">
+      <div className="erxes-booking">{renderContent()}</div>
+    </div>
+  );
 }
 
 export default App;
