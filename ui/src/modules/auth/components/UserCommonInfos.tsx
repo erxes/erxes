@@ -8,6 +8,7 @@ import { FormColumn, FormWrapper } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
 import { __, getConstantFromStore } from 'modules/common/utils';
 import React from 'react';
+import dayjs from 'dayjs';
 import { IUser } from '../types';
 
 type Props = {
@@ -37,6 +38,8 @@ class UserCommonInfos extends React.PureComponent<Props> {
   render() {
     const { user, onAvatarUpload, formProps } = this.props;
     const details = user.details || {};
+
+    console.log('details: ', details);
 
     return (
       <>
@@ -103,11 +106,33 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 />
               </FormGroup>
               <FormGroup>
+                <ControlLabel>Birthdate</ControlLabel>
+                <FormControl
+                  type="date"
+                  name="birthDate"
+                  defaultValue={dayjs(details.birthDate || new Date()).format(
+                    'YYYY-MM-DD'
+                  )}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>Position</ControlLabel>
                 <FormControl
                   type="text"
                   name="position"
-                  defaultValue={details.position || ''}
+                  defaultValue={details.position}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Join date</ControlLabel>
+                <FormControl
+                  type="date"
+                  name="workStartedDate"
+                  defaultValue={dayjs(
+                    details.workStartedDate || new Date()
+                  ).format('YYYY-MM-DD')}
                   {...formProps}
                 />
               </FormGroup>
