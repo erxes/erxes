@@ -7,12 +7,12 @@ export default function Infos() {
     <div className="container">
       <div className="title">
         <h1>Info</h1>
-        <p>Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+        <p>Custom info styles for actions in inputs.</p>
       </div>
       <div className="examples">
         <h1>Examples</h1>
-        <p>Use any of the available button style types to quickly create a styled button. Just modify the <b><u>btnStyle</u></b> prop.</p>
-        <div className={styles.exampleTab}>
+        <p>Use any of the available infos style types to quickly create a styled button. Just modify the <b><u>btnStyle</u></b> prop.</p>
+        <div className={styles.tab}>
           <div className={styles.styledButtons}>
             <Info>Default</Info>{' '}
             
