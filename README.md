@@ -21,9 +21,6 @@
  <a href="https://erxes.org" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="erxes Growth Marketing Platform "></a>
 </p>
 
-## Demo
-
-Live demo is deployed at <a href="https://demo.erxes.io/" target="_blank">https://demo.erxes.io/</a>
 
 ## Features
 
