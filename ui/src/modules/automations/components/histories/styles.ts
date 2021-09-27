@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { dimensions, colors } from 'modules/common/styles';
+import { FilterItem } from 'modules/settings/permissions/styles';
 
 export const HistoriesWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -19,4 +20,8 @@ export const FilterWrapper = styled.div`
   .Select {
     flex: 1;
   }
+`;
+
+export const FilterDateItem = styled(FilterItem)`
+  z-index: 10;
 `;

@@ -5,8 +5,7 @@ import React from 'react';
 import { TRIGGERS } from '../../constants';
 import Histories from '../../containers/Histories';
 import { IAutomation } from '../../types';
-import { HistoriesWrapper, FilterWrapper } from './styles';
-import { FilterItem } from 'modules/settings/permissions/styles';
+import { HistoriesWrapper, FilterWrapper, FilterDateItem } from './styles';
 import { __ } from 'modules/common/utils';
 import Icon from 'modules/common/components/Icon';
 import Select from 'react-select-plus';
@@ -73,27 +72,27 @@ class HistoriesHeader extends React.Component<Props, State> {
     });
   };
 
-  renderDateFilter = (name: string) => {
+  renderDateFilter = (key: string, name: string) => {
     const props = {
-      value: this.state[name],
+      value: this.state[key],
       inputProps: {
         placeholder: `${__(`Filter by ${name}`)}`
       }
     };
 
     return (
-      <FilterItem>
+      <FilterDateItem>
         <div className="icon-option">
           <Icon icon="calendar-alt" />
           <Datetime
             {...props}
             dateFormat="YYYY/MM/DD"
             timeFormat="HH:mm"
-            onChange={this.onDateChange.bind(this, name)}
+            onChange={this.onDateChange.bind(this, key)}
             closeOnSelect={true}
           />
         </div>
-      </FilterItem>
+      </FilterDateItem>
     );
   };
 
@@ -104,9 +103,9 @@ class HistoriesHeader extends React.Component<Props, State> {
     return (
       <HistoriesWrapper>
         <FilterWrapper>
-          {this.renderDateFilter('beginDate')}
-          {this.renderDateFilter('endDate')}
-          <FilterItem>
+          {this.renderDateFilter('beginDate', 'Begin Date')}
+          {this.renderDateFilter('endDate', 'End Date')}
+          <FilterDateItem>
             <div className="icon-option">
               <Icon icon="checked-1" />
               <Select
@@ -122,8 +121,8 @@ class HistoriesHeader extends React.Component<Props, State> {
                 onChange={this.onSelect.bind(this, 'status')}
               />
             </div>
-          </FilterItem>
-          <FilterItem>
+          </FilterDateItem>
+          <FilterDateItem>
             <div className="icon-option">
               <Icon icon="swatchbook" />
               <Select
@@ -138,8 +137,8 @@ class HistoriesHeader extends React.Component<Props, State> {
                 onChange={this.onSelect.bind(this, 'triggerId')}
               />
             </div>
-          </FilterItem>
-          <FilterItem>
+          </FilterDateItem>
+          <FilterDateItem>
             <div className="icon-option">
               <Icon icon="cell" />
               <Select
@@ -151,7 +150,7 @@ class HistoriesHeader extends React.Component<Props, State> {
                 onChange={this.onSelect.bind(this, 'triggerType')}
               />
             </div>
-          </FilterItem>
+          </FilterDateItem>
           <Button
             btnStyle="primary"
             icon="filter-1"
