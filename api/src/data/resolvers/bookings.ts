@@ -1,5 +1,5 @@
 import { IBookingDocument } from '../../db/models/definitions/bookings';
-import { Brands, Users, Tags } from '../../db/models';
+import { Brands, Users, Tags, ProductCategories } from '../../db/models';
 
 export default {
   brand(booking: IBookingDocument) {
@@ -12,5 +12,9 @@ export default {
 
   tags(booking: IBookingDocument) {
     return Tags.find({ _id: booking.tagIds });
+  },
+
+  childCategories(booking: IBookingDocument) {
+    return ProductCategories.find({ parentId: booking.productCategoryId });
   }
 };
