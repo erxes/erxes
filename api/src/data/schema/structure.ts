@@ -13,6 +13,8 @@ export const types = `
     type Unit {
         _id: String!
         title: String
+        departmentId: String
+        supervisorId: String
         description: String
         department: Department
         users: [User]
@@ -38,6 +40,7 @@ const commonDepartmentParams = `
 const commonUnitParams = `
     title: String
     description: String
+    supervisorId: String
     departmentId: String
     userIds: [String]
 `;

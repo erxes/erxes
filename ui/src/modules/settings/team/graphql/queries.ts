@@ -106,6 +106,38 @@ const departmentDetail = `
   }
 `;
 
+const unitField = `
+  _id
+  title
+  description
+  departmentId
+  supervisorId
+  userIds
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+`;
+
+const units = `
+  query units {
+    units {
+      ${unitField}
+    }
+  }
+`;
+
+const unitDetail = `
+  query unitDetail($_id: String) {
+    unitDetail(_id: $_id) {
+      ${unitField}
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -114,5 +146,7 @@ export default {
   usersTotalCount,
   allUsers,
   departments,
-  departmentDetail
+  departmentDetail,
+  units,
+  unitDetail
 };

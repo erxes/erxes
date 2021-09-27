@@ -132,6 +132,44 @@ const departmentsRemove = `
   }
 `;
 
+const commonUnitParamsDef = `
+  $title: String
+  $description: String
+  $supervisorId: String
+  $departmentId: String
+  $userIds: [String]
+`;
+
+const commonUnitParams = `
+  title: $title,
+  description: $description
+  departmentId: $departmentId
+  supervisorId: $supervisorId
+  userIds: $userIds
+`;
+
+const unitsAdd = `
+  mutation unitsAdd(${commonUnitParamsDef}) {
+    unitsAdd(${commonUnitParams}) {
+      _id
+    }
+  }
+`;
+
+const unitsEdit = `
+  mutation unitsEdit($_id: String!, ${commonUnitParamsDef}) {
+    unitsEdit(_id: $_id, ${commonUnitParams}) {
+      _id
+    }
+  }
+`;
+
+const unitsRemove = `
+  mutation unitsRemove($_id: String!) {
+    unitsRemove(_id: $_id)
+  }
+`;
+
 export default {
   usersEditProfile,
   usersEdit,
@@ -144,5 +182,8 @@ export default {
   userExcludeSkill,
   departmentsAdd,
   departmentsEdit,
-  departmentsRemove
+  departmentsRemove,
+  unitsAdd,
+  unitsEdit,
+  unitsRemove
 };
