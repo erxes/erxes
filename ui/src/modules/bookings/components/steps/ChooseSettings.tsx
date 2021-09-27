@@ -48,7 +48,7 @@ function ChooseSettings({
           </Description>
           <FormControl
             type="text"
-            onChange={e => onChange('title', e)}
+            onChange={(e: any) => onChange('title', e.target.value)}
             defaultValue={title}
           />
         </FormGroup>
@@ -57,7 +57,7 @@ function ChooseSettings({
           <SelectBrand
             required={true}
             defaultValue={brandId}
-            onChange={e => onChange('brandId', e)}
+            onChange={(e: any) => onChange('brandId', e.target.value)}
           />
         </FormGroup>
 

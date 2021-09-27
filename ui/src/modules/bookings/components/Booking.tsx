@@ -86,6 +86,10 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
       return Alert.error('Enter a title');
     }
 
+    if (!state.productCategoryId) {
+      return Alert.error('Choose main product category');
+    }
+
     save(state, styles);
   };
 
