@@ -51,7 +51,16 @@ class ListGroupByContainer extends React.PureComponent<FinalStageProps, State> {
   }
 
   componentWillReceiveProps(nextProps: FinalStageProps) {
-    const { itemsQuery, itemsTotalCountQuery, options } = nextProps;
+    const {
+      itemsQuery,
+      itemsTotalCountQuery,
+      options,
+      queryParams
+    } = nextProps;
+
+    if (this.queryParamsChanged(this.props.queryParams, queryParams)) {
+      itemsQuery.refetch();
+    }
 
     if (!itemsQuery.loading && !itemsTotalCountQuery.loading) {
       const items = itemsQuery[options.queriesName.itemsQuery] || [];
@@ -62,6 +71,18 @@ class ListGroupByContainer extends React.PureComponent<FinalStageProps, State> {
       this.setState({ items, itemsTotalCount });
     }
   }
+
+  queryParamsChanged = (queryParams: any, nextQueryParams: any) => {
+    if (nextQueryParams.itemId || (!queryParams.key && queryParams.itemId)) {
+      return false;
+    }
+
+    if (queryParams !== nextQueryParams) {
+      return true;
+    }
+
+    return false;
+  };
 
   loadMore = () => {
     const { groupObj, groupType, queryParams, options } = this.props;

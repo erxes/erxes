@@ -30,27 +30,6 @@ type WithStagesProps = {
 } & Props;
 
 class WithStages extends Component<WithStagesProps> {
-  componentWillReceiveProps(nextProps: WithStagesProps) {
-    const { stagesQuery, queryParams } = this.props;
-    const { pipelineId } = queryParams;
-
-    if (this.queryParamsChanged(queryParams, nextProps.queryParams)) {
-      stagesQuery.refetch({ pipelineId });
-    }
-  }
-
-  queryParamsChanged = (queryParams: any, nextQueryParams: any) => {
-    if (nextQueryParams.itemId || (!queryParams.key && queryParams.itemId)) {
-      return false;
-    }
-
-    if (queryParams !== nextQueryParams) {
-      return true;
-    }
-
-    return false;
-  };
-
   render() {
     const {
       options,
