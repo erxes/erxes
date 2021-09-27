@@ -75,7 +75,7 @@ export default function Components() {
                   </Route>
                   
                   <Route path={'/components/info'}>
-                    <Info />
+                    <Infos />
                   </Route>
                 </Switch>
               </div>

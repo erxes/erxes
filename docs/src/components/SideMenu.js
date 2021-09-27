@@ -9,9 +9,9 @@ export const menuItems = [
       to: "/components/buttons",
     },
     {
-      name: "Alerts",
+      name: "Info",
       exact: true,
-      to: "/components/alerts",
+      to: "/components/Infos",
     },
 ];
 
