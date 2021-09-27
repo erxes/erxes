@@ -7,6 +7,7 @@ import importHistory from './importHistory';
 import notifications from './notifications';
 import pipelines from './pipelines';
 import robot from './robot';
+import users from './users';
 
 let subscriptions: any = {
   ...conversations,
@@ -17,7 +18,8 @@ let subscriptions: any = {
   ...robot,
   ...checklists,
   ...pipelines,
-  ...calendars
+  ...calendars,
+  ...users
 };
 
 const { NODE_ENV } = process.env;

@@ -1,4 +1,5 @@
 import {
+  Boards,
   Checklists,
   Companies,
   Conformities,
@@ -6,6 +7,8 @@ import {
   Deals,
   GrowthHacks,
   InternalNotes,
+  Pipelines,
+  Stages,
   Tasks,
   Tickets
 } from '.';
@@ -198,12 +201,14 @@ export const getCollection = (type: string) => {
   let collection;
   let create;
   let update;
+  let remove;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
       collection = Deals;
       create = Deals.createDeal;
       update = Deals.updateDeal;
+      remove = Deals.removeDeals;
       break;
     }
     case BOARD_TYPES.GROWTH_HACK: {
@@ -216,21 +221,23 @@ export const getCollection = (type: string) => {
       collection = Tasks;
       create = Tasks.createTask;
       update = Tasks.updateTask;
+      remove = Tasks.removeTasks;
       break;
     }
     case BOARD_TYPES.TICKET: {
       collection = Tickets;
       create = Tickets.createTicket;
       update = Tickets.updateTicket;
+      remove = Tickets.removeTickets;
       break;
     }
   }
 
-  return { collection, create, update };
+  return { collection, create, update, remove };
 };
 
-export const getItem = async (type: string, _id: string) => {
-  const item = await getCollection(type).collection.findOne({ _id });
+export const getItem = async (type: string, doc: any) => {
+  const item = await getCollection(type).collection.findOne({ ...doc });
 
   if (!item) {
     throw new Error(`${type} not found`);
@@ -285,4 +292,13 @@ export const destroyBoardItemRelations = async (
     mainTypeId: contentTypeId
   });
   await InternalNotes.deleteMany({ contentType, contentTypeId });
+};
+
+// Get board item link
+export const getBoardItemLink = async (stageId: string, itemId: string) => {
+  const stage = await Stages.getStage(stageId);
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  const board = await Boards.getBoard(pipeline.boardId);
+
+  return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };

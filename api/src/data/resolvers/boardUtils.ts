@@ -66,12 +66,6 @@ export const sendNotifications = async ({
     content = `${contentType} '${item.name}'`;
   }
 
-  let route = '';
-
-  if (contentType === 'ticket') {
-    route = '/inbox';
-  }
-
   const usersToExclude = [
     ...(removedUsers || []),
     ...(invitedUsers || []),
@@ -86,7 +80,7 @@ export const sendNotifications = async ({
     notifType: type,
     action: action ? action : `has updated ${contentType}`,
     content,
-    link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
+    link: `/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
 
     // exclude current user, invited user and removed users
     receivers: (await notifiedUserIds(item)).filter(id => {

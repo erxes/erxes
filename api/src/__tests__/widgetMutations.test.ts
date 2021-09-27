@@ -10,6 +10,7 @@ import widgetMutations, {
 import * as utils from '../data/utils';
 import {
   brandFactory,
+  companyFactory,
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
@@ -191,7 +192,7 @@ describe('messenger connect', () => {
 
     expect(integrationId).toBe(_integration._id);
     expect(brand.code).toBe(_brand.code);
-    expect(messengerData.formCode).toBe('formCode');
+    expect(messengerData.formCodes[0]).toBe('formCode');
     expect(messengerData.knowledgeBaseTopicId).toBe('topicId');
 
     mock.restore();
@@ -204,12 +205,73 @@ describe('messenger connect', () => {
     const email = 'newCustomer@gmail.com';
     const now = new Date();
 
+    await fieldFactory({
+      contentType: 'customer',
+      validation: 'date',
+      text: 'dateField'
+    });
+
     const { customerId } = await widgetMutations.widgetsMessengerConnect(
       {},
       {
         brandCode: _brand.code || '',
         email,
-        companyData: { name: 'company' },
+        data: { dateField: new Date() },
+        companyData: {
+          name: 'company',
+          email: 'mail@company.com',
+          phone: '123456789'
+        },
+        deviceToken: '111'
+      }
+    );
+
+    expect(customerId).toBeDefined();
+
+    const customer = await Customers.findById(customerId);
+
+    if (!customer) {
+      throw new Error('customer not found');
+    }
+
+    expect(customer._id).toBeDefined();
+    expect(customer.primaryEmail).toBe(email);
+    expect(customer.emails).toContain(email);
+    expect(customer.integrationId).toBe(_integration._id);
+    expect((customer.deviceTokens || []).length).toBe(1);
+    expect(customer.deviceTokens).toContain('111');
+    expect(customer.createdAt >= now).toBeTruthy();
+    expect(customer.sessionCount).toBe(1);
+    mock.restore();
+  });
+
+  test('updates company', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+    const email = 'newCustomer@gmail.com';
+    const now = new Date();
+
+    await fieldFactory({
+      contentType: 'customer',
+      validation: 'date',
+      text: 'dateField'
+    });
+
+    await companyFactory({ primaryName: 'test company' });
+
+    const { customerId } = await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: _brand.code || '',
+        email,
+        data: { dateField: new Date() },
+        companyData: {
+          name: 'test company',
+          email: 'testmail@company.com',
+          phone: '0987654321',
+          code: '1234'
+        },
         deviceToken: '111'
       }
     );
@@ -548,6 +610,43 @@ describe('insertMessage()', () => {
       ]);
     } else {
       fail('Bot message not found');
+    }
+
+    sendRequestMock.restore();
+  });
+
+  test('Bot message: Failed to connect to BOTPRESS', async () => {
+    const sendRequestMock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve(new Error('Failed to connect to BOTPRESS'));
+    });
+
+    const conversation = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
+    });
+
+    _integrationBot = await integrationFactory({
+      brandId: Random.id(),
+      kind: 'messenger',
+      messengerData: {
+        botEndpointUrl: 'botEndpointUrl',
+        botShowInitialMessage: false
+      }
+    });
+
+    try {
+      await widgetMutations.widgetsInsertMessage(
+        {},
+        {
+          contentType: MESSAGE_TYPES.TEXT,
+          integrationId: _integrationBot._id,
+          message: 'User message',
+          customerId: _customer._id,
+          conversationId: conversation._id
+        },
+        context
+      );
+    } catch (e) {
+      expect(e.message).toBe('Failed to connect to BOTPRESS');
     }
 
     sendRequestMock.restore();

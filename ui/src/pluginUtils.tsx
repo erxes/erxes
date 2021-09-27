@@ -1,18 +1,20 @@
 import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import { IItem } from 'modules/boards/types';
-import { __ } from 'modules/common/utils';
+import { getEnv, __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import pluginModules from './plugins';
+import { ISubNav } from 'modules/layout/components/Navigation';
 
-export const pluginsOfRoutes = (currentUser: IUser) => {
+export const pluginsOfRoutes = (currentUser?: IUser) => {
   const plugins: any = [];
   const pluginRoutes: any = [];
   const specialPluginRoutes: any = [];
+  let preAuth: any = {};
 
   for (const pluginName of Object.keys(pluginModules)) {
     const plugin = pluginModules[pluginName]();
@@ -21,6 +23,10 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
       name: pluginName,
       ...plugin
     });
+
+    if (plugin.preAuth) {
+      preAuth = plugin.preAuth;
+    }
 
     if (plugin.response) {
       const Component = plugin.response;
@@ -41,7 +47,29 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
     }
   }
 
-  return { plugins, pluginRoutes, specialPluginRoutes };
+  const { REACT_APP_API_URL } = getEnv();
+
+  const preAuthData: {
+    isReady: boolean;
+    pluginsData: any;
+  } = {
+    isReady: false,
+    pluginsData: {}
+  };
+
+  if (typeof preAuth === 'function') {
+    preAuth({ API_URL: REACT_APP_API_URL }).then(result => {
+      preAuthData.isReady = true;
+
+      if (result && !result.error) {
+        preAuthData.pluginsData = Object.assign({}, result);
+      }
+    });
+  } else {
+    preAuthData.isReady = true;
+  }
+
+  return { plugins, pluginRoutes, preAuthData, specialPluginRoutes };
 };
 
 const PluginsWrapper = ({
@@ -74,6 +102,7 @@ export const pluginsOfNavigations = (
     text: string,
     url: string,
     icon: string,
+    childrens?: ISubNav[],
     label?: React.ReactNode
   ) => React.ReactNode
 ) => {

@@ -22,7 +22,16 @@ interface IProps extends IRouterProps {
   closeLoadingBar: () => void;
 }
 
-class MainLayout extends React.Component<IProps> {
+class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
+  constructor(props) {
+    super(props);
+    const hasWideNav = localStorage.getItem('navigation');
+
+    this.state = {
+      isCollapsed: hasWideNav ? (hasWideNav === 'true' ? true : false) : false
+    };
+  }
+
   componentDidMount() {
     const { history, currentUser } = this.props;
 
@@ -58,6 +67,12 @@ class MainLayout extends React.Component<IProps> {
     bustIframe();
   }
 
+  onCollapseNavigation = () => {
+    this.setState({ isCollapsed: !this.state.isCollapsed }, () => {
+      localStorage.setItem('navigation', this.state.isCollapsed.toString());
+    });
+  };
+
   getLastImport = () => {
     return localStorage.getItem('erxes_import_data') || '';
   };
@@ -76,6 +91,7 @@ class MainLayout extends React.Component<IProps> {
 
   render() {
     const { currentUser, children, isShownIndicator, history } = this.props;
+    const { isCollapsed } = this.state;
 
     if (history.location.pathname.startsWith('/videoCall')) {
       return children;
@@ -86,9 +102,15 @@ class MainLayout extends React.Component<IProps> {
         <div id="anti-clickjack" style={{ display: 'none' }} />
         {this.renderBackgroundProccess()}
         <Layout isSqueezed={isShownIndicator}>
-          {currentUser && <Navigation currentUser={currentUser} />}
+          {currentUser && (
+            <Navigation
+              currentUser={currentUser}
+              collapsed={isCollapsed}
+              onCollapseNavigation={this.onCollapseNavigation}
+            />
+          )}
 
-          <MainWrapper>
+          <MainWrapper collapsed={isCollapsed}>
             <NotifProvider currentUser={currentUser}>
               <MainBar />
             </NotifProvider>
@@ -98,7 +120,7 @@ class MainLayout extends React.Component<IProps> {
           <DetectBrowser />
         </Layout>
 
-        <Robot />
+        <Robot collapsed={isCollapsed} />
       </>
     );
   }

@@ -20,6 +20,7 @@ type IOverlayProps = {
   toggleConfirm: (callback?: () => void) => void;
   onSelectLabels: (selectedLabelIds: string[]) => void;
   onClose: () => void;
+  onChangeRefresh: () => void;
 };
 
 type IOverlayState = {
@@ -110,7 +111,8 @@ export default class Overlay extends React.Component<
       pipelineId,
       toggleConfirm,
       selectedLabelIds,
-      onSelectLabels
+      onSelectLabels,
+      onChangeRefresh
     } = this.props;
 
     if (showForm) {
@@ -124,6 +126,7 @@ export default class Overlay extends React.Component<
             afterSave={this.onChangeForm}
             labelId={labelId}
             toggleConfirm={toggleConfirm}
+            onChangeRefresh={onChangeRefresh}
           />
         </LabelWrapper>
       );

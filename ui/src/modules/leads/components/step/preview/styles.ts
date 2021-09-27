@@ -39,7 +39,6 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   background-color: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
   overflow: auto;
-  height: 100%;
 
   button {
     width: 100%;
@@ -174,16 +173,17 @@ const CenterContainer = styled.div`
   height: 100%;
 `;
 
-const CallOutBody = styled.div`
+const CallOutBody = styledTS<{ imgSize?: string }>(styled.div)`
   color: #5c5c5c;
   font-size: 14px;
   display: inline-block;
   margin-bottom: ${dimensions.unitSpacing}px;
 
   img {
-    max-width: 100px;
+    width: ${props => props.imgSize || '100%'};
     float: left;
     margin-right: ${dimensions.unitSpacing}px;
+    padding-bottom: ${props => props.imgSize === '100%' && '10px'};
   }
 `;
 
@@ -239,6 +239,17 @@ const ThankContent = styled.div`
   text-align: center;
 `;
 
+const PrintButton = styled.div`
+  button {
+    margin-right: ${dimensions.unitSpacing}px;
+    float: right;
+
+    i:before {
+      font-size: ${dimensions.coreSpacing}px;
+    }
+  }
+`;
+
 export {
   PreviewTitle,
   PreviewBody,
@@ -252,5 +263,6 @@ export {
   OverlayTrigger,
   Embedded,
   ThankContent,
-  PreviewContainer
+  PreviewContainer,
+  PrintButton
 };

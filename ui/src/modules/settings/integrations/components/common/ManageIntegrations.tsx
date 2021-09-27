@@ -201,20 +201,10 @@ class ManageIntegrations extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            uppercase={false}
-            icon="times-circle"
-            onClick={closeModal}
-          >
+          <Button btnStyle="simple" icon="times-circle" onClick={closeModal}>
             Cancel
           </Button>
-          <Button
-            btnStyle="success"
-            uppercase={false}
-            icon="check-circle"
-            onClick={this.save}
-          >
+          <Button btnStyle="success" icon="check-circle" onClick={this.save}>
             Save
           </Button>
         </ModalFooter>

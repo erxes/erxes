@@ -1,9 +1,11 @@
+import { readFile } from 'erxes-ui/lib/utils/core';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
+import Spinner from 'modules/common/components/Spinner';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { uploadHandler } from 'modules/common/utils';
@@ -24,10 +26,10 @@ type Props = {
       | 'bodyValue'
       | 'calloutTitle'
       | 'isSkip'
-      | 'logoPreviewUrl'
       | 'logo'
       | 'logoPreviewStyle'
-      | 'defaultValue',
+      | 'defaultValue'
+      | 'calloutImgSize',
     value: string | boolean | object | any
   ) => void;
   calloutTitle?: string;
@@ -37,17 +39,18 @@ type Props = {
   theme: string;
   image?: string;
   skip?: boolean;
+  calloutImgSize?: string;
 };
 
 type State = {
   logo?: string;
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
-  logoPreviewUrl?: string;
   calloutBtnText?: string;
   bodyValue?: string;
   calloutTitle?: string;
   isSkip?: boolean;
+  calloutImgSize?: string;
 };
 
 class CallOut extends React.Component<Props, State> {
@@ -55,7 +58,7 @@ class CallOut extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      logo: '',
+      logo: props.image,
       logoPreviewStyle: {},
       defaultValue
     };
@@ -81,9 +84,9 @@ class CallOut extends React.Component<Props, State> {
     }
   };
 
-  removeImage = (value: string) => {
-    this.setState({ logoPreviewUrl: '' });
-    this.props.onChange('logoPreviewUrl', value);
+  removeImage = () => {
+    this.setState({ logo: '' });
+    this.props.onChange('logo', '');
   };
 
   handleImage = (e: React.FormEvent<HTMLInputElement>) => {
@@ -101,19 +104,20 @@ class CallOut extends React.Component<Props, State> {
           logo: response,
           logoPreviewStyle: { opacity: '1' }
         });
-      },
 
-      afterRead: ({ result }) => {
-        this.setState({ logoPreviewUrl: result });
-        this.props.onChange('logoPreviewUrl', result);
+        this.props.onChange('logo', response);
       }
     });
   };
 
   renderImagePreview() {
-    const { image } = this.props;
+    const { logo, logoPreviewStyle } = this.state;
 
-    if (!image) {
+    if (logoPreviewStyle && logoPreviewStyle.opacity === '0.9') {
+      return <Spinner />;
+    }
+
+    if (!logo) {
       return (
         <>
           <Icon icon="plus" />
@@ -122,7 +126,7 @@ class CallOut extends React.Component<Props, State> {
       );
     }
 
-    return <ImagePreview src={image} alt="previewImage" />;
+    return <ImagePreview src={readFile(logo)} alt="previewImage" />;
   }
 
   renderUploadImage() {
@@ -130,8 +134,8 @@ class CallOut extends React.Component<Props, State> {
 
     const onChange = (e: React.FormEvent<HTMLInputElement>) =>
       this.handleImage(e);
-    const onClick = (e: React.MouseEvent<HTMLElement>) =>
-      this.removeImage((e.currentTarget as HTMLInputElement).value);
+
+    const onClick = () => this.removeImage();
 
     return (
       <ImageUpload>
@@ -182,7 +186,13 @@ class CallOut extends React.Component<Props, State> {
   };
 
   render() {
-    const { skip, calloutTitle, bodyValue, calloutBtnText } = this.props;
+    const {
+      skip,
+      calloutTitle,
+      bodyValue,
+      calloutBtnText,
+      calloutImgSize
+    } = this.props;
 
     const onChangeTitle = (e: React.FormEvent<HTMLElement>) =>
       this.onChangeFunction(
@@ -199,6 +209,12 @@ class CallOut extends React.Component<Props, State> {
     const onChangeBtnText = e =>
       this.onChangeFunction(
         'calloutBtnText',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const onChangeImageWidth = e =>
+      this.onChangeFunction(
+        'calloutImgSize',
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -247,6 +263,19 @@ class CallOut extends React.Component<Props, State> {
               <ControlLabel>Featured image</ControlLabel>
               <p>{__('You can upload only image file')}</p>
               {this.renderUploadImage()}
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Callout image size</ControlLabel>
+              <FormControl
+                id="validation"
+                componentClass="select"
+                value={calloutImgSize}
+                onChange={onChangeImageWidth}
+              >
+                <option value="100%">{__('Full width')}</option>
+                <option value="50%">{__('Half width')}</option>
+              </FormControl>
             </FormGroup>
           </LeftItem>
           {this.footerActions()}

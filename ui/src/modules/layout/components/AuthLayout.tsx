@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
-import { __, bustIframe } from 'modules/common/utils';
+import { __, bustIframe, readFile } from 'modules/common/utils';
+import { pluginsOfRoutes } from 'pluginUtils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -17,7 +18,12 @@ type Props = {
   col?: { first: number; second: number };
 };
 
-class AuthLayout extends React.Component<Props, {}> {
+type State = {
+  isReady: boolean;
+  pluginsData: any;
+};
+
+class AuthLayout extends React.Component<Props & { pluginsData }, {}> {
   renderContent(desciption: string, link: string) {
     return (
       <MobileRecommend>
@@ -50,7 +56,7 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   renderDesciption() {
-    const { description } = this.props;
+    const { description, pluginsData } = this.props;
 
     if (description) {
       return (
@@ -61,16 +67,35 @@ class AuthLayout extends React.Component<Props, {}> {
       );
     }
 
+    let url = "__('Homepage link')";
+    let descriptions = 'Open Source Growth Marketing Platform';
+    let src = '/images/logo.png';
+    let textColor = '';
+    const content =
+      'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.';
+
+    if (pluginsData.url) {
+      url = pluginsData.url;
+    }
+
+    if (pluginsData.pageDesc) {
+      descriptions = pluginsData.pageDesc;
+    }
+
+    if (pluginsData.loginPageLogo) {
+      src = readFile(pluginsData.loginPageLogo);
+    }
+
+    if (pluginsData.textColor) {
+      textColor = pluginsData.textColor;
+    }
+
     return (
       <>
-        <img src="/images/logo.png" alt="erxes" />
-        <h1>{__('Open Source Growth Marketing Platform')}</h1>
-        <p>
-          {__(
-            'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
-          )}
-        </p>
-        <a href={__('Homepage link')}>« {__('Go to home page')}</a>
+        <img src={src} alt="erxes" />
+        <h1 style={{ color: textColor }}>{__(descriptions)}</h1>
+        <p>{__(content)}</p>
+        <a href={__(url)}>« {__('Go to home page')}</a>
       </>
     );
   }
@@ -79,12 +104,15 @@ class AuthLayout extends React.Component<Props, {}> {
     // click-jack attack defense
     bustIframe();
   }
-
   render() {
-    const { content, col = { first: 6, second: 5 } } = this.props;
+    const { content, col = { first: 6, second: 5 }, pluginsData } = this.props;
+    let backgroundColor = '';
+    if (pluginsData.backgroundColor) {
+      backgroundColor = pluginsData.backgroundColor;
+    }
 
     return (
-      <Authlayout className="auth-container">
+      <Authlayout className="auth-container" backgroundColor={backgroundColor}>
         <AuthContent>
           <Container>
             <Col md={col.first}>
@@ -98,5 +126,32 @@ class AuthLayout extends React.Component<Props, {}> {
     );
   }
 }
+class AuthLayoutWrapper extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-export default AuthLayout;
+    this.state = {
+      isReady: false,
+      pluginsData: {}
+    };
+  }
+
+  async componentDidMount(): Promise<void> {
+    const { preAuthData } = pluginsOfRoutes();
+    this.setState({ ...preAuthData });
+  }
+
+  render() {
+    const { isReady, pluginsData } = this.state;
+
+    if (!isReady) {
+      return null;
+    }
+
+    const props = { ...this.props, pluginsData };
+
+    return <AuthLayout {...props} key={Math.random()} />;
+  }
+}
+
+export default AuthLayoutWrapper;
