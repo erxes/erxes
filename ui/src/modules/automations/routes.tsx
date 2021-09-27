@@ -2,6 +2,7 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import Confirmation from './containers/Confirmation';
 
 const Details = asyncComponent(() =>
   import(
@@ -13,10 +14,16 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "AutomationsList" */ './containers/List')
 );
 
-const details = ({ match }) => {
+const details = ({ match, location, history }) => {
   const id = match.params.id;
+  const queryParams = queryString.parse(location.search);
 
-  return <Details id={id} />;
+  return (
+    <>
+      <Confirmation id={id} history={history} queryParams={queryParams} />
+      <Details id={id} />
+    </>
+  );
 };
 
 const list = ({ location }) => {

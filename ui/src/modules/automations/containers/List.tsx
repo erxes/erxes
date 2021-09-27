@@ -76,8 +76,9 @@ class ListContainer extends React.Component<FinalProps, State> {
         }
       })
         .then(data => {
-          history.push(`/automations/details/${data.data.automationsAdd._id}`);
-          Alert.success(`You successfully created an automation`);
+          history.push(
+            `/automations/details/${data.data.automationsAdd._id}?isCreate=true`
+          );
         })
 
         .catch(error => {
@@ -146,7 +147,7 @@ const generateParams = ({ queryParams }) => {
   };
 };
 
-const getRefetchQueries = (queryParams?: any) => {
+export const getRefetchQueries = (queryParams?: any) => {
   return [
     {
       query: gql(queries.automationsMain),

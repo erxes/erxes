@@ -58,6 +58,7 @@ type Props = {
   automation: IAutomation;
   automationNotes?: IAutomationNote[];
   save: (params: any) => void;
+  id: string;
 };
 
 type State = {
@@ -167,7 +168,6 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    console.log('why?');
     document.removeEventListener('click', this.handleClickOutside, true);
   }
 

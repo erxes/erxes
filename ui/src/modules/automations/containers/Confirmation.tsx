@@ -1,0 +1,68 @@
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
+import { RemoveMutationResponse, RemoveMutationVariables } from '../types';
+import { getRefetchQueries } from './List';
+import Confirmation from '../components/confirmation';
+import ConfirmationPopup from '../components/confirmation/popup';
+
+type Props = {
+  id: string;
+  history: any;
+  queryParams: any;
+};
+
+type FinalProps = {} & Props & RemoveMutationResponse;
+
+class ConfirmationContainer extends React.Component<FinalProps> {
+  render() {
+    const { automationsRemove, queryParams } = this.props;
+
+    const removeAutomations = ({ automationIds }, navigateToNextLocation) => {
+      automationsRemove({
+        variables: { automationIds }
+      })
+        .then(() => {
+          navigateToNextLocation();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    const updatedProps = {
+      ...this.props,
+      removeAutomations
+    };
+
+    return (
+      <Confirmation when={!!this.props.id} {...updatedProps}>
+        {(isOpen, onConfirm, onCancel) => (
+          <ConfirmationPopup
+            isOpen={isOpen}
+            queryParams={queryParams}
+            onConfirm={onConfirm}
+            onCancel={onCancel}
+          />
+        )}
+      </Confirmation>
+    );
+  }
+}
+
+export default withProps<Props>(
+  compose(
+    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
+      gql(mutations.automationsRemove),
+      {
+        name: 'automationsRemove',
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
+      }
+    )
+  )(ConfirmationContainer)
+);
