@@ -171,3 +171,14 @@ table tr td > img {
 		width: 520px;
 	}
 }
+
+.componentsContainer {
+	padding: 0;
+	margin: 0;
+	height: 100vh;
+}
+
+.page {
+	margin-left: 350px;
+	height: 100vh;
+}
