@@ -6,7 +6,6 @@ import Form from 'modules/common/components/form/Form';
 import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
-import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 
@@ -70,17 +69,15 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <SelectMemberStyled zIndex={2002}>
-            <ControlLabel>{__('Supervisor')}</ControlLabel>
+          <ControlLabel>{__('Supervisor')}</ControlLabel>
 
-            <SelectTeamMembers
-              label="Choose a supervisor"
-              name="supervisorId"
-              initialValue={supervisorId}
-              onSelect={setSupervisorId}
-              multi={false}
-            />
-          </SelectMemberStyled>
+          <SelectTeamMembers
+            label="Choose a supervisor"
+            name="supervisorId"
+            initialValue={supervisorId}
+            onSelect={setSupervisorId}
+            multi={false}
+          />
         </FormGroup>
         {(!object._id || (object._id && object.departmentId)) && (
           <FormGroup>
@@ -97,16 +94,14 @@ export default function DepartmentForm(props: Props) {
           </FormGroup>
         )}
         <FormGroup>
-          <SelectMemberStyled zIndex={2002}>
-            <ControlLabel>{__('Team Members')}</ControlLabel>
+          <ControlLabel>{__('Team Members')}</ControlLabel>
 
-            <SelectTeamMembers
-              label="Choose team members"
-              name="userIds"
-              initialValue={userIds}
-              onSelect={setUserIds}
-            />
-          </SelectMemberStyled>
+          <SelectTeamMembers
+            label="Choose team members"
+            name="userIds"
+            initialValue={userIds}
+            onSelect={setUserIds}
+          />
         </FormGroup>
         <ModalFooter>
           <Button
