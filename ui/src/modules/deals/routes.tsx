@@ -48,7 +48,13 @@ const deals = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <DealBoard queryParams={queryParams} />;
+  return <DealBoard viewType="board" queryParams={queryParams} />;
+};
+
+const activity = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="activity" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {
@@ -93,6 +99,12 @@ const routes = () => {
         exact={true}
         path="/deal/conversion"
         component={conversion}
+      />
+      <Route
+        key="deals/activity"
+        exact={true}
+        path="/deal/activity"
+        component={activity}
       />
     </React.Fragment>
   );

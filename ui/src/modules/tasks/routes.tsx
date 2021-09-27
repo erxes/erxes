@@ -42,7 +42,7 @@ const tasks = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard queryParams={queryParams} />;
+  return <TaskBoard viewType="board" queryParams={queryParams} />;
 };
 
 const activity = ({ location }) => {
