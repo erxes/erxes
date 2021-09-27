@@ -76,7 +76,7 @@ class AutomationsList extends React.Component<IProps, State> {
 
   removeAutomations = automations => {
     const automationIds: string[] = [];
-    console.log(automations);
+
     automations.forEach(automation => {
       automationIds.push(automation._id);
     });

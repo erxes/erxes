@@ -571,6 +571,7 @@ export const Checkbox = styled.div`
 
   > label {
     margin-bottom: 5px;
+    display: block;
   }
 `;
 
