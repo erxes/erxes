@@ -84,7 +84,7 @@ const TaskMainActionBar = (props: Props) => {
                 {__('Calendar')}
               </Link>
             </li>
-            <li key="list">
+            <li key="activity">
               <Link
                 to={activityLink}
                 className={viewType === 'activity' ? 'active' : ''}
@@ -123,7 +123,7 @@ const TaskMainActionBar = (props: Props) => {
     rightContent: viewChooser
   };
 
-  return <MainActionBar {...extendedProps} />;
+  return <MainActionBar viewType={viewType} {...extendedProps} />;
 };
 
 export default TaskMainActionBar;
