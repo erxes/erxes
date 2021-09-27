@@ -150,6 +150,8 @@ class UserForm extends React.Component<Props, State> {
       links[link.value] = finalValues[link.value];
     });
 
+    console.log('finalValues: ', finalValues);
+
     return {
       _id: finalValues._id,
       username: finalValues.username,
@@ -158,7 +160,9 @@ class UserForm extends React.Component<Props, State> {
         avatar: this.state.avatar,
         shortName: finalValues.shortName,
         fullName: finalValues.fullName,
+        birthDate: finalValues.birthDate,
         position: finalValues.position,
+        workStartedDate: finalValues.workStartedDate,
         location: finalValues.location,
         description: finalValues.description,
         operatorPhone: finalValues.operatorPhone
