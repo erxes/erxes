@@ -29,7 +29,6 @@ class Confirmation extends React.Component<
     const { history, when } = this.props;
 
     this.unblock = history.block(nextLocation => {
-      console.log('didmoun', history, nextLocation);
       if (when && nextLocation.pathname !== history.location.pathname) {
         this.setState({
           showModal: true,

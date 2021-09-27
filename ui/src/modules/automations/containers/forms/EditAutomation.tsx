@@ -5,7 +5,6 @@ import Spinner from 'modules/common/components/Spinner';
 import { withProps, Alert } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { useLocation, useHistory } from 'react-router-dom';
 import { IUser } from '../../../auth/types';
 import AutomationForm from '../../components/forms/AutomationForm';
 import { queries, mutations } from '../../graphql';
@@ -37,20 +36,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     editAutomationMutation
   } = props;
 
-  const location = useLocation();
-  const history = useHistory();
-
   const save = (doc: IAutomation) => {
-    const queryParams = new URLSearchParams(location.search);
-
-    if (queryParams.has('isCreate')) {
-      queryParams.delete('isCreate');
-
-      history.replace({
-        search: queryParams.toString()
-      });
-    }
-
     editAutomationMutation({
       variables: {
         ...doc
@@ -58,8 +44,6 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success(`You successfully updated a ${doc.name || 'status'}`);
-
-        history.push(`/automations/details/${props.id}`);
       })
 
       .catch(error => {

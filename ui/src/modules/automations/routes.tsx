@@ -18,7 +18,6 @@ const details = ({ match, location, history }) => {
   const id = match.params.id;
   const queryParams = queryString.parse(location.search);
 
-  console.log(location);
   return (
     <>
       <Confirmation id={id} history={history} queryParams={queryParams} />
