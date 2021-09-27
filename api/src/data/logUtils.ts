@@ -123,6 +123,7 @@ export interface ILogQueryParams {
 export interface IActivityLogQueryParams {
   contentId?: any;
   contentType?: string;
+  action?: string;
 }
 
 interface IDescriptions {

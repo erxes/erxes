@@ -15,5 +15,7 @@ export const types = `
 `;
 
 export const queries = `
-  activityLogs(contentType: String!, contentId: String!, activityType: String, limit: Int): [ActivityLog]
+  activityLogs(contentType: String!, contentId: String, activityType: String, limit: Int): [ActivityLog]
+
+  activityLogsByType(contentType: String, action: String, activityType: String): JSON
 `;

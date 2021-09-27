@@ -227,6 +227,18 @@ const activityLogQueries = {
     });
 
     return activities;
+  },
+
+  async activityLogsByType(_root, { contentType, action }) {
+    const logs = await fetchLogs(
+      {
+        contentType,
+        action
+      },
+      'activityLogs'
+    );
+
+    return logs;
   }
 };
 
