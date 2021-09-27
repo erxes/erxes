@@ -3,7 +3,9 @@ export const types = `
     avatar: String
     fullName: String
     shortName: String
+    birthDate: Date
     position: String
+    workStartedDate: Date
     location: String
     description: String
     operatorPhone: String
@@ -25,7 +27,9 @@ export const types = `
     avatar: String
     fullName: String
     shortName: String
+    birthDate: Date
     position: String
+    workStartedDate: Date
     location: String
     description: String
     operatorPhone: String

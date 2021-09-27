@@ -3,8 +3,8 @@ import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
 import {
   destroyBoardItemRelations,
   getCollection,
-  getCompanies,
-  getCustomers,
+  getCompanyIds,
+  getCustomerIds,
   getItem,
   getNewOrder
 } from '../../../db/models/boardUtils';
@@ -549,9 +549,10 @@ export const itemsCopy = async (
   extraDocParam: string[],
   modelCreate: any
 ) => {
-  const item = await getItem(type, { _id });
+  const { collection } = getCollection(type);
+  const item = await collection.findOne({ _id }).lean();
 
-  const doc = await prepareBoardItemDoc(_id, type, user._id);
+  const doc = await prepareBoardItemDoc(item, collection, user._id);
 
   for (const param of extraDocParam) {
     doc[param] = item[param];
@@ -559,14 +560,14 @@ export const itemsCopy = async (
 
   const clone = await modelCreate(doc);
 
-  const companies = await getCompanies(type, _id);
-  const customers = await getCustomers(type, _id);
+  const companyIds = await getCompanyIds(type, _id);
+  const customerIds = await getCustomerIds(type, _id);
 
   await createConformity({
     mainType: type,
     mainTypeId: clone._id,
-    customerIds: customers.map(c => c._id),
-    companyIds: companies.map(c => c._id)
+    customerIds,
+    companyIds
   });
 
   await copyChecklists({
@@ -591,6 +592,8 @@ export const itemsCopy = async (
       }
     }
   });
+
+  await publishHelperItemsConformities(clone, stage);
 
   return clone;
 };
@@ -641,4 +644,22 @@ export const itemsArchive = async (
   }
 
   return 'ok';
+};
+
+export const publishHelperItemsConformities = async (
+  item: IDealDocument | ITicketDocument | ITaskDocument | IGrowthHackDocument,
+  stage: IStageDocument
+) => {
+  graphqlPubsub.publish('pipelinesChanged', {
+    pipelinesChanged: {
+      _id: stage.pipelineId,
+      proccessId: Math.random().toString(),
+      action: 'itemOfConformitiesUpdate',
+      data: {
+        item: {
+          ...item
+        }
+      }
+    }
+  });
 };
