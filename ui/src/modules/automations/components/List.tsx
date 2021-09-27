@@ -4,7 +4,7 @@ import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import withTableWrapper from 'modules/common/components/table/withTableWrapper';
-import { __, Alert, confirm, router } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import React from 'react';
@@ -76,7 +76,7 @@ class AutomationsList extends React.Component<IProps, State> {
 
   removeAutomations = automations => {
     const automationIds: string[] = [];
-
+    console.log(automations);
     automations.forEach(automation => {
       automationIds.push(automation._id);
     });
@@ -129,11 +129,12 @@ class AutomationsList extends React.Component<IProps, State> {
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
               <th>{__('Triggers')}</th>
-              <th>{__('Actions')}</th>
+              <th>{__('Action')}</th>
               <th>{__('Last updated by')}</th>
               <th>{__('Created by')}</th>
               <th>{__('Last update')}</th>
               <th>{__('Created date')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
@@ -143,6 +144,7 @@ class AutomationsList extends React.Component<IProps, State> {
                 automation={automation}
                 isChecked={bulk.includes(automation)}
                 history={history}
+                removeAutomations={this.removeAutomations}
                 toggleBulk={toggleBulk}
               />
             ))}
@@ -154,22 +156,13 @@ class AutomationsList extends React.Component<IProps, State> {
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeAutomations(bulk);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-
       actionBarLeft = (
         <BarItems>
           <Button
             btnStyle="danger"
             size="small"
             icon="cancel-1"
-            onClick={onClick}
+            onClick={() => this.removeAutomations(bulk)}
           >
             Remove
           </Button>

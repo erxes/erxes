@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Bulk from 'modules/common/components/Bulk';
-import { Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -94,21 +94,23 @@ class ListContainer extends React.Component<FinalProps, State> {
     };
 
     const removeAutomations = ({ automationIds }, emptyBulk) => {
-      automationsRemove({
-        variables: { automationIds }
-      })
-        .then(() => {
-          emptyBulk();
-          Alert.success(
-            'You successfully deleted a automation. The changes will take a few seconds',
-            4500
-          );
-
-          this.refetchWithDelay();
+      confirm().then(() => {
+        automationsRemove({
+          variables: { automationIds }
         })
-        .catch(e => {
-          Alert.error(e.message);
-        });
+          .then(() => {
+            emptyBulk();
+            Alert.success(
+              'You successfully deleted a automation. The changes will take a few seconds',
+              4500
+            );
+
+            this.refetchWithDelay();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
