@@ -38,7 +38,7 @@ class ActivityLogs extends React.Component<Props> {
         <Icon icon="edit-3" size={25} color="#FDA50D" />
         <NameCardStyle>
           <NameCard
-            user={log.newData.assignedUserId}
+            user={(log.newData || {}).assignedUserId}
             singleLine={true}
             avatarSize={30}
           />
