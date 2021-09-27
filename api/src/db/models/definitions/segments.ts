@@ -170,7 +170,7 @@ export const segmentSchema = schemaWrapper(
 
     conditions: field({ type: [conditionSchema] }),
 
-    boardId: field({ type: String }),
-    pipelineId: field({ type: String })
+    boardId: field({ type: String, optional: true }),
+    pipelineId: field({ type: String, optional: true })
   })
 );
