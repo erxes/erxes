@@ -26,14 +26,18 @@ class Confirmation extends React.Component<
   }
 
   componentDidMount() {
-    this.unblock = this.props.history.block(nextLocation => {
-      if (this.props.when) {
+    const { history, when } = this.props;
+
+    this.unblock = history.block(nextLocation => {
+      console.log('didmoun', history, nextLocation);
+      if (when && nextLocation.pathname !== history.location.pathname) {
         this.setState({
           showModal: true,
           nextLocation
         });
       }
-      return !this.props.when;
+
+      return !when;
     });
   }
 

@@ -23,7 +23,13 @@ class ConfirmationPopup extends React.Component<Props> {
     const cancelText = queryParams.isCreate ? 'Delete automation' : 'Discard';
 
     return (
-      <Modal show={isOpen} onHide={onCancel} centered={true}>
+      <Modal
+        show={isOpen}
+        onHide={onCancel}
+        centered={true}
+        backdrop="static"
+        keyboard={false}
+      >
         <ModalBody>
           <IconWrapper>
             <Icon icon="exclamation-triangle" />
