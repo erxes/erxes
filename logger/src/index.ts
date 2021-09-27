@@ -32,18 +32,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get(
   '/activityLogs',
   routeErrorHandling(async (req, res) => {
-    const params = JSON.parse(req.body.params || '{}');
-    const { contentType, contentId } = params;
-
-    const filter: { contentType?: string; contentId?: string } = {};
-
-    if (contentType) {
-      filter.contentType = contentType;
-    }
-
-    if (contentId) {
-      filter.contentId = contentId;
-    }
+    const filter: {
+      contentType?: string;
+      contentId?: string;
+      action?: string;
+    } = JSON.parse(req.body.params || '{}');
 
     const activityLogs = await ActivityLogs.find(filter).sort({
       createdAt: -1
