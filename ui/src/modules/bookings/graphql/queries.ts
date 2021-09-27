@@ -1,6 +1,30 @@
+const styleFields = `
+  itemShape
+  widgetColor
+
+  productAvailable
+  productUnavailable
+  productSelected
+
+  textAvailable
+  textUnavailable
+  textSelected
+`;
+
+const userFields = `
+  _id
+
+  details {
+    avatar
+    fullName
+    position
+  }
+`;
+
 const bookingFields = `
   _id
   name
+
   image {
     name
     url
@@ -17,19 +41,14 @@ const bookingFields = `
 
   description
   createdDate
+  
   brand {
     _id
     name
   }
 
   createdUser {
-    _id
-
-    details {
-      avatar
-      fullName
-      position
-    }
+    ${userFields}
   }
   
   title
@@ -42,16 +61,7 @@ const bookingFields = `
   productCategoryId
 
   styles {
-    itemShape
-    widgetColor
-
-    productAvailable
-    productUnavailable
-    productSelected
-
-    textAvailable
-    textUnavailable
-    textSelected
+    ${styleFields}
   }
 `;
 

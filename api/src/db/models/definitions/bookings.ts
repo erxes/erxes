@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { attachmentSchema } from './boards';
 
 import { field } from './utils';
 
@@ -59,16 +60,6 @@ const commonFields = {
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' })
 };
-
-const attachmentSchema = new Schema(
-  {
-    url: field({ type: String, optional: true }),
-    name: field({ type: String }),
-    size: field({ type: Number }),
-    type: field({ type: String })
-  },
-  { _id: false }
-);
 
 export const styleSchema = new Schema(
   {

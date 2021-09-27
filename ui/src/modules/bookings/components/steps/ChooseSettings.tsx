@@ -99,7 +99,7 @@ function ChooseSettings({
                 placeholder="Button text"
                 type="text"
                 defaultValue={buttonText}
-                onChange={e => onChange('buttonText', e)}
+                onChange={(e: any) => onChange('buttonText', e.target.value)}
               />
             </FormGroup>
           </FlexItem>
