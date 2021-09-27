@@ -18,6 +18,8 @@ import {
 type Props = {
   id: string;
   mainType: string;
+  history: any;
+  queryParams: any;
 };
 
 type FinalProps = {

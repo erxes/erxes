@@ -2,7 +2,6 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Confirmation from './containers/forms/Confirmation';
 
 const Details = asyncComponent(() =>
   import(
@@ -18,12 +17,7 @@ const details = ({ match, location, history }) => {
   const id = match.params.id;
   const queryParams = queryString.parse(location.search);
 
-  return (
-    <>
-      <Confirmation id={id} history={history} queryParams={queryParams} />
-      <Details id={id} />
-    </>
-  );
+  return <Details id={id} history={history} queryParams={queryParams} />;
 };
 
 const list = ({ location }) => {

@@ -10,6 +10,7 @@ import Confirmation from '../../components/forms/confirmation';
 import ConfirmationPopup from '../../components/forms/confirmation/popup';
 
 type Props = {
+  when: boolean;
   id: string;
   history: any;
   queryParams: any;
@@ -19,7 +20,7 @@ type FinalProps = {} & Props & RemoveMutationResponse;
 
 class ConfirmationContainer extends React.Component<FinalProps> {
   render() {
-    const { automationsRemove, queryParams } = this.props;
+    const { automationsRemove, queryParams, when } = this.props;
 
     const removeAutomations = ({ automationIds }, navigateToNextLocation) => {
       automationsRemove({
@@ -39,7 +40,7 @@ class ConfirmationContainer extends React.Component<FinalProps> {
     };
 
     return (
-      <Confirmation when={!!this.props.id} {...updatedProps}>
+      <Confirmation when={when} {...updatedProps}>
         {(isOpen, onConfirm, onCancel) => (
           <ConfirmationPopup
             isOpen={isOpen}
