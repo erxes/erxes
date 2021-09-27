@@ -7,7 +7,7 @@ export default {
   },
 
   parent(department: IDepartmentDocument) {
-    return Departments.findOne({ parentId: department._id });
+    return Departments.findOne({ _id: department.parentId });
   },
 
   children(department: IDepartmentDocument) {
