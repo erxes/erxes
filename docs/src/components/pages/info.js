@@ -11,22 +11,25 @@ export default function Infos() {
       </div>
       <div className="examples">
         <h1>Examples</h1>
-        <p>Use any of the available infos style types to quickly create a styled infos. Just modify the <b><u>btnStyle</u></b> prop.</p>
+        <p>
+          Use any of the available infos style types to quickly create a styled
+          infos. Just modify the{" "}
+          <b>
+            <u>btnStyle</u>
+          </b>{" "}
+          prop.
+        </p>
         <div className={styles.tab}>
           <div className={styles.styled}>
-            <Info >Default</Info>{' '}
-            <Info type="info">Info</Info>{' '}
-            <Info type="danger">Danger</Info>{' '}
-            <Info type="warning">Warning</Info>{' '}
-            <Info type="success">Success</Info>{' '}
-            
+            <Info iconShow="https://erxes.s3.amazonaws.com/icons/sad.svg" title ="Default" >This is default info</Info> 
+            <Info type="info" title="Info">This is info</Info>{" "}
+            <Info type="danger" title="Danger">This is danger info</Info>{" "}
+            <Info type="warning" title="Warning">This is warning info</Info>{" "}
+            <Info type="success" title="Success">This is success info</Info>{" "}
           </div>
-          
         </div>
         {/* <Button btnStyle="primary" size="large">Large button</Button> */}
       </div>
-      
     </div>
-    
   );
 }
