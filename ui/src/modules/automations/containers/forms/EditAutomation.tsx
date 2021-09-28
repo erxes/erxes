@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import client from 'apolloClient';
 import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
@@ -12,7 +13,9 @@ import {
   DetailQueryResponse,
   EditMutationResponse,
   IAutomation,
-  AutomationsNoteQueryResponse
+  AutomationsNoteQueryResponse,
+  ITrigger,
+  IAction
 } from '../../types';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from 'modules/common/types';
@@ -39,6 +42,24 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     history,
     editAutomationMutation
   } = props;
+
+  const previewCount = (item: ITrigger | IAction) => {
+    const config = item.config;
+    let count = 0;
+
+    client
+      .query({
+        query: gql(queries.automationConfigPrievewCount),
+        variables: {
+          config
+        }
+      })
+      .then(({ data }) => {
+        count = data.automationConfigPrievewCount;
+      });
+
+    return count;
+  };
 
   const save = (doc: IAutomation) => {
     router.removeParams(history, 'isCreate');
@@ -76,6 +97,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automation: automationDetail,
     automationNotes,
     currentUser,
+    previewCount,
     save
   };
 

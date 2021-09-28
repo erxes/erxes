@@ -50,6 +50,8 @@ import User from './user';
 import UsersGroup from './usersGroup';
 import Automation from './automation';
 import AutomationNote from './automationNote';
+import Trigger from './trigger';
+import Action from './action';
 
 const resolvers: any = {
   ...customScalars,
@@ -104,7 +106,9 @@ const resolvers: any = {
   CalendarBoard,
   Tag,
   Automation,
-  AutomationNote
+  AutomationNote,
+  Trigger,
+  Action
 };
 
 export default resolvers;

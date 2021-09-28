@@ -8,6 +8,8 @@ export const types = `
     icon: String
     label: String
     description: String
+
+    count: Int
   }
 
   type Action {
@@ -19,6 +21,8 @@ export const types = `
     icon: String
     label: String
     description: String
+
+    count: Int
   }
 
   type Automation {
@@ -119,6 +123,7 @@ export const queries = `
   automationDetail(_id: String!): Automation
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${historiesParams}): [AutomationHistory]
+  automationConfigPrievewCount(config: JSON): Int
 `;
 
 const commonFields = `

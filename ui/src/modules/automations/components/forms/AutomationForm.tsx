@@ -62,6 +62,7 @@ type Props = {
   id: string;
   history: any;
   queryParams: any;
+  previewCount: (item: ITrigger | IAction) => number;
 };
 
 type State = {
@@ -515,6 +516,14 @@ class AutomationForm extends React.Component<Props, State> {
     `;
   }
 
+  renderCount(item: ITrigger | IAction) {
+    if (item.count) {
+      return item.count;
+    }
+
+    return this.props.previewCount(item);
+  }
+
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
@@ -529,11 +538,12 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
           <div>
             <i class="icon-${item.icon}"></i>
-            ${item.label}
+            ${item.label} (${this.renderCount(item)})
           </div>
         </div>
         <p>${item.description}</p>
         ${this.renderNotes(idElm)}
+  
       </div>
     `);
 

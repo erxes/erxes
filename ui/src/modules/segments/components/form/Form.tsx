@@ -311,7 +311,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const segments = [...this.state.segments];
 
     const foundedSegment = segments.find(segment => segment.key === segmentKey);
-    const foundedSegmentIndex = segments.findIndex(
+    const segmentIndex = segments.findIndex(
       segment => segment.key === segmentKey
     );
 
@@ -328,9 +328,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         foundedSegment.conditions = [...foundedSegment.conditions, condition];
       }
 
-      segments[foundedSegmentIndex] = foundedSegment;
-
-      console.log(segments);
+      segments[segmentIndex] = foundedSegment;
 
       this.setState({
         segments,
@@ -346,24 +344,24 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const segments = [...this.state.segments];
 
     const foundedSegment = segments.find(segment => segment.key === segmentKey);
-    const foundedSegmentIndex = segments.findIndex(
+    const segmentIndex = segments.findIndex(
       segment => segment.key === segmentKey
     );
 
     if (foundedSegment) {
-      const foundedConIndex = foundedSegment.conditions.findIndex(
+      const conditionsIndex = foundedSegment.conditions.findIndex(
         condition => condition.key === key
       );
 
-      if (foundedConIndex === 0 && foundedSegment.conditions.length === 1) {
-        segments.splice(foundedSegmentIndex, 1);
+      if (conditionsIndex === 0 && foundedSegment.conditions.length === 1) {
+        segments.splice(segmentIndex, 1);
 
         return this.setState({ segments });
       } else {
-        foundedSegment.conditions.splice(foundedConIndex, 1);
+        foundedSegment.conditions.splice(conditionsIndex, 1);
       }
 
-      segments[foundedSegmentIndex] = foundedSegment;
+      segments[segmentIndex] = foundedSegment;
 
       this.setState({ segments });
     }
@@ -381,11 +379,11 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   removeSegment = (segmentKey: string) => {
     const segments = [...this.state.segments];
 
-    const foundedSegmentIndex = segments.findIndex(
+    const segmentIndex = segments.findIndex(
       segment => segment.key === segmentKey
     );
 
-    segments.splice(foundedSegmentIndex, 1);
+    segments.splice(segmentIndex, 1);
     this.setState({ segments });
   };
 
@@ -422,14 +420,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const segments = [...this.state.segments];
 
     const foundedSegment = segments.find(segment => segment.key === segmentKey);
-    const foundedSegmentIndex = segments.findIndex(
+    const segmentIndex = segments.findIndex(
       segment => segment.key === segmentKey
     );
 
     if (foundedSegment) {
       foundedSegment.conditionsConjunction = conjunction;
 
-      segments[foundedSegmentIndex] = foundedSegment;
+      segments[segmentIndex] = foundedSegment;
 
       this.setState({ segments });
     }

@@ -11,6 +11,8 @@ export type IAction = {
   isAvailable?: boolean;
   style?: any;
   config?: any;
+
+  count?: number;
 };
 
 export type ITrigger = {
@@ -22,6 +24,8 @@ export type ITrigger = {
   actionId?: string;
   style?: any;
   config?: any;
+
+  count?: number;
 };
 
 export interface IAutomationDoc {
