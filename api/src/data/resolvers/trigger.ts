@@ -5,10 +5,12 @@ export default {
   async count(trigger) {
     const contentId = trigger.config.contentId;
 
-    const segment = await Segments.getSegment(contentId);
-
-    const result = await fetchSegment(segment, { returnCount: true });
-
-    return result;
+    try {
+      const segment = await Segments.getSegment(contentId);
+      const result = await fetchSegment(segment, { returnCount: true });
+      return result;
+    } catch {
+      return 0;
+    }
   }
 };
