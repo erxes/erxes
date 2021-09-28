@@ -26,13 +26,13 @@ type EditorProps = {
   onAddMention: (mentions: any) => void;
   onAddMessage: () => void;
   onSearchChange: (value: string) => void;
+
   showMentions: boolean;
   responseTemplate: string;
   responseTemplates: IResponseTemplate[];
   handleFileInput: (e: React.FormEvent<HTMLInputElement>) => void;
   mentions: any;
   placeholder?: string | React.ReactNode;
-  characterCount: number
 };
 
 type State = {
@@ -345,7 +345,7 @@ export default class Editor extends React.Component<EditorProps, State> {
   render() {
     const { MentionSuggestions } = this.mentionPlugin;
     const plugins = [this.mentionPlugin];
-    
+
     const pluginContent = (
       <MentionSuggestions
         onSearchChange={this.onSearchChange}

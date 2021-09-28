@@ -68,7 +68,6 @@ type State = {
   editorKey: string;
   loading: object;
   facebookMessageTag: string;
-  characterCount:number;
 };
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
@@ -85,11 +84,9 @@ class RespondBox extends React.Component<Props, State> {
       content: '',
       mentionedUserIds: [],
       loading: {},
-      facebookMessageTag: '',
-      characterCount:160
+      facebookMessageTag: ''
     };
   }
-
   isContentWritten() {
     const { content } = this.state;
 
@@ -137,13 +134,15 @@ class RespondBox extends React.Component<Props, State> {
   onEditorContentChange = (content: string) => {
     this.setState({ content });
 
-    this.calcCharacterCount(160, content);
-
     if (this.isContentWritten()) {
-      localStorage.setItem(this.props.conversation._id, content);   
+      localStorage.setItem(this.props.conversation._id, content);
     }
-    if (!this.isContentWritten()) {
-      this.setState({ characterCount:160 });  
+
+    if (this.props.conversation.integration.kind === 'telnyx') {
+      const characterCount = this.calcCharacterCount(160);
+      if (characterCount <= 1) {
+        Alert.error('You have reached maximum number of characters');
+      }
     }
   };
 
@@ -272,17 +271,16 @@ class RespondBox extends React.Component<Props, State> {
   cleanText(text: string) {
     return text.replace(/&nbsp;/g, ' ');
   }
-  calcCharacterCount = (maxChar: number, content: string) => {
-    let dom = new DOMParser().parseFromString(content, 'text/html');
-    let text = dom.body.textContent;
 
-    if( text && text.length > 0){
-      let characterCount= maxChar - text.length;
-      this.setState({characterCount})
+  calcCharacterCount = (maxlength: number) => {
+    const { content } = this.state;
+    const cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
+    if (!cleanContent) {
+      return maxlength;
     }
-    
-  }
-
+    const ret = maxlength - cleanContent.length;
+    return ret > 0 ? ret : 0;
+  };
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
     const {
@@ -382,6 +380,7 @@ class RespondBox extends React.Component<Props, State> {
 
     return null;
   }
+
   renderFacebookTagMessage() {
     const selectTag = value => {
       this.setState({ facebookMessageTag: value });
@@ -408,8 +407,9 @@ class RespondBox extends React.Component<Props, State> {
 
     return null;
   }
+
   renderEditor() {
-    const { isInternal, responseTemplate ,characterCount} = this.state;
+    const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
 
     let type = 'message';
@@ -438,7 +438,6 @@ class RespondBox extends React.Component<Props, State> {
         responseTemplate={responseTemplate}
         responseTemplates={responseTemplates}
         handleFileInput={this.handleFileInput}
-        characterCount={characterCount}
       />
     );
   }
@@ -491,7 +490,6 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
-
         {this.renderVideoRoom()}
 
         <Tip text={__('Attach file')}>
@@ -523,7 +521,6 @@ class RespondBox extends React.Component<Props, State> {
       </EditorActions>
     );
   }
-
   renderBody() {
     return (
       <>

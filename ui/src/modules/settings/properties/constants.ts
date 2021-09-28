@@ -4,7 +4,8 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   PRODUCT: 'product',
   CONVERSATION: 'conversation',
   DEVICE: 'device',
-  ALL: ['customer', 'company', 'product', 'conversation', 'device']
+  USER: 'user',
+  ALL: ['customer', 'company', 'product', 'conversation', 'device', 'user']
 };
 
 export const PROPERTY_GROUPS = [
@@ -31,6 +32,11 @@ export const PROPERTY_GROUPS = [
       { value: 'deal', label: 'Sales pipeline' },
       { value: 'product', label: 'Products & services' }
     ]
+  },
+  {
+    label: 'Team member',
+    value: 'user',
+    types: [{ value: 'user', label: 'Team member' }]
   }
 ];
 

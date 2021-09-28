@@ -50,3 +50,8 @@ export type ForceCompleteMutationResponse = {
 };
 
 export type IOnboardingHistory = IOnboardingHistoryC;
+
+export type IRoleValue = {
+  value: string;
+  label: string;
+};

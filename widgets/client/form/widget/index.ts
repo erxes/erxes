@@ -169,7 +169,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data || {};
   const { fromErxes, source, message, setting } = data;
 
-  if (!setting) {
+  if (!setting || source !== 'fromForms') {
     return null;
   }
 

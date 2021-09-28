@@ -26,21 +26,34 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
-export default class GrowthHackEditForm extends React.Component<Props> {
+type State = {
+  refresh: boolean;
+};
+
+export default class GrowthHackEditForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      refresh: false
+    };
+  }
+
   onChangeExtraField = <T extends keyof IGrowthHack>(
     name: T,
     value: IGrowthHack[GrowthHackFieldName]
   ) => {
-    this.setState(
-      { [name]: value } as Pick<IGrowthHack, keyof IGrowthHack>,
-      () => {
-        if (reactiveFields.includes(name)) {
-          this.props.saveItem({ [name]: value }, updatedItem => {
-            this.props.onUpdate(updatedItem);
-          });
-        }
-      }
-    );
+    if (reactiveFields.includes(name)) {
+      this.props.saveItem({ [name]: value }, updatedItem => {
+        this.props.onUpdate(updatedItem);
+      });
+    }
+  };
+
+  onChangeRefresh = () => {
+    this.setState({
+      refresh: !this.state.refresh
+    });
   };
 
   renderDueDate = (closeDate, onDateChange: (date) => void) => {
@@ -66,8 +79,6 @@ export default class GrowthHackEditForm extends React.Component<Props> {
       const confirmedValue = value > 10 ? 10 : value;
 
       const changedValue = { [e.target.name]: confirmedValue };
-
-      this.setState(changedValue as Pick<IGrowthHack, keyof IGrowthHack>);
 
       saveItem(changedValue, updatedItem => {
         this.props.onUpdate(updatedItem);
@@ -127,6 +138,7 @@ export default class GrowthHackEditForm extends React.Component<Props> {
               sendToBoard={sendToBoard}
               saveItem={saveItem}
               onChangeStage={onChangeStage}
+              onChangeRefresh={this.onChangeRefresh}
             />
             <Left
               type={options.type}
@@ -151,7 +163,8 @@ export default class GrowthHackEditForm extends React.Component<Props> {
     const extendedProps = {
       ...this.props,
       formContent: this.renderFormContent,
-      extraFields: this.state
+      extraFields: this.state,
+      refresh: this.state.refresh
     };
 
     return <EditForm {...extendedProps} />;

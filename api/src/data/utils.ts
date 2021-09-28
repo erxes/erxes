@@ -696,6 +696,17 @@ export type ISendNotification = ISendNotificationC;
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
+  await Users.updateMany(
+    { _id: { $in: doc.receivers } },
+    { $set: { isShowNotification: false } }
+  );
+
+  for (const userId of doc.receivers) {
+    graphqlPubsub.publish('userChanged', {
+      userChanged: { userId }
+    });
+  }
+
   return utils.sendNotification(models, memoryStorage, graphqlPubsub, doc);
 };
 
@@ -1125,7 +1136,34 @@ export const findCustomer = async doc => {
 export const findCompany = async doc => {
   let company;
 
-  if (doc.companyPrimaryEmail) {
+  if (doc.companyPrimaryName) {
+    company = await Companies.findOne({
+      $or: [
+        { names: { $in: [doc.companyPrimaryName] } },
+        { primaryName: doc.companyPrimaryName }
+      ]
+    });
+  }
+
+  if (!company && doc.name) {
+    company = await Companies.findOne({
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
+    });
+  }
+
+  if (!company && doc.email) {
+    company = await Companies.findOne({
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+    });
+  }
+
+  if (!company && doc.phone) {
+    company = await Companies.findOne({
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+    });
+  }
+
+  if (!company && doc.companyPrimaryEmail) {
     company = await Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
@@ -1145,10 +1183,6 @@ export const findCompany = async doc => {
 
   if (!company && doc.companyCode) {
     company = await Companies.findOne({ code: doc.companyCode });
-  }
-
-  if (!company && doc.companyPrimaryName) {
-    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
   }
 
   return company;

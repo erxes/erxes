@@ -12,5 +12,14 @@ export default {
         return payload.notificationInserted.userId === variables.userId;
       }
     )
+  },
+
+  notificationRead: {
+    subscribe: withFilter(
+      () => graphqlPubsub.asyncIterator('notificationRead'),
+      (payload, variables) => {
+        return payload.notificationRead.userId === variables.userId;
+      }
+    )
   }
 };
