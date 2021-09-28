@@ -8,9 +8,7 @@ export default function generateDataLoaderTag() {
     async (ids: readonly string[]) => {
       const result: ITagDocument[] = await Tags.find({ _id: { $in: ids } });
       const resultById = _.indexBy(result, '_id');
-      return ids.map(
-        id => resultById[id] || new Error(`Cannot find Tag with id = ${id}`)
-      );
+      return ids.map(id => resultById[id]);
     }
   );
 }
