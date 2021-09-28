@@ -4,12 +4,13 @@ import Button from 'modules/common/components/Button';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import EmptyState from 'modules/common/components/EmptyState';
 import Table from 'modules/common/components/table';
-import { Count, Title } from 'modules/common/styles/main';
+import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 import SortHandler from 'modules/common/components/SortHandler';
 import FormControl from 'modules/common/components/form/Control';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { BarItems } from 'modules/layout/styles';
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
   EMPTY_CONTENT_TASK_PIPELINE
@@ -18,9 +19,8 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
+import { PipelineCount } from '../styles';
 import PipelineRow from './PipelineRow';
-import { BarItems } from '../../../layout/styles';
-import { router } from '../../../common/utils';
 
 type Props = {
   type: string;
@@ -41,23 +41,26 @@ type State = {
   searchValue: string;
 };
 
-function sortItems(arr, direction, field) {
+const sortItems = (arr, direction, field) => {
   if (!field || !direction) {
     return;
   }
-  arr.sort(function(a, b) {
+
+  arr.sort((a, b) => {
     const valueA = a[field].toLowerCase();
     const valueB = b[field].toLowerCase();
 
     if (valueA < valueB) {
       return -direction;
     }
+
     if (valueA > valueB) {
       return direction;
     }
+
     return 0;
   });
-}
+};
 
 class Pipelines extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -118,18 +121,16 @@ class Pipelines extends React.Component<Props, State> {
 
   searchHandler = event => {
     const searchValue = event.target.value.toLowerCase();
-
     const { history, pipelines } = this.props;
 
     router.setParams(history, { searchValue: event.target.value });
 
-    let updatedPipelines;
+    let updatedPipelines = pipelines;
+
     if (searchValue) {
       updatedPipelines = pipelines.filter(p =>
         p.name.toLowerCase().includes(searchValue)
       );
-    } else {
-      updatedPipelines = pipelines;
     }
 
     this.setState({ pipelines: updatedPipelines });
@@ -164,7 +165,6 @@ class Pipelines extends React.Component<Props, State> {
   renderContent() {
     const { pipelines, options, type } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
-    const columnsConfig = [{ name: 'name', label: __('pipelineName') }];
 
     if (pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
@@ -189,25 +189,17 @@ class Pipelines extends React.Component<Props, State> {
     }
 
     return (
-      <>
-        <Count>
-          {pipelines.length} {__(pipelineName)}
-          {pipelines.length > 1 && 's'}
-        </Count>
-        <Table>
-          <thead>
-            <tr>
-              {columnsConfig.map(({ name, label }) => (
-                <th key={name}>
-                  <SortHandler sortField={name} label={__(label)} />
-                </th>
-              ))}
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRows()}</tbody>
-        </Table>
-      </>
+      <Table>
+        <thead>
+          <tr>
+            <th>
+              <SortHandler sortField={'name'} label={__('pipelineName')} />
+            </th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderRows()}</tbody>
+      </Table>
     );
   }
 
@@ -258,10 +250,18 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   render() {
-    const { currentBoard } = this.props;
+    const { currentBoard, pipelines, options } = this.props;
+    const pipelineName = options ? options.pipelineName : 'pipeline';
 
     const leftActionBar = (
-      <Title>{currentBoard ? currentBoard.name : ''}</Title>
+      <Title>
+        {currentBoard ? currentBoard.name : ''}
+
+        <PipelineCount>
+          ({pipelines.length} {__(pipelineName)}
+          {pipelines.length > 1 && 's'})
+        </PipelineCount>
+      </Title>
     );
 
     return (
