@@ -1,9 +1,17 @@
 export const types = `
+  type ExmWelcomeContent {
+    _id: String
+    title: String
+    content: String
+  }
+
   type Exm {
     _id: String
     name: String
     description: String
+    logo: Attachment
     features: JSON
+    welcomeContent: [ExmWelcomeContent]
     createdAt: Date
     createdBy: String
   }
@@ -11,6 +19,12 @@ export const types = `
   type ExmList {
     list: [Exm]
     totalCount: Int
+  }
+
+  input ExmWelcomeContentInput {
+    _id: String
+    title: String
+    content: String
   }
 `;
 
@@ -21,9 +35,11 @@ export const queries = `
 `;
 
 const commonParams = `
-  name: String,
-  description: String,
+  name: String
+  description: String
   features: JSON
+  logo: AttachmentInput
+  welcomeContent: [ExmWelcomeContentInput]
 `;
 
 export const mutations = `

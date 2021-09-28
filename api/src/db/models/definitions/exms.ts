@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { attachmentSchema } from './boards';
 import { field } from './utils';
 
 export interface IExm {
@@ -21,6 +22,12 @@ const featureSchema = new Schema({
   subContentId: field({ type: String })
 });
 
+const welcomeContentSchema = new Schema({
+  _id: field({ pkey: true }),
+  title: field({ type: String }),
+  content: field({ type: String })
+});
+
 // Mongoose schemas =======================
 
 export const exmSchema = new Schema({
@@ -28,6 +35,8 @@ export const exmSchema = new Schema({
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   features: field({ type: [featureSchema] }),
+  logo: field({ type: attachmentSchema }),
+  welcomeContent: field({ type: [welcomeContentSchema] }),
   createdBy: field({ type: String, label: 'Created by' }),
   createdAt: field({ type: Date, label: 'Created at' })
 });
