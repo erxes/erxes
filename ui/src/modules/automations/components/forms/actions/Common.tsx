@@ -1,4 +1,5 @@
 import React from 'react';
+import { ScrolledContent } from 'modules/automations/styles';
 import { __ } from 'modules/common/utils';
 import { IAction } from 'modules/automations/types';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -23,7 +24,7 @@ function Common(props: Props) {
   };
 
   return (
-    <>
+    <ScrolledContent>
       {children}
 
       <ActionFooter>
@@ -42,7 +43,7 @@ function Common(props: Props) {
           </Button>
         </ModalFooter>
       </ActionFooter>
-    </>
+    </ScrolledContent>
   );
 }
 

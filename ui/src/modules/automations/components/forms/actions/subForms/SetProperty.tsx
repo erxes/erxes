@@ -1,9 +1,8 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import Attribution from 'modules/automations/containers/forms/actions/Attribution';
-import { BoardHeader, DrawerDetail } from 'modules/automations/styles';
+import { DrawerDetail } from 'modules/automations/styles';
 import { IAction } from 'modules/automations/types';
-import FormControl from 'modules/common/components/form/Control';
+import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { __, Alert } from 'modules/common/utils';
@@ -13,6 +12,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Common from '../Common';
 import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
+import PlaceHolderInput from '../PlaceHolderInput';
 
 type Props = {
   closeModal: () => void;
@@ -34,6 +34,10 @@ class SetProperty extends React.Component<Props, State> {
 
     const { config } = this.props.activeAction;
     const fillConfig = config || {};
+
+    if (!fillConfig.rules) {
+      fillConfig.rules = [{ id: Math.random() }];
+    }
 
     this.state = {
       config: fillConfig,
@@ -75,35 +79,130 @@ class SetProperty extends React.Component<Props, State> {
     this.onChangeField('module', type);
   };
 
-  renderOptions = (chosenField?: FieldsCombinedByType) => {
-    if (!chosenField || !chosenField.selectOptions) {
-      return '';
+  getFieldType = (chosenField: FieldsCombinedByType) => {
+    if (chosenField.selectOptions) {
+      return 'select';
     }
 
-    const { config } = this.state;
-    const onChangeValue = e => this.onChangeField('value', e.target.value);
+    if (chosenField.type === 'Date') {
+      return 'date';
+    }
 
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>Default options</ControlLabel>
-        <FormControl
-          componentClass="select"
-          onChange={onChangeValue}
-          value={config.value}
-          options={[{ value: '', label: '' }, ...chosenField.selectOptions]}
-        />
-      </FormGroup>
-    );
+    return;
   };
 
-  renderContent() {
-    const { config, fields, type } = this.state;
-    const chosenField = fields.find(f => f.name === config.field);
-    const fieldType = chosenField ? chosenField.type : 'Default';
-    const operators = PROPERTY_OPERATOR[fieldType] || PROPERTY_OPERATOR.Default;
+  getIsMulti = (chosenField: FieldsCombinedByType) => {
+    if (chosenField.selectOptions && !chosenField.name.includes('Ids')) {
+      return false;
+    }
+    return true;
+  };
 
-    const onChangeSelect = (field, e) => this.onChangeField(field, e.value);
-    const onChangeValue = e => this.onChangeField('value', e.target.value);
+  addRule = () => {
+    const { config } = this.state;
+    config.rules.push({ id: Math.random() });
+    this.setState({ config });
+  };
+
+  removeRule = id => {
+    const { config } = this.state;
+    config.rules = config.rules.filter(r => r.id !== id);
+    this.setState({ config });
+  };
+
+  renderPerValue() {
+    const { triggerType } = this.props;
+    const { config, fields } = this.state;
+
+    return config.rules.map(rule => {
+      const chosenField: FieldsCombinedByType = fields.find(
+        f => f.name === rule.field
+      ) || {
+        _id: String(Math.random()),
+        type: 'Default',
+        name: 'name',
+        label: 'label'
+      };
+      const operators =
+        PROPERTY_OPERATOR[chosenField.type] || PROPERTY_OPERATOR.Default;
+
+      const onChangeRule = (name, value) => {
+        this.onChangeField(
+          'rules',
+          config.rules.map(
+            r => (r.id === rule.id && { ...rule, [name]: value }) || r
+          )
+        );
+      };
+
+      const onChangeSelect = (field, e) => onChangeRule(field, e.value);
+
+      const onChangeValue = rConf => {
+        this.onChangeField(
+          'rules',
+          config.rules.map(
+            r => (r.id === rule.id && { ...rule, ...rConf }) || r
+          )
+        );
+      };
+
+      return (
+        <div key={rule.id}>
+          <FormGroup>
+            <ControlLabel>Field</ControlLabel>
+
+            <Select
+              value={rule.field}
+              options={fields.map(f => ({
+                label: f.label,
+                value: f.name
+              }))}
+              onChange={onChangeSelect.bind(this, 'field')}
+              placeholder={__('Choose field')}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Operator</ControlLabel>
+
+            <Select
+              value={rule.operator}
+              options={operators.map(f => ({
+                label: f.label,
+                value: f.value
+              }))}
+              onChange={onChangeSelect.bind(this, 'operator')}
+              placeholder={__('Choose operator')}
+            />
+          </FormGroup>
+
+          <PlaceHolderInput
+            inputName="value"
+            label="Value"
+            config={rule}
+            onChange={onChangeValue}
+            triggerType={triggerType}
+            fieldType={this.getFieldType(chosenField)}
+            isMulti={this.getIsMulti(chosenField)}
+            attrType={chosenField.type}
+            options={chosenField.selectOptions}
+          />
+
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={this.removeRule.bind(this, rule.id)}
+            icon="cancel-1"
+          >
+            {'-'}
+          </Button>
+        </div>
+      );
+    });
+  }
+
+  renderContent() {
+    const { type } = this.state;
 
     return (
       <DrawerDetail>
@@ -122,48 +221,16 @@ class SetProperty extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Field</ControlLabel>
+        {this.renderPerValue()}
 
-          <Select
-            value={config.field}
-            options={fields.map(f => ({
-              label: f.label,
-              value: f.name
-            }))}
-            onChange={onChangeSelect.bind(this, 'field')}
-            placeholder={__('Choose field')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Operator</ControlLabel>
-
-          <Select
-            value={config.operator}
-            options={operators.map(f => ({
-              label: f.label,
-              value: f.value
-            }))}
-            onChange={onChangeSelect.bind(this, 'operator')}
-            placeholder={__('Choose operator')}
-          />
-        </FormGroup>
-
-        <BoardHeader>
-          <FormGroup>
-            <div className="header-row">
-              <ControlLabel required={true}>Value</ControlLabel>
-              <Attribution
-                config={this.state.config}
-                setConfig={conf => this.setState({ config: conf })}
-                triggerType={this.props.triggerType}
-              />
-            </div>
-            <FormControl onChange={onChangeValue} value={config.value} />
-          </FormGroup>
-          {this.renderOptions(chosenField)}
-        </BoardHeader>
+        <Button
+          btnStyle="simple"
+          type="button"
+          onClick={this.addRule}
+          icon="plus-1"
+        >
+          {__('Add Rule')}
+        </Button>
       </DrawerDetail>
     );
   }

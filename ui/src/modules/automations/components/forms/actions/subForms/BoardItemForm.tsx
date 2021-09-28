@@ -1,36 +1,42 @@
-import Attribution from 'modules/automations/containers/forms/actions/Attribution';
-import { BoardHeader } from 'modules/automations/styles';
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { IAction } from 'modules/automations/types';
+import { PRIORITIES } from 'modules/boards/constants';
 import BoardSelect from 'modules/boards/containers/BoardSelect';
-import { SelectContainer } from 'modules/boards/styles/common';
-import { HeaderRow } from 'modules/boards/styles/item';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components/form';
+import { queries as pipelineQuery } from 'modules/boards/graphql';
+import { TitleRow } from 'modules/boards/styles/item';
+import { IPipelineLabel } from 'modules/boards/types';
+import { Alert } from 'modules/common/utils';
 import React from 'react';
+
 import Common from '../Common';
+import PlaceHolderInput from '../PlaceHolderInput';
 
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   triggerType: string;
+  pipelineLabels?: IPipelineLabel[];
+  users: IUser[];
 };
 
 type State = {
   config: any;
+  pipelineLabels: IPipelineLabel[];
 };
 
 class BoardItemForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { config = {} } = this.props.activeAction;
+    const { activeAction, pipelineLabels = [] } = this.props;
+    const { config = {} } = activeAction;
 
     this.state = {
-      config
+      config,
+      pipelineLabels
     };
   }
 
@@ -69,7 +75,21 @@ class BoardItemForm extends React.Component<Props, State> {
     const { stageId, pipelineId, boardId } = this.state.config;
 
     const stgIdOnChange = stgId => this.onChangeField('stageId', stgId);
-    const plIdOnChange = plId => this.onChangeField('pipelineId', plId);
+    const plIdOnChange = plId => {
+      client
+        .query({
+          query: gql(pipelineQuery.pipelineLabels),
+          fetchPolicy: 'network-only',
+          variables: { pipelineId: plId }
+        })
+        .then(data => {
+          this.setState({ pipelineLabels: data.data.pipelineLabels });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+      this.onChangeField('pipelineId', plId);
+    };
     const brIdOnChange = brId => this.onChangeField('boardId', brId);
 
     return (
@@ -85,48 +105,91 @@ class BoardItemForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeName = e => {
-    const value = (e.target as HTMLInputElement).value;
-    const { config } = this.state;
-    config.cardName = value;
-
+  onChange = config => {
     this.setState({ config });
   };
 
-  renderName() {
-    const config = this.state.config;
-
-    return (
-      <SelectContainer>
-        <HeaderRow>
-          <BoardHeader>
-            <FormGroup>
-              <div className="header-row">
-                <ControlLabel required={true}>Name</ControlLabel>
-                <Attribution
-                  inputName="cardName"
-                  config={this.state.config}
-                  setConfig={conf => this.setState({ config: conf })}
-                  triggerType={this.props.triggerType}
-                />
-              </div>
-              <FormControl
-                name="name"
-                value={config.cardName}
-                onChange={this.onChangeName}
-              />
-            </FormGroup>
-          </BoardHeader>
-        </HeaderRow>
-      </SelectContainer>
-    );
-  }
-
   render() {
+    const { activeAction, triggerType, users } = this.props;
+    const { config, pipelineLabels } = this.state;
+    const userOptions = users.map(u => ({
+      label: (u.details && u.details.fullName) || u.email,
+      value: u._id
+    }));
+    const labelOptions = (pipelineLabels || []).map(l => ({
+      label: l.name,
+      value: l._id || ''
+    }));
+    const priorityOptions = PRIORITIES.map(p => ({ label: p, value: p }));
+
     return (
       <Common config={this.state.config} {...this.props}>
+        <TitleRow>{`Action: ${activeAction.label}`}</TitleRow>
+
         {this.renderSelect()}
-        {this.renderName()}
+        <PlaceHolderInput
+          inputName="cardName"
+          label="Name"
+          config={config}
+          onChange={this.onChange}
+          triggerType={triggerType}
+        />
+        <PlaceHolderInput
+          inputName="description"
+          label="Description"
+          config={config}
+          onChange={this.onChange}
+          triggerType={triggerType}
+        />
+        <PlaceHolderInput
+          inputName="assignedTo"
+          label="Assigned To"
+          config={config}
+          onChange={this.onChange}
+          triggerType={triggerType}
+          fieldType="select"
+          attrType="user"
+          options={userOptions}
+          isMulti={true}
+        />
+        <PlaceHolderInput
+          inputName="closeDate"
+          label="Close Date"
+          config={config}
+          onChange={this.onChange}
+          triggerType={triggerType}
+          fieldType="date"
+          attrType="Date"
+          customAttributions={[
+            {
+              _id: String(Math.random()),
+              label: 'Now',
+              name: 'now',
+              type: 'Date'
+            }
+          ]}
+        />
+        <PlaceHolderInput
+          inputName="labelIds"
+          label="Labels"
+          config={config}
+          onChange={this.onChange}
+          triggerType={triggerType}
+          fieldType="select"
+          excludeAttr={true}
+          options={labelOptions}
+          isMulti={true}
+        />
+        <PlaceHolderInput
+          inputName="priority"
+          label="Priority"
+          config={config}
+          onChange={this.onChange}
+          triggerType={triggerType}
+          fieldType="select"
+          excludeAttr={true}
+          options={priorityOptions}
+        />
       </Common>
     );
   }
