@@ -2,6 +2,8 @@ import React from "react";
 import Button from "erxes-ui/lib/components/Button";
 import styles from "../styles.module.css";
 
+import Textarea from "erxes-ui/lib/components/form/Textarea";
+
 export default function Buttons() {
   return (
     <div className="container">
@@ -23,16 +25,17 @@ export default function Buttons() {
             <Button btnStyle="link">Link</Button>{' '}
             
           </div>
+            {Textarea}
           <div className={styles.codes}>
             {/* <textarea> */}
-              &lt;&gt;
+              {/* &lt;&gt;
               &lt;Button btnStyle="primary"&gt;Primary&lt;/Button&gt;{' '}
               &lt;Button btnStyle="success"&gt;Success&lt;/Button&gt;{' '}
               &lt;Button btnStyle="danger"&gt;Danger&lt;/Button&gt;{' '}
               &lt;Button btnStyle="warning"&gt;Warning&lt;/Button&gt;{' '}
               &lt;Button btnStyle="simple"&gt;Simple&lt;/Button&gt;{' '}
               &lt;Button btnStyle="link"&gt;Link&lt;/Button&gt;{' '}
-              &lt;/&gt;
+              &lt;/&gt; */}
             
             {/* </textarea> */}
           </div>
