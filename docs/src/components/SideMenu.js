@@ -11,7 +11,7 @@ export const menuItems = [
     {
       name: "Info",
       exact: true,
-      to: "/components/Infos",
+      to: "/components/Info",
     },
 ];
 
