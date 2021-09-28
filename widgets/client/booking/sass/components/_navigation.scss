@@ -1,9 +1,31 @@
 .booking-navigation {
-  margin: 5px;
+  margin: 10px;
   text-align: left;
   color: $main-color;
 
-  i:hover {
+  .toggle-icon {
+    left: 10px;
+    width: 15px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
     cursor: pointer;
+    z-index: 1;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    i {
+      &:before {
+        display: block;
+      }
+    }
+  }
+
+  .child-list {
+    list-style: none;
+    position: relative;
+    padding: 0 0 0 20px !important;
   }
 }

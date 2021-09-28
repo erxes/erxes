@@ -58,7 +58,6 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   render() {
-    console.log(this.state.activeRoute);
     return (
       <AppContext.Provider
         value={{

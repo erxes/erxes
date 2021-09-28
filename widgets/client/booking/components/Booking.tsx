@@ -17,7 +17,7 @@ function Booking({ goToIntro, booking }: Props) {
   const { title, description, image, childCategories } = booking;
   return (
     <div>
-      <Navigation />
+      <Navigation blocks={childCategories} />
       <h1>{title}</h1>
       <p>{description}</p>
       <img height={300} src={readFile(image.url)} alt={image.name} />

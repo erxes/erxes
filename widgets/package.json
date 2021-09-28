@@ -68,6 +68,8 @@
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.16.1",
+    "styled-components": "^3.2.6",
+    "styled-components-ts": "^0.0.14",
     "subscriptions-transport-ws": "^0.9.14",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "url-loader": "^1.0.1",

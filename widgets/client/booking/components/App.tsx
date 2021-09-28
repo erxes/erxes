@@ -26,7 +26,7 @@ function App({ booking, activeRoute }: Props) {
 
   return (
     <div id="erxes-widget-container">
-      <div className="erxes-booking">{renderContent()}</div>
+      <div>{renderContent()}</div>
     </div>
   );
 }
