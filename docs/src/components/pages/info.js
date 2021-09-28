@@ -14,7 +14,11 @@ export default function Infos() {
         <p>Use any of the available infos style types to quickly create a styled infos. Just modify the <b><u>btnStyle</u></b> prop.</p>
         <div className={styles.tab}>
           <div className={styles.styled}>
-            <Info>Default</Info>{' '}
+            <Info >Default</Info>{' '}
+            <Info type="info">Info</Info>{' '}
+            <Info type="danger">Danger</Info>{' '}
+            <Info type="warning">Warning</Info>{' '}
+            <Info type="success">Success</Info>{' '}
             
           </div>
           
