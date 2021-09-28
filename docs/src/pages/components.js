@@ -9,7 +9,7 @@ import SideMenu, { menuItems } from "../components/SideMenu";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Buttons from "../components/pages/buttons";
-import Info from "../components/pages/info";
+import Infos from "../components/pages/info";
 
 // const Button = () => <h1>Erxes</h1>;
 
