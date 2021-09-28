@@ -60,9 +60,10 @@ type Props = {
   automationNotes?: IAutomationNote[];
   save: (params: any) => void;
   id: string;
+  count: number;
   history: any;
   queryParams: any;
-  previewCount: (item: ITrigger | IAction) => number;
+  previewCount: (item: ITrigger | IAction) => void;
 };
 
 type State = {
@@ -433,11 +434,15 @@ class AutomationForm extends React.Component<Props, State> {
 
     trigger.config = { ...trigger.config, ...config };
 
+    this.props.previewCount(trigger);
+
     if (triggerIndex !== -1) {
       triggers[triggerIndex] = trigger;
     } else {
       triggers.push(trigger);
     }
+
+    /*add count*/
 
     this.setState({ triggers, activeTrigger: trigger }, () => {
       if (!triggerId) {
@@ -521,7 +526,7 @@ class AutomationForm extends React.Component<Props, State> {
       return item.count;
     }
 
-    return this.props.previewCount(item);
+    return this.props.count;
   }
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
@@ -563,7 +568,7 @@ class AutomationForm extends React.Component<Props, State> {
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.5]
       });
-
+      console.log(`#${idElm}`, instance.getSelector(`#${idElm}`));
       if (instance.getSelector(`#${idElm}`).length > 0) {
         instance.draggable(instance.getSelector(`#${idElm}`));
       }
