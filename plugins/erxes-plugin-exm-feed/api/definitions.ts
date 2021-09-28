@@ -12,13 +12,32 @@ const customFieldSchema = {
   value: { type: JSON }
 };
 
+const birthdayDataSchema = {
+  birthDate: { type: Date, label: 'Birth date' },
+  year: { type: Number, label: 'Ceremony year' }
+};
+
+const workAnniversaryDataSchema = {
+  workStartedDate: { type: Date, label: 'Date to start working' },
+  year: { type: Number, label: 'Ceremony year' }
+};
+
+export const FEED_CONTENT_TYPES = {
+  POST: 'post',
+  EVENT: 'event',
+  BRAVO: 'bravo',
+  BIRTHDAY: 'birthday',
+  WORK_ANNIVARSARY: 'workAnniversary',
+  ALL: ['post', 'event', 'bravo', 'birthday', 'workAnniversary']
+};
+
 export const feedSchema = {
   _id: { pkey: true },
   title: { type: String, label: 'Title' },
   description: { type: String, label: 'Description' },
   images: { type: [attachmentSchema], label: 'Images' },
   attachments: { type: [attachmentSchema], label: 'Attachments' },
-  contentType: { type: String },
+  contentType: { type: String, enum: FEED_CONTENT_TYPES.ALL },
   recipientIds: { type: [String] },
   visibility: { type: String, enum: ['Public', 'Private'] },
   customFieldsData: {
@@ -26,6 +45,9 @@ export const feedSchema = {
     optional: true,
     label: 'Custom fields data'
   },
+  birthdayData: { type: birthdayDataSchema },
+  workAnniversaryData: { type: workAnniversaryDataSchema },
+
   where: { type: String },
   impacted: { type: String },
   startDate: { type: Date },
