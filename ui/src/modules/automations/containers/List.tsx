@@ -83,9 +83,10 @@ class ListContainer extends React.Component<FinalProps, State> {
         }
       })
         .then(data => {
-          history.push(
-            `/automations/details/${data.data.automationsAdd._id}?isCreate=true`
-          );
+          history.push({
+            pathname: `/automations/details/${data.data.automationsAdd._id}`,
+            search: '?isCreate=true'
+          });
         })
 
         .catch(error => {

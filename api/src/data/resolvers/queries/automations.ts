@@ -1,3 +1,5 @@
+import { Segments } from '../../../db/models';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -64,6 +66,16 @@ const automationQueries = {
     { dataSources }: IContext
   ) {
     return dataSources.AutomationsAPI.getAutomationHistories(params);
+  },
+
+  async automationConfigPrievewCount(_root, params: { config: any }) {
+    const contentId = params.config.contentId;
+
+    const segment = await Segments.getSegment(contentId);
+
+    const result = await fetchSegment(segment, { returnCount: true });
+
+    return result;
   }
 };
 

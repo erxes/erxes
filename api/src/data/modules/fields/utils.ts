@@ -5,6 +5,7 @@ import {
   Deals,
   Fields,
   FieldsGroups,
+  Forms,
   Integrations,
   PipelineLabels,
   Products,
@@ -397,48 +398,36 @@ const getTags = async (type: string) => {
   };
 };
 
-const getFroms = async () => {
-  const forms = await Integrations.aggregate([
-    { $match: { kind: 'lead' } },
-    {
-      $project: {
-        _id: 0,
-        label: '$name',
-        value: '$_id'
-      }
+export const getFormFields = async (formId: string) => {
+  if (!isUsingElk()) {
+    return Fields.find({
+      contentType: 'form',
+      isDefinedByErxes: false,
+      contentTypeId: formId
+    });
+  }
+
+  return findElk('fields', {
+    bool: {
+      must: [
+        {
+          match: {
+            contentType: 'form'
+          }
+        },
+        {
+          match: {
+            isDefinedByErxes: false
+          }
+        },
+        {
+          match: {
+            contentTypeId: formId
+          }
+        }
+      ]
     }
-  ]);
-
-  return {
-    _id: Math.random(),
-    name: 'formIds',
-    group: 'Form & Form fields',
-    label: 'Form',
-    type: 'form',
-    selectOptions: forms
-  };
-};
-
-const getFormFields = async () => {
-  const fields = await Fields.aggregate([
-    { $match: { contentType: 'form' } },
-    {
-      $project: {
-        _id: 0,
-        label: '$text',
-        value: '$_id'
-      }
-    }
-  ]);
-
-  return {
-    _id: Math.random(),
-    name: 'formFieldIds',
-    group: 'Form & Form fields',
-    label: 'Form field',
-    type: 'formField',
-    selectOptions: fields
-  };
+  });
 };
 
 /*
@@ -485,7 +474,8 @@ export const fieldsCombinedByContentType = async ({
   usageType,
   excludedNames,
   pipelineId,
-  segmentId
+  segmentId,
+  formId
 }: {
   contentType: string;
   usageType?: string;
@@ -493,6 +483,7 @@ export const fieldsCombinedByContentType = async ({
   boardId?: string;
   segmentId?: string;
   pipelineId?: string;
+  formId?: string;
 }) => {
   let schema: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
@@ -735,22 +726,15 @@ export const fieldsCombinedByContentType = async ({
     fields = [...fields, ownerOptions];
   }
 
-  if (contentType === 'form_submission') {
-    const forms = await getFroms();
-    const formFeilds = await getFormFields();
-    const formFieldsValues = await getCustomFields('form');
-
-    fields = [...fields, ...[forms], ...[formFeilds]];
+  if (contentType === 'form_submission' && formId) {
+    const formFieldsValues = await getFormFields(formId);
+    const form = await Forms.getForm(formId);
 
     for (const formField of formFieldsValues) {
-      const form = await Integrations.findOne({
-        formId: formField.contentTypeId
-      });
-
       fields.push({
         _id: Math.random(),
         name: formField._id,
-        group: form ? form.name : 'Form field',
+        group: form ? form.title : 'Fields',
         label: formField.text,
         options: formField.options,
         validation: formField.validation,

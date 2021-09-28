@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import client from 'apolloClient';
 import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps, Alert } from 'modules/common/utils';
+import { router, withProps, Alert } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
@@ -12,13 +13,15 @@ import {
   DetailQueryResponse,
   EditMutationResponse,
   IAutomation,
-  AutomationsNoteQueryResponse
+  AutomationsNoteQueryResponse,
+  ITrigger,
+  IAction
 } from '../../types';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from 'modules/common/types';
 
 type Props = {
   id: string;
-  mainType: string;
-  history: any;
   queryParams: any;
 };
 
@@ -28,17 +31,39 @@ type FinalProps = {
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
-  EditMutationResponse;
+  EditMutationResponse &
+  IRouterProps;
 
 const AutomationDetailsContainer = (props: FinalProps) => {
   const {
     automationDetailQuery,
     automationNotesQuery,
     currentUser,
+    history,
     editAutomationMutation
   } = props;
 
+  const previewCount = (item: ITrigger | IAction) => {
+    const config = item.config;
+    let count = 0;
+
+    client
+      .query({
+        query: gql(queries.automationConfigPrievewCount),
+        variables: {
+          config
+        }
+      })
+      .then(({ data }) => {
+        count = data.automationConfigPrievewCount;
+      });
+
+    return count;
+  };
+
   const save = (doc: IAutomation) => {
+    router.removeParams(history, 'isCreate');
+
     editAutomationMutation({
       variables: {
         ...doc
@@ -72,6 +97,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automation: automationDetail,
     automationNotes,
     currentUser,
+    previewCount,
     save
   };
 
@@ -111,5 +137,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(AutomationDetailsContainer)
+  )(withRouter<FinalProps>(AutomationDetailsContainer))
 );

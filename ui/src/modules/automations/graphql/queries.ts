@@ -20,6 +20,7 @@ export const automationFields = `
     icon
     label
     description
+    count
   }
   actions {
     id
@@ -30,6 +31,7 @@ export const automationFields = `
     icon
     label
     description
+    count
   }
   createdAt
   updatedAt
@@ -183,11 +185,18 @@ const automationsTotalCount = `
   }
 `;
 
+const automationConfigPrievewCount = `
+  query automationConfigPrievewCount($config: JSON){
+    automationConfigPrievewCount(config: $config)
+  }
+`;
+
 export default {
   automations,
   automationsMain,
   automationDetail,
   automationNotes,
   automationHistories,
-  automationsTotalCount
+  automationsTotalCount,
+  automationConfigPrievewCount
 };
