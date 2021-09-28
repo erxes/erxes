@@ -14,6 +14,7 @@ type Props = {
   contentType: string;
   searchValue: string;
   pipelineId: string;
+  formId: string;
   onClickField: (field: IField) => void;
 };
 
@@ -61,12 +62,13 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, pipelineId }) => ({
+      options: ({ contentType, pipelineId, formId }) => ({
         variables: {
           contentType: ['visitor', 'lead', 'customer'].includes(contentType)
             ? 'customer'
             : contentType,
-          pipelineId
+          pipelineId,
+          formId
         }
       })
     })

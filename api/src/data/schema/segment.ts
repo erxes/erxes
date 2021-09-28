@@ -29,6 +29,11 @@ export const types = `
     eventAttributeFilters: [EventAttributeFilter],
 
     subSegmentId: String
+
+    boardId: String
+    pipelineId: String
+
+    formId: String
   }
 
   type Segment {

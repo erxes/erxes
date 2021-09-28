@@ -16,7 +16,8 @@ type Props = {
     condition: ISegmentCondition,
     segmentKey: string,
     boardId?: string,
-    pipelineId?: string
+    pipelineId?: string,
+    formId?: string
   ) => void;
   propertyType?: string;
   pipelineId?: string;
@@ -30,6 +31,7 @@ type State = {
   propertyType?: string;
   pipelineId?: string;
   boardId?: string;
+  formId?: string;
 };
 
 class PropertyForm extends React.Component<Props, State> {

@@ -12,16 +12,19 @@ import { SegmentBackIcon } from '../styles';
 import Icon from 'modules/common/components/Icon';
 import PropertyList from 'modules/segments/containers/form/PropertyList';
 import { isBoardKind } from 'modules/segments/utils';
+import { IForm } from 'modules/forms/types';
 
 type Props = {
   contentType: string;
   boards?: IBoard[];
+  forms?: IForm[];
   segment: ISegmentMap;
   addCondition: (
     condition: ISegmentCondition,
     segmentKey: string,
     boardId?: string,
-    pipelineId?: string
+    pipelineId?: string,
+    formId?: string
   ) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
@@ -41,6 +44,7 @@ type State = {
   searchValue: string;
   boardId: string;
   pipelineId: string;
+  formId: string;
 };
 
 class PropertyCondition extends React.Component<Props, State> {
@@ -53,7 +57,8 @@ class PropertyCondition extends React.Component<Props, State> {
       propertyType: contentType,
       searchValue: '',
       boardId,
-      pipelineId
+      pipelineId,
+      formId: ''
     };
   }
 
@@ -146,6 +151,28 @@ class PropertyCondition extends React.Component<Props, State> {
     );
   };
 
+  renderFormFields = () => {
+    const { forms = [] } = this.props;
+    const { formId, propertyType } = this.state;
+
+    if (propertyType !== 'form_submission') {
+      return null;
+    }
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>Form</ControlLabel>
+          <Select
+            value={formId}
+            options={forms.map(b => ({ value: b._id, label: b.title }))}
+            onChange={this.onChangeBoardItem.bind(this, 'formId')}
+          />
+        </FormGroup>
+      </>
+    );
+  };
+
   render() {
     const {
       contentType,
@@ -158,7 +185,8 @@ class PropertyCondition extends React.Component<Props, State> {
       propertyType,
       searchValue,
       pipelineId,
-      boardId
+      boardId,
+      formId
     } = this.state;
 
     const options = PROPERTY_TYPES[contentType];
@@ -201,6 +229,7 @@ class PropertyCondition extends React.Component<Props, State> {
             {generateSelect()}
           </FormGroup>
           {this.renderBoardFields()}
+          {this.renderFormFields()}
           <FormGroup>
             <ControlLabel>Properties</ControlLabel>
             <FormControl
@@ -210,6 +239,7 @@ class PropertyCondition extends React.Component<Props, State> {
             />
           </FormGroup>
           <PropertyList
+            formId={formId}
             pipelineId={pipelineId}
             onClickField={this.onClickField}
             contentType={propertyType}

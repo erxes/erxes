@@ -206,10 +206,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const onChangeBoardItem = (key, e) => {
       const value = e ? e.value : '';
 
-      if (this.state[key] !== value) {
-        this.setState({ segments: [] });
-      }
-
       this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
     };
 
