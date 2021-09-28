@@ -218,7 +218,26 @@ export const generateQueryBySegment = async (args: {
 
   for (const condition of segment.conditions) {
     if (condition.type === 'property') {
-      propertyConditions.push(condition);
+      if (condition.propertyType !== 'form_submission') {
+        propertyConditions.push(condition);
+      } else {
+        const formFieldCondition = { ...condition };
+
+        formFieldCondition.propertyName = 'formFieldId';
+        formFieldCondition.propertyValue = condition.propertyName;
+        formFieldCondition.propertyOperator = 'e';
+
+        if (
+          condition.propertyOperator &&
+          ['is', 'ins'].indexOf(condition.propertyOperator) >= 0
+        ) {
+          formFieldCondition.propertyOperator = condition.propertyOperator;
+          propertyConditions.push(formFieldCondition);
+        } else {
+          condition.propertyName = 'value';
+          propertyConditions.push(formFieldCondition, condition);
+        }
+      }
     }
 
     if (condition.type === 'event') {
