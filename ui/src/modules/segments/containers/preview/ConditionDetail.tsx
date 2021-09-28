@@ -67,6 +67,7 @@ export default withProps<Props>(
             ? 'customer'
             : condition.propertyType,
           pipelineId: condition.pipelineId,
+          formId: condition.formId,
           segmentId
         }
       })

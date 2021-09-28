@@ -330,6 +330,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
       segments[foundedSegmentIndex] = foundedSegment;
 
+      console.log(segments);
+
       this.setState({
         segments,
         state: 'list',

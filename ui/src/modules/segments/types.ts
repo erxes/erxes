@@ -30,6 +30,8 @@ export interface ISegmentCondition {
 
   boardId?: string;
   pipelineId?: string;
+
+  formId?: string;
 }
 
 export interface ISegmentMap {

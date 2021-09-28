@@ -24,7 +24,9 @@ type FinalProps = {
 
 class PropertyListContationer extends React.Component<FinalProps, {}> {
   render() {
-    const { fieldsQuery, contentType, searchValue } = this.props;
+    const { fieldsQuery, contentType, searchValue, formId } = this.props;
+
+    console.log(formId);
 
     if (!fieldsQuery || fieldsQuery.loading) {
       return <Spinner />;

@@ -22,6 +22,7 @@ type Props = {
   propertyType?: string;
   pipelineId?: string;
   boardId?: string;
+  formId?: string;
   condition?: ISegmentCondition;
 };
 
@@ -38,7 +39,14 @@ class PropertyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { field, condition, propertyType, boardId, pipelineId } = this.props;
+    const {
+      field,
+      condition,
+      propertyType,
+      boardId,
+      pipelineId,
+      formId
+    } = this.props;
 
     let chosenOperator;
 
@@ -59,7 +67,8 @@ class PropertyForm extends React.Component<Props, State> {
       currentValue,
       propertyType: condition ? condition.propertyType : propertyType,
       pipelineId: condition ? condition.pipelineId : pipelineId,
-      boardId: condition ? condition.boardId : boardId
+      boardId: condition ? condition.boardId : boardId,
+      formId: condition ? condition.formId : formId
     };
   }
 
@@ -183,7 +192,8 @@ class PropertyForm extends React.Component<Props, State> {
       currentValue,
       propertyType,
       boardId,
-      pipelineId
+      pipelineId,
+      formId
     } = this.state;
 
     return addCondition(
@@ -195,7 +205,8 @@ class PropertyForm extends React.Component<Props, State> {
         propertyOperator: chosenOperator.value,
         propertyValue: currentValue,
         boardId,
-        pipelineId
+        pipelineId,
+        formId
       },
       segment.key
     );

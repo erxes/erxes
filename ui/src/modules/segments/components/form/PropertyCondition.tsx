@@ -71,7 +71,13 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   renderFieldDetail = () => {
-    const { chosenField, propertyType, pipelineId, boardId } = this.state;
+    const {
+      chosenField,
+      propertyType,
+      pipelineId,
+      boardId,
+      formId
+    } = this.state;
 
     if (chosenField) {
       return (
@@ -80,6 +86,7 @@ class PropertyCondition extends React.Component<Props, State> {
           boardId={boardId}
           pipelineId={pipelineId}
           propertyType={propertyType}
+          formId={formId}
           field={chosenField}
         />
       );
@@ -260,6 +267,7 @@ class PropertyCondition extends React.Component<Props, State> {
           field={chosenField}
           boardId={boardId}
           pipelineId={pipelineId}
+          formId={formId}
         />
       </>
     );
