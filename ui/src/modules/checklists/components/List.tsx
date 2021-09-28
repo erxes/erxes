@@ -36,7 +36,7 @@ function List(props: Props) {
   const [isAddingItem, setIsAddingItem] = useState(
     item.items.length === 0 ? true : false
   );
-  const [isHidden, setIsHidden] = useState(false);
+  const [isHidden, setIsHidden] = useState( localStorage.getItem('isHidden') === 'true' ? true : false);
   const [itemContent, setItemContent] = useState(
     getUnsavedContent(props.item._id) || ''
   );
@@ -133,7 +133,10 @@ function List(props: Props) {
   }
 
   function renderIsCheckedBtn() {
-    const onClickHideShowBtn = () => setIsHidden(!isHidden);
+    const onClickHideShowBtn = () => {
+      setIsHidden(!isHidden);
+      localStorage.setItem('isHidden', `${!isHidden}`);
+    }
     const checkedItems = item.items.filter(data => data.isChecked);
     const btnText = isHidden
       ? `Show checked items (${isHidden && checkedItems.length})`
