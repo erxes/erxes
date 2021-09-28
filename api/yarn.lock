@@ -2811,6 +2811,11 @@ data-urls@^1.0.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
+dataloader@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.0.0.tgz#41eaf123db115987e21ca93c005cd7753c55fe6f"
+  integrity sha512-YzhyDAwA4TaQIhM5go+vCLmU0UikghC/t9DTQYZR2M/UvZ1MdOhPezSDZcjj9uqQJOMqjLcpWtyW2iNINdlatQ==
+
 date-and-time@^0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/date-and-time/-/date-and-time-0.12.0.tgz#6d30c91c47fa72edadd628b71ec2ac46909b9267"
@@ -3307,10 +3312,10 @@ erxes-inmemory-storage@^1.0.20:
     "@babel/runtime" "^7.11.2"
     redis "^3.0.2"
 
-erxes-message-broker@^1.0.27:
-  version "1.0.27"
-  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.27.tgz#a9756323309fa7ae44e3ac49f9cd0686ec0c816c"
-  integrity sha512-IAyLRepg0XvUlN5qUmD6ljZ/Ezui2qNx9e7ORIVI4mAB+O8hX/AyzLbkdll16+JTic6ZyXD+xZqCfISI2VhnLA==
+erxes-message-broker@^1.0.29:
+  version "1.0.29"
+  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.29.tgz#8dde6f0d9a31048ac23aec0e0839cb185da08e8f"
+  integrity sha512-maGN6KrXpit31LApzeXs49U0007v9h7muY69mfRdmMbz2TROvj3iGSRYt56gYzsTPS5ghBNZy5qobyzUZJXEmg==
   dependencies:
     "@babel/runtime" "^7.11.2"
     amqplib "^0.6.0"

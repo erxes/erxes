@@ -712,9 +712,15 @@ connect().then(async () => {
           {
             const tagName = value;
 
-            const tag = await Tags.findOne({
+            let tag = await Tags.findOne({
               name: new RegExp(`.*${tagName}.*`, 'i')
             }).lean();
+
+            if (!tag) {
+              const type = contentType === 'lead' ? 'customer' : contentType;
+
+              tag = await Tags.createTag({ name: tagName, type });
+            }
 
             doc[property.name] = tag ? [tag._id] : [];
           }

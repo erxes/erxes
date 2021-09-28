@@ -197,6 +197,8 @@ export const loadClass = () => {
       if (doc.email) {
         // Checking duplicated email
         await this.checkDuplication({ email: doc.email, idsToExclude: _id });
+      } else {
+        delete doc.email;
       }
 
       // change password

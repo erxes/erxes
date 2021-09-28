@@ -1,16 +1,20 @@
-import { Companies, ProductCategories, Tags } from '../../db/models';
 import { IProductDocument } from '../../db/models/definitions/deals';
+import { IContext } from '../types';
 
 export default {
-  category(product: IProductDocument) {
-    return ProductCategories.findOne({ _id: product.categoryId });
+  category(product: IProductDocument, _, { dataLoaders }: IContext) {
+    if (product.categoryId) {
+      return dataLoaders?.productCategory.load(product.categoryId);
+    }
   },
 
-  getTags(product: IProductDocument) {
-    return Tags.find({ _id: { $in: product.tagIds || [] } });
+  getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders?.tag.loadMany(product.tagIds || []);
   },
 
-  vendor(product: IProductDocument) {
-    return Companies.findOne({ _id: product.vendorId || '' });
+  vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
+    if (product.vendorId) {
+      return dataLoaders?.company.load(product.vendorId);
+    }
   }
 };
