@@ -39,8 +39,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
     const { user, onAvatarUpload, formProps } = this.props;
     const details = user.details || {};
 
-    console.log('details: ', details);
-
     return (
       <>
         <CollapseContent
