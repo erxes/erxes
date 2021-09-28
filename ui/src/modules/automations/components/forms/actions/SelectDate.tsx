@@ -24,7 +24,7 @@ export default class SelectDate extends React.Component<Props> {
   };
 
   dateOnChange = date => {
-    this.overlay && this.overlay.hide();
+    this.overlay.hide();
     const { config, setConfig, inputName = 'value' } = this.props;
     config[inputName] = `${dayjs(date).format('YYYY/MM/DD, HH:mm:ss')}`;
     setConfig(config);

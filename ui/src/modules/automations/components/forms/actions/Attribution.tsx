@@ -24,9 +24,13 @@ export default class Attribution extends React.Component<Props> {
   };
 
   getComma = preValue => {
-    if (this.props.fieldType === 'select' && preValue) return ', ';
+    if (this.props.fieldType === 'select' && preValue) {
+      return ', ';
+    }
 
-    if (preValue) return ' ';
+    if (preValue) {
+      return ' ';
+    }
 
     return '';
   };
@@ -36,11 +40,13 @@ export default class Attribution extends React.Component<Props> {
 
     const { config, setConfig, inputName = 'value' } = this.props;
 
-    if (this.props.onlySet) config[inputName] = `{{ ${item.name} }}`;
-    else
+    if (this.props.onlySet) {
+      config[inputName] = `{{ ${item.name} }}`;
+    } else {
       config[inputName] = `${config[inputName] || ''}${this.getComma(
         config[inputName]
       )}{{ ${item.name} }}`;
+    }
 
     setConfig(config);
   };

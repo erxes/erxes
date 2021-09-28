@@ -27,17 +27,20 @@ export default class SelectOption extends React.Component<Props> {
     const { config, setConfig, inputName = 'value' } = this.props;
 
     if (this.props.isMulti) {
-      let value: string = config[inputName] || '';
+      const value: string = config[inputName] || '';
       const re = /(\[\[ \w* \]\])/gi;
       const ids = value.match(re) || [];
 
       if (!ids.includes(`[[ ${item.value} ]]`)) {
         const comma = config[inputName] ? ', ' : '';
+
         config[inputName] = `${config[inputName] || ''}${comma}[[ ${
           item.value
         } ]]`;
       }
-    } else config[inputName] = `[[ ${item.value} ]]`;
+    } else {
+      config[inputName] = `[[ ${item.value} ]]`;
+    }
 
     setConfig(config);
   };

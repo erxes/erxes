@@ -166,9 +166,14 @@ class PlaceHolderInput extends React.Component<Props, State> {
           ((start === end && val.min < start) ||
             (start < end && val.min <= start)) &&
           val.max <= start
-        )
+        ) {
           return null;
-        if (val.min > end && val.max > end) return null;
+        }
+
+        if (val.min > end && val.max > end) {
+          return null;
+        }
+
         return key;
       });
 
