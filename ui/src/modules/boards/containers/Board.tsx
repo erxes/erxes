@@ -56,7 +56,6 @@ class Board extends React.Component<Props> {
       return (
         <PipelineActivity
           key={pipeline._id}
-          options={options}
           queryParams={queryParams}
           pipeline={pipeline}
         />

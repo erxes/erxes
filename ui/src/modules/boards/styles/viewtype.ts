@@ -41,11 +41,7 @@ export const ActivityList = styled.div`
 export const NameCardStyle = styled.div`
   margin-left: ${dimensions.coreSpacing}px;
   display: flex;
-
-  span {
-    align-self: center;
-    color: ${linkText};
-  }
+  color: ${linkText};
 `;
 
 export const ActionText = styled.div`

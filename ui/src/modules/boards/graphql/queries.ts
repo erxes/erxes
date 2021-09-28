@@ -222,6 +222,25 @@ const itemsCountBySegments = `
   } 
 `;
 
+const activityLogsByAction = `
+  query activityLogsByAction(
+    $contentType: String,
+    $action: String
+  ) {
+    activityLogsByAction(
+      contentType: $contentType,
+      action: $action
+    ) {
+      _id
+      contentTypeDetail
+      createdByDetail
+      action
+      createdAt
+      content
+    }
+  }
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -239,5 +258,6 @@ export default {
   itemsCountBySegments,
   tasks,
   deals,
-  tickets
+  tickets,
+  activityLogsByAction
 };

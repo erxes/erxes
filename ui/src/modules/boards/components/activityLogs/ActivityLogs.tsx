@@ -2,53 +2,62 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Sidebar from './Sidebar';
-import { IOptions } from 'modules/boards/types';
-import { ILog } from 'modules/settings/logs/types';
-import dayjs from 'dayjs';
 import Pagination from 'modules/common/components/pagination/Pagination';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import {
-  ActivityList,
-  NameCardStyle,
-  DescText,
-  ActionText
-} from 'modules/boards/styles/viewtype';
-import Icon from 'modules/common/components/Icon';
+import { IActivityLog } from 'modules/activityLogs/types';
+import ActivityLogsByActionRow from './ActivityLogsByActionRow';
 
 type Props = {
   queryParams: any;
   isLoading: boolean;
   errorMessage: string;
-  options: IOptions;
 } & commonProps;
 
 type commonProps = {
-  logs: ILog[];
+  activityLogsByAction: IActivityLog[];
   count: number;
   refetchQueries: any;
 };
 
-class ActivityLogs extends React.Component<Props> {
-  renderContent() {
-    const { logs } = this.props;
+type State = {
+  action?: string;
+  contentType?: string;
+  page?: string;
+  perPage?: string;
+};
 
-    return logs.map((log: any) => (
-      <ActivityList>
-        <span>{dayjs(log.createdAt).format('MMM D')}</span>
-        <Icon icon="edit-3" size={25} color="#FDA50D" />
-        <NameCardStyle>
-          <NameCard
-            user={(log.newData || {}).assignedUserId}
-            singleLine={true}
-            avatarSize={30}
-          />
-          <span>{log.unicode}</span>
-        </NameCardStyle>
-        <ActionText>{log.action}</ActionText>
-        <DescText>{log.description}</DescText>
-        <span>{dayjs(log.createdAt).format('h:mm A')}</span>
-      </ActivityList>
-    ));
+class ActivityLogs extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    const qp = props.queryParams || {
+      action: '',
+      contentType: ''
+    };
+
+    this.state = {
+      action: qp.action,
+      contentType: qp.contentType
+    };
+  }
+
+  renderObjects() {
+    const { activityLogsByAction } = this.props;
+    const rows: JSX.Element[] = [];
+
+    if (!activityLogsByAction) {
+      return rows;
+    }
+
+    for (const activityLog of activityLogsByAction) {
+      rows.push(
+        <ActivityLogsByActionRow
+          key={activityLog._id}
+          activityLog={activityLog}
+        />
+      );
+    }
+
+    return rows;
   }
 
   render() {
@@ -56,7 +65,7 @@ class ActivityLogs extends React.Component<Props> {
     return (
       <Wrapper
         footer={<Pagination count={count} />}
-        content={<DataWithLoader loading={false} data={this.renderContent()} />}
+        content={<DataWithLoader loading={false} data={this.renderObjects()} />}
         leftSidebar={<Sidebar />}
       />
     );

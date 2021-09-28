@@ -1,36 +1,40 @@
 import * as compose from 'lodash.flowright';
 
 import React from 'react';
-import { IOptions, IPipeline } from '../types';
+import { IPipeline, ActivityLogsByActionQueryResponse } from '../types';
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import { graphql } from 'react-apollo';
-import queries from '../../settings/logs/queries';
-import { LogsQueryResponse } from 'modules/settings/logs/types';
-import ActivityLogs from '../components/activityLogs/ActivityLogs';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import { queries } from '../graphql';
+import ActivityLogs from '../components/activityLogs/ActivityLogs';
 
 type Props = {
   pipeline: IPipeline;
   queryParams: any;
-  options: IOptions;
 };
 
 type WithStagesProps = {
-  logsQuery: LogsQueryResponse;
+  activityLogsByActionQuery: ActivityLogsByActionQueryResponse;
 } & Props;
 
 const ActivityLits = (props: WithStagesProps) => {
-  const { queryParams, logsQuery } = props;
-  const errorMessage = logsQuery.error ? logsQuery.error.message : '';
-  const isLoading = logsQuery.loading;
+  const { queryParams, activityLogsByActionQuery } = props;
+  const errorMessage = activityLogsByActionQuery.error
+    ? activityLogsByActionQuery.error
+    : '';
+  const isLoading = activityLogsByActionQuery.loading;
+  console.log('activityLogsByActionQuery', activityLogsByActionQuery);
 
   const updatedProps = {
     ...props,
-    isLoading: logsQuery.loading,
+    isLoading: activityLogsByActionQuery.loading,
     refetchQueries: commonOptions(queryParams),
-    logs: isLoading || errorMessage ? [] : logsQuery.logs.logs,
-    count: isLoading || errorMessage ? 0 : logsQuery.logs.totalCount,
+    activityLogsByAction:
+      isLoading || errorMessage
+        ? []
+        : activityLogsByActionQuery.activityLogsByAction,
+    count: isLoading || errorMessage ? 0 : activityLogsByActionQuery.totalCount,
     errorMessage
   };
 
@@ -39,32 +43,27 @@ const ActivityLits = (props: WithStagesProps) => {
 
 const commonOptions = queryParams => {
   const variables = {
-    start: queryParams.start,
-    end: queryParams.end,
-    userId: queryParams.userId,
     action: queryParams.action,
-    type: queryParams.type,
+    contentType: queryParams.contentType,
     ...generatePaginationParams(queryParams)
   };
 
-  return [{ query: gql(queries.logs), variables }];
+  return [{ query: gql(queries.activityLogsByAction), variables }];
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, LogsQueryResponse>(gql(queries.logs), {
-      name: 'logsQuery',
-      options: ({ queryParams }) => ({
-        notifyOnNetworkStatusChange: true,
-        variables: {
-          start: queryParams.start,
-          end: queryParams.end,
-          userId: queryParams.userId,
-          action: queryParams.action,
-          type: queryParams.type,
-          ...generatePaginationParams(queryParams)
-        }
-      })
-    })
+    graphql<Props, ActivityLogsByActionQueryResponse>(
+      gql(queries.activityLogsByAction),
+      {
+        name: 'activityLogsByActionQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            action: queryParams.action,
+            contentType: 'task'
+          }
+        })
+      }
+    )
   )(ActivityLits)
 );
