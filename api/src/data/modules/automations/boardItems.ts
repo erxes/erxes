@@ -101,7 +101,7 @@ export const receiveRpcMessageBoardItem = async (action, doc) => {
 
       const result = await collection.update(
         { _id: doc._id },
-        { $set: { [doc.field]: doc.value } }
+        { $set: { ...(doc.setDoc || {}) } }
       );
 
       return sendSuccess(result);

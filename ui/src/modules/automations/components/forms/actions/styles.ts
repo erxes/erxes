@@ -5,7 +5,7 @@ import { TriggerBox } from 'modules/automations/styles';
 import { rgba } from 'modules/common/styles/color';
 
 export const ActionFooter = styled.div`
-  position: absolute;
+  padding: ${dimensions.unitSpacing}px;
   bottom: ${dimensions.coreSpacing}px;
 `;
 
@@ -44,7 +44,7 @@ export const ActionBox = styledTS<{
     margin-right: 0;
     position: relative;
     pointer-events: ${props => !props.isAvailable && 'none'};
-  
+
     > i {
       margin-right: ${dimensions.unitSpacing}px;
       background: ${rgba(colors.colorPrimary, 0.12)};
@@ -57,7 +57,7 @@ export const ActionBox = styledTS<{
       flex-shrink: 0;
       color: ${colors.textPrimary};
     }
-  
+
     > div {
       b {
         color: ${colors.textPrimary};
@@ -72,13 +72,13 @@ export const ActionBox = styledTS<{
         font-weight: 500;
       }
     }
-  
+
     .favourite-action {
       position: absolute;
       width: 30px;
       text-align: right;
       right: ${dimensions.coreSpacing}px;
-  
+
       > i {
         color: ${props => props.isFavourite && colors.colorCoreOrange}
       }

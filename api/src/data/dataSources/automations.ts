@@ -72,6 +72,17 @@ export default class AutomationAPI extends RESTDataSource {
     }
   }
 
+  // fetches counts
+  public async getTotalCount(status) {
+    try {
+      return this.get(`/api/getTotalCount/`, status);
+    } catch (e) {
+      debugError(e);
+
+      return { error: e.message };
+    }
+  }
+
   public async updateAutomation(doc) {
     try {
       return this.post(`/api/update`, { doc });
