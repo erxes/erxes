@@ -1,6 +1,6 @@
-import React from 'react';
 import { IAction } from 'modules/automations/types';
-import { ActionForms } from '.';
+import React from 'react';
+import { ActionForms } from './';
 
 type Props = {
   activeAction: IAction;

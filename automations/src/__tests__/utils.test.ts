@@ -2,7 +2,7 @@ import * as sinon from 'sinon';
 import Automations, { ITrigger } from "../models/Automations";
 import { Executions } from "../models/Executions";
 import { automationFactory } from "../models/factories";
-import { calculateExecution, receiveTrigger, reset, tags } from "../utils";
+import { calculateExecution, receiveTrigger } from "../utils";
 import * as utils from "../utils";
 import "./setup";
 import { ACTIONS } from '../constants';
@@ -11,7 +11,6 @@ describe('getOrCreateExecution', () => {
   beforeEach(async () => {
     await Automations.remove({});
     await Executions.remove({});
-    reset();
   })
 
   test("consecutive", async (done) => {
@@ -140,7 +139,6 @@ describe('executeActions (if)', () => {
   afterEach(async () => {
     await Automations.remove({});
     await Executions.remove({});
-    reset();
   })
 
   test("if yes", async (done) => {
@@ -230,7 +228,6 @@ describe('executeActions (wait)', () => {
   afterEach(async () => {
     await Automations.remove({});
     await Executions.remove({});
-    reset();
   })
 
   test("wait", async (done) => {
@@ -283,7 +280,6 @@ describe('executeActions (placeholder)', () => {
   afterEach(async () => {
     await Automations.remove({});
     await Executions.remove({});
-    reset();
   })
 
   test("check deal", async (done) => {

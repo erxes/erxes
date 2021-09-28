@@ -1,56 +1,71 @@
-import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { withProps } from 'modules/common/utils';
 import BoardItemForm from 'modules/automations/components/forms/actions/subForms/BoardItemForm';
 import { IAction } from 'modules/automations/types';
-import { queries } from 'modules/boards/graphql';
+import { graphql } from 'react-apollo';
+import { queries as userQueries } from 'modules/settings/team/graphql';
+import { queries as pipelineQuery } from 'modules/boards/graphql';
 import React from 'react';
+import { AllUsersQueryResponse } from 'modules/settings/team/types';
+import { PipelineLabelsQueryResponse } from 'modules/boards/types';
 
-type IProps = {
+type Props = {
   activeAction: IAction;
   triggerType: string;
   closeModal: () => void;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
-class BoardItemSelectContainer extends React.Component<IProps> {
-  fetchCards = (stageId: string, callback: (cards: any) => void) => {
-    const { activeAction } = this.props;
+type FinalProps = {
+  allUserQuery: AllUsersQueryResponse;
+  pipelineLabelQuery: PipelineLabelsQueryResponse;
+} & Props;
 
-    let type = '';
+class BoardItemSelectContainer extends React.Component<FinalProps> {
+  render() {
+    const { allUserQuery, pipelineLabelQuery } = this.props;
 
-    switch (activeAction.type) {
-      case 'createDeal':
-        type = 'deal';
-        break;
-
-      case 'createTask':
-        type = 'task';
-        break;
-
-      case 'createTicket':
-        type = 'ticket';
-        break;
+    if (allUserQuery.loading || pipelineLabelQuery.loading) {
+      return null;
     }
 
-    client
-      .query({
-        query: gql(queries[`${type}s`]),
-        fetchPolicy: 'network-only',
-        variables: { stageId, limit: 0 }
-      })
-      .then(({ data }: any) => {
-        callback(data[`${type}s`]);
-      });
-  };
+    const users = allUserQuery.allUsers || [];
+    const pipelineLabels = pipelineLabelQuery.pipelineLabels || [];
 
-  render() {
     const extendedProps = {
       ...this.props,
-      fetchCards: this.fetchCards
+      users,
+      pipelineLabels
     };
 
     return <BoardItemForm {...extendedProps} />;
   }
 }
 
-export default BoardItemSelectContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props, AllUsersQueryResponse, {}>(gql(userQueries.allUsers), {
+      name: 'allUserQuery',
+      options: () => ({
+        variables: {
+          isActive: true
+        }
+      })
+    }),
+    graphql<Props, PipelineLabelsQueryResponse, {}>(
+      gql(pipelineQuery.pipelineLabels),
+      {
+        name: 'pipelineLabelQuery',
+        skip: ({ activeAction }) => !activeAction.config,
+        options: ({ activeAction }) => ({
+          variables: {
+            pipelineId: activeAction.config
+              ? activeAction.config.pipelineId
+              : ''
+          }
+        })
+      }
+    )
+  )(BoardItemSelectContainer)
+);

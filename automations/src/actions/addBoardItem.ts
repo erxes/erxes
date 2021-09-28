@@ -2,28 +2,22 @@ import { replacePlaceHolders } from '../helpers';
 import { sendRPCMessage } from '../messageBroker';
 
 export const addBoardItem = async ({ action, execution, type }) => {
-  const newData = await replacePlaceHolders({ actionData: action.config, target: execution.target });
-
-  if (execution.target.hasOwnProperty('conversationId')) {
-    newData.conversationId = execution.target.conversationId;
-  }
-
-  if (execution.target.hasOwnProperty('cachedCustomerId')) {
-    newData.customerId = execution.target.cachedCustomerId;
-  }
-
-  if (execution.target.hasOwnProperty('customerId')) {
-    newData.customerId = execution.target.customerId;
-  }
-
-  if (execution.target.hasOwnProperty('companyId')) {
-    newData.companyId = execution.target.companyId;
-  }
-
   const { config = {} } = action;
 
-  if (config.hasOwnProperty('cardName')) {
-    newData.name = config.cardName
+  let newData = await replacePlaceHolders({ actionData: { assignedTo: action.config.assignedTo }, target: execution.target, isRelated: false })
+  delete action.config.assignedTo;
+  newData = { ...newData, ...await replacePlaceHolders({ actionData: action.config, target: execution.target }) };
+
+  if (newData.hasOwnProperty('assignedTo')) {
+    newData.assignedUserIds = newData.assignedTo.trim().split(', ')
+  }
+
+  if (newData.hasOwnProperty('labelIds')) {
+    newData.labelIds = newData.labelIds.trim().split(', ')
+  }
+
+  if (newData.hasOwnProperty('cardName')) {
+    newData.name = newData.cardName
   }
 
   if (config.hasOwnProperty('stageId')) {

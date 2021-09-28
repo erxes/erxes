@@ -75,15 +75,15 @@ const getRelatedValue = async (target, targetKey) => {
   return false
 }
 
-export const replacePlaceHolders = async ({ actionData, target }: { actionData?: any, target: any }) => {
+export const replacePlaceHolders = async ({ actionData, target, isRelated = true }: { actionData?: any, target: any, isRelated?: boolean }) => {
   if (actionData) {
     const targetKeys = Object.keys(target);
     const actionDataKeys = Object.keys(actionData);
 
-    for (const targetKey of targetKeys) {
-      for (const actionDataKey of actionDataKeys) {
+    for (const actionDataKey of actionDataKeys) {
+      for (const targetKey of targetKeys) {
         if (actionData[actionDataKey].includes(`{{ ${targetKey} }}`)) {
-          const replaceValue = await getRelatedValue(target, targetKey) || target[targetKey]
+          const replaceValue = isRelated && await getRelatedValue(target, targetKey) || target[targetKey]
           actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ ${targetKey} }}`, replaceValue);
         }
 
@@ -101,6 +101,7 @@ export const replacePlaceHolders = async ({ actionData, target }: { actionData?:
           }
         }
       }
+      actionData[actionDataKey] = actionData[actionDataKey].replace(/\[\[ /g, '').replace(/ \]\]/g, '')
     }
   }
 

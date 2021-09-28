@@ -76,6 +76,14 @@ const automationQueries = {
     const result = await fetchSegment(segment, { returnCount: true });
 
     return result;
+  },
+
+  async automationsTotalCount(
+    _root,
+    { status }: { status: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.AutomationsAPI.getTotalCount(status);
   }
 };
 
