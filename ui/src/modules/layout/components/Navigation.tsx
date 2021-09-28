@@ -50,9 +50,11 @@ class Navigation extends React.Component<IProps, State> {
       pluginsData: {}
     };
   }
+  update = (x: any) => {
+    this.setState({ ...x });
+  };
   async componentDidMount(): Promise<void> {
-    const { preAuthData } = pluginsOfRoutes();
-    this.setState({ ...preAuthData });
+    pluginsOfRoutes(undefined, this.update);
   }
 
   componentWillReceiveProps(nextProps) {

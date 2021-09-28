@@ -136,9 +136,12 @@ class AuthLayoutWrapper extends React.Component<Props, State> {
     };
   }
 
+  update = (x: any) => {
+    this.setState({ ...x });
+  };
+
   async componentDidMount(): Promise<void> {
-    const { preAuthData } = pluginsOfRoutes();
-    this.setState({ ...preAuthData });
+    pluginsOfRoutes(undefined, this.update);
   }
 
   render() {
