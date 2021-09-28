@@ -140,6 +140,22 @@ router.get(
   })
 );
 
+router.get('/getTotalCount',
+  routeErrorHandling(async (req, res) => {
+    const { status } = req.query;
+
+    const filter: any = {}
+    if (status) {
+      filter.status = status
+    }
+    const total = await Automations.find(filter).countDocuments();
+
+    return res.json({
+      total
+    })
+  })
+);
+
 router.get(
   '/find',
   routeErrorHandling(async (req, res) => {
@@ -237,8 +253,8 @@ router.get(
       filter.triggerType = triggerType
     }
 
-    if(beginDate) {
-      filter.createdAt = {$gte: beginDate}
+    if (beginDate) {
+      filter.createdAt = { $gte: beginDate }
     }
 
     if (endDate) {

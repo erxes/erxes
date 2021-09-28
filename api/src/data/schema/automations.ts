@@ -54,6 +54,11 @@ export const types = `
     totalCount: Float,
   }
 
+  type automationsTotalCountResponse {
+    total: Int
+    byStatus: Int
+  }
+
   type AutomationHistory {
     _id: String
     createdAt: Date
@@ -124,6 +129,7 @@ export const queries = `
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${historiesParams}): [AutomationHistory]
   automationConfigPrievewCount(config: JSON): Int
+  automationsTotalCount(status: String): automationsTotalCountResponse
 `;
 
 const commonFields = `
