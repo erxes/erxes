@@ -15,6 +15,7 @@ import {
 } from './inmemoryStorage';
 import { extendViaPlugins } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
+import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 
 // load environment variables
 dotenv.config();
@@ -87,6 +88,8 @@ export const initApolloServer = async app => {
         };
       }
 
+      const dataLoaders: IDataLoaders = generateAllDataLoaders();
+
       const requestInfo = {
         secure: req.secure,
         cookies: req.cookies
@@ -101,7 +104,8 @@ export const initApolloServer = async app => {
           commonQuerySelector: {},
           user,
           res,
-          requestInfo
+          requestInfo,
+          dataLoaders
         };
       }
 
@@ -138,7 +142,8 @@ export const initApolloServer = async app => {
         userBrandIdsSelector,
         user,
         res,
-        requestInfo
+        requestInfo,
+        dataLoaders
       };
     },
     subscriptions: {

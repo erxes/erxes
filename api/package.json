@@ -52,6 +52,7 @@
     "cors": "^2.8.1",
     "cote": "^1.0.0",
     "csv-parser": "^3.0.0",
+    "dataloader": "^2.0.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.6.0",
