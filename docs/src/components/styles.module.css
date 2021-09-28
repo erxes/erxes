@@ -178,7 +178,7 @@
 	/* height: 100%; */
 	padding: 15px 25px;
 	border-right: 1px solid #DBDDE1;
-	
+
 }
 
 /* .divider {
@@ -233,8 +233,8 @@ li {
 }
 
 .tab {
-	width: 900px;
-	height: 300px;
+	width: 60%;
+	/* height: 300px; */
 	border-radius: 10px;
 	border: 2px solid #EBEDF0;
 }
