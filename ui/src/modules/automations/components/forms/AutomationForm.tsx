@@ -101,7 +101,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.state = {
       name: automation.name,
       actions: automation.actions || [],
-      triggers: automation.triggers || [],
+      triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
       activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'triggers',
@@ -137,7 +137,7 @@ class AutomationForm extends React.Component<Props, State> {
   // };
 
   componentDidMount() {
-    console.log('didmount');
+    // console.log("didmount");
     this.connectInstance();
     // document.addEventListener("click", this.handleClickOutside, true);
   }
@@ -903,7 +903,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   render() {
     const { automation } = this.props;
-    console.log('inredenr props automation', automation);
+    // console.log("inredenr props automation", automation);
     return (
       <>
         {this.renderConfirmation()}
