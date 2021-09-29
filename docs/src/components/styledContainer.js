@@ -1,9 +1,4 @@
 import React from "react";
-// import CodeBox from "./codeBox";
-// const parse = require('html-react-parser');
-
-
-// import Button from "erxes-ui/lib/components/Button";
 
 const StyledContainer = (props) => {
     const { title, description, text } = props;
