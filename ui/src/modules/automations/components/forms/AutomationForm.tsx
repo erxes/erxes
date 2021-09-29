@@ -842,7 +842,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderConfirmation() {
-    const { id, queryParams, history, saveLoading } = this.props;
+    const { id, queryParams, history, saveLoading, automation } = this.props;
     const { triggers, actions, name } = this.state;
 
     if (saveLoading) {
@@ -851,7 +851,10 @@ class AutomationForm extends React.Component<Props, State> {
 
     const when = queryParams.isCreate
       ? !!id
-      : !!id && (triggers.length !== 0 || actions.length !== 0);
+      : JSON.stringify(triggers) !==
+          JSON.stringify(automation.triggers || []) ||
+        JSON.stringify(actions) !== JSON.stringify(automation.actions || []) ||
+        automation.name !== this.state.name;
 
     return (
       <Confirmation
