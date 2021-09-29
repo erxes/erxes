@@ -119,15 +119,15 @@ const productQueries = {
   ) {
     const filter: any = commonQuerySelector;
 
+    filter.status = { $nin: ['disabled', 'archived'] };
+
     if (parentId) {
       filter.parentId = parentId;
     }
 
-    if (status && status !== 'active') {
-      filter.status = status;
-    } else {
-      filter.status = { $nin: ['disabled', 'archived'] };
-    }
+    // if (status && status !== 'active') {
+    //   filter.status = status;
+    // }
 
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');

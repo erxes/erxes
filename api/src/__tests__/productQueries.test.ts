@@ -129,9 +129,14 @@ describe('productQueries', () => {
     await productCategoryFactory({
       parentId: parent._id,
       code: '3',
+      status: 'archived'
+    });
+    await productCategoryFactory({
+      parentId: parent._id,
+      code: '4',
       status: 'active'
     });
-    await productCategoryFactory({ parentId: parent._id, code: '4' });
+    await productCategoryFactory({ parentId: parent._id, code: '5' });
 
     const qry = `
       query productCategories($parentId: String $searchValue: String) {
