@@ -1,7 +1,7 @@
 import { __, Alert } from 'modules/common/utils';
 import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
-// import RTG from "react-transition-group";
+import RTG from 'react-transition-group';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Form from 'modules/common/components/form/Form';
@@ -59,10 +59,10 @@ type Props = {
   automation: IAutomation;
   automationNotes?: IAutomationNote[];
   save: (params: any) => void;
+  saveLoading: boolean;
   id: string;
   count: number;
   history: any;
-  saveLoading: boolean;
   queryParams: any;
   previewCount: (item: ITrigger | IAction) => void;
 };
@@ -91,7 +91,7 @@ type State = {
 };
 
 class AutomationForm extends React.Component<Props, State> {
-  // private wrapperRef;
+  private wrapperRef;
   private setZoom;
 
   constructor(props) {
@@ -102,7 +102,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.state = {
       name: automation.name,
       actions: automation.actions || [],
-      triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
+      triggers: automation.triggers || [],
       activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'triggers',
@@ -133,19 +133,19 @@ class AutomationForm extends React.Component<Props, State> {
     return newId;
   };
 
-  // setWrapperRef = (node) => {
-  //   this.wrapperRef = node;
-  // };
+  setWrapperRef = node => {
+    this.wrapperRef = node;
+  };
 
   componentDidMount() {
-    // console.log("didmount");
     this.connectInstance();
-    // document.addEventListener("click", this.handleClickOutside, true);
+
+    document.addEventListener('click', this.handleClickOutside, true);
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { isActionTab } = this.state;
-    // console.log('didupdate');
+
     if (isActionTab && isActionTab !== prevState.isActionTab) {
       this.connectInstance();
     }
@@ -173,9 +173,9 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
-  // componentWillUnmount() {
-  //   document.removeEventListener("click", this.handleClickOutside, true);
-  // }
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside, true);
+  }
 
   connectInstance = () => {
     instance = plumb.getInstance({
@@ -253,9 +253,7 @@ class AutomationForm extends React.Component<Props, State> {
     });
   };
 
-  handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  handleSubmit = () => {
     const { name, isActive, triggers, actions } = this.state;
     const { automation, save } = this.props;
 
@@ -276,7 +274,6 @@ class AutomationForm extends React.Component<Props, State> {
           label: t.label,
           description: t.description,
           actionId: t.actionId,
-          count: t.count,
           style: jquery(`#trigger-${t.id}`).attr('style')
         })),
         actions: actions.map(a => ({
@@ -286,7 +283,6 @@ class AutomationForm extends React.Component<Props, State> {
           config: a.config,
           icon: a.icon,
           label: a.label,
-          count: a.count,
           description: a.description,
           style: jquery(`#action-${a.id}`).attr('style')
         }))
@@ -410,8 +406,8 @@ class AutomationForm extends React.Component<Props, State> {
 
   handleClickOutside = event => {
     if (
-      // this.wrapperRef &&
-      // !this.wrapperRef.contains(event.target) &&
+      this.wrapperRef &&
+      !this.wrapperRef.contains(event.target) &&
       this.state.isActionTab
     ) {
       this.setState({ showDrawer: false });
@@ -835,6 +831,7 @@ class AutomationForm extends React.Component<Props, State> {
       <Confirmation
         when={when}
         id={id}
+        save={this.handleSubmit}
         history={history}
         queryParams={queryParams}
       />
@@ -908,7 +905,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   render() {
     const { automation } = this.props;
-    // console.log("inredenr props automation", automation);
+
     return (
       <>
         {this.renderConfirmation()}
@@ -934,13 +931,7 @@ class AutomationForm extends React.Component<Props, State> {
             </PageContent>
           </AutomationFormContainer>
 
-          {this.state.showDrawer && (
-            <RightDrawerContainer>
-              {this.renderTabContent()}
-            </RightDrawerContainer>
-          )}
-
-          {/* <div ref={this.setWrapperRef}>
+          <div ref={this.setWrapperRef}>
             <RTG.CSSTransition
               in={this.state.showDrawer}
               timeout={300}
@@ -951,7 +942,7 @@ class AutomationForm extends React.Component<Props, State> {
                 {this.renderTabContent()}
               </RightDrawerContainer>
             </RTG.CSSTransition>
-          </div> */}
+          </div>
 
           {this.renderNoteModal()}
           {this.renderTemplateModal()}

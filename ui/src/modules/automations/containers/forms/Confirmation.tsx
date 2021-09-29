@@ -14,6 +14,7 @@ type Props = {
   id: string;
   history: any;
   queryParams: any;
+  save: () => void;
 };
 
 type FinalProps = {} & Props & RemoveMutationResponse;

@@ -6,22 +6,23 @@ type Props = {
   history: any;
   queryParams: any;
   id: string;
+  save: () => void;
   removeAutomations: (
     doc: { automationIds: string[] },
     navigateToNextLocation: () => void
   ) => void;
 };
 
-class Confirmation extends React.Component<
-  Props,
-  { nextLocation; showModal: boolean }
-> {
+type State = { nextLocation; showModal: boolean; isConfirm: boolean };
+
+class Confirmation extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
       nextLocation: {},
-      showModal: false
+      showModal: false,
+      isConfirm: false
     };
   }
 
@@ -58,13 +59,21 @@ class Confirmation extends React.Component<
   };
 
   onConfirm = () => {
-    this.navigateToNextLocation();
+    this.setState({ isConfirm: true }, () => {
+      return this.navigateToNextLocation();
+    });
   };
 
   navigateToNextLocation = () => {
+    const { save, history, queryParams } = this.props;
+
+    if (!queryParams.isCreate && this.state.isConfirm) {
+      save();
+    }
+
     this.unblock();
 
-    this.props.history.push(this.state.nextLocation.pathname);
+    history.push(this.state.nextLocation.pathname);
   };
 
   unblock = () => null;
