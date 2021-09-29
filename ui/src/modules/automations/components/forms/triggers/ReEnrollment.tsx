@@ -21,7 +21,6 @@ type Props = {
   trigger: ITrigger;
   segment?: ISegment;
   closeModal?: () => void;
-  // renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave?: () => void;
   addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
 };
@@ -47,6 +46,7 @@ class ReEnrollment extends React.Component<Props, State> {
   onChangeConfig = () => {
     const { reEnroll, checked } = this.state;
     const { trigger, addConfig } = this.props;
+
     const config = {
       reEnrollment: reEnroll,
       reEnrollmentRules: checked

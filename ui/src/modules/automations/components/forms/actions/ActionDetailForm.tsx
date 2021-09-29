@@ -13,7 +13,13 @@ class ActionDetailForm extends React.Component<Props> {
   onSave = () => {
     const { addAction, activeAction, closeModal } = this.props;
 
-    addAction(activeAction);
+    const actionId = activeAction.id
+      ? activeAction.id
+      : Math.random()
+          .toString(36)
+          .slice(-8);
+
+    addAction(activeAction, actionId);
 
     closeModal();
   };

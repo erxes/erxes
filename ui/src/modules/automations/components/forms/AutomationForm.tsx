@@ -121,32 +121,32 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
-  getNewId = (checkIds: string[]) => {
-    let newId = Math.random()
-      .toString(36)
-      .slice(-8);
-
-    if (checkIds.includes(newId)) {
-      newId = this.getNewId(checkIds);
-    }
-
-    return newId;
-  };
-
   setWrapperRef = node => {
     this.wrapperRef = node;
   };
 
   componentDidMount() {
     this.connectInstance();
+    const { triggers, actions } = this.state;
+
+    for (const action of actions) {
+      this.renderControl('action', action, this.onClickAction);
+    }
+
+    for (const trigger of triggers) {
+      this.renderControl('trigger', trigger, this.onClickTrigger);
+    }
 
     document.addEventListener('click', this.handleClickOutside, true);
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { isActionTab } = this.state;
-    // console.log(this.props.automation.triggers, this.state.triggers);
-    if (isActionTab && isActionTab !== prevState.isActionTab) {
+
+    if (
+      (isActionTab && isActionTab !== prevState.isActionTab) ||
+      prevProps.automation.triggers.length !== prevState.triggers.length
+    ) {
       this.connectInstance();
     }
 
@@ -198,58 +198,11 @@ class AutomationForm extends React.Component<Props, State> {
         this.onDettachConnection(info);
       });
 
-      for (const action of actions) {
-        this.renderControl('action', action, this.onClickAction);
-      }
-
-      for (const trigger of triggers) {
-        this.renderControl('trigger', trigger, this.onClickTrigger);
-      }
-
       // create connections ===================
       createInitialConnections(triggers, actions, instance);
 
       // delete connections ===================
       deleteConnection(instance);
-
-      // hover action control ===================
-      jquery('#canvas .control').hover(event => {
-        event.preventDefault();
-
-        jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
-
-        this.setState({ activeId: event.currentTarget.id });
-      });
-
-      // delete control ===================
-      jquery('#canvas').on('click', '.delete-control', event => {
-        event.preventDefault();
-
-        const item = event.currentTarget.id;
-        const splitItem = item.split('-');
-        const type = splitItem[0];
-
-        instance.remove(item);
-
-        if (type === 'action') {
-          return this.setState({
-            actions: actions.filter(action => action.id !== splitItem[1])
-          });
-        }
-
-        if (type === 'trigger') {
-          return this.setState({
-            triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
-          });
-        }
-      });
-
-      // add note ===================
-      jquery('#canvas').on('click', '.add-note', event => {
-        event.preventDefault();
-
-        this.handleNoteModal();
-      });
     });
   };
 
@@ -423,9 +376,10 @@ class AutomationForm extends React.Component<Props, State> {
 
     let trigger: any = {
       ...data,
-      id: this.getNewId(triggers.map(t => t.id))
+      id: triggerId
     };
-    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
+
+    // const triggerIndex = triggers.findIndex((t) => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
       trigger = activeTrigger;
@@ -436,46 +390,38 @@ class AutomationForm extends React.Component<Props, State> {
     /*add count*/
     this.props.previewCount(trigger);
 
-    if (triggerIndex !== -1) {
-      triggers[triggerIndex] = trigger;
-    } else {
-      triggers.push(trigger);
-    }
+    triggers.push(trigger);
+    // if (triggerIndex !== -1) {
+    //   triggers[triggerIndex] = trigger;
+    // } else {
+    //   triggers.push(trigger);
+    // }
 
     this.setState({ triggers, activeTrigger: trigger }, () => {
-      if (!triggerId) {
-        this.renderControl('trigger', trigger, this.onClickTrigger);
-      }
+      // if (!triggerId) {
+      this.renderControl('trigger', trigger, this.onClickTrigger);
+      // }
     });
   };
 
   addAction = (data: IAction, actionId?: string, config?: any) => {
-    const { actions } = this.state;
+    const { actions, activeAction } = this.state;
 
-    let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
+    let action: any = { ...data, id: actionId };
 
-    let actionIndex = -1;
-
-    if (actionId) {
-      actionIndex = actions.findIndex(a => a.id === actionId);
-
-      if (actionIndex !== -1) {
-        action = actions[actionIndex];
-      }
+    if (actionId && activeAction.id === actionId) {
+      action = activeAction;
     }
 
     action.config = { ...action.config, ...config };
 
-    if (actionIndex !== -1) {
-      actions[actionIndex] = action;
-    } else {
-      actions.push(action);
-    }
+    /*add count*/
+    this.props.previewCount(action);
+
+    actions.push(action);
 
     this.setState({ actions, activeAction: action }, () => {
-      if (!actionId) {
-        this.renderControl('action', action, this.onClickAction);
-      }
+      this.renderControl('action', action, this.onClickAction);
     });
   };
 
@@ -554,6 +500,49 @@ class AutomationForm extends React.Component<Props, State> {
       event.preventDefault();
 
       onClick(item);
+    });
+
+    // hover action control ===================
+    jquery('#canvas .control').hover(event => {
+      event.preventDefault();
+
+      jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+
+      this.setState({ activeId: event.currentTarget.id });
+    });
+
+    // delete control ===================
+    jquery('#canvas').on('click', '.delete-control', event => {
+      event.preventDefault();
+
+      const id = event.currentTarget.id;
+      const splitItem = id.split('-');
+      const type = splitItem[0];
+
+      instance.remove(id);
+
+      if (type === 'action') {
+        return this.setState({
+          actions: this.state.actions.filter(
+            action => action.id !== splitItem[1]
+          )
+        });
+      }
+
+      if (type === 'trigger') {
+        return this.setState({
+          triggers: this.state.triggers.filter(
+            trigger => trigger.id !== splitItem[1]
+          )
+        });
+      }
+    });
+
+    // add note ===================
+    jquery('#canvas').on('click', '.add-note', event => {
+      event.preventDefault();
+
+      this.handleNoteModal();
     });
 
     jquery('#canvas').on('click', `.note-badge-${idElm}`, event => {
