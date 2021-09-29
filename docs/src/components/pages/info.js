@@ -1,12 +1,9 @@
 import React from "react";
-// import Button from "../../../node_modules/erxes-ui/lib/components/Button";
+import styles from "../styles.module.css";
+import { InfoStyle } from "../infoStyle"
 
-function Alerts() {
-  return (
-    <div className="container">
-        Alert
-    </div>
-  );
+export default function Infos() {
+  return(
+    <InfoStyle title="Info" titledef="this is info example" definition="you can copy and us this infos"/>
+  )
 }
-
-export default Alerts;
