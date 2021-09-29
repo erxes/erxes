@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { excludedNames } from 'modules/automations/containers/forms/actions/subForms/SetProperty';
 import { DrawerDetail } from 'modules/automations/styles';
 import { IAction } from 'modules/automations/types';
 import Button from 'modules/common/components/Button';
@@ -10,9 +11,10 @@ import { queries as formQueries } from 'modules/forms/graphql';
 import { FieldsCombinedByType } from 'modules/settings/properties/types';
 import React from 'react';
 import Select from 'react-select-plus';
+
 import Common from '../Common';
 import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
-import PlaceHolderInput from '../PlaceHolderInput';
+import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
 
 type Props = {
   closeModal: () => void;
@@ -66,7 +68,7 @@ class SetProperty extends React.Component<Props, State> {
       .query({
         query: gql(formQueries.fieldsCombinedByContentType),
         fetchPolicy: 'network-only',
-        variables: { contentType: type }
+        variables: { contentType: type, excludedNames }
       })
       .then(data => {
         this.setState({ fields: data.data.fieldsCombinedByContentType });
@@ -88,7 +90,7 @@ class SetProperty extends React.Component<Props, State> {
       return 'date';
     }
 
-    return;
+    return chosenField.type;
   };
 
   getIsMulti = (chosenField: FieldsCombinedByType) => {
@@ -112,7 +114,7 @@ class SetProperty extends React.Component<Props, State> {
 
   renderPerValue() {
     const { triggerType } = this.props;
-    const { config, fields } = this.state;
+    const { type, config, fields } = this.state;
 
     return config.rules.map(rule => {
       const chosenField: FieldsCombinedByType = fields.find(
@@ -182,6 +184,7 @@ class SetProperty extends React.Component<Props, State> {
             config={rule}
             onChange={onChangeValue}
             triggerType={triggerType}
+            type={type}
             fieldType={this.getFieldType(chosenField)}
             isMulti={this.getIsMulti(chosenField)}
             attrType={chosenField.type}

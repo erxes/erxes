@@ -225,18 +225,17 @@ export const generateQueryBySegment = async (args: {
 
         formFieldCondition.propertyName = 'formFieldId';
         formFieldCondition.propertyValue = condition.propertyName;
-        formFieldCondition.propertyOperator = 'e';
 
         if (
           condition.propertyOperator &&
-          ['is', 'ins'].indexOf(condition.propertyOperator) >= 0
+          ['is', 'ins'].indexOf(condition.propertyOperator) === 0
         ) {
-          formFieldCondition.propertyOperator = condition.propertyOperator;
-          propertyConditions.push(formFieldCondition);
-        } else {
+          formFieldCondition.propertyOperator = 'e';
           condition.propertyName = 'value';
-          propertyConditions.push(formFieldCondition, condition);
+          propertyConditions.push(condition);
         }
+
+        propertyConditions.push(formFieldCondition);
       }
     }
 

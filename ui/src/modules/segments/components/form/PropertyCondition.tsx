@@ -12,12 +12,12 @@ import { SegmentBackIcon } from '../styles';
 import Icon from 'modules/common/components/Icon';
 import PropertyList from 'modules/segments/containers/form/PropertyList';
 import { isBoardKind } from 'modules/segments/utils';
-import { IForm } from 'modules/forms/types';
+import { IIntegration } from 'modules/settings/integrations/types';
 
 type Props = {
   contentType: string;
   boards?: IBoard[];
-  forms?: IForm[];
+  forms?: IIntegration[];
   segment: ISegmentMap;
   addCondition: (
     condition: ISegmentCondition,
@@ -172,7 +172,7 @@ class PropertyCondition extends React.Component<Props, State> {
           <ControlLabel>Form</ControlLabel>
           <Select
             value={formId}
-            options={forms.map(b => ({ value: b._id, label: b.title }))}
+            options={forms.map(b => ({ value: b.formId, label: b.name }))}
             onChange={this.onChangeBoardItem.bind(this, 'formId')}
           />
         </FormGroup>

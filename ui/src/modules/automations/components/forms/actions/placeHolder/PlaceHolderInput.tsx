@@ -8,7 +8,8 @@ import { IOption } from 'modules/common/types';
 import { FieldsCombinedByType } from 'modules/settings/properties/types';
 import React from 'react';
 
-import Attribution from '../../../containers/forms/actions/Attribution';
+import Attribution from '../../../../containers/forms/actions/Attribution';
+import SelectBoard from './SelectBoard';
 import SelectDate from './SelectDate';
 import SelectOption from './SelectOption';
 
@@ -17,6 +18,7 @@ type Props = {
   triggerType: string;
   inputName: string;
   label: string;
+  type?: string;
   attrType?: string;
   fieldType?: string;
   config?: any;
@@ -55,6 +57,24 @@ class PlaceHolderInput extends React.Component<Props, State> {
         triggerType={this.props.triggerType}
         options={options || []}
         isMulti={isMulti}
+      />
+    );
+  }
+
+  renderBoardSelect() {
+    const { type, fieldType, inputName } = this.props;
+
+    if (fieldType !== 'stage' || !type) {
+      return '';
+    }
+
+    return (
+      <SelectBoard
+        type={type}
+        config={this.state.config}
+        setConfig={conf => this.setState({ config: conf })}
+        triggerType={this.props.triggerType}
+        inputName={inputName}
       />
     );
   }
@@ -208,6 +228,9 @@ class PlaceHolderInput extends React.Component<Props, State> {
         converted = converted.replace(rep.byId, rep.byName);
       }
     }
+    if (fieldType === 'stage') {
+      converted = `[[ ${config.stageName} ]]`;
+    }
 
     return (
       <BoardHeader>
@@ -216,6 +239,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             <ControlLabel>{label}</ControlLabel>
             {this.renderSelect()}
             {this.renderDate()}
+            {this.renderBoardSelect()}
             {this.renderAttribution()}
           </div>
 

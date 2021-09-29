@@ -87,7 +87,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     );
   }
 
-  const automationDetail = automationDetailQuery.automationDetail || {};
+  const automationDetail = automationDetailQuery.automationDetail;
   const automationNotes = automationNotesQuery.automationNotes || [];
 
   const updatedProps = {

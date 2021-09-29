@@ -3,7 +3,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import Icon from 'modules/common/components/Icon';
 import { IOption } from 'modules/common/types';
-import { Attributes } from './styles';
+import { Attributes } from '../styles';
 
 type Props = {
   config: any;

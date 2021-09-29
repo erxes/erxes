@@ -2,9 +2,10 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 
 import { queries as boardQueries } from 'modules/boards/graphql';
-import { queries as formQueries } from 'modules/forms/graphql';
+import { queries as integrationQueries } from 'modules/leads/graphql';
 
 import { isBoardKind } from 'modules/segments/utils';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import PropertyCondition from '../../components/form/PropertyCondition';
 
@@ -69,11 +70,14 @@ export default class PropertyConditionContainer extends React.Component<
     if (type === 'form_submission') {
       client
         .query({
-          query: gql(formQueries.forms)
+          query: gql(integrationQueries.integrations),
+          variables: {
+            kind: INTEGRATION_KINDS.FORMS
+          }
         })
         .then(({ data }) => {
           this.setState({
-            forms: data.forms
+            forms: data.integrations
           });
         });
     } else {

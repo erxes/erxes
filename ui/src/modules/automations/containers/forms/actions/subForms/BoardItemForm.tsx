@@ -24,14 +24,19 @@ type FinalProps = {
 
 class BoardItemSelectContainer extends React.Component<FinalProps> {
   render() {
-    const { allUserQuery, pipelineLabelQuery } = this.props;
+    const { allUserQuery, pipelineLabelQuery, activeAction } = this.props;
 
-    if (allUserQuery.loading || pipelineLabelQuery.loading) {
+    if (
+      allUserQuery.loading ||
+      (activeAction.config && pipelineLabelQuery.loading)
+    ) {
       return null;
     }
 
     const users = allUserQuery.allUsers || [];
-    const pipelineLabels = pipelineLabelQuery.pipelineLabels || [];
+    const pipelineLabels = pipelineLabelQuery
+      ? pipelineLabelQuery.pipelineLabels || []
+      : [];
 
     const extendedProps = {
       ...this.props,

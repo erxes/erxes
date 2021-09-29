@@ -170,7 +170,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     return operators.map(operator => {
       return (
-        <React.Fragment key={Math.random()}>
+        <>
           <FormControl
             componentClass="radio"
             onChange={this.onClickOperator.bind(this, operator)}
@@ -180,7 +180,7 @@ class PropertyForm extends React.Component<Props, State> {
             {operator.name}
           </FormControl>
           {this.renderInput(operator)}
-        </React.Fragment>
+        </>
       );
     });
   };

@@ -549,7 +549,7 @@ class AutomationForm extends React.Component<Props, State> {
         </div>
         <p>${item.description}</p>
         ${this.renderNotes(idElm)}
-  
+
       </div>
     `);
 

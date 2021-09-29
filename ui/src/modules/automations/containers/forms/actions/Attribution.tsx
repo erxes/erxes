@@ -8,7 +8,7 @@ import {
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import Form from '../../../components/forms/actions/Attribution';
+import Form from '../../../components/forms/actions/placeHolder/Attribution';
 
 type Props = {
   config: any;
