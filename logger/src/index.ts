@@ -34,7 +34,7 @@ app.get(
   routeErrorHandling(async (req, res) => {
     const filter: {
       contentType?: string;
-      contentId?: string;
+      contentId?: any;
       action?: string;
     } = JSON.parse(req.body.params || '{}');
 

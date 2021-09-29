@@ -3,8 +3,10 @@ import {
   Conversations,
   EmailDeliveries,
   InternalNotes,
+  Stages,
   Tasks
 } from '../../../db/models';
+import { getCollection } from '../../../db/models/boardUtils';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
@@ -229,10 +231,19 @@ const activityLogQueries = {
     return activities;
   },
 
-  async activityLogsByAction(_root, { contentType, action }) {
+  async activityLogsByAction(_root, { contentType, action, pipelineId }) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    const { collection } = getCollection(contentType);
+
+    const contentIds = await collection
+      .find({ stageId: { $in: stageIds } })
+      .distinct('_id');
+
     const logs = await fetchLogs(
       {
         contentType,
+        contentId: { $in: contentIds },
         action
       },
       'activityLogs'
