@@ -110,11 +110,7 @@ const productQueries = {
 
   productCategories(
     _root,
-    {
-      parentId,
-      searchValue,
-      status
-    }: { parentId: string; searchValue: string; status: string },
+    { parentId, searchValue }: { parentId: string; searchValue: string },
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
