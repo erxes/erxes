@@ -28,6 +28,11 @@ const welcomeContentSchema = new Schema({
   content: field({ type: String })
 });
 
+const appearanceSchema = new Schema({
+  primaryColor: field({ type: String }),
+  secondaryColor: field({ type: String })
+});
+
 // Mongoose schemas =======================
 
 export const exmSchema = new Schema({
@@ -37,6 +42,7 @@ export const exmSchema = new Schema({
   features: field({ type: [featureSchema] }),
   logo: field({ type: attachmentSchema }),
   welcomeContent: field({ type: [welcomeContentSchema] }),
+  appearance: field({ type: appearanceSchema }),
   createdBy: field({ type: String, label: 'Created by' }),
   createdAt: field({ type: Date, label: 'Created at' })
 });
