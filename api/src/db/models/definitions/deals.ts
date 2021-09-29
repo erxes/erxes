@@ -6,7 +6,12 @@ import {
 } from './boards';
 import { customFieldSchema, ICustomField } from './common';
 import { ICompany } from './companies';
-import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
+import {
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES,
+  PRODUCT_CATEGORY_STATUSES,
+  PRODUCT_SUPPLY
+} from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface IProduct {
@@ -22,7 +27,11 @@ export interface IProduct {
   productId?: string;
   tagIds?: string[];
   attachment?: any;
+  attachmentMore?: any[];
   status?: string;
+  supply?: string;
+  productCount?: number;
+  minimiumCount?: number;
   vendorId?: string;
   vendorCode?: string;
 
@@ -41,6 +50,8 @@ export interface IProductCategory {
   order: string;
   description?: string;
   parentId?: string;
+  attachment?: any;
+  status?: string;
 }
 
 export interface IProductCategoryDocument extends IProductCategory, Document {
@@ -108,6 +119,7 @@ export const productSchema = schemaWrapper(
       label: 'Created at'
     }),
     attachment: field({ type: attachmentSchema }),
+    attachmentMore: field({ type: [attachmentSchema] }),
     status: field({
       type: String,
       enum: PRODUCT_STATUSES.ALL,
@@ -116,6 +128,25 @@ export const productSchema = schemaWrapper(
       default: 'active',
       esType: 'keyword',
       index: true
+    }),
+    supply: field({
+      type: String,
+      enum: PRODUCT_SUPPLY.ALL,
+      optional: true,
+      label: 'Supply',
+      default: 'unlimited',
+      esType: 'keyword',
+      index: true
+    }),
+    productCount: field({
+      type: String,
+      label: 'productCount',
+      default: '0'
+    }),
+    minimiumCount: field({
+      type: String,
+      label: 'minimiumCount',
+      default: '0'
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true })
@@ -130,6 +161,16 @@ export const productCategorySchema = schemaWrapper(
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
     description: field({ type: String, optional: true, label: 'Description' }),
+    attachment: field({ type: attachmentSchema }),
+    status: field({
+      type: String,
+      enum: PRODUCT_CATEGORY_STATUSES.ALL,
+      optional: true,
+      label: 'Status',
+      default: 'active',
+      esType: 'keyword',
+      index: true
+    }),
     createdAt: field({
       type: Date,
       default: new Date(),

@@ -43,13 +43,27 @@ const productQueries = {
 
     if (categoryId) {
       const category = await ProductCategories.getProductCatogery({
-        _id: categoryId
+        _id: categoryId,
+        status: { $in: [null, 'active'] }
       });
+
       const product_category_ids = await ProductCategories.find(
         { order: { $regex: new RegExp(category.order) } },
         { _id: 1 }
       );
       filter.categoryId = { $in: product_category_ids };
+    } else {
+      const notActiveCategories = await ProductCategories.find({
+        status: { $nin: [null, 'active'] }
+      });
+
+      const nActiveCategoriesIds: string[] = [];
+
+      notActiveCategories.forEach((notActiveCategory) => {
+        nActiveCategoriesIds.push(notActiveCategory._id);
+      });
+
+      filter.categoryId = { $nin: nActiveCategoriesIds };
     }
 
     if (ids && ids.length > 0) {
@@ -96,13 +110,23 @@ const productQueries = {
 
   productCategories(
     _root,
-    { parentId, searchValue }: { parentId: string; searchValue: string },
+    {
+      parentId,
+      searchValue,
+      status
+    }: { parentId: string; searchValue: string; status: string },
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
     if (parentId) {
       filter.parentId = parentId;
+    }
+
+    if (status && status !== 'active') {
+      filter.status = status;
+    } else {
+      filter.status = { $in: [null, 'active'] };
     }
 
     if (searchValue) {

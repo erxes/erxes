@@ -115,7 +115,7 @@ const main = async () => {
 
   console.log('Creating: UserGroups');
 
-  groups.forEach(async group => {
+  groups.forEach(async (group) => {
     await UsersGroups.create({ name: group });
   });
 
@@ -143,7 +143,7 @@ const main = async () => {
   cypressSettings.env.userPassword = newPwd;
   const newJson = JSON.stringify(cypressSettings, null, 2);
 
-  fs.writeFile(path.resolve(__dirname, jsonPath), newJson, err => {
+  fs.writeFile(path.resolve(__dirname, jsonPath), newJson, (err) => {
     if (err) {
       return console.log(err);
     }
@@ -426,6 +426,7 @@ const main = async () => {
       unitPrice: faker.random.number({ min: 100000, max: 1000000 }),
       type: 'product',
       description: faker.lorem.sentence(),
+      attachmentMore: [],
       sku: faker.random.number(),
       code: faker.random.number()
     });
@@ -679,12 +680,12 @@ const createXlsStream = async (
 
       stream.pipe(xlsxReader);
 
-      xlsxReader.on('worksheet', workSheetReader => {
+      xlsxReader.on('worksheet', (workSheetReader) => {
         if (workSheetReader > 1) {
           return workSheetReader.skip();
         }
 
-        workSheetReader.on('row', row => {
+        workSheetReader.on('row', (row) => {
           if (rowCount > 100000) {
             return reject(
               new Error('You can only import 100000 rows one at a time')
@@ -719,7 +720,7 @@ const createXlsStream = async (
         return resolve({ fieldNames, datas: compactedRows });
       });
 
-      xlsxReader.on('error', error => {
+      xlsxReader.on('error', (error) => {
         return reject(error);
       });
     } catch (e) {
@@ -759,7 +760,7 @@ const readXlsFile = async (fileName: string, type: string, user: any) => {
   }
 };
 
-const insertToDB = async xlsData => {
+const insertToDB = async (xlsData) => {
   const {
     user,
     scopeBrandIds,
@@ -976,7 +977,7 @@ const insertToDB = async xlsData => {
     }
 
     await create(doc, user)
-      .then(async cocObj => {
+      .then(async (cocObj) => {
         if (
           doc.companiesPrimaryNames &&
           doc.companiesPrimaryNames.length > 0 &&
@@ -1014,7 +1015,7 @@ const insertToDB = async xlsData => {
             { primaryEmail: { $in: doc.customersPrimaryEmails } },
             { _id: 1 }
           );
-          const customerIds = customers.map(customer => customer._id);
+          const customerIds = customers.map((customer) => customer._id);
 
           for (const _id of customerIds) {
             await Conformities.addConformity({
@@ -1085,7 +1086,7 @@ const insertToDB = async xlsData => {
   }
 };
 
-const populateStages = async type => {
+const populateStages = async (type) => {
   const stages: IPipelineStage[] = [];
 
   for (let i = 0; i < 5; i++) {

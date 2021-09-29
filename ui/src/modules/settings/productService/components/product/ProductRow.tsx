@@ -46,6 +46,9 @@ class Row extends React.Component<Props> {
           <TextInfo>{product.type}</TextInfo>
         </td>
         <td>{product.category ? product.category.name : ''}</td>
+        <td>{product.supply ? product.supply : ''}</td>
+        <td>{product.productCount ? product.productCount : 0}</td>
+        <td>{product.minimiumCount ? product.minimiumCount : 0}</td>
         <td>{(product.unitPrice || 0).toLocaleString()}</td>
         <td>{product.sku}</td>
         <td>

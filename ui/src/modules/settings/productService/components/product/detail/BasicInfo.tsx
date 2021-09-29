@@ -1,5 +1,6 @@
 import { Content } from 'modules/boards/styles/item';
 import Attachment from 'modules/common/components/Attachment';
+import FormControl from 'modules/common/components/form/Control';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
@@ -26,9 +27,16 @@ import xss from 'xss';
 type Props = {
   product: IProduct;
   remove: () => void;
+  chooseFeature: (_id: string, counter: string) => void;
 };
 
 class BasicInfo extends React.Component<Props> {
+
+  onRadio = (e) => {
+    const { product, chooseFeature } = this.props;
+    chooseFeature(product._id, e.target.value);
+  }
+
   renderVendor = vendor => {
     if (!vendor) {
       return (
@@ -49,6 +57,36 @@ class BasicInfo extends React.Component<Props> {
       </li>
     );
   };
+
+  renderSupply = supply => {
+    const supplyView = supply ? supply : '-';
+    return (
+      <li>
+        <FieldStyle>{__(`Supply`)}</FieldStyle>
+        <SidebarCounter>{supplyView}</SidebarCounter>
+      </li>
+    );
+  };
+
+  renderProductCount = proCnt => {
+    const proCntView = proCnt ? proCnt : 0;
+    return (
+      <li>
+        <FieldStyle>{__(`Product count`)}</FieldStyle>
+        <SidebarCounter>{proCntView}</SidebarCounter>
+      </li>
+    );
+  };
+
+  renderMinimiumCount = minCnt => {
+    const minCntView = minCnt ? minCnt : 0;
+    return (
+      <li>
+        <FieldStyle>{__(`Minimium count`)}</FieldStyle>
+        <SidebarCounter>{minCntView}</SidebarCounter>
+      </li>
+    );
+  }
 
   renderRow = (label, value) => {
     return (
@@ -90,12 +128,43 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
-  renderImage = (item?: IAttachment) => {
-    if (!item) {
-      return <></>;
+  renderFeatures = (items?: IAttachment[], feature?: IAttachment) => {
+    if (!items || items.length === 0 || !feature) {
+      return null;
     }
 
-    return <Attachment attachment={item} />;
+    const elemets: any[] = [];
+    let counter = 0;
+    for (const item of items) {
+
+      const checked = feature.name === item.name ? true : false;
+
+      const tempElement = (
+        <FormControl
+          name="SelectFeature"
+          onChange={this.onRadio}
+          value={counter}
+          checked={checked}
+          componentClass="radio"
+        >
+          {item.name}
+        </FormControl>
+      )
+      counter++;
+
+      elemets.push(tempElement);
+    };
+
+    return elemets;
+
+  };
+
+  renderImage = (item: IAttachment) => {
+    if (!item) {
+      return null;
+    }
+
+    return <Attachment attachment={item} />
   };
 
   renderInfo() {
@@ -118,7 +187,7 @@ class BasicInfo extends React.Component<Props> {
         {this.renderAction()}
 
         {this.renderImage(product.attachment)}
-
+        {this.renderFeatures(product.attachmentMore, product.attachment)}
         <SidebarList className="no-link">
           {this.renderRow('Code', product.code)}
           {this.renderRow('Type', product.type)}
@@ -132,6 +201,9 @@ class BasicInfo extends React.Component<Props> {
           )}
           {this.renderRow('Sku', product.sku)}
           {this.renderVendor(product.vendor)}
+          {this.renderSupply(product.supply)}
+          {this.renderProductCount(product.productCount)}
+          {this.renderMinimiumCount(product.minimiumCount)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <Content

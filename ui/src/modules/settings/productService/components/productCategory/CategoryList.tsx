@@ -7,6 +7,7 @@ import { TopHeader } from 'modules/common/styles/main';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { IOption } from 'modules/common/types';
 import { SidebarList } from 'modules/layout/styles';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
@@ -15,6 +16,11 @@ import CategoryForm from '../../containers/productCategory/CategoryForm';
 import TagFilter from '../../containers/TagFilter';
 import { IProductCategory } from '../../types';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
+import Select from 'react-select-plus';
+import { PRODUCT_CATEGORIES_STATUS } from '../../constants';
+import { ControlLabel } from 'modules/common/components/form';
+import { FormGroup } from 'modules/common/components/form';
+
 
 const { Section } = Wrapper.Sidebar;
 
@@ -23,6 +29,7 @@ interface IProps {
   queryParams: any;
   refetch: any;
   remove: (productCategoryId: string) => void;
+  onSelect: (values: string[] | string, key: string) => void;
   productCategories: IProductCategory[];
   productCategoriesCount: number;
   loading: boolean;
@@ -123,6 +130,18 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryHeader() {
+
+    const { queryParams, onSelect } = this.props;
+
+    const status = queryParams && queryParams.status ? queryParams.status : queryParams.status = 'active';
+    const statusValues = PRODUCT_CATEGORIES_STATUS.map(p => ({ label: p, value: p }));
+
+    const onPrioritySelect = (option: IOption) =>
+      onSelect(
+        option.value,
+        'status'
+      );
+
     const trigger = (
       <Button btnStyle="success" icon="plus-circle" block={true}>
         Add category
@@ -132,8 +151,21 @@ class List extends React.Component<IProps> {
     return (
       <>
         <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <FormGroup>
+          <ControlLabel>Status</ControlLabel>
+          <Select
+            placeholder={__('Filter by product category status')}
+            value={status}
+            options={statusValues}
+            name="status"
+            onChange={onPrioritySelect}
+            multi={false}
+            loadingPlaceholder={__('Loading...')}
+          />
+        </FormGroup>
         <Section.Title>
           {__('Categories')}
+
           <Section.QuickButtons>
             {router.getParam(this.props.history, 'categoryId') && (
               <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>

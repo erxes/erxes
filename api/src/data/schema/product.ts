@@ -6,6 +6,8 @@ export const types = `
     parentId: String
     code: String!
     order: String!
+    attachment: Attachment
+    status: String
 
     isRoot: Boolean
     productCount: Int
@@ -25,7 +27,11 @@ export const types = `
     getTags: [Tag]
     tagIds: [String]
     attachment: Attachment
+    attachmentMore: [Attachment]
     vendorId: String
+    supply: String
+    productCount: Int
+    minimiumCount: Int
 
     category: ProductCategory
     vendor: Company
@@ -42,6 +48,10 @@ const productParams = `
   code: String,
   customFieldsData: JSON,
   attachment: AttachmentInput,
+  attachmentMore: [AttachmentInput],
+  supply: String,
+  productCount: Int,
+  minimiumCount: Int
   vendorId: String,
 `;
 
@@ -50,10 +60,12 @@ const productCategoryParams = `
   code: String!,
   description: String,
   parentId: String,
+  attachment: AttachmentInput,
+  status: String
 `;
 
 export const queries = `
-  productCategories(parentId: String, searchValue: String): [ProductCategory]
+  productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
 
@@ -81,4 +93,5 @@ export const mutations = `
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON
+  productSelectFeature(_id: String, counter: String): JSON
 `;
