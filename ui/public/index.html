@@ -39,10 +39,10 @@
         }
 
         if (defaultValue.includes('REACT_APP')) {
-          return;
+          return '';
         }
 
-        return defaultValue;
+        return defaultValue || '';
       };
 
       window.envMaps = [
@@ -55,6 +55,10 @@
         {
           name: 'REACT_APP_DASHBOARD_URL',
           processValue: '%REACT_APP_DASHBOARD_URL%'
+        },
+        {
+          name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
+          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%'
         }
       ];
 

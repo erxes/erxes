@@ -21,10 +21,6 @@
  <a href="https://erxes.org" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="erxes Growth Marketing Platform "></a>
 </p>
 
-## Demo
-
-Live demo is deployed at <a href="https://demo.erxes.io/" target="_blank">https://demo.erxes.io/</a>
-
 ## Features
 
 With erxes, achieving growth and unity within your company is possible. We designed erxes to help you eliminate fragmented business processes by bringing all of your messaging and collaboration into one tool. As a result, you will be able to double your output and treat all of your customers as close friends. Optimize your growth operation and scale-up better and faster, but most importantly, correctly.
