@@ -5,8 +5,6 @@ import {
   Deals,
   Fields,
   FieldsGroups,
-  Forms,
-  Integrations,
   Integrations,
   PipelineLabels,
   Products,
@@ -668,6 +666,15 @@ export const fieldsCombinedByContentType = async ({
       );
 
       fields = [...fields, stageOptions, labelOptions];
+    } else {
+      const stageOptions = {
+        _id: Math.random(),
+        name: 'stageId',
+        label: 'Stage',
+        type: 'stage'
+      };
+
+      fields = [...fields, stageOptions];
     }
 
     fields = [

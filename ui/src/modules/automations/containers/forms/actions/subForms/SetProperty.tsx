@@ -42,6 +42,14 @@ class SetProperty extends React.Component<FinalProps, State> {
   }
 }
 
+export const excludedNames = [
+  'createdAt',
+  'modifiedAt',
+  'createdBy',
+  'userId',
+  'modifiedBy'
+];
+
 export default withProps<Props>(
   compose(
     graphql<Props, FieldsCombinedByTypeQueryResponse, State>(
@@ -52,7 +60,8 @@ export default withProps<Props>(
           variables: {
             contentType: activeAction.config
               ? activeAction.config.module
-              : 'customer'
+              : 'customer',
+            excludedNames
           }
         })
       }
