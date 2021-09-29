@@ -166,7 +166,8 @@ export const companySchema = schemaWrapper(
     tagIds: field({
       type: [String],
       optional: true,
-      label: 'Tags'
+      label: 'Tags',
+      index: true
     }),
 
     // Merged company ids
