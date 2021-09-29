@@ -150,8 +150,6 @@ class UserForm extends React.Component<Props, State> {
       links[link.value] = finalValues[link.value];
     });
 
-    console.log('finalValues: ', finalValues);
-
     return {
       _id: finalValues._id,
       username: finalValues.username,
