@@ -46,6 +46,14 @@ describe('productQueries', () => {
             type
             size
           }
+          attachmentMore {
+            name
+            url
+            type
+            size
+          }
+          productCount
+          minimiumCount
         }
       }
     `;
@@ -117,6 +125,12 @@ describe('productQueries', () => {
           _id
           name
           parentId
+          attachment {
+            name
+            url
+            type
+            size
+          }
           isRoot
           productCount
         }

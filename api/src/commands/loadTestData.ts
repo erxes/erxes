@@ -426,7 +426,6 @@ const main = async () => {
       unitPrice: faker.random.number({ min: 100000, max: 1000000 }),
       type: 'product',
       description: faker.lorem.sentence(),
-      attachmentMore: [],
       sku: faker.random.number(),
       code: faker.random.number()
     });
