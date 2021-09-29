@@ -36,6 +36,7 @@ type FinalProps = {
 
 const AutomationDetailsContainer = (props: FinalProps) => {
   const {
+    id,
     automationDetailQuery,
     automationNotesQuery,
     currentUser,
@@ -62,13 +63,16 @@ const AutomationDetailsContainer = (props: FinalProps) => {
 
   const save = (doc: IAutomation) => {
     router.removeParams(history, 'isCreate');
-
     editAutomationMutation({
       variables: {
         ...doc
       }
     })
       .then(() => {
+        history.push({
+          pathname: `/automations/details/${id}`,
+          search: '?isCreate=true'
+        });
         Alert.success(`You successfully updated a ${doc.name || 'status'}`);
       })
 
