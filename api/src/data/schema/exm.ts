@@ -5,6 +5,11 @@ export const types = `
     content: String
   }
 
+  type ExmAppearance {
+    primaryColor: String
+    secondaryColor: String
+  }
+
   type Exm {
     _id: String
     name: String
@@ -12,6 +17,7 @@ export const types = `
     logo: Attachment
     features: JSON
     welcomeContent: [ExmWelcomeContent]
+    appearance: ExmAppearance
     createdAt: Date
     createdBy: String
   }
@@ -19,6 +25,11 @@ export const types = `
   type ExmList {
     list: [Exm]
     totalCount: Int
+  }
+
+  input ExmAppearanceInput {
+    primaryColor: String
+    secondaryColor: String
   }
 
   input ExmWelcomeContentInput {
@@ -40,6 +51,7 @@ const commonParams = `
   features: JSON
   logo: AttachmentInput
   welcomeContent: [ExmWelcomeContentInput]
+  appearance: ExmAppearanceInput
 `;
 
 export const mutations = `

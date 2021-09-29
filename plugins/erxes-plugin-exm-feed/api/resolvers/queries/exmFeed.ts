@@ -26,7 +26,7 @@ const exmFeedQueries = [
         doc.contentType = contentType;
       }
 
-      if (type === 'recipient') {
+      if (contentType === 'bravo' && type === 'recipient') {
         if (recipientType === 'recieved') {
           doc.recipientIds = { $in: [user._id] };
         } else if (recipientType === 'sent') {
