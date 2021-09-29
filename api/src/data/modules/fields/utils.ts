@@ -7,6 +7,7 @@ import {
   FieldsGroups,
   Forms,
   Integrations,
+  Integrations,
   PipelineLabels,
   Products,
   Segments,
@@ -728,13 +729,13 @@ export const fieldsCombinedByContentType = async ({
 
   if (contentType === 'form_submission' && formId) {
     const formFieldsValues = await getFormFields(formId);
-    const form = await Forms.getForm(formId);
+    const form = await Integrations.findOne({ formId });
 
     for (const formField of formFieldsValues) {
       fields.push({
         _id: Math.random(),
         name: formField._id,
-        group: form ? form.title : 'Fields',
+        group: form ? form.name : 'Fields',
         label: formField.text,
         options: formField.options,
         validation: formField.validation,
