@@ -1,13 +1,9 @@
 import dayjs from 'dayjs';
-import { CalenderWrapper } from 'modules/boards/styles/popup';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-
 import Datetime from '@nateradebaugh/react-datetime';
-
-import { Attributes } from './styles';
 
 type Props = {
   config: any;
@@ -19,42 +15,34 @@ type Props = {
 export default class SelectDate extends React.Component<Props> {
   private overlay: any;
 
-  hideContent = () => {
+  onOverlayClose = () => {
     this.overlay.hide();
-  };
-
-  dateOnChange = date => {
-    this.overlay.hide();
-    const { config, setConfig, inputName = 'value' } = this.props;
-    config[inputName] = `${dayjs(date).format('YYYY/MM/DD, HH:mm:ss')}`;
-    setConfig(config);
   };
 
   renderContent() {
+    const { config, setConfig, inputName = 'value' } = this.props;
+
+    const onDateChange = date => {
+      config[inputName] = `${dayjs(date).format('YYYY-MM-DD, HH:mm:ss')}`;
+      setConfig(config);
+    };
+
     return (
       <Popover id="select-date-popover">
-        <Attributes>
-          <React.Fragment>
-            <li>
-              <b>Choose date</b>
-            </li>
-            <CalenderWrapper>
-              <Datetime
-                dateFormat="YYYY/MM/DD"
-                timeFormat="HH:mm"
-                value={new Date()}
-                closeOnSelect={true}
-                utc={true}
-                input={false}
-                onChange={this.dateOnChange}
-                defaultValue={dayjs()
-                  .startOf('day')
-                  .add(12, 'hour')
-                  .format('YYYY-MM-DD HH:mm:ss')}
-              />
-            </CalenderWrapper>
-          </React.Fragment>
-        </Attributes>
+        <Datetime
+          inputProps={{ placeholder: 'Click to select a date' }}
+          dateFormat="YYYY/MM/DD"
+          timeFormat="HH:mm"
+          closeOnSelect={true}
+          utc={true}
+          input={false}
+          value={config[inputName] || ''}
+          onChange={onDateChange}
+          defaultValue={dayjs()
+            .startOf('day')
+            .add(12, 'hour')
+            .format('YYYY-MM-DD HH:mm:ss')}
+        />
       </Popover>
     );
   }
