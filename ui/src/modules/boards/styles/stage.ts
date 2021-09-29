@@ -120,7 +120,6 @@ const Amount = styled.ul`
   }
 `;
 const ListContainer = styled.div`
-  min-height: 200px;
   border: 1px solid rgb(238, 238, 238);
   border-radius: ${dimensions.unitSpacing - 4}px;
   margin: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
@@ -209,6 +208,12 @@ export const GroupTitle = styled.div`
     font-weight: 500;
     -webkit-animation: none;
     animation: none;
+  }
+`;
+
+export const ColumnLastChild = styled.th`
+  &:last-child {
+    text-align: left !important;
   }
 `;
 

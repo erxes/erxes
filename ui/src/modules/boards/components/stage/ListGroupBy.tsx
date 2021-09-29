@@ -6,7 +6,8 @@ import {
   Header,
   ListStageFooter,
   StageTitle,
-  GroupTitle
+  GroupTitle,
+  ColumnLastChild
 } from 'modules/boards/styles/stage';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
@@ -134,8 +135,7 @@ class ListGroupBy extends React.Component<Props> {
                   <th>{__('Due Date')}</th>
                   {groupType !== 'assignee' && <th>{__('Assignee')}</th>}
                   <th>{__('Associated Customer')}</th>
-                  <th>{__('Associated Company')}</th>
-                  <th></th>
+                  <ColumnLastChild>{__('Associated Company')}</ColumnLastChild>
                 </tr>
               </thead>
               <tbody id="groupbylist">

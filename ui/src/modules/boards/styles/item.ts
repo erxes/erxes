@@ -70,9 +70,40 @@ export const Footer = styled.div`
 
 export const LastUpdate = styled.div`
   margin-top: -18px;
-  font-size: 9px;
+  font-size: ${dimensions.unitSpacing - 1}px;
+
   span {
-    font-size: 9px;
+    font-size: ${dimensions.unitSpacing - 1}px;
+  }
+`;
+
+export const ListRow = styled.tr`
+  cursor: pointer;
+`;
+
+export const ColumnChild = styled.td`
+  &:first-child {
+    width: 500px;
+  }
+
+  &:last-child {
+    text-align: left !important;
+  }
+`;
+
+export const LabelColumn = styled.td`
+  width: 300px;
+`;
+
+export const StageColumn = styled.td`
+  width: 150px;
+
+  span {
+    padding ${dimensions.unitSpacing}px;
+    border-radius: ${dimensions.unitSpacing - 6}px;
+    transition: background 0.3s ease;
+    background: rgba(0, 0, 0, 0.04);
+    font-weight: 500;
   }
 `;
 
