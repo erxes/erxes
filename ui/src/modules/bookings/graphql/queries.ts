@@ -99,6 +99,7 @@ const productCategories = `
     productCategories(parentId: $parentId, searchValue: $searchValue) {
       _id
       name
+      isRoot
     }
   }
 `;

@@ -20,10 +20,11 @@ function SelectProductCategory(props: Props) {
     return null;
   }
   const { productCategories } = productCategoriesQuery;
+  const mainCategory = productCategories.filter(item => item.isRoot);
 
   return (
     <Select
-      options={productCategories.map(el => ({
+      options={mainCategory.map(el => ({
         label: el.name,
         value: el._id
       }))}
@@ -38,12 +39,7 @@ export default compose(
   graphql<{}, ProductCategoriesQueryResponse, { parentId: string }>(
     gql(queries.productCategories),
     {
-      name: 'productCategoriesQuery',
-      options: () => ({
-        variables: {
-          parentId: 'parent'
-        }
-      })
+      name: 'productCategoriesQuery'
     }
   )
 )(SelectProductCategory);

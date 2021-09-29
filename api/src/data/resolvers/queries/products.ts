@@ -105,10 +105,6 @@ const productQueries = {
       filter.parentId = parentId;
     }
 
-    if (parentId === 'parent') {
-      filter.parentId = '';
-    }
-
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
