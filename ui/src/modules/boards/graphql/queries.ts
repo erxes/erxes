@@ -225,11 +225,13 @@ const itemsCountBySegments = `
 const activityLogsByAction = `
   query activityLogsByAction(
     $contentType: String,
-    $action: String
+    $action: String,
+    $pipelineId: String
   ) {
     activityLogsByAction(
       contentType: $contentType,
-      action: $action
+      action: $action,
+      pipelineId: $pipelineId,
     ) {
       _id
       contentTypeDetail

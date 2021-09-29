@@ -61,7 +61,8 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             action: queryParams.action,
-            contentType: 'task'
+            contentType: 'task',
+            pipelineId: queryParams.pipelineId
           }
         })
       }

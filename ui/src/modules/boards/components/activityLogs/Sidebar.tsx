@@ -2,12 +2,14 @@ import { __, router } from 'modules/common/utils';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList } from 'modules/layout/styles';
 import React from 'react';
-import { NavLink, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import FormControl from 'modules/common/components/form/Control';
 import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
 import { RowFill, FieldStyle } from '../../styles/viewtype';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IRouterProps } from 'modules/common/types';
+import Box from 'modules/common/components/Box';
+import Icon from 'modules/common/components/Icon';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -17,7 +19,6 @@ type Props = {
 } & IRouterProps;
 
 type State = {
-  action?: string;
   contentType?: string;
   page?: string;
   perPage?: string;
@@ -28,43 +29,71 @@ class Sidebar extends React.Component<Props, State> {
     super(props);
 
     const qp = props.queryParams || {
-      action: '',
       contentType: ''
     };
 
     this.state = {
-      action: qp.action,
       contentType: qp.contentType
     };
   }
 
-  ListItem(link: string, label: string) {
+  ListItem(key: string, value: string, label: string) {
+    const { history, queryParams } = this.props;
+
+    const onClick = () => {
+      router.setParams(history, { [key]: value });
+    };
+
     return (
       <li>
-        <NavLink activeClassName="active" to={link}>
+        <a
+          href="#filter"
+          className={queryParams[key] === value ? 'active' : ''}
+          onClick={onClick}
+        >
           {__(label)}
-        </NavLink>
+        </a>
       </li>
     );
   }
 
-  onChange = e => {
+  onChange = () => {
     const { history } = this.props;
 
-    const action = e.target.checked ? e.target.value : null;
+    const checkboxes: any = document.getElementsByName(
+      'activityLogViewGeneral'
+    );
 
-    this.setState({ action });
+    const action: any = [];
 
-    router.setParams(history, { action });
+    for (let i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) {
+        action.push(checkboxes[i].value);
+      }
+    }
+
+    router.setParams(history, { action: action.toString() });
   };
 
   render() {
+    const { history } = this.props;
+
     const activityValues = SEARCH_ACTIVITY_CHECKBOX.map(p => ({
       label: p,
       value: p
     }));
 
-    const { isChecked } = this.props;
+    const onClear = () => {
+      router.setParams(history, { dueDate: null });
+    };
+
+    const extraButtons = router.getParam(history, 'dueDate') && (
+      <a href="#cancel" tabIndex={0} onClick={onClear}>
+        <Icon icon="times-circle" />
+      </a>
+    );
+
+    const actionQP: string = (this.props.queryParams || {}).action || '';
 
     return (
       <LeftSidebar full={true}>
@@ -77,35 +106,42 @@ class Sidebar extends React.Component<Props, State> {
               <RowFill>
                 <FormControl
                   componentClass="checkbox"
+                  name="activityLogViewGeneral"
                   options={activityValues}
                   value={action}
                   onChange={this.onChange}
-                  checked={isChecked}
+                  checked={actionQP.includes(action)}
                 />
                 <FieldStyle>{value}</FieldStyle>
               </RowFill>
             </li>
           ))}
-          <Section.Title>{__('Due Date')}</Section.Title>
-          {this.ListItem(`/segments/user`, 'Added date')}
-          {this.ListItem('/segments/user', 'Changed date')}
-          {this.ListItem('/segments/user', 'Removed date')}
+          <Box
+            extraButtons={extraButtons}
+            title={__('Due Date')}
+            name="showByDueDate"
+            isOpen={true}
+          >
+            {this.ListItem('dueDate', 'added', 'Added date')}
+            {this.ListItem('dueDate', 'changed', 'Changed date')}
+            {this.ListItem('dueDate', 'removed', 'Removed date')}
+          </Box>
           <Section.Title>{__('Assignee')}</Section.Title>
-          {this.ListItem('/segments/user', 'Added assignee')}
-          {this.ListItem('/segments/user', 'Removed assignee')}
+          {this.ListItem('assignee', 'added', 'Added assignee')}
+          {this.ListItem('assignee', 'removed', 'Removed assignee')}
           <Section.Title>{__('Checklist')}</Section.Title>
-          {this.ListItem('/segments/user', 'Added checklist')}
-          {this.ListItem('/segments/user', 'Updated checklist')}
-          {this.ListItem('/segments/user', 'Deleted checklist')}
+          {this.ListItem('checklist', 'added', 'Added checklist')}
+          {this.ListItem('checklist', 'updated', 'Updated checklist')}
+          {this.ListItem('checklist', 'deleted', 'Deleted checklist')}
           <Section.Title>{__('Attachments')}</Section.Title>
-          {this.ListItem('/segments/user', 'Added attachments')}
-          {this.ListItem('/segments/user', 'Deleted attachments')}
+          {this.ListItem('attachment', 'added', 'Added attachments')}
+          {this.ListItem('attachment', 'deleted', 'Deleted attachments')}
           <Section.Title>{__('Labels')}</Section.Title>
-          {this.ListItem('/segments/user', 'Added labels')}
-          {this.ListItem('/segments/user', 'Removed labels')}
+          {this.ListItem('label', 'added', 'Added labels')}
+          {this.ListItem('label', 'removed', 'Removed labels')}
           <Section.Title>{__('Priority')}</Section.Title>
-          {this.ListItem('/segments/user', 'Added priority')}
-          {this.ListItem('/segments/user', 'Changed priority')}
+          {this.ListItem('priority', 'added', 'Added priority')}
+          {this.ListItem('priority', 'changed', 'Changed priority')}
         </SidebarList>
       </LeftSidebar>
     );
