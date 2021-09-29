@@ -15,6 +15,8 @@ export interface IDetail {
   fullName?: string;
   shortName?: string;
   position?: string;
+  birthDate?: Date;
+  workStartedDate?: Date;
   location?: string;
   description?: string;
   operatorPhone?: string;
@@ -71,6 +73,8 @@ const detailSchema = new Schema(
     avatar: field({ type: String, label: 'Avatar' }),
     shortName: field({ type: String, optional: true, label: 'Short name' }),
     fullName: field({ type: String, label: 'Full name' }),
+    birthDate: field({ type: Date, label: 'Birth date' }),
+    workStartedDate: field({ type: Date, label: 'Date to joined to work' }),
     position: field({ type: String, label: 'Position' }),
     location: field({ type: String, optional: true, label: 'Location' }),
     description: field({ type: String, optional: true, label: 'Description' }),

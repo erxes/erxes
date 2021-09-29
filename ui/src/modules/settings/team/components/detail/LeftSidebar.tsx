@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
@@ -111,8 +112,24 @@ function LeftSidebar({
             <SidebarCounter>{details.location || '-'}</SidebarCounter>
           </li>
           <li>
+            <FieldStyle>{__('Birthdate')}:</FieldStyle>
+            <SidebarCounter>
+              {details.birthDate
+                ? dayjs(details.birthDate).format('YYYY-MM-DD')
+                : '-'}
+            </SidebarCounter>
+          </li>
+          <li>
             <FieldStyle>{__('Position')}:</FieldStyle>
             <SidebarCounter>{details.position || '-'}</SidebarCounter>
+          </li>
+          <li>
+            <FieldStyle>{__('Joined date')}:</FieldStyle>
+            <SidebarCounter>
+              {details.workStartedDate
+                ? dayjs(details.workStartedDate).format('YYYY-MM-DD')
+                : '-'}
+            </SidebarCounter>
           </li>
           <li>
             <FieldStyle>{__('Description')}:</FieldStyle>

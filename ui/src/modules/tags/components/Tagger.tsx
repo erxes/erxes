@@ -102,7 +102,8 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       links,
       selectable: true,
       treeView: true,
-      items: JSON.parse(JSON.stringify(this.state.tagsForList))
+      items: JSON.parse(JSON.stringify(this.state.tagsForList)),
+      isIndented: true
     };
 
     if (event) {

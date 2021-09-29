@@ -39,10 +39,10 @@
         }
 
         if (defaultValue.includes('REACT_APP')) {
-          return;
+          return '';
         }
 
-        return defaultValue;
+        return defaultValue || '';
       };
 
       window.envMaps = [
@@ -67,6 +67,10 @@
         {
           name: 'REACT_APP_DD_SERVICE',
           processValue: '%REACT_APP_DD_SERVICE%'
+        },
+        {
+          name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
+          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%'
         }
       ];
 
