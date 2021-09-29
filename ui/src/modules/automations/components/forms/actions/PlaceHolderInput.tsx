@@ -229,7 +229,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       }
     }
     if (fieldType === 'stage') {
-      converted = `[[ ${config['stageName']} ]]`;
+      converted = `[[ ${config.stageName} ]]`;
     }
 
     return (

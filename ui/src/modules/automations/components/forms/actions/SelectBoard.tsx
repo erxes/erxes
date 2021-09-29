@@ -38,7 +38,7 @@ export default class SelectBoard extends React.Component<Props, State> {
       boardId: boardId || '',
       pipelineId: pipelineId || '',
       stageId: config[inputName] || '',
-      stageName: config['stageName']
+      stageName: config.stageName
     };
   }
 
@@ -77,9 +77,9 @@ export default class SelectBoard extends React.Component<Props, State> {
 
     const stage = stages.find(s => s._id === stageId);
 
-    config['boardId'] = this.state.boardId;
-    config['pipelineId'] = this.state.pipelineId;
-    config['stageName'] = stage ? stage.name : stageId;
+    config.boardId = this.state.boardId;
+    config.pipelineId = this.state.pipelineId;
+    config.stageName = stage ? stage.name : stageId;
 
     setConfig(config);
   };
@@ -88,11 +88,7 @@ export default class SelectBoard extends React.Component<Props, State> {
     const { type } = this.props;
 
     const plIdOnChange = (plId, stages) =>
-      this.setState({
-        pipelineId: plId,
-        stages: stages
-      });
-
+      this.setState({ pipelineId: plId, stages });
     const brIdOnChange = brId => this.setState({ boardId: brId });
 
     return (
