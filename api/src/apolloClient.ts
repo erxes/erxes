@@ -16,6 +16,7 @@ import {
 import { extendViaPlugins } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
+import { genAllConversationLoader } from './data/dataLoaders/conversationBatch'
 
 // load environment variables
 dotenv.config();
@@ -88,7 +89,7 @@ export const initApolloServer = async app => {
         };
       }
 
-      const dataLoaders: IDataLoaders = generateAllDataLoaders();
+      const dataLoaders: IDataLoaders = {...generateAllDataLoaders(), ...genAllConversationLoader()};
 
       const requestInfo = {
         secure: req.secure,

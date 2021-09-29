@@ -8,9 +8,9 @@ import tag from './tag';
 import company from './company';
 
 export interface IDataLoaders {
-  productCategory: DataLoader<string, IProductCategoryDocument>;
-  tag: DataLoader<string, ITagDocument>;
-  company: DataLoader<string, ICompanyDocument>;
+  productCategory?: DataLoader<string, IProductCategoryDocument>;
+  tag?: DataLoader<string, ITagDocument>;
+  company?: DataLoader<string, ICompanyDocument>;
 }
 
 export function generateAllDataLoaders(): IDataLoaders {
