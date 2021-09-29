@@ -231,19 +231,3 @@ li {
 	margin: 300px;
 	/* height: 100vh; */
 }
-
-.tab {
-	width: 60%;
-	/* height: 300px; */
-	border-radius: 10px;
-	border: 2px solid #EBEDF0;
-}
-
-.styled {
-	padding: 5px;
-}
-
-.codes {
-	background-color: #292C33;
-	color: white;
-}
