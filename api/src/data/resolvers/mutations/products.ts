@@ -185,8 +185,9 @@ const productMutations = {
     const attachmentMore = product.attachmentMore || [];
     const attachment =
       attachmentMore.length > 0 ? attachmentMore[counter] : ({} as IAttachment);
+    await Products.updateOne({ _id }, { $set: { attachment } });
 
-    return Products.updateOne({ _id }, { $set: { attachment } });
+    return { status: 'succesfully updated' };
   }
 };
 

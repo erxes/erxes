@@ -19,6 +19,11 @@ describe('productQueries', () => {
 
   test('Products', async () => {
     const category = await productCategoryFactory({ code: '1' });
+    const categoryStatusNoActive = await productCategoryFactory({
+      code: '2',
+      status: 'archived'
+    });
+
     const tag = await tagsFactory({ type: TAG_TYPES.PRODUCT });
 
     const product = await productFactory({
@@ -26,7 +31,7 @@ describe('productQueries', () => {
       type: PRODUCT_TYPES.PRODUCT
     });
     await productFactory({
-      categoryId: category._id,
+      categoryId: categoryStatusNoActive._id,
       type: PRODUCT_TYPES.SERVICE
     });
     await productFactory({ tagIds: [tag._id], type: PRODUCT_TYPES.SERVICE });
@@ -60,7 +65,7 @@ describe('productQueries', () => {
 
     let response = await graphqlRequest(qry, 'products', {
       page: 1,
-      perPage: 2
+      perPage: 3
     });
 
     expect(response.length).toBe(2);
@@ -75,7 +80,7 @@ describe('productQueries', () => {
       categoryId: category._id
     });
 
-    expect(response.length).toBe(2);
+    expect(response.length).toBe(1);
 
     response = await graphqlRequest(qry, 'products', { ids: [product._id] });
 
@@ -116,8 +121,17 @@ describe('productQueries', () => {
 
   test('Product categories', async () => {
     const parent = await productCategoryFactory({ code: '1' });
-    await productCategoryFactory({ parentId: parent._id, code: '2' });
-    await productCategoryFactory({ parentId: parent._id, code: '3' });
+    await productCategoryFactory({
+      parentId: parent._id,
+      code: '2',
+      status: 'disabled'
+    });
+    await productCategoryFactory({
+      parentId: parent._id,
+      code: '3',
+      status: 'active'
+    });
+    await productCategoryFactory({ parentId: parent._id, code: '4' });
 
     const qry = `
       query productCategories($parentId: String $searchValue: String) {
@@ -138,6 +152,12 @@ describe('productQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'productCategories');
+
+    expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'productCategories', {
+      status: 'active'
+    });
 
     expect(response.length).toBe(3);
 

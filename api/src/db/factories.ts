@@ -1303,6 +1303,7 @@ interface IProductCategoryFactoryInput {
   name?: string;
   description?: string;
   parentId?: string;
+  status?: string;
   code?: string;
   order?: string;
 }
@@ -1314,6 +1315,7 @@ export const productCategoryFactory = async (
     name: params.name || faker.random.word(),
     description: params.description || faker.random.word(),
     parentId: params.parentId,
+    status: params.status,
     code: await getUniqueValue(ProductCategories, 'code', params.code),
     order: params.order || faker.random.word(),
     createdAt: new Date()

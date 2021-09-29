@@ -285,4 +285,25 @@ describe('Test products mutations', () => {
 
     expect(product1.code).toBe(args.productFields.code);
   });
+
+  test('Select feature', async () => {
+    const args = {
+      _id: product._id,
+      counter: '1'
+    };
+
+    const mutation = `
+      mutation productSelectFeature($_id: String, $counter: String) {
+        productSelectFeature(_id: $_id, counter: $counter) 
+      }   
+    `;
+
+    const product1 = await graphqlRequest(
+      mutation,
+      'productSelectFeature',
+      args
+    );
+
+    expect(product1.status).toBe('succesfully updated');
+  });
 });

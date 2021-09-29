@@ -126,7 +126,7 @@ const productQueries = {
     if (status && status !== 'active') {
       filter.status = status;
     } else {
-      filter.status = { $in: [null, 'active'] };
+      filter.status = { $nin: ['disabled', 'archived'] };
     }
 
     if (searchValue) {
