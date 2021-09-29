@@ -8,7 +8,7 @@ import {
 } from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
-import CPTicket from './clientPortals';
+import { ticketComments as CPTicket, TicketComment } from './clientPortals';
 import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -102,7 +102,8 @@ const resolvers: any = {
   CalendarGroup,
   CalendarBoard,
   Tag,
-  CPTicket
+  CPTicket,
+  TicketComment
 };
 
 export default resolvers;

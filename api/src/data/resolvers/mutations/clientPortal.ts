@@ -97,13 +97,14 @@ const configClientPortalMutations = {
     return ClientPortals.createOrUpdateConfig(args);
   },
 
-  async createTicketComment(_root, args: ICommentParams, { user }: IContext) {
+  async createTicketComment(
+    _root,
+    args: ICommentParams,
+    { user, dataSources }: IContext
+  ) {
     const doc = args;
     const { email } = args;
-
-    if (user) {
-      doc.userId = user._id;
-    }
+    let reciever;
 
     if (email) {
       const customer = await Customers.findOne({ primaryEmail: email }).lean();
@@ -113,7 +114,18 @@ const configClientPortalMutations = {
       }
 
       doc.customerId = customer._id;
+      reciever = customer._id;
     }
+
+    if (user) {
+      doc.userId = user._id;
+
+      const ticket = await Tickets.findOne({ _id: doc.ticketId });
+
+      reciever = ticket?.userId;
+    }
+
+    await dataSources.ClientPortalAPI.sendNotification({ reciever, ...doc });
 
     return TicketComments.createComment(doc);
   },

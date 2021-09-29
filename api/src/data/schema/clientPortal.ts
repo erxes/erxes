@@ -78,6 +78,11 @@ export const types = `
     headingFont: String
   }
 
+  type TicketCommentProfile {
+    name: String
+    avatar: String
+  }
+
   type TicketComment {
     _id: String!
     ticketId: String!
@@ -87,6 +92,8 @@ export const types = `
     customerId: String
     parentId: String
     createdAt: Date
+
+    profile: TicketCommentProfile
   }
 
   type CPTicket {

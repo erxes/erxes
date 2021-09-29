@@ -34,6 +34,10 @@ export default class ClientPortalsAPI extends RESTDataSource {
   }
 
   public async sendMobileNotification(params) {
-    return this.post(`/api/mobile/notification`, params);
+    return this.post(`/api/erxes/mobile-notifications`, params);
+  }
+
+  public async sendNotification(params) {
+    return this.post(`/api/erxes/notifications`, params);
   }
 } // end class
