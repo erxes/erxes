@@ -140,8 +140,9 @@ class RespondBox extends React.Component<Props, State> {
 
     if (this.props.conversation.integration.kind === 'telnyx') {
       const characterCount = this.calcCharacterCount(160);
-      if (characterCount <= 1) {
-        Alert.error('You have reached maximum number of characters');
+
+      if (characterCount < 1) {
+        Alert.warning(__('You have reached maximum number of characters'));
       }
     }
   };
@@ -275,12 +276,16 @@ class RespondBox extends React.Component<Props, State> {
   calcCharacterCount = (maxlength: number) => {
     const { content } = this.state;
     const cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
+
     if (!cleanContent) {
       return maxlength;
     }
+
     const ret = maxlength - cleanContent.length;
+
     return ret > 0 ? ret : 0;
   };
+
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
     const {
