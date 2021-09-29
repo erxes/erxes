@@ -5,6 +5,8 @@ import Sidebar from './Sidebar';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import { IActivityLog } from 'modules/activityLogs/types';
 import ActivityLogsByActionRow from './ActivityLogsByActionRow';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from 'modules/common/types';
 
 type Props = {
   queryParams: any;
@@ -16,30 +18,13 @@ type commonProps = {
   activityLogsByAction: IActivityLog[];
   count: number;
   refetchQueries: any;
-};
+} & IRouterProps;
 
 type State = {
   action?: string;
-  contentType?: string;
-  page?: string;
-  perPage?: string;
 };
 
 class ActivityLogs extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const qp = props.queryParams || {
-      action: '',
-      contentType: ''
-    };
-
-    this.state = {
-      action: qp.action,
-      contentType: qp.contentType
-    };
-  }
-
   renderObjects() {
     const { activityLogsByAction } = this.props;
     const rows: JSX.Element[] = [];
@@ -62,6 +47,7 @@ class ActivityLogs extends React.Component<Props, State> {
 
   render() {
     const { count } = this.props;
+
     return (
       <Wrapper
         footer={<Pagination count={count} />}
@@ -72,4 +58,4 @@ class ActivityLogs extends React.Component<Props, State> {
   }
 }
 
-export default ActivityLogs;
+export default withRouter(ActivityLogs);

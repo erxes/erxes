@@ -20,11 +20,12 @@ type WithStagesProps = {
 
 const ActivityLits = (props: WithStagesProps) => {
   const { queryParams, activityLogsByActionQuery } = props;
+
   const errorMessage = activityLogsByActionQuery.error
     ? activityLogsByActionQuery.error
     : '';
+
   const isLoading = activityLogsByActionQuery.loading;
-  console.log('activityLogsByActionQuery', activityLogsByActionQuery);
 
   const updatedProps = {
     ...props,

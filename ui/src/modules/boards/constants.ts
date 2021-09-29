@@ -99,11 +99,11 @@ export const EMPTY_CONTENT_TASK = {
 };
 
 export const SEARCH_ACTIVITY_CHECKBOX = [
-  'Added new card',
-  'Moved card position in the stage',
-  'Moved card to different pipeline',
-  'Moved card to different board',
-  'Archived card',
-  'Deleted archived card',
-  'Added notes'
+  { action: 'create', value: 'Added new card' },
+  { action: 'moveStage', value: 'Moved card position in the stage' },
+  { action: 'movedPipeline', value: 'Moved card to different pipeline' },
+  { action: 'movedBoard', value: 'Moved card to different board' },
+  { action: 'archive', value: 'Archived card' },
+  { action: 'deleteCard', value: 'Deleted archived card' },
+  { action: 'addNote', value: 'Added notes' }
 ];
