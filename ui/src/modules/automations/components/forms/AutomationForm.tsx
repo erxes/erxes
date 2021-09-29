@@ -102,7 +102,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.state = {
       name: automation.name,
       actions: automation.actions || [],
-      triggers: automation.triggers || [],
+      triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
       activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'triggers',
@@ -145,7 +145,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps, prevState) {
     const { isActionTab } = this.state;
-
+    // console.log(this.props.automation.triggers, this.state.triggers);
     if (isActionTab && isActionTab !== prevState.isActionTab) {
       this.connectInstance();
     }
@@ -291,7 +291,7 @@ class AutomationForm extends React.Component<Props, State> {
       return finalValues;
     };
 
-    save(generateValues());
+    return save(generateValues());
   };
 
   handleNoteModal = (item?) => {
@@ -817,7 +817,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderConfirmation() {
     const { id, queryParams, history, saveLoading } = this.props;
-    const { triggers, actions } = this.state;
+    const { triggers, actions, name } = this.state;
 
     if (saveLoading) {
       return null;
@@ -831,6 +831,7 @@ class AutomationForm extends React.Component<Props, State> {
       <Confirmation
         when={when}
         id={id}
+        name={name}
         save={this.handleSubmit}
         history={history}
         queryParams={queryParams}

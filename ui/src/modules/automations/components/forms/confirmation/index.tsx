@@ -1,4 +1,5 @@
 import React from 'react';
+import Alert from 'modules/common/utils/Alert';
 
 type Props = {
   when: boolean;
@@ -6,6 +7,7 @@ type Props = {
   history: any;
   queryParams: any;
   id: string;
+  name: string;
   save: () => void;
   removeAutomations: (
     doc: { automationIds: string[] },
@@ -26,10 +28,10 @@ class Confirmation extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount() {
+  componentDidUpdate() {
     const { history, when } = this.props;
 
-    this.unblock = history.block(nextLocation => {
+    this.blockRoute = history.block(nextLocation => {
       if (when && nextLocation.pathname !== history.location.pathname) {
         this.setState({
           showModal: true,
@@ -42,7 +44,7 @@ class Confirmation extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    this.unblock();
+    this.blockRoute();
   }
 
   onCancel = () => {
@@ -59,24 +61,36 @@ class Confirmation extends React.Component<Props, State> {
   };
 
   onConfirm = () => {
+    const { name } = this.props;
+
+    if (!name || name === 'Your automation title') {
+      Alert.error('Enter an Automation title');
+
+      return this.setState({ showModal: false });
+    }
+
     this.setState({ isConfirm: true }, () => {
       return this.navigateToNextLocation();
     });
   };
 
   navigateToNextLocation = () => {
-    const { save, history, queryParams } = this.props;
+    const { save, history, queryParams, name } = this.props;
+
+    if (queryParams.isCreate && this.state.isConfirm && name) {
+      save();
+    }
 
     if (!queryParams.isCreate && this.state.isConfirm) {
       save();
     }
 
-    this.unblock();
+    this.blockRoute();
 
     history.push(this.state.nextLocation.pathname);
   };
 
-  unblock = () => null;
+  blockRoute = () => null;
 
   render() {
     return this.props.children(

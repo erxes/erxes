@@ -12,6 +12,7 @@ import ConfirmationPopup from '../../components/forms/confirmation/popup';
 type Props = {
   when: boolean;
   id: string;
+  name: string;
   history: any;
   queryParams: any;
   save: () => void;
