@@ -51,7 +51,7 @@ export const types = `
     tagIds: [String],
     tags: [Tag]
 
-    childCategories: [ProductCategory]
+    childCategories: JSON
   }
 `;
 

@@ -271,6 +271,26 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
     cursor: pointer;
   }
 `;
+
+const PopoverButton = styled.div`
+  display: inline-block;
+  position: relative;
+
+  > * {
+    display: inline-block;
+  }
+
+  > i {
+    margin-left: 3px;
+    margin-right: -4px;
+    transition: all ease 0.3s;
+    color: ${colors.colorCoreGray};
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
 export {
   PopoverHeader,
   PopoverBody,
@@ -283,7 +303,8 @@ export {
   ChildList,
   ToggleIcon,
   SidebarList,
-  GroupTitle
+  GroupTitle,
+  PopoverButton
 };
 
 export default {
@@ -298,5 +319,6 @@ export default {
   ChildList,
   ToggleIcon,
   SidebarList,
-  GroupTitle
+  GroupTitle,
+  PopoverButton
 };

@@ -14,7 +14,16 @@ export default {
     return Tags.find({ _id: booking.tagIds });
   },
 
-  childCategories(booking: IBookingDocument) {
-    return ProductCategories.find({ parentId: booking.productCategoryId });
+  async childCategories(booking: IBookingDocument) {
+    return ProductCategories.find({
+      parentId: booking.productCategoryId
+    });
   }
+
+  /**
+   * [{ _id: '',
+   *   parentId: '',
+   *   name: ""
+   *  }]
+   */
 };

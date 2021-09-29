@@ -2,7 +2,8 @@ import * as React from 'react';
 import { readFile } from '../../utils';
 import { IBooking } from '../types';
 import { Block } from '../containers';
-import { BackButton, Navigation } from './common';
+import { BackButton } from './common';
+import FilterableList from './common/FilterableList';
 
 type Props = {
   goToIntro: () => void;
@@ -15,9 +16,15 @@ function Booking({ goToIntro, booking }: Props) {
   }
 
   const { title, description, image, childCategories } = booking;
+
   return (
     <div>
-      <Navigation blocks={childCategories} />
+      <FilterableList
+        treeView={true}
+        selectable={false}
+        loading={false}
+        items={JSON.parse(JSON.stringify(childCategories))}
+      />
       <h1>{title}</h1>
       <p>{description}</p>
       <img height={300} src={readFile(image.url)} alt={image.name} />

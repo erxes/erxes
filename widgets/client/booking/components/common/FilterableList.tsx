@@ -4,8 +4,7 @@ import {
   PopoverBody,
   PopoverList,
   ChildList,
-  ToggleIcon,
-  SidebarList
+  ToggleIcon
 } from './styles';
 
 type Props = {
@@ -20,7 +19,6 @@ type Props = {
 
   // hooks
   onClick?: (items: any[], id: string) => void;
-  onSearch?: (e: React.FormEvent<HTMLElement>) => void;
   onExit?: (items: any[]) => void;
 };
 
@@ -58,16 +56,12 @@ class FilterableList extends React.Component<Props, State> {
     }
   }
 
-  filterItems = (e: any) => {
-    this.setState({ key: e.target.value });
-  };
-
   toggleItem = (id: string) => {
     const items = this.state.items;
-    const item = items.find(i => i._id === id);
+    // const item = items.find(i => i._id === id);
 
-    items[items.indexOf(item)].selectedBy =
-      item.selectedBy === 'all' ? 'none' : 'all';
+    // items[items.indexOf(item)].selectedBy =
+    //   item.selectedBy === 'all' ? 'none' : 'all';
 
     this.setState({ items });
 
@@ -97,9 +91,9 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean) {
-    if (!item.iconClass) {
-      return null;
-    }
+    // if (!item.iconClass) {
+    //   return null;
+    // }
 
     return (
       <>
@@ -108,11 +102,11 @@ class FilterableList extends React.Component<Props, State> {
             isIndented={this.props.isIndented}
             onClick={this.onToggle.bind(this, item._id, isOpen)}
           >
-            <i className={isOpen ? 'icon-menu' : 'icon-menu-2'} />
+            {/* <i className={isOpen ? 'icon-rightarrow' : 'icon-menu'} /> */}
           </ToggleIcon>
         )}
 
-        <i className={item.iconClass} style={{ color: item.iconColor }} />
+        {/* <i className="icon-microphone" /> */}
       </>
     );
   }
@@ -132,7 +126,7 @@ class FilterableList extends React.Component<Props, State> {
       <FlexRow key={item._id}>
         <li
           className={showCheckmark ? item.selectedBy : ''}
-          style={item.style}
+          // style={item.style}
           onClick={onClick}
         >
           {this.renderIcons(item, hasChildren, isOpen)}
@@ -156,9 +150,9 @@ class FilterableList extends React.Component<Props, State> {
 
           <ChildList>
             {isOpen &&
-              childrens.map((childparent: any) =>
-                this.renderTree(childparent, subFields)
-              )}
+              childrens.map((childparent: any) => {
+                return this.renderTree(childparent, subFields);
+              })}
           </ChildList>
         </div>
       );
@@ -168,7 +162,7 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   renderItems() {
-    const { loading, treeView } = this.props;
+    const { loading } = this.props;
     const { items } = this.state;
 
     if (loading) {
@@ -176,11 +170,7 @@ class FilterableList extends React.Component<Props, State> {
     }
 
     if (items.length === 0) {
-      return <div>hooson bainac</div>;
-    }
-
-    if (!treeView) {
-      return items.map(item => this.renderItem(item, false));
+      return <div>hooson baina</div>;
     }
 
     const parents = items.filter(item => !item.parentId);
@@ -191,7 +181,6 @@ class FilterableList extends React.Component<Props, State> {
 
   render() {
     const { className, selectable, isIndented } = this.props;
-    console.log(this.props, 'ehllo world');
 
     return (
       <div className={className}>

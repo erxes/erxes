@@ -36,9 +36,7 @@ const bookingFields = `
   buttonText
   productCategoryId
 
-  childCategories {
-    ${productCategoryFields}
-  }
+  childCategories 
 
   styles {
     ${styleFields}
