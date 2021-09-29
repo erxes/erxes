@@ -18,7 +18,7 @@ export default function Home(props: Props) {
   const renderTabContent = () => {
     if (currentTab === "thank") {
       const { queryParams } = props;
-
+      console.log(queryParams, "==========");
       return (
         <>
           <ThankForm queryParams={queryParams} />

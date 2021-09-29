@@ -35,8 +35,6 @@ export default function List({ list, deleteItem, totalCount }: Props) {
       </span>
     );
 
-    console.log("item: ", item);
-
     const content = (props) => {
       return <Form contentType={item.contentType} item={item} {...props} />;
     };
@@ -111,7 +109,7 @@ export default function List({ list, deleteItem, totalCount }: Props) {
           <div>
             <b style={{ color: "#5629B6" }}>{item.likeCount} Like</b>
             <b style={{ color: "hsl(118.39999999999998,59.2%,40.8%)" }}>
-              {item.commentCount} Comment
+              {item.commentCount} Comments
             </b>
           </div>
           <div>
@@ -125,7 +123,9 @@ export default function List({ list, deleteItem, totalCount }: Props) {
   const renderList = () => {
     return (
       <NewsFeedLayout>
-        {list.map((item, index) => renderItem(item, index + 1))}
+        {list
+          /* .filter((detail) => detail.contentType === filter(detail.contentType)) */
+          .map((item, index) => renderItem(item, index + 1))}
         <LoadMore perPage={20} all={totalCount} />
       </NewsFeedLayout>
     );

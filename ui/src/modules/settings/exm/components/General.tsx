@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
-
 import { FormControl } from 'modules/common/components/form';
 import { __ } from 'modules/common/utils';
-import { FeatureRow, FeatureRowItem } from '../styles';
+import {
+  FeatureRow,
+  FeatureRowItem,
+  FeatureLayout,
+  GeneralWrapper,
+  TeamPortal
+} from '../styles';
 import Button from 'modules/common/components/Button';
+import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
 
 const getEmptyFeature = () => ({
   _id: Math.random().toString(),
@@ -94,135 +100,128 @@ export default function General(props: Props) {
   };
 
   return (
-    <div style={{ padding: 50 }}>
-      <FormControl
-        value={name}
-        placeholder="Name"
-        onChange={(e: any) => setName(e.target.value)}
-      />
-      <br />
-      <FormControl
-        value={description}
-        componentClass="textarea"
-        placeholder="Description"
-        onChange={(e: any) => setDescription(e.target.value)}
-      />
-      <br />
-      <h3>Features</h3>
-      {features.map(feature => (
-        <FeatureRow key={feature._id}>
+    <GeneralWrapper>
+      <TeamPortal>
+        <p>Team portal</p>
+        <FeatureRow>
           <FeatureRowItem>
+            <p>{__('Name your team portal')}</p>
             <FormControl
-              componentClass="select"
-              value={feature.contentType}
-              options={[
-                {
-                  value: 'form',
-                  label: 'Forms'
-                },
-                {
-                  value: 'knowledgeBase',
-                  label: 'Knowledge base'
-                }
-              ]}
-              onChange={(e: any) => {
-                onChangeFeatureItem(feature._id, 'contentType', e.target.value);
-              }}
-            />
-          </FeatureRowItem>
-          <FeatureRowItem>
-            <FormControl
-              componentClass="select"
-              value={feature.icon}
-              options={[
-                {
-                  value: 'mic-line',
-                  label: 'mic-line'
-                },
-                {
-                  value: 'movie-2-line',
-                  label: 'movie-2-line'
-                },
-                {
-                  value: 'survey-line',
-                  label: 'survey-line'
-                },
-                {
-                  value: 'hand-heart-line',
-                  label: 'hand-heart-line'
-                }
-              ]}
-              onChange={(e: any) =>
-                onChangeFeatureItem(feature._id, 'icon', e.target.value)
-              }
-            />
-          </FeatureRowItem>
-          <FeatureRowItem>
-            <FormControl
-              name="name"
+              value={name}
               placeholder="Name"
-              value={feature.name}
-              onChange={(e: any) =>
-                onChangeFeatureItem(feature._id, 'name', e.target.value)
-              }
+              onChange={(e: any) => setName(e.target.value)}
             />
           </FeatureRowItem>
           <FeatureRowItem>
+            <p>{__('Describe your team portal')}</p>
             <FormControl
-              name="description"
+              value={description}
               placeholder="Description"
-              componentClass="textarea"
-              value={feature.description}
-              onChange={(e: any) =>
-                onChangeFeatureItem(feature._id, 'description', e.target.value)
-              }
+              onChange={(e: any) => setDescription(e.target.value)}
             />
           </FeatureRowItem>
-          <FeatureRowItem>
-            <Select
-              placeholder={__('Choose a content')}
-              value={feature.contentId}
-              options={getContentValues(feature.contentType)}
-              onChange={item => {
-                if (feature.contentType === 'knowledgeBase') {
-                  getKbCategories(item.value);
+        </FeatureRow>
+      </TeamPortal>
+      <FeatureLayout>
+        <p>Features</p>
+        {features.map(feature => (
+          <FeatureRow key={feature._id}>
+            <FeatureRowItem>
+              <FormControl
+                componentClass="select"
+                value={feature.contentType}
+                options={TYPE_OPTIONS}
+                onChange={(e: any) => {
+                  onChangeFeatureItem(
+                    feature._id,
+                    'contentType',
+                    e.target.value
+                  );
+                }}
+              />
+            </FeatureRowItem>
+            <FeatureRowItem>
+              <FormControl
+                componentClass="select"
+                value={feature.icon}
+                options={ICON_OPTIONS}
+                onChange={(e: any) =>
+                  onChangeFeatureItem(feature._id, 'icon', e.target.value)
                 }
-
-                onChangeFeatureItem(feature._id, 'contentId', item.value);
-              }}
-              clearable={false}
-            />
-          </FeatureRowItem>
-
-          {feature.contentType === 'knowledgeBase' && (
+              />
+            </FeatureRowItem>
+            <FeatureRowItem>
+              <FormControl
+                name="name"
+                placeholder="Name"
+                value={feature.name}
+                onChange={(e: any) =>
+                  onChangeFeatureItem(feature._id, 'name', e.target.value)
+                }
+              />
+            </FeatureRowItem>
+            <FeatureRowItem>
+              <FormControl
+                name="description"
+                placeholder="Description"
+                value={feature.description}
+                onChange={(e: any) =>
+                  onChangeFeatureItem(
+                    feature._id,
+                    'description',
+                    e.target.value
+                  )
+                }
+              />
+            </FeatureRowItem>
             <FeatureRowItem>
               <Select
-                placeholder={__('Choose a category')}
-                value={feature.subContentId}
-                options={getCategoryValues(
-                  feature.contentId,
-                  kbCategories[feature.contentId],
-                  null
-                )}
-                style={{ width: 200 }}
-                onChange={item =>
-                  onChangeFeatureItem(feature._id, 'subContentId', item.value)
-                }
+                placeholder={__('Choose a content')}
+                value={feature.contentId}
+                options={getContentValues(feature.contentType)}
+                onChange={item => {
+                  if (feature.contentType === 'knowledgeBase') {
+                    getKbCategories(item.value);
+                  }
+
+                  onChangeFeatureItem(feature._id, 'contentId', item.value);
+                }}
                 clearable={false}
               />
             </FeatureRowItem>
-          )}
 
-          <button onClick={() => onChangeFeature('remove', feature._id)}>
-            X
-          </button>
-        </FeatureRow>
-      ))}
-      <button onClick={() => onChangeFeature('add')}>+</button>
-      <br />
-      <Button style={{ float: 'right', marginRight: '20px' }} onClick={onSave}>
+            {feature.contentType === 'knowledgeBase' && (
+              <FeatureRowItem>
+                <Select
+                  placeholder={__('Choose a category')}
+                  value={feature.subContentId}
+                  options={getCategoryValues(
+                    feature.contentId,
+                    kbCategories[feature.contentId],
+                    null
+                  )}
+                  style={{ width: 200 }}
+                  onChange={item =>
+                    onChangeFeatureItem(feature._id, 'subContentId', item.value)
+                  }
+                  clearable={false}
+                />
+              </FeatureRowItem>
+            )}
+
+            <Button
+              btnStyle="danger"
+              onClick={() => onChangeFeature('remove', feature._id)}
+            >
+              X
+            </Button>
+          </FeatureRow>
+        ))}
+        <Button onClick={() => onChangeFeature('add')}>+ Add Features</Button>
+      </FeatureLayout>
+      <Button btnStyle="success" onClick={onSave}>
         Save
       </Button>
-    </div>
+    </GeneralWrapper>
   );
 }

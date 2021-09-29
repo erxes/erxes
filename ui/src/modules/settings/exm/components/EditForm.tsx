@@ -4,6 +4,7 @@ import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from '../../../common/utils';
 import { TabContent } from 'modules/boards/styles/rightMenu';
 import General from '../containers/General';
+import Appearance from './Appearance';
 
 type Props = {
   exm: any;
@@ -18,6 +19,10 @@ function EditFrom(props: Props) {
   const renderTabContent = () => {
     if (currentTab === 'General') {
       return <General exm={exm} edit={edit} />;
+    }
+
+    if (currentTab === 'Appearance') {
+      return <Appearance />;
     }
 
     return <TabContent>This is {currentTab}</TabContent>;
