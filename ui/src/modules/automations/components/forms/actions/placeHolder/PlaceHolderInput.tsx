@@ -8,7 +8,7 @@ import { IOption } from 'modules/common/types';
 import { FieldsCombinedByType } from 'modules/settings/properties/types';
 import React from 'react';
 
-import Attribution from '../../../containers/forms/actions/Attribution';
+import Attribution from '../../../../containers/forms/actions/Attribution';
 import SelectBoard from './SelectBoard';
 import SelectDate from './SelectDate';
 import SelectOption from './SelectOption';

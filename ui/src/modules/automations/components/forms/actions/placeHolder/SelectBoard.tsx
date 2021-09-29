@@ -4,7 +4,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import BoardSelect from 'modules/boards/containers/BoardSelect';
 import Icon from 'modules/common/components/Icon';
-import { Attributes } from './styles';
+import { Attributes } from '../styles';
 import { IStage } from 'modules/boards/types';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import gql from 'graphql-tag';

@@ -3,7 +3,7 @@ import { FieldsCombinedByType } from 'modules/settings/properties/types';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { Attributes } from './styles';
+import { Attributes } from '../styles';
 
 type Props = {
   config: any;
