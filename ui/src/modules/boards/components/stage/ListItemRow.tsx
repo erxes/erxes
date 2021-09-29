@@ -9,7 +9,6 @@ import {
   LastUpdate,
   Left,
   PriceContainer,
-  ListRow,
   ColumnChild,
   LabelColumn,
   StageColumn
@@ -122,7 +121,7 @@ class ListItemRow extends React.PureComponent<Props> {
 
     return (
       <>
-        <ListRow onClick={onClick} key={item._id}>
+        <tr onClick={onClick} key={item._id} style={{ cursor: 'pointer' }}>
           <ColumnChild>
             <h5>{item.name}</h5>
             <LastUpdate>
@@ -169,7 +168,7 @@ class ListItemRow extends React.PureComponent<Props> {
               <Details color="#EA475D" items={companies || []} />
             )}
           </ColumnChild>
-        </ListRow>
+        </tr>
         {this.renderForm()}
       </>
     );

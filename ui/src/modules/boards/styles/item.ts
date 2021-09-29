@@ -77,10 +77,6 @@ export const LastUpdate = styled.div`
   }
 `;
 
-export const ListRow = styled.tr`
-  cursor: pointer;
-`;
-
 export const ColumnChild = styled.td`
   &:first-child {
     width: 500px;
