@@ -62,6 +62,7 @@ type Props = {
   id: string;
   count: number;
   history: any;
+  saveLoading: boolean;
   queryParams: any;
   previewCount: (item: ITrigger | IAction) => void;
 };
@@ -144,7 +145,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps, prevState) {
     const { isActionTab } = this.state;
-    console.log('didupdate');
+    // console.log('didupdate');
     if (isActionTab && isActionTab !== prevState.isActionTab) {
       this.connectInstance();
     }
@@ -819,8 +820,12 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderConfirmation() {
-    const { id, queryParams, history } = this.props;
+    const { id, queryParams, history, saveLoading } = this.props;
     const { triggers, actions } = this.state;
+
+    if (saveLoading) {
+      return null;
+    }
 
     const when = queryParams.isCreate
       ? !!id

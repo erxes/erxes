@@ -44,6 +44,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   } = props;
 
   const [count, setCount] = useState(0);
+  const [saveLoading, setLoading] = useState(false);
 
   const previewCount = (item: ITrigger | IAction) => {
     const config = item.config;
@@ -61,6 +62,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   };
 
   const save = (doc: IAutomation) => {
+    setLoading(true);
+
     editAutomationMutation({
       variables: {
         ...doc
@@ -68,6 +71,10 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     })
       .then(() => {
         router.removeParams(history, 'isCreate');
+
+        setTimeout(() => {
+          setLoading(false);
+        }, 300);
 
         Alert.success(`You successfully updated a ${doc.name || 'status'}`);
       })
@@ -98,6 +105,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     currentUser,
     previewCount,
     save,
+    saveLoading,
     count
   };
 

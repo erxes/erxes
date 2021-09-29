@@ -54,7 +54,7 @@ class Confirmation extends React.Component<
       );
     }
 
-    return this.setState({ nextLocation: null, showModal: false });
+    return this.navigateToNextLocation();
   };
 
   onConfirm = () => {
