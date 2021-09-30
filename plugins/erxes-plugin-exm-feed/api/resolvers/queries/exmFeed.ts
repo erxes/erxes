@@ -7,6 +7,20 @@ const exmFeedQueries = [
       return models.ExmFeed.findOne({ _id: params._id });
     }
   },
+  // {
+  //   name: 'exmFeedCeremonies',
+  //   handler: async (_root, { contentType, type }, { models, checkPermission, user }) => {
+  //     await checkPermission('showExm', user);
+
+  //     const doc = { contentType };
+
+  //     if (type === 'today') {
+
+  //     }
+
+  //     return models.ExmFeed.find(doc);
+  //   }
+  // },
   {
     name: 'exmFeed',
     handler: async (
@@ -24,6 +38,8 @@ const exmFeedQueries = [
 
       if (contentType) {
         doc.contentType = contentType;
+      } else {
+        doc.contentType = { $nin: ['birthday', 'workAnniversary'] };
       }
 
       if (contentType === 'bravo' && type === 'recipient') {
