@@ -6,6 +6,7 @@ import { calculateExecution, receiveTrigger } from "../utils";
 import * as utils from "../utils";
 import "./setup";
 import { ACTIONS } from '../constants';
+import * as messageBroker from '../messageBroker'
 
 describe('getOrCreateExecution', () => {
   beforeEach(async () => {
@@ -45,7 +46,6 @@ describe('getOrCreateExecution', () => {
     await calculateExecution({ automationId, trigger: fakeTrigger, target });
 
     expect(await Executions.find().count()).toBe(1);
-
 
     // amount is changed therefore new entry must be inserted
     target.amount = 200;
@@ -113,8 +113,8 @@ describe('executeActions (if)', () => {
       actions: [
         {
           id: "1",
-          type: ACTIONS.ADD_TAGS,
-          config: { names: ["t1", "t2"] },
+          type: ACTIONS.CREATE_DEAL,
+          config: { name: "d1", stageId: 'stage' },
           nextActionId: "2",
         },
         {
@@ -127,9 +127,10 @@ describe('executeActions (if)', () => {
         },
         {
           id: "3",
-          type: ACTIONS.REMOVE_TAGS,
+          type: ACTIONS.CREATE_TASK,
           config: {
-            names: ["t1"],
+            name: "t1",
+            stageId: 'stage',
           },
         },
       ],
@@ -142,28 +143,39 @@ describe('executeActions (if)', () => {
   })
 
   test("if yes", async (done) => {
+    const createItem = sinon.stub(messageBroker, 'sendRPCMessage').callsFake((_action, data) => {
+      return { name: data.name }
+    })
     const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
       return Promise.resolve(true);
     });
 
     await receiveTrigger({ type: "deal", targets: [{ _id: 'dealId1', amount: 100 }] });
 
-    expect(tags).toEqual(["t2"]);
     expect(await Automations.find().count()).toBe(1);
     expect(await Executions.find().count()).toBe(1);
 
     const execution = await Executions.findOne();
 
     expect(execution.triggerId).toBe('1');
-    expect(execution.waitingActionId).toBe(null);
-    expect(execution.startWaitingDate).toBe(null);
+    expect(execution.actions.length).toBe(3);
+    expect(execution.actions[0].result.name).toBe('d1');
+    expect(execution.actions[1].result.condition).toBe(true);
+    expect(execution.actions[2].result.name).toBe('t1');
+    expect(execution.status).toContain('complete');
+    expect(execution.waitingActionId).toBeUndefined();
+    expect(execution.startWaitingDate).toBeUndefined();
 
     mock.restore();
+    createItem.restore();
 
     done();
   });
 
   test("if no", async (done) => {
+    const createItem = sinon.stub(messageBroker, 'sendRPCMessage').callsFake((_action, data) => {
+      return { name: data.name }
+    })
     const mock = sinon.stub(utils, 'isInSegment').callsFake((segmentId) => {
       if (segmentId === 'segmentId') {
         return Promise.resolve(true);
@@ -173,9 +185,21 @@ describe('executeActions (if)', () => {
 
     await receiveTrigger({ type: "deal", targets: [{ _id: "dealId2" }] });
 
-    expect(tags).toEqual(["t1", "t2"]);
+    expect(await Automations.find().count()).toBe(1);
+    expect(await Executions.find().count()).toBe(1);
+
+    const execution = await Executions.findOne();
+
+    expect(execution.triggerId).toBe('1');
+    expect(execution.actions.length).toBe(2);
+    expect(execution.actions[0].result.name).toBe('d1');
+    expect(execution.actions[1].result.condition).toBe(false);
+    expect(execution.status).toContain('complete');
+    expect(execution.waitingActionId).toBeUndefined();
+    expect(execution.startWaitingDate).toBeUndefined();
 
     mock.restore();
+    createItem.restore();
 
     done();
   });
@@ -237,7 +261,7 @@ describe('executeActions (wait)', () => {
 
     await receiveTrigger({ type: "deal", targets: [{ _id: "dealId1" }] });
 
-    expect(tags).toEqual(["t1", "t2"]);
+    // expect(tags).toEqual(["t1", "t2"]);
 
     const execution = await Executions.findOne();
 
