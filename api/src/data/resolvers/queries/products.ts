@@ -110,20 +110,24 @@ const productQueries = {
 
   productCategories(
     _root,
-    { parentId, searchValue }: { parentId: string; searchValue: string },
+    {
+      parentId,
+      searchValue,
+      status
+    }: { parentId: string; searchValue: string; status: String },
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
     filter.status = { $nin: ['disabled', 'archived'] };
 
+    if (status && status !== 'active') {
+      filter.status = status;
+    }
+
     if (parentId) {
       filter.parentId = parentId;
     }
-
-    // if (status && status !== 'active') {
-    //   filter.status = status;
-    // }
 
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');

@@ -124,7 +124,7 @@ describe('productQueries', () => {
     await productCategoryFactory({
       parentId: parent._id,
       code: '2',
-      status: 'disabled'
+      status: 'archived'
     });
     await productCategoryFactory({
       parentId: parent._id,
@@ -139,8 +139,8 @@ describe('productQueries', () => {
     await productCategoryFactory({ parentId: parent._id, code: '5' });
 
     const qry = `
-      query productCategories($parentId: String $searchValue: String) {
-        productCategories(parentId: $parentId searchValue: $searchValue) {
+      query productCategories($parentId: String $searchValue: String, $status: String) {
+        productCategories(parentId: $parentId searchValue: $searchValue, status: $status) {
           _id
           name
           parentId
@@ -161,10 +161,10 @@ describe('productQueries', () => {
     expect(response.length).toBe(3);
 
     response = await graphqlRequest(qry, 'productCategories', {
-      status: 'active'
+      status: 'archived'
     });
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
 
     response = await graphqlRequest(qry, 'productCategories', {
       parentId: parent._id
