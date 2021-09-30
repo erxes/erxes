@@ -69,6 +69,8 @@ export const types = `
     event
     post
     bravo
+    birthday
+    workAnniversary
   }
 
   enum RecipientType {
@@ -80,6 +82,11 @@ export const types = `
     Public
     Private
   }
+
+  enum FilterType {
+    today
+    upcoming
+  }
 `;
 
 export const queries = `
@@ -88,6 +95,7 @@ export const queries = `
   exmThanks(limit: Int, type: SourceType): ExmThankResponse
   exmFeedComments(feedId: String, parentId: String, limit: Int, skip: Int): ExmFeedCommentResponse
   exmFeedLikedUsers(feedId: String!): [User]
+  exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
 `;
 
 const feedCommonParams = `

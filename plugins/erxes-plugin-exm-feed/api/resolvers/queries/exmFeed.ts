@@ -1,3 +1,20 @@
+import * as moment from 'moment';
+
+const getDateRange = (filterType: string) => {
+  return {
+    $gte: new Date(
+      moment()
+        .add(filterType === 'today' ? 0 : 1, 'days')
+        .format('YYYY-MM-DD')
+    ),
+    $lt: new Date(
+      moment()
+        .add(filterType === 'today' ? 1 : 8, 'days')
+        .format('YYYY-MM-DD')
+    )
+  };
+};
+
 const exmFeedQueries = [
   {
     name: 'exmFeedDetail',
@@ -7,20 +24,26 @@ const exmFeedQueries = [
       return models.ExmFeed.findOne({ _id: params._id });
     }
   },
-  // {
-  //   name: 'exmFeedCeremonies',
-  //   handler: async (_root, { contentType, type }, { models, checkPermission, user }) => {
-  //     await checkPermission('showExm', user);
+  {
+    name: 'exmFeedCeremonies',
+    handler: async (
+      _root,
+      { contentType, filterType },
+      { models, checkPermission, user }
+    ) => {
+      await checkPermission('showExm', user);
 
-  //     const doc = { contentType };
+      const filter = {
+        contentType,
+        'ceremonyData.willDate': getDateRange(filterType)
+      };
 
-  //     if (type === 'today') {
-
-  //     }
-
-  //     return models.ExmFeed.find(doc);
-  //   }
-  // },
+      return {
+        list: await models.ExmFeed.find(filter),
+        totalCount: await models.ExmFeed.find(filter).countDocuments()
+      };
+    }
+  },
   {
     name: 'exmFeed',
     handler: async (

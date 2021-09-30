@@ -1,13 +1,80 @@
 import { FEED_CONTENT_TYPES } from './definitions';
+import * as moment from 'moment';
 
-const getUserInfo = (user: any) => {
-  const details = user.details || {};
-
-  if (details.firstName && details.lastName) {
-    return `${details.firstName} ${details.firstName}`;
+const generateData = (
+  feeds,
+  userList,
+  contentType: string,
+  fieldName: string,
+  year: number,
+  month: number,
+  day: number
+) => {
+  for (const user of userList) {
+    feeds.push({
+      updateOne: {
+        filter: {
+          recipientIds: { $in: [user._id] },
+          year,
+          contentType
+        },
+        update: {
+          title: 'Ceremony',
+          contentType,
+          recipientIds: [user._id],
+          ceremonyData: {
+            startedDate: user.details[fieldName],
+            willDate: new Date(
+              moment(user.details[fieldName])
+                .add(year - user.year, 'years')
+                .toISOString()
+            ),
+            howManyYear: year - user.year,
+            year
+          },
+          createdAt: new Date(),
+          createdBy: user._id
+        },
+        upsert: true
+      }
+    });
   }
 
-  return details.firstName || user.email;
+  return feeds;
+};
+
+const getUsers = (
+  models,
+  fieldName: string,
+  year: number,
+  month: number,
+  day: number
+) => {
+  return models.Users.aggregate([
+    {
+      $project: {
+        _id: 1,
+        details: 1,
+        year: { $year: `$details.${fieldName}` },
+        month: { $month: `$details.${fieldName}` },
+        day: { $dayOfMonth: `$details.${fieldName}` }
+      }
+    },
+    {
+      $match: {
+        year: { $lt: year },
+        $or: [
+          {
+            month: { $gt: month }
+          },
+          {
+            month: { $gte: month },
+            day: { $gte: day }
+          }
+        ]
+      }
+    }
+  ]);
 };
 
 export const createCeremonies = async models => {
@@ -18,87 +85,45 @@ export const createCeremonies = async models => {
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
 
-  const usersHasBirthday = await models.Users.aggregate([
-    {
-      $project: {
-        _id: 1,
-        details: 1,
-        birthMonth: { $month: '$details.birthDate' },
-        birthDay: { $dayOfMonth: '$details.birthDate' }
-      }
-    },
-    {
-      $match: {
-        birthMonth: { $gte: month },
-        birthDay: { $gte: day }
-      }
-    }
-  ]);
+  const usersHasBirthday = await getUsers(
+    models,
+    'birthDate',
+    year,
+    month,
+    day
+  );
 
-  const feeds = [];
+  const usersHasWorkAnniversary = await getUsers(
+    models,
+    'workStartedDate',
+    year,
+    month,
+    day
+  );
 
-  for (const user of usersHasBirthday) {
-    feeds.push({
-      updateOne: {
-        filter: {
-          recipientIds: { $in: [user._id] },
-          'birthdayData.year': year
-        },
-        update: {
-          title: 'Birthday',
-          description: `Happy birthday to ${getUserInfo(user)}`,
-          contentType: FEED_CONTENT_TYPES.BIRTHDAY,
-          recipientIds: [user._id],
-          birthdayData: {
-            birthDate: user.details.birthDate,
-            year
-          }
-        },
-        upsert: true
-      }
-    });
+  let feeds = generateData(
+    [],
+    usersHasBirthday,
+    FEED_CONTENT_TYPES.BIRTHDAY,
+    'birthDate',
+    year,
+    month,
+    day
+  );
+
+  feeds = generateData(
+    feeds,
+    usersHasWorkAnniversary,
+    FEED_CONTENT_TYPES.WORK_ANNIVARSARY,
+    'workStartedDate',
+    year,
+    month,
+    day
+  );
+
+  if (feeds.length > 0) {
+    await models.ExmFeed.bulkWrite(feeds);
   }
-
-  const usersHasWorkAnniversary = await models.Users.aggregate([
-    {
-      $project: {
-        _id: 1,
-        details: 1,
-        birthMonth: { $month: '$details.workStartedDate' },
-        birthDay: { $dayOfMonth: '$details.workStartedDate' }
-      }
-    },
-    {
-      $match: {
-        birthMonth: { $gte: month },
-        birthDay: { $gte: day }
-      }
-    }
-  ]);
-
-  for (const user of usersHasWorkAnniversary) {
-    feeds.push({
-      updateOne: {
-        filter: {
-          recipientIds: { $in: [user._id] },
-          'workAnniversaryData.year': year
-        },
-        update: {
-          title: 'Work anniversary',
-          description: `Work anniversary to ${getUserInfo(user)}`,
-          contentType: FEED_CONTENT_TYPES.WORK_ANNIVARSARY,
-          recipientIds: [user._id],
-          workAnniversaryData: {
-            birthDate: user.details.birthDate,
-            year
-          }
-        },
-        upsert: true
-      }
-    });
-  }
-
-  await models.ExmFeed.bulkWrite(feeds);
 
   console.log('ending to create ceremonies');
 };
@@ -118,7 +143,7 @@ export const createCeremonies = async models => {
 // 20:00
 export default [
   {
-    schedule: '00 20 * * *',
+    schedule: '*/10 * * * * *',
     handler: async ({ models }) => {
       await createCeremonies(models);
     }
