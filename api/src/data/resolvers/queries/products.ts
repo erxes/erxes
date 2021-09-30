@@ -114,7 +114,7 @@ const productQueries = {
       parentId,
       searchValue,
       status
-    }: { parentId: string; searchValue: string; status: String },
+    }: { parentId: string; searchValue: string; status: string },
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
