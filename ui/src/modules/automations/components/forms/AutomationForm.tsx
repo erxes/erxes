@@ -460,13 +460,26 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ showDrawer: !this.state.showDrawer, currentTab: type });
   };
 
+  getNewId = (checkIds: string[]) => {
+    let newId = Math.random()
+      .toString(36)
+      .slice(-8);
+
+    if (checkIds.includes(newId)) {
+      newId = this.getNewId(checkIds);
+    }
+
+    return newId;
+  };
+
   addTrigger = (data: ITrigger, triggerId?: string, config?: any) => {
     const { triggers, activeTrigger } = this.state;
 
     let trigger: any = {
       ...data,
-      id: triggerId
+      id: this.getNewId(triggers.map(t => t.id))
     };
+    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
       trigger = activeTrigger;
@@ -477,20 +490,32 @@ class AutomationForm extends React.Component<Props, State> {
     /*add count*/
     this.props.previewCount(trigger);
 
-    triggers.push(trigger);
+    if (triggerIndex !== -1) {
+      triggers[triggerIndex] = trigger;
+    } else {
+      triggers.push(trigger);
+    }
 
     this.setState({ triggers, activeTrigger: trigger }, () => {
-      this.renderControl('trigger', trigger, this.onClickTrigger);
+      if (!triggerId) {
+        this.renderControl('trigger', trigger, this.onClickTrigger);
+      }
     });
   };
 
   addAction = (data: IAction, actionId?: string, config?: any) => {
-    const { actions, activeAction } = this.state;
+    const { actions } = this.state;
 
-    let action: any = { ...data, id: actionId };
+    let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
 
-    if (actionId && activeAction.id === actionId) {
-      action = activeAction;
+    let actionIndex = -1;
+
+    if (actionId) {
+      actionIndex = actions.findIndex(a => a.id === actionId);
+
+      if (actionIndex !== -1) {
+        action = actions[actionIndex];
+      }
     }
 
     action.config = { ...action.config, ...config };
@@ -498,10 +523,16 @@ class AutomationForm extends React.Component<Props, State> {
     /*add count*/
     this.props.previewCount(action);
 
-    actions.push(action);
+    if (actionIndex !== -1) {
+      actions[actionIndex] = action;
+    } else {
+      actions.push(action);
+    }
 
     this.setState({ actions, activeAction: action }, () => {
-      this.renderControl('action', action, this.onClickAction);
+      if (!actionId) {
+        this.renderControl('action', action, this.onClickAction);
+      }
     });
   };
 
@@ -555,7 +586,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
-
+    console.log(idElm);
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
