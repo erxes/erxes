@@ -232,6 +232,18 @@ const activityLogQueries = {
   },
 
   async activityLogsByAction(_root, { contentType, action, pipelineId }) {
+    const actionModifier = action ? { $in: action.split(',') } : '';
+
+    if (action === 'delete') {
+      return fetchLogs(
+        {
+          action: actionModifier,
+          type: contentType
+        },
+        'logs'
+      );
+    }
+
     const stageIds = await Stages.find({ pipelineId }).distinct('_id');
 
     const { collection } = getCollection(contentType);
@@ -240,11 +252,21 @@ const activityLogQueries = {
       .find({ stageId: { $in: stageIds } })
       .distinct('_id');
 
+    if (action === 'note') {
+      const internalNotes = await InternalNotes.find({
+        contentTypeId: { $in: contentIds }
+      }).sort({
+        createdAt: -1
+      });
+
+      return internalNotes;
+    }
+
     const logs = await fetchLogs(
       {
         contentType,
         contentId: { $in: contentIds },
-        action
+        action: actionModifier
       },
       'activityLogs'
     );
