@@ -4,9 +4,18 @@ import { sendRPCMessage } from '../messageBroker';
 export const addBoardItem = async ({ action, execution, type }) => {
   const { config = {} } = action;
 
-  let newData = await replacePlaceHolders({ actionData: { assignedTo: action.config.assignedTo }, target: execution.target, isRelated: false })
+
+  let newData = action.config.assignedTo ? await replacePlaceHolders({
+    actionData: { assignedTo: action.config.assignedTo },
+    target: execution.target, isRelated: false
+  }) : {}
+
   delete action.config.assignedTo;
-  newData = { ...newData, ...await replacePlaceHolders({ actionData: action.config, target: execution.target }) };
+
+  newData = {
+    ...newData,
+    ...await replacePlaceHolders({ actionData: action.config, target: execution.target })
+  };
 
   if (newData.hasOwnProperty('assignedTo')) {
     newData.assignedUserIds = newData.assignedTo.trim().split(', ')
