@@ -35,6 +35,7 @@ class BasicInfo extends React.Component<Props> {
   onRadio = (e) => {
     const { product, chooseFeature } = this.props;
     chooseFeature(product._id, e.target.value);
+
   }
 
   renderVendor = vendor => {
@@ -58,41 +59,12 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderSupply = supply => {
-    const supplyView = supply ? supply : '-';
+  renderView = (name, variable, variable1) => {
+    const view = variable ? variable : variable1;
     return (
       <li>
-        <FieldStyle>{__(`Supply`)}</FieldStyle>
-        <SidebarCounter>{supplyView}</SidebarCounter>
-      </li>
-    );
-  };
-
-  renderProductCount = proCnt => {
-    const proCntView = proCnt ? proCnt : 0;
-    return (
-      <li>
-        <FieldStyle>{__(`Product count`)}</FieldStyle>
-        <SidebarCounter>{proCntView}</SidebarCounter>
-      </li>
-    );
-  };
-
-  renderMinimiumCount = minCnt => {
-    const minCntView = minCnt ? minCnt : 0;
-    return (
-      <li>
-        <FieldStyle>{__(`Minimium count`)}</FieldStyle>
-        <SidebarCounter>{minCntView}</SidebarCounter>
-      </li>
-    );
-  }
-
-  renderRow = (label, value) => {
-    return (
-      <li>
-        <FieldStyle>{__(`${label}`)}</FieldStyle>
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{view}</SidebarCounter>
       </li>
     );
   };
@@ -189,21 +161,21 @@ class BasicInfo extends React.Component<Props> {
         {this.renderImage(product.attachment)}
         {this.renderFeatures(product.attachmentMore, product.attachment)}
         <SidebarList className="no-link">
-          {this.renderRow('Code', product.code)}
-          {this.renderRow('Type', product.type)}
-          {this.renderRow(
+          {this.renderView('Code', product.code, '-')}
+          {this.renderView('Type', product.type, '-')}
+          {this.renderView(
             'Category',
-            product.category ? product.category.name : ''
+            product.category ? product.category.name : '', '-'
           )}
-          {this.renderRow(
+          {this.renderView(
             'Unit price',
-            (product.unitPrice || 0).toLocaleString()
+            (product.unitPrice || 0).toLocaleString(), '-'
           )}
-          {this.renderRow('Sku', product.sku)}
+          {this.renderView('Sku', product.sku, '-')}
           {this.renderVendor(product.vendor)}
-          {this.renderSupply(product.supply)}
-          {this.renderProductCount(product.productCount)}
-          {this.renderMinimiumCount(product.minimiumCount)}
+          {this.renderView('Supply', product.supply, '-')}
+          {this.renderView('Product count', product.productCount, 0)}
+          {this.renderView('Minimium product', product.minimiumCount, 0)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <Content

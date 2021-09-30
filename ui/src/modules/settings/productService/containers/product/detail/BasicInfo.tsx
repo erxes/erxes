@@ -10,10 +10,11 @@ import { IRouterProps } from '../../../../../common/types';
 
 import { IProduct } from 'modules/settings/productService/types';
 import { mutations } from '../../../graphql';
-import { ProductRemoveMutationResponse, SelectFeatureMutationResponse, SelectFeatureMutationVariables } from '../../../types';
+import { ProductRemoveMutationResponse, SelectFeatureMutationResponse } from '../../../types';
 
 type Props = {
   product: IProduct;
+  refetchQueries?: any[];
 };
 
 type FinalProps = { currentUser: IUser } & Props &
@@ -41,7 +42,6 @@ const BasicInfoContainer = (props: FinalProps) => {
     productSelectFeature({ variables: { _id, counter } })
       .then(() => {
         Alert.success('You successfully selected a feature');
-        history.push('/settings/product-service');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -70,10 +70,13 @@ export default withProps<Props>(
         options: generateOptions
       }
     ),
-    graphql<SelectFeatureMutationVariables, SelectFeatureMutationResponse, { _id: string, counter: string }>(
+    graphql<Props, SelectFeatureMutationResponse, { _id: string, counter: string }>(
       gql(mutations.productSelectFeature),
       {
-        name: 'productSelectFeature'
+        name: 'productSelectFeature',
+        options: ({ refetchQueries }) => ({
+          refetchQueries
+        })
       }
     )
   )(withRouter<FinalProps>(BasicInfoContainer))

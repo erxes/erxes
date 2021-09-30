@@ -35,6 +35,7 @@ interface IProps extends IRouterProps {
   searchValue: string;
   currentCategory: IProductCategory;
   mergeProducts: () => void;
+  productsRefetch?: any[];
   mergeProductLoading;
 }
 

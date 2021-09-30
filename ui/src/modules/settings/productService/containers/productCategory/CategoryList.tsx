@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, confirm, withProps, router as routerUtils } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../../components/productCategory/CategoryList';
@@ -10,20 +10,14 @@ import {
   ProductCategoriesQueryResponse,
   ProductCategoryRemoveMutationResponse
 } from '../../types';
-import queryString from 'query-string';
 
-type Props = { history: any; queryParams: any };
+type Props = { history: any; queryParams: any; };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
 } & Props &
   ProductCategoryRemoveMutationResponse;
-
-const generateQueryParams = ({ location }) => {
-  return queryString.parse(location.search);
-};
-
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
@@ -51,24 +45,12 @@ class ProductListContainer extends React.Component<FinalProps> {
       });
     };
 
-    const onSelect = (values: string[] | string, key: string) => {
-      const params = generateQueryParams(this.props.history);
-
-      if (params[key] === values) {
-        return routerUtils.removeParams(this.props.history, key);
-      }
-
-      return routerUtils.setParams(this.props.history, { [key]: values });
-    };
-
     const productCategories = productCategoriesQuery.productCategories || [];
 
     const updatedProps = {
       ...this.props,
       remove,
-      refetch: getRefetchQueries,
       productCategories,
-      onSelect,
       loading: productCategoriesQuery.loading,
       productCategoriesCount:
         productCategoriesCountQuery.productCategoriesTotalCount || 0
