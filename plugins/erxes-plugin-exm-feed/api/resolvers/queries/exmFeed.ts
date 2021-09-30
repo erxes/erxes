@@ -48,7 +48,7 @@ const exmFeedQueries = [
     name: 'exmFeed',
     handler: async (
       _root,
-      { title, contentType, limit, recipientType, type },
+      { title, contentTypes, limit, recipientType, type },
       { models, checkPermission, user }
     ) => {
       await checkPermission('showExm', user);
@@ -59,13 +59,15 @@ const exmFeedQueries = [
         doc.title = new RegExp(`.*${title}.*`, 'i');
       }
 
-      if (contentType) {
-        doc.contentType = contentType;
-      } else {
-        doc.contentType = { $nin: ['birthday', 'workAnniversary'] };
+      if (contentTypes && contentTypes.length > 0) {
+        doc.contentType = { $in: contentTypes };
       }
 
-      if (contentType === 'bravo' && type === 'recipient') {
+      if (
+        contentTypes &&
+        contentTypes.includes('bravo') &&
+        type === 'recipient'
+      ) {
         if (recipientType === 'recieved') {
           doc.recipientIds = { $in: [user._id] };
         } else if (recipientType === 'sent') {
