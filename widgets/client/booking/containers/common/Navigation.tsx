@@ -15,18 +15,11 @@ function NavigationContainer(props: ChildProps<Props>) {
   const { parentId, goToBlock, goToFloor } = props;
 
   const changeRoute = (item: ICategoryTree) => {
-    if (item.parentId === parentId) {
-      if (!goToBlock) {
-        return null;
-      }
+    if (item.parentId === parentId && goToBlock) {
       return goToBlock(item._id);
     }
 
-    if (item.type === 'category') {
-      if (!goToFloor) {
-        return null;
-      }
-
+    if (item.type === 'category' && goToFloor) {
       return goToFloor(item._id);
     }
   };
@@ -36,7 +29,7 @@ function NavigationContainer(props: ChildProps<Props>) {
 const WithContext = (props: Props) => {
   return (
     <AppConsumer>
-      {({ goToBlock, goToFloor }) => (
+      {({ goToBlock, goToFloor, goToProduct }) => (
         <NavigationContainer
           {...props}
           goToBlock={goToBlock}
