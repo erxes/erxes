@@ -55,6 +55,8 @@ jobs:
           yarn install
           cd api
           yarn install --frozen-lockfile
+          cd plugins/exm-plugin-exm-feed/api
+          yarn install --frozen-lockfile
 
       - name: Lint
         run: |

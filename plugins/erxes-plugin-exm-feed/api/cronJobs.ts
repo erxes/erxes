@@ -6,9 +6,7 @@ const generateData = (
   userList,
   contentType: string,
   fieldName: string,
-  year: number,
-  month: number,
-  day: number
+  year: number
 ) => {
   for (const user of userList) {
     feeds.push({
@@ -106,9 +104,7 @@ export const createCeremonies = async models => {
     usersHasBirthday,
     FEED_CONTENT_TYPES.BIRTHDAY,
     'birthDate',
-    year,
-    month,
-    day
+    year
   );
 
   feeds = generateData(
@@ -116,9 +112,7 @@ export const createCeremonies = async models => {
     usersHasWorkAnniversary,
     FEED_CONTENT_TYPES.WORK_ANNIVARSARY,
     'workStartedDate',
-    year,
-    month,
-    day
+    year
   );
 
   if (feeds.length > 0) {
