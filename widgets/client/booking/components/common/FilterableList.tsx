@@ -16,6 +16,7 @@ type Props = {
   className?: string;
   treeView?: boolean;
   isIndented?: boolean;
+  parentId?: string;
 
   // hooks
   onClick?: (items: any[], id: string) => void;
@@ -111,6 +112,14 @@ class FilterableList extends React.Component<Props, State> {
     );
   }
 
+  changeRoute(item: any) {
+    const { parentId } = this.props;
+
+    if (item.parentId === parentId) {
+      return null;
+    }
+  }
+
   renderItem(item: any, hasChildren: boolean) {
     const { showCheckmark = true } = this.props;
     const { key } = this.state;
@@ -131,7 +140,9 @@ class FilterableList extends React.Component<Props, State> {
         >
           {this.renderIcons(item, hasChildren, isOpen)}
 
-          <span>{item.name || '[undefined]'}</span>
+          <span onClick={() => this.changeRoute(item)}>
+            {item.name || '[undefined]'}
+          </span>
         </li>
       </FlexRow>
     );
@@ -162,7 +173,7 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   renderItems() {
-    const { loading } = this.props;
+    const { loading, parentId } = this.props;
     const { items } = this.state;
 
     if (loading) {
@@ -173,7 +184,7 @@ class FilterableList extends React.Component<Props, State> {
       return <div>hooson baina</div>;
     }
 
-    const parents = items.filter(item => !item.parentId);
+    const parents = items.filter(item => item.parentId === parentId);
     const subFields = items.filter(item => item.parentId);
 
     return parents.map(parent => this.renderTree(parent, subFields));

@@ -15,7 +15,7 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const { title, description, image, childCategories } = booking;
+  const { title, description, image, childCategories, categoryTree } = booking;
 
   return (
     <div>
@@ -23,7 +23,8 @@ function Booking({ goToIntro, booking }: Props) {
         treeView={true}
         selectable={false}
         loading={false}
-        items={JSON.parse(JSON.stringify(childCategories))}
+        items={JSON.parse(JSON.stringify(categoryTree))}
+        parentId={booking.productCategoryId}
       />
       <h1>{title}</h1>
       <p>{description}</p>

@@ -36,7 +36,16 @@ const bookingFields = `
   buttonText
   productCategoryId
 
-  childCategories 
+  childCategories {
+    ${productCategoryFields}
+  }
+
+  categoryTree {
+    _id
+    name
+    parentId
+    type
+  }
 
   styles {
     ${styleFields}

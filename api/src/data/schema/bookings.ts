@@ -24,6 +24,13 @@ export const types = `
     textSelected: String
   }
 
+  type CategoryTree {
+    _id: String!
+    name: String
+    parentId: String
+    type: String
+  }
+
   type Booking {
     _id: String!,
     name: String,
@@ -51,7 +58,9 @@ export const types = `
     tagIds: [String],
     tags: [Tag]
 
-    childCategories: JSON
+    childCategories: [ProductCategory]
+
+    categoryTree: [CategoryTree]
   }
 `;
 

@@ -21,6 +21,13 @@ export interface IProductCategory {
   parentId?: string;
 }
 
+export interface ICategoryTree {
+  _id: string;
+  name: string;
+  parentId: string;
+  type: string;
+}
+
 export interface IBooking {
   _id: string;
   // content
@@ -48,4 +55,6 @@ export interface IBooking {
 
   // child categories
   childCategories: IProductCategory[];
+
+  categoryTree: [ICategoryTree];
 }

@@ -21,12 +21,16 @@ export default {
   },
 
   async childCategories(booking: IBookingDocument) {
-    const tree: {
+    return ProductCategories.find({ parentId: booking.productCategoryId });
+  },
+
+  async categoryTree(booking: IBookingDocument) {
+    const tree: Array<{
       _id: string;
-      parentId?: string;
       name: string;
+      parentId?: string;
       type: 'product' | 'category';
-    }[] = [];
+    }> = [];
 
     const generateTree = async (parentId: any) => {
       const categories = await ProductCategories.find({ parentId });
@@ -58,15 +62,6 @@ export default {
 
     await generateTree(booking.productCategoryId);
 
-    console.log('tree: ', tree);
-
     return tree;
   }
-
-  /**
-   * [{ _id: '',
-   *   parentId: '',
-   *   name: ""
-   *  }]
-   */
 };
