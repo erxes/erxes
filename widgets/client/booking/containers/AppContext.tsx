@@ -6,6 +6,7 @@ interface IState {
   activeBooking: IBooking | null;
   activeBlock: string | null;
   activeFloor: string | null;
+  activeProduct: string | null;
 }
 
 interface IStore extends IState {
@@ -14,6 +15,7 @@ interface IStore extends IState {
   goToBookings: () => void;
   goToBlock: (blockId: string) => void;
   goToFloor: (floorId: string) => void;
+  goToProduct: (productId: string) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -28,7 +30,8 @@ export class AppProvider extends React.Component<{}, IState> {
       activeRoute: 'INTRO',
       activeBooking: null,
       activeBlock: null,
-      activeFloor: null
+      activeFloor: null,
+      activeProduct: null
     };
   }
 
@@ -67,6 +70,13 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  goToProduct = (productId: string) => {
+    this.setState({
+      activeRoute: 'PRODUCT_DETAIL',
+      activeProduct: productId
+    });
+  };
+
   render() {
     console.log(this.state.activeRoute);
     return (
@@ -77,7 +87,8 @@ export class AppProvider extends React.Component<{}, IState> {
           goToIntro: this.goToIntro,
           goToBlock: this.goToBlock,
           goToBookings: this.goToBookings,
-          goToFloor: this.goToFloor
+          goToFloor: this.goToFloor,
+          goToProduct: this.goToProduct
         }}
       >
         {this.props.children}

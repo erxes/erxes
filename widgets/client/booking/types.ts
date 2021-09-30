@@ -23,6 +23,7 @@ export interface IProductCategory {
 
 export interface IProduct {
   _id: string;
+  name?: string;
 }
 
 export interface ICategoryTree {

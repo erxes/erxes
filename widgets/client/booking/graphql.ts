@@ -6,6 +6,11 @@ const productCategoryFields = `
   parentId
 `;
 
+const productFields = `
+  _id
+  name
+`;
+
 const styleFields = `
   itemShape
   widgetColor
@@ -68,4 +73,12 @@ const productCategory = `
   }
 `;
 
-export { bookingDetail, productCategory };
+const productDetail = `
+  query widgetsProductDetail($_id: String!) {
+    widgetsProductDetail(_id: $_id) {
+      ${productFields}
+    }
+  }
+`;
+
+export { bookingDetail, productCategory, productDetail };

@@ -9,10 +9,11 @@ type Props = {
   parentId?: string;
   goToBlock?: (blockId: string) => void;
   goToFloor?: (floorId: string) => void;
+  goToProduct?: (productId: string) => void;
 };
 
 function NavigationContainer(props: ChildProps<Props>) {
-  const { parentId, goToBlock, goToFloor } = props;
+  const { parentId, goToBlock, goToFloor, goToProduct } = props;
 
   const changeRoute = (item: ICategoryTree) => {
     if (item.parentId === parentId && goToBlock) {
@@ -21,6 +22,10 @@ function NavigationContainer(props: ChildProps<Props>) {
 
     if (item.type === 'category' && goToFloor) {
       return goToFloor(item._id);
+    }
+
+    if (item.type === 'product' && goToProduct) {
+      return goToProduct(item._id);
     }
   };
   return <Navigation {...props} changeRoute={changeRoute} />;
@@ -34,6 +39,7 @@ const WithContext = (props: Props) => {
           {...props}
           goToBlock={goToBlock}
           goToFloor={goToFloor}
+          goToProduct={goToProduct}
         />
       )}
     </AppConsumer>
