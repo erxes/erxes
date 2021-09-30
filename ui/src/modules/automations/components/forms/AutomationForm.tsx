@@ -87,6 +87,7 @@ type State = {
   isZoomable: boolean;
   zoomStep: number;
   zoom: number;
+  count: number;
   percentage: number;
 };
 
@@ -97,11 +98,11 @@ class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { automation } = this.props;
+    const { automation, count } = this.props;
 
     this.state = {
       name: automation.name,
-      actions: automation.actions || [],
+      actions: JSON.parse(JSON.stringify(automation.actions || [])),
       triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
       activeTrigger: {} as ITrigger,
       activeId: '',
@@ -116,6 +117,7 @@ class AutomationForm extends React.Component<Props, State> {
       isZoomable: false,
       zoomStep: 0.025,
       zoom: 1,
+      count,
       percentage: 100,
       activeAction: {} as IAction
     };
@@ -126,6 +128,46 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   componentDidMount() {
+    this.connectInstance();
+
+    document.addEventListener('click', this.handleClickOutside, true);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { isActionTab } = this.state;
+
+    if (isActionTab && isActionTab !== prevState.isActionTab) {
+      this.connectInstance();
+    }
+
+    this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
+      transformOrigin = transformOrigin || [0.5, 0.5];
+      instanceZoom = instanceZoom || jsPlumb;
+      el = el || instanceZoom.getContainer();
+
+      const p = ['webkit', 'moz', 'ms', 'o'];
+      const s = 'scale(' + zoom + ')';
+      const oString =
+        transformOrigin[0] * 100 + '% ' + transformOrigin[1] * 100 + '%';
+
+      // tslint:disable-next-line:prefer-for-of
+      for (let i = 0; i < p.length; i++) {
+        el.style[p[i] + 'Transform'] = s;
+        el.style[p[i] + 'TransformOrigin'] = oString;
+      }
+
+      el.style.transform = s;
+      el.style.transformOrigin = oString;
+
+      instanceZoom.setZoom(zoom);
+    };
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside, true);
+  }
+
+  connectInstance = () => {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
       PaintStyle: connectorPaintStyle,
@@ -174,25 +216,21 @@ class AutomationForm extends React.Component<Props, State> {
     jquery('#canvas').on('click', '.delete-control', event => {
       event.preventDefault();
 
-      const id = event.currentTarget.id;
-      const splitItem = id.split('-');
+      const item = event.currentTarget.id;
+      const splitItem = item.split('-');
       const type = splitItem[0];
 
-      instance.remove(id);
+      instance.remove(item);
 
       if (type === 'action') {
         return this.setState({
-          actions: this.state.actions.filter(
-            action => action.id !== splitItem[1]
-          )
+          actions: actions.filter(action => action.id !== splitItem[1])
         });
       }
 
       if (type === 'trigger') {
         return this.setState({
-          triggers: this.state.triggers.filter(
-            trigger => trigger.id !== splitItem[1]
-          )
+          triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
         });
       }
     });
@@ -203,97 +241,7 @@ class AutomationForm extends React.Component<Props, State> {
 
       this.handleNoteModal();
     });
-
-    document.addEventListener('click', this.handleClickOutside, true);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { isActionTab } = this.state;
-
-    if (isActionTab && isActionTab !== prevState.isActionTab) {
-      instance = plumb.getInstance({
-        DragOptions: { cursor: 'pointer', zIndex: 2000 },
-        PaintStyle: connectorPaintStyle,
-        HoverPaintStyle: connectorHoverStyle,
-        EndpointStyle: { radius: 10 },
-        EndpointHoverStyle: hoverPaintStyle,
-        Container: 'canvas'
-      });
-
-      instance.bind('ready', () => {
-        const { triggers, actions } = this.state;
-
-        instance.bind('connection', info => {
-          this.onConnection(info);
-        });
-
-        instance.bind('connectionDetached', info => {
-          this.onDettachConnection(info);
-        });
-
-        // create connections ===================
-        createInitialConnections(triggers, actions, instance);
-
-        // delete connections ===================
-        deleteConnection(instance);
-      });
-    }
-
-    this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
-      transformOrigin = transformOrigin || [0.5, 0.5];
-      instanceZoom = instanceZoom || jsPlumb;
-      el = el || instanceZoom.getContainer();
-
-      const p = ['webkit', 'moz', 'ms', 'o'];
-      const s = 'scale(' + zoom + ')';
-      const oString =
-        transformOrigin[0] * 100 + '% ' + transformOrigin[1] * 100 + '%';
-
-      // tslint:disable-next-line:prefer-for-of
-      for (let i = 0; i < p.length; i++) {
-        el.style[p[i] + 'Transform'] = s;
-        el.style[p[i] + 'TransformOrigin'] = oString;
-      }
-
-      el.style.transform = s;
-      el.style.transformOrigin = oString;
-
-      instanceZoom.setZoom(zoom);
-    };
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('click', this.handleClickOutside, true);
-  }
-
-  // connectInstance = () => {
-  //   instance = plumb.getInstance({
-  //     DragOptions: { cursor: "pointer", zIndex: 2000 },
-  //     PaintStyle: connectorPaintStyle,
-  //     HoverPaintStyle: connectorHoverStyle,
-  //     EndpointStyle: { radius: 10 },
-  //     EndpointHoverStyle: hoverPaintStyle,
-  //     Container: "canvas",
-  //   });
-
-  //   instance.bind("ready", () => {
-  //     const { triggers, actions } = this.state;
-
-  //     instance.bind("connection", (info) => {
-  //       this.onConnection(info);
-  //     });
-
-  //     instance.bind("connectionDetached", (info) => {
-  //       this.onDettachConnection(info);
-  //     });
-
-  //     // create connections ===================
-  //     createInitialConnections(triggers, actions, instance);
-
-  //     // delete connections ===================
-  //     deleteConnection(instance);
-  //   });
-  // };
+  };
 
   handleSubmit = () => {
     const { name, isActive, triggers, actions } = this.state;
@@ -585,8 +533,8 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
-    const idElm = `${key}-${item.id}`;
-    console.log(idElm);
+    const idElm = `${key}-${item.id ? item.id : Math.random()}`;
+
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
