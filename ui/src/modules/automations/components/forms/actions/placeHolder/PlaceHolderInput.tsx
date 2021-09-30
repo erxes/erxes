@@ -115,7 +115,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
   renderAttribution() {
     const { excludeAttr, inputName, attrType, fieldType } = this.props;
-    if (excludeAttr) {
+    if (excludeAttr || fieldType === 'stage') {
       return '';
     }
 
