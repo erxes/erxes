@@ -80,47 +80,46 @@ export interface IDealDocument extends IDeal, Document {
 }
 
 // Mongoose schemas =======================
-const product = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Name' }),
-  code: field({ type: String, unique: true, label: 'Code' }),
-  categoryId: field({ type: String, label: 'Category' }),
-  type: field({
-    type: String,
-    enum: PRODUCT_TYPES.ALL,
-    default: PRODUCT_TYPES.PRODUCT,
-    label: 'Type'
-  }),
-  tagIds: field({ type: [String], optional: true, label: 'Tags' }),
-  description: field({ type: String, optional: true, label: 'Description' }),
-  sku: field({ type: String, optional: true, label: 'Stock keeping unit' }),
-  unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
-  customFieldsData: field({
-    type: [customFieldSchema],
-    optional: true,
-    label: 'Custom fields data'
-  }),
-  createdAt: field({
-    type: Date,
-    default: new Date(),
-    label: 'Created at'
-  }),
-  attachment: field({ type: attachmentSchema }),
-  status: field({
-    type: String,
-    enum: PRODUCT_STATUSES.ALL,
-    optional: true,
-    label: 'Status',
-    default: 'active',
-    esType: 'keyword',
-    index: true
-  }),
-  vendorId: field({ type: String, optional: true, label: 'Vendor' }),
-  mergedIds: field({ type: [String], optional: true })
-});
-product.index({name: 'text', code: 'text'});
+
 export const productSchema = schemaWrapper(
-  product
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String, label: 'Name' }),
+    code: field({ type: String, unique: true, label: 'Code' }),
+    categoryId: field({ type: String, label: 'Category' }),
+    type: field({
+      type: String,
+      enum: PRODUCT_TYPES.ALL,
+      default: PRODUCT_TYPES.PRODUCT,
+      label: 'Type'
+    }),
+    tagIds: field({ type: [String], optional: true, label: 'Tags' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    sku: field({ type: String, optional: true, label: 'Stock keeping unit' }),
+    unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
+    }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created at'
+    }),
+    attachment: field({ type: attachmentSchema }),
+    status: field({
+      type: String,
+      enum: PRODUCT_STATUSES.ALL,
+      optional: true,
+      label: 'Status',
+      default: 'active',
+      esType: 'keyword',
+      index: true
+    }),
+    vendorId: field({ type: String, optional: true, label: 'Vendor' }),
+    mergedIds: field({ type: [String], optional: true })
+  })
 );
 
 export const productCategorySchema = schemaWrapper(

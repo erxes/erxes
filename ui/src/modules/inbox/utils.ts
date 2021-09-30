@@ -85,6 +85,7 @@ export const urlify = (text: string) => {
   });
 };
 
+// removing duplicates from array.
 export const uniqArray = (array: Array<any>): Array<any> =>{
   var a = array.concat();
   for(var i=0; i<a.length; ++i) {

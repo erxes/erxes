@@ -43,11 +43,15 @@ class ConversationListContainer extends React.PureComponent<FinalProps, { conver
   componentWillReceiveProps(nextProps: FinalProps): void {
     const { conversationsQuery, queryParams, history } = nextProps;
     const { queryParams: prevParams } = this.props
+    
+    // reset limit when page count increased
     if(prevParams.brandId !== queryParams.brandId 
       || prevParams.channelId !== queryParams.channelId
       ||  prevParams.tag !== queryParams.tag) {
       routerUtils.setParams(history, { limit: 10 });
     }
+
+    // filtering local state with query params and concating with new conversations.
     if (conversationsQuery && !conversationsQuery.loading) {
       const filterConversation = this.state.conversations.filter(item => 
         (!queryParams.brandId || item.integration.brand._id === queryParams.brandId)
