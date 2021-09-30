@@ -1,13 +1,15 @@
 import * as React from 'react';
+import { IProductCategory } from '../types';
 
-type Props = {};
+type Props = {
+  floor?: IProductCategory;
+};
 
-type State = {};
-
-class Floor extends React.Component {
-  render() {
-    return <div>Floor</div>;
+function Floor({ floor }: Props) {
+  if (!floor) {
+    return null;
   }
+  return <div>{floor.name}</div>;
 }
 
 export default Floor;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Booking, Intro, BlockDetail } from '../containers';
+import { Booking, Intro, BlockDetail, Floor } from '../containers';
 import { IBooking } from '../types';
 import Navigation from '../containers/common/Navigation';
 
@@ -20,6 +20,10 @@ function App({ booking, activeRoute }: Props) {
 
     if (activeRoute === 'BLOCK_DETAIL') {
       return <BlockDetail />;
+    }
+
+    if (activeRoute === 'FLOOR_DETAIL') {
+      return <Floor />;
     }
 
     return null;

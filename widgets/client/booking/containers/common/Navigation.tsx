@@ -7,18 +7,27 @@ import { ChildProps } from 'react-apollo';
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
-  goToBlock?: (block: any) => void;
+  goToBlock?: (blockId: string) => void;
+  goToFloor?: (floorId: string) => void;
 };
 
 function NavigationContainer(props: ChildProps<Props>) {
-  const { parentId, goToBlock } = props;
+  const { parentId, goToBlock, goToFloor } = props;
 
   const changeRoute = (item: ICategoryTree) => {
     if (item.parentId === parentId) {
       if (!goToBlock) {
         return null;
       }
-      goToBlock(item._id);
+      return goToBlock(item._id);
+    }
+
+    if (item.type === 'category') {
+      if (!goToFloor) {
+        return null;
+      }
+
+      return goToFloor(item._id);
     }
   };
   return <Navigation {...props} changeRoute={changeRoute} />;
@@ -27,8 +36,12 @@ function NavigationContainer(props: ChildProps<Props>) {
 const WithContext = (props: Props) => {
   return (
     <AppConsumer>
-      {({ goToBlock }) => (
-        <NavigationContainer {...props} goToBlock={goToBlock} />
+      {({ goToBlock, goToFloor }) => (
+        <NavigationContainer
+          {...props}
+          goToBlock={goToBlock}
+          goToFloor={goToFloor}
+        />
       )}
     </AppConsumer>
   );
