@@ -60,17 +60,4 @@ const bookingDetail = `
   }
 `;
 
-const productCategories = `
-  query widgetsProductCategories($parentId: String) {
-    widgetsProductCategories(parentId: $parentId) {
-      _id
-      name
-      code
-      description
-      order
-      parentId
-    }
-  }
-`;
-
-export { bookingDetail, productCategories };
+export { bookingDetail };

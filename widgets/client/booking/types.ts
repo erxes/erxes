@@ -55,6 +55,5 @@ export interface IBooking {
 
   // child categories
   childCategories: IProductCategory[];
-
-  categoryTree: [ICategoryTree];
+  categoryTree: ICategoryTree[];
 }

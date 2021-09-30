@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { readFile } from '../../utils';
-import { IBooking } from '../types';
+import { IBooking, ICategoryTree } from '../types';
 import { Block } from '../containers';
 import { BackButton } from './common';
 import FilterableList from './common/FilterableList';
@@ -15,17 +15,10 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const { title, description, image, childCategories, categoryTree } = booking;
+  const { title, description, image, childCategories } = booking;
 
   return (
     <div>
-      <FilterableList
-        treeView={true}
-        selectable={false}
-        loading={false}
-        items={JSON.parse(JSON.stringify(categoryTree))}
-        parentId={booking.productCategoryId}
-      />
       <h1>{title}</h1>
       <p>{description}</p>
       <img height={300} src={readFile(image.url)} alt={image.name} />

@@ -5,7 +5,6 @@ import {
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
   KnowledgeBaseTopics,
-  ProductCategories,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -220,9 +219,5 @@ export default {
     }
 
     return getOrCreateEngageMessage(browserInfo, visitorId, customerId);
-  },
-
-  widgetsProductCategories(_root, { parentId }: { parentId: string }) {
-    return ProductCategories.find({ parentId });
   }
 };

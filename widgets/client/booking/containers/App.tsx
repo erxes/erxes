@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { App } from '../components';
 import { AppConsumer, AppProvider } from './AppContext';
-import { ChildProps, graphql } from 'react-apollo';
+import { ChildProps, graphql, compose } from 'react-apollo';
 import { connection } from '../connection';
 import gql from 'graphql-tag';
 import { bookingDetail } from '../graphql';
@@ -31,12 +31,14 @@ function AppContainer(props: ChildProps<{}, QueryResponse>) {
   );
 }
 
-const BookingWithData = graphql<{}, QueryResponse>(gql(bookingDetail), {
-  options: () => ({
-    variables: {
-      _id: connection.setting.booking_id
-    }
+const BookingWithData = compose(
+  graphql<{}, QueryResponse>(gql(bookingDetail), {
+    options: () => ({
+      variables: {
+        _id: connection.setting.booking_id
+      }
+    })
   })
-})(AppContainer);
+)(AppContainer);
 
 export default BookingWithData;

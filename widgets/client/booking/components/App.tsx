@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Booking, Intro, BlockDetail } from '../containers';
 import { IBooking } from '../types';
+import { Navigation } from './common';
 
 type Props = {
   activeRoute: string;
@@ -26,6 +27,10 @@ function App({ booking, activeRoute }: Props) {
 
   return (
     <div id="erxes-widget-container">
+      <Navigation
+        items={booking.categoryTree}
+        parentId={booking.productCategoryId}
+      />
       <div>{renderContent()}</div>
     </div>
   );

@@ -60,8 +60,6 @@ const bookingFields = `
 
   productCategoryId
 
-  childCategories
-
   styles {
     ${styleFields}
   }

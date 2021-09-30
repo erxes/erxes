@@ -23,7 +23,7 @@ export const types = `
     textUnavailable: String,
     textSelected: String
   }
-
+  
   type CategoryTree {
     _id: String!
     name: String

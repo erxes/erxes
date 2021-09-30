@@ -29,9 +29,10 @@ export default {
       _id: string;
       name: string;
       parentId?: string;
-      type: 'product' | 'category';
+      type: 'category' | 'product';
     }> = [];
 
+    // tslint:disable-next-line: no-shadowed-variable
     const generateTree = async (parentId: any) => {
       const categories = await ProductCategories.find({ parentId });
 
@@ -41,22 +42,22 @@ export default {
         for (const product of products) {
           tree.push({
             _id: product._id,
-            parentId,
             name: product.name,
+            parentId,
             type: 'product'
           });
         }
       }
 
-      for (const cat of categories) {
+      for (const category of categories) {
         tree.push({
-          _id: cat._id,
-          parentId: cat.parentId,
-          name: cat.name,
+          _id: category._id,
+          name: category.name,
+          parentId,
           type: 'category'
         });
 
-        await generateTree(cat._id);
+        await generateTree(category._id);
       }
     };
 
