@@ -68,6 +68,7 @@ export const queries = `
   widgetsGetEngageMessage(customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
   widgetsProductCategory(_id: String!): ProductCategory
+  widgetsProductDetail(_id: String!): Product
 `;
 
 export const mutations = `
