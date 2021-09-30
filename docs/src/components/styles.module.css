@@ -231,3 +231,9 @@ li {
 	margin: 300px;
 	/* height: 100vh; */
 }
+
+.code {
+	border-radius: 10px;
+	border: 1px solid #61676F;
+	padding: 5px;
+}

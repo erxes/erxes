@@ -33,32 +33,10 @@ export default function Components() {
       <Head>
         <script async defer src="https://buttons.github.io/buttons.js"></script>
       </Head>
-      {/* <header
-        id="hero"
-        className={classnames("hero hero--primary", styles.heroBanner)}
-      >
-        <div className="container">
-          <div className={styles.header}>
-            <p className={styles.headingTwo}>Invest in erxes</p>
-            <h1 className={styles.headingOne}>
-              Invest in a more equitable, community-driven, and inclusive
-              marketing technology
-            </h1>
-            <Link
-              className="button button--primary"
-              to={"https://invest.erxes.io/"}
-              target="_blank"
-            >
-              Invest now
-            </Link>
-          </div>
-        </div>
-      </header> */}
       <main>
         <div className={styles.componentsContainer}>
             <Router>
               <SideMenu />
-
               {/* <div className={`container ${inactive ? "inactive" : ""}`}>
                 {menuItems.map((menu, index) => (
                   <>
