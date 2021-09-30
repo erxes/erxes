@@ -117,7 +117,7 @@ export const queries = `
   knowledgeBaseCategoriesTotalCount(topicIds: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount(categoryIds: [String]): Int
 `;

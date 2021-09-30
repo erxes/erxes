@@ -12,13 +12,10 @@ const customFieldSchema = {
   value: { type: JSON }
 };
 
-const birthdayDataSchema = {
-  birthDate: { type: Date, label: 'Birth date' },
-  year: { type: Number, label: 'Ceremony year' }
-};
-
-const workAnniversaryDataSchema = {
-  workStartedDate: { type: Date, label: 'Date to start working' },
+const ceremonyDataSchema = {
+  startedDate: { type: Date, label: 'Date to start working' },
+  willDate: { type: Date, label: 'Ceremony date' },
+  howManyYear: { type: Number, label: 'How many years' },
   year: { type: Number, label: 'Ceremony year' }
 };
 
@@ -45,9 +42,7 @@ export const feedSchema = {
     optional: true,
     label: 'Custom fields data'
   },
-  birthdayData: { type: birthdayDataSchema },
-  workAnniversaryData: { type: workAnniversaryDataSchema },
-
+  ceremonyData: { type: ceremonyDataSchema },
   where: { type: String },
   impacted: { type: String },
   startDate: { type: Date },

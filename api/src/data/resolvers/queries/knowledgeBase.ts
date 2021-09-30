@@ -14,15 +14,36 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticles(
     _root,
-    args: { page: number; perPage: number; categoryIds: string[] }
+    {
+      categoryIds,
+      searchValue,
+      ...pageArgs
+    }: {
+      page: number;
+      perPage: number;
+      searchValue?: string;
+      categoryIds: string[];
+    }
   ) {
-    const articles = KnowledgeBaseArticles.find({
-      categoryId: { $in: args.categoryIds }
-    }).sort({
+    const selector: any = {};
+
+    if (searchValue) {
+      selector.$or = [
+        { title: { $regex: new RegExp(searchValue) } },
+        { content: { $regex: new RegExp(searchValue) } },
+        { summary: { $regex: new RegExp(searchValue) } }
+      ];
+    }
+
+    if (categoryIds && categoryIds.length > 0) {
+      selector.categoryId = { $in: categoryIds };
+    }
+
+    const articles = KnowledgeBaseArticles.find(selector).sort({
       createdDate: -1
     });
 
-    return paginate(articles, args);
+    return paginate(articles, pageArgs);
   },
 
   /**

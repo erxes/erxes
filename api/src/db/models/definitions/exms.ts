@@ -25,6 +25,7 @@ const featureSchema = new Schema({
 const welcomeContentSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String }),
+  image: field({ type: attachmentSchema }),
   content: field({ type: String })
 });
 

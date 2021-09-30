@@ -977,13 +977,14 @@ interface IKnowledgeBaseArticleCategoryInput {
   modifiedBy?: string;
   topicId?: string;
   categoryId?: string;
+  title?: string;
 }
 
 export const knowledgeBaseArticleFactory = async (
   params: IKnowledgeBaseArticleCategoryInput = {}
 ) => {
   const doc = {
-    title: faker.random.word(),
+    title: params.title || faker.random.word(),
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),

@@ -2,6 +2,7 @@ export const types = `
   type ExmWelcomeContent {
     _id: String
     title: String
+    image: Attachment
     content: String
   }
 
@@ -35,6 +36,7 @@ export const types = `
   input ExmWelcomeContentInput {
     _id: String
     title: String
+    image: AttachmentInput
     content: String
   }
 `;

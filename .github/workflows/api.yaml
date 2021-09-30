@@ -56,6 +56,11 @@ jobs:
           cd api
           yarn install --frozen-lockfile
 
+      - name: Install plugin dependencies
+        run: |
+          cd plugins/erxes-plugin-exm-feed/api
+          yarn install --frozen-lockfile
+
       - name: Lint
         run: |
           yarn lint api
