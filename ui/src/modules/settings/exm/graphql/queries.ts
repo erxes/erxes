@@ -21,6 +21,21 @@ const exmDetail = `
     exmDetail(_id: $_id) {
       ${commonField}
       features
+      welcomeContent {
+        _id
+        title
+        content
+      }
+      appearance {
+        primaryColor
+        secondaryColor
+      }
+      logo {
+        url
+        name
+        type
+        size
+      }
     }
   }
 `;

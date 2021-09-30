@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from '../../../common/utils';
 import General from '../containers/General';
-import Appearance from './Appearance';
+import Appearance from '../containers/Appearance';
 
 type Props = {
   exm: any;
@@ -19,7 +19,7 @@ function EditFrom(props: Props) {
       return <General exm={exm} edit={edit} />;
     }
 
-    return <Appearance />;
+    return <Appearance exm={exm} edit={edit} />;
   };
 
   return (

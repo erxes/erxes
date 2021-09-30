@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
-import { FormControl } from 'modules/common/components/form';
+import { ControlLabel, FormControl } from 'modules/common/components/form';
 import { __ } from 'modules/common/utils';
 import {
   FeatureRow,
@@ -32,9 +32,7 @@ type Props = {
 
 export default function General(props: Props) {
   const { forms, kbTopics, exm, edit, getKbCategories, kbCategories } = props;
-
   const exmFeatures = exm.features || [];
-
   const [name, setName] = useState(exm.name || '');
   const [description, setDescription] = useState(exm.description || '');
   const [features, setFeatures] = useState(
@@ -105,7 +103,7 @@ export default function General(props: Props) {
         <p>Team portal</p>
         <FeatureRow>
           <FeatureRowItem>
-            <p>{__('Name your team portal')}</p>
+            <ControlLabel>{__('Name your team portal')}</ControlLabel>
             <FormControl
               value={name}
               placeholder="Name"
@@ -113,7 +111,7 @@ export default function General(props: Props) {
             />
           </FeatureRowItem>
           <FeatureRowItem>
-            <p>{__('Describe your team portal')}</p>
+            <ControlLabel>{__('Describe your team portal')}</ControlLabel>
             <FormControl
               value={description}
               placeholder="Description"
