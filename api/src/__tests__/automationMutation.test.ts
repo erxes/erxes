@@ -40,7 +40,7 @@ describe('Automations mutations', () => {
     description: $description
   `;
 
-  let defaultArgs = {
+  const defaultArgs = {
     _id: faker.random.uuid(),
     name: faker.random.word(),
     status: 'active'
@@ -60,7 +60,7 @@ describe('Automations mutations', () => {
     });
 
     user = await userFactory({});
-    context = { user: user, dataSources };
+    context = { user, dataSources };
   });
 
   afterEach(async () => {

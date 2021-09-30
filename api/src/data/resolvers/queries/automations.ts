@@ -70,13 +70,19 @@ const automationQueries = {
 
   async automationConfigPrievewCount(_root, params: { config: any }) {
     const config = params.config;
-    if (!config) return;
+    if (!config) {
+      return;
+    }
 
     const contentId = config.contentId;
-    if (!contentId) return;
+    if (!contentId) {
+      return;
+    }
 
     const segment = await Segments.findOne({ _id: contentId });
-    if (!segment) return;
+    if (!segment) {
+      return;
+    }
 
     const result = await fetchSegment(segment, { returnCount: true });
 

@@ -84,12 +84,6 @@ describe('Automations mutations', () => {
     }
   `;
 
-  let defaultArgs = {
-    _id: faker.random.uuid(),
-    name: faker.random.word(),
-    status: 'active'
-  };
-
   beforeEach(async () => {
     // Creating test data
     dataSources = { AutomationsAPI: new AutomationsAPI() };
@@ -100,11 +94,15 @@ describe('Automations mutations', () => {
     );
 
     getAutomationSpy.mockImplementation(() => {
-      return { ...defaultArgs };
+      return {
+        _id: faker.random.uuid(),
+        name: faker.random.word(),
+        status: 'active'
+      };
     });
 
     user = await userFactory({});
-    context = { user: user, dataSources };
+    context = { user, dataSources };
   });
 
   afterEach(async () => {
