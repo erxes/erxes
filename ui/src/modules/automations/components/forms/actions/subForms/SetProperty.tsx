@@ -15,7 +15,7 @@ import Select from 'react-select-plus';
 import Common from '../Common';
 import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
 import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
-import { PropertyGroupWrapper } from '../styles';
+import { GroupWrapper } from '../styles';
 import Tip from 'modules/common/components/Tip';
 
 type Props = {
@@ -151,7 +151,7 @@ class SetProperty extends React.Component<Props, State> {
       };
 
       return (
-        <PropertyGroupWrapper key={rule.id}>
+        <GroupWrapper key={rule.id}>
           <FormGroup>
             <ControlLabel>Field</ControlLabel>
 
@@ -201,7 +201,7 @@ class SetProperty extends React.Component<Props, State> {
               icon="times"
             />
           </Tip>
-        </PropertyGroupWrapper>
+        </GroupWrapper>
       );
     });
   }

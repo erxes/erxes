@@ -2,6 +2,7 @@ import { colors, dimensions, typography } from 'modules/common/styles';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { GroupWrapper } from 'modules/automations/components/forms/actions/styles';
 
 const SegmentTitle = styled.h3`
   font-size: 12px;
@@ -19,18 +20,16 @@ const SegmentTitle = styled.h3`
 `;
 
 const SegmentWrapper = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
 `;
 
 const ConditionItem = styledTS<{ useMargin: boolean }>(styled.div)`
-  margin-bottom: ${dimensions.coreSpacing}px;
-  display: flex;
-  align-items: center;
+  margin-bottom: ${dimensions.unitSpacing - 5}px;
+  margin-left: ${props => props.useMargin && '30px'};
 
-  margin-left: ${props => props.useMargin && '40px'};
-  button.round {
-    padding: 4px 8px;
-    margin-left: 20px;
+  i{
+    cursor: pointer;
+    color: ${colors.colorCoreGray};
   }
 `;
 
@@ -69,9 +68,9 @@ const FilterBox = styled.div`
   overflow: auto;
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
-  margin-top: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px 0;
   border-radius: 5px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  position: relative;
 
   b {
     text-transform: uppercase;
@@ -106,12 +105,18 @@ const SubProperties = styled.div`
 `;
 
 const ConjunctionButtons = styled.div`
-  margin-top: 30px;
+  position: absolute;
+  left: calc(100% - 60%);
+  top: -40px;
+
+  button {
+    text-transform: uppercase;
+  }
 `;
 
 const ConjunctionButtonsVertical = styled.div`
   position: absolute;
-  left: -10px;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
 
@@ -177,13 +182,10 @@ const SegmentBackIcon = styled.div`
   }
 `;
 
-const Condition = styled.div`
+const Condition = styledTS<{ hasCondition: boolean }>(styled.div)`
   overflow: auto;
-  border: 1px solid #523297;
-  padding: ${dimensions.unitSpacing}px;
-  margin-top: ${dimensions.unitSpacing}px;
-  border-radius: 5px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 0 ${dimensions.unitSpacing}px;
+  position: relative;
 
   b {
     text-transform: uppercase;
@@ -198,6 +200,10 @@ const Condition = styled.div`
 
   label {
     display: block;
+  }
+
+  > button {
+    margin: ${props => !props.hasCondition && '10px 0 10px 30px'};
   }
 `;
 
@@ -223,6 +229,11 @@ const PropertyText = styled.span`
   }
 `;
 
+const ConditionGroup = styled(GroupWrapper)`
+  padding: 10px 10px 10px 0;
+  margin-bottom: ${dimensions.headerSpacing}px;
+`;
+
 export {
   PropertyText,
   ConditionDetailText,
@@ -241,5 +252,6 @@ export {
   FilterBox,
   FilterRow,
   FilterProperty,
-  SubProperties
+  SubProperties,
+  ConditionGroup
 };

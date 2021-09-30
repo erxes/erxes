@@ -284,7 +284,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
                   <ControlLabel>Board</ControlLabel>
                   <Select
                     value={boardId}
-                    options={boards.map(b => ({ value: b._id, label: b.name }))}
+                    options={boards.map(b => ({
+                      value: b._id,
+                      label: b.name
+                    }))}
                     onChange={onChangeBoardItem.bind(this, 'boardId')}
                   />
                 </FormGroup>
@@ -522,7 +525,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             onClick={this.addSegment}
             size="small"
             btnStyle="simple"
-            icon="plus"
+            icon="add"
           >
             Add new group
           </Button>
