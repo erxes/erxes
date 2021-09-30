@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { router, withProps, Alert } from 'modules/common/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import AutomationForm from '../../components/forms/AutomationForm';
@@ -43,9 +43,11 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     editAutomationMutation
   } = props;
 
+  const [count, setCount] = useState(0);
+  const [saveLoading, setLoading] = useState(false);
+
   const previewCount = (item: ITrigger | IAction) => {
     const config = item.config;
-    let count = 0;
 
     client
       .query({
@@ -55,14 +57,12 @@ const AutomationDetailsContainer = (props: FinalProps) => {
         }
       })
       .then(({ data }) => {
-        count = data.automationConfigPrievewCount;
+        setCount(data.automationConfigPrievewCount);
       });
-
-    return count;
   };
 
   const save = (doc: IAutomation) => {
-    router.removeParams(history, 'isCreate');
+    setLoading(true);
 
     editAutomationMutation({
       variables: {
@@ -70,6 +70,12 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
+        router.removeParams(history, 'isCreate');
+
+        setTimeout(() => {
+          setLoading(false);
+        }, 300);
+
         Alert.success(`You successfully updated a ${doc.name || 'status'}`);
       })
 
@@ -98,7 +104,9 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationNotes,
     currentUser,
     previewCount,
-    save
+    save,
+    saveLoading,
+    count
   };
 
   return <AutomationForm {...updatedProps} />;

@@ -1,4 +1,5 @@
 import React from 'react';
+import Alert from 'modules/common/utils/Alert';
 
 type Props = {
   when: boolean;
@@ -6,29 +7,31 @@ type Props = {
   history: any;
   queryParams: any;
   id: string;
+  name: string;
+  save: () => void;
   removeAutomations: (
     doc: { automationIds: string[] },
     navigateToNextLocation: () => void
   ) => void;
 };
 
-class Confirmation extends React.Component<
-  Props,
-  { nextLocation; showModal: boolean }
-> {
+type State = { nextLocation; showModal: boolean; isConfirm: boolean };
+
+class Confirmation extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
       nextLocation: {},
-      showModal: false
+      showModal: false,
+      isConfirm: false
     };
   }
 
-  componentDidMount() {
+  componentDidUpdate() {
     const { history, when } = this.props;
 
-    this.unblock = history.block(nextLocation => {
+    this.blockRoute = history.block(nextLocation => {
       if (when && nextLocation.pathname !== history.location.pathname) {
         this.setState({
           showModal: true,
@@ -41,7 +44,7 @@ class Confirmation extends React.Component<
   }
 
   componentWillUnmount() {
-    this.unblock();
+    this.blockRoute();
   }
 
   onCancel = () => {
@@ -54,20 +57,40 @@ class Confirmation extends React.Component<
       );
     }
 
-    return this.setState({ nextLocation: null, showModal: false });
+    return this.navigateToNextLocation();
   };
 
   onConfirm = () => {
-    this.navigateToNextLocation();
+    const { name } = this.props;
+
+    if (!name || name === 'Your automation title') {
+      Alert.error('Enter an Automation title');
+
+      return this.setState({ showModal: false });
+    }
+
+    this.setState({ isConfirm: true }, () => {
+      return this.navigateToNextLocation();
+    });
   };
 
   navigateToNextLocation = () => {
-    this.unblock();
+    const { save, history, queryParams, name } = this.props;
 
-    this.props.history.push(this.state.nextLocation.pathname);
+    if (queryParams.isCreate && this.state.isConfirm && name) {
+      save();
+    }
+
+    if (!queryParams.isCreate && this.state.isConfirm) {
+      save();
+    }
+
+    this.blockRoute();
+
+    history.push(this.state.nextLocation.pathname);
   };
 
-  unblock = () => null;
+  blockRoute = () => null;
 
   render() {
     return this.props.children(

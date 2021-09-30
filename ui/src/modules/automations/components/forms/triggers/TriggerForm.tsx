@@ -81,7 +81,7 @@ class TriggerForm extends React.Component<Props, State> {
     });
   };
 
-  renderScratchTemplates(trigger: any, index: number) {
+  renderTriggerItem(trigger: any, index: number) {
     return (
       <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
         <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
@@ -121,7 +121,7 @@ class TriggerForm extends React.Component<Props, State> {
     }
 
     return TRIGGERS.map((trigger, index) =>
-      this.renderScratchTemplates(trigger, index)
+      this.renderTriggerItem(trigger, index)
     );
   }
 

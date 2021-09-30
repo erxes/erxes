@@ -59,10 +59,12 @@ type Props = {
   automation: IAutomation;
   automationNotes?: IAutomationNote[];
   save: (params: any) => void;
+  saveLoading: boolean;
   id: string;
+  count: number;
   history: any;
   queryParams: any;
-  previewCount: (item: ITrigger | IAction) => number;
+  previewCount: (item: ITrigger | IAction) => void;
 };
 
 type State = {
@@ -85,6 +87,7 @@ type State = {
   isZoomable: boolean;
   zoomStep: number;
   zoom: number;
+  count: number;
   percentage: number;
 };
 
@@ -95,12 +98,12 @@ class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { automation } = this.props;
+    const { automation, count } = this.props;
 
     this.state = {
       name: automation.name,
-      actions: automation.actions || [],
-      triggers: automation.triggers || [],
+      actions: JSON.parse(JSON.stringify(automation.actions || [])),
+      triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
       activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'triggers',
@@ -114,22 +117,11 @@ class AutomationForm extends React.Component<Props, State> {
       isZoomable: false,
       zoomStep: 0.025,
       zoom: 1,
+      count,
       percentage: 100,
       activeAction: {} as IAction
     };
   }
-
-  getNewId = (checkIds: string[]) => {
-    let newId = Math.random()
-      .toString(36)
-      .slice(-8);
-
-    if (checkIds.includes(newId)) {
-      newId = this.getNewId(checkIds);
-    }
-
-    return newId;
-  };
 
   setWrapperRef = node => {
     this.wrapperRef = node;
@@ -185,9 +177,9 @@ class AutomationForm extends React.Component<Props, State> {
       Container: 'canvas'
     });
 
-    instance.bind('ready', () => {
-      const { triggers, actions } = this.state;
+    const { triggers, actions } = this.state;
 
+    instance.bind('ready', () => {
       instance.bind('connection', info => {
         this.onConnection(info);
       });
@@ -209,51 +201,49 @@ class AutomationForm extends React.Component<Props, State> {
 
       // delete connections ===================
       deleteConnection(instance);
+    });
 
-      // hover action control ===================
-      jquery('#canvas .control').hover(event => {
-        event.preventDefault();
+    // hover action control ===================
+    jquery('#canvas .control').hover(event => {
+      event.preventDefault();
 
-        jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+      jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
 
-        this.setState({ activeId: event.currentTarget.id });
-      });
+      this.setState({ activeId: event.currentTarget.id });
+    });
 
-      // delete control ===================
-      jquery('#canvas').on('click', '.delete-control', event => {
-        event.preventDefault();
+    // delete control ===================
+    jquery('#canvas').on('click', '.delete-control', event => {
+      event.preventDefault();
 
-        const item = event.currentTarget.id;
-        const splitItem = item.split('-');
-        const type = splitItem[0];
+      const item = event.currentTarget.id;
+      const splitItem = item.split('-');
+      const type = splitItem[0];
 
-        instance.remove(item);
+      instance.remove(item);
 
-        if (type === 'action') {
-          return this.setState({
-            actions: actions.filter(action => action.id !== splitItem[1])
-          });
-        }
+      if (type === 'action') {
+        return this.setState({
+          actions: actions.filter(action => action.id !== splitItem[1])
+        });
+      }
 
-        if (type === 'trigger') {
-          return this.setState({
-            triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
-          });
-        }
-      });
+      if (type === 'trigger') {
+        return this.setState({
+          triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
+        });
+      }
+    });
 
-      // add note ===================
-      jquery('#canvas').on('click', '.add-note', event => {
-        event.preventDefault();
+    // add note ===================
+    jquery('#canvas').on('click', '.add-note', event => {
+      event.preventDefault();
 
-        this.handleNoteModal();
-      });
+      this.handleNoteModal();
     });
   };
 
-  handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  handleSubmit = () => {
     const { name, isActive, triggers, actions } = this.state;
     const { automation, save } = this.props;
 
@@ -291,7 +281,7 @@ class AutomationForm extends React.Component<Props, State> {
       return finalValues;
     };
 
-    save(generateValues());
+    return save(generateValues());
   };
 
   handleNoteModal = (item?) => {
@@ -418,6 +408,18 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ showDrawer: !this.state.showDrawer, currentTab: type });
   };
 
+  getNewId = (checkIds: string[]) => {
+    let newId = Math.random()
+      .toString(36)
+      .slice(-8);
+
+    if (checkIds.includes(newId)) {
+      newId = this.getNewId(checkIds);
+    }
+
+    return newId;
+  };
+
   addTrigger = (data: ITrigger, triggerId?: string, config?: any) => {
     const { triggers, activeTrigger } = this.state;
 
@@ -432,6 +434,9 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     trigger.config = { ...trigger.config, ...config };
+
+    /*add count*/
+    this.props.previewCount(trigger);
 
     if (triggerIndex !== -1) {
       triggers[triggerIndex] = trigger;
@@ -462,6 +467,9 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     action.config = { ...action.config, ...config };
+
+    /*add count*/
+    this.props.previewCount(action);
 
     if (actionIndex !== -1) {
       actions[actionIndex] = action;
@@ -521,11 +529,11 @@ class AutomationForm extends React.Component<Props, State> {
       return item.count;
     }
 
-    return this.props.previewCount(item);
+    return this.props.count;
   }
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
-    const idElm = `${key}-${item.id}`;
+    const idElm = `${key}-${item.id ? item.id : Math.random()}`;
 
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
@@ -813,17 +821,26 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderConfirmation() {
-    const { id, queryParams, history } = this.props;
-    const { triggers, actions } = this.state;
+    const { id, queryParams, history, saveLoading, automation } = this.props;
+    const { triggers, actions, name } = this.state;
+
+    if (saveLoading) {
+      return null;
+    }
 
     const when = queryParams.isCreate
       ? !!id
-      : !!id && (triggers.length !== 0 || actions.length !== 0);
+      : JSON.stringify(triggers) !==
+          JSON.stringify(automation.triggers || []) ||
+        JSON.stringify(actions) !== JSON.stringify(automation.actions || []) ||
+        automation.name !== this.state.name;
 
     return (
       <Confirmation
         when={when}
         id={id}
+        name={name}
+        save={this.handleSubmit}
         history={history}
         queryParams={queryParams}
       />
