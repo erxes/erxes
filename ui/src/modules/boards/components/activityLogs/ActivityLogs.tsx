@@ -51,8 +51,8 @@ class ActivityLogs extends React.Component<Props, State> {
     return (
       <Wrapper
         footer={<Pagination count={count} />}
-        content={<DataWithLoader loading={false} data={this.renderObjects()} />}
         leftSidebar={<Sidebar queryParams={queryParams} />}
+        content={<DataWithLoader loading={false} data={this.renderObjects()} />}
       />
     );
   }
