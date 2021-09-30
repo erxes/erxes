@@ -303,22 +303,18 @@ describe('knowledgeBaseQueries', () => {
     // Creating test data
     await knowledgeBaseArticleFactory({ categoryId: category._id });
     await knowledgeBaseArticleFactory({ categoryId: category._id });
-    await knowledgeBaseArticleFactory({});
-
-    const args: any = {
-      page: 1,
-      perPage: 5,
-      categoryIds: [category._id]
-    };
+    await knowledgeBaseArticleFactory({ title: 'article' });
 
     const qry = `
       query knowledgeBaseArticles(
         $page: Int
         $perPage: Int
+        $searchValue: String
         $categoryIds: [String]
       ) {
         knowledgeBaseArticles(
           page: $page
+          searchValue: $searchValue
           perPage: $perPage
           categoryIds: $categoryIds
         ) {
@@ -336,14 +332,21 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    let responses = await graphqlRequest(qry, 'knowledgeBaseArticles', args);
+    let responses = await graphqlRequest(qry, 'knowledgeBaseArticles', {
+      searchValue: 'article'
+    });
+
+    expect(responses.length).toBe(1);
+
+    responses = await graphqlRequest(qry, 'knowledgeBaseArticles', {
+      categoryIds: [category._id]
+    });
 
     expect(responses.length).toBe(2);
 
-    delete args.categoryIds;
-    responses = await graphqlRequest(qry, 'knowledgeBaseArticles', args);
+    responses = await graphqlRequest(qry, 'knowledgeBaseArticles');
 
-    expect(responses.length).toBe(1);
+    expect(responses.length).toBe(3);
   });
 
   test('Knowledge base article detail', async () => {
