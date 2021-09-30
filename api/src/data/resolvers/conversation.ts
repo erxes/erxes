@@ -15,8 +15,9 @@ export default {
     return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
   },
 
-  customer(conversation: IConversationDocument, _, { dataLoaders }): IContext {
-    return dataLoaders?.customer?.load(conversation.customerId);
+  customer(conversation: IConversationDocument, _, { dataLoaders } : IContext ){
+    if(conversation.customerId)
+      return dataLoaders?.customer?.load(conversation.customerId);
   },
 
   integration(conversation: IConversationDocument) {
@@ -41,7 +42,7 @@ export default {
     return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
   },
 
-  messages(conv: IConversationDocument, _, { dataLoaders }) {
+  messages(conv: IConversationDocument, _, { dataLoaders } : IContext) {
     return dataLoaders?.message?.load(conv._id);
   },
 
@@ -109,8 +110,8 @@ export default {
     return null;
   },
 
-  async tags(conv: IConversationDocument) {
-    return getDocumentList('tags', { _id: { $in: conv.tagIds || [] } });
+  async tags(conv: IConversationDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders?.tag?.loadMany(conv.tagIds || []);
   },
 
   async videoCallData(
