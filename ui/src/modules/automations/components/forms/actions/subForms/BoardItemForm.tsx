@@ -5,13 +5,12 @@ import { IAction } from 'modules/automations/types';
 import { PRIORITIES } from 'modules/boards/constants';
 import BoardSelect from 'modules/boards/containers/BoardSelect';
 import { queries as pipelineQuery } from 'modules/boards/graphql';
-import { TitleRow } from 'modules/boards/styles/item';
 import { IPipelineLabel } from 'modules/boards/types';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
-
 import Common from '../Common';
 import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
+import { BoardItemWrapper } from '../styles';
 
 type Props = {
   closeModal: () => void;
@@ -110,87 +109,90 @@ class BoardItemForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { activeAction, triggerType, users } = this.props;
+    const { triggerType, users } = this.props;
     const { config, pipelineLabels } = this.state;
+
     const userOptions = users.map(u => ({
       label: (u.details && u.details.fullName) || u.email,
       value: u._id
     }));
+
     const labelOptions = (pipelineLabels || []).map(l => ({
       label: l.name,
       value: l._id || ''
     }));
+
     const priorityOptions = PRIORITIES.map(p => ({ label: p, value: p }));
 
     return (
-      <Common config={this.state.config} {...this.props}>
-        <TitleRow>{`Action: ${activeAction.label}`}</TitleRow>
-
-        {this.renderSelect()}
-        <PlaceHolderInput
-          inputName="cardName"
-          label="Name"
-          config={config}
-          onChange={this.onChange}
-          triggerType={triggerType}
-        />
-        <PlaceHolderInput
-          inputName="description"
-          label="Description"
-          config={config}
-          onChange={this.onChange}
-          triggerType={triggerType}
-        />
-        <PlaceHolderInput
-          inputName="assignedTo"
-          label="Assigned To"
-          config={config}
-          onChange={this.onChange}
-          triggerType={triggerType}
-          fieldType="select"
-          attrType="user"
-          options={userOptions}
-          isMulti={true}
-        />
-        <PlaceHolderInput
-          inputName="closeDate"
-          label="Close Date"
-          config={config}
-          onChange={this.onChange}
-          triggerType={triggerType}
-          fieldType="date"
-          attrType="Date"
-          customAttributions={[
-            {
-              _id: String(Math.random()),
-              label: 'Now',
-              name: 'now',
-              type: 'Date'
-            }
-          ]}
-        />
-        <PlaceHolderInput
-          inputName="labelIds"
-          label="Labels"
-          config={config}
-          onChange={this.onChange}
-          triggerType={triggerType}
-          fieldType="select"
-          excludeAttr={true}
-          options={labelOptions}
-          isMulti={true}
-        />
-        <PlaceHolderInput
-          inputName="priority"
-          label="Priority"
-          config={config}
-          onChange={this.onChange}
-          triggerType={triggerType}
-          fieldType="select"
-          excludeAttr={true}
-          options={priorityOptions}
-        />
-      </Common>
+      <BoardItemWrapper>
+        <Common config={this.state.config} {...this.props}>
+          {this.renderSelect()}
+          <PlaceHolderInput
+            inputName="cardName"
+            label="Name"
+            config={config}
+            onChange={this.onChange}
+            triggerType={triggerType}
+          />
+          <PlaceHolderInput
+            inputName="description"
+            label="Description"
+            config={config}
+            onChange={this.onChange}
+            triggerType={triggerType}
+          />
+          <PlaceHolderInput
+            inputName="assignedTo"
+            label="Assigned To"
+            config={config}
+            onChange={this.onChange}
+            triggerType={triggerType}
+            fieldType="select"
+            attrType="user"
+            options={userOptions}
+            isMulti={true}
+          />
+          <PlaceHolderInput
+            inputName="closeDate"
+            label="Close Date"
+            config={config}
+            onChange={this.onChange}
+            triggerType={triggerType}
+            fieldType="date"
+            attrType="Date"
+            customAttributions={[
+              {
+                _id: String(Math.random()),
+                label: 'Now',
+                name: 'now',
+                type: 'Date'
+              }
+            ]}
+          />
+          <PlaceHolderInput
+            inputName="labelIds"
+            label="Labels"
+            config={config}
+            onChange={this.onChange}
+            triggerType={triggerType}
+            fieldType="select"
+            excludeAttr={true}
+            options={labelOptions}
+            isMulti={true}
+          />
+          <PlaceHolderInput
+            inputName="priority"
+            label="Priority"
+            config={config}
+            onChange={this.onChange}
+            triggerType={triggerType}
+            fieldType="select"
+            excludeAttr={true}
+            options={priorityOptions}
+          />
+        </Common>
+      </BoardItemWrapper>
     );
   }
 }
