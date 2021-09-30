@@ -4,14 +4,14 @@ import { IBooking, IProductCategory } from '../types';
 interface IState {
   activeRoute: string;
   activeBooking: IBooking | null;
-  activeBlock: IProductCategory | null;
+  activeBlock: string | null;
 }
 
 interface IStore extends IState {
   goToIntro: () => void;
   goToBooking: (booking: any) => void;
   goToBookings: () => void;
-  goToBlock: (block: any) => void;
+  goToBlock: (blockId: string) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -50,14 +50,15 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
-  goToBlock = (block: any) => {
+  goToBlock = (blockId: any) => {
     this.setState({
       activeRoute: 'BLOCK_DETAIL',
-      activeBlock: block
+      activeBlock: blockId
     });
   };
 
   render() {
+    console.log(this.state.activeRoute);
     return (
       <AppContext.Provider
         value={{

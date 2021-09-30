@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Booking, Intro, BlockDetail } from '../containers';
 import { IBooking } from '../types';
-import { Navigation } from './common';
+import Navigation from '../containers/common/Navigation';
 
 type Props = {
   activeRoute: string;

@@ -18,6 +18,8 @@ type Props = {
   isIndented?: boolean;
   parentId?: string;
 
+  changeRoute: (item: any) => void;
+
   // hooks
   onClick?: (items: any[], id: string) => void;
   onExit?: (items: any[]) => void;
@@ -92,10 +94,6 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean) {
-    // if (!item.iconClass) {
-    //   return null;
-    // }
-
     return (
       <>
         {hasChildren && (
@@ -112,16 +110,8 @@ class FilterableList extends React.Component<Props, State> {
     );
   }
 
-  changeRoute(item: any) {
-    const { parentId } = this.props;
-
-    if (item.parentId === parentId) {
-      return null;
-    }
-  }
-
   renderItem(item: any, hasChildren: boolean) {
-    const { showCheckmark = true } = this.props;
+    const { showCheckmark = true, changeRoute } = this.props;
     const { key } = this.state;
 
     if (key && item.name.toLowerCase().indexOf(key.toLowerCase()) < 0) {
@@ -140,7 +130,7 @@ class FilterableList extends React.Component<Props, State> {
         >
           {this.renderIcons(item, hasChildren, isOpen)}
 
-          <span onClick={() => this.changeRoute(item)}>
+          <span onClick={() => changeRoute(item)}>
             {item.name || '[undefined]'}
           </span>
         </li>
@@ -177,7 +167,7 @@ class FilterableList extends React.Component<Props, State> {
     const { items } = this.state;
 
     if (loading) {
-      return <h1>loading</h1>;
+      return null;
     }
 
     if (items.length === 0) {

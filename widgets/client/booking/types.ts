@@ -21,6 +21,10 @@ export interface IProductCategory {
   parentId?: string;
 }
 
+export interface IProduct {
+  _id: string;
+}
+
 export interface ICategoryTree {
   _id: string;
   name: string;

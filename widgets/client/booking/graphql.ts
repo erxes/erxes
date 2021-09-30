@@ -60,4 +60,12 @@ const bookingDetail = `
   }
 `;
 
-export { bookingDetail };
+const productCategory = `
+  query widgetsProductCategory($_id: String!) {
+    widgetsProductCategory(_id: $_id) {
+      ${productCategoryFields}
+    }
+  }
+`;
+
+export { bookingDetail, productCategory };

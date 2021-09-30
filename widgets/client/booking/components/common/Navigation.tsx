@@ -5,6 +5,7 @@ import { ICategoryTree } from '../../types';
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
+  changeRoute: (item: any) => void;
 };
 
 type State = {
@@ -27,7 +28,7 @@ class Navigation extends React.Component<Props, State> {
   };
 
   render() {
-    const { items, parentId } = this.props;
+    const { items, parentId, changeRoute } = this.props;
     const { isOpen } = this.state;
 
     return (
@@ -40,6 +41,7 @@ class Navigation extends React.Component<Props, State> {
             loading={false}
             items={JSON.parse(JSON.stringify(items))}
             parentId={parentId}
+            changeRoute={changeRoute}
           />
         ) : null}
       </div>

@@ -2,15 +2,15 @@ import * as React from 'react';
 import { IProductCategory } from '../types';
 
 type Props = {
-  category: IProductCategory;
-  onClick: (block: any) => void;
+  block: IProductCategory;
+  goToBlock: (blockId: string) => void;
 };
 
-function Block({ category, onClick }: Props) {
+function Block({ block, goToBlock }: Props) {
   const handleOnClick = () => {
-    onClick(category);
+    goToBlock(block._id);
   };
-  return <button onClick={handleOnClick}>{category.name}</button>;
+  return <button onClick={handleOnClick}>{block.name}</button>;
 }
 
 export default Block;

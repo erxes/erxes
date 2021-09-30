@@ -1,17 +1,20 @@
 import * as React from 'react';
-import { ICategoryTree, IProductCategory } from '../types';
+import { IProductCategory } from '../types';
 import { BackButton } from './common';
-import FilterableList from './common/FilterableList';
 
 type Props = {
-  goToBookings: () => void;
-  block: IProductCategory | null;
+  goToBookings?: () => void;
+  block?: IProductCategory;
 };
 
-function BlockDetail({ goToBookings }: Props) {
+function BlockDetail({ goToBookings, block }: Props) {
+  if (!block) {
+    return null;
+  }
   return (
     <div>
-      <BackButton onClickHandler={goToBookings} />
+      <h1>{block.name}</h1>
+      {/* <BackButton onClickHandler={goToBookings} /> */}
     </div>
   );
 }

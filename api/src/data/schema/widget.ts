@@ -66,6 +66,8 @@ export const queries = `
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   widgetsGetEngageMessage(customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
+
+  widgetsProductCategory(_id: String!): ProductCategory
 `;
 
 export const mutations = `

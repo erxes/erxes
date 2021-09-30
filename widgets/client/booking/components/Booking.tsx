@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { readFile } from '../../utils';
-import { IBooking, ICategoryTree } from '../types';
+import { IBooking } from '../types';
 import { Block } from '../containers';
 import { BackButton } from './common';
-import FilterableList from './common/FilterableList';
 
 type Props = {
   goToIntro: () => void;
@@ -22,8 +21,8 @@ function Booking({ goToIntro, booking }: Props) {
       <h1>{title}</h1>
       <p>{description}</p>
       <img height={300} src={readFile(image.url)} alt={image.name} />
-      {childCategories.map((category, index) => {
-        return <Block key={index} category={category} />;
+      {childCategories.map((block, index) => {
+        return <Block key={index} block={block} />;
       })}
       <BackButton onClickHandler={goToIntro} />
     </div>

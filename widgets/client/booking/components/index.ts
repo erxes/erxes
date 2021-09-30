@@ -1,5 +1,6 @@
 import App from './App';
-import Booking from './Booking';
 import Intro from './Intro';
+import Booking from './Booking';
+import Floor from './Floor';
 
-export { App, Booking, Intro };
+export { App, Intro, Booking, Floor };
