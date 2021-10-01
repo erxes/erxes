@@ -36,7 +36,6 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
   const [state, setState] = useState({
     // content
     name: booking.name || '',
-    image: booking.image,
     description: booking.description || '',
     userFilters: booking.userFilters || [],
 
@@ -165,7 +164,6 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 onChange={onChange}
                 name={state.name}
                 description={state.description}
-                image={state.image}
                 productCategoryId={state.productCategoryId}
                 userFilters={state.userFilters}
               />

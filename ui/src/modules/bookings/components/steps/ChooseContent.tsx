@@ -8,27 +8,19 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import { LeftItem } from 'modules/common/components/step/styles';
-import { extractAttachment, __ } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer, Title } from './style';
 
 import { USER_FILTERS } from 'modules/bookings/constants';
-import Uploader from 'modules/common/components/Uploader';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
-import { IAttachment } from 'modules/common/types';
 
-type Name =
-  | 'name'
-  | 'image'
-  | 'description'
-  | 'userFilters'
-  | 'productCategoryId';
+type Name = 'name' | 'description' | 'userFilters' | 'productCategoryId';
 
 type Props = {
   onChange: (name: Name, value: any) => void;
   name: string;
   description: string;
-  image: IAttachment;
   userFilters: string[];
   productCategoryId: string;
 };
@@ -37,12 +29,9 @@ function ChooseContent({
   onChange,
   name,
   description,
-  image,
   userFilters,
   productCategoryId
 }: Props) {
-  const attachment = (image && extractAttachment([image])) || [];
-
   const renderGeneralSettings = () => {
     return (
       <>
@@ -56,20 +45,6 @@ function ChooseContent({
                 type="text"
                 value={name}
                 onChange={(e: any) => onChange('name', e.target.value)}
-              />
-            </FormGroup>
-          </FlexItem>
-
-          <FlexItem hasSpace={true}>
-            <FormGroup>
-              <ControlLabel>Image</ControlLabel>
-              <Uploader
-                defaultFileList={attachment}
-                onChange={(e: IAttachment[]) =>
-                  onChange('image', e.length ? e[0] : null)
-                }
-                multiple={false}
-                single={true}
               />
             </FormGroup>
           </FlexItem>
