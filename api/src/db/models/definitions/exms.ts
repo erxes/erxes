@@ -29,10 +29,15 @@ const welcomeContentSchema = new Schema({
   content: field({ type: String })
 });
 
-const appearanceSchema = new Schema({
-  primaryColor: field({ type: String }),
-  secondaryColor: field({ type: String })
-});
+const appearanceSchema = new Schema(
+  {
+    primaryColor: field({ type: String }),
+    secondaryColor: field({ type: String })
+  },
+  {
+    _id: false
+  }
+);
 
 // Mongoose schemas =======================
 
