@@ -11,9 +11,8 @@ export default function generateDataLoaderMessage() {
       }).sort({
         createdAt: 1
       });
-      const resultById = _.groupBy(result, 'conversationId');
-      const mapped_ids = ids.map(id => resultById[id]);
-      return mapped_ids;
+      const resultById = await _.groupBy(result, 'conversationId');
+      return ids.map(id => resultById[id] || []);
     }
   );
 }
