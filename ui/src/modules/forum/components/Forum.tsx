@@ -6,9 +6,10 @@ import { __ } from 'modules/common/utils';
 import { Title } from 'modules/common/styles/main';
 import React from 'react';
 
-import { ForumList } from '../containers/forums';
+import ForumList from '../containers/forums/ForumList';
 import { ITopic } from '../types';
-import { DiscussionList, DiscussionForm } from '../containers/discussion';
+import DiscussionList from '../containers/discussion/DiscussionList';
+import DiscussionForm from '../containers/discussion/DiscussionForm';
 
 type Props = {
   currentTopic: ITopic;

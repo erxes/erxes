@@ -7,7 +7,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
 
-import { DiscussionList } from '../../components/discussion';
+import DiscussionList from '../../components/discussion/DiscussionList';
 
 import {
   DiscussionsQueryResponse,

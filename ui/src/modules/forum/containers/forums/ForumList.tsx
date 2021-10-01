@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import React from 'react';
-import { ForumList } from '../../components/forums';
+import ForumList from '../../components/forums/ForumList';
 import { mutations, queries } from '../../graphql';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';

@@ -18,7 +18,7 @@ import {
   AuthorName,
   DiscussionMeta
 } from './styles';
-import { DiscussionForm } from '../../containers/discussion';
+import DiscussionForm from '../../containers/discussion/DiscussionForm';
 import { IDiscussion } from '../../types';
 import DiscussionDetail from './DiscussionDetail';
 import { __ } from 'modules/common/utils';

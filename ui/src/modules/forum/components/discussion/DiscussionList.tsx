@@ -5,7 +5,7 @@ import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import Spinner from 'modules/common/components/Spinner';
 import { RowDiscussion } from './styles';
 import { IDiscussion } from '../../types';
-import { DiscussionRow } from '../discussion';
+import DiscussionRow from '../discussion/DiscussionRow';
 
 import { EMPTY_CONTENT_FORUM } from 'modules/settings/constants';
 

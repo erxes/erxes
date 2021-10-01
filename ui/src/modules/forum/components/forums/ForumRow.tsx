@@ -14,8 +14,9 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { DropIcon } from 'modules/common/styles/main';
 import Icon from 'modules/common/components/Icon';
 
-import { ForumForm } from '../../containers/forums';
-import { TopicList, TopicForm } from '../../containers/topic';
+import ForumForm from '../../containers/forums/ForumForm';
+import TopicList from '../../containers/topic/TopicList';
+import TopicForm from '../../containers/topic/TopicForm';
 import { __ } from 'modules/common/utils';
 
 type Props = {

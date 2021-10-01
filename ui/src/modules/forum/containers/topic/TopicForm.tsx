@@ -1,5 +1,5 @@
 import React from 'react';
-import { TopicForm } from '../../components/topic';
+import TopicForm from '../../components/topic/TopicForm';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';

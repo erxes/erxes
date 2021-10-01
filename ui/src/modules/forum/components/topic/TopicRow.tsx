@@ -6,7 +6,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ActionButtons, TopicItem, TopicTitle } from './styles';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { TopicForm } from '../../containers/topic';
+import TopicForm from '../../containers/topic/TopicForm';
 
 import { ITopic } from '../../types';
 

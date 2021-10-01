@@ -1,7 +1,7 @@
 import React from 'react';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { DiscussionForm } from '../../components/discussion';
+import DiscussionForm from '../../components/discussion/DiscussionForm';
 import { mutations, queries } from '../../graphql';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as compose from 'lodash.flowright';

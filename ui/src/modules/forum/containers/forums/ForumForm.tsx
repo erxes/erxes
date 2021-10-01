@@ -1,5 +1,5 @@
 import React from 'react';
-import { ForumForm } from '../../components/forums';
+import ForumForm from '../../components/forums/ForumForm';
 import { IForum } from '../../types';
 import { IButtonMutateProps } from 'modules/common/types';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TopicList } from '../../components/topic';
+import TopicList from '../../components/topic/TopicList';
 
 import * as compose from 'lodash.flowright';
 import { Alert, confirm } from 'modules/common/utils';
