@@ -17,8 +17,8 @@ import { ITag } from 'erxes-ui/lib/tags/types';
 import Select from 'react-select-plus';
 import Uploader from 'modules/common/components/Uploader';
 import Icon from 'modules/common/components/Icon';
-import DateControl from '../../common/DateControl';
-import { DateContainer } from '../../common/styles';
+import { DateWrapper } from 'modules/forms/styles';
+import DateControl from 'modules/common/components/form/DateControl';
 import { __ } from 'modules/common/utils';
 
 type Props = {
@@ -139,7 +139,7 @@ class DiscussionForm extends React.Component<Props, State> {
           <FlexItem count={2}>
             <FormGroup>
               <ControlLabel required={false}>{__('Start date')}</ControlLabel>
-              <DateContainer>
+              <DateWrapper>
                 <DateControl
                   {...formProps}
                   required={false}
@@ -149,14 +149,14 @@ class DiscussionForm extends React.Component<Props, State> {
                   onChange={this.onStartDateFieldsChange}
                   timeFormat={true}
                 />
-              </DateContainer>
+              </DateWrapper>
             </FormGroup>
           </FlexItem>
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel required={false}>{__('End date')}</ControlLabel>
-              <DateContainer>
+              <DateWrapper>
                 <DateControl
                   {...formProps}
                   required={false}
@@ -166,7 +166,7 @@ class DiscussionForm extends React.Component<Props, State> {
                   onChange={this.onCloseDateFieldChange}
                   timeFormat={true}
                 />
-              </DateContainer>
+              </DateWrapper>
             </FormGroup>
           </FlexItem>
         </FlexContent>
