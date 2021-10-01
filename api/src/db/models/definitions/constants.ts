@@ -25,7 +25,8 @@ export const TAG_TYPES = {
     'engageMessage',
     'company',
     'integration',
-    'product'
+    'product',
+    'forum'
   ]
 };
 
@@ -829,4 +830,22 @@ export const WEBHOOK_STATUS = {
   AVAILABLE: 'available',
   UNAVAILABLE: 'unavailable',
   ALL: ['available', 'unavailable']
+};
+
+export const REACTION_CHOICES = {
+  LIKE: 'like',
+  DISLIKE: 'disLike',
+  ALL: ['like', 'dislike']
+};
+
+export const FORUM_CONTENT_TYPE = {
+  DISCUSSION: 'discussion',
+  COMMENT: 'comment',
+  ALL: ['discussion', 'comment']
+};
+
+export const FORUM_DISCUSSION_STATUSES = {
+  PUBLISH: 'publish',
+  CLOSED: 'closed',
+  ALL: ['publish', 'closed']
 };

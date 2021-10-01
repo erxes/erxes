@@ -49,6 +49,10 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import Forum from './forum';
+import ForumTopic from './forumTopic';
+import ForumDiscussion from './forumDiscussion';
+import ForumDiscussionComment from './forumDiscussionComment';
 
 const resolvers: any = {
   ...customScalars,
@@ -102,6 +106,11 @@ const resolvers: any = {
   CalendarGroup,
   CalendarBoard,
   Tag,
+
+  Forum,
+  ForumTopic,
+  ForumDiscussion,
+  ForumDiscussionComment,
   CPTicket,
   TicketComment
 };

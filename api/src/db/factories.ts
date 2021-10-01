@@ -56,6 +56,11 @@ import {
   Users,
   UsersGroups,
   Webhooks,
+  Forums,
+  ForumTopics,
+  ForumDiscussions,
+  DiscussionComments,
+  ForumReactions,
   TicketComments
 } from './models';
 import { ICustomField } from './models/definitions/common';
@@ -1640,6 +1645,129 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+interface IForumFactoryInput {
+  userId?: string;
+  brandId?: string;
+}
+
+export const forumFactory = async (params: IForumFactoryInput = {}) => {
+  const doc = {
+    title: faker.random.word(),
+    description: faker.lorem.sentence,
+    brandId: params.brandId || faker.random.word()
+  };
+
+  return Forums.createDoc(
+    {
+      ...doc,
+      ...params
+    },
+    params.userId || faker.random.word()
+  );
+};
+interface IForumTopicFactoryInput {
+  title?: string;
+  description?: string;
+  userId?: string;
+  forumId?: string;
+}
+
+export const forumTopicFactory = async (
+  params: IForumTopicFactoryInput = {}
+) => {
+  const doc = {
+    title: params.title || faker.random.word,
+    description: params.description || faker.lorem.sentence,
+    forumId: params.forumId
+  };
+
+  return ForumTopics.createDoc(
+    { ...doc, ...params },
+    params.userId || faker.random.word()
+  );
+};
+
+interface IForumDiscussionInput {
+  userId?: string;
+  status?: string;
+  startDate?: Date;
+  closeDate?: Date;
+  forumId?: string;
+  topicId?: string;
+  isComplete?: boolean;
+  modifiedBy?: string;
+  attachments?: any[];
+}
+
+export const forumDiscussionFactory = async (
+  params: IForumDiscussionInput = {}
+) => {
+  const doc = {
+    title: faker.random.word(),
+    description: faker.lorem.sentence,
+    content: faker.lorem.sentence,
+    status: params.status || 'publish',
+    modifiedBy: params.modifiedBy,
+    forumId: params.forumId,
+    topicId: params.topicId,
+    attachments: [attachmentFactory(), attachmentFactory()],
+    startDate: params.startDate,
+    closeDate: params.closeDate,
+    isComplete: params.isComplete
+  };
+  return ForumDiscussions.createDoc(
+    { ...doc, ...params },
+    params.userId || faker.random.word()
+  );
+};
+interface IDiscussionCommentFactoryInput {
+  discussionId?: string;
+  userId?: string;
+}
+
+export const discussionCommentFactory = async (
+  params: IDiscussionCommentFactoryInput = {}
+) => {
+  const doc = {
+    title: faker.random.word(),
+    content: faker.lorem.sentence,
+    discussionId: params.discussionId || faker.random.word()
+  };
+
+  return DiscussionComments.createDoc(
+    {
+      ...doc,
+      ...params
+    },
+    params.userId || faker.random.word()
+  );
+};
+
+interface IForumReactionFactoryInput {
+  type?: string;
+  contentType?: string;
+  contentTypeId?: string;
+  userId?: string;
+}
+
+export const forumReactionFactory = async (
+  params: IForumReactionFactoryInput = {}
+) => {
+  const doc = {
+    type: params.type || 'like',
+    contentType: params.contentType || 'comment',
+    contentTypeId: params.contentTypeId || faker.random.word()
+  };
+
+  return ForumReactions.createDoc(
+    {
+      ...doc,
+      ...params
+    },
+    params.userId || faker.random.word()
+  );
 };
 
 export const ticketCommentFactory = async (params: {
