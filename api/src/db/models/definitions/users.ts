@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { ILink } from './common';
+import { customFieldSchema, ICustomField, ILink } from './common';
 import { IPermissionDocument } from './permissions';
 import { field, schemaHooksWrapper } from './utils';
 
@@ -15,6 +15,8 @@ export interface IDetail {
   fullName?: string;
   shortName?: string;
   position?: string;
+  birthDate?: Date;
+  workStartedDate?: Date;
   location?: string;
   description?: string;
   operatorPhone?: string;
@@ -46,6 +48,7 @@ export interface IUser {
   isSubscribed?: string;
   sessionCode?: string;
   isShowNotification?: boolean;
+  customFieldsData?: ICustomField[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -70,6 +73,8 @@ const detailSchema = new Schema(
     avatar: field({ type: String, label: 'Avatar' }),
     shortName: field({ type: String, optional: true, label: 'Short name' }),
     fullName: field({ type: String, label: 'Full name' }),
+    birthDate: field({ type: Date, label: 'Birth date' }),
+    workStartedDate: field({ type: Date, label: 'Date to joined to work' }),
     position: field({ type: String, label: 'Position' }),
     location: field({ type: String, optional: true, label: 'Location' }),
     description: field({ type: String, optional: true, label: 'Description' }),
@@ -146,6 +151,11 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: false,
       label: 'Check if user shows'
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
     })
   }),
   'erxes_users'

@@ -4,24 +4,12 @@ import {
   IConformityAdd,
   IConformityEdit
 } from '../../../db/models/definitions/conformities';
-import { graphqlPubsub } from '../../../pubsub';
+import { publishHelperItemsConformities } from './boardUtils';
 
 const publishHelper = async (type: string, itemId: string) => {
-  const item = await getItem(type, itemId);
+  const item = await getItem(type, { _id: itemId });
   const stage = await Stages.getStage(item.stageId);
-
-  graphqlPubsub.publish('pipelinesChanged', {
-    pipelinesChanged: {
-      _id: stage.pipelineId,
-      proccessId: Math.random().toString(),
-      action: 'itemOfConformitiesUpdate',
-      data: {
-        item: {
-          ...item._doc
-        }
-      }
-    }
-  });
+  await publishHelperItemsConformities(item, stage);
 };
 
 const conformityMutations = {

@@ -12,7 +12,8 @@ import {
   DEVICE_PROPERTIES_INFO,
   FIELD_CONTENT_TYPES,
   PRODUCT_INFO,
-  PROPERTY_GROUPS
+  PROPERTY_GROUPS,
+  USER_PROPERTIES_INFO
 } from '../../data/constants';
 import { updateOrder } from './boardUtils';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
@@ -61,7 +62,12 @@ export interface IFieldModel extends Model<IFieldDocument> {
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: any }): any;
   generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
-  generateTypedItem(field: string, value: string, type: string): ITypedListItem;
+  generateTypedItem(
+    field: string,
+    value: string,
+    type: string,
+    validation?: string
+  ): ITypedListItem;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
   ): Promise<ITypedListItem[]>;
@@ -307,7 +313,8 @@ export const loadFieldClass = () => {
     public static generateTypedItem(
       field: string,
       value: string | number | string[],
-      type: string
+      type: string,
+      validation?: string
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -315,6 +322,13 @@ export const loadFieldClass = () => {
 
       if (value) {
         stringValue = value.toString();
+
+        // string
+        if (type === 'input' && !validation) {
+          numberValue = null;
+          value = stringValue;
+          return { field, value, stringValue, numberValue, dateValue };
+        }
 
         // number
         if (type !== 'check' && validator.isFloat(value.toString())) {
@@ -355,7 +369,8 @@ export const loadFieldClass = () => {
           Fields.generateTypedItem(
             customFieldData.field,
             customFieldData.value,
-            field ? field.type || '' : ''
+            field ? field.type || '' : '',
+            field?.validation
           )
         );
       }
@@ -444,6 +459,16 @@ export const loadFieldClass = () => {
             isDefinedByErxes: true
           }));
           await Fields.insertMany(deviceFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.USER:
+          const userFields = USER_PROPERTIES_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(userFields);
           break;
       }
     }

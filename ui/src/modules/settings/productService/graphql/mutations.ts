@@ -27,6 +27,14 @@ const productsMerge = `
   }
 `;
 
+const productSelectFeature = `
+  mutation productSelectFeature($_id: String, $counter: String) {
+    productSelectFeature(_id: $_id, counter: $counter) {
+      _id
+    }
+  }
+`;
+
 export default {
   productAdd,
   productEdit,
@@ -34,5 +42,6 @@ export default {
   productCategoryAdd,
   productCategoryEdit,
   productCategoryRemove,
-  productsMerge
+  productsMerge,
+  productSelectFeature
 };

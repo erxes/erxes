@@ -44,11 +44,38 @@ class Navigation extends React.Component<IProps> {
     }
   }
 
+  getLink = url => {
+    const storageValue = window.localStorage.getItem('pagination:perPage');
+
+    let parsedStorageValue;
+
+    try {
+      parsedStorageValue = JSON.parse(storageValue || '');
+    } catch {
+      parsedStorageValue = {};
+    }
+
+    if (url.includes('?')) {
+      const pathname = url.split('?')[0];
+
+      if (!url.includes('perPage') && parsedStorageValue[pathname]) {
+        return `${url}&perPage=${parsedStorageValue[pathname]}`;
+      }
+      return url;
+    }
+
+    if (parsedStorageValue[url]) {
+      return `${url}?perPage=${parsedStorageValue[url]}`;
+    }
+
+    return url;
+  };
+
   renderSubNavItem = (child, index: number) => {
     return (
       <WithPermission key={index} action={child.permission}>
         <SubNavItem additional={child.additional || false}>
-          <NavLink to={child.link}>
+          <NavLink to={this.getLink(child.link)}>
             <i className={child.icon} />
             {__(child.value)}
           </NavLink>
@@ -79,7 +106,7 @@ class Navigation extends React.Component<IProps> {
           {childrens.map((child, index) => (
             <WithPermission key={index} action={child.permission}>
               <DropSubNavItem>
-                <NavLink to={`${child.link}?parent=${url}`}>
+                <NavLink to={this.getLink(`${child.link}?parent=${url}`)}>
                   <i className={child.icon} />
                   {__(child.value)}
                 </NavLink>
@@ -111,7 +138,7 @@ class Navigation extends React.Component<IProps> {
     if (!childrens || childrens.length === 0) {
       if (!collapsed) {
         return (
-          <Tip placement="right" text={__(text)}>
+          <Tip placement="right" key={Math.random()} text={__(text)}>
             <NavItem>
               <NavLink to={url}>
                 <NavIcon className={icon} />
@@ -125,7 +152,7 @@ class Navigation extends React.Component<IProps> {
     return (
       <WithPermission key={url} action={permission}>
         <NavItem>
-          <NavLink to={url}>
+          <NavLink to={this.getLink(url)}>
             <NavIcon className={icon} />
             {collapsed && <label>{__(text)}</label>}
             {label}
@@ -322,12 +349,6 @@ class Navigation extends React.Component<IProps> {
                 link: '/knowledgeBase',
                 value: 'Knowledgebase',
                 icon: 'icon-book-open'
-              },
-              {
-                permission: 'showForum',
-                link: '/forum',
-                value: 'Forum',
-                icon: 'icon-list-ui-alt'
               }
             ]
           )}
