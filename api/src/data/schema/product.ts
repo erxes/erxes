@@ -93,5 +93,5 @@ export const mutations = `
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON
-  productSelectFeature(_id: String, counter: String): JSON
+  productSelectFeature(_id: String, counter: String): Product
 `;

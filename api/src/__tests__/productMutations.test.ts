@@ -2,7 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import {
   productCategoryFactory,
   productFactory,
-  tagsFactory
+  tagsFactory,
+  attachmentFactory
 } from '../db/factories';
 import { ProductCategories, Products, Tags } from '../db/models';
 
@@ -287,14 +288,26 @@ describe('Test products mutations', () => {
   });
 
   test('Select feature', async () => {
+    const attachment = attachmentFactory();
+    const attachment1 = attachmentFactory();
+    const attachmentMore = [attachment, attachment1];
+
+    const withAttachmentProduct = await productFactory({
+      attachmentMore
+    });
+
     const args = {
-      _id: product._id,
-      counter: '1'
+      _id: withAttachmentProduct._id,
+      counter: '0'
     };
 
     const mutation = `
       mutation productSelectFeature($_id: String, $counter: String) {
-        productSelectFeature(_id: $_id, counter: $counter) 
+        productSelectFeature(_id: $_id, counter: $counter) {
+          name
+          code
+          _id
+        }
       }   
     `;
 
@@ -304,6 +317,6 @@ describe('Test products mutations', () => {
       args
     );
 
-    expect(product1.status).toBe('succesfully updated');
+    expect(product1._id).toBe(args._id);
   });
 });

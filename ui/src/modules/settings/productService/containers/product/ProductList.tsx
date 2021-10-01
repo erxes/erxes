@@ -94,10 +94,6 @@ class ProductListContainer extends React.Component<FinalProps> {
         });
     };
 
-    const refetch = () => {
-      this.props.productsQuery.refetch();
-    };
-
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
@@ -114,6 +110,10 @@ class ProductListContainer extends React.Component<FinalProps> {
 
     const productList = props => {
       return <List {...updatedProps} {...props} />;
+    };
+
+    const refetch = () => {
+      this.props.productsQuery.refetch();
     };
 
     return <Bulk content={productList} refetch={refetch} />;

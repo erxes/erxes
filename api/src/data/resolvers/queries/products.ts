@@ -57,13 +57,7 @@ const productQueries = {
         status: { $nin: [null, 'active'] }
       });
 
-      const nActiveCategoriesIds: string[] = [];
-
-      notActiveCategories.forEach((notActiveCategory) => {
-        nActiveCategoriesIds.push(notActiveCategory._id);
-      });
-
-      filter.categoryId = { $nin: nActiveCategoriesIds };
+      filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
     }
 
     if (ids && ids.length > 0) {

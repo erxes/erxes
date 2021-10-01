@@ -1142,7 +1142,7 @@ interface ITaskFactoryInput {
   initialStageId?: string;
 }
 
-const attachmentFactory = () => ({
+export const attachmentFactory = () => ({
   name: faker.random.word(),
   url: faker.image.imageUrl(),
   type: faker.system.mimeType(),
@@ -1280,6 +1280,7 @@ interface IProductFactoryInput {
   categoryId?: string;
   vendorId?: string;
   customFieldsData?: ICustomField[];
+  attachmentMore?: any[];
 }
 
 export const productFactory = async (params: IProductFactoryInput = {}) => {
@@ -1288,6 +1289,7 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     categoryId: params.categoryId || faker.random.word(),
     type: params.type || PRODUCT_TYPES.PRODUCT,
     customFieldsData: params.customFieldsData,
+    attachmentMore: params.attachmentMore,
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     code: await getUniqueValue(Products, 'code'),

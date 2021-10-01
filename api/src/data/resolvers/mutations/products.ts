@@ -4,7 +4,6 @@ import {
   IProductCategory,
   IProductDocument
 } from '../../../db/models/definitions/deals';
-import { IAttachment } from '../../../db/models/definitions/integrations';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
@@ -181,13 +180,17 @@ const productMutations = {
     _root,
     { _id, counter }: { _id: string; counter: string }
   ) {
-    const product = (await Products.findOne({ _id })) || ({} as IProduct);
-    const attachmentMore = product.attachmentMore || [];
-    const attachment =
-      attachmentMore.length > 0 ? attachmentMore[counter] : ({} as IAttachment);
-    await Products.updateOne({ _id }, { $set: { attachment } });
+    let product = await Products.getProduct({ _id });
+    let attachment = null;
 
-    return { status: 'succesfully updated' };
+    if (product.attachmentMore && product.attachmentMore.length > 0) {
+      attachment = product.attachmentMore[counter];
+    }
+
+    await Products.updateOne({ _id }, { $set: { attachment } });
+    product = await Products.getProduct({ _id });
+
+    return product;
   }
 };
 

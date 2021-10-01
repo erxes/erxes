@@ -101,34 +101,28 @@ class BasicInfo extends React.Component<Props> {
   }
 
   renderFeatures = (items?: IAttachment[], feature?: IAttachment) => {
-    if (!items || items.length === 0 || !feature) {
+    if (!items || !feature) {
       return null;
     }
 
     const elemets: any[] = [];
     let counter = 0;
-    for (const item of items) {
 
-      const checked = feature.name === item.name ? true : false;
-
-      const tempElement = (
-        <FormControl
-          name="SelectFeature"
-          onChange={this.onRadio}
-          value={counter}
-          checked={checked}
-          componentClass="radio"
-        >
-          {item.name}
-        </FormControl>
-      )
+    items.forEach(e => {
+      const checked = feature.name === e.name ? true : false;
+      elemets.push(<FormControl
+        name="SelectFeature"
+        onChange={this.onRadio}
+        value={counter}
+        checked={checked}
+        componentClass="radio"
+      >
+        {e.name}
+      </FormControl>);
       counter++;
-
-      elemets.push(tempElement);
-    };
+    });
 
     return elemets;
-
   };
 
   renderImage = (item: IAttachment) => {
