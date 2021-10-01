@@ -63,4 +63,18 @@ const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
   z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
-export { BoardItem, StageList, StageItemContainer, SelectMemberStyled };
+const PipelineCount = styled.div`
+  font-size: 15px;
+  font-weight: bold;
+  color: #666;
+  margin-top: 2px;
+  margin-left: 10px;
+`;
+
+export {
+  BoardItem,
+  StageList,
+  StageItemContainer,
+  SelectMemberStyled,
+  PipelineCount
+};
