@@ -4,13 +4,13 @@ import { Conversations } from '../../db/models';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 
 export default function generateDataLoaderConversation() {
-  return new DataLoader<string, IConversationDocument>(
-    async (ids: readonly string[]) => {
+  return new DataLoader<string, IConversationDocument[]>(
+    async (customerIds: readonly string[]) => {
       const result: IConversationDocument[] = await Conversations.find({
-        _id: { $in: ids }
+        customerId: { $in: customerIds }
       }).lean();
-      const resultById = _.indexBy(result, '_id');
-      return ids.map(id => resultById[id]);
+      const resultByCustomerId = _.groupBy(result, 'customerId');
+      return customerIds.map(id => resultByCustomerId[id]);
     }
   );
 }

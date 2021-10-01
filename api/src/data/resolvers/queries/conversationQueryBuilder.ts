@@ -14,7 +14,6 @@ interface IExists {
 
 export interface IListArgs {
   limit?: number;
-  perPage?: number;
   channelId?: string;
   status?: string;
   unassigned?: string;

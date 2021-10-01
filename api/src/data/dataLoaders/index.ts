@@ -10,16 +10,16 @@ import productCategory from './productCategory';
 import tag from './tag';
 import company from './company';
 import customer from './customer';
-import message from './message';
-import conversation from './conversation'
+import messageByConvId from './message';
+import conversationByCustomerId from './conversation'
 
 export interface IDataLoaders {
   productCategory: DataLoader<string, IProductCategoryDocument>;
   tag: DataLoader<string, ITagDocument>;
   company: DataLoader<string, ICompanyDocument>;
   customer?: DataLoader<string, ICustomer>;
-  message?: DataLoader<string, IMessageDocument[]>;
-  conversation?: DataLoader<string, IConversationDocument>
+  messageByConvId?: DataLoader<string, IMessageDocument[]>;
+  conversationByCustomerId?: DataLoader<string, IConversationDocument[]>
 }
 
 export function generateAllDataLoaders(): IDataLoaders {
@@ -28,7 +28,7 @@ export function generateAllDataLoaders(): IDataLoaders {
     tag: tag(),
     company: company(),
     customer: customer(),
-    message: message(),
-    conversation: conversation()
+    messageByConvId: messageByConvId(),
+    conversationByCustomerId: conversationByCustomerId()
   };
 }

@@ -199,7 +199,6 @@ const mutationFilterParams = `
 
 const filterParams = `
   limit: Int,
-  perPage: Int,
   ids: [String]
   ${mutationFilterParams}
 `;

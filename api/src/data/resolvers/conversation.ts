@@ -43,7 +43,7 @@ export default {
   },
 
   messages(conv: IConversationDocument, _, { dataLoaders } : IContext) {
-    return dataLoaders?.message?.load(conv._id);
+    return dataLoaders?.messageByConvId?.load(conv._id);
   },
 
   async facebookPost(
