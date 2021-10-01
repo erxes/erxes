@@ -125,7 +125,7 @@ router.get(
     const automations = await Automations.find(filter)
       .sort({ createdAt: -1 })
       .skip(_skip)
-      .limit(_limit)
+      .limit(_limit);
 
     if (!automations) {
       return res.json({ list: [], totalCount: 0 });
@@ -140,19 +140,20 @@ router.get(
   })
 );
 
-router.get('/getTotalCount',
+router.get(
+  '/getTotalCount',
   routeErrorHandling(async (req, res) => {
     const { status } = req.query;
 
-    const filter: any = {}
+    const filter: any = {};
     if (status) {
-      filter.status = status
+      filter.status = status;
     }
     const total = await Automations.find(filter).countDocuments();
 
     return res.json({
       total
-    })
+    });
   })
 );
 
@@ -234,7 +235,16 @@ router.get(
   '/histories',
   routeErrorHandling(async (req, res) => {
     debugRequest(debugAutomations, req);
-    const { page, perPage, automationId, triggerType, triggerId, status, beginDate, endDate } = req.query;
+    const {
+      page,
+      perPage,
+      automationId,
+      triggerType,
+      triggerId,
+      status,
+      beginDate,
+      endDate
+    } = req.query;
 
     const _limit = Number(perPage || '20');
     const _skip = (Number(page || '1') - 1) * _limit;
@@ -246,19 +256,19 @@ router.get(
     }
 
     if (triggerId) {
-      filter.triggerId = triggerId
+      filter.triggerId = triggerId;
     }
 
     if (triggerType) {
-      filter.triggerType = triggerType
+      filter.triggerType = triggerType;
     }
 
     if (beginDate) {
-      filter.createdAt = { $gte: beginDate }
+      filter.createdAt = { $gte: beginDate };
     }
 
     if (endDate) {
-      filter.createdAt = { $lte: endDate }
+      filter.createdAt = { $lte: endDate };
     }
 
     const histories = await Executions.find(filter)

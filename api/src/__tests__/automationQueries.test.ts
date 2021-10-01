@@ -70,7 +70,6 @@ describe('Automations mutations', () => {
       icon
       label
       description
-      count
     }
     createdAt
     updatedAt

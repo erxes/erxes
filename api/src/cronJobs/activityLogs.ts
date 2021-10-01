@@ -15,7 +15,7 @@ dotenv.config();
 export const createActivityLogsFromSegments = async () => {
   await connect();
 
-  const segments = await Segments.find({});
+  const segments = await Segments.find({ name: { exists: true } });
 
   for (const segment of segments) {
     const result = await fetchSegment(segment, { returnFullDoc: true });
