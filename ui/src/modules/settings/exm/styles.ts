@@ -50,8 +50,11 @@ export const AppearanceWrapper = styled.div`
   justify-content: center;
   min-width: max-content;
   padding: 40px;
-  > div {
+  > div:first-child {
     padding: 0 0 0 40px;
+    > div {
+      width: 690px;
+    }
   }
   > div:last-child {
     padding: 0;
@@ -62,7 +65,6 @@ export const AppearanceWrapper = styled.div`
 `;
 
 export const AppSettings = styled.div`
-  width: 900px;
   > div {
     background-color: #fafafa;
     padding: 20px 20px 40px 20px;
@@ -96,9 +98,6 @@ export const WelcomeContent = styled.div`
     margin-top: 20px;
     input {
       margin-top: 50px;
-    }
-    textarea {
-      width: 600px;
     }
   }
 `;
