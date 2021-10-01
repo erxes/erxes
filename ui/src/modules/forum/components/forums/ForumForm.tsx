@@ -6,10 +6,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { FlexContent } from 'modules/layout/styles';
-
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
-import { ExpandWrapper } from 'modules/settings/styles';
 
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { IForum } from '../../types';
@@ -28,7 +25,6 @@ class ForumForm extends React.Component<Props> {
     title: string;
     description: string;
     brandId: string;
-    languageCode: string;
   }) => {
     const { forum } = this.props;
     const finalValues = values;
@@ -42,8 +38,7 @@ class ForumForm extends React.Component<Props> {
 
       title: finalValues.title,
       description: finalValues.description,
-      brandId: finalValues.brandId,
-      languageCode: finalValues.languageCode
+      brandId: finalValues.brandId
     };
   };
 
@@ -94,24 +89,6 @@ class ForumForm extends React.Component<Props> {
             onChange={this.handleBrandChange}
           />
         </FormGroup>
-        <FlexContent>
-          <ExpandWrapper>
-            <FormGroup>
-              <ControlLabel>{__('Language')}</ControlLabel>
-
-              <FormControl
-                {...formProps}
-                componentClass="select"
-                defaultValue={forum.languageCode || 'en'}
-                name="languageCode"
-              >
-                <option />
-                <option value="mn">Монгол</option>
-                <option value="en">English</option>
-              </FormControl>
-            </FormGroup>
-          </ExpandWrapper>
-        </FlexContent>
       </React.Fragment>
     );
   }

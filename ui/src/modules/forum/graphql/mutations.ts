@@ -1,14 +1,12 @@
 const forumParamsDef = `
     $title: String
     $description: String
-    $languageCode: String
     $brandId: String!
 `;
 
 const forumParamVal = `
     title: $title
     description: $description
-    languageCode: $languageCode
     brandId: $brandId
 `;
 
