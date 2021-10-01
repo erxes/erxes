@@ -11,12 +11,12 @@ export default function Buttons() {
   return (
     <div className={styles.mainCon}>
     <div className={styles.body}>
-      <div>
-        <h1 id="button">Button</h1>
+      <div id="button">
+        <h1>Button</h1>
         <p>Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
       </div>
-      <div>
-        <h1 id="examples">Examples</h1>
+      <div id="examples">
+        <h1>Examples</h1>
         <p>Use any of the available button style types to quickly create a styled button. Just modify the <b>btnStyle</b> prop.</p>
         <div className={styles.code}>
           <div>
@@ -28,7 +28,7 @@ export default function Buttons() {
             <Button btnStyle="simple">Simple</Button>{' '}
             <Button btnStyle="link">Link</Button>{' '}
           </div><br/>
-          <CopyBlock
+          <CopyBlock 
             language="html"
             text={`<>
             <Button>Default</Button>{' '}
