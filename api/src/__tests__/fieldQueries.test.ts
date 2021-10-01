@@ -189,6 +189,10 @@ describe('fieldQueries', () => {
       contentType: 'product'
     });
 
+    await graphqlRequest(qry, 'fieldsCombinedByContentType', {
+      contentType: 'deal'
+    });
+
     // getting fields of customers schema
     responseFields = responses.map(response => response.name);
 
