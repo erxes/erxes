@@ -51,6 +51,7 @@ import NoteFormContainer from 'modules/automations/containers/forms/NoteForm';
 import TemplateForm from '../../containers/forms/TemplateForm';
 import Histories from 'modules/automations/components/histories/Wrapper';
 import Confirmation from 'modules/automations/containers/forms/Confirmation';
+import { TRIGGER_TYPES } from 'modules/automations/constants';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -61,10 +62,8 @@ type Props = {
   save: (params: any) => void;
   saveLoading: boolean;
   id: string;
-  count: number;
   history: any;
   queryParams: any;
-  previewCount: (item: ITrigger | IAction) => void;
 };
 
 type State = {
@@ -87,7 +86,6 @@ type State = {
   isZoomable: boolean;
   zoomStep: number;
   zoom: number;
-  count: number;
   percentage: number;
 };
 
@@ -98,7 +96,7 @@ class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { automation, count } = this.props;
+    const { automation } = this.props;
 
     this.state = {
       name: automation.name,
@@ -117,7 +115,6 @@ class AutomationForm extends React.Component<Props, State> {
       isZoomable: false,
       zoomStep: 0.025,
       zoom: 1,
-      count,
       percentage: 100,
       activeAction: {} as IAction
     };
@@ -435,9 +432,6 @@ class AutomationForm extends React.Component<Props, State> {
 
     trigger.config = { ...trigger.config, ...config };
 
-    /*add count*/
-    this.props.previewCount(trigger);
-
     if (triggerIndex !== -1) {
       triggers[triggerIndex] = trigger;
     } else {
@@ -467,9 +461,6 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     action.config = { ...action.config, ...config };
-
-    /*add count*/
-    this.props.previewCount(action);
 
     if (actionIndex !== -1) {
       actions[actionIndex] = action;
@@ -525,11 +516,11 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderCount(item: ITrigger | IAction) {
-    if (item.count) {
-      return item.count;
+    if (item.count && TRIGGER_TYPES.includes(item.type)) {
+      return `(${item.count})`;
     }
 
-    return this.props.count;
+    return '';
   }
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
@@ -546,7 +537,7 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
           <div>
             <i class="icon-${item.icon}"></i>
-            ${item.label} (${this.renderCount(item)})
+            ${item.label} ${this.renderCount(item)}
           </div>
         </div>
         <p>${item.description}</p>

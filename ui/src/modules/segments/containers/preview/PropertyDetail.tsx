@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
-import ConditionDetail from 'modules/segments/components/preview/PropertyDetail';
+import PropertyDetail from 'modules/segments/components/preview/PropertyDetail';
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -14,7 +14,8 @@ type Props = {
   condition: ISegmentCondition;
   pipelineId?: string;
   segmentId?: string;
-  onClickField: (field: IField, condition) => void;
+  segmentKey: string;
+  onClickField: (field: IField, condition, segmentKey: string) => void;
 };
 
 type FinalProps = {
@@ -46,7 +47,7 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
     };
 
     return (
-      <ConditionDetail
+      <PropertyDetail
         {...this.props}
         field={chosenField}
         condition={condition}

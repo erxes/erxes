@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import { IField, ISegmentCondition, ISegmentMap } from 'modules/segments/types';
+import { IField, ISegmentCondition } from 'modules/segments/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import FormControl from 'modules/common/components/form/Control';
@@ -11,7 +11,7 @@ import Button from 'modules/common/components/Button';
 
 type Props = {
   field: IField;
-  segment: ISegmentMap;
+  segmentKey: string;
   addCondition: (
     condition: ISegmentCondition,
     segmentKey: string,
@@ -186,7 +186,7 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
-    const { segment, addCondition, field, condition } = this.props;
+    const { segmentKey, addCondition, field, condition } = this.props;
     const {
       chosenOperator,
       currentValue,
@@ -208,7 +208,7 @@ class PropertyForm extends React.Component<Props, State> {
         pipelineId,
         formId
       },
-      segment.key
+      segmentKey
     );
   };
 

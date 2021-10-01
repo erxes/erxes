@@ -78,7 +78,8 @@ const SegmentsForm = (props: Props) => {
     isAutomation,
     closeModal,
     segments,
-    previewCount
+    previewCount,
+    count
   } = props;
 
   const title = props.segment
@@ -105,6 +106,7 @@ const SegmentsForm = (props: Props) => {
       isModal={isModal}
       isAutomation={isAutomation}
       previewCount={previewCount}
+      count={count}
     />
   );
 

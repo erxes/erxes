@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import client from 'apolloClient';
 import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
@@ -13,9 +12,7 @@ import {
   DetailQueryResponse,
   EditMutationResponse,
   IAutomation,
-  AutomationsNoteQueryResponse,
-  ITrigger,
-  IAction
+  AutomationsNoteQueryResponse
 } from '../../types';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from 'modules/common/types';
@@ -43,23 +40,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     editAutomationMutation
   } = props;
 
-  const [count, setCount] = useState(0);
   const [saveLoading, setLoading] = useState(false);
-
-  const previewCount = (item: ITrigger | IAction) => {
-    const config = item.config;
-
-    client
-      .query({
-        query: gql(queries.automationConfigPrievewCount),
-        variables: {
-          config
-        }
-      })
-      .then(({ data }) => {
-        setCount(data.automationConfigPrievewCount);
-      });
-  };
 
   const save = (doc: IAutomation) => {
     setLoading(true);
@@ -103,10 +84,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automation: automationDetail,
     automationNotes,
     currentUser,
-    previewCount,
     save,
-    saveLoading,
-    count
+    saveLoading
   };
 
   return <AutomationForm {...updatedProps} />;

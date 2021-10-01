@@ -1,4 +1,4 @@
-import { IField, ISegmentCondition } from 'modules/segments/types';
+import { ISegmentCondition } from 'modules/segments/types';
 import React from 'react';
 import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 import { ConditionDetailText, PropertyText } from '../styles';
@@ -6,14 +6,15 @@ import { ConditionDetailText, PropertyText } from '../styles';
 type Props = {
   condition: ISegmentCondition;
   field: any;
-  onClickField: (field: IField, condition: ISegmentCondition) => void;
+  segmentKey: string;
+  onClickField: (field, condition, segmentKey) => void;
 };
 
 class PropertyDetail extends React.Component<Props, {}> {
   onClickField = () => {
-    const { field, onClickField, condition } = this.props;
+    const { field, onClickField, condition, segmentKey } = this.props;
 
-    onClickField(field, condition);
+    onClickField(field, condition, segmentKey);
   };
 
   renderOperator = () => {

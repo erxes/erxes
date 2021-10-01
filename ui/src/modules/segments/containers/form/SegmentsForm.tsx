@@ -83,8 +83,11 @@ class SegmentsFormContainer extends React.Component<
 
       if (addConfig && activeTrigger) {
         const result = values._id ? data.segmentsEdit : data.segmentsAdd;
+        const trigger = { ...activeTrigger };
 
-        addConfig(activeTrigger, activeTrigger.id, { contentId: result._id });
+        trigger.count = result.count;
+
+        addConfig(trigger, activeTrigger.id, { contentId: result._id });
 
         closeModal();
       }

@@ -11,12 +11,9 @@ import {
   ConditionRemove,
   ConjunctionButtons,
   ConjunctionButtonsVertical,
-  FilterRow,
-  SegmentBackIcon
+  FilterRow
 } from '../styles';
-import ConditionDetail from '../../containers/preview/ConditionDetail';
-import PropertyForm from '../form/PropertyForm';
-import Icon from 'modules/common/components/Icon';
+import PropertyDetail from '../../containers/preview/PropertyDetail';
 
 type Props = {
   segment: ISegmentMap;
@@ -38,7 +35,7 @@ type Props = {
     segmentKey: string,
     conjunction: string
   ) => void;
-  onClickField?: (field, condition) => void;
+  onClickField: (field, condition, segmentKey) => void;
   chosenField?: IField;
   chosenCondition?: ISegmentCondition;
   isAutomation: boolean;
@@ -54,14 +51,6 @@ class ConditionsList extends React.Component<Props, State> {
 
     this.state = { chosenField: undefined, chosenCondition: undefined };
   }
-
-  onClickField = (field, condition) => {
-    if (this.props.onClickField) {
-      return this.props.onClickField(field, condition);
-    }
-
-    return;
-  };
 
   addProperty = () => {
     const { segment, addNewProperty } = this.props;
@@ -174,11 +163,12 @@ class ConditionsList extends React.Component<Props, State> {
     return (
       <ConditionItem useMargin={useMargin} key={Math.random()}>
         <FilterRow>
-          <ConditionDetail
-            onClickField={this.onClickField}
+          <PropertyDetail
+            onClickField={this.props.onClickField}
             condition={condition}
             pipelineId={segment.pipelineId}
             segmentId={segment._id}
+            segmentKey={segment.key}
           />
 
           <FlexRightItem>
@@ -196,35 +186,12 @@ class ConditionsList extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      segment,
-      index,
-      addCondition,
-      chosenField,
-      chosenCondition,
-      onClickBackToList
-    } = this.props;
+    const { segment, index } = this.props;
 
     const { conditions } = segment;
 
     if (conditions.length === 0 && index === 0) {
       return <PropertyCondition {...this.props} hideBackButton={true} />;
-    }
-
-    if (chosenField && chosenCondition) {
-      return (
-        <>
-          <SegmentBackIcon onClick={onClickBackToList}>
-            <Icon icon="angle-left" size={20} /> back
-          </SegmentBackIcon>
-          <PropertyForm
-            field={chosenField}
-            condition={chosenCondition}
-            segment={segment}
-            addCondition={addCondition}
-          />
-        </>
-      );
     }
 
     return (

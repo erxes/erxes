@@ -22,7 +22,6 @@ export const types = `
     label: String
     description: String
 
-    count: Int
   }
 
   type Automation {

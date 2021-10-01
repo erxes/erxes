@@ -26,6 +26,7 @@ const segmentsAdd = `
   mutation segmentsAdd($contentType: String!, ${paramDefs}) {
     segmentsAdd(contentType: $contentType, ${params}) {
       _id
+      count
     }
   }
 `;
@@ -34,6 +35,7 @@ const segmentsEdit = `
   mutation segmentsEdit($_id: String!, ${paramDefs}) {
     segmentsEdit(_id: $_id, ${params}) {
       _id
+      count
     }
   }
 `;

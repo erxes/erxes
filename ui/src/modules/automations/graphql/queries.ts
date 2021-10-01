@@ -31,7 +31,6 @@ export const automationFields = `
     icon
     label
     description
-    count
   }
   createdAt
   updatedAt

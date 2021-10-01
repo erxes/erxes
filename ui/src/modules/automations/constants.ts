@@ -119,6 +119,16 @@ export const TRIGGERS = [
   }
 ];
 
+export const TRIGGER_TYPES = [
+  'user',
+  'deal',
+  'ticket',
+  'task',
+  'conversation',
+  'company',
+  'customer'
+];
+
 export const statusFilters = [
   { key: 'active', value: 'Active' },
   { key: 'draft', value: 'Draft' }

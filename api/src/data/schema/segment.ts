@@ -51,6 +51,8 @@ export const types = `
 
     boardId: String
     pipelineId: String
+
+    count: Int
   }
 `;
 

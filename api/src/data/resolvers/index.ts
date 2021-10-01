@@ -51,7 +51,6 @@ import UsersGroup from './usersGroup';
 import Automation from './automation';
 import AutomationNote from './automationNote';
 import Trigger from './trigger';
-import Action from './action';
 
 const resolvers: any = {
   ...customScalars,
@@ -107,8 +106,7 @@ const resolvers: any = {
   Tag,
   Automation,
   AutomationNote,
-  Trigger,
-  Action
+  Trigger
 };
 
 export default resolvers;

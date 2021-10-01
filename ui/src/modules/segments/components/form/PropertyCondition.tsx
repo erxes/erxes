@@ -70,31 +70,6 @@ class PropertyCondition extends React.Component<Props, State> {
     this.setState({ chosenField: undefined, searchValue: '' });
   };
 
-  renderFieldDetail = () => {
-    const {
-      chosenField,
-      propertyType,
-      pipelineId,
-      boardId,
-      formId
-    } = this.state;
-
-    if (chosenField) {
-      return (
-        <PropertyForm
-          {...this.props}
-          boardId={boardId}
-          pipelineId={pipelineId}
-          propertyType={propertyType}
-          formId={formId}
-          field={chosenField}
-        />
-      );
-    }
-
-    return;
-  };
-
   onSearch = e => {
     const value = e.target.value;
 
@@ -263,6 +238,7 @@ class PropertyCondition extends React.Component<Props, State> {
         </SegmentBackIcon>
         <PropertyForm
           {...this.props}
+          segmentKey={this.props.segment.key}
           propertyType={propertyType}
           field={chosenField}
           boardId={boardId}
