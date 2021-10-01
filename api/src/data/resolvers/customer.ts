@@ -1,17 +1,17 @@
-import { Companies, Conformities, Conversations } from '../../db/models';
+import { Conformities, Conversations } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
-import { getDocument, getDocumentList } from './mutations/cacheUtils';
+import { IContext } from '../types';
 
 export default {
-  integration(customer: ICustomerDocument) {
-    return getDocument('integrations', {
-      _id: customer.integrationId
-    });
+  integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    if (customer.integrationId) {
+      return dataLoaders?.integration.load(customer.integrationId);
+    }
   },
 
-  getTags(customer: ICustomerDocument) {
-    return getDocumentList('tags', { _id: { $in: customer.tagIds || [] } });
+  getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders?.tag.loadMany(customer.tagIds || []);
   },
 
   async urlVisits(customer: ICustomerDocument) {
@@ -52,17 +52,18 @@ export default {
     return Conversations.find({ customerId: customer._id });
   },
 
-  async companies(customer: ICustomerDocument) {
+  async companies(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
     const companyIds = await Conformities.savedConformity({
       mainType: 'customer',
       mainTypeId: customer._id,
       relTypes: ['company']
     });
 
-    return Companies.find({ _id: { $in: companyIds || [] } }).limit(10);
+    const companies = await dataLoaders?.company.loadMany(companyIds || []);
+    return (companies || []).slice(0, 10);
   },
 
-  owner(customer: ICustomerDocument) {
-    return getDocument('users', { _id: customer.ownerId });
+  owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    if (customer.ownerId) return dataLoaders?.user.load(customer.ownerId);
   }
 };

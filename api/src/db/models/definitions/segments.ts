@@ -121,7 +121,7 @@ export const segmentSchema = schemaWrapper(
     }),
     name: field({ type: String }),
     description: field({ type: String, optional: true }),
-    subOf: field({ type: String, optional: true }),
+    subOf: field({ type: String, optional: true, index: true }),
     color: field({ type: String }),
     conditions: field({ type: [conditionSchema] }),
 
