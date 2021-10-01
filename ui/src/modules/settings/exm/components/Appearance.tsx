@@ -200,7 +200,9 @@ export default function Appearance(props: Props) {
           Save
         </Button>
       </GeneralWrapper>
-      <MobilePreview />
+      <div>
+        <MobilePreview />
+      </div>
     </AppearanceWrapper>
   );
 }

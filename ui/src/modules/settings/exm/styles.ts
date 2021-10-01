@@ -46,15 +46,21 @@ export const FeatureLayout = styled.div``;
 
 export const AppearanceWrapper = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: row-reverse;
+  justify-content: space-evenly;
+  > div {
+    padding: 40px 0;
+  }
   > div:last-child {
-    margin: 40px 40px;
+    padding: 40px 0;
+    > div {
+      margin: 0;
+    }
   }
 `;
 
 export const AppSettings = styled.div`
   width: 900px;
-  margin-right: 50px;
   > div {
     background-color: #fafafa;
     padding: 20px 20px 40px 20px;
