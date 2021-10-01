@@ -69,29 +69,7 @@ export const AppSettings = styled.div`
   }
 `;
 
-export const Logos = styled.div`
-  > div {
-    margin-bottom: 0;
-  }
-  > div:last-child {
-    border: 1px solid #673fbd;
-    width: max-content;
-    > div {
-      margin-bottom: 0;
-    }
-    > label {
-      display: flex;
-      align-items: center;
-      background-color: white;
-      border-radius: 0;
-      min-height: 80px;
-
-      &: hover {
-        color: #673fbd;
-      }
-    }
-  }
-`;
+export const Logos = styled.div``;
 
 export const Colors = styled.div`
   > div {
