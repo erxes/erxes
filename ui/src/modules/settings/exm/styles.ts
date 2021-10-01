@@ -47,12 +47,14 @@ export const FeatureLayout = styled.div``;
 export const AppearanceWrapper = styled.div`
   display: flex;
   flex-direction: row-reverse;
-  justify-content: space-evenly;
+  justify-content: center;
+  min-width: max-content;
+  padding: 40px;
   > div {
-    padding: 40px 0;
+    padding: 0 0 0 40px;
   }
   > div:last-child {
-    padding: 40px 0;
+    padding: 0;
     > div {
       margin: 0;
     }
