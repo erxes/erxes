@@ -27,9 +27,9 @@ class ForumList extends React.Component<Props> {
 
     return (
       <>
-        {forums.map((forum, index) => (
+        {forums.map(forum => (
           <ForumRow
-            key={index}
+            key={forum._id}
             forum={forum}
             renderButton={renderButton}
             remove={remove}

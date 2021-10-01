@@ -16,10 +16,10 @@ class TopicList extends React.Component<Props> {
 
     return (
       <Topics>
-        {topics.map((topic, index) => {
+        {topics.map(topic => {
           return (
             <TopicRow
-              key={index}
+              key={topic._id}
               isActive={topic._id === currentTopicId}
               topic={topic}
               remove={remove}
