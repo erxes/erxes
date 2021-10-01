@@ -3,11 +3,14 @@ import Info from "erxes-ui/lib/components/Info";
 import Icon from "erxes-ui/lib/components/Icon";
 import styles from "../styles.module.css";
 import { CopyBlock, dracula } from "react-code-blocks";
+import {Link} from 'react-scroll'
+
 // import Icon from '../../../ui/src/modules/common/components/Icon';
 
 export default function Infos() {
   return (
-    <>
+    <div className={styles.mainCon}>
+    <div className={styles.body}>
       <div>
         <h1>Info</h1>
         <p>
@@ -27,6 +30,7 @@ export default function Infos() {
         </p>
         <div className={styles.code}>
           <div>
+            {/* <Icon isActive='true' changedColor='Blue' /> */}
             <Info
               iconShow="https://erxes.s3.amazonaws.com/icons/grinning.svg"
               title="Default"
@@ -64,6 +68,7 @@ export default function Infos() {
           />
         </div>
       </div>
-    </>
+    </div>
+    </div>
   );
 }
