@@ -88,11 +88,13 @@ export const loadForumClass = () => {
         throw new Error('Forum not found');
       }
 
-      // remove child topics
-      await ForumTopics.deleteMany({ forumId: _id });
+      const childCount = await ForumTopics.find({
+        forumId: _id
+      }).countDocuments();
 
-      // remove child discussions
-      await ForumDiscussions.deleteMany({ forumId: _id });
+      if (childCount > 0) {
+        throw new Error("Can't remove a forum");
+      }
 
       return Forums.deleteOne({ _id });
     }
@@ -175,8 +177,13 @@ export const loadTopicClass = () => {
         throw new Error('Topic not found');
       }
 
-      // remove child discussions
-      await ForumDiscussions.deleteMany({ topicId: _id });
+      const childCount = await ForumDiscussions.find({
+        topicId: _id
+      }).countDocuments();
+
+      if (childCount > 0) {
+        throw new Error("Can't remove a topic");
+      }
 
       return ForumTopics.deleteOne({ _id });
     }

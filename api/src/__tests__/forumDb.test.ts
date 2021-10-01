@@ -131,22 +131,38 @@ describe('test forum models', () => {
 
       const forum = await Forums.createDoc(doc, _user._id);
 
-      await forumTopicFactory({
-        forumId: forum._id
-      });
-
       expect(await Forums.find().countDocuments()).toBe(1);
-      expect(await ForumTopics.find().countDocuments()).toBe(1);
 
       await Forums.removeDoc(forum._id);
 
       expect(await Forums.find().countDocuments()).toBe(0);
-      expect(await ForumTopics.find().countDocuments()).toBe(0);
 
       try {
         await Forums.removeDoc('fakeId');
       } catch (e) {
         expect(e.message).toBe('Forum not found');
+      }
+    });
+
+    test('Remove forum (Error can`t remove a forum)', async () => {
+      const brand = await brandFactory({});
+
+      const doc = {
+        title: 'Test forum title',
+        description: 'Test forum description',
+        brandId: brand._id
+      };
+
+      const forum = await Forums.createDoc(doc, _user._id);
+
+      await forumTopicFactory({
+        forumId: forum._id
+      });
+
+      try {
+        await Forums.removeDoc(forum._id);
+      } catch (e) {
+        expect(e.message).toBe("Can't remove a forum");
       }
     });
   });
@@ -261,7 +277,7 @@ describe('test forum models', () => {
       }
     });
 
-    test('Remove with discussion', async () => {
+    test('Remove topic (Error can`t remove a topic)', async () => {
       const doc = {
         title: 'Test topic title',
         description: 'Test topic description'
@@ -273,11 +289,11 @@ describe('test forum models', () => {
 
       expect(await ForumTopics.find().countDocuments()).toBe(1);
 
-      await ForumTopics.removeDoc(topic._id);
-
-      expect(await ForumTopics.find().countDocuments()).toBe(0);
-
-      expect(await ForumDiscussions.find().countDocuments()).toBe(0);
+      try {
+        await ForumTopics.removeDoc(topic._id);
+      } catch (e) {
+        expect(e.message).toBe("Can't remove a topic");
+      }
     });
   });
 

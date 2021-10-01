@@ -164,6 +164,9 @@ describe('mutations', () => {
       }
     `;
 
+    // remove topics before the forum
+    await ForumTopics.deleteMany({ forumId: _id });
+
     await graphqlRequest(mutation, 'forumsRemove', { _id });
 
     expect(await Forums.findOne({ _id })).toBe(null);
@@ -235,6 +238,9 @@ describe('mutations', () => {
         forumTopicsRemove(_id: $_id)
       }
     `;
+
+    // remove discussion before topic
+    await ForumDiscussions.deleteMany({ topicId: _id });
 
     await graphqlRequest(mutation, 'forumTopicsRemove', { _id });
 
