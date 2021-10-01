@@ -1,4 +1,4 @@
-import { Conformities, Conversations } from '../../db/models';
+import { Conformities } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
 import { IContext } from '../types';
@@ -48,8 +48,8 @@ export default {
     });
   },
 
-  conversations(customer: ICustomerDocument) {
-    return Conversations.find({ customerId: customer._id });
+  conversations(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders?.conversationByCustomerId.load(customer._id);
   },
 
   async companies(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
@@ -58,8 +58,9 @@ export default {
       mainTypeId: customer._id,
       relTypes: ['company']
     });
-
-    const companies = await dataLoaders?.company.loadMany(companyIds || []);
+    const companies = await dataLoaders?.company.loadMany(
+      (companyIds || []).filter(x => x)
+    );
     return (companies || []).slice(0, 10);
   },
 

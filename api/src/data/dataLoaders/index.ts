@@ -15,6 +15,13 @@ import integration from './integration';
 import user from './user';
 import segmentsBySubOf from './segmentsBySubOf';
 import segment from './segment';
+import { ICustomer } from '../../db/models/definitions/customers';
+import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
+import { IConversationDocument } from '../../db/models/definitions/conversations';
+import customer from './customer';
+import messageByConvId from './message';
+import conversationByCustomerId from './conversation';
+
 export interface IDataLoaders {
   productCategory: DataLoader<string, IProductCategoryDocument>;
   tag: DataLoader<string, ITagDocument>;
@@ -24,6 +31,9 @@ export interface IDataLoaders {
   user: DataLoader<string, IUserDocument>;
   segmentsBySubOf: DataLoader<string, ISegmentDocument[]>;
   segment: DataLoader<string, ISegmentDocument>;
+  customer: DataLoader<string, ICustomer>;
+  messageByConvId: DataLoader<string, IMessageDocument[]>;
+  conversationByCustomerId: DataLoader<string, IConversationDocument[]>;
 }
 
 export function generateAllDataLoaders(): IDataLoaders {
@@ -35,6 +45,9 @@ export function generateAllDataLoaders(): IDataLoaders {
     integration: integration(),
     user: user(),
     segmentsBySubOf: segmentsBySubOf(),
-    segment: segment()
+    segment: segment(),
+    customer: customer(),
+    messageByConvId: messageByConvId(),
+    conversationByCustomerId: conversationByCustomerId()
   };
 }
