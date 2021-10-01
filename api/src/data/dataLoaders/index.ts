@@ -19,8 +19,8 @@ import { ICustomer } from '../../db/models/definitions/customers';
 import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import customer from './customer';
-import messageByConvId from './message';
-import conversationByCustomerId from './conversation';
+import conversationMessagesByConversationId from './conversationMessagesByConversationId';
+import conversationsByCustomerId from './conversationsByCustomerId';
 
 export interface IDataLoaders {
   productCategory: DataLoader<string, IProductCategoryDocument>;
@@ -32,8 +32,8 @@ export interface IDataLoaders {
   segmentsBySubOf: DataLoader<string, ISegmentDocument[]>;
   segment: DataLoader<string, ISegmentDocument>;
   customer: DataLoader<string, ICustomer>;
-  messageByConvId: DataLoader<string, IMessageDocument[]>;
-  conversationByCustomerId: DataLoader<string, IConversationDocument[]>;
+  conversationMessagesByConversationId: DataLoader<string, IMessageDocument[]>;
+  conversationsByCustomerId: DataLoader<string, IConversationDocument[]>;
 }
 
 export function generateAllDataLoaders(): IDataLoaders {
@@ -47,7 +47,7 @@ export function generateAllDataLoaders(): IDataLoaders {
     segmentsBySubOf: segmentsBySubOf(),
     segment: segment(),
     customer: customer(),
-    messageByConvId: messageByConvId(),
-    conversationByCustomerId: conversationByCustomerId()
+    conversationMessagesByConversationId: conversationMessagesByConversationId(),
+    conversationsByCustomerId: conversationsByCustomerId()
   };
 }

@@ -50,7 +50,7 @@ export default {
   },
 
   conversations(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.conversationByCustomerId.load(customer._id);
+    return dataLoaders.conversationsByCustomerId.load(customer._id);
   },
 
   async companies(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
