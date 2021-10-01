@@ -11,6 +11,26 @@ const styleFields = `
   textSelected
 `;
 
+const productCategoryFields = `
+  _id
+  name
+  order
+  code
+  parentId
+  description
+  status
+  
+  attachment {
+    name
+    url
+    type
+    size
+  }
+
+  isRoot
+  productCount
+`;
+
 const userFields = `
   _id
 
@@ -62,6 +82,10 @@ const bookingFields = `
 
   styles {
     ${styleFields}
+  }
+
+  mainProductCategory {
+    ${productCategoryFields}
   }
 `;
 

@@ -64,5 +64,9 @@ export default {
     await generateTree(booking.productCategoryId);
 
     return tree;
+  },
+
+  async mainProductCategory(booking: IBookingDocument) {
+    return ProductCategories.findOne({ _id: booking.productCategoryId });
   }
 };

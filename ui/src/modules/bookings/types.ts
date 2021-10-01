@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { QueryResponse } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
+import { IProductCategory } from 'modules/settings/productService/types';
 import { ITag } from 'modules/tags/types';
 
 export interface IStyle {
@@ -43,6 +44,8 @@ export interface IBooking {
   styles?: IStyle;
 
   tags?: ITag[];
+
+  mainProductCategory?: IProductCategory;
 }
 
 export interface IBookingDocument extends IBooking {

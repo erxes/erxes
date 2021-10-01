@@ -61,6 +61,7 @@ export const types = `
     childCategories: [ProductCategory]
 
     categoryTree: [CategoryTree]
+    mainProductCategory: ProductCategory
   }
 `;
 

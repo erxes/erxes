@@ -71,7 +71,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
     );
   };
 
-  const renderEditAction = booking => {
+  const renderEditAction = (booking: IBookingDocument) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Install code')} placement="top">
@@ -93,6 +93,11 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
       />
     );
   };
+
+  const { mainProductCategory } = booking;
+  const status = mainProductCategory && mainProductCategory.status;
+
+  const labelStyle = status === 'active' ? 'success' : 'warning';
 
   return (
     <tr>
@@ -116,7 +121,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
         <TextInfo ignoreTrans={true}>{2433}</TextInfo>
       </td>
       <td>
-        <Label lblStyle={'success'}>{'Status'}</Label>
+        <Label lblStyle={labelStyle}>{status && status}</Label>
       </td>
 
       <td>
