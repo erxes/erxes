@@ -46,7 +46,17 @@ describe('Segments mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _segment = await segmentFactory({});
+
+    const subSegment = await segmentFactory({});
+
+    _segment = await segmentFactory({
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment._id
+        }
+      ]
+    });
   });
 
   afterEach(async () => {

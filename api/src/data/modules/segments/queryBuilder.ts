@@ -228,7 +228,7 @@ export const generateQueryBySegment = async (args: {
 
         if (
           condition.propertyOperator &&
-          ['is', 'ins'].indexOf(condition.propertyOperator) === 0
+          ['is', 'ins'].indexOf(condition.propertyOperator) <= 0
         ) {
           formFieldCondition.propertyOperator = 'e';
           condition.propertyName = 'value';

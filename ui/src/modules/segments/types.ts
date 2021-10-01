@@ -79,7 +79,7 @@ export interface ISegment extends ISegmentDoc {
   contentType: string;
   conditionsConjunction: string;
   getSubSegments: ISegment[];
-  getConditionSegments: ISegment[];
+  subSegmentConditions: ISegment[];
   getParentSegment: ISegment;
 }
 

@@ -30,6 +30,11 @@ const command = async () => {
 
     for (const condition of conditions) {
       condition.propertyType = contentType;
+
+      if (segment.boardId || segment.pipelineId) {
+        condition.boardId = segment.boardId;
+        condition.pipelineId = segment.pipelineId;
+      }
     }
 
     const subSegment = await Segments.create({ contentType, conditions });

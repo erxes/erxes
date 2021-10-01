@@ -132,7 +132,7 @@ class ReEnrollment extends React.Component<Props, State> {
           :
         </p>
         <Checkbox>
-          {segment.getConditionSegments.map(cond => this.renderCheckbox(cond))}
+          {segment.subSegmentConditions.map(cond => this.renderCheckbox(cond))}
         </Checkbox>
       </>
     );

@@ -31,7 +31,7 @@ const segmentDetail = `
       getSubSegments {
         ${segmentFields}
       }
-      getConditionSegments
+      subSegmentConditions
       {
         ${segmentFields}
       }

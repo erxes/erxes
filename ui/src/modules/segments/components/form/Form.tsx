@@ -92,7 +92,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionsConjunction: 'and',
       boardId: '',
       pipelineId: '',
-      getConditionSegments: [
+      subSegmentConditions: [
         {
           contentType: props.contentType || 'customer',
           conditionsConjunction: 'and'
@@ -102,7 +102,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     if (
       !props.segment ||
-      (props.segment && props.segment.getConditionSegments.length === 0)
+      (props.segment && props.segment.subSegmentConditions.length === 0)
     ) {
       state = 'list';
       showAddGroup = false;
@@ -110,12 +110,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     if (
       props.segment ||
-      (props.segment && props.segment.getConditionSegments.length > 0)
+      (props.segment && props.segment.subSegmentConditions.length > 0)
     ) {
       state = 'list';
     }
 
-    const segments = segment.getConditionSegments.map((item: ISegment) => ({
+    const segments = segment.subSegmentConditions.map((item: ISegment) => ({
       _id: item._id,
       key: Math.random().toString(),
       contentType: item.contentType || 'customer',

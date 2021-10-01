@@ -74,6 +74,8 @@ describe('segmentQueries', () => {
           subOf
           color
           conditions
+          count
+          subSegmentConditions { _id }
 
           getSubSegments { _id }
         }

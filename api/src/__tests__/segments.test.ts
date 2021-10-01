@@ -586,15 +586,8 @@ describe('Segments mutations', () => {
         {
           type: 'property',
           propertyType: 'form_submission',
-          propertyName: 'formFieldId',
+          propertyName: field._id,
           propertyOperator: 'e',
-          propertyValue: field._id
-        },
-        {
-          type: 'property',
-          propertyType: 'form_submission',
-          propertyName: 'value',
-          propertyOperator: 'c',
           propertyValue: 'test'
         }
       ]

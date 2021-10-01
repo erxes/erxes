@@ -12,7 +12,7 @@ export default {
     return result;
   },
 
-  async getConditionSegments(segment: ISegmentDocument) {
+  async subSegmentConditions(segment: ISegmentDocument) {
     const segmentIds = segment.conditions.map(cond => cond.subSegmentId);
 
     return Segments.aggregate([
