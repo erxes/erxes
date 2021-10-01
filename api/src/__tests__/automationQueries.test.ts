@@ -6,7 +6,7 @@ import AutomationsAPI from '../data/dataSources/automations';
 import * as queryBuilder from '../data/modules/segments/queryBuilder';
 import { graphqlRequest } from '../db/connection';
 import { segmentFactory, userFactory } from '../db/factories';
-import { Users } from '../db/models';
+import { Segments, Users } from '../db/models';
 
 describe('Automations mutations', () => {
   let dataSources;
@@ -106,6 +106,7 @@ describe('Automations mutations', () => {
 
   afterEach(async () => {
     await Users.deleteMany({});
+    await Segments.deleteMany({});
     getAutomationSpy.mockRestore();
   });
 
@@ -215,13 +216,22 @@ describe('Automations mutations', () => {
       'getAutomationDetail'
     );
 
+    const segment = await segmentFactory();
+
     getAutomationDetailSpy.mockImplementation(() => {
       return {
         _id: faker.random.word(),
         createdBy: user._id,
         updatedBy: user._id,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        triggers: [
+          { _id: faker.random.word(), config: { contentId: segment._id } },
+          {
+            _id: faker.random.word(),
+            config: { contentId: faker.random.word() }
+          }
+        ]
       };
     });
 
