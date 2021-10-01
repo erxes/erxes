@@ -727,10 +727,11 @@ export const BoardHeader = styled(HeaderContent)`
     display: flex;
     justify-content: space-between;
 
-    > span {
+    > div > span {
       color: ${colors.colorSecondary};
       font-weight: 500;
       cursor: pointer;
+      margin-left: ${dimensions.unitSpacing}px;
     }
   }
 `;

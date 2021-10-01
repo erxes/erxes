@@ -7,6 +7,8 @@ import { IContext } from '../../types';
 interface IAutomation {
   name: string;
   status: string;
+  actions?: any[];
+  triggers?: any[];
 }
 
 interface IAutomationNote {
@@ -159,11 +161,11 @@ const automationMutations = {
       automationIds
     );
 
-    const { segmentIds = [] } = data;
+    const { segmentIds } = data;
 
-    segmentIds.forEach(async segmentId => {
-      Segments.removeSegment(segmentId);
-    });
+    for (const segmentId of segmentIds || []) {
+      await Segments.removeSegment(segmentId);
+    }
 
     return automationIds;
   },

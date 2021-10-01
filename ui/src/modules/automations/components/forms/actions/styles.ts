@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { dimensions, colors } from 'modules/common/styles';
-import { TriggerBox } from 'modules/automations/styles';
+import { TriggerBox, DrawerDetail } from 'modules/automations/styles';
 import { rgba } from 'modules/common/styles/color';
 
 export const ActionFooter = styled.div`
@@ -13,7 +13,7 @@ export const Attributes = styled.ul`
   list-style: none;
   margin: 0;
   right: 20px;
-  height: 200px;
+  max-height: 200px;
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
@@ -27,6 +27,7 @@ export const Attributes = styled.ul`
     color: ${colors.colorCoreGray};
     padding-bottom: ${dimensions.unitSpacing - 5}px;
     cursor: pointer;
+    font-weight: 400;
     transition: all ease 0.3s;
 
     &:hover {
@@ -84,3 +85,25 @@ export const ActionBox = styledTS<{
       }
     }
   `;
+
+export const GroupWrapper = styled.div`
+  border: 1px solid ${colors.colorSecondary};
+  position: relative;
+  border-radius: ${dimensions.unitSpacing - 5}px;
+  padding: ${dimensions.unitSpacing}px 15px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  > button {
+    position: absolute;
+    padding: 5px 8px;
+    top: -${dimensions.unitSpacing - 5}px;
+    right: -${dimensions.unitSpacing}px;
+    background: ${colors.bgActive} !important;
+  }
+`;
+
+export const BoardItemWrapper = styled(DrawerDetail)`
+  > div > div {
+    padding: 0;
+  }
+`;

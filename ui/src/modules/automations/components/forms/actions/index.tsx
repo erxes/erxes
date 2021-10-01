@@ -26,7 +26,7 @@ class DefaultForm extends React.Component<Props> {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            type="button"
+            size="small"
             icon="times-circle"
             onClick={closeModal}
           >

@@ -2,18 +2,20 @@ import Button from 'modules/common/components/Button';
 import { FlexRightItem } from 'modules/layout/styles';
 import PropertyCondition from 'modules/segments/containers/form/PropertyCondition';
 import { IField, ISegmentCondition, ISegmentMap } from 'modules/segments/types';
-import { CenterContent } from 'erxes-ui/lib/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import {
   Condition,
   ConditionItem,
-  ConditionRemove,
   ConjunctionButtons,
   ConjunctionButtonsVertical,
-  FilterRow
+  FilterRow,
+  ConditionGroup
 } from '../styles';
 import PropertyDetail from '../../containers/preview/PropertyDetail';
+
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 
 type Props = {
   segment: ISegmentMap;
@@ -97,18 +99,16 @@ class ConditionsList extends React.Component<Props, State> {
     }
 
     return (
-      <CenterContent>
-        <ConjunctionButtons>
-          <Button.Group hasGap={false}>
-            <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
-              {__('And')}
-            </Button>
-            <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
-              {__('Or')}
-            </Button>
-          </Button.Group>
-        </ConjunctionButtons>
-      </CenterContent>
+      <ConjunctionButtons>
+        <Button.Group hasGap={false}>
+          <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
+            {__('And')}
+          </Button>
+          <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
+            {__('Or')}
+          </Button>
+        </Button.Group>
+      </ConjunctionButtons>
     );
   };
 
@@ -172,13 +172,9 @@ class ConditionsList extends React.Component<Props, State> {
           />
 
           <FlexRightItem>
-            <Button
-              className="round"
-              size="small"
-              btnStyle="simple"
-              icon="times"
-              onClick={this.removeCondition.bind(this, condition)}
-            />
+            <div onClick={this.removeCondition.bind(this, condition)}>
+              <Icon icon="times" size={16} />
+            </div>
           </FlexRightItem>
         </FilterRow>
       </ConditionItem>
@@ -189,41 +185,41 @@ class ConditionsList extends React.Component<Props, State> {
     const { segment, index } = this.props;
 
     const { conditions } = segment;
+    const hasCondition = conditions && conditions.length <= 1;
 
     if (conditions.length === 0 && index === 0) {
       return <PropertyCondition {...this.props} hideBackButton={true} />;
     }
 
     return (
-      <div>
+      <ConditionGroup>
         {this.renderConjunction()}
-        <ConditionRemove>
-          <Button
-            className="round"
-            size="small"
-            btnStyle="simple"
-            icon="times"
-            onClick={this.removeSegment}
-          />
-        </ConditionRemove>
-        <Condition>
-          <div style={{ position: 'relative' }}>
-            {this.renderSubSegmentConjunction()}
-            {conditions.map(condition => {
-              return this.renderCondition(condition);
-            })}
-          </div>
+
+        <Condition hasCondition={hasCondition}>
+          {this.renderSubSegmentConjunction()}
+          {conditions.map(condition => {
+            return this.renderCondition(condition);
+          })}
 
           <Button
             size="small"
             btnStyle="simple"
-            icon="plus"
+            icon="add"
             onClick={this.addProperty}
           >
             Add property
           </Button>
         </Condition>
-      </div>
+
+        <Tip text={'Delete'}>
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={this.removeSegment}
+            icon="times"
+          />
+        </Tip>
+      </ConditionGroup>
     );
   }
 }

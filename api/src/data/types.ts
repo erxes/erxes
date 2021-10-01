@@ -1,5 +1,6 @@
 import * as express from 'express';
 import { IUserDocument } from '../db/models/definitions/users';
+import { IDataLoaders } from './dataLoaders';
 
 export interface IContext {
   res: express.Response;
@@ -17,4 +18,5 @@ export interface IContext {
     IntegrationsAPI: any;
     HelpersApi: any;
   };
+  dataLoaders?: IDataLoaders;
 }

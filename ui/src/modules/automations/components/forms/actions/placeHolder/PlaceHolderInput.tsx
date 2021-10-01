@@ -115,7 +115,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
   renderAttribution() {
     const { excludeAttr, inputName, attrType, fieldType } = this.props;
-    if (excludeAttr) {
+    if (excludeAttr || fieldType === 'stage') {
       return '';
     }
 
@@ -237,10 +237,12 @@ class PlaceHolderInput extends React.Component<Props, State> {
         <FormGroup>
           <div className="header-row">
             <ControlLabel>{label}</ControlLabel>
-            {this.renderSelect()}
-            {this.renderDate()}
-            {this.renderBoardSelect()}
-            {this.renderAttribution()}
+            <div>
+              {this.renderSelect()}
+              {this.renderDate()}
+              {this.renderBoardSelect()}
+              {this.renderAttribution()}
+            </div>
           </div>
 
           <FormControl

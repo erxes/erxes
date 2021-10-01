@@ -15,6 +15,8 @@ import Select from 'react-select-plus';
 import Common from '../Common';
 import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
 import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
+import { GroupWrapper } from '../styles';
+import Tip from 'modules/common/components/Tip';
 
 type Props = {
   closeModal: () => void;
@@ -149,7 +151,7 @@ class SetProperty extends React.Component<Props, State> {
       };
 
       return (
-        <div key={rule.id}>
+        <GroupWrapper key={rule.id}>
           <FormGroup>
             <ControlLabel>Field</ControlLabel>
 
@@ -191,15 +193,15 @@ class SetProperty extends React.Component<Props, State> {
             options={chosenField.selectOptions}
           />
 
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={this.removeRule.bind(this, rule.id)}
-            icon="cancel-1"
-          >
-            {'-'}
-          </Button>
-        </div>
+          <Tip text={'Delete'}>
+            <Button
+              btnStyle="simple"
+              size="small"
+              onClick={this.removeRule.bind(this, rule.id)}
+              icon="times"
+            />
+          </Tip>
+        </GroupWrapper>
       );
     });
   }
@@ -230,7 +232,7 @@ class SetProperty extends React.Component<Props, State> {
           btnStyle="simple"
           type="button"
           onClick={this.addRule}
-          icon="plus-1"
+          icon="add"
         >
           {__('Add Rule')}
         </Button>

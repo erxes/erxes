@@ -47,6 +47,7 @@ export default class SelectOption extends React.Component<Props> {
 
   renderContent() {
     const { options } = this.props;
+
     return (
       <Popover id="select-option-popover">
         <Attributes>
