@@ -1,4 +1,4 @@
-import { EngageMessages, Integrations, Segments, Tags } from '../../db/models';
+import { EngageMessages, Integrations } from '../../db/models';
 import { IEngageMessageDocument } from '../../db/models/definitions/engages';
 import { IContext } from '../types';
 import { getDocument, getDocumentList } from './mutations/cacheUtils';
