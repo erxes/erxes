@@ -1,4 +1,11 @@
 export const types = `
+  type ExmCeremonyData {
+    startedDate: Date
+    willDate: Date
+    howManyYear: Int
+    year: Int
+  }
+
   type ExmFeed {
     _id: String
     title: String
@@ -22,6 +29,7 @@ export const types = `
     createdUser: User
     updatedUser: User
     customFieldsData: JSON
+    ceremonyData: ExmCeremonyData
   }
 
   type ExmThank {

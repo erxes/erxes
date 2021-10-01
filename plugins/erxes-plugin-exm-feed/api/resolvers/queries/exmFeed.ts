@@ -33,10 +33,16 @@ const exmFeedQueries = [
     ) => {
       await checkPermission('showExm', user);
 
-      const filter = {
-        contentType,
+      const filter: {
+        'ceremonyData.willDate': any;
+        contentType?: string;
+      } = {
         'ceremonyData.willDate': getDateRange(filterType)
       };
+
+      if (contentType) {
+        filter.contentType = contentType;
+      }
 
       return {
         list: await models.ExmFeed.find(filter),
