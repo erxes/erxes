@@ -66,6 +66,6 @@ export default {
   },
 
   owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    if (customer.ownerId) return dataLoaders.user.load(customer.ownerId);
+    return customer.ownerId && dataLoaders.user.load(customer.ownerId);
   }
 };
