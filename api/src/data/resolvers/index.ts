@@ -8,6 +8,7 @@ import {
 } from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
+import { ticketComments as CPTicket, TicketComment } from './clientPortals';
 import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -109,7 +110,9 @@ const resolvers: any = {
   Forum,
   ForumTopic,
   ForumDiscussion,
-  ForumDiscussionComment
+  ForumDiscussionComment,
+  CPTicket,
+  TicketComment
 };
 
 export default resolvers;

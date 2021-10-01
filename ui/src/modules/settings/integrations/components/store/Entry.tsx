@@ -172,8 +172,6 @@ function Entry({
   const { kind } = integration;
   const { createUrl, createModal } = integration;
 
-  const boxOnClick = () => toggleBox(kind);
-
   const handleLink = () => {
     return customLink && customLink(kind, createUrl);
   };
@@ -193,7 +191,10 @@ function Entry({
 
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
-      <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
+      <Box
+        onClick={() => toggleBox(kind)}
+        isInMessenger={integration.inMessenger}
+      >
         <img alt="logo" src={integration.logo} />
         <h5>
           {integration.name} {getCount(kind, totalCount)}

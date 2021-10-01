@@ -308,6 +308,14 @@ const FlexItem = styled(DateContainer)`
   }
 `;
 
+const SidebarList = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  > div {
+    border-top: 1px solid ${colors.borderPrimary};
+  }
+`;
+
 export {
   FlexRow,
   FlexItem,
@@ -323,6 +331,7 @@ export {
   ColorPick,
   ColorPicker,
   LogoContainer,
+  SidebarList,
   SidebarListItem,
   ActionButtons,
   Description,

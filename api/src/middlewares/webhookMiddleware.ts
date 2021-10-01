@@ -1,4 +1,5 @@
 import { NodeVM } from 'vm2';
+import { RABBITMQ_QUEUES } from '../data/constants';
 import { findCompany, findCustomer } from '../data/utils';
 import {
   Companies,
@@ -9,6 +10,7 @@ import {
   Fields,
   Integrations
 } from '../db/models';
+import messageBroker from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 
 const checkCompanyFieldsExists = async doc => {
@@ -19,6 +21,45 @@ const checkCompanyFieldsExists = async doc => {
   }
 
   return false;
+};
+
+const removeContacts = async (type: string, params: any[]) => {
+  const idsToRemove: string[] = [];
+
+  const model: any = type === 'customer' ? Customers : Companies;
+
+  for (const where of params) {
+    const companyToRemove = await model.findOne(where);
+    if (companyToRemove) {
+      idsToRemove.push(companyToRemove._id);
+    }
+  }
+
+  if (idsToRemove.length > 0) {
+    await model.deleteMany({ _id: { $in: idsToRemove } });
+  }
+};
+
+const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
+  prevCustomFieldsData = prevCustomFieldsData || [];
+
+  for (const data of customFieldsData) {
+    const prevData = prevCustomFieldsData.find(d => d.field === data.field);
+
+    if (prevData) {
+      if (data.hasMultipleChoice) {
+        if (!prevData.value.includes(data.value)) {
+          prevData.value = `${prevData.value},${data.value}`;
+        }
+      } else {
+        prevData.value = data.value;
+      }
+    } else {
+      prevCustomFieldsData.push(data);
+    }
+  }
+
+  return prevCustomFieldsData;
 };
 
 const webhookMiddleware = async (req, res, next) => {
@@ -50,6 +91,7 @@ const webhookMiddleware = async (req, res, next) => {
     }
 
     let customFieldsData: any[] = [];
+    let trackedData: any;
 
     if (params.customFields) {
       customFieldsData = await Promise.all(
@@ -76,10 +118,24 @@ const webhookMiddleware = async (req, res, next) => {
           }
         })
       );
-
-      // collect non empty values
-      customFieldsData = customFieldsData.filter(cf => cf);
     }
+
+    // prepare customFieldsData and trackedData
+    if (params.data) {
+      const data = await Fields.generateCustomFieldsData(
+        params.data,
+        'customer'
+      );
+
+      customFieldsData = [
+        ...new Set([...(data.customFieldsData || []), ...customFieldsData])
+      ];
+
+      trackedData = data.trackedData;
+    }
+
+    // collect non empty values
+    customFieldsData = customFieldsData.filter(cf => cf);
 
     // get or create customer
     let customer = await findCustomer(params);
@@ -93,7 +149,8 @@ const webhookMiddleware = async (req, res, next) => {
       lastName: params.customerLastName,
       middleName: params.customerMiddleName,
       avatar: params.customerAvatar,
-      customFieldsData
+      customFieldsData,
+      trackedData
     };
 
     if (!customer) {
@@ -106,25 +163,10 @@ const webhookMiddleware = async (req, res, next) => {
         }
       }
 
-      const prevCustomFieldsData = customer.customFieldsData || [];
-
-      for (const data of customFieldsData) {
-        const prevData = prevCustomFieldsData.find(d => d.field === data.field);
-
-        if (prevData) {
-          if (data.hasMultipleChoice) {
-            if (!prevData.value.includes(data.value)) {
-              prevData.value = `${prevData.value},${data.value}`;
-            }
-          } else {
-            prevData.value = data.value;
-          }
-        } else {
-          prevCustomFieldsData.push(data);
-        }
-      }
-
-      doc.customFieldsData = prevCustomFieldsData;
+      doc.customFieldsData = solveCustomFieldsData(
+        customFieldsData,
+        customer.customFieldsData
+      );
 
       customer = await Customers.updateCustomer(customer._id, doc);
     }
@@ -152,12 +194,18 @@ const webhookMiddleware = async (req, res, next) => {
       }
 
       // create conversation message
-      const message = await ConversationMessages.createMessage({
+      const messageDoc: any = {
         conversationId: conversation._id,
         customerId: customer._id,
         content: params.content,
         attachments: params.attachments
-      });
+      };
+
+      if (params.formContent) {
+        messageDoc.formWidgetData = params.formContent;
+      }
+
+      const message = await ConversationMessages.createMessage(messageDoc);
 
       graphqlPubsub.publish('conversationClientMessageInserted', {
         conversationClientMessageInserted: message
@@ -170,10 +218,74 @@ const webhookMiddleware = async (req, res, next) => {
 
     // company
     let company = await findCompany(params);
+    let parentCompany;
 
     const hasCompanyFields = await checkCompanyFieldsExists(params);
 
+    if (params.parentCompany) {
+      parentCompany = await findCompany(params.parentCompany);
+
+      let parentCompanyData: { customFieldsData: any[]; trackedData: any[] } = {
+        customFieldsData: [],
+        trackedData: []
+      };
+
+      if (params.parentCompany.companyData) {
+        parentCompanyData = await Fields.generateCustomFieldsData(
+          params.parentCompany.companyData,
+          'company'
+        );
+      }
+
+      const parentParams = params.parentCompany;
+
+      const parentCompanyDoc = {
+        primaryEmail: parentParams.companyPrimaryEmail,
+        primaryPhone: parentParams.companyPrimaryPhone,
+        primaryName: parentParams.companyPrimaryName,
+        website: parentParams.companyWebsite,
+        industry: parentParams.companyIndustry,
+        businessType: parentParams.companyBusinessType,
+        avatar: parentParams.companyAvatar,
+        code: parentParams.companyCode,
+        customFieldsData: parentCompanyData.customFieldsData,
+        trackedData: parentCompanyData.trackedData
+      };
+
+      if (!parentCompany) {
+        parentCompany = await Companies.createCompany(parentCompanyDoc);
+      } else {
+        for (const key of Object.keys(doc)) {
+          if (!doc[key]) {
+            delete doc[key];
+          }
+        }
+
+        parentCompanyDoc.customFieldsData = solveCustomFieldsData(
+          parentCompanyData.customFieldsData,
+          parentCompanyDoc.customFieldsData
+        );
+
+        parentCompany = await Companies.updateCompany(
+          parentCompany._id,
+          parentCompanyDoc
+        );
+      }
+    }
+
     if (hasCompanyFields) {
+      let companyData: { customFieldsData: any[]; trackedData: any[] } = {
+        customFieldsData: [],
+        trackedData: []
+      };
+
+      if (params.companyData) {
+        companyData = await Fields.generateCustomFieldsData(
+          params.companyData,
+          'company'
+        );
+      }
+
       const companyDoc = {
         primaryEmail: params.companyPrimaryEmail,
         primaryPhone: params.companyPrimaryPhone,
@@ -181,12 +293,34 @@ const webhookMiddleware = async (req, res, next) => {
         website: params.companyWebsite,
         industry: params.companyIndustry,
         businessType: params.companyBusinessType,
-        avatar: params.companyAvatar
+        avatar: params.companyAvatar,
+        code: params.companyCode,
+        customFieldsData: companyData && companyData.customFieldsData,
+        trackedData: companyData && companyData.trackedData,
+        parentCompanyId: parentCompany ? parentCompany._id : undefined
       };
 
       if (!company) {
         company = await Companies.createCompany(companyDoc);
       } else {
+        company = await Companies.updateCompany(company._id, companyDoc);
+      }
+
+      if (!company) {
+        company = await Companies.createCompany(companyDoc);
+      } else {
+        // remove empty values to avoid replacing existing values
+        for (const key of Object.keys(doc)) {
+          if (!doc[key]) {
+            delete doc[key];
+          }
+        }
+
+        companyDoc.customFieldsData = solveCustomFieldsData(
+          companyData.customFieldsData,
+          company.customFieldsData
+        );
+
         company = await Companies.updateCompany(company._id, companyDoc);
       }
     }
@@ -202,6 +336,33 @@ const webhookMiddleware = async (req, res, next) => {
         }
       });
     }
+
+    // create/update multiple customers
+    if (params.customers) {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
+        { type: 'customer', data: params.customers }
+      );
+    }
+
+    // create/update multiple companies
+    if (params.companies) {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
+        { type: 'company', data: params.companies }
+      );
+    }
+
+    // remove companies
+    if (params.companiesRemove) {
+      await removeContacts('company', params.companiesRemove);
+    }
+
+    // remove customers
+    if (params.customersRemove) {
+      await removeContacts('customer', params.customersRemove);
+    }
+
     return res.send('ok');
   } catch (e) {
     return next(e);

@@ -30,6 +30,7 @@ type Props = {
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   removeItem: (itemId: string) => void;
   onChangeStage?: (stageId: string) => void;
+  onChangeRefresh: () => void;
 };
 
 class Actions extends React.Component<Props> {
@@ -44,7 +45,8 @@ class Actions extends React.Component<Props> {
       sendToBoard,
       dateOnChange,
       onUpdate,
-      onChangeStage
+      onChangeStage,
+      onChangeRefresh
     } = this.props;
 
     const hackStages = item.hackStages || [];
@@ -105,7 +107,11 @@ class Actions extends React.Component<Props> {
           multiple={true}
         />
         <Vote item={item} onUpdate={onUpdate} />
-        <LabelChooser item={item} onSelect={onLabelChange} />
+        <LabelChooser
+          item={item}
+          onSelect={onLabelChange}
+          onChangeRefresh={onChangeRefresh}
+        />
         <ChecklistAdd itemId={item._id} type={options.type} />
         <Watch item={item} options={options} isSmall={true} />
         <ColorButton onClick={copy}>

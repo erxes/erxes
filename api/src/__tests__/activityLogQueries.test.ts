@@ -14,6 +14,7 @@ import {
   internalNoteFactory,
   stageFactory,
   taskFactory,
+  ticketCommentFactory,
   ticketFactory,
   userFactory
 } from '../db/factories';
@@ -456,6 +457,41 @@ describe('activityLogQueries', () => {
     spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
     const args = { contentId: deal1._id, contentType: 'deal' };
+
+    const response = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args
+    );
+
+    expect(response.length).toBe(1);
+
+    spy.mockRestore();
+  });
+
+  test('Activity log ticket comment', async () => {
+    const customer = await customerFactory();
+    const comment = await ticketCommentFactory({
+      ticketId: ticket._id,
+      customerId: customer._id
+    });
+
+    const contentType = 'ticket';
+    const createdBy = customer._id;
+    const contentId = ticket._id;
+
+    const doc = {
+      contentId,
+      contentType,
+      createdBy,
+      content: comment.content
+    };
+
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+
+    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
+
+    const args = { contentId, contentType, activityType: 'ticket_comments' };
 
     const response = await graphqlRequest(
       qryActivityLogs,

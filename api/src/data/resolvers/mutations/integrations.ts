@@ -419,7 +419,7 @@ const integrationMutations = {
 
     const selector = customerId
       ? { _id: customerId }
-      : { primaryEmail: { $in: doc.to } };
+      : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
 
     customer = await Customers.findOne(selector);
 

@@ -60,7 +60,8 @@ import {
   ForumTopics,
   ForumDiscussions,
   DiscussionComments,
-  ForumReactions
+  ForumReactions,
+  TicketComments
 } from './models';
 import { ICustomField } from './models/definitions/common';
 import {
@@ -178,6 +179,7 @@ interface IUserFactoryInput {
   registrationToken?: string;
   registrationTokenExpires?: Date;
   isSubscribed?: string;
+  isShowNotification?: boolean;
 }
 
 export const userFactory = async (params: IUserFactoryInput = {}) => {
@@ -208,6 +210,7 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
     isSubscribed: params.isSubscribed,
+    isShowNotification: params.isShowNotification,
     ...(params.code ? { code: params.code } : {})
   });
 
@@ -644,7 +647,7 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     contentType: params.contentType || 'form',
     contentTypeId: params.contentTypeId || faker.random.uuid(),
     type: params.type || 'input',
-    validation: params.validation || 'number',
+    validation: params.validation || '',
     text: params.text || faker.random.word(),
     description: params.description || faker.random.word(),
     isRequired: params.isRequired || false,
@@ -1765,4 +1768,18 @@ export const forumReactionFactory = async (
     },
     params.userId || faker.random.word()
   );
+};
+
+export const ticketCommentFactory = async (params: {
+  ticketId?: string;
+  content?: string;
+  customerId?: string;
+}) => {
+  const comment = new TicketComments({
+    ticketId: params.ticketId || faker.random.word(),
+    content: params.content || faker.random.word(),
+    customerId: params.customerId || faker.random.word()
+  });
+
+  return comment.save();
 };

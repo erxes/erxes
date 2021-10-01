@@ -94,7 +94,11 @@ const create = async ({
   const customFieldsByPrimaryName = {};
   const customFieldsByCode = {};
 
-  const generateUpdateDocs = async (_id, doc, prevCustomFieldsData) => {
+  const generateUpdateDocs = async (
+    _id,
+    doc,
+    prevCustomFieldsData: any = []
+  ) => {
     let customFieldsData: Array<{ field: string; value: string }> = [];
 
     if (
@@ -146,7 +150,7 @@ const create = async ({
       }
     });
 
-    const collections = response.hits.hits || [];
+    const collections = (response && response.hits.hits) || [];
 
     for (const collection of collections) {
       const doc = collection._source;
@@ -281,6 +285,7 @@ const create = async ({
       }
 
       // clean custom field values
+
       doc.customFieldsData = await Fields.prepareCustomFieldsData(
         doc.customFieldsData
       );
@@ -365,16 +370,38 @@ const create = async ({
       doc.modifiedAt = new Date();
 
       bulkValues.primaryName.push(doc.primaryName);
+      bulkValues.primaryEmail.push(doc.primaryEmail);
+      bulkValues.primaryPhone.push(doc.primaryPhone);
+      bulkValues.code.push(doc.code);
     }
 
     if (useElkSyncer) {
       bulkValues.primaryName = bulkValues.primaryName.filter(value => value);
+      bulkValues.primaryEmail = bulkValues.primaryEmail.filter(value => value);
+      bulkValues.primaryPhone = bulkValues.primaryPhone.filter(value => value);
+      bulkValues.code = bulkValues.code.filter(value => value);
 
-      await prepareDocs(
-        [{ terms: { 'primaryName.raw': bulkValues.primaryName } }],
-        'companies',
-        docs
-      );
+      const queries: Array<{ terms: { [key: string]: string[] } }> = [];
+
+      if (bulkValues.primaryName.length > 0) {
+        queries.push({ terms: { 'primaryName.raw': bulkValues.primaryName } });
+      }
+
+      if (bulkValues.primaryEmail.length > 0) {
+        queries.push({ terms: { primaryEmail: bulkValues.primaryEmail } });
+      }
+
+      if (bulkValues.primaryPhone.length > 0) {
+        queries.push({
+          terms: { 'primaryPhone.raw': bulkValues.primaryPhone }
+        });
+      }
+
+      if (bulkValues.code.length > 0) {
+        queries.push({ terms: { 'code.raw': bulkValues.code } });
+      }
+
+      await prepareDocs(queries, 'companies', docs);
     } else {
       insertDocs = docs;
     }
@@ -404,6 +431,19 @@ const create = async ({
       { _id: 1, code: 1 }
     );
 
+    const vendorCodes = docs.map(doc => doc.vendorCode);
+    const vendors = await Companies.find(
+      {
+        $or: [
+          { code: { $in: vendorCodes } },
+          { primaryEmail: { $in: vendorCodes } },
+          { primaryPhone: { $in: vendorCodes } },
+          { primaryName: { $in: vendorCodes } }
+        ]
+      },
+      { _id: 1, code: 1, primaryEmail: 1, primaryPhone: 1, primaryName: 1 }
+    );
+
     if (!categories) {
       throw new Error(
         'Product & service category not found check categoryCode field'
@@ -419,6 +459,24 @@ const create = async ({
         throw new Error(
           'Product & service category not found check categoryCode field'
         );
+      }
+
+      if (doc.vendorCode) {
+        const vendor = vendors.find(
+          v =>
+            v.code === doc.vendorCode ||
+            v.primaryName === doc.vendorCode ||
+            v.primaryEmail === doc.vendorCode ||
+            v.primaryPhone === doc.vendorCode
+        );
+
+        if (vendor) {
+          doc.vendorId = vendor._id;
+        } else {
+          throw new Error(
+            'Product & service vendor not found check VendorCode field'
+          );
+        }
       }
 
       doc.unitPrice = parseFloat(
@@ -646,13 +704,23 @@ connect().then(async () => {
           doc.categoryCode = value;
           break;
 
+        case 'vendorCode':
+          doc.vendorCode = value;
+          break;
+
         case 'tag':
           {
             const tagName = value;
 
-            const tag = await Tags.findOne({
+            let tag = await Tags.findOne({
               name: new RegExp(`.*${tagName}.*`, 'i')
             }).lean();
+
+            if (!tag) {
+              const type = contentType === 'lead' ? 'customer' : contentType;
+
+              tag = await Tags.createTag({ name: tagName, type });
+            }
 
             doc[property.name] = tag ? [tag._id] : [];
           }

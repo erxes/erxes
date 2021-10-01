@@ -84,11 +84,11 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
   };
 
   render() {
-    if (this.props.loading) {
+    const { className, event, type, loading } = this.props;
+
+    if (loading) {
       return <Spinner objective={true} />;
     }
-
-    const { className, event, type } = this.props;
 
     const links = [
       {
@@ -102,7 +102,8 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       links,
       selectable: true,
       treeView: true,
-      items: JSON.parse(JSON.stringify(this.state.tagsForList))
+      items: JSON.parse(JSON.stringify(this.state.tagsForList)),
+      isIndented: true
     };
 
     if (event) {

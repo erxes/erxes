@@ -52,17 +52,29 @@ export default function Suggestion({
         </span>
         <div>
           <h3>
-            Hello, <b>{currentUserName}</b>
+            {__('Hello')}, <b>{currentUserName}</b>
           </h3>
           <p>
-            {__("You haven't fully configured. Would you like to configure")}
+            {`${__('You have not fully configured')}.${__(
+              'Would you like to configure'
+            )}`}
           </p>
 
-          <Button btnStyle="success" size="small" onClick={onResumeClick}>
-            Resume
+          <Button
+            btnStyle="success"
+            size="small"
+            onClick={onResumeClick}
+            uppercase={true}
+          >
+            {__('Resume')}
           </Button>
-          <Button btnStyle="link" size="small" onClick={forceComplete}>
-            Never see again
+          <Button
+            btnStyle="link"
+            size="small"
+            onClick={forceComplete}
+            uppercase={true}
+          >
+            {__('Never see again')}
           </Button>
         </div>
       </Wrapper>

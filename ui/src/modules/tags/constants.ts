@@ -1,11 +1,12 @@
+import { __ } from 'modules/common/utils';
 export const TAG_TYPES = {
-  CONVERSATION: 'conversation',
-  CUSTOMER: 'customer',
-  ENGAGE_MESSAGE: 'engageMessage',
-  COMPANY: 'company',
-  INTEGRATION: 'integration',
-  PRODUCT: 'product',
-  FORUM: 'forum',
+  CONVERSATION: __('conversation'),
+  CUSTOMER: __('customer'),
+  ENGAGE_MESSAGE: __('engageMessage'),
+  COMPANY: __('company'),
+  INTEGRATION: __('integration'),
+  PRODUCT: __('product'),
+  FORUM: __('forum'),
   ALL_LIST: [
     'conversation',
     'customer',

@@ -24,7 +24,7 @@ import {
   Pipelines,
   Stages
 } from '../db/models';
-import { getNewOrder } from '../db/models/boardUtils';
+import { getNewOrder, getBoardItemLink } from '../db/models/boardUtils';
 import {
   IBoardDocument,
   IPipelineDocument,
@@ -544,5 +544,16 @@ describe('Test board model', () => {
         collection: Deals
       })
     ).toBeLessThan(120);
+  });
+
+  test('Update stage orders', async () => {
+    const deal = await dealFactory();
+    const url = await getBoardItemLink(deal.stageId, deal._id);
+
+    // `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`
+
+    expect(url).toBeDefined();
+    expect(url).toContain(`itemId=${deal._id}`);
+    expect(url).toContain(`deal`);
   });
 });

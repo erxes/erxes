@@ -8,6 +8,7 @@ import { mutations, queries, subscriptions, types } from '../data/schema';
 import { getEnv } from '../data/utils';
 import { debugDb } from '../debuggers';
 import { userFactory } from './factories';
+import { generateAllDataLoaders } from '../data/dataLoaders';
 
 dotenv.config();
 
@@ -34,7 +35,7 @@ mongoose.connection
     debugDb(`Disconnected from the database: ${MONGO_URL}`);
   })
   .on('error', error => {
-    debugDb(`Database connection error: ${MONGO_URL}`, error);
+    debugDb(`Database connection error: ${MONGO_URL} ${error}`);
   });
 
 export const connect = async (URL?: string, options?) => {
@@ -106,6 +107,7 @@ export const graphqlRequest = async (
   finalContext.userBrandIdsSelector = {};
   finalContext.brandIdSelector = {};
   finalContext.docModifier = doc => doc;
+  finalContext.dataLoaders = generateAllDataLoaders();
 
   const rootValue = {};
 

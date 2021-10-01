@@ -1,15 +1,35 @@
 import dayjs from 'dayjs';
 import FilePreview from 'modules/common/components/FilePreview';
-import Table from 'modules/common/components/table';
 import React from 'react';
 import { IMessage } from '../../../../../types';
-import { CellWrapper, FormTable } from '../styles';
+import {
+  CellWrapper,
+  FormTable,
+  FieldWrapper,
+  FormMessageInput
+} from '../styles';
+import {
+  PreviewTitle,
+  PreviewBody,
+  BodyContent,
+  PrintButton
+} from 'modules/leads/components/step/preview/styles';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FieldItem } from 'modules/forms/styles';
+import Select from 'react-select-plus';
+import Tip from 'modules/common/components/Tip';
+import Button from 'modules/common/components/Button';
+import { __ } from 'modules/common/utils';
+import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
 
 type Props = {
   message: IMessage;
 };
 
 export default class FormMessage extends React.Component<Props, {}> {
+  private componentRef;
+
   displayValue(data) {
     if (data.validation === 'date') {
       return dayjs(data.value).format('YYYY/MM/DD');
@@ -43,17 +63,53 @@ export default class FormMessage extends React.Component<Props, {}> {
       );
     }
 
-    return data.value;
+    return data.value || '-';
   }
 
-  renderRow(data, index: string) {
+  renderMultiSelect(value: string) {
+    const selectValues = value.split(',');
+
     return (
-      <tr key={index}>
-        <td style={{ width: '40%' }}>
-          <b>{data.text}:</b>
-        </td>
-        <td style={{ width: '60%' }}>{this.displayValue(data)}</td>
-      </tr>
+      <Select
+        value={value}
+        options={selectValues.map(e => ({ value: e, label: e }))}
+        multi={true}
+      />
+    );
+  }
+
+  renderField(field) {
+    return (
+      <FieldWrapper key={field._id} column={field.column}>
+        <FieldItem>
+          <FormGroup>
+            <ControlLabel ignoreTrans={true} required={field.isRequired}>
+              {field.text}
+            </ControlLabel>
+            {field.type === 'multiSelect' ? (
+              this.renderMultiSelect(field.value)
+            ) : (
+              <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
+            )}
+          </FormGroup>
+        </FieldItem>
+      </FieldWrapper>
+    );
+  }
+
+  renderPrintBtn() {
+    return (
+      <PrintButton>
+        <ReactToPrint content={() => this.componentRef}>
+          <PrintContextConsumer>
+            {({ handlePrint }) => (
+              <Tip text={__('Print responses')} placement="top">
+                <Button btnStyle="link" onClick={handlePrint} icon="print" />
+              </Tip>
+            )}
+          </PrintContextConsumer>
+        </ReactToPrint>
+      </PrintButton>
     );
   }
 
@@ -61,19 +117,16 @@ export default class FormMessage extends React.Component<Props, {}> {
     const { formWidgetData, content } = this.props.message;
 
     return (
-      <FormTable>
-        <Table striped={true}>
-          <thead>
-            <tr>
-              <th className="text-center" colSpan={2}>
-                {content}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {formWidgetData.map((data, index) => this.renderRow(data, index))}
-          </tbody>
-        </Table>
+      <FormTable ref={el => (this.componentRef = el)}>
+        <PreviewTitle style={{ backgroundColor: '#6569DF' }}>
+          <div>{content}</div>
+        </PreviewTitle>
+        <PreviewBody embedded="embedded">
+          <BodyContent>
+            {formWidgetData.map(field => this.renderField(field))}
+          </BodyContent>
+        </PreviewBody>
+        {this.renderPrintBtn()}
       </FormTable>
     );
   }

@@ -596,6 +596,7 @@ a:hover {
   margin-top: 1px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   max-height: 220px;
+  z-index: 9999;
 }
 
 .Select-menu {
@@ -1140,6 +1141,18 @@ a:hover {
 
   .modal-close-date {
     width: 330px;
+  }
+
+  .modal-li{
+    display: flex;
+  }
+  
+  .modal-items-list {
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 `;
 

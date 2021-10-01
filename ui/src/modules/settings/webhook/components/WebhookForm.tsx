@@ -1,9 +1,11 @@
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import { Formgroup } from 'modules/common/components/form/styles';
 import { IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { WEBHOOK_ACTIONS } from 'modules/settings/constants';
+import { WEBHOOK_DOC_URL } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import CommonForm from '../../common/components/Form';
@@ -121,6 +123,15 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
             multi={true}
           />
         </FormGroup>
+
+        <Formgroup>
+          <p>
+            {'For more information, go to '}
+            <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
+              documentaion
+            </a>
+          </p>
+        </Formgroup>
       </>
     );
   };

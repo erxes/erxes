@@ -208,18 +208,12 @@ class CustomersMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
           <Button
             type="submit"
             btnStyle="success"
-            uppercase={false}
             icon={mergeCustomerLoading ? undefined : 'check-circle'}
             disabled={mergeCustomerLoading}
           >

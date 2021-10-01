@@ -1,3 +1,6 @@
+import * as connect_datadog from 'connect-datadog';
+import ddTracer from 'dd-trace';
+
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 
@@ -31,7 +34,19 @@ import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
 import initWhatsapp from './whatsapp/controller';
 
+ddTracer.init({
+  hostname: process.env.DD_HOST,
+  logInjection: true
+});
+
 const app = express();
+
+const datadogMiddleware = connect_datadog({
+  response_code: true,
+  tags: ['integrations']
+});
+
+app.use(datadogMiddleware);
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -143,7 +158,16 @@ app.get('/integrations', async (req, res) => {
 app.get('/integrationDetail', async (req, res) => {
   const { erxesApiId } = req.query;
 
-  const integration = await Integrations.findOne({ erxesApiId });
+  // do not expose fields below
+  const integration = await Integrations.findOne(
+    { erxesApiId },
+    {
+      nylasToken: 0,
+      nylasAccountId: 0,
+      nylasBillingState: 0,
+      googleAccessToken: 0
+    }
+  );
 
   debugResponse(debugIntegrations, req, JSON.stringify(integration));
 
@@ -179,7 +203,7 @@ initTelnyx(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
-  console.error(error.stack);
+  debugError(error.message);
   res.status(500).send(error.message);
 });
 

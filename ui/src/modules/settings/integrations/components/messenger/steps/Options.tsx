@@ -1,6 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import FormControl from 'modules/common/components/form/Control';
+import Select from 'react-select-plus';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
@@ -43,8 +43,14 @@ class Options extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onInputChange = <T extends keyof State>(name: any, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+  onSelectChange = (e, name) => {
+    let value = '';
+
+    if (e) {
+      value = e.value;
+    }
+
+    this.setState({ [name]: value });
     this.props.onChange(name, value);
   };
 
@@ -78,11 +84,7 @@ class Options extends React.Component<Props, State> {
   }
 
   render() {
-    const languageOnChange = e =>
-      this.onInputChange(
-        'languageCode',
-        (e.currentTarget as HTMLInputElement).value
-      );
+    const languageOnChange = e => this.onSelectChange(e, 'languageCode');
 
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
@@ -129,24 +131,18 @@ class Options extends React.Component<Props, State> {
         <LeftItem>
           <FormGroup>
             <ControlLabel>Default Language</ControlLabel>
-
-            <FormControl
-              componentClass="select"
+            <Select
               id="languageCode"
-              defaultValue={this.props.languageCode}
+              value={this.props.languageCode}
+              options={LANGUAGES}
               onChange={languageOnChange}
-            >
-              {LANGUAGES.map((item, index) => (
-                <option key={index} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </FormControl>
+              clearable={false}
+            />
           </FormGroup>
 
           {this.renderToggle({
             label: __('Require Authentication'),
-            description: 'It will require email and phone in widget',
+            description: __('It will require email and phone in widget'),
             checked: this.props.requireAuth,
             onChange: requireAuthChange
           })}

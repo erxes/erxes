@@ -17,6 +17,7 @@ import DeletedLog from './items/delete/DeletedLog';
 import MergedLog from './items/MergedLog';
 import SegmentLog from './items/SegmentLog';
 import SmsLog from './items/SmsLog';
+import TicketComment from './items/ticket/Comment';
 
 const renderDetail = (type: string, children: React.ReactNode) => {
   const iconAndColor = getIconAndColor(type) || {};
@@ -98,6 +99,8 @@ const activityItem = (activity: IActivityLog) => {
       }
 
       return renderDetail(activity.contentType, <SmsLog activity={activity} />);
+    case 'ticket_comments':
+      return renderDetail('ticket', <TicketComment activity={activity} />);
     default:
       return <div />;
   }

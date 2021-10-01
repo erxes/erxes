@@ -16,7 +16,6 @@ import { IFieldGroup, IField } from '../types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
 import SortableList from 'modules/common/components/SortableList';
-// import { collectOrders } from "modules/boards/utils";
 
 type Props = {
   queryParams: any;
@@ -170,21 +169,21 @@ class Properties extends React.Component<
     return (
       <Dropdown alignRight={true}>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
-          <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+          <Button btnStyle="success" icon="plus-circle">
             {__('Add Group & Field ')}
             <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
           <ModalTrigger
-            title="Add Group"
+            title={__('Add Group')}
             size={size}
             trigger={addGroup}
             autoOpenKey={`showProperty${currentType}Modal`}
             content={groupContent}
           />
           <ModalTrigger
-            title="Add Property"
+            title={__('Add Property')}
             trigger={addField}
             content={propertyContent}
           />
@@ -211,12 +210,12 @@ class Properties extends React.Component<
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/26.svg"
-        title="Properties"
-        description={
-          __(
-            'The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see'
-          ) + '.'
-        }
+        title={__('Properties')}
+        description={`${__(
+          'The quick view finder helps you to view basic information on both companies and customers alike'
+        )}.${__(
+          'Add groups and fields of the exact information you want to see'
+        )}`}
       />
     );
 
@@ -233,9 +232,7 @@ class Properties extends React.Component<
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
         mainHead={headerDescription}
-        leftSidebar={
-          <Sidebar title={__('Property types')} currentType={__(currentType)} />
-        }
+        leftSidebar={<Sidebar currentType={__(currentType)} />}
         content={this.renderProperties()}
       />
     );
