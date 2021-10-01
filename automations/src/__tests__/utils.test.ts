@@ -226,8 +226,8 @@ describe('executeActions (wait)', () => {
       actions: [
         {
           id: "1",
-          type: ACTIONS.ADD_TAGS,
-          config: { names: ["t1", "t2"] },
+          type: ACTIONS.CREATE_TICKET,
+          config: { name: "t1" },
           nextActionId: "2",
         },
         {
@@ -242,7 +242,7 @@ describe('executeActions (wait)', () => {
           id: "3",
           type: ACTIONS.IF,
           config: {
-            segmentId: "segmentId",
+            contentId: "segmentId",
           },
         },
       ],
@@ -255,20 +255,29 @@ describe('executeActions (wait)', () => {
   })
 
   test("wait", async (done) => {
+    const createItem = sinon.stub(messageBroker, 'sendRPCMessage').callsFake((_action, data) => {
+      return { name: data.name }
+    })
     const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
       return Promise.resolve(true);
     });
 
-    await receiveTrigger({ type: "deal", targets: [{ _id: "dealId1" }] });
-
-    // expect(tags).toEqual(["t1", "t2"]);
+    await receiveTrigger({ type: "deal", targets: [{ _id: 'dealId1', amount: 100 }] });
 
     const execution = await Executions.findOne();
+
+    expect(execution.triggerId).toBe('1');
+    expect(execution.actions.length).toBe(2);
+    expect(execution.actions[0].result.name).toBe('t1');
+    expect(execution.actions[1].result).toBe(undefined);
+    expect(execution.status).toContain('waiting');
 
     expect(execution.waitingActionId).toBe('2');
     expect(execution.startWaitingDate).not.toBe(null);
 
     mock.restore();
+    createItem.restore();
+
 
     done();
   });
@@ -295,7 +304,7 @@ describe('executeActions (placeholder)', () => {
         {
           id: "1",
           type: "createDeal",
-          config: { title: "title {{ firstName }}", description: 'Custom fields data: {{ customFieldsData.fieldId }}' },
+          config: { cardName: "title {{ firstName }}", description: 'Custom fields data: {{ customFieldsData.fieldId }}' },
         },
       ],
     });
@@ -315,20 +324,27 @@ describe('executeActions (placeholder)', () => {
       ]
     }
 
+    const createItem = sinon.stub(messageBroker, 'sendRPCMessage').callsFake((_action, data) => {
+      expect(data.description).toBe('Custom fields data: custom value')
+      return { name: data.cardName }
+    })
     const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
       return Promise.resolve(true);
     });
 
     await receiveTrigger({ type: "customer", targets: [customer] });
 
-    // const execution = await Executions.findOne({});
+    const execution = await Executions.findOne();
 
-    // const deal = execution.actionsData[0].data;
-
-    // expect(deal.title).toBe('title firstName');
-    // expect(deal.description).toBe('Custom fields data: custom value');
+    expect(execution.triggerId).toBe('1');
+    expect(execution.actions.length).toBe(1);
+    expect(execution.actions[0].result.name).toBe(`title ${customer.firstName}`);
+    expect(execution.status).toContain('complete');
+    expect(execution.waitingActionId).toBeUndefined();
+    expect(execution.startWaitingDate).toBeUndefined();
 
     mock.restore();
+    createItem.restore();
 
     done();
   });
