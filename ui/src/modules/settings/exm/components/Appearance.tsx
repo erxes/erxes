@@ -31,16 +31,7 @@ export default function Appearance(props: Props) {
   const exmLogo = exm.logo;
   const exmAppearance = exm.appearance;
   const exmPages = exm.welcomeContent || [];
-  const [logo, setLogo] = useState(
-    exmLogo
-      ? {
-          name: exmLogo.name,
-          url: exmLogo.url,
-          size: exmLogo.size,
-          type: exmLogo.type
-        }
-      : null
-  );
+  const [logo, setLogo] = useState(exmLogo);
   const [appearance, setAppearance] = useState(
     exmAppearance
       ? {
@@ -69,7 +60,19 @@ export default function Appearance(props: Props) {
   );
 
   const onSave = () => {
-    edit({ _id: props.exm._id, logo, welcomeContent, appearance });
+    edit({
+      _id: props.exm._id,
+      logo: logo
+        ? {
+            name: logo.name,
+            url: logo.url,
+            size: logo.size,
+            type: logo.type
+          }
+        : null,
+      welcomeContent,
+      appearance
+    });
   };
 
   const onChangePageCount = (type: string, _id?: string) => {
@@ -92,6 +95,11 @@ export default function Appearance(props: Props) {
       page[key] = value;
       setWelcomeContent([...welcomeContent]);
     }
+  };
+
+  const onChangeAttachment = (e: any) => {
+    setLogo(e);
+    console.log(e, '========');
   };
 
   const renderColorSelect = (item, color) => {
@@ -132,7 +140,7 @@ export default function Appearance(props: Props) {
           <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
           <Uploader
             defaultFileList={logo ? [logo] : []}
-            onChange={(e: any) => setLogo(e[0])}
+            onChange={(e: any) => onChangeAttachment(e.length ? e[0] : null)}
             single={true}
           />
         </Logos>
@@ -159,7 +167,7 @@ export default function Appearance(props: Props) {
                 >
                   X
                 </button>
-                <p>Page {index + 1}</p>
+                <ControlLabel>Page {index + 1}</ControlLabel>
                 <Uploader
                   defaultFileList={
                     welcomeContent[index].image
