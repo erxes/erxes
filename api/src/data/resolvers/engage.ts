@@ -18,7 +18,7 @@ export const message = {
     _,
     { dataLoaders }: IContext
   ) {
-    return dataLoaders?.segment.loadMany(engageMessage.segmentIds || []);
+    return dataLoaders.segment.loadMany(engageMessage.segmentIds || []);
   },
 
   brands(engageMessage: IEngageMessageDocument) {
@@ -30,7 +30,7 @@ export const message = {
     _,
     { dataLoaders }: IContext
   ) {
-    return dataLoaders?.tag.loadMany(engageMessage.customerTagIds || []);
+    return dataLoaders.tag.loadMany(engageMessage.customerTagIds || []);
   },
 
   fromUser(engageMessage: IEngageMessageDocument) {
@@ -39,7 +39,7 @@ export const message = {
 
   // common tags
   getTags(engageMessage: IEngageMessageDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.tag.loadMany(engageMessage.tagIds || []);
+    return dataLoaders.tag.loadMany(engageMessage.tagIds || []);
   },
 
   brand(engageMessage: IEngageMessageDocument) {

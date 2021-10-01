@@ -10,7 +10,7 @@ export default {
   },
 
   form(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    return integration.formId && dataLoaders?.form.load(integration.formId);
+    return integration.formId && dataLoaders.form.load(integration.formId);
   },
 
   channels(integration: IIntegrationDocument) {
@@ -20,7 +20,7 @@ export default {
   },
 
   tags(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.tag.loadMany(integration.tagIds || []);
+    return dataLoaders.tag.loadMany(integration.tagIds || []);
   },
 
   websiteMessengerApps(integration: IIntegrationDocument) {

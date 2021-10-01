@@ -12,7 +12,7 @@ export default {
 
   customer(message: IMessageDocument, _, { dataLoaders }: IContext) {
     if (message.customerId) {
-      return dataLoaders?.customer.load(message.customerId);
+      return dataLoaders.customer.load(message.customerId);
     }
   },
 

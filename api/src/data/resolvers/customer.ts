@@ -7,12 +7,12 @@ export default {
   integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
     return (
       customer.integrationId &&
-      dataLoaders?.integration.load(customer.integrationId)
+      dataLoaders.integration.load(customer.integrationId)
     );
   },
 
   getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.tag.loadMany(customer.tagIds || []);
+    return dataLoaders.tag.loadMany(customer.tagIds || []);
   },
 
   async urlVisits(customer: ICustomerDocument) {
@@ -50,7 +50,7 @@ export default {
   },
 
   conversations(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.conversationByCustomerId.load(customer._id);
+    return dataLoaders.conversationByCustomerId.load(customer._id);
   },
 
   async companies(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
@@ -59,13 +59,13 @@ export default {
       mainTypeId: customer._id,
       relTypes: ['company']
     });
-    const companies = await dataLoaders?.company.loadMany(
+    const companies = await dataLoaders.company.loadMany(
       (companyIds || []).filter(x => x)
     );
     return (companies || []).slice(0, 10);
   },
 
   owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    if (customer.ownerId) return dataLoaders?.user.load(customer.ownerId);
+    if (customer.ownerId) return dataLoaders.user.load(customer.ownerId);
   }
 };
