@@ -17,7 +17,14 @@ export default function Infos() {
       </div>
       <div>
         <h1>Examples</h1>
-        <p>Infos are available for any length of text. For proper styling, use one of the five variants.</p>
+        <p>
+          Infos are available for any length of text. Just choose one of the
+          five variants and modify the{" "}
+          <b>
+            <u>Info type</u>
+          </b>{" "}
+          prop.
+        </p>
         <div className={styles.code}>
           <div>
             <Info
@@ -57,7 +64,6 @@ export default function Infos() {
           />
         </div>
       </div>
-     
     </>
   );
 }
