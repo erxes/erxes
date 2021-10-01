@@ -3,6 +3,8 @@ const commonParamsDef = `
   $description: String,
   $features: JSON,
   $logo: AttachmentInput,
+  $appearance: ExmAppearanceInput,
+  $welcomeContent: [ExmWelcomeContentInput],
 `;
 
 const commonParams = `
@@ -10,6 +12,8 @@ const commonParams = `
   description: $description,
   features: $features,
   logo: $logo,
+  appearance: $appearance,
+  welcomeContent: $welcomeContent,
 `;
 
 const exmsAdd = `

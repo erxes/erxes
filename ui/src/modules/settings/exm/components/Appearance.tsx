@@ -4,65 +4,134 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
 import { __ } from 'modules/common/utils';
 import { MobilePreview } from 'modules/leads/components/step/style';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React, { useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
 import {
-  AppearanceWrapper,
-  AppSettings,
+  GeneralWrapper,
   Colors,
-  FeatureRow,
-  FeatureRowItem,
   Logos,
-  UploadItems,
-  WelcomeContent
+  WelcomeContent,
+  AppearanceWrapper
 } from '../styles';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+
+const getEmptyPage = () => ({
+  _id: Math.random().toString(),
+  image: null,
+  title: '',
+  content: ''
+});
 
 type Props = { exm: any; edit: (variables: any) => void };
 
 export default function Appearance(props: Props) {
-  const { exm } = props;
-  const [logo, setLogo] = useState(exm.logo || {});
-  const [primaryColor, setColor] = useState('#673FBD');
-  const [secondColor, setSecondColor] = useState('orange');
-  const [title, setTitle] = useState(exm.welcomeContent || []);
-  const [description, setContent] = useState(exm.welcomeContent.content || '');
-  const popoverTopPrimary = (
-    <Popover id="kb-color-picker">
-      <TwitterPicker
-        width="205px"
-        triangle="hide"
-        color={primaryColor || []}
-        onChange={(e: any) => setColor(e.hex)}
-      />
-    </Popover>
+  const { exm, edit } = props;
+  const exmLogo = exm.logo;
+  const exmAppearance = exm.appearance;
+  const exmPages = exm.welcomeContent || [];
+  const [logo, setLogo] = useState(
+    exmLogo
+      ? {
+          name: exmLogo.name,
+          url: exmLogo.url,
+          size: exmLogo.size,
+          type: exmLogo.type
+        }
+      : null
+  );
+  const [appearance, setAppearance] = useState(
+    exmAppearance
+      ? {
+          primaryColor: exmAppearance.primaryColor,
+          secondaryColor: exmAppearance.secondaryColor
+        }
+      : { primaryColor: 'red', secondaryColor: 'green' }
   );
 
-  const popoverTopSecond = (
-    <Popover id="kb-color-picker">
-      <TwitterPicker
-        width="205px"
-        triangle="hide"
-        color={secondColor || []}
-        onChange={(e: any) => setSecondColor(e.hex)}
-      />
-    </Popover>
+  const [welcomeContent, setWelcomeContent] = useState(
+    exmPages.length > 0
+      ? exmPages.map(e => ({
+          _id: e._id,
+          title: e.title,
+          content: e.content,
+          image: e.image
+            ? {
+                name: e.image.name,
+                url: e.image.url,
+                size: e.image.size,
+                type: e.image.type
+              }
+            : null
+        }))
+      : [getEmptyPage()]
   );
 
   const onSave = () => {
-    props.edit({ _id: props.exm._id, logo });
+    edit({ _id: props.exm._id, logo, welcomeContent, appearance });
+  };
+
+  const onChangePageCount = (type: string, _id?: string) => {
+    if (type === 'add') {
+      setWelcomeContent([...welcomeContent, getEmptyPage()]);
+    } else {
+      const modifiedContents = welcomeContent.filter(f => f._id !== _id);
+
+      setWelcomeContent(modifiedContents);
+    }
+  };
+
+  const onChangeColor = (key: string, value: any) => {
+    setAppearance({ ...appearance, [key]: value });
+  };
+
+  const onChangePageItem = (_id: string, key: string, value: any) => {
+    const page = welcomeContent.find(f => f._id === _id);
+    if (page) {
+      page[key] = value;
+      setWelcomeContent([...welcomeContent]);
+    }
+  };
+
+  const renderColorSelect = (item, color) => {
+    const popoverBottom = (
+      <Popover id="color-picker">
+        <TwitterPicker
+          width="266px"
+          triangle="hide"
+          color={color}
+          onChange={e => onChangeColor(item, e.hex)}
+        />
+      </Popover>
+    );
+
+    return (
+      <OverlayTrigger
+        trigger="click"
+        rootClose={true}
+        placement="bottom-start"
+        overlay={popoverBottom}
+      >
+        <ColorPick>
+          <ColorPicker
+            style={{
+              backgroundColor: color
+            }}
+          />
+        </ColorPick>
+      </OverlayTrigger>
+    );
   };
 
   return (
     <AppearanceWrapper>
-      <AppSettings>
+      <GeneralWrapper>
         <Logos>
           <p>Logos</p>
           <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
           <Uploader
-            defaultFileList={[logo]}
+            defaultFileList={logo ? [logo] : []}
             onChange={(e: any) => setLogo(e[0])}
             single={true}
           />
@@ -70,64 +139,67 @@ export default function Appearance(props: Props) {
         <Colors>
           <p>Colors</p>
           <div>
-            <div>
-              <ControlLabel>{__('Primary color')}</ControlLabel>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={popoverTopPrimary}
-              >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: primaryColor }} />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-            <div>
-              <ControlLabel>{__('Secondary color')}</ControlLabel>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={popoverTopSecond}
-              >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: secondColor }} />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
+            <ControlLabel>{__('Primary color')}</ControlLabel>
+            {renderColorSelect('primaryColor', appearance.primaryColor)}
+          </div>
+          <div>
+            <ControlLabel>{__('Secondary color')}</ControlLabel>
+            {renderColorSelect('secondaryColor', appearance.secondaryColor)}
           </div>
         </Colors>
         <WelcomeContent>
           <p>Welcome content</p>
-          <FeatureRow>
-            <FeatureRowItem>
-              <ControlLabel>{__('Title')}</ControlLabel>
-              <FormControl
-                value={title}
-                placeholder="Title"
-                onChange={(e: any) => setTitle(e.target.value)}
-              />
-            </FeatureRowItem>
-            <FeatureRowItem>
-              <ControlLabel>{__('Image')}</ControlLabel>
-              <UploadItems>
-                <input type="file" />
-              </UploadItems>
-            </FeatureRowItem>
-          </FeatureRow>
-          <ControlLabel>{__('Description')}</ControlLabel>
-          <FormControl
-            value={description}
-            componentClass="textarea"
-            placeholder="Description"
-            onChange={(e: any) => setContent(e.target.value)}
-          />
+          <Button onClick={() => onChangePageCount('add')}>+ Add Page</Button>
+          {welcomeContent.map((page, index) => {
+            return (
+              <div key={index}>
+                <button
+                  style={{ float: 'right' }}
+                  onClick={() => onChangePageCount('remove', page._id)}
+                >
+                  X
+                </button>
+                <p>Page {index + 1}</p>
+                <Uploader
+                  defaultFileList={
+                    welcomeContent[index].image
+                      ? [welcomeContent[index].image]
+                      : []
+                  }
+                  onChange={(e: any) => {
+                    return onChangePageItem(page._id, 'image', e[0]);
+                  }}
+                  single={true}
+                />
+                <FormControl
+                  name="title"
+                  placeholder="Title"
+                  value={page.title}
+                  onChange={(e: any) => {
+                    return onChangePageItem(page._id, 'title', e.target.value);
+                  }}
+                />
+                <FormControl
+                  name="description"
+                  placeholder="Description"
+                  componentClass="textarea"
+                  value={page.content}
+                  onChange={(e: any) => {
+                    return onChangePageItem(
+                      page._id,
+                      'content',
+                      e.target.value
+                    );
+                  }}
+                />
+              </div>
+            );
+          })}
         </WelcomeContent>
         <Button btnStyle="success" onClick={onSave}>
           Save
         </Button>
-      </AppSettings>
+      </GeneralWrapper>
       <MobilePreview />
     </AppearanceWrapper>
   );

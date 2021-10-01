@@ -25,6 +25,12 @@ const exmDetail = `
         _id
         title
         content
+        image {
+          url 
+          name
+          type
+          size
+        }
       }
       appearance {
         primaryColor

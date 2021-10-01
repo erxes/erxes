@@ -51,7 +51,6 @@ export default function General(props: Props) {
 
   const onChangeFeatureItem = (_id: string, key: string, value: any) => {
     const feature = features.find(f => f._id === _id);
-
     if (feature) {
       feature[key] = value;
 

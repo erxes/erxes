@@ -47,10 +47,8 @@ export const FeatureLayout = styled.div``;
 export const AppearanceWrapper = styled.div`
   display: flex;
   justify-content: center;
-  padding: 40px;
-  min-width: max-content;
   > div:last-child {
-    margin: 0;
+    margin: 40px 40px;
   }
 `;
 
@@ -72,13 +70,12 @@ export const AppSettings = styled.div`
 `;
 
 export const Logos = styled.div`
-  float: left;
-  width: 49%;
   > div {
     margin-bottom: 0;
   }
   > div:last-child {
     border: 1px solid #673fbd;
+    width: max-content;
     > div {
       margin-bottom: 0;
     }
@@ -97,32 +94,26 @@ export const Logos = styled.div`
 `;
 
 export const Colors = styled.div`
-  float: right;
-  width: 49%;
   > div {
     display: flex;
-    justify-content: center;
-    > div {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin: 0 25px;
-      > div {
-        margin-top: 10px;
-        > div {
-          height: 78px;
-        }
-      }
+    align-items: center;
+    margin-bottom: 20px;
+
+    label {
+      width: 200px;
     }
   }
 `;
 
 export const WelcomeContent = styled.div`
-  float: left;
-  width: 100%;
-  textarea {
-    width: 70%;
+  > div {
+    margin-top: 20px;
+    input {
+      margin-top: 50px;
+    }
+    textarea {
+      width: 600px;
+    }
   }
 `;
 
