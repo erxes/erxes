@@ -108,7 +108,7 @@ class BasicInfo extends React.Component<Props> {
     const elemets: any[] = [];
     let counter = 0;
 
-    items.forEach(e => {
+    items.map(e => {
       const checked = feature.name === e.name ? true : false;
       elemets.push(<FormControl
         name="SelectFeature"
