@@ -7,7 +7,7 @@ dotenv.config();
 const command = async () => {
   await connect();
 
-  const segments = await Segments.find({ name: 1 });
+  const segments = await Segments.find({ name: { $exists: true } });
 
   console.log(`segments count = ${segments.length}`);
 
