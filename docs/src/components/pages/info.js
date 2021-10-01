@@ -2,6 +2,7 @@ import React from "react";
 import Info from "erxes-ui/lib/components/Info";
 import Icon from "erxes-ui/lib/components/Icon";
 import styles from "../styles.module.css";
+import {Link} from 'react-scroll'
 import { CopyBlock, dracula } from "react-code-blocks";
 import {Link} from 'react-scroll'
 
@@ -12,7 +13,7 @@ export default function Infos() {
     <div className={styles.mainCon}>
     <div className={styles.body}>
       <div>
-        <h1>Info</h1>
+        <h1 id="info">Info</h1>
         <p>
           Provide contextual messages for typical user actions with info
           messages.
@@ -61,7 +62,7 @@ export default function Infos() {
           <Info type="danger" title="Danger"> This is danger info </Info>{" "}
           <Info type="warning" title="Warning"> This is warning info </Info>{" "}
           <Info type="success" title="Success"> This is success info </Info>{" "}
-          </>`}
+</>`}
             theme={dracula}
             showLineNumbers={false}
             codeBlock
@@ -70,5 +71,6 @@ export default function Infos() {
       </div>
     </div>
     </div>
+    
   );
 }
