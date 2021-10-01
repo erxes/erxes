@@ -36,7 +36,6 @@ class List extends React.Component<IProps> {
         {...props}
         category={category}
         categories={this.props.productCategories}
-        productsRefetch={props.productsRefetch}
       />
     );
 

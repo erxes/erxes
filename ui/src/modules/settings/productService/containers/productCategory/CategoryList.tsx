@@ -8,7 +8,8 @@ import { mutations, queries } from '../../graphql';
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoriesQueryResponse,
-  ProductCategoryRemoveMutationResponse
+  ProductCategoryRemoveMutationResponse,
+  ProductsQueryResponse
 } from '../../types';
 
 type Props = { history: any; queryParams: any; };
@@ -16,6 +17,8 @@ type Props = { history: any; queryParams: any; };
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
+  productsQuery: ProductsQueryResponse;
+
 } & Props &
   ProductCategoryRemoveMutationResponse;
 class ProductListContainer extends React.Component<FinalProps> {
@@ -23,6 +26,7 @@ class ProductListContainer extends React.Component<FinalProps> {
     const {
       productCategoriesQuery,
       productCategoriesCountQuery,
+      productsQuery,
       productCategoryRemove
     } = this.props;
 
@@ -34,6 +38,7 @@ class ProductListContainer extends React.Component<FinalProps> {
           .then(() => {
             productCategoriesQuery.refetch();
             productCategoriesCountQuery.refetch();
+            productsQuery.refetch();
 
             Alert.success(
               `You successfully deleted a product & service category`
@@ -95,6 +100,12 @@ export default withProps<Props>(
       {
         name: 'productCategoryRemove',
         options
+      }
+    ),
+    graphql<Props, ProductsQueryResponse>(
+      gql(queries.products),
+      {
+        name: 'productsQuery'
       }
     )
   )(ProductListContainer)
