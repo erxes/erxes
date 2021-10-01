@@ -24,6 +24,7 @@
     "react-dom": "^16.8.4",
     "react-feather": "^2.0.8",
     "react-router-dom": "^5.3.0",
+    "react-scroll": "^1.8.4",
     "styled-components": "^5.3.1",
     "styled-components-ts": "0.0.15"
   },

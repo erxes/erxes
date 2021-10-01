@@ -237,3 +237,24 @@ li {
 	border: 1px solid #61676F;
 	padding: 5px;
 }
+
+.mainCon {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	float:right;
+}
+
+.body {
+	margin-left: 350px;
+	margin-right: 50px;
+	margin-bottom: 50px;
+}
+
+.subMenu {
+	width: 300px;
+	padding: 15px 25px;
+	border-left: 1px solid #DBDDE1;
+	
+	/* background-color: #000; */
+}
