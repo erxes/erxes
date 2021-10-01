@@ -13,16 +13,24 @@ export const deliveryReport = {
 };
 
 export const message = {
-  segments(engageMessage: IEngageMessageDocument) {
-    return Segments.find({ _id: { $in: engageMessage.segmentIds } });
+  segments(
+    engageMessage: IEngageMessageDocument,
+    _,
+    { dataLoaders }: IContext
+  ) {
+    return dataLoaders?.segment.loadMany(engageMessage.segmentIds || []);
   },
 
   brands(engageMessage: IEngageMessageDocument) {
     return getDocumentList('brands', { _id: { $in: engageMessage.brandIds } });
   },
 
-  customerTags(engageMessage: IEngageMessageDocument) {
-    return Tags.find({ _id: { $in: engageMessage.customerTagIds || [] } });
+  customerTags(
+    engageMessage: IEngageMessageDocument,
+    _,
+    { dataLoaders }: IContext
+  ) {
+    return dataLoaders?.tag.loadMany(engageMessage.customerTagIds || []);
   },
 
   fromUser(engageMessage: IEngageMessageDocument) {
@@ -30,8 +38,8 @@ export const message = {
   },
 
   // common tags
-  getTags(engageMessage: IEngageMessageDocument) {
-    return Tags.find({ _id: { $in: engageMessage.tagIds || [] } });
+  getTags(engageMessage: IEngageMessageDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders?.tag.loadMany(engageMessage.tagIds || []);
   },
 
   brand(engageMessage: IEngageMessageDocument) {

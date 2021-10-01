@@ -6,6 +6,7 @@ import { ITagDocument } from '../../db/models/definitions/tags';
 import { IFormDocument } from '../../db/models/definitions/forms';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
 import { IUserDocument } from '../../db/models/definitions/users';
+import { ISegmentDocument } from '../../db/models/definitions/segments';
 import productCategory from './productCategory';
 import tag from './tag';
 import company from './company';
@@ -13,7 +14,7 @@ import form from './form';
 import integration from './integration';
 import user from './user';
 import segmentsBySubOf from './segmentsBySubOf';
-import { ISegmentDocument } from '../../db/models/definitions/segments';
+import segment from './segment';
 export interface IDataLoaders {
   productCategory: DataLoader<string, IProductCategoryDocument>;
   tag: DataLoader<string, ITagDocument>;
@@ -22,6 +23,7 @@ export interface IDataLoaders {
   integration: DataLoader<string, IIntegrationDocument>;
   user: DataLoader<string, IUserDocument>;
   segmentsBySubOf: DataLoader<string, ISegmentDocument[]>;
+  segment: DataLoader<string, ISegmentDocument>;
 }
 
 export function generateAllDataLoaders(): IDataLoaders {
@@ -32,6 +34,7 @@ export function generateAllDataLoaders(): IDataLoaders {
     form: form(),
     integration: integration(),
     user: user(),
-    segmentsBySubOf: segmentsBySubOf()
+    segmentsBySubOf: segmentsBySubOf(),
+    segment: segment()
   };
 }
