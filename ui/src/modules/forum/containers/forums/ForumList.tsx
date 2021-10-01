@@ -28,7 +28,7 @@ type FinalProps = {
 const ForumListContainer = (props: FinalProps) => {
   const { forumsQuery, removeForumsMutation, forumsCountQuery } = props;
 
-  const remove = forumId => {
+  const remove = (forumId: string, callback?: () => void) => {
     confirm().then(() => {
       removeForumsMutation({
         variables: {
@@ -38,6 +38,10 @@ const ForumListContainer = (props: FinalProps) => {
         .then(() => {
           forumsQuery.refetch();
           forumsCountQuery.refetch();
+
+          if (callback) {
+            callback();
+          }
 
           Alert.success('You successfully deleted a forum');
         })

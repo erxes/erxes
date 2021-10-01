@@ -19,7 +19,7 @@ type Props = {
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   forum: IForum;
-  remove: (forumId: string) => void;
+  remove: (forumId: string, callback?: () => void) => void;
 };
 
 class ForumForm extends React.Component<Props> {
@@ -52,10 +52,10 @@ class ForumForm extends React.Component<Props> {
   };
 
   remove = () => {
-    const { remove, forum } = this.props;
+    const { remove, forum, closeModal } = this.props;
 
     if (remove) {
-      remove(forum._id);
+      remove(forum._id, closeModal);
     }
   };
 

@@ -7,7 +7,7 @@ type Props = {
   forum: IForum;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  remove: (forumId: string) => void;
+  remove: (forumId: string, callback?: () => void) => void;
 };
 
 const ForumFormContainer = ({ remove, forum, ...props }: Props) => {
@@ -16,6 +16,7 @@ const ForumFormContainer = ({ remove, forum, ...props }: Props) => {
     forum,
     remove
   };
+
   return <ForumForm {...updatedProps} />;
 };
 

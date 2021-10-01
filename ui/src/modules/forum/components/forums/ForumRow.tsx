@@ -21,7 +21,7 @@ import { __ } from 'modules/common/utils';
 type Props = {
   forum: IForum;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  remove: (forumId: string) => void;
+  remove: (forumId: string, callback?: () => void) => void;
   currentTopicId: string;
 };
 
