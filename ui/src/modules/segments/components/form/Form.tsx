@@ -527,7 +527,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     });
   };
 
-  renderFilterItem = () => {
+  renderAddGroupButton = () => {
     const { state, showAddGroup } = this.state;
 
     let show = false;
@@ -665,7 +665,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     return (
       <>
         {this.renderDetailForm(formProps)}
-        {this.renderFilterItem()}
+        {this.renderAddGroupButton()}
         <ModalFooter id="button-group">
           <Button.Group>
             {isModal ? (

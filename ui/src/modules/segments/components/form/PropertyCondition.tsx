@@ -51,14 +51,14 @@ class PropertyCondition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { boardId = '', contentType, pipelineId = '' } = props;
+    const { boardId = '', contentType, pipelineId = '', forms = [] } = props;
 
     this.state = {
       propertyType: contentType,
       searchValue: '',
       boardId,
       pipelineId,
-      formId: ''
+      formId: forms[0] ? forms[0].formId : ''
     };
   }
 
@@ -139,6 +139,10 @@ class PropertyCondition extends React.Component<Props, State> {
 
     if (propertyType !== 'form_submission') {
       return null;
+    }
+
+    if (forms[0] && formId === '') {
+      this.setState({ formId: forms[0].formId });
     }
 
     return (
