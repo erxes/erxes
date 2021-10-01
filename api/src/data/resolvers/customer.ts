@@ -5,9 +5,10 @@ import { IContext } from '../types';
 
 export default {
   integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    if (customer.integrationId) {
-      return dataLoaders?.integration.load(customer.integrationId);
-    }
+    return (
+      customer.integrationId &&
+      dataLoaders?.integration.load(customer.integrationId)
+    );
   },
 
   getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {

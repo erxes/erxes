@@ -10,9 +10,7 @@ export default {
   },
 
   form(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    if (integration.formId) {
-      return dataLoaders?.form.load(integration.formId);
-    }
+    return integration.formId && dataLoaders?.form.load(integration.formId);
   },
 
   channels(integration: IIntegrationDocument) {
