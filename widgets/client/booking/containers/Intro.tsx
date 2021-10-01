@@ -10,9 +10,9 @@ type Props = {
 function IntroContainer({ booking }: Props) {
   return (
     <AppConsumer>
-      {({ goToBooking }) => {
-        return <Intro booking={booking} onClick={goToBooking} />;
-      }}
+      {({ goToBooking }) => (
+        <Intro booking={booking} goToBooking={goToBooking} />
+      )}
     </AppConsumer>
   );
 }

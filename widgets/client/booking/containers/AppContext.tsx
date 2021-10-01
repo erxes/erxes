@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IBooking, IProductCategory } from '../types';
+import { IBooking } from '../types';
 
 interface IState {
   activeRoute: string;
@@ -11,7 +11,7 @@ interface IState {
 
 interface IStore extends IState {
   goToIntro: () => void;
-  goToBooking: (booking: any) => void;
+  goToBooking: (booking: IBooking) => void;
   goToBookings: () => void;
   goToBlock: (blockId: string) => void;
   goToFloor: (floorId: string) => void;

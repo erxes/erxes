@@ -131,17 +131,6 @@ const PopoverFooter = styled.div`
     display: block;
   }
 `;
-
-const AvatarImg = styled.img`
-  width: ${dimensions.coreSpacing + 6}px;
-  height: ${dimensions.coreSpacing + 6}px;
-  line-height: ${dimensions.coreSpacing + 6}px;
-  border-radius: ${(dimensions.coreSpacing + 6) / 2}px;
-  vertical-align: middle;
-  background: ${colors.bgActive};
-  margin-right: ${dimensions.unitSpacing}px;
-`;
-
 const ChildList = styled.div`
   list-style: none;
   position: relative;
@@ -298,7 +287,6 @@ export {
   PopoverFooter,
   PopoverContent,
   FlexRow,
-  AvatarImg,
   IconWrapper,
   ChildList,
   ToggleIcon,
@@ -314,7 +302,6 @@ export default {
   PopoverFooter,
   PopoverContent,
   FlexRow,
-  AvatarImg,
   IconWrapper,
   ChildList,
   ToggleIcon,

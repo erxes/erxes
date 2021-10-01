@@ -4,10 +4,10 @@ import { IBooking } from '../types';
 
 type Props = {
   booking: IBooking;
-  onClick: (booking: IBooking) => void;
+  goToBooking: (booking: IBooking) => void;
 };
 
-function Intro({ booking, onClick }: Props) {
+function Intro({ booking, goToBooking }: Props) {
   const { title, description, image } = booking;
 
   return (
@@ -18,7 +18,7 @@ function Intro({ booking, onClick }: Props) {
       <button
         style={{ backgroundColor: '#5629B6' }}
         className="erxes-button"
-        onClick={() => onClick(booking)}
+        onClick={() => goToBooking(booking)}
       >
         Next
       </button>
