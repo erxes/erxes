@@ -1,4 +1,11 @@
 export const types = `
+  type ExmCeremonyData {
+    startedDate: Date
+    willDate: Date
+    howManyYear: Int
+    year: Int
+  }
+
   type ExmFeed {
     _id: String
     title: String
@@ -22,6 +29,7 @@ export const types = `
     createdUser: User
     updatedUser: User
     customFieldsData: JSON
+    ceremonyData: ExmCeremonyData
   }
 
   type ExmThank {
@@ -95,7 +103,7 @@ export const queries = `
   exmThanks(limit: Int, type: SourceType): ExmThankResponse
   exmFeedComments(feedId: String, parentId: String, limit: Int, skip: Int): ExmFeedCommentResponse
   exmFeedLikedUsers(feedId: String!): [User]
-  exmFeedCeremonies(contentType: ContentType, filterType: FilterType!): ExmFeedResponse
+  exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
 `;
 
 const feedCommonParams = `
