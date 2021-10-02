@@ -15,10 +15,15 @@ export interface IStyle {
 export interface IProductCategory {
   _id: string;
   name: string;
-  code: string;
   order: string;
+  code: string;
   description?: string;
+  attachment?: any;
+  status: string;
   parentId?: string;
+  createdAt: Date;
+  productCount: number;
+  isRoot: boolean;
 }
 
 export interface IProduct {
@@ -37,7 +42,6 @@ export interface IBooking {
   _id: string;
   // content
   name?: string;
-  image?: any;
   description?: string;
   userFilters?: string[];
 
@@ -61,4 +65,6 @@ export interface IBooking {
   // child categories
   childCategories: IProductCategory[];
   categoryTree: ICategoryTree[];
+
+  mainProductCategory: IProductCategory;
 }

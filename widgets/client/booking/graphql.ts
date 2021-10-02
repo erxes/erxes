@@ -1,9 +1,20 @@
 const productCategoryFields = `
   _id
   name
-  description
+  order
   code
   parentId
+  description
+  status
+  attachment {
+    name
+    url
+    type
+    size
+  }
+
+  isRoot
+  productCount
 `;
 
 const productFields = `
@@ -42,6 +53,10 @@ const bookingFields = `
   productCategoryId
 
   childCategories {
+    ${productCategoryFields}
+  }
+
+  mainProductCategory {
     ${productCategoryFields}
   }
 

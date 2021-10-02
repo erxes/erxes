@@ -14,13 +14,14 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const { title, description, image, childCategories } = booking;
+  const { title, description, childCategories, mainProductCategory } = booking;
+  const { attachment } = mainProductCategory;
 
   return (
     <div>
       <h1>{title}</h1>
       <p>{description}</p>
-      <img height={300} src={readFile(image.url)} alt={image.name} />
+      <img height={300} src={readFile(attachment.url)} alt={attachment.name} />
       {childCategories.map((block, index) => {
         return <Block key={index} block={block} />;
       })}
