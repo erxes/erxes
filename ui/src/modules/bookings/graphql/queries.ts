@@ -137,4 +137,22 @@ const forms = `
   }
 `;
 
-export default { bookingDetail, bookings, productCategories, forms };
+const bookingsTotalCount = `
+  query bookingsTotalCount{
+    bookingsTotalCount{
+      total
+      byTag
+      byChannel
+      byBrand
+      byStatus
+    }
+  }
+`;
+
+export default {
+  bookingDetail,
+  bookings,
+  productCategories,
+  forms,
+  bookingsTotalCount
+};

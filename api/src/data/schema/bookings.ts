@@ -63,6 +63,14 @@ export const types = `
     categoryTree: [CategoryTree]
     mainProductCategory: ProductCategory
   }
+
+  type bookingsTotalCount {
+    total: Int
+    byTag: JSON
+    byChannel: JSON
+    byBrand: JSON
+    byStatus: JSON
+  }
 `;
 
 const queryParams = `
@@ -75,6 +83,7 @@ const queryParams = `
 export const queries = `
   bookingDetail(_id: String!): Booking
   bookings(${queryParams}): [Booking]
+  bookingsTotalCount: bookingsTotalCount
 `;
 
 const bookingMutationParams = `

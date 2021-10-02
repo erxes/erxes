@@ -85,3 +85,16 @@ export type RemoveBookingMutationResponse = {
 export type Counts = {
   [key: string]: number;
 };
+
+export type BookingsCount = {
+  total: number;
+  byTag: Counts;
+  byChannel: Counts;
+  byBrand: Counts;
+  byKind: Counts;
+  byStatus: Counts;
+};
+
+export type CountQueryResponse = {
+  bookingsTotalCount: BookingsCount;
+} & QueryResponse;

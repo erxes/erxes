@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Alert, confirm } from 'modules/common/utils';
 import Bulk from 'modules/common/components/Bulk';
 import BookingList from '../components/BookingList';
@@ -9,6 +9,7 @@ import { mutations, queries } from '../graphql';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import {
   BookingsQueryResponse,
+  CountQueryResponse,
   RemoveBookingMutationResponse,
   RemoveBookingMutationVariables
 } from '../types';
@@ -19,11 +20,26 @@ type Props = {
 
 type FinalProps = {
   bookingsQuery: BookingsQueryResponse;
+  bookingsTotalCountQuery: CountQueryResponse;
 } & RemoveBookingMutationResponse &
   Props;
 
 function BookingListContainer(props: FinalProps) {
-  const { bookingsQuery, bookingsRemoveMutation } = props;
+  useEffect(() => {
+    refetch();
+  });
+
+  const {
+    bookingsQuery,
+    bookingsRemoveMutation,
+    bookingsTotalCountQuery
+  } = props;
+
+  const counts = bookingsTotalCountQuery
+    ? bookingsTotalCountQuery.bookingsTotalCount
+    : null;
+
+  const totalCount = (counts && counts.total) || 0;
 
   const bookings = bookingsQuery.bookings || [];
 
@@ -46,6 +62,7 @@ function BookingListContainer(props: FinalProps) {
 
   const refetch = () => {
     bookingsQuery.refetch();
+    bookingsTotalCountQuery.refetch();
   };
 
   const updatedProps = {
@@ -53,7 +70,9 @@ function BookingListContainer(props: FinalProps) {
     bookings,
     loading: bookingsQuery.loading,
     refetch,
-    remove
+    remove,
+    counts,
+    totalCount
   };
 
   // tslint:disable-next-line: no-shadowed-variable
@@ -88,5 +107,8 @@ export default compose(
     {
       name: 'bookingsRemoveMutation'
     }
-  )
+  ),
+  graphql<Props, CountQueryResponse>(gql(queries.bookingsTotalCount), {
+    name: 'bookingsTotalCountQuery'
+  })
 )(BookingListContainer);

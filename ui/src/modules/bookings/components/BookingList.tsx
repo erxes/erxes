@@ -9,7 +9,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { EMPTY_CONTENT_POPUPS } from 'modules/settings/constants';
 import React from 'react';
-import { IBookingDocument } from '../types';
+import { BookingsCount, IBookingDocument } from '../types';
 import Sidebar from './Sidebar';
 import Row from './BookingRow';
 import { Link } from 'react-router-dom';
@@ -28,6 +28,8 @@ type Props = {
   history: any;
   bookings: IBookingDocument[];
   remove: (bookingId: string) => void;
+  totalCount: number;
+  counts: BookingsCount;
 };
 
 function BookingList(props: Props) {
@@ -40,7 +42,9 @@ function BookingList(props: Props) {
     queryParams,
     remove,
     refetch,
-    emptyBulk
+    emptyBulk,
+    totalCount,
+    counts
   } = props;
 
   const onChange = () => {
@@ -127,14 +131,14 @@ function BookingList(props: Props) {
           queryParams={queryParams}
         />
       }
-      leftSidebar={<Sidebar />}
+      leftSidebar={<Sidebar counts={counts || {}} />}
       actionBar={actionBar}
       footer={<Pagination count={2} />}
       content={
         <DataWithLoader
           data={content}
           loading={false}
-          count={2}
+          count={totalCount}
           emptyContent={
             <EmptyContent content={EMPTY_CONTENT_POPUPS} maxItemWidth="360px" />
           }

@@ -71,7 +71,10 @@ function EditBookingContainer(props: FinalProps) {
 }
 
 const commonOptions = () => ({
-  refetchQueries: [{ query: gql(queries.bookings) }]
+  refetchQueries: [
+    { query: gql(queries.bookings) },
+    { query: gql(queries.bookingsTotalCount) }
+  ]
 });
 
 export default compose(
