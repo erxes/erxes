@@ -1,26 +1,23 @@
 import React from "react";
 import Info from "erxes-ui/lib/components/Info";
-import Icon from "erxes-ui/lib/components/Icon";
 import styles from "../styles.module.css";
-import {Link} from 'react-scroll'
 import { CopyBlock, dracula } from "react-code-blocks";
 import {Link} from 'react-scroll'
 
-// import Icon from '../../../ui/src/modules/common/components/Icon';
 
 export default function Infos() {
   return (
     <div className={styles.mainCon}>
     <div className={styles.body}>
-      <div>
-        <h1 id="info">Info</h1>
+      <div id="info">
+        <h1>Info</h1>
         <p>
           Provide contextual messages for typical user actions with info
           messages.
         </p>
       </div>
       <div>
-        <h1>Examples</h1>
+        <h1 id="examples">Examples</h1>
         <p>
           Infos are available for any length of text. Just choose one of the
           five variants and modify the{" "}
@@ -31,7 +28,6 @@ export default function Infos() {
         </p>
         <div className={styles.code}>
           <div>
-            {/* <Icon isActive='true' changedColor='Blue' /> */}
             <Info
               iconShow="https://erxes.s3.amazonaws.com/icons/grinning.svg"
               title="Default"
@@ -68,7 +64,11 @@ export default function Infos() {
             codeBlock
           />
         </div>
-      </div>
+      </div> 
+    </div>
+    <div className={styles.subMenu}>
+      <li><Link to="info">Info</Link></li>
+      <li><Link to="examples">Examples</Link></li>
     </div>
     </div>
     

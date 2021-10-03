@@ -247,7 +247,7 @@ li {
 
 .body {
 	margin-left: 350px;
-	margin-right: 50px;
+	margin-right: 350px;
 	margin-bottom: 50px;
 }
 
@@ -255,6 +255,7 @@ li {
 	width: 300px;
 	padding: 15px 25px;
 	border-left: 1px solid #DBDDE1;
-	
+	position: fixed;
+	right: 0;
 	/* background-color: #000; */
 }
