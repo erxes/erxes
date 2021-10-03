@@ -269,6 +269,7 @@ export type ResolveAllMutationResponse = {
 // query types
 export type ConvesationsQueryVariables = {
   limit: number;
+  perPage: number;
 } & ResolveAllMutationVariables;
 
 export type LastConversationQueryResponse = {
