@@ -1,7 +1,8 @@
-import { Companies, Conformities, Conversations } from '../../db/models';
+import { Companies, Conformities } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
-import { getDocument, getDocumentList } from './mutations/cacheUtils';
+import { getDocument } from './mutations/cacheUtils';
+import { IContext } from '../types';
 
 export default {
   integration(customer: ICustomerDocument) {
@@ -10,8 +11,8 @@ export default {
     });
   },
 
-  getTags(customer: ICustomerDocument) {
-    return getDocumentList('tags', { _id: { $in: customer.tagIds || [] } });
+  getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders?.tag?.loadMany(customer.tagIds || []);
   },
 
   async urlVisits(customer: ICustomerDocument) {
@@ -48,8 +49,8 @@ export default {
     });
   },
 
-  conversations(customer: ICustomerDocument) {
-    return Conversations.find({ customerId: customer._id });
+  conversations(customer: ICustomerDocument, _, { dataLoaders } : IContext) {
+    return dataLoaders?.conversationByCustomerId?.load(customer._id);
   },
 
   async companies(customer: ICustomerDocument) {
