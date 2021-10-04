@@ -1212,3 +1212,19 @@ export const findCompany = async doc => {
 
   return company;
 };
+
+export const existFieldInGraphQL = (nodes, fieldNames) => {
+  if (!nodes) {
+    return false;
+  }
+  const node = nodes.find(x => x.name.value === fieldNames[0]);
+
+  if (!node) {
+    return false;
+  }
+  if (fieldNames.length === 1) {
+    return true;
+  }
+
+  return existFieldInGraphQL(node.selectionSet.selections, fieldNames.slice(1));
+};

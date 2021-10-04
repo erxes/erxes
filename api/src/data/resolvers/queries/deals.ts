@@ -3,7 +3,7 @@ import {
   checkPermission,
   moduleRequireLogin
 } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { IContext, IInfo } from '../../types';
 import dealResolvers from '../deals';
 import { IListParams } from './boards';
 import {
@@ -26,7 +26,8 @@ const dealQueries = {
   async deals(
     _root,
     args: IDealListParams,
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector }: IContext,
+    info: IInfo
   ) {
     const filter = {
       ...commonQuerySelector,
@@ -37,13 +38,15 @@ const dealQueries = {
       amount: await dealResolvers.amount(item)
     });
 
+    const { fieldNodes } = info;
     const deals = await getItemList(
       filter,
       args,
       user,
       'deal',
       { productsData: 1 },
-      getExtraFields
+      getExtraFields,
+      fieldNodes
     );
 
     const dealProductIds = deals.flatMap(deal => {
