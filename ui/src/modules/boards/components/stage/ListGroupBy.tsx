@@ -96,10 +96,10 @@ class ListGroupBy extends React.Component<Props> {
     }
 
     return (
-      <>
+      <GroupTitle>
         {groupObj.name.charAt(0).toUpperCase() + groupObj.name.slice(1)}
-        <p>{this.props.itemsTotalCount}</p>
-      </>
+        <span>{this.props.itemsTotalCount}</span>
+      </GroupTitle>
     );
   };
 
@@ -113,9 +113,7 @@ class ListGroupBy extends React.Component<Props> {
     return (
       <ListContainer>
         <Header>
-          <StageTitle>
-            <GroupTitle>{this.renderHeader()}</GroupTitle>
-          </StageTitle>
+          <StageTitle>{this.renderHeader()}</StageTitle>
         </Header>
         <ListBody onScroll={this.onScroll}>
           {!items || items.length === 0 ? (

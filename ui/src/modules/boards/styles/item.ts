@@ -92,14 +92,10 @@ export const LabelColumn = styled.td`
 `;
 
 export const StageColumn = styled.td`
-  width: 150px;
-
+  width: 200px;
   span {
-    padding ${dimensions.unitSpacing}px;
-    border-radius: ${dimensions.unitSpacing - 6}px;
-    transition: background 0.3s ease;
-    background: rgba(0, 0, 0, 0.04);
     font-weight: 500;
+    color: ${colors.textSecondary};
   }
 `;
 
