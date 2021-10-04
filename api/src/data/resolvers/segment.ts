@@ -1,10 +1,11 @@
 import { Segments } from '../../db/models';
 import { ISegmentDocument } from '../../db/models/definitions/segments';
 import { fetchSegment } from '../modules/segments/queryBuilder';
+import { IContext } from '../types';
 
 export default {
-  getSubSegments(segment: ISegmentDocument) {
-    return Segments.find({ subOf: segment._id });
+  getSubSegments(segment: ISegmentDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders.segmentsBySubOf.load(segment._id);
   },
 
   async count(segment: ISegmentDocument) {

@@ -6,7 +6,6 @@ import {
   Integrations,
   MessengerApps,
   Products,
-  Tags,
   Users
 } from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
@@ -56,15 +55,15 @@ export const getDocumentList = async (
         break;
       }
 
-      case 'tags': {
-        list = await Tags.find().lean();
-        break;
-      }
-
       case 'products': {
         list = await Products.find().lean();
         break;
       }
+      // no longer used
+      // case 'tags': {
+      //   list = await Tags.find().lean();
+      //   break;
+      // }
     }
 
     set(`erxes_${type}`, JSON.stringify(list));
