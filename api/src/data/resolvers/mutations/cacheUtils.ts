@@ -54,10 +54,11 @@ export const getDocumentList = async (
         break;
       }
 
-      case 'tags': {
-        list = await Tags.find().lean();
-        break;
-      }
+      // no longer used
+      // case 'tags': {
+      //   list = await Tags.find().lean();
+      //   break;
+      // }
     }
 
     set(`erxes_${type}`, JSON.stringify(list));
