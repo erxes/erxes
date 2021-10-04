@@ -34,6 +34,7 @@ export const feedSchema = {
   description: { type: String, label: 'Description' },
   images: { type: [attachmentSchema], label: 'Images' },
   attachments: { type: [attachmentSchema], label: 'Attachments' },
+  isPinned: { type: Boolean },
   contentType: { type: String, enum: FEED_CONTENT_TYPES.ALL },
   recipientIds: { type: [String] },
   visibility: { type: String, enum: ['Public', 'Private'] },

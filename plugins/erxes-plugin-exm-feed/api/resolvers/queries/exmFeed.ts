@@ -92,7 +92,7 @@ const exmFeedQueries = [
 
       return {
         list: await models.ExmFeed.find(doc)
-          .sort({ createdAt: -1 })
+          .sort({ isPinned: -1, createdAt: -1 })
           .skip(skip || 0)
           .limit(limit || 20),
         totalCount: await models.ExmFeed.find(doc).countDocuments()

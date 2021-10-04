@@ -20,6 +20,7 @@ export const types = `
     heartCount: Int
     isHearted: Boolean
     isLiked: Boolean
+    isPinned: Boolean
     images: JSON
     attachments: JSON
     recipientIds: [String]
@@ -119,6 +120,7 @@ const feedCommonParams = `
   startDate: Date
   endDate: Date
   customFieldsData: JSON
+  isPinned: Boolean
 `;
 
 const thankCommonParams = `
@@ -146,4 +148,6 @@ export const mutations = `
   exmFeedCommentRemove(_id: String!): JSON
 
   exmFeedEmojiReact(feedId: String!, type: String): String
+
+  exmFeedToggleIsPinned(_id: String): Boolean
 `;

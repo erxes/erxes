@@ -1,4 +1,4 @@
-// import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 
 export const gatherDescriptions = async () => {
   let extraDesc = [];
@@ -13,7 +13,7 @@ const exmFeedMutations = [
     handler: async (
       _root,
       doc,
-      { checkPermission, user, docModifier, models }
+      { checkPermission, user, docModifier, models, messageBroker }
     ) => {
       await checkPermission('manageExm', user);
 
@@ -23,17 +23,17 @@ const exmFeedMutations = [
         user
       );
 
-      // await putCreateLog(
-      //   messageBroker,
-      // gatherDescriptions,
-      // {
-      //   type: 'exmFeed',
-      //   newData: doc,
-      //   object: exmFeed,
-      //   extraParams: { models }
-      // },
-      // user
-      // );
+      await putCreateLog(
+        messageBroker,
+        gatherDescriptions,
+        {
+          type: 'exmFeed',
+          newData: doc,
+          object: exmFeed,
+          extraParams: { models }
+        },
+        user
+      );
 
       return exmFeed;
     }
@@ -44,9 +44,11 @@ const exmFeedMutations = [
     handler: async (
       _root,
       { _id, ...doc },
-      { checkPermission, user, docModifier, models }
+      { checkPermission, user, docModifier, models, messageBroker }
     ) => {
       await checkPermission('manageExm', user);
+
+      const exmFeed = await models.ExmFeed.getExmFeed(models, _id);
 
       const updated = await models.ExmFeed.updateExmFeed(
         models,
@@ -55,18 +57,18 @@ const exmFeedMutations = [
         user
       );
 
-      // await putUpdateLog(
-      //   messageBroker,
-      //   gatherDescriptions,
-      //   {
-      //     type: 'exmFeed',
-      //     object: exmFeed,
-      //     newData: { ...doc },
-      //     updatedDocument: updated,
-      //     extraParams: { models }
-      //   },
-      //   user
-      // );
+      await putUpdateLog(
+        messageBroker,
+        gatherDescriptions,
+        {
+          type: 'exmFeed',
+          object: exmFeed,
+          newData: { ...doc },
+          updatedDocument: updated,
+          extraParams: { models }
+        },
+        user
+      );
 
       return updated;
     }
@@ -74,23 +76,43 @@ const exmFeedMutations = [
 
   {
     name: 'exmFeedRemove',
-    handler: async (_root, { _id }, { models, checkPermission, user }) => {
+    handler: async (
+      _root,
+      { _id },
+      { models, checkPermission, user, messageBroker }
+    ) => {
       await checkPermission('manageExm', user);
 
       const exmFeed = await models.ExmFeed.removeExmFeed(models, _id);
 
-      // await putDeleteLog(
-      //   messageBroker,
-      //   gatherDescriptions,
-      //   {
-      //     type: 'exmFeed',
-      //     object: exmFeed,
-      //     extraParams: { models }
-      //   },
-      //   user
-      // );
+      await putDeleteLog(
+        messageBroker,
+        gatherDescriptions,
+        {
+          type: 'exmFeed',
+          object: exmFeed,
+          extraParams: { models }
+        },
+        user
+      );
 
       return exmFeed;
+    }
+  },
+
+  {
+    name: 'exmFeedToggleIsPinned',
+    handler: async (_root, { _id }, { models, checkPermission, user }) => {
+      await checkPermission('manageExm', user);
+
+      const exmFeed = await models.ExmFeed.getExmFeed(models, _id);
+
+      await models.ExmFeed.updateOne(
+        { _id },
+        { $set: { isPinned: !exmFeed.isPinned } }
+      );
+
+      return !exmFeed.isPinned;
     }
   }
 ];
