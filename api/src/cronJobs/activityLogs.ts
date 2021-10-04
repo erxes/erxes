@@ -26,17 +26,8 @@ export const createActivityLogsFromSegments = async () => {
       action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
       data: { segment, contentIds, type: segment.contentType }
     });
-
-    // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    //   type: segment.contentType,
-    //   targets: result
-    // });
   }
 };
-
-// setTimeout(() => {
-//   createActivityLogsFromSegments();
-// }, 5000);
 
 /**
  * *    *    *    *    *    *
