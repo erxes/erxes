@@ -146,12 +146,10 @@ function ChooseContent({
         <FormGroup>
           <Title>{__('Main Product Category')}</Title>
           <Description>
-            {`Select the main Product Category of the products and services you want
-          to display. If you haven't created one, please go to 
-          ${(
-            <a href="/settings/product-service">{__('Product & Service')}</a>
-          )} to
-          organize your product first.`}
+            Select the main Product Category of the products and services you
+            want to display. If you haven't created one, please go to
+            <a href="/settings/product-service">{__(' Product & Service ')}</a>
+            to organize your product first.
           </Description>
           <SelectProductCategory
             onChange={(el: any) => onChange('productCategoryId', el.value)}

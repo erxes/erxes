@@ -128,7 +128,7 @@ function Style({
             </WidgetBackgrounds>
           </FlexItem>
           <FlexItem>
-            <ControlLabel>Select</ControlLabel>
+            <ControlLabel>Selected</ControlLabel>
             <WidgetBackgrounds>
               {renderColorSelect('productSelected', productSelected)}
             </WidgetBackgrounds>
