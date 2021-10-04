@@ -9,6 +9,7 @@ function Product({ product }: Props) {
   if (!product) {
     return null;
   }
+
   return (
     <div>
       <h1>{product.name}</h1>

@@ -29,6 +29,24 @@ export interface IProductCategory {
 export interface IProduct {
   _id: string;
   name?: string;
+  type: string;
+  categoryId: string;
+  description: string;
+  sku: string;
+  code: string;
+  unitPrice: number;
+  customFieldsData?: any;
+  createdAt: Date;
+  vendorId?: string;
+
+  attachment?: any;
+  attachmentMore?: any[];
+  supply: string;
+  productCount: number;
+  minimiumCount: number;
+  category: IProductCategory;
+
+  customFieldsDataWithText?: JSON;
 }
 
 export interface ICategoryTree {

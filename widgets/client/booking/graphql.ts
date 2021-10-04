@@ -20,6 +20,36 @@ const productCategoryFields = `
 const productFields = `
   _id
   name
+
+  type
+  code
+
+  description
+  unitPrice
+  sku
+  
+  createdAt
+
+  category {
+    _id
+    code
+    name
+  }
+  attachment {    
+    url
+    name    
+    size
+    type
+  }
+  attachmentMore {
+    url
+    name    
+    size
+    type
+  }
+  productCount
+
+  customFieldsDataWithText
 `;
 
 const styleFields = `
