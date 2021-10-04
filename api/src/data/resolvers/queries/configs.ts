@@ -4,7 +4,7 @@ import { Configs, Pipelines, Stages } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { getErxesSaasDomain, readFile, sendRequest } from '../../utils';
+import { getEnv, getErxesSaasDomain, readFile, sendRequest } from '../../utils';
 
 const doSearch = async (index, value, fields) => {
   const highlightFields = {};
@@ -79,21 +79,20 @@ const configQueries = {
       releaseInfo: {}
     };
 
-    // const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
-    // const erxesVersion = await sendRequest({
-    //   url: `${erxesDomain}/version.json`,
-    //   method: 'GET'
-    // });
+    const erxesVersion = await sendRequest({
+      url: `${erxesDomain}/version.json`,
+      method: 'GET'
+    });
 
-    // result.version = erxesVersion.packageVersion || '-';
+    result.version = erxesVersion.packageVersion || '-';
     result.version = '-';
 
-    // const response = await sendRequest({
-    //   url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
-    //   method: 'GET'
-    // });
-    const response = { tag_name: '' };
+    const response = await sendRequest({
+      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
+      method: 'GET'
+    });
 
     result.isLatest = result.version === response.tag_name;
 
