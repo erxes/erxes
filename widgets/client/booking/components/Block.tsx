@@ -10,7 +10,12 @@ function Block({ block, goToBlock }: Props) {
   const handleOnClick = () => {
     goToBlock(block._id);
   };
-  return <button onClick={handleOnClick}>{block.name}</button>;
+  return (
+    <div className="block" onClick={handleOnClick}>
+      <h4>{block.name}</h4>
+      <p>{block.description}</p>
+    </div>
+  );
 }
 
 export default Block;

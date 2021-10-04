@@ -34,7 +34,7 @@ function App({ booking, activeRoute }: Props) {
   };
 
   return (
-    <div id="erxes-widget-container">
+    <div>
       <Navigation
         items={booking.categoryTree}
         parentId={booking.productCategoryId}

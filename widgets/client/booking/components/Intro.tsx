@@ -12,17 +12,16 @@ function Intro({ booking, goToBooking }: Props) {
   const { attachment } = mainProductCategory;
 
   return (
-    <div>
-      <h1>{title}</h1>
-      <p>{description}</p>
-      <img
-        src={readFile(attachment.url)}
-        alt="hello"
-        style={{ width: '900px' }}
-      />
+    <div className="main-container">
+      <div className="main-header">
+        <h3>{title}</h3>
+        {description}
+      </div>
+      <div className="main-body">
+        <img src={readFile(attachment.url)} alt="hello" />
+      </div>
       <button
-        style={{ backgroundColor: '#5629B6' }}
-        className="erxes-button"
+        className="erxes-button next-button"
         onClick={() => goToBooking(booking)}
       >
         Next

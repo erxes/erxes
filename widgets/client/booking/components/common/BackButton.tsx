@@ -6,14 +6,11 @@ type Props = {
 
 function BackButton({ onClickHandler }: Props) {
   return (
-    <button
-      style={{ margin: '5px', backgroundColor: '#5629B6' }}
-      type="button"
-      className="erxes-button"
-      onClick={onClickHandler}
-    >
-      Back
-    </button>
+    <div className="back-button">
+      <button type="button" className="erxes-button" onClick={onClickHandler}>
+        Back
+      </button>
+    </div>
   );
 }
 

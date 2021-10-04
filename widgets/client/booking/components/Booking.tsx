@@ -2,7 +2,6 @@ import * as React from 'react';
 import { readFile } from '../../utils';
 import { IBooking } from '../types';
 import { Block } from '../containers';
-import { BackButton } from './common';
 
 type Props = {
   goToIntro: () => void;
@@ -18,14 +17,25 @@ function Booking({ goToIntro, booking }: Props) {
   const { attachment } = mainProductCategory;
 
   return (
-    <div>
-      <h1>{title}</h1>
-      <p>{description}</p>
-      <img height={300} src={readFile(attachment.url)} alt={attachment.name} />
-      {childCategories.map((block, index) => {
-        return <Block key={index} block={block} />;
-      })}
-      <BackButton onClickHandler={goToIntro} />
+    <div className="main-container">
+      <div className="main-header">
+        <h3>{title}</h3>
+        {description}
+      </div>
+      <div className="main-body">
+        <img src={readFile(attachment.url)} alt={attachment.name} />
+        <button
+          className="erxes-button back-button"
+          onClick={() => goToIntro()}
+        >
+          Back
+        </button>
+      </div>
+      <div className="block-container">
+        {childCategories.map((block, index) => {
+          return <Block key={index} block={block} />;
+        })}
+      </div>
     </div>
   );
 }
