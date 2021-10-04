@@ -108,9 +108,9 @@ class Webhook extends React.Component<Props> {
 
         <FormGroup>
           <p>
-            {'For more information, go to '}
+            {'For more information, please review the '}
             <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
-              documentaion
+              documentaion.
             </a>
           </p>
         </FormGroup>

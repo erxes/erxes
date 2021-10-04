@@ -117,11 +117,12 @@ export const segmentSchema = schemaWrapper(
     contentType: field({
       type: String,
       enum: CONTENT_TYPES.ALL,
-      label: 'Content type'
+      label: 'Content type',
+      index: true
     }),
     name: field({ type: String }),
     description: field({ type: String, optional: true }),
-    subOf: field({ type: String, optional: true }),
+    subOf: field({ type: String, optional: true, index: true }),
     color: field({ type: String }),
     conditions: field({ type: [conditionSchema] }),
 
