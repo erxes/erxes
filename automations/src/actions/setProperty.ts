@@ -35,9 +35,6 @@ const getToChangeObjects = async ({ triggerType, target, module }) => {
     return [target];
   }
 
-  // if (Object.keys(target).includes(`${module}Id`)) {
-  //   return [await sendRPCMessage('findOneObject', { model: module, selector: { _id: target._id } })];
-  // }
   if (triggerType === 'conversation' && ['task', 'ticket', 'deal'].includes(module)) {
     return sendRPCMessage('findObjects', { model: `${module[0].toUpperCase()}${module.substr(1)}s`, selector: { sourceConversationIds: { $in: [target._id] } } })
   }
