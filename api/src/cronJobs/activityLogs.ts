@@ -1,11 +1,9 @@
 import * as dotenv from 'dotenv';
 import * as schedule from 'node-schedule';
-// import { RABBITMQ_QUEUES } from '../data/constants';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../data/logUtils';
 import { fetchSegment } from '../data/modules/segments/queryBuilder';
 import { connect } from '../db/connection';
 import { Segments } from '../db/models';
-// import messageBroker from '../messageBroker';
 
 /**
  * Send conversation messages to customer
