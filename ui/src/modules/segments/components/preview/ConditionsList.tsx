@@ -215,7 +215,7 @@ class ConditionsList extends React.Component<Props, State> {
           <Button
             size="small"
             btnStyle="simple"
-            icon="plus"
+            icon="add"
             onClick={this.addProperty}
           >
             Add property
