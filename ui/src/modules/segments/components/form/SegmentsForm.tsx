@@ -45,8 +45,24 @@ const SegmentsForm = (props: Props) => {
     return text;
   };
 
+  const {
+    contentType,
+    fields,
+    renderButton,
+    segment,
+    events,
+    headSegments,
+    boards,
+    isModal,
+    isAutomation,
+    closeModal,
+    segments,
+    previewCount,
+    count
+  } = props;
+
   const renderSidebar = () => {
-    const { count, counterLoading } = props;
+    const { counterLoading } = props;
 
     return (
       <Sidebar full={true} wide={true}>
@@ -65,22 +81,6 @@ const SegmentsForm = (props: Props) => {
       </Sidebar>
     );
   };
-
-  const {
-    contentType,
-    fields,
-    renderButton,
-    segment,
-    events,
-    headSegments,
-    boards,
-    isModal,
-    isAutomation,
-    closeModal,
-    segments,
-    previewCount,
-    count
-  } = props;
 
   const title = props.segment
     ? __(`Editing ${contentType} segment`)
