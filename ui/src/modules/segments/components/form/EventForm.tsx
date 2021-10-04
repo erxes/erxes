@@ -135,7 +135,7 @@ class EventForm extends React.Component<Props, State> {
           <ControlLabel>Attributes</ControlLabel>
           {attributeNames.map(attributeName => {
             return (
-              <>
+              <div key={Math.random()}>
                 <FormControl
                   key={Math.random()}
                   componentClass="radio"
@@ -146,7 +146,7 @@ class EventForm extends React.Component<Props, State> {
                   {attributeName}
                 </FormControl>
                 {this.renderInput(attributeName)}
-              </>
+              </div>
             );
           })}
         </>
