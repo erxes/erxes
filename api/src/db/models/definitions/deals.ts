@@ -93,7 +93,12 @@ export const productSchema = schemaWrapper(
       default: PRODUCT_TYPES.PRODUCT,
       label: 'Type'
     }),
-    tagIds: field({ type: [String], optional: true, label: 'Tags' }),
+    tagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Tags',
+      index: true
+    }),
     description: field({ type: String, optional: true, label: 'Description' }),
     sku: field({ type: String, optional: true, label: 'Stock keeping unit' }),
     unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
