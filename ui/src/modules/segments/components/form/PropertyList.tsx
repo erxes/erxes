@@ -8,7 +8,7 @@ import { OperatorList } from '../styles';
 type Props = {
   contentType: string;
   fields: IField[];
-  onClickField: (field: IField) => void;
+  onClickProperty: (field: IField) => void;
 };
 
 class PropertyList extends React.Component<Props, {}> {
@@ -40,8 +40,8 @@ class PropertyList extends React.Component<Props, {}> {
     }, {});
   };
 
-  onClickField = field => {
-    this.props.onClickField(field);
+  onClickProperty = field => {
+    this.props.onClickProperty(field);
   };
 
   renderFields = fields => {
@@ -50,7 +50,7 @@ class PropertyList extends React.Component<Props, {}> {
         <FormControl
           key={Math.random()}
           componentClass="radio"
-          onChange={this.onClickField.bind(this, field)}
+          onChange={this.onClickProperty.bind(this, field)}
         >
           {field.label}
         </FormControl>

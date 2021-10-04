@@ -40,7 +40,7 @@ type Props = {
 
 type State = {
   propertyType: string;
-  chosenField?: IField;
+  chosenProperty?: IField;
   searchValue: string;
   boardId: string;
   pipelineId: string;
@@ -62,12 +62,12 @@ class PropertyCondition extends React.Component<Props, State> {
     };
   }
 
-  onClickField = field => {
-    this.setState({ chosenField: field });
+  onClickProperty = field => {
+    this.setState({ chosenProperty: field });
   };
 
   onClickBack = () => {
-    this.setState({ chosenField: undefined, searchValue: '' });
+    this.setState({ chosenProperty: undefined, searchValue: '' });
   };
 
   onSearch = e => {
@@ -167,7 +167,7 @@ class PropertyCondition extends React.Component<Props, State> {
       fetchFields
     } = this.props;
     const {
-      chosenField,
+      chosenProperty,
       propertyType,
       searchValue,
       pipelineId,
@@ -182,7 +182,7 @@ class PropertyCondition extends React.Component<Props, State> {
 
       fetchFields(value);
 
-      this.setState({ propertyType: value, chosenField: undefined });
+      this.setState({ propertyType: value, chosenProperty: undefined });
     };
 
     const generateSelect = () => {
@@ -199,7 +199,7 @@ class PropertyCondition extends React.Component<Props, State> {
       );
     };
 
-    if (!chosenField) {
+    if (!chosenProperty) {
       return (
         <>
           {hideBackButton ? (
@@ -227,7 +227,7 @@ class PropertyCondition extends React.Component<Props, State> {
           <PropertyList
             formId={formId}
             pipelineId={pipelineId}
-            onClickField={this.onClickField}
+            onClickProperty={this.onClickProperty}
             contentType={propertyType}
             searchValue={searchValue}
           />
@@ -244,7 +244,7 @@ class PropertyCondition extends React.Component<Props, State> {
           {...this.props}
           segmentKey={this.props.segment.key}
           propertyType={propertyType}
-          field={chosenField}
+          field={chosenProperty}
           boardId={boardId}
           pipelineId={pipelineId}
           formId={formId}

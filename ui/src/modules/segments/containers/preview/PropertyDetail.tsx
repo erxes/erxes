@@ -15,7 +15,7 @@ type Props = {
   pipelineId?: string;
   segmentId?: string;
   segmentKey: string;
-  onClickField: (field: IField, condition, segmentKey: string) => void;
+  onClickProperty: (field: IField, condition, segmentKey: string) => void;
 };
 
 type FinalProps = {
@@ -32,24 +32,24 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
 
     const fields = fieldsQuery.fieldsCombinedByContentType as any;
 
-    let chosenField = fields.find(field => {
+    let chosenProperty = fields.find(field => {
       return field.name === condition.propertyName;
     });
 
-    chosenField = {
-      value: chosenField.name || chosenField._id,
-      label: chosenField.label || chosenField.title,
-      type: (chosenField.type || '').toLowerCase(),
-      group: chosenField.group || '',
-      selectOptions: chosenField.selectOptions || [],
+    chosenProperty = {
+      value: chosenProperty.name || chosenProperty._id,
+      label: chosenProperty.label || chosenProperty.title,
+      type: (chosenProperty.type || '').toLowerCase(),
+      group: chosenProperty.group || '',
+      selectOptions: chosenProperty.selectOptions || [],
 
-      choiceOptions: chosenField.options || []
+      choiceOptions: chosenProperty.options || []
     };
 
     return (
       <PropertyDetail
         {...this.props}
-        field={chosenField}
+        field={chosenProperty}
         condition={condition}
       />
     );

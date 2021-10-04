@@ -90,3 +90,9 @@ export const DEFAULT_OPERATORS = [
   ...OPERATORS.number,
   ...OPERATORS.date
 ];
+
+export const EVENT_OCCURENCES = [
+  { name: 'exactly', value: 'exactly' },
+  { name: 'atleast', value: 'atleast' },
+  { name: 'atmost', value: 'atmost' }
+];

@@ -15,7 +15,9 @@ import {
 import PropertyDetail from '../../containers/preview/PropertyDetail';
 
 import Icon from 'modules/common/components/Icon';
-import { CenterContent } from 'erxes-ui/lib/layout/styles';
+
+import EventDetail from './EventDetail';
+import { CenterContent } from 'modules/common/styles/main';
 
 type Props = {
   segment: ISegmentMap;
@@ -30,6 +32,7 @@ type Props = {
     pipelineId?: string
   ) => void;
   addNewProperty: (segmentKey: string) => void;
+  addNewEvent: (segmentKey: string) => void;
   removeCondition: (key: string, segmentKey?: string) => void;
   removeSegment: (segmentKey: string) => void;
   onClickBackToList: () => void;
@@ -37,8 +40,9 @@ type Props = {
     segmentKey: string,
     conjunction: string
   ) => void;
-  onClickField: (field, condition, segmentKey) => void;
-  chosenField?: IField;
+  onClickProperty: (field, condition, segmentKey) => void;
+  onClickEvent: (condition, segmentKey) => void;
+  chosenProperty?: IField;
   chosenCondition?: ISegmentCondition;
   isAutomation: boolean;
   boardId: string;
@@ -51,12 +55,17 @@ class ConditionsList extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { chosenField: undefined, chosenCondition: undefined };
+    this.state = { chosenProperty: undefined, chosenCondition: undefined };
   }
 
   addProperty = () => {
     const { segment, addNewProperty } = this.props;
     return addNewProperty(segment.key);
+  };
+
+  addEvent = () => {
+    const { segment, addNewEvent } = this.props;
+    return addNewEvent(segment.key);
   };
 
   removeCondition = condition => {
@@ -162,16 +171,36 @@ class ConditionsList extends React.Component<Props, State> {
       useMargin = false;
     }
 
+    if (condition.type === 'property') {
+      return (
+        <ConditionItem useMargin={useMargin} key={Math.random()}>
+          <FilterRow>
+            <PropertyDetail
+              onClickProperty={this.props.onClickProperty}
+              condition={condition}
+              pipelineId={segment.pipelineId}
+              segmentId={segment._id}
+              segmentKey={segment.key}
+            />
+
+            <FlexRightItem>
+              <div onClick={this.removeCondition.bind(this, condition)}>
+                <Icon icon="times" size={16} />
+              </div>
+            </FlexRightItem>
+          </FilterRow>
+        </ConditionItem>
+      );
+    }
+
     return (
       <ConditionItem useMargin={useMargin} key={Math.random()}>
         <FilterRow>
-          <PropertyDetail
-            onClickField={this.props.onClickField}
+          <EventDetail
             condition={condition}
-            pipelineId={segment.pipelineId}
-            segmentId={segment._id}
+            onClickEvent={this.props.onClickEvent}
             segmentKey={segment.key}
-          />
+          ></EventDetail>
 
           <FlexRightItem>
             <div onClick={this.removeCondition.bind(this, condition)}>
@@ -184,7 +213,7 @@ class ConditionsList extends React.Component<Props, State> {
   }
 
   render() {
-    const { segment, index } = this.props;
+    const { segment, index, isAutomation } = this.props;
 
     const { conditions } = segment;
 
@@ -220,6 +249,17 @@ class ConditionsList extends React.Component<Props, State> {
           >
             Add property
           </Button>
+
+          {!isAutomation ? (
+            <Button
+              size="small"
+              btnStyle="simple"
+              icon="add"
+              onClick={this.addEvent}
+            >
+              Add event
+            </Button>
+          ) : null}
         </Condition>
       </div>
     );

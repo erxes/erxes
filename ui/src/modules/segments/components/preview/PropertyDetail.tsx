@@ -7,14 +7,14 @@ type Props = {
   condition: ISegmentCondition;
   field: any;
   segmentKey: string;
-  onClickField: (field, condition, segmentKey) => void;
+  onClickProperty: (field, condition, segmentKey) => void;
 };
 
 class PropertyDetail extends React.Component<Props, {}> {
-  onClickField = () => {
-    const { field, onClickField, condition, segmentKey } = this.props;
+  onClickProperty = () => {
+    const { field, onClickProperty, condition, segmentKey } = this.props;
 
-    onClickField(field, condition, segmentKey);
+    onClickProperty(field, condition, segmentKey);
   };
 
   renderOperator = () => {
@@ -94,7 +94,7 @@ class PropertyDetail extends React.Component<Props, {}> {
     return (
       <ConditionDetailText>
         <span>{`${propertyTypeText}'s`} </span>
-        <PropertyText onClick={this.onClickField}>{label}</PropertyText>
+        <PropertyText onClick={this.onClickProperty}>{label}</PropertyText>
         {valueText}
       </ConditionDetailText>
     );

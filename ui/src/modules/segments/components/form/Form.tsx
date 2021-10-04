@@ -32,6 +32,7 @@ import { Link } from 'react-router-dom';
 import { isBoardKind } from 'modules/segments/utils';
 import Icon from 'modules/common/components/Icon';
 import PropertyForm from '../form/PropertyForm';
+import EventForm from './EventForm';
 
 type Props = {
   contentType: string;
@@ -72,7 +73,7 @@ type State = {
   showAddGroup: boolean;
   chosenSegment?: ISegmentMap;
 
-  chosenField?: IField;
+  chosenProperty?: IField;
   chosenCondition?: ISegmentCondition;
   chosenSegmentKey?: string;
 };
@@ -81,7 +82,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    let state = 'form';
+    let state = 'propertyForm';
     let showAddGroup = true;
 
     const segment: ISegment = props.segment || {
@@ -341,7 +342,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         segments,
         state: 'list',
         showAddGroup: true,
-        chosenField: undefined,
+        chosenProperty: undefined,
         chosenCondition: undefined
       });
     }
@@ -378,7 +379,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     this.setState({
       chosenSegment: undefined,
       state: 'list',
-      chosenField: undefined,
+      chosenProperty: undefined,
       chosenCondition: undefined
     });
   };
@@ -399,7 +400,15 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     const foundedSegment = segments.find(segment => segment.key === segmentKey);
 
-    this.setState({ chosenSegment: foundedSegment, state: 'form' });
+    this.setState({ chosenSegment: foundedSegment, state: 'propertyForm' });
+  };
+
+  addNewEvent = (segmentKey: string) => {
+    const segments = [...this.state.segments];
+
+    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+
+    this.setState({ chosenSegment: foundedSegment, state: 'eventForm' });
   };
 
   addSegment = () => {
@@ -413,7 +422,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     };
 
     this.setState({
-      state: 'form',
+      state: 'propertyForm',
       segments: [...this.state.segments, newSegment],
       chosenSegment: newSegment
     });
@@ -441,27 +450,27 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderConditionsList = () => {
-    const { contentType, isAutomation } = this.props;
+    const { contentType, isAutomation, events } = this.props;
     const {
       segments,
       state,
       chosenSegment,
       conditionsConjunction,
-      chosenField,
+      chosenProperty,
       chosenCondition,
       boardId,
       pipelineId,
       chosenSegmentKey
     } = this.state;
 
-    if (chosenField && chosenCondition && chosenSegmentKey) {
+    if (chosenProperty && chosenCondition && chosenSegmentKey) {
       return (
         <>
           <SegmentBackIcon onClick={this.onClickBackToList}>
             <Icon icon="angle-left" size={20} /> back
           </SegmentBackIcon>
           <PropertyForm
-            field={chosenField}
+            field={chosenProperty}
             condition={chosenCondition}
             segmentKey={chosenSegmentKey}
             addCondition={this.addCondition}
@@ -470,7 +479,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       );
     }
 
-    if (state !== 'form') {
+    if (state === 'list') {
       return segments.map((segment, index) => {
         return (
           <ConditionsList
@@ -478,6 +487,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             conditionsConjunction={conditionsConjunction}
             changeConditionsConjunction={this.changeConditionsConjunction}
             addNewProperty={this.addNewProperty}
+            addNewEvent={this.addNewEvent}
             onClickBackToList={this.onClickBackToList}
             removeCondition={this.removeCondition}
             removeSegment={this.removeSegment}
@@ -486,8 +496,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             segment={segment}
             addCondition={this.addCondition}
             changeSubSegmentConjunction={this.changeSubSegmentConjunction}
-            onClickField={this.onClickField}
-            chosenField={chosenField}
+            onClickProperty={this.onClickProperty}
+            onClickEvent={this.onClickEvent}
+            chosenProperty={chosenProperty}
             chosenCondition={chosenCondition}
             isAutomation={isAutomation || false}
             boardId={boardId}
@@ -497,7 +508,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       });
     }
 
-    if (chosenSegment) {
+    if (chosenSegment && state === 'propertyForm') {
       return (
         <PropertyCondition
           key={Math.random()}
@@ -514,16 +525,40 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       );
     }
 
+    if ((chosenSegment || chosenSegmentKey) && state === 'eventForm') {
+      return (
+        <EventForm
+          condition={chosenCondition}
+          key={Math.random()}
+          segmentKey={
+            chosenSegment ? chosenSegment.key : chosenSegmentKey || ''
+          }
+          onClickBackToList={this.onClickBackToList}
+          addCondition={this.addCondition}
+          events={events}
+        />
+      );
+    }
+
     return <></>;
   };
 
-  onClickField = (field, condition, segmentKey) => {
+  onClickProperty = (field, condition, segmentKey) => {
     this.setState({
-      chosenField: field,
+      chosenProperty: field,
       chosenCondition: condition,
       showAddGroup: false,
       chosenSegmentKey: segmentKey,
-      state: 'form'
+      state: 'propertyForm'
+    });
+  };
+
+  onClickEvent = (condition, segmentKey) => {
+    this.setState({
+      chosenCondition: condition,
+      showAddGroup: false,
+      chosenSegmentKey: segmentKey,
+      state: 'eventForm'
     });
   };
 
@@ -627,7 +662,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     };
 
     if (segments.length > 0 && segments[0].conditions.length > 0) {
-      if (state !== 'form') {
+      if (state === 'list') {
         return (
           <>
             {isModal ? (

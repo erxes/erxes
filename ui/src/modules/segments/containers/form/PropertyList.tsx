@@ -15,7 +15,7 @@ type Props = {
   searchValue: string;
   pipelineId: string;
   formId: string;
-  onClickField: (field: IField) => void;
+  onClickProperty: (field: IField) => void;
 };
 
 type FinalProps = {
