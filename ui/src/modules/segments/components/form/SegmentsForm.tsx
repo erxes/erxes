@@ -25,6 +25,7 @@ type Props = {
   previewCount: (args: {
     conditions: ISegmentCondition[];
     subOf?: string;
+    conditionsConjunction?: string;
   }) => void;
   counterLoading: boolean;
   isModal: boolean;

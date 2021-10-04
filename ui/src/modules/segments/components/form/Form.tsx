@@ -51,6 +51,7 @@ type Props = {
   previewCount?: (args: {
     conditions: IConditionsForPreview[];
     subOf?: string;
+    conditionsConjunction?: string;
   }) => void;
 
   isModal?: boolean;
@@ -139,7 +140,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { subOf, segments } = this.state;
+    const { subOf, segments, conditionsConjunction } = this.state;
     const { previewCount } = this.props;
 
     const conditionsForPreview: IConditionsForPreview[] = [];
@@ -152,7 +153,11 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     });
 
     if (previewCount) {
-      previewCount({ conditions: conditionsForPreview, subOf });
+      previewCount({
+        conditions: conditionsForPreview,
+        subOf,
+        conditionsConjunction
+      });
     }
   }
 
@@ -635,7 +640,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderSaveButton = (formProps: IFormProps) => {
-    const { segments, state, subOf } = this.state;
+    const { segments, state, subOf, conditionsConjunction } = this.state;
     const { values, isSubmitted } = formProps;
     const {
       renderButton,
@@ -657,7 +662,11 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     const onPreviewCount = () => {
       if (previewCount) {
-        previewCount({ conditions: conditionsForPreview, subOf });
+        previewCount({
+          conditions: conditionsForPreview,
+          subOf,
+          conditionsConjunction
+        });
       }
     };
 

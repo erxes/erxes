@@ -149,7 +149,7 @@ export const generateQueryBySegment = async (args: {
       ? defaultMustSelector.map(s => ({ ...s }))
       : [];
 
-  const cj = segment.conditionsConjunction;
+  const cj = segment.conditionsConjunction || 'and';
 
   if (cj === 'and') {
     selector.must = defaultSelector;

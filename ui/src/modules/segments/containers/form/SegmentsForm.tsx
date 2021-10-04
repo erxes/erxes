@@ -112,12 +112,14 @@ class SegmentsFormContainer extends React.Component<
     conditions,
     subOf,
     boardId,
-    pipelineId
+    pipelineId,
+    conditionsConjunction
   }: {
     conditions: ISegmentCondition[];
     subOf?: string;
     boardId?: string;
     pipelineId?: string;
+    conditionsConjunction?: string;
   }) => {
     const { contentType } = this.props;
 
@@ -131,7 +133,8 @@ class SegmentsFormContainer extends React.Component<
           conditions,
           subOf,
           boardId,
-          pipelineId
+          pipelineId,
+          conditionsConjunction
         }
       })
       .then(({ data }) => {

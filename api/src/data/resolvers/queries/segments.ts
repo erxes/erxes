@@ -111,13 +111,15 @@ const segmentQueries = {
       conditions,
       subOf,
       boardId,
-      pipelineId
+      pipelineId,
+      conditionsConjunction
     }: {
       contentType: string;
       conditions;
       subOf?: string;
       boardId?: string;
       pipelineId?: string;
+      conditionsConjunction?: 'and' | 'or';
     }
   ) {
     return fetchSegment(
@@ -128,7 +130,8 @@ const segmentQueries = {
         boardId,
         pipelineId,
         contentType,
-        conditions
+        conditions,
+        conditionsConjunction
       },
       { returnCount: true }
     );
