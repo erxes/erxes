@@ -398,7 +398,7 @@ export const generateQueryBySegment = async (args: {
   selectorNegativeList.push(...propertiesNegative);
 };
 
-const generateNestedQuery = (
+export const generateNestedQuery = (
   kind: string,
   field: string,
   operator: string,
@@ -443,7 +443,7 @@ const generateNestedQuery = (
   };
 };
 
-function elkConvertConditionToQuery(args: {
+export function elkConvertConditionToQuery(args: {
   field: string;
   type?: any;
   operator: string;
