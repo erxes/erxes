@@ -328,10 +328,6 @@ export const generateQueryBySegment = async (args: {
       eventAttributeFilters = []
     } = condition;
 
-    if (!eventOccurence || !eventOccurenceValue) {
-      continue;
-    }
-
     eventPositive.push({
       term: {
         name: eventName

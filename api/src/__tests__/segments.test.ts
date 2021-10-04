@@ -350,6 +350,19 @@ describe('Segments mutations', () => {
           eventAttributeFilters: [
             {
               name: 'price',
+              operator: 'numberdne',
+              value: '100'
+            }
+          ]
+        },
+        {
+          type: 'event',
+          eventName: 'buttonClick',
+          eventOccurence: 'atleast',
+          eventOccurenceValue: 1,
+          eventAttributeFilters: [
+            {
+              name: 'price',
               operator: 'numberigt',
               value: '100'
             }
@@ -379,6 +392,59 @@ describe('Segments mutations', () => {
     const result = await fetchSegment(mainSegment);
 
     expect(result.length).toBe(1);
+    expect(result[0]).toBe(c1._id);
+  });
+
+  test('fetchBySegment: eventOccurence', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+
+    const c1 = await customerFactory({ firstName: 'batamar' }, false, true);
+
+    await trackCustomEvent({
+      name: 'buttonClick',
+      customerId: c1._id,
+      attributes: {
+        price: 10
+      }
+    });
+
+    await sleep(2000);
+
+    // exactly
+    const condition: any = {
+      type: "event",
+      eventName: "buttonClick",
+      eventOccurence: "exactly",
+      eventOccurenceValue: 1,
+      eventAttributeFilters: [
+        {
+          name: "price",
+          operator: "numbere",
+          value: "10",
+        },
+      ],
+    };
+
+    let segment = await segmentFactory({
+      contentType: 'customer',
+      conditions: [condition]
+    });
+
+    let result = await fetchSegment(segment);
+    expect(result[0]).toBe(c1._id);
+
+    // atmost
+    condition.eventOccurence = 'atmost';
+    condition.eventAttributeFilters[0].operator = 'numberilt';
+    condition.eventAttributeFilters[0].value = '11';
+
+    segment = await segmentFactory({
+      contentType: 'customer',
+      conditions: [condition]
+    });
+
+    result = await fetchSegment(segment);
     expect(result[0]).toBe(c1._id);
   });
 
