@@ -4,7 +4,6 @@ import {
   Channels,
   Integrations,
   MessengerApps,
-  Tags,
   Users
 } from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
