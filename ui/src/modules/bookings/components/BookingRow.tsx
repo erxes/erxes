@@ -71,6 +71,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
     );
   };
 
+  // tslint:disable-next-line: no-shadowed-variable
   const renderEditAction = (booking: IBookingDocument) => {
     const trigger = (
       <Button btnStyle="link">
