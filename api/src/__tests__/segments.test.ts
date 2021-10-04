@@ -192,6 +192,124 @@ describe('Segments mutations', () => {
     expect(result.length).toBe(3);
   });
 
+  test('fetchBySegment: AND 2 subs', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+    await customerFactory({ state: 'visitor' }, false, true);
+    await customerFactory({ state: 'customer' }, false, true);
+
+    await sleep(2000);
+
+    const subSegment1 = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'state',
+          propertyOperator: 'e',
+          propertyValue: 'visitor'
+        }
+      ]
+    });
+
+    const subSegment2 = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'state',
+          propertyOperator: 'e',
+          propertyValue: 'customer'
+        }
+      ]
+    });
+
+    const mainSegment = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment1._id
+        },
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment2._id
+        },
+      ]
+    });
+
+    const result = await fetchSegment(mainSegment);
+
+    expect(result.length).toBe(0);
+  });
+
+  test('fetchBySegment: AND 2 subs - version 2', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+    await customerFactory({ state: 'visitor' }, false, true);
+    await customerFactory({ state: 'customer' }, false, true);
+
+    await sleep(2000);
+
+    const subSegment1 = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'state',
+          propertyOperator: 'e',
+          propertyValue: 'visitor'
+        },
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'state',
+          propertyOperator: 'e',
+          propertyValue: 'customer'
+        }
+      ]
+    });
+
+    const subSegment2 = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'state',
+          propertyOperator: 'is',
+        }
+      ]
+    });
+
+    const mainSegment = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment1._id
+        },
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment2._id
+        },
+      ]
+    });
+
+    const result = await fetchSegment(mainSegment);
+
+    expect(result.length).toBe(0);
+  });
+
   test('fetchBySegment: AND', async () => {
     await initialData();
 
