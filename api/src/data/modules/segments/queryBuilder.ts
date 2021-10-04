@@ -48,10 +48,6 @@ export const fetchSegment = async (
   segment: ISegment,
   options: IOptions = {}
 ): Promise<any> => {
-  if (!segment || !segment.conditions) {
-    return [];
-  }
-
   const { contentType } = segment;
 
   let index = getIndexByContentType(contentType);
@@ -634,7 +630,7 @@ function elkConvertConditionToQuery(args: {
   return [positiveQuery, negativeQuery];
 }
 
-const getIndexByContentType = (contentType: string) => {
+export const getIndexByContentType = (contentType: string) => {
   let index = 'customers';
 
   if (contentType === 'company') {
@@ -746,8 +742,6 @@ const associationPropertyFilter = async ({
       negativeQuery
     });
   }
-
-  return [];
 };
 
 const generateConditionStageIds = async ({

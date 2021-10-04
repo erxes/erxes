@@ -1,10 +1,12 @@
 import {
   fetchSegment,
   generateQueryBySegment,
+  getIndexByContentType,
   isInSegment
 } from '../data/modules/segments/queryBuilder';
 import {
   boardFactory,
+  companyFactory,
   customerFactory,
   dealFactory,
   fieldFactory,
@@ -12,7 +14,9 @@ import {
   formSubmissionFactory,
   pipelineFactory,
   segmentFactory,
-  stageFactory
+  stageFactory,
+  taskFactory,
+  ticketFactory
 } from '../db/factories';
 import { Customers, Segments } from '../db/models';
 import { trackCustomEvent } from '../events';
@@ -752,5 +756,103 @@ describe('Segments mutations', () => {
 
     expect(result.length).toBe(1);
     expect(result[0]).toBe(customer._id);
+  });
+
+  test('fetchBySegment: return selector', async () => {
+    await customerFactory({ lastName: 'la' }, false, true);
+    await customerFactory({ lastName: 'te'} , false, true);
+
+    await sleep(2000);
+
+    const segment = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'is',
+        }
+      ]
+    });
+
+    let result = await fetchSegment(segment, { returnSelector: true });
+    expect(result).toBeDefined();
+
+    result = await fetchSegment(segment, { returnFullDoc: true });
+    expect(result).toBeDefined();
+
+    result = await fetchSegment(segment, { returnFields: ['_id'] });
+    expect(result).toBeDefined();
+  });
+
+  test('fetchBySegment: associationPropertyFilter', async () => {
+    const company = await companyFactory({ primaryName: 'name' }, true);
+    const deal = await dealFactory({ companyIds: [company._id ]}, true);
+    const ticket = await ticketFactory({ companyIds: [company._id ]}, true);
+    const task = await taskFactory({ companyIds: [company._id ]}, true);
+
+    await sleep(2000);
+
+    let segment = await segmentFactory({
+      contentType: 'company',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'is',
+        }
+      ]
+    });
+
+    const conditions: any = [
+      {
+        type: "property",
+        propertyType: "company",
+        propertyName: "primaryName",
+        propertyOperator: "is",
+      },
+    ];
+
+    // assiated deal on company
+    let result = await fetchSegment(segment, {});
+    const [companyId] = result;
+    expect(companyId).toBe(company._id);
+
+    // assiated company on deal
+    segment = await segmentFactory({
+      contentType: 'deal',
+      conditions
+    });
+
+    result = await fetchSegment(segment, {});
+    const [dealId] = result;
+    expect(dealId).toBe(deal._id);
+
+    // assiated company on task
+    segment = await segmentFactory({
+      contentType: 'task',
+      conditions
+    });
+
+    result = await fetchSegment(segment, {});
+    const [taskId] = result;
+    expect(taskId).toBe(task._id);
+
+    // assiated company on ticket
+    segment = await segmentFactory({
+      contentType: 'ticket',
+      conditions
+    });
+
+    result = await fetchSegment(segment, {});
+    const [ticketId] = result;
+    expect(ticketId).toBe(ticket._id);
+
+    // get content type
+    expect(getIndexByContentType('conversation')).toBe('conversations');
   });
 });
