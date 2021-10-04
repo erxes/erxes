@@ -82,8 +82,6 @@ const webhookMiddleware = async (req, res, next) => {
 
     const params = req.body;
 
-    console.log(params);
-
     if (webhookData.script) {
       const vm = new NodeVM({
         sandbox: { params }
