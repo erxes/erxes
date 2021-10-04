@@ -1,3 +1,4 @@
+import { Fields } from '../../db/models';
 import { IProductDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 
@@ -16,5 +17,30 @@ export default {
     if (product.vendorId) {
       return dataLoaders?.company.load(product.vendorId);
     }
+  },
+
+  async customFieldsDataWithText(product: IProductDocument) {
+    const { customFieldsData } = product;
+
+    if (!customFieldsData) {
+      return null;
+    }
+
+    const data: any = {};
+
+    for (const el of customFieldsData) {
+      const field = await Fields.aggregate([
+        { $match: { _id: el.field } },
+        { $project: { text: '$text' } }
+      ]);
+      const { text } = field[0];
+
+      data[text] = {
+        text,
+        value: el.value
+      };
+    }
+
+    return data;
   }
 };
