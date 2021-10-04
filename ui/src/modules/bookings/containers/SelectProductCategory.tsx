@@ -31,6 +31,8 @@ function SelectProductCategory(props: Props) {
       onChange={onChange}
       value={value}
       placeholder={placeholder}
+      clearable={false}
+      backspaceRemoves={false}
     />
   );
 }
