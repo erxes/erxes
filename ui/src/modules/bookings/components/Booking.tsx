@@ -172,6 +172,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
             <Step
               img="/images/icons/erxes-01.svg"
               title="Settings"
+              noButton={true}
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <ChooseSettings
