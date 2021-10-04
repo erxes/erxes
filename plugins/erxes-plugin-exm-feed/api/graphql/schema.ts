@@ -70,6 +70,7 @@ export const types = `
 
   enum SourceType {
     recipient
+    createdByMe
     admin
   }
 
@@ -99,8 +100,8 @@ export const types = `
 
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
-  exmFeed(contentTypes: [ContentType], type: SourceType, recipientType: RecipientType, title: String, limit: Int): ExmFeedResponse
-  exmThanks(limit: Int, type: SourceType): ExmThankResponse
+  exmFeed(contentTypes: [ContentType], type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int): ExmFeedResponse
+  exmThanks(limit: Int, skip: Int, type: SourceType): ExmThankResponse
   exmFeedComments(feedId: String, parentId: String, limit: Int, skip: Int): ExmFeedCommentResponse
   exmFeedLikedUsers(feedId: String!): [User]
   exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
