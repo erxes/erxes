@@ -102,8 +102,6 @@ export const fetchSegment = async (
     return selector;
   }
 
-  console.log('333', JSON.stringify(selector));
-
   // count entries
   if (options.returnCount) {
     const countResponse = await fetchElk({
