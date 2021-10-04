@@ -10,9 +10,9 @@ export default {
     return getDocument('users', { _id: message.userId });
   },
 
-  customer(message: IMessageDocument, _, { dataLoaders } : IContext ) {
-    if(message.customerId){
-      return dataLoaders?.customer?.load(message.customerId);
+  customer(message: IMessageDocument, _, { dataLoaders }: IContext) {
+    if (message.customerId) {
+      return dataLoaders.customer.load(message.customerId);
     }
   },
 

@@ -1,18 +1,18 @@
-import { Companies, Conformities } from '../../db/models';
+import { Conformities } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
-import { getDocument } from './mutations/cacheUtils';
 import { IContext } from '../types';
 
 export default {
-  integration(customer: ICustomerDocument) {
-    return getDocument('integrations', {
-      _id: customer.integrationId
-    });
+  integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return (
+      customer.integrationId &&
+      dataLoaders.integration.load(customer.integrationId)
+    );
   },
 
   getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.tag?.loadMany(customer.tagIds || []);
+    return dataLoaders.tag.loadMany(customer.tagIds || []);
   },
 
   async urlVisits(customer: ICustomerDocument) {
@@ -49,21 +49,23 @@ export default {
     });
   },
 
-  conversations(customer: ICustomerDocument, _, { dataLoaders } : IContext) {
-    return dataLoaders?.conversationByCustomerId?.load(customer._id);
+  conversations(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders.conversationsByCustomerId.load(customer._id);
   },
 
-  async companies(customer: ICustomerDocument) {
+  async companies(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
     const companyIds = await Conformities.savedConformity({
       mainType: 'customer',
       mainTypeId: customer._id,
       relTypes: ['company']
     });
-
-    return Companies.find({ _id: { $in: companyIds || [] } }).limit(10);
+    const companies = await dataLoaders.company.loadMany(
+      (companyIds || []).filter(x => x)
+    );
+    return (companies || []).slice(0, 10);
   },
 
-  owner(customer: ICustomerDocument) {
-    return getDocument('users', { _id: customer.ownerId });
+  owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return customer.ownerId && dataLoaders.user.load(customer.ownerId);
   }
 };
