@@ -87,6 +87,7 @@ type State = {
   zoomStep: number;
   zoom: number;
   percentage: number;
+  automationNotes: IAutomationNote[];
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -96,7 +97,7 @@ class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { automation } = this.props;
+    const { automation, automationNotes = [] } = this.props;
 
     this.state = {
       name: automation.name,
@@ -116,7 +117,8 @@ class AutomationForm extends React.Component<Props, State> {
       zoomStep: 0.025,
       zoom: 1,
       percentage: 100,
-      activeAction: {} as IAction
+      activeAction: {} as IAction,
+      automationNotes
     };
   }
 
@@ -158,6 +160,13 @@ class AutomationForm extends React.Component<Props, State> {
 
       instanceZoom.setZoom(zoom);
     };
+
+    if (
+      (prevProps.automationNotes || []).length !==
+      (this.props.automationNotes || []).length
+    ) {
+      this.setState({ automationNotes: this.props.automationNotes || [] });
+    }
   }
 
   componentWillUnmount() {
@@ -490,7 +499,7 @@ class AutomationForm extends React.Component<Props, State> {
     const item = activeId.split('-');
     const type = item[0];
 
-    return (this.props.automationNotes || []).filter(note => {
+    return (this.state.automationNotes || []).filter(note => {
       if (type === 'trigger' && note.triggerId !== item[1]) {
         return null;
       }
@@ -504,7 +513,9 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   renderNotes(key: string) {
-    if ((this.checkNote(key) || []).length === 0) {
+    const noteCount = (this.checkNote(key) || []).length;
+
+    if (noteCount === 0) {
       return ``;
     }
 
@@ -524,7 +535,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
-    const idElm = `${key}-${item.id ? item.id : Math.random()}`;
+    const idElm = `${key}-${item.id}`;
 
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
