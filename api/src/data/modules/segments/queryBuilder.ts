@@ -212,7 +212,9 @@ export const generateQueryBySegment = async (args: {
   const propertyConditions: ICondition[] = [];
   const eventConditions: ICondition[] = [];
 
-  for (const condition of segment.conditions) {
+  const conditions = segment.conditions || [];
+
+  for (const condition of conditions) {
     if (condition.type === 'property') {
       if (condition.propertyType !== 'form_submission') {
         propertyConditions.push(condition);

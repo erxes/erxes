@@ -469,7 +469,7 @@ describe('activityLogQueries', () => {
     spy.mockRestore();
   });
 
-  test('Activity log action assignee', async () => {
+  test('Activity log tagged', async () => {
     const customer = await customerFactory();
     const tag = await tagsFactory();
 
