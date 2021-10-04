@@ -112,7 +112,7 @@ export default {
   },
 
   async tags(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.tag?.loadMany(conv.tagIds || []);
+    return dataLoaders.tag.loadMany(conv.tagIds || []);
   },
 
   async videoCallData(
