@@ -68,8 +68,8 @@ export interface ISegment {
   contentType: string;
   name: string;
   description?: string;
-  subOf: string;
-  color: string;
+  subOf?: string;
+  color?: string;
 
   conditions: ICondition[];
   conditionsConjunction?: 'and' | 'or';

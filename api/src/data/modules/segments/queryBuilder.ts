@@ -48,10 +48,6 @@ export const fetchSegment = async (
   segment: ISegment,
   options: IOptions = {}
 ): Promise<any> => {
-  if (!segment || !segment.conditions) {
-    return [];
-  }
-
   const { contentType } = segment;
 
   let index = getIndexByContentType(contentType);
@@ -334,10 +330,6 @@ export const generateQueryBySegment = async (args: {
       eventAttributeFilters = []
     } = condition;
 
-    if (!eventOccurence || !eventOccurenceValue) {
-      continue;
-    }
-
     eventPositive.push({
       term: {
         name: eventName
@@ -408,7 +400,7 @@ export const generateQueryBySegment = async (args: {
   selectorNegativeList.push(...propertiesNegative);
 };
 
-const generateNestedQuery = (
+export const generateNestedQuery = (
   kind: string,
   field: string,
   operator: string,
@@ -453,7 +445,7 @@ const generateNestedQuery = (
   };
 };
 
-function elkConvertConditionToQuery(args: {
+export function elkConvertConditionToQuery(args: {
   field: string;
   type?: any;
   operator: string;
@@ -636,7 +628,7 @@ function elkConvertConditionToQuery(args: {
   return [positiveQuery, negativeQuery];
 }
 
-const getIndexByContentType = (contentType: string) => {
+export const getIndexByContentType = (contentType: string) => {
   let index = 'customers';
 
   if (contentType === 'company') {
@@ -748,8 +740,6 @@ const associationPropertyFilter = async ({
       negativeQuery
     });
   }
-
-  return [];
 };
 
 const generateConditionStageIds = async ({
