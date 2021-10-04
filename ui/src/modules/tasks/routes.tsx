@@ -8,6 +8,10 @@ const TaskBoard = asyncComponent(() =>
   import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard')
 );
 
+const MyChart = asyncComponent(() =>
+  import(/* webpackChunkName: "Chart" */ '../boards/components/chart/MyChart')
+);
+
 const Calendar = asyncComponent(() =>
   import(/* webpackChunkName: "Calendar" */ '../boards/components/Calendar')
 );
@@ -37,6 +41,10 @@ const tasks = () => {
   }
 
   return <Redirect to={link} />;
+};
+
+const charts = () => {
+  return <MyChart />;
 };
 
 const boards = ({ location }) => {
@@ -76,6 +84,13 @@ const routes = () => {
         exact={true}
         path="/task/calendar"
         component={calendar}
+      />
+
+      <Route
+        key="task/chart"
+        exact={true}
+        path="/task/chart"
+        component={charts}
       />
     </>
   );
