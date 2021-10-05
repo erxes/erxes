@@ -53,6 +53,9 @@ import Forum from './forum';
 import ForumTopic from './forumTopic';
 import ForumDiscussion from './forumDiscussion';
 import ForumDiscussionComment from './forumDiscussionComment';
+import Automation from './automation';
+import AutomationNote from './automationNote';
+import Trigger from './trigger';
 
 const resolvers: any = {
   ...customScalars,
@@ -112,7 +115,10 @@ const resolvers: any = {
   ForumDiscussion,
   ForumDiscussionComment,
   CPTicket,
-  TicketComment
+  TicketComment,
+  Automation,
+  AutomationNote,
+  Trigger
 };
 
 export default resolvers;

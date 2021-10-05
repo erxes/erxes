@@ -24,6 +24,7 @@
     "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts",
     "removeUnusedFields": "node_modules/.bin/ts-node src/commands/removeUnusedFields.ts",
     "migrateKnowledgeBase": "node_modules/.bin/ts-node src/commands/migrateKnowledgeBase.ts",
+    "migrateSegment": "node_modules/.bin/ts-node src/commands/segmentMigration.ts",
     "changeToSubscribed": "node_modules/.bin/ts-node src/commands/changeToSubscribed.ts",
     "fixCompanyScopeBrandIds": "node_modules/.bin/ts-node src/commands/fixCompanyScopeBrandIds.ts"
   },

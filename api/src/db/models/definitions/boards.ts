@@ -48,6 +48,7 @@ export interface IItemCommonFields {
     startDate?: string;
   };
   customFieldsData?: ICustomField[];
+  score?: number;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -213,6 +214,12 @@ export const commonItemFieldsSchema = {
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
+  }),
+  score: field({
+    type: Number,
+    optional: true,
+    label: 'Score',
+    esType: 'number'
   })
 };
 

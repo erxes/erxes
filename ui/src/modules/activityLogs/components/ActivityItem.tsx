@@ -18,6 +18,7 @@ import MergedLog from './items/MergedLog';
 import SegmentLog from './items/SegmentLog';
 import SmsLog from './items/SmsLog';
 import TicketComment from './items/ticket/Comment';
+import TaggedLog from './items/TaggedLog';
 
 const renderDetail = (type: string, children: React.ReactNode) => {
   const iconAndColor = getIconAndColor(type) || {};
@@ -88,6 +89,8 @@ const activityItem = (activity: IActivityLog) => {
       return renderDetail(activity.action, <SegmentLog activity={activity} />);
     case 'assignee':
       return renderDetail('assignee', <AssigneeLog activity={activity} />);
+    case 'tagged':
+      return renderDetail('tagged', <TaggedLog activity={activity} />);
     case 'archive':
       return renderDetail('archive', <ArchiveLog activity={activity} />);
     case 'send':

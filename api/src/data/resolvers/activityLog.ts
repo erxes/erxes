@@ -11,6 +11,7 @@ import {
 } from '../../db/models';
 import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
+import { ITagDocument } from '../../db/models/definitions/tags';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
@@ -140,6 +141,15 @@ export default {
       }
 
       return { addedUsers, removedUsers };
+    }
+
+    if (action === ACTIVITY_ACTIONS.TAGGED) {
+      let tags: ITagDocument[] = [];
+      if (content) {
+        tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
+      }
+
+      return { tags };
     }
   }
 };

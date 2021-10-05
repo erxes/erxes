@@ -3,6 +3,7 @@ import * as cookie from 'cookie';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
 import {
+  AutomationsAPI,
   EngagesAPI,
   HelpersApi,
   IntegrationsAPI,
@@ -45,6 +46,7 @@ if (NODE_ENV !== 'production') {
 
 const generateDataSources = () => {
   return {
+    AutomationsAPI: new AutomationsAPI(),
     EngagesAPI: new EngagesAPI(),
     IntegrationsAPI: new IntegrationsAPI(),
     HelpersApi: new HelpersApi(),

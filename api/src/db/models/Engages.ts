@@ -83,7 +83,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     brandId: string;
     integrationId: string;
     customer?: ICustomerDocument;
-    visitor?: any;
+    visitorId?: string;
     browserInfo: any;
   }): Promise<IMessageDocument[]>;
 }
@@ -234,17 +234,20 @@ export const loadClass = () => {
       brandId: string;
       integrationId: string;
       customer?: ICustomerDocument;
-      visitor?: any;
+      visitorId?: string;
       browserInfo: any;
     }) {
-      const { brandId, integrationId, customer, visitor, browserInfo } = params;
+      const {
+        brandId,
+        integrationId,
+        customer,
+        visitorId,
+        browserInfo
+      } = params;
 
-      if (visitor) {
-        delete visitor._id;
-        visitor.state = CONTENT_TYPES.VISITOR;
-      }
-
-      const customerObj = customer ? customer : visitor;
+      const customerObj = customer
+        ? customer
+        : { _id: '', state: CONTENT_TYPES.VISITOR };
 
       let messages: IEngageMessageDocument[];
 
@@ -317,7 +320,7 @@ export const loadClass = () => {
         // check for rules ===
         const numberOfVisits = await getNumberOfVisits({
           url: browserInfo.url,
-          visitorId: visitor ? visitor.visitorId : undefined,
+          visitorId,
           customerId: customer ? customer._id : undefined
         });
 
@@ -349,7 +352,7 @@ export const loadClass = () => {
           const conversationMessage = await this.createOrUpdateConversationAndMessages(
             {
               customerId: customer && customer._id,
-              visitorId: visitor && visitor.visitorId,
+              visitorId,
               integrationId,
               user,
               replacedContent: replacedContent || '',

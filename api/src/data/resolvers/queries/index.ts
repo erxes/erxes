@@ -1,4 +1,5 @@
 import activityLogs from './activityLogs';
+import automations from './automations';
 import boards from './boards';
 import brands from './brands';
 import calendars from './calendars';
@@ -94,5 +95,6 @@ export default {
   ...clientPortal,
   ...messengerAppsQueries,
   ...smsDeliveries,
-  ...forums
+  ...forums,
+  ...automations
 };

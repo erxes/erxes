@@ -13,6 +13,7 @@ import {
   integrationFactory,
   internalNoteFactory,
   stageFactory,
+  tagsFactory,
   taskFactory,
   ticketCommentFactory,
   ticketFactory,
@@ -492,6 +493,35 @@ describe('activityLogQueries', () => {
     spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
     const args = { contentId, contentType, activityType: 'ticket_comments' };
+
+    const response = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args
+    );
+
+    expect(response.length).toBe(1);
+
+    spy.mockRestore();
+  });
+
+  test('Activity log tagged', async () => {
+    const customer = await customerFactory();
+    const tag = await tagsFactory();
+
+    const doc = {
+      contentId: customer._id,
+      contentType: 'customer',
+      action: 'tagged',
+      content: {
+        tagIds: [tag._id]
+      }
+    };
+
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
+
+    const args = { contentId: customer._id, contentType: 'customer' };
 
     const response = await graphqlRequest(
       qryActivityLogs,
