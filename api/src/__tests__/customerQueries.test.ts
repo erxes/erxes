@@ -12,6 +12,8 @@ import {
 } from '../db/factories';
 import { Customers, FormSubmissions, Segments, Tags } from '../db/models';
 import * as elk from '../elasticsearch';
+import { deleteAllIndexes, putMappings } from './esMappings';
+import { sleep } from './setup';
 
 import './setup.ts';
 
@@ -72,19 +74,38 @@ describe('customerQueries', () => {
     }
   `;
 
+  let gmock;
+
+  const createGMock = () => {
+    gmock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({ hits: { hits: [] } });
+    });
+  };
+
+  beforeEach(async () => {
+    await putMappings();
+  });
+
   afterEach(async () => {
     // Clearing test data
     await Customers.deleteMany({});
     await Segments.deleteMany({});
     await Tags.deleteMany({});
     await FormSubmissions.deleteMany({});
+    await deleteAllIndexes();
   });
 
   test('Customers', async () => {
+    await createGMock();
+
     await graphqlRequest(qryCustomers, 'customers', {});
+
+    gmock.restore();
   });
 
   test('Customers filtered by ids', async () => {
+    await createGMock();
+
     const customer1 = await customerFactory({}, true);
     const customer2 = await customerFactory({}, true);
     const customer3 = await customerFactory({}, true);
@@ -96,10 +117,14 @@ describe('customerQueries', () => {
     const ids = [customer1._id, customer2._id, customer3._id];
 
     await graphqlRequest(qryCustomers, 'customers', { ids });
+
+    gmock.restore();
   });
 
   test('Main customers', async () => {
+    await createGMock();
     await graphqlRequest(qryCustomersMain, 'customersMain', {});
+    gmock.restore();
   });
 
   test('Count customers', async () => {
@@ -118,7 +143,7 @@ describe('customerQueries', () => {
     await graphqlRequest(qryCount, 'customerCounts', args);
   });
 
-  test('Count customers by segment', async () => {
+  test('Customers count by segment', async () => {
     // Creating test data
     await segmentFactory({ contentType: 'customer' });
 
@@ -167,6 +192,8 @@ describe('customerQueries', () => {
   });
 
   test('Customer filtered by submitted form', async () => {
+    await createGMock();
+
     const customer1 = await customerFactory({}, true);
     const customer2 = await customerFactory({}, true);
 
@@ -184,9 +211,13 @@ describe('customerQueries', () => {
     await graphqlRequest(qryCustomersMain, 'customersMain', {
       form: form._id
     });
+
+    gmock.restore();
   });
 
-  test('Customer filtered by submitted form with startDate and endDate', async () => {
+  test('Customer filtered by submitted form with startDcate and endDate', async () => {
+    await createGMock();
+
     const customer = await customerFactory({}, true);
     const customer1 = await customerFactory({}, true);
     const customer2 = await customerFactory({}, true);
@@ -216,12 +247,65 @@ describe('customerQueries', () => {
     };
 
     await graphqlRequest(qryCustomersMain, 'customersMain', args);
+
+    gmock.restore();
   });
 
   test('Customer filtered by default selector', async () => {
-    await integrationFactory({});
+    await createGMock();
 
+    await integrationFactory({});
     await graphqlRequest(qryCustomersMain, 'customersMain', {});
+
+    gmock.restore();
+  });
+
+  test('Customers by segment', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+    await customerFactory(
+      { firstName: 'batamar', leadStatus: 'new' },
+      false,
+      true
+    );
+
+    await sleep(2000);
+
+    const subSegment = await segmentFactory({
+      contentType: 'customer',
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'firstName',
+          propertyOperator: 'c',
+          propertyValue: 'bat'
+        }
+      ]
+    });
+
+    const mainSegment = await segmentFactory({
+      contentType: 'customer',
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment._id
+        },
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'leadStatus',
+          propertyOperator: 'c',
+          propertyValue: 'new'
+        }
+      ]
+    });
+
+    const response = await graphqlRequest(qryCustomersMain, 'customersMain', {
+      segment: mainSegment._id
+    });
+
+    expect(response.list.length).toBe(1);
   });
 
   test('Customer detail', async () => {

@@ -3,6 +3,7 @@ import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
+import { fetchElk } from '../elasticsearch';
 import {
   Boards,
   Brands,
@@ -71,12 +72,14 @@ import {
   PRODUCT_TYPES,
   WEBHOOK_ACTIONS
 } from './models/definitions/constants';
+import { ICustomerDocument } from './models/definitions/customers';
 import {
   IEmail,
   IMessenger,
   IScheduleDate
 } from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
+import { ICondition } from './models/definitions/segments';
 import { IUserDocument } from './models/definitions/users';
 import PipelineTemplates from './models/PipelineTemplates';
 
@@ -380,19 +383,13 @@ export const responseTemplateFactory = (
   return responseTemplate.save();
 };
 
-interface IConditionsInput {
-  field?: string;
-  operator?: string;
-  value?: any;
-  type?: string;
-}
-
 interface ISegmentFactoryInput {
   contentType?: string;
   description?: string;
   subOf?: string;
   color?: string;
-  conditions?: IConditionsInput[];
+  conditions?: ICondition[];
+  conditionsConjunction?: 'and' | 'or';
   boardId?: string;
   pipelineId?: string;
 }
@@ -414,6 +411,7 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
     subOf: params.subOf,
     color: params.color || '#809b87',
     conditions: params.conditions || defaultConditions,
+    conditionsConjunction: params.conditionsConjunction,
     boardId: params.boardId,
     pipelineId: params.pipelineId
   });
@@ -498,7 +496,7 @@ interface ICompanyFactoryInput {
   code?: string;
 }
 
-export const companyFactory = (params: ICompanyFactoryInput = {}) => {
+export const companyFactory = async (params: ICompanyFactoryInput = {}, syncToEs=false) => {
   const companyDoc = {
     primaryName: params.primaryName || faker.random.word(),
     names: params.names || [],
@@ -528,8 +526,16 @@ export const companyFactory = (params: ICompanyFactoryInput = {}) => {
   });
 
   const company = new Companies(companyDoc);
+  await company.save();
 
-  return company.save();
+  return syncToEs
+    ? await fetchElk({
+        action: 'create',
+        index: 'companies',
+        body: companyDoc,
+        _id: company._id
+      })
+    : company;
 };
 
 interface ICustomerFactoryInput {
@@ -566,8 +572,9 @@ interface ICustomerFactoryInput {
 
 export const customerFactory = async (
   params: ICustomerFactoryInput = {},
-  useModelMethod = false
-) => {
+  useModelMethod = false,
+  syncToEs = false
+): Promise<ICustomerDocument> => {
   const createdAt = faker.date.past();
 
   const doc = {
@@ -603,12 +610,28 @@ export const customerFactory = async (
   };
 
   if (useModelMethod) {
-    return Customers.createCustomer(doc);
+    const customer = await Customers.createCustomer(doc);
+    return syncToEs
+      ? await fetchElk({
+          action: 'create',
+          index: 'customers',
+          body: doc,
+          _id: customer._id
+        })
+      : customer;
   }
 
-  const customer = new Customers(doc);
+  const customerObject = new Customers(doc);
+  const savedCustomer = await customerObject.save();
 
-  return customer.save();
+  return syncToEs
+    ? await fetchElk({
+        action: 'create',
+        index: 'customers',
+        body: doc,
+        _id: savedCustomer._id
+      })
+    : savedCustomer;
 };
 
 interface IFieldFactoryInput {
@@ -826,9 +849,10 @@ interface IFormSubmissionFactoryInput {
 }
 
 export const formSubmissionFactory = async (
-  params: IFormSubmissionFactoryInput = {}
+  params: IFormSubmissionFactoryInput = {},
+  syncToEs = false
 ) => {
-  return FormSubmissions.create({
+  const doc = {
     submittedAt: new Date(),
     customerId: params.customerId || faker.random.word(),
     contentType: params.contentType,
@@ -836,7 +860,18 @@ export const formSubmissionFactory = async (
     formId: params.formId || faker.random.word(),
     formFieldId: params.formFieldId,
     value: params.value
-  });
+  };
+
+  const submission = await FormSubmissions.create(doc);
+
+  return syncToEs
+    ? await fetchElk({
+        action: 'create',
+        index: 'form_submissions',
+        body: doc,
+        _id: submission._id
+      })
+    : submission;
 };
 
 interface INotificationConfigurationFactoryInput {
@@ -1095,16 +1130,65 @@ interface IDealFactoryInput {
   userId?: string;
   initialStageId?: string;
   sourceConversationIds?: string[];
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
-export const dealFactory = async (params: IDealFactoryInput = {}) => {
+const createConformities = async (mainType, object, params) => {
+    for (const companyId of params.companyIds || []) {
+      const conform = await Conformities.addConformity({
+        mainType,
+        mainTypeId: object._id,
+        relType: 'company',
+        relTypeId: companyId
+      });
+
+      await fetchElk({
+        action: 'create',
+        index: 'conformities',
+        body: {
+          mainType,
+          mainTypeId: object._id,
+          relType: 'company',
+          relTypeId: companyId
+        },
+        _id: conform._id
+      });
+    }
+
+    for (const customerId of params.customerIds || []) {
+      const conform = await Conformities.addConformity({
+        mainType,
+        mainTypeId: object._id,
+        relType: 'customer',
+        relTypeId: customerId
+      });
+
+      await fetchElk({
+        action: 'create',
+        index: 'conformities',
+        body: {
+          mainType,
+          mainTypeId: object._id,
+          relType: 'customer',
+          relTypeId: customerId
+        },
+        _id: conform._id
+      });
+    }
+}
+
+export const dealFactory = async (
+  params: IDealFactoryInput = {},
+  syncToEs = false
+) => {
   const board = await boardFactory({ type: BOARD_TYPES.DEAL });
   const pipeline = await pipelineFactory({ boardId: board._id });
   const stage = await stageFactory({ pipelineId: pipeline._id });
 
   const stageId = params.stageId || stage._id;
 
-  const deal = new Deals({
+  const dealDoc = {
     ...params,
     initialStageId: stageId,
     name: params.name || faker.random.word(),
@@ -1124,9 +1208,24 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     searchText: params.searchText,
     sourceConversationIds: params.sourceConversationIds,
     createdAt: new Date()
-  });
+  };
 
-  return deal.save();
+  const deal = new Deals(dealDoc);
+
+  const savedDeal = await deal.save();
+
+  if (syncToEs) {
+    await fetchElk({
+      action: 'create',
+      index: 'deals',
+      body: dealDoc,
+      _id: savedDeal._id
+    });
+
+    await createConformities('deal', savedDeal, params);
+  }
+
+  return savedDeal;
 };
 
 interface ITaskFactoryInput {
@@ -1140,6 +1239,8 @@ interface ITaskFactoryInput {
   labelIds?: string[];
   sourceConversationIds?: string[];
   initialStageId?: string;
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
 const attachmentFactory = () => ({
@@ -1149,7 +1250,7 @@ const attachmentFactory = () => ({
   size: faker.random.number()
 });
 
-export const taskFactory = async (params: ITaskFactoryInput = {}) => {
+export const taskFactory = async (params: ITaskFactoryInput = {}, syncToEs=false) => {
   const board = await boardFactory({ type: BOARD_TYPES.TASK });
   const pipeline = await pipelineFactory({
     boardId: board._id,
@@ -1160,7 +1261,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     type: BOARD_TYPES.TASK
   });
 
-  const task = new Tasks({
+  const taskDoc = {
     ...params,
     name: params.name || faker.random.word(),
     stageId: params.stageId || stage._id,
@@ -1174,9 +1275,23 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     labelIds: params.labelIds || [],
     sourceConversationIds: params.sourceConversationIds,
     attachments: [attachmentFactory(), attachmentFactory()]
-  });
+  };
 
-  return task.save();
+  const task = new Tasks(taskDoc);
+  const savedTask = await task.save();
+
+  if (syncToEs) {
+    await fetchElk({
+      action: 'create',
+      index: 'tasks',
+      body: taskDoc,
+      _id: savedTask._id
+    });
+
+    await createConformities('task', savedTask, params);
+  }
+
+  return savedTask;
 };
 
 interface ITicketFactoryInput {
@@ -1190,9 +1305,11 @@ interface ITicketFactoryInput {
   watchedUserIds?: string[];
   labelIds?: string[];
   sourceConversationIds?: string[];
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
-export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
+export const ticketFactory = async (params: ITicketFactoryInput = {}, syncToEs=false) => {
   const board = await boardFactory({ type: BOARD_TYPES.TICKET });
   const pipeline = await pipelineFactory({
     boardId: board._id,
@@ -1203,7 +1320,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
     type: BOARD_TYPES.TICKET
   });
 
-  const ticket = new Tickets({
+  const ticketDoc = {
     ...params,
     name: params.name || faker.random.word(),
     stageId: params.stageId || stage._id,
@@ -1217,9 +1334,23 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
     sourceConversationIds: params.sourceConversationIds
-  });
+  };
 
-  return ticket.save();
+  const ticket = new Tickets(ticketDoc);
+  const savedTicket = await ticket.save();
+
+  if (syncToEs) {
+    await fetchElk({
+      action: 'create',
+      index: 'tickets',
+      body: ticketDoc,
+      _id: savedTicket._id
+    });
+
+    await createConformities('ticket', savedTicket, params);
+  }
+
+  return savedTicket;
 };
 
 interface IGrowthHackFactoryInput {

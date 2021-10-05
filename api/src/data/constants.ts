@@ -285,6 +285,7 @@ export const MODULE_NAMES = {
   ENGAGE: 'engage',
   SCRIPT: 'script',
   FIELD: 'field',
+  AUTOMATION: 'automation',
   FIELD_GROUP: 'fieldGroup',
   WEBHOOK: 'webhook',
   DASHBOARD: 'dashboard',
@@ -298,7 +299,8 @@ export const RABBITMQ_QUEUES = {
   RPC_API_TO_WEBHOOK_WORKERS: 'rpc_queue:api_to_webhook_workers',
   WORKERS: 'workers',
   VISITOR_LOG: 'visitorLog',
-  RPC_VISITOR_LOG: 'rpc_queue:visitorLog'
+  RPC_VISITOR_LOG: 'rpc_queue:visitorLog',
+  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger'
 };
 
 export const AUTO_BOT_MESSAGES = {
@@ -391,6 +393,7 @@ export const CUSTOMER_BASIC_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   code: 'Code',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Avatar', canHide: false },
@@ -417,7 +420,8 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'owner', label: 'Owner', canHide: true },
     { field: 'pronoun', label: 'Pronoun', canHide: true },
     { field: 'birthDate', label: 'Birthday', canHide: true },
-    { field: 'code', label: 'Code', canHide: true }
+    { field: 'code', label: 'Code', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 
@@ -434,6 +438,7 @@ export const COMPANY_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   location: 'Headquarters Country',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Logo', canHide: false },
@@ -458,7 +463,8 @@ export const COMPANY_INFO = {
     { field: 'code', label: 'Code', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
     { field: 'isSubscribed', label: 'Subscribed', canHide: true },
-    { field: 'location', label: 'Headquarters Country', canHide: true }
+    { field: 'location', label: 'Headquarters Country', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 

@@ -16,19 +16,27 @@ describe('Segments mutations', () => {
   let parentSegment;
 
   const commonParamDefs = `
-    $name: String!
-    $description: String
-    $subOf: String
-    $color: String
-    $conditions: [SegmentCondition]
+    $name: String,
+    $description: String,
+    $subOf: String,
+    $color: String,
+    $conditions: [SegmentCondition],
+    $conditionSegments: [SubSegment]
+    $boardId: String,
+    $pipelineId: String,
+    $conditionsConjunction: String
   `;
 
   const commonParams = `
-    name: $name
-    description: $description
-    subOf: $subOf
-    color: $color
-    conditions: $conditions
+    name: $name,
+    description: $description,
+    subOf: $subOf,
+    color: $color,
+    conditions: $conditions,
+    boardId: $boardId,
+    pipelineId: $pipelineId,
+    conditionsConjunction: $conditionsConjunction
+    conditionSegments: $conditionSegments
   `;
 
   beforeEach(async () => {
@@ -55,12 +63,19 @@ describe('Segments mutations', () => {
       description,
       subOf,
       color,
-      conditions: [
+      conditionSegments: [
         {
-          propertyName: faker.random.word(),
-          propertyOperator: faker.random.word(),
-          propertyValue: faker.random.word(),
-          type: 'property'
+          contentType: 'customer',
+          conditions: [
+            {
+              propertyType: 'customer',
+              propertyName: faker.random.word(),
+              propertyOperator: faker.random.word(),
+              propertyValue: faker.random.word(),
+              type: 'property'
+            }
+          ],
+          conditionsConjunction: 'and'
         }
       ]
     };
@@ -90,7 +105,9 @@ describe('Segments mutations', () => {
     expect(segment.description).toBe(args.description);
     expect(segment.subOf).toBe(args.subOf);
     expect(segment.color).toBe(args.color);
-    expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
+    expect(toJSON(segment.conditions)).toEqual(
+      toJSON(args.conditionSegments[0].conditions)
+    );
   });
 
   test('segmentsEdit', async () => {
@@ -103,12 +120,19 @@ describe('Segments mutations', () => {
       description,
       subOf: secondParent._id,
       color,
-      conditions: [
+      conditionSegments: [
         {
-          type: 'property',
-          propertyValue: faker.random.word(),
-          propertyOperator: faker.random.word(),
-          propertyName: faker.random.word()
+          _id: 'GaZdaX5msmZNekge6',
+          contentType: 'customer',
+          conditions: [
+            {
+              type: 'property',
+              propertyValue: faker.random.word(),
+              propertyOperator: faker.random.word(),
+              propertyName: faker.random.word()
+            }
+          ],
+          conditionsConjunction: 'and'
         }
       ]
     };
@@ -138,7 +162,9 @@ describe('Segments mutations', () => {
     expect(segment.description).toBe(args.description);
     expect(segment.subOf).toBe(args.subOf);
     expect(segment.color).toBe(args.color);
-    expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
+    expect(toJSON(segment.conditions)).toEqual(
+      toJSON(args.conditionSegments[0].conditions)
+    );
   });
 
   test('Remove segment', async () => {

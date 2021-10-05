@@ -50,6 +50,7 @@ export const commonTypes = `
   pipeline: Pipeline
   createdUser: User
   customFieldsData: JSON
+  score: Float
 `;
 
 export const commonMutationParams = `
@@ -93,4 +94,5 @@ export const commonListTypes = `
   modifiedAt: Date
   priority: String
   hasNotified: Boolean
+  score: Float
 `;

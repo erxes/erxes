@@ -48,6 +48,9 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import Automation from './automation';
+import AutomationNote from './automationNote';
+import Trigger from './trigger';
 
 const resolvers: any = {
   ...customScalars,
@@ -100,7 +103,10 @@ const resolvers: any = {
   GrowthHack,
   CalendarGroup,
   CalendarBoard,
-  Tag
+  Tag,
+  Automation,
+  AutomationNote,
+  Trigger
 };
 
 export default resolvers;

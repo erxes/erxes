@@ -4694,10 +4694,10 @@ erxes-icon@^1.2.1:
   resolved "https://registry.yarnpkg.com/erxes-icon/-/erxes-icon-1.2.1.tgz#1df585ff385146dfffd0261398de474eed39c2c6"
   integrity sha512-qk1yavXsBCub9/XBaiTgg9OCouRfZnDxWIqtfi/tVr51zFYgZuGm5GkswglIhF5FCayJ+XtOFqf/Z/9UUc676g==
 
-erxes-ui@^0.0.72:
-  version "0.0.72"
-  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.72.tgz#0f96da7c3d1adfd6bde8d77fd63045f60294470c"
-  integrity sha512-S3X6wSJKp6lREVX4JgjWl8RSXQ/ZBchmG1NXcCfpShCZnBADggDaW39WQv3x9wg3gN2M/phecdFKCQIc8ttGvA==
+erxes-ui@0.0.70-beta:
+  version "0.0.70-beta"
+  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.70-beta.tgz#70cd21e88633b4cea2f22947a4e23c9633db11c9"
+  integrity sha512-PLUVu8X/AOAOr5Q6SA1IcIjx8s07touvXhuU8rk04KmgaXjEvth2btwIpIYLYP2UpOa8Gm1b6OApFEDjhx3n1g==
 
 es-abstract@^1.10.0, es-abstract@^1.13.0:
   version "1.14.1"
@@ -7156,6 +7156,11 @@ jest@24.7.1:
     import-local "^2.0.0"
     jest-cli "^24.7.1"
 
+jquery@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.0.tgz#c72a09f15c1bdce142f49dbf1170bdf8adac2470"
+  integrity sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==
+
 js-levenshtein@^1.1.3:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/js-levenshtein/-/js-levenshtein-1.1.6.tgz#c6cee58eb3550372df8deb85fad5ce66ce01d59d"
@@ -7320,6 +7325,11 @@ jsonify@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
   integrity sha1-LHS27kHZPKUbe1qu6PUDYx0lKnM=
+
+jsplumb@^2.15.6:
+  version "2.15.6"
+  resolved "https://registry.yarnpkg.com/jsplumb/-/jsplumb-2.15.6.tgz#16d97a195a52cc8e4227d9e29971ff82b83e8faf"
+  integrity sha512-sIpbpz5eMVM+vV+MQzFCidlaa1RsknrQs6LOTKYDjYUDdTAi2AN2bFi94TxB33TifcIsRNV1jebcaxg0tCoPzg==
 
 jsprim@^1.2.2:
   version "1.4.1"

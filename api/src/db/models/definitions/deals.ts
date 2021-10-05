@@ -146,18 +146,18 @@ export const productCategorySchema = schemaWrapper(
 export const productDataSchema = new Schema(
   {
     _id: field({ type: String }),
-    productId: field({ type: String }), // Product
-    uom: field({ type: String }), // Units of measurement
-    currency: field({ type: String }), // Currency
-    quantity: field({ type: Number }), // Quantity
-    unitPrice: field({ type: Number }), // Unit price
-    taxPercent: field({ type: Number }), // Tax percent
-    tax: field({ type: Number }), // Tax
-    discountPercent: field({ type: Number }), // Discount percent
-    discount: field({ type: Number }), // Discount
-    amount: field({ type: Number }), // Amount
-    tickUsed: field({ type: Boolean }), // TickUsed
-    assignUserId: field({ type: String }) // AssignUserId
+    productId: field({ type: String, esType: 'keyword' }), // Product
+    uom: field({ type: String, esType: 'keyword' }), // Units of measurement
+    currency: field({ type: String, esType: 'keyword' }), // Currency
+    quantity: field({ type: Number, label: 'Quantity' }), // Quantity
+    unitPrice: field({ type: Number, label: 'Unit price' }), // Unit price
+    taxPercent: field({ type: Number, label: 'Tax percent' }), // Tax percent
+    tax: field({ type: Number, label: 'Tax' }), // Tax
+    discountPercent: field({ type: Number, label: 'Discount percent' }), // Discount percent
+    discount: field({ type: Number, label: 'Discount' }), // Discount
+    amount: field({ type: Number, label: 'Amount' }), // Amount
+    tickUsed: field({ type: Boolean, label: 'Tick used' }), // TickUsed
+    assignUserId: field({ type: String, esType: 'keyword' }) // AssignUserId
   },
   { _id: false }
 );

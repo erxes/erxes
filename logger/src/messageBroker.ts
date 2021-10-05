@@ -64,6 +64,8 @@ export const initBroker = async server => {
         return ActivityLogs.createArchiveLog(data);
       case 'createAssigneLog':
         return ActivityLogs.createAssigneLog(data);
+      case 'createTagLog':
+        return ActivityLogs.createTagLog(data);
       case 'createBoardItems':
         return ActivityLogs.createBoardItemsLog(data);
       case 'removeActivityLogs': {
@@ -86,9 +88,9 @@ export const initBroker = async server => {
         return ActivityLogs.createCocLogs(data);
       }
       case 'createSegmentLog': {
-        const { segment, customerIds, type } = data;
+        const { segment, contentIds, type } = data;
 
-        return ActivityLogs.createSegmentLog(segment, customerIds, type);
+        return ActivityLogs.createSegmentLog(segment, contentIds, type);
       }
       case 'sendEmailCampaign':
       case 'sendSmsCampaign':
