@@ -21,6 +21,7 @@ import { IConversationDocument } from '../../db/models/definitions/conversations
 import customer from './customer';
 import conversationMessagesByConversationId from './conversationMessagesByConversationId';
 import conversationsByCustomerId from './conversationsByCustomerId';
+
 export interface IDataLoaders {
   productCategory: DataLoader<string, IProductCategoryDocument>;
   tag: DataLoader<string, ITagDocument>;

@@ -652,7 +652,7 @@ const joinConditionalAggregationPipelines = (nodes, queryName) => {
     }
   };
 
-  const existingRelations = new Array();
+  const existingRelations: any[] = [];
   for (const relation in relations) {
     if (existFieldInGraphQL(nodes, [queryName, relation])) {
       existingRelations.push(relations[relation]);
