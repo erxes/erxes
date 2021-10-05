@@ -3,7 +3,7 @@ import messageBroker from 'erxes-message-broker';
 import { debugBase } from './debuggers';
 import ActivityLogs from './models/ActivityLogs';
 import Visitors from './models/Visitors';
-import { receivePutLogCommand } from './utils';
+import { receivePutLogCommand, sendToApi } from './utils';
 
 dotenv.config();
 
@@ -16,25 +16,28 @@ export const initBroker = async server => {
     envs: process.env
   });
 
-  const { consumeQueue, consumeRPCQueue } = client;
+  const { consumeQueue } = client;
 
   consumeQueue('putLog', async data => {
     await receivePutLogCommand(data);
   });
 
-  consumeQueue('visitorLog', async parsedObject => {
-    const { data, action } = parsedObject;
+  consumeQueue('visitor:createOrUpdate', async (data) => {
+    await Visitors.createOrUpdateVisitorLog(data);
+  });
 
-    switch (action) {
-      case 'update':
-        return Visitors.updateVisitorLog(data);
-      case 'createOrUpdate':
-        return Visitors.createOrUpdateVisitorLog(data);
-      case 'remove':
-        return Visitors.removeVisitorLog(data.visitorId);
-      default:
-        break;
-    }
+  consumeQueue('visitor:convertRequest', async ({ visitorId }) => {
+    const visitor = await Visitors.getVisitorLog(visitorId);
+
+    sendToApi('visitor:convertResponse', visitor);
+  });
+
+  consumeQueue('visitor:updateEntry', async ({ visitorId, location: browserInfo }) => {
+    await Visitors.updateVisitorLog({ visitorId, location: browserInfo });
+  });
+
+  consumeQueue('visitor:removeEntry', async ({ visitorId }) => {
+    await Visitors.removeVisitorLog(visitorId);
   });
 
   consumeQueue('putActivityLog', async parsedObject => {
@@ -101,27 +104,6 @@ export const initBroker = async server => {
       default:
         break;
     }
-  });
-
-  consumeRPCQueue('rpc_queue:visitorLog', async parsedObject => {
-    const { action, data } = parsedObject;
-
-    let response = null;
-
-    try {
-      if (action === 'get') {
-        response = { data: await Visitors.getVisitorLog(data.visitorId) };
-      }
-
-      response.status = 'success';
-    } catch (e) {
-      response = {
-        status: 'error',
-        errorMessage: e.message
-      };
-    }
-
-    return response;
   });
 };
 

@@ -5,6 +5,7 @@ import {
   receiveIntegrationsNotification,
   receiveRpcMessage
 } from './data/modules/integrations/receiveMessage';
+import { receiveVisitorDetail } from './data/widgetUtils';
 import { pluginsConsume } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 
@@ -38,6 +39,10 @@ export const initBroker = async (server?) => {
 
   consumeQueue('engagesNotification', async data => {
     await receiveEngagesNotification(data);
+  });
+
+  consumeQueue('visitor:convertResponse', async data => {
+    await receiveVisitorDetail(data);
   });
 
   pluginsConsume(client);
