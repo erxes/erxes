@@ -8,14 +8,20 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import { LeftItem } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
+import { extractAttachment, __ } from 'modules/common/utils';
 import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer, Title } from './style';
 
 import { USER_FILTERS } from 'modules/bookings/constants';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
+import Uploader from 'modules/common/components/Uploader';
 
-type Name = 'name' | 'description' | 'userFilters' | 'productCategoryId';
+type Name =
+  | 'name'
+  | 'description'
+  | 'userFilters'
+  | 'productCategoryId'
+  | 'image';
 
 type Props = {
   onChange: (name: Name, value: any) => void;
@@ -23,6 +29,7 @@ type Props = {
   description: string;
   userFilters: string[];
   productCategoryId: string;
+  image: any;
 };
 
 function ChooseContent({
@@ -30,8 +37,12 @@ function ChooseContent({
   name,
   description,
   userFilters,
-  productCategoryId
+  productCategoryId,
+  image
 }: Props) {
+  const images =
+    (image && delete image.__typename && extractAttachment([image])) || [];
+
   const renderGeneralSettings = () => {
     return (
       <>
@@ -56,6 +67,16 @@ function ChooseContent({
             type="text"
             value={description}
             onChange={(e: any) => onChange('description', e.target.value)}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Image</ControlLabel>
+          <Uploader
+            defaultFileList={images}
+            onChange={e => onChange('image', e.length ? e[0] : null)}
+            multiple={false}
+            single={true}
           />
         </FormGroup>
 
