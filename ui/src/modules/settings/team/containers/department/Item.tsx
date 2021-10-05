@@ -5,9 +5,10 @@ import { useMutation } from 'react-apollo';
 import { Alert, confirm } from 'modules/common/utils';
 import { mutations } from '../../graphql';
 import Item from '../../components/department/Item';
+import { Department } from '../../types';
 
 type Props = {
-  department: any;
+  department: Department;
   refetch: () => void;
   depth?: number;
 };

@@ -7,34 +7,24 @@ import { __ } from 'modules/common/utils';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Form from '../../containers/department/Form';
 import Item from '../../containers/department/Item';
+import { generateTree } from '../../utils';
 
 type Props = {
   listQuery: any;
 };
 
 export default function List({ listQuery }: Props) {
-  const generateTree = (categories, parentId, parentKey = 'parentId') => {
-    return categories
-      .filter(c => c[parentKey] === parentId)
-      .reduce(
-        (tree, node) => [
-          ...tree,
-          <Item
-            key={node._id}
-            depth={parentId ? 1 : 0}
-            department={node}
-            refetch={listQuery.refetch}
-          />,
-          ...generateTree(categories, node._id, parentKey)
-        ],
-        []
-      );
-  };
-
   const renderChildren = parentId => {
     const allDepartments = listQuery.data.departments || [];
 
-    return generateTree(allDepartments, parentId);
+    return generateTree(allDepartments, parentId, node => (
+      <Item
+        key={node._id}
+        depth={node.parentId ? 1 : 0}
+        department={node}
+        refetch={listQuery.refetch}
+      />
+    ));
   };
 
   const renderForm = ({ closeModal }) => {

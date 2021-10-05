@@ -69,3 +69,24 @@ export type ResetMemberPasswordResponse = {
     variables: { _id: string; newPassword: string };
   }) => Promise<any>;
 };
+
+export type Department = {
+  _id: string;
+  title: string;
+  description: string;
+  code: string;
+  supervisorId: string;
+  userIds: string[];
+  users: IUser;
+};
+
+export type Unit = {
+  _id: string;
+  title: string;
+  description: string;
+  code: string;
+  supervisorId: string;
+  departmentId: string;
+  userIds: string[];
+  users: IUser;
+};

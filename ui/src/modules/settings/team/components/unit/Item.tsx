@@ -3,9 +3,10 @@ import React from 'react';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Form from '../../containers/unit/Form';
+import { Unit } from '../../types';
 
 type Props = {
-  unit: any;
+  unit: Unit;
   deleteDepartment: (_id: string, callback: () => void) => void;
   refetch: () => void;
 };

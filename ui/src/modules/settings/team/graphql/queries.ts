@@ -80,6 +80,8 @@ const departmentField = `
   title
   description
   parentId
+  code
+  supervisorId
   userIds
   users {
     _id
@@ -112,6 +114,7 @@ const unitField = `
   description
   departmentId
   supervisorId
+  code
   userIds
   users {
     _id
@@ -138,6 +141,19 @@ const unitDetail = `
   }
 `;
 
+const noDepartmentUsers = `
+  query noDepartmentUsers($excludeId: String) {
+    noDepartmentUsers(excludeId: $excludeId) {
+      _id
+      email
+
+      details {
+        ${detailFields}
+      }
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -148,5 +164,6 @@ export default {
   departments,
   departmentDetail,
   units,
-  unitDetail
+  unitDetail,
+  noDepartmentUsers
 };

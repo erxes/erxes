@@ -5,16 +5,16 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import Form from 'modules/common/components/form/Form';
 import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
-import SelectTeamMembers from '../../containers/SelectTeamMembers';
-import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { Department } from '../../types';
+import SelectStructureMembers from '../SelectStructureMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  department?: any;
+  department?: Department;
   closeModal: () => void;
-  parentDepartments: any[];
+  parentDepartments: Department[];
 };
 
 export default function DepartmentForm(props: Props) {
@@ -23,6 +23,7 @@ export default function DepartmentForm(props: Props) {
 
   const [userIds, setUserIds] = useState(object.userIds || []);
   const [parentId, setParentId] = useState(object.parentId);
+  const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const generateDoc = values => {
     const finalValues = values;
@@ -34,12 +35,25 @@ export default function DepartmentForm(props: Props) {
     return {
       userIds,
       parentId,
+      supervisorId,
       ...finalValues
     };
   };
 
   const onChangeParent = (parent: any) => {
     setParentId(parent.value);
+  };
+
+  const onSelectUsers = options => {
+    setUserIds(options.map(option => option.value));
+  };
+
+  const onSelectSupervisor = option => {
+    if (option) {
+      setSupervisorId(option.value);
+    } else {
+      setSupervisorId('');
+    }
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -58,13 +72,28 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('Description')}</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
             defaultValue={object.description}
-            autoFocus={true}
             componentClass="textarea"
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Supervisor')}</ControlLabel>
+
+          <SelectStructureMembers
+            name="supervisorId"
+            objectId={object._id}
+            value={supervisorId}
+            onSelect={onSelectSupervisor}
+            multi={false}
+            excludeUserIds={userIds}
           />
         </FormGroup>
         {(!object._id || (object._id && object.parentId)) && (
@@ -82,16 +111,16 @@ export default function DepartmentForm(props: Props) {
           </FormGroup>
         )}
         <FormGroup>
-          <SelectMemberStyled zIndex={2002}>
-            <ControlLabel>{__('Team Members')}</ControlLabel>
+          <ControlLabel>{__('Team Members')}</ControlLabel>
 
-            <SelectTeamMembers
-              label="Choose team members"
-              name="userIds"
-              initialValue={userIds}
-              onSelect={setUserIds}
-            />
-          </SelectMemberStyled>
+          <SelectStructureMembers
+            objectId={object._id}
+            value={userIds}
+            onSelect={onSelectUsers}
+            multi={true}
+            excludeUserIds={[supervisorId]}
+            name="userIds"
+          />
         </FormGroup>
         <ModalFooter>
           <Button
