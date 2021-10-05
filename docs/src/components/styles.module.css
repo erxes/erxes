@@ -255,7 +255,7 @@ li {
 	margin-left: 350px;
 	min-width: 40%;
 	width: 70%;
-	margin-right: 50px;
+	margin-right: 15%;
 	margin-bottom: 50px;
 }
 
@@ -269,6 +269,7 @@ li {
 }
 
 h1 {
+	display: block;
 	font-size: calc(1.375rem + 1.5vw);
 	margin-block-start: 0.67em;
     margin-block-end: 0.67em;
