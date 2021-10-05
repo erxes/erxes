@@ -24,6 +24,7 @@ import TaskRoutes from './modules/tasks/routes';
 import TicketRoutes from './modules/tickets/routes';
 import TutorialRoutes from './modules/tutorial/routes';
 import VideoCallRoutes from './modules/videoCall/routes';
+import AutomationsRoutes from './modules/automations/routes';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -106,6 +107,7 @@ const renderRoutes = currentUser => {
           <TutorialRoutes />
           <CalendarRoutes />
           <DashboardRoutes />
+          <AutomationsRoutes />
 
           {specialPluginRoutes}
           {pluginRoutes}

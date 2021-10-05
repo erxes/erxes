@@ -60,3 +60,5 @@ export const messengerAppSchema = schemaHooksWrapper(
   }),
   'erxes_messenger_apps'
 );
+
+messengerAppSchema.index({ kind: 1, 'credentials.integrationId': 1 });

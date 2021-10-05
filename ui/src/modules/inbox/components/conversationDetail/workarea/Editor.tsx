@@ -21,10 +21,12 @@ import TemplateList from './TemplateList';
 type EditorProps = {
   currentConversation: string;
   defaultContent?: string;
+  integrationKind: string;
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
   onAddMessage: () => void;
   onSearchChange: (value: string) => void;
+
   showMentions: boolean;
   responseTemplate: string;
   responseTemplates: IResponseTemplate[];
@@ -111,7 +113,6 @@ export default class Editor extends React.Component<EditorProps, State> {
       // calling onChange, because draftjs's onChange is not trigerring after
       // this setState
       this.props.onChange(this.getContent(editorState));
-
       // set editor state from response template
       this.setState({ editorState });
     }

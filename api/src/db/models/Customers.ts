@@ -168,16 +168,6 @@ export const loadClass = () => {
         if (previousEntry.length > 0) {
           throw new Error('Duplicated email');
         }
-
-        // check duplication from emails
-        previousEntry = await Customers.find({
-          ...query,
-          emails: { $in: [customerFields.primaryEmail] }
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated email');
-        }
       }
 
       if (customerFields.primaryPhone) {
@@ -185,16 +175,6 @@ export const loadClass = () => {
         previousEntry = await Customers.find({
           ...query,
           primaryPhone: customerFields.primaryPhone
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated phone');
-        }
-
-        // Check duplication from phones
-        previousEntry = await Customers.find({
-          ...query,
-          phones: { $in: [customerFields.primaryPhone] }
         });
 
         if (previousEntry.length > 0) {

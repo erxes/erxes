@@ -401,8 +401,9 @@ const boardQueries = {
     const counts = {};
 
     for (const segment of segments) {
-      counts[segment._id] = await fetchSegment('count', segment, {
-        pipelineId
+      counts[segment._id] = await fetchSegment(segment, {
+        pipelineId,
+        returnCount: true
       });
     }
 
