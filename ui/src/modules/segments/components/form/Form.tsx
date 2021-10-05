@@ -715,7 +715,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       state === 'list' &&
       isModal
     ) {
-      return <div>Count: {count}</div>;
+      return <div>Items found: {count}</div>;
     }
 
     return null;
