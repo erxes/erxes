@@ -13,8 +13,8 @@ const bookingMutations = {
   /**
    * Edit booking
    */
-  bookingsEdit(_root, { _id, ...doc }, { user }: IContext) {
-    return Bookings.updateDoc(_id, doc, user._id);
+  bookingsEdit(_root, { _id, ...doc }, { user, docModifier }: IContext) {
+    return Bookings.updateDoc(_id, docModifier(doc), user._id);
   },
 
   /**

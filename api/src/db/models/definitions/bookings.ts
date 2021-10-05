@@ -30,7 +30,7 @@ export interface IBooking {
   image?: string[];
   description?: string;
   userFilters?: string[];
-  productCategoryId?: string;
+  productCategoryId: string;
 
   // style
   styles?: IStyle;
