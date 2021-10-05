@@ -139,8 +139,6 @@ const configClientPortalMutations = {
   }
 };
 
-// TODO permission, requireLogin
-// moduleCheckPermission(configClientPortalMutations, 'manageGeneralSettings');
 requireLogin(configClientPortalMutations, 'clientPortalConfigUpdate');
 
 export default configClientPortalMutations;

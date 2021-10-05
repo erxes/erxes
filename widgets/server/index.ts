@@ -26,14 +26,12 @@ app.use('/build', express.static(path.join(__dirname, '../static')));
 app.use('/static', express.static('public'));
 
 const getEnv = () => {
-  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL, DD_APPLICATION_ID, DD_CLIENT_TOKEN } = process.env;
+  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL } = process.env;
 
   return JSON.stringify({
     ROOT_URL,
     API_URL,
-    API_SUBSCRIPTIONS_URL,
-    DD_APPLICATION_ID,
-    DD_CLIENT_TOKEN
+    API_SUBSCRIPTIONS_URL
   });
 };
 
@@ -60,7 +58,12 @@ app.get('/knowledgebase', (req, res) => {
 app.get('/test', (req, res) => {
   const { form_id, brand_id, topic_id } = req.query;
 
-  res.render(`widget-${req.query.type}-test`, { topic_id, brand_id, form_id, env: getEnv() });
+  res.render(`widget-${req.query.type}-test`, {
+    topic_id,
+    brand_id,
+    form_id,
+    env: getEnv()
+  });
 });
 
 const port = process.env.PORT || 3200;

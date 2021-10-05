@@ -9,30 +9,6 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
-"@datadog/browser-core@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-2.4.0.tgz#f0624b04f41c987b5496c9fa98a39e3a1c7be718"
-  integrity sha512-lm953PWPOtoRB1l4wWa3bf32coKpilpJClcIYfoWTL06GKDTl0if/jDNd+fbCXsZQwpnBxykLzlzgopwUdZ/oA==
-  dependencies:
-    tslib "^1.10.0"
-
-"@datadog/browser-rum-core@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-2.4.0.tgz#aaeda7c0dbdc543cefc17b1e04bce134150ef425"
-  integrity sha512-cTwuHD6MBnfa1WW6qwsSm36TUJcGhveZcVj/pHQigovbhlvKWyy6Uixd2gUVnAU3frpL0KlT6wN0P/eL2AcvsQ==
-  dependencies:
-    "@datadog/browser-core" "2.4.0"
-    tslib "^1.10.0"
-
-"@datadog/browser-rum@^2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-2.4.0.tgz#73ae1326a83a30d122707e19c08d7a8ac492f734"
-  integrity sha512-qdGommOQjDCDe3CBhxqnOyPk2I8b3VXBePk6nJABq693NpQlBKQyYBV7+LdRgVekwy3Z7pRAPBZuHa06HqXXKA==
-  dependencies:
-    "@datadog/browser-core" "2.4.0"
-    "@datadog/browser-rum-core" "2.4.0"
-    tslib "^1.10.0"
-
 "@fingerprintjs/fingerprintjs@^3.0.5":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@fingerprintjs/fingerprintjs/-/fingerprintjs-3.0.5.tgz#c7a35e57c6c50b493c4db9f69106d5a3f4850c7f"
@@ -5743,11 +5719,6 @@ ts-node@^8.3.0:
     make-error "^1.1.1"
     source-map-support "^0.5.6"
     yn "^3.0.0"
-
-tslib@^1.10.0:
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
-  integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
 tslib@^1.9.0:
   version "1.9.3"
