@@ -26,6 +26,8 @@ const activityLogQueries = {
   async activityLogs(_root, doc: IListArgs, { dataSources, user }: IContext) {
     const { contentType, contentId, activityType } = doc;
 
+    console.log(doc);
+
     let activities: IActivityLogDocument[] = [];
 
     const relatedItemIds = await Conformities.savedConformity({

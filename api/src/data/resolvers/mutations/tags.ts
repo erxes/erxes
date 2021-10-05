@@ -78,13 +78,14 @@ const tagMutations = {
       type,
       targetIds,
       tagIds
-    }: { type: string; targetIds: string[]; tagIds: string[] }
+    }: { type: string; targetIds: string[]; tagIds: string[] },
+    { user }: IContext
   ) {
     if (type === 'conversation') {
       publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     }
 
-    return Tags.tagObject({ type, targetIds, tagIds });
+    return Tags.tagObject({ type, targetIds, tagIds }, user);
   },
 
   tagsMerge(_root, { sourceId, destId }: { sourceId: string; destId: string }) {

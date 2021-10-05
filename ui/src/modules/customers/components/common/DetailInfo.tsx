@@ -125,6 +125,7 @@ class DetailInfo extends React.PureComponent<Props> {
           customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
         )}
         {this.renderRow('isSubscribed', customer.isSubscribed)}
+        {this.renderRow('score', customer.score)}
         {this.renderDescription(customer.description)}
       </SidebarList>
     );

@@ -48,6 +48,7 @@ export interface IUser {
   isSubscribed?: string;
   sessionCode?: string;
   isShowNotification?: boolean;
+  score?: number;
   customFieldsData?: ICustomField[];
 }
 
@@ -81,7 +82,7 @@ const detailSchema = new Schema(
     operatorPhone: field({
       type: String,
       optional: true,
-      label: 'Company phone'
+      label: 'Operator phone'
     })
   },
   { _id: false }
@@ -151,6 +152,12 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: false,
       label: 'Check if user shows'
+    }),
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
+      esType: 'number'
     }),
     customFieldsData: field({
       type: [customFieldSchema],
