@@ -5,7 +5,7 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { mutations } from '../graphql';
-import { AddBookingMutationResponse, IBooking, IStyle } from '../types';
+import { AddBookingMutationResponse } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
 
@@ -16,7 +16,7 @@ function CreateBookingContainer(props: Props) {
 
   const { addBookingMutation, history } = props;
 
-  const save = (doc: IBooking, styles: IStyle) => {
+  const save = (doc, styles) => {
     setLoading(true);
 
     addBookingMutation({

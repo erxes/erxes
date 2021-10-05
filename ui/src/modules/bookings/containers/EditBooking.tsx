@@ -6,9 +6,7 @@ import { queries, mutations } from '../graphql';
 import Booking from '../components/Booking';
 import {
   BookingDetailQueryResponse,
-  EditBookingMutationResponse,
-  IBooking,
-  IStyle
+  EditBookingMutationResponse
 } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -36,7 +34,7 @@ function EditBookingContainer(props: FinalProps) {
 
   const bookingDetail = bookingDetailQuery.bookingDetail || [];
 
-  const save = (doc: IBooking, styles: IStyle) => {
+  const save = (doc, styles) => {
     setLoading(true);
 
     editBookingMutation({

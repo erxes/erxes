@@ -25,14 +25,43 @@ type Props = {
   queryParams?: any;
   history: any;
   bookingId?: any;
-  save: (doc: IBooking, styles: IStyle) => void;
+  save: (doc, styles) => void;
   isActionLoading?: boolean;
+};
+
+type State = {
+  name: string;
+  description: string;
+  userFilters: string[];
+
+  productCategoryId: string;
+
+  // settings
+  title: string;
+  brandId: string;
+  channelIds: string[];
+  languageCode: string;
+  formId: string;
+  buttonText: string;
+};
+
+type Style = {
+  itemShape: string;
+  widgetColor: string;
+
+  productAvailable: string;
+  productUnavailable: string;
+  productSelected: string;
+
+  textAvailable: string;
+  textUnavailable: string;
+  textSelected: string;
 };
 
 function Booking({ save, isActionLoading, bookingDetail }: Props) {
   const booking = bookingDetail || ({} as IBooking);
 
-  const [state, setState] = useState({
+  const [state, setState] = useState<State>({
     // content
     name: booking.name || '',
     description: booking.description || '',
@@ -51,7 +80,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
 
   const bookingStyles = booking.styles || ({} as IStyle);
 
-  const [styles, setStyles] = useState({
+  const [styles, setStyles] = useState<Style>({
     itemShape: bookingStyles.itemShape || '',
     widgetColor: bookingStyles.widgetColor || colors.colorPrimary,
 
