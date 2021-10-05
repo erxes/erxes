@@ -48,7 +48,7 @@ import {
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
-import messageBroker from '../../../workers/messageBroker';
+import messageBroker from '../../../messageBroker';
 
 interface IWidgetEmailParams {
   toEmails: string[];
