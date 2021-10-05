@@ -267,17 +267,23 @@ li {
 	/* background-color: #000; */
 }
 
+.subMenu:hover {
+	
+}
+
 h1 {
 	display: block;
 	font-size: calc(1.375rem + 1.5vw);
 	margin-block-start: 0.67em;
-    margin-block-end: 0.67em;
+	margin-block-end: 0.67em;
+	font-weight: 500;
 }
 
 h2 {
 	font-size: calc(1.325rem + .9vw);
 	margin-block-start: 0.67em;
-    margin-block-end: 0.67em;
+	margin-block-end: 0.67em;
+	font-weight: 500;
 }
 
 code {
