@@ -8,6 +8,7 @@ import {
 import { receiveRpcMessage as receiveAutomations } from './data/modules/automations';
 import { pluginsConsume } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
+import { receiveVisitorDetail } from './data/widgetUtils';
 
 dotenv.config();
 
@@ -46,6 +47,10 @@ export const initBroker = async (server?) => {
 
     consumeQueue('engagesNotification', async data => {
       await receiveEngagesNotification(data);
+    });
+
+    consumeQueue('visitor:convertResponse', async data => {
+      await receiveVisitorDetail(data);
     });
 
     pluginsConsume(client);

@@ -4,7 +4,6 @@ import {
   putUpdateLog as putUpdateLogC
 } from 'erxes-api-utils';
 import * as _ from 'underscore';
-import { IBrowserInfo } from '../db/models/Customers';
 
 import {
   IPipelineDocument,
@@ -87,13 +86,6 @@ interface ILogParams extends ILogNameParams {
 interface IContentTypeParams {
   contentType: string;
   contentTypeId: string;
-}
-
-export interface IVisitorLogParams {
-  visitorId: string;
-  scopeBrandIds?: string[];
-  integrationId?: string;
-  location?: IBrowserInfo;
 }
 
 /**
@@ -1563,24 +1555,8 @@ export const fetchLogs = async (
   }
 };
 
-export const sendToVisitorLog = async (params: IVisitorLogParams, action) =>
-  messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-    action,
-    data: params
-  });
+export const sendToLog = (channel: string, data) => messageBroker().sendMessage(channel, data);
 
-export const getVisitorLog = async visitorId => {
-  try {
-    return messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
-      action: 'get',
-      data: { visitorId }
-    });
-  } catch (e) {
-    debugError(
-      `Error during getVisitorLog: ${e.message} visitorId: ${visitorId}`
-    );
-  }
-};
 interface IActivityLogParams {
   action: string;
   data: any;
