@@ -141,6 +141,19 @@ const unitDetail = `
   }
 `;
 
+const noDepartmentUsers = `
+  query noDepartmentUsers($excludeId: String) {
+    noDepartmentUsers(excludeId: $excludeId) {
+      _id
+      email
+
+      details {
+        ${detailFields}
+      }
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -151,5 +164,6 @@ export default {
   departments,
   departmentDetail,
   units,
-  unitDetail
+  unitDetail,
+  noDepartmentUsers
 };

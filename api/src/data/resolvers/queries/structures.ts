@@ -1,4 +1,4 @@
-import { Departments, Units } from '../../../db/models';
+import { Departments, Units, Users } from '../../../db/models';
 
 const structureQueries = {
   departments(_root, { depthType }: { depthType?: string }) {
@@ -23,6 +23,30 @@ const structureQueries = {
 
   unitDetail(_root, { _id }) {
     return Units.getUnit({ _id });
+  },
+
+  async noDepartmentUsers(_root, { excludeId }) {
+    const userIds: string[] = [];
+
+    const filter: { _id?: { $ne: string } } = {};
+
+    if (excludeId) {
+      filter._id = { $ne: excludeId };
+    }
+
+    const departments = await Departments.find(filter);
+
+    departments.forEach(d => {
+      if (d.supervisorId) {
+        userIds.push(d.supervisorId);
+      }
+
+      if (d.userIds && d.userIds.length > 0) {
+        userIds.push(...d.userIds);
+      }
+    });
+
+    return Users.find({ _id: { $nin: userIds } });
   }
 };
 

@@ -29,6 +29,8 @@ export const queries = `
     departments(depthType: String): [Department]
     departmentDetail(_id: String!): Department
 
+    noDepartmentUsers(excludeId: String): [User]
+
     units: [Unit]
     unitDetail(_id: String!): Unit
 `;
