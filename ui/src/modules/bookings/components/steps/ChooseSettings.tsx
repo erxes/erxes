@@ -78,6 +78,8 @@ function ChooseSettings({
             }))}
             value={languageCode}
             onChange={e => onChange('languageCode', e.value)}
+            clearable={false}
+            backspaceRemoves={false}
           />
         </FormGroup>
 
