@@ -174,7 +174,7 @@
 
 .sideMenu {
 	position: fixed;
-	width: 300px;
+	width: 250px;
 	/* height: 100%; */
 	padding: 15px 25px;
 	border-right: 1px solid #DBDDE1;
@@ -252,8 +252,8 @@ li {
 
 .body {
 	margin-left: 350px;
-	/* width: 70%; */
-	min-width: 40%;
+	/* width: 100%; */
+	/* min-width: 40%; */
 	margin-right: 15%;
 	margin-bottom: 50px;
 }
