@@ -4,19 +4,13 @@ import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   async customers(company: ICompanyDocument) {
-    console.log('start ........', company._id);
-
     const customerIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
       relTypes: ['customer']
     });
 
-    console.log('customerids ........', customerIds);
-
     const customers = await Customers.find({ _id: { $in: customerIds || [] } });
-
-    console.log('customers ........', customers);
 
     return customers;
   },

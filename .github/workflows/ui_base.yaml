@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - 'develop'
-      - 'apm'
-      - 'feat-client-portal'
     paths:
       - 'ui/nginx/**'
       - 'ui/docker-entrypoint.sh'

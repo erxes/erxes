@@ -1,6 +1,3 @@
-import * as connect_datadog from 'connect-datadog';
-import ddTracer from 'dd-trace';
-
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -14,23 +11,10 @@ import { initBroker } from './messageBroker';
 // load environment variables
 dotenv.config();
 
-ddTracer.init({
-  hostname: process.env.DD_HOST,
-  logInjection: true
-});
-
 // connect to mongo database
 connect();
 
 const app = express();
-
-const datadogMiddleware = connect_datadog({
-  response_code: true,
-  tags: ['workers']
-});
-
-app.use(datadogMiddleware);
-
 app.disable('x-powered-by');
 
 // for health check

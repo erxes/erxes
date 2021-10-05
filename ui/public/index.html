@@ -57,18 +57,6 @@
           processValue: '%REACT_APP_DASHBOARD_URL%'
         },
         {
-          name: 'REACT_APP_DD_APPLICATION_ID',
-          processValue: '%REACT_APP_DD_APPLICATION_ID%'
-        },
-        {
-          name: 'REACT_APP_DD_CLIENT_TOKEN',
-          processValue: '%REACT_APP_DD_CLIENT_TOKEN%'
-        },
-        {
-          name: 'REACT_APP_DD_SERVICE',
-          processValue: '%REACT_APP_DD_SERVICE%'
-        },
-        {
           name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
           processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%'
         }
@@ -458,21 +446,5 @@
         </div>
       </div>
     </div>
-
-    <!--- Tooltip player -->
-<script type='text/javascript'>
-  window.Tooltip||function(t,e){var o={
-  url:"https://cdn.tooltip.io/static/player.js",
-  key:"14a68401-e994-47bf-90d2-27d6aaf90e85",
-  async:true
-  };
-  window.Tooltip={cs:[],_apiKey:o.key};for(
-  var r=["identify","goal","updateUserData","start","stop","refresh","show","hide","on"],
-  i={},n=0;n<r.length;n++){var a=r[n];i[a]=function(t){return function(){var e=Array.prototype.slice.call(arguments);
-  window.Tooltip.cs.push({method:t,args:e})}}(a)}window.Tooltip.API=i;var n=t.createElement(e),s=t.getElementsByTagName(e)[0];
-  n.type="text/javascript",n.async=o.async,s.parentNode.insertBefore(n,s),n.src=o.url}(document,"script");
-  </script>
-  <!--- Tooltip player -->
-
   </body>
 </html>

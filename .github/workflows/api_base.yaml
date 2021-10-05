@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - feat-client-portal
     paths:
       - '.github/workflows/api_base.yaml'
       - 'api/base.Dockerfile'
