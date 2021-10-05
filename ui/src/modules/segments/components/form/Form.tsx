@@ -670,37 +670,55 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       }
     };
 
-    if (segments.length > 0 && segments[0].conditions.length > 0) {
-      if (state === 'list') {
-        return (
-          <>
-            {isModal ? (
-              <Button id="segment-show-count" onClick={onPreviewCount}>
-                Refresh count
-              </Button>
-            ) : (
-              <Button
-                id="segment-show-count"
-                icon="crosshairs"
-                onClick={onPreviewCount}
-              >
-                Show count
-              </Button>
-            )}
+    if (
+      segments.length > 0 &&
+      segments[0].conditions.length > 0 &&
+      state === 'list'
+    ) {
+      return (
+        <>
+          {isModal ? (
+            <Button id="segment-show-count" onClick={onPreviewCount}>
+              Refresh count
+            </Button>
+          ) : (
+            <Button
+              id="segment-show-count"
+              icon="crosshairs"
+              onClick={onPreviewCount}
+            >
+              Show count
+            </Button>
+          )}
 
-            {renderButton({
-              name: 'segment',
-              values: this.generateDoc(values),
-              callback: closeModal || afterSave,
-              isSubmitted,
-              object: segment
-            })}
-          </>
-        );
-      }
+          {renderButton({
+            name: 'segment',
+            values: this.generateDoc(values),
+            callback: closeModal || afterSave,
+            isSubmitted,
+            object: segment
+          })}
+        </>
+      );
     }
 
     return <></>;
+  };
+
+  renderCount = () => {
+    const { segments, state } = this.state;
+    const { count, isModal } = this.props;
+
+    if (
+      segments.length > 0 &&
+      segments[0].conditions.length > 0 &&
+      state === 'list' &&
+      isModal
+    ) {
+      return <div>Count: {count}</div>;
+    }
+
+    return null;
   };
 
   renderForm = (formProps: IFormProps) => {
@@ -710,6 +728,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       <>
         {this.renderDetailForm(formProps)}
         {this.renderAddGroupButton()}
+        {this.renderCount()}
         <ModalFooter id="button-group">
           <Button.Group>
             {isModal ? (
