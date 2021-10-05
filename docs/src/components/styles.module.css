@@ -242,17 +242,17 @@ li {
 	margin: 0;
 	padding: 0;
 	display: flex;
-	float:right;
+	float:left;
 }
 
 .body {
-	margin-left: 350px;
+	margin-left: 28%;
 	margin-right: 350px;
 	margin-bottom: 50px;
 }
 
 .subMenu {
-	width: 300px;
+	width: 15%;
 	padding: 15px 25px;
 	border-left: 1px solid #DBDDE1;
 	position: fixed;
