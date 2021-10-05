@@ -1207,7 +1207,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
 
     await EngageMessages.createVisitorOrCustomerMessages({
       brandId: _brand._id,
-      visitor,
+      visitorId: visitor.visitorId,
       integrationId: _integration._id,
       browserInfo: {
         url: '/index'

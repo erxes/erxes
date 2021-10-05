@@ -58,6 +58,7 @@ const withPollInterval = compose(graphql<Props>(
   name: 'engageMessageQuery',
   options: ownProps => ({
     variables: {
+      integrationId: connection.data.integrationId,
       customerId: connection.data.customerId,
       visitorId: connection.data.visitorId,
       browserInfo: ownProps.browserInfo,
