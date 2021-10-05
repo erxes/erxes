@@ -205,7 +205,7 @@
 }
 
 .menuItem:focus {
-	background-color: #EBEDF0;
+	/* background-color: #EBEDF0; */
 	color: #502BAF;
 }
 
@@ -236,12 +236,11 @@ li {
 	border-radius: 0.25rem;
 	border: 1px solid #ECECEC;
 
-	color: ;
 	/* padding: 5px; */
 }
 
 .styled {
-	margin: 5px;
+	margin: 15px;
 }
 
 .mainCon {
@@ -253,7 +252,7 @@ li {
 
 .body {
 	margin-left: 350px;
-	width: 70%;
+	/* width: 70%; */
 	min-width: 40%;
 	margin-right: 15%;
 	margin-bottom: 50px;
