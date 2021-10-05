@@ -259,3 +259,11 @@ li {
 	right: 0;
 	/* background-color: #000; */
 }
+
+h1 {
+	font-size: calc(1.375rem + 1.5vw);
+}
+
+h2 {
+	font-size: calc(1.325rem + .9vw);
+}

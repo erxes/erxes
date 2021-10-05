@@ -16,7 +16,7 @@ export default function Buttons() {
         <p>Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
       </div>
       <div id="examples">
-        <h1>Examples</h1>
+        <h2>Examples</h2>
         <p>Use any of the available button style types to quickly create a styled button. Just modify the <b>btnStyle</b> prop.</p>
         <div className={styles.code}>
           <div>
@@ -29,7 +29,7 @@ export default function Buttons() {
             <Button btnStyle="link">Link</Button>{' '}
           </div><br/>
           <CopyBlock 
-            language="html"
+            language="jsx"
             text={`<>
             <Button>Default</Button>{' '}
             <Button btnStyle="primary">Primary</Button>{' '}
