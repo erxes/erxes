@@ -12,12 +12,11 @@ import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { IBookingDocument, IBooking, IStyle } from '../types';
 import { Steps, Step } from 'modules/common/components/step';
-import {
-  ChooseStyle,
-  ChooseContent,
-  ChooseSettings,
-  FullPreview
-} from './steps';
+import ChooseStyle from './steps/ChooseStyle';
+import ChooseContent from './steps/ChooseContent';
+import ChooseSettings from './steps/ChooseSettings';
+import FullPreview from './steps/FullPreview';
+
 import { PreviewWrapper } from './steps/style';
 import { colors } from 'modules/common/styles';
 
