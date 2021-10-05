@@ -49,10 +49,10 @@ export default function Buttons() {
         <h2>Sizes</h2>
         <p>Fancy larger or smaller buttons? Add <b>size="large"</b>, <b>size="medium"</b>, <b>size="small"</b> for additional sizes.</p>
         <div className={styles.code}>
-          <div>
-          <Button btnStyle="primary" size="large">Large Primary</Button>{' '}
-          <Button btnStyle="primary" size="medium">Medium Primary</Button>{' '}
-          <Button btnStyle="primary" size="small">Small Primary</Button>{' '}
+          <div className={styles.styled}>
+            <Button btnStyle="primary" size="large">Large Primary</Button>{' '}
+            <Button btnStyle="primary" size="medium">Medium Primary</Button>{' '}
+            <Button btnStyle="primary" size="small">Small Primary</Button>{' '}
           </div>
           <CopyBlock
             language="html"
@@ -71,9 +71,9 @@ export default function Buttons() {
         <h2>Disabled state</h2>
         <p>Make buttons look inactive by adding the <b>disabled</b> prop to.</p>
         <div className={styles.code}>
-          <div>
-          <Button btnStyle="primary" size="medium">Normal button</Button>
-          <Button btnStyle="primary" size="medium" disabled>Disabled button</Button>
+          <div className={styles.styled}>
+            <Button btnStyle="primary" size="medium">Normal button</Button>
+            <Button btnStyle="primary" size="medium" disabled>Disabled button</Button>
           </div>
           <CopyBlock
             language="html"
