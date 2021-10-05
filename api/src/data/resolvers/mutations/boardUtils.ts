@@ -259,7 +259,7 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    await putActivityLog({
+    putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
       data: {
         item: updatedItem,
@@ -287,7 +287,7 @@ export const itemsEdit = async (
 
     const activityContent = { addedUserIds, removedUserIds };
 
-    await putActivityLog({
+    putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
       data: {
         contentId: _id,
@@ -303,7 +303,7 @@ export const itemsEdit = async (
 
   await sendNotifications(notificationDoc);
 
-  await putUpdateLog(
+  putUpdateLog(
     {
       type,
       object: oldItem,
