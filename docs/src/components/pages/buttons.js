@@ -17,7 +17,7 @@ export default function Buttons() {
       </div>
       <div id="examples">
         <h2>Examples</h2>
-        <p>Use any of the available button style types to quickly create a styled button. Just modify the <b>btnStyle</b> prop.</p>
+        <p>Use any of the available button style types to quickly create a styled button. Just modify the <code>btnStyle</code> prop.</p>
         <div className={styles.code}>
           <div className={styles.styled}>
             <Button>Default</Button>{' '}
@@ -47,7 +47,7 @@ export default function Buttons() {
       </div>
       <div>
         <h2>Sizes</h2>
-        <p>Fancy larger or smaller buttons? Add <b>size="large"</b>, <b>size="medium"</b>, <b>size="small"</b> for additional sizes.</p>
+        <p>Fancy larger or smaller buttons? Add <code>size="large"</code>, <code>size="medium"</code>, <code>size="small"</code> for additional sizes.</p>
         <div className={styles.code}>
           <div className={styles.styled}>
             <Button btnStyle="primary" size="large">Large Primary</Button>{' '}
@@ -69,17 +69,17 @@ export default function Buttons() {
       </div>
       <div>
         <h2>Disabled state</h2>
-        <p>Make buttons look inactive by adding the <b>disabled</b> prop to.</p>
+        <p>Make buttons look inactive by adding the <code>disabled</code> prop to.</p>
         <div className={styles.code}>
           <div className={styles.styled}>
-            <Button btnStyle="primary" size="medium">Normal button</Button>
-            <Button btnStyle="primary" size="medium" disabled>Disabled button</Button>
+            <Button btnStyle="primary">Normal button</Button>
+            <Button btnStyle="primary" disabled>Disabled button</Button>
           </div>
           <CopyBlock
             language="html"
             text={`<>
-            <Button btnStyle="primary" size="medium">Normal button</Button>
-            <Button btnStyle="primary" size="medium" disabled>Disabled button</Button>
+            <Button btnStyle="primary">Normal button</Button>
+            <Button btnStyle="primary" disabled>Disabled button</Button>
 </>`}
             theme={dracula}
             showLineNumbers={false}
