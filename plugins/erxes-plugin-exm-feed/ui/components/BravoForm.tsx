@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Form, FormControl, SelectTeamMembers } from 'erxes-ui';
-import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
-import Field from './Field';
+import React, { useState } from "react";
+import { Form, SelectTeamMembers } from "erxes-ui";
+import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
+import Field from "./Field";
+import { title, description } from "../utils";
 
 type Props = {
   item?: any;
@@ -24,7 +25,7 @@ export default function BravoForm(props: Props) {
 
   const onChangeCustomFields = (fieldId: string, value: any) => {
     let updatedCustomFieldsData = customFieldsData.filter(
-      f => f.field !== fieldId
+      (f) => f.field !== fieldId
     );
 
     updatedCustomFieldsData.push({ field: fieldId, value });
@@ -41,47 +42,30 @@ export default function BravoForm(props: Props) {
         <SelectTeamMembers
           label="Choose one"
           name="recipientId"
-          multi={false}
           initialValue={recipientId}
           onSelect={setRecipientId}
+          multi={false}
         />
-
-        {fields.map(f => (
+        {fields.map((f, index) => (
           <Field
+            key={index}
             customFieldsData={customFieldsData}
             field={f}
             onChange={onChangeCustomFields}
           />
         ))}
-
-        <FormControl
-          {...formProps}
-          placeholder="Title"
-          type="text"
-          name="title"
-          required={true}
-          defaultValue={item.title}
-        />
-
-        <FormControl
-          {...formProps}
-          placeholder="Description"
-          componentClass="textarea"
-          name="description"
-          defaultValue={item.description}
-        />
-
-        <br />
-
+        {title(formProps, item)}
+        {description(formProps, item)}
         {renderButton({
           values: {
-            ...values,
-            contentType: 'bravo',
+            title: values.title,
+            description: values.description ? values.description : null,
+            contentType: "bravo",
             recipientIds: [recipientId],
-            customFieldsData
+            customFieldsData,
           },
           isSubmitted,
-          callback: closeModal
+          callback: closeModal,
         })}
       </>
     );

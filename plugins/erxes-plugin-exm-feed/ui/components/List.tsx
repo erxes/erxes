@@ -1,22 +1,19 @@
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownToggle from "modules/common/components/DropdownToggle";
-import { ModalTrigger, readFile, LoadMore, getUserAvatar, __ } from "erxes-ui";
+import { ModalTrigger, readFile, getUserAvatar, __ } from "erxes-ui";
 import FilterableListStyles from "erxes-ui/lib/components/filterableList/styles";
+import LoadMore from "modules/common/components/LoadMore";
 import Icon from "modules/common/components/Icon";
 import dayjs from "dayjs";
 import Form from "../containers/Form";
 import {
-  BodyFeed,
-  FirstSection,
-  HeaderFeed,
   NewsFeedLayout,
-  TypeOfContent,
   NavItem,
   Attachments,
-  AttachmentsIcon,
-  AttachmentsTitle,
   LikeCommentShare,
+  HeaderFeed,
+  TextFeed,
 } from "../styles";
 
 const AvatarImg = FilterableListStyles.AvatarImg;
@@ -25,9 +22,17 @@ type Props = {
   list: any;
   totalCount: number;
   deleteItem: (_id: string) => void;
+  limit: number;
+  filter: string;
 };
 
-export default function List({ list, deleteItem, totalCount }: Props) {
+export default function List({
+  list,
+  deleteItem,
+  totalCount,
+  limit,
+  filter,
+}: Props) {
   const editItem = (item) => {
     const trigger = (
       <span>
@@ -41,35 +46,31 @@ export default function List({ list, deleteItem, totalCount }: Props) {
 
     return <ModalTrigger title="Edit" trigger={trigger} content={content} />;
   };
-
-  const renderItem = (item: any, index: number) => {
+  const renderItem = (item: any) => {
     const createdUser = item.createdUser || {};
-
     return (
-      <li key={item._id}>
+      <div key={item._id}>
         <HeaderFeed>
-          <FirstSection>
-            <AvatarImg
-              alt={
-                (createdUser &&
-                  createdUser.details &&
-                  createdUser.details.fullName) ||
-                "author"
-              }
-              src={getUserAvatar(createdUser)}
-            />
-            <TypeOfContent>
-              <b>
-                {createdUser &&
-                  ((createdUser.details && createdUser.details.fullName) ||
-                    createdUser.username ||
-                    createdUser.email)}
-              </b>
-              <p>
-                {dayjs(item.createdAt).format("lll")} <b>#{item.contentType}</b>
-              </p>
-            </TypeOfContent>
-          </FirstSection>
+          <AvatarImg
+            alt={
+              (createdUser &&
+                createdUser.details &&
+                createdUser.details.fullName) ||
+              "author"
+            }
+            src={getUserAvatar(createdUser)}
+          />
+          <div>
+            <b>
+              {createdUser &&
+                ((createdUser.details && createdUser.details.fullName) ||
+                  createdUser.username ||
+                  createdUser.email)}
+            </b>
+            <p>
+              {dayjs(item.createdAt).format("lll")} <b>#{item.contentType}</b>
+            </p>
+          </div>
           <NavItem>
             <Dropdown alignRight={true}>
               <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
@@ -84,52 +85,39 @@ export default function List({ list, deleteItem, totalCount }: Props) {
             </Dropdown>
           </NavItem>
         </HeaderFeed>
-        <BodyFeed>
+        <TextFeed>
           <b dangerouslySetInnerHTML={{ __html: item.title }} />
           <p dangerouslySetInnerHTML={{ __html: item.description }} />
-          {(item.images || []).map((image, index) => {
-            return (
-              <img key={index} alt={image.name} src={readFile(image.url)} />
-            );
-          })}
-          {(item.attachments || []).map((a, index) => {
-            return (
-              <Attachments key={index}>
-                <a href={readFile(a.url)}>
-                  <AttachmentsIcon>
-                    <Icon icon="doc" />
-                  </AttachmentsIcon>
-                  <AttachmentsTitle>{a.name}</AttachmentsTitle>
-                </a>
+        </TextFeed>
+        {(item.attachments || []).map((a, index) => {
+          return (
+            <a key={index} href={readFile(a.url)}>
+              <Attachments>
+                <b>
+                  {a.name} <Icon icon="external-link-alt" />
+                </b>
               </Attachments>
-            );
-          })}
-        </BodyFeed>
+            </a>
+          );
+        })}
+        {(item.images || []).map((image, index) => {
+          return <img key={index} alt={image.name} src={readFile(image.url)} />;
+        })}
         <LikeCommentShare>
-          <div>
-            <b style={{ color: "#5629B6" }}>{item.likeCount} Like</b>
-            <b style={{ color: "hsl(118.39999999999998,59.2%,40.8%)" }}>
-              {item.commentCount} Comments
-            </b>
-          </div>
-          <div>
-            <Icon icon="doc" /> <b>Share</b>
-          </div>
+          <b>{item.likeCount} Like</b>
+          <b>{item.commentCount} Comments</b>
+          <b>Share</b>
         </LikeCommentShare>
-      </li>
+      </div>
     );
   };
 
-  const renderList = () => {
-    return (
-      <NewsFeedLayout>
-        {list
-          /* .filter((detail) => detail.contentType === filter(detail.contentType)) */
-          .map((item, index) => renderItem(item, index + 1))}
-        <LoadMore perPage={20} all={totalCount} />
-      </NewsFeedLayout>
-    );
-  };
-
-  return <div>{renderList()}</div>;
+  return (
+    <NewsFeedLayout>
+      {list
+        .filter((item) => item.contentType.includes(filter))
+        .map((filteredItem) => renderItem(filteredItem))}
+      <LoadMore perPage={limit} all={totalCount} />
+    </NewsFeedLayout>
+  );
 }

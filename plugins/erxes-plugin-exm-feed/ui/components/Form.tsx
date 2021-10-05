@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Form, FormControl, Uploader } from "erxes-ui";
+import { Form, Uploader } from "erxes-ui";
 import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
 import { UploadItems } from "../styles";
+import { description, title } from "../utils";
+import ControlLabel from "modules/common/components/form/Label";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -20,38 +22,26 @@ export default function PostForm(props: Props) {
     const { renderButton, closeModal } = props;
 
     return (
-      <div>
-        <FormControl
-          {...formProps}
-          placeholder="Title"
-          type="text"
-          name="title"
-          defaultValue={item.title}
-        />
-
-        <FormControl
-          {...formProps}
-          placeholder="Description"
-          componentClass="textarea"
-          name="description"
-          defaultValue={item.description}
-        />
+      <>
+        {title(formProps, item)}
+        {description(formProps, item)}
         <UploadItems>
           <div>
-            Add attachments:
             <Uploader
               defaultFileList={attachments || []}
               onChange={setAttachment}
             />
+            <ControlLabel>Add attachments:</ControlLabel>
           </div>
           <div>
-            Add image:
             <Uploader defaultFileList={images || []} onChange={setImage} />
+            <ControlLabel>Add image:</ControlLabel>
           </div>
         </UploadItems>
         {renderButton({
           values: {
-            ...values,
+            title: values.title,
+            description: values.description ? values.description : null,
             contentType: "post",
             images,
             attachments,
@@ -59,7 +49,7 @@ export default function PostForm(props: Props) {
           isSubmitted,
           callback: closeModal,
         })}
-      </div>
+      </>
     );
   };
 

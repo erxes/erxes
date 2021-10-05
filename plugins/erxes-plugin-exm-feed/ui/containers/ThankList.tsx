@@ -1,9 +1,9 @@
-import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
-import { Alert, confirm } from 'erxes-ui';
-import ThankList from '../components/ThankList';
-import { mutations, queries } from '../graphql';
+import React from "react";
+import { useQuery, useMutation } from "react-apollo";
+import gql from "graphql-tag";
+import { Alert, confirm } from "erxes-ui";
+import ThankList from "../components/ThankList";
+import { mutations, queries } from "../graphql";
 
 type Props = {
   queryParams: any;
@@ -16,8 +16,8 @@ export default function ThankListContainer(props: Props) {
 
   const queryResponse = useQuery(gql(queries.thanks), {
     variables: {
-      limit
-    }
+      limit,
+    },
   });
 
   const [deleteMutation] = useMutation(gql(mutations.deleteThank));
@@ -30,11 +30,11 @@ export default function ThankListContainer(props: Props) {
     confirm().then(() => {
       deleteMutation({ variables: { _id } })
         .then(() => {
-          Alert.success('You successfully deleted.');
+          Alert.success("You successfully deleted.");
 
           queryResponse.refetch();
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -47,6 +47,7 @@ export default function ThankListContainer(props: Props) {
       queryParams={queryParams}
       deleteItem={deleteItem}
       list={list}
+      limit={limit}
       totalCount={totalCount}
     />
   );

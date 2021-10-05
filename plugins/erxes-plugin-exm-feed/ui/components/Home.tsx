@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Wrapper } from "erxes-ui";
 import { Tabs, TabTitle } from "erxes-ui/lib/components/tabs/index";
 import Form from "../containers/Form";
-import Icon from "modules/common/components/Icon";
 import ThankForm from "../containers/ThankForm";
 import List from "../containers/List";
-import { FeedLayout, FormContainer, TabLayout } from "../styles";
+import { FeedLayout } from "../styles";
 import ThankList from "../containers/ThankList";
+import Select from "react-select-plus";
+import { options } from "../constants";
 
 type Props = {
   queryParams: any;
@@ -14,11 +15,27 @@ type Props = {
 
 export default function Home(props: Props) {
   const [currentTab, setCurrentTab] = useState("post");
+  const { queryParams } = props;
+  const [filter, setFilter] = useState("");
+
+  const filterOnChange = (value) => {
+    setFilter(value.value);
+  };
+
+  const filterContent = () => {
+    return (
+      <Select
+        clearable={false}
+        value={filter}
+        onChange={filterOnChange.bind(this)}
+        placeholder={"filter"}
+        options={options}
+      />
+    );
+  };
 
   const renderTabContent = () => {
     if (currentTab === "thank") {
-      const { queryParams } = props;
-      console.log(queryParams, "==========");
       return (
         <>
           <ThankForm queryParams={queryParams} />
@@ -27,51 +44,57 @@ export default function Home(props: Props) {
       );
     }
 
-    return <Form contentType={currentTab} />;
+    return (
+      <>
+        <Form contentType={currentTab} />
+        {filterContent()}
+        <List queryParams={queryParams} filter={filter} />
+      </>
+    );
   };
 
   const content = () => {
     return (
       <FeedLayout>
-        <TabLayout>
-          <Tabs full={true}>
-            <TabTitle
-              className={currentTab === "post" ? "active" : ""}
-              onClick={() => setCurrentTab("post")}
-            >
-              Post
-              <Icon icon="doc" />
-            </TabTitle>
-            <TabTitle
-              className={currentTab === "bravo" ? "active" : ""}
-              onClick={() => setCurrentTab("bravo")}
-            >
-              Bravo
-              <Icon icon="doc" />
-            </TabTitle>
-            <TabTitle
-              className={currentTab === "thank" ? "active" : ""}
-              onClick={() => setCurrentTab("thank")}
-            >
-              Thank you
-              <Icon icon="doc" />
-            </TabTitle>
-            <TabTitle
-              className={currentTab === "event" ? "active" : ""}
-              onClick={() => setCurrentTab("event")}
-            >
-              Event
-              <Icon icon="doc" />
-            </TabTitle>
-          </Tabs>
-          <FormContainer>{renderTabContent()}</FormContainer>
-        </TabLayout>
-        <List queryParams={props.queryParams} />
+        <Tabs full={true}>
+          <TabTitle
+            className={currentTab === "post" ? "active" : ""}
+            onClick={() => setCurrentTab("post")}
+          >
+            Post
+          </TabTitle>
+          <TabTitle
+            className={currentTab === "event" ? "active" : ""}
+            onClick={() => setCurrentTab("event")}
+          >
+            Event
+          </TabTitle>
+          <TabTitle
+            className={currentTab === "bravo" ? "active" : ""}
+            onClick={() => setCurrentTab("bravo")}
+          >
+            Bravo
+          </TabTitle>
+          <TabTitle
+            className={currentTab === "thank" ? "active" : ""}
+            onClick={() => setCurrentTab("thank")}
+          >
+            Thank you
+          </TabTitle>
+        </Tabs>
+        {renderTabContent()}
       </FeedLayout>
     );
   };
 
   return (
-    <Wrapper header={<Wrapper.Header title={"Feed"} />} content={content()} />
+    <Wrapper
+      header={<Wrapper.Header title={"Feed"} />}
+      content={
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          {content()}
+        </div>
+      }
+    />
   );
 }

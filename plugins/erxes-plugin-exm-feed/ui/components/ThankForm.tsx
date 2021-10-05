@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Form, FormControl, SelectTeamMembers } from 'erxes-ui';
-import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
-import ThankList from '../containers/ThankList';
+import React, { useState } from "react";
+import { Form, SelectTeamMembers } from "erxes-ui";
+import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
+import { description } from "../utils";
 
 type Props = {
   item?: any;
@@ -26,26 +26,18 @@ export default function ThankForm(props: Props) {
           name="recipientIds"
           initialValue={recipientIds}
           onSelect={setRecipientIds}
+          multi={false}
         />
 
-        <FormControl
-          {...formProps}
-          placeholder="Description"
-          componentClass="textarea"
-          name="description"
-          defaultValue={item.description}
-          required={true}
-        />
-
-        <br />
+        {description(formProps, item)}
 
         {renderButton({
           values: {
-            ...values,
-            recipientIds
+            description: values.description ? values.description : "Thank You",
+            recipientIds,
           },
           isSubmitted,
-          callback: closeModal
+          callback: closeModal,
         })}
       </>
     );

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Form, FormControl, Uploader, SelectTeamMembers } from "erxes-ui";
+import { Form, Uploader, SelectTeamMembers } from "erxes-ui";
 import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
 import { UploadItems } from "../styles";
+import { title, description } from "../utils";
+import ControlLabel from "modules/common/components/form/Label";
 
 type Props = {
   item?: any;
@@ -9,7 +11,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => any;
 };
 
-export default function BravoForm(props: Props) {
+export default function EventForm(props: Props) {
   const { item = {} } = props;
 
   const [attachments, setAttachment] = useState(item.attachments || []);
@@ -27,37 +29,21 @@ export default function BravoForm(props: Props) {
           initialValue={recipientIds}
           onSelect={setRecipientIds}
         />
-
-        <FormControl
-          {...formProps}
-          placeholder="Title"
-          type="text"
-          name="title"
-          required={true}
-          defaultValue={item.title}
-        />
-
-        <FormControl
-          {...formProps}
-          placeholder="Description"
-          componentClass="textarea"
-          name="description"
-          defaultValue={item.description}
-        />
-
+        {title(formProps, item)}
+        {description(formProps, item)}
         <UploadItems>
           <div>
-            Add attachments:
             <Uploader
               defaultFileList={attachments || []}
               onChange={setAttachment}
             />
+            <ControlLabel>Add attachments:</ControlLabel>
           </div>
         </UploadItems>
-
         {renderButton({
           values: {
-            ...values,
+            title: values.title,
+            description: values.description ? values.description : null,
             contentType: "event",
             attachments,
             recipientIds,
