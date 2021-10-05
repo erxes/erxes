@@ -1,6 +1,8 @@
 import { graphqlRequest } from '../db/connection';
 import { companyFactory, segmentFactory, tagsFactory } from '../db/factories';
 import { Companies, Segments, Tags } from '../db/models';
+import * as sinon from 'sinon';
+import * as elk from '../elasticsearch';
 
 import './setup.ts';
 
@@ -55,11 +57,21 @@ describe('companyQueries', () => {
     }
   `;
 
+  let mock;
+
+  beforeEach(async () => {
+    mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({ hits: { hits: [] } });
+    });
+  });
+
   afterEach(async () => {
     // Clearing test data
     await Companies.deleteMany({});
     await Tags.deleteMany({});
     await Segments.deleteMany({});
+
+    mock.restore();
   });
 
   test('Companies', async () => {

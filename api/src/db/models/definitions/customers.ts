@@ -83,6 +83,7 @@ export interface ICustomerDocument extends ICustomer, Document {
   location?: ILocationDocument;
   visitorContactInfo?: IVisitorContactDocument;
   profileScore?: number;
+  score?: number;
   status?: string;
   createdAt: Date;
   modifiedAt: Date;
@@ -194,7 +195,13 @@ export const customerSchema = schemaWrapper(
       type: Number,
       index: true,
       optional: true,
-      label: 'Profile score',
+      esType: 'number'
+    }),
+
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
       esType: 'number'
     }),
 

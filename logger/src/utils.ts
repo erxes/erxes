@@ -286,3 +286,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     }
   };
 };
+
+export const sendToAutomations = data => {
+  messageBroker().sendMessage('erxes-automations:trigger', data);
+};

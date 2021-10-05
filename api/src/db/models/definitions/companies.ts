@@ -44,6 +44,7 @@ export interface ICompanyDocument extends ICompany, Document {
   createdAt: Date;
   modifiedAt: Date;
   searchText: string;
+  score?: number;
 }
 
 const getEnum = (fieldName: string): string[] => {
@@ -190,6 +191,12 @@ export const companySchema = schemaWrapper(
     }),
     searchText: field({ type: String, optional: true, index: true }),
     code: field({ type: String, label: 'Code', optional: true }),
-    location: field({ type: String, optional: true, label: 'Location' })
+    location: field({ type: String, optional: true, label: 'Location' }),
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
+      esType: 'number'
+    })
   })
 );
