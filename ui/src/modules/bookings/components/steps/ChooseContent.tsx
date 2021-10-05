@@ -152,7 +152,9 @@ function ChooseContent({
             to organize your product first.
           </Description>
           <SelectProductCategory
-            onChange={(el: any) => onChange('productCategoryId', el.value)}
+            onChange={(e: any) =>
+              onChange('productCategoryId', e ? e.value : '')
+            }
             value={productCategoryId}
             placeholder="Choose product category"
           />
