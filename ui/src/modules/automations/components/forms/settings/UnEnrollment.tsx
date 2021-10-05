@@ -15,32 +15,14 @@ class UnEnrollment extends React.Component<Props> {
         <div>
           <p>{'When contacts enroll in this workflow'}</p>
           <FormGroup>
-            <FormControl
-              componentClass="radio"
-              value="any"
-              // onChange={this.onChangeTimeType}
-              // checked={time === "any"}
-              inline={true}
-            >
+            <FormControl componentClass="radio" value="any" inline={true}>
               {__('Do not remove them from other workflows')}
             </FormControl>
 
-            <FormControl
-              componentClass="radio"
-              value="specific"
-              // onChange={this.onChangeTimeType}
-              // checked={time === "specific"}
-              inline={true}
-            >
+            <FormControl componentClass="radio" value="specific" inline={true}>
               {__('Remove them from all other workflows')}
             </FormControl>
-            <FormControl
-              componentClass="radio"
-              value="specific"
-              // onChange={this.onChangeTimeType}
-              // checked={time === "specific"}
-              inline={true}
-            >
+            <FormControl componentClass="radio" value="specific" inline={true}>
               {__('Remove them from aspecific workflows')}
             </FormControl>
           </FormGroup>
@@ -53,23 +35,11 @@ class UnEnrollment extends React.Component<Props> {
             }
           </p>
           <FormGroup>
-            <FormControl
-              componentClass="radio"
-              value="any"
-              // onChange={this.onChangeTimeType}
-              // checked={time === "any"}
-              inline={true}
-            >
+            <FormControl componentClass="radio" value="any" inline={true}>
               {__('Yes, remove them from this workflow')}
             </FormControl>
 
-            <FormControl
-              componentClass="radio"
-              value="specific"
-              // onChange={this.onChangeTimeType}
-              // checked={time === "specific"}
-              inline={true}
-            >
+            <FormControl componentClass="radio" value="specific" inline={true}>
               {__('No, keep them in this workflow')}
             </FormControl>
           </FormGroup>
@@ -83,23 +53,11 @@ class UnEnrollment extends React.Component<Props> {
             ?
           </p>
           <FormGroup>
-            <FormControl
-              componentClass="radio"
-              value="any"
-              // onChange={this.onChangeTimeType}
-              // checked={time === "any"}
-              inline={true}
-            >
+            <FormControl componentClass="radio" value="any" inline={true}>
               {__('Yes')}
             </FormControl>
 
-            <FormControl
-              componentClass="radio"
-              value="specific"
-              // onChange={this.onChangeTimeType}
-              // checked={time === "specific"}
-              inline={true}
-            >
+            <FormControl componentClass="radio" value="specific" inline={true}>
               {__('No')}
             </FormControl>
           </FormGroup>
@@ -116,7 +74,6 @@ class UnEnrollment extends React.Component<Props> {
             isRequired={true}
             value={''}
             options={[]}
-            // onChange={this.onChangeForm}
             placeholder={__('Select')}
           />
         </div>

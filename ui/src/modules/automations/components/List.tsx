@@ -20,7 +20,6 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: IAutomation[], containerId: string) => void;
   bulk: any[];
