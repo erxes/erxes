@@ -1,3 +1,5 @@
+import { PI } from 'aws-sdk';
+import { archivedItems } from '../data/resolvers/queries/boardUtils';
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
@@ -160,7 +162,7 @@ describe('Test boards mutations', () => {
     const user2 = await userFactory();
 
     const args = {
-      name: 'deal pipeline',
+      name: 'deal pip eline',
       type: 'deal',
       boardId: board._id,
       stages: [stage.toJSON()],
@@ -312,6 +314,69 @@ describe('Test boards mutations', () => {
     );
 
     expect(watchRemovePipeline.isWatched).toBe(false);
+  });
+
+  test('Archive pipeline', async () => {
+    const mutation = `
+    mutation pipelinesArchive($_id: String!) {
+      pipelinesArchive(_id: $_id)
+    }
+  `;
+
+    const user = await userFactory();
+    const pipe = await pipelineFactory({ watchedUserIds: [user._id] });
+    await fieldGroupFactory({ pipelineIds: [pipe._id] });
+
+    await graphqlRequest(
+      mutation,
+      'pipelinesArchive',
+      { _id: pipe._id, status: 'archived' },
+      context
+    );
+    const response = await Pipelines.findOne({ _id: pipe.id });
+    expect(response?.status).toBe('archived');
+    await graphqlRequest(
+      mutation,
+      'pipelinesArchive',
+      { _id: pipe._id, status: 'active' },
+      context
+    );
+    const response1 = await Pipelines.findOne({ _id: pipe.id });
+    expect(response1?.status).toBe('active');
+  });
+
+  test('Duplicate pipeline', async () => {
+    console.log('-----------------------------------------');
+    const mutation = `
+    mutation pipelinesCopied($_id: String!) {
+      pipelinesCopied(_id: $_id)
+    }
+  `;
+
+    const user = await userFactory();
+    const pipe = await pipelineFactory({ watchedUserIds: [user._id] });
+    await fieldGroupFactory({ pipelineIds: [pipe._id] });
+
+    const updPipe = await graphqlRequest(
+      mutation,
+      'pipelinesCopied',
+      { _id: pipe._id },
+      context
+    );
+
+    const response = await Pipelines.findOne({ _id: updPipe._id });
+
+    expect(response?.name).toBe(`${pipe.name}-copied`);
+    expect(response?.status).toBe(pipe.status);
+    expect(response?.boardId).toBe(pipe.boardId);
+    expect(response?.visibility).toBe(pipe.visibility);
+    expect(response?.bgColor).toBe(pipe.bgColor);
+    expect(response?.startDate).toBe(pipe.startDate);
+    expect(response?.endDate).toBe(pipe.endDate);
+    expect(response?.metric).toBe(pipe.metric);
+    expect(response?.hackScoringType).toBe(pipe.hackScoringType);
+    expect(response?.templateId).toBe(pipe.templateId);
+    expect(response?.isCheckUser).toBe(pipe.isCheckUser);
   });
 
   test('Remove pipeline', async () => {

@@ -31,6 +31,27 @@ export type RemoveBoardMutationResponse = {
   }) => Promise<void>;
 };
 
+export type CopiedPipelineMutationVariables = {
+  _id: string;
+};
+
+export type CopiedPipelineMutationResponse = {
+  copiedPipelineMutation: (params: {
+    variables: CopiedPipelineMutationVariables;
+    refetchQueries: any[];
+  }) => Promise<void>;
+};
+export type ArchivePipelineMutationVariables = {
+  _id: string;
+};
+
+export type ArchivePipelineMutationResponse = {
+  archivePipelineMutation: (params: {
+    variables: ArchivePipelineMutationVariables;
+    refetchQueries: any[];
+  }) => Promise<void>;
+};
+
 export type RemovePipelineMutationVariables = {
   _id: string;
 };

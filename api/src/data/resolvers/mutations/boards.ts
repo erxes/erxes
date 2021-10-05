@@ -1,16 +1,27 @@
-import { Boards, FieldsGroups, Pipelines, Stages } from '../../../db/models';
+import { updateDecorator } from 'typescript';
+import { pipelineLabelFactory } from '../../../db/factories';
+import {
+  Boards,
+  FieldsGroups,
+  PipelineLabels,
+  Pipelines,
+  Stages
+} from '../../../db/models';
 import { bulkUpdateOrders, getCollection } from '../../../db/models/boardUtils';
 import {
   IBoard,
   IOrderInput,
   IPipeline,
+  IPipelineStage,
   IStage,
   IStageDocument
 } from '../../../db/models/definitions/boards';
+import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../types';
 import { checkPermission } from '../boardUtils';
+import stages from '../stages';
 
 interface IBoardsEdit extends IBoard {
   _id: string;
@@ -200,6 +211,67 @@ const boardMutations = {
     );
 
     return removed;
+  },
+
+  /**
+   * Archive pipeline
+   */
+  async pipelinesArchive(
+    _root,
+    { _id, status }: { _id; status: string },
+    { user }: IContext
+  ) {
+    const pipeline = await Pipelines.getPipeline(_id);
+
+    await checkPermission(pipeline.type, user, 'pipelinesArchive');
+
+    const archived = await Pipelines.archivePipeline(_id, status);
+
+    const updated = await Pipelines.findOne({ _id });
+
+    await putUpdateLog(
+      {
+        type: `${pipeline.type}Pipelines`,
+        object: pipeline,
+        newData: { isActive: !status },
+        description: `"${pipeline.name}" has been ${
+          status === BOARD_STATUSES.ACTIVE ? 'archived' : 'unarchived'
+        }"`,
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return archived;
+  },
+
+  /**
+   * Duplicate pipeline
+   */
+  async pipelinesCopied(_root, { _id }: { _id: string }, { user }: IContext) {
+    const sourcePipeline = await Pipelines.getPipeline(_id);
+    const sourceStages = await Stages.find({ pipelineId: _id }).lean();
+    await checkPermission(sourcePipeline.type, user, 'pipelinesCopied');
+    const pipelineDoc = sourcePipeline.toObject();
+    pipelineDoc.name = `${pipelineDoc.name}-copied`;
+    delete pipelineDoc._id;
+    const copied = await Pipelines.createPipeline(pipelineDoc);
+    for (const stage of sourceStages) {
+      const newStage = {
+        ...stage,
+        _id: undefined,
+        type: copied.type,
+        pipelineId: copied._id
+      };
+      await Stages.createStage(newStage);
+    }
+
+    await putUpdateLog(
+      { type: `${pipelineDoc.type}Pipelines`, object: pipelineDoc },
+      user
+    );
+
+    return copied;
   },
 
   /**

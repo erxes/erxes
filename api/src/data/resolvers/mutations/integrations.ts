@@ -568,7 +568,6 @@ const integrationMutations = {
 
     delete formDoc._id;
     delete formDoc.code;
-
     const copiedForm = await Forms.createForm(formDoc, user._id);
 
     const leadData = sourceIntegration.leadData;

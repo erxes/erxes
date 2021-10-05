@@ -24,6 +24,8 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
   remove: (pipelineId: string) => void;
+  archive: (pipelineId: string, status: string) => void;
+  copied: (pipelineId: string) => void;
   boardId: string;
   options?: IOption;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
@@ -102,6 +104,8 @@ class Pipelines extends React.Component<Props, State> {
         pipeline={pipeline}
         renderButton={renderButton}
         remove={this.props.remove}
+        archive={this.props.archive}
+        copied={this.props.copied}
         type={type}
         options={options}
         onTogglePopup={this.onTogglePopup}
@@ -145,6 +149,9 @@ class Pipelines extends React.Component<Props, State> {
           <thead>
             <tr>
               <th>{__('pipelineName')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Created at')}</th>
+              <th>{__('Created By')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
@@ -202,7 +209,6 @@ class Pipelines extends React.Component<Props, State> {
     return (
       <div id="pipelines-content">
         <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
-
         {this.renderContent()}
         {this.renderAddForm()}
       </div>

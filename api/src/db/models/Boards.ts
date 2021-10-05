@@ -1,3 +1,4 @@
+import { DocDB } from 'aws-sdk';
 import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { Checklists, Conformities, Forms, InternalNotes } from './';
@@ -13,6 +14,7 @@ import {
   pipelineSchema,
   stageSchema
 } from './definitions/boards';
+import { BOARD_STATUSES } from './definitions/constants';
 import { getDuplicatedStages } from './PipelineTemplates';
 
 export interface IOrderInput {
@@ -217,6 +219,7 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
   removePipeline(_id: string, checked?: boolean): object;
+  archivePipeline(_id: string, status?: string): object;
 }
 
 export const loadPipelineClass = () => {
@@ -315,6 +318,18 @@ export const loadPipelineClass = () => {
       }
 
       return Pipelines.deleteOne({ _id });
+    }
+
+    /**
+     * Archive a pipeline
+     */
+    public static async archivePipeline(_id: string) {
+      const pipeline = await Pipelines.getPipeline(_id);
+      if (pipeline.status == BOARD_STATUSES.ACTIVE) {
+        await Pipelines.updateOne({ _id }, { status: BOARD_STATUSES.ARCHIVED });
+      } else {
+        await Pipelines.updateOne({ _id }, { status: BOARD_STATUSES.ACTIVE });
+      }
     }
 
     public static watchPipeline(_id: string, isAdd: boolean, userId: string) {
