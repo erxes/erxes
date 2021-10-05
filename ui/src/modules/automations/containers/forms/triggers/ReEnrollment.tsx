@@ -6,12 +6,15 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/segments/graphql';
+import { queries as formQueries } from 'modules/forms/graphql';
 import { SegmentDetailQueryResponse } from 'modules/segments/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 
 type Props = {
   trigger: ITrigger;
+  segmentId: string;
   closeModal?: () => void;
   addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
   history?: any;
@@ -19,6 +22,7 @@ type Props = {
 
 type FinalProps = {
   segmentDetailQuery: SegmentDetailQueryResponse;
+  fieldsQuery: FieldsCombinedByTypeQueryResponse;
 } & Props;
 
 class ReEnrollmentContainer extends React.Component<
@@ -60,18 +64,20 @@ class ReEnrollmentContainer extends React.Component<
   };
 
   render() {
-    const { segmentDetailQuery, trigger } = this.props;
+    const { segmentDetailQuery, trigger, fieldsQuery } = this.props;
 
-    if (segmentDetailQuery.loading) {
+    if (segmentDetailQuery.loading || fieldsQuery.loading) {
       return null;
     }
 
     const segment = segmentDetailQuery.segmentDetail;
+    const fields = fieldsQuery.fieldsCombinedByContentType || [];
 
     const extendedProps = {
       ...this.props,
       segment,
       trigger,
+      fields,
       addConfig: this.props.addConfig
     };
 
@@ -89,6 +95,15 @@ export default withProps<Props>(
           variables: { _id: trigger.config ? trigger.config.contentId : '' }
         })
       }
-    )
+    ),
+    graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
+      name: 'fieldsQuery',
+      options: ({ trigger, segmentId }) => ({
+        variables: {
+          contentType: trigger.type,
+          segmentId
+        }
+      })
+    })
   )(ReEnrollmentContainer)
 );

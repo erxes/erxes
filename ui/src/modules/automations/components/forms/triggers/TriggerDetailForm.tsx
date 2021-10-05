@@ -48,6 +48,7 @@ class TriggerDetailForm extends React.Component<
     if (this.state.currentTab === 'reenrollment') {
       return (
         <ReEnrollmentContainer
+          segmentId={config.contentId}
           trigger={activeTrigger}
           closeModal={this.props.closeModal}
           addConfig={this.props.addConfig}

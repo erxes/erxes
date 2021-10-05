@@ -31,7 +31,8 @@ class BoardItemForm extends React.Component<Props, State> {
     super(props);
 
     const { activeAction, pipelineLabels = [] } = this.props;
-    const { config = {} } = activeAction;
+    let { config } = activeAction;
+    if (!config) config = {};
 
     this.state = {
       config,
@@ -125,8 +126,8 @@ class BoardItemForm extends React.Component<Props, State> {
     const priorityOptions = PRIORITIES.map(p => ({ label: p, value: p }));
 
     return (
-      <BoardItemWrapper>
-        <Common config={this.state.config} {...this.props}>
+      <Common config={this.state.config} {...this.props}>
+        <BoardItemWrapper>
           {this.renderSelect()}
           <PlaceHolderInput
             inputName="cardName"
@@ -191,8 +192,8 @@ class BoardItemForm extends React.Component<Props, State> {
             excludeAttr={true}
             options={priorityOptions}
           />
-        </Common>
-      </BoardItemWrapper>
+        </BoardItemWrapper>
+      </Common>
     );
   }
 }

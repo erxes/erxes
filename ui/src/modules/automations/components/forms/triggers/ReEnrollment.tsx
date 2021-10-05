@@ -11,6 +11,7 @@ import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ISegment } from 'modules/segments/types';
 import React from 'react';
+import { FieldsCombinedByType } from 'modules/settings/properties/types';
 
 export type ReEnrollmentRule = {
   property: string;
@@ -20,6 +21,7 @@ export type ReEnrollmentRule = {
 type Props = {
   trigger: ITrigger;
   segment?: ISegment;
+  fields: FieldsCombinedByType[];
   closeModal?: () => void;
   afterSave?: () => void;
   addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
@@ -79,18 +81,28 @@ class ReEnrollment extends React.Component<Props, State> {
   };
 
   renderCheckbox = condition => {
+    const { fields } = this.props;
     const { checked, reEnroll } = this.state;
 
-    return condition.conditions.map(cond => (
+    let labelByName = {};
+
+    for (const cond of condition.conditions) {
+      const field = fields.find(f => f.name === cond.propertyName) || {
+        label: ''
+      };
+      labelByName[cond.propertyName] = field.label || cond.propertyName;
+    }
+
+    return Object.keys(labelByName).map(propertyName => (
       <FormControl
         key={Math.random()}
         componentClass="checkbox"
         onChange={this.onChangeCheckbox}
-        checked={reEnroll ? checked.includes(cond.propertyName) : false}
-        value={`${cond.propertyName}`}
+        checked={reEnroll ? checked.includes(propertyName) : false}
+        value={`${propertyName}`}
         disabled={reEnroll ? false : true}
       >
-        {`${cond.propertyName} ${cond.propertyOperator} ${cond.propertyValue}`}
+        {`${labelByName[propertyName]}`}
       </FormControl>
     ));
   };
