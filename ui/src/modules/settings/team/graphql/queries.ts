@@ -80,6 +80,8 @@ const departmentField = `
   title
   description
   parentId
+  code
+  supervisorId
   userIds
   users {
     _id
@@ -112,6 +114,7 @@ const unitField = `
   description
   departmentId
   supervisorId
+  code
   userIds
   users {
     _id

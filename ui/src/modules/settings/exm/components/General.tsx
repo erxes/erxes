@@ -11,6 +11,7 @@ import {
 } from '../styles';
 import Button from 'modules/common/components/Button';
 import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
+import { generateTree } from 'modules/settings/team/utils';
 
 const getEmptyFeature = () => ({
   _id: Math.random().toString(),
@@ -66,29 +67,21 @@ export default function General(props: Props) {
     return kbTopics.map(c => ({ value: c._id, label: c.title }));
   };
 
-  const generateTreeOptions = (categories, parentId) => {
-    return categories
-      .filter(c => c.parentCategoryId === parentId)
-      .reduce(
-        (tree, node) => [
-          ...tree,
-          {
-            value: node._id,
-            label: `${node.parentCategoryId ? '---' : ''} ${node.title}`
-          },
-          ...generateTreeOptions(categories, node._id)
-        ],
-        []
-      );
-  };
-
   const getCategoryValues = (contentId, categories, parentId) => {
     if (!categories) {
       getKbCategories(contentId);
 
       return [];
     } else {
-      return generateTreeOptions(categories, parentId);
+      return generateTree(
+        categories,
+        parentId,
+        node => ({
+          value: node._id,
+          label: `${node.parentCategoryId ? '---' : ''} ${node.title}`
+        }),
+        'parentCategoryId'
+      );
     }
   };
 

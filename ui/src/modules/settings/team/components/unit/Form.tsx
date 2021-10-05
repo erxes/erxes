@@ -8,16 +8,18 @@ import ControlLabel from 'modules/common/components/form/Label';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { generateTree } from '../../utils';
+import { Department, Unit } from '../../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  unit?: any;
+  unit?: Unit;
   closeModal: () => void;
-  parentDepartments: any[];
+  departments: Department[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, parentDepartments } = props;
+  const { closeModal, renderButton, departments } = props;
   const object = props.unit || ({} as any);
 
   const [userIds, setUserIds] = useState(object.userIds || []);
@@ -59,7 +61,7 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('Description')}</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -67,6 +69,10 @@ export default function DepartmentForm(props: Props) {
             autoFocus={true}
             componentClass="textarea"
           />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
@@ -79,20 +85,18 @@ export default function DepartmentForm(props: Props) {
             multi={false}
           />
         </FormGroup>
-        {(!object._id || (object._id && object.departmentId)) && (
-          <FormGroup>
-            <ControlLabel required={true}>{__('Department')}</ControlLabel>
-            <Select
-              placeholder={__('Choose department')}
-              value={departmentId}
-              onChange={onChangeDepartment}
-              options={parentDepartments.map(d => ({
-                value: d._id,
-                label: d.title
-              }))}
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel required={true}>{__('Department')}</ControlLabel>
+          <Select
+            placeholder={__('Choose department')}
+            value={departmentId}
+            onChange={onChangeDepartment}
+            options={generateTree(departments, null, node => ({
+              value: node._id,
+              label: `${node.parentId ? '--- ' : ''}${node.title}`
+            }))}
+          />
+        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
 

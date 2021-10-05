@@ -9,12 +9,13 @@ import SelectTeamMembers from '../../containers/SelectTeamMembers';
 import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { Department } from '../../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  department?: any;
+  department?: Department;
   closeModal: () => void;
-  parentDepartments: any[];
+  parentDepartments: Department[];
 };
 
 export default function DepartmentForm(props: Props) {
@@ -23,6 +24,7 @@ export default function DepartmentForm(props: Props) {
 
   const [userIds, setUserIds] = useState(object.userIds || []);
   const [parentId, setParentId] = useState(object.parentId);
+  const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const generateDoc = values => {
     const finalValues = values;
@@ -34,6 +36,7 @@ export default function DepartmentForm(props: Props) {
     return {
       userIds,
       parentId,
+      supervisorId,
       ...finalValues
     };
   };
@@ -58,13 +61,27 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('Description')}</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
             defaultValue={object.description}
-            autoFocus={true}
             componentClass="textarea"
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Supervisor')}</ControlLabel>
+
+          <SelectTeamMembers
+            label="Choose a supervisor"
+            name="supervisorId"
+            initialValue={supervisorId}
+            onSelect={setSupervisorId}
+            multi={false}
           />
         </FormGroup>
         {(!object._id || (object._id && object.parentId)) && (

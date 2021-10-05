@@ -100,6 +100,8 @@ const commonDeparmentParamsDef = `
   $title: String,
   $description: String,
   $parentId: String
+  $code: String
+  $supervisorId: String
   $userIds: [String]
 `;
 
@@ -107,6 +109,8 @@ const commonDeparmentParams = `
   title: $title,
   description: $description
   parentId: $parentId
+  code: $code
+  supervisorId: $supervisorId
   userIds: $userIds
 `;
 
@@ -136,6 +140,7 @@ const commonUnitParamsDef = `
   $title: String
   $description: String
   $supervisorId: String
+  $code: String
   $departmentId: String
   $userIds: [String]
 `;
@@ -144,6 +149,7 @@ const commonUnitParams = `
   title: $title,
   description: $description
   departmentId: $departmentId
+  code: $code
   supervisorId: $supervisorId
   userIds: $userIds
 `;

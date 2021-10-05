@@ -5,15 +5,15 @@ import Form from '../../components/unit/Form';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
+import { Unit } from '../../types';
 
 type Props = {
-  unit?: any;
+  unit?: Unit;
   closeModal: () => void;
 };
 
 const FormContainer = (props: Props) => {
   const { data, loading } = useQuery(gql(queries.departments), {
-    variables: { depthType: 'children' },
     fetchPolicy: 'network-only'
   });
 
@@ -49,7 +49,7 @@ const FormContainer = (props: Props) => {
 
   return (
     <Form
-      parentDepartments={data.departments}
+      departments={data.departments}
       {...props}
       renderButton={renderButton}
     />
