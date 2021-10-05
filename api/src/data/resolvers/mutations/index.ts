@@ -1,3 +1,4 @@
+import automationsMutations from './automations';
 import boards from './boards';
 import brands from './brands';
 import calendars from './calendars';
@@ -84,5 +85,6 @@ export default {
   ...calendars,
   ...dashboards,
   ...skillTypesMutations,
-  ...skillsMutations
+  ...skillsMutations,
+  ...automationsMutations
 };

@@ -1021,7 +1021,8 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
-    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`
+    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`,
+    AUTOMATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/automations`
   };
 
   const domain = getEnv({ name });

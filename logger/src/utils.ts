@@ -1,5 +1,8 @@
 import { debugBase, debugError } from './debuggers';
 import Logs from './models/Logs';
+import messageBroker from './messageBroker';
+
+export const sendToApi = (channel: string, data) => messageBroker().sendMessage(channel, data);
 
 /**
  * Takes 2 arrays and detect changes between them.
@@ -282,4 +285,8 @@ export const routeErrorHandling = (fn, callback?: any) => {
       return next(e);
     }
   };
+};
+
+export const sendToAutomations = data => {
+  messageBroker().sendMessage('erxes-automations:trigger', data);
 };

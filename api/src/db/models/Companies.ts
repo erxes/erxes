@@ -77,17 +77,8 @@ export const loadClass = () => {
         if (previousEntry.length > 0) {
           throw new Error('Duplicated name');
         }
-
-        // check duplication from names
-        previousEntry = await Companies.find({
-          ...query,
-          names: { $in: [companyFields.primaryName] }
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated name');
-        }
       }
+
       if (companyFields.code) {
         // check duplication from code
         previousEntry = await Companies.find({

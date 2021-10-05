@@ -153,7 +153,7 @@ export const loadVisitorClass = () => {
     }
 
     public static getVisitorLog(visitorId: string) {
-      return Visitors.findOne({ visitorId });
+      return Visitors.findOne({ visitorId }).lean();
     }
 
     public static removeVisitorLog(visitorId: string) {

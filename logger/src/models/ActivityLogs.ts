@@ -1,5 +1,6 @@
 import * as Random from 'meteor-random';
 import { Document, Model, model, Schema } from 'mongoose';
+import { sendToAutomations } from '../utils';
 import { field } from './Logs';
 
 const ACTIVITY_ACTIONS = {
@@ -66,6 +67,13 @@ interface IAssigneeParams {
   content: object;
 }
 
+interface ITagParams {
+  contentId: string;
+  userId: string;
+  contentType: string;
+  content: object;
+}
+
 interface IChecklistParams {
   item: any;
   contentType: string;
@@ -90,7 +98,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
 
   createSegmentLog(
     segment: any,
-    customer: string[],
+    contentIds: string[],
     type: string,
     maxBulk?: number
   );
@@ -118,6 +126,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     content: object
   ): Promise<IActivityLogDocument>;
   createAssigneLog(params: IAssigneeParams): Promise<IActivityLogDocument>;
+  createTagLog(params: ITagParams): Promise<IActivityLogDocument>;
   createChecklistLog(params: IChecklistParams): Promise<IActivityLogDocument>;
 
   createArchiveLog(params: IArchiveParams): Promise<IActivityLogDocument>;
@@ -161,6 +170,21 @@ export const loadClass = () => {
         contentType,
         contentId,
         action: 'assignee',
+        content,
+        createdBy: userId || ''
+      });
+    }
+
+    public static async createTagLog({
+      contentId,
+      userId,
+      contentType,
+      content
+    }: ITagParams) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId,
+        action: 'tagged',
         content,
         createdBy: userId || ''
       });
@@ -345,7 +369,7 @@ export const loadClass = () => {
       for (const contentId of diffContentIds) {
         bulkCounter = bulkCounter + 1;
 
-        bulkOpt.push({
+        const doc = {
           contentType: type,
           contentId,
           action: 'segment',
@@ -353,7 +377,11 @@ export const loadClass = () => {
             id: segment._id,
             content: segment.name
           }
-        });
+        };
+
+        bulkOpt.push(doc);
+
+        await sendToAutomations(doc);
 
         if (bulkCounter === maxBulk) {
           await ActivityLogs.insertMany(bulkOpt);
