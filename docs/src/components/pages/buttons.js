@@ -31,13 +31,13 @@ export default function Buttons() {
           <CopyBlock 
             language="jsx"
             text={`<>
-            <Button>Default</Button>{' '}
-            <Button btnStyle="primary">Primary</Button>{' '}
-            <Button btnStyle="success">Success</Button>{' '}
-            <Button btnStyle="danger">Danger</Button>{' '}
-            <Button btnStyle="warning">Warning</Button>{' '}
-            <Button btnStyle="simple">Simple</Button>{' '}
-            <Button btnStyle="link">Link</Button>{' '}
+            <Button>Default</Button>
+            <Button btnStyle="primary">Primary</Button>
+            <Button btnStyle="success">Success</Button>
+            <Button btnStyle="danger">Danger</Button>
+            <Button btnStyle="warning">Warning</Button>
+            <Button btnStyle="simple">Simple</Button>
+            <Button btnStyle="link">Link</Button>
 </>`}
             theme={dracula}
             showLineNumbers={false}
@@ -57,9 +57,9 @@ export default function Buttons() {
           <CopyBlock
             language="html"
             text={`<>
-            <Button btnStyle="primary" size="large">Large Primary</Button>{' '}
-            <Button btnStyle="primary" size="medium">Medium Primary</Button>{' '}
-            <Button btnStyle="primary" size="small">Small Primary</Button>{' '}
+            <Button btnStyle="primary" size="large">Large Primary</Button>
+            <Button btnStyle="primary" size="medium">Medium Primary</Button>
+            <Button btnStyle="primary" size="small">Small Primary</Button>
 </>`}
             theme={dracula}
             showLineNumbers={false}

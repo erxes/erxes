@@ -174,7 +174,7 @@
 
 .sideMenu {
 	position: fixed;
-	width: 300px;
+	width: 250px;
 	/* height: 100%; */
 	padding: 15px 25px;
 	border-right: 1px solid #DBDDE1;
@@ -233,26 +233,33 @@ li {
 }
 
 .code {
-	border-radius: 10px;
-	border: 1px solid #61676F;
+	border-radius: 0.25rem;
+	border: 1px solid #ECECEC;
+
 	/* padding: 5px; */
+}
+
+.styled {
+	margin: 15px;
 }
 
 .mainCon {
 	margin: 0;
 	padding: 0;
 	display: flex;
-	float:right;
+	float:left;
 }
 
 .body {
 	margin-left: 350px;
-	margin-right: 350px;
+	/* width: 100%; */
+	/* min-width: 40%; */
+	margin-right: 15%;
 	margin-bottom: 50px;
 }
 
 .subMenu {
-	width: 300px;
+	width: 15%;
 	padding: 15px 25px;
 	border-left: 1px solid #DBDDE1;
 	position: fixed;
