@@ -4,6 +4,7 @@ import Popover from 'react-bootstrap/Popover';
 import Icon from 'modules/common/components/Icon';
 import { IOption } from 'modules/common/types';
 import { Attributes } from '../styles';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   config: any;
@@ -79,7 +80,7 @@ export default class SelectOption extends React.Component<Props> {
         container={this}
       >
         <span>
-          Options <Icon icon="angle-down" />
+          {__('Options')} <Icon icon="angle-down" />
         </span>
       </OverlayTrigger>
     );

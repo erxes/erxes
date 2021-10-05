@@ -152,7 +152,7 @@ class NoteForm extends React.Component<Props, State> {
           componentClass="textarea"
           rows={5}
           onChange={this.onChange}
-          placeholder="Leave a note..."
+          placeholder={`${__('Leave a note')}...`}
         />
         <ModalFooter>
           <Button

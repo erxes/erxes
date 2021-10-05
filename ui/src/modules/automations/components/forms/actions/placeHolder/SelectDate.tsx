@@ -4,6 +4,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import Datetime from '@nateradebaugh/react-datetime';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   config: any;
@@ -60,7 +61,7 @@ export default class SelectDate extends React.Component<Props> {
         container={this}
       >
         <span>
-          Date <Icon icon="angle-down" />
+          {__('Date')} <Icon icon="angle-down" />
         </span>
       </OverlayTrigger>
     );

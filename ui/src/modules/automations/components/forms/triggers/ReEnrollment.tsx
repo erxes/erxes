@@ -112,8 +112,9 @@ class ReEnrollment extends React.Component<Props, State> {
     const { segment } = this.props;
 
     if (!segment) {
-      return 'Must segment form save.';
+      return __('Must segment form save');
     }
+
     return (
       <>
         <EnrollmentWrapper noMargin={true}>

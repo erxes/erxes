@@ -6,7 +6,6 @@ import Button from 'modules/common/components/Button';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-
 import Delay from './subForms/Delay';
 
 type Props = {
@@ -22,7 +21,9 @@ class DefaultForm extends React.Component<Props> {
 
     return (
       <>
-        <div>contents {activeAction.type}</div>
+        <div>
+          {__('contents')} {activeAction.type}
+        </div>
         <ModalFooter>
           <Button
             btnStyle="simple"

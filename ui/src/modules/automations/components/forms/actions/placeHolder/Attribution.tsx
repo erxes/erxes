@@ -4,6 +4,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { Attributes } from '../styles';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   config: any;
@@ -64,14 +65,14 @@ export default class Attribution extends React.Component<Props> {
         <Attributes>
           <React.Fragment>
             <li>
-              <b>Attributions</b>
+              <b>{__('Attributions')}</b>
             </li>
             {filterAttrs.map(item => (
               <li
                 key={item.name}
                 onClick={this.onClickAttribute.bind(this, item)}
               >
-                {item.label}
+                {__(item.label)}
               </li>
             ))}
           </React.Fragment>
@@ -93,7 +94,7 @@ export default class Attribution extends React.Component<Props> {
         container={this}
       >
         <span>
-          Attribution <Icon icon="angle-down" />
+          {__('Attribution')} <Icon icon="angle-down" />
         </span>
       </OverlayTrigger>
     );

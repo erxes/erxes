@@ -520,7 +520,9 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     return `
-      <div class="note-badge note-badge-${key}" title="Notes" id="${key}">
+      <div class="note-badge note-badge-${key}" title=${__(
+      'Notes'
+    )} id="${key}">
         <i class="icon-notes"></i>
       </div>
     `;
@@ -542,8 +544,10 @@ class AutomationForm extends React.Component<Props, State> {
         <div class="trigger-header">
           <div class='custom-menu'>
             <div>
-              <i class="icon-notes add-note" title="Write Note"></i>
-              <i class="icon-trash-alt delete-control" id="${idElm}" title="Delete control"></i>
+              <i class="icon-notes add-note" title=${__('Write Note')}></i>
+              <i class="icon-trash-alt delete-control" id="${idElm}" title=${__(
+      'Delete control'
+    )}></i>
             </div>
           </div>
           <div>
@@ -634,9 +638,9 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <BarItems>
         <ToggleWrapper>
-          <span className={isActive ? 'active' : ''}>Inactive</span>
+          <span className={isActive ? 'active' : ''}>{__('Inactive')}</span>
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
-          <span className={!isActive ? 'active' : ''}>Active</span>
+          <span className={!isActive ? 'active' : ''}>{__('Active')}</span>
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
           {this.renderButtons()}
@@ -721,7 +725,7 @@ class AutomationForm extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBack}>
-              <Icon icon="angle-left" size={20} /> Back to triggers
+              <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
             </BackIcon>
             <ScrolledContent>
               <TriggerDetailForm
@@ -745,7 +749,7 @@ class AutomationForm extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBackAction}>
-              <Icon icon="angle-left" size={20} /> Back to actions
+              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
@@ -798,7 +802,7 @@ class AutomationForm extends React.Component<Props, State> {
             onClick={this.toggleDrawer.bind(this, 'triggers')}
           >
             <Icon icon="file-plus" size={25} />
-            <p>How do you want to trigger this automation?</p>
+            <p>{__('How do you want to trigger this automation')}?</p>
           </div>
         </Container>
       );

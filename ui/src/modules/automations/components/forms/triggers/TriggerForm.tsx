@@ -10,12 +10,12 @@ import {
   TypeBoxContainer
 } from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
-import client from 'erxes-ui/lib/apolloClient';
 import gql from 'graphql-tag';
 import { mutations, queries } from 'modules/automations/graphql';
 import Icon from 'modules/common/components/Icon';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import client from 'erxes-ui/lib/apolloClient';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
@@ -86,7 +86,9 @@ class TriggerForm extends React.Component<Props, State> {
       <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
         <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
         <FormGroup>
-          <ControlLabel>{trigger.label} based</ControlLabel>
+          <ControlLabel>
+            {trigger.label} {__('based')}
+          </ControlLabel>
           <p>{trigger.description}</p>
         </FormGroup>
       </TypeBox>
@@ -98,7 +100,7 @@ class TriggerForm extends React.Component<Props, State> {
       <TypeBoxContainer key={index}>
         <TypeBox onClick={this.onClickTemplate.bind(this, template)}>
           <FormGroup>
-            <ControlLabel>{template.name}</ControlLabel>
+            <ControlLabel>{__(template.name)}</ControlLabel>
           </FormGroup>
         </TypeBox>
         <div className="ctrl">

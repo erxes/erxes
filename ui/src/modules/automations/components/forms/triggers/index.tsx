@@ -17,7 +17,9 @@ class DefaultForm extends React.Component<Props> {
 
     return (
       <>
-        <div>content {action.type}</div>
+        <div>
+          {__('content')} {action.type}
+        </div>
         <ModalFooter>
           <Button
             btnStyle="simple"

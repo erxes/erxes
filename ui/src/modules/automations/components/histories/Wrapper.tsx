@@ -76,7 +76,7 @@ class HistoriesHeader extends React.Component<Props, State> {
     const props = {
       value: this.state[key],
       inputProps: {
-        placeholder: `${__(`Filter by ${name}`)}`
+        placeholder: `${__(`Filter by ${__(name)}`)}`
       }
     };
 

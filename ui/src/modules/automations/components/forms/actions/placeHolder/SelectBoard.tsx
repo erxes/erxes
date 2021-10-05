@@ -8,7 +8,7 @@ import { Attributes } from '../styles';
 import { IStage } from 'modules/boards/types';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, __ } from 'modules/common/utils';
 
 type Props = {
   config: any;
@@ -124,7 +124,7 @@ export default class SelectBoard extends React.Component<Props, State> {
         container={this}
       >
         <span>
-          Stages <Icon icon="angle-down" />
+          {__('Stages')} <Icon icon="angle-down" />
         </span>
       </OverlayTrigger>
     );
