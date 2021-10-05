@@ -19,7 +19,7 @@ export default function Buttons() {
         <h2>Examples</h2>
         <p>Use any of the available button style types to quickly create a styled button. Just modify the <b>btnStyle</b> prop.</p>
         <div className={styles.code}>
-          <div>
+          <div className={styles.styled}>
             <Button>Default</Button>{' '}
             <Button btnStyle="primary">Primary</Button>{' '}
             <Button btnStyle="success">Success</Button>{' '}
@@ -27,7 +27,7 @@ export default function Buttons() {
             <Button btnStyle="warning">Warning</Button>{' '}
             <Button btnStyle="simple">Simple</Button>{' '}
             <Button btnStyle="link">Link</Button>{' '}
-          </div><br/>
+          </div>
           <CopyBlock 
             language="jsx"
             text={`<>
@@ -38,7 +38,7 @@ export default function Buttons() {
             <Button btnStyle="warning">Warning</Button>{' '}
             <Button btnStyle="simple">Simple</Button>{' '}
             <Button btnStyle="link">Link</Button>{' '}
-  </>`}
+</>`}
             theme={dracula}
             showLineNumbers={false}
             codeBlock
@@ -46,27 +46,21 @@ export default function Buttons() {
         </div>
       </div>
       <div>
-        <h1>Sizes</h1>
+        <h2>Sizes</h2>
         <p>Fancy larger or smaller buttons? Add <b>size="large"</b>, <b>size="medium"</b>, <b>size="small"</b> for additional sizes.</p>
         <div className={styles.code}>
           <div>
           <Button btnStyle="primary" size="large">Large Primary</Button>{' '}
           <Button btnStyle="primary" size="medium">Medium Primary</Button>{' '}
           <Button btnStyle="primary" size="small">Small Primary</Button>{' '}
-          <Button btnStyle="success" size="large">Large Success</Button>{' '}
-          <Button btnStyle="success" size="medium">Medium Success</Button>{' '}
-          <Button btnStyle="success" size="small">Small Success</Button>{' '}
-          </div><br/>
+          </div>
           <CopyBlock
             language="html"
             text={`<>
             <Button btnStyle="primary" size="large">Large Primary</Button>{' '}
             <Button btnStyle="primary" size="medium">Medium Primary</Button>{' '}
             <Button btnStyle="primary" size="small">Small Primary</Button>{' '}
-            <Button btnStyle="success" size="large">Large Success</Button>{' '}
-            <Button btnStyle="success" size="medium">Medium Success</Button>{' '}
-            <Button btnStyle="success" size="small">Small Success</Button>{' '}
-  </>`}
+</>`}
             theme={dracula}
             showLineNumbers={false}
             codeBlock
@@ -74,19 +68,19 @@ export default function Buttons() {
         </div>
       </div>
       <div>
-        <h1>Disabled state</h1>
+        <h2>Disabled state</h2>
         <p>Make buttons look inactive by adding the <b>disabled</b> prop to.</p>
         <div className={styles.code}>
           <div>
           <Button btnStyle="primary" size="medium">Normal button</Button>
           <Button btnStyle="primary" size="medium" disabled>Disabled button</Button>
-          </div><br/>
+          </div>
           <CopyBlock
             language="html"
             text={`<>
             <Button btnStyle="primary" size="medium">Normal button</Button>
             <Button btnStyle="primary" size="medium" disabled>Disabled button</Button>
-  </>`}
+</>`}
             theme={dracula}
             showLineNumbers={false}
             codeBlock
@@ -95,8 +89,8 @@ export default function Buttons() {
       </div>
     </div>
     <div className={styles.subMenu}>
-      <li><Link to="button">Button</Link></li>
-      <li><Link to="examples">Examples</Link></li>
+      <li><Link to="button" spy={true} smooth={true} duration={500}>Button</Link></li>
+      <li><Link to="examples" spy={true} smooth={true} duration={500}>Examples</Link></li>
     </div>
 
     </div>

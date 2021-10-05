@@ -233,9 +233,15 @@ li {
 }
 
 .code {
-	border-radius: 10px;
-	border: 1px solid #61676F;
-	padding: 5px;
+	border-radius: 0.25rem;
+	border: 1px solid #ECECEC;
+
+	color: ;
+	/* padding: 5px; */
+}
+
+.styled {
+	margin: 5px;
 }
 
 .mainCon {
@@ -246,8 +252,10 @@ li {
 }
 
 .body {
-	margin-left: 28%;
-	margin-right: 350px;
+	margin-left: 350px;
+	min-width: 40%;
+	width: 70%;
+	margin-right: 50px;
 	margin-bottom: 50px;
 }
 
@@ -262,8 +270,18 @@ li {
 
 h1 {
 	font-size: calc(1.375rem + 1.5vw);
+	margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
 }
 
 h2 {
 	font-size: calc(1.325rem + .9vw);
+	margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+}
+
+code {
+	background-color: #282a36;
+	border: none;
+	color: white;
 }
