@@ -171,6 +171,26 @@ const productMutations = {
     }: { productIds: string[]; productFields: IProduct }
   ) {
     return Products.mergeProducts(productIds, { ...productFields });
+  },
+
+  /**
+   * Select feature of products
+   */
+  async productSelectFeature(
+    _root,
+    { _id, counter }: { _id: string; counter: string }
+  ) {
+    let product = await Products.getProduct({ _id });
+    let attachment = null;
+
+    if (product.attachmentMore && product.attachmentMore.length > 0) {
+      attachment = product.attachmentMore[counter];
+    }
+
+    await Products.updateOne({ _id }, { $set: { attachment } });
+    product = await Products.getProduct({ _id });
+
+    return product;
   }
 };
 

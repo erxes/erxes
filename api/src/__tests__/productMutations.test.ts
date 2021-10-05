@@ -2,7 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import {
   productCategoryFactory,
   productFactory,
-  tagsFactory
+  tagsFactory,
+  attachmentFactory
 } from '../db/factories';
 import { ProductCategories, Products, Tags } from '../db/models';
 
@@ -21,6 +22,9 @@ describe('Test products mutations', () => {
     $sku: String
     $code: String
     $attachment: AttachmentInput
+    $attachmentMore: [AttachmentInput]
+    $productCount: Int
+    $minimiumCount: Int
   `;
 
   const commonParams = `
@@ -31,6 +35,9 @@ describe('Test products mutations', () => {
     sku: $sku
     code: $code
     attachment: $attachment
+    attachmentMore: $attachmentMore
+    productCount: $productCount
+    minimiumCount: $minimiumCount
   `;
 
   const commonCategoryParamDefs = `
@@ -38,6 +45,8 @@ describe('Test products mutations', () => {
     $code: String!,
     $description: String,
     $parentId: String,
+    $attachment: AttachmentInput,    
+    $status: String
   `;
 
   const commonCategoryParams = `
@@ -45,6 +54,8 @@ describe('Test products mutations', () => {
     code: $code,
     description: $description,
     parentId: $parentId,
+    attachment: $attachment,
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -274,5 +285,38 @@ describe('Test products mutations', () => {
     const product1 = await graphqlRequest(mutation, 'productsMerge', args);
 
     expect(product1.code).toBe(args.productFields.code);
+  });
+
+  test('Select feature', async () => {
+    const attachment = attachmentFactory();
+    const attachment1 = attachmentFactory();
+    const attachmentMore = [attachment, attachment1];
+
+    const withAttachmentProduct = await productFactory({
+      attachmentMore
+    });
+
+    const args = {
+      _id: withAttachmentProduct._id,
+      counter: '0'
+    };
+
+    const mutation = `
+      mutation productSelectFeature($_id: String, $counter: String) {
+        productSelectFeature(_id: $_id, counter: $counter) {
+          name
+          code
+          _id
+        }
+      }   
+    `;
+
+    const product1 = await graphqlRequest(
+      mutation,
+      'productSelectFeature',
+      args
+    );
+
+    expect(product1._id).toBe(args._id);
   });
 });

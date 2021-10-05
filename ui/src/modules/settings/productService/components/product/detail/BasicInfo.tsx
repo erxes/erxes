@@ -1,5 +1,6 @@
 import { Content } from 'modules/boards/styles/item';
 import Attachment from 'modules/common/components/Attachment';
+import FormControl from 'modules/common/components/form/Control';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
@@ -26,9 +27,17 @@ import xss from 'xss';
 type Props = {
   product: IProduct;
   remove: () => void;
+  chooseFeature: (_id: string, counter: string) => void;
 };
 
 class BasicInfo extends React.Component<Props> {
+
+  onRadio = (e) => {
+    const { product, chooseFeature } = this.props;
+    chooseFeature(product._id, e.target.value);
+
+  }
+
   renderVendor = vendor => {
     if (!vendor) {
       return (
@@ -50,11 +59,12 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderRow = (label, value) => {
+  renderView = (name, variable, variable1) => {
+    const view = variable ? variable : variable1;
     return (
       <li>
-        <FieldStyle>{__(`${label}`)}</FieldStyle>
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{view}</SidebarCounter>
       </li>
     );
   };
@@ -90,12 +100,37 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
-  renderImage = (item?: IAttachment) => {
-    if (!item) {
-      return <></>;
+  renderFeatures = (items?: IAttachment[], feature?: IAttachment) => {
+    if (!items || !feature) {
+      return null;
     }
 
-    return <Attachment attachment={item} />;
+    const elemets: any[] = [];
+    let counter = 0;
+
+    items.map(e => {
+      const checked = feature.name === e.name ? true : false;
+      elemets.push(<FormControl
+        name="SelectFeature"
+        onChange={this.onRadio}
+        value={counter}
+        checked={checked}
+        componentClass="radio"
+      >
+        {e.name}
+      </FormControl>);
+      counter++;
+    });
+
+    return elemets;
+  };
+
+  renderImage = (item: IAttachment) => {
+    if (!item) {
+      return null;
+    }
+
+    return <Attachment attachment={item} />
   };
 
   renderInfo() {
@@ -118,20 +153,23 @@ class BasicInfo extends React.Component<Props> {
         {this.renderAction()}
 
         {this.renderImage(product.attachment)}
-
+        {this.renderFeatures(product.attachmentMore, product.attachment)}
         <SidebarList className="no-link">
-          {this.renderRow('Code', product.code)}
-          {this.renderRow('Type', product.type)}
-          {this.renderRow(
+          {this.renderView('Code', product.code, '-')}
+          {this.renderView('Type', product.type, '-')}
+          {this.renderView(
             'Category',
-            product.category ? product.category.name : ''
+            product.category ? product.category.name : '', '-'
           )}
-          {this.renderRow(
+          {this.renderView(
             'Unit price',
-            (product.unitPrice || 0).toLocaleString()
+            (product.unitPrice || 0).toLocaleString(), '-'
           )}
-          {this.renderRow('Sku', product.sku)}
+          {this.renderView('Sku', product.sku, '-')}
           {this.renderVendor(product.vendor)}
+          {this.renderView('Supply', product.supply, '-')}
+          {this.renderView('Product count', product.productCount, 0)}
+          {this.renderView('Minimium product', product.minimiumCount, 0)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <Content
