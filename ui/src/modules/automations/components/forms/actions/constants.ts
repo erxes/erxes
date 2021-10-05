@@ -1,7 +1,7 @@
 export const PROPERTY_TYPES = [
   {
     value: 'customer',
-    label: 'Customer'
+    label: 'Contact'
   },
   {
     value: 'company',

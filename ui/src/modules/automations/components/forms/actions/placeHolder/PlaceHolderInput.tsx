@@ -188,11 +188,12 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
       const deletes = Object.keys(by).filter(key => {
         const val = by[key];
-        if (
-          ((start === end && val.min < start) ||
-            (start < end && val.min <= start)) &&
-          val.max <= start
-        ) {
+
+        if (start === end && val.min < start && val.max < start) {
+          return null;
+        }
+
+        if (start < end && val.min <= start && val.max <= start) {
           return null;
         }
 
@@ -255,7 +256,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             name={inputName}
             value={converted}
             onChange={this.onChange}
-            // onKeyPress={this.onKeyPress}
+            onKeyPress={this.onKeyPress}
             onKeyDown={this.onKeyPress}
           />
         </FormGroup>

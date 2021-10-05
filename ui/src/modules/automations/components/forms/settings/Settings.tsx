@@ -148,10 +148,8 @@ class Settings extends React.Component<Props, State> {
             <FormGroup>
               <FormControl
                 componentClass="checkbox"
-                // componentClass="radio"
                 value="any"
                 onChange={this.onChangeTimeType}
-                // checked={time === "any"}
                 inline={true}
               >
                 {__('Any time')}
@@ -159,10 +157,8 @@ class Settings extends React.Component<Props, State> {
 
               <FormControl
                 componentClass="checkbox"
-                // componentClass="radio"
                 value="specific"
                 onChange={this.onChangeTimeType}
-                // checked={time === "specific"}
                 inline={true}
               >
                 {__('Specific times')}
