@@ -10,7 +10,9 @@ export default {
   },
 
   form(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    return integration.formId && dataLoaders.form.load(integration.formId);
+    return (
+      (integration.formId && dataLoaders.form.load(integration.formId)) || null
+    );
   },
 
   channels(integration: IIntegrationDocument) {

@@ -11,9 +11,10 @@ export default {
   },
 
   customer(message: IMessageDocument, _, { dataLoaders }: IContext) {
-    if (message.customerId) {
-      return dataLoaders.customer.load(message.customerId);
-    }
+    return (
+      (message.customerId && dataLoaders.customer.load(message.customerId)) ||
+      null
+    );
   },
 
   async mailData(message: IMessageDocument, _args, { dataSources }: IContext) {
