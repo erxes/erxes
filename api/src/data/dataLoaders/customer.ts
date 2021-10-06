@@ -8,7 +8,7 @@ export default function generateDataLoaderCustomer() {
     async (ids: readonly string[]) => {
       const result: ICustomerDocument[] = await Customers.find({
         _id: { $in: ids }
-      }).lean();
+      });
       const resultById = _.indexBy(result, '_id');
       return ids.map(id => resultById[id]);
     }
