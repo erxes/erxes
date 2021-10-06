@@ -23,7 +23,6 @@ import Item from 'modules/boards/components/stage/Item';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from 'modules/common/types';
 import NameCard from 'modules/common/components/nameCard/NameCard';
-import withTableWrapper from 'modules/common/components/table/withTableWrapper';
 
 type Props = {
   index: number;
@@ -116,7 +115,7 @@ class ListGroupBy extends React.Component<Props> {
     }
 
     return (
-      <withTableWrapper.Wrapper>
+      <>
         <Table hover={true} bordered={true}>
           <thead>
             <tr>
@@ -147,7 +146,7 @@ class ListGroupBy extends React.Component<Props> {
             ))}
           </tbody>
         </Table>
-      </withTableWrapper.Wrapper>
+      </>
     );
   };
 
