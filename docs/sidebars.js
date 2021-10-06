@@ -119,4 +119,11 @@ module.exports = {
       ],
     },
   ],
+  components: [
+    {
+      type: "category",
+      label: "Components",
+      items: ["components/buttons", "components/info"],
+    },
+  ],
 };

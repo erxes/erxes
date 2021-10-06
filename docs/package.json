@@ -20,6 +20,7 @@
     "i18n-react": "^0.7.0",
     "query-string": "^7.0.1",
     "react": "^16.13.1",
+    "raw-loader": "^4.0.2",
     "react-bootstrap": "^1.6.3",
     "react-code-blocks": "0.0.9-0",
     "react-dom": "^16.8.4",
