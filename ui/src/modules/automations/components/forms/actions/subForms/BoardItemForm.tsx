@@ -32,7 +32,9 @@ class BoardItemForm extends React.Component<Props, State> {
 
     const { activeAction, pipelineLabels = [] } = this.props;
     let { config } = activeAction;
-    if (!config) config = {};
+    if (!config) {
+      config = {};
+    }
 
     this.state = {
       config,
