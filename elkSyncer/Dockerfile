@@ -19,7 +19,6 @@ RUN apt-get update \
 COPY . .
 
 RUN cd src/syncer \
- && go get gopkg.in/olivere/elastic.v7 \
  && go get github.com/joho/godotenv \
  && dep ensure
 
