@@ -15,7 +15,7 @@ import integration from './integration';
 import user from './user';
 import segmentsBySubOf from './segmentsBySubOf';
 import segment from './segment';
-import { ICustomer } from '../../db/models/definitions/customers';
+import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import customer from './customer';
@@ -31,7 +31,7 @@ export interface IDataLoaders {
   user: DataLoader<string, IUserDocument>;
   segmentsBySubOf: DataLoader<string, ISegmentDocument[]>;
   segment: DataLoader<string, ISegmentDocument>;
-  customer: DataLoader<string, ICustomer>;
+  customer: DataLoader<string, ICustomerDocument>;
   conversationMessagesByConversationId: DataLoader<string, IMessageDocument[]>;
   conversationsByCustomerId: DataLoader<string, IConversationDocument[]>;
 }
