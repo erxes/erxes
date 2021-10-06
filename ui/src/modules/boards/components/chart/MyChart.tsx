@@ -14,23 +14,26 @@ export default () => {
   const data = React.useMemo(
     () => [
       {
-        label: 'Series 1',
+        label: 'doing',
         data: [
-          [0, 5],
-          [1, 2],
-          [2, 4],
-          [3, 6],
-          [4, 7]
+          ['Bat', 5],
+          ['Dorj', 2]
         ]
       },
       {
-        label: 'Series 2',
+        label: 'planned',
         data: [
-          [0, 3],
-          [1, 1],
-          [2, 5],
-          [3, 6],
-          [4, 4]
+          ['Bat', 3],
+          ['Dorj', 1],
+          ['Dulam', 5]
+        ]
+      },
+      {
+        label: 'testing',
+        data: [
+          ['Bat', 1],
+          ['Dorj', 3],
+          ['Tsetseg', 1]
         ]
       }
     ],
@@ -48,13 +51,15 @@ export default () => {
 
   return (
     <>
-      <Chart
-        data={data}
-        series={series}
-        axes={axes}
-        primaryCursor
-        tooltip={tooltip}
-      />
+      <div style={{ width: '800px', height: '600px' }}>
+        <Chart
+          data={data}
+          series={series}
+          axes={axes}
+          primaryCursor
+          tooltip={tooltip}
+        />
+      </div>
     </>
   );
 };
