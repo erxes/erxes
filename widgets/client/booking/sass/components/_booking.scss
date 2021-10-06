@@ -1,5 +1,6 @@
 .layout{
   display: block;
+  min-height: 100%;
 }
 
 .main-container {
@@ -26,18 +27,6 @@
   }
 }
 
-.back-button {
-  float: left;
-}
-.next-button {
-  float: right;
-  background-color: $main-color;
-}
-
-.block-container {
-  display: flex;
-}
-
 .block {
   border: 1px solid $border-color;
   border-radius: 10px;
@@ -54,9 +43,10 @@
     font-size: 12px;
   }
 
-  &:hover {
+  &:hover, &:active {
     cursor: pointer;
-    background-color: $main-color;
+    border-color: $primary;
+    box-shadow: 0px 4px 8px rgba(136, 111, 221, 0.24);
   }
 }
 
@@ -165,50 +155,54 @@
     box-shadow: 0 6px 8px 0 rgba($black, 0.13);
   }
 }
-
-.back {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  margin-bottom: 20px;
-  background: none;
-  outline: 0;
-  border: 0;
-  color: $text-color;
-  padding: 5px 0;
-
-  i {
-    margin-right: 5px;
-  }
-
-  &:hover {
-    color: darken($text-color, 15%);
-    cursor: pointer;
-  }
-}
-
 .category-container {
   background: rgba($black, 0.044);
   border-radius: $border-radius;
   padding: $kb-spacing;
 }
+
+.btn{
+  background-color: $primary; 
+  border: none;
+  width: 85px;
+  height: 36px;
+  color: white;
+  font-weight: bold;
+  padding: 10px 14px 10px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 8px;
+box-shadow: 0px 4px 8px rgba(79, 51, 175, 0.24);
+}
+
+hr { background-color: rgba(0, 0, 0, 0.08); height: 1px; border: 0; }
 .arrow{
   width: 0; 
   height: 0; 
 }
-.arrow-down{ 
-  width: 0; 
-  height: 0; 
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid #444;
+.arrow-down-available{ 
+  @include arrow-down($primary)
 }
-.arrow-right{
-  width: 0; 
-  height: 0; 
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent; 
-  border-left:5px solid #444; 
+.arrow-down-few{ 
+  @include arrow-down($secondary)
+}
+.arrow-down-soldout{ 
+  @include arrow-down($mid-grey)
+}
+.arrow-right-available{ 
+  @include arrow-right($primary)
+}
+.arrow-right-few{ 
+  @include arrow-right($secondary)
+}
+.arrow-right-soldout{ 
+  @include arrow-right($mid-grey)
 }
 
 .icon-leftarrow:before { content: '\e84a'; }
+
+.icon-arrow-left:before { content: '\e9d9'; }
+.icon-arrow-right:before { content: '\e9dc'; }
+
+.icon-menu-2:before { content: '\e852'; }

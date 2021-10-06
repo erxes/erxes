@@ -87,15 +87,16 @@ class FilterableList extends React.Component<Props, State> {
     this.setState({ parentIds });
   };
 
-  renderIcons(item: any, hasChildren: boolean, isOpen: boolean) {
+  renderIcons(item: any, hasChildren: boolean, isOpen: boolean, stock:string) {
     return (
           <div className="toggle-nav"
             onClick={this.onToggle.bind(this, item._id, isOpen)}
           >
-            <div className={isOpen ? 'arrow-down' : 'arrow-right'} />
+            <div className={`arrow ${isOpen ? 'arrow-down' : 'arrow-right'}-${stock}`} />
           </div>
     );
   }
+
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
     const { showCheckmark = true, changeRoute } = this.props;
@@ -107,20 +108,20 @@ class FilterableList extends React.Component<Props, State> {
     const onClick = () => this.toggleItem(item._id);
     const isOpen = this.state.parentIds[item._id] || !!key;
   
-    let stock = stockCnt === 0 ? "duussan": "available";
-    if(stockCnt > 0 && stockCnt <10) stock = "baga"
-     console.log(isOpen)
+    let stock = stockCnt === 0 ? "soldout": "available";
+    if(stockCnt > 0 && stockCnt <10) stock = "few"
     return (
         <li key={item._id} 
-          className={`list grid-131 s-${stock}`}
+          className={`list flex-sb s-${stock}`}
           onClick={onClick}
         >
-          {this.renderIcons(item, hasChildren, isOpen)}
-          <span className="grid" onClick={() => changeRoute(item)}>
+          <div className="flex-center">
+          {this.renderIcons(item, hasChildren, isOpen, stock)}
+          <div className="mr-30" onClick={() => changeRoute(item)}>
             {item.name || '[undefined]'}
-          </span>
+          </div>
+          </div>
           <div className={`circle center ${stock}`}>{stockCnt}</div>
-
       </li>
     );
   }
@@ -128,13 +129,12 @@ class FilterableList extends React.Component<Props, State> {
   renderTree(parent: any, subFields?: any) {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
-    console.log(childrens)
+    const num = Math.floor(Math.random() * 40)
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
-
       return (
         <ul key={`parent-${parent._id}`}>
-          {this.renderItem(parent, true,20 )}
+          {this.renderItem(parent, true, num )}
           <li className="child-list">
             {isOpen &&
               childrens.map((childparent: any) => {
@@ -145,7 +145,7 @@ class FilterableList extends React.Component<Props, State> {
       );
     }
 
-    return this.renderItem(parent, false, 20);
+    return this.renderItem(parent, false, num);
   }
 
   renderItems() {

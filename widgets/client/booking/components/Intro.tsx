@@ -20,8 +20,7 @@ function Intro({ booking, goToBooking }: Props) {
       <div className="main-body">
         <img src={readFile(attachment.url)} alt="hello" />
       </div>
-      <button
-        className="erxes-button next-button"
+      <button className="btn btn-next"
         onClick={() => goToBooking(booking)}
       >
         Next

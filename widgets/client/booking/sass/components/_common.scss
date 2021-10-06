@@ -17,8 +17,37 @@
     line-height: 16px;
     letter-spacing: 0.5px
 }
+.w-100{
+    width: 100%;
+}
+.h-100{
+    height: 100%;
+}
+.full-img{
+    width: 100%;
+    height: auto;
+}
+.top-0{
+    top:0 !important;
+}
+.b{
+    color:#222;
+    font-weight:bold 
+}
+.p-5{
+    padding: 5px;
+}
 .p-10{
     padding: 10px;
+}
+.mr-10{
+    margin-right: 10px;
+}
+.mr-30{
+    margin-right: 30px !important;
+}
+.mb-10{
+    margin-bottom: 10px !important;
 }
 .grid-131{
     display: grid;
@@ -40,30 +69,28 @@
     align-self: end;
 }
 .circle{
-    width: 23px;
-    height: 23px;
     border-radius: 50%;
-    color: white;
+    min-width: 23px;
+    min-height: 23px;
     padding: 3px;
+    color: white;
+    font-size: 10px;
 }
 .available{
     background-color: $primary;
 }
-.baga{
+.few{
     background-color: $secondary;
 }
-.duussan{
+.soldout{
     background-color: $mid-grey;
 }
 .s-available{
     color: $primary;
-    border-color:$primary !important ;
 }
-.s-baga{
+.s-few{
     color: $secondary;
-    border-color:$secondary !important;
 }
-.s-duussan{
+.s-soldout{
     color: $mid-grey;
-    border-color:$mid-grey !important; 
 }

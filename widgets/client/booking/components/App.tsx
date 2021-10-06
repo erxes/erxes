@@ -42,15 +42,13 @@ function App({ booking, activeRoute }: Props) {
         items={booking.categoryTree}
         parentId={booking.productCategoryId}
       />
-      <div />
+      <div></div>
       <Navigation
         items={booking.categoryTree}
         parentId={booking.productCategoryId}
       />
       </div>
-      
-      <div>{renderContent()}</div>
-      <div> Footer </div>
+      <div className="h-100 w-100">{renderContent()}</div>
     </div>
   );
 }

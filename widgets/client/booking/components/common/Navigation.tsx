@@ -35,11 +35,13 @@ class Navigation extends React.Component<Props, State> {
       <ReactPopover
       isOpen={isOpen}
       preferPlace={'start'}
+      place= {"left"}
       tipSize={.01}
+      className={"top-0"}
       body={
         <div className="booking-navigation">
-              <div className="flex-sb p-10">
-                <div> Navigation </div>
+              <div className="flex-sb p-5">
+                <div className="b"> Navigation </div>
                 <div onClick={()=>{this.setState({isOpen:false})}}> 
                 <i className="icon-leftarrow"></i>
                 </div>
@@ -57,10 +59,11 @@ class Navigation extends React.Component<Props, State> {
       }
     >
       <div onClick={this.toggleNavigation} >
-      <label className="menu__btn">
-        <span></span>
-      </label>
-      <p>Navigation</p>
+      <div className="flex-center">
+        <i className="icon-menu-2 mr-10"></i>
+        <p>Navigation</p>
+      </div>
+     
       </div>
     </ReactPopover>
     );

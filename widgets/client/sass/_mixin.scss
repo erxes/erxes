@@ -43,3 +43,14 @@
   animation-iteration-count: $count;
   animation-timing-function: $timing;
 }
+@mixin arrow-down($color) {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid $color;
+}
+
+@mixin arrow-right($color) {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent; 
+  border-left:5px solid $color; 
+}

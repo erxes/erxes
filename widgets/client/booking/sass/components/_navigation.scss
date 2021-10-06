@@ -5,7 +5,6 @@
   top:10px;
   left:10px;
   text-align: left;
-  color: $mid-grey;
   display: inline-block;
   border-radius: 2px;
   padding: 10px;
@@ -20,11 +19,21 @@
   li{
     list-style: none;
   }
+  span{
+    display: inline-block;
+  }
   .list{
     margin-bottom:5px ;
+    div{
+      width: max-content;
+      margin-right: 5px;
+    }  
   }
   .child-list{
     margin-left: 30px;
+    // &:last-child {
+      
+    //   }
   }
   .toggle-icon {
     i {
@@ -37,7 +46,9 @@
   .toggle-nav{
     width: 10px;
     height: 10px;
-    align-self: end;
+    div{
+      background-color: #fff !important;
+    }
   }
   ht{
     width:200;

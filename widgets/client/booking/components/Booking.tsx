@@ -5,6 +5,7 @@ import { Block } from '../containers';
 
 type Props = {
   goToIntro: () => void;
+  goToFloor?: () => void;
   booking: IBooking | null;
 };
 
@@ -24,19 +25,29 @@ function Booking({ goToIntro, booking }: Props) {
       </div>
       <div className="main-body">
         <img src={readFile(attachment.url)} alt={attachment.name} />
-        <button
-          className="erxes-button back-button"
-          onClick={() => goToIntro()}
-        >
-          Back
-        </button>
       </div>
-      <div className="block-container">
+      <div className="w-100 flex-center">
         {childCategories.map((block, index) => {
           return <Block key={index} block={block} />;
         })}
       </div>
+
+
+{/* fooooooterrr  */}
+      <div className="flex-sb w-100">
+      <button className="btn btn-back" onClick={() => goToIntro()}>
+          <i className="icon-arrow-left"></i>
+          Back
+        </button>
+        <button className="btn btn-next" onClick={() => goToIntro()}>
+           Next
+          <i className="icon-arrow-right"></i>
+        </button>
+      </div>
     </div>
+
+
+
   );
 }
 

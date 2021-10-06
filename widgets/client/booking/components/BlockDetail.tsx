@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IProductCategory } from '../types';
+import { readFile } from '../../utils';
 import { BackButton } from './common';
 
 type Props = {
@@ -12,9 +13,14 @@ function BlockDetail({ goToBookings, block }: Props) {
     return null;
   }
   return (
-    <div>
-      <h1>{block.name}</h1>
-      {/* <BackButton onClickHandler={goToBookings} /> */}
+      <div className="main-container">
+        <div className="main-header">
+          <div className="flex-center b mb-10">{block.name}</div>
+          <div className="flex-center mb-10">{block.description}</div>
+          <div className="main-body">
+            <img src={readFile(block.attachment.url)} alt="hello" />
+          </div>
+      </div>
     </div>
   );
 }
