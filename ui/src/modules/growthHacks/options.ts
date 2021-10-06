@@ -9,6 +9,7 @@ const options = {
   title: 'Growth hacking',
   queriesName: {
     itemsQuery: 'growthHacks',
+    itemsTotalCountQuery: 'growthHacksTotalCount',
     detailQuery: 'growthHackDetail',
     archivedItemsQuery: 'archivedGrowthHacks',
     archivedItemsCountQuery: 'archivedGrowthHacksCount'
@@ -24,6 +25,7 @@ const options = {
   },
   queries: {
     itemsQuery: queries.growthHacks,
+    itemsTotalCountQuery: queries.growthHacksTotalCount,
     detailQuery: queries.growthHackDetail,
     archivedItemsQuery: queries.archivedGrowthHacks,
     archivedItemsCountQuery: queries.archivedGrowthHacksCount
