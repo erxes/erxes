@@ -4,6 +4,9 @@ const bookingMutationParamsDef = `
   $description: String
   $productCategoryId: String
 
+  $fieldsGroup: String
+  $userFilters: [String]
+
   $title: String
   $brandId: String
   $channelIds: [String]
@@ -19,6 +22,9 @@ const bookingMutationParamsVal = `
   image: $image
   description: $description
   productCategoryId: $productCategoryId
+
+  fieldsGroup: $fieldsGroup
+  userFilters: $userFilters
 
   title: $title,
   brandId: $brandId,

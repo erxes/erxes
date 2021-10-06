@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Description } from 'modules/settings/styles';
 import { FlexItem } from 'modules/layout/styles';
 import { FlexContent } from 'modules/boards/styles/item';
@@ -12,16 +12,17 @@ import { extractAttachment, __ } from 'modules/common/utils';
 import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer, Title } from './style';
 
-import { USER_FILTERS } from 'modules/bookings/constants';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import Uploader from 'modules/common/components/Uploader';
+import SelectFieldsGroup from 'modules/bookings/containers/SelectFieldsGroup';
 
 type Name =
   | 'name'
   | 'description'
   | 'userFilters'
   | 'productCategoryId'
-  | 'image';
+  | 'image'
+  | 'fieldsGroup';
 
 type Props = {
   onChange: (name: Name, value: any) => void;
@@ -30,6 +31,7 @@ type Props = {
   userFilters: string[];
   productCategoryId: string;
   image: any;
+  fieldsGroup: string;
 };
 
 function ChooseContent({
@@ -38,8 +40,21 @@ function ChooseContent({
   description,
   userFilters,
   productCategoryId,
-  image
+  image,
+  fieldsGroup
 }: Props) {
+  const [activeGroup, setActiveGroup] = useState([] as any);
+
+  const onChangeFieldsGroup = (e: any) => {
+    onChange('fieldsGroup', e ? e.value : '');
+
+    if (e && e.value) {
+      return setActiveGroup(e.fields);
+    }
+
+    return setActiveGroup([]);
+  };
+
   const images =
     (image && delete image.__typename && extractAttachment([image])) || [];
 
@@ -81,14 +96,25 @@ function ChooseContent({
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Fields Groups</ControlLabel>
+          <SelectFieldsGroup
+            value={fieldsGroup}
+            onChange={(e: any) => onChangeFieldsGroup(e)}
+            placeholder="Choose a field groups"
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>User filters</ControlLabel>
           <Select
             multi={true}
             value={userFilters}
-            onChange={(e: any) => onChange('userFilters', e)}
-            options={USER_FILTERS.ALL_LIST.map(el => ({
-              value: el.value,
-              label: el.label
+            onChange={(e: any) =>
+              onChange('userFilters', e.map(el => el.value) || [])
+            }
+            options={activeGroup.map(el => ({
+              value: el._id,
+              label: el.text
             }))}
             clearable={true}
             placeholder="Choose filters"

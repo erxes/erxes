@@ -32,6 +32,7 @@ type Props = {
 type State = {
   name: string;
   description: string;
+  fieldsGroup: string;
   userFilters: string[];
   image: any;
 
@@ -68,6 +69,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
     description: booking.description || '',
     image: booking.image,
 
+    fieldsGroup: booking.fieldsGroup || '',
     userFilters: booking.userFilters || [],
 
     productCategoryId: booking.productCategoryId || '',
@@ -198,6 +200,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 productCategoryId={state.productCategoryId}
                 userFilters={state.userFilters}
                 image={state.image}
+                fieldsGroup={state.fieldsGroup}
               />
             </Step>
 
