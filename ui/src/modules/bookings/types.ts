@@ -21,6 +21,7 @@ export interface IBooking {
   name: string;
   image?: any;
   description: string;
+  fieldsGroup?: string;
   userFilters?: string[];
 
   productCategoryId?: string;

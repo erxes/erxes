@@ -37,6 +37,7 @@ export const types = `
     image: Attachment
  
     description: String
+    fieldsGroup: String
     userFilters: [String]
     productCategoryId: String
 
@@ -91,6 +92,7 @@ const bookingMutationParams = `
   name: String
   image: AttachmentInput
   description: String
+  fieldsGroup: String
   userFilters: [String]
   productCategoryId: String
 

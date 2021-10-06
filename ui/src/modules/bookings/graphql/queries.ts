@@ -62,6 +62,9 @@ const bookingFields = `
   description
   createdDate
   viewCount
+
+  fieldsGroup
+  userFilters
   
   brand {
     _id
@@ -150,10 +153,25 @@ const bookingsTotalCount = `
   }
 `;
 
+const fieldsGroups = `
+  query fieldsGroups($contentType: String!) {
+    fieldsGroups(contentType: $contentType) {
+      _id
+      name
+
+      fields {
+        _id
+        text
+      }
+    }
+  }
+`;
+
 export default {
   bookingDetail,
   bookings,
   productCategories,
   forms,
-  bookingsTotalCount
+  bookingsTotalCount,
+  fieldsGroups
 };

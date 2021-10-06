@@ -2,14 +2,17 @@ const bookingMutationParamsDef = `
   $name: String!
   $image: AttachmentInput
   $description: String
-  $productCategoryId: String,
+  $productCategoryId: String
 
-  $title: String,
-  $brandId: String,
-  $channelIds: [String],
-  $languageCode: String,
-  $formId: String,
-  $buttonText: String,
+  $fieldsGroup: String
+  $userFilters: [String]
+
+  $title: String
+  $brandId: String
+  $channelIds: [String]
+  $languageCode: String
+  $formId: String
+  $buttonText: String
 
   $styles: BookingStylesInput
 `;
@@ -20,11 +23,14 @@ const bookingMutationParamsVal = `
   description: $description
   productCategoryId: $productCategoryId
 
+  fieldsGroup: $fieldsGroup
+  userFilters: $userFilters
+
   title: $title,
   brandId: $brandId,
-  channelIds: $channelIds,
-  languageCode: $languageCode,
-  formId: $formId,
+  channelIds: $channelIds
+  languageCode: $languageCode
+  formId: $formId
   buttonText: $buttonText
 
   styles: $styles
