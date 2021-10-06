@@ -8,25 +8,25 @@ const exmFeedCommentQueries = [
     ) => {
       await checkPermission('showExm', user);
 
-      const doc: any = {
+      const filter: any = {
         feedId
       };
 
       if (parentId) {
-        doc.parentId = parentId;
+        filter.parentId = parentId;
       } else {
-        doc.$or = [
+        filter.$or = [
           { parentId: { $exists: false } },
           { parentId: { $eq: null } }
         ];
       }
 
       return {
-        list: await models.ExmFeedComments.find(doc)
+        list: await models.ExmFeedComments.find(filter)
           .sort({ createdAt: -1 })
           .skip(skip || 0)
           .limit(limit || 20),
-        totalCount: await models.ExmFeedComments.find(doc).countDocuments()
+        totalCount: await models.ExmFeedComments.find(filter).countDocuments()
       };
     }
   }
