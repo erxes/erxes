@@ -31,6 +31,18 @@ class Row extends React.Component<Props> {
       history.push(`/settings/product-service/details/${product._id}`);
     };
 
+    const {
+      code,
+      name,
+      type,
+      category,
+      supply,
+      productCount,
+      minimiumCount,
+      unitPrice,
+      sku
+    } = product;
+
     return (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
@@ -40,17 +52,17 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{product.code}</td>
-        <td>{product.name}</td>
+        <td>{code}</td>
+        <td>{name}</td>
         <td>
-          <TextInfo>{product.type}</TextInfo>
+          <TextInfo>{type}</TextInfo>
         </td>
-        <td>{product.category ? product.category.name : ''}</td>
-        <td>{product.supply ? product.supply : ''}</td>
-        <td>{product.productCount ? product.productCount : 0}</td>
-        <td>{product.minimiumCount ? product.minimiumCount : 0}</td>
-        <td>{(product.unitPrice || 0).toLocaleString()}</td>
-        <td>{product.sku}</td>
+        <td>{category ? category.name : ''}</td>
+        <td>{supply || ''}</td>
+        <td>{productCount ? productCount : 0}</td>
+        <td>{minimiumCount ? minimiumCount : 0}</td>
+        <td>{(unitPrice || 0).toLocaleString()}</td>
+        <td>{sku}</td>
         <td>
           <Tags tags={tags} limit={2} />
         </td>
