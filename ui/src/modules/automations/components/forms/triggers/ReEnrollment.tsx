@@ -84,7 +84,7 @@ class ReEnrollment extends React.Component<Props, State> {
     const { fields } = this.props;
     const { checked, reEnroll } = this.state;
 
-    let labelByName = {};
+    const labelByName = {};
 
     for (const cond of condition.conditions) {
       const field = fields.find(f => f.name === cond.propertyName) || {

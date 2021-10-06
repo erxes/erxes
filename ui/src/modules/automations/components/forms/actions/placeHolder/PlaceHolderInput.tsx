@@ -36,9 +36,12 @@ class PlaceHolderInput extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    let { config, inputName } = this.props;
+    let { config } = this.props;
+    const { inputName } = this.props;
 
-    if (!config) config = {};
+    if (!config) {
+      config = {};
+    }
 
     if (!Object.keys(config).includes(inputName)) {
       config[inputName] = '';
