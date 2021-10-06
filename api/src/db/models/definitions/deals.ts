@@ -157,7 +157,7 @@ export const productDataSchema = new Schema(
     discount: field({ type: Number, label: 'Discount' }), // Discount
     amount: field({ type: Number, label: 'Amount' }), // Amount
     tickUsed: field({ type: Boolean, label: 'Tick used' }), // TickUsed
-    assignUserId: field({ type: String, esType: 'keyword' }) // AssignUserId
+    assignUserId: field({ type: String, optional: true, esType: 'keyword' }) // AssignUserId
   },
   { _id: false }
 );
