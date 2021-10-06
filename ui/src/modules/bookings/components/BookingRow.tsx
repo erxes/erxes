@@ -71,6 +71,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
     );
   };
 
+  // tslint:disable-next-line: no-shadowed-variable
   const renderEditAction = (booking: IBookingDocument) => {
     const trigger = (
       <Button btnStyle="link">
@@ -95,7 +96,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
   };
 
   const { mainProductCategory } = booking;
-  const status = mainProductCategory && mainProductCategory.status;
+  const status = mainProductCategory.status;
 
   const labelStyle = status === 'active' ? 'success' : 'warning';
 
@@ -118,7 +119,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
       </td>
 
       <td>
-        <TextInfo ignoreTrans={true}>{2433}</TextInfo>
+        <TextInfo ignoreTrans={true}>{booking.viewCount || 0}</TextInfo>
       </td>
       <td>
         <Label lblStyle={labelStyle}>{status && status}</Label>

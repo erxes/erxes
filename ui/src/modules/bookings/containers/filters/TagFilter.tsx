@@ -25,7 +25,7 @@ function TagFilterContainer(props: FinalProps) {
     <CountsByTag
       tags={(tagsQuery ? tagsQuery.tags : null) || []}
       counts={counts || {}}
-      manageUrl="/tags/integration"
+      manageUrl="/tags/booking"
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
     />
   );

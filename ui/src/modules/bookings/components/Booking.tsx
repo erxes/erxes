@@ -12,12 +12,11 @@ import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { IBookingDocument, IBooking, IStyle } from '../types';
 import { Steps, Step } from 'modules/common/components/step';
-import {
-  ChooseStyle,
-  ChooseContent,
-  ChooseSettings,
-  FullPreview
-} from './steps';
+import ChooseStyle from './steps/ChooseStyle';
+import ChooseContent from './steps/ChooseContent';
+import ChooseSettings from './steps/ChooseSettings';
+import FullPreview from './steps/FullPreview';
+
 import { PreviewWrapper } from './steps/style';
 import { colors } from 'modules/common/styles';
 
@@ -26,17 +25,49 @@ type Props = {
   queryParams?: any;
   history: any;
   bookingId?: any;
-  save: (doc: IBooking, styles: IStyle) => void;
+  save: (doc, styles) => void;
   isActionLoading?: boolean;
+};
+
+type State = {
+  name: string;
+  description: string;
+  userFilters: string[];
+  image: any;
+
+  productCategoryId: string;
+
+  // settings
+  title: string;
+  brandId: string;
+  channelIds: string[];
+  languageCode: string;
+  formId: string;
+  buttonText: string;
+};
+
+type Style = {
+  itemShape: string;
+  widgetColor: string;
+
+  productAvailable: string;
+  productUnavailable: string;
+  productSelected: string;
+
+  textAvailable: string;
+  textUnavailable: string;
+  textSelected: string;
 };
 
 function Booking({ save, isActionLoading, bookingDetail }: Props) {
   const booking = bookingDetail || ({} as IBooking);
 
-  const [state, setState] = useState({
+  const [state, setState] = useState<State>({
     // content
     name: booking.name || '',
     description: booking.description || '',
+    image: booking.image,
+
     userFilters: booking.userFilters || [],
 
     productCategoryId: booking.productCategoryId || '',
@@ -52,7 +83,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
 
   const bookingStyles = booking.styles || ({} as IStyle);
 
-  const [styles, setStyles] = useState({
+  const [styles, setStyles] = useState<Style>({
     itemShape: bookingStyles.itemShape || '',
     widgetColor: bookingStyles.widgetColor || colors.colorPrimary,
 
@@ -166,12 +197,14 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 description={state.description}
                 productCategoryId={state.productCategoryId}
                 userFilters={state.userFilters}
+                image={state.image}
               />
             </Step>
 
             <Step
               img="/images/icons/erxes-01.svg"
               title="Settings"
+              noButton={true}
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <ChooseSettings

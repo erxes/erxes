@@ -13,7 +13,6 @@ import {
 import { FlexItem } from 'modules/layout/styles';
 import { FlexItem as FlexItemContainer } from './style';
 import React from 'react';
-// import Select from 'react-select-plus';
 // import { SubHeading } from 'modules/settings/styles';
 import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
@@ -77,7 +76,7 @@ function ChooseSettings({
               value: el.value
             }))}
             value={languageCode}
-            onChange={e => onChange('languageCode', e.value)}
+            onChange={e => onChange('languageCode', e ? e.value : '')}
           />
         </FormGroup>
 
@@ -87,7 +86,7 @@ function ChooseSettings({
               <ControlLabel required={true}>Form to display</ControlLabel>
               <SelectForm
                 value={formId}
-                onChange={e => onChange('formId', e.value)}
+                onChange={e => onChange('formId', e ? e.value : '')}
                 placeholder="Choose a form"
               />
             </FormGroup>

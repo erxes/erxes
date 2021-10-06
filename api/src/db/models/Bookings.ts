@@ -14,10 +14,27 @@ export interface IBookingModel extends Model<IBookingDocument> {
     userId?: string
   ): Promise<IBookingDocument>;
   removeDoc(_id: string): void;
+  increaseViewCount(_id: string): void;
 }
 
 export const loadBookingClass = () => {
   class Booking {
+    /**
+     * Check duplication of main product category when create or edit booking
+     * @param categoryId
+     */
+    static async checkCategoryDuplication(categoryId: string) {
+      const category = await Bookings.findOne({
+        productCategoryId: categoryId
+      });
+
+      if (category) {
+        throw new Error(
+          'Main product category already selected another booking!'
+        );
+      }
+    }
+
     /**
      * Get one booking
      */
@@ -35,6 +52,8 @@ export const loadBookingClass = () => {
      * Create one booking
      */
     public static async createDoc(docFields: IBooking, userId?: string) {
+      await this.checkCategoryDuplication(docFields.productCategoryId);
+
       if (!userId) {
         throw new Error('User must be supplied');
       }
@@ -57,6 +76,12 @@ export const loadBookingClass = () => {
       docFields: IBooking,
       userId?: string
     ) {
+      const booking = await Bookings.getBooking(_id);
+
+      if (docFields.productCategoryId !== booking.productCategoryId) {
+        await this.checkCategoryDuplication(docFields.productCategoryId);
+      }
+
       if (!userId) {
         throw new Error('User must be supplied');
       }
@@ -66,9 +91,7 @@ export const loadBookingClass = () => {
         { $set: { ...docFields, modifiedBy: userId, modifiedDate: new Date() } }
       );
 
-      const booking = await Bookings.getBooking(_id);
-
-      return booking;
+      return Bookings.findOne({ _id });
     }
 
     /**
@@ -77,6 +100,14 @@ export const loadBookingClass = () => {
 
     public static async removeDoc(_id: string) {
       return Bookings.deleteOne({ _id });
+    }
+
+    public static async increaseViewCount(_id: string) {
+      const response = await Bookings.updateOne(
+        { _id },
+        { $inc: { viewCount: 1 } }
+      );
+      return response;
     }
   }
 

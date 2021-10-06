@@ -30,7 +30,7 @@ export interface IBooking {
   image?: string[];
   description?: string;
   userFilters?: string[];
-  productCategoryId?: string;
+  productCategoryId: string;
 
   // style
   styles?: IStyle;
@@ -44,6 +44,7 @@ export interface IBooking {
   buttonText?: string;
 
   tagIds?: string[];
+  viewCount?: number;
 }
 
 export interface IBookingDocument extends ICommonFields, IBooking, Document {
@@ -103,6 +104,7 @@ export const bookingSchema = new Schema({
   languageCode: field({ type: String, optional: true, label: 'Language' }),
   formId: field({ type: String, optional: true, label: 'Form' }),
   buttonText: field({ type: String, optional: true, label: 'Button text' }),
+  viewCount: field({ type: Number, optional: true, label: 'View count' }),
 
   ...commonFields
 });

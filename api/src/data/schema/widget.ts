@@ -146,4 +146,6 @@ export const mutations = `
   widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
+
+  widgetsBookingIncreaseViewCount(_id: String!): JSON
 `;
