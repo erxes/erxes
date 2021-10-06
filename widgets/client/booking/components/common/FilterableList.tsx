@@ -1,21 +1,13 @@
 import * as React from 'react';
-import {
-  FlexRow,
-  PopoverBody,
-  PopoverList,
-  ChildList,
-  ToggleIcon
-} from './styles';
+import * as ReactPopover from 'react-popover'
 
 type Props = {
   items?: any[];
   links?: any[];
   showCheckmark?: boolean;
-  selectable?: boolean;
   loading?: boolean;
   className?: string;
   treeView?: boolean;
-  isIndented?: boolean;
   parentId?: string;
 
   changeRoute: (item: any) => void;
@@ -26,6 +18,7 @@ type Props = {
 };
 
 type State = {
+  isOpen :boolean;
   key: string;
   items: any[];
   parentIds: { [key: string]: boolean };
@@ -36,6 +29,7 @@ class FilterableList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      isOpen: false,
       key: '',
       items: props.items,
       parentIds: {}
@@ -95,71 +89,63 @@ class FilterableList extends React.Component<Props, State> {
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean) {
     return (
-      <>
-        {hasChildren && (
-          <ToggleIcon
-            isIndented={this.props.isIndented}
+          <div className="toggle-nav"
             onClick={this.onToggle.bind(this, item._id, isOpen)}
           >
-            {/* <i className={isOpen ? 'icon-rightarrow' : 'icon-menu'} /> */}
-          </ToggleIcon>
-        )}
-
-        {/* <i className="icon-microphone" /> */}
-      </>
+            <div className={isOpen ? 'arrow-down' : 'arrow-right'} />
+          </div>
     );
   }
 
-  renderItem(item: any, hasChildren: boolean) {
+  renderItem(item: any, hasChildren: boolean, stockCnt: number) {
     const { showCheckmark = true, changeRoute } = this.props;
     const { key } = this.state;
 
     if (key && item.name.toLowerCase().indexOf(key.toLowerCase()) < 0) {
       return false;
     }
-
     const onClick = () => this.toggleItem(item._id);
     const isOpen = this.state.parentIds[item._id] || !!key;
-
+  
+    let stock = stockCnt === 0 ? "duussan": "available";
+    if(stockCnt > 0 && stockCnt <10) stock = "baga"
+     console.log(isOpen)
     return (
-      <FlexRow key={item._id}>
-        <li
-          className={showCheckmark ? item.selectedBy : ''}
-          // style={item.style}
+        <li key={item._id} 
+          className={`list grid-131 s-${stock}`}
           onClick={onClick}
         >
           {this.renderIcons(item, hasChildren, isOpen)}
-
-          <span onClick={() => changeRoute(item)}>
+          <span className="grid" onClick={() => changeRoute(item)}>
             {item.name || '[undefined]'}
           </span>
-        </li>
-      </FlexRow>
+          <div className={`circle center ${stock}`}>{stockCnt}</div>
+
+      </li>
     );
   }
 
   renderTree(parent: any, subFields?: any) {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
-
+    console.log(childrens)
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
 
       return (
-        <div key={`parent-${parent._id}`}>
-          {this.renderItem(parent, true)}
-
-          <ChildList>
+        <ul key={`parent-${parent._id}`}>
+          {this.renderItem(parent, true,20 )}
+          <li className="child-list">
             {isOpen &&
               childrens.map((childparent: any) => {
                 return this.renderTree(childparent, subFields);
               })}
-          </ChildList>
-        </div>
+          </li>
+        </ul>
       );
     }
 
-    return this.renderItem(parent, false);
+    return this.renderItem(parent, false, 20);
   }
 
   renderItems() {
@@ -177,20 +163,19 @@ class FilterableList extends React.Component<Props, State> {
     const parents = items.filter(item => item.parentId === parentId);
     const subFields = items.filter(item => item.parentId);
 
-    return parents.map(parent => this.renderTree(parent, subFields));
+    return parents.map(parent =>this.renderTree(parent, subFields)
+      );
   }
+  togglePopover = () => {
+    this.setState({ isOpen: !this.state.isOpen });
+  };
 
   render() {
-    const { className, selectable, isIndented } = this.props;
-
     return (
-      <div className={className}>
-        <PopoverBody>
-          <PopoverList isIndented={isIndented} selectable={selectable}>
-            {this.renderItems()}
-          </PopoverList>
-        </PopoverBody>
-      </div>
+      <div>
+      {this.renderItems()}
+    </div>
+      
     );
   }
 }

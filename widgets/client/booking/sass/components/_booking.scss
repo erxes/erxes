@@ -1,3 +1,7 @@
+.layout{
+  display: block;
+}
+
 .main-container {
   display: flex;
   flex-direction: column;
@@ -15,6 +19,7 @@
   img {
     margin: 5px;
     width: 100%;
+    height: auto;
   }
   button {
     background-color: $main-color;
@@ -161,45 +166,6 @@
   }
 }
 
-.flex-item {
-  display: flex;
-  flex-direction: row;
-  text-decoration: none;
-
-  .topic-icon {
-    align-self: center;
-    flex-basis: 80px;
-    margin-right: $kb-spacing;
-    text-align: center;
-
-    i {
-      color: $text-color-light;
-      font-size: 42px;
-    }
-  }
-
-  .topic-content {
-    color: $text-color;
-    display: flex;
-    flex-direction: column;
-    font-size: 16px;
-  }
-
-  &.spaced {
-    margin-bottom: $kb-spacing;
-  }
-}
-
-.item-meta {
-  color: $text-color;
-  font-size: 13px;
-  margin-top: 5px;
-
-  span {
-    color: darken($text-color, 20%);
-  }
-}
-
 .back {
   display: flex;
   align-items: center;
@@ -226,3 +192,23 @@
   border-radius: $border-radius;
   padding: $kb-spacing;
 }
+.arrow{
+  width: 0; 
+  height: 0; 
+}
+.arrow-down{ 
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #444;
+}
+.arrow-right{
+  width: 0; 
+  height: 0; 
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent; 
+  border-left:5px solid #444; 
+}
+
+.icon-leftarrow:before { content: '\e84a'; }

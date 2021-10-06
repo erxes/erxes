@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Booking, Intro, BlockDetail, Floor, Product } from '../containers';
 import { IBooking } from '../types';
 import Navigation from '../containers/common/Navigation';
+import * as ReactPopover from 'react-popover'
 
 type Props = {
   activeRoute: string;
@@ -32,14 +33,24 @@ function App({ booking, activeRoute }: Props) {
 
     return null;
   };
+  
 
   return (
-    <div>
+    <div className="layout">
+      <div className="grid-131">
       <Navigation
         items={booking.categoryTree}
         parentId={booking.productCategoryId}
       />
+      <div />
+      <Navigation
+        items={booking.categoryTree}
+        parentId={booking.productCategoryId}
+      />
+      </div>
+      
       <div>{renderContent()}</div>
+      <div> Footer </div>
     </div>
   );
 }
