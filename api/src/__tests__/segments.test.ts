@@ -239,7 +239,7 @@ describe('Segments mutations', () => {
         {
           type: 'subSegment',
           subSegmentId: subSegment2._id
-        },
+        }
       ]
     });
 
@@ -285,7 +285,7 @@ describe('Segments mutations', () => {
           type: 'property',
           propertyType: 'customer',
           propertyName: 'state',
-          propertyOperator: 'is',
+          propertyOperator: 'is'
         }
       ]
     });
@@ -301,7 +301,7 @@ describe('Segments mutations', () => {
         {
           type: 'subSegment',
           subSegmentId: subSegment2._id
-        },
+        }
       ]
     });
 
@@ -533,17 +533,17 @@ describe('Segments mutations', () => {
 
     // exactly
     const condition: any = {
-      type: "event",
-      eventName: "buttonClick",
-      eventOccurence: "exactly",
+      type: 'event',
+      eventName: 'buttonClick',
+      eventOccurence: 'exactly',
       eventOccurenceValue: 1,
       eventAttributeFilters: [
         {
-          name: "price",
-          operator: "numbere",
-          value: "10",
-        },
-      ],
+          name: 'price',
+          operator: 'numbere',
+          value: '10'
+        }
+      ]
     };
 
     let segment = await segmentFactory({
@@ -946,7 +946,7 @@ describe('Segments mutations', () => {
 
   test('fetchBySegment: return selector', async () => {
     await customerFactory({ lastName: 'la' }, false, true);
-    await customerFactory({ lastName: 'te'} , false, true);
+    await customerFactory({ lastName: 'te' }, false, true);
 
     await sleep(2000);
 
@@ -958,7 +958,7 @@ describe('Segments mutations', () => {
           type: 'property',
           propertyType: 'customer',
           propertyName: 'lastName',
-          propertyOperator: 'is',
+          propertyOperator: 'is'
         }
       ]
     });
@@ -975,9 +975,9 @@ describe('Segments mutations', () => {
 
   test('fetchBySegment: associationPropertyFilter', async () => {
     const company = await companyFactory({ primaryName: 'name' }, true);
-    const deal = await dealFactory({ companyIds: [company._id ]}, true);
-    const ticket = await ticketFactory({ companyIds: [company._id ]}, true);
-    const task = await taskFactory({ companyIds: [company._id ]}, true);
+    const deal = await dealFactory({ companyIds: [company._id] }, true);
+    const ticket = await ticketFactory({ companyIds: [company._id] }, true);
+    const task = await taskFactory({ companyIds: [company._id] }, true);
 
     await sleep(2000);
 
@@ -989,18 +989,18 @@ describe('Segments mutations', () => {
           type: 'property',
           propertyType: 'deal',
           propertyName: 'name',
-          propertyOperator: 'is',
+          propertyOperator: 'is'
         }
       ]
     });
 
     const conditions: any = [
       {
-        type: "property",
-        propertyType: "company",
-        propertyName: "primaryName",
-        propertyOperator: "is",
-      },
+        type: 'property',
+        propertyType: 'company',
+        propertyName: 'primaryName',
+        propertyOperator: 'is'
+      }
     ];
 
     // assiated deal on company
@@ -1052,73 +1052,109 @@ describe('Segments mutations', () => {
 
     let [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
 
-    expect(JSON.stringify(negativeQuery)).toBe(JSON.stringify({ match_phrase: { firstName: '10' } }));
+    expect(JSON.stringify(negativeQuery)).toBe(
+      JSON.stringify({ match_phrase: { firstName: '10' } })
+    );
 
     // contains =================
     condition.operator = 'c';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ wildcard: { firstName: '*10*' } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({ wildcard: { firstName: '*10*' } })
+    );
 
     // does not contains =================
     condition.operator = 'dnc';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(negativeQuery)).toBe(JSON.stringify({ wildcard: { firstName: '*10*' } }));
+    expect(JSON.stringify(negativeQuery)).toBe(
+      JSON.stringify({ wildcard: { firstName: '*10*' } })
+    );
 
     // greater than equal =================
     condition.operator = 'igt';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ range: { firstName: { gte: '10' } } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({ range: { firstName: { gte: '10' } } })
+    );
 
     // is true =================
     condition.operator = 'it';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ term: { firstName: true } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({ term: { firstName: true } })
+    );
 
     // is false =================
     condition.operator = 'if';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ term: { firstName: false} }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({ term: { firstName: false } })
+    );
 
     // is set =================
     condition.operator = 'is';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ exists: { field: 'firstName' } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({ exists: { field: 'firstName' } })
+    );
 
     // is not set =================
     condition.operator = 'ins';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(negativeQuery)).toBe(JSON.stringify({ exists: { field: 'firstName' } }));
+    expect(JSON.stringify(negativeQuery)).toBe(
+      JSON.stringify({ exists: { field: 'firstName' } })
+    );
 
     //  will occur after on following n-th minute =================
     condition.field = 'createdAt';
     condition.operator = 'woam';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ range: { createdAt: { gte: `now-10m/m`, lte: `now-10m/m` } } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({
+        range: { createdAt: { gte: `now-10m/m`, lte: `now-10m/m` } }
+      })
+    );
 
     // will occur before on following n-th minute =================
     condition.operator = 'wobm';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ range: { createdAt: { gte: `now+10m/m`, lte: `now+10m/m` } } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({
+        range: { createdAt: { gte: `now+10m/m`, lte: `now+10m/m` } }
+      })
+    );
 
     //  will occur after on following n-th day =================
     condition.operator = 'woad';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ range: { createdAt: { gte: `now-10d/d`, lte: `now-10d/d` } } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({
+        range: { createdAt: { gte: `now-10d/d`, lte: `now-10d/d` } }
+      })
+    );
 
     //  will occur before on following n-th day =================
     condition.operator = 'wobd';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ range: { createdAt: { gte: `now+10d/d`, lte: `now+10d/d` } } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({
+        range: { createdAt: { gte: `now+10d/d`, lte: `now+10d/d` } }
+      })
+    );
 
     // date relative less than =================
     condition.operator = 'drlt';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ range: { createdAt: { lte: '10' } } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({ range: { createdAt: { lte: '10' } } })
+    );
 
     // date relative greater than =================
     condition.operator = 'drgt';
     [positiveQuery, negativeQuery] = elkConvertConditionToQuery(condition);
-    expect(JSON.stringify(positiveQuery)).toBe(JSON.stringify({ range: { createdAt: { gte: '10' } } }));
+    expect(JSON.stringify(positiveQuery)).toBe(
+      JSON.stringify({ range: { createdAt: { gte: '10' } } })
+    );
   });
 
   test('fetchBySegment: generateNestedQuery', async () => {

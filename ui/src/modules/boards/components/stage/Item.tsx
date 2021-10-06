@@ -13,6 +13,9 @@ type Props = {
   beforePopupClose?: () => void;
   onClick?: () => void;
   options: IOptions;
+  itemRowComponent?: any;
+  groupType?: string;
+  groupObj?: any;
 } & IRouterProps;
 
 class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
@@ -21,13 +24,13 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   constructor(props) {
     super(props);
 
-    const { item, history } = props;
+    const { item, history, groupObj } = props;
 
     const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
     let isFormVisible = false;
 
-    if (itemIdQueryParam === item._id) {
+    if (itemIdQueryParam === `${item._id}${groupObj ? groupObj._id : ''}`) {
       isFormVisible = true;
     }
 
@@ -40,7 +43,9 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
     this.unlisten = this.props.history.listen(location => {
       const queryParams = queryString.parse(location.search);
 
-      if (queryParams.itemId === this.props.item._id) {
+      const { item, groupObj } = this.props;
+
+      if (queryParams.itemId === `${item._id}${groupObj ? groupObj._id : ''}`) {
         return this.setState({ isFormVisible: true });
       }
     });
@@ -73,9 +78,9 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   };
 
   render() {
-    const { options } = this.props;
+    const { options, itemRowComponent } = this.props;
 
-    const ItemComponent = options.Item;
+    const ItemComponent = itemRowComponent || options.Item;
 
     return (
       <ItemComponent

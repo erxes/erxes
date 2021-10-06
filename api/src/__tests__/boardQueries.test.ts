@@ -290,6 +290,27 @@ describe('boardQueries', () => {
     expect(response.itemsTotalCount).toBe(0);
   });
 
+  test('Get assigned users related pipeline', async () => {
+    const qry = `
+      query pipelineAssignedUsers($_id: String!) {
+        pipelineAssignedUsers(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const user = await userFactory();
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    await dealFactory({ stageId: stage._id, assignedUserIds: [user._id] });
+
+    const response = await graphqlRequest(qry, 'pipelineAssignedUsers', {
+      _id: pipeline._id
+    });
+
+    expect(response[0]._id).toBe(user._id);
+  });
+
   test('Get state by startDate and endDate', async () => {
     const qry = `
       query pipelineDetail($_id: String!) {

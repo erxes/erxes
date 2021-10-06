@@ -8,7 +8,7 @@ export default function generateDataLoaderConversation() {
     async (customerIds: readonly string[]) => {
       const result: IConversationDocument[] = await Conversations.find({
         customerId: { $in: customerIds }
-      }).lean();
+      });
       const resultByCustomerId = _.groupBy(result, 'customerId');
       return customerIds.map(id => resultByCustomerId[id] || []);
     }
