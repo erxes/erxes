@@ -1,4 +1,5 @@
 import { Departments, Units, Users } from '../../../db/models';
+import { Branches } from '../../../db/models/Structure';
 
 const structureQueries = {
   departments(_root, { depthType }: { depthType?: string }) {
@@ -23,6 +24,20 @@ const structureQueries = {
 
   unitDetail(_root, { _id }) {
     return Units.getUnit({ _id });
+  },
+
+  branches(_root, { depthType }: { depthType?: string }) {
+    const filter: { parentId?: any } = {};
+
+    if (depthType === 'parent') {
+      filter.parentId = null;
+    }
+
+    return Branches.find(filter).sort({ title: 1 });
+  },
+
+  branchDetail(_root, { _id }) {
+    return Branches.getBranch({ _id });
   },
 
   async noDepartmentUsers(_root, { excludeId }) {

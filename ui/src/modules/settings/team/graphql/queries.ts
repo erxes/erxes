@@ -154,6 +154,39 @@ const noDepartmentUsers = `
   }
 `;
 
+const branchField = `
+  _id
+  title
+  address
+  parentId
+  supervisorId
+  code
+  userIds
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+`;
+
+const branches = `
+  query branches($depthType: String) {
+    branches(depthType: $depthType) {
+      ${branchField}
+    }
+  }
+`;
+
+const branchDetail = `
+  query branchDetail($_id: String) {
+    branchDetail(_id: $_id) {
+      ${branchField}
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -165,5 +198,7 @@ export default {
   departmentDetail,
   units,
   unitDetail,
-  noDepartmentUsers
+  noDepartmentUsers,
+  branches,
+  branchDetail
 };

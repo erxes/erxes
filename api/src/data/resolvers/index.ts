@@ -50,6 +50,7 @@ import User from './user';
 import UsersGroup from './usersGroup';
 import Department from './departments';
 import Unit from './units';
+import Branch from './branches';
 import Automation from './automation';
 import AutomationNote from './automationNote';
 import Trigger from './trigger';
@@ -108,6 +109,7 @@ const resolvers: any = {
   Tag,
   Department,
   Unit,
+  Branch,
   Automation,
   AutomationNote,
   Trigger

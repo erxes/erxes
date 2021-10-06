@@ -90,3 +90,14 @@ export type Unit = {
   userIds: string[];
   users: IUser;
 };
+
+export type Branch = {
+  _id: string;
+  title: string;
+  address: string;
+  code: string;
+  supervisorId: string;
+  parentId: string;
+  userIds: string[];
+  users: IUser;
+};

@@ -56,3 +56,30 @@ export const unitSchema = schemaWrapper(
     createdAt: field({ type: Date, default: Date.now })
   })
 );
+
+export interface IBranch {
+  title: string;
+  address?: string;
+  supervisorId?: string;
+  parentId?: string;
+  userIds?: string[];
+}
+
+export interface IBranchDocument extends IBranch, Document {
+  _id: string;
+}
+
+export const branchSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    title: field({ type: String }),
+    address: field({ type: String }),
+    parentId: field({ type: String, optional: true }),
+    code: field({ type: String, optional: true }),
+    userIds: field({ type: [String], label: 'Related users' }),
+    updatedBy: field({ type: String }),
+    updatedAt: field({ type: Date }),
+    createdBy: field({ type: String }),
+    createdAt: field({ type: Date, default: Date.now })
+  })
+);

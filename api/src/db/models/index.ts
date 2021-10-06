@@ -42,7 +42,7 @@ import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
 import Exms from './Exms';
-import { Departments, Units } from './Structure';
+import { Departments, Units, Branches } from './Structure';
 
 export {
   EmailDeliveries,
@@ -101,5 +101,6 @@ export {
   CalendarBoards,
   Exms,
   Departments,
-  Units
+  Units,
+  Branches
 };

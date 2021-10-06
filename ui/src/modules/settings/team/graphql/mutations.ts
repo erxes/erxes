@@ -176,6 +176,46 @@ const unitsRemove = `
   }
 `;
 
+const commonBranchParamsDef = `
+  $title: String
+  $address: String
+  $supervisorId: String
+  $code: String
+  $parentId: String
+  $userIds: [String]
+`;
+
+const commonBranchParams = `
+  title: $title,
+  address: $address
+  parentId: $parentId
+  code: $code
+  supervisorId: $supervisorId
+  userIds: $userIds
+`;
+
+const branchesAdd = `
+  mutation branchesAdd(${commonBranchParamsDef}) {
+    branchesAdd(${commonBranchParams}) {
+      _id
+    }
+  }
+`;
+
+const branchesEdit = `
+  mutation branchesEdit($_id: String!, ${commonBranchParamsDef}) {
+    branchesEdit(_id: $_id, ${commonBranchParams}) {
+      _id
+    }
+  }
+`;
+
+const branchesRemove = `
+  mutation branchesRemove($_id: String!) {
+    branchesRemove(_id: $_id)
+  }
+`;
+
 export default {
   usersEditProfile,
   usersEdit,
@@ -191,5 +231,8 @@ export default {
   departmentsRemove,
   unitsAdd,
   unitsEdit,
-  unitsRemove
+  unitsRemove,
+  branchesAdd,
+  branchesEdit,
+  branchesRemove
 };

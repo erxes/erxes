@@ -7,23 +7,22 @@ import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { Department } from '../../types';
-import SelectStructureMembers from '../SelectStructureMembers';
+import { Branch } from '../../types';
+import SelectTeamMembers from '../../containers/SelectTeamMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  department?: Department;
+  branch?: Branch;
   closeModal: () => void;
-  parentDepartments: Department[];
+  parentBranches: Branch[];
 };
 
-export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, parentDepartments } = props;
-  const object = props.department || ({} as any);
+export default function BranchForm(props: Props) {
+  const { closeModal, renderButton, parentBranches } = props;
+  const object = props.branch || ({} as any);
 
   const [userIds, setUserIds] = useState(object.userIds || []);
   const [parentId, setParentId] = useState(object.parentId);
-  const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const generateDoc = values => {
     const finalValues = values;
@@ -35,24 +34,15 @@ export default function DepartmentForm(props: Props) {
     return {
       userIds,
       parentId,
-      supervisorId,
       ...finalValues
     };
   };
 
   const onChangeParent = (parent: any) => {
-    setParentId(parent.value);
-  };
-
-  const onSelectUsers = options => {
-    setUserIds(options.map(option => option.value));
-  };
-
-  const onSelectSupervisor = option => {
-    if (option) {
-      setSupervisorId(option.value);
+    if (parent) {
+      setParentId(parent.value);
     } else {
-      setSupervisorId('');
+      setParentId('');
     }
   };
 
@@ -72,28 +62,13 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Description')}</ControlLabel>
+          <ControlLabel required={true}>{__('Address')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="description"
-            defaultValue={object.description}
+            required={true}
+            name="address"
+            defaultValue={object.address}
             componentClass="textarea"
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={object.code} />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Supervisor')}</ControlLabel>
-
-          <SelectStructureMembers
-            name="supervisorId"
-            objectId={object._id}
-            value={supervisorId}
-            onSelect={onSelectSupervisor}
-            multi={false}
-            excludeUserIds={userIds}
           />
         </FormGroup>
         {(!object._id || (object._id && object.parentId)) && (
@@ -102,8 +77,9 @@ export default function DepartmentForm(props: Props) {
             <Select
               placeholder={__('Choose parent')}
               value={parentId}
+              clearable={true}
               onChange={onChangeParent}
-              options={parentDepartments.map(d => ({
+              options={parentBranches.map(d => ({
                 value: d._id,
                 label: d.title
               }))}
@@ -113,13 +89,11 @@ export default function DepartmentForm(props: Props) {
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
 
-          <SelectStructureMembers
-            objectId={object._id}
-            value={userIds}
-            onSelect={onSelectUsers}
-            multi={true}
-            excludeUserIds={[supervisorId]}
+          <SelectTeamMembers
+            label="Choose team members"
             name="userIds"
+            initialValue={userIds}
+            onSelect={setUserIds}
           />
         </FormGroup>
         <ModalFooter>

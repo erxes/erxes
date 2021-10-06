@@ -3,7 +3,9 @@ import {
   IDepartmentDocument,
   departmentSchema,
   unitSchema,
-  IUnitDocument
+  IUnitDocument,
+  IBranchDocument,
+  branchSchema
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
 
@@ -158,4 +160,77 @@ loadUnitClass();
 // tslint:disable-next-line
 const Units = model<IUnitDocument, IUnitModel>('units', unitSchema);
 
-export { Departments, Units };
+export interface IBranchModel extends Model<IBranchDocument> {
+  getBranch(doc: any): IBranchDocument;
+  createBranch(doc: any, user: IUserDocument): IBranchDocument;
+  updateBranch(_id: string, doc: any, user: IUserDocument): IBranchDocument;
+  removeBranch(_id: string): IBranchDocument;
+}
+
+export const loadBranchClass = () => {
+  class Branch {
+    /*
+     * Get a branch
+     */
+    public static async getBranch(doc: any) {
+      const branch = await Branches.findOne(doc);
+
+      if (!branch) {
+        throw new Error('Branch not found');
+      }
+
+      return branch;
+    }
+
+    /*
+     * Create an branch
+     */
+    public static async createBranch(doc: any, user: IUserDocument) {
+      const branch = await Branches.create({
+        ...doc,
+        createdAt: new Date(),
+        createdBy: user._id
+      });
+
+      return branch;
+    }
+
+    /*
+     * Update an branch
+     */
+    public static async updateBranch(
+      _id: string,
+      doc: any,
+      user: IUserDocument
+    ) {
+      await Branches.update(
+        { _id },
+        {
+          ...doc,
+          updatedAt: new Date(),
+          updatedBy: user._id
+        }
+      );
+
+      return Branches.findOne({ _id });
+    }
+
+    /*
+     * Remove an branch
+     */
+    public static async removeBranch(_id: string) {
+      const branch = await Branches.getBranch({ _id });
+
+      return branch.remove();
+    }
+  }
+
+  branchSchema.loadClass(Branch);
+};
+
+loadBranchClass();
+
+// tslint:disable-next-line
+const Branches = model<IBranchDocument, IBranchModel>('branches', branchSchema);
+
+export { Departments, Units, Branches };

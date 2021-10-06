@@ -23,6 +23,19 @@ export const types = `
         users: [User]
         userIds: [String]
     }
+
+    type Branch {
+        _id: String!
+        title: String
+        address: String
+        parentId: String
+        supervisorId: String
+        code: String
+        users: [User]
+        userIds: [String]
+        parent: Branch
+        children: [Branch]
+    }
 `;
 
 export const queries = `
@@ -33,6 +46,9 @@ export const queries = `
 
     units: [Unit]
     unitDetail(_id: String!): Unit
+
+    branches(depthType: String): [Branch]
+    branchDetail(_id: String!): Branch
 `;
 
 const commonDepartmentParams = `
@@ -53,6 +69,15 @@ const commonUnitParams = `
     userIds: [String]
 `;
 
+const commonBranchParams = `
+    title: String
+    address: String
+    supervisorId: String
+    code: String
+    parentId: String
+    userIds: [String]
+`;
+
 export const mutations = `
     departmentsAdd(${commonDepartmentParams}): Department
     departmentsEdit(_id: String!, ${commonDepartmentParams}): Department
@@ -61,4 +86,8 @@ export const mutations = `
     unitsAdd(${commonUnitParams}): Unit
     unitsEdit(_id: String!, ${commonUnitParams}): Unit
     unitsRemove(_id: String!): JSON
+
+    branchesAdd(${commonBranchParams}): Branch
+    branchesEdit(_id: String!, ${commonBranchParams}): Branch
+    branchesRemove(_id: String!): JSON
 `;

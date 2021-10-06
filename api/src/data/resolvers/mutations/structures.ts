@@ -1,4 +1,5 @@
 import { Departments, Units } from '../../../db/models';
+import { Branches } from '../../../db/models/Structure';
 import { IContext } from '../../types';
 
 const structuresMutations = {
@@ -34,6 +35,24 @@ const structuresMutations = {
 
   async unitsRemove(_root, { _id }) {
     const deleteResponse = await Units.removeUnit(_id);
+
+    return deleteResponse;
+  },
+
+  async branchesAdd(_root, doc, { user }: IContext) {
+    const branch = await Branches.createBranch(doc, user);
+
+    return branch;
+  },
+
+  async branchesEdit(_root, { _id, ...doc }, { user }: IContext) {
+    const branch = await Branches.updateBranch(_id, doc, user);
+
+    return branch;
+  },
+
+  async branchesRemove(_root, { _id }) {
+    const deleteResponse = await Branches.removeBranch(_id);
 
     return deleteResponse;
   }
