@@ -16,9 +16,11 @@ export default {
   },
 
   customer(conversation: IConversationDocument, _, { dataLoaders }: IContext) {
-    if (conversation.customerId) {
-      return dataLoaders?.customer?.load(conversation.customerId);
-    }
+    return (
+      (conversation.customerId &&
+        dataLoaders.customer.load(conversation.customerId)) ||
+      null
+    );
   },
 
   integration(conversation: IConversationDocument) {
@@ -44,7 +46,7 @@ export default {
   },
 
   messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.messageByConvId?.load(conv._id);
+    return dataLoaders.conversationMessagesByConversationId.load(conv._id);
   },
 
   async facebookPost(
@@ -112,7 +114,7 @@ export default {
   },
 
   async tags(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.tag?.loadMany(conv.tagIds || []);
+    return dataLoaders.tag.loadMany(conv.tagIds || []);
   },
 
   async videoCallData(

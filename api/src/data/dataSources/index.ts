@@ -1,5 +1,6 @@
+import AutomationsAPI from './automations';
 import EngagesAPI from './engages';
 import HelpersApi from './helpers';
 import IntegrationsAPI from './integrations';
 
-export { EngagesAPI, IntegrationsAPI, HelpersApi };
+export { AutomationsAPI, EngagesAPI, IntegrationsAPI, HelpersApi };

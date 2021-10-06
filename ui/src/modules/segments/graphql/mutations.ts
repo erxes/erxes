@@ -1,11 +1,13 @@
 const paramDefs = `
-  $name: String!,
+  $name: String,
   $description: String,
   $subOf: String,
   $color: String,
   $conditions: [SegmentCondition],
+  $conditionSegments: [SubSegment]
   $boardId: String,
   $pipelineId: String,
+  $conditionsConjunction: String
 `;
 
 const params = `
@@ -16,12 +18,15 @@ const params = `
   conditions: $conditions,
   boardId: $boardId,
   pipelineId: $pipelineId,
+  conditionsConjunction: $conditionsConjunction
+  conditionSegments: $conditionSegments
 `;
 
 const segmentsAdd = `
   mutation segmentsAdd($contentType: String!, ${paramDefs}) {
     segmentsAdd(contentType: $contentType, ${params}) {
       _id
+      count
     }
   }
 `;
@@ -30,6 +35,7 @@ const segmentsEdit = `
   mutation segmentsEdit($_id: String!, ${paramDefs}) {
     segmentsEdit(_id: $_id, ${params}) {
       _id
+      count
     }
   }
 `;

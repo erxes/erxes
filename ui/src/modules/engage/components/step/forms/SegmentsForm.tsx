@@ -1,27 +1,15 @@
-import { IButtonMutateProps } from 'modules/common/types';
-import Form from 'modules/segments/components/common/Form';
-import { ISegment } from 'modules/segments/types';
+import Form from 'modules/segments/containers/form/SegmentsForm';
 import React from 'react';
 
 type Props = {
-  fields: any[];
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  headSegments: ISegment[];
+  segmentType: string;
   afterSave: () => void;
 };
 
 const SegmentsForm = (props: Props) => {
-  const { fields, renderButton, headSegments, afterSave } = props;
+  const { segmentType, afterSave } = props;
 
-  return (
-    <Form
-      fields={fields}
-      events={[]}
-      renderButton={renderButton}
-      headSegments={headSegments}
-      afterSave={afterSave}
-    />
-  );
+  return <Form contentType={segmentType} closeModal={afterSave} />;
 };
 
 export default SegmentsForm;
