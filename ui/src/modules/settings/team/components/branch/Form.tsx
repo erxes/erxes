@@ -42,7 +42,7 @@ export default function BranchForm(props: Props) {
     if (parent) {
       setParentId(parent.value);
     } else {
-      setParentId('');
+      setParentId(null);
     }
   };
 

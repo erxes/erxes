@@ -41,7 +41,11 @@ export default function DepartmentForm(props: Props) {
   };
 
   const onChangeParent = (parent: any) => {
-    setParentId(parent.value);
+    if (parent) {
+      setParentId(parent.value);
+    } else {
+      setParentId(null);
+    }
   };
 
   const onSelectUsers = options => {
@@ -102,6 +106,7 @@ export default function DepartmentForm(props: Props) {
             <Select
               placeholder={__('Choose parent')}
               value={parentId}
+              clearable={true}
               onChange={onChangeParent}
               options={parentDepartments.map(d => ({
                 value: d._id,
