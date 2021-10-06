@@ -1,12 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { IRule, ruleSchema } from './common';
 import { FORM_TYPES } from './constants';
-import {
-  calloutSchema,
-  ICallout,
-  ISubmission,
-  submissionSchema
-} from './integrations';
 import { field, schemaWrapper } from './utils';
 
 export interface IForm {
@@ -22,18 +15,6 @@ export interface IFormDocument extends IForm, Document {
   _id: string;
   createdUserId: string;
   createdDate: Date;
-  // TODO: remove
-  contactsGathered?: number;
-  // TODO: remove
-  viewCount?: number;
-  // TODO: remove
-  submissions?: ISubmission[];
-  // TODO: remove
-  themeColor?: string;
-  // TODO: remove
-  callout?: ICallout;
-  // TODO: remove
-  rules?: IRule;
 }
 
 // schema for form document
@@ -52,37 +33,6 @@ export const formSchema = schemaWrapper(
     createdDate: field({
       type: Date,
       default: Date.now
-    }),
-
-    // TODO: remove
-    themeColor: field({
-      type: String,
-      optional: true
-    }),
-    // TODO: remove
-    callout: field({
-      type: calloutSchema,
-      optional: true
-    }),
-    // TODO: remove
-    viewCount: field({
-      type: Number,
-      optional: true
-    }),
-    // TODO: remove
-    contactsGathered: field({
-      type: Number,
-      optional: true
-    }),
-    // TODO: remove
-    submissions: field({
-      type: [submissionSchema],
-      optional: true
-    }),
-    // TODO: remove
-    rules: field({
-      type: [ruleSchema],
-      optional: true
     }),
 
     numberOfPages: field({

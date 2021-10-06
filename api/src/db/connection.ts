@@ -8,6 +8,7 @@ import { mutations, queries, subscriptions, types } from '../data/schema';
 import { getEnv } from '../data/utils';
 import { debugDb } from '../debuggers';
 import { userFactory } from './factories';
+import { generateAllDataLoaders } from '../data/dataLoaders';
 
 dotenv.config();
 
@@ -106,6 +107,7 @@ export const graphqlRequest = async (
   finalContext.userBrandIdsSelector = {};
   finalContext.brandIdSelector = {};
   finalContext.docModifier = doc => doc;
+  finalContext.dataLoaders = generateAllDataLoaders();
 
   const rootValue = {};
 
