@@ -1,26 +1,26 @@
 export const types = `
   input BookingStylesInput {
-    itemShape: String,
-    widgetColor: String,
-    productAvailable: String,
-    productUnavailable: String,
-    productSelected: String,
+    itemShape: String
+    widgetColor: String
+    productAvailable: String
+    productUnavailable: String
+    productSelected: String
 
-    textAvailable: String,
-    textUnavailable: String,
+    textAvailable: String
+    textUnavailable: String
     textSelected: String
   }
 
   type BookingStylesType {
-    itemShape: String,
-    widgetColor: String,
+    itemShape: String
+    widgetColor: String
 
-    productAvailable: String,
-    productUnavailable: String,
-    productSelected: String,
+    productAvailable: String
+    productUnavailable: String
+    productSelected: String
 
-    textAvailable: String,
-    textUnavailable: String,
+    textAvailable: String
+    textUnavailable: String
     textSelected: String
   }
   
@@ -32,31 +32,31 @@ export const types = `
   }
 
   type Booking {
-    _id: String!,
-    name: String,
-    image: Attachment,
+    _id: String!
+    name: String
+    image: Attachment
  
-    description: String,
-    userFilters: [String],
-    productCategoryId: String,
+    description: String
+    userFilters: [String]
+    productCategoryId: String
 
-    styles: BookingStylesType,
+    styles: BookingStylesType
 
-    title: String,
-    brandId: String,
-    channelIds: [String],
-    languageCode: String,
-    formId: String,
-    buttonText: String,
+    title: String
+    brandId: String
+    channelIds: [String]
+    languageCode: String
+    formId: String
+    buttonText: String
 
-    createdDate: Date,
+    createdDate: Date
     viewCount: Int
-    brand: Brand,
+    brand: Brand
 
-    createdBy: String,
-    createdUser: User,
+    createdBy: String
+    createdUser: User
 
-    tagIds: [String],
+    tagIds: [String]
     tags: [Tag]
 
     childCategories: [ProductCategory]
@@ -75,9 +75,9 @@ export const types = `
 `;
 
 const queryParams = `
-  page: Int,
-  perPage: Int,
-  brandId: String,
+  page: Int
+  perPage: Int
+  brandId: String
   tagId: String
 `;
 
@@ -88,20 +88,20 @@ export const queries = `
 `;
 
 const bookingMutationParams = `
-  name: String,
-  image: AttachmentInput,
-  description: String,
-  userFilters: [String],
+  name: String
+  image: AttachmentInput
+  description: String
+  userFilters: [String]
   productCategoryId: String
 
   styles: BookingStylesInput
 
-  title: String,
-  brandId: String,
-  channelIds: [String],
-  languageCode: String,
-  formId: String,
-  buttonText: String,
+  title: String
+  brandId: String
+  channelIds: [String]
+  languageCode: String
+  formId: String
+  buttonText: String
   tagIds: [String]
 `;
 
