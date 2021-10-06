@@ -1,0 +1,69 @@
+.flex-center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.flex-sb{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.text{
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.5px
+}
+.p-10{
+    padding: 10px;
+}
+.grid-131{
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+}
+.grid-nav{
+    grid-template-columns: 1fr 3fr 1fr;
+}
+.grid{
+    display: grid;
+    align-items: center;
+    align-self: end;
+    padding: 3px;
+}
+.center{
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    align-self: end;
+}
+.circle{
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    color: white;
+    padding: 3px;
+}
+.available{
+    background-color: $primary;
+}
+.baga{
+    background-color: $secondary;
+}
+.duussan{
+    background-color: $mid-grey;
+}
+.s-available{
+    color: $primary;
+    border-color:$primary !important ;
+}
+.s-baga{
+    color: $secondary;
+    border-color:$secondary !important;
+}
+.s-duussan{
+    color: $mid-grey;
+    border-color:$mid-grey !important; 
+}

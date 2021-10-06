@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FilterableList } from '.';
 import { ICategoryTree } from '../../types';
-
+import * as ReactPopover from 'react-popover'
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
@@ -32,19 +32,37 @@ class Navigation extends React.Component<Props, State> {
     const { isOpen } = this.state;
 
     return (
-      <div>
-        <i className="icon-menu" onClick={this.toggleNavigation} />
-        {isOpen ? (
+      <ReactPopover
+      isOpen={isOpen}
+      preferPlace={'start'}
+      tipSize={.01}
+      body={
+        <div className="booking-navigation">
+              <div className="flex-sb p-10">
+                <div> Navigation </div>
+                <div onClick={()=>{this.setState({isOpen:false})}}> 
+                <i className="icon-leftarrow"></i>
+                </div>
+              </div>
+      
+      <hr />
           <FilterableList
-            treeView={true}
-            selectable={false}
-            loading={false}
-            items={JSON.parse(JSON.stringify(items))}
-            parentId={parentId}
-            changeRoute={changeRoute}
-          />
-        ) : null}
+        treeView={true}
+        loading={false}
+        items={JSON.parse(JSON.stringify(items))}
+        parentId={parentId}
+        changeRoute={changeRoute}
+      />
+        </div>
+      }
+    >
+      <div onClick={this.toggleNavigation} >
+      <label className="menu__btn">
+        <span></span>
+      </label>
+      <p>Navigation</p>
       </div>
+    </ReactPopover>
     );
   }
 }
