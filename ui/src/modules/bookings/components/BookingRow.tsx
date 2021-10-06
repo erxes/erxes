@@ -119,7 +119,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
       </td>
 
       <td>
-        <TextInfo ignoreTrans={true}>{2433}</TextInfo>
+        <TextInfo ignoreTrans={true}>{booking.viewCount || 0}</TextInfo>
       </td>
       <td>
         <Label lblStyle={labelStyle}>{status && status}</Label>

@@ -61,6 +61,7 @@ const bookingFields = `
 
   description
   createdDate
+  viewCount
   
   brand {
     _id

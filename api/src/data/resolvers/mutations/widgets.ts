@@ -1,5 +1,6 @@
 import * as strip from 'strip';
 import {
+  Bookings,
   Companies,
   Conformities,
   ConversationMessages,
@@ -923,6 +924,9 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
+  },
+  widgetsBookingIncreaseViewCount(_root, { _id }: { _id: string }) {
+    return Bookings.increaseViewCount(_id);
   }
 };
 

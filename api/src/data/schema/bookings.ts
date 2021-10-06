@@ -50,6 +50,7 @@ export const types = `
     buttonText: String,
 
     createdDate: Date,
+    viewCount: Int
     brand: Brand,
 
     createdBy: String,

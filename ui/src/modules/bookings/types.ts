@@ -46,6 +46,8 @@ export interface IBooking {
   tags?: ITag[];
 
   mainProductCategory: IProductCategory;
+
+  viewCount?: number;
 }
 
 export interface IBookingDocument extends IBooking {

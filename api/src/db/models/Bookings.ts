@@ -14,6 +14,7 @@ export interface IBookingModel extends Model<IBookingDocument> {
     userId?: string
   ): Promise<IBookingDocument>;
   removeDoc(_id: string): void;
+  increaseViewCount(_id: string): void;
 }
 
 export const loadBookingClass = () => {
@@ -99,6 +100,14 @@ export const loadBookingClass = () => {
 
     public static async removeDoc(_id: string) {
       return Bookings.deleteOne({ _id });
+    }
+
+    public static async increaseViewCount(_id: string) {
+      const response = await Bookings.updateOne(
+        { _id },
+        { $inc: { viewCount: 1 } }
+      );
+      return response;
     }
   }
 
