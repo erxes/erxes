@@ -23,6 +23,7 @@ import Item from 'modules/boards/components/stage/Item';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from 'modules/common/types';
 import NameCard from 'modules/common/components/nameCard/NameCard';
+import withTableWrapper from 'modules/common/components/table/withTableWrapper';
 
 type Props = {
   index: number;
@@ -103,56 +104,62 @@ class ListGroupBy extends React.Component<Props> {
     );
   };
 
-  render() {
+  renderTable = () => {
     const { groupObj, items, options, groupType } = this.props;
 
     if (!groupObj) {
       return <EmptyState icon="grid" text="No stage" size="small" />;
     }
 
+    if (!items || items.length === 0) {
+      return <EmptyState icon="grid" text="No item" size="small" />;
+    }
+
+    return (
+      <withTableWrapper.Wrapper>
+        <Table hover={true} bordered={true}>
+          <thead>
+            <tr>
+              <th>{__('Card Title')}</th>
+              <th>{groupType === 'stage' ? __('Label') : __('Stage')}</th>
+              {(groupType === 'assignee' || groupType === 'dueDate') && (
+                <th>{__('Label')}</th>
+              )}
+              <th>{groupType === 'priority' ? __('Label') : __('Priority')}</th>
+              <th>{__('Due Date')}</th>
+              {groupType !== 'assignee' && <th>{__('Assignee')}</th>}
+              <th>{__('Associated Customer')}</th>
+              <ColumnLastChild>{__('Associated Company')}</ColumnLastChild>
+            </tr>
+          </thead>
+          <tbody id="groupByList">
+            {items.map((item: any) => (
+              <Item
+                key={item._id}
+                item={item}
+                onClick={() => this.onClick(item)}
+                beforePopupClose={this.beforePopupClose}
+                options={options}
+                groupType={groupType}
+                groupObj={groupObj}
+                itemRowComponent={ListItemRow}
+              />
+            ))}
+          </tbody>
+        </Table>
+      </withTableWrapper.Wrapper>
+    );
+  };
+
+  render() {
+    const { groupType } = this.props;
+
     return (
       <ListContainer>
         <Header>
           <StageTitle>{this.renderHeader()}</StageTitle>
         </Header>
-        <ListBody onScroll={this.onScroll}>
-          {!items || items.length === 0 ? (
-            <EmptyState icon="grid" text="No item" size="small" />
-          ) : (
-            <Table hover={true} bordered={true}>
-              <thead>
-                <tr>
-                  <th>{__('Card Title')}</th>
-                  <th>{groupType === 'stage' ? __('Label') : __('Stage')}</th>
-                  {(groupType === 'assignee' || groupType === 'dueDate') && (
-                    <th>{__('Label')}</th>
-                  )}
-                  <th>
-                    {groupType === 'priority' ? __('Label') : __('Priority')}
-                  </th>
-                  <th>{__('Due Date')}</th>
-                  {groupType !== 'assignee' && <th>{__('Assignee')}</th>}
-                  <th>{__('Associated Customer')}</th>
-                  <ColumnLastChild>{__('Associated Company')}</ColumnLastChild>
-                </tr>
-              </thead>
-              <tbody id="groupbylist">
-                {items.map((item: any) => (
-                  <Item
-                    key={item._id}
-                    item={item}
-                    onClick={() => this.onClick(item)}
-                    beforePopupClose={this.beforePopupClose}
-                    options={options}
-                    groupType={groupType}
-                    groupObj={groupObj}
-                    itemComponent={ListItemRow}
-                  />
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </ListBody>
+        <ListBody onScroll={this.onScroll}>{this.renderTable()}</ListBody>
         {groupType === 'stage' && (
           <Footer>{this.renderAddItemTrigger()}</Footer>
         )}

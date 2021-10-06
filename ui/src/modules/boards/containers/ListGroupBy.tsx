@@ -13,6 +13,7 @@ import {
   RemoveStageMutation,
   SaveItemMutation
 } from '../types';
+import Spinner from 'modules/common/components/Spinner';
 
 type StageProps = {
   groupObj: any;
@@ -127,6 +128,10 @@ class ListGroupByContainer extends React.PureComponent<FinalStageProps, State> {
       itemsTotalCountQuery,
       options
     } = this.props;
+
+    if (itemsQuery.loading) {
+      return <Spinner />;
+    }
 
     const refetch = () => {
       itemsQuery.refetch().then(({ data }) => {

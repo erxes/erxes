@@ -61,10 +61,7 @@ class ListItemRow extends React.PureComponent<Props> {
     if (groupType === 'stage') {
       return (
         <LabelColumn>
-          {this.checkNull(
-            Boolean(labels.length > 0),
-            <Labels labels={labels} />
-          )}
+          {this.checkNull(labels.length > 0, <Labels labels={labels} />)}
         </LabelColumn>
       );
     }
@@ -131,10 +128,7 @@ class ListItemRow extends React.PureComponent<Props> {
           {this.renderStage()}
           {(groupType === 'assignee' || groupType === 'dueDate') && (
             <LabelColumn>
-              {this.checkNull(
-                Boolean(labels.length > 0),
-                <Labels labels={labels} />
-              )}
+              {this.checkNull(labels.length > 0, <Labels labels={labels} />)}
             </LabelColumn>
           )}
           {this.renderPriority()}
@@ -147,7 +141,7 @@ class ListItemRow extends React.PureComponent<Props> {
           {groupType !== 'assignee' && (
             <td>
               {this.checkNull(
-                Boolean(assignedUsers.length > 0),
+                assignedUsers.length > 0,
                 <PriceContainer>
                   <Left>
                     <Assignees users={assignedUsers} />
@@ -158,13 +152,13 @@ class ListItemRow extends React.PureComponent<Props> {
           )}
           <td>
             {this.checkNull(
-              Boolean(customers && customers.length > 0),
+              customers.length > 0,
               <Details color="#F7CE53" items={customers || []} />
             )}
           </td>
           <ColumnChild>
             {this.checkNull(
-              Boolean(companies && companies.length > 0),
+              companies.length > 0,
               <Details color="#EA475D" items={companies || []} />
             )}
           </ColumnChild>
