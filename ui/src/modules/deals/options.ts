@@ -10,6 +10,7 @@ const options = {
   title: 'Deal',
   queriesName: {
     itemsQuery: 'deals',
+    itemsTotalCountQuery: 'dealsTotalCount',
     detailQuery: 'dealDetail',
     archivedItemsQuery: 'archivedDeals',
     archivedItemsCountQuery: 'archivedDealsCount'
@@ -26,6 +27,7 @@ const options = {
   },
   queries: {
     itemsQuery: queries.deals,
+    itemsTotalCountQuery: queries.dealsTotalCount,
     detailQuery: queries.dealDetail,
     archivedItemsQuery: queries.archivedDeals,
     archivedItemsCountQuery: queries.archivedDealsCount

@@ -330,6 +330,6 @@ export const customerSchema = schemaWrapper(
       optional: true,
       esType: 'number'
     }),
-    visitorId: field({ type: String, optional: true }),
+    visitorId: field({ type: String, optional: true })
   })
 );

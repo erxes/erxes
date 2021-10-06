@@ -189,6 +189,10 @@ export const generateCommonFilters = async (
 
   if (stageId) {
     filter.stageId = stageId;
+  } else if (pipelineId) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    filter.stageId = { $in: stageIds };
   }
 
   if (labelIds) {

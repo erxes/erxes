@@ -9,12 +9,15 @@ import TaskMainActionBar from './TaskMainActionBar';
 
 type Props = {
   queryParams: any;
+  viewType: string;
 };
 class TaskBoard extends React.Component<Props> {
   renderContent() {
-    const { queryParams } = this.props;
+    const { queryParams, viewType } = this.props;
 
-    return <Board queryParams={queryParams} options={options} />;
+    return (
+      <Board viewType={viewType} queryParams={queryParams} options={options} />
+    );
   }
 
   renderActionBar() {

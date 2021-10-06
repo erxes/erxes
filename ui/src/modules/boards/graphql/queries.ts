@@ -17,6 +17,18 @@ const pipelineLabels = `
   }
 `;
 
+const pipelineAssignedUsers = `
+  query pipelineAssignedUsers($_id: String!) {
+    pipelineAssignedUsers(_id: $_id) {
+      _id
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
 const pipelineLabelDetail = `
   query pipelineLabelDetail($_id: String!) {
     pipelineLabelDetail(_id: $_id) {
@@ -32,7 +44,6 @@ const boardGetLast = `
     boardGetLast(type: $type) {
       _id
       name
-
       pipelines {
         _id
         name
@@ -46,7 +57,6 @@ const boardDetail = `
     boardDetail(_id: $_id) {
       _id
       name
-
       pipelines {
         _id
         name
@@ -234,6 +244,7 @@ export default {
   stages,
   conversionStages,
   stageDetail,
+  pipelineAssignedUsers,
   pipelineLabels,
   pipelineLabelDetail,
   itemsCountBySegments,
