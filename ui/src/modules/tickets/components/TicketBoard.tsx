@@ -9,12 +9,15 @@ import TicketMainActionBar from './TicketMainActionBar';
 
 type Props = {
   queryParams: any;
+  viewType: string;
 };
 class TicketBoard extends React.Component<Props> {
   renderContent() {
-    const { queryParams } = this.props;
+    const { queryParams, viewType } = this.props;
 
-    return <Board queryParams={queryParams} options={options} />;
+    return (
+      <Board viewType={viewType} queryParams={queryParams} options={options} />
+    );
   }
 
   renderActionBar() {

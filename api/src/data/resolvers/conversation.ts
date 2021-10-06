@@ -16,9 +16,11 @@ export default {
   },
 
   customer(conversation: IConversationDocument, _, { dataLoaders }: IContext) {
-    if (conversation.customerId) {
-      return dataLoaders.customer.load(conversation.customerId);
-    }
+    return (
+      (conversation.customerId &&
+        dataLoaders.customer.load(conversation.customerId)) ||
+      null
+    );
   },
 
   integration(conversation: IConversationDocument) {

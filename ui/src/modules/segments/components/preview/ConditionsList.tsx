@@ -200,7 +200,7 @@ class ConditionsList extends React.Component<Props, State> {
             condition={condition}
             onClickEvent={this.props.onClickEvent}
             segmentKey={segment.key}
-          ></EventDetail>
+          />
 
           <FlexRightItem>
             <div onClick={this.removeCondition.bind(this, condition)}>

@@ -93,6 +93,7 @@ export const queries = `
   boardDetail(_id: String!): Board
   pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
   pipelineDetail(_id: String!): Pipeline
+  pipelineAssignedUsers(_id: String!): [User]
   stages(
     isNotLost: Boolean,
     isAll: Boolean,
