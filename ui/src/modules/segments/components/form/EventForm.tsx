@@ -124,8 +124,7 @@ class EventForm extends React.Component<Props, State> {
     const { events } = this.props;
     const { eventName } = this.state;
 
-    const event =
-      events.find(event => event.name === eventName) || ({} as IEvent);
+    const event = events.find(e => e.name === eventName) || ({} as IEvent);
 
     if (event.attributeNames && event.attributeNames.length > 0) {
       const attributeNames = event.attributeNames;
