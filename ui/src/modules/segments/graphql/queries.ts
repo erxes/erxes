@@ -6,6 +6,7 @@ const segmentFields = `
   subOf
   color
   conditions
+  conditionsConjunction
 
   boardId
   pipelineId
@@ -30,12 +31,16 @@ const segmentDetail = `
       getSubSegments {
         ${segmentFields}
       }
+      subSegmentConditions
+      {
+        ${segmentFields}
+      }
     }
   }
 `;
 const segmentsPreviewCount = `
-  query segmentsPreviewCount($contentType: String!, $conditions: JSON, $subOf: String, $boardId: String, $pipelineId: String) {
-    segmentsPreviewCount(contentType: $contentType, conditions: $conditions, subOf: $subOf, boardId: $boardId, pipelineId: $pipelineId)
+  query segmentsPreviewCount($contentType: String!, $conditions: JSON, $subOf: String, $boardId: String, $pipelineId: String, $conditionsConjunction: String) {
+    segmentsPreviewCount(contentType: $contentType, conditions: $conditions, subOf: $subOf, boardId: $boardId, pipelineId: $pipelineId, conditionsConjunction: $conditionsConjunction)
   }
 `;
 

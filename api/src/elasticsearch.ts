@@ -48,14 +48,8 @@ export const fetchElk = async ({
   _id?: string;
   defaultValue?: any;
 }) => {
-  if (NODE_ENV === 'test') {
-    return action === 'search'
-      ? { hits: { total: { value: 0 }, hits: [] } }
-      : 0;
-  }
-
   try {
-    const params: { index: string; body: any; id?: string } = {
+    const params: any = {
       index: `${getIndexPrefix()}${index}`,
       body
     };

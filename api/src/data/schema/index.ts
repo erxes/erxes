@@ -3,6 +3,11 @@ import {
   types as ActivityLogTypes
 } from './activityLog';
 import {
+  mutations as AutomationMutations,
+  queries as AutomationQueries,
+  types as AutomationTypes
+} from './automations';
+import {
   mutations as BoardMutations,
   queries as BoardQueries,
   types as BoardTypes
@@ -253,6 +258,7 @@ export let types = `
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
+  ${AutomationTypes}
 `;
 
 export let queries = `
@@ -298,6 +304,7 @@ export let queries = `
   ${CalendarQueries}
   ${MessengerAppQueries}
   ${SmsDeliveryQueries}
+  ${AutomationQueries}
 `;
 
 export let mutations = `
@@ -340,6 +347,7 @@ export let mutations = `
   ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
+  ${AutomationMutations}
 `;
 
 export let subscriptions = `

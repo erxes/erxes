@@ -54,7 +54,7 @@ class CommonPreview extends React.Component<Props, {}> {
     }
 
     return (
-      <CallOutBody imgSize= {imgSize}>
+      <CallOutBody imgSize={imgSize}>
         {image && <img src={readFile(image)} alt={image} />}
 
         {bodyValue && bodyValue}

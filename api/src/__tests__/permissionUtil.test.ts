@@ -1,3 +1,5 @@
+import './setup.ts';
+
 import { can, registerModule } from '../data/permissions/utils';
 import {
   permissionFactory,
@@ -5,9 +7,7 @@ import {
   usersGroupFactory
 } from '../db/factories';
 import { Permissions, Users, UsersGroups } from '../db/models';
-
 import { IUserDocument } from '../db/models/definitions/users';
-import './setup.ts';
 
 describe('Test permission utils', () => {
   let _user: IUserDocument;

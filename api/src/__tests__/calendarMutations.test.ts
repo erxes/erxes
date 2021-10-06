@@ -86,6 +86,7 @@ describe('Test calendars mutations', () => {
         dataSources
       }
     );
+    deleteCalendarSpy.mockRestore();
   };
 
   const removeGroup = async () => {
@@ -145,6 +146,7 @@ describe('Test calendars mutations', () => {
 
     // expect(createdCalendar.name).toEqual('email@gmail.com');
     expect(createdCalendar.color).toBeDefined();
+    addCalendarSpy.mockRestore();
   });
 
   test('Edit calendar', async () => {
@@ -380,6 +382,7 @@ describe('Test calendars mutations', () => {
         dataSources
       }
     );
+    createEventSpy.mockRestore();
   });
 
   test('Update calendar event', async () => {
@@ -404,6 +407,7 @@ describe('Test calendars mutations', () => {
         dataSources
       }
     );
+    createEventSpy.mockRestore();
   });
 
   test('Delete calendar event', async () => {
@@ -428,6 +432,7 @@ describe('Test calendars mutations', () => {
         dataSources
       }
     );
+    createEventSpy.mockRestore();
   });
 
   test('Update account calendar', async () => {
@@ -452,6 +457,7 @@ describe('Test calendars mutations', () => {
         dataSources
       }
     );
+    editCalendarSpy.mockRestore();
   });
 
   const pageParamsDef = `
@@ -557,5 +563,6 @@ describe('Test calendars mutations', () => {
         dataSources
       }
     );
+    deleteCalendarSpy.mockRestore();
   });
 });
