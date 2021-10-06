@@ -15,6 +15,8 @@ import { LogicIndicator, SelectInput } from '../styles';
 import { IField } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
+import ModifiableList from 'modules/common/components/ModifiableList';
+import { __ } from 'erxes-ui/lib/utils/core';
 
 type Props = {
   field: IField;
@@ -258,6 +260,34 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderList(attrs) {
+    let options = [];
+    if (attrs.value && attrs.value.length > 0) {
+      options = attrs.value.split(',') || [];
+    }
+
+    const onChange = ops => {
+      const { field, onValueChange } = this.props;
+
+      if (onValueChange) {
+        const value = ops.toString();
+
+        this.setState({ value });
+
+        onValueChange({ _id: field._id, value });
+      }
+    };
+
+    return (
+      <ModifiableList
+        options={options}
+        onChangeOption={onChange}
+        addButtonLabel={__('Add a value')}
+        showAddButton={true}
+      />
+    );
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -404,6 +434,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'customer': {
         return this.renderCustomer(attrs);
+      }
+
+      case 'list': {
+        return this.renderList(attrs);
       }
 
       default:

@@ -34,7 +34,11 @@ import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { sendToLog } from '../../logUtils';
-import { RABBITMQ_QUEUES, AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import {
+  RABBITMQ_QUEUES,
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES
+} from '../../constants';
 import { IContext } from '../../types';
 import {
   findCompany,
@@ -109,12 +113,15 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
 };
 
 const createVisitor = async (visitorId: string) => {
-  const customer = await Customers.createCustomer({ state: 'visitor', visitorId });
+  const customer = await Customers.createCustomer({
+    state: 'visitor',
+    visitorId
+  });
 
   sendToLog('visitor:convertRequest', { visitorId });
 
   return customer;
-}
+};
 
 const widgetMutations = {
   // Find integrationId by brandCode
