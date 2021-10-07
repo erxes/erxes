@@ -123,7 +123,10 @@ module.exports = {
     {
       type: "category",
       label: "Components",
-      items: ["components/buttons", "components/info"],
+      items: [
+        "components/buttons",
+        "components/info"
+      ],
     },
   ],
 };
