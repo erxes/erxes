@@ -64,7 +64,7 @@ export const getOrCreateEngageMessage = async (
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
-export const receiveVisitorDetail = async (visitor) => {
+export const receiveVisitorDetail = async visitor => {
   const { visitorId } = visitor;
 
   delete visitor.visitorId;

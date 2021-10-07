@@ -213,12 +213,27 @@ export default {
       customerId,
       visitorId,
       browserInfo
-    }: { integrationId: string, customerId?: string; visitorId?: string; browserInfo: IBrowserInfo }
+    }: {
+      integrationId: string;
+      customerId?: string;
+      visitorId?: string;
+      browserInfo: IBrowserInfo;
+    }
   ) {
     if (isUsingElk()) {
-      return getOrCreateEngageMessageElk(integrationId, browserInfo, visitorId, customerId);
+      return getOrCreateEngageMessageElk(
+        integrationId,
+        browserInfo,
+        visitorId,
+        customerId
+      );
     }
 
-    return getOrCreateEngageMessage(integrationId, browserInfo, visitorId, customerId);
+    return getOrCreateEngageMessage(
+      integrationId,
+      browserInfo,
+      visitorId,
+      customerId
+    );
   }
 };
