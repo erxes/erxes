@@ -16,7 +16,7 @@ import { Types, Sizes, Activity, Uppercase, Block } from "./buttons.js"
 
 ### Sizes
 
-<p>Fancy larger or smaller buttons? Add <code>size="large"</code>, <code>size="medium"</code>, <code>size="small"</code> for additional sizes.</p>
+<p>Larger or smaller buttons? Add <code>size="large"</code>, <code>size="medium"</code>, <code>size="small"</code> for additional sizes.</p>
 <Sizes></Sizes>
 
 ## Disabled state
@@ -26,9 +26,10 @@ import { Types, Sizes, Activity, Uppercase, Block } from "./buttons.js"
 
 ## Uppercase
 
-<p></p>
+<p>Make button text uppercase by adding the <code>uppercase</code> prop to.</p>
 <Uppercase></Uppercase>
 
 ## Block
 
+<p>Make button full-width by adding the <code>block</code> prop to.</p>
 <Block></Block>
