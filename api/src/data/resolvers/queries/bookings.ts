@@ -110,7 +110,7 @@ const bookingQueries = {
       return Bookings.find(query).countDocuments();
     };
 
-    // Counting integrations by tag
+    // Counting bookings by tag
     const tags = await Tags.find({ type: TAG_TYPES.BOOKING });
 
     for (const tag of tags) {
@@ -122,7 +122,7 @@ const bookingQueries = {
         : 0;
     }
 
-    // Counting integrations by channel
+    // Counting bookings by channel
     const channels = await getDocumentList('channels', {});
 
     for (const channel of channels) {
@@ -138,7 +138,7 @@ const bookingQueries = {
         : 0;
     }
 
-    // Counting integrations by brand
+    // Counting bookings by brand
     const brands = await getDocumentList('brands', {});
 
     for (const brand of brands) {
