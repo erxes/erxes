@@ -3,7 +3,7 @@ id: buttons
 title: Buttons
 ---
 
-import { Types, Sizes, Activity, Uppercase } from "./buttons.js"
+import { Types, Sizes, Activity, Uppercase, Block } from "./buttons.js"
 
 <p>Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
 
@@ -12,7 +12,7 @@ import { Types, Sizes, Activity, Uppercase } from "./buttons.js"
 <p>Use any of the available button style types to quickly create a styled button. Just modify the <code>btnStyle</code> prop.</p>
 <Types></Types>
 
-## Sizes
+### Sizes
 
 <p>Fancy larger or smaller buttons? Add <code>size="large"</code>, <code>size="medium"</code>, <code>size="small"</code> for additional sizes.</p>
 <Sizes></Sizes>
@@ -26,3 +26,7 @@ import { Types, Sizes, Activity, Uppercase } from "./buttons.js"
 
 <p></p>
 <Uppercase></Uppercase>
+
+## Block
+
+<Block></Block>

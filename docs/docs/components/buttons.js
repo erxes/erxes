@@ -64,14 +64,28 @@ function Uppercase() {
   return (<>
     <div className={styles.styled}>
         <Button>Normal button</Button>
-        <Button uppercase="true">Uppercase button</Button>
+        <Button uppercase>Uppercase button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
         <Button>Normal button</Button>
-        <Button uppercase="true">Uppercase button</Button>
+        <Button uppercase>Uppercase button</Button>
 </>`}</CodeBlock>
     </>
   )
 }
 
-export { Types, Sizes, Activity, Uppercase }
+function Block() {
+  return (<>
+    <div className={styles.styled}>
+        <Button btnStyle="primary">Normal button</Button>
+        <Button btnStyle="primary" block>Block button</Button>
+    </div>
+    <CodeBlock className="language-jsx">{`<>
+        <Button btnStyle="primary">Normal button</Button>
+        <Button btnStyle="primary" block>Block button</Button>
+</>`}</CodeBlock>
+    </>
+  )
+}
+
+export { Types, Sizes, Activity, Uppercase, Block }
