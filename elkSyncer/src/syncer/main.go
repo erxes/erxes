@@ -297,6 +297,7 @@ func main() {
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.tags"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields_groups"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.form_submissions"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.conformities"`, dbName))
 
 

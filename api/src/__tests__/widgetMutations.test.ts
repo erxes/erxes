@@ -296,15 +296,9 @@ describe('messenger connect', () => {
   });
 
   test('creates new visitor log', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
-      return Promise.resolve('success');
+    const logUtilsMock = sinon.stub(logUtils, 'sendToLog').callsFake(() => {
+      return Promise.resolve('ok');
     });
-
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        return Promise.resolve('ok');
-      });
 
     const response = await widgetMutations.widgetsMessengerConnect(
       {},
@@ -318,7 +312,6 @@ describe('messenger connect', () => {
     expect(response.visitorId).toBe('123');
 
     logUtilsMock.restore();
-    mock.restore();
   });
 
   test('updates existing customer', async () => {
@@ -472,18 +465,10 @@ describe('insertMessage()', () => {
   });
 
   test('with visitorId', async () => {
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        return Promise.resolve('ok');
-      });
-
-    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
-      return Promise.resolve({
-        visitorId: '123',
-        _id: '1245'
-      });
+    const logUtilsMock = sinon.stub(logUtils, 'sendToLog').callsFake(() => {
+      return Promise.resolve('ok');
     });
+
     const conversation = await conversationFactory({});
 
     const message = await widgetMutations.widgetsInsertMessage(
@@ -500,7 +485,6 @@ describe('insertMessage()', () => {
 
     expect(message.content).toBe('withConversationId');
 
-    mock.restore();
     logUtilsMock.restore();
   });
 
@@ -756,20 +740,13 @@ describe('insertMessage()', () => {
     ]);
 
     const sendToVisitorLogMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
+      .stub(logUtils, 'sendToLog')
       .callsFake(() => {
         return Promise.resolve({
           visitorId: '123',
           integrationId: _integration._id
         });
       });
-
-    const visitorMock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
-      return Promise.resolve({
-        visitorId: '123',
-        integrationId: _integration._id
-      });
-    });
 
     const botMessage3 = await widgetMutations.widgetBotRequest(
       {},
@@ -789,7 +766,6 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    visitorMock.restore();
     sendToVisitorLogMock.restore();
 
     sendRequestMock.restore();
@@ -971,16 +947,7 @@ describe('saveBrowserInfo()', () => {
     const integration = await integrationFactory({ brandId: brand._id });
 
     const sendToVisitorLogMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        return Promise.resolve({
-          visitorId: '1234',
-          integrationId: integration._id
-        });
-      });
-
-    const getVisitorLogMock = sinon
-      .stub(logUtils, 'getVisitorLog')
+      .stub(logUtils, 'sendToLog')
       .callsFake(() => {
         return Promise.resolve({
           visitorId: '1234',
@@ -1016,7 +983,6 @@ describe('saveBrowserInfo()', () => {
     );
 
     expect(response).toBe(null);
-    getVisitorLogMock.restore();
     sendToVisitorLogMock.restore();
   });
 
@@ -1042,18 +1008,9 @@ describe('rest', () => {
   });
 
   test('widgetsSaveCustomerGetNotified without customerId', async () => {
-    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
-      return Promise.resolve({
-        visitorId: '123',
-        _id: '1245'
-      });
+    const logUtilsMock = sinon.stub(logUtils, 'sendToLog').callsFake(() => {
+      return Promise.resolve('ok');
     });
-
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        return Promise.resolve('ok');
-      });
 
     const customer = await widgetMutations.widgetsSaveCustomerGetNotified(
       {},
@@ -1070,7 +1027,6 @@ describe('rest', () => {
     ).toBe('email');
 
     logUtilsMock.restore();
-    mock.restore();
   });
 
   test('widgetsSendTypingInfo', async () => {

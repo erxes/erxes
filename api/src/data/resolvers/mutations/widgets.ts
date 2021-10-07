@@ -33,8 +33,12 @@ import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
-import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
-import { sendToVisitorLog } from '../../logUtils';
+import { sendToLog } from '../../logUtils';
+import {
+  RABBITMQ_QUEUES,
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES
+} from '../../constants';
 import { IContext } from '../../types';
 import {
   findCompany,
@@ -45,9 +49,10 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
+import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
+import messageBroker from '../../../messageBroker';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -105,6 +110,17 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
     websiteApps,
     formCodes
   };
+};
+
+const createVisitor = async (visitorId: string) => {
+  const customer = await Customers.createCustomer({
+    state: 'visitor',
+    visitorId
+  });
+
+  sendToLog('visitor:convertRequest', { visitorId });
+
+  return customer;
 };
 
 const widgetMutations = {
@@ -210,12 +226,20 @@ const widgetMutations = {
       conversationMessageInserted: message
     });
 
-    await sendToWebhook('create', 'popupSubmitted', {
+    const formData = {
       formId: args.formId,
       submissions: args.submissions,
       customer: cachedCustomer,
       cachedCustomerId: cachedCustomer._id,
       conversationId: conversation._id
+    };
+
+    await sendToWebhook('create', 'popupSubmitted', formData);
+
+    messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+      triggerType: 'formSubmit',
+      data: formData,
+      targetId: args.formId
     });
 
     return {
@@ -319,14 +343,11 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendToVisitorLog(
-        {
-          visitorId,
-          integrationId: integration._id,
-          scopeBrandIds: [brand._id]
-        },
-        'createOrUpdate'
-      );
+      sendToLog('visitor:createOrUpdate', {
+        visitorId,
+        integrationId: integration._id,
+        scopeBrandIds: [brand._id]
+      });
     }
 
     // get or create company
@@ -417,6 +438,7 @@ const widgetMutations = {
         const messageTime = new Date(
           videoCallRequestMessage.createdAt
         ).getTime();
+
         const nowTime = new Date().getTime();
 
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
@@ -454,7 +476,7 @@ const widgetMutations = {
     let { customerId } = args;
 
     if (visitorId && !customerId) {
-      const customer = await convertVisitorToCustomer(visitorId);
+      const customer = await createVisitor(visitorId);
       customerId = customer._id;
     }
 
@@ -672,9 +694,19 @@ const widgetMutations = {
   },
 
   async widgetsSaveCustomerGetNotified(_root, args: IVisitorContactInfoParams) {
-    if (args.visitorId && !args.customerId) {
-      const customer = await convertVisitorToCustomer(args.visitorId);
+    const { visitorId, customerId } = args;
+
+    if (visitorId && !customerId) {
+      const customer = await createVisitor(visitorId);
       args.customerId = customer._id;
+
+      await Messages.updateVisitorEngageMessages(visitorId, customer._id);
+      await Conversations.updateMany(
+        {
+          visitorId
+        },
+        { $set: { customerId: customer._id, visitorId: '' } }
+      );
     }
 
     return Customers.saveVisitorContactInfo(args);
@@ -699,7 +731,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
+      sendToLog('visitor:updateEntry', { visitorId, location: browserInfo });
     }
 
     try {
@@ -803,8 +835,7 @@ const widgetMutations = {
     const { botEndpointUrl } = integration.messengerData;
 
     if (visitorId && !customerId) {
-      const customer = await convertVisitorToCustomer(visitorId);
-
+      const customer = await createVisitor(visitorId);
       customerId = customer._id;
     }
 

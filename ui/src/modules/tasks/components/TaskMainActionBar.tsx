@@ -2,13 +2,15 @@ import MainActionBar from 'modules/boards/components/MainActionBar';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import options from '../options';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import { __ } from 'modules/common/utils';
+import Button from 'modules/common/components/Button';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -31,9 +33,15 @@ const TaskMainActionBar = (props: Props) => {
   const { queryParams, onSelect } = props;
 
   // get selected type from URL
-  const viewType = window.location.href.includes('calendar')
-    ? 'calendar'
-    : 'board';
+  let viewType = 'board';
+
+  if (window.location.href.includes('calendar')) {
+    viewType = 'calendar';
+  }
+
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
+  }
 
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
@@ -47,23 +55,45 @@ const TaskMainActionBar = (props: Props) => {
     };
 
     const boardLink = onFilterClick('board');
+    const listLink = onFilterClick('list');
     const calendarLink = onFilterClick('calendar');
 
     return (
       <ButtonGroup>
-        <Tip text={__('Board')} placement="bottom">
-          <Link to={boardLink} className={viewType === 'board' ? 'active' : ''}>
-            <Icon icon="window-section" />
-          </Link>
-        </Tip>
-        <Tip text={__('Calendar')} placement="bottom">
-          <Link
-            to={calendarLink}
-            className={viewType === 'calendar' ? 'active' : ''}
-          >
-            <Icon icon="calender" />
-          </Link>
-        </Tip>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
+            <Button btnStyle="primary" icon="list-ui-alt">
+              {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <li key="board">
+              <Link
+                to={boardLink}
+                className={viewType === 'board' ? 'active' : ''}
+              >
+                {__('Board')}
+              </Link>
+            </li>
+            <li key="calendar">
+              <Link
+                to={calendarLink}
+                className={viewType === 'calendar' ? 'active' : ''}
+              >
+                {__('Calendar')}
+              </Link>
+            </li>
+            <li key="list">
+              <Link
+                to={listLink}
+                className={viewType === 'list' ? 'active' : ''}
+              >
+                {__('List')}
+              </Link>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
       </ButtonGroup>
     );
   };
@@ -93,7 +123,7 @@ const TaskMainActionBar = (props: Props) => {
     rightContent: viewChooser
   };
 
-  return <MainActionBar {...extendedProps} />;
+  return <MainActionBar viewType={viewType} {...extendedProps} />;
 };
 
 export default TaskMainActionBar;

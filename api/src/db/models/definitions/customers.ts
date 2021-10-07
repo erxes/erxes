@@ -69,6 +69,7 @@ export interface ICustomer {
   isOnline?: boolean;
   lastSeenAt?: Date;
   sessionCount?: number;
+  visitorId?: string;
 }
 
 export interface IValidationResponse {
@@ -82,6 +83,7 @@ export interface ICustomerDocument extends ICustomer, Document {
   location?: ILocationDocument;
   visitorContactInfo?: IVisitorContactDocument;
   profileScore?: number;
+  score?: number;
   status?: string;
   createdAt: Date;
   modifiedAt: Date;
@@ -193,7 +195,13 @@ export const customerSchema = schemaWrapper(
       type: Number,
       index: true,
       optional: true,
-      label: 'Profile score',
+      esType: 'number'
+    }),
+
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
       esType: 'number'
     }),
 
@@ -321,6 +329,7 @@ export const customerSchema = schemaWrapper(
       label: 'Session count',
       optional: true,
       esType: 'number'
-    })
+    }),
+    visitorId: field({ type: String, optional: true })
   })
 );

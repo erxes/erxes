@@ -1,4 +1,4 @@
-import { ConversationMessages, Customers } from '../../db/models';
+import { ConversationMessages } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import { debugError } from '../../debuggers';
@@ -15,8 +15,12 @@ export default {
     return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
   },
 
-  customer(conversation: IConversationDocument) {
-    return Customers.findOne({ _id: conversation.customerId });
+  customer(conversation: IConversationDocument, _, { dataLoaders }: IContext) {
+    return (
+      (conversation.customerId &&
+        dataLoaders.customer.load(conversation.customerId)) ||
+      null
+    );
   },
 
   integration(conversation: IConversationDocument) {
@@ -41,10 +45,8 @@ export default {
     return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
   },
 
-  messages(conv: IConversationDocument) {
-    return ConversationMessages.find({ conversationId: conv._id }).sort({
-      createdAt: 1
-    });
+  messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders.conversationMessagesByConversationId.load(conv._id);
   },
 
   async facebookPost(
@@ -111,8 +113,8 @@ export default {
     return null;
   },
 
-  async tags(conv: IConversationDocument) {
-    return getDocumentList('tags', { _id: { $in: conv.tagIds || [] } });
+  async tags(conv: IConversationDocument, _, { dataLoaders }: IContext) {
+    return dataLoaders.tag.loadMany(conv.tagIds || []);
   },
 
   async videoCallData(
@@ -123,7 +125,7 @@ export default {
     const message = await ConversationMessages.findOne({
       conversationId: conversation._id,
       contentType: MESSAGE_TYPES.VIDEO_CALL
-    });
+    }).lean();
 
     if (!message) {
       return null;
@@ -158,7 +160,9 @@ export default {
       conversationId: conversation._id,
       customerId: { $exists: true },
       createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    }).limit(1);
+    })
+      .limit(1)
+      .lean();
 
     if (message.length && message.length >= 1) {
       return false;

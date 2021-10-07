@@ -2,6 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { customFieldSchema, ICustomField } from './common';
 import {
   CONVERSATION_OPERATOR_STATUS,
+  CONVERSATION_SELECT_OPTIONS,
   CONVERSATION_STATUSES
 } from './constants';
 import { field } from './utils';
@@ -51,25 +52,27 @@ export const conversationSchema = new Schema({
   operatorStatus: field({
     type: String,
     enum: CONVERSATION_OPERATOR_STATUS.ALL,
+    label: 'Operator Status',
+    selectOptions: CONVERSATION_SELECT_OPTIONS.OPERATOR_STATUS,
     optional: true
   }),
-  content: field({ type: String, optional: true }),
+  content: field({ type: String, label: 'Content', optional: true }),
   integrationId: field({ type: String, index: true }),
   customerId: field({ type: String, index: true }),
   visitorId: field({
-    type: String,
-    label: 'unique visitor id on logger database'
+    type: String
   }),
   userId: field({ type: String }),
   assignedUserId: field({ type: String }),
   participatedUserIds: field({ type: [String] }),
   userRelevance: field({ type: String }),
   readUserIds: field({ type: [String] }),
-  createdAt: field({ type: Date }),
-  updatedAt: field({ type: Date, index: true }),
+  createdAt: field({ type: Date, label: 'Created at' }),
+  updatedAt: field({ type: Date, label: 'Updated at', index: true }),
 
   closedAt: field({
     type: Date,
+    label: 'Closed at',
     optional: true
   }),
 
@@ -81,18 +84,23 @@ export const conversationSchema = new Schema({
   status: field({
     type: String,
     enum: CONVERSATION_STATUSES.ALL,
+    selectOptions: CONVERSATION_SELECT_OPTIONS.STATUS,
+    label: 'Status',
     index: true
   }),
-  messageCount: field({ type: Number }),
+  messageCount: field({ type: Number, label: 'Message count' }),
   tagIds: field({ type: [String] }),
 
   // number of total conversations
   number: field({ type: Number }),
 
   firstRespondedUserId: field({ type: String }),
-  firstRespondedDate: field({ type: Date }),
+  firstRespondedDate: field({ type: Date, label: 'First responded date' }),
 
-  isCustomerRespondedLast: field({ type: Boolean }),
+  isCustomerRespondedLast: field({
+    type: Boolean,
+    label: 'Last responder is customer'
+  }),
 
   customFieldsData: field({
     type: [customFieldSchema],

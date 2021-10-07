@@ -50,7 +50,7 @@ const charts = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard queryParams={queryParams} />;
+  return <TaskBoard viewType="board" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {
@@ -65,6 +65,12 @@ const calendar = ({ location }) => {
       MainActionBarComponent={MainActionBar}
     />
   );
+};
+
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="list" queryParams={queryParams} />;
 };
 
 const routes = () => {
@@ -92,6 +98,8 @@ const routes = () => {
         path="/task/chart"
         component={charts}
       />
+
+      <Route key="task/list" exact={true} path="/task/list" component={list} />
     </>
   );
 };
