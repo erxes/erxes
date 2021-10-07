@@ -20,6 +20,7 @@ export interface IOptions {
   title: string;
   queriesName: {
     itemsQuery: string;
+    itemsTotalCountQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
@@ -35,6 +36,7 @@ export interface IOptions {
   };
   queries: {
     itemsQuery: string;
+    itemsTotalCountQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
@@ -155,6 +157,7 @@ export interface IItem {
   customFieldsData?: {
     [key: string]: any;
   };
+  score?: number;
 }
 
 export interface IDraggableLocation {
@@ -323,6 +326,7 @@ export interface IFilterParams extends ISavedConformity {
   assignedToMe?: string;
   startDate?: string;
   endDate?: string;
+  pipelineId?: string;
 }
 
 export interface INonFilterParams {

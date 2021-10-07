@@ -38,7 +38,11 @@ export const checklistSchema = new Schema({
     index: true
   }),
   order: field({ type: Number }),
-  contentTypeId: field({ type: String, label: 'Content type item', index: true }),
+  contentTypeId: field({
+    type: String,
+    label: 'Content type item',
+    index: true
+  }),
   title: field({ type: String, label: 'Title' }),
   createdUserId: field({ type: String, label: 'Created by' }),
   createdDate: field({ type: Date, label: 'Created at' })

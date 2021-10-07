@@ -60,7 +60,9 @@ class EditProfile extends React.Component<Props, State> {
           avatar: this.state.avatar,
           shortName: values.shortName,
           fullName: values.fullName,
+          birthDate: values.birthDate,
           position: values.position,
+          workStartedDate: values.workStartedDate,
           location: values.location,
           description: values.description,
           operatorPhone: values.operatorPhone

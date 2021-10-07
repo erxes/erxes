@@ -71,6 +71,12 @@ const calendar = ({ location }) => {
   );
 };
 
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="list" queryParams={queryParams} />;
+};
+
 const conversion = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -106,6 +112,7 @@ const routes = () => {
         path="/deal/activity"
         component={activity}
       />
+      <Route key="deals/list" exact={true} path="/deal/list" component={list} />
     </React.Fragment>
   );
 };

@@ -65,6 +65,12 @@ const calendar = ({ location }) => {
   );
 };
 
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="list" queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <>
@@ -90,6 +96,8 @@ const routes = () => {
         path="/task/activity"
         component={activity}
       />
+
+      <Route key="task/list" exact={true} path="/task/list" component={list} />
     </>
   );
 };

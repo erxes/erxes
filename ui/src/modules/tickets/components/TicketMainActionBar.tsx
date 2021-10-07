@@ -46,6 +46,10 @@ const TicketMainActionBar = (props: Props) => {
     viewType = 'activity';
   }
 
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
+  }
+
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
       const { currentBoard, currentPipeline } = props;
@@ -58,6 +62,7 @@ const TicketMainActionBar = (props: Props) => {
     };
 
     const boardLink = onFilterClick('board');
+    const listLink = onFilterClick('list');
     const calendarLink = onFilterClick('calendar');
     const activityLink = onFilterClick('activity');
 
@@ -93,6 +98,14 @@ const TicketMainActionBar = (props: Props) => {
                 className={viewType === 'activity' ? 'active' : ''}
               >
                 {__('Activity')}
+              </Link>
+            </li>
+            <li key="list">
+              <Link
+                to={listLink}
+                className={viewType === 'list' ? 'active' : ''}
+              >
+                {__('List')}
               </Link>
             </li>
           </Dropdown.Menu>
