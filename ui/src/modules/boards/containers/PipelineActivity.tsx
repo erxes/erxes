@@ -1,7 +1,11 @@
 import * as compose from 'lodash.flowright';
 
 import React from 'react';
-import { IPipeline, ActivityLogsByActionQueryResponse } from '../types';
+import {
+  IPipeline,
+  ActivityLogsByActionQueryResponse,
+  IOptions
+} from '../types';
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import { graphql } from 'react-apollo';
@@ -12,6 +16,7 @@ import ActivityLogs from '../components/activityLogs/ActivityLogs';
 type Props = {
   pipeline: IPipeline;
   queryParams: any;
+  options: IOptions;
 };
 
 type WithStagesProps = {
@@ -39,7 +44,7 @@ const ActivityLits = (props: WithStagesProps) => {
 const commonOptions = queryParams => {
   const variables = {
     action: queryParams.action,
-    contentType: queryParams.contentType,
+    contentType: queryParams.type,
     ...generatePaginationParams(queryParams)
   };
 
@@ -52,10 +57,10 @@ export default withProps<Props>(
       gql(queries.activityLogsByAction),
       {
         name: 'activityLogsByActionQuery',
-        options: ({ queryParams }) => ({
+        options: ({ queryParams, options }) => ({
           variables: {
             action: queryParams.action,
-            contentType: 'task',
+            contentType: options.type,
             pipelineId: queryParams.pipelineId,
             page: parseInt(queryParams.page || '1', 10),
             perPage: parseInt(queryParams.perPage || '10', 10)

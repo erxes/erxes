@@ -7,6 +7,7 @@ import { IActivityLog } from 'modules/activityLogs/types';
 import ActivityLogsByActionRow from './ActivityLogsByActionRow';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from 'modules/common/types';
+import EmptyState from 'modules/common/components/EmptyState';
 
 type Props = {
   queryParams: any;
@@ -20,17 +21,19 @@ type commonProps = {
   refetchQueries: any;
 } & IRouterProps;
 
-type State = {
-  action?: string;
-};
-
-class ActivityLogs extends React.Component<Props, State> {
+class ActivityLogs extends React.Component<Props> {
   renderObjects() {
     const { activityLogsByAction } = this.props;
     const rows: JSX.Element[] = [];
 
-    if (!activityLogsByAction) {
-      return rows;
+    if (activityLogsByAction.length === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/26.svg"
+          size="large"
+          text="Has not been activity yet"
+        />
+      );
     }
 
     for (const activityLog of activityLogsByAction) {

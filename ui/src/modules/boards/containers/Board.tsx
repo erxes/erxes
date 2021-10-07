@@ -57,8 +57,9 @@ class Board extends React.Component<Props> {
       return (
         <PipelineActivity
           key={pipeline._id}
-          queryParams={queryParams}
+          options={options}
           pipeline={pipeline}
+          queryParams={queryParams}
         />
       );
     }
@@ -78,9 +79,9 @@ class Board extends React.Component<Props> {
       <RootBack style={{ backgroundColor: pipeline.bgColor }}>
         <ScrolledContent>
           <Pipeline
+            key={pipeline._id}
             options={options}
             pipeline={pipeline}
-            key={pipeline._id}
             queryParams={queryParams}
           />
         </ScrolledContent>

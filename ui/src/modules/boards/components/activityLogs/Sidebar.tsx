@@ -18,24 +18,11 @@ type Props = {
 } & IRouterProps;
 
 type State = {
-  contentType?: string;
   page?: string;
   perPage?: string;
 };
 
 class Sidebar extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const qp = props.queryParams || {
-      contentType: ''
-    };
-
-    this.state = {
-      contentType: qp.contentType
-    };
-  }
-
   ListItem(key: string, value: string, label: string) {
     const { history, queryParams } = this.props;
 
@@ -92,7 +79,18 @@ class Sidebar extends React.Component<Props, State> {
     router.setParams(history, { action: action.toString() });
   };
 
+  onChangeAll = e => {
+    const { history } = this.props;
+
+    router.setParams(history, {
+      action: e.target.checked
+        ? SEARCH_ACTIVITY_CHECKBOX.map(a => a.action).toString()
+        : ''
+    });
+  };
+
   render() {
+    const { isChecked } = this.props;
     const activityValues = SEARCH_ACTIVITY_CHECKBOX.map(p => ({
       label: p,
       value: p
@@ -111,19 +109,35 @@ class Sidebar extends React.Component<Props, State> {
             padding: '10px 0'
           }}
         >
-          {SEARCH_ACTIVITY_CHECKBOX.map(({ action, value }, index) => (
-            <li key={index}>
+          <li key="0">
+            <label>
               <RowFill>
                 <FormControl
                   componentClass="checkbox"
-                  name="activityLogViewGeneral"
                   options={activityValues}
-                  value={action}
-                  onChange={this.onChange}
-                  checked={actionQP.includes(action)}
+                  onChange={this.onChangeAll}
+                  checked={actionQP.split(',').length === 5}
                 />
-                <FieldStyle>{value}</FieldStyle>
+                <FieldStyle>All</FieldStyle>
               </RowFill>
+            </label>
+          </li>
+          {SEARCH_ACTIVITY_CHECKBOX.map(({ action, value }, index) => (
+            <li key={index}>
+              <label>
+                <RowFill>
+                  <FormControl
+                    componentClass="checkbox"
+                    name="activityLogViewGeneral"
+                    options={activityValues}
+                    value={action}
+                    onChange={this.onChange}
+                    checked={actionQP.includes(action)}
+                    defaultChecked={isChecked}
+                  />
+                  <FieldStyle>{value}</FieldStyle>
+                </RowFill>
+              </label>
             </li>
           ))}
         </SidebarList>

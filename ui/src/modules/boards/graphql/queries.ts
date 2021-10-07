@@ -265,6 +265,7 @@ const activityLogsByAction = `
         action
         content
         createdAt
+        contentType
         contentTypeDetail
       }
 

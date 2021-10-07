@@ -100,7 +100,7 @@ const DealMainActionBar = (props: Props) => {
                 to={conversionlink}
                 className={viewType === 'conversion' ? 'active' : ''}
               >
-                {__('Calendar')}
+                {__('Conversion')}
               </Link>
             </li>
             <li key="activity">
@@ -109,7 +109,6 @@ const DealMainActionBar = (props: Props) => {
                 className={viewType === 'activity' ? 'active' : ''}
               >
                 {__('Activity')}
-                {__('Conversion')}
               </Link>
             </li>
             <li key="list">

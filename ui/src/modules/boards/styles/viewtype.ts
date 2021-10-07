@@ -41,17 +41,24 @@ export const ActivityList = styled.div`
 export const NameCardStyle = styled.div`
   margin-left: ${dimensions.coreSpacing}px;
   display: flex;
-  color: ${linkText};
 `;
 
 export const ActionText = styled.div`
   align-self: center;
   margin-left: ${dimensions.coreSpacing}px;
+  color: ${colors.textSecondary};
 `;
 
 export const DescText = styled.div`
   align-self: center;
   flex: 1 1 0%;
+  margin-left: ${dimensions.coreSpacing}px;
+  color: ${colors.textSecondary};
+  font-weight: 400;
+`;
+
+export const ObjectText = styled.div`
+  align-self: center;
   margin-left: ${dimensions.coreSpacing}px;
   color: ${linkText};
 `;
