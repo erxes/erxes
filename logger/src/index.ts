@@ -36,7 +36,28 @@ app.get(
       contentType?: string;
       contentId?: any;
       action?: string;
+      perPage?: number;
+      page?: number;
     } = JSON.parse(req.body.params || '{}');
+
+    if (filter.page && filter.perPage) {
+      const perPage = filter.perPage || 20;
+      const page = filter.page || 1;
+
+      delete filter.perPage;
+      delete filter.page;
+
+      const activityLogs = await ActivityLogs.find(filter)
+        .sort({
+          createdAt: -1
+        })
+        .skip(perPage * (page - 1))
+        .limit(perPage);
+
+      const totalCount = await ActivityLogs.countDocuments(filter);
+
+      return res.json({ activityLogs, totalCount });
+    }
 
     const activityLogs = await ActivityLogs.find(filter).sort({
       createdAt: -1
@@ -55,7 +76,7 @@ app.get(
         createdAt?: any;
         createdBy?: string;
         action?: string;
-        type?: string;
+        type?: string | { $in: string[] };
         description?: object;
       }
 

@@ -21,22 +21,16 @@ type WithStagesProps = {
 const ActivityLits = (props: WithStagesProps) => {
   const { queryParams, activityLogsByActionQuery } = props;
 
-  const errorMessage = activityLogsByActionQuery.error
-    ? activityLogsByActionQuery.error
-    : '';
-
-  const isLoading = activityLogsByActionQuery.loading;
+  const { error, activityLogsByAction, loading } = activityLogsByActionQuery;
 
   const updatedProps = {
     ...props,
-    isLoading: activityLogsByActionQuery.loading,
+    isLoading: loading,
     refetchQueries: commonOptions(queryParams),
     activityLogsByAction:
-      isLoading || errorMessage
-        ? []
-        : activityLogsByActionQuery.activityLogsByAction,
-    count: isLoading || errorMessage ? 0 : activityLogsByActionQuery.totalCount,
-    errorMessage
+      loading || error ? [] : activityLogsByAction.activityLogs,
+    count: loading || error ? 0 : activityLogsByAction.totalCount,
+    errorMessage: error || ''
   };
 
   return <ActivityLogs {...updatedProps} />;
@@ -62,7 +56,9 @@ export default withProps<Props>(
           variables: {
             action: queryParams.action,
             contentType: 'task',
-            pipelineId: queryParams.pipelineId
+            pipelineId: queryParams.pipelineId,
+            page: parseInt(queryParams.page || '1', 10),
+            perPage: parseInt(queryParams.perPage || '10', 10)
           }
         })
       }

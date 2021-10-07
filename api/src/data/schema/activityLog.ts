@@ -24,10 +24,15 @@ export const types = `
     createdUser: User
     contentTypeDetail: JSON
   }
+
+  type ActivityLogByActionResponse {
+    activityLogs: [ActivityLogByAction]
+    totalCount: Int
+  }
 `;
 
 export const queries = `
   activityLogs(contentType: String!, contentId: String, activityType: String, limit: Int): [ActivityLog]
 
-  activityLogsByAction(contentType: String, action: String, pipelineId: String): [ActivityLogByAction]
+  activityLogsByAction(contentType: String, action: String, pipelineId: String, perPage: Int, page: Int): ActivityLogByActionResponse
 `;

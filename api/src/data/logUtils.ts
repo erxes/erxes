@@ -106,10 +106,12 @@ export interface ILogQueryParams {
   start?: string;
   end?: string;
   userId?: string;
-  action?: string;
+  action?: string | { $in: string[] };
   page?: number;
   perPage?: number;
-  type?: string;
+  type?: string | { $in: string[] };
+  objectId?: string | { $in: string[] };
+  $or: any[];
 }
 
 export interface IActivityLogQueryParams {

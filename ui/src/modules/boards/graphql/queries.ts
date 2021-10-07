@@ -240,27 +240,35 @@ const activityLogsByAction = `
     $contentType: String,
     $action: String,
     $pipelineId: String
+    $perPage: Int,
+    $page: Int
   ) {
     activityLogsByAction(
       contentType: $contentType,
       action: $action,
       pipelineId: $pipelineId,
+      perPage: $perPage,
+      page: $page,
     ) {
-      _id
-      createdUser {
+      activityLogs {
         _id
-        username
-        email
-
-        details {
-          ${detailFields}
+        createdUser {
+          _id
+          username
+          email
+          
+          details {
+            ${detailFields}
+          }
         }
+
+        action
+        content
+        createdAt
+        contentTypeDetail
       }
 
-      action
-      content
-      createdAt
-      contentTypeDetail
+      totalCount
     }
   }
 `;

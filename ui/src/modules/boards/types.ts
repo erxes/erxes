@@ -369,6 +369,6 @@ export type StagesSortItemsMutationResponse = ({
 }) => Promise<any>;
 
 export type ActivityLogsByActionQueryResponse = {
-  activityLogsByAction: IActivityLog[];
+  activityLogsByAction: { activityLogs: IActivityLog[]; totalCount: number };
   totalCount: number;
 } & QueryResponse;
