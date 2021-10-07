@@ -19,6 +19,7 @@ function AppContainer(props: ChildProps<{}, QueryResponse>) {
   }
 
   const booking = data.bookingDetail;
+  connection.data.booking = booking;
 
   return (
     <AppProvider>

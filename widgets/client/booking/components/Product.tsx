@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { IProduct } from '../types';
-import Slider from "react-slick";
+import { IBooking, IProduct } from '../types';
+import Slider from 'react-slick';
 
 type Props = {
   product?: IProduct;
+  booking: IBooking;
 };
 
 function Product({ product }: Props) {
@@ -45,7 +46,7 @@ function Product({ product }: Props) {
             <img src={baseUrl + "/abstract04.jpg"} />
           </div>
         </Slider> */}
-     </div>
+    </div>
   );
 }
 
