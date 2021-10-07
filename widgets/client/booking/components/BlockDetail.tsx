@@ -13,13 +13,16 @@ function BlockDetail({ goToBookings, block }: Props) {
     return null;
   }
   return (
-      <div className="main-container">
-        <div className="main-header">
-          <div className="flex-center b mb-10">{block.name}</div>
-          <div className="flex-center mb-10">{block.description}</div>
-          <div className="main-body">
-            <img src={readFile(block.attachment.url)} alt="hello" />
-          </div>
+    <div className="main-container">
+      <div className="main-header">
+        <div className="flex-center b mb-10">{block.name}</div>
+        <div className="flex-center mb-10">{block.description}</div>
+        <div className="main-body">
+          <img
+            src={readFile(block.attachment && block.attachment.url)}
+            alt="hello"
+          />
+        </div>
       </div>
     </div>
   );

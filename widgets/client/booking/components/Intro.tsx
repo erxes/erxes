@@ -18,11 +18,9 @@ function Intro({ booking, goToBooking }: Props) {
         {description}
       </div>
       <div className="main-body">
-        <img src={readFile(attachment.url)} alt="hello" />
+        <img src={readFile(attachment && attachment.url)} alt="hello" />
       </div>
-      <button className="btn btn-next"
-        onClick={() => goToBooking(booking)}
-      >
+      <button className="btn btn-next" onClick={() => goToBooking(booking)}>
         Next
       </button>
     </div>

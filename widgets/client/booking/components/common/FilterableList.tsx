@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactPopover from 'react-popover'
 
 type Props = {
   items?: any[];
@@ -18,7 +17,7 @@ type Props = {
 };
 
 type State = {
-  isOpen :boolean;
+  isOpen: boolean;
   key: string;
   items: any[];
   parentIds: { [key: string]: boolean };
@@ -87,16 +86,18 @@ class FilterableList extends React.Component<Props, State> {
     this.setState({ parentIds });
   };
 
-  renderIcons(item: any, hasChildren: boolean, isOpen: boolean, stock:string) {
-    return (
-          <div className="toggle-nav"
-            onClick={this.onToggle.bind(this, item._id, isOpen)}
-          >
-            <div className={`arrow ${isOpen ? 'arrow-down' : 'arrow-right'}-${stock}`} />
-          </div>
-    );
+  renderIcons(item: any, hasChildren: boolean, isOpen: boolean, stock: string) {
+    return hasChildren ? (
+      <div
+        className="toggle-nav"
+        onClick={this.onToggle.bind(this, item._id, isOpen)}
+      >
+        <div
+          className={`arrow ${isOpen ? 'arrow-down' : 'arrow-right'}-${stock}`}
+        />
+      </div>
+    ) : null;
   }
-
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
     const { showCheckmark = true, changeRoute } = this.props;
@@ -107,21 +108,24 @@ class FilterableList extends React.Component<Props, State> {
     }
     const onClick = () => this.toggleItem(item._id);
     const isOpen = this.state.parentIds[item._id] || !!key;
-  
-    let stock = stockCnt === 0 ? "soldout": "available";
-    if(stockCnt > 0 && stockCnt <10) stock = "few"
+
+    let stock = stockCnt === 0 ? 'soldout' : 'available';
+    if (stockCnt > 0 && stockCnt < 10) {
+      stock = 'few';
+    }
     return (
-        <li key={item._id} 
-          className={`list flex-sb s-${stock}`}
-          onClick={onClick}
-        >
-          <div className="flex-center">
+      <li
+        key={item._id}
+        className={`list flex-sb s-${stock}`}
+        onClick={onClick}
+      >
+        <div className="flex-center">
           {this.renderIcons(item, hasChildren, isOpen, stock)}
           <div className="mr-30" onClick={() => changeRoute(item)}>
             {item.name || '[undefined]'}
           </div>
-          </div>
-          <div className={`circle center ${stock}`}>{stockCnt}</div>
+        </div>
+        <div className={`circle center ${stock}`}>{stockCnt}</div>
       </li>
     );
   }
@@ -129,12 +133,12 @@ class FilterableList extends React.Component<Props, State> {
   renderTree(parent: any, subFields?: any) {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
-    const num = Math.floor(Math.random() * 40)
+    const num = Math.floor(Math.random() * 40);
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
       return (
         <ul key={`parent-${parent._id}`}>
-          {this.renderItem(parent, true, num )}
+          {this.renderItem(parent, true, num)}
           <li className="child-list">
             {isOpen &&
               childrens.map((childparent: any) => {
@@ -163,20 +167,14 @@ class FilterableList extends React.Component<Props, State> {
     const parents = items.filter(item => item.parentId === parentId);
     const subFields = items.filter(item => item.parentId);
 
-    return parents.map(parent =>this.renderTree(parent, subFields)
-      );
+    return parents.map(parent => this.renderTree(parent, subFields));
   }
   togglePopover = () => {
     this.setState({ isOpen: !this.state.isOpen });
   };
 
   render() {
-    return (
-      <div>
-      {this.renderItems()}
-    </div>
-      
-    );
+    return <div>{this.renderItems()}</div>;
   }
 }
 

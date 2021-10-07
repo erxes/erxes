@@ -24,7 +24,10 @@ function Booking({ goToIntro, booking }: Props) {
         {description}
       </div>
       <div className="main-body">
-        <img src={readFile(attachment.url)} alt={attachment.name} />
+        <img
+          src={readFile(attachment && attachment.url)}
+          alt={attachment.name}
+        />
       </div>
       <div className="w-100 flex-center">
         {childCategories.map((block, index) => {
@@ -32,22 +35,18 @@ function Booking({ goToIntro, booking }: Props) {
         })}
       </div>
 
-
-{/* fooooooterrr  */}
+      {/* fooooooterrr  */}
       <div className="flex-sb w-100">
-      <button className="btn btn-back" onClick={() => goToIntro()}>
-          <i className="icon-arrow-left"></i>
+        <button className="btn btn-back" onClick={() => goToIntro()}>
+          <i className="icon-arrow-left" />
           Back
         </button>
         <button className="btn btn-next" onClick={() => goToIntro()}>
-           Next
-          <i className="icon-arrow-right"></i>
+          Next
+          <i className="icon-arrow-right" />
         </button>
       </div>
     </div>
-
-
-
   );
 }
 
