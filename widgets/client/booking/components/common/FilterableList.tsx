@@ -133,7 +133,9 @@ class FilterableList extends React.Component<Props, State> {
   renderTree(parent: any, subFields?: any) {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
-    const num = Math.floor(Math.random() * 40);
+
+    const num = childrens ? childrens.length : 0;
+
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
       return (

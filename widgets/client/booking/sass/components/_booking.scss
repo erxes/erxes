@@ -1,4 +1,4 @@
-.layout{
+.layout {
   display: block;
   min-height: 100%;
 }
@@ -43,7 +43,8 @@
     font-size: 12px;
   }
 
-  &:hover, &:active {
+  &:hover,
+  &:active {
     cursor: pointer;
     border-color: $primary;
     box-shadow: 0px 4px 8px rgba(136, 111, 221, 0.24);
@@ -161,8 +162,8 @@
   padding: $kb-spacing;
 }
 
-.btn{
-  background-color: $primary; 
+.btn {
+  background-color: $primary;
   border: none;
   width: 85px;
   height: 36px;
@@ -173,36 +174,51 @@
   text-decoration: none;
   display: inline-block;
   border-radius: 8px;
-box-shadow: 0px 4px 8px rgba(79, 51, 175, 0.24);
+  box-shadow: 0px 4px 8px rgba(79, 51, 175, 0.24);
+  &:hover {
+    cursor: pointer;
+  }
 }
 
-hr { background-color: rgba(0, 0, 0, 0.08); height: 1px; border: 0; }
-.arrow{
-  width: 0; 
-  height: 0; 
+hr {
+  background-color: rgba(0, 0, 0, 0.08);
+  height: 1px;
+  border: 0;
 }
-.arrow-down-available{ 
-  @include arrow-down($primary)
+.arrow {
+  width: 0;
+  height: 0;
 }
-.arrow-down-few{ 
-  @include arrow-down($secondary)
+.arrow-down-available {
+  @include arrow-down($primary);
 }
-.arrow-down-soldout{ 
-  @include arrow-down($mid-grey)
+.arrow-down-few {
+  @include arrow-down($secondary);
 }
-.arrow-right-available{ 
-  @include arrow-right($primary)
+.arrow-down-soldout {
+  @include arrow-down($mid-grey);
 }
-.arrow-right-few{ 
-  @include arrow-right($secondary)
+.arrow-right-available {
+  @include arrow-right($primary);
 }
-.arrow-right-soldout{ 
-  @include arrow-right($mid-grey)
+.arrow-right-few {
+  @include arrow-right($secondary);
+}
+.arrow-right-soldout {
+  @include arrow-right($mid-grey);
 }
 
-.icon-leftarrow:before { content: '\e84a'; }
+.icon-leftarrow:before {
+  content: '\e84a';
+}
 
-.icon-arrow-left:before { content: '\e9d9'; }
-.icon-arrow-right:before { content: '\e9dc'; }
+.icon-arrow-left:before {
+  content: '\e9d9';
+}
+.icon-arrow-right:before {
+  content: '\e9dc';
+}
 
-.icon-menu-2:before { content: '\e852'; }
+.icon-menu-2:before {
+  content: '\e852';
+}
