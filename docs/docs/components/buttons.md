@@ -9,6 +9,8 @@ import { Types, Sizes, Activity, Uppercase, Block } from "./buttons.js"
 
 ## Examples
 
+### Types
+
 <p>Use any of the available button style types to quickly create a styled button. Just modify the <code>btnStyle</code> prop.</p>
 <Types></Types>
 
