@@ -18,6 +18,7 @@ import { IUserDocument } from '../../db/models/definitions/users';
 import { can } from '../permissions/utils';
 import { checkLogin } from '../permissions/wrappers';
 import utils from '../utils';
+import * as _ from 'underscore';
 
 export const notifiedUserIds = async (item: any) => {
   let userIds: string[] = [];
@@ -248,8 +249,8 @@ interface ILabelParams {
 export const copyPipelineLabels = async (params: ILabelParams) => {
   const { item, doc, user } = params;
 
-  const oldStage = await Stages.findOne({ _id: item.stageId });
-  const newStage = await Stages.findOne({ _id: doc.stageId });
+  const oldStage = await Stages.findOne({ _id: item.stageId }).lean();
+  const newStage = await Stages.findOne({ _id: doc.stageId }).lean();
 
   if (!(oldStage && newStage)) {
     throw new Error('Stage not found');
@@ -259,30 +260,52 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     return;
   }
 
-  const oldLabels = await PipelineLabels.find({ _id: { $in: item.labelIds } });
+  const oldLabels = await PipelineLabels.find({
+    _id: { $in: item.labelIds }
+  }).lean();
   const updatedLabelIds: string[] = [];
 
+  const existingLabels = await PipelineLabels.find({
+    name: { $in: oldLabels.map(o => o.name) },
+    colorCode: { $in: oldLabels.map(o => o.colorCode) },
+    pipelineId: newStage.pipelineId
+  }).lean();
+
+  // index using only name and colorCode, since all pipelineIds are same
+  const existingLabelsByUnique = _.indexBy(
+    existingLabels,
+    ({ name, colorCode }) => JSON.stringify({ name, colorCode })
+  );
+
+  // Collect labels that don't exist on the new stage's pipeline here
+  const notExistingLabels: any[] = [];
+
   for (const label of oldLabels) {
-    const filter = {
-      name: label.name,
-      colorCode: label.colorCode,
-      pipelineId: newStage.pipelineId
-    };
-
-    const exists = await PipelineLabels.findOne(filter);
-
+    const exists =
+      existingLabelsByUnique[
+        JSON.stringify({ name: label.name, colorCode: label.colorCode })
+      ];
     if (!exists) {
-      const newLabel = await PipelineLabels.createPipelineLabel({
-        ...filter,
+      notExistingLabels.push({
+        name: label.name,
+        colorCode: label.colorCode,
+        pipelineId: newStage.pipelineId,
         createdAt: new Date(),
         createdBy: user._id
       });
-
-      updatedLabelIds.push(newLabel._id);
     } else {
       updatedLabelIds.push(exists._id);
     }
   } // end label loop
+
+  // Insert labels that don't already exist on the new stage's pipeline
+  const newLabels = await PipelineLabels.insertMany(notExistingLabels, {
+    ordered: false
+  });
+
+  for (const newLabel of newLabels) {
+    updatedLabelIds.push(newLabel._id);
+  }
 
   await PipelineLabels.labelsLabel(
     newStage.pipelineId,
