@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { FilterableList } from '.';
-import { ICategoryTree } from '../../types';
+import { IBooking, ICategoryTree } from '../../types';
 import * as ReactPopover from 'react-popover';
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
   changeRoute: (item: any) => void;
+  booking?: IBooking;
 };
 
 type State = {
@@ -28,10 +29,15 @@ class Navigation extends React.Component<Props, State> {
   };
 
   render() {
-    const { items, parentId, changeRoute } = this.props;
+    const { items, parentId, changeRoute, booking } = this.props;
+
+    if (!booking) {
+      return null;
+    }
+
+    const styles = booking.styles;
     const { isOpen } = this.state;
 
-    const widgetColor = '#4bbf6b';
     return (
       <ReactPopover
         isOpen={isOpen}
@@ -40,7 +46,7 @@ class Navigation extends React.Component<Props, State> {
         tipSize={0.01}
         className={'top-0'}
         body={
-          <div className={`booking-navigation bn-${widgetColor}`}>
+          <div className={`booking-navigation bn-${styles.widgetColor}`}>
             <div className="flex-sb p-5">
               <div className="b"> Navigation </div>
               <div
@@ -59,6 +65,7 @@ class Navigation extends React.Component<Props, State> {
               items={JSON.parse(JSON.stringify(items))}
               parentId={parentId}
               changeRoute={changeRoute}
+              styles={styles}
             />
           </div>
         }

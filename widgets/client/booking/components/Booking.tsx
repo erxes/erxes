@@ -14,10 +14,16 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const { title, description, childCategories, mainProductCategory } = booking;
+  const {
+    title,
+    description,
+    childCategories,
+    mainProductCategory,
+    styles
+  } = booking;
   const { attachment } = mainProductCategory;
-  const widgetColor = '#4bbf6b'
-
+  const { widgetColor } = styles;
+  // const widgetColor = '#4bbf6b';
 
   return (
     <div className="main-container">
