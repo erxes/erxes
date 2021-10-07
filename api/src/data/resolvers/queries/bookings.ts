@@ -3,6 +3,10 @@ import { paginate } from '../../utils';
 import { IContext } from '../../types';
 import { TAG_TYPES } from '../../../db/models/definitions/constants';
 import { getDocumentList } from '../mutations/cacheUtils';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 
 /**
  * Common helper for bookings & bookingsTotalCount
@@ -164,5 +168,9 @@ const bookingQueries = {
     return counts;
   }
 };
+
+moduleRequireLogin(bookingQueries);
+
+checkPermission(bookingQueries, 'bookings', 'showBookings', []);
 
 export default bookingQueries;

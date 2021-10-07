@@ -1,5 +1,6 @@
 import { Bookings } from '../../../db/models';
 import { IBooking } from '../../../db/models/definitions/bookings';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 const bookingMutations = {
@@ -24,5 +25,7 @@ const bookingMutations = {
     return Bookings.removeDoc(_id);
   }
 };
+
+moduleCheckPermission(bookingMutations, 'manageBookings');
 
 export default bookingMutations;
