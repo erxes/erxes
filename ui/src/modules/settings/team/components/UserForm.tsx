@@ -158,7 +158,9 @@ class UserForm extends React.Component<Props, State> {
         avatar: this.state.avatar,
         shortName: finalValues.shortName,
         fullName: finalValues.fullName,
+        birthDate: finalValues.birthDate,
         position: finalValues.position,
+        workStartedDate: finalValues.workStartedDate,
         location: finalValues.location,
         description: finalValues.description,
         operatorPhone: finalValues.operatorPhone

@@ -10,6 +10,7 @@ const options = {
   title: 'Ticket',
   queriesName: {
     itemsQuery: 'tickets',
+    itemsTotalCountQuery: 'ticketsTotalCount',
     detailQuery: 'ticketDetail',
     archivedItemsQuery: 'archivedTickets',
     archivedItemsCountQuery: 'archivedTicketsCount'
@@ -25,6 +26,7 @@ const options = {
   },
   queries: {
     itemsQuery: queries.tickets,
+    itemsTotalCountQuery: queries.ticketsTotalCount,
     detailQuery: queries.ticketDetail,
     archivedItemsQuery: queries.archivedTickets,
     archivedItemsCountQuery: queries.archivedTicketsCount

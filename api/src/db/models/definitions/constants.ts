@@ -216,6 +216,7 @@ export const ACTIVITY_ACTIONS = {
   MOVED: 'moved',
   CONVERT: 'convert',
   ASSIGNEE: 'assignee',
+  TAGGED: 'tagged',
 
   ALL: [
     'create',
@@ -225,7 +226,8 @@ export const ACTIVITY_ACTIONS = {
     'send',
     'moved',
     'convert',
-    'assignee'
+    'assignee',
+    'tagged'
   ]
 };
 
@@ -545,7 +547,8 @@ export const NOTIFICATION_TYPES = {
     'taskDueDate',
     'taskDelete',
     'customerMention',
-    'companyMention'
+    'companyMention',
+    'plugin'
   ]
 };
 
@@ -596,6 +599,18 @@ export const COMPANY_SELECT_OPTIONS = {
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
     { label: 'Unknown', value: '' }
+  ]
+};
+
+export const CONVERSATION_SELECT_OPTIONS = {
+  OPERATOR_STATUS: [
+    { label: 'Operator', value: 'operator' },
+    { label: 'Bot', value: 'bot' }
+  ],
+  STATUS: [
+    { label: 'New', value: 'new' },
+    { label: 'Open', value: 'open' },
+    { label: 'Resolved', value: 'closed' }
   ]
 };
 

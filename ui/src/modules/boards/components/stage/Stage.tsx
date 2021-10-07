@@ -19,11 +19,11 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
+import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
 
 type Props = {
   loadingItems: () => boolean;
@@ -44,6 +44,7 @@ type Props = {
 type State = {
   showSortOptions: boolean;
 };
+
 export default class Stage extends React.Component<Props, State> {
   private bodyRef;
   private overlayTrigger;
@@ -103,78 +104,78 @@ export default class Stage extends React.Component<Props, State> {
     return false;
   }
 
-  onScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const bottom =
-      Math.round(target.scrollHeight - target.scrollTop) <= target.clientHeight;
-
-    if (bottom) {
-      this.props.loadMore();
-    }
-  };
-
-  renderAddItemTrigger() {
-    const { options, stage, onAddItem } = this.props;
-    const addText = options.texts.addText;
-
-    const trigger = (
-      <StageFooter>
-        <AddNew>
-          <Icon icon="plus-1" />
-          {__(addText)}
-        </AddNew>
-      </StageFooter>
-    );
-
-    const formProps = {
-      options,
-      showSelect: false,
-      callback: (item: IItem) => onAddItem(stage._id, item),
-      stageId: stage._id,
-      aboveItemId: ''
-    };
-
-    const content = props => <AddForm {...props} {...formProps} />;
-
-    return <ModalTrigger title={addText} trigger={trigger} content={content} />;
-  }
-
-  renderIndicator() {
-    const index = this.props.index || 0;
-    const length = this.props.length || 0;
-
-    const data: any = [];
-
-    for (let i = 0; i < length; i++) {
-      data.push(<IndicatorItem isPass={index >= i} key={i} />);
-    }
-
-    return data;
-  }
-
   onClosePopover = () => {
     this.overlayTrigger.hide();
   };
 
-  renderItemList() {
-    const { stage, items, loadingItems, options, onRemoveItem } = this.props;
+  toggleSortOptions = () => {
+    const { showSortOptions } = this.state;
 
-    if (loadingItems()) {
-      return (
-        <LoadingContent>
-          <img alt="Loading" src="/images/loading-content.gif" />
-        </LoadingContent>
-      );
-    }
+    this.setState({ showSortOptions: !showSortOptions });
+  };
+
+  renderPopover() {
+    const { stage } = this.props;
+    const { showSortOptions } = this.state;
+
+    const archiveList = () => {
+      this.props.archiveList();
+      this.onClosePopover();
+    };
+
+    const archiveItems = () => {
+      this.props.archiveItems();
+      this.onClosePopover();
+    };
+
+    const removeStage = () => {
+      this.props.removeStage(stage._id);
+      this.onClosePopover();
+    };
 
     return (
-      <ItemList
-        listId={stage._id}
-        stageId={stage._id}
-        items={items}
-        options={options}
-        onRemoveItem={onRemoveItem}
-      />
+      <Popover id="stage-popover">
+        <ActionList>
+          {showSortOptions ? (
+            this.renderSortOptions()
+          ) : (
+            <>
+              <li onClick={archiveItems} key="archive-items">
+                {__('Archive All Cards in This List')}
+              </li>
+              <li onClick={archiveList} key="archive-list">
+                {__('Archive This List')}
+              </li>
+              <li onClick={removeStage} key="remove-stage">
+                {__('Remove stage')}
+              </li>
+
+              <Dropdown.Divider />
+
+              <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
+            </>
+          )}
+        </ActionList>
+      </Popover>
+    );
+  }
+
+  renderCtrl() {
+    return (
+      <OverlayTrigger
+        ref={overlayTrigger => {
+          this.overlayTrigger = overlayTrigger;
+        }}
+        trigger="click"
+        placement="bottom-start"
+        rootClose={true}
+        container={this}
+        overlay={this.renderPopover()}
+      >
+        <ActionButton>
+          <Icon icon="ellipsis-h" />
+        </ActionButton>
+      </OverlayTrigger>
     );
   }
 
@@ -259,74 +260,74 @@ export default class Stage extends React.Component<Props, State> {
     );
   }
 
-  toggleSortOptions = () => {
-    const { showSortOptions } = this.state;
+  onScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const bottom =
+      Math.round(target.scrollHeight - target.scrollTop) <= target.clientHeight;
 
-    this.setState({ showSortOptions: !showSortOptions });
+    if (bottom) {
+      this.props.loadMore();
+    }
   };
 
-  renderPopover() {
-    const { stage } = this.props;
-    const { showSortOptions } = this.state;
+  renderAddItemTrigger() {
+    const { options, stage, onAddItem } = this.props;
+    const addText = options.texts.addText;
 
-    const archiveList = () => {
-      this.props.archiveList();
-      this.onClosePopover();
-    };
-
-    const archiveItems = () => {
-      this.props.archiveItems();
-      this.onClosePopover();
-    };
-
-    const removeStage = () => {
-      this.props.removeStage(stage._id);
-      this.onClosePopover();
-    };
-
-    return (
-      <Popover id="stage-popover">
-        <ActionList>
-          {showSortOptions ? (
-            this.renderSortOptions()
-          ) : (
-            <>
-              <li onClick={archiveItems} key="archive-items">
-                {__('Archive All Cards in This List')}
-              </li>
-              <li onClick={archiveList} key="archive-list">
-                {__('Archive This List')}
-              </li>
-              <li onClick={removeStage} key="remove-stage">
-                {__('Remove stage')}
-              </li>
-
-              <Dropdown.Divider />
-
-              <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
-            </>
-          )}
-        </ActionList>
-      </Popover>
+    const trigger = (
+      <StageFooter>
+        <AddNew>
+          <Icon icon="plus-1" />
+          {__(addText)}
+        </AddNew>
+      </StageFooter>
     );
+
+    const formProps = {
+      options,
+      showSelect: false,
+      callback: (item: IItem) => onAddItem(stage._id, item),
+      stageId: stage._id,
+      aboveItemId: ''
+    };
+
+    const content = props => <AddForm {...props} {...formProps} />;
+
+    return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
 
-  renderCtrl() {
+  renderIndicator() {
+    const index = this.props.index || 0;
+    const length = this.props.length || 0;
+
+    const data: any = [];
+
+    for (let i = 0; i < length; i++) {
+      data.push(<IndicatorItem isPass={index >= i} key={i} />);
+    }
+
+    return data;
+  }
+
+  renderItemList() {
+    const { stage, items, loadingItems, options, onRemoveItem } = this.props;
+
+    if (loadingItems()) {
+      return (
+        <LoadingContent>
+          <img alt="Loading" src="/images/loading-content.gif" />
+        </LoadingContent>
+      );
+    }
+
     return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom-start"
-        rootClose={true}
-        container={this}
-        overlay={this.renderPopover()}
-      >
-        <ActionButton>
-          <Icon icon="ellipsis-h" />
-        </ActionButton>
-      </OverlayTrigger>
+      <ItemList
+        listId={stage._id}
+        stageId={stage._id}
+        items={items}
+        options={options}
+        onRemoveItem={onRemoveItem}
+      />
     );
   }
 

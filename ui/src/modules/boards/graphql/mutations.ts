@@ -62,6 +62,7 @@ export const commonListFields = `
   modifiedAt
   priority
   hasNotified
+  score
 `;
 
 export const commonFields = `
@@ -122,6 +123,7 @@ export const commonFields = `
   }
   order
   customFieldsData
+  score
 `;
 
 const stagesUpdateOrder = `

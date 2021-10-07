@@ -25,3 +25,8 @@ export const pipelineLabelSchema = new Schema({
     label: 'Created at'
   })
 });
+
+pipelineLabelSchema.index(
+  { pipelineId: 1, name: 1, colorCode: 1 },
+  { unique: true }
+);

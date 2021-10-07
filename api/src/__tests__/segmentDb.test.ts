@@ -46,7 +46,17 @@ describe('Segments mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _segment = await segmentFactory({});
+
+    const subSegment = await segmentFactory({});
+
+    _segment = await segmentFactory({
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment._id
+        }
+      ]
+    });
   });
 
   afterEach(async () => {
@@ -71,7 +81,7 @@ describe('Segments mutations', () => {
     // valid
     const data = generateData();
 
-    const segmentObj = await Segments.createSegment(data);
+    const segmentObj = await Segments.createSegment(data, []);
 
     checkValues(segmentObj, data);
   });
@@ -79,7 +89,7 @@ describe('Segments mutations', () => {
   test('Update segment valid', async () => {
     const data = generateData();
 
-    const segmentObj = await Segments.updateSegment(_segment._id, data);
+    const segmentObj = await Segments.updateSegment(_segment._id, data, []);
 
     checkValues(segmentObj, data);
   });

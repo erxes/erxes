@@ -40,12 +40,16 @@ const DealMainActionBar = (props: Props) => {
     viewType = 'calendar';
   }
 
-  if (window.location.href.includes('conversion')) {
-    viewType = 'conversion';
-  }
-
   if (window.location.href.includes('activity')) {
     viewType = 'activity';
+  }
+
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
+  }
+
+  if (window.location.href.includes('conversion')) {
+    viewType = 'conversion';
   }
 
   const viewChooser = () => {
@@ -63,6 +67,7 @@ const DealMainActionBar = (props: Props) => {
     const calendarLink = onFilterClick('calendar');
     const conversionlink = onFilterClick('conversion');
     const activityLink = onFilterClick('activity');
+    const listLink = onFilterClick('list');
 
     return (
       <ButtonGroup>
@@ -104,6 +109,15 @@ const DealMainActionBar = (props: Props) => {
                 className={viewType === 'activity' ? 'active' : ''}
               >
                 {__('Activity')}
+                {__('Conversion')}
+              </Link>
+            </li>
+            <li key="list">
+              <Link
+                to={listLink}
+                className={viewType === 'list' ? 'active' : ''}
+              >
+                {__('List')}
               </Link>
             </li>
           </Dropdown.Menu>

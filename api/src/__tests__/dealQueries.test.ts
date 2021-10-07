@@ -469,6 +469,26 @@ describe('dealQueries', () => {
     expect(response.length).toBe(3);
   });
 
+  test('Deals filtered by pipeline', async () => {
+    const board = await boardFactory();
+    const pipeline = await pipelineFactory({ boardId: board._id });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+
+    const user = await userFactory();
+
+    const dealParams = { userId: user._id, stageId: stage._id };
+
+    await dealFactory(dealParams);
+    await dealFactory(dealParams);
+    await dealFactory({});
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', {
+      pipelineId: pipeline._id
+    });
+
+    expect(response.length).toBe(2);
+  });
+
   test('Deals', async () => {
     const board = await boardFactory();
     const pipeline = await pipelineFactory({ boardId: board._id });

@@ -8,6 +8,7 @@ import { registerOnboardHistory } from '../../utils';
 
 interface ISegmentsEdit extends ISegment {
   _id: string;
+  conditionSegments: ISegment[];
 }
 
 const segmentMutations = {
@@ -16,7 +17,13 @@ const segmentMutations = {
    */
   async segmentsAdd(_root, doc: ISegment, { user, docModifier }: IContext) {
     const extendedDoc = docModifier(doc);
-    const segment = await Segments.createSegment(extendedDoc);
+
+    const conditionSegments = extendedDoc.conditionSegments;
+
+    const segment = await Segments.createSegment(
+      extendedDoc,
+      conditionSegments
+    );
 
     if (doc.subOf) {
       registerOnboardHistory({ type: `subSegmentCreate`, user });
@@ -43,7 +50,9 @@ const segmentMutations = {
     { user }: IContext
   ) {
     const segment = await Segments.getSegment(_id);
-    const updated = await Segments.updateSegment(_id, doc);
+    const conditionSegments = doc.conditionSegments;
+
+    const updated = await Segments.updateSegment(_id, doc, conditionSegments);
 
     await putUpdateLog(
       {

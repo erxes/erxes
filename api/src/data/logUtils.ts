@@ -4,7 +4,6 @@ import {
   putUpdateLog as putUpdateLogC
 } from 'erxes-api-utils';
 import * as _ from 'underscore';
-import { IBrowserInfo } from '../db/models/Customers';
 
 import {
   IPipelineDocument,
@@ -89,13 +88,6 @@ interface IContentTypeParams {
   contentTypeId: string;
 }
 
-export interface IVisitorLogParams {
-  visitorId: string;
-  scopeBrandIds?: string[];
-  integrationId?: string;
-  location?: IBrowserInfo;
-}
-
 /**
  * @param object - Previous state of the object
  * @param newData - Requested update data
@@ -161,6 +153,7 @@ export const ACTIVITY_LOG_ACTIONS = {
   CREATE_COC_LOGS: 'createCocLogs',
   CREATE_SEGMENT_LOG: 'createSegmentLog',
   CREATE_CHECKLIST_LOG: 'createChecklistLog',
+  CREATE_TAG_LOG: 'createTagLog',
   REMOVE_ACTIVITY_LOG: 'removeActivityLog',
   REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
 };
@@ -1489,6 +1482,11 @@ export const putCreateLog = async (
 
   callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
 
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    type: `${params.type}`,
+    targets: [params.object]
+  });
+
   return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
@@ -1505,6 +1503,11 @@ export const putUpdateLog = async (
 
   callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
 
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    type: `${params.type}`,
+    targets: [params.updatedDocument]
+  });
+
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
@@ -1520,6 +1523,11 @@ export const putDeleteLog = async (
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
   callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
+
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    type: `${params.type}`,
+    targets: [params.object]
+  });
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1548,24 +1556,9 @@ export const fetchLogs = async (
   }
 };
 
-export const sendToVisitorLog = async (params: IVisitorLogParams, action) =>
-  messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-    action,
-    data: params
-  });
+export const sendToLog = (channel: string, data) =>
+  messageBroker().sendMessage(channel, data);
 
-export const getVisitorLog = async visitorId => {
-  try {
-    return messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
-      action: 'get',
-      data: { visitorId }
-    });
-  } catch (e) {
-    debugError(
-      `Error during getVisitorLog: ${e.message} visitorId: ${visitorId}`
-    );
-  }
-};
 interface IActivityLogParams {
   action: string;
   data: any;
@@ -1579,6 +1572,13 @@ export const putActivityLog = async (params: IActivityLogParams) => {
   }
 
   try {
+    if (data.target) {
+      messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+        type: `${data.contentType}`,
+        targets: [data.target]
+      });
+    }
+
     return messageBroker().sendMessage('putActivityLog', params);
   } catch (e) {
     return e.message;
