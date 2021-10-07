@@ -8,22 +8,22 @@ import { Router, Route, Link, browserHistory, IndexRoute  } from 'react-router'
 function Types() {
   return (<>
     <div className={styles.styled}>
-            <Button>Default</Button>
-            <Button btnStyle="primary">Primary</Button>
-            <Button btnStyle="success">Success</Button>
-            <Button btnStyle="danger">Danger</Button>
-            <Button btnStyle="warning">Warning</Button>
-            <Button btnStyle="simple">Simple</Button>
-            <Button btnStyle="link">Link</Button>
+        <Button >Default</Button>
+        <Button btnStyle="primary" uppercase = 'true'>Primary</Button>
+        <Button btnStyle="success">Success</Button>
+        <Button btnStyle="danger">Danger</Button>
+        <Button btnStyle="warning">Warning</Button>
+        <Button btnStyle="simple">Simple</Button>
+        <Button btnStyle="link">Link</Button>
     </div>
-          <CodeBlock className="language-jsx">{`<>
-            <Button>Default</Button>
-            <Button btnStyle="primary">Primary</Button>
-            <Button btnStyle="success">Success</Button>
-            <Button btnStyle="danger">Danger</Button>
-            <Button btnStyle="warning">Warning</Button> 
-            <Button btnStyle="simple">Simple</Button>
-            <Button btnStyle="link">Link</Button>
+    <CodeBlock className="language-jsx">{`<>
+        <Button>Default</Button>
+        <Button btnStyle="primary">Primary</Button>
+        <Button btnStyle="success">Success</Button>
+        <Button btnStyle="danger">Danger</Button>
+        <Button btnStyle="warning">Warning</Button> 
+        <Button btnStyle="simple">Simple</Button>
+        <Button btnStyle="link">Link</Button>
 </>`}</CodeBlock>
     </>
   );
@@ -33,20 +33,14 @@ function Types() {
 function Sizes() {
   return (<>
     <div className={styles.styled}>
-              <Button btnStyle="primary" size="large">
-                Large Primary
-              </Button>
-              <Button btnStyle="primary" size="medium">
-                Medium Primary
-              </Button>
-              <Button btnStyle="primary" size="small">
-                Small Primary
-              </Button>
+        <Button btnStyle="primary" size="large">Large Primary</Button>
+        <Button btnStyle="primary" size="medium">Medium Primary</Button>
+        <Button btnStyle="primary" size="small">Small Primary</Button>
     </div>
-            <CodeBlock className="language-jsx">{`<>
-            <Button btnStyle="primary" size="large">Large Primary</Button>
-            <Button btnStyle="primary" size="medium">Medium Primary</Button>
-            <Button btnStyle="primary" size="small">Small Primary</Button>
+    <CodeBlock className="language-jsx">{`<>
+        <Button btnStyle="primary" size="large">Large Primary</Button>
+        <Button btnStyle="primary" size="medium">Medium Primary</Button>
+        <Button btnStyle="primary" size="small">Small Primary</Button>
 </>`}</CodeBlock>
   </>
   );
@@ -55,15 +49,29 @@ function Sizes() {
 function Activity() {
   return (<>
     <div className={styles.styled}>
-            <Button btnStyle="primary">Normal button</Button>
-            <Button btnStyle="primary" disabled>Disabled button</Button>
+        <Button btnStyle="primary">Normal button</Button>
+        <Button btnStyle="primary" disabled>Disabled button</Button>
     </div>
-          <CodeBlock className="language-jsx">{`<>
-            <Button btnStyle="primary">Normal button</Button>
-            <Button btnStyle="primary" disabled>Disabled button</Button>
+    <CodeBlock className="language-jsx">{`<>
+        <Button btnStyle="primary">Normal button</Button>
+        <Button btnStyle="primary" disabled>Disabled button</Button>
 </>`}</CodeBlock>
     </>
   );
 };
+
+function Uppercase() {
+  return (<>
+    <div className={styles.styled}>
+        <Button>Lowercase</Button>
+        <Button uppercase="true">Uppercase</Button>
+    </div>
+    <CodeBlock className="language-jsx">{`<>
+        <Button>Lowercase</Button>
+        <Button uppercase="true">Uppercase</Button>
+</>`}</CodeBlock>
+    </>
+  )
+}
 
 export { Types, Sizes, Activity }
