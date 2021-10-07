@@ -18,9 +18,10 @@ import {
   segmentFactory,
   stageFactory,
   taskFactory,
-  ticketFactory
+  ticketFactory,
+  userFactory
 } from '../db/factories';
-import { Customers, Segments } from '../db/models';
+import { Customers, Segments, Users } from '../db/models';
 import { trackCustomEvent } from '../events';
 import { deleteAllIndexes, putMappings } from './esMappings';
 import { sleep } from './setup';
@@ -67,6 +68,7 @@ describe('Segments mutations', () => {
   afterEach(async () => {
     await Customers.remove({});
     await Segments.remove({});
+    await Users.remove({});
     await deleteAllIndexes();
   });
 
@@ -666,6 +668,26 @@ describe('Segments mutations', () => {
 
     const d3result = await isInSegment(mainSegment._id, d3._id, {});
     expect(d3result).toBe(false);
+
+    const user = await userFactory({ email: 'testemail@email.com' }, true);
+    await sleep(2000);
+
+    const userSegment = await segmentFactory({
+      contentType: 'user',
+      conditionsConjunction: 'or',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'user',
+          propertyName: 'email',
+          propertyOperator: 'c',
+          propertyValue: 'test'
+        }
+      ]
+    });
+
+    expect(await isInSegment(userSegment._id, user._id)).toBe(true);
   });
 
   test('fetchBySegment: mixed content types', async () => {
