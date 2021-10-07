@@ -3,8 +3,6 @@ import Select from 'react-select-plus';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { LeftItem } from 'modules/common/components/step/styles';
-// import { SubHeading } from 'modules/settings/styles';
-// import Uploader from 'modules/common/components/Uploader';
 import {
   ControlLabel,
   FormControl,
@@ -13,7 +11,6 @@ import {
 import { FlexItem } from 'modules/layout/styles';
 import { FlexItem as FlexItemContainer } from './style';
 import React from 'react';
-// import { SubHeading } from 'modules/settings/styles';
 import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 import SelectForm from 'modules/bookings/containers/SelectForm';
