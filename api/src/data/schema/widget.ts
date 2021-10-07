@@ -69,6 +69,7 @@ export const queries = `
 
   widgetsProductCategory(_id: String!): ProductCategory
   widgetsProductDetail(_id: String!): Product
+  widgetsBookingDetail(_id: String!): Booking
 `;
 
 export const mutations = `

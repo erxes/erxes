@@ -103,8 +103,8 @@ const bookingFields = `
 `;
 
 const bookingDetail = `
-  query bookingDetail($_id: String!) {
-    bookingDetail(_id: $_id) {
+  query widgetsBookingDetail($_id: String!) {
+    widgetsBookingDetail(_id: $_id) {
       ${bookingFields}
     }
   }
