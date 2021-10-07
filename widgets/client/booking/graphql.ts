@@ -126,4 +126,15 @@ const productDetail = `
   }
 `;
 
-export { bookingDetail, productCategory, productDetail };
+const increaseViewCountMutation = `
+  mutation widgetsBookingIncreaseViewCount($_id: String!) {
+    widgetsBookingIncreaseViewCount(_id: $_id)
+  }
+`;
+
+export {
+  bookingDetail,
+  productCategory,
+  productDetail,
+  increaseViewCountMutation
+};
