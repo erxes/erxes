@@ -1,3 +1,15 @@
+$color-1: #4bbf6b;
+$color-2: #F47373;
+$color-3: #AAAAAA;
+
+
+$allcolors: $color-1, $color-2, $color-3;
+
+.arrow {
+  width: 0;
+  height: 0;
+}
+
 .layout {
   display: block;
   min-height: 100%;
@@ -22,13 +34,10 @@
     width: 100%;
     height: auto;
   }
-  button {
-    background-color: $main-color;
-  }
 }
 
 .block {
-  border: 1px solid $border-color;
+  border: 1px solid $mid-grey;
   border-radius: 10px;
   margin: 10px;
   width: 200px;
@@ -163,7 +172,6 @@
 }
 
 .btn {
-  background-color: $primary;
   border: none;
   width: 85px;
   height: 36px;
@@ -185,28 +193,6 @@ hr {
   height: 1px;
   border: 0;
 }
-.arrow {
-  width: 0;
-  height: 0;
-}
-.arrow-down-available {
-  @include arrow-down($primary);
-}
-.arrow-down-few {
-  @include arrow-down($secondary);
-}
-.arrow-down-soldout {
-  @include arrow-down($mid-grey);
-}
-.arrow-right-available {
-  @include arrow-right($primary);
-}
-.arrow-right-few {
-  @include arrow-right($secondary);
-}
-.arrow-right-soldout {
-  @include arrow-right($mid-grey);
-}
 
 .icon-leftarrow:before {
   content: '\e84a';
@@ -221,4 +207,40 @@ hr {
 
 .icon-menu-2:before {
   content: '\e852';
+}
+
+
+
+@each $color in $allcolors {
+  .text-#{unquote("\\" + $color)} {
+    color: $color;
+  }
+
+  .bg-#{unquote("\\" + $color)} {
+    background-color: $color;
+  }
+
+  .border-#{unquote("\\" + $color)} {
+    &:hover{
+      border-color: $color;
+    }
+  }
+
+  .arrow-down {
+    &-#{unquote("\\" + $color)}{
+      @include arrow-down($color);
+    }
+    &-#{$color}{
+      @include arrow-down($color);
+    }
+  }
+
+  .arrow-right {
+    &-#{unquote("\\" + $color)}{
+      @include arrow-right($color);
+    }
+    &-#{$color}{
+      @include arrow-right($color);
+    }
+  }
 }

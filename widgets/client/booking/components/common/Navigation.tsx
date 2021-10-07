@@ -31,6 +31,7 @@ class Navigation extends React.Component<Props, State> {
     const { items, parentId, changeRoute } = this.props;
     const { isOpen } = this.state;
 
+    const widgetColor = '#4bbf6b';
     return (
       <ReactPopover
         isOpen={isOpen}
@@ -39,7 +40,7 @@ class Navigation extends React.Component<Props, State> {
         tipSize={0.01}
         className={'top-0'}
         body={
-          <div className="booking-navigation">
+          <div className={`booking-navigation bn-${widgetColor}`}>
             <div className="flex-sb p-5">
               <div className="b"> Navigation </div>
               <div

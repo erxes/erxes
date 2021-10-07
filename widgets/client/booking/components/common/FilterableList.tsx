@@ -108,15 +108,15 @@ class FilterableList extends React.Component<Props, State> {
     }
     const onClick = () => this.toggleItem(item._id);
     const isOpen = this.state.parentIds[item._id] || !!key;
-
-    let stock = stockCnt === 0 ? 'soldout' : 'available';
+    const widgetColor = '#4bbf6b'
+    let stock = stockCnt === 0 ? '#AAAAAA' : widgetColor;
     if (stockCnt > 0 && stockCnt < 10) {
-      stock = 'few';
+      stock = '#F47373';
     }
     return (
       <li
         key={item._id}
-        className={`list flex-sb s-${stock}`}
+        className={`list flex-sb text-${stock}`}
         onClick={onClick}
       >
         <div className="flex-center">
@@ -125,7 +125,7 @@ class FilterableList extends React.Component<Props, State> {
             {item.name || '[undefined]'}
           </div>
         </div>
-        <div className={`circle center ${stock}`}>{stockCnt}</div>
+        <div className={`circle center bg-${stock}`}>{stockCnt}</div>
       </li>
     );
   }

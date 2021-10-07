@@ -16,6 +16,8 @@ function Booking({ goToIntro, booking }: Props) {
 
   const { title, description, childCategories, mainProductCategory } = booking;
   const { attachment } = mainProductCategory;
+  const widgetColor = '#4bbf6b'
+
 
   return (
     <div className="main-container">
@@ -37,11 +39,11 @@ function Booking({ goToIntro, booking }: Props) {
 
       {/* fooooooterrr  */}
       <div className="flex-sb w-100">
-        <button className="btn btn-back" onClick={() => goToIntro()}>
+        <button className={`btn bg-${widgetColor}`} onClick={() => goToIntro()}>
           <i className="icon-arrow-left" />
           Back
         </button>
-        <button className="btn btn-next" onClick={() => goToIntro()}>
+        <button className={`btn bg-${widgetColor}`} onClick={() => goToIntro()}>
           Next
           <i className="icon-arrow-right" />
         </button>
