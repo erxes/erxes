@@ -20,6 +20,7 @@ export const types = `
     createdAt: Date
     createdBy: String
     createdUser: User
+    contentTypeDetail: JSON
   }
 `;
 

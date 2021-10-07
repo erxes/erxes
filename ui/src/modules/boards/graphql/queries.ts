@@ -256,9 +256,11 @@ const activityLogsByAction = `
           ${detailFields}
         }
       }
+
       action
-      createdAt
       content
+      createdAt
+      contentTypeDetail
     }
   }
 `;

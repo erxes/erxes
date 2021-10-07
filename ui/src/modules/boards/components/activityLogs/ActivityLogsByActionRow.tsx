@@ -17,6 +17,8 @@ class ActivityLogsByActionRow extends React.Component<Props> {
   render() {
     const { activityLog } = this.props;
 
+    console.log('activityLog: ', activityLog);
+
     return (
       <ActivityList key={activityLog._id}>
         <span>{dayjs(activityLog.createdAt).format('MMM D')}</span>
@@ -29,7 +31,12 @@ class ActivityLogsByActionRow extends React.Component<Props> {
           />
         </NameCardStyle>
         <ActionText>{activityLog.action}</ActionText>
-        <DescText>{activityLog.content}</DescText>
+        <DescText>
+          {typeof activityLog.content === 'object'
+            ? activityLog.content.text
+            : activityLog.content}
+        </DescText>
+        <DescText>{activityLog.contentTypeDetail.name}</DescText>
         <span>{dayjs(activityLog.createdAt).format('h:mm A')}</span>
       </ActivityList>
     );

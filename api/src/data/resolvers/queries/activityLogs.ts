@@ -250,6 +250,8 @@ const activityLogQueries = {
         allActivityLogs.push({
           _id: log._id,
           action: log.action,
+          contentType: log.type,
+          contentId: log.objectId,
           createdAt: log.createdAt,
           createdBy: log.createdBy,
           content: log.description
@@ -259,7 +261,6 @@ const activityLogQueries = {
       actionArr = actionArr.filter(a => a !== 'delete');
     }
 
-    const actionModifier = actionArr.length > 0 ? { $in: actionArr } : '';
     const stageIds = await Stages.find({ pipelineId }).distinct('_id');
 
     const { collection } = getCollection(contentType);
@@ -268,15 +269,29 @@ const activityLogQueries = {
       .find({ stageId: { $in: stageIds } })
       .distinct('_id');
 
-    if (action === 'note') {
+    if (actionArr.includes('addNote')) {
       const internalNotes = await InternalNotes.find({
         contentTypeId: { $in: contentIds }
       }).sort({
         createdAt: -1
       });
 
-      return internalNotes;
+      for (const note of internalNotes) {
+        allActivityLogs.push({
+          _id: note._id,
+          action: 'addNote',
+          contentType: note.contentType,
+          contentId: note.contentTypeId,
+          createdAt: note.createdAt,
+          createdBy: note.createdUserId,
+          content: note.content
+        });
+      }
+
+      actionArr = actionArr.filter(a => a !== 'addNote');
     }
+
+    const actionModifier = actionArr.length > 0 ? { $in: actionArr } : '';
 
     const activityLogs = await fetchLogs(
       {
@@ -293,8 +308,9 @@ const activityLogQueries = {
         action: log.action,
         createdAt: log.createdAt,
         createdBy: log.createdBy,
-        content:
-          typeof log.content === 'object' ? log.content.text : log.content
+        contentType: log.contentType,
+        contentId: log.contentId,
+        content: log.content
       });
     }
 
