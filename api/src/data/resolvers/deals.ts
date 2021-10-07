@@ -111,7 +111,7 @@ export default {
   async pipeline(deal: IDealDocument) {
     const stage = await Stages.getStage(deal.stageId);
 
-    return Pipelines.findOne({ _id: stage.pipelineId });
+    return Pipelines.findOne({ _id: stage.pipelineId }).lean();
   },
 
   boardId(deal: IDealDocument) {
@@ -137,7 +137,7 @@ export default {
   },
 
   labels(deal: IDealDocument) {
-    return PipelineLabels.find({ _id: { $in: deal.labelIds || [] } });
+    return PipelineLabels.find({ _id: { $in: deal.labelIds || [] } }).lean();
   },
 
   createdUser(deal: IDealDocument) {

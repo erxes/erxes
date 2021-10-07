@@ -152,6 +152,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     const value = (e.target as HTMLInputElement).value;
     config[inputName] = value;
 
+    this.setState({ config });
     this.props.onChange(config);
   };
 
@@ -211,6 +212,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
         .filter((_m, i) => !deletes.includes(String(i)))
         .join('');
 
+      this.setState({ config });
       this.props.onChange(config);
     }
   };
