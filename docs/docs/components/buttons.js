@@ -33,14 +33,14 @@ function Types() {
 function Sizes() {
   return (<>
     <div className={styles.styled}>
-        <Button btnStyle="primary" size="large">Large Primary</Button>
-        <Button btnStyle="primary" size="medium">Medium Primary</Button>
-        <Button btnStyle="primary" size="small">Small Primary</Button>
+        <Button size="large">Large Primary</Button>
+        <Button size="medium">Medium Primary</Button>
+        <Button size="small">Small Primary</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button btnStyle="primary" size="large">Large Primary</Button>
-        <Button btnStyle="primary" size="medium">Medium Primary</Button>
-        <Button btnStyle="primary" size="small">Small Primary</Button>
+        <Button size="large">Large Primary</Button>
+        <Button size="medium">Medium Primary</Button>
+        <Button size="small">Small Primary</Button>
 </>`}</CodeBlock>
   </>
   );
@@ -49,12 +49,12 @@ function Sizes() {
 function Activity() {
   return (<>
     <div className={styles.styled}>
-        <Button btnStyle="primary">Normal button</Button>
-        <Button btnStyle="primary" disabled>Disabled button</Button>
+        <Button>Normal button</Button>
+        <Button disabled>Disabled button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button btnStyle="primary">Normal button</Button>
-        <Button btnStyle="primary" disabled>Disabled button</Button>
+        <Button>Normal button</Button>
+        <Button disabled>Disabled button</Button>
 </>`}</CodeBlock>
     </>
   );
@@ -77,12 +77,11 @@ function Uppercase() {
 function Block() {
   return (<>
     <div className={styles.styled}>
-        <Button btnStyle="primary">Normal button</Button>
-        <Button btnStyle="primary" block>Block button</Button>
+        {/* <Button btnStyle="primary">Normal button</Button> */}
+        <Button block>Block button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button btnStyle="primary">Normal button</Button>
-        <Button btnStyle="primary" block>Block button</Button>
+        <Button block>Block button</Button>
 </>`}</CodeBlock>
     </>
   )
