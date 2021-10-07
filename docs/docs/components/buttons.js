@@ -63,15 +63,15 @@ function Activity() {
 function Uppercase() {
   return (<>
     <div className={styles.styled}>
-        <Button>Lowercase</Button>
+        <Button>Normal button</Button>
         <Button uppercase="true">Uppercase</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
         <Button>Lowercase</Button>
-        <Button uppercase="true">Uppercase</Button>
+        <Button uppercase="true">Uppercase button</Button>
 </>`}</CodeBlock>
     </>
   )
 }
 
-export { Types, Sizes, Activity }
+export { Types, Sizes, Activity, Uppercase }

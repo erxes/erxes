@@ -3,7 +3,7 @@ id: buttons
 title: Buttons
 ---
 
-import { Types, Sizes, Activity } from "./buttons.js"
+import { Types, Sizes, Activity, Uppercase } from "./buttons.js"
 
 <p>Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
 
@@ -21,3 +21,8 @@ import { Types, Sizes, Activity } from "./buttons.js"
 
 <p>Make buttons look inactive by adding the <code>disabled</code> prop to.</p>
 <Activity></Activity>
+
+### Uppercase
+
+<p></p>
+<Uppercase></Uppercase>
