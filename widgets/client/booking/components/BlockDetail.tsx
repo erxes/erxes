@@ -23,6 +23,13 @@ function BlockDetail({ goToBookings, block }: Props) {
             alt="hello"
           />
         </div>
+
+        <div className="flex-sb w-100">
+          <button className="btn btn-back" onClick={goToBookings}>
+            <i className="icon-arrow-left" />
+            Back
+          </button>
+        </div>
       </div>
     </div>
   );

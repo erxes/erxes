@@ -20,10 +20,9 @@ function BookingContainer(props: Props) {
 const WithContext = () => {
   return (
     <AppConsumer>
-      {({ goToIntro, activeBooking }) => {
-        return (
-          <BookingContainer goToIntro={goToIntro} booking={activeBooking} />
-        );
+      {({ goToIntro, getBooking }) => {
+        const booking = getBooking();
+        return <BookingContainer goToIntro={goToIntro} booking={booking} />;
       }}
     </AppConsumer>
   );

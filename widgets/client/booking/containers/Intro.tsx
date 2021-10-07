@@ -3,16 +3,14 @@ import Intro from '../components/Intro';
 import { AppConsumer } from './AppContext';
 import { IBooking } from '../types';
 
-type Props = {
-  booking: IBooking;
-};
-
-function IntroContainer({ booking }: Props) {
+function IntroContainer() {
   return (
     <AppConsumer>
-      {({ goToBooking }) => (
-        <Intro booking={booking} goToBooking={goToBooking} />
-      )}
+      {({ goToBooking, getBooking }) => {
+        const booking = getBooking();
+
+        return <Intro booking={booking} goToBooking={goToBooking} />;
+      }}
     </AppConsumer>
   );
 }

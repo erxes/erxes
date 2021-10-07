@@ -12,7 +12,7 @@ type Props = {
 function App({ booking, activeRoute }: Props) {
   const renderContent = () => {
     if (activeRoute === 'INTRO') {
-      return <Intro booking={booking} />;
+      return <Intro />;
     }
 
     if (activeRoute === 'BOOKING') {
