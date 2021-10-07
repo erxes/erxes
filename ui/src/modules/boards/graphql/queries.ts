@@ -1,4 +1,7 @@
 import { queries as boardQueries } from 'erxes-ui/lib/boards/graphql';
+import * as teamQueries from 'erxes-ui/lib/team/graphql';
+
+const detailFields = teamQueries.detailFields;
 
 const pipelineLabelFields = `
   _id
@@ -234,8 +237,15 @@ const activityLogsByAction = `
       pipelineId: $pipelineId,
     ) {
       _id
-      contentTypeDetail
-      createdByDetail
+      createdUser {
+        _id
+        username
+        email
+
+        details {
+          ${detailFields}
+        }
+      }
       action
       createdAt
       content

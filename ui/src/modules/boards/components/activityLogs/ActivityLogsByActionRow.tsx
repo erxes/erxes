@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
-import { IActivityLog } from 'modules/activityLogs/types';
 import {
   ActivityList,
   NameCardStyle,
@@ -11,7 +10,7 @@ import {
 import NameCard from 'modules/common/components/nameCard/NameCard';
 
 type Props = {
-  activityLog: IActivityLog;
+  activityLog: any;
 };
 
 class ActivityLogsByActionRow extends React.Component<Props> {
@@ -24,13 +23,13 @@ class ActivityLogsByActionRow extends React.Component<Props> {
         <Icon icon="edit-3" size={25} color="#FDA50D" />
         <NameCardStyle>
           <NameCard
-            user={activityLog.createdByDetail.content}
+            user={activityLog.createdUser}
             singleLine={true}
             avatarSize={30}
           />
         </NameCardStyle>
         <ActionText>{activityLog.action}</ActionText>
-        <DescText>{activityLog.contentTypeDetail.searchText}</DescText>
+        <DescText>{activityLog.content}</DescText>
         <span>{dayjs(activityLog.createdAt).format('h:mm A')}</span>
       </ActivityList>
     );

@@ -12,10 +12,19 @@ export const types = `
     contentDetail: JSON
     contentTypeDetail: JSON
   }
+
+  type ActivityLogByAction {
+    _id: String
+    action: String
+    content: JSON
+    createdAt: Date
+    createdBy: String
+    createdUser: User
+  }
 `;
 
 export const queries = `
   activityLogs(contentType: String!, contentId: String, activityType: String, limit: Int): [ActivityLog]
 
-  activityLogsByAction(contentType: String, action: String, pipelineId: String): [ActivityLog]
+  activityLogsByAction(contentType: String, action: String, pipelineId: String): [ActivityLogByAction]
 `;

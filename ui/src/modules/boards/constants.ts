@@ -100,10 +100,8 @@ export const EMPTY_CONTENT_TASK = {
 
 export const SEARCH_ACTIVITY_CHECKBOX = [
   { action: 'create', value: 'Added new card' },
-  { action: 'moveStage', value: 'Moved card position in the stage' },
-  { action: 'movedPipeline', value: 'Moved card to different pipeline' },
-  { action: 'movedBoard', value: 'Moved card to different board' },
+  { action: 'moved', value: 'Moved card' },
   { action: 'archive', value: 'Archived card' },
-  { action: 'deleteCard', value: 'Deleted archived card' },
+  { action: 'delete', value: 'Deleted archived card' },
   { action: 'addNote', value: 'Added notes' }
 ];

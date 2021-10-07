@@ -232,18 +232,32 @@ const activityLogQueries = {
   },
 
   async activityLogsByAction(_root, { contentType, action, pipelineId }) {
-    const actionModifier = action ? { $in: action.split(',') } : '';
+    const allActivityLogs: any[] = [];
+    let actionArr = action.split(',');
 
-    if (action === 'delete') {
-      return fetchLogs(
+    if (actionArr.includes('delete')) {
+      const logs = await fetchLogs(
         {
-          action: actionModifier,
+          action: 'delete',
           type: contentType
         },
         'logs'
       );
+
+      for (const log of logs.logs) {
+        allActivityLogs.push({
+          _id: log._id,
+          action: log.action,
+          createdAt: log.createdAt,
+          createdBy: log.createdBy,
+          content: log.description
+        });
+      }
+
+      actionArr = actionArr.filter(a => a !== 'delete');
     }
 
+    const actionModifier = actionArr.length > 0 ? { $in: actionArr } : '';
     const stageIds = await Stages.find({ pipelineId }).distinct('_id');
 
     const { collection } = getCollection(contentType);
@@ -262,7 +276,7 @@ const activityLogQueries = {
       return internalNotes;
     }
 
-    const logs = await fetchLogs(
+    const activityLogs = await fetchLogs(
       {
         contentType,
         contentId: { $in: contentIds },
@@ -271,7 +285,18 @@ const activityLogQueries = {
       'activityLogs'
     );
 
-    return logs;
+    for (const log of activityLogs) {
+      allActivityLogs.push({
+        _id: log._id,
+        action: log.action,
+        createdAt: log.createdAt,
+        createdBy: log.createdBy,
+        content:
+          typeof log.content === 'object' ? log.content.text : log.content
+      });
+    }
+
+    return allActivityLogs;
   }
 };
 
