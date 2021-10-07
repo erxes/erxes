@@ -18,6 +18,8 @@ import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 import SelectForm from 'modules/bookings/containers/SelectForm';
 
+type Name = 'languageCode' | 'formId';
+
 type Props = {
   onChange: (name: string, value: any) => void;
   title: string;
@@ -37,6 +39,15 @@ function ChooseSettings({
   formId,
   buttonText
 }: Props) {
+  const onChangeSelect = (key: Name, e: any) => {
+    let value = e;
+
+    if (e && e.value) {
+      value = e.value;
+    }
+    onChange(key, value);
+  };
+
   return (
     <FlexItemContainer>
       <LeftItem>
@@ -76,7 +87,7 @@ function ChooseSettings({
               value: el.value
             }))}
             value={languageCode}
-            onChange={e => onChange('languageCode', e ? e.value : '')}
+            onChange={e => onChangeSelect('languageCode', e)}
           />
         </FormGroup>
 
@@ -86,7 +97,7 @@ function ChooseSettings({
               <ControlLabel required={true}>Form to display</ControlLabel>
               <SelectForm
                 value={formId}
-                onChange={e => onChange('formId', e ? e.value : '')}
+                onChange={e => onChangeSelect('formId', e)}
                 placeholder="Choose a form"
               />
             </FormGroup>
