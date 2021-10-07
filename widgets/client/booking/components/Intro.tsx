@@ -8,8 +8,7 @@ type Props = {
 };
 
 function Intro({ booking, goToBooking }: Props) {
-  const { title, description, mainProductCategory } = booking;
-  const { attachment } = mainProductCategory;
+  const { title, description, image } = booking;
 
   return (
     <div className="main-container">
@@ -18,7 +17,7 @@ function Intro({ booking, goToBooking }: Props) {
         {description}
       </div>
       <div className="main-body">
-        <img src={readFile(attachment && attachment.url)} alt="hello" />
+        <img src={readFile(image && image.url)} alt={title} />
       </div>
       <button className="btn btn-next" onClick={() => goToBooking(booking)}>
         Next
