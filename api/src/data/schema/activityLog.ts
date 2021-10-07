@@ -16,6 +16,8 @@ export const types = `
   type ActivityLogByAction {
     _id: String
     action: String
+    contentId: String
+    contentType: String
     content: JSON
     createdAt: Date
     createdBy: String

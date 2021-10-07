@@ -28,8 +28,6 @@ const activityLogQueries = {
   async activityLogs(_root, doc: IListArgs, { dataSources, user }: IContext) {
     const { contentType, contentId, activityType } = doc;
 
-    console.log(doc);
-
     let activities: IActivityLogDocument[] = [];
 
     const relatedItemIds = await Conformities.savedConformity({
@@ -291,27 +289,29 @@ const activityLogQueries = {
       actionArr = actionArr.filter(a => a !== 'addNote');
     }
 
-    const actionModifier = actionArr.length > 0 ? { $in: actionArr } : '';
+    if (actionArr.length > 0) {
+      const actionModifier = { $in: actionArr };
 
-    const activityLogs = await fetchLogs(
-      {
-        contentType,
-        contentId: { $in: contentIds },
-        action: actionModifier
-      },
-      'activityLogs'
-    );
+      const activityLogs = await fetchLogs(
+        {
+          contentType,
+          contentId: { $in: contentIds },
+          action: actionModifier
+        },
+        'activityLogs'
+      );
 
-    for (const log of activityLogs) {
-      allActivityLogs.push({
-        _id: log._id,
-        action: log.action,
-        createdAt: log.createdAt,
-        createdBy: log.createdBy,
-        contentType: log.contentType,
-        contentId: log.contentId,
-        content: log.content
-      });
+      for (const log of activityLogs) {
+        allActivityLogs.push({
+          _id: log._id,
+          action: log.action,
+          createdAt: log.createdAt,
+          createdBy: log.createdBy,
+          contentType: log.contentType,
+          contentId: log.contentId,
+          content: log.content
+        });
+      }
     }
 
     return allActivityLogs;

@@ -17,8 +17,6 @@ class ActivityLogsByActionRow extends React.Component<Props> {
   render() {
     const { activityLog } = this.props;
 
-    console.log('activityLog: ', activityLog);
-
     return (
       <ActivityList key={activityLog._id}>
         <span>{dayjs(activityLog.createdAt).format('MMM D')}</span>
