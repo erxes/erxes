@@ -46,13 +46,23 @@ function ChooseContent({
   const [activeGroup, setActiveGroup] = useState([] as any);
 
   const onChangeFieldsGroup = (e: any) => {
-    onChange('fieldsGroup', e ? e.value : '');
+    onChangeSelect('fieldsGroup', e);
 
     if (e && e.value) {
       return setActiveGroup(e.fields);
     }
 
     return setActiveGroup([]);
+  };
+
+  const onChangeSelect = (key: Name, e: any) => {
+    let value = e;
+
+    if (e && e.value) {
+      value = e.value;
+    }
+
+    onChange(key, value);
   };
 
   const images =
@@ -199,9 +209,7 @@ function ChooseContent({
             to organize your product first.
           </Description>
           <SelectProductCategory
-            onChange={(e: any) =>
-              onChange('productCategoryId', e ? e.value : '')
-            }
+            onChange={(e: any) => onChangeSelect('productCategoryId', e)}
             value={productCategoryId}
             placeholder="Choose product category"
           />

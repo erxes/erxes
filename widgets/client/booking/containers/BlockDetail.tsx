@@ -25,9 +25,8 @@ function BlockDetailContainer(props: ChildProps<Props, QueryResponse>) {
 
   const extendedProps = {
     ...props,
-    block: data.widgetsProductCategory
+    block: data.widgetsProductCategory,
   };
-
   return <BlockDetail {...extendedProps} />;
 }
 
@@ -43,7 +42,7 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeBlock, goToBookings }) => {
+    {({ activeBlock,  goToBookings }) => {
       return <WithData goToBookings={goToBookings} blockId={activeBlock} />;
     }}
   </AppConsumer>

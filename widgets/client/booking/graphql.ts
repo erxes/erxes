@@ -103,8 +103,8 @@ const bookingFields = `
 `;
 
 const bookingDetail = `
-  query bookingDetail($_id: String!) {
-    bookingDetail(_id: $_id) {
+  query widgetsBookingDetail($_id: String!) {
+    widgetsBookingDetail(_id: $_id) {
       ${bookingFields}
     }
   }
@@ -126,4 +126,15 @@ const productDetail = `
   }
 `;
 
-export { bookingDetail, productCategory, productDetail };
+const increaseViewCountMutation = `
+  mutation widgetsBookingIncreaseViewCount($_id: String!) {
+    widgetsBookingIncreaseViewCount(_id: $_id)
+  }
+`;
+
+export {
+  bookingDetail,
+  productCategory,
+  productDetail,
+  increaseViewCountMutation
+};

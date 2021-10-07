@@ -12,6 +12,8 @@ function BlockDetail({ goToBookings, block }: Props) {
   if (!block) {
     return null;
   }
+  const widgetColor = "#"
+
   return (
     <div className="main-container">
       <div className="main-header">
@@ -22,6 +24,12 @@ function BlockDetail({ goToBookings, block }: Props) {
             src={readFile(block.attachment && block.attachment.url)}
             alt="hello"
           />
+        </div>
+
+        <div className="flex-sb w-100">
+          <button className={`btn bg-${widgetColor}`} onClick={goToBookings}>
+            Back
+          </button>
         </div>
       </div>
     </div>

@@ -1,10 +1,17 @@
 $color-1: #4bbf6b;
 $color-2: #F47373;
 $color-3: #AAAAAA;
-$color-4:#0078bf;
+$color-4:#697689;
+$color-5: #89609D;
+$color-5: #FF6900;
+$color-7: #EB144C;
+$color-8:#CD5A91;
+$color-9:#D29034;
+$color-10: #63D2D6;
+$color-11: #0078bf;
+$color-12: #F7CE53;
 
-
-$allcolors: $color-1, $color-2, $color-3, $color-4;
+$allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8, $color-9, $color-10, $color-11, $color-12;
 
 .arrow {
   width: 0;
@@ -14,6 +21,11 @@ $allcolors: $color-1, $color-2, $color-3, $color-4;
 .layout {
   display: block;
   min-height: 100%;
+}
+.product{
+  img{
+    width: 90%;
+  }
 }
 
 .main-container {
@@ -43,6 +55,7 @@ $allcolors: $color-1, $color-2, $color-3, $color-4;
   margin: 10px;
   width: 200px;
   text-align: center;
+  padding: 10px;
 
   h4 {
     font-size: 14px;
@@ -181,7 +194,6 @@ $allcolors: $color-1, $color-2, $color-3, $color-4;
   padding: 10px 14px 10px 12px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(79, 51, 175, 0.24);
   &:hover {
@@ -193,6 +205,10 @@ hr {
   background-color: rgba(0, 0, 0, 0.08);
   height: 1px;
   border: 0;
+}
+
+.detail{
+  grid-column-start: 2;
 }
 
 .icon-leftarrow:before {

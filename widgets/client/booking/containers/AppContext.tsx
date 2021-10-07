@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connection } from '../connection';
 import { IBooking } from '../types';
 
 interface IState {
@@ -16,6 +17,7 @@ interface IStore extends IState {
   goToBlock: (blockId: string) => void;
   goToFloor: (floorId: string) => void;
   goToProduct: (productId: string) => void;
+  getBooking: () => IBooking;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -77,8 +79,11 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  getBooking = () => {
+    return connection.data.booking;
+  };
+
   render() {
-    console.log(this.state.activeRoute);
     return (
       <AppContext.Provider
         value={{
@@ -88,7 +93,8 @@ export class AppProvider extends React.Component<{}, IState> {
           goToBlock: this.goToBlock,
           goToBookings: this.goToBookings,
           goToFloor: this.goToFloor,
-          goToProduct: this.goToProduct
+          goToProduct: this.goToProduct,
+          getBooking: this.getBooking
         }}
       >
         {this.props.children}

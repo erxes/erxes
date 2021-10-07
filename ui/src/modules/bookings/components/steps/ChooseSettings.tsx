@@ -3,8 +3,6 @@ import Select from 'react-select-plus';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { LeftItem } from 'modules/common/components/step/styles';
-// import { SubHeading } from 'modules/settings/styles';
-// import Uploader from 'modules/common/components/Uploader';
 import {
   ControlLabel,
   FormControl,
@@ -13,10 +11,11 @@ import {
 import { FlexItem } from 'modules/layout/styles';
 import { FlexItem as FlexItemContainer } from './style';
 import React from 'react';
-// import { SubHeading } from 'modules/settings/styles';
 import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 import SelectForm from 'modules/bookings/containers/SelectForm';
+
+type Name = 'languageCode' | 'formId';
 
 type Props = {
   onChange: (name: string, value: any) => void;
@@ -37,6 +36,15 @@ function ChooseSettings({
   formId,
   buttonText
 }: Props) {
+  const onChangeSelect = (key: Name, e: any) => {
+    let value = e;
+
+    if (e && e.value) {
+      value = e.value;
+    }
+    onChange(key, value);
+  };
+
   return (
     <FlexItemContainer>
       <LeftItem>
@@ -76,7 +84,7 @@ function ChooseSettings({
               value: el.value
             }))}
             value={languageCode}
-            onChange={e => onChange('languageCode', e ? e.value : '')}
+            onChange={e => onChangeSelect('languageCode', e)}
           />
         </FormGroup>
 
@@ -86,7 +94,7 @@ function ChooseSettings({
               <ControlLabel required={true}>Form to display</ControlLabel>
               <SelectForm
                 value={formId}
-                onChange={e => onChange('formId', e ? e.value : '')}
+                onChange={e => onChangeSelect('formId', e)}
                 placeholder="Choose a form"
               />
             </FormGroup>

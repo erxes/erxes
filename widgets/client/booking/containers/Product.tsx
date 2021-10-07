@@ -4,10 +4,11 @@ import { AppConsumer } from './AppContext';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { productDetail } from '../graphql';
 import gql from 'graphql-tag';
-import { IProduct } from '../types';
+import { IBooking, IProduct } from '../types';
 
 type Props = {
   productId: string;
+  booking: IBooking;
 };
 
 type QueryResponse = {
@@ -41,7 +42,10 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeProduct }) => <WithData productId={activeProduct} />}
+    {({ activeProduct, getBooking }) => {
+      const booking = getBooking();
+      return <WithData productId={activeProduct} booking={booking} />;
+    }}
   </AppConsumer>
 );
 

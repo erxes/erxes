@@ -14,10 +14,15 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const { title, description, childCategories, mainProductCategory } = booking;
+  const {
+    title,
+    description,
+    childCategories,
+    mainProductCategory,
+    styles
+  } = booking;
   const { attachment } = mainProductCategory;
-  const widgetColor = '#4bbf6b'
-
+  const { widgetColor } = styles;
 
   return (
     <div className="main-container">
@@ -33,19 +38,17 @@ function Booking({ goToIntro, booking }: Props) {
       </div>
       <div className="w-100 flex-center">
         {childCategories.map((block, index) => {
-          return <Block key={index} block={block} />;
+          return <Block key={index} block={block} widgetColor={widgetColor} />;
         })}
       </div>
 
       {/* fooooooterrr  */}
       <div className="flex-sb w-100">
         <button className={`btn bg-${widgetColor}`} onClick={() => goToIntro()}>
-          <i className="icon-arrow-left" />
           Back
         </button>
         <button className={`btn bg-${widgetColor}`} onClick={() => goToIntro()}>
           Next
-          <i className="icon-arrow-right" />
         </button>
       </div>
     </div>

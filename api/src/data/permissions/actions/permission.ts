@@ -1235,5 +1235,24 @@ export const moduleObjects = {
         description: 'Remove calendar groups'
       }
     ]
+  },
+  bookings: {
+    name: 'bookings',
+    description: 'Booking',
+    actions: [
+      {
+        name: 'bookingsAll',
+        description: 'All',
+        use: ['showBookings', 'managebookings']
+      },
+      {
+        name: 'manageBookings',
+        description: 'Manage bookings'
+      },
+      {
+        name: 'showBookings',
+        description: 'Show bookings'
+      }
+    ]
   }
 };

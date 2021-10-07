@@ -1,17 +1,16 @@
 import * as React from 'react';
-import { IProductCategory } from '../types';
+import { IBooking, IProductCategory } from '../types';
 
 type Props = {
   block: IProductCategory;
+  widgetColor:string;
   goToBlock: (blockId: string) => void;
 };
 
-function Block({ block, goToBlock }: Props) {
+function Block({ block, widgetColor, goToBlock }: Props) {
   const handleOnClick = () => {
     goToBlock(block._id);
   };
-
-  const widgetColor = '#4bbf6b'
 
   return (
     <div className={`block border-${widgetColor}`} onClick={handleOnClick}>

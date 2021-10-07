@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { IStyle } from '../../types';
 
 type Props = {
   items?: any[];
@@ -8,6 +9,8 @@ type Props = {
   className?: string;
   treeView?: boolean;
   parentId?: string;
+
+  styles: IStyle;
 
   changeRoute: (item: any) => void;
 
@@ -100,7 +103,8 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
-    const { showCheckmark = true, changeRoute } = this.props;
+    const { showCheckmark = true, changeRoute, styles } = this.props;
+    const { widgetColor, productAvailable } = styles;
     const { key } = this.state;
 
     if (key && item.name.toLowerCase().indexOf(key.toLowerCase()) < 0) {
@@ -108,10 +112,9 @@ class FilterableList extends React.Component<Props, State> {
     }
     const onClick = () => this.toggleItem(item._id);
     const isOpen = this.state.parentIds[item._id] || !!key;
-    const widgetColor = '#4bbf6b'
     let stock = stockCnt === 0 ? '#AAAAAA' : widgetColor;
     if (stockCnt > 0 && stockCnt < 10) {
-      stock = '#F47373';
+      stock = productAvailable;
     }
     return (
       <li

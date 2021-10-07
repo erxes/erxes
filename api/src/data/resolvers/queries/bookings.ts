@@ -3,6 +3,10 @@ import { paginate } from '../../utils';
 import { IContext } from '../../types';
 import { TAG_TYPES } from '../../../db/models/definitions/constants';
 import { getDocumentList } from '../mutations/cacheUtils';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 
 /**
  * Common helper for bookings & bookingsTotalCount
@@ -83,7 +87,6 @@ const bookingQueries = {
   async bookingsTotalCount(
     _root,
     args: {
-      kind: string;
       channelId: string;
       brandId: string;
       tag: string;
@@ -96,7 +99,7 @@ const bookingQueries = {
       byTag: {},
       byChannel: {},
       byBrand: {},
-      byStatus: { active: 0, archived: 0 }
+      byStatus: { active: 0, archived: 0, disabled: 0 }
     };
 
     const qry = {
@@ -107,7 +110,7 @@ const bookingQueries = {
       return Bookings.find(query).countDocuments();
     };
 
-    // Counting integrations by tag
+    // Counting bookings by tag
     const tags = await Tags.find({ type: TAG_TYPES.BOOKING });
 
     for (const tag of tags) {
@@ -119,7 +122,7 @@ const bookingQueries = {
         : 0;
     }
 
-    // Counting integrations by channel
+    // Counting bookings by channel
     const channels = await getDocumentList('channels', {});
 
     for (const channel of channels) {
@@ -135,7 +138,7 @@ const bookingQueries = {
         : 0;
     }
 
-    // Counting integrations by brand
+    // Counting bookings by brand
     const brands = await getDocumentList('brands', {});
 
     for (const brand of brands) {
@@ -149,6 +152,7 @@ const bookingQueries = {
 
     counts.byStatus.active = await count({ isActive: true, ...qry });
     counts.byStatus.archived = await count({ isActive: false, ...qry });
+    counts.byStatus.disabled = await count({ isActive: false, ...qry });
 
     if (args.status) {
       if (args.status === 'active') {
@@ -164,5 +168,9 @@ const bookingQueries = {
     return counts;
   }
 };
+
+moduleRequireLogin(bookingQueries);
+
+checkPermission(bookingQueries, 'bookings', 'showBookings', []);
 
 export default bookingQueries;

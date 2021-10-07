@@ -11,11 +11,11 @@ function Floor({ floor }: Props) {
     return null;
   }
   return(
-    <div className="main-container">
-        <div className="main-header">
+    <div className="grid-13 mt-30">
+        <div className="detail">
           <div className="flex-center b mb-10">Давхарын сонголт</div>
-          <div>
-          {/* <img src={readFile(floor.attachment.url)} alt="hello" /> */}
+          <div className="flex-center" >
+          <img src={readFile(floor.attachment.url)} alt="hello" />
           </div>
       </div>
       </div>

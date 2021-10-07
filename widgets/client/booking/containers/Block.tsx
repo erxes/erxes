@@ -1,10 +1,11 @@
 import * as React from 'react';
 import Block from '../components/Block';
-import { IProductCategory } from '../types';
+import { IBooking, IProductCategory } from '../types';
 import { AppConsumer } from './AppContext';
 
 type Props = {
   block: IProductCategory;
+  widgetColor:string;
 };
 
 function BlockContainer(props: Props) {

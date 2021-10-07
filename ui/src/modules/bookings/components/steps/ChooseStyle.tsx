@@ -12,7 +12,6 @@ import {
   ColorPick,
   ColorPicker,
   SubHeading,
-  // SubItem,
   WidgetBackgrounds
 } from 'modules/settings/styles';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';

@@ -2,14 +2,14 @@ import { IBrand, IUser } from '../types';
 
 export interface IStyle {
   itemShape?: string;
-  widgetColor?: string;
-  productAvailable?: string;
-  productUnavailable?: string;
-  productSelected?: string;
+  widgetColor: string;
+  productAvailable: string;
+  productUnavailable: string;
+  productSelected: string;
 
-  textAvailable?: string;
-  textUnavailable?: string;
-  textSelected?: string;
+  textAvailable: string;
+  textUnavailable: string;
+  textSelected: string;
 }
 
 export interface IProductCategory {
@@ -79,7 +79,7 @@ export interface IBooking {
   createdUser?: IUser;
 
   // style
-  styles?: IStyle;
+  styles: IStyle;
 
   // child categories
   childCategories: IProductCategory[];

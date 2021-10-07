@@ -8,17 +8,18 @@ import { bookingDetail } from '../graphql';
 import { IBooking } from '../types';
 
 type QueryResponse = {
-  bookingDetail: IBooking;
+  widgetsBookingDetail: IBooking;
 };
 
 function AppContainer(props: ChildProps<{}, QueryResponse>) {
   const { data } = props;
 
-  if (!data || data.loading || !data.bookingDetail) {
+  if (!data || data.loading || !data.widgetsBookingDetail) {
     return null;
   }
 
-  const booking = data.bookingDetail;
+  const booking = data.widgetsBookingDetail;
+  connection.data.booking = booking;
 
   return (
     <AppProvider>

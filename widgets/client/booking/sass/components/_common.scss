@@ -3,6 +3,11 @@
   justify-content: center;
   align-items: center;
 }
+.flex-end{
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
 .flex-sb {
   display: flex;
   justify-content: space-between;
@@ -43,6 +48,9 @@
 .mr-10 {
   margin-right: 10px;
 }
+.mt-30 {
+  margin-top: 30px;
+}
 .mr-30 {
   margin-right: 30px !important;
   &:hover {
@@ -52,11 +60,18 @@
 .mb-10 {
   margin-bottom: 10px !important;
 }
+.grid-21{
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.grid-13{
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
+
 .grid-131 {
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
-}
-.grid-nav {
   grid-template-columns: 1fr 3fr 1fr;
 }
 .grid {
