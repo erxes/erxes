@@ -606,10 +606,12 @@ export const itemsArchive = async (
 ) => {
   const { collection } = getCollection(type);
 
-  const items = await collection.find({
-    stageId,
-    status: { $ne: BOARD_STATUSES.ARCHIVED }
-  });
+  const items = await collection
+    .find({
+      stageId,
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    })
+    .lean();
 
   await collection.updateMany(
     { stageId },

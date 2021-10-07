@@ -330,7 +330,7 @@ export const copyChecklists = async (params: IChecklistParams) => {
   const originalChecklists = await Checklists.find({
     contentType,
     contentTypeId
-  });
+  }).lean();
 
   const clonedChecklists = await Checklists.insertMany(
     originalChecklists.map(originalChecklist => ({
@@ -354,7 +354,7 @@ export const copyChecklists = async (params: IChecklistParams) => {
 
   const originalChecklistItems = await ChecklistItems.find({
     checklistId: { $in: originalChecklists.map(x => x._id) }
-  });
+  }).lean();
 
   await ChecklistItems.insertMany(
     originalChecklistItems.map(({ content, order, checklistId }) => ({
