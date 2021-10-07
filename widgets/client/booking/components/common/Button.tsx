@@ -1,15 +1,22 @@
 import * as React from 'react';
 
 type Props = {
-  type:string;
+  text: string;
   onClickHandler: () => void;
+  color?: string;
+  style?: {};
 };
 
-function Button(type: string, { onClickHandler }: Props) {
+function Button({ color, text, onClickHandler, style }: Props) {
   return (
-      <button type="button" className={`${type}`} onClick={onClickHandler}>
-        {`${type}`}
-      </button>
+    <button
+      type="button"
+      className={`btn bg-${color}`}
+      onClick={onClickHandler}
+      style={style}
+    >
+      {`${text}`}
+    </button>
   );
 }
 

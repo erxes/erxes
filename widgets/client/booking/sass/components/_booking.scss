@@ -120,65 +120,6 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
   }
 }
 
-.erxes-kb-item {
-  background: $white;
-  border: 1px solid $border-color;
-  border-radius: $border-radius;
-  box-shadow: 0 6px 8px 0 rgba($black, 0.07);
-  display: block;
-  margin-bottom: $kb-spacing;
-  padding: $kb-spacing 35px;
-  text-decoration: none;
-  transition: box-shadow 0.3s ease;
-  cursor: pointer;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  h3 {
-    color: lighten($black, 36%);
-    font-size: 18px;
-    margin-bottom: 5px;
-    margin-top: 0;
-  }
-
-  p {
-    color: $text-color;
-    font-size: 15px;
-    line-height: 24px;
-    margin-bottom: 7px;
-    margin-top: 0;
-  }
-
-  &.detail {
-    padding: 50px 60px;
-    cursor: auto;
-    position: relative;
-
-    h1 {
-      color: lightten($black, 30%);
-      font-size: 30px;
-      font-weight: normal;
-      margin-top: 0;
-    }
-
-    .erxes-article-content p {
-      font-size: 16px;
-      line-height: 28px;
-      margin-bottom: 15px;
-    }
-
-    .item-meta {
-      color: $text-color-light;
-      margin-bottom: $core-spacing;
-    }
-  }
-
-  &:hover {
-    box-shadow: 0 6px 8px 0 rgba($black, 0.13);
-  }
-}
 .category-container {
   background: rgba($black, 0.044);
   border-radius: $border-radius;
@@ -211,8 +152,14 @@ hr {
   grid-column-start: 2;
 }
 
-.icon-leftarrow:before {
-  content: '\e84a';
+.icon-leftarrow{
+  &:before {
+    content: '\e84a';
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .icon-arrow-left:before {
@@ -222,8 +169,14 @@ hr {
   content: '\e9dc';
 }
 
-.icon-menu-2:before {
+.icon-menu-2 {
+  &:before {
   content: '\e852';
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 

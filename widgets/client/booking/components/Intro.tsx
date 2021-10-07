@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { readFile } from '../../utils';
 import { IBooking } from '../types';
+import Button from './common/Button';
 
 type Props = {
   booking: IBooking;
@@ -10,17 +11,6 @@ type Props = {
 function Intro({ booking, goToBooking }: Props) {
   const { title, description, image, styles } = booking;
   const { widgetColor } = styles;
-
-  // const style = {
-  //   itemShape: styles && styles.itemShape || "circle",
-  //   productAvailable: styles && styles.productAvailable || "#4bbf6b",
-  //   productSelected:styles && styles.productSelected || "#f47373",
-  //   productUnavailable: styles && styles.productUnavailable || "#888",
-  //   textAvailable: styles && styles.textAvailable || "#4bbf6b",
-  //   textSelected: styles && styles.textSelected || "#f47373",
-  //   textUnavailable: styles && styles.textUnavailable || "#AAA",
-  //   widgetColor: styles && styles.widgetColor || "#4bbf6b"
-  // }
 
   return (
     <div className="main-container">
@@ -32,14 +22,12 @@ function Intro({ booking, goToBooking }: Props) {
         <img src={readFile(image && image.url)} alt={title} />
       </div>
       <div className="flex-end">
-      <button
-        className={`btn bg-${widgetColor}`}
-        onClick={() => goToBooking(booking)}
-      >
-        Next
-      </button>
+        <Button
+          text="Next"
+          onClickHandler={() => goToBooking(booking)}
+          style={{ backgroundColor: widgetColor }}
+        />
       </div>
-      
     </div>
   );
 }

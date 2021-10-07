@@ -1,18 +1,20 @@
 import * as React from 'react';
-import { IProductCategory } from '../types';
+import { IBooking, IProductCategory } from '../types';
 import { readFile } from '../../utils';
-import { BackButton } from './common';
+import Button from './common/Button';
 
 type Props = {
-  goToBookings?: () => void;
+  goToBookings: () => void;
   block?: IProductCategory;
+  booking?: IBooking;
 };
 
-function BlockDetail({ goToBookings, block }: Props) {
-  if (!block) {
+function BlockDetail({ goToBookings, block, booking }: Props) {
+  if (!block || !booking) {
     return null;
   }
-  const widgetColor = "#"
+
+  const { widgetColor } = booking.styles;
 
   return (
     <div className="main-container">
@@ -23,14 +25,16 @@ function BlockDetail({ goToBookings, block }: Props) {
           <img
             src={readFile(block.attachment && block.attachment.url)}
             alt="hello"
+            style={{ maxHeight: '500px' }}
           />
         </div>
-
-        <div className="flex-sb w-100">
-          <button className={`btn bg-${widgetColor}`} onClick={goToBookings}>
-            Back
-          </button>
-        </div>
+      </div>
+      <div className="flex-sb w-100">
+        <Button
+          text="Back"
+          onClickHandler={goToBookings}
+          style={{ backgroundColor: widgetColor }}
+        />
       </div>
     </div>
   );

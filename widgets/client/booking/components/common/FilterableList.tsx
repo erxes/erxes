@@ -97,6 +97,11 @@ class FilterableList extends React.Component<Props, State> {
       >
         <div
           className={`arrow ${isOpen ? 'arrow-down' : 'arrow-right'}-${stock}`}
+          style={
+            isOpen
+              ? { borderTop: `5px solid ${stock}` }
+              : { borderLeft: `5px solid ${stock}` }
+          }
         />
       </div>
     ) : null;
@@ -104,22 +109,27 @@ class FilterableList extends React.Component<Props, State> {
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
     const { showCheckmark = true, changeRoute, styles } = this.props;
-    const { widgetColor, productAvailable } = styles;
+    const { widgetColor, productAvailable, productUnavailable } = styles;
     const { key } = this.state;
 
     if (key && item.name.toLowerCase().indexOf(key.toLowerCase()) < 0) {
       return false;
     }
     const onClick = () => this.toggleItem(item._id);
+
     const isOpen = this.state.parentIds[item._id] || !!key;
-    let stock = stockCnt === 0 ? '#AAAAAA' : widgetColor;
+
+    let stock = stockCnt === 0 ? productUnavailable : widgetColor;
+
     if (stockCnt > 0 && stockCnt < 10) {
       stock = productAvailable;
     }
+
     return (
       <li
         key={item._id}
-        className={`list flex-sb text-${stock}`}
+        className={`list flex-sb `}
+        style={{ color: stock }}
         onClick={onClick}
       >
         <div className="flex-center">
@@ -128,7 +138,9 @@ class FilterableList extends React.Component<Props, State> {
             {item.name || '[undefined]'}
           </div>
         </div>
-        <div className={`circle center bg-${stock}`}>{stockCnt}</div>
+        <div className={`circle center `} style={{ backgroundColor: stock }}>
+          {stockCnt}
+        </div>
       </li>
     );
   }
@@ -166,7 +178,7 @@ class FilterableList extends React.Component<Props, State> {
     }
 
     if (items.length === 0) {
-      return <div>hooson baina</div>;
+      return null;
     }
 
     const parents = items.filter(item => item.parentId === parentId);

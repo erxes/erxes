@@ -9,6 +9,7 @@ import { IBooking, IProduct } from '../types';
 type Props = {
   productId: string;
   booking: IBooking;
+  goToBookings: () => void;
 };
 
 type QueryResponse = {
@@ -42,9 +43,15 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeProduct, getBooking }) => {
+    {({ activeProduct, getBooking, goToBookings }) => {
       const booking = getBooking();
-      return <WithData productId={activeProduct} booking={booking} />;
+      return (
+        <WithData
+          productId={activeProduct}
+          booking={booking}
+          goToBookings={goToBookings}
+        />
+      );
     }}
   </AppConsumer>
 );

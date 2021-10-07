@@ -7,7 +7,7 @@ import gql from 'graphql-tag';
 import { productCategory } from '../graphql';
 
 type Props = {
-  goToBookings?: () => void;
+  goToBookings: () => void;
   blockId?: string | null;
   categoryId?: string;
 };
@@ -25,7 +25,7 @@ function BlockDetailContainer(props: ChildProps<Props, QueryResponse>) {
 
   const extendedProps = {
     ...props,
-    block: data.widgetsProductCategory,
+    block: data.widgetsProductCategory
   };
   return <BlockDetail {...extendedProps} />;
 }
@@ -42,8 +42,15 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeBlock,  goToBookings }) => {
-      return <WithData goToBookings={goToBookings} blockId={activeBlock} />;
+    {({ activeBlock, goToBookings, getBooking }) => {
+      const booking = getBooking();
+      return (
+        <WithData
+          goToBookings={goToBookings}
+          blockId={activeBlock}
+          booking={booking}
+        />
+      );
     }}
   </AppConsumer>
 );

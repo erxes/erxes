@@ -2,6 +2,7 @@ import * as React from 'react';
 import { readFile } from '../../utils';
 import { IBooking } from '../types';
 import { Block } from '../containers';
+import Button from './common/Button';
 
 type Props = {
   goToIntro: () => void;
@@ -44,12 +45,11 @@ function Booking({ goToIntro, booking }: Props) {
 
       {/* fooooooterrr  */}
       <div className="flex-sb w-100">
-        <button className={`btn bg-${widgetColor}`} onClick={() => goToIntro()}>
-          Back
-        </button>
-        <button className={`btn bg-${widgetColor}`} onClick={() => goToIntro()}>
-          Next
-        </button>
+        <Button
+          text="Back"
+          onClickHandler={() => goToIntro()}
+          style={{ backgroundColor: widgetColor }}
+        />
       </div>
     </div>
   );
