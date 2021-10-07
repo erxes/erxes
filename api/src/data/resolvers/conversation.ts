@@ -125,7 +125,7 @@ export default {
     const message = await ConversationMessages.findOne({
       conversationId: conversation._id,
       contentType: MESSAGE_TYPES.VIDEO_CALL
-    });
+    }).lean();
 
     if (!message) {
       return null;
@@ -160,7 +160,7 @@ export default {
       conversationId: conversation._id,
       customerId: { $exists: true },
       createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    }).limit(1);
+    }).limit(1).lean();
 
     if (message.length && message.length >= 1) {
       return false;
