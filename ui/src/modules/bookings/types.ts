@@ -94,7 +94,6 @@ export type BookingsCount = {
   byTag: Counts;
   byChannel: Counts;
   byBrand: Counts;
-  byKind: Counts;
   byStatus: Counts;
 };
 

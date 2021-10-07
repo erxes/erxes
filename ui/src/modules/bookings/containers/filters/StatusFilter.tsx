@@ -1,4 +1,4 @@
-import StatusFilter from 'modules/leads/components/StatusFilter';
+import StatusFilter from '../../components/StatusFilter';
 import React from 'react';
 import { Counts } from '../../types';
 

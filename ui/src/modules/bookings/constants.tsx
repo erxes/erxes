@@ -36,3 +36,9 @@ export const PRODUCT_PROPERTIES = {
     { label: 'Bedrooms', value: 'bedrooms' }
   ]
 };
+
+export const statusFilters = [
+  { key: 'active', value: 'Active' },
+  { key: 'archived', value: 'Archived' },
+  { key: 'disabled', value: 'Disabled' }
+];

@@ -83,7 +83,6 @@ const bookingQueries = {
   async bookingsTotalCount(
     _root,
     args: {
-      kind: string;
       channelId: string;
       brandId: string;
       tag: string;
@@ -96,7 +95,7 @@ const bookingQueries = {
       byTag: {},
       byChannel: {},
       byBrand: {},
-      byStatus: { active: 0, archived: 0 }
+      byStatus: { active: 0, archived: 0, disabled: 0 }
     };
 
     const qry = {
@@ -149,6 +148,7 @@ const bookingQueries = {
 
     counts.byStatus.active = await count({ isActive: true, ...qry });
     counts.byStatus.archived = await count({ isActive: false, ...qry });
+    counts.byStatus.disabled = await count({ isActive: false, ...qry });
 
     if (args.status) {
       if (args.status === 'active') {
