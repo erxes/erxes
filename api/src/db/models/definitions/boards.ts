@@ -5,6 +5,7 @@ import {
   BOARD_STATUSES_OPTIONS,
   BOARD_TYPES,
   HACK_SCORING_TYPES,
+  PIPELINE_CONDITION,
   PIPELINE_VISIBLITIES,
   PROBABILITY,
   TIME_TRACK_TYPES
@@ -76,6 +77,7 @@ export interface IPipeline extends ICommonFields {
   name?: string;
   boardId: string;
   visibility?: string;
+  condition?: string;
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
@@ -235,6 +237,12 @@ export const pipelineSchema = new Schema({
     enum: PIPELINE_VISIBLITIES.ALL,
     default: PIPELINE_VISIBLITIES.PUBLIC,
     label: 'Visibility'
+  }),
+  condition: field({
+    type: String,
+    enum: PIPELINE_CONDITION.ALL,
+    default: PIPELINE_CONDITION.INCLUDE,
+    label: 'Condition'
   }),
   watchedUserIds: field({ type: [String], label: 'Watched users' }),
   memberIds: field({ type: [String], label: 'Members' }),

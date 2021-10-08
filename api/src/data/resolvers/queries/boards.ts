@@ -178,8 +178,25 @@ const boardQueries = {
                   { visibility: 'private' },
                   {
                     $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id }
+                      {
+                        $and: [
+                          { condition: 'include' },
+                          {
+                            $or: [{ memberIds: user._id }, { userId: user._id }]
+                          }
+                        ]
+                      },
+                      {
+                        $and: [
+                          { condition: 'exclude' },
+                          {
+                            $or: [
+                              { excludMemberIds: user._id },
+                              { userId: user._id }
+                            ]
+                          }
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -188,7 +205,6 @@ const boardQueries = {
           };
 
     const { page, perPage } = queryParams;
-
     if (boardId) {
       query.boardId = boardId;
     }

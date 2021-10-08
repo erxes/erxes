@@ -9,7 +9,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -38,6 +38,8 @@ type Props = {
 type State = {
   stages: IStage[];
   visibility: string;
+  condition: string;
+  label: string;
   selectedMemberIds: string[];
   backgroundColor: string;
   isCheckUser: boolean;
@@ -54,6 +56,8 @@ class PipelineForm extends React.Component<Props, State> {
     this.state = {
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
+      condition: pipeline ? pipeline.condition || 'include' : 'include',
+      label: pipeline ? pipeline.label || 'static' : 'static',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
@@ -65,6 +69,18 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeStages = stages => {
     this.setState({ stages });
+  };
+
+  onChangeCondition = (e: React.FormEvent<HTMLElement>) => {
+    this.setState({
+      condition: (e.currentTarget as HTMLInputElement).value
+    });
+  };
+
+  onChangeLabel = (e: React.FormEvent<HTMLElement>) => {
+    this.setState({
+      label: (e.currentTarget as HTMLInputElement).value
+    });
   };
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
@@ -101,7 +117,8 @@ class PipelineForm extends React.Component<Props, State> {
       backgroundColor,
       isCheckUser,
       excludeCheckUserIds,
-      boardId
+      boardId,
+      condition
     } = this.state;
     const finalValues = values;
 
@@ -118,7 +135,8 @@ class PipelineForm extends React.Component<Props, State> {
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       isCheckUser,
-      excludeCheckUserIds
+      excludeCheckUserIds,
+      condition
     };
   };
 
@@ -131,9 +149,18 @@ class PipelineForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
+        <ControlLabel>Condition</ControlLabel>
+        <FormControl
+          name="condition"
+          componentClass="select"
+          value={this.state.condition}
+          onChange={this.onChangeCondition}
+        >
+          <option value="include">{__('Include')}</option>
+          <option value="exclude">{__('Exclude')}</option>
+        </FormControl>
         <SelectMemberStyled zIndex={2002}>
           <ControlLabel>Members</ControlLabel>
-
           <SelectTeamMembers
             label="Choose members"
             name="selectedMemberIds"
@@ -249,21 +276,7 @@ class PipelineForm extends React.Component<Props, State> {
           {renderExtraFields && renderExtraFields(formProps)}
 
           <FlexContent>
-            <ExpandWrapper>
-              <FormGroup>
-                <ControlLabel required={true}>Visibility</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="visibility"
-                  componentClass="select"
-                  value={this.state.visibility}
-                  onChange={this.onChangeVisibility}
-                >
-                  <option value="public">{__('Public')}</option>
-                  <option value="private">{__('Private')}</option>
-                </FormControl>
-              </FormGroup>
-            </ExpandWrapper>
+            {this.renderBoards()}
             <FormGroup>
               <ControlLabel>Background</ControlLabel>
               <div>
@@ -283,10 +296,52 @@ class PipelineForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexContent>
 
-          {this.renderBoards()}
+          <FormGroup>
+            <ControlLabel required={true}>Label</ControlLabel>
+            <FormGroup>
+              <FormControl
+                name="Label"
+                componentClass="radio"
+                value={this.state.label}
+                onChange={this.onChangeLabel}
+              >
+                {__('Static')}
+                <div>
+                  accepts only pre-assigned labels, users can manage labels from
+                  this settings
+                </div>
+              </FormControl>
+              <FormControl
+                name="Label"
+                componentClass="radio"
+                value={this.state.label}
+                onChange={this.onChangeLabel}
+              >
+                {__('Dynamic')}
+                <div>
+                  accepts any labels, users can manage labels from the card
+                </div>
+              </FormControl>
+            </FormGroup>
+          </FormGroup>
 
-          {this.renderSelectMembers()}
-
+          <FormGroup>
+            <ControlLabel required={true}>Visibility</ControlLabel>
+            <FormGroup>
+              <ControlLabel>State</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="visibility"
+                componentClass="select"
+                value={this.state.visibility}
+                onChange={this.onChangeVisibility}
+              >
+                <option value="public">{__('Public')}</option>
+                <option value="private">{__('Private')}</option>
+              </FormControl>
+              {this.renderSelectMembers()}
+            </FormGroup>
+          </FormGroup>
           <FormGroup>
             <ControlLabel>
               {__(`Show only the user's assigned(created)`)} {this.props.type}s

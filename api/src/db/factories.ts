@@ -496,7 +496,10 @@ interface ICompanyFactoryInput {
   code?: string;
 }
 
-export const companyFactory = async (params: ICompanyFactoryInput = {}, syncToEs=false) => {
+export const companyFactory = async (
+  params: ICompanyFactoryInput = {},
+  syncToEs = false
+) => {
   const companyDoc = {
     primaryName: params.primaryName || faker.random.word(),
     names: params.names || [],
@@ -1053,6 +1056,7 @@ interface IPipelineFactoryInput {
   bgColor?: string;
   hackScoringType?: string;
   visibility?: string;
+  condition?: string;
   memberIds?: string[];
   watchedUserIds?: string[];
   startDate?: Date;
@@ -1135,48 +1139,48 @@ interface IDealFactoryInput {
 }
 
 const createConformities = async (mainType, object, params) => {
-    for (const companyId of params.companyIds || []) {
-      const conform = await Conformities.addConformity({
+  for (const companyId of params.companyIds || []) {
+    const conform = await Conformities.addConformity({
+      mainType,
+      mainTypeId: object._id,
+      relType: 'company',
+      relTypeId: companyId
+    });
+
+    await fetchElk({
+      action: 'create',
+      index: 'conformities',
+      body: {
         mainType,
         mainTypeId: object._id,
         relType: 'company',
         relTypeId: companyId
-      });
+      },
+      _id: conform._id
+    });
+  }
 
-      await fetchElk({
-        action: 'create',
-        index: 'conformities',
-        body: {
-          mainType,
-          mainTypeId: object._id,
-          relType: 'company',
-          relTypeId: companyId
-        },
-        _id: conform._id
-      });
-    }
+  for (const customerId of params.customerIds || []) {
+    const conform = await Conformities.addConformity({
+      mainType,
+      mainTypeId: object._id,
+      relType: 'customer',
+      relTypeId: customerId
+    });
 
-    for (const customerId of params.customerIds || []) {
-      const conform = await Conformities.addConformity({
+    await fetchElk({
+      action: 'create',
+      index: 'conformities',
+      body: {
         mainType,
         mainTypeId: object._id,
         relType: 'customer',
         relTypeId: customerId
-      });
-
-      await fetchElk({
-        action: 'create',
-        index: 'conformities',
-        body: {
-          mainType,
-          mainTypeId: object._id,
-          relType: 'customer',
-          relTypeId: customerId
-        },
-        _id: conform._id
-      });
-    }
-}
+      },
+      _id: conform._id
+    });
+  }
+};
 
 export const dealFactory = async (
   params: IDealFactoryInput = {},
@@ -1250,7 +1254,10 @@ const attachmentFactory = () => ({
   size: faker.random.number()
 });
 
-export const taskFactory = async (params: ITaskFactoryInput = {}, syncToEs=false) => {
+export const taskFactory = async (
+  params: ITaskFactoryInput = {},
+  syncToEs = false
+) => {
   const board = await boardFactory({ type: BOARD_TYPES.TASK });
   const pipeline = await pipelineFactory({
     boardId: board._id,
@@ -1309,7 +1316,10 @@ interface ITicketFactoryInput {
   customerIds?: string[];
 }
 
-export const ticketFactory = async (params: ITicketFactoryInput = {}, syncToEs=false) => {
+export const ticketFactory = async (
+  params: ITicketFactoryInput = {},
+  syncToEs = false
+) => {
   const board = await boardFactory({ type: BOARD_TYPES.TICKET });
   const pipeline = await pipelineFactory({
     boardId: board._id,

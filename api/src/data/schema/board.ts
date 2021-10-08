@@ -17,6 +17,7 @@ export const types = `
     name: String!
     boardId: String!
     visibility: String!
+    condition: String!
     memberIds: [String]
     members: [User]
     bgColor: String
@@ -118,6 +119,7 @@ const pipelineParams = `
   type: String!,
   stages: JSON,
   visibility: String!,
+  condition: String!
   memberIds: [String],
   bgColor: String,
   startDate: Date,

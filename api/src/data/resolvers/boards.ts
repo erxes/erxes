@@ -19,8 +19,32 @@ export default {
           $or: [
             { visibility: 'public' },
             {
-              visibility: 'private',
-              $or: [{ memberIds: user._id }, { userId: user._id }]
+              $and: [
+                { visibility: 'private' },
+                {
+                  $or: [
+                    {
+                      $and: [
+                        { condition: 'include' },
+                        {
+                          $or: [{ memberIds: user._id }, { userId: user._id }]
+                        }
+                      ]
+                    },
+                    {
+                      $and: [
+                        { condition: 'exclude' },
+                        {
+                          $or: [
+                            { excludMemberIds: user._id },
+                            { userId: user._id }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

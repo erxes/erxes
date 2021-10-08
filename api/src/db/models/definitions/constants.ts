@@ -252,6 +252,12 @@ export const PRODUCT_STATUSES = {
   ALL: ['active', 'deleted']
 };
 
+export const PIPELINE_CONDITION = {
+  INCLUDE: 'include',
+  EXCLUDE: 'exclude',
+  ALL: ['include', 'exclude']
+};
+
 export const PIPELINE_VISIBLITIES = {
   PUBLIC: 'public',
   PRIVATE: 'private',

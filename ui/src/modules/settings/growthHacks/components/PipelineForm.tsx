@@ -37,6 +37,7 @@ type Props = {
 
 type State = {
   visibility: string;
+  condition: string;
   selectedMemberIds: string[];
   backgroundColor: string;
   hackScoringType: string;
@@ -56,6 +57,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     this.state = {
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
+      condition: pipeline ? pipeline.condition || 'include' : 'include',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
