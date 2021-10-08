@@ -3,6 +3,8 @@ import { IBooking, IProduct } from '../types';
 import Slider from 'react-slick';
 import { getEnv, readFile } from '../../utils';
 import Button from './common/Button';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 type Props = {
   product?: IProduct;
@@ -16,23 +18,15 @@ function Product({ product, booking, goToBookings }: Props) {
   }
 
   const { widgetColor } = booking.styles;
-
-  // const settings = {
-  //   customPaging: function(i:any) {
-  //     return (
-  //       <a>
-  //         <img src={readFile(product.attachment && product.attachment.url)} alt={product.attachment.name} />
-  //       </a>
-  //     );
-  //   },
-  //   dots: true,
-  //   dotsClass: "slick-dots slick-thumb",
-  //   infinite: true,
-  //   speed: 500,
-  //   slidesToShow: 1,
-  //   slidesToScroll: 1
-  // };
-
+  const settings = {
+    dots: true,
+    dotsClass: "slick-dots slick-thumb",
+    infinite: true,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+  };
   const onSimulate = () => {
     const { ROOT_URL } = getEnv();
     window.open(
@@ -41,6 +35,12 @@ function Product({ product, booking, goToBookings }: Props) {
       'width=800,height=800'
     );
   };
+  const showFull = (img:any) => {
+    const image = document.getElementById( String(img.name));
+    if(image){
+      //image.src = readFile(img && img.src);
+    }
+  }
 
   return (
     <div className="product">
@@ -49,19 +49,20 @@ function Product({ product, booking, goToBookings }: Props) {
         <span>{product.description}</span>
       </div>
 
-      <div className="grid-21">
-        <div className="">
-          {/* <Slider {...settings}>
-          {product.attachmentMore?.map( (img:any) => <div>
-                 <img src={readFile(img && img.url)} alt={img.name} />
-                </div>)
+      <div className="grid-21 mw-500">
+        <div className="slider">
+        <a>
+        <div className="mw-500" id="img-active">
+           <img id ={product.attachment.name} src={readFile(product.attachment && product.attachment.url)} alt={product.attachment.name} /> 
+        </div>
+        </a>
+        
+          <Slider className="mw-500" {...settings}>
+          {product.attachmentMore?.map( (img:any) =>
+               <div className="m-10" onClick={() => showFull(img)}> <img id ={img.name} src={readFile(img && img.url)} alt={img.name} /> </div>
+          )
           }
-        </Slider> */}
-
-          <img
-            src={readFile(product.attachment && product.attachment.url)}
-            alt={'apartment'}
-          />
+        </Slider>
         </div>
         <div className="detail">
           <div>Price per unit: {product.unitPrice}</div>
@@ -69,15 +70,12 @@ function Product({ product, booking, goToBookings }: Props) {
         </div>
       </div>
 
-      <div className="flex-start">
+      <div className="flex-sb">
         <Button
           text="Back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor }}
         />
-      </div>
-
-      <div className="flex-end">
         <Button
           text={booking.buttonText || 'Захиалах'}
           onClickHandler={() => onSimulate()}

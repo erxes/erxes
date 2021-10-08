@@ -64,7 +64,13 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
 }
-
+.mw-500{
+  max-width: 500px;
+  img{
+    width: 100%;
+    height: auto;
+  }
+}
 .grid-13{
   display: grid;
   grid-template-columns: 1fr 3fr;
