@@ -361,7 +361,9 @@ const boardQueries = {
         }
       }
 
-      stagesObj[stage.name || 'other'] = data;
+      if (data.length > 0) {
+        stagesObj[stage.name || 'other'] = data;
+      }
     }
 
     return stagesObj;
