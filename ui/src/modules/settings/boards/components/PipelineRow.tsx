@@ -40,7 +40,7 @@ class PipelineRow extends React.Component<Props, State> {
   renderArchiveAction() {
     const { archive, pipeline } = this.props;
 
-    if (pipeline.status == 'archived') {
+    if (pipeline.status === 'archived') {
       return null;
     }
 
@@ -56,7 +56,7 @@ class PipelineRow extends React.Component<Props, State> {
   renderUnarchiveAction() {
     const { archive, pipeline } = this.props;
 
-    if (pipeline.status == 'active') {
+    if (pipeline.status === 'active') {
       return null;
     }
 
@@ -127,7 +127,7 @@ class PipelineRow extends React.Component<Props, State> {
 
   render() {
     const { pipeline } = this.props;
-    const labelStyle = pipeline.status == 'active' ? 'success' : 'warning';
+    const labelStyle = pipeline.status === 'active' ? 'success' : 'warning';
 
     return (
       <tr>

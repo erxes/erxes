@@ -63,7 +63,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       let message = ` This will permanently archive the current pipeline. Are you absolutely sure?`;
       let action = 'archived';
 
-      if (status == 'archived') {
+      if (status === 'archived') {
         message = `This will permanently unarchive the current pipeline. Are you absolutely sure?`;
         action = 'unarchived';
       }
