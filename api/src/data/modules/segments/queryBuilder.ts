@@ -651,6 +651,10 @@ export const getIndexByContentType = (contentType: string) => {
     index = 'conversations';
   }
 
+  if (contentType === 'user') {
+    index = 'users';
+  }
+
   return index;
 };
 

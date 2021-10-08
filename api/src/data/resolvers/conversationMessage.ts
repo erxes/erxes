@@ -58,7 +58,7 @@ export default {
   ) {
     const conversation = await Conversations.findOne({
       _id: message.conversationId
-    });
+    }).lean();
 
     if (!conversation || message.internal) {
       return null;

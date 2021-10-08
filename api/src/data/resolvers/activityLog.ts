@@ -61,10 +61,10 @@ export default {
         item = await Tickets.getTicket(contentId);
         break;
       case 'checklist':
-        item = (await Checklists.findOne({ _id: content._id })) || {};
+        item = (await Checklists.findOne({ _id: content._id }).lean()) || {};
         break;
       case 'checklistitem':
-        item = (await ChecklistItems.findOne({ _id: content._id })) || {};
+        item = (await ChecklistItems.findOne({ _id: content._id }).lean()) || {};
         break;
     }
 
@@ -96,8 +96,8 @@ export default {
 
       const destinationStage = await Stages.findOne({
         _id: destinationStageId
-      });
-      const oldStage = await Stages.findOne({ _id: oldStageId });
+      }).lean();
+      const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
       if (destinationStage && oldStage) {
         return {
@@ -117,10 +117,10 @@ export default {
 
       switch (contentType) {
         case 'company':
-          result = await Companies.find({ _id: { $in: activityLog.content } });
+          result = await Companies.find({ _id: { $in: activityLog.content } }).lean();
           break;
         case 'customer':
-          result = await Customers.find({ _id: { $in: activityLog.content } });
+          result = await Customers.find({ _id: { $in: activityLog.content } }).lean();
           break;
       }
 
