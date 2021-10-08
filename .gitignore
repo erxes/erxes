@@ -23,6 +23,10 @@ ecosystem.config.js
 nginx.conf
 private
 !private/emailTemplates
+/plugins/erxes-plugin-car
+/plugins/erxes-plugin-loyalty
+/plugins/erxes-plugin-receive-mobile
+/plugins/erxes-plugin-sync-erkhet
 engages-email-sender/src/__tests__/coverage/
 widgets/static
 *.js.map
