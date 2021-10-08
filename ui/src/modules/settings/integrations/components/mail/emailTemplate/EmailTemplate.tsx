@@ -98,7 +98,7 @@ class EmailTemplate extends React.Component<Props, State> {
   renderLoadMore() {
     const { totalCount, targets } = this.props;
 
-    if (totalCount === targets.length - 1) {
+    if (totalCount === targets.length - 1 || targets.length < 20) {
       return null;
     }
 

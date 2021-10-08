@@ -6,8 +6,9 @@ import { IContext } from '../types';
 export default {
   integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
     return (
-      customer.integrationId &&
-      dataLoaders.integration.load(customer.integrationId)
+      (customer.integrationId &&
+        dataLoaders.integration.load(customer.integrationId)) ||
+      null
     );
   },
 
@@ -65,7 +66,9 @@ export default {
     return (companies || []).slice(0, 10);
   },
 
-  owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return customer.ownerId && dataLoaders.user.load(customer.ownerId);
+  async owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return (
+      (customer.ownerId && dataLoaders.user.load(customer.ownerId)) || null
+    );
   }
 };

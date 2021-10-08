@@ -10,6 +10,7 @@ const options = {
   title: 'Task',
   queriesName: {
     itemsQuery: 'tasks',
+    itemsTotalCountQuery: 'tasksTotalCount',
     detailQuery: 'taskDetail',
     archivedItemsQuery: 'archivedTasks',
     archivedItemsCountQuery: 'archivedTasksCount'
@@ -26,6 +27,7 @@ const options = {
   },
   queries: {
     itemsQuery: queries.tasks,
+    itemsTotalCountQuery: queries.tasksTotalCount,
     detailQuery: queries.taskDetail,
     archivedItemsQuery: queries.archivedTasks,
     archivedItemsCountQuery: queries.archivedTasksCount
