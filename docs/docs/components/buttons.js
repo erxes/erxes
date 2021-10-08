@@ -7,22 +7,22 @@ import "erxes-icon/css/erxes.min.css";
 function Types() {
   return (<>
     <div className={styles.styled}>
-        <Button >Default</Button>
-        <Button btnStyle="primary" uppercase = 'true'>Primary</Button>
-        <Button btnStyle="success">Success</Button>
-        <Button btnStyle="danger">Danger</Button>
-        <Button btnStyle="warning">Warning</Button>
-        <Button btnStyle="simple">Simple</Button>
-        <Button btnStyle="link">Link</Button>
+      <Button >Default</Button>
+      <Button btnStyle="primary" uppercase = 'true'>Primary</Button>
+      <Button btnStyle="success">Success</Button>
+      <Button btnStyle="danger">Danger</Button>
+      <Button btnStyle="warning">Warning</Button>
+      <Button btnStyle="simple">Simple</Button>
+      <Button btnStyle="link">Link</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button>Default</Button>
-        <Button btnStyle="primary">Primary</Button>
-        <Button btnStyle="success">Success</Button>
-        <Button btnStyle="danger">Danger</Button>
-        <Button btnStyle="warning">Warning</Button> 
-        <Button btnStyle="simple">Simple</Button>
-        <Button btnStyle="link">Link</Button>
+      <Button>Default</Button>
+      <Button btnStyle="primary">Primary</Button>
+      <Button btnStyle="success">Success</Button>
+      <Button btnStyle="danger">Danger</Button>
+      <Button btnStyle="warning">Warning</Button> 
+      <Button btnStyle="simple">Simple</Button>
+      <Button btnStyle="link">Link</Button>
 </>`}</CodeBlock>
     </>
   );
@@ -32,14 +32,14 @@ function Types() {
 function Sizes() {
   return (<>
     <div className={styles.styled}>
-        <Button size="large">Large Primary</Button>
-        <Button size="medium">Medium Primary</Button>
-        <Button size="small">Small Primary</Button>
+      <Button size="large">Large Primary</Button>
+      <Button size="medium">Medium Primary</Button>
+      <Button size="small">Small Primary</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button size="large">Large Primary</Button>
-        <Button size="medium">Medium Primary</Button>
-        <Button size="small">Small Primary</Button>
+      <Button size="large">Large Primary</Button>
+      <Button size="medium">Medium Primary</Button>
+      <Button size="small">Small Primary</Button>
 </>`}</CodeBlock>
   </>
   );
@@ -48,12 +48,12 @@ function Sizes() {
 function Activity() {
   return (<>
     <div className={styles.styled}>
-        <Button>Normal button</Button>
-        <Button disabled>Disabled button</Button>
+      <Button>Normal button</Button>
+      <Button disabled>Disabled button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button>Normal button</Button>
-        <Button disabled>Disabled button</Button>
+      <Button>Normal button</Button>
+      <Button disabled>Disabled button</Button>
 </>`}</CodeBlock>
     </>
   );
@@ -62,10 +62,10 @@ function Activity() {
 function Uppercase() {
   return (<>
     <div className={styles.styled}>
-        <Button uppercase>Uppercase button</Button>
+      <Button uppercase>Uppercase button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button uppercase>Uppercase button</Button>
+      <Button uppercase>Uppercase button</Button>
 </>`}</CodeBlock>
     </>
   )
@@ -74,10 +74,10 @@ function Uppercase() {
 function Block() {
   return (<>
     <div className={styles.styled}>
-        <Button block>Full-width button</Button>
+      <Button block>Full-width button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button block>Full-width button</Button>
+      <Button block>Full-width button</Button>
 </>`}</CodeBlock>
     </>
   )
@@ -86,10 +86,10 @@ function Block() {
 function Icon() {
   return (<>
     <div className={styles.styled}>
-        <Button icon="check-circle">Button</Button>
+      <Button icon="check-circle">Button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button icon="check-circle">Button</Button>
+      <Button icon="check-circle">Button</Button>
 </>`}</CodeBlock>
     </>
   )

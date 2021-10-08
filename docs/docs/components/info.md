@@ -3,7 +3,7 @@ id: info
 title: Info
 ---
 
-import { Infos, InfoIcon } from './info.js'
+import { Infos, InfoIcon, Custom } from './info.js'
 
 <p>Provide contextual messages for typical user actions with info messages.</p>
 
@@ -17,3 +17,8 @@ import { Infos, InfoIcon } from './info.js'
 
 <p>You can add icons using <code>iconShow</code> prop.</p>
 <InfoIcon></InfoIcon>
+
+## Custom
+
+<p></p>
+<Custom></Custom>
