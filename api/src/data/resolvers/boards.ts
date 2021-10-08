@@ -12,7 +12,7 @@ export default {
       return Pipelines.find({
         boardId: board._id,
         status: { $ne: 'archived' }
-      });
+      }).lean();
     }
 
     return Pipelines.find({
@@ -29,6 +29,6 @@ export default {
           ]
         }
       ]
-    });
+    }).lean();
   }
 };

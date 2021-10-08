@@ -68,8 +68,8 @@ export const types = `
 `;
 
 const commonParams = `
-  username: String!,
-  email: String!,
+  username: String,
+  email: String,
   details: UserDetails,
   links: JSON,
   channelIds: [String],
