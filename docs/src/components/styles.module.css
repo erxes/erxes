@@ -172,41 +172,9 @@
 	}
 }
 
-.code {
-	border-radius: 0.25rem;
-	border: 1px solid #ECECEC;
-
-	/* padding: 5px; */
-}
-
 .styled {
 	margin: 15px;
 }
-
-.mainCon {
-	margin: 0;
-	padding: 0;
-	display: flex;
-	float:left;
-}
-
-.body {
-	margin-left: 350px;
-	/* width: 100%; */
-	/* min-width: 40%; */
-	margin-right: 15%;
-	margin-bottom: 50px;
-}
-
-.subMenu {
-	width: 15%;
-	padding: 15px 25px;
-	border-left: 1px solid #DBDDE1;
-	position: fixed;
-	right: 0;
-	/* background-color: #000; */
-}
-
 
 code {
 	background-color: #282a36;
