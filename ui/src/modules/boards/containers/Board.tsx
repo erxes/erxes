@@ -14,6 +14,7 @@ import { RootBack, ScrolledContent } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 import ListPipeline from './ListPipeline';
+import ChartPipeline from './chart/ChartPipeline';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -53,6 +54,7 @@ class Board extends React.Component<Props> {
     const pipeline = pipelineDetailQuery.pipelineDetail;
 
     if (viewType === 'list') {
+      console.log('list view');
       return (
         <ListPipeline
           key={pipeline._id}
@@ -61,6 +63,11 @@ class Board extends React.Component<Props> {
           queryParams={queryParams}
         />
       );
+    }
+
+    if (viewType === 'chart') {
+      console.log('chartch view');
+      return <ChartPipeline pipelineId={pipeline._id} />;
     }
 
     return (

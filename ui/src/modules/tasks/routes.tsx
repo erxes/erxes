@@ -8,10 +8,6 @@ const TaskBoard = asyncComponent(() =>
   import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard')
 );
 
-const MyChart = asyncComponent(() =>
-  import(/* webpackChunkName: "Chart" */ '../boards/components/chart/MyChart')
-);
-
 const Calendar = asyncComponent(() =>
   import(/* webpackChunkName: "Calendar" */ '../boards/components/Calendar')
 );
@@ -43,8 +39,10 @@ const tasks = () => {
   return <Redirect to={link} />;
 };
 
-const charts = () => {
-  return <MyChart />;
+const charts = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="chart" queryParams={queryParams} />;
 };
 
 const boards = ({ location }) => {

@@ -43,6 +43,10 @@ const TaskMainActionBar = (props: Props) => {
     viewType = 'list';
   }
 
+  if (window.location.href.includes('chart')) {
+    viewType = 'chart';
+  }
+
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
       const { currentBoard, currentPipeline } = props;
@@ -56,6 +60,7 @@ const TaskMainActionBar = (props: Props) => {
 
     const boardLink = onFilterClick('board');
     const listLink = onFilterClick('list');
+    const chartLink = onFilterClick('chart');
     const calendarLink = onFilterClick('calendar');
 
     return (
@@ -90,6 +95,14 @@ const TaskMainActionBar = (props: Props) => {
                 className={viewType === 'list' ? 'active' : ''}
               >
                 {__('List')}
+              </Link>
+            </li>
+            <li key="chart">
+              <Link
+                to={chartLink}
+                className={viewType === 'chart' ? 'active' : ''}
+              >
+                {__('Chart')}
               </Link>
             </li>
           </Dropdown.Menu>

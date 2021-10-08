@@ -232,6 +232,12 @@ const itemsCountBySegments = `
   } 
 `;
 
+const stagesByAssignedUser = `
+  query stagesByAssignedUser($pipelineId: String) {
+    stagesByAssignedUser(pipelineId: $pipelineId)
+  } 
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -248,6 +254,7 @@ export default {
   pipelineLabels,
   pipelineLabelDetail,
   itemsCountBySegments,
+  stagesByAssignedUser,
   tasks,
   deals,
   tickets
