@@ -16,7 +16,7 @@ function CreateBookingContainer(props: Props) {
 
   const { addBookingMutation, history } = props;
 
-  const save = (doc, styles) => {
+  const save = (doc, styles, displayBlock) => {
     setLoading(true);
 
     addBookingMutation({
@@ -24,6 +24,9 @@ function CreateBookingContainer(props: Props) {
         ...doc,
         styles: {
           ...styles
+        },
+        displayBlock: {
+          ...displayBlock
         }
       }
     })

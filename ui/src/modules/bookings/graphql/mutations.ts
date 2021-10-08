@@ -15,6 +15,7 @@ const bookingMutationParamsDef = `
   $buttonText: String
 
   $styles: BookingStylesInput
+  $displayBlock: DisplayBlockInput
 `;
 
 const bookingMutationParamsVal = `
@@ -34,6 +35,7 @@ const bookingMutationParamsVal = `
   buttonText: $buttonText
 
   styles: $styles
+  displayBlock: $displayBlock
 `;
 
 const bookingsAdd = `

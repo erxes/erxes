@@ -16,6 +16,13 @@ export interface IStyle {
   textSelected: string;
 }
 
+export interface IDisplayBlock {
+  shape?: string;
+  columns?: number;
+  rows?: number;
+  margin?: number;
+}
+
 export interface IBooking {
   // content
   name: string;
@@ -43,6 +50,8 @@ export interface IBooking {
 
   // style
   styles: IStyle;
+
+  displayBlock: IDisplayBlock;
 
   tags?: ITag[];
 

@@ -12,6 +12,13 @@ export interface IStyle {
   textSelected: string;
 }
 
+export interface IDisplayBlock {
+  shape?: string;
+  columns?: string;
+  rows?: string;
+  margin?: string;
+}
+
 export interface IProductCategory {
   _id: string;
   name: string;
@@ -80,6 +87,9 @@ export interface IBooking {
 
   // style
   styles: IStyle;
+
+  // display blocks
+  displayBlock: IDisplayBlock;
 
   // child categories
   childCategories: IProductCategory[];

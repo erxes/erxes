@@ -11,6 +11,20 @@ export const types = `
     textSelected: String
   }
 
+  input DisplayBlockInput {
+    shape: String
+    columns: String
+    rows: String
+    margin: String
+  }
+
+  type DisplayBlockType {
+    shape: String
+    columns: String
+    rows: String
+    margin: String
+  }
+
   type BookingStylesType {
     itemShape: String
     widgetColor: String
@@ -42,6 +56,7 @@ export const types = `
     productCategoryId: String
 
     styles: BookingStylesType
+    displayBlock: DisplayBlockType
 
     title: String
     brandId: String
@@ -105,6 +120,8 @@ const bookingMutationParams = `
   formId: String
   buttonText: String
   tagIds: [String]
+
+  displayBlock: DisplayBlockInput
 `;
 
 export const mutations = `

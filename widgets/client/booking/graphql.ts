@@ -65,6 +65,13 @@ const styleFields = `
   textSelected
 `;
 
+const displayBlockFields = `
+  shape
+  columns
+  rows
+  margin
+`;
+
 const bookingFields = `
   _id
   name
@@ -99,6 +106,10 @@ const bookingFields = `
 
   styles {
     ${styleFields}
+  }
+
+  displayBlock {
+    ${displayBlockFields}
   }
 `;
 

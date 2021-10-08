@@ -10,7 +10,7 @@ import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
-import { IBookingDocument, IBooking, IStyle } from '../types';
+import { IBookingDocument, IBooking, IStyle, IDisplayBlock } from '../types';
 import { Steps, Step } from 'modules/common/components/step';
 import ChooseStyle from './steps/ChooseStyle';
 import ChooseContent from './steps/ChooseContent';
@@ -25,7 +25,7 @@ type Props = {
   queryParams?: any;
   history: any;
   bookingId?: any;
-  save: (doc, styles) => void;
+  save: (doc, styles, displayBlock) => void;
   isActionLoading?: boolean;
 };
 
@@ -58,6 +58,13 @@ type Style = {
   textAvailable: string;
   textUnavailable: string;
   textSelected: string;
+};
+
+type DisplayBlock = {
+  shape: string;
+  columns: number;
+  rows: number;
+  margin: number;
 };
 
 function Booking({ save, isActionLoading, bookingDetail }: Props) {
@@ -99,6 +106,15 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
     textSelected: bookingStyles.textSelected || colors.colorCoreYellow
   });
 
+  const displayBlock = booking.displayBlock || ({} as IDisplayBlock);
+
+  const [block, setBlock] = useState<DisplayBlock>({
+    shape: displayBlock.shape || '',
+    columns: displayBlock.columns || 0,
+    rows: displayBlock.rows || 0,
+    margin: displayBlock.margin || 0
+  });
+
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
   const handleSubmit = () => {
@@ -122,7 +138,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
       return Alert.error('Choose main product category');
     }
 
-    save(state, styles);
+    save(state, styles, block);
   };
 
   const onChange = (key: string, value: any) => {
@@ -135,6 +151,13 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
   const onChangeStyle = (key: string, value: any) => {
     setStyles({
       ...styles,
+      [key]: value
+    });
+  };
+
+  const onChangeBlock = (key: string, value: any) => {
+    setBlock({
+      ...block,
       [key]: value
     });
   };
@@ -201,6 +224,8 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 userFilters={state.userFilters}
                 image={state.image}
                 fieldsGroup={state.fieldsGroup}
+                onChangeBlock={onChangeBlock}
+                displayBlock={block}
               />
             </Step>
 

@@ -34,7 +34,7 @@ function EditBookingContainer(props: FinalProps) {
 
   const bookingDetail = bookingDetailQuery.bookingDetail || [];
 
-  const save = (doc, styles) => {
+  const save = (doc, styles, displayBlock) => {
     setLoading(true);
 
     editBookingMutation({
@@ -43,6 +43,9 @@ function EditBookingContainer(props: FinalProps) {
         ...doc,
         styles: {
           ...styles
+        },
+        displayBlock: {
+          ...displayBlock
         }
       }
     })

@@ -15,6 +15,7 @@ import { FlexItem as FlexItemContainer, Title } from './style';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import Uploader from 'modules/common/components/Uploader';
 import SelectFieldsGroup from 'modules/bookings/containers/SelectFieldsGroup';
+import { IDisplayBlock } from 'modules/bookings/types';
 
 type Name =
   | 'name'
@@ -26,12 +27,14 @@ type Name =
 
 type Props = {
   onChange: (name: Name, value: any) => void;
+  onChangeBlock: (name: string, value: any) => void;
   name: string;
   description: string;
   userFilters: string[];
   productCategoryId: string;
   image: any;
   fieldsGroup: string;
+  displayBlock: IDisplayBlock;
 };
 
 function ChooseContent({
@@ -41,7 +44,9 @@ function ChooseContent({
   userFilters,
   productCategoryId,
   image,
-  fieldsGroup
+  fieldsGroup,
+  onChangeBlock,
+  displayBlock
 }: Props) {
   const [activeGroup, setActiveGroup] = useState([] as any);
 
@@ -134,66 +139,83 @@ function ChooseContent({
     );
   };
 
-  // const renderDisplayBlock = () => {
-  //   return (
-  //     <>
-  //       <FlexContent>
-  //         <FlexItem count={3}>
-  //           <FormGroup>
-  //             <ControlLabel>Display blocks</ControlLabel>
-  //             <Select
-  //               options={[
-  //                 { label: 'Horizontally', value: 'horizontally' },
-  //                 { label: 'Vertically', value: 'vertically' }
-  //               ].map(el => ({
-  //                 label: el.label,
-  //                 value: el.value
-  //               }))}
-  //               placeholder="Choose shape"
-  //             />
-  //           </FormGroup>
-  //         </FlexItem>
+  const renderDisplayBlock = () => {
+    return (
+      <>
+        <FlexContent>
+          <FlexItem count={3}>
+            <FormGroup>
+              <ControlLabel>Display blocks</ControlLabel>
+              <Select
+                options={[
+                  { label: 'Horizontally', value: 'horizontally' },
+                  { label: 'Vertically', value: 'vertically' }
+                ].map(el => ({
+                  label: el.label,
+                  value: el.value
+                }))}
+                placeholder="Choose shape"
+                value={displayBlock.shape}
+                onChange={(e: any) => onChangeBlock('shape', e ? e.value : '')}
+              />
+            </FormGroup>
+          </FlexItem>
 
-  //         <FlexItem hasSpace={true}>
-  //           <FormGroup>
-  //             <ControlLabel>Columns</ControlLabel>
-  //             <FormControl type="number" />
-  //           </FormGroup>
-  //         </FlexItem>
+          <FlexItem hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>Columns</ControlLabel>
+              <FormControl
+                type="number"
+                min={0}
+                value={displayBlock.columns}
+                onChange={(e: any) => onChangeBlock('columns', e.target.value)}
+              />
+            </FormGroup>
+          </FlexItem>
 
-  //         <FlexItem hasSpace={true}>
-  //           <FormGroup>
-  //             <ControlLabel>Rows</ControlLabel>
-  //             <FormControl type="number" />
-  //           </FormGroup>
-  //         </FlexItem>
+          <FlexItem hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>Rows</ControlLabel>
+              <FormControl
+                type="number"
+                min={0}
+                value={displayBlock.rows}
+                onChange={(e: any) => onChangeBlock('rows', e.target.value)}
+              />
+            </FormGroup>
+          </FlexItem>
 
-  //         <FlexItem hasSpace={true}>
-  //           <FormGroup>
-  //             <ControlLabel>Margin</ControlLabel>
-  //             <FormControl type="number" />
-  //           </FormGroup>
-  //         </FlexItem>
-  //       </FlexContent>
-
-  //       <FormGroup>
-  //         <Title>Product Details</Title>
-  //         <Description>
-  //           Select properties to display in the product detail page.
-  //         </Description>
-  //         <Select
-  //           multi={true}
-  //           // value={productDetail.properties}
-  //           options={PRODUCT_PROPERTIES.ALL_LIST.map(el => ({
-  //             value: el.value,
-  //             label: el.label
-  //           }))}
-  //           placeholder="Choose properties"
-  //         />
-  //       </FormGroup>
-  //     </>
-  //   );
-  // };
+          <FlexItem hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>Margin</ControlLabel>
+              <FormControl
+                type="number"
+                min={0}
+                value={displayBlock.margin}
+                onChange={(e: any) => onChangeBlock('margin', e.target.value)}
+              />
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+        {/* 
+        <FormGroup>
+          <Title>Product Details</Title>
+          <Description>
+            Select properties to display in the product detail page.
+          </Description>
+          <Select
+            multi={true}
+            // value={productDetail.properties}
+            options={PRODUCT_PROPERTIES.ALL_LIST.map(el => ({
+              value: el.value,
+              label: el.label
+            }))}
+            placeholder="Choose properties"
+          />
+        </FormGroup> */}
+      </>
+    );
+  };
 
   const renderProductDetail = () => {
     return (
@@ -214,8 +236,6 @@ function ChooseContent({
             placeholder="Choose product category"
           />
         </FormGroup>
-
-        {/* {renderDisplayBlock()} */}
       </>
     );
   };
@@ -225,6 +245,7 @@ function ChooseContent({
       <LeftItem>
         {renderGeneralSettings()}
         {renderProductDetail()}
+        {renderDisplayBlock()}
       </LeftItem>
     </FlexItemContainer>
   );

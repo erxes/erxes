@@ -11,6 +11,13 @@ const styleFields = `
   textSelected
 `;
 
+const displayBlockFields = `
+  shape
+  columns
+  rows
+  margin
+`;
+
 const productCategoryFields = `
   _id
   name
@@ -90,6 +97,10 @@ const bookingFields = `
 
   mainProductCategory {
     ${productCategoryFields}
+  }
+
+  displayBlock {
+    ${displayBlockFields}
   }
 `;
 

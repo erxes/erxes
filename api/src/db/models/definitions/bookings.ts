@@ -24,6 +24,15 @@ export interface IStyle {
 
 export interface IStyleDocument extends IStyle, Document {}
 
+export interface IDisplayBlock {
+  shape?: string;
+  columns?: number;
+  rows?: number;
+  margin?: number;
+}
+
+export interface IDisplayBlockDocument extends IDisplayBlock, Document {}
+
 export interface IBooking {
   // content
   name?: string;
@@ -52,6 +61,7 @@ export interface IBooking {
 export interface IBookingDocument extends ICommonFields, IBooking, Document {
   _id: string;
   style?: IStyleDocument;
+  displayBlock?: IDisplayBlockDocument;
 }
 
 // Mongoose schemas ==================
@@ -76,6 +86,16 @@ export const styleSchema = new Schema(
     textAvailable: field({ type: String, label: 'Text available' }),
     textUnavailable: field({ type: String, label: 'Text unavailable' }),
     textSelected: field({ type: String, label: 'Select text' })
+  },
+  { _id: false }
+);
+
+export const displayBlockSchema = new Schema(
+  {
+    shape: field({ type: String, optional: true, label: 'Shape' }),
+    columns: field({ type: String, optional: true, lable: 'Column' }),
+    rows: field({ type: String, optional: true, label: 'Row' }),
+    margin: field({ type: String, optional: true, label: 'Margin' })
   },
   { _id: false }
 );
@@ -109,6 +129,8 @@ export const bookingSchema = new Schema({
   formId: field({ type: String, optional: true, label: 'Form' }),
   buttonText: field({ type: String, optional: true, label: 'Button text' }),
   viewCount: field({ type: Number, optional: true, label: 'View count' }),
+
+  displayBlock: field({ type: displayBlockSchema }),
 
   ...commonFields
 });
