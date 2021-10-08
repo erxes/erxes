@@ -36,5 +36,5 @@ import { Types, Sizes, Activity, Uppercase, Block, Icon } from "./buttons.js"
 
 ## Icon
 
-<p>Add your favorite icon by using the <code>color</code> prop.</p>
+<p>Add your favorite icon by using the <code>icon</code> prop.</p>
 <Icon></Icon>
