@@ -4,7 +4,9 @@ import {
   Users,
   Tags,
   ProductCategories,
-  Products
+  Products,
+  Integrations,
+  Forms
 } from '../../db/models';
 
 export default {
@@ -68,5 +70,22 @@ export default {
 
   async mainProductCategory(booking: IBookingDocument) {
     return ProductCategories.findOne({ _id: booking.productCategoryId });
+  },
+
+  async formBrandCode(booking: IBookingDocument) {
+    const integration = await Integrations.findOne({ formId: booking.formId });
+
+    if (!integration) {
+      return null;
+    }
+
+    const brand = await Brands.findOne({ _id: integration.brandId });
+
+    return brand ? brand.code : '';
+  },
+  async formCode(booking: IBookingDocument) {
+    const form = await Forms.findOne({ _id: booking.formId });
+
+    return form ? form.code : '';
   }
 };

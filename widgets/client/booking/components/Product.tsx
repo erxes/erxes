@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { IBooking, IProduct } from '../types';
 import Slider from 'react-slick';
-import { readFile } from '../../utils';
+import { getEnv, readFile } from '../../utils';
 import Button from './common/Button';
 
 type Props = {
@@ -32,6 +32,15 @@ function Product({ product, booking, goToBookings }: Props) {
   //   slidesToShow: 1,
   //   slidesToScroll: 1
   // };
+
+  const onSimulate = () => {
+    const { ROOT_URL } = getEnv();
+    window.open(
+      `${ROOT_URL}/test?type=form&brand_id=${booking.formBrandCode}&form_id=${booking.formCode}`,
+      'formWindow',
+      'width=800,height=800'
+    );
+  };
 
   return (
     <div className="product">
@@ -71,7 +80,7 @@ function Product({ product, booking, goToBookings }: Props) {
       <div className="flex-end">
         <Button
           text={booking.buttonText || 'Захиалах'}
-          onClickHandler={() => console.log('call form')}
+          onClickHandler={() => onSimulate()}
           style={{ backgroundColor: widgetColor }}
         />
       </div>

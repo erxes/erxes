@@ -111,6 +111,9 @@ const bookingFields = `
   displayBlock {
     ${displayBlockFields}
   }
+
+  formBrandCode
+  formCode
 `;
 
 const bookingDetail = `
