@@ -106,6 +106,8 @@ export const queries = `
   archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
   archivedStagesCount(pipelineId: String!, search: String): Int
   itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+
+  stagesByAssignedUser(pipelineId: String): JSON
 `;
 
 const commonParams = `

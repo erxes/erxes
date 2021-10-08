@@ -15,6 +15,7 @@ import { IContext } from '../../types';
 import { paginate, regexSearchText } from '../../utils';
 import { IConformityQueryParams } from './types';
 import { getCollection } from '../../../db/models/boardUtils';
+import { IUserDocument } from '../../../db/models/definitions/users';
 
 export interface IDate {
   month: number;
@@ -279,7 +280,7 @@ const boardQueries = {
   },
 
   /**
-   *  Pipeline detail
+   *  Pipeline related assigned users
    */
   async pipelineAssignedUsers(_root, { _id }: { _id: string }) {
     const pipeline = await Pipelines.getPipeline(_id);
@@ -322,6 +323,48 @@ const boardQueries = {
     return Stages.find(filter)
       .sort({ order: 1, createdAt: -1 })
       .lean();
+  },
+
+  async stagesByAssignedUser(_root, { pipelineId }: { pipelineId: string }) {
+    const stages = await Stages.find({ pipelineId });
+
+    if (stages.length === 0) {
+      return {};
+    }
+
+    const { collection } = getCollection(stages[0].type);
+
+    const stageIds = stages.map(stage => stage._id);
+
+    const stagesObj = {};
+
+    const assignedUserIds = await collection
+      .find({ stageId: { $in: stageIds } })
+      .distinct('assignedUserIds');
+
+    const users = await Users.find({ _id: { $in: assignedUserIds } });
+
+    for (const stage of stages) {
+      const data: { user: IUserDocument; count: number }[] = [];
+
+      for (const user of users) {
+        const count = await collection.countDocuments({
+          stageId: stage._id,
+          assignedUserIds: { $in: [user._id] }
+        });
+
+        if (count > 0) {
+          data.push({
+            user,
+            count
+          });
+        }
+      }
+
+      stagesObj[stage.name || 'other'] = data;
+    }
+
+    return stagesObj;
   },
 
   /**
