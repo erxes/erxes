@@ -1,9 +1,8 @@
 import React from "react";
-import ReactDOM from 'react-dom';
 import Button from "erxes-ui/lib/components/Button";
 import styles from "../../src/components/styles.module.css";
 import CodeBlock from '@theme/CodeBlock';
-import { Router, Route, Link, browserHistory, IndexRoute  } from 'react-router'
+import "erxes-icon/css/erxes.min.css";
 
 function Types() {
   return (<>
@@ -63,11 +62,9 @@ function Activity() {
 function Uppercase() {
   return (<>
     <div className={styles.styled}>
-        <Button>Normal button</Button>
         <Button uppercase>Uppercase button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button>Normal button</Button>
         <Button uppercase>Uppercase button</Button>
 </>`}</CodeBlock>
     </>
@@ -77,14 +74,25 @@ function Uppercase() {
 function Block() {
   return (<>
     <div className={styles.styled}>
-        {/* <Button btnStyle="primary">Normal button</Button> */}
-        <Button block>Block button</Button>
+        <Button block>Full-width button</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-        <Button block>Block button</Button>
+        <Button block>Full-width button</Button>
 </>`}</CodeBlock>
     </>
   )
 }
 
-export { Types, Sizes, Activity, Uppercase, Block }
+function Icon() {
+  return (<>
+    <div className={styles.styled}>
+        <Button icon="check-circle">Button</Button>
+    </div>
+    <CodeBlock className="language-jsx">{`<>
+        <Button icon="check-circle">Button</Button>
+</>`}</CodeBlock>
+    </>
+  )
+}
+
+export { Types, Sizes, Activity, Uppercase, Block, Icon }

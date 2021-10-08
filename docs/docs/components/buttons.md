@@ -3,7 +3,7 @@ id: buttons
 title: Buttons
 ---
 
-import { Types, Sizes, Activity, Uppercase, Block } from "./buttons.js"
+import { Types, Sizes, Activity, Uppercase, Block, Icon } from "./buttons.js"
 
 <p>Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
 
@@ -33,3 +33,8 @@ import { Types, Sizes, Activity, Uppercase, Block } from "./buttons.js"
 
 <p>Make button full-width by adding the <code>block</code> prop to.</p>
 <Block></Block>
+
+## Icon
+
+<p>Add your favorite icon by using the <code>color</code> prop.</p>
+<Icon></Icon>
