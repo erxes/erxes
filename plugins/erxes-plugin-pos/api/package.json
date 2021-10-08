@@ -1,0 +1,9 @@
+{
+  "name": "erxes-npm-package",
+  "version": "0.0.1",
+  "main": "api/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "erxes-api-utils": "^0.0.29"
+  }
+}
