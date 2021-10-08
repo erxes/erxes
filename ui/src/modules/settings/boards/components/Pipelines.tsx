@@ -203,7 +203,6 @@ class Pipelines extends React.Component<Props, State> {
             <th>{__('Created at')}</th>
             <th>{__('Created By')}</th>
             <th>{__('Actions')}</th>
-            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows()}</tbody>

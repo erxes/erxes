@@ -60,11 +60,11 @@ class PipelinesContainer extends React.Component<FinalProps> {
     const pipelines = pipelinesQuery.pipelines;
     // archive action
     const archive = (pipelineId: string, status: string) => {
-      let message = ` This will permanently archive the current pipeline. Are you absolutely sure?`;
+      let message = ` This will archive the current pipeline. Are you absolutely sure?`;
       let action = 'archived';
 
       if (status === 'archived') {
-        message = `This will permanently unarchive the current pipeline. Are you absolutely sure?`;
+        message = `This will unarchive the current pipeline. Are you absolutely sure?`;
         action = 'unarchived';
       }
       confirm(message).then(() => {
@@ -88,7 +88,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
     // duplicate action
     const copied = pipelineId => {
-      const message = `This will permanently duplicate the current pipeline. Are you absolutely sure?`;
+      const message = `This will duplicate the current pipeline. Are you absolutely sure?`;
       confirm(message).then(() => {
         copiedPipelineMutation({
           variables: { _id: pipelineId },
