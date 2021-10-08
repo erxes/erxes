@@ -6,13 +6,17 @@ import {
   FlexItem,
   Tabs,
   TabTitle,
-  Icon
+  CollapseContent,
+  FormGroup,
+  ControlLabel
 } from 'erxes-ui';
 import React from 'react';
-import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { ContentBox, Description } from '../styles';
+import { PRODUCT_DETAIL } from '../constants';
+import Select from 'react-select-plus';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -59,6 +63,49 @@ class GeneralSettings extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
+  onChangeMultiCombo = (code: string, values) => {
+    console.log('code: ', code);
+    console.log('values: ', values);
+
+    let value = values;
+
+    if (Array.isArray(values)) {
+      value = values.map(el => el.value);
+    }
+
+    this.onChangeConfig(code, value);
+  };
+
+  renderTabContent() {
+    const { currentTab, currentMap } = this.state;
+
+    if (currentTab === 'product') {
+      return (
+        <ContentBox id={'ProductSettingsMenu'}>
+          <CollapseContent title="Default settings">
+            <FormGroup>
+              <ControlLabel>Product Details</ControlLabel>
+              <Description>
+                Select pos to display in the product card.
+              </Description>
+              <Select
+                options={PRODUCT_DETAIL}
+                value={currentMap.productDetail}
+                onChange={this.onChangeMultiCombo.bind(this, 'productDetail')}
+                multi={true}
+              />
+            </FormGroup>
+          </CollapseContent>
+          <CollapseContent title="Product Groups">
+            <Description>
+              Select pos to display in the product category.
+            </Description>
+          </CollapseContent>
+        </ContentBox>
+      );
+    }
+  }
+
   render() {
     const { currentTab } = this.state;
 
@@ -100,6 +147,8 @@ class GeneralSettings extends React.Component<Props, State> {
             {__('Appearance')}
           </TabTitle>
         </Tabs>
+
+        {this.renderTabContent()}
       </FlexItem>
     );
 
