@@ -18,6 +18,7 @@ type Props = {
   queryParams: any;
   currentTopicId: string;
   forumId: string;
+  history: any;
 };
 
 type FinalProps = {

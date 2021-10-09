@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from 'modules/common/components/Button';
-import EditorCK from 'modules/common/components/EditorCK';
+import EditorCK from 'modules/common/containers/EditorCK';
 import Form from 'modules/common/components/form/Form';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -20,6 +20,8 @@ import Icon from 'modules/common/components/Icon';
 import { DateWrapper } from 'modules/forms/styles';
 import DateControl from 'modules/common/components/form/DateControl';
 import { __ } from 'modules/common/utils';
+import Move from '../../containers/common/Move';
+import { router } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -28,6 +30,8 @@ type Props = {
   discussion: IDiscussion;
   forumId: string;
   tags: ITag[];
+  queryParams: any;
+  history: any;
 };
 
 type State = {
@@ -36,7 +40,9 @@ type State = {
   closeDate: Date;
   tagIds: string[];
   attachments?: IAttachment[];
+  pollOptions: string[];
 };
+
 class DiscussionForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -48,9 +54,11 @@ class DiscussionForm extends React.Component<Props, State> {
       startDate: discussion.startDate,
       closeDate: discussion.closeDate,
       tagIds: discussion.tagIds,
-      attachments: discussion.attachments
+      attachments: discussion.attachments,
+      pollOptions: discussion.pollOptions || []
     };
   }
+
   generateDoc = (values: {
     _id?: string;
     title: string;
@@ -58,7 +66,14 @@ class DiscussionForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { currentTopicId, discussion, forumId } = this.props;
-    const { content, startDate, closeDate, tagIds, attachments } = this.state;
+    const {
+      content,
+      startDate,
+      closeDate,
+      tagIds,
+      attachments,
+      pollOptions
+    } = this.state;
     const finalValues = values;
 
     if (discussion) {
@@ -77,7 +92,8 @@ class DiscussionForm extends React.Component<Props, State> {
       startDate,
       closeDate,
       tagIds,
-      attachments
+      attachments,
+      pollOptions
     };
   };
 
@@ -97,6 +113,16 @@ class DiscussionForm extends React.Component<Props, State> {
     this.setState({ tagIds: items.map(el => el.value) });
   };
 
+  onChangeConnection = (discussionId: string) => {
+    if (discussionId) {
+      this.setState({
+        content: `${this.state.content} <a class="discussionId" href="/forum/discussionId=${discussionId}">Энд дарах</a> `
+      });
+      router.removeParams(this.props.history, 'topicId');
+      router.removeParams(this.props.history, 'forumId');
+    }
+  };
+
   generateTags = items => {
     return items.map(el => {
       return {
@@ -108,9 +134,30 @@ class DiscussionForm extends React.Component<Props, State> {
 
   onChangeAttachment = files => this.setState({ attachments: files });
 
+  onChangeOptions = e => {
+    this.setState({
+      pollOptions: (e.currentTarget as HTMLInputElement).value.split('\n')
+    });
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, discussion, tags } = this.props;
-    const { content, startDate, closeDate, tagIds, attachments } = this.state;
+    const {
+      closeModal,
+      renderButton,
+      discussion,
+      tags,
+      queryParams,
+      history
+    } = this.props;
+    const {
+      content,
+      startDate,
+      closeDate,
+      tagIds,
+      attachments,
+      pollOptions
+    } = this.state;
+
     const { values, isSubmitted } = formProps;
     const object = discussion || ({} as IDiscussion);
 
@@ -206,15 +253,39 @@ class DiscussionForm extends React.Component<Props, State> {
           </FlexItem>
         </FlexContent>
 
-        <FormGroup>
-          <ControlLabel>
-            <Icon icon="paperclip" />
-            {__('Attachments')}
-          </ControlLabel>
+        <FlexContent>
+          <FlexItem count={2}>
+            <FormGroup>
+              <ControlLabel>
+                <Icon icon="paperclip" />
+                {__('Attachments')}
+              </ControlLabel>
 
-          <Uploader
-            defaultFileList={attachments || []}
-            onChange={this.onChangeAttachment}
+              <Uploader
+                defaultFileList={attachments || []}
+                onChange={this.onChangeAttachment}
+              />
+            </FormGroup>
+          </FlexItem>
+
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('Add poll')}</ControlLabel>
+              <FormControl
+                name="polls"
+                componentClass="textarea"
+                value={pollOptions.join('\n')}
+                onChange={this.onChangeOptions}
+              />
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+
+        <FormGroup>
+          <Move
+            onChangeConnection={this.onChangeConnection}
+            queryParams={queryParams}
+            history={history}
           />
         </FormGroup>
 

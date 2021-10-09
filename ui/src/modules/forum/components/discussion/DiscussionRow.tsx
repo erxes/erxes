@@ -9,6 +9,8 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import { FlexItem } from 'modules/companies/styles';
 import Tip from 'modules/common/components/Tip';
 import Label from 'modules/common/components/Label';
+import ProgressBar from 'modules/common/components/ProgressBar';
+import { Progress } from './styles';
 
 import {
   DiscussionColumn,
@@ -29,10 +31,11 @@ type Props = {
   discussion: IDiscussion;
   remove: (discussionId) => void;
   forumId: string;
+  history: any;
 };
 
 const DiscussionRow = (props: Props) => {
-  const { discussion, currentTopicId, queryParams, forumId } = props;
+  const { discussion, currentTopicId, queryParams, forumId, history } = props;
 
   const tags = discussion.getTags || [];
 
@@ -84,6 +87,7 @@ const DiscussionRow = (props: Props) => {
         currentTopicId={currentTopicId}
         queryParams={queryParams}
         forumId={forumId}
+        history={history}
       />
     );
 
@@ -106,11 +110,39 @@ const DiscussionRow = (props: Props) => {
     </DiscussionTitle>
   );
 
+  const renderProgressBar = () => {
+    const { pollData } = discussion;
+
+    if (!pollData) {
+      return;
+    }
+
+    const { total } = pollData;
+
+    return Object.keys(pollData).map(key => {
+      if (key === 'total') {
+        return null;
+      }
+
+      const count = pollData[key];
+      const percent = (count / total) * 100;
+
+      return (
+        <Progress key={Math.random()}>
+          <ProgressBar percentage={percent} height="10px" />
+          <span>
+            {key} ({percent.toFixed(2)}%)
+          </span>
+        </Progress>
+      );
+    });
+  };
   return (
     <RowDiscussion>
       <DiscussionColumn>
         {renderDetail(title)}
         <p>{discussion.description}</p>
+        {renderProgressBar()}
         <DiscussionMeta>
           {user ? (
             <img

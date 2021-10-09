@@ -1,5 +1,11 @@
 import { IDiscussionDocument } from '../../db/models/definitions/forums';
-import { DiscussionComments, Tags, Customers } from '../../db/models';
+import {
+  DiscussionComments,
+  Tags,
+  Customers,
+  Forums,
+  ForumTopics
+} from '../../db/models';
 import { getDocument } from './mutations/cacheUtils';
 
 export default {
@@ -15,5 +21,32 @@ export default {
   },
   createdCustomer(discussion: IDiscussionDocument) {
     return Customers.findOne({ _id: discussion.createdBy });
+  },
+  pollData(discussion: IDiscussionDocument) {
+    const data = discussion.pollData;
+
+    if (!data) {
+      return;
+    }
+
+    const { pollOptions = [] } = discussion;
+
+    const clearData = { total: 0 };
+    let total = 0;
+
+    pollOptions.map(key => {
+      clearData[key] = data[key].length;
+      total = total + data[key].length;
+    });
+
+    clearData.total = total;
+
+    return clearData;
+  },
+  forum(discussion: IDiscussionDocument) {
+    return Forums.findOne({ _id: discussion.forumId });
+  },
+  topic(discussion: IDiscussionDocument) {
+    return ForumTopics.findOne({ _id: discussion.topicId });
   }
 };

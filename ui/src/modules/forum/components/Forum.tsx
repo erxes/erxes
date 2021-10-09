@@ -15,6 +15,7 @@ type Props = {
   currentTopic: ITopic;
   queryParams: any;
   discussionsCount: number;
+  history: any;
 };
 
 class Forum extends React.Component<Props> {
@@ -46,7 +47,7 @@ class Forum extends React.Component<Props> {
   }
 
   render() {
-    const { queryParams, currentTopic, discussionsCount } = this.props;
+    const { queryParams, currentTopic, discussionsCount, history } = this.props;
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
@@ -60,6 +61,7 @@ class Forum extends React.Component<Props> {
         queryParams={queryParams}
         currentTopicId={currentTopic._id}
         forumId={currentTopic.forumId}
+        history={history}
       />
     );
 
@@ -108,6 +110,7 @@ class Forum extends React.Component<Props> {
             queryParams={queryParams}
             currentTopicId={currentTopic._id}
             forumId={currentTopic.forumId}
+            history={history}
           />
         }
       />

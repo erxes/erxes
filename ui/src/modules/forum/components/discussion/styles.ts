@@ -185,6 +185,47 @@ const DiscussionComment = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
+const Progress = styled.div`
+  display: flex;
+  width: 50%;
+  align-items: center;
+  margin-top: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  span {
+    font-size: 12px;
+    color: ${colors.colorCoreBlack};
+    flex: 40%;
+  }
+
+  & > div {
+    padding: 4px 30px;
+    border-radius: 5px;
+    flex: 60% auto;
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+`;
+const Select = styled.div`
+  line-height: 33px;
+  border-bottom: 1px solid ${colors.colorShadowGray};
+  min-width: 100px;
+  display: flex;
+  justify-content: space-between;
+
+  > span {
+    margin-left: ${dimensions.unitSpacing / 2}px;
+  }
+
+  i {
+    margin-left: ${dimensions.unitSpacing / 2}px;
+
+    &:hover {
+      color: ${colors.colorPrimary};
+      cursor: pointer;
+    }
+  }
+`;
+
 export {
   ActionButtons,
   RowDiscussion,
@@ -198,5 +239,7 @@ export {
   CommentWrapper,
   CommentContent,
   CreatedUser,
-  DiscussionComment
+  DiscussionComment,
+  Progress,
+  Select
 };

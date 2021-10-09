@@ -16,6 +16,7 @@ type Props = {
   currentTopicId: string;
   remove: (discussionId) => void;
   forumId: string;
+  history: any;
 };
 
 class DiscussionList extends React.Component<Props> {
@@ -33,7 +34,8 @@ class DiscussionList extends React.Component<Props> {
       queryParams,
       currentTopicId,
       remove,
-      forumId
+      forumId,
+      history
     } = this.props;
 
     return discussions.map(discussion => (
@@ -44,6 +46,7 @@ class DiscussionList extends React.Component<Props> {
         discussion={discussion}
         remove={remove}
         forumId={forumId}
+        history={history}
       />
     ));
   }

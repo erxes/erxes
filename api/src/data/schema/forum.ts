@@ -45,10 +45,14 @@ export const types = `
         closeDate: Date
         isComplete: Boolean
         getTags: [Tag]
+        pollOptions: [String]
+        pollData: JSON
+
+        forum: Forum
+        topic: ForumTopic
 
         attachments: [JSON]
         createdCustomer: Customer
-
     }
 
 
@@ -108,6 +112,7 @@ const discussionMutationParams = `
     closeDate: Date
     isComplete: Boolean
     tagIds: [String]
+    pollOptions: [String]
 
     attachments: [JSON]
 `;
