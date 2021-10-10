@@ -18,15 +18,6 @@ function Product({ product, booking, goToBookings }: Props) {
   }
 
   const { widgetColor } = booking.styles;
-  const settings = {
-    dots: true,
-    dotsClass: "slick-dots slick-thumb",
-    infinite: true,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2000,
-  };
   const onSimulate = () => {
     const { ROOT_URL } = getEnv();
     window.open(
@@ -35,38 +26,66 @@ function Product({ product, booking, goToBookings }: Props) {
       'width=800,height=800'
     );
   };
+
   const showFull = (img:any) => {
-    const image = document.getElementById( String(img.name));
+    const image = document.getElementById("img-active") as HTMLImageElement;
     if(image){
-      //image.src = readFile(img && img.src);
+      image.src = readFile(img && img.url);
     }
   }
 
+  const renderDetail = () =>{
+    // console.log(product)
+    // const {sku, customFieldsDataWithText, } = product;
+
+    // if(customFieldsDataWithText){
+        
+    //       return <div>
+    //          <span>{`Id is: ${}`}</span>
+    //          <span>{`Name is: `}</span>
+    //       </div>
+ 
+    // }
+
+    return(
+      <div>vhjk</div>
+    )
+  }
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+  };
+
   return (
-    <div className="product">
+    <div className="p-20">
       <div>
         <h1>{product.name}</h1>
         <span>{product.description}</span>
       </div>
 
-      <div className="grid-21 mw-500">
+      <div className="grid-21">
         <div className="slider">
         <a>
-        <div className="mw-500" id="img-active">
-           <img id ={product.attachment.name} src={readFile(product.attachment && product.attachment.url)} alt={product.attachment.name} /> 
+        <div className="active">
+           <img id="img-active" src={readFile(product.attachment && product.attachment.url)} alt={product.attachment.name} /> 
         </div>
         </a>
-        
-          <Slider className="mw-500" {...settings}>
+        <div style={{ maxWidth: '500px' }}>
+          <Slider {...settings} >
           {product.attachmentMore?.map( (img:any) =>
                <div className="m-10" onClick={() => showFull(img)}> <img id ={img.name} src={readFile(img && img.url)} alt={img.name} /> </div>
           )
           }
         </Slider>
         </div>
+        </div>
         <div className="detail">
-          <div>Price per unit: {product.unitPrice}</div>
-          <div>Sqm: {product.sku}</div>
+          {renderDetail}
         </div>
       </div>
 

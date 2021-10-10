@@ -45,6 +45,9 @@
 .p-10 {
   padding: 10px;
 }
+.m-10{
+  margin: 10px;
+}
 .mr-10 {
   margin-right: 10px;
 }
@@ -63,12 +66,8 @@
 .grid-21{
   display: grid;
   grid-template-columns: 2fr 1fr;
-}
-.mw-500{
-  max-width: 500px;
-  img{
-    width: 100%;
-    height: auto;
+  img {
+    max-width: 100%;
   }
 }
 .grid-13{

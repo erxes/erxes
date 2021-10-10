@@ -13,8 +13,16 @@ $color-12: #F7CE53;
 
 $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8, $color-9, $color-10, $color-11, $color-12;
 .slider{
- width: 100%;
- padding: 20px;
+  max-width: 500px;
+ .active{
+   max-width:100%;
+   display: block;
+   img{
+     max-width: 100%;;
+     height: auto;
+   }
+ }
+
 }
 .arrow {
   width: 0;
@@ -24,11 +32,6 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
 .layout {
   display: block;
   min-height: 100%;
-}
-.product{
-  img{
-    width: 90%;
-  }
 }
 
 .main-container {

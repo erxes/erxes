@@ -26,7 +26,7 @@ function Floor({ floor, goToBookings, booking }: Props) {
         <div className="flex-center">
           <img
             src={readFile(floor.attachment.url)}
-            alt="hello"
+            alt={floor.attachment.name}
             style={{ maxHeight: '500px' }}
           />
         </div>
