@@ -69,6 +69,11 @@ case "$OSTYPE" in
       DISTRO=`lsb_release -is`
       PSUEDONAME=`lsb_release -cs`
       RELEASE=`lsb_release -rs`
+    elif [ -f /etc/ubuntu_version ] ; then
+      DistroBasedOn='Ubuntu'
+      DISTRO='lsb_release -is'
+      PSUEDONAME='lsb_release -cs'
+      RELEASE='lsb_release -rs'
     fi
   ;;
   bsd*)     OS_NAME="bsd" ;;
@@ -155,6 +160,7 @@ echo "Installing Initial Dependencies"
 apt-get -qqy update
 apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
+
 if $ELK_SYNCER; then
   pip3 install mongo-connector==3.1.1
   pip3 install elasticsearch==7.5.1
@@ -237,21 +243,40 @@ fi
 function installRabbitMQ () {
 RABBITMQ_HOST="amqp://localhost"
 echo "Installing RabbitMQ"
-curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | apt-key add -
-tee /etc/apt/sources.list.d/bintray.rabbitmq.list <<EOF
-## Installs the latest Erlang 22.x release.
-## Change component to "erlang-21.x" to install the latest 21.x version.
-## "bionic" as distribution name should work for any later Ubuntu or Debian release.
-## See the release to distribution mapping table in RabbitMQ doc guides to learn more.
-deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang
-deb https://dl.bintray.com/rabbitmq/debian bionic main
+apt-get install curl gnupg apt-transport-https -y
+
+## Team RabbitMQ's main signing key
+curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
+## Cloudsmith: modern Erlang repository
+curl -1sLf https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/gpg.E495BB49CC4BBE5B.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/io.cloudsmith.rabbitmq.E495BB49CC4BBE5B.gpg > /dev/null
+## Cloudsmith: RabbitMQ repository
+curl -1sLf https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.9F4587F226208342.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/io.cloudsmith.rabbitmq.9F4587F226208342.gpg > /dev/null
+
+## Add apt repositories maintained by Team RabbitMQ
+sudo tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
+## Provides modern Erlang/OTP releases
+##
+deb [signed-by=/usr/share/keyrings/io.cloudsmith.rabbitmq.E495BB49CC4BBE5B.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu focal main
+deb-src [signed-by=/usr/share/keyrings/io.cloudsmith.rabbitmq.E495BB49CC4BBE5B.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu focal main
+
+## Provides RabbitMQ
+##
+deb [signed-by=/usr/share/keyrings/io.cloudsmith.rabbitmq.9F4587F226208342.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu focal main
+deb-src [signed-by=/usr/share/keyrings/io.cloudsmith.rabbitmq.9F4587F226208342.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu focal main
 EOF
 
-apt-get -qqy update
-apt-get -qqy install rabbitmq-server -y --fix-missing
-systemctl enable rabbitmq-server
-rabbitmq-plugins enable rabbitmq_management
-systemctl start rabbitmq-server
+## Update package indices
+sudo apt-get update -y
+
+## Install Erlang packages
+sudo apt-get install -y erlang-base \
+                        erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+                        erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+                        erlang-runtime-tools erlang-snmp erlang-ssl \
+                        erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+
+## Install rabbitmq-server and its dependencies
+sudo apt-get install rabbitmq-server -y --fix-missing
 echo "Installed RabbitMQ successfully"
 }
 
@@ -298,10 +323,8 @@ ufw allow 443
 
 # install certbot
 echo "Installing Certbot"
-add-apt-repository universe -y
-add-apt-repository ppa:certbot/certbot -y
-apt-get -qqy update
-apt-get -qqy install certbot python3-certbot-nginx
+apt-get update
+apt install certbot python3-certbot-nginx
 echo "Installed Certbot successfully"
 
 # username that erxes will be installed in
@@ -386,4 +409,4 @@ fi
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData"
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData growthHack"
 
-certbot run -n --nginx --agree-tos -d $erxes_domain --redirect --register-unsafely-without-email
+certbot --nginx --agree-tos -d $erxes_domain --redirect --register-unsafely-without-email

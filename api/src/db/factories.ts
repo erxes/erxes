@@ -184,8 +184,11 @@ interface IUserFactoryInput {
   isShowNotification?: boolean;
 }
 
-export const userFactory = async (params: IUserFactoryInput = {}) => {
-  const user = new Users({
+export const userFactory = async (
+  params: IUserFactoryInput = {},
+  syncToEs = false
+) => {
+  const userDoc = {
     username: params.username || faker.internet.userName(),
     details: {
       fullName: params.fullName || faker.random.word(),
@@ -214,9 +217,19 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     isSubscribed: params.isSubscribed,
     isShowNotification: params.isShowNotification,
     ...(params.code ? { code: params.code } : {})
-  });
+  };
 
-  return user.save();
+  const user = new Users(userDoc);
+  await user.save();
+
+  return syncToEs
+    ? await fetchElk({
+        action: 'create',
+        index: 'users',
+        body: userDoc,
+        _id: user._id
+      })
+    : user;
 };
 
 interface ITagFactoryInput {
