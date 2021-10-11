@@ -126,7 +126,8 @@ module.exports = {
       items: [
         "components/buttons",
         "components/info",
-        "components/table"
+        "components/table",
+        "components/spinners"
       ],
     },
   ],

@@ -44,19 +44,4 @@ function InfoIcon() {
   );
 }
 
-function Custom() {
-  return (<>
-    <div>
-      <Info title="Title">This is titled info</Info>
-      <Info>This is untitled info</Info>
-      <Info title="Black info" color="colorPrimaryDark">This is black info</Info>
-    </div>
-    <CodeBlock className="language-jsx">{`<>
-      <Info title="Title">This is titled info</Info>
-      <Info>This is untitled info</Info>
-</>`}</CodeBlock>
-    </>
-  );
-}
-
-export { InfoIcon, Infos, Custom }
+export { InfoIcon, Infos }

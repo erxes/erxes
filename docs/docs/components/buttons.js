@@ -8,7 +8,7 @@ function Types() {
   return (<>
     <div className={styles.styled}>
       <Button >Default</Button>
-      <Button btnStyle="primary" uppercase = 'true'>Primary</Button>
+      <Button btnStyle="primary">Primary</Button>
       <Button btnStyle="success">Success</Button>
       <Button btnStyle="danger">Danger</Button>
       <Button btnStyle="warning">Warning</Button>
@@ -86,10 +86,20 @@ function Block() {
 function Icon() {
   return (<>
     <div className={styles.styled}>
-      <Button icon="check-circle">Button</Button>
+      <Button btnStyle="primary" icon="envelope-alt">Primary</Button>
+      <Button btnStyle="success" icon="check-circle">Success</Button>
+      <Button btnStyle="danger" icon="times-circle">Danger</Button>
+      <Button btnStyle="warning" icon="exclamation-triangle">Warning</Button>
+      <Button btnStyle="simple" icon="info-circle">Simple</Button>
+      <Button btnStyle="link" icon="link">Link</Button>
     </div>
     <CodeBlock className="language-jsx">{`<>
-      <Button icon="check-circle">Button</Button>
+      <Button btnStyle="primary" icon="envelope-alt">Primary</Button>
+      <Button btnStyle="success" icon="check-circle">Success</Button>
+      <Button btnStyle="danger" icon="times-circle">Danger</Button>
+      <Button btnStyle="warning" icon="exclamation-triangle">Warning</Button>
+      <Button btnStyle="simple" icon="info-circle">Simple</Button>
+      <Button btnStyle="link" icon="link">Link</Button>
 </>`}</CodeBlock>
     </>
   )
