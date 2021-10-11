@@ -29,6 +29,7 @@ type Props = {
   remove: (bookingId: string) => void;
   totalCount: number;
   counts: BookingsCount;
+  archive: (_id: string, status: boolean) => IBookingDocument;
 };
 
 function BookingList(props: Props) {
@@ -43,7 +44,8 @@ function BookingList(props: Props) {
     refetch,
     emptyBulk,
     totalCount,
-    counts
+    counts,
+    archive
   } = props;
 
   const onChange = () => {
@@ -59,6 +61,7 @@ function BookingList(props: Props) {
         toggleBulk={toggleBulk}
         remove={remove}
         refetch={refetch}
+        archive={archive}
       />
     ));
   };

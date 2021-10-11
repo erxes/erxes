@@ -55,6 +55,7 @@ export interface IBooking {
 
   tagIds?: string[];
   viewCount?: number;
+  isActive?: boolean;
 }
 
 export interface IBookingDocument extends ICommonFields, IBooking, Document {
@@ -127,6 +128,12 @@ export const bookingSchema = new Schema({
   formId: field({ type: String, optional: true, label: 'Form' }),
   buttonText: field({ type: String, optional: true, label: 'Button text' }),
   viewCount: field({ type: Number, optional: true, label: 'View count' }),
+  isActive: field({
+    type: Boolean,
+    optional: true,
+    default: true,
+    label: 'Is active'
+  }),
 
   displayBlock: field({ type: displayBlockSchema }),
 

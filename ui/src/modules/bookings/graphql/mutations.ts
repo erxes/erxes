@@ -58,8 +58,17 @@ const bookingsRemove = `
   }
 `;
 
+const bookingsArchive = `
+  mutation bookingsArchive($_id: String! $status: Boolean!) {
+    bookingsArchive(_id: $_id, status: $status) {
+      _id
+    }
+  }
+`;
+
 export default {
   bookingsAdd,
   bookingsRemove,
-  bookingsEdit
+  bookingsEdit,
+  bookingsArchive
 };

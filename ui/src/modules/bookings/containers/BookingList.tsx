@@ -8,6 +8,7 @@ import gql from 'graphql-tag';
 import { mutations, queries } from '../graphql';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import {
+  ArchiveBookingMutationResponse,
   BookingsQueryResponse,
   CountQueryResponse,
   RemoveBookingMutationResponse,
@@ -22,6 +23,7 @@ type FinalProps = {
   bookingsQuery: BookingsQueryResponse;
   bookingsTotalCountQuery: CountQueryResponse;
 } & RemoveBookingMutationResponse &
+  ArchiveBookingMutationResponse &
   Props;
 
 function BookingListContainer(props: FinalProps) {
@@ -32,7 +34,8 @@ function BookingListContainer(props: FinalProps) {
   const {
     bookingsQuery,
     bookingsRemoveMutation,
-    bookingsTotalCountQuery
+    bookingsTotalCountQuery,
+    archiveMutation
   } = props;
 
   const counts = bookingsTotalCountQuery
@@ -60,6 +63,32 @@ function BookingListContainer(props: FinalProps) {
     });
   };
 
+  const archive = (bookingId: string, status: boolean) => {
+    let message = `If you archive this booking, the live booking on your website or erxes messenger will no longer be visible. But you can still see the contacts and submissions you've received.`;
+    let action = 'archived';
+
+    if (!status) {
+      message = 'You are going to unarchive this booking. Are you sure?';
+      action = 'unarchived';
+    }
+
+    confirm(message).then(() => {
+      archiveMutation({ variables: { _id: bookingId, status } })
+        .then(({ data }) => {
+          const integration = data.integrationsArchive;
+
+          if (integration) {
+            Alert.success(`Form has been ${action}.`);
+          }
+
+          refetch();
+        })
+        .catch((e: Error) => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
   const refetch = () => {
     bookingsQuery.refetch();
     bookingsTotalCountQuery.refetch();
@@ -72,7 +101,8 @@ function BookingListContainer(props: FinalProps) {
     refetch,
     remove,
     counts,
-    totalCount
+    totalCount,
+    archive
   };
 
   // tslint:disable-next-line: no-shadowed-variable
@@ -95,6 +125,7 @@ export default compose(
         ...generatePaginationParams(queryParams),
         brandId: queryParams.brand,
         tagId: queryParams.tag,
+        status: queryParams.status,
         sortField: queryParams.sortField,
         sortDirection: queryParams.sortDirection
           ? parseInt(queryParams.sortDirection, 10)
@@ -109,6 +140,18 @@ export default compose(
     }
   ),
   graphql<Props, CountQueryResponse>(gql(queries.bookingsTotalCount), {
-    name: 'bookingsTotalCountQuery'
+    name: 'bookingsTotalCountQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        channelId: queryParams.channelId,
+        tagId: queryParams.tagId,
+        status: queryParams.status,
+        brandId: queryParams.brandId,
+        searchValue: queryParams.searchValue
+      }
+    })
+  }),
+  graphql<{}, ArchiveBookingMutationResponse>(gql(mutations.bookingsArchive), {
+    name: 'archiveMutation'
   })
 )(BookingListContainer);

@@ -15,7 +15,7 @@ const generateFilterQuery = async ({
   channelId,
   brandId,
   searchValue,
-  tag,
+  tagId,
   status
 }) => {
   const query: any = {};
@@ -36,10 +36,10 @@ const generateFilterQuery = async ({
   }
 
   // filtering bookings by tag
-  if (tag) {
-    const object = await Tags.findOne({ _id: tag });
+  if (tagId) {
+    const object = await Tags.findOne({ _id: tagId });
 
-    query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
+    query.tagIds = { $in: [tagId, ...(object?.relatedIds || [])] };
   }
 
   if (status) {
@@ -60,22 +60,28 @@ const bookingQueries = {
   /**
    * Booking list
    */
-  bookings(
+  async bookings(
     _root,
-    args: { page: number; perPage: number; brandId: string; tagId: string },
-    { commonQuerySelector }: IContext
+    args: {
+      page: number;
+      perPage: number;
+
+      searchValue: string;
+      channelId: string;
+      brandId: string;
+      tagId: string;
+      status: string;
+      sortField: string;
+      sortDirection: number;
+    },
+    { singleBrandIdSelector }: IContext
   ) {
-    const filter: any = { ...commonQuerySelector };
+    const query = {
+      ...singleBrandIdSelector,
+      ...(await generateFilterQuery(args))
+    };
 
-    if (args.brandId) {
-      filter.brandId = args.brandId;
-    }
-
-    if (args.tagId) {
-      filter.tagIds = args.tagId;
-    }
-
-    const bookings = paginate(Bookings.find(filter), args);
+    const bookings = paginate(Bookings.find(query), args);
 
     return bookings.sort({ modifiedDate: -1 });
   },
@@ -89,7 +95,7 @@ const bookingQueries = {
     args: {
       channelId: string;
       brandId: string;
-      tag: string;
+      tagId: string;
       searchValue: string;
       status: string;
     }
@@ -99,7 +105,7 @@ const bookingQueries = {
       byTag: {},
       byChannel: {},
       byBrand: {},
-      byStatus: { active: 0, archived: 0, disabled: 0 }
+      byStatus: { active: 0, archived: 0 }
     };
 
     const qry = {
@@ -115,9 +121,9 @@ const bookingQueries = {
 
     for (const tag of tags) {
       const countQueryResult = await count({ tagIds: tag._id, ...qry });
-      counts.byTag[tag._id] = !args.tag
+      counts.byTag[tag._id] = !args.tagId
         ? countQueryResult
-        : args.tag === tag._id
+        : args.tagId === tag._id
         ? countQueryResult
         : 0;
     }
@@ -152,7 +158,6 @@ const bookingQueries = {
 
     counts.byStatus.active = await count({ isActive: true, ...qry });
     counts.byStatus.archived = await count({ isActive: false, ...qry });
-    counts.byStatus.disabled = await count({ isActive: false, ...qry });
 
     if (args.status) {
       if (args.status === 'active') {

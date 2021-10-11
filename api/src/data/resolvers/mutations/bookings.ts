@@ -23,6 +23,22 @@ const bookingMutations = {
    */
   bookingsRemove(_root, { _id }) {
     return Bookings.removeDoc(_id);
+  },
+
+  /**
+   * archive or unArchive booking
+   */
+  async bookingsArchive(
+    _root,
+    { _id, status }: { _id: string; status: boolean },
+    { user }: IContext
+  ) {
+    await Bookings.updateOne(
+      { _id },
+      { $set: { isActive: !status, modifiedBy: user._id } }
+    );
+
+    return Bookings.findOne({ _id });
   }
 };
 

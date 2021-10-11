@@ -82,6 +82,8 @@ export const types = `
     formCode: String
 
     form: Form
+
+    isActive: Boolean
   }
 
   type bookingsTotalCount {
@@ -98,12 +100,13 @@ const queryParams = `
   perPage: Int
   brandId: String
   tagId: String
+  status: String
 `;
 
 export const queries = `
   bookingDetail(_id: String!): Booking
   bookings(${queryParams}): [Booking]
-  bookingsTotalCount: bookingsTotalCount
+  bookingsTotalCount(channelId: String, brandId: String, tagId: String, searchValue: String, status: String): bookingsTotalCount
 `;
 
 const bookingMutationParams = `
@@ -130,4 +133,5 @@ export const mutations = `
   bookingsAdd(${bookingMutationParams}): Booking
   bookingsEdit(_id: String!, ${bookingMutationParams}): Booking
   bookingsRemove(_id: String!): JSON
+  bookingsArchive(_id: String! status: Boolean!): Booking
 `;

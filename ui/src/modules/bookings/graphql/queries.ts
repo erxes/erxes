@@ -111,6 +111,8 @@ const bookingFields = `
 
   productCategoryId
 
+  isActive
+
   styles {
     ${styleFields}
   }
@@ -129,16 +131,18 @@ const bookingFields = `
 `;
 
 const queryParamsDef = `
-  $page: Int,
-  $perPage: Int,
-  $brandId: String,
+  $page: Int
+  $perPage: Int
+  $brandId: String
   $tagId: String
+  $status: String
 `;
 const queryParamsVal = `
-  page: $page,
-  perPage: $perPage,
-  brandId: $brandId,
+  page: $page
+  perPage: $perPage
+  brandId: $brandId
   tagId: $tagId
+  status: $status
 `;
 
 const bookingDetail = `
@@ -168,8 +172,8 @@ const productCategories = `
 `;
 
 const bookingsTotalCount = `
-  query bookingsTotalCount{
-    bookingsTotalCount{
+  query bookingsTotalCount($channelId: String, $brandId: String, $tagId: String, $searchValue: String, $status: String){
+    bookingsTotalCount(channelId: $channelId, brandId: $brandId, tagId: $tagId, searchValue: $searchValue, status: $status){
       total
       byTag
       byChannel

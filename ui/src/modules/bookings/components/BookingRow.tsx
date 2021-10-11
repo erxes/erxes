@@ -24,9 +24,10 @@ type Props = {
   toggleBulk: (booking: IBookingDocument, checked: boolean) => void;
   remove: (bookingId: string) => void;
   refetch: () => void;
+  archive: (_id: string, status: boolean) => void;
 };
 
-function Row({ isChecked, toggleBulk, booking, remove }: Props) {
+function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
   const tags = booking.tags || [];
 
   const createdUser = booking.createdUser || {
@@ -71,6 +72,37 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
     );
   };
 
+  const renderArchiveAction = () => {
+    const onClick = () => archive(booking._id, true);
+
+    if (!archive || !booking.isActive) {
+      return null;
+    }
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Archive')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+        </Tip>
+      </WithPermission>
+    );
+  };
+
+  const renderUnarchiveAction = () => {
+    const onClick = () => archive(booking._id, false);
+
+    if (!archive || booking.isActive) {
+      return null;
+    }
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Unarchive')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="redo" />
+        </Tip>
+      </WithPermission>
+    );
+  };
   // tslint:disable-next-line: no-shadowed-variable
   const renderEditAction = (booking: IBookingDocument) => {
     const trigger = (
@@ -95,8 +127,8 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
     );
   };
 
-  const status = 'active';
-  const labelStyle = status === 'active' ? 'success' : 'warning';
+  const labelStyle = booking.isActive ? 'success' : 'warning';
+  const status = booking.isActive ? __('Active') : __('Archived');
 
   return (
     <tr>
@@ -143,6 +175,8 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
         <ActionButtons>
           {manageAction(booking)}
           {renderEditAction(booking)}
+          {renderArchiveAction()}
+          {renderUnarchiveAction()}
           {renderRemoveAction()}
         </ActionButtons>
       </td>

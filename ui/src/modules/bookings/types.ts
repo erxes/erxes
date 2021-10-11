@@ -60,6 +60,7 @@ export interface IBooking {
   viewCount?: number;
 
   form?: IForm;
+  isActive?: boolean;
 }
 
 export interface IBookingDocument extends IBooking {
@@ -93,6 +94,12 @@ export type RemoveBookingMutationVariables = {
 export type RemoveBookingMutationResponse = {
   bookingsRemoveMutation: (params: {
     variables: RemoveBookingMutationVariables;
+  }) => Promise<any>;
+};
+
+export type ArchiveBookingMutationResponse = {
+  archiveMutation: (params: {
+    variables: { _id: string; status: boolean };
   }) => Promise<any>;
 };
 
