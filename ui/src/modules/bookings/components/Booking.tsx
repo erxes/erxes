@@ -286,7 +286,7 @@ function Booking({
             </Step>
 
             <Step
-              img="/images/icons/erxes-01.svg"
+              img="/images/icons/erxes-02.svg"
               title="Form"
               noButton={true}
               // onClick={this.onStepClick.bind(null, 'greeting')}

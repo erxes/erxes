@@ -88,7 +88,7 @@ function Style({
         <FlexContent>
           <FlexItem>
             <FormGroup>
-              <ControlLabel>Item Shape</ControlLabel>
+              <ControlLabel required={true}>Item Shape</ControlLabel>
               <Select
                 clearable={false}
                 value={itemShape}
