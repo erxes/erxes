@@ -5,11 +5,11 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import Form from 'modules/common/components/form/Form';
 import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
-import SelectTeamMembers from '../../containers/SelectTeamMembers';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { generateTree } from '../../utils';
 import { Department, Unit } from '../../types';
+import SelectStructureMembers from '../SelectStructureMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -45,6 +45,18 @@ export default function DepartmentForm(props: Props) {
     setDepartmentId(parent.value);
   };
 
+  const onSelectUsers = options => {
+    setUserIds(options.map(option => option.value));
+  };
+
+  const onSelectSupervisor = option => {
+    if (option) {
+      setSupervisorId(option.value);
+    } else {
+      setSupervisorId('');
+    }
+  };
+
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -77,12 +89,14 @@ export default function DepartmentForm(props: Props) {
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
 
-          <SelectTeamMembers
-            label="Choose a supervisor"
+          <SelectStructureMembers
             name="supervisorId"
-            initialValue={supervisorId}
-            onSelect={setSupervisorId}
+            objectId={object._id}
+            value={supervisorId}
+            onSelect={onSelectSupervisor}
             multi={false}
+            isAllUsers={true}
+            excludeUserIds={userIds}
           />
         </FormGroup>
         <FormGroup>
@@ -100,11 +114,14 @@ export default function DepartmentForm(props: Props) {
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
 
-          <SelectTeamMembers
-            label="Choose team members"
+          <SelectStructureMembers
+            objectId={object._id}
+            value={userIds}
+            onSelect={onSelectUsers}
+            multi={true}
+            isAllUsers={true}
+            excludeUserIds={[supervisorId]}
             name="userIds"
-            initialValue={userIds}
-            onSelect={setUserIds}
           />
         </FormGroup>
         <ModalFooter>

@@ -14,6 +14,7 @@ type Props = {
   excludeUserIds: string[];
   objectId: string;
   name: string;
+  isAllUsers?: boolean;
 };
 
 export default function SelectStructureMembers({
@@ -22,23 +23,27 @@ export default function SelectStructureMembers({
   multi,
   value,
   excludeUserIds,
-  name
+  name,
+  isAllUsers
 }: Props) {
-  const { loading, data } = useQuery(gql(queries.noDepartmentUsers), {
-    variables: { excludeId: objectId },
+  const queryName = isAllUsers ? 'allUsers' : 'noDepartmentUsers';
+  const variables = isAllUsers ? {} : { excludeId: objectId };
+
+  const { loading, data } = useQuery(gql(queries[queryName]), {
+    variables,
     fetchPolicy: 'network-only'
   });
   const [users, setUsers] = useState([] as IUser[]);
 
   useEffect(() => {
     if (!loading) {
-      const filteredUsers = data.noDepartmentUsers.filter(
+      const filteredUsers = data[queryName].filter(
         u => !excludeUserIds.includes(u._id)
       );
 
       setUsers(filteredUsers);
     }
-  }, [excludeUserIds, data, loading]);
+  }, [excludeUserIds, data, loading, queryName]);
 
   return (
     <Select
