@@ -3,11 +3,93 @@ import {
   IDepartmentDocument,
   departmentSchema,
   unitSchema,
+  structureSchema,
   IUnitDocument,
   IBranchDocument,
-  branchSchema
+  branchSchema,
+  IStructureDocument
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
+
+export interface IStructureModel extends Model<IStructureDocument> {
+  getStructure(doc: any): IStructureDocument;
+  createStructure(doc: any, user: IUserDocument): IStructureDocument;
+  updateStructure(
+    _id: string,
+    doc: any,
+    user: IUserDocument
+  ): IStructureDocument;
+  removeStructure(_id: string): IStructureDocument;
+}
+
+export const loadStructureClass = () => {
+  class Structure {
+    /*
+     * Get a structure
+     */
+    public static async getStructure(doc: any) {
+      const structure = await Structures.findOne(doc);
+
+      if (!structure) {
+        throw new Error('Structure not found');
+      }
+
+      return structure;
+    }
+
+    /*
+     * Create an structure
+     */
+    public static async createStructure(doc: any, user: IUserDocument) {
+      const structure = await Structures.create({
+        ...doc,
+        createdAt: new Date(),
+        createdBy: user._id
+      });
+
+      return structure;
+    }
+
+    /*
+     * Update an structure
+     */
+    public static async updateStructure(
+      _id: string,
+      doc: any,
+      user: IUserDocument
+    ) {
+      await Structures.update(
+        { _id },
+        {
+          ...doc,
+          updatedAt: new Date(),
+          updatedBy: user._id
+        }
+      );
+
+      return Structures.findOne({ _id });
+    }
+
+    /*
+     * Remove a structure
+     */
+    public static async removeStructure(_id: string) {
+      const structure = await Structures.getStructure({ _id });
+
+      return structure.remove();
+    }
+  }
+
+  structureSchema.loadClass(Structure);
+};
+
+loadStructureClass();
+
+// tslint:disable-next-line
+const Structures = model<IStructureDocument, IStructureModel>(
+  'structures',
+  structureSchema
+);
 
 export interface IDepartmentModel extends Model<IDepartmentDocument> {
   getDepartment(doc: any): IDepartmentDocument;
@@ -49,7 +131,7 @@ export const loadDepartmentClass = () => {
     }
 
     /*
-     * Update an department
+     * Update a department
      */
     public static async updateDepartment(
       _id: string,
@@ -69,7 +151,7 @@ export const loadDepartmentClass = () => {
     }
 
     /*
-     * Remove an department
+     * Remove a department
      */
     public static async removeDepartment(_id: string) {
       const department = await Departments.getDepartment({ _id });
@@ -101,7 +183,7 @@ export interface IUnitModel extends Model<IUnitDocument> {
 export const loadUnitClass = () => {
   class Unit {
     /*
-     * Get a unit
+     * Get an unit
      */
     public static async getUnit(doc: any) {
       const unit = await Units.findOne(doc);
@@ -183,7 +265,7 @@ export const loadBranchClass = () => {
     }
 
     /*
-     * Create an branch
+     * Create a branch
      */
     public static async createBranch(doc: any, user: IUserDocument) {
       const branch = await Branches.create({
@@ -196,7 +278,7 @@ export const loadBranchClass = () => {
     }
 
     /*
-     * Update an branch
+     * Update a branch
      */
     public static async updateBranch(
       _id: string,
@@ -216,7 +298,7 @@ export const loadBranchClass = () => {
     }
 
     /*
-     * Remove an branch
+     * Remove a branch
      */
     public static async removeBranch(_id: string) {
       const branch = await Branches.getBranch({ _id });
@@ -233,4 +315,4 @@ loadBranchClass();
 // tslint:disable-next-line
 const Branches = model<IBranchDocument, IBranchModel>('branches', branchSchema);
 
-export { Departments, Units, Branches };
+export { Structures, Departments, Units, Branches };

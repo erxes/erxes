@@ -1,5 +1,5 @@
 import { Departments, Units, Users } from '../../../db/models';
-import { Branches } from '../../../db/models/Structure';
+import { Branches, Structures } from '../../../db/models/Structure';
 
 const structureQueries = {
   departments(_root, { depthType }: { depthType?: string }) {
@@ -62,6 +62,10 @@ const structureQueries = {
     });
 
     return Users.find({ _id: { $nin: userIds } });
+  },
+
+  structureDetail(_root, { _id }) {
+    return Structures.getStructure({ _id });
   }
 };
 

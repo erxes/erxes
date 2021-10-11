@@ -1,6 +1,34 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 
+const commonSchemaFields = {
+  updatedBy: field({ type: String }),
+  updatedAt: field({ type: Date }),
+  createdBy: field({ type: String }),
+  createdAt: field({ type: Date, default: Date.now })
+};
+
+export interface IStructure {
+  title: string;
+  description?: string;
+  supervisorId?: string;
+}
+
+export interface IStructureDocument extends IStructure, Document {
+  _id: string;
+}
+
+export const structureSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    title: field({ type: String }),
+    description: field({ type: String, optional: true }),
+    supervisorId: field({ type: String, optional: true }),
+    code: field({ type: String, optional: true }),
+    ...commonSchemaFields
+  })
+);
+
 export interface IDepartment {
   title: string;
   description?: string;
@@ -22,10 +50,7 @@ export const departmentSchema = schemaWrapper(
     code: field({ type: String, optional: true }),
     parentId: field({ type: String }),
     userIds: field({ type: [String], label: 'Related users' }),
-    updatedBy: field({ type: String }),
-    updatedAt: field({ type: Date }),
-    createdBy: field({ type: String }),
-    createdAt: field({ type: Date, default: Date.now })
+    ...commonSchemaFields
   })
 );
 
@@ -50,10 +75,7 @@ export const unitSchema = schemaWrapper(
     supervisorId: field({ type: String, optional: true }),
     code: field({ type: String, optional: true }),
     userIds: field({ type: [String], label: 'Related users' }),
-    updatedBy: field({ type: String }),
-    updatedAt: field({ type: Date }),
-    createdBy: field({ type: String }),
-    createdAt: field({ type: Date, default: Date.now })
+    ...commonSchemaFields
   })
 );
 
@@ -77,9 +99,6 @@ export const branchSchema = schemaWrapper(
     parentId: field({ type: String, optional: true }),
     code: field({ type: String, optional: true }),
     userIds: field({ type: [String], label: 'Related users' }),
-    updatedBy: field({ type: String }),
-    updatedAt: field({ type: Date }),
-    createdBy: field({ type: String }),
-    createdAt: field({ type: Date, default: Date.now })
+    ...commonSchemaFields
   })
 );

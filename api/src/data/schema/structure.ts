@@ -1,4 +1,12 @@
 export const types = `
+    type Structure {
+        _id: String!
+        title: String
+        description: String
+        supervisorId: String
+        code: String
+    }
+    
     type Department {
         _id: String!
         title: String
@@ -49,6 +57,15 @@ export const queries = `
 
     branches(depthType: String): [Branch]
     branchDetail(_id: String!): Branch
+
+    structureDetail(_id: String!): Structure
+`;
+
+const commonStructureParams = `
+    title: String!
+    description: String
+    supervisorId: String
+    code: String
 `;
 
 const commonDepartmentParams = `
@@ -79,6 +96,10 @@ const commonBranchParams = `
 `;
 
 export const mutations = `
+    structuresAdd(${commonStructureParams}): Structure
+    structuresEdit(_id: String!, ${commonStructureParams}): Structure
+    structuresRemove(_id: String!): JSON
+    
     departmentsAdd(${commonDepartmentParams}): Department
     departmentsEdit(_id: String!, ${commonDepartmentParams}): Department
     departmentsRemove(_id: String!): JSON
