@@ -87,5 +87,9 @@ export default {
     const form = await Forms.findOne({ _id: booking.formId });
 
     return form ? form.code : '';
+  },
+
+  form(booking: IBookingDocument) {
+    return Forms.findOne({ _id: booking.formId });
   }
 };

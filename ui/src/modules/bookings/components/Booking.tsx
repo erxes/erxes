@@ -16,10 +16,12 @@ import ChooseStyle from './steps/ChooseStyle';
 import ChooseContent from './steps/ChooseContent';
 import ChooseSettings from './steps/ChooseSettings';
 import FullPreview from './steps/FullPreview';
+import { IField } from 'modules/settings/properties/types';
 
 import { PreviewWrapper } from './steps/style';
 import { colors } from 'modules/common/styles';
 import FormStep from './steps/FormStep';
+import { IForm, IFormData } from 'modules/forms/types';
 
 type Props = {
   bookingDetail?: IBookingDocument;
@@ -47,6 +49,7 @@ type State = {
   languageCode: string;
   formId: string;
   buttonText: string;
+  formData: IFormData;
 };
 
 type Style = {
@@ -77,6 +80,7 @@ function Booking({
   isReadyToSaveForm
 }: Props) {
   const booking = bookingDetail || ({} as IBooking);
+  const form = booking.form || ({} as IForm);
 
   const [state, setState] = useState<State>({
     // content
@@ -94,7 +98,16 @@ function Booking({
     channelIds: booking.channelIds || [],
     languageCode: booking.languageCode || '',
     formId: booking.formId || '',
-    buttonText: booking.buttonText || ''
+    buttonText: booking.buttonText || '',
+
+    formData: {
+      title: form.title || 'Form Title',
+      description: form.description || 'Form Description',
+      buttonText: form.buttonText || 'Send',
+      fields: [],
+      type: form.type || '',
+      numberOfPages: form.numberOfPages || 1
+    }
   });
 
   const bookingStyles = booking.styles || ({} as IStyle);
@@ -177,6 +190,17 @@ function Booking({
       ...block,
       [key]: value
     });
+  };
+
+  const onFormDocChange = formData => {
+    setState({ ...state, formData });
+  };
+
+  const onFormInit = (fields: IField[]) => {
+    const formData = state.formData;
+    formData.fields = fields;
+
+    setState({ ...state, formData });
   };
 
   const renderButtons = () => {
@@ -269,7 +293,11 @@ function Booking({
             >
               <FormStep
                 afterDbSave={afterFormDbSave}
+                formData={state.formData}
                 isReadyToSaveForm={isReadyToSaveForm}
+                formId={booking && booking.formId}
+                onDocChange={onFormDocChange}
+                onInit={onFormInit}
               />
             </Step>
           </Steps>

@@ -80,6 +80,8 @@ export const types = `
     mainProductCategory: ProductCategory
     formBrandCode: String
     formCode: String
+
+    form: Form
   }
 
   type bookingsTotalCount {

@@ -18,6 +18,27 @@ const displayBlockFields = `
   margin
 `;
 
+const formFields = `
+  _id
+  title
+  code
+  description
+  type
+  buttonText
+  numberOfPages
+  createdDate
+  createdUserId
+  createdUser {
+    _id
+    details {
+      avatar
+      fullName
+      position
+    }
+  }
+
+`;
+
 const productCategoryFields = `
   _id
   name
@@ -100,6 +121,10 @@ const bookingFields = `
 
   displayBlock {
     ${displayBlockFields}
+  }
+
+  form {
+    ${formFields}
   }
 `;
 

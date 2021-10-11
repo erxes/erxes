@@ -2,6 +2,7 @@ import { IFormData } from 'modules/forms/types';
 import React from 'react';
 import { IField } from 'modules/settings/properties/types';
 import CreateForm from 'modules/forms/containers/CreateForm';
+import EditForm from 'modules/forms/containers/EditForm';
 import { FlexItem } from './style';
 
 type Props = {
@@ -21,7 +22,7 @@ type Props = {
 function FormStep(props: Props) {
   const renderContent = () => {
     const {
-      // formId,
+      formId,
       onDocChange,
       afterDbSave,
       onInit,
@@ -39,9 +40,9 @@ function FormStep(props: Props) {
       type: 'lead'
     };
 
-    // if (formId) {
-    //   return <EditForm {...doc} formId={formId} />;
-    // }
+    if (formId) {
+      return <EditForm {...doc} formId={formId} />;
+    }
 
     return <CreateForm {...doc} />;
   };

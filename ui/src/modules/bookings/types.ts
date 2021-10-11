@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { QueryResponse } from 'modules/common/types';
+import { IForm } from 'modules/forms/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IProductCategory } from 'modules/settings/productService/types';
 import { ITag } from 'modules/tags/types';
@@ -57,6 +58,8 @@ export interface IBooking {
   mainProductCategory?: IProductCategory;
 
   viewCount?: number;
+
+  form?: IForm;
 }
 
 export interface IBookingDocument extends IBooking {
