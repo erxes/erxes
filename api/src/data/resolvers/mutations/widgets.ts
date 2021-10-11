@@ -981,7 +981,6 @@ const widgetMutations = {
     { ...args }: { args: ITopic; createdBy: string },
     { docModifier }: IContext
   ) {
-    console.log(args);
     return ForumTopics.createDoc(docModifier(args), args.createdBy);
   },
 
