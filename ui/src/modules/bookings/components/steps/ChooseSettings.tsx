@@ -13,7 +13,7 @@ import { FlexItem as FlexItemContainer } from './style';
 import React from 'react';
 import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
-import SelectForm from 'modules/bookings/containers/SelectForm';
+// import SelectForm from 'modules/bookings/containers/SelectForm';
 
 type Name = 'languageCode' | 'formId';
 
@@ -89,7 +89,7 @@ function ChooseSettings({
         </FormGroup>
 
         <FlexContent>
-          <FlexItem>
+          {/* <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Form to display</ControlLabel>
               <SelectForm
@@ -98,7 +98,7 @@ function ChooseSettings({
                 placeholder="Choose a form"
               />
             </FormGroup>
-          </FlexItem>
+          </FlexItem> */}
           <FlexItem hasSpace={true}>
             <FormGroup>
               <ControlLabel required={true}>Form Button Text</ControlLabel>

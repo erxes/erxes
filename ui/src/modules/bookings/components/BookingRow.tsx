@@ -95,9 +95,7 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
     );
   };
 
-  const { mainProductCategory } = booking;
-  const status = mainProductCategory.status;
-
+  const status = 'active';
   const labelStyle = status === 'active' ? 'success' : 'warning';
 
   return (

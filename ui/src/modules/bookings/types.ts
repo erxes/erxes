@@ -25,37 +25,37 @@ export interface IDisplayBlock {
 
 export interface IBooking {
   // content
-  name: string;
+  name?: string;
   image?: any;
-  description: string;
+  description?: string;
   fieldsGroup?: string;
   userFilters?: string[];
 
   productCategoryId?: string;
 
   // settings
-  title: string;
-  brandId: string;
-  channelIds: string[];
-  languageCode: string;
+  title?: string;
+  brandId?: string;
+  channelIds?: string[];
+  languageCode?: string;
   productStatus?: string;
-  formId: string;
-  buttonText: string;
+  formId?: string;
+  buttonText?: string;
 
   // common
-  createdDate: Date;
+  createdDate?: Date;
 
-  brand: IBrand;
-  createdUser: IUser;
+  brand?: IBrand;
+  createdUser?: IUser;
 
   // style
-  styles: IStyle;
+  styles?: IStyle;
 
-  displayBlock: IDisplayBlock;
+  displayBlock?: IDisplayBlock;
 
   tags?: ITag[];
 
-  mainProductCategory: IProductCategory;
+  mainProductCategory?: IProductCategory;
 
   viewCount?: number;
 }
@@ -80,7 +80,7 @@ export type AddBookingMutationResponse = {
 
 export type EditBookingMutationResponse = {
   editBookingMutation: (params: {
-    variables: { _id: string } & IBooking;
+    variables: IBookingDocument;
   }) => Promise<any>;
 };
 

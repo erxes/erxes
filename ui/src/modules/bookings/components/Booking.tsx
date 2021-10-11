@@ -19,14 +19,17 @@ import FullPreview from './steps/FullPreview';
 
 import { PreviewWrapper } from './steps/style';
 import { colors } from 'modules/common/styles';
+import FormStep from './steps/FormStep';
 
 type Props = {
   bookingDetail?: IBookingDocument;
   queryParams?: any;
   history: any;
   bookingId?: any;
-  save: (doc, styles, displayBlock) => void;
+  save: (doc: IBooking) => void;
   isActionLoading?: boolean;
+  afterFormDbSave: (formId: string) => void;
+  isReadyToSaveForm: boolean;
 };
 
 type State = {
@@ -67,7 +70,13 @@ type DisplayBlock = {
   margin: number;
 };
 
-function Booking({ save, isActionLoading, bookingDetail }: Props) {
+function Booking({
+  save,
+  isActionLoading,
+  bookingDetail,
+  afterFormDbSave,
+  isReadyToSaveForm
+}: Props) {
   const booking = bookingDetail || ({} as IBooking);
 
   const [state, setState] = useState<State>({
@@ -138,7 +147,17 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
       return Alert.error('Choose main product category');
     }
 
-    save(state, styles, block);
+    const doc = {
+      ...state,
+      styles: {
+        ...styles
+      },
+      displayBlock: {
+        ...block
+      }
+    };
+
+    save(doc);
   };
 
   const onChange = (key: string, value: any) => {
@@ -232,7 +251,6 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
             <Step
               img="/images/icons/erxes-01.svg"
               title="Settings"
-              noButton={true}
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <ChooseSettings
@@ -243,6 +261,18 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 languageCode={state.languageCode}
                 formId={state.formId}
                 buttonText={state.buttonText}
+              />
+            </Step>
+
+            <Step
+              img="/images/icons/erxes-01.svg"
+              title="Form"
+              noButton={true}
+              // onClick={this.onStepClick.bind(null, 'greeting')}
+            >
+              <FormStep
+                afterDbSave={afterFormDbSave}
+                isReadyToSaveForm={isReadyToSaveForm}
               />
             </Step>
           </Steps>

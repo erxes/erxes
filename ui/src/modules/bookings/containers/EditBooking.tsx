@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -6,7 +6,8 @@ import { queries, mutations } from '../graphql';
 import Booking from '../components/Booking';
 import {
   BookingDetailQueryResponse,
-  EditBookingMutationResponse
+  EditBookingMutationResponse,
+  IBooking
 } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -24,51 +25,71 @@ type FinalProps = {
   Props &
   EditBookingMutationResponse;
 
-function EditBookingContainer(props: FinalProps) {
-  const [loading, setLoading] = useState(false);
-  const { bookingDetailQuery, editBookingMutation, history } = props;
+type State = {
+  loading: boolean;
+  isReadyToSaveForm: boolean;
+  doc?: IBooking;
+};
 
-  if (bookingDetailQuery.loading) {
-    return null;
+class EditBookingContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = {
+      loading: false,
+      isReadyToSaveForm: false
+    };
   }
 
-  const bookingDetail = bookingDetailQuery.bookingDetail || [];
+  render() {
+    const { bookingDetailQuery, editBookingMutation, history } = this.props;
 
-  const save = (doc, styles, displayBlock) => {
-    setLoading(true);
+    if (bookingDetailQuery.loading) {
+      return null;
+    }
 
-    editBookingMutation({
-      variables: {
-        _id: bookingDetail._id,
-        ...doc,
-        styles: {
-          ...styles
-        },
-        displayBlock: {
-          ...displayBlock
-        }
+    const bookingDetail = bookingDetailQuery.bookingDetail || [];
+
+    const afterFormDbSave = id => {
+      this.setState({ isReadyToSaveForm: false });
+
+      if (this.state.doc) {
+        editBookingMutation({
+          variables: {
+            _id: bookingDetail._id,
+            formId: id,
+            ...this.state.doc
+          }
+        })
+          .then(() => {
+            Alert.success('You successfully added a booking');
+            history.push('/bookings');
+          })
+
+          .catch(error => {
+            Alert.error(error.message);
+          })
+          .finally(() => {
+            this.setState({ loading: false });
+          });
       }
-    })
-      .then(() => {
-        Alert.success('You successfully edited Booking.');
-        history.push('/bookings');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+    };
 
-  const updatedProps = {
-    ...props,
-    bookingDetail,
-    isActionLoading: loading,
-    save
-  };
+    const save = doc => {
+      this.setState({ loading: false, isReadyToSaveForm: true, doc });
+    };
 
-  return <Booking {...updatedProps} />;
+    const updatedProps = {
+      ...this.props,
+      bookingDetail,
+      isActionLoading: this.state.loading,
+      save,
+      afterFormDbSave,
+      isReadyToSaveForm: this.state.isReadyToSaveForm
+    };
+
+    return <Booking {...updatedProps} />;
+  }
 }
 
 const commonOptions = () => ({
