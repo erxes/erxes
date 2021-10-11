@@ -12,17 +12,16 @@ $color-11: #0078bf;
 $color-12: #F7CE53;
 
 $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8, $color-9, $color-10, $color-11, $color-12;
-.slider{
-  max-width: 500px;
- .active{
-   max-width:100%;
-   display: block;
-   img{
-     max-width: 100%;;
-     height: auto;
-   }
- }
 
+.slick-slide{
+  margin: 10px;
+  img{
+    width: 100%;
+    max-height: 100%;
+   }
+}
+.slick-list{
+  max-width: 100%;
 }
 .arrow {
   width: 0;
@@ -30,28 +29,33 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
 }
 
 .layout {
-  display: block;
+  max-width: 100%;
   min-height: 100%;
+  display: grid;
+  grid-template-rows:  minmax(0, 50px) auto;
+  color: #333333 ;
 }
-
-.main-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 5px;
+.header{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0,3fr) minmax(0, 1fr);
 }
+.container{
+  max-height: 100%;
+  max-width: 100%;
+  display: grid;
+  row-gap: 10px;
+  grid-template-rows:   minmax(0, 10%)  minmax(0, 10%) auto  minmax(0, 10%);
 
-.main-header {
-  font-size: 14px;
-  color: $text-color;
-  text-align: center;
-}
-
-.main-body {
-  img {
-    margin: 5px;
-    width: 100%;
-    height: auto;
+  img{
+      width: 100%;
+      height: auto;
+    }
+  :nth-child(1){
+    font-size: 14px;
+    font-weight: bolder;
+  }
+  :nth-child(2){
+    font-size: 12px;
   }
 }
 
@@ -85,9 +89,8 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
   text-align: center;
 
   img {
-    max-width: 900px;
-    width: 900px;
-    height: 30%;
+    max-width: 100%;
+    height: auto;
   }
 
   h1 {
@@ -110,7 +113,7 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
 .erxes-booking-container {
   color: $text-color;
   margin: $kb-spacing;
-  max-width: 900px;
+  max-width: 100%;
   position: relative;
 }
 

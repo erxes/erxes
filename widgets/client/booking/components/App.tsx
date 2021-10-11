@@ -36,18 +36,18 @@ function App({ booking, activeRoute }: Props) {
 
   return (
     <div className="layout">
-      <div className="grid-131">
+      <div className="header">
         <Navigation
           items={booking.categoryTree}
           parentId={booking.productCategoryId}
         />
-        <div />
+        <div/>
         <Navigation
           items={booking.categoryTree}
           parentId={booking.productCategoryId}
         />
       </div>
-      <div className="h-100 w-100">{renderContent()}</div>
+      <div className="container">{renderContent()}</div>
     </div>
   );
 }

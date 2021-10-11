@@ -45,6 +45,7 @@ class Navigation extends React.Component<Props, State> {
         place={'left'}
         tipSize={0.01}
         className={'top-0'}
+
         body={
           <div className={`booking-navigation bn-${styles.widgetColor}`}>
             <div className="flex-sb p-5">

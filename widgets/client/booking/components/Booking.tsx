@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { readFile } from '../../utils';
 import { IBooking } from '../types';
 import { Block } from '../containers';
 import Button from './common/Button';
+import Body from './common/Body'
 
 type Props = {
   goToIntro: () => void;
@@ -26,32 +26,24 @@ function Booking({ goToIntro, booking }: Props) {
   const { widgetColor } = styles;
 
   return (
-    <div className="main-container">
-      <div className="main-header">
-        <h3>{title}</h3>
-        {description}
-      </div>
-      <div className="main-body">
-        <img
-          src={readFile(attachment && attachment.url)}
-          alt={attachment.name}
-        />
-      </div>
-      <div className="w-100 flex-center">
+    <>
+        <>
+        <Body page="block" title={title} description={description} image={attachment} />
+        <div className="flex-center">
         {childCategories.map((block, index) => {
           return <Block key={index} block={block} widgetColor={widgetColor} />;
         })}
-      </div>
-
-      {/* fooooooterrr  */}
-      <div className="flex-sb w-100">
+        </div>
+        </>
+        
+        <div className="flex-sb">
         <Button
           text="Back"
           onClickHandler={() => goToIntro()}
           style={{ backgroundColor: widgetColor }}
         />
-      </div>
     </div>
+    </>
   );
 }
 

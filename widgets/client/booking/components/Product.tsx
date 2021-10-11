@@ -55,34 +55,30 @@ function Product({ product, booking, goToBookings }: Props) {
   const settings = {
     dots: true,
     infinite: true,
-    slidesToShow: 3,
-    slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 2000,
-  };
+    slidesToShow: 3,
+    slidesToScroll: 1
+   };
 
   return (
-    <div className="p-20">
-      <div>
-        <h1>{product.name}</h1>
-        <span>{product.description}</span>
-      </div>
-
+    <>
+      <div className="flex-center">{product.name}</div>
+       <div className="flex-center">{product.description}</div> 
+     
       <div className="grid-21">
         <div className="slider">
-        <a>
         <div className="active">
            <img id="img-active" src={readFile(product.attachment && product.attachment.url)} alt={product.attachment.name} /> 
         </div>
-        </a>
-        <div style={{ maxWidth: '500px' }}>
-          <Slider {...settings} >
+        <div>
+        <Slider {...settings} >
           {product.attachmentMore?.map( (img:any) =>
-               <div className="m-10" onClick={() => showFull(img)}> <img id ={img.name} src={readFile(img && img.url)} alt={img.name} /> </div>
+               <div onClick={() => showFull(img)}> <img id ={img.name} src={readFile(img && img.url)} alt={img.name} /> </div>
           )
           }
         </Slider>
-        </div>
+        </div>   
         </div>
         <div className="detail">
           {renderDetail}
@@ -101,7 +97,7 @@ function Product({ product, booking, goToBookings }: Props) {
           style={{ backgroundColor: widgetColor }}
         />
       </div>
-    </div>
+    </>
   );
 }
 

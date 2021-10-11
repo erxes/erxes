@@ -2,6 +2,7 @@ import * as React from 'react';
 import { IBooking, IProductCategory } from '../types';
 import { readFile } from '../../utils';
 import Button from './common/Button';
+import Body from './common/Body'
 
 type Props = {
   goToBookings: () => void;
@@ -13,22 +14,11 @@ function BlockDetail({ goToBookings, block, booking }: Props) {
   if (!block || !booking) {
     return null;
   }
-
   const { widgetColor } = booking.styles;
 
   return (
-    <div className="main-container">
-      <div className="main-header">
-        <div className="flex-center b mb-10">{block.name}</div>
-        <div className="flex-center mb-10">{block.description}</div>
-        <div className="main-body">
-          <img
-            src={readFile(block.attachment && block.attachment.url)}
-            alt="hello"
-            style={{ maxHeight: '500px' }}
-          />
-        </div>
-      </div>
+    <>
+    <Body page="block" title={block.name} description={block.description}  image={block.attachment} />
       <div className="flex-sb w-100">
         <Button
           text="Back"
@@ -36,7 +26,7 @@ function BlockDetail({ goToBookings, block, booking }: Props) {
           style={{ backgroundColor: widgetColor }}
         />
       </div>
-    </div>
+    </>
   );
 }
 
