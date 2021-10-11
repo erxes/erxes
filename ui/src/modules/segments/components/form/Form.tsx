@@ -679,7 +679,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         <>
           {isModal ? (
             <Button id="segment-show-count" onClick={onPreviewCount}>
-              Refresh count
+              ${__('Refresh count')}
             </Button>
           ) : (
             <Button

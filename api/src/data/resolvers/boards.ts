@@ -9,7 +9,7 @@ export default {
     }
 
     if (user.isOwner) {
-      return Pipelines.find({ boardId: board._id });
+      return Pipelines.find({ boardId: board._id }).lean();
     }
 
     return Pipelines.find({
@@ -25,6 +25,6 @@ export default {
           ]
         }
       ]
-    });
+    }).lean();
   }
 };
