@@ -5,10 +5,10 @@ import { useMutation } from 'react-apollo';
 import { Alert, confirm } from 'modules/common/utils';
 import { mutations } from '../../graphql';
 import Item from '../../components/branch/Item';
-import { Branch } from '../../types';
+import { IBranch } from '../../types';
 
 type Props = {
-  branch: Branch;
+  branch: IBranch;
   refetch: () => void;
   depth?: number;
 };

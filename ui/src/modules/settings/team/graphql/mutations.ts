@@ -96,6 +96,36 @@ const userAddSkill = `
   }
 `;
 
+const commonStructureParamsDef = `
+  $title: String!
+  $description: String
+  $code: String
+  $supervisorId: String
+`;
+
+const commonStructureParams = `
+  title: $title
+  description: $description
+  code: $code
+  supervisorId: $supervisorId
+`;
+
+const structuresAdd = `
+  mutation structuresAdd(${commonStructureParamsDef}) {
+    structuresAdd(${commonStructureParams}) {
+      _id
+    }
+  }
+`;
+
+const structuresEdit = `
+  mutation structuresEdit($_id: String!, ${commonStructureParamsDef}) {
+    structuresEdit(_id: $_id, ${commonStructureParams}) {
+      _id
+    }
+  }
+`;
+
 const commonDeparmentParamsDef = `
   $title: String,
   $description: String,
@@ -226,6 +256,8 @@ export default {
   usersResetMemberPassword,
   userAddSkill,
   userExcludeSkill,
+  structuresAdd,
+  structuresEdit,
   departmentsAdd,
   departmentsEdit,
   departmentsRemove,

@@ -3,10 +3,10 @@ import React from 'react';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Form from '../../containers/department/Form';
-import { Department } from '../../types';
+import { IDepartment } from '../../types';
 
 type Props = {
-  department: Department;
+  department: IDepartment;
   deleteDepartment: (_id: string, callback: () => void) => void;
   refetch: () => void;
   depth?: number;

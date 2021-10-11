@@ -7,14 +7,14 @@ import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { Branch } from '../../types';
+import { IBranch } from '../../types';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  branch?: Branch;
+  branch?: IBranch;
   closeModal: () => void;
-  parentBranches: Branch[];
+  parentBranches: IBranch[];
 };
 
 export default function BranchForm(props: Props) {

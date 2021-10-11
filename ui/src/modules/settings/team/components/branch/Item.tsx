@@ -3,10 +3,10 @@ import React from 'react';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Form from '../../containers/branch/Form';
-import { Branch } from '../../types';
+import { IBranch } from '../../types';
 
 type Props = {
-  branch: Branch;
+  branch: IBranch;
   deleteBranch: (_id: string, callback: () => void) => void;
   refetch: () => void;
   depth?: number;

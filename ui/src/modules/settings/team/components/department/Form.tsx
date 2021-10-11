@@ -7,14 +7,14 @@ import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { Department } from '../../types';
+import { IDepartment } from '../../types';
 import SelectStructureMembers from '../SelectStructureMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  department?: Department;
+  department?: IDepartment;
   closeModal: () => void;
-  parentDepartments: Department[];
+  parentDepartments: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {

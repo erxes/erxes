@@ -5,10 +5,10 @@ import Form from '../../components/unit/Form';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-import { Unit } from '../../types';
+import { IUnit } from '../../types';
 
 type Props = {
-  unit?: Unit;
+  unit?: IUnit;
   closeModal: () => void;
 };
 

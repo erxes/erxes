@@ -5,10 +5,10 @@ import Form from '../../components/branch/Form';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-import { Branch } from '../../types';
+import { IBranch } from '../../types';
 
 type Props = {
-  branch?: Branch;
+  branch?: IBranch;
   closeModal: () => void;
 };
 

@@ -64,8 +64,8 @@ const structureQueries = {
     return Users.find({ _id: { $nin: userIds } });
   },
 
-  structureDetail(_root, { _id }) {
-    return Structures.getStructure({ _id });
+  structureDetail() {
+    return Structures.findOne();
   }
 };
 

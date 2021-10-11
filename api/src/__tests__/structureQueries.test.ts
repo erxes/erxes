@@ -16,20 +16,18 @@ describe('Structure queries', () => {
   });
 
   test('Get structure', async () => {
-    const structure = await structureFactory({});
+    await structureFactory({});
 
     const query = `
-          query structureDetail($_id: String!) {
-              structureDetail(_id: $_id) {
+          query structureDetail {
+              structureDetail {
                   _id
                   title
               }
           }
       `;
 
-    const response = await graphqlRequest(query, 'structureDetail', {
-      _id: structure._id
-    });
+    const response = await graphqlRequest(query, 'structureDetail');
 
     expect(response).toBeDefined();
   });

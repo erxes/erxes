@@ -5,10 +5,10 @@ import Form from '../../components/department/Form';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-import { Department } from '../../types';
+import { IDepartment } from '../../types';
 
 type Props = {
-  department?: Department;
+  department?: IDepartment;
   closeModal: () => void;
 };
 

@@ -8,14 +8,14 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { generateTree } from '../../utils';
-import { Department, Unit } from '../../types';
+import { IDepartment, IUnit } from '../../types';
 import SelectStructureMembers from '../SelectStructureMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  unit?: Unit;
+  unit?: IUnit;
   closeModal: () => void;
-  departments: Department[];
+  departments: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {

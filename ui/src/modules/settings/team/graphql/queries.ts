@@ -75,6 +75,18 @@ const userSkills = `
   }
 `;
 
+const structureDetail = `
+  query structureDetail {
+    structureDetail {
+      _id
+      title
+      description
+      code
+      supervisorId
+    }
+  }
+`;
+
 const departmentField = `
   _id
   title
@@ -194,6 +206,7 @@ export default {
   users,
   usersTotalCount,
   allUsers,
+  structureDetail,
   departments,
   departmentDetail,
   units,

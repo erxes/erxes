@@ -58,7 +58,7 @@ export const queries = `
     branches(depthType: String): [Branch]
     branchDetail(_id: String!): Branch
 
-    structureDetail(_id: String!): Structure
+    structureDetail: Structure
 `;
 
 const commonStructureParams = `

@@ -70,34 +70,32 @@ export type ResetMemberPasswordResponse = {
   }) => Promise<any>;
 };
 
-export type Department = {
+interface IStructureCommon {
   _id: string;
   title: string;
-  description: string;
   code: string;
   supervisorId: string;
+}
+
+export interface IDepartment extends IStructureCommon {
+  description: string;
   userIds: string[];
   users: IUser;
-};
+}
 
-export type Unit = {
-  _id: string;
-  title: string;
-  description: string;
-  code: string;
-  supervisorId: string;
+export interface IUnit extends IStructureCommon {
   departmentId: string;
+  description: string;
   userIds: string[];
   users: IUser;
-};
+}
 
-export type Branch = {
-  _id: string;
-  title: string;
+export interface IBranch extends IStructureCommon {
   address: string;
-  code: string;
-  supervisorId: string;
   parentId: string;
   userIds: string[];
   users: IUser;
-};
+}
+export interface IStructure extends IStructureCommon {
+  description?: string;
+}
