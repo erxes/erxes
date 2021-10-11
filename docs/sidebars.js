@@ -125,7 +125,8 @@ module.exports = {
       label: "Components",
       items: [
         "components/buttons",
-        "components/info"
+        "components/info",
+        "components/spinners",
       ],
     },
   ],
