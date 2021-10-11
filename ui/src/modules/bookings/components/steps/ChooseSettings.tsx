@@ -1,4 +1,3 @@
-import { FlexContent } from 'modules/boards/styles/item';
 import Select from 'react-select-plus';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
@@ -8,12 +7,10 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components/form';
-import { FlexItem } from 'modules/layout/styles';
 import { FlexItem as FlexItemContainer } from './style';
 import React from 'react';
 import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
-// import SelectForm from 'modules/bookings/containers/SelectForm';
 
 type Name = 'languageCode' | 'formId';
 
@@ -88,29 +85,15 @@ function ChooseSettings({
           />
         </FormGroup>
 
-        <FlexContent>
-          {/* <FlexItem>
-            <FormGroup>
-              <ControlLabel required={true}>Form to display</ControlLabel>
-              <SelectForm
-                value={formId}
-                onChange={e => onChangeSelect('formId', e)}
-                placeholder="Choose a form"
-              />
-            </FormGroup>
-          </FlexItem> */}
-          <FlexItem hasSpace={true}>
-            <FormGroup>
-              <ControlLabel required={true}>Form Button Text</ControlLabel>
-              <FormControl
-                placeholder="Button text"
-                type="text"
-                defaultValue={buttonText}
-                onChange={(e: any) => onChange('buttonText', e.target.value)}
-              />
-            </FormGroup>
-          </FlexItem>
-        </FlexContent>
+        <FormGroup>
+          <ControlLabel required={true}>Form Button Text</ControlLabel>
+          <FormControl
+            placeholder="Button text"
+            type="text"
+            defaultValue={buttonText}
+            onChange={(e: any) => onChange('buttonText', e.target.value)}
+          />
+        </FormGroup>
       </LeftItem>
     </FlexItemContainer>
   );

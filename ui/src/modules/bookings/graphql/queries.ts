@@ -70,7 +70,6 @@ const bookingFields = `
   createdDate
   viewCount
 
-  fieldsGroup
   userFilters
   
   brand {
@@ -143,15 +142,6 @@ const productCategories = `
   }
 `;
 
-const forms = `
-  query forms {
-    forms {
-      _id
-      title
-    }
-  }
-`;
-
 const bookingsTotalCount = `
   query bookingsTotalCount{
     bookingsTotalCount{
@@ -182,7 +172,6 @@ export default {
   bookingDetail,
   bookings,
   productCategories,
-  forms,
   bookingsTotalCount,
   fieldsGroups
 };

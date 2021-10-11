@@ -39,7 +39,6 @@ export interface IBooking {
   image?: string[];
   description?: string;
 
-  fieldsGroup?: string;
   userFilters?: string[];
   productCategoryId: string;
 
@@ -110,7 +109,6 @@ export const bookingSchema = new Schema({
   image: field({ type: attachmentSchema }),
   description: field({ type: String, optional: true, label: 'Description' }),
 
-  fieldsGroup: field({ type: String, optional: true }),
   userFilters: field({ type: [String], optional: true, label: 'Filter' }),
 
   productCategoryId: field({

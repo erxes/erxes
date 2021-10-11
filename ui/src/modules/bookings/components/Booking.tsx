@@ -35,7 +35,6 @@ type Props = {
 type State = {
   name: string;
   description: string;
-  fieldsGroup: string;
   userFilters: string[];
   image: any;
 
@@ -85,7 +84,6 @@ function Booking({
     description: booking.description || '',
     image: booking.image,
 
-    fieldsGroup: booking.fieldsGroup || '',
     userFilters: booking.userFilters || [],
 
     productCategoryId: booking.productCategoryId || '',
@@ -242,7 +240,6 @@ function Booking({
                 productCategoryId={state.productCategoryId}
                 userFilters={state.userFilters}
                 image={state.image}
-                fieldsGroup={state.fieldsGroup}
                 onChangeBlock={onChangeBlock}
                 displayBlock={block}
               />

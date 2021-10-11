@@ -4,7 +4,6 @@ const bookingMutationParamsDef = `
   $description: String
   $productCategoryId: String
 
-  $fieldsGroup: String
   $userFilters: [String]
 
   $title: String
@@ -24,7 +23,6 @@ const bookingMutationParamsVal = `
   description: $description
   productCategoryId: $productCategoryId
 
-  fieldsGroup: $fieldsGroup
   userFilters: $userFilters
 
   title: $title,

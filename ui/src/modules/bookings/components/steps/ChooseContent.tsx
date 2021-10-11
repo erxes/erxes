@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Description } from 'modules/settings/styles';
 import { FlexItem } from 'modules/layout/styles';
 import { FlexContent } from 'modules/boards/styles/item';
@@ -14,7 +14,6 @@ import { FlexItem as FlexItemContainer, Title } from './style';
 
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import Uploader from 'modules/common/components/Uploader';
-import SelectFieldsGroup from 'modules/bookings/containers/SelectFieldsGroup';
 import { IDisplayBlock } from 'modules/bookings/types';
 
 type Name =
@@ -33,7 +32,6 @@ type Props = {
   userFilters: string[];
   productCategoryId: string;
   image: any;
-  fieldsGroup: string;
   displayBlock: IDisplayBlock;
 };
 
@@ -44,22 +42,9 @@ function ChooseContent({
   userFilters,
   productCategoryId,
   image,
-  fieldsGroup,
   onChangeBlock,
   displayBlock
 }: Props) {
-  const [activeGroup, setActiveGroup] = useState([] as any);
-
-  const onChangeFieldsGroup = (e: any) => {
-    onChangeSelect('fieldsGroup', e);
-
-    if (e && e.value) {
-      return setActiveGroup(e.fields);
-    }
-
-    return setActiveGroup([]);
-  };
-
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
 
@@ -111,15 +96,6 @@ function ChooseContent({
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Fields Groups</ControlLabel>
-          <SelectFieldsGroup
-            value={fieldsGroup}
-            onChange={(e: any) => onChangeFieldsGroup(e)}
-            placeholder="Choose a field groups"
-          />
-        </FormGroup>
-
-        <FormGroup>
           <ControlLabel>User filters</ControlLabel>
           <Select
             multi={true}
@@ -127,10 +103,6 @@ function ChooseContent({
             onChange={(e: any) =>
               onChange('userFilters', e.map(el => el.value) || [])
             }
-            options={activeGroup.map(el => ({
-              value: el._id,
-              label: el.text
-            }))}
             clearable={true}
             placeholder="Choose filters"
           />
