@@ -22,9 +22,9 @@ const widgetConnect = params => {
 
     // call connect mutation
     connectMutation(event)
-      .then(response => {
-        if (!response) {
-          return;
+      .then((response) => {
+        if (!response){
+          return
         }
 
         const { data } = response;
