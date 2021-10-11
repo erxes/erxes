@@ -2,35 +2,91 @@ import { Departments, Units, Users } from '../../../db/models';
 import { Branches, Structures } from '../../../db/models/Structure';
 
 const structureQueries = {
-  departments(_root, { depthType }: { depthType?: string }) {
-    const doc: { parentId?: any } = {};
+  departments(
+    _root,
+    { depthType, searchValue }: { depthType?: string; searchValue?: string }
+  ) {
+    const filter: { parentId?: any; $or?: any[] } = {};
 
     if (depthType === 'parent') {
-      doc.parentId = null;
+      filter.parentId = null;
     } else if (depthType === 'children') {
-      doc.parentId = { $ne: null };
+      filter.parentId = { $ne: null };
     }
 
-    return Departments.find(doc).sort({ title: 1 });
+    if (searchValue) {
+      const regexOption = {
+        $regex: `.*${searchValue.trim()}.*`,
+        $options: 'i'
+      };
+
+      filter.$or = [
+        {
+          title: regexOption
+        },
+        {
+          description: regexOption
+        }
+      ];
+    }
+
+    return Departments.find(filter).sort({ title: 1 });
   },
 
   departmentDetail(_root, { _id }) {
     return Departments.getDepartment({ _id });
   },
 
-  units() {
-    return Units.find().sort({ title: 1 });
+  units(_root, { searchValue }: { searchValue?: string }) {
+    const filter: { $or?: any[] } = {};
+
+    if (searchValue) {
+      const regexOption = {
+        $regex: `.*${searchValue.trim()}.*`,
+        $options: 'i'
+      };
+
+      filter.$or = [
+        {
+          title: regexOption
+        },
+        {
+          description: regexOption
+        }
+      ];
+    }
+
+    return Units.find(filter).sort({ title: 1 });
   },
 
   unitDetail(_root, { _id }) {
     return Units.getUnit({ _id });
   },
 
-  branches(_root, { depthType }: { depthType?: string }) {
-    const filter: { parentId?: any } = {};
+  branches(
+    _root,
+    { depthType, searchValue }: { depthType?: string; searchValue?: string }
+  ) {
+    const filter: { parentId?: any; $or?: any[] } = {};
 
     if (depthType === 'parent') {
       filter.parentId = null;
+    }
+
+    if (searchValue) {
+      const regexOption = {
+        $regex: `.*${searchValue.trim()}.*`,
+        $options: 'i'
+      };
+
+      filter.$or = [
+        {
+          title: regexOption
+        },
+        {
+          address: regexOption
+        }
+      ];
     }
 
     return Branches.find(filter).sort({ title: 1 });

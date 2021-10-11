@@ -47,15 +47,15 @@ export const types = `
 `;
 
 export const queries = `
-    departments(depthType: String): [Department]
+    departments(depthType: String, searchValue: String): [Department]
     departmentDetail(_id: String!): Department
 
     noDepartmentUsers(excludeId: String): [User]
 
-    units: [Unit]
+    units(searchValue: String): [Unit]
     unitDetail(_id: String!): Unit
 
-    branches(depthType: String): [Branch]
+    branches(depthType: String, searchValue: String): [Branch]
     branchDetail(_id: String!): Branch
 
     structureDetail: Structure

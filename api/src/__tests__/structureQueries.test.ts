@@ -34,11 +34,14 @@ describe('Structure queries', () => {
 
   test('Get departments', async () => {
     const parent = await departmentFactory({});
-    await departmentFactory({ parentId: parent._id });
+    await departmentFactory({
+      parentId: parent._id,
+      title: 'This is Example title'
+    });
 
     const query = `
-            query departments($depthType: String) {
-                departments(depthType: $depthType) {
+            query departments($depthType: String, $searchValue: String) {
+                departments(depthType: $depthType, searchValue: $searchValue) {
                     _id
                     users {
                         _id
@@ -68,6 +71,12 @@ describe('Structure queries', () => {
     });
 
     expect(response.length).toBe(1);
+
+    response = await graphqlRequest(query, 'departments', {
+      searchValue: 'example'
+    });
+
+    expect(response.length).toBe(1);
   });
 
   test('Get department', async () => {
@@ -91,11 +100,11 @@ describe('Structure queries', () => {
 
   test('Get units', async () => {
     await unitFactory({});
-    await unitFactory({});
+    await unitFactory({ title: 'This is Example title' });
 
     const query = `
-          query units {
-              units {
+          query units($searchValue: String) {
+              units(searchValue: $searchValue) {
                   _id
                   users {
                       _id
@@ -107,9 +116,13 @@ describe('Structure queries', () => {
           }
       `;
 
-    const response = await graphqlRequest(query, 'units');
+    let response = await graphqlRequest(query, 'units');
 
     expect(response.length).toBe(2);
+
+    response = await graphqlRequest(query, 'units', { searchValue: 'example' });
+
+    expect(response.length).toBe(1);
   });
 
   test('Get unit', async () => {
@@ -180,11 +193,14 @@ describe('Structure queries', () => {
   test('Branches', async () => {
     const parent = await branchFactory({});
     await branchFactory({ parentId: parent._id });
-    await branchFactory({ parentId: parent._id });
+    await branchFactory({
+      parentId: parent._id,
+      title: 'This is Example title'
+    });
 
     const query = `
-          query branches($depthType: String) {
-              branches(depthType: $depthType) {
+          query branches($depthType: String, $searchValue: String) {
+              branches(depthType: $depthType, searchValue: $searchValue) {
                   _id
                   users {
                       _id
@@ -208,6 +224,12 @@ describe('Structure queries', () => {
     });
 
     expect(onlyParentResponse.length).toBe(1);
+
+    const searchValueResponse = await graphqlRequest(query, 'branches', {
+      searchValue: 'example'
+    });
+
+    expect(searchValueResponse.length).toBe(1);
   });
 
   test('Get branch', async () => {
