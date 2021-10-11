@@ -26,3 +26,12 @@ export const Description = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
 `;
+
+
+const LinkButton = styled.a`
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
