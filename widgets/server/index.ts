@@ -66,4 +66,3 @@ const port = process.env.PORT || 3200;
 app.listen(port, () => {
   console.log(`Widget scripts are now running on port ${port}`);
 });
-
