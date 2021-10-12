@@ -39,11 +39,7 @@ import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { sendToLog } from '../../logUtils';
-import {
-  RABBITMQ_QUEUES,
-  AUTO_BOT_MESSAGES,
-  BOT_MESSAGE_TYPES
-} from '../../constants';
+import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { IContext } from '../../types';
 import {
   findCompany,
@@ -57,7 +53,6 @@ import {
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
-import messageBroker from '../../../messageBroker';
 import {
   IDiscussion,
   IForum,
@@ -247,12 +242,6 @@ const widgetMutations = {
     };
 
     await sendToWebhook('create', 'popupSubmitted', formData);
-
-    messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-      triggerType: 'formSubmit',
-      data: formData,
-      targetId: args.formId
-    });
 
     return {
       status: 'ok',
