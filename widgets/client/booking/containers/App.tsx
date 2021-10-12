@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { App } from '../components';
+import { App as DumbApp } from '../components';
 import { AppConsumer, AppProvider } from './AppContext';
 import { ChildProps, graphql, compose } from 'react-apollo';
 import { connection } from '../connection';
@@ -11,8 +11,15 @@ type QueryResponse = {
   widgetsBookingDetail: IBooking;
 };
 
-function AppContainer(props: ChildProps<{}, QueryResponse>) {
-  const { data } = props;
+type Props = {
+  isPopupVisible: boolean;
+  activeRoute: string;
+  isFormVisible: boolean;
+  closePopup: () => void;
+};
+
+function AppContainer(props: ChildProps<Props, QueryResponse>) {
+  const { data, isPopupVisible } = props;
 
   if (!data || data.loading || !data.widgetsBookingDetail) {
     return null;
@@ -21,18 +28,30 @@ function AppContainer(props: ChildProps<{}, QueryResponse>) {
   const booking = data.widgetsBookingDetail;
   connection.data.booking = booking;
 
-  return (
-    <AppProvider>
-      <AppConsumer>
-        {({ activeRoute }) => {
-          return <App activeRoute={activeRoute} booking={booking} />;
-        }}
-      </AppConsumer>
-    </AppProvider>
-  );
+  const loadType = 'popup';
+
+  let parentClass;
+  let containerClass = '';
+
+  if (loadType) {
+    if (isPopupVisible) {
+      parentClass = 'erxes-modal-iframe';
+      containerClass = 'modal-form open';
+    } else {
+      parentClass = 'erxes-modal-iframe hidden';
+    }
+  }
+
+  const extendedProps = {
+    ...props,
+    booking,
+    containerClass
+  };
+
+  return <DumbApp {...extendedProps} />;
 }
 
-const BookingWithData = compose(
+const WithData = compose(
   graphql<{}, QueryResponse>(gql(bookingDetail), {
     options: () => ({
       variables: {
@@ -42,4 +61,30 @@ const BookingWithData = compose(
   })
 )(AppContainer);
 
-export default BookingWithData;
+const WithContext = () => {
+  return (
+    <AppProvider>
+      <AppConsumer>
+        {({
+          activeRoute,
+          isFormVisible,
+          showPopup,
+          closePopup,
+          isPopupVisible
+        }) => {
+          return (
+            <WithData
+              activeRoute={activeRoute}
+              isFormVisible={isFormVisible}
+              showPopup={showPopup}
+              closePopup={closePopup}
+              isPopupVisible={isPopupVisible}
+            />
+          );
+        }}
+      </AppConsumer>
+    </AppProvider>
+  );
+};
+
+export default WithContext;

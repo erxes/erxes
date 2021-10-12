@@ -6,9 +6,10 @@ import Button from './common/Button';
 type Props = {
   booking: IBooking;
   goToBooking: (booking: IBooking) => void;
+  showPopup: () => void;
 };
 
-function Intro({ booking, goToBooking }: Props) {
+function Intro({ booking, goToBooking, showPopup }: Props) {
   const { title, description, image, styles } = booking;
   const { widgetColor } = styles;
 
@@ -24,7 +25,7 @@ function Intro({ booking, goToBooking }: Props) {
       <div className="flex-end">
         <Button
           text="Next"
-          onClickHandler={() => goToBooking(booking)}
+          onClickHandler={() => showPopup()}
           style={{ backgroundColor: widgetColor }}
         />
       </div>

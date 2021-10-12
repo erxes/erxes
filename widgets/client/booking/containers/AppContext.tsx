@@ -8,6 +8,8 @@ interface IState {
   activeBlock: string | null;
   activeFloor: string | null;
   activeProduct: string | null;
+  isFormVisible: boolean;
+  isPopupVisible: boolean;
 }
 
 interface IStore extends IState {
@@ -18,6 +20,9 @@ interface IStore extends IState {
   goToFloor: (floorId: string) => void;
   goToProduct: (productId: string) => void;
   getBooking: () => IBooking;
+  showForm: () => void;
+  showPopup: () => void;
+  closePopup: () => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -33,7 +38,9 @@ export class AppProvider extends React.Component<{}, IState> {
       activeBooking: null,
       activeBlock: null,
       activeFloor: null,
-      activeProduct: null
+      activeProduct: null,
+      isFormVisible: false,
+      isPopupVisible: false
     };
   }
 
@@ -83,6 +90,31 @@ export class AppProvider extends React.Component<{}, IState> {
     return connection.data.booking;
   };
 
+  showForm = () => {
+    this.setState({
+      isFormVisible: true
+    });
+  };
+
+  /*
+   * When load type is popup, Show popup and show one of callout and form
+   */
+  showPopup = () => {
+    this.setState({ isPopupVisible: true });
+
+    return this.setState({ isFormVisible: true });
+  };
+
+  /*
+   * When load type is popup, Hide popup
+   */
+  closePopup = () => {
+    this.setState({
+      isPopupVisible: false,
+      isFormVisible: false
+    });
+  };
+
   render() {
     return (
       <AppContext.Provider
@@ -94,7 +126,10 @@ export class AppProvider extends React.Component<{}, IState> {
           goToBookings: this.goToBookings,
           goToFloor: this.goToFloor,
           goToProduct: this.goToProduct,
-          getBooking: this.getBooking
+          getBooking: this.getBooking,
+          showForm: this.showForm,
+          showPopup: this.showPopup,
+          closePopup: this.closePopup
         }}
       >
         {this.props.children}

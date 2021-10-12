@@ -1,15 +1,34 @@
 import * as React from 'react';
+import { iconClose } from '../../icons/Icons';
 import { Booking, Intro, BlockDetail, Floor, Product } from '../containers';
 import { IBooking } from '../types';
 import Navigation from '../containers/common/Navigation';
 import * as ReactPopover from 'react-popover';
+import Form from './form/Form';
 
 type Props = {
   activeRoute: string;
   booking: IBooking;
+  isFormVisible: boolean;
+  containerClass: string;
+  closePopup: () => void;
 };
 
-function App({ booking, activeRoute }: Props) {
+function App({
+  booking,
+  activeRoute,
+  isFormVisible,
+  containerClass,
+  closePopup
+}: Props) {
+  const renderCloseButton = () => {
+    return (
+      <a className="close" onClick={closePopup} title="Close">
+        {iconClose()}
+      </a>
+    );
+  };
+
   const renderContent = () => {
     if (activeRoute === 'INTRO') {
       return <Intro />;
@@ -34,21 +53,32 @@ function App({ booking, activeRoute }: Props) {
     return null;
   };
 
+  const renderForm = () => {
+    if (isFormVisible) {
+      return <Form />;
+    }
+
+    return null;
+  };
+
   return (
-    <div className="layout">
-      <div className="grid-131">
-        <Navigation
-          items={booking.categoryTree}
-          parentId={booking.productCategoryId}
-        />
-        <div />
-        <Navigation
-          items={booking.categoryTree}
-          parentId={booking.productCategoryId}
-        />
+    <>
+      <div className="erxes-content">
+        <div className={containerClass}>
+          {renderCloseButton()}
+          {renderForm()}
+        </div>
       </div>
-      <div className="h-100 w-100">{renderContent()}</div>
-    </div>
+      <div className="layout">
+        <div className="grid-131">
+          <Navigation
+            items={booking.categoryTree}
+            parentId={booking.productCategoryId}
+          />
+        </div>
+        <div className="h-100 w-100">{renderContent()}</div>
+      </div>
+    </>
   );
 }
 

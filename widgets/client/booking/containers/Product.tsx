@@ -10,6 +10,7 @@ type Props = {
   productId: string;
   booking: IBooking;
   goToBookings: () => void;
+  showForm: () => void;
 };
 
 type QueryResponse = {
@@ -43,13 +44,14 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeProduct, getBooking, goToBookings }) => {
+    {({ activeProduct, getBooking, goToBookings, showForm }) => {
       const booking = getBooking();
       return (
         <WithData
           productId={activeProduct}
           booking={booking}
           goToBookings={goToBookings}
+          showForm={showForm}
         />
       );
     }}
