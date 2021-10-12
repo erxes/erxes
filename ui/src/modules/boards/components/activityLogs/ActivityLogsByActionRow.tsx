@@ -6,7 +6,8 @@ import {
   NameCardStyle,
   ActionText,
   DescText,
-  ObjectText
+  ObjectText,
+  DateType
 } from 'modules/boards/styles/viewtype';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { getIconAndColor } from 'modules/boards/utils';
@@ -45,7 +46,9 @@ class ActivityLogsByActionRow extends React.Component<Props> {
 
     return (
       <ActivityList key={activityLog._id}>
-        <span>{dayjs(activityLog.createdAt).format('MMM D')}</span>
+        <DateType>
+          <span>{dayjs(activityLog.createdAt).format('MMM D')}</span>
+        </DateType>
         <Icon icon={iconAndColor.icon} size={20} color={iconAndColor.color} />
         <NameCardStyle>
           <NameCard

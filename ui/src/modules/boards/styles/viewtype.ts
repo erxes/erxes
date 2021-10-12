@@ -27,15 +27,6 @@ export const ActivityList = styled.div`
   font-weight: 500;
   font-size: 12px;
   display: flex;
-
-  span {
-    align-self: center;
-    color: ${colors.colorLightGray};
-  }
-
-  i {
-    margin-left: 10px;
-  }
 `;
 
 export const NameCardStyle = styled.div`
@@ -61,4 +52,10 @@ export const ObjectText = styled.div`
   align-self: center;
   margin-left: ${dimensions.coreSpacing}px;
   color: ${linkText};
+`;
+
+export const DateType = styled.div`
+  width: ${dimensions.headerSpacing}px;
+  align-self: center;
+  color: ${colors.colorLightGray};
 `;
