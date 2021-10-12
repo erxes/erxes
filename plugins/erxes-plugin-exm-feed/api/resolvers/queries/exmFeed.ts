@@ -54,7 +54,7 @@ const exmFeedQueries = [
     name: 'exmFeed',
     handler: async (
       _root,
-      { title, contentTypes, limit, skip, recipientType, type },
+      { isPinned, title, contentTypes, limit, skip, recipientType, type },
       { models, checkPermission, user }
     ) => {
       await checkPermission('showExm', user);
@@ -90,9 +90,13 @@ const exmFeedQueries = [
         doc.createdBy = user._id;
       }
 
+      if (isPinned !== undefined) {
+        doc.isPinned = isPinned;
+      }
+
       return {
         list: await models.ExmFeed.find(doc)
-          .sort({ isPinned: -1, createdAt: -1 })
+          .sort({ createdAt: -1 })
           .skip(skip || 0)
           .limit(limit || 20),
         totalCount: await models.ExmFeed.find(doc).countDocuments()
