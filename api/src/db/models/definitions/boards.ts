@@ -80,7 +80,6 @@ export interface IPipeline extends ICommonFields {
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
-
   startDate?: Date;
   endDate?: Date;
   metric?: string;
@@ -234,7 +233,8 @@ export const pipelineSchema = new Schema({
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
-    default: BOARD_STATUSES.ACTIVE
+    default: BOARD_STATUSES.ACTIVE,
+    label: 'Status'
   }),
   visibility: field({
     type: String,
