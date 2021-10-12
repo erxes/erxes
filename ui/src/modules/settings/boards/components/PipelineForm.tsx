@@ -118,7 +118,8 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckUser,
       excludeCheckUserIds,
       boardId,
-      condition
+      condition,
+      label
     } = this.state;
     const finalValues = values;
 
@@ -136,7 +137,8 @@ class PipelineForm extends React.Component<Props, State> {
       bgColor: backgroundColor,
       isCheckUser,
       excludeCheckUserIds,
-      condition
+      condition,
+      label
     };
   };
 
@@ -302,7 +304,7 @@ class PipelineForm extends React.Component<Props, State> {
               <FormControl
                 name="Label"
                 componentClass="radio"
-                value={this.state.label}
+                value={'static'}
                 onChange={this.onChangeLabel}
               >
                 {__('Static')}
@@ -314,7 +316,7 @@ class PipelineForm extends React.Component<Props, State> {
               <FormControl
                 name="Label"
                 componentClass="radio"
-                value={this.state.label}
+                value={'dynamic'}
                 onChange={this.onChangeLabel}
               >
                 {__('Dynamic')}

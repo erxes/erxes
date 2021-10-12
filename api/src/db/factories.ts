@@ -1052,6 +1052,7 @@ export const boardFactory = (params: IBoardFactoryInput = {}) => {
 
 interface IPipelineFactoryInput {
   boardId?: string;
+  userId?: string;
   type?: string;
   bgColor?: string;
   hackScoringType?: string;
@@ -1078,6 +1079,7 @@ export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
     name: faker.random.word(),
     boardId,
     type,
+    userId: params.userId,
     visibility: params.visibility || 'public',
     bgColor: params.bgColor || 'fff',
     hackScoringType: params.hackScoringType,

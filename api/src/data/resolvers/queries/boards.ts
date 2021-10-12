@@ -182,19 +182,17 @@ const boardQueries = {
                         $and: [
                           { condition: 'include' },
                           {
-                            $or: [{ memberIds: user._id }, { userId: user._id }]
+                            $or: [
+                              { $in: [user._id, '$memberIds'] },
+                              { $eq: ['$userId', user._id] }
+                            ]
                           }
                         ]
                       },
                       {
                         $and: [
                           { condition: 'exclude' },
-                          {
-                            $or: [
-                              { excludMemberIds: user._id },
-                              { userId: user._id }
-                            ]
-                          }
+                          { $nin: [user._id, '$memberIds'] }
                         ]
                       }
                     ]

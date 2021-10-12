@@ -204,6 +204,33 @@ describe('boardQueries', () => {
     expect(response.length).toBe(3);
   });
 
+  test('Pipelines with condition', async () => {
+    const board = await boardFactory();
+    const user = await userFactory();
+    const u1 = await userFactory();
+    const u2 = await userFactory();
+    const args = { boardId: board._id };
+
+    await pipelineFactory(args);
+    await pipelineFactory(args);
+    await pipelineFactory({
+      boardId: board._id,
+      visibility: 'private',
+      condition: 'include',
+      memberIds: [user._id, u1._id, u2._id]
+    });
+    await pipelineFactory({ boardId: board._id, userId: user._id });
+
+    const resp = await graphqlRequest(pipelineQry, 'pipelines', args, {
+      user: u2
+    });
+
+    const response = await graphqlRequest(pipelineQry, 'pipelines', args, {
+      user
+    });
+    expect(response.length).toBe(4);
+  });
+
   test('Pipelines with filter', async () => {
     const board = await boardFactory();
     const args = { boardId: board._id, type: 'deal' };
