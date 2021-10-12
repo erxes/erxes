@@ -30,7 +30,7 @@ export const initBroker = async (server?) => {
 
     setTimeout(async () => {
       await receiveTrigger({ type, targets });
-    }, 1000)
+    }, 10000)
   });
 };
 
