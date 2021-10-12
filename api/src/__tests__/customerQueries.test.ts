@@ -1,4 +1,3 @@
-import { singleFieldOnlyMessage } from 'graphql/validation/rules/SingleFieldSubscriptions';
 import * as moment from 'moment';
 import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
