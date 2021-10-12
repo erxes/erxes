@@ -1,18 +1,9 @@
-import { updateDecorator } from 'typescript';
-import { pipelineLabelFactory } from '../../../db/factories';
-import {
-  Boards,
-  FieldsGroups,
-  PipelineLabels,
-  Pipelines,
-  Stages
-} from '../../../db/models';
+import { Boards, FieldsGroups, Pipelines, Stages } from '../../../db/models';
 import { bulkUpdateOrders, getCollection } from '../../../db/models/boardUtils';
 import {
   IBoard,
   IOrderInput,
   IPipeline,
-  IPipelineStage,
   IStage,
   IStageDocument
 } from '../../../db/models/definitions/boards';
@@ -21,7 +12,6 @@ import { graphqlPubsub } from '../../../pubsub';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../types';
 import { checkPermission } from '../boardUtils';
-import stages from '../stages';
 
 interface IBoardsEdit extends IBoard {
   _id: string;

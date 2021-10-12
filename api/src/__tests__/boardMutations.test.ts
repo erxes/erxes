@@ -1,5 +1,3 @@
-import { PI } from 'aws-sdk';
-import { archivedItems } from '../data/resolvers/queries/boardUtils';
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
