@@ -4,10 +4,14 @@ import { useQuery } from 'react-apollo';
 import { queries } from '../../graphql';
 import ChartStack from '../../components/chart/ChartStack';
 
-export default function ChartStackContainer({ queryParams }) {
+type Props = {
+  pipelineId: string;
+};
+
+export default function ChartStackContainer({ pipelineId }: Props) {
   const { data, loading } = useQuery(gql(queries.stagesByAssignedUser), {
     variables: {
-      pipelineId: queryParams.pipelineId
+      pipelineId
     }
   });
 

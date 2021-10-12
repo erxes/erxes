@@ -22,18 +22,6 @@ const MainActionBar = asyncComponent(() =>
   )
 );
 
-const Charts = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MainActionBar" */ '../boards/containers/chart/ChartStack'
-  )
-);
-
-const charts = ({ location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Charts queryParams={queryParams} />;
-};
-
 const tasks = () => {
   let link = '/task/board';
 
@@ -49,6 +37,12 @@ const tasks = () => {
   }
 
   return <Redirect to={link} />;
+};
+
+const charts = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="chart" queryParams={queryParams} />;
 };
 
 const boards = ({ location }) => {

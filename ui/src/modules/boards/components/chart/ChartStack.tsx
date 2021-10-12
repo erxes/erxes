@@ -11,6 +11,8 @@ import {
 import React from 'react';
 import { IStage } from 'modules/boards/types';
 import { getColors } from 'modules/boards/utils';
+import EmptyState from 'modules/common/components/EmptyState';
+import { ChartContainer } from 'modules/boards/styles/viewtype';
 
 type Props = {
   stages: IStage[];
@@ -18,26 +20,32 @@ type Props = {
 };
 
 export default function ChartStack({ stages, usersWithInfo }: Props) {
+  if (!stages) {
+    return <EmptyState text="this data is empty" icon="piechart" />;
+  }
+
   return (
-    <BarChart
-      width={500}
-      height={300}
-      data={usersWithInfo}
-      margin={{
-        top: 20,
-        right: 30,
-        left: 20,
-        bottom: 5
-      }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      {stages.map((stage, index) => (
-        <Bar dataKey={stage.name} stackId="a" fill={getColors(index)} />
-      ))}
-    </BarChart>
+    <ChartContainer>
+      <BarChart
+        width={1500}
+        height={600}
+        data={usersWithInfo}
+        margin={{ top: 100, left: 100 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {stages.map((stage, index) => (
+          <Bar
+            key={index}
+            dataKey={stage.name}
+            stackId="a"
+            fill={getColors(index)}
+          />
+        ))}
+      </BarChart>
+    </ChartContainer>
   );
 }

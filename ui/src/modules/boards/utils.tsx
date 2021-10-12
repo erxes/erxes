@@ -228,9 +228,19 @@ export const calendarColumnQuery = (query, name) =>
   });
 
 export const getColors = (index: number) => {
-  const COLORS = ['#8884d8', '#82ca9d', '#812a9d'];
+  const COLORS = [
+    '#3CCC38',
+    '#FDA50D',
+    '#63D2D6',
+    '#EA475D',
+    '#3B85F4',
+    '#0A1E41',
+    '#5629B6',
+    '#6569DF',
+    '#888888'
+  ];
 
-  if (index > 2) {
+  if (index > 9) {
     return COLORS[2];
   }
 

@@ -155,11 +155,3 @@ export const ItemContainer = styledTS<{
   justify-content: space-between;
   will-change: transform;
 `;
-
-export const ChartContainer = styled.div`
-  width: 98%;
-  height: 90%;
-  background: rgb(255, 255, 255);
-  margin: 20px;
-  box-shadow: 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px';
-`;
