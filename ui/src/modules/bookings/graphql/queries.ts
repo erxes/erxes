@@ -107,7 +107,6 @@ const bookingFields = `
   channelIds
   languageCode
   formId
-  buttonText
 
   productCategoryId
 

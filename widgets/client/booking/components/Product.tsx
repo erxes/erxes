@@ -88,7 +88,7 @@ function Product({ product, booking, goToBookings, showForm }: Props) {
           style={{ backgroundColor: widgetColor }}
         />
         <Button
-          text={booking.buttonText || 'Захиалах'}
+          text={'Захиалах'}
           onClickHandler={() => showForm()}
           style={{ backgroundColor: widgetColor }}
         />

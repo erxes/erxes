@@ -11,7 +11,6 @@ const bookingMutationParamsDef = `
   $channelIds: [String]
   $languageCode: String
   $formId: String
-  $buttonText: String
 
   $styles: BookingStylesInput
   $displayBlock: DisplayBlockInput
@@ -31,7 +30,6 @@ const bookingMutationParamsVal = `
   channelIds: $channelIds
   languageCode: $languageCode
   formId: $formId
-  buttonText: $buttonText
 
   styles: $styles
   displayBlock: $displayBlock

@@ -86,7 +86,6 @@ const bookingFields = `
   title
   languageCode
   formId
-  buttonText
   productCategoryId
 
   childCategories {

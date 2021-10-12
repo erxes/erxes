@@ -40,7 +40,6 @@ export interface IBooking {
   languageCode?: string;
   productStatus?: string;
   formId?: string;
-  buttonText?: string;
 
   // common
   createdDate?: Date;

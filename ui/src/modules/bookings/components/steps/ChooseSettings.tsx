@@ -12,7 +12,7 @@ import React from 'react';
 import { Description } from 'modules/settings/styles';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 
-type Name = 'languageCode' | 'formId';
+type Name = 'languageCode';
 
 type Props = {
   onChange: (name: string, value: any) => void;
@@ -20,8 +20,6 @@ type Props = {
   brandId: string;
   channelIds: string[];
   languageCode: string;
-  formId: string;
-  buttonText: string;
 };
 
 function ChooseSettings({
@@ -29,9 +27,7 @@ function ChooseSettings({
   title,
   brandId,
   channelIds,
-  languageCode,
-  formId,
-  buttonText
+  languageCode
 }: Props) {
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
@@ -82,16 +78,6 @@ function ChooseSettings({
             }))}
             value={languageCode}
             onChange={e => onChangeSelect('languageCode', e)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Form Button Text</ControlLabel>
-          <FormControl
-            placeholder="Button text"
-            type="text"
-            defaultValue={buttonText}
-            onChange={(e: any) => onChange('buttonText', e.target.value)}
           />
         </FormGroup>
       </LeftItem>

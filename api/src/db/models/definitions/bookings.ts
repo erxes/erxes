@@ -53,7 +53,6 @@ export interface IBooking {
   channelIds?: string[];
   languageCode?: string;
   formId?: string;
-  buttonText?: string;
 
   tagIds?: string[];
   viewCount?: number;
@@ -219,7 +218,6 @@ export const bookingSchema = new Schema({
   channelIds: field({ type: [String], optional: true, label: 'Channel' }),
   languageCode: field({ type: String, optional: true, label: 'Language' }),
   formId: field({ type: String, optional: true, label: 'Form' }),
-  buttonText: field({ type: String, optional: true, label: 'Button text' }),
   viewCount: field({ type: Number, optional: true, label: 'View count' }),
   isActive: field({
     type: Boolean,

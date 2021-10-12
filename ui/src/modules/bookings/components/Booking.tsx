@@ -57,7 +57,6 @@ type State = {
   channelIds: string[];
   languageCode: string;
   formId: string;
-  buttonText: string;
   formData: IFormData;
 };
 
@@ -108,7 +107,6 @@ function Booking({
     channelIds: booking.channelIds || [],
     languageCode: booking.languageCode || '',
     formId: booking.formId || '',
-    buttonText: booking.buttonText || '',
 
     formData: {
       title: form.title || 'Form Title',
@@ -318,8 +316,6 @@ function Booking({
                 brandId={state.brandId}
                 channelIds={state.channelIds}
                 languageCode={state.languageCode}
-                formId={state.formId}
-                buttonText={state.buttonText}
               />
             </Step>
 

@@ -62,7 +62,6 @@ export const types = `
     channelIds: [String]
     languageCode: String
     formId: String
-    buttonText: String
 
     createdDate: Date
     viewCount: Int
@@ -141,7 +140,6 @@ const bookingMutationParams = `
   channelIds: [String]
   languageCode: String
   formId: String
-  buttonText: String
   tagIds: [String]
 
   displayBlock: DisplayBlockInput
