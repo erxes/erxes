@@ -91,7 +91,11 @@ const exmFeedQueries = [
       }
 
       if (isPinned !== undefined) {
-        doc.isPinned = isPinned;
+        if (isPinned) {
+          doc.isPinned = true;
+        } else {
+          doc.isPinned = { $ne: true };
+        }
       }
 
       return {
