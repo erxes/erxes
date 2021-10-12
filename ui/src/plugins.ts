@@ -1,6 +1,8 @@
 export default {
   'erxes-plugin-pos': require('../../plugins/erxes-plugin-pos/ui').default,
 
+  'erxes-plugin-car': require('../../plugins/erxes-plugin-car/ui').default,
+
   'erxes-plugin-loyalty': require('../../plugins/erxes-plugin-loyalty/ui')
     .default,
 

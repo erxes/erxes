@@ -13,6 +13,19 @@ const posMutations = [
         }
     },
 
+    /**
+     * edit pos 
+     */
+    {
+        name: 'editPos',
+        handler: async (_root, params, { models, checkPermission, user }) => {
+            await checkPermission('editPos', user);
+
+            // const { _id, name, description } = params;
+            return await models.Pos.editPos(models, params)
+        }
+    },
+
 
 ]
 

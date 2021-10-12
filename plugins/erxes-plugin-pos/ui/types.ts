@@ -24,3 +24,15 @@ export type IProductGroup = {
   excludedCategories: IProductCategory[];
   excludedProducts: IProduct[];
 }
+
+export type IPos = {
+  _id: string;
+  name: string;
+  description: string;
+}
+
+export type PosListQueryResponse = {
+  allPos: IPos[];
+  loading: boolean;
+  refetch: () => void;
+};

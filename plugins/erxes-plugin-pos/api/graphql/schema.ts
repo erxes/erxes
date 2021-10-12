@@ -23,4 +23,10 @@ export const mutations = `
     name: String
     description: String
   ): Pos
+
+  editPos(
+    _id: String
+    name: String
+    description: String
+  ): Pos
 `;

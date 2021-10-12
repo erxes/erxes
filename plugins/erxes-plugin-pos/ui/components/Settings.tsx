@@ -17,6 +17,7 @@ import Sidebar from './Sidebar';
 import { ContentBox, Description } from '../styles';
 import { PRODUCT_DETAIL } from '../constants';
 import Select from 'react-select-plus';
+import queryString from 'query-string';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -64,9 +65,6 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeMultiCombo = (code: string, values) => {
-    console.log('code: ', code);
-    console.log('values: ', values);
-
     let value = values;
 
     if (Array.isArray(values)) {
@@ -108,6 +106,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
   render() {
     const { currentTab } = this.state;
+
+    const queryParams = queryString.parse(this.props.location.search);
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -164,7 +164,12 @@ class GeneralSettings extends React.Component<Props, State> {
             right={actionButtons}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={
+          <Sidebar
+            history={this.props.history}
+            queryParams={queryParams}
+          />
+        }
         content={content}
       />
     );

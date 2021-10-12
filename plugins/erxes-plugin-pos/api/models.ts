@@ -19,6 +19,23 @@ class Pos {
             createdAt: new Date()
         })
     }
+
+    public static async editPos(models, { _id, name, description }: { _id: string, name: string, description: string }) {
+        const pos = await models.Pos.findOne({ _id }).lean();
+
+        if (!pos) {
+            throw new Error('pos not found');
+        }
+
+        await models.Pos.update({ _id }, {
+            $set: {
+                name,
+                description
+            }
+        });
+
+        return await models.Pos.findOne({ _id }).lean();;
+    }
 }
 
 export default [
