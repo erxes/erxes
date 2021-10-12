@@ -1,7 +1,10 @@
-import React, { useState } from "react";
-import { Form, SelectTeamMembers } from "erxes-ui";
-import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
-import { description } from "../utils";
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+import { Form } from 'erxes-ui';
+import { IFormProps, IButtonMutateProps, IOption } from 'erxes-ui/lib/types';
+import { description, getUserOptions } from '../utils';
+import { IUser } from 'erxes-ui/lib/auth/types';
+import withTeamMembers from '../containers/withTeamMembers';
 
 type Props = {
   item?: any;
@@ -10,10 +13,14 @@ type Props = {
   closeModal?: () => void;
 };
 
-export default function ThankForm(props: Props) {
-  const { item = {} } = props;
+function ThankForm(props: Props & { users: IUser[] }) {
+  const { item = {}, users } = props;
 
   const [recipientIds, setRecipientIds] = useState(item.recipientIds || []);
+
+  const onSelectReciepent = (options: IOption[]) => {
+    setRecipientIds(options.map(option => option.value));
+  };
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
@@ -21,23 +28,24 @@ export default function ThankForm(props: Props) {
 
     return (
       <>
-        <SelectTeamMembers
-          label="Receipts"
-          name="recipientIds"
-          initialValue={recipientIds}
-          onSelect={setRecipientIds}
-          multi={false}
+        <Select
+          placeholder='Choose team members'
+          name='recipientIds'
+          value={recipientIds}
+          onChange={onSelectReciepent}
+          multi={true}
+          options={getUserOptions(users)}
         />
 
         {description(formProps, item)}
 
         {renderButton({
           values: {
-            description: values.description ? values.description : "Thank You",
-            recipientIds,
+            description: values.description ? values.description : 'Thank You',
+            recipientIds
           },
           isSubmitted,
-          callback: closeModal,
+          callback: closeModal
         })}
       </>
     );
@@ -45,3 +53,5 @@ export default function ThankForm(props: Props) {
 
   return <Form renderContent={renderContent} />;
 }
+
+export default withTeamMembers(ThankForm);

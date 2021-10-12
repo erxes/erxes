@@ -1,10 +1,14 @@
+import * as teamQueries from 'erxes-ui/lib/team/graphql';
+
+const detailFields = teamQueries.detailFields;
+const allUsers = teamQueries.allUsers;
+
 const userFields = `
   _id
   email
   username
   details {
-    fullName
-    avatar
+    ${detailFields}
   }
 `;
 
@@ -73,4 +77,4 @@ const fields = `
   }
 `;
 
-export default { feed, thanks, fields };
+export default { feed, thanks, fields, allUsers };

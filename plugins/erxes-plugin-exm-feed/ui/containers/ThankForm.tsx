@@ -40,12 +40,11 @@ export default function ThankFormContainer(props: Props) {
         variables={variables}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
-        refetchQueries={[{ query: gql(queries.thanks) }]}
         successMessage={`You successfully ${
           variables._id ? 'edited' : 'added'
         } a thank you`}
-        type="submit"
-        icon="check-circle"
+        type='submit'
+        icon='check-circle'
       />
     );
   };

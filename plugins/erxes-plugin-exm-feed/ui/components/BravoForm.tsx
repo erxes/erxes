@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import { Form, SelectTeamMembers } from "erxes-ui";
-import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
-import Field from "./Field";
-import { title, description } from "../utils";
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+import { Form } from 'erxes-ui';
+import { IFormProps, IButtonMutateProps, IOption } from 'erxes-ui/lib/types';
+import Field from './Field';
+import { title, description, getUserOptions } from '../utils';
+import { IUser } from 'erxes-ui/lib/auth/types';
+import withTeamMembers from '../containers/withTeamMembers';
 
 type Props = {
   item?: any;
@@ -11,13 +14,13 @@ type Props = {
   fields: any[];
 };
 
-export default function BravoForm(props: Props) {
-  const { item = {}, fields } = props;
+function BravoForm(props: Props & { users: IUser[] }) {
+  const { item = {}, fields, users } = props;
 
   const [recipientId, setRecipientId] = useState(
     item.recipientIds && item.recipientIds.length > 0
       ? item.recipientIds[0]
-      : []
+      : ''
   );
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
@@ -25,12 +28,16 @@ export default function BravoForm(props: Props) {
 
   const onChangeCustomFields = (fieldId: string, value: any) => {
     let updatedCustomFieldsData = customFieldsData.filter(
-      (f) => f.field !== fieldId
+      f => f.field !== fieldId
     );
 
     updatedCustomFieldsData.push({ field: fieldId, value });
 
     setCustomFieldsData(updatedCustomFieldsData);
+  };
+
+  const onChangeRecipient = (option: IOption) => {
+    setRecipientId(option ? option.value : '');
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -39,12 +46,13 @@ export default function BravoForm(props: Props) {
 
     return (
       <>
-        <SelectTeamMembers
-          label="Choose one"
-          name="recipientId"
-          initialValue={recipientId}
-          onSelect={setRecipientId}
+        <Select
+          placeholder='Choose one'
+          name='recipientId'
+          value={recipientId}
+          onChange={onChangeRecipient}
           multi={false}
+          options={getUserOptions(users)}
         />
         {fields.map((f, index) => (
           <Field
@@ -60,12 +68,12 @@ export default function BravoForm(props: Props) {
           values: {
             title: values.title,
             description: values.description ? values.description : null,
-            contentType: "bravo",
+            contentType: 'bravo',
             recipientIds: [recipientId],
-            customFieldsData,
+            customFieldsData
           },
           isSubmitted,
-          callback: closeModal,
+          callback: closeModal
         })}
       </>
     );
@@ -73,3 +81,5 @@ export default function BravoForm(props: Props) {
 
   return <Form renderContent={renderContent} />;
 }
+
+export default withTeamMembers(BravoForm);
