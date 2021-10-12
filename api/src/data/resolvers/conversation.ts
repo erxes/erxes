@@ -14,10 +14,12 @@ export default {
 
     return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
   },
-
-  customer(conversation: IConversationDocument, _, { dataLoaders } : IContext ){
-    if(conversation.customerId)
-      return dataLoaders?.customer?.load(conversation.customerId);
+  customer(conversation: IConversationDocument, _, { dataLoaders }: IContext) {
+    return (
+      (conversation.customerId &&
+        dataLoaders.customer.load(conversation.customerId)) ||
+      null
+    );
   },
 
   integration(conversation: IConversationDocument) {
@@ -42,8 +44,12 @@ export default {
     return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
   },
 
-  messages(conv: IConversationDocument, _, { dataLoaders } : IContext) {
-    return dataLoaders?.message?.load(conv._id);
+
+  async messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
+    const messages = await dataLoaders.conversationMessagesByConversationId.load(
+      conv._id
+    );
+    return messages.filter(message => message);
   },
 
   async facebookPost(
@@ -111,7 +117,8 @@ export default {
   },
 
   async tags(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.tag?.loadMany(conv.tagIds || []);
+    const tags = await dataLoaders.tag.loadMany(conv.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   async videoCallData(
@@ -122,7 +129,7 @@ export default {
     const message = await ConversationMessages.findOne({
       conversationId: conversation._id,
       contentType: MESSAGE_TYPES.VIDEO_CALL
-    });
+    }).lean();
 
     if (!message) {
       return null;
@@ -157,7 +164,9 @@ export default {
       conversationId: conversation._id,
       customerId: { $exists: true },
       createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    }).limit(1);
+    })
+      .limit(1)
+      .lean();
 
     if (message.length && message.length >= 1) {
       return false;

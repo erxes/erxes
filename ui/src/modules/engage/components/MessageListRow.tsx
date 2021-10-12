@@ -120,7 +120,9 @@ class Row extends React.Component<Props> {
   };
 
   renderSegments(message) {
-    const segments = message.segments || ([] as ISegment[]);
+    let segments = message.segments || ([] as ISegment[]);
+
+    segments = segments.filter(segment => segment && segment._id);
 
     return segments.map(segment => (
       <HelperText key={segment._id}>

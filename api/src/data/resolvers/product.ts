@@ -2,19 +2,23 @@ import { IProductDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 
 export default {
+  
   category(product: IProductDocument, _, { dataLoaders }: IContext) {
-    if (product.categoryId) {
-      return dataLoaders?.productCategory?.load(product.categoryId);
-    }
+    return (
+      (product.categoryId &&
+        dataLoaders.productCategory.load(product.categoryId)) ||
+      null
+    );
   },
 
-  getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders?.tag?.loadMany(product.tagIds || []);
+  async getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(product.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
-    if (product.vendorId) {
-      return dataLoaders?.company?.load(product.vendorId);
-    }
+    return (
+      (product.vendorId && dataLoaders.company.load(product.vendorId)) || null
+    );
   }
 };

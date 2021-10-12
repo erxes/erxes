@@ -244,7 +244,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.findOne(qb.mainQuery()).sort({ updatedAt: -1 });
+    return Conversations.findOne(qb.mainQuery()).sort({ updatedAt: -1 }).lean();
   },
 
   /**

@@ -76,7 +76,7 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(5);
+    expect.assertions(4);
 
     // check duplication ==============
     try {
@@ -85,11 +85,7 @@ describe('Companies model tests', () => {
       expect(e.message).toBe('Duplicated name');
     }
 
-    try {
-      await Companies.createCompany({ primaryName: 'companyname1' });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated name');
-    }
+    await Companies.createCompany({ primaryName: 'companyname1' });
 
     try {
       await Companies.createCompany({ code: 'code' });
@@ -130,18 +126,11 @@ describe('Companies model tests', () => {
   });
 
   test('Update company', async () => {
-    expect.assertions(14);
+    expect.assertions(13);
 
     const doc = generateDoc();
 
     const previousCompany = await companyFactory({ names: doc.names });
-
-    // test duplication
-    try {
-      await Companies.updateCompany(_company._id, doc);
-    } catch (e) {
-      expect(e.message).toBe('Duplicated name');
-    }
 
     // remove previous duplicated entry
     await Companies.deleteOne({ _id: previousCompany._id });

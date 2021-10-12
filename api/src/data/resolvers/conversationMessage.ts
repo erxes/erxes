@@ -1,4 +1,4 @@
-import { Conversations, Customers } from '../../db/models';
+import { Conversations } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
 import { debugError } from '../../debuggers';
@@ -10,10 +10,12 @@ export default {
     return getDocument('users', { _id: message.userId });
   },
 
-  customer(message: IMessageDocument, _, { dataLoaders } : IContext ) {
-    if(message.customerId){
-      return dataLoaders?.customer?.load(message.customerId);
-    }
+
+  customer(message: IMessageDocument, _, { dataLoaders }: IContext) {
+    return (
+      (message.customerId && dataLoaders.customer.load(message.customerId)) ||
+      null
+    );
   },
 
   async mailData(message: IMessageDocument, _args, { dataSources }: IContext) {
@@ -57,7 +59,7 @@ export default {
   ) {
     const conversation = await Conversations.findOne({
       _id: message.conversationId
-    });
+    }).lean();
 
     if (!conversation || message.internal) {
       return null;

@@ -577,6 +577,7 @@ describe('Conversation message mutations', () => {
     } catch (e) {
       expect(e).toBeDefined();
     }
+    mock.restore();
   });
 
   test('Assign conversation', async () => {

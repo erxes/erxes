@@ -1,4 +1,4 @@
-import { Forms, MessengerApps, Tags } from '../../db/models';
+import { MessengerApps } from '../../db/models';
 import { KIND_CHOICES } from '../../db/models/definitions/constants';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
 import { IContext } from '../types';
@@ -9,8 +9,10 @@ export default {
     return getDocument('brands', { _id: integration.brandId });
   },
 
-  form(integration: IIntegrationDocument) {
-    return Forms.findOne({ _id: integration.formId });
+  form(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
+    return (
+      (integration.formId && dataLoaders.form.load(integration.formId)) || null
+    );
   },
 
   channels(integration: IIntegrationDocument) {
@@ -19,8 +21,9 @@ export default {
     });
   },
 
-  tags(integration: IIntegrationDocument) {
-    return Tags.find({ _id: { $in: integration.tagIds || [] } });
+  async tags(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(integration.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   websiteMessengerApps(integration: IIntegrationDocument) {

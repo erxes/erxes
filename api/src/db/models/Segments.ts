@@ -5,10 +5,48 @@ import {
   segmentSchema
 } from './definitions/segments';
 
+const createOrUpdateSubSegments = async (segments: ISegment[]) => {
+  const updatedSubSugments: Array<{
+    subSegmentId: string;
+    type: 'subSegment';
+  }> = [];
+
+  for (const segment of segments) {
+    const _id = segment._id;
+
+    if (_id) {
+      updatedSubSugments.push({
+        subSegmentId: _id,
+        type: 'subSegment'
+      });
+
+      delete segment._id;
+
+      await Segments.updateOne({ _id }, { $set: segment });
+      // create
+    } else {
+      const item = await Segments.create(segment);
+
+      updatedSubSugments.push({
+        subSegmentId: item._id,
+        type: 'subSegment'
+      });
+    }
+  }
+
+  return updatedSubSugments;
+};
 export interface ISegmentModel extends Model<ISegmentDocument> {
   getSegment(_id: string): Promise<ISegmentDocument>;
-  createSegment(doc: ISegment): Promise<ISegmentDocument>;
-  updateSegment(_id: string, doc: ISegment): Promise<ISegmentDocument>;
+  createSegment(
+    doc: ISegment,
+    conditionSegments: ISegment[]
+  ): Promise<ISegmentDocument>;
+  updateSegment(
+    _id: string,
+    doc: ISegment,
+    conditionSegments: ISegment[]
+  ): Promise<ISegmentDocument>;
   removeSegment(_id: string): void;
 }
 
@@ -32,14 +70,33 @@ export const loadClass = () => {
      * @param  {Object} segmentObj object
      * @return {Promise} Newly created segment object
      */
-    public static createSegment(doc: ISegment) {
+    public static async createSegment(
+      doc: ISegment,
+      conditionSegments: ISegment[]
+    ) {
+      const conditions = await createOrUpdateSubSegments(
+        conditionSegments || []
+      );
+
+      doc.conditions = conditions;
+
       return Segments.create(doc);
     }
 
     /*
      * Update segment
      */
-    public static async updateSegment(_id: string, doc: ISegment) {
+    public static async updateSegment(
+      _id: string,
+      doc: ISegment,
+      conditionSegments: ISegment[]
+    ) {
+      const conditions = await createOrUpdateSubSegments(
+        conditionSegments || []
+      );
+
+      doc.conditions = conditions;
+
       await Segments.updateOne({ _id }, { $set: doc });
 
       return Segments.findOne({ _id });
@@ -51,9 +108,21 @@ export const loadClass = () => {
     public static async removeSegment(_id: string) {
       const segmentObj = await Segments.findOne({ _id });
 
+      const subSegmentIds: string[] = [];
+
       if (!segmentObj) {
         throw new Error(`Segment not found with id ${_id}`);
       }
+
+      if (segmentObj.conditions) {
+        for (const condition of segmentObj.conditions) {
+          if (condition.subSegmentId) {
+            subSegmentIds.push(condition.subSegmentId);
+          }
+        }
+      }
+
+      await Segments.remove({ _id: { $in: subSegmentIds } });
 
       return segmentObj.remove();
     }

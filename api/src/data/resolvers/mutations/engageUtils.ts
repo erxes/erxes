@@ -19,7 +19,7 @@ import { fetchElk } from '../../../elasticsearch';
 import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
-import { fetchBySegments } from '../../modules/segments/queryBuilder';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { chunkArray, isUsingElk, replaceEditorAttributes } from '../../utils';
 
 interface IEngageParams {
@@ -71,7 +71,7 @@ export const generateCustomerSelector = async ({
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await fetchBySegments(segment, 'search', {
+      const cIds = await fetchSegment(segment, {
         associatedCustomers: true
       });
 
@@ -92,7 +92,7 @@ export const generateCustomerSelector = async ({
           returnFields.push('productsData');
         }
 
-        const items = await fetchBySegments(segment, 'search', {
+        const items = await fetchSegment(segment, {
           returnFields
         });
 
@@ -523,7 +523,7 @@ export const checkCustomerExists = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await fetchBySegments(segment);
+      const cIds = await fetchSegment(segment);
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }

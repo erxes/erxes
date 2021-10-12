@@ -1,25 +1,29 @@
 import * as DataLoader from 'dataloader';
 import * as _ from 'underscore';
-import { ICompanyDocument } from '../../db/models/definitions/companies';
-import { IProductCategoryDocument } from '../../db/models/definitions/deals';
-import { ITagDocument } from '../../db/models/definitions/tags';
-import { ICustomer } from '../../db/models/definitions/customers';
-import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
-import { IConversationDocument } from '../../db/models/definitions/conversations';
 import productCategory from './productCategory';
 import tag from './tag';
 import company from './company';
+import form from './form';
+import integration from './integration';
+import user from './user';
+import segmentsBySubOf from './segmentsBySubOf';
+import segment from './segment';
 import customer from './customer';
-import message from './message';
-import conversation from './conversation'
+import conversationMessagesByConversationId from './conversationMessagesByConversationId';
+import conversationsByCustomerId from './conversationsByCustomerId';
 
 export interface IDataLoaders {
-  productCategory: DataLoader<string, IProductCategoryDocument>;
-  tag: DataLoader<string, ITagDocument>;
-  company: DataLoader<string, ICompanyDocument>;
-  customer?: DataLoader<string, ICustomer>;
-  message?: DataLoader<string, IMessageDocument[]>;
-  conversation?: DataLoader<string, IConversationDocument>
+  productCategory: DataLoader<string, any>;
+  tag: DataLoader<string, any>;
+  company: DataLoader<string, any>;
+  form: DataLoader<string, any>;
+  integration: DataLoader<string, any>;
+  user: DataLoader<string, any>;
+  segmentsBySubOf: DataLoader<string, any[]>;
+  segment: DataLoader<string, any>;
+  customer: DataLoader<string, any>;
+  conversationMessagesByConversationId: DataLoader<string, any[]>;
+  conversationsByCustomerId: DataLoader<string, any[]>;
 }
 
 export function generateAllDataLoaders(): IDataLoaders {
@@ -27,8 +31,13 @@ export function generateAllDataLoaders(): IDataLoaders {
     productCategory: productCategory(),
     tag: tag(),
     company: company(),
+    form: form(),
+    integration: integration(),
+    user: user(),
+    segmentsBySubOf: segmentsBySubOf(),
+    segment: segment(),
     customer: customer(),
-    message: message(),
-    conversation: conversation()
+    conversationMessagesByConversationId: conversationMessagesByConversationId(),
+    conversationsByCustomerId: conversationsByCustomerId()
   };
 }

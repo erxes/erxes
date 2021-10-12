@@ -32,3 +32,9 @@ afterAll(async () => {
     global.gc();
   }
 });
+
+export const sleep = ms => {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+};
