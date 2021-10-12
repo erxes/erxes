@@ -75,6 +75,7 @@ interface IStructureCommon {
   title: string;
   code: string;
   supervisorId: string;
+  supervisor: IUser;
 }
 
 export interface IDepartment extends IStructureCommon {

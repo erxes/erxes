@@ -2,6 +2,7 @@ export const types = `
     type Structure {
         _id: String!
         title: String
+        supervisor: User
         description: String
         supervisorId: String
         code: String

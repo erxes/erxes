@@ -83,6 +83,13 @@ const structureDetail = `
       description
       code
       supervisorId
+      supervisor {
+        _id
+        email
+        details {
+          ${detailFields}
+        }
+      }
     }
   }
 `;
@@ -98,8 +105,7 @@ const departmentField = `
   users {
     _id
     details {
-      avatar
-      fullName
+      ${detailFields}
     }
   }
 `;

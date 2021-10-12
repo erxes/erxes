@@ -1,20 +1,17 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
 import { IButtonMutateProps } from 'modules/common/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { mutations, queries } from '../../graphql';
+import { mutations } from '../../graphql';
 import Form from '../../components/structure/Form';
+import { IStructure } from '../../types';
 
-export default function FormContainer() {
-  const { data, loading } = useQuery(gql(queries.structureDetail), {
-    fetchPolicy: 'network-only'
-  });
+type Props = {
+  showView: () => void;
+  refetch: () => Promise<any>;
+  structure?: IStructure;
+};
 
-  if (loading) {
-    return <div>...</div>;
-  }
-
+export default function FormContainer({ refetch, showView, structure }: Props) {
   const renderButton = ({
     name,
     values,
@@ -22,20 +19,25 @@ export default function FormContainer() {
     object,
     callback
   }: IButtonMutateProps) => {
+    const callbackResponse = () => {
+      refetch().then(() => {
+        showView();
+      });
+
+      if (callback) {
+        callback();
+      }
+    };
+
     return (
       <ButtonMutate
         mutation={
           object._id ? mutations.structuresEdit : mutations.structuresAdd
         }
-        refetchQueries={[
-          {
-            query: gql(queries.structureDetail)
-          }
-        ]}
         variables={values}
         isSubmitted={isSubmitted}
         type="submit"
-        callback={callback}
+        callback={callbackResponse}
         successMessage={`You successfully ${
           object._id ? 'updated' : 'added'
         } a ${name}`}
@@ -43,5 +45,11 @@ export default function FormContainer() {
     );
   };
 
-  return <Form structure={data.structureDetail} renderButton={renderButton} />;
+  return (
+    <Form
+      structure={structure}
+      showView={showView}
+      renderButton={renderButton}
+    />
+  );
 }

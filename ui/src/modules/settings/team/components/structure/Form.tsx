@@ -8,14 +8,16 @@ import { __ } from 'modules/common/utils';
 import { IStructure } from '../../types';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
 import Box from 'modules/common/components/Box';
+import Button from 'modules/common/components/Button';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   structure?: IStructure;
+  showView: () => void;
 };
 
 export default function StructureForm(props: Props) {
-  const { structure, renderButton } = props;
+  const { structure, renderButton, showView } = props;
   const object = structure || ({} as IStructure);
 
   const [supervisorId, setSupervisorId] = useState(object.supervisorId || '');
@@ -39,7 +41,7 @@ export default function StructureForm(props: Props) {
     return (
       <div style={{ padding: '20px' }}>
         <FormGroup>
-          <ControlLabel required={true}>{__('Title')}</ControlLabel>
+          <ControlLabel required={true}>{__('Name')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -73,6 +75,15 @@ export default function StructureForm(props: Props) {
           />
         </FormGroup>
         <ModalFooter>
+          <Button
+            style={{ float: 'left' }}
+            btnStyle="simple"
+            type="button"
+            onClick={showView}
+            icon="arrow-left"
+          >
+            {__('Back')}
+          </Button>
           {renderButton({
             name: values.title,
             values: generateDoc(values),
