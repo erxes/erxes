@@ -128,6 +128,8 @@ const bookingFields = `
   form {
     ${formFields}
   }
+
+  leadData
 `;
 
 const queryParamsDef = `

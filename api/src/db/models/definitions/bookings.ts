@@ -1,5 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { attachmentSchema } from './boards';
+import { LEAD_SUCCESS_ACTIONS } from './constants';
+import { IAttachment } from './integrations';
 
 import { field } from './utils';
 
@@ -64,6 +66,24 @@ export interface IBookingDocument extends ICommonFields, IBooking, Document {
   displayBlock?: IDisplayBlockDocument;
 }
 
+export interface ILeadData {
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string;
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankTitle?: string;
+  thankContent?: string;
+  redirectUrl?: string;
+  themeColor?: string;
+  contactsGathered?: number;
+  isRequireOnce?: boolean;
+  templateId?: string;
+  attachments?: IAttachment[];
+}
+
 // Mongoose schemas ==================
 
 // Schema for common fields
@@ -100,6 +120,79 @@ export const displayBlockSchema = new Schema(
   { _id: false }
 );
 
+// subdocument schema for LeadData
+export const leadDataSchema = new Schema(
+  {
+    successAction: field({
+      type: String,
+      enum: LEAD_SUCCESS_ACTIONS.ALL,
+      optional: true,
+      label: 'Success action'
+    }),
+    fromEmail: field({
+      type: String,
+      optional: true,
+      label: 'From email'
+    }),
+    userEmailTitle: field({
+      type: String,
+      optional: true,
+      label: 'User email title'
+    }),
+    userEmailContent: field({
+      type: String,
+      optional: true,
+      label: 'User email content'
+    }),
+    adminEmails: field({
+      type: [String],
+      optional: true,
+      label: 'Admin emails'
+    }),
+    adminEmailTitle: field({
+      type: String,
+      optional: true,
+      label: 'Admin email title'
+    }),
+    adminEmailContent: field({
+      type: String,
+      optional: true,
+      label: 'Admin email content'
+    }),
+    thankTitle: field({
+      type: String,
+      optional: true,
+      label: 'Thank content title'
+    }),
+    thankContent: field({
+      type: String,
+      optional: true,
+      label: 'Thank content'
+    }),
+    redirectUrl: field({
+      type: String,
+      optional: true,
+      label: 'Redirect URL'
+    }),
+    themeColor: field({
+      type: String,
+      optional: true,
+      label: 'Theme color code'
+    }),
+    isRequireOnce: field({
+      type: Boolean,
+      optional: true,
+      label: 'Do now show again if already filled out'
+    }),
+    templateId: field({
+      type: String,
+      optional: true,
+      label: 'Template'
+    }),
+    attachments: field({ type: Object, optional: true, label: 'Attachments' })
+  },
+  { _id: false }
+);
 export const bookingSchema = new Schema({
   _id: field({ pkey: true }),
   // styles
@@ -136,6 +229,8 @@ export const bookingSchema = new Schema({
   }),
 
   displayBlock: field({ type: displayBlockSchema }),
+
+  leadData: field({ type: leadDataSchema, label: 'Lead data' }),
 
   ...commonFields
 });

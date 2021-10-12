@@ -84,6 +84,7 @@ export const types = `
     form: Form
 
     isActive: Boolean
+    leadData: JSON
   }
 
   type bookingsTotalCount {
@@ -92,6 +93,23 @@ export const types = `
     byChannel: JSON
     byBrand: JSON
     byStatus: JSON
+  }
+
+  input BookingLeadData {
+    successAction: String
+    fromEmail: String,
+    userEmailTitle: String
+    userEmailContent: String
+    adminEmails: [String]
+    adminEmailTitle: String
+    adminEmailContent: String
+    thankTitle: String
+    thankContent: String
+    redirectUrl: String
+    themeColor: String
+    isRequireOnce: Boolean
+    templateId: String
+    attachments: [AttachmentInput]
   }
 `;
 
@@ -127,6 +145,8 @@ const bookingMutationParams = `
   tagIds: [String]
 
   displayBlock: DisplayBlockInput
+
+  leadData: BookingLeadData
 `;
 
 export const mutations = `

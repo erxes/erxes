@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { QueryResponse } from 'modules/common/types';
+import { IAttachment, QueryResponse } from 'modules/common/types';
 import { IForm } from 'modules/forms/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IProductCategory } from 'modules/settings/productService/types';
@@ -61,6 +61,8 @@ export interface IBooking {
 
   form?: IForm;
   isActive?: boolean;
+
+  leadData?: ILeadData;
 }
 
 export interface IBookingDocument extends IBooking {
@@ -118,3 +120,30 @@ export type BookingsCount = {
 export type CountQueryResponse = {
   bookingsTotalCount: BookingsCount;
 } & QueryResponse;
+
+export interface ILeadData {
+  loadType?: string;
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankTitle?: string;
+  thankContent?: string;
+  redirectUrl?: string;
+  themeColor?: string;
+  createdUserId?: string;
+  createdUser?: IUser;
+  createdDate?: Date;
+  viewCount?: number;
+  contactsGathered?: number;
+  tagIds?: string[];
+  getTags?: ITag[];
+  form?: IForm;
+  isRequireOnce?: boolean;
+  templateId?: string;
+  attachments?: IAttachment[];
+  conversionRate?: number;
+}

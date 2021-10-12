@@ -1,4 +1,5 @@
 import React from 'react';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import { IRouterProps } from '../../common/types';
 import Booking from '../components/Booking';
 import * as compose from 'lodash.flowright';
@@ -8,10 +9,20 @@ import { mutations } from '../graphql';
 import { AddBookingMutationResponse, IBooking } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
+import {
+  EmailTemplatesQueryResponse,
+  EmailTemplatesTotalCountQueryResponse
+} from 'modules/settings/emailTemplates/containers/List';
 
 type Props = {
   history: any;
-} & IRouterProps &
+};
+
+type FinalProps = {
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
+  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+} & Props &
+  IRouterProps &
   AddBookingMutationResponse;
 
 type State = {
@@ -20,8 +31,8 @@ type State = {
   doc?: IBooking;
 };
 
-class CreateBookingContainer extends React.Component<Props, State> {
-  constructor(props: Props) {
+class CreateBookingContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
     super(props);
 
     this.state = {
@@ -31,7 +42,7 @@ class CreateBookingContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addBookingMutation, history } = this.props;
+    const { addBookingMutation, history, emailTemplatesQuery } = this.props;
 
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
@@ -66,7 +77,8 @@ class CreateBookingContainer extends React.Component<Props, State> {
       isActionLoading: this.state.loading,
       save,
       afterFormDbSave,
-      isReadyToSaveForm: this.state.isReadyToSaveForm
+      isReadyToSaveForm: this.state.isReadyToSaveForm,
+      emailTemplates: emailTemplatesQuery.emailTemplates || []
     };
     return <Booking {...updatedProps} />;
   }
@@ -75,5 +87,19 @@ class CreateBookingContainer extends React.Component<Props, State> {
 export default compose(
   graphql<{}, AddBookingMutationResponse>(gql(mutations.bookingsAdd), {
     name: 'addBookingMutation'
-  })
-)(withRouter<Props>(CreateBookingContainer));
+  }),
+  graphql(gql(templatesQuery.totalCount), {
+    name: 'emailTemplatesTotalCountQuery'
+  }),
+  graphql<FinalProps, EmailTemplatesQueryResponse>(
+    gql(templatesQuery.emailTemplates),
+    {
+      name: 'emailTemplatesQuery',
+      options: ({ emailTemplatesTotalCountQuery }) => ({
+        variables: {
+          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
+        }
+      })
+    }
+  )
+)(withRouter<FinalProps>(CreateBookingContainer));

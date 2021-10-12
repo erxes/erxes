@@ -10,18 +10,26 @@ import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
-import { IBookingDocument, IBooking, IStyle, IDisplayBlock } from '../types';
+import {
+  IBookingDocument,
+  IBooking,
+  IStyle,
+  IDisplayBlock,
+  ILeadData
+} from '../types';
 import { Steps, Step } from 'modules/common/components/step';
 import ChooseStyle from './steps/ChooseStyle';
 import ChooseContent from './steps/ChooseContent';
 import ChooseSettings from './steps/ChooseSettings';
+import SuccessStep from 'modules/leads/components/step/SuccessStep';
 import FullPreview from './steps/FullPreview';
 import { IField } from 'modules/settings/properties/types';
 
 import { PreviewWrapper } from './steps/style';
 import { colors } from 'modules/common/styles';
-import FormStep from './steps/FormStep';
+import FormStep from 'modules/leads/components/step/FormStep';
 import { IForm, IFormData } from 'modules/forms/types';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 
 type Props = {
   bookingDetail?: IBookingDocument;
@@ -32,6 +40,7 @@ type Props = {
   isActionLoading?: boolean;
   afterFormDbSave: (formId: string) => void;
   isReadyToSaveForm: boolean;
+  emailTemplates?: IEmailTemplate[];
 };
 
 type State = {
@@ -77,7 +86,8 @@ function Booking({
   isActionLoading,
   bookingDetail,
   afterFormDbSave,
-  isReadyToSaveForm
+  isReadyToSaveForm,
+  emailTemplates
 }: Props) {
   const booking = bookingDetail || ({} as IBooking);
   const form = booking.form || ({} as IForm);
@@ -135,6 +145,24 @@ function Booking({
     margin: displayBlock.margin || 0
   });
 
+  const leadData = booking.leadData || ({} as ILeadData);
+
+  const [successData, setSuccessData] = useState({
+    successAction: leadData.successAction || '',
+    fromEmail: leadData.fromEmail || '',
+    userEmailTitle: leadData.userEmailTitle || '',
+    userEmailContent: leadData.userEmailContent || '',
+    adminEmails: leadData.adminEmails || [],
+    adminEmailTitle: leadData.adminEmailTitle || '',
+    adminEmailContent: leadData.adminEmailContent || '',
+    thankTitle: leadData.thankTitle || 'Confirmation',
+    thankContent: leadData.thankContent || 'Thank you.',
+    attachments: leadData.attachments || [],
+    redirectUrl: leadData.redirectUrl || '',
+
+    isRequireOnce: leadData.isRequireOnce
+  });
+
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
   const handleSubmit = () => {
@@ -165,6 +193,9 @@ function Booking({
       },
       displayBlock: {
         ...block
+      },
+      leadData: {
+        ...successData
       }
     };
 
@@ -188,6 +219,13 @@ function Booking({
   const onChangeBlock = (key: string, value: any) => {
     setBlock({
       ...block,
+      [key]: value
+    });
+  };
+
+  const onChangeSuccess = (key: string, value: any) => {
+    setSuccessData({
+      ...successData,
       [key]: value
     });
   };
@@ -288,16 +326,38 @@ function Booking({
             <Step
               img="/images/icons/erxes-02.svg"
               title="Form"
-              noButton={true}
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <FormStep
+                type={'popup'}
+                color={''}
+                theme={(booking.styles && booking.styles.widgetColor) || ''}
                 afterDbSave={afterFormDbSave}
                 formData={state.formData}
                 isReadyToSaveForm={isReadyToSaveForm}
                 formId={booking && booking.formId}
                 onDocChange={onFormDocChange}
                 onInit={onFormInit}
+              />
+            </Step>
+
+            <Step
+              img="/images/icons/erxes-02.svg"
+              title="Form"
+              noButton={true}
+              // onClick={this.onStepClick.bind(null, 'greeting')}
+            >
+              <SuccessStep
+                onChange={onChangeSuccess}
+                thankTitle={successData.thankTitle}
+                thankContent={successData.thankContent}
+                type={'popup'}
+                color={''}
+                theme={(booking.styles && booking.styles.widgetColor) || ''}
+                successAction={successData.successAction}
+                leadData={leadData}
+                formId={booking && booking.formId}
+                emailTemplates={emailTemplates ? emailTemplates : []}
               />
             </Step>
           </Steps>

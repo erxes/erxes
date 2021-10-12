@@ -12,6 +12,11 @@ import {
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
 import { IRouterProps } from 'modules/common/types';
+import {
+  EmailTemplatesQueryResponse,
+  EmailTemplatesTotalCountQueryResponse
+} from 'modules/settings/emailTemplates/containers/List';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 
 type Props = {
   queryParams: any;
@@ -21,6 +26,8 @@ type Props = {
 
 type FinalProps = {
   bookingDetailQuery: BookingDetailQueryResponse;
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
+  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
 } & IRouterProps &
   Props &
   EditBookingMutationResponse;
@@ -42,7 +49,12 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { bookingDetailQuery, editBookingMutation, history } = this.props;
+    const {
+      bookingDetailQuery,
+      editBookingMutation,
+      history,
+      emailTemplatesQuery
+    } = this.props;
 
     if (bookingDetailQuery.loading) {
       return null;
@@ -85,7 +97,8 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
       isActionLoading: this.state.loading,
       save,
       afterFormDbSave,
-      isReadyToSaveForm: this.state.isReadyToSaveForm
+      isReadyToSaveForm: this.state.isReadyToSaveForm,
+      emailTemplates: emailTemplatesQuery.emailTemplates || []
     };
 
     return <Booking {...updatedProps} />;
@@ -114,5 +127,19 @@ export default compose(
   graphql<{}, EditBookingMutationResponse>(gql(mutations.bookingsEdit), {
     name: 'editBookingMutation',
     options: commonOptions
-  })
+  }),
+  graphql(gql(templatesQuery.totalCount), {
+    name: 'emailTemplatesTotalCountQuery'
+  }),
+  graphql<FinalProps, EmailTemplatesQueryResponse>(
+    gql(templatesQuery.emailTemplates),
+    {
+      name: 'emailTemplatesQuery',
+      options: ({ emailTemplatesTotalCountQuery }) => ({
+        variables: {
+          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
+        }
+      })
+    }
+  )
 )(withRouter(EditBookingContainer));
