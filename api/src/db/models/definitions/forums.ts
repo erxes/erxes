@@ -37,6 +37,8 @@ export interface IDiscussion {
   title?: string;
   description?: string;
   tagIds?: string[];
+  pollOptions?: string[];
+  pollData?: JSON;
   topicId?: string;
   forumId?: string;
   content?: string;
@@ -136,6 +138,12 @@ export const discussionSchema = new Schema({
   closeDate: field({ type: Date, label: 'Close Date' }),
   isComplete: field({ type: Boolean, label: 'Complete' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
+  pollOptions: field({
+    type: [String],
+    optional: true,
+    label: 'Options'
+  }),
+  pollData: field({ type: Object }),
 
   ...commonFields
 });

@@ -34,6 +34,7 @@ const forumDiscussionParamsDef = `
     $isComplete: Boolean
     $tagIds: [String]
     $attachments: [JSON]
+    $pollOptions: [String]
 `;
 
 const forumDiscussionParamsVal = `
@@ -48,6 +49,7 @@ const forumDiscussionParamsVal = `
     isComplete: $isComplete
     tagIds: $tagIds
     attachments: $attachments
+    pollOptions: $pollOptions
 `;
 
 const forumsAdd = `

@@ -20,6 +20,7 @@ type Props = {
   discussion: IDiscussion;
   forumId: string;
   tagsQuery: TagsQueryResponse;
+  history: any;
 };
 
 const DiscussionFormContainer = (props: Props) => {

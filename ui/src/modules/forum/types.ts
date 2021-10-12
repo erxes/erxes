@@ -56,15 +56,19 @@ export interface IDiscussion {
   getTags: ITag[];
   attachments?: IAttachment[];
   createdCustomer?: ICustomer;
+  pollOptions?: string[];
+  pollData: { [key: string]: number };
+  forum: IForum;
+  topic: ITopic;
 }
 
 export interface IComment {
   _id: string;
   title: string;
   content: string;
-  createdUser: IUser;
+  createdUser?: IUser;
   createdDate: Date;
-  createdCustomer: ICustomer;
+  createdCustomer?: ICustomer;
 }
 
 // mutation types
@@ -124,6 +128,8 @@ export type ForumsTotalCountQueryResponse = {
 
 export type TopicsQueryResponse = {
   forumTopics: ITopic[];
+  loading: boolean;
+  refetch: ({ forumId }: { forumId?: string }) => Promise<any>;
 } & QueryResponse;
 
 export type TopicDetailQueryResponse = {
@@ -138,7 +144,14 @@ export type LastTopicQueryResponse = {
 
 export type DiscussionsQueryResponse = {
   forumDiscussions: IDiscussion[];
+  loading: boolean;
+  refetch: ({ topicId }: { topicId?: string }) => Promise<any>;
 } & QueryResponse;
+
+export type DiscussionDetailQueryResponse = {
+  forumDiscussionDetail: IDiscussion;
+  loading: boolean;
+};
 
 export type DiscussionsTotalCountQueryResponse = {
   forumDiscussionsTotalCount: number;

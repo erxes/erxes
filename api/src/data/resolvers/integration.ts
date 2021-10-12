@@ -21,8 +21,9 @@ export default {
     });
   },
 
-  tags(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.tag.loadMany(integration.tagIds || []);
+  async tags(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(integration.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   websiteMessengerApps(integration: IIntegrationDocument) {

@@ -48,7 +48,9 @@ const discussionFields = `
     closeDate
     isComplete
     tagIds   
-
+    pollOptions
+    pollData
+    
     attachments
 
     
@@ -67,6 +69,19 @@ const discussionFields = `
     comments{
         ${commentFields}
     }
+
+    forum{
+        _id
+        title
+        description
+    }
+
+    topic{
+        _id
+        title
+        description
+    }
+
 `;
 
 const topicFields = `
@@ -87,7 +102,9 @@ const topicFields = `
     }
 
     discussions{
-        ${discussionFields}
+        _id
+        title
+        description
     }
 `;
 
@@ -103,7 +120,7 @@ const forumFields = `
     modifiedDate
 
     topics{
-        ${topicFields}
+        _id
     }
     brand{
         _id

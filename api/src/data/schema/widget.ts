@@ -66,6 +66,65 @@ export const queries = `
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
+
+  widgetsForumTopicDetail(_id: String!): ForumTopic
+  widgetsForumDiscussionDetail(_id: String! currentCustomerId: String): ForumDiscussion
+  widgetsDiscussionComments(discussionId: String!): [ForumDiscussionComment]
+  
+  widgetsForumTagsWithParent(parentId: String!): [Tag] 
+`;
+
+const forumMutationParams = `
+    title: String
+    description: String
+    languageCode: String
+    brandId: String!
+    createdBy: String!
+`;
+
+const topicMutationParams = `
+    title: String
+    description: String
+    forumId: String!
+    discussionIds: [String]
+    createdBy: String!
+`;
+
+const discussionMutationParams = `
+    title: String
+    description: String
+    topicId: String!
+    forumId: String!
+    content: String!
+    status: String
+    startDate: Date
+    closeDate: Date
+    isComplete: Boolean
+    createdBy: String!
+    tagIds: [String]
+    attachments: [JSON]
+    pollOptions: [String]
+`;
+
+const commentMutationParams = `
+    title: String
+    content: String!
+    discussionId: String!
+    createdBy: String!
+`;
+
+const forumReactionMutationParams = `
+    type: String!
+    createdBy: String!
+    contentTypeId: String!
+    contentType: String!
+`;
+
+const widgetsCustomerMutationParams = `
+    firstName: String
+    lastName: String
+    phone: String
+    avatar: String
 `;
 
 export const mutations = `
@@ -143,4 +202,17 @@ export const mutations = `
   widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
+
+
+
+  widgetsForumsAdd(${forumMutationParams}): Forum
+  widgetsForumTopicsAdd(${topicMutationParams}): ForumTopic
+  widgetsForumDiscussionAdd(${discussionMutationParams}): ForumDiscussion
+  
+  widgetsDiscussionCommentsAdd(${commentMutationParams}): ForumDiscussionComment
+  widgetsForumReactionsToggle(${forumReactionMutationParams}): JSON
+  widgetsEditCustomer(_id: String!, ${widgetsCustomerMutationParams}): Customer
+
+  widgetsForumDiscussionsRemove(_id: String!): JSON
+  widgetsForumDiscussionsVote(discussionId: String!, customerId: String!, value: String!): ForumDiscussion
 `;

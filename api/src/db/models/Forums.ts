@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import Customers from './Customers';
 import {
   forumSchema,
   topicSchema,
@@ -205,6 +206,11 @@ export interface IDiscussionModel extends Model<IDiscussionDocument> {
     userId?: string
   ): Promise<IDiscussionDocument>;
   removeDoc(_id: string): void;
+  vote(
+    _id: string,
+    customerId: string,
+    value: string
+  ): Promise<IDiscussionDocument>;
 }
 
 const loadDiscussionClass = () => {
@@ -272,6 +278,45 @@ const loadDiscussionClass = () => {
       await DiscussionComments.deleteMany({ discussionId: _id });
 
       return ForumDiscussions.deleteOne({ _id });
+    }
+
+    /**
+     * remove discussion
+     */
+    public static async vote(_id: string, customerId: string, value: string) {
+      const discussion = await ForumDiscussions.findOne({ _id });
+
+      if (!discussion) {
+        throw new Error('Discussion not found');
+      }
+
+      const customer = await Customers.findOne({ _id: customerId });
+
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+
+      const { pollOptions = [], pollData = {} } = discussion;
+
+      if (!pollOptions.includes(value)) {
+        throw new Error('Wrong value');
+      }
+
+      pollOptions.map(key => {
+        if (!pollData[key]) {
+          pollData[key] = [];
+        }
+
+        if (pollData[key].includes(customerId)) {
+          pollData[key].pop(customerId);
+        }
+      });
+
+      pollData[value].push(customerId);
+
+      await ForumDiscussions.updateOne({ _id }, { $set: { pollData } });
+
+      return ForumDiscussions.findOne({ _id });
     }
   }
 

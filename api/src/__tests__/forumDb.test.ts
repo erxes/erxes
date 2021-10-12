@@ -8,7 +8,8 @@ import {
   forumTopicFactory,
   forumDiscussionFactory,
   userFactory,
-  discussionCommentFactory
+  discussionCommentFactory,
+  customerFactory
 } from '../db/factories';
 import {
   Users,
@@ -403,6 +404,80 @@ describe('test forum models', () => {
         expect(e.message).toBe('Discussion not found');
       }
     });
+
+    test('Vote discussion', async () => {
+      const pollOptions = ['test', 'test1'];
+
+      const discussion = await forumDiscussionFactory({ pollOptions });
+      const customer = await customerFactory();
+
+      // first vote
+      const vote = await ForumDiscussions.vote(
+        discussion._id,
+        customer._id,
+        pollOptions[0]
+      );
+
+      let pollData = vote.pollData || {};
+
+      // check customer voted first value
+      expect(pollData[pollOptions[0]].includes(customer._id)).toBe(true);
+
+      // update vote in second value
+      const updatedVote = await ForumDiscussions.vote(
+        discussion._id,
+        customer._id,
+        pollOptions[1]
+      );
+
+      pollData = updatedVote.pollData || {};
+
+      // check customer vote removed from second value
+      expect(pollData[pollOptions[0]].includes(customer._id)).toBe(false);
+    });
+
+    test('Check if Error(Discussion not found) when voting', async () => {
+      expect.assertions(1);
+
+      const pollOptions = ['test', 'test1'];
+
+      try {
+        await ForumDiscussions.vote('fakeId', 'fakeCustomerId', pollOptions[0]);
+      } catch (e) {
+        expect(e.message).toBe('Discussion not found');
+      }
+    });
+
+    test('Check if Error(Customer not found) when voting', async () => {
+      expect.assertions(1);
+
+      const pollOptions = ['test', 'test1'];
+      const discussion = await forumDiscussionFactory({ pollOptions });
+
+      try {
+        await ForumDiscussions.vote(
+          discussion._id,
+          'fakeCustomerId',
+          pollOptions[0]
+        );
+      } catch (e) {
+        expect(e.message).toBe('Customer not found');
+      }
+    });
+
+    test('Check if Error(Customer not found) when voting', async () => {
+      expect.assertions(1);
+
+      const pollOptions = ['test', 'test1'];
+      const discussion = await forumDiscussionFactory({ pollOptions });
+      const customer = await customerFactory();
+
+      try {
+        await ForumDiscussions.vote(discussion._id, customer._id, 'fakeOption');
+      } catch (e) {
+        expect(e.message).toBe('Wrong value');
+      }
+    });
   });
 
   describe('Discussion comments', () => {
@@ -434,7 +509,7 @@ describe('test forum models', () => {
       }
     });
 
-    test('Create discussion', async () => {
+    test('Create discussion comment', async () => {
       const discussion = await forumDiscussionFactory();
 
       const doc = {
