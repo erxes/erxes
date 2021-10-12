@@ -8,7 +8,8 @@ import {
   forumTopicFactory,
   forumDiscussionFactory,
   userFactory,
-  discussionCommentFactory
+  discussionCommentFactory,
+  customerFactory
 } from '../db/factories';
 import {
   Users,
@@ -403,6 +404,26 @@ describe('test forum models', () => {
         expect(e.message).toBe('Discussion not found');
       }
     });
+
+    test('Vote discussion', async () => {
+      const pollOptions = ['test', 'test1'];
+
+      const discussion = await forumDiscussionFactory({ pollOptions });
+      const customer = await customerFactory();
+
+      const vote = await ForumDiscussions.vote(
+        discussion._id,
+        customer._id,
+        pollOptions[0]
+      );
+
+      const { pollData = {} } = vote;
+
+      // check customerId includes on pollData
+      const check = pollData[pollOptions[0]].includes(customer._id);
+
+      expect(check).toBe(true);
+    });
   });
 
   describe('Discussion comments', () => {
@@ -434,7 +455,7 @@ describe('test forum models', () => {
       }
     });
 
-    test('Create discussion', async () => {
+    test('Create discussion comment', async () => {
       const discussion = await forumDiscussionFactory();
 
       const doc = {

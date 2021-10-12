@@ -1852,6 +1852,7 @@ interface IForumDiscussionInput {
   isComplete?: boolean;
   modifiedBy?: string;
   attachments?: any[];
+  pollOptions?: any[];
 }
 
 export const forumDiscussionFactory = async (
@@ -1868,7 +1869,8 @@ export const forumDiscussionFactory = async (
     attachments: [attachmentFactory(), attachmentFactory()],
     startDate: params.startDate,
     closeDate: params.closeDate,
-    isComplete: params.isComplete
+    isComplete: params.isComplete,
+    pollOptions: params.pollOptions
   };
   return ForumDiscussions.createDoc(
     { ...doc, ...params },
