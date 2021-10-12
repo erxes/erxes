@@ -262,7 +262,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderList(attrs) {
     let options = [];
-    if (attrs.value && attrs.value.length > 0) {
+
+    if (Array.isArray(attrs.value)) {
+      options = attrs.value;
+    } else if (attrs.value && attrs.value.length > 0) {
       options = attrs.value.split(',') || [];
     }
 

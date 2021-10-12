@@ -3,6 +3,7 @@ export const types = `
         _id: String
         name: String
         description: String
+        createdAt: Date
     }
 
 
@@ -15,4 +16,11 @@ export const types = `
 
 export const queries = `
     allPos: [Pos]
+`;
+
+export const mutations = `
+  addPos(
+    name: String
+    description: String
+  ): Pos
 `;
