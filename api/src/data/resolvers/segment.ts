@@ -4,8 +4,13 @@ import { fetchSegment } from '../modules/segments/queryBuilder';
 import { IContext } from '../types';
 
 export default {
-  getSubSegments(segment: ISegmentDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.segmentsBySubOf.load(segment._id);
+  async getSubSegments(
+    segment: ISegmentDocument,
+    _,
+    { dataLoaders }: IContext
+  ) {
+    const subSegments = await dataLoaders.segmentsBySubOf.load(segment._id);
+    return subSegments.filter(subSegment => subSegment);
   },
 
   async count(segment: ISegmentDocument) {
