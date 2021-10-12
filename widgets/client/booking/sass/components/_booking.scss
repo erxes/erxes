@@ -111,18 +111,6 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
   position: relative;
 }
 
-.erxes-content {
-  padding: $kb-spacing;
-
-  h1 {
-    color: lighten($black, 30%);
-    font-weight: normal;
-    line-height: 40px;
-    margin-bottom: 10px;
-    margin-top: 0;
-  }
-}
-
 .category-container {
   background: rgba($black, 0.044);
   border-radius: $border-radius;

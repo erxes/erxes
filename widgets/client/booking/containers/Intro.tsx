@@ -6,7 +6,7 @@ import { IBooking } from '../types';
 function IntroContainer() {
   return (
     <AppConsumer>
-      {({ goToBooking, getBooking, showPopup }) => {
+      {({ goToBooking, getBooking, showPopup, showForm }) => {
         const booking = getBooking();
 
         return (
