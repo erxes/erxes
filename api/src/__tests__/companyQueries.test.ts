@@ -1,6 +1,18 @@
 import { graphqlRequest } from '../db/connection';
-import { companyFactory, segmentFactory, tagsFactory } from '../db/factories';
-import { Companies, Segments, Tags } from '../db/models';
+import {
+  companyFactory,
+  conformityFactory,
+  customerFactory,
+  segmentFactory,
+  tagsFactory
+} from '../db/factories';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Segments,
+  Tags
+} from '../db/models';
 import * as sinon from 'sinon';
 import * as elk from '../elasticsearch';
 
@@ -70,6 +82,8 @@ describe('companyQueries', () => {
     await Companies.deleteMany({});
     await Tags.deleteMany({});
     await Segments.deleteMany({});
+    await Customers.deleteMany({});
+    await Conformities.deleteMany({});
 
     mock.restore();
   });
@@ -113,7 +127,15 @@ describe('companyQueries', () => {
   });
 
   test('Company detail', async () => {
-    const company = await companyFactory();
+    const tag = await tagsFactory({ type: 'company' });
+    const customer = await customerFactory();
+    const company = await companyFactory({ tagIds: [tag._id] });
+    await conformityFactory({
+      mainType: 'company',
+      mainTypeId: company._id,
+      relType: 'customer',
+      relTypeId: customer._id
+    });
 
     const qry = `
       query companyDetail($_id: String!) {

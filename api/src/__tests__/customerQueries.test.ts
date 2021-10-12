@@ -3,6 +3,9 @@ import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
+  companyFactory,
+  conformityFactory,
+  conversationFactory,
   customerFactory,
   formFactory,
   formSubmissionFactory,
@@ -10,7 +13,14 @@ import {
   segmentFactory,
   tagsFactory
 } from '../db/factories';
-import { Customers, FormSubmissions, Segments, Tags } from '../db/models';
+import {
+  Conformities,
+  Conversations,
+  Customers,
+  FormSubmissions,
+  Segments,
+  Tags
+} from '../db/models';
 import * as elk from '../elasticsearch';
 import { deleteAllIndexes, putMappings } from './esMappings';
 import { sleep } from './setup';
@@ -92,6 +102,8 @@ describe('customerQueries', () => {
     await Segments.deleteMany({});
     await Tags.deleteMany({});
     await FormSubmissions.deleteMany({});
+    await Conformities.deleteMany({});
+    await Conversations.deleteMany({});
     await deleteAllIndexes();
   });
 
@@ -310,6 +322,14 @@ describe('customerQueries', () => {
 
   test('Customer detail', async () => {
     const customer = await customerFactory({ trackedData: { t1: 'v1' } }, true);
+    const company = await companyFactory();
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer._id,
+      relType: 'company',
+      relTypeId: company._id
+    });
+    await conversationFactory({ customerId: customer._id });
 
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
