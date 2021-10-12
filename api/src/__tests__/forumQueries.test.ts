@@ -1,5 +1,6 @@
 import { graphqlRequest } from '../db/connection';
 import {
+  customerFactory,
   discussionCommentFactory,
   forumDiscussionFactory,
   forumFactory,
@@ -32,6 +33,14 @@ describe('forumQueries', () => {
         query forums($page: Int $perPage: Int){
             forums(page: $page perPage: $perPage){
                 _id
+                
+                topics {
+                  _id
+                }
+
+                brand {
+                  _id
+                }
             }
         }
       `;
@@ -51,6 +60,13 @@ describe('forumQueries', () => {
         query forumDetail($_id: String!){
             forumDetail(_id: $_id){
                 _id
+                topics {
+                  _id
+                }
+
+                brand {
+                  _id
+                }
             }
         }
       `;
@@ -204,6 +220,15 @@ describe('forumQueries', () => {
                 description
                 status
                 content
+
+                pollData
+                
+                forum {
+                  _id
+                }
+                topic {
+                  _id
+                }
             }
         }
     `;
@@ -219,8 +244,16 @@ describe('forumQueries', () => {
 
   test('Forum discussion detail', async () => {
     const topic = await forumTopicFactory();
+    const pollOptions = ['test', 'test1'];
+    const customer = await customerFactory();
 
-    const discussion = await forumDiscussionFactory({ topicId: topic._id });
+    const discussion = await forumDiscussionFactory({
+      topicId: topic._id,
+      pollOptions
+    });
+
+    // discussion vote
+    await ForumDiscussions.vote(discussion._id, customer._id, pollOptions[0]);
 
     const qry = `
         query forumDiscussionDetail($_id: String!){
@@ -240,6 +273,14 @@ describe('forumQueries', () => {
                   _id
                 }
                 getTags{
+                  _id
+                }
+
+                pollData
+                forum {
+                  _id
+                }
+                topic {
                   _id
                 }
             }
