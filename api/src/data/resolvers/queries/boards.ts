@@ -336,37 +336,40 @@ const boardQueries = {
 
     const stageIds = stages.map(stage => stage._id);
 
-    const stagesObj = {};
-
     const assignedUserIds = await collection
       .find({ stageId: { $in: stageIds } })
       .distinct('assignedUserIds');
 
     const users = await Users.find({ _id: { $in: assignedUserIds } });
 
-    for (const stage of stages) {
-      const data: { user: IUserDocument; count: number }[] = [];
+    const usersWithInfo: { name: string }[] = [];
 
-      for (const user of users) {
+    for (const user of users) {
+      const stageWithCount = {};
+
+      for (const stage of stages) {
         const count = await collection.countDocuments({
           stageId: stage._id,
           assignedUserIds: { $in: [user._id] }
         });
 
-        if (count > 0) {
-          data.push({
-            user,
-            count
-          });
-        }
+        stageWithCount[stage.name || ''] = count;
       }
 
-      if (data.length > 0) {
-        stagesObj[stage.name || 'other'] = data;
-      }
+      usersWithInfo.push({
+        name: user.details
+          ? user.details.fullName || user.email || 'No name'
+          : 'No name',
+        ...stageWithCount
+      });
     }
 
-    return stagesObj;
+    console.log('usersWithInfo: ', usersWithInfo);
+
+    return {
+      usersWithInfo,
+      stages
+    };
   },
 
   /**

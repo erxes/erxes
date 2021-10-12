@@ -226,3 +226,13 @@ export const calendarColumnQuery = (query, name) =>
       };
     }
   });
+
+export const getColors = (index: number) => {
+  const COLORS = ['#8884d8', '#82ca9d', '#812a9d'];
+
+  if (index > 2) {
+    return COLORS[2];
+  }
+
+  return COLORS[index];
+};

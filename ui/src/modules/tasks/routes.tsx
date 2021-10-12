@@ -22,11 +22,17 @@ const MainActionBar = asyncComponent(() =>
   )
 );
 
-const charts = asyncComponent(() =>
+const Charts = asyncComponent(() =>
   import(
-    /* webpackChunkName: "MainActionBar" */ '../boards/components/chart/ChartStack'
+    /* webpackChunkName: "MainActionBar" */ '../boards/containers/chart/ChartStack'
   )
 );
+
+const charts = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Charts queryParams={queryParams} />;
+};
 
 const tasks = () => {
   let link = '/task/board';
