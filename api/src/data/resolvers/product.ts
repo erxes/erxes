@@ -2,7 +2,6 @@ import { IProductDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 
 export default {
-  
   category(product: IProductDocument, _, { dataLoaders }: IContext) {
     return (
       (product.categoryId &&

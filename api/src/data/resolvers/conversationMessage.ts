@@ -10,7 +10,6 @@ export default {
     return getDocument('users', { _id: message.userId });
   },
 
-
   customer(message: IMessageDocument, _, { dataLoaders }: IContext) {
     return (
       (message.customerId && dataLoaders.customer.load(message.customerId)) ||

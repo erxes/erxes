@@ -14,6 +14,7 @@ export default {
 
     return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
   },
+
   customer(conversation: IConversationDocument, _, { dataLoaders }: IContext) {
     return (
       (conversation.customerId &&
@@ -43,7 +44,6 @@ export default {
   participatorCount(conv: IConversationDocument) {
     return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
   },
-
 
   async messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
     const messages = await dataLoaders.conversationMessagesByConversationId.load(
