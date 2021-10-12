@@ -29,7 +29,7 @@ export default function FormContainer() {
         }
         refetchQueries={[
           {
-            query: gql(queries.departments)
+            query: gql(queries.structureDetail)
           }
         ]}
         variables={values}

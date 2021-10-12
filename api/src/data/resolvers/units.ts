@@ -8,5 +8,9 @@ export default {
 
   department(unit: IUnitDocument) {
     return Departments.findOne({ _id: unit.departmentId });
+  },
+
+  supervisor(unit: IUnitDocument) {
+    return Users.findOne({ _id: unit.supervisorId });
   }
 };

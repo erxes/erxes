@@ -12,5 +12,9 @@ export default {
 
   children(branch: IBranchDocument) {
     return Branches.find({ parentId: branch._id });
+  },
+
+  supervisor(branch: IBranchDocument) {
+    return Users.findOne({ _id: branch.supervisorId });
   }
 };

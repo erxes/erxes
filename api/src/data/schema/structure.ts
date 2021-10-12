@@ -13,6 +13,7 @@ export const types = `
         description: String
         parentId: String
         supervisorId: String
+        supervisor: User
         code: String
         parent: Department
         children: [Department]
@@ -25,6 +26,7 @@ export const types = `
         title: String
         departmentId: String
         supervisorId: String
+        supervisor: User
         code: String
         description: String
         department: Department
@@ -38,6 +40,7 @@ export const types = `
         address: String
         parentId: String
         supervisorId: String
+        supervisor: User
         code: String
         users: [User]
         userIds: [String]
