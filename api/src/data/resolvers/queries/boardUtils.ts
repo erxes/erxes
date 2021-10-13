@@ -394,6 +394,7 @@ export const checkItemPermByUser = async (
 
 export const archivedItems = async (params: IArchiveArgs, collection: any) => {
   const { pipelineId, search, ...listArgs } = params;
+
   const filter: any = { status: BOARD_STATUSES.ARCHIVED };
   const { page = 0, perPage = 0 } = listArgs;
 
