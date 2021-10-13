@@ -19,7 +19,7 @@ type Props = {
 };
 
 export default function ChartStack({ bars, usersWithInfo }: Props) {
-  if (!bars) {
+  if (bars.length === 0) {
     return <EmptyState text="this data is empty" icon="piechart" />;
   }
 
