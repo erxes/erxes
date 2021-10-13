@@ -57,8 +57,6 @@ export const posConfigSchema: any = {
     value: { type: Object },
 };
 
-// posConfigSchema.index({ posId: 1, code: 1 }, { unique: true });
-
 class PosConfig {
 
     public static async configs(models, posId: string) {
