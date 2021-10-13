@@ -36,8 +36,8 @@ const posRemove = `
 `;
 
 const updateConfigs = `
-  mutation posConfigsUpdate($configsMap: JSON!) {
-    posConfigsUpdate(configsMap: $configsMap)
+  mutation posConfigsUpdate($posId:String!, $configsMap: JSON!) {
+    posConfigsUpdate(posId: $posId, configsMap: $configsMap)
   }
 `;
 

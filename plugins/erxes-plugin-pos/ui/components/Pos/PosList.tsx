@@ -24,7 +24,6 @@ interface IProps {
   queryParams: any;
   refetch: any;
   remove: (posId: string) => void;
-  onChangePos: (pos: IPos) => void;
   posList: IPos[];
   loading: boolean;
 }
@@ -44,16 +43,6 @@ class List extends React.Component<IProps> {
     const currentPos = queryParams.posId || '';
 
     return currentPos === id;
-  };
-
-  onClickPos = e => {
-    const posList = this.props.posList || [];
-
-    const pos = posList.find(p => p._id === e.target.id)
-
-    if (pos) {
-      this.props.onChangePos(pos)
-    }
   };
 
   renderEditAction(pos: IPos) {
@@ -96,15 +85,8 @@ class List extends React.Component<IProps> {
       }
 
       result.push(
-        <SidebarListItem
-          key={pos._id}
-          isActive={this.isActive(pos._id)}
-          onClick={this.onClickPos}
-        >
-          <Link
-            id={pos._id}
-            to={`?posId=${pos._id}`}
-          >
+        <SidebarListItem key={pos._id} isActive={this.isActive(pos._id)}>
+          <Link to={`?posId=${pos._id}`}>
             {space}
             {pos.name}
           </Link>

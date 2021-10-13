@@ -39,10 +39,23 @@ const mutations = [
 
     {
         name: 'posConfigsUpdate',
-        handler: async (_root, params, { models, checkPermission, user }) => {
+        handler: async (_root, { posId, configsMap }, { models, checkPermission, user }) => {
             await checkPermission('managePos', user);
 
-            return await models.PosConfigs.createOrUpdateConfig(models, params)
+            const codes = Object.keys(configsMap);
+
+            for (const code of codes) {
+                if (!code) {
+                    continue;
+                }
+
+                const value = configsMap[code];
+                const doc = { code, value };
+
+                return await models.PosConfigs.createOrUpdateConfig(models, posId, doc)
+            }
+
+
         }
     },
 

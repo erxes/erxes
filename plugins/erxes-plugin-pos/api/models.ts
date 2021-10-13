@@ -50,24 +50,25 @@ class Pos {
  * posConfig
  */
 
-export const posConfigSchema = {
+export const posConfigSchema: any = {
     _id: { pkey: true },
     posId: { type: String },
-    code: { type: String, unique: true },
-    value: { type: Object }
+    code: { type: String },
+    value: { type: Object },
 };
 
+// posConfigSchema.index({ posId: 1, code: 1 }, { unique: true });
+
 class PosConfig {
+
     public static async configs(models, posId: string) {
         return models.PosConfigs.find({ posId }).lean();
     }
 
-    public static async createOrUpdateConfig(models, {
-        posId,
+    public static async createOrUpdateConfig(models, posId, {
         code,
         value
     }: {
-        posId: string;
         code: string;
         value: any;
     }) {

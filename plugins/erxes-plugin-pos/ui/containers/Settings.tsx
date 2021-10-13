@@ -7,10 +7,16 @@ import Settings from '../components/Settings';
 import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
 
+type Props = {
+  history: any;
+  queryParams: any;
+  onChangePos: (posId: string) => Promise<void>;
+};
+
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
-};
+} & Props;
 
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
@@ -21,9 +27,9 @@ class SettingsContainer extends React.Component<FinalProps> {
     }
 
     // create or update action
-    const save = (map: IConfigsMap) => {
+    const save = (posId: string, map: IConfigsMap) => {
       updateConfigs({
-        variables: { configsMap: map }
+        variables: { posId, configsMap: map }
       })
         .then(() => {
           configsQuery.refetch();
@@ -35,7 +41,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         });
     };
 
-    const configs = configsQuery.configs || [];
+    const configs = configsQuery.posConfigs || [];
 
     const configsMap = {};
 
@@ -47,15 +53,29 @@ class SettingsContainer extends React.Component<FinalProps> {
   }
 }
 
+// const getRefetchQueries = () => {
+//   return [
+//     'configs',
+//   ];
+// };
+
+// const options = () => ({
+//   refetchQueries: getRefetchQueries()
+// });
+
 export default withProps<{}>(
   compose(
-    graphql<{}, ConfigsQueryResponse, { posId: string }>(gql(queries.configs), {
-      name: 'configsQuery',
-      options: ({ posId = '' }) => ({
-        variables: { posId }
-      })
-    }),
-    graphql<{}>(gql(mutations.updateConfigs), {
+    graphql<{ queryParams: any }, ConfigsQueryResponse, { posId: string }>(
+      gql(queries.configs),
+      {
+        name: 'configsQuery',
+        options: ({ queryParams }) => ({
+          variables: { posId: queryParams.posId || '' },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<{ queryParams: any }>(gql(mutations.updateConfigs), {
       name: 'updateConfigs'
     })
   )(SettingsContainer)

@@ -4,13 +4,12 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import PosList from '../../components/Pos/PosList';
 import { mutations, queries } from '../../graphql';
-import { IPos, PosListQueryResponse, PosRemoveMutationResponse } from '../../types';
+import {  PosListQueryResponse, PosRemoveMutationResponse } from '../../types';
 import { Alert, confirm } from 'erxes-ui';
 
 type Props = {
   history: any;
   queryParams: any;
-  onChangePos: (pos: IPos) => void;
 };
 
 type FinalProps = {

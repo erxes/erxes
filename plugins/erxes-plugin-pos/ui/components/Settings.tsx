@@ -17,50 +17,52 @@ import Sidebar from './Sidebar';
 import { ContentBox, Description } from '../styles';
 import { PRODUCT_DETAIL } from '../constants';
 import Select from 'react-select-plus';
-import queryString from 'query-string';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  queryParams: any;
+  history: any;
 };
 
 type State = {
-  currentMap: IConfigsMap;
   currentTab: string;
-  currentPos?: IPos;
+  configsMap: IConfigsMap;
+  posId: string;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const queryParams = queryString.parse(this.props.location.search);
+    const { queryParams } = props;
 
     this.state = {
-      currentMap: {},
-      currentTab: 'product'
+      configsMap: props.configsMap,
+      currentTab: 'product',
+      posId: queryParams.posId ? queryParams.posId : ''
     };
   }
 
   save = e => {
     e.preventDefault();
 
-    const { currentMap } = this.state;
-    const { configsMap } = this.props;
-    configsMap.POS = currentMap;
-    this.props.save(configsMap);
+    const { configsMap, posId } = this.state;
+
+    if (posId.length === 0) {
+      alert('Please select a POS first!!!');
+      return;
+    }
+
+    this.props.save(posId, configsMap);
   };
 
   onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
+    const { configsMap } = this.state;
 
-    currentMap[code] = value;
+    configsMap[code] = value;
 
-    this.setState({ currentMap });
-  };
-
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+    this.setState({ configsMap });
   };
 
   onChangeTab = (currentTab: string) => {
@@ -77,12 +79,8 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, value);
   };
 
-  onChangePos = (pos: IPos) => {
-    this.setState({ currentPos: pos });
-  };
-
   renderTabContent() {
-    const { currentTab, currentMap } = this.state;
+    const { currentTab, configsMap } = this.state;
 
     if (currentTab === 'product') {
       return (
@@ -95,8 +93,8 @@ class GeneralSettings extends React.Component<Props, State> {
               </Description>
               <Select
                 options={PRODUCT_DETAIL}
-                value={currentMap.productDetail}
-                onChange={this.onChangeMultiCombo.bind(this, 'productDetail')}
+                value={configsMap.PRODUCT_DETAILS}
+                onChange={this.onChangeMultiCombo.bind(this, 'PRODUCT_DETAILS')}
                 multi={true}
               />
             </FormGroup>
@@ -112,9 +110,7 @@ class GeneralSettings extends React.Component<Props, State> {
   }
 
   render() {
-    const { currentTab, currentPos } = this.state;
-
-    const queryParams = queryString.parse(this.props.location.search);
+    const { currentTab } = this.state;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -167,19 +163,14 @@ class GeneralSettings extends React.Component<Props, State> {
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <Title>{`${currentPos ? currentPos.name : ''} ${__(
-                ' configs'
-              )}`}</Title>
-            }
+            left={<Title>{__('POS configs')}</Title>}
             right={actionButtons}
           />
         }
         leftSidebar={
           <Sidebar
             history={this.props.history}
-            queryParams={queryParams}
-            onChangePos={this.onChangePos}
+            queryParams={this.props.queryParams}
           />
         }
         content={content}

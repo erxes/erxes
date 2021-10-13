@@ -36,5 +36,5 @@ export const mutations = `
 
   posRemove(_id: String!): JSON
 
-  posConfigsUpdate(configsMap: JSON!): JSON
+  posConfigsUpdate(posId: String!, configsMap: JSON!): JSON
 `;
