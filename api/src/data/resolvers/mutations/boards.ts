@@ -247,14 +247,17 @@ const boardMutations = {
     const pipelineDoc = {
       ...sourcePipeline,
       _id: undefined,
+      status: sourcePipeline.status || 'active',
       name: `${sourcePipeline.name}-copied`
     };
+
     const copied = await Pipelines.createPipeline(pipelineDoc);
 
     for (const stage of sourceStages) {
       await Stages.createStage({
         ...stage,
         _id: undefined,
+        probability: stage.probability || '10%',
         type: copied.type,
         pipelineId: copied._id
       });
