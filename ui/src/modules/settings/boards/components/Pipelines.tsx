@@ -168,6 +168,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderContent() {
     const { pipelines, options, type } = this.props;
+
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (pipelines.length === 0) {

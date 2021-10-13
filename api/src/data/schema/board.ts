@@ -15,7 +15,7 @@ export const types = `
   type Pipeline {
     _id: String!
     name: String!
-    status: String!
+    status: String
     boardId: String!
     visibility: String!
     memberIds: [String]
