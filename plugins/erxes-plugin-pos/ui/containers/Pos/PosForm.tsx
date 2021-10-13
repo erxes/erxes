@@ -23,8 +23,8 @@ class CategoryFormContainer extends React.Component<Props> {
         <ButtonMutate
           mutation={
             object
-              ? mutations.editPos
-              : mutations.addPos
+              ? mutations.podEdit
+              : mutations.posAdd
           }
           variables={values}
           callback={callback}

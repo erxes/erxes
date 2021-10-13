@@ -36,3 +36,8 @@ export type PosListQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+
+export type PosRemoveMutationResponse = {
+  removePos: (mutation: { variables: { _id: string } }) => Promise<any>;
+};

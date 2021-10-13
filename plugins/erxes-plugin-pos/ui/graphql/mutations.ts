@@ -9,9 +9,9 @@ const commonVariables = `
 `;
 
 
-const addPos = `
-  mutation addPos(${commonFields}) {
-    addPos(${commonVariables}){
+const posAdd = `
+  mutation posAdd(${commonFields}) {
+    posAdd(${commonVariables}){
         _id
         name
         description
@@ -19,17 +19,24 @@ const addPos = `
   }
 `;
 
-const editPos = `
-  mutation editPos($_id: String, ${commonFields}) {
-    editPos(_id: $_id, ${commonVariables}){
+const podEdit = `
+  mutation podEdit($_id: String, ${commonFields}) {
+    podEdit(_id: $_id, ${commonVariables}){
         _id
         name
         description
     }
+  }
+`;
+
+const posRemove = `
+  mutation posRemove($_id: String!) {
+    posRemove(_id: $_id)
   }
 `;
 
 export default {
-    addPos,
-    editPos
+  posAdd,
+  podEdit,
+  posRemove
 };

@@ -11,7 +11,7 @@ class Pos {
         return models.Pos.find().sort({ createdAt: 1 })
     }
 
-    public static async addPos(models, user, name, description) {
+    public static async posAdd(models, user, name, description) {
         return models.Pos.create({
             userId: user._id,
             name,
@@ -20,7 +20,7 @@ class Pos {
         })
     }
 
-    public static async editPos(models, { _id, name, description }: { _id: string, name: string, description: string }) {
+    public static async posEdit(models, { _id, name, description }: { _id: string, name: string, description: string }) {
         const pos = await models.Pos.findOne({ _id }).lean();
 
         if (!pos) {
@@ -35,6 +35,10 @@ class Pos {
         });
 
         return await models.Pos.findOne({ _id }).lean();;
+    }
+
+    public static async posRemove(models, _id: string) {
+        return models.Pos.deleteOne({ _id });
     }
 }
 

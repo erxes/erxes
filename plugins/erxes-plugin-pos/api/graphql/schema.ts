@@ -19,14 +19,16 @@ export const queries = `
 `;
 
 export const mutations = `
-  addPos(
+  posAdd(
     name: String
     description: String
   ): Pos
 
-  editPos(
+  posEdit(
     _id: String
     name: String
     description: String
   ): Pos
+
+  posRemove(_id: String!): JSON
 `;

@@ -3,28 +3,59 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import PosList from '../../components/Pos/PosList';
-import { queries } from '../../graphql';
-import { PosListQueryResponse } from '../../types';
+import { mutations, queries } from '../../graphql';
+import { PosListQueryResponse, PosRemoveMutationResponse } from '../../types';
+import { Alert, confirm } from 'erxes-ui';
 
 type Props = { history: any; queryParams: any };
 
 type FinalProps = {
   posListQuery: PosListQueryResponse;
-} & Props;
+} & Props &
+  PosRemoveMutationResponse;
+class PosListContainer extends React.Component<FinalProps> {
+  render() {
+    const { posListQuery, posRemove } = this.props;
 
-const PosListContainer = (props: FinalProps) => {
-  const { posListQuery } = props;
+    const remove = posId => {
+      confirm().then(() => {
+        posRemove({
+          variables: { _id: posId }
+        })
+          .then(() => {
+            posListQuery.refetch();
 
-  const extendedProps = {
-    ...props,
-    posList: posListQuery.allPos || []
-  };
+            Alert.success(`You successfully deleted a POS`);
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
 
-  return <PosList {...extendedProps} />;
-};
+    const extendedProps = {
+      ...this.props,
+      remove,
+      posList: posListQuery.allPos || []
+    };
+
+    return <PosList {...extendedProps} />;
+  }
+}
+
+const options = () => ({
+  refetchQueries: ['posListQuery']
+});
 
 export default compose(
   graphql<Props, PosListQueryResponse>(gql(queries.posList), {
     name: 'posListQuery'
-  })
+  }),
+  graphql<Props, PosRemoveMutationResponse, { _id: string }>(
+    gql(mutations.posRemove),
+    {
+      name: 'posRemove',
+      options
+    }
+  )
 )(PosListContainer);

@@ -11,7 +11,7 @@ import {
   ControlLabel
 } from 'erxes-ui';
 import React from 'react';
-import { IConfigsMap } from '../types';
+import { IConfigsMap, IPos } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { ContentBox, Description } from '../styles';
@@ -22,20 +22,25 @@ import queryString from 'query-string';
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  currentPos: IPos;
 };
 
 type State = {
   currentMap: IConfigsMap;
   currentTab: string;
+  currentPosId: string;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const queryParams = queryString.parse(this.props.location.search);
+
     this.state = {
       currentMap: {},
-      currentTab: 'product'
+      currentTab: 'product',
+      currentPosId: queryParams.posId || ""
     };
   }
 

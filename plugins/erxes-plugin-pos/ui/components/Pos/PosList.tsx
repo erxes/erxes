@@ -23,7 +23,7 @@ interface IProps {
   history: any;
   queryParams: any;
   refetch: any;
-  remove: (carCategoryId: string) => void;
+  remove: (posId: string) => void;
   posList: IPos[];
   loading: boolean;
 }
@@ -58,14 +58,14 @@ class List extends React.Component<IProps> {
   }
 
   renderRemoveAction(pos: IPos) {
-    // const { remove } = this.props;
-    // return (
-    //   <Button btnStyle="link" onClick={remove.bind(null, pos._id)}>
-    //     <Tip text={__('Remove')} placement="bottom">
-    //       <Icon icon="cancel-1" />
-    //     </Tip>
-    //   </Button>
-    // );
+    const { remove } = this.props;
+    return (
+      <Button btnStyle="link" onClick={remove.bind(null, pos._id)}>
+        <Tip text={__('Remove')} placement="bottom">
+          <Icon icon="cancel-1" />
+        </Tip>
+      </Button>
+    );
   }
 
   renderContent() {
