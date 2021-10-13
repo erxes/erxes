@@ -85,7 +85,17 @@ const pipelineRemove = `
     pipelinesRemove(_id: $_id)
   }
 `;
+const pipelinesArchive = `
+  mutation pipelinesArchive($_id: String!) {
+    pipelinesArchive(_id: $_id)
+  }
+`;
 
+const pipelinesCopied = `
+  mutation pipelinesCopied($_id: String!) {
+    pipelinesCopied(_id: $_id)
+  }
+`;
 const pipelinesUpdateOrder = `
   mutation pipelinesUpdateOrder($orders: [OrderItem]) {
     pipelinesUpdateOrder(orders: $orders) {
@@ -100,6 +110,8 @@ export default {
   boardRemove,
   pipelineAdd,
   pipelineEdit,
+  pipelinesArchive,
+  pipelinesCopied,
   pipelineRemove,
   pipelinesUpdateOrder
 };
