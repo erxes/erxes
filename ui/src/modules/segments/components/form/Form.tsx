@@ -26,7 +26,7 @@ import ConditionsList from '../preview/ConditionsList';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { FilterBox, SegmentBackIcon, SegmentWrapper } from '../styles';
+import { FilterBox, SegmentBackIcon, SegmentWrapper, Count } from '../styles';
 import PropertyCondition from '../../containers/form/PropertyCondition';
 import { Link } from 'react-router-dom';
 import { isBoardKind } from 'modules/segments/utils';
@@ -678,8 +678,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       return (
         <>
           {isModal ? (
-            <Button id="segment-show-count" onClick={onPreviewCount}>
-              ${__('Refresh count')}
+            <Button
+              id="segment-show-count"
+              onClick={onPreviewCount}
+              icon="refresh-1"
+            >
+              {__('Refresh count')}
             </Button>
           ) : (
             <Button
@@ -715,7 +719,11 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       state === 'list' &&
       isModal
     ) {
-      return <div>Items found: {count}</div>;
+      return (
+        <Count>
+          {__('Items Found')}: <span>{count}</span>
+        </Count>
+      );
     }
 
     return null;

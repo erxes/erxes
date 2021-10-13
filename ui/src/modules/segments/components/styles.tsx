@@ -202,6 +202,17 @@ const PropertyText = styled.span`
   }
 `;
 
+const Count = styled.div`
+  text-align: right;
+
+  span {
+    font-size: 14px;
+    padding-left: 5px;
+    font-weight: 600;
+    color: ${colors.colorSecondary};
+  }
+`;
+
 export {
   PropertyText,
   ConditionDetailText,
@@ -220,5 +231,6 @@ export {
   FilterBox,
   FilterRow,
   FilterProperty,
-  SubProperties
+  SubProperties,
+  Count
 };
