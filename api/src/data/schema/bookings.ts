@@ -77,8 +77,6 @@ export const types = `
 
     categoryTree: [CategoryTree]
     mainProductCategory: ProductCategory
-    formBrandCode: String
-    formCode: String
 
     form: Form
 

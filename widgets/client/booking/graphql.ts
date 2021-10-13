@@ -111,9 +111,6 @@ const bookingFields = `
     ${displayBlockFields}
   }
 
-  formBrandCode
-  formCode
-
   leadData
 `;
 
