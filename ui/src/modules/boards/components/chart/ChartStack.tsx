@@ -5,14 +5,14 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend
+  Legend,
+  ResponsiveContainer
 } from 'recharts';
 
 import React from 'react';
 import { IStage } from 'modules/boards/types';
 import { getColors } from 'modules/boards/utils';
 import EmptyState from 'modules/common/components/EmptyState';
-import { ChartContainer } from 'modules/boards/styles/viewtype';
 
 type Props = {
   stages: IStage[];
@@ -25,12 +25,10 @@ export default function ChartStack({ stages, usersWithInfo }: Props) {
   }
 
   return (
-    <ChartContainer>
+    <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        width={1500}
-        height={600}
         data={usersWithInfo}
-        margin={{ top: 100, left: 100 }}
+        margin={{ top: 50, left: 50, bottom: 50, right: 50 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
@@ -46,6 +44,6 @@ export default function ChartStack({ stages, usersWithInfo }: Props) {
           />
         ))}
       </BarChart>
-    </ChartContainer>
+    </ResponsiveContainer>
   );
 }
