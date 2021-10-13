@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import { Form } from 'erxes-ui';
 import { IFormProps, IButtonMutateProps, IOption } from 'erxes-ui/lib/types';
-import Field from './Field';
 import { title, description, getUserOptions } from '../utils';
 import { IUser } from 'erxes-ui/lib/auth/types';
 import withTeamMembers from '../containers/withTeamMembers';
+import GenerateFields from './GenerateFields';
 
 type Props = {
   item?: any;
@@ -26,16 +26,6 @@ function BravoForm(props: Props & { users: IUser[] }) {
     item.customFieldsData || []
   );
 
-  const onChangeCustomFields = (fieldId: string, value: any) => {
-    let updatedCustomFieldsData = customFieldsData.filter(
-      f => f.field !== fieldId
-    );
-
-    updatedCustomFieldsData.push({ field: fieldId, value });
-
-    setCustomFieldsData(updatedCustomFieldsData);
-  };
-
   const onChangeRecipient = (option: IOption) => {
     setRecipientId(option ? option.value : '');
   };
@@ -54,16 +44,16 @@ function BravoForm(props: Props & { users: IUser[] }) {
           multi={false}
           options={getUserOptions(users)}
         />
-        {fields.map((f, index) => (
-          <Field
-            key={index}
-            customFieldsData={customFieldsData}
-            field={f}
-            onChange={onChangeCustomFields}
-          />
-        ))}
+
         {title(formProps, item)}
+
         {description(formProps, item)}
+
+        <GenerateFields
+          fields={fields}
+          customFieldsData={customFieldsData}
+          setCustomFieldsData={setCustomFieldsData}
+        />
         {renderButton({
           values: {
             title: values.title,

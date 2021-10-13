@@ -19,5 +19,14 @@ export default () => ({
     icon: 'icon-list-2',
     link: '/list',
     permission: 'showExmFeed'
+  },
+  property: {
+    label: 'Exm',
+    value: 'exm Feed',
+    types: [
+      { value: 'exmFeedPost', label: 'Exm feed post' },
+      { value: 'exmFeedBravo', label: 'Exm feed bravo' },
+      { value: 'exmFeedEvent', label: 'Exm feed event' }
+    ]
   }
 });

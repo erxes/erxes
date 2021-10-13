@@ -25,6 +25,8 @@ export default function FormContainer(props: Props) {
     }
   });
 
+  console.log('data: ', data);
+
   const renderButton = ({
     values,
     isSubmitted,
@@ -54,25 +56,27 @@ export default function FormContainer(props: Props) {
         successMessage={`You successfully ${
           variables._id ? 'edited' : 'added'
         }`}
-        type="submit"
-        icon="check-circle"
+        type='submit'
+        icon='check-circle'
       />
     );
   };
 
+  const fields = (data && data.fields) || [];
+
+  const updateProps = {
+    ...props,
+    fields,
+    renderButton
+  };
+
   if (props.contentType === 'post') {
-    return <Form {...props} renderButton={renderButton} />;
+    return <Form {...updateProps} />;
   }
 
   if (props.contentType === 'event') {
-    return <EventForm {...props} renderButton={renderButton} />;
+    return <EventForm {...updateProps} />;
   }
 
-  return (
-    <BravoForm
-      fields={(data && data.fields) || []}
-      {...props}
-      renderButton={renderButton}
-    />
-  );
+  return <BravoForm {...updateProps} />;
 }

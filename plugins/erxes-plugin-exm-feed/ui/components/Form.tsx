@@ -1,21 +1,27 @@
-import React, { useState } from "react";
-import { Form, Uploader } from "erxes-ui";
-import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
-import { UploadItems } from "../styles";
-import { description, title } from "../utils";
-import ControlLabel from "modules/common/components/form/Label";
+import React, { useState } from 'react';
+import { Form, Uploader } from 'erxes-ui';
+import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
+import { UploadItems } from '../styles';
+import { description, title } from '../utils';
+import ControlLabel from 'erxes-ui/lib/components/form/Label';
+import GenerateFields from './GenerateFields';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
   item?: any;
   closeModal?: () => void;
+  fields: any[];
 };
 
 export default function PostForm(props: Props) {
   const item = props.item || {};
+  const fields = props.fields;
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImage] = useState(item.images || []);
+  const [customFieldsData, setCustomFieldsData] = useState(
+    item.customFieldsData || []
+  );
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
@@ -25,6 +31,11 @@ export default function PostForm(props: Props) {
       <>
         {title(formProps, item)}
         {description(formProps, item)}
+        <GenerateFields
+          fields={fields}
+          customFieldsData={customFieldsData}
+          setCustomFieldsData={setCustomFieldsData}
+        />
         <UploadItems>
           <div>
             <Uploader
@@ -42,12 +53,13 @@ export default function PostForm(props: Props) {
           values: {
             title: values.title,
             description: values.description ? values.description : null,
-            contentType: "post",
+            contentType: 'post',
             images,
             attachments,
+            customFieldsData
           },
           isSubmitted,
-          callback: closeModal,
+          callback: closeModal
         })}
       </>
     );

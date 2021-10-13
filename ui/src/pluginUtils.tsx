@@ -14,6 +14,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
   const pluginRoutes: any = [];
   const specialPluginRoutes: any = [];
+  const properties: any = [];
 
   for (const pluginName of Object.keys(pluginModules)) {
     const plugin = pluginModules[pluginName]();
@@ -40,7 +41,13 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
         );
       }
     }
+
+    if (plugin.property) {
+      properties.push(plugin.property);
+    }
   }
+
+  localStorage.setItem('plugins_properties', JSON.stringify(properties));
 
   return { plugins, pluginRoutes, specialPluginRoutes };
 };
