@@ -160,7 +160,7 @@ describe('Test boards mutations', () => {
     const user2 = await userFactory();
 
     const args = {
-      name: 'deal pip eline',
+      name: 'deal pipeline',
       type: 'deal',
       boardId: board._id,
       stages: [stage.toJSON()],
