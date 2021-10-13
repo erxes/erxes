@@ -2,15 +2,16 @@ import { IProductCategory, IProduct } from 'erxes-ui/lib/products/types';
 
 export type IConfigsMap = { [key: string]: any };
 
-export type IConfig = {
+export type IPosConfig = {
   _id: string;
+  posId: string;
   code: string;
   value: any;
 };
 
 // query types
 export type ConfigsQueryResponse = {
-  configs: IConfig[];
+  posConfigs: IPosConfig[];
   loading: boolean;
   refetch: () => void;
 };

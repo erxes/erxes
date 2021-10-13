@@ -1,4 +1,4 @@
-import Settings from './components/Settings';
+import Settings from './containers/Settings';
 
 export default () => ({
   routes: [

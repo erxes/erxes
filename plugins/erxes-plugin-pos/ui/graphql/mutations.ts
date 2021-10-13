@@ -35,8 +35,15 @@ const posRemove = `
   }
 `;
 
+const updateConfigs = `
+  mutation posConfigsUpdate($configsMap: JSON!) {
+    posConfigsUpdate(configsMap: $configsMap)
+  }
+`;
+
 export default {
   posAdd,
   podEdit,
-  posRemove
+  posRemove,
+  updateConfigs
 };

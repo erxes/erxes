@@ -22,13 +22,12 @@ import queryString from 'query-string';
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
-  currentPos: IPos;
 };
 
 type State = {
   currentMap: IConfigsMap;
   currentTab: string;
-  currentPosId: string;
+  currentPos?: IPos;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -39,8 +38,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     this.state = {
       currentMap: {},
-      currentTab: 'product',
-      currentPosId: queryParams.posId || ""
+      currentTab: 'product'
     };
   }
 
@@ -79,6 +77,10 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, value);
   };
 
+  onChangePos = (pos: IPos) => {
+    this.setState({ currentPos: pos });
+  };
+
   renderTabContent() {
     const { currentTab, currentMap } = this.state;
 
@@ -110,7 +112,7 @@ class GeneralSettings extends React.Component<Props, State> {
   }
 
   render() {
-    const { currentTab } = this.state;
+    const { currentTab, currentPos } = this.state;
 
     const queryParams = queryString.parse(this.props.location.search);
 
@@ -165,7 +167,11 @@ class GeneralSettings extends React.Component<Props, State> {
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('POS configs')}</Title>}
+            left={
+              <Title>{`${currentPos ? currentPos.name : ''} ${__(
+                ' configs'
+              )}`}</Title>
+            }
             right={actionButtons}
           />
         }
@@ -173,6 +179,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Sidebar
             history={this.props.history}
             queryParams={queryParams}
+            onChangePos={this.onChangePos}
           />
         }
         content={content}

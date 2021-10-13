@@ -1,5 +1,5 @@
 
-const posMutations = [
+const mutations = [
     /**
      * add pos
      */
@@ -25,10 +25,10 @@ const posMutations = [
         }
     },
 
-     /**
-      *  remove pos
-      */
-      {
+    /**
+     *  remove pos
+     */
+    {
         name: 'posRemove',
         handler: async (_root, { _id }: { _id: string }, { models, checkPermission, user }) => {
             await checkPermission('managePos', user);
@@ -37,7 +37,16 @@ const posMutations = [
         }
     },
 
+    {
+        name: 'posConfigsUpdate',
+        handler: async (_root, params, { models, checkPermission, user }) => {
+            await checkPermission('managePos', user);
+
+            return await models.PosConfigs.createOrUpdateConfig(models, params)
+        }
+    },
+
 
 ]
 
-export default posMutations;
+export default mutations;

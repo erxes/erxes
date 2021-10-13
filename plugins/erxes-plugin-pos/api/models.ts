@@ -1,3 +1,7 @@
+/**
+ * pos
+ */
+
 export const posSChema = {
     _id: { pkey: true },
     name: { type: String, label: 'name' },
@@ -42,10 +46,52 @@ class Pos {
     }
 }
 
+/**
+ * posConfig
+ */
+
+export const posConfigSchema = {
+    _id: { pkey: true },
+    posId: { type: String },
+    code: { type: String, unique: true },
+    value: { type: Object }
+};
+
+class PosConfig {
+    public static async configs(models, posId: string) {
+        return models.PosConfigs.find({ posId }).lean();
+    }
+
+    public static async createOrUpdateConfig(models, {
+        posId,
+        code,
+        value
+    }: {
+        posId: string;
+        code: string;
+        value: any;
+    }) {
+        const obj = await models.PosConfigs.findOne({ posId, code });
+
+        if (obj) {
+            await models.PosConfigs.updateOne({ _id: obj._id }, { $set: { value } });
+
+            return models.PosConfigs.findOne({ _id: obj._id });
+        }
+
+        return models.PosConfigs.create({ code, value, posId });
+    }
+}
+
 export default [
     {
         name: 'Pos',
         schema: posSChema,
         klass: Pos
+    },
+    {
+        name: 'PosConfigs',
+        schema: posConfigSchema,
+        klass: PosConfig
     },
 ];

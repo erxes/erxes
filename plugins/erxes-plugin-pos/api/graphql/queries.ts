@@ -1,5 +1,5 @@
 
-const posQueries = [
+const queries = [
     /**
      * all pos list
      */
@@ -12,6 +12,15 @@ const posQueries = [
     },
 
 
+    {
+        name: 'posConfigs',
+        handler: async (_root, { posId }: { posId: string }, { models, checkPermission, user }) => {
+            await checkPermission('managePos', user);
+            return await models.PosConfigs.configs(models, posId)
+        }
+    },
+
+
 ]
 
-export default posQueries;
+export default queries;

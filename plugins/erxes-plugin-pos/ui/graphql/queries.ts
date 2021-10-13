@@ -8,6 +8,18 @@ const posList = `
   }
 `;
 
+const configs = `
+  query posConfigs($posId: String!) {
+    posConfigs(posId: $posId) {
+      _id
+      posId
+      code
+      value
+    }
+  }
+`
+
 export default {
-    posList,
+  posList,
+  configs
 };
