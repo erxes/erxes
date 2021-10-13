@@ -45,8 +45,11 @@ export default {
     return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
   },
 
-  messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.conversationMessagesByConversationId.load(conv._id);
+  async messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
+    const messages = await dataLoaders.conversationMessagesByConversationId.load(
+      conv._id
+    );
+    return messages.filter(message => message);
   },
 
   async facebookPost(
@@ -114,7 +117,8 @@ export default {
   },
 
   async tags(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.tag.loadMany(conv.tagIds || []);
+    const tags = await dataLoaders.tag.loadMany(conv.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   async videoCallData(

@@ -1,6 +1,5 @@
 import * as Random from 'meteor-random';
 import { Document, Model, model, Schema } from 'mongoose';
-import { sendToAutomations } from '../utils';
 import { field } from './Logs';
 
 const ACTIVITY_ACTIONS = {
@@ -380,8 +379,6 @@ export const loadClass = () => {
         };
 
         bulkOpt.push(doc);
-
-        await sendToAutomations(doc);
 
         if (bulkCounter === maxBulk) {
           await ActivityLogs.insertMany(bulkOpt);
