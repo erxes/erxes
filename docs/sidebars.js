@@ -128,7 +128,7 @@ module.exports = {
         "components/info",
         "components/table",
         "components/spinners",
-        "components/cards"
+        "components/namecard"
       ],
     },
   ],

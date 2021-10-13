@@ -1,8 +1,8 @@
 import React from "react";
 import Info from "erxes-ui/lib/components/Info";
-import styles from "../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
+import Table from "../../../ui/src/modules/common/components/table";
 
 function Infos() {
   return (<>
@@ -43,5 +43,34 @@ function InfoIcon() {
     </>
   );
 }
-
-export { InfoIcon, Infos }
+function ApiInfo(){
+  return(
+    <>
+    <Table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>type</td>
+              <td>"primary", "info", "danger", "warning", "success"</td>
+              <td>Primary</td>
+              <td>Set type of info.</td>
+            </tr>
+            <tr>
+              <td>iconShow</td>
+              <td>boolean</td>
+              <td></td>
+              <td>Add icon to your info. </td>
+            </tr>
+          </tbody>
+        </Table>
+    </>
+  )
+  }
+export { InfoIcon, Infos, ApiInfo }
