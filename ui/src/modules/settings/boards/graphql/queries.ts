@@ -32,14 +32,13 @@ const pipelines = `
       endDate
       metric
       isCheckUser
+      excludeCheckUserIds
       createdAt
       createdUser{
         details {
           fullName
         } 
-
       }
-
     }
   }
 `;
