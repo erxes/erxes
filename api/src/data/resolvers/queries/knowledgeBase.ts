@@ -49,8 +49,26 @@ const knowledgeBaseQueries = {
   /**
    * Article detail
    */
-  knowledgeBaseArticleDetail(_root, { _id }: { _id: string }) {
+  knowledgeBaseArticleDetail(
+    _root,
+    { _id, increaseView }: { _id: string; increaseView: boolean }
+  ) {
+    if (increaseView) {
+      KnowledgeBaseArticles.updateOne({ _id }, { $inc: {} });
+    }
+
     return KnowledgeBaseArticles.findOne({ _id });
+  },
+
+  /**
+   * Article detail anc increase a view count
+   */
+  knowledgeBaseArticleDetailAndIncViewCount(_root, { _id }: { _id: string }) {
+    return KnowledgeBaseArticles.findOneAndUpdate(
+      { _id },
+      { $inc: { viewCount: 1 } },
+      { new: true }
+    );
   },
 
   /**

@@ -14,6 +14,7 @@ export const types = `
     modifiedDate: Date
     topicId: String
     categoryId: String
+    viewCount: Int
     attachments: [Attachment]
   }
 
@@ -119,6 +120,7 @@ export const queries = `
 
   knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
+  knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount(categoryIds: [String]): Int
 `;
 

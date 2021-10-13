@@ -371,6 +371,41 @@ describe('knowledgeBaseQueries', () => {
     expect(response._id).toBe(article._id);
   });
 
+  test('Knowledge base article detail', async () => {
+    const category = await knowledgeBaseCategoryFactory();
+
+    const article = await knowledgeBaseArticleFactory({
+      categoryId: category._id
+    });
+
+    const qry = `
+      query knowledgeBaseArticleDetailAndIncViewCount($_id: String!) {
+        knowledgeBaseArticleDetailAndIncViewCount(_id: $_id) {
+          _id
+          viewCount
+        }
+      }
+    `;
+    await graphqlRequest(qry, 'knowledgeBaseArticleDetailAndIncViewCount', {
+      _id: article._id
+    });
+
+    await graphqlRequest(qry, 'knowledgeBaseArticleDetailAndIncViewCount', {
+      _id: article._id
+    });
+
+    const response = await graphqlRequest(
+      qry,
+      'knowledgeBaseArticleDetailAndIncViewCount',
+      {
+        _id: article._id
+      }
+    );
+
+    expect(response._id).toBe(article._id);
+    expect(response.viewCount).toBe(3);
+  });
+
   test('Get total count of knowledge base article', async () => {
     const category = await knowledgeBaseCategoryFactory();
 
