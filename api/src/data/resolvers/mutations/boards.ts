@@ -241,23 +241,27 @@ const boardMutations = {
   async pipelinesCopied(_root, { _id }: { _id: string }, { user }: IContext) {
     const sourcePipeline = await Pipelines.getPipeline(_id);
     const sourceStages = await Stages.find({ pipelineId: _id }).lean();
+
     await checkPermission(sourcePipeline.type, user, 'pipelinesCopied');
-    const pipelineDoc = sourcePipeline.toObject();
-    pipelineDoc.name = `${pipelineDoc.name}-copied`;
-    delete pipelineDoc._id;
+
+    const pipelineDoc = {
+      ...sourcePipeline,
+      _id: undefined,
+      name: `${sourcePipeline.name}-copied`
+    };
     const copied = await Pipelines.createPipeline(pipelineDoc);
+
     for (const stage of sourceStages) {
-      const newStage = {
+      await Stages.createStage({
         ...stage,
         _id: undefined,
         type: copied.type,
         pipelineId: copied._id
-      };
-      await Stages.createStage(newStage);
+      });
     }
 
     await putUpdateLog(
-      { type: `${pipelineDoc.type}Pipelines`, object: pipelineDoc },
+      { type: `${sourcePipeline.type}Pipelines`, object: copied },
       user
     );
 
