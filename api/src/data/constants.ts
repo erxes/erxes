@@ -266,6 +266,7 @@ export const MODULE_NAMES = {
   IMPORT_HISTORY: 'importHistory',
   PRODUCT: 'product',
   PRODUCT_CATEGORY: 'productCategory',
+  PRODUCT_TEMPLATE: 'productTemplate',
   RESPONSE_TEMPLATE: 'responseTemplate',
   TAG: 'tag',
   TASK: 'task',

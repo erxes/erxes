@@ -6,7 +6,7 @@ import Icon from 'modules/common/components/Icon';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import { productTypeChoises } from '../../../utils';
+import { templateStatusChoises } from '../../../utils';
 
 interface IProps extends IRouterProps {
   searchable?: boolean;
@@ -17,16 +17,16 @@ class ProductTypeFilter extends React.Component<IProps> {
     const { history } = this.props;
 
     const onClear = () => {
-      router.setParams(history, { type: null });
+      router.setParams(history, { status: null });
     };
 
-    const extraButtons = router.getParam(history, 'type') && (
+    const extraButtons = router.getParam(history, 'status') && (
       <a href="#cancel" tabIndex={0} onClick={onClear}>
         <Icon icon="cancel-1" />
       </a>
     );
 
-    const paramKey = 'type';
+    const paramKey = 'status';
 
     const onClick = (key, value) => {
       router.setParams(history, { [key]: value });
@@ -35,11 +35,11 @@ class ProductTypeFilter extends React.Component<IProps> {
     return (
       <Box
         extraButtons={extraButtons}
-        title={__('Filter by type')}
-        name="showFilterByType"
+        title={__('Status')}
+        name="showFilterByStatus"
       >
         <SidebarList>
-          {productTypeChoises(__).map(
+          {templateStatusChoises(__).map(
             ({ value, label }: { value: string; label: string }) => {
               return (
                 <li key={Math.random()}>

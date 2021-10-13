@@ -18,5 +18,5 @@ export interface IContext {
     IntegrationsAPI: any;
     HelpersApi: any;
   };
-  dataLoaders: IDataLoaders;
+  dataLoaders: IDataLoaders;  
 }

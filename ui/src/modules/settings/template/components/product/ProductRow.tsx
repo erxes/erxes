@@ -2,24 +2,24 @@ import { FormControl } from 'modules/common/components/form';
 import Tags from 'modules/common/components/Tags';
 import TextInfo from 'modules/common/components/TextInfo';
 import React from 'react';
-import { IProduct } from '../../types';
+import { IProductTemplate } from '../../types';
 
 type Props = {
-  product: IProduct;
+  productTemplate: IProductTemplate;
   history: any;
   isChecked: boolean;
-  toggleBulk: (product: IProduct, isChecked?: boolean) => void;
+  toggleBulk: (productTemplate: IProductTemplate, isChecked?: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
   render() {
-    const { product, history, toggleBulk, isChecked } = this.props;
+    const { productTemplate, history, toggleBulk, isChecked } = this.props;
 
-    const tags = product.getTags || [];
+    const tags = productTemplate.tags || [];
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(product, e.target.checked);
+        toggleBulk(productTemplate, e.target.checked);
       }
     };
 
@@ -28,7 +28,7 @@ class Row extends React.Component<Props> {
     };
 
     const onTrClick = () => {
-      history.push(`/settings/product-service/details/${product._id}`);
+      history.push(`/settings/product-service/details/${productTemplate._id}`);
     };
 
     return (
@@ -40,14 +40,14 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{product.code}</td>
-        <td>{product.name}</td>
+        <td>{productTemplate.discount}</td>
+        <td>{productTemplate.discount}</td>
         <td>
-          <TextInfo>{product.type}</TextInfo>
+          <TextInfo>{productTemplate.type}</TextInfo>
         </td>
-        <td>{product.category ? product.category.name : ''}</td>
-        <td>{(product.unitPrice || 0).toLocaleString()}</td>
-        <td>{product.sku}</td>
+        <td>{productTemplate.discount ? productTemplate.discount : ''}</td>
+        <td>{(productTemplate.discount || 0).toLocaleString()}</td>
+        <td>{productTemplate.discount}</td>
         <td>
           <Tags tags={tags} limit={2} />
         </td>

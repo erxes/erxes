@@ -252,6 +252,12 @@ export const PRODUCT_STATUSES = {
   ALL: ['active', 'deleted']
 };
 
+export const PRODUCT_TEMPLATE_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'archived']
+}
+
 export const PIPELINE_VISIBLITIES = {
   PUBLIC: 'public',
   PRIVATE: 'private',

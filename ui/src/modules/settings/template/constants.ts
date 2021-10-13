@@ -20,11 +20,56 @@ export const PRODUCT_INFO = {
   ]
 };
 
-export const PRODUCT_TYPE_CHOISES = {
-  product: 'Product',
-  service: 'Service'
+export const TEMPLATE_STATUS_CHOISES = {
+  active: 'Active',
+  archived: 'Archived'
 };
 
-export const TYPE_CHOICES = [
-  { field: 'productService', label: 'Product & Service' }
+export const TYPE_CHOICES = [  
+  { value: '', label: '' },
+  { value: 'productService', label: 'Product & Service' },
+  { value: 'email', label: 'Email' },
+  { value: 'chatResponse', label: 'Chat Response' },
+  { value: 'growthHacking', label: 'Growth Hacking' },
 ];
+
+const COMMON_VALUES = {
+  TEN: '10%',
+  TWENTY: '20%',
+  THIRTY: '30%',
+  FOURTY: '40%',
+  FIFTY: '50%',
+  SIXTY: '60%',
+  SEVENTY: '70%',
+  EIGHTY: '80%',
+  NINETY: '90%'
+};
+
+const COMMON_PERCENT = [
+  '10%',
+  '20%',
+  '30%',
+  '40%',
+  '50%',
+  '60%',
+  '70%',
+  '80%',
+  '90%'
+];
+
+export const PROBABILITY = {
+  ...COMMON_VALUES,
+  deal: {
+    WON: 'Won',
+    LOST: 'Lost',
+    ALL: [...COMMON_PERCENT, 'Won', 'Lost']
+  },
+  task: {
+    DONE: 'Done',
+    ALL: [...COMMON_PERCENT, 'Done']
+  },
+  ticket: {
+    RESOLVED: 'Resolved',
+    ALL: [...COMMON_PERCENT, 'Resolved']
+  }
+};

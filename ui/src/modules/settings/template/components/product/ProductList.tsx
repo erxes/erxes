@@ -12,28 +12,27 @@ import { __, Alert, confirm, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
 import React from 'react';
 // import { Link } from 'react-router-dom';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
-import { IProduct, IProductCategory } from '../../types';
-import ProductsMerge from './detail/ProductsMerge';
-import Row from './ProductRow';
+// import { IProductTemplate, IProductTemplateItem } from '../../types';
+// import Row from './ProductRow';
 
 interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
-  products: IProduct[];
   productsCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
   remove: (doc: { productIds: string[] }, emptyBulk: () => void) => void;
   toggleBulk: () => void;
-  toggleAll: (targets: IProduct[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
-  currentCategory: IProductCategory;
   mergeProducts: () => void;
   mergeProductLoading;
 }
@@ -53,24 +52,24 @@ class List extends React.Component<IProps, State> {
     };
   }
 
-  renderRow = () => {
-    const { products, history, toggleBulk, bulk } = this.props;
+  // renderRow = () => {
+  //   const { history, toggleBulk, bulk } = this.props;
 
-    return products.map(product => (
-      <Row
-        history={history}
-        key={product._id}
-        product={product}
-        toggleBulk={toggleBulk}
-        isChecked={bulk.includes(product)}
-      />
-    ));
-  };
+  //   return products.map(product => (
+  //     <Row
+  //       history={history}
+  //       key={product._id}
+  //       product={product}
+  //       toggleBulk={toggleBulk}
+  //       isChecked={bulk.includes(product)}
+  //     />
+  //   ));
+  // };
 
-  onChange = () => {
-    const { toggleAll, products } = this.props;
-    toggleAll(products, 'products');
-  };
+  // onChange = () => {
+  //   const { toggleAll, products } = this.props;
+  //   toggleAll(products, 'products');
+  // };
 
   removeProducts = products => {
     const productIds: string[] = [];
@@ -113,6 +112,8 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
+
+
   render() {
     const {
       productsCount,
@@ -122,9 +123,6 @@ class List extends React.Component<IProps, State> {
       history,
       bulk,
       emptyBulk,
-      currentCategory,
-      mergeProducts,
-      mergeProductLoading
     } = this.props;
 
     const breadcrumb = [
@@ -133,9 +131,21 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle="primary">
-        Add new template
-      </Button>
+      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
+        Products & Services
+      </div >
+    );
+
+    const trigger1 = (
+      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
+        Import items
+      </div >
+    );
+
+    const trigger2 = (
+      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
+        Placeholder item
+      </div >
     );
 
     const modalContent = props => <Form {...props} />;
@@ -144,28 +154,63 @@ class List extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__('Search')}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Button btnStyle="simple">
-          Manage
-        </Button>
-        <ModalTrigger
-          title="Add new template"
-          trigger={trigger}
-          autoOpenKey="showProductModal"
-          content={modalContent}
-          size="lg"
-        />
+
+        <Dropdown alignRight={true} style={{ borderRadius: '5px' }}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
+            <Button btnStyle="simple">
+              {__('Manage')}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <ModalTrigger
+              title="Add new template"
+              trigger={trigger1}
+              autoOpenKey="showProductModal"
+              content={modalContent}
+              size="lg"
+            />
+            <ModalTrigger
+              title="Add new template"
+              trigger={trigger2}
+              autoOpenKey="showProductModal"
+              content={modalContent}
+              size="lg"
+            />
+          </Dropdown.Menu>
+        </Dropdown>
+
+        <Dropdown alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
+            <Button btnStyle="primary">
+              {__('Add new template')}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <ModalTrigger
+              title="Add new template"
+              trigger={trigger}
+              autoOpenKey="showProductModal"
+              content={modalContent}
+              size="lg"
+            />
+          </Dropdown.Menu>
+        </Dropdown>
+
+
       </BarItems>
     );
 
     let content = (
       <>
-        {this.renderCount(currentCategory.productCount || productsCount)}
+        {this.renderCount(0)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -173,7 +218,7 @@ class List extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
-                  onChange={this.onChange}
+                // onChange={this.onChange}
                 />
               </th>
               <th>{__('Code')}</th>
@@ -185,31 +230,20 @@ class List extends React.Component<IProps, State> {
               <th>{__('Tags')}</th>
             </tr>
           </thead>
-          <tbody>{this.renderRow()}</tbody>
+          {/* <tbody>{this.renderRow()}</tbody> */}
         </Table>
       </>
     );
 
-    if (currentCategory.productCount === 0) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
-
-    const productsMerge = props => {
-      return (
-        <ProductsMerge
-          {...props}
-          objects={bulk}
-          save={mergeProducts}
-          mergeProductLoading={mergeProductLoading}
-        />
-      );
-    };
+    // if (0 === 0) {
+    content = (
+      <EmptyState
+        image="/images/actions/8.svg"
+        text="No Brands"
+        size="small"
+      />
+    );
+    // }
 
     if (bulk.length > 0) {
       const tagButton = (
@@ -227,15 +261,15 @@ class List extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
-      const mergeButton = (
-        <Button btnStyle="primary" size="small" icon="merge">
-          Merge
-        </Button>
-      );
+      // const mergeButton = (
+      //   <Button btnStyle="primary" size="small" icon="merge">
+      //     Merge
+      //   </Button>
+      // );
 
       actionBarRight = (
         <BarItems>
-          {bulk.length === 2 && (
+          {/* {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Product"
               size="lg"
@@ -243,7 +277,7 @@ class List extends React.Component<IProps, State> {
               trigger={mergeButton}
               content={productsMerge}
             />
-          )}
+          )} */}
           <TaggerPopover
             type="product"
             successCallback={emptyBulk}

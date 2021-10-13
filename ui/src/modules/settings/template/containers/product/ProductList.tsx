@@ -8,12 +8,9 @@ import { graphql } from 'react-apollo';
 import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
-  CategoryDetailQueryResponse,
-  MergeMutationResponse,
-  MergeMutationVariables,
-  ProductRemoveMutationResponse,
-  ProductsCountQueryResponse,
-  ProductsQueryResponse
+  ProductTemplatesRemoveMutationResponse,
+  ProductTemplateTotalCountQueryResponse,
+  ProductTemplatesQueryResponse
 } from '../../types';
 
 type Props = {
@@ -23,12 +20,10 @@ type Props = {
 };
 
 type FinalProps = {
-  productsQuery: ProductsQueryResponse;
-  productsCountQuery: ProductsCountQueryResponse;
-  productCategoryDetailQuery: CategoryDetailQueryResponse;
+  productTemplatesQuery: ProductTemplatesQueryResponse;
+  productTemplateTotalCountQuery: ProductTemplateTotalCountQueryResponse;
 } & Props &
-  ProductRemoveMutationResponse &
-  MergeMutationResponse;
+  ProductTemplatesRemoveMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -41,21 +36,18 @@ class ProductListContainer extends React.Component<FinalProps> {
 
   render() {
     const {
-      productsQuery,
-      productsCountQuery,
-      productsRemove,
-      productsMerge,
-      queryParams,
-      productCategoryDetailQuery,
-      history
+      productTemplatesQuery,
+      productTemplateTotalCountQuery,
+      productTemplatesRemove,
+      queryParams
     } = this.props;
 
-    const products = productsQuery.products || [];
+    const products = productTemplatesQuery.productTemplates || [];
 
     // remove action
-    const remove = ({ productIds }, emptyBulk) => {
-      productsRemove({
-        variables: { productIds }
+    const remove = ({ ids }, emptyBulk) => {
+      productTemplatesRemove({
+        variables: { ids }
       })
         .then(removeStatus => {
           emptyBulk();
@@ -71,29 +63,6 @@ class ProductListContainer extends React.Component<FinalProps> {
         });
     };
 
-    const mergeProducts = ({ ids, data, callback }) => {
-      this.setState({ mergeProductLoading: true });
-
-      productsMerge({
-        variables: {
-          productIds: ids,
-          productFields: data
-        }
-      })
-        .then((result: any) => {
-          callback();
-          this.setState({ mergeProductLoading: false });
-          Alert.success('You successfully merged a product');
-          history.push(
-            `/settings/product-service/details/${result.data.productsMerge._id}`
-          );
-        })
-        .catch(e => {
-          Alert.error(e.message);
-          this.setState({ mergeProductLoading: false });
-        });
-    };
-
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
@@ -101,11 +70,9 @@ class ProductListContainer extends React.Component<FinalProps> {
       queryParams,
       products,
       remove,
-      loading: productsQuery.loading,
+      loading: productTemplatesQuery.loading,
       searchValue,
-      productsCount: productsCountQuery.productsTotalCount || 0,
-      currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
-      mergeProducts
+      productsCount: productTemplateTotalCountQuery.productTemplateTotalCount || 0
     };
 
     const productList = props => {
@@ -113,7 +80,7 @@ class ProductListContainer extends React.Component<FinalProps> {
     };
 
     const refetch = () => {
-      this.props.productsQuery.refetch();
+      this.props.productTemplatesQuery.refetch();
     };
 
     return <Bulk content={productList} refetch={refetch} />;
@@ -122,11 +89,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    'products',
-    'productCategories',
-    'productCategoriesCount',
-    'productsTotalCount',
-    'productCountByTags'
+    'productTemplates'
   ];
 };
 
@@ -136,10 +99,10 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductsQueryResponse, { page: number; perPage: number }>(
-      gql(queries.products),
+    graphql<Props, ProductTemplatesQueryResponse, { page: number; perPage: number }>(
+      gql(queries.productTemplates),
       {
-        name: 'productsQuery',
+        name: 'productTemplatesQuery',
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
@@ -152,34 +115,17 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
-      name: 'productsCountQuery',
+    graphql<Props, ProductTemplateTotalCountQueryResponse>(gql(queries.productTemplateTotalCount), {
+      name: 'productTemplateTotalCountQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, ProductRemoveMutationResponse, { productIds: string[] }>(
-      gql(mutations.productsRemove),
+    graphql<Props, ProductTemplatesRemoveMutationResponse, { ids: string[] }>(
+      gql(mutations.productTemplatesRemove),
       {
-        name: 'productsRemove',
+        name: 'productTemplatesRemove',
         options
-      }
-    ),
-    graphql<Props, CategoryDetailQueryResponse>(
-      gql(queries.productCategoryDetail),
-      {
-        name: 'productCategoryDetailQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            _id: queryParams.categoryId
-          }
-        })
-      }
-    ),
-    graphql<Props, MergeMutationResponse, MergeMutationVariables>(
-      gql(mutations.productsMerge),
-      {
-        name: 'productsMerge'
       }
     )
   )(ProductListContainer)

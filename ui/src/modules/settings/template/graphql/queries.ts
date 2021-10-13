@@ -1,59 +1,56 @@
 import { queries as productQueries } from 'erxes-ui/lib/products/graphql';
 
-const productFields = productQueries.productFields;
+const productTemplateFields = `
+    _id    
+    title
+    discount
+    totalAmount
+    description
+    templateItems 
+    status
+    tags {
+      _id
+      name
+      colorCode
+    }    
+`
 
-const productCategories = productQueries.productCategories;
-
-const products = productQueries.products;
-
-const productsCount = `
-  query productsTotalCount($type: String) {
-    productsTotalCount(type: $type)
-  }
+const productTemplates = `
+    query productTemplates {
+      productTemplates {
+        ${productTemplateFields}
+      }
+    }
 `;
 
-const productCountByTags = `
-  query productCountByTags {
-    productCountByTags
-  }
-`;
-
-const productCategoriesCount = `
+const productTemplateTotalCount = `
   query productCategoriesTotalCount {
     productCategoriesTotalCount
   }
 `;
 
-const productDetail = `
-  query productDetail($_id: String) {
-    productDetail(_id: $_id) {
-      ${productFields}
-      customFieldsData
-      vendor {
-        _id
-        code
-        primaryName
-      }
+const productTemplateDetail = `
+  query productTemplateDetail($_id: String) { 
+    productTemplateDetail(_id: $_id) {
+      ${productTemplateFields}      
     }
   }
 `;
 
-const productCategoryDetail = `
-  query productCategoryDetail($_id: String) {
-    productCategoryDetail(_id: $_id) {
-      _id
-      name
-      productCount
-    }
+const productTemplateCountByTags = `
+  query productCountByTags {
+    productCountByTags
   }
 `;
+
+const productCategories = productQueries.productCategories;
+const products = productQueries.products;
 
 export default {
-  products,
-  productDetail,
-  productCountByTags,
-  productsCount,
+  productTemplates,
+  productTemplateTotalCount,
+  productTemplateDetail,
+  productTemplateCountByTags,
   productCategories,
-  productCategoriesCount,
-  productCategoryDetail
+  products
 };

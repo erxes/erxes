@@ -1,33 +1,31 @@
 import gql from 'graphql-tag';
 import { TaggerSection } from 'modules/customers/components/common';
 import Sidebar from 'modules/layout/components/Sidebar';
-import BasicInfo from 'modules/settings/productService/containers/product/detail/BasicInfo';
-import CustomFieldsSection from 'modules/settings/productService/containers/product/detail/CustomFieldsSection';
-import { IProduct } from 'modules/settings/productService/types';
+import BasicInfo from 'modules/settings/template/containers/product/detail/BasicInfo';
+import { IProductTemplate } from '../../../types';
 import React from 'react';
 import { queries } from '../../../graphql';
 
 type Props = {
-  product: IProduct;
+  productTemplate: IProductTemplate;
 };
 
 class LeftSidebar extends React.Component<Props> {
   render() {
-    const { product } = this.props;
+    const { productTemplate } = this.props;
 
     const refetchQueries = [
       {
-        query: gql(queries.productDetail),
-        variables: { _id: product._id }
+        query: gql(queries.productTemplateDetail),
+        variables: { _id: productTemplate._id }
       }
     ];
 
     return (
       <Sidebar wide={true}>
-        <BasicInfo product={product} />
-        <CustomFieldsSection product={product} />
+        <BasicInfo productTemplate={productTemplate} />
         <TaggerSection
-          data={product}
+          data={productTemplate}
           type="product"
           refetchQueries={refetchQueries}
         />

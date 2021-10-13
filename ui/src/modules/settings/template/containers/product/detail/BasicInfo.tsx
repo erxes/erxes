@@ -1,34 +1,33 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
-import BasicInfo from 'modules/settings/productService/components/product/detail/BasicInfo';
+import BasicInfo from 'modules/settings/template/components/product/detail/BasicInfo';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '../../../../../auth/types';
 import { IRouterProps } from '../../../../../common/types';
 
-import { IProduct } from 'modules/settings/productService/types';
 import { mutations } from '../../../graphql';
-import { ProductRemoveMutationResponse } from '../../../types';
+import { ProductTemplatesRemoveMutationResponse, IProductTemplate } from '../../../types';
 
 type Props = {
-  product: IProduct;
+  productTemplate: IProductTemplate;
 };
 
 type FinalProps = { currentUser: IUser } & Props &
   IRouterProps &
-  ProductRemoveMutationResponse;
+  ProductTemplatesRemoveMutationResponse;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { product, productsRemove, history } = props;
+  const { productTemplate, productTemplatesRemove, history } = props;
 
-  const { _id } = product;
+  const { _id } = productTemplate;
 
   const remove = () => {
-    productsRemove({ variables: { productIds: [_id] } })
+    productTemplatesRemove({ variables: { ids: [_id] } })
       .then(() => {
-        Alert.success('You successfully deleted a product');
+        Alert.success('You successfully deleted a product template');
         history.push('/settings/product-service');
       })
       .catch(e => {
@@ -45,15 +44,15 @@ const BasicInfoContainer = (props: FinalProps) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['products', 'productCategories', 'productsTotalCount']
+  refetchQueries: ['productTemplates']
 });
 
 export default withProps<Props>(
   compose(
-    graphql<{}, ProductRemoveMutationResponse, { productIds: string[] }>(
-      gql(mutations.productsRemove),
+    graphql<{}, ProductTemplatesRemoveMutationResponse, { ids: string[] }>(
+      gql(mutations.productTemplatesRemove),
       {
-        name: 'productsRemove',
+        name: 'productTemplatesRemove',
         options: generateOptions
       }
     )

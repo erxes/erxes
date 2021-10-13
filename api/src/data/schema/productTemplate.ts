@@ -1,26 +1,18 @@
 export const types = `
-  type ProductTemplateItem {
-    categoryId: Category
-    item: Product
-    unitPrice: String
-    quantity: String
-    discount: String
-  }
-
   type ProductTemplate {
     _id: String!
     type: String
     title: String
-    discount: String
-    totalAmount: String
+    discount: Int
+    totalAmount: Int
     description: String
-    templateItems: [ProductTemplateItem]
+    templateItems: JSON
     status: String
     tags: [Tag]
     updatedAt: Date
-    updatedBy: User
+    updatedBy: String
     createdAt: Date
-    createdBy: User
+    createdBy: String
     textValue: String
   }
 `;
@@ -28,10 +20,10 @@ export const types = `
 const templateParams = `
   type: String
   title: String
-  discount: String
-  totalAmount: String
+  discount: Int
+  totalAmount: Int
   description: String
-  templateItems: [String]
+  templateItems: JSON
   status: String
 `;
 

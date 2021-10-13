@@ -16,15 +16,15 @@ import {
   SidebarFlexRow,
   SidebarList
 } from 'modules/layout/styles';
-import ProductForm from 'modules/settings/productService/containers/product/ProductForm';
-import { IProduct } from 'modules/settings/productService/types';
+import ProductForm from 'modules/settings/template/containers/product/ProductForm';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import xss from 'xss';
+import { IProductTemplate } from '../../../types';
 
 type Props = {
-  product: IProduct;
+  productTemplate: IProductTemplate;
   remove: () => void;
 };
 
@@ -99,14 +99,14 @@ class BasicInfo extends React.Component<Props> {
   };
 
   renderInfo() {
-    const { product } = this.props;
+    const { productTemplate } = this.props;
 
-    const content = props => <ProductForm {...props} product={product} />;
+    const content = props => <ProductForm {...props} productTemplate={productTemplate} />;
 
     return (
       <Sidebar.Section>
         <InfoWrapper>
-          <Name>{product.name}</Name>
+          <Name>{productTemplate.title}</Name>
           <ModalTrigger
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
@@ -117,26 +117,24 @@ class BasicInfo extends React.Component<Props> {
 
         {this.renderAction()}
 
-        {this.renderImage(product.attachment)}
-
         <SidebarList className="no-link">
-          {this.renderRow('Code', product.code)}
-          {this.renderRow('Type', product.type)}
+          {this.renderRow('Code', productTemplate.title)}
+          {this.renderRow('Type', productTemplate.type)}
           {this.renderRow(
             'Category',
-            product.category ? product.category.name : ''
+            productTemplate.title ? productTemplate.title : ''
           )}
           {this.renderRow(
             'Unit price',
-            (product.unitPrice || 0).toLocaleString()
+            (productTemplate.title || 0).toLocaleString()
           )}
-          {this.renderRow('Sku', product.sku)}
-          {this.renderVendor(product.vendor)}
+          {this.renderRow('Sku', productTemplate.title)}
+          {this.renderVendor(productTemplate.title)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <Content
           dangerouslySetInnerHTML={{
-            __html: xss(product.description)
+            __html: xss(productTemplate.description)
           }}
         />
       </Sidebar.Section>

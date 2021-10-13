@@ -1,41 +1,54 @@
-import {
-  IProduct as IProductC,
-  IProductCategory as IProductCategoryC,
-  IProductDoc as IProductDocC
-} from 'erxes-ui/lib/products/types';
-import { QueryResponse } from 'modules/common/types';
+import { ITag } from 'modules/tags/types';
+import { IProductCategory } from '../productService/types';
+export interface IProductTemplateItem {
+  _id: string;
+  categoryId: string;
+  itemId: string;
+  unitPrice: number;
+  quantity: number;
+  discount: number;
+}
 
-export type IProductDoc = IProductDocC & {};
-
-export type IProduct = IProductC & {};
-
-export type IProductCategory = IProductCategoryC & {};
+export interface IProductTemplate {
+  _id: string;
+  type: string;
+  title: string;
+  discount: number;
+  totalAmount: number;
+  description: string;
+  templateItems: IProductTemplateItem[];
+  status: string;
+  tags: ITag[];    
+}
 
 // query types
 
-export type ProductsQueryResponse = {
-  products: IProduct[];
-} & QueryResponse;
+export type ProductTemplatesQueryResponse = {
+  productTemplates: IProductTemplate[];
+  loading: boolean;
+  refetch: () => void;
+}
 
-export type ProductsCountQueryResponse = {
-  productsTotalCount: number;
-} & QueryResponse;
+export type ProductTemplateTotalCountQueryResponse = {
+  productTemplateTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+}
 
-export type ProductCategoriesQueryResponse = {
-  productCategories: IProductCategory[];
-} & QueryResponse;
-
-export type ProductCategoriesCountQueryResponse = {
-  productCategoriesTotalCount: number;
-} & QueryResponse;
+export type ProductTemplateDetailQueryResponse = {
+  productTemplateDetail: IProductTemplate;
+  loading: boolean;
+}
 
 export type MutationVariables = {
   _id?: string;
   type: string;
-  name?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
+  title: string;
+  discount: string;
+  totalAmount: number;
+  description: string;
+  templateItems: IProductTemplateItem[];
+  status: string;
 };
 
 // mutation types
@@ -48,40 +61,18 @@ export type EditMutationResponse = {
   editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type ProductRemoveMutationResponse = {
-  productsRemove: (mutation: {
-    variables: { productIds: string[] };
+export type ProductTemplatesRemoveMutationResponse = {
+  productTemplatesRemove: (mutation: {
+    variables: { ids: string[] };
   }) => Promise<any>;
 };
 
-export type ProductCategoryRemoveMutationResponse = {
-  productCategoryRemove: (mutation: {
-    variables: { _id: string };
-  }) => Promise<any>;
-};
-
-export type DetailQueryResponse = {
-  productDetail: IProduct;
-  loading: boolean;
-};
-
-export type CategoryDetailQueryResponse = {
-  productCategoryDetail: IProductCategory;
-  loading: boolean;
-};
+export type ProductCategoriesQueryResponse = {
+  productCategories: IProductCategory[];
+  loading: boolean;  
+}
 
 export type CountByTagsQueryResponse = {
   productCountByTags: { [key: string]: number };
   loading: boolean;
-};
-
-export type MergeMutationVariables = {
-  productIds: string[];
-  productFields: IProduct;
-};
-
-export type MergeMutationResponse = {
-  productsMerge: (params: {
-    variables: MergeMutationVariables;
-  }) => Promise<any>;
 };

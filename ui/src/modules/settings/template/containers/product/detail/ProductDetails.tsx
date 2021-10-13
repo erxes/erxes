@@ -4,7 +4,7 @@ import { IUser } from 'modules/auth/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import { DetailQueryResponse } from 'modules/settings/productService/types';
+import { ProductTemplateDetailQueryResponse } from '../../../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ProductDetails from '../../../components/product/detail/ProductDetails';
@@ -15,29 +15,29 @@ type Props = {
 };
 
 type FinalProps = {
-  productDetailQuery: DetailQueryResponse;
+  productTemplateDetailQuery: ProductTemplateDetailQueryResponse;
   currentUser: IUser;
 } & Props;
 
 const ProductDetailsContainer = (props: FinalProps) => {
-  const { productDetailQuery, currentUser } = props;
+  const { productTemplateDetailQuery, currentUser } = props;
 
-  if (productDetailQuery.loading) {
+  if (productTemplateDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  if (!productDetailQuery.productDetail) {
+  if (!productTemplateDetailQuery.productTemplateDetail) {
     return (
       <EmptyState text="Product not found" image="/images/actions/24.svg" />
     );
   }
 
-  const productDetail = productDetailQuery.productDetail || {};
+  const productDetail = productTemplateDetailQuery.productTemplateDetail || {};
 
   const updatedProps = {
     ...props,
-    loading: productDetailQuery.loading,
-    product: productDetail,
+    loading: productTemplateDetailQuery.loading,
+    productTemplate: productDetail,
     currentUser
   };
 
@@ -46,10 +46,10 @@ const ProductDetailsContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, DetailQueryResponse, { _id: string }>(
-      gql(queries.productDetail),
+    graphql<Props, ProductTemplateDetailQueryResponse, { _id: string }>(
+      gql(queries.productTemplateDetail),
       {
-        name: 'productDetailQuery',
+        name: 'productTemplateDetailQuery',
         options: ({ id }) => ({
           variables: {
             _id: id

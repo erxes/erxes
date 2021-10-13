@@ -25,4 +25,47 @@ const InfoDetail = styled.p`
   word-break: break-all;
 `;
 
-export { InfoTitle, InfoDetail, Info };
+const LinkButton = styled.a`
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const StageList = styled.div`
+  background: ${colors.colorWhite};
+  padding: 20px;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px ${colors.shadowPrimary};
+
+  ${LinkButton} {
+    margin: 20px 0 0 30px;
+    display: block;
+  }
+`;
+
+const StageItemContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  background-color: ${colors.colorWhite};
+  padding: 0;
+  align-items: center;
+
+  > *:not(button) {
+    margin-right: 10px;
+  }
+
+  button {
+    padding: 3px;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  button:hover {
+    color: ${colors.colorCoreRed};
+  }
+`;
+
+export { InfoTitle, InfoDetail, Info, StageList, StageItemContainer };

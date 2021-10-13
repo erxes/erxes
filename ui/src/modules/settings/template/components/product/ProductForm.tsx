@@ -15,70 +15,100 @@ import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
 // import { TYPES } from 'erxes-ui/lib/products/constants';
 // import CategoryForm from 'erxes-ui/lib/products/containers/CategoryForm';
 // import { Row } from 'erxes-ui/lib/products/styles';
-import { IProduct, IProductCategory } from '../../types';
+import { IProductTemplate, IProductTemplateItem } from '../../types';
+import { FlexContent } from 'modules/boards/styles/item';
+import { ExpandWrapper } from 'modules/settings/styles';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper
 } from 'erxes-ui';
 import { TYPE_CHOICES } from '../../constants';
 
+import Stages from './Stages';
+import { IProductCategory } from 'modules/settings/productService/types';
+
 type Props = {
-  product?: IProduct;
-  productCategories: IProductCategory[];
+  productTemplate?: IProductTemplate;
+  productCategories?: IProductCategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  type?: string;
 };
 
-class Form extends React.Component<Props> {
-  // renderFormTrigger(trigger: React.ReactNode) {
-  //   const content = props => (
-  //     <CategoryForm {...props} categories={this.props.productCategories} />
-  //   );
+type State = {
+  items: IProductTemplateItem[];
+  discount: number;
+  totalAmount: number;
+}
+class Form extends React.Component<Props, State> {
 
-  //   return (
-  //     <ModalTrigger title="Add category" trigger={trigger} content={content} />
-  //   );
-  // }
+  constructor(props: Props) {
+    super(props);
+
+    const productTemplate = props.productTemplate || {} as IProductTemplate;
+    const { discount, totalAmount, templateItems } = productTemplate;
+
+    this.state = {
+      items: templateItems ? templateItems : [],
+      discount: discount ? discount : 0,
+      totalAmount: totalAmount ? totalAmount : 0
+    };
+  }
+
+  onChangeItems = items => {
+    this.setState({ items });
+
+    console.log("items");
+    console.log(items);
+
+    let discount = 0 as number;
+    let itemsAmount = 0 as number;
+
+    items.forEach(item => {
+      discount += Number(item.discount);
+      itemsAmount += (Number(item.unitPrice) * Number(item.quantity));
+    });
+
+    const totalAmount = itemsAmount * ((100 - discount) / 100);
+
+    console.log("itemsAmount:" + itemsAmount, "totalAmount:" + totalAmount, "discount:" + discount);
+
+    this.setState({ discount, totalAmount });
+
+  };
+
+  onDiscount = (e) => {
+    const discount = e.target.value as number;
+    // const { items } = this.state;
+    // const itemsCount = items.length;
+
+    // const eachDiscount = Number(discount / itemsCount).toString().split(".")[0];
+    // const leftDiscount = discount - (itemsCount * Number(eachDiscount));
+
+    // items.forEach(item => {
+    //   item.discount = Number(eachDiscount);
+    // });
+    // items[0].discount += leftDiscount;
+
+    this.setState({ discount });
+
+    // console.log("items on discount");
+    // console.log(this.state.items);
+  }
 
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, product } = this.props;
+    const { renderButton, closeModal, productTemplate } = this.props;
     const { values, isSubmitted } = formProps;
-    const object = product || ({} as IProduct);
+    const object = productTemplate || ({} as IProductTemplate);
 
-    // const types = TYPE_CHOICES.ALL;
+    values.templateItems = this.state.items;
 
-    if (product) {
-      values._id = product._id;
-      values.attachment = product.attachment
-        ? { ...product.attachment, __typename: undefined }
-        : null;
-      values.description = product.description;
-      values.vendorId = product.vendorId;
+    if (productTemplate) {
+      values._id = productTemplate._id;
     }
 
-    // const trigger = (
-    //   <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-    //     Add category
-    //   </Button>
-    // );
-
-    // const onChangeAttachment = (files: IAttachment[]) => {
-    //   values.attachment = files.length ? files[0] : null;
-    //   object.attachment = values.attachment;
-    // };
-
-    // const onChangeDescription = e => {
-    //   values.description = e.editor.getData();
-    //   object.description = values.description;
-    // };
-
-    // const onSelectCompany = vendorId => {
-    //   object.vendorId = vendorId;
-    //   values.vendorId = vendorId;
-    // };
-
-    // const attachments =
-    //   (object.attachment && extractAttachment([object.attachment])) || [];
+    const { productCategories } = this.props;
+    const { discount, totalAmount } = this.state;
 
     return (
       <>
@@ -95,42 +125,51 @@ class Form extends React.Component<Props> {
           </FormControl>
         </FormGroup>
 
-        <FormWrapper>
-          <FormColumn >
+        <FlexContent>
+          <ExpandWrapper>
             <FormGroup>
               <ControlLabel required={true}>Title</ControlLabel>
               <FormControl
                 {...formProps}
                 name="title"
+                defaultValue={object.title}
                 autoFocus={true}
                 required={true}
               />
             </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Discount</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="discountMain"
-                type="number"
-                min={1}
-                max={100}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Total amount</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="amount"
-                type="number"
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
+          </ExpandWrapper>
 
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Discount</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="discount"
+                  type="number"
+                  value={discount}
+                  defaultValue={object.discount}
+                  onChange={this.onDiscount}
+                  min={1}
+                  max={100}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Total amount</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="totalAmount"
+                  type="number"
+                  defaultValue={object.totalAmount}
+                  value={totalAmount}
+                  disabled={true}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+        </FlexContent>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
@@ -140,81 +179,18 @@ class Form extends React.Component<Props> {
             defaultValue={object.description}
             componentClass="textarea"
             rows={3}
-            required={true}
           />
         </FormGroup>
-
-        <FormWrapper>
-          <FormColumn >
-            <FormGroup>
-              <ControlLabel required={true}>Category</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="category"
-                required={true}
-                componentClass="select"
-                options={TYPE_CHOICES}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>Item</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="item"
-                required={true}
-                componentClass="select"
-                options={TYPE_CHOICES}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Unit price</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="unitPrice"
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>Quantity</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="quantity"
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>Discount</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="discount"
-              />
-            </FormGroup>
-          </FormColumn>
-
-          <FormColumn>
-            <Button
-              btnStyle="simple"
-              uppercase={false}
-            >
-              X
-            </Button>
-          </FormColumn>
-
-        </FormWrapper>
-
-        <Button
-          btnStyle="primary"
-          uppercase={false}
-          icon="plus"
-        >
-          Add more
-        </Button>
+        <FormGroup>
+          <div id="stages-in-pipeline-form">
+            <Stages
+              type="productTemplate"
+              items={this.state.items}
+              productCategories={productCategories}
+              onChangeItems={this.onChangeItems}
+            />
+          </div>
+        </FormGroup>
 
         <ModalFooter>
           <Button
@@ -230,7 +206,7 @@ class Form extends React.Component<Props> {
             values,
             isSubmitted,
             callback: closeModal,
-            object: product
+            object: productTemplate
           })}
         </ModalFooter>
       </>

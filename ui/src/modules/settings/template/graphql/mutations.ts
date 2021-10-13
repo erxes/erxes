@@ -1,38 +1,47 @@
-import { mutations as productMutations } from 'erxes-ui/lib/products/graphql';
-
-const productAdd = productMutations.productAdd;
-
-const productEdit = productMutations.productEdit;
-
-const productsRemove = `
-  mutation productsRemove($productIds: [String!]) {
-    productsRemove(productIds: $productIds)
-  }
+const productTemplateParamsDef = `
+  $type: String
+  $title: String
+  $discount: Int
+  $totalAmount: Int
+  $description: String
+  $templateItems: JSON
+  $status: String
 `;
 
-const productCategoryAdd = productMutations.productCategoryAdd;
-const productCategoryEdit = productMutations.productCategoryEdit;
-
-const productCategoryRemove = `
-  mutation productCategoriesRemove($_id: String!) {
-    productCategoriesRemove(_id: $_id)
-  }
+const productTemplateParams = `
+  type: $type
+  title: $title
+  discount: $discount
+  totalAmount: $totalAmount
+  description: $description
+  templateItems: $templateItems
+  status: $status
 `;
 
-const productsMerge = `
-  mutation productsMerge($productIds: [String], $productFields: JSON) {
-    productsMerge(productIds: $productIds, productFields: $productFields) {
+const productTemplatesAdd = `
+  mutation productTemplatesAdd(${productTemplateParamsDef}) {
+    productTemplatesAdd(${productTemplateParams}) {
       _id
     }
   }
 `;
 
+const productTemplatesEdit = `
+  mutation productTemplatesEdit($_id: String!, ${productTemplateParamsDef}) {
+    productTemplatesEdit(_id: $_id, ${productTemplateParams}) {
+      _id
+    }
+  }
+`;
+
+const productTemplatesRemove = `
+  mutation productTemplatesRemove($ids: [String!]) {
+    productTemplatesRemove(ids: $ids)
+  }
+`;
+
 export default {
-  productAdd,
-  productEdit,
-  productsRemove,
-  productCategoryAdd,
-  productCategoryEdit,
-  productCategoryRemove,
-  productsMerge
+  productTemplatesAdd,
+  productTemplatesEdit,
+  productTemplatesRemove
 };

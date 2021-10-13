@@ -3,20 +3,20 @@ import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { IProduct } from 'modules/settings/productService/types';
+import { IProductTemplate } from '../../../types';
 import React from 'react';
 import LeftSidebar from './LeftSidebar';
 
 type Props = {
-  product: IProduct;
+  productTemplate: IProductTemplate;
   currentUser: IUser;
 };
 
 class CompanyDetails extends React.Component<Props> {
   render() {
-    const { product } = this.props;
+    const { productTemplate } = this.props;
 
-    const title = product.name || 'Unknown';
+    const title = productTemplate.title || 'Unknown';
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -27,14 +27,14 @@ class CompanyDetails extends React.Component<Props> {
     const content = (
       <>
         <ActivityInputs
-          contentTypeId={product._id}
-          contentType="product"
+          contentTypeId={productTemplate._id}
+          contentType="productTemplate"
           showEmail={false}
         />
         <ActivityLogs
-          target={product.name || ''}
-          contentId={product._id}
-          contentType="product"
+          target={productTemplate.title || ''}
+          contentId={productTemplate._id}
+          contentType="productTemplate"
           extraTabs={[]}
         />
       </>

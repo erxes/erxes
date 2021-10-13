@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
-
 import ButtonMutate from 'erxes-ui/lib/components/ButtonMutate';
 import { IButtonMutateProps } from 'erxes-ui/lib/types';
-import { withProps } from 'erxes-ui/lib/utils';
 import From from '../../components/product/ProductForm';
-import { mutations, queries } from 'erxes-ui/lib/products/graphql';
-import { IProduct, ProductCategoriesQueryResponse } from 'erxes-ui/lib/products/types';
+import { mutations } from '../../graphql';
+import { IProductTemplate } from '../../types';
+import * as compose from 'lodash.flowright';
+import { withProps } from 'erxes-ui/lib/utils/core';
+import { graphql } from '@apollo/react-hoc';
+import gql from 'graphql-tag';
+import { ProductCategoriesQueryResponse } from '../../types'
+import { queries } from '../../graphql'
+
 
 type Props = {
-  product?: IProduct;
+  productTemplate?: IProductTemplate;
   closeModal: () => void;
 };
 
@@ -27,6 +29,8 @@ class ProductFormContainer extends React.Component<FinalProps> {
       return null;
     }
 
+    const productCategories = productCategoriesQuery.productCategories || [];
+
     const renderButton = ({
       name,
       values,
@@ -34,11 +38,13 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
-      values.unitPrice = Number(values.unitPrice);
+
+      values.discount = Number(values.discount);
+      values.totalAmount = Number(values.totalAmount);
 
       return (
         <ButtonMutate
-          mutation={object ? mutations.productEdit : mutations.productAdd}
+          mutation={object ? mutations.productTemplatesEdit : mutations.productTemplatesAdd}
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
@@ -52,12 +58,10 @@ class ProductFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const productCategories = productCategoriesQuery.productCategories || [];
-
     const updatedProps = {
       ...this.props,
-      renderButton,
-      productCategories
+      productCategories,
+      renderButton
     };
 
     return <From {...updatedProps} />;
@@ -65,7 +69,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productDetail', 'products', 'productsTotalCount', 'productCategories'];
+  return ['productCategories'];
 };
 
 export default withProps<Props>(

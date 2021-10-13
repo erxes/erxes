@@ -152,6 +152,11 @@ import {
   types as ProductTypes
 } from './product';
 import {
+  mutations as ProductTemplateMutations,
+  queries as ProductTemplateQueries,
+  types as ProductTemplateTypes
+} from './productTemplate';
+import {
   mutations as ResponseTemplateMutations,
   queries as ResponseTemplateQueries,
   types as ResponseTemplate
@@ -241,6 +246,7 @@ export let types = `
   ${DealTypes}
   ${DashboardTypes}
   ${ProductTypes}
+  ${ProductTemplateTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
@@ -287,6 +293,7 @@ export let queries = `
   ${DealQueries}
   ${DashboardQueries}
   ${ProductQueries}
+  ${ProductTemplateQueries}
   ${ConfigQueries}
   ${FieldGroupQueries}
   ${ImportHistoryQueries}
@@ -330,6 +337,7 @@ export let mutations = `
   ${DealMutations}
   ${DashboardMutations}
   ${ProductMutations}
+  ${ProductTemplateMutations}
   ${ConfigMutations}
   ${FieldGroupMutations}
   ${ImportHistoryMutations}
