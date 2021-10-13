@@ -24,18 +24,17 @@ function Booking({ goToIntro, booking }: Props) {
   } = booking;
   const { attachment } = mainProductCategory;
   const { widgetColor } = styles;
-
+console.log(childCategories)
   return (
     <>
-        <>
-        <Body page="block" title={title} description={description} image={attachment} />
-        <div className="flex-center">
+        <Body page="block" title={title} description={description} image={attachment} >
+        <div className={`flex-sa`}>
         {childCategories.map((block, index) => {
           return <Block key={index} block={block} widgetColor={widgetColor} />;
         })}
+  
         </div>
-        </>
-        
+        </Body>
         <div className="flex-sb">
         <Button
           text="Back"

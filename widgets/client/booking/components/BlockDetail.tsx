@@ -19,7 +19,7 @@ function BlockDetail({ goToBookings, block, booking }: Props) {
   return (
     <>
     <Body page="block" title={block.name} description={block.description}  image={block.attachment} />
-      <div className="flex-sb w-100">
+      <div className="flex-sb">
         <Button
           text="Back"
           onClickHandler={goToBookings}

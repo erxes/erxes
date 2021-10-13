@@ -43,14 +43,101 @@
   animation-iteration-count: $count;
   animation-timing-function: $timing;
 }
-@mixin arrow-down($color) {
+@mixin li-down($color) {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 5px solid $color;
 }
 
-@mixin arrow-right($color) {
+@mixin li-right($color) {
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent; 
   border-left:5px solid $color; 
+}
+
+@mixin rotate($angle) {
+  -moz-transform: rotate($angle);
+  -ms-transform: rotate($angle);
+  -webkit-transform: rotate($angle);
+  transform: rotate($angle);
+}
+
+@mixin arrow($arrowSize: 20px, $arrowBorderSize: 3px, $arrowBarWidth: 2px, $arrowBarHeight: 25px) {
+  display: inline-block;
+  height: $arrowSize;
+  position: relative;
+  width: $arrowSize;
+
+  &::after {
+    border-bottom-style: solid;
+    border-bottom-width: $arrowBorderSize;
+    border-right-style: solid;
+    border-right-width: $arrowBorderSize;
+    content: '';
+    display: inline-block;
+    height: $arrowSize;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: $arrowSize;
+  }
+
+  // Triangle shape state
+  &.is-triangle::after {
+    border-style: solid;
+    border-width: 0 0 $arrowSize $arrowSize;
+    height: 0;
+    width: 0;
+  }
+  
+  // Check shape state
+  &.is-check::after {
+    width: $arrowSize / 2;
+  }
+
+  // Arrow Bar
+  &.arrow-bar::before {
+    bottom: 1px;
+    content: '';
+    height: $arrowBarHeight;
+    position: absolute;
+    right: 0;
+    transform-origin: bottom;
+    width: $arrowBarWidth;
+    @include rotate(-45deg);
+  }
+
+  // States
+  &.is-top {
+    @include rotate(225deg);
+  }
+
+  &.is-right {
+    @include rotate(315deg);
+  }
+
+  &.is-bottom {
+    @include rotate(45deg);
+  }
+
+  &.is-left {
+    @include rotate(135deg);
+  }
+}
+@mixin arrowColor($color) {
+  &,
+  .arrow {
+    &::after {
+      border-color: $color;
+    }
+
+    &.is-triangle::after {
+      border-color: transparent;
+      border-bottom-color: $color;
+    }
+
+    &::before {
+      background-color: $color;
+    }
+  }
 }

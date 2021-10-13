@@ -12,12 +12,16 @@
 .flex-sb {
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
 }
-.img{
+.flex-sa {
   width: 100%;
-  height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
 }
 .w-100 {
   width: 100%;
@@ -57,13 +61,15 @@
 .mb-10 {
   margin-bottom: 10px !important;
 }
+.fixed{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
 .grid-21{
   display: grid;
   grid-template-columns: minmax(0, 60%) minmax(0, 40%);
   grid-gap: 1rem;
-  img{
-    max-width: 100%;
-  }
 }
 
 .grid-12{

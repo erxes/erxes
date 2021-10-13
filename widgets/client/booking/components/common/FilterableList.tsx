@@ -96,7 +96,7 @@ class FilterableList extends React.Component<Props, State> {
         onClick={this.onToggle.bind(this, item._id, isOpen)}
       >
         <div
-          className={`arrow ${isOpen ? 'arrow-down' : 'arrow-right'}-${stock}`}
+          className={`li ${isOpen ? 'li-down' : 'li-right'}-${stock}`}
           style={
             isOpen
               ? { borderTop: `5px solid ${stock}` }

@@ -13,17 +13,45 @@ $color-12: #F7CE53;
 
 $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8, $color-9, $color-10, $color-11, $color-12;
 
+h4,p{
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: center;
+    h4 {
+      font-size: 2em;
+      font-weight: 500;
+    }
+    p {
+      font-size: 1em;
+    }
+}
+
+img {
+	display: block;
+	border: 0;
+	width: 100%;
+	height: auto;
+}
+
+.slider{
+  .active{
+    height: min-content;
+    img{
+      object-fit: cover;
+    }
+  }
+}
 .slick-slide{
   margin: 10px;
-  img{
-    width: 100%;
-    max-height: 100%;
-   }
 }
 .slick-list{
   max-width: 100%;
 }
-.arrow {
+.li {
   width: 0;
   height: 0;
 }
@@ -31,51 +59,65 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
 .layout {
   max-width: 100%;
   min-height: 100%;
-  display: grid;
-  grid-template-rows:  minmax(0, 50px) auto;
   color: #333333 ;
+  font-size: calc(0.25em + 1vmin);
+  margin: 0; 
+  display:flex; 
+  flex-direction:column; 
 }
+
+// @media only screen and (max-width: 320px){
+//   .layout{
+//     font-size: 10px;
+//   }
+// }
+// @media only screen and (max-width: 320px){
+//   .layout{
+//     font-size: 10px;
+//   }
+// }
 .header{
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0,3fr) minmax(0, 1fr);
+  font-size: 1.5em;
+  .nav{
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    p{
+      margin-right: 5px;
+      margin-left: 5px;
+    }
+  }
 }
-.container{
+.product{
   max-height: 100%;
   max-width: 100%;
   display: grid;
-  row-gap: 10px;
-  grid-template-rows:   minmax(0, 10%)  minmax(0, 10%) auto  minmax(0, 10%);
-
-  img{
-      width: 100%;
-      height: auto;
-    }
-  :nth-child(1){
-    font-size: 14px;
-    font-weight: bolder;
-  }
-  :nth-child(2){
-    font-size: 12px;
-  }
+  grid-template-rows:  minmax(0, 10%)  minmax(0, 10%) 1fr  minmax(0, 10%)
 }
-
+.container{
+  min-height: 80%;
+  font-size: 1.5em;
+  margin-top:auto; 
+  .body{
+    max-height: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+  
+}
 .block {
   border: 1px solid $mid-grey;
   border-radius: 10px;
-  margin: 10px;
-  width: 200px;
-  text-align: center;
-  padding: 10px;
-
-  h4 {
-    font-size: 14px;
-    margin-bottom: 0;
-  }
-
-  p {
-    font-size: 12px;
-  }
-
+  flex: 0 1 calc(25% - 1em);
+  min-width: 10em;
+  min-height: 3em;
+  padding: 1em;
   &:hover,
   &:active {
     cursor: pointer;
@@ -84,6 +126,26 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
   }
 }
 
+.burger-menu{
+  width: 1.1rem;
+  height: 1.1rem;
+  display: flex;
+  justify-content: space-around;
+  flex-flow: column nowrap;
+  div{
+    width:1.1rem;
+    height: 0.1rem;
+    background-color: #525252;
+    transform-origin: 1px;
+  }
+  
+}
+
+.arrow{
+  margin: 10px;
+  @include arrow( 8px, 2px, 2px, 20px);
+  @include arrowColor($mid-grey);
+}
 .erxes-booking {
   height: 100%;
   text-align: center;
@@ -103,7 +165,7 @@ $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8
 }
 
 .erxes-widget-container {
-  height: 100%;
+  height: 100vh;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -161,35 +223,6 @@ hr {
   grid-column-start: 2;
 }
 
-.icon-leftarrow{
-  &:before {
-    content: '\e84a';
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
-.icon-arrow-left:before {
-  content: '\e9d9';
-}
-.icon-arrow-right:before {
-  content: '\e9dc';
-}
-
-.icon-menu-2 {
-  &:before {
-  content: '\e852';
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
-
-
 @each $color in $allcolors {
   .text-#{unquote("\\" + $color)} {
     color: $color;
@@ -205,21 +238,21 @@ hr {
     }
   }
 
-  .arrow-down {
+  .li-down {
     &-#{unquote("\\" + $color)}{
-      @include arrow-down($color);
+      @include li-down($color);
     }
     &-#{$color}{
-      @include arrow-down($color);
+      @include li-down($color);
     }
   }
 
-  .arrow-right {
+  .li-right {
     &-#{unquote("\\" + $color)}{
-      @include arrow-right($color);
+      @include li-right($color);
     }
     &-#{$color}{
-      @include arrow-right($color);
+      @include li-right($color);
     }
   }
 }

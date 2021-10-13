@@ -7,21 +7,21 @@ type Props = {
   description?:string;
   page?:string;
   image:any;
+  children?: React.ReactNode;
 };
 
-function Body({ title, description, image, page }: Props) {
-  let style = { text:"flex-center" , main:"img" };
+function Body({ title, description, image, page, children }: Props) {
+  let style = "flex-center";
   if(page == "floor"){
-      style.main = "grid-12"
+      style = "grid-12"
   }
   return (
-    <>
-      <div className={style.text}> {title}</div>
-      <div className={style.text}> {description} </div>
-      <div className={style.main} >
-          <img src={readFile(image && image.url)} alt={title} />
-      </div>
-    </>
+    <div className="body">
+      <h4> {title}</h4>
+      <p> {description} </p>
+      <div className={style}><img src={readFile(image && image.url)} alt={title} /></div>
+     {children}
+    </div>
   );
 }
 

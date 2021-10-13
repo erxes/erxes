@@ -15,7 +15,7 @@ function Intro({ booking, goToBooking }: Props) {
   return (
     <>
       <Body page="intro" title={title} description={description} image={image} />
-      <div className="flex-end">
+      <div className="flex-end ">
       <Button
           text="Next"
           onClickHandler={() => goToBooking(booking)}

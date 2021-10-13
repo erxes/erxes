@@ -62,9 +62,9 @@ function Product({ product, booking, goToBookings }: Props) {
    };
 
   return (
-    <>
-      <div className="flex-center">{product.name}</div>
-       <div className="flex-center">{product.description}</div> 
+    <div className="product">
+       <h4>{product.name}</h4>
+       <p>{product.description}</p> 
      
       <div className="grid-21">
         <div className="slider">
@@ -97,7 +97,7 @@ function Product({ product, booking, goToBookings }: Props) {
           style={{ backgroundColor: widgetColor }}
         />
       </div>
-    </>
+    </div>
   );
 }
 

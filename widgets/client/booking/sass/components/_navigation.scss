@@ -1,5 +1,5 @@
 .booking-navigation {
-  min-width: 150px;
+  min-width: 200px;
   background-color: #fff;
   position: fixed;
   top: 10px;
@@ -9,9 +9,6 @@
   border-radius: 2px;
   padding: 10px;
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-  i {
-    margin: 5px;
-  }
   ul {
     padding-inline-start: 0;
     margin-bottom: 10px;
@@ -35,14 +32,6 @@
     // &:last-child {
 
     //   }
-  }
-  .toggle-icon {
-    i {
-      font-size: 10px;
-      &:before {
-        display: block;
-      }
-    }
   }
   .toggle-nav {
     width: 10px;
