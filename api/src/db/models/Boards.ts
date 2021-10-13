@@ -324,11 +324,12 @@ export const loadPipelineClass = () => {
      */
     public static async archivePipeline(_id: string) {
       const pipeline = await Pipelines.getPipeline(_id);
-      if (pipeline.status === BOARD_STATUSES.ACTIVE) {
-        await Pipelines.updateOne({ _id }, { status: BOARD_STATUSES.ARCHIVED });
-      } else {
-        await Pipelines.updateOne({ _id }, { status: BOARD_STATUSES.ACTIVE });
-      }
+      const status =
+        pipeline.status === BOARD_STATUSES.ACTIVE
+          ? BOARD_STATUSES.ARCHIVED
+          : BOARD_STATUSES.ACTIVE;
+
+      await Pipelines.updateOne({ _id }, { $set: { status } });
     }
 
     public static watchPipeline(_id: string, isAdd: boolean, userId: string) {
