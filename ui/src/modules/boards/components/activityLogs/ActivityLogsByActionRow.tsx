@@ -1,17 +1,17 @@
 import dayjs from 'dayjs';
-import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 import {
   ActivityList,
-  NameCardStyle,
-  ActionText,
-  DescText,
-  ObjectText,
+  InfoSection,
   DateType
 } from 'modules/boards/styles/viewtype';
 import NameCard from 'modules/common/components/nameCard/NameCard';
-import { getIconAndColor } from 'modules/boards/utils';
 import { Link } from 'react-router-dom';
+import {
+  AvatarSection,
+  CreatedUser
+} from 'modules/notifications/components/styles';
+import ActionIcon from './ActionIcon';
 
 type Props = {
   activityLog: any;
@@ -28,14 +28,12 @@ class ActivityLogsByActionRow extends React.Component<Props> {
     return activityLog.content.text;
   }
 
-  render() {
+  renderContentType() {
     const { activityLog } = this.props;
 
     const { contentTypeDetail, contentType } = activityLog;
 
-    const iconAndColor = getIconAndColor(activityLog.action) || {};
-
-    const contentTypeName = (
+    return (
       <Link
         to={`/${contentType}/board?_id=${activityLog._id}&itemId=${contentTypeDetail._id}`}
         target="_blank"
@@ -43,24 +41,57 @@ class ActivityLogsByActionRow extends React.Component<Props> {
         {activityLog.contentTypeDetail.name}
       </Link>
     );
+  }
+
+  renderCreatedUser() {
+    const { activityLog } = this.props;
+    const { createdUser } = activityLog;
+
+    return (
+      <Link
+        to={`/settings/team/details/${createdUser._id}`}
+        target="_blank"
+        key={Math.random()}
+      >
+        {createdUser.details
+          ? createdUser.details.fullName || ''
+          : createdUser.username || createdUser.email}
+        &nbsp;
+      </Link>
+    );
+  }
+
+  renderAllContent() {
+    const { activityLog } = this.props;
+
+    return (
+      <CreatedUser>
+        {this.renderCreatedUser()}
+        <span>
+          {activityLog.action}&nbsp;&nbsp;
+          {this.renderContentType()}&nbsp;&nbsp;
+          {this.renderDescText()}
+        </span>
+      </CreatedUser>
+    );
+  }
+
+  render() {
+    const { activityLog } = this.props;
 
     return (
       <ActivityList key={activityLog._id}>
-        <DateType>
-          <span>{dayjs(activityLog.createdAt).format('MMM D')}</span>
-        </DateType>
-        <Icon icon={iconAndColor.icon} size={20} color={iconAndColor.color} />
-        <NameCardStyle>
-          <NameCard
+        <AvatarSection>
+          <NameCard.Avatar
             user={activityLog.createdUser}
-            singleLine={true}
-            avatarSize={30}
+            size={30}
+            icon={<ActionIcon queryParams={activityLog.action} />}
           />
-        </NameCardStyle>
-        <ActionText>{activityLog.action}</ActionText>
-        <ObjectText>{contentTypeName}</ObjectText>
-        <DescText>{this.renderDescText()}</DescText>
-        <span>{dayjs(activityLog.createdAt).format('h:mm A')}</span>
+        </AvatarSection>
+        <InfoSection>{this.renderAllContent()}</InfoSection>
+        <DateType>
+          {dayjs(activityLog.date).format('DD MMM YYYY, HH:mm')}
+        </DateType>
       </ActivityList>
     );
   }

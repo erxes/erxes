@@ -2,8 +2,6 @@ import styled from 'styled-components';
 import { dimensions } from 'modules/common/styles';
 import { colors } from 'modules/common/styles';
 
-const linkText = 'rgb(23, 133, 252);';
-
 export const RowFill = styled.div`
   display: flex;
   padding: 5px 5px 5px 20px;
@@ -29,33 +27,14 @@ export const ActivityList = styled.div`
   display: flex;
 `;
 
-export const NameCardStyle = styled.div`
-  margin-left: ${dimensions.coreSpacing}px;
+export const InfoSection = styled.div`
+  align-self: center;
   display: flex;
-`;
-
-export const ActionText = styled.div`
-  align-self: center;
-  margin-left: ${dimensions.coreSpacing}px;
-  color: ${colors.textSecondary};
-`;
-
-export const DescText = styled.div`
-  align-self: center;
   flex: 1 1 0%;
-  margin-left: ${dimensions.coreSpacing}px;
-  color: ${colors.textSecondary};
-  font-weight: 400;
-`;
-
-export const ObjectText = styled.div`
-  align-self: center;
-  margin-left: ${dimensions.coreSpacing}px;
-  color: ${linkText};
 `;
 
 export const DateType = styled.div`
-  width: ${dimensions.headerSpacing}px;
   align-self: center;
-  color: ${colors.colorLightGray};
+  color: ${colors.colorCoreGray};
+  font-size: 11px;
 `;
