@@ -113,6 +113,8 @@ const bookingFields = `
 
   formBrandCode
   formCode
+
+  leadData
 `;
 
 const bookingDetail = `
@@ -145,9 +147,46 @@ const increaseViewCountMutation = `
   }
 `;
 
+const formDetailQuery = `
+  query formDetail($_id: String!) {
+    formDetail(_id: $_id) {
+      title
+      description
+      buttonText
+      numberOfPages
+      code
+
+      fields {
+        _id
+        name
+        type
+        text
+        content
+        description
+        options
+        isRequired
+        order
+        validation
+        associatedFieldId
+        column
+        
+        groupId
+        logicAction
+        pageNumber
+        logics {
+          fieldId
+          logicOperator
+          logicValue
+        }
+      }
+    }
+  }
+`;
+
 export {
   bookingDetail,
   productCategory,
   productDetail,
-  increaseViewCountMutation
+  increaseViewCountMutation,
+  formDetailQuery
 };

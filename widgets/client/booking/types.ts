@@ -66,8 +66,8 @@ export interface ICategoryTree {
 export interface IBooking {
   _id: string;
   // content
-  name?: string;
-  description?: string;
+  name: string;
+  description: string;
   userFilters?: string[];
   image?: any;
 
@@ -98,6 +98,8 @@ export interface IBooking {
   mainProductCategory: IProductCategory;
   formBrandCode: string;
   formCode: string;
+
+  leadData: ILeadData;
 }
 
 export type FieldValue = string | number | Date | string[] | IAttachment[];
@@ -154,4 +156,62 @@ interface IAttachment {
   url: string;
   size: number;
   type: string;
+}
+export interface ILeadData {
+  loadType?: string;
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankTitle?: string;
+  thankContent?: string;
+  redirectUrl?: string;
+  themeColor?: string;
+  createdUserId?: string;
+  createdUser?: IUser;
+  createdDate?: Date;
+  viewCount?: number;
+  contactsGathered?: number;
+  tagIds?: string[];
+  form?: IForm;
+  isRequireOnce?: boolean;
+  templateId?: string;
+  attachments?: IAttachment[];
+  conversionRate?: number;
+}
+
+export interface IEmailParams {
+  toEmails: string[];
+  fromEmail: string;
+  title: string;
+  content: string;
+  formId: string;
+  attachments?: IAttachment[];
+}
+
+export interface IFieldError {
+  fieldId?: string;
+  code?: string;
+  text: string;
+}
+
+export interface IFormDoc {
+  [fieldId: string]: {
+    value: FieldValue;
+    text: string;
+    type: string;
+    validation: string;
+    associatedFieldId: string;
+    groupId: string;
+    isHidden?: boolean;
+    column?: number;
+  };
+}
+
+export interface ICurrentStatus {
+  status: string;
+  errors?: IFieldError[];
 }

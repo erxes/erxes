@@ -6,6 +6,7 @@ import { connection } from '../connection';
 import gql from 'graphql-tag';
 import { bookingDetail } from '../graphql';
 import { IBooking } from '../types';
+import { saveBrowserInfo } from '../../form/containers/utils';
 
 type QueryResponse = {
   widgetsBookingDetail: IBooking;
@@ -19,6 +20,8 @@ type Props = {
 };
 
 function AppContainer(props: ChildProps<Props, QueryResponse>) {
+  saveBrowserInfo();
+
   const { data, isPopupVisible } = props;
 
   if (!data || data.loading || !data.widgetsBookingDetail) {

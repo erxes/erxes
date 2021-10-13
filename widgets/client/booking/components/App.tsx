@@ -3,8 +3,7 @@ import { iconClose } from '../../icons/Icons';
 import { Booking, Intro, BlockDetail, Floor, Product } from '../containers';
 import { IBooking } from '../types';
 import Navigation from '../containers/common/Navigation';
-import * as ReactPopover from 'react-popover';
-import Form from './form/Form';
+import Form from '../containers/form/Form';
 
 type Props = {
   activeRoute: string;
