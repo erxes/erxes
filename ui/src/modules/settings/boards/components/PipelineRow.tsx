@@ -56,7 +56,7 @@ class PipelineRow extends React.Component<Props, State> {
   renderUnarchiveAction() {
     const { archive, pipeline } = this.props;
 
-    if (pipeline.status === 'active') {
+    if (!pipeline.status || pipeline.status === 'active') {
       return null;
     }
 
@@ -68,6 +68,7 @@ class PipelineRow extends React.Component<Props, State> {
       </Tip>
     );
   }
+
   renderRemoveAction() {
     const { remove, pipeline } = this.props;
 
