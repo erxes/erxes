@@ -3,6 +3,9 @@ import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
+  companyFactory,
+  conformityFactory,
+  conversationFactory,
   customerFactory,
   formFactory,
   formSubmissionFactory,
@@ -10,7 +13,14 @@ import {
   segmentFactory,
   tagsFactory
 } from '../db/factories';
-import { Customers, FormSubmissions, Segments, Tags } from '../db/models';
+import {
+  Conformities,
+  Conversations,
+  Customers,
+  FormSubmissions,
+  Segments,
+  Tags
+} from '../db/models';
 import * as elk from '../elasticsearch';
 import { deleteAllIndexes, putMappings } from './esMappings';
 import { sleep } from './setup';
@@ -92,6 +102,8 @@ describe('customerQueries', () => {
     await Segments.deleteMany({});
     await Tags.deleteMany({});
     await FormSubmissions.deleteMany({});
+    await Conformities.deleteMany({});
+    await Conversations.deleteMany({});
     await deleteAllIndexes();
   });
 
@@ -310,13 +322,64 @@ describe('customerQueries', () => {
 
   test('Customer detail', async () => {
     const customer = await customerFactory({ trackedData: { t1: 'v1' } }, true);
+    const company = await companyFactory();
+    const conformity = await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer._id,
+      relType: 'company',
+      relTypeId: company._id
+    });
+    await conversationFactory({ customerId: customer._id });
 
-    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.resolve({
-        hits: {
-          hits: [{ _source: { count: 1, attributes: [{ url: '/test' }] } }]
-        }
-      });
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(({ index }) => {
+      if (index === 'events') {
+        return Promise.resolve({
+          hits: {
+            hits: [
+              {
+                _source: {
+                  createdAt: new Date(),
+                  count: 1,
+                  attributes: [{ value: '/test' }]
+                }
+              }
+            ]
+          }
+        });
+      } else if (index === 'conformities') {
+        return Promise.resolve({
+          took: 0,
+          timed_out: false,
+          _shards: {
+            total: 1,
+            successful: 1,
+            skipped: 0,
+            failed: 0
+          },
+          hits: {
+            total: {
+              value: 1,
+              relation: 'eq'
+            },
+            max_score: 10.735046,
+            hits: [
+              {
+                _index: 'erxes__conformities',
+                _type: '_doc',
+                _id: conformity._id,
+                _score: 10.735046,
+                _source: {
+                  mainType: 'customer',
+                  mainTypeId: customer._id,
+                  relType: 'company',
+                  relTypeId: company._id,
+                  __v: 0
+                }
+              }
+            ]
+          }
+        });
+      }
     });
 
     const qry = `
