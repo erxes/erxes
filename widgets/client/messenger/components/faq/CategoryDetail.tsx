@@ -62,9 +62,9 @@ class CategoryDetail extends React.Component<Props, IState> {
           {({ changeRoute }) => (
             <button
               className="back-category-button left"
-              onClick={() => changeRoute("home")}
+              onClick={() => changeRoute("faqCategories")}
             >
-              {iconLeft("#888")} {__("Back to Categories")}
+              {iconLeft("#888")} {__("Back to categories")}
             </button>
           )}
         </AppConsumer>
