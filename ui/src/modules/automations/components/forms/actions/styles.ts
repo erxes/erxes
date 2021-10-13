@@ -14,9 +14,14 @@ export const Attributes = styled.ul`
   margin: 0;
   right: 20px;
   max-height: 200px;
+  min-width: 200px;
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
+
+  > div {
+    padding: 0;
+  }
 
   b {
     margin-bottom: ${dimensions.unitSpacing + 10}px;
