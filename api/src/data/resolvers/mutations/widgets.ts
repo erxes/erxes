@@ -257,7 +257,22 @@ const widgetMutations = {
     _root,
     { articleId, reactionChoice }: { articleId: string; reactionChoice: string }
   ) {
-    return KnowledgeBaseArticles.incReactionCount(articleId, reactionChoice);
+    return KnowledgeBaseArticles.modifyReactionCount(
+      articleId,
+      reactionChoice,
+      'inc'
+    );
+  },
+
+  widgetsKnowledgebaseDecReactionCount(
+    _root,
+    { articleId, reactionChoice }: { articleId: string; reactionChoice: string }
+  ) {
+    return KnowledgeBaseArticles.modifyReactionCount(
+      articleId,
+      reactionChoice,
+      'dec'
+    );
   },
 
   /*
