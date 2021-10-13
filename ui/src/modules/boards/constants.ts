@@ -86,7 +86,7 @@ export const EMPTY_CONTENT_TASK = {
         'Tip: This could be equivalent to your brands or you can organize by year/project/etc.'
       ),
       url: '/settings/boards/task',
-      urlText: __('Go to ')
+      urlText: __('Go to Board & Pipeline')
     },
     {
       title: __('Tip: Filter'),
