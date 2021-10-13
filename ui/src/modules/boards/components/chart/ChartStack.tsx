@@ -10,17 +10,16 @@ import {
 } from 'recharts';
 
 import React from 'react';
-import { IStage } from 'modules/boards/types';
 import { getColors } from 'modules/boards/utils';
 import EmptyState from 'modules/common/components/EmptyState';
 
 type Props = {
-  stages: IStage[];
+  bars: any[];
   usersWithInfo: any[];
 };
 
-export default function ChartStack({ stages, usersWithInfo }: Props) {
-  if (!stages) {
+export default function ChartStack({ bars, usersWithInfo }: Props) {
+  if (!bars) {
     return <EmptyState text="this data is empty" icon="piechart" />;
   }
 
@@ -35,7 +34,7 @@ export default function ChartStack({ stages, usersWithInfo }: Props) {
         <YAxis />
         <Tooltip />
         <Legend />
-        {stages.map((stage, index) => (
+        {bars.map((stage, index) => (
           <Bar
             key={index}
             dataKey={stage.name}

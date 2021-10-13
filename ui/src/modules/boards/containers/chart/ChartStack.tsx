@@ -6,21 +6,36 @@ import ChartStack from '../../components/chart/ChartStack';
 
 type Props = {
   pipelineId: string;
+  type: string;
+  stackBy: string;
 };
 
-export default function ChartStackContainer({ pipelineId }: Props) {
-  const { data, loading } = useQuery(gql(queries.stagesByAssignedUser), {
-    variables: {
-      pipelineId
+export default function ChartStackContainer({
+  pipelineId,
+  type,
+  stackBy
+}: Props) {
+  const { data, loading, error } = useQuery(
+    gql(queries.itemsCountByAssignedUser),
+    {
+      variables: {
+        pipelineId,
+        type,
+        stackBy: stackBy || 'stage'
+      }
     }
-  });
+  );
 
   if (loading) {
     return <div>...</div>;
   }
 
-  const stages = data.stagesByAssignedUser.stages;
-  const usersWithInfo = data.stagesByAssignedUser.usersWithInfo;
+  if (error) {
+    return <div>{error.message}</div>;
+  }
 
-  return <ChartStack stages={stages} usersWithInfo={usersWithInfo} />;
+  const bars = data.itemsCountByAssignedUser.groups || [];
+  const usersWithInfo = data.itemsCountByAssignedUser.usersWithInfo || [];
+
+  return <ChartStack bars={bars} usersWithInfo={usersWithInfo} />;
 }

@@ -232,9 +232,9 @@ const itemsCountBySegments = `
   } 
 `;
 
-const stagesByAssignedUser = `
-  query stagesByAssignedUser($pipelineId: String) {
-    stagesByAssignedUser(pipelineId: $pipelineId)
+const itemsCountByAssignedUser = `
+  query itemsCountByAssignedUser($pipelineId: String!, $type: String!, $stackBy: String) {
+    itemsCountByAssignedUser(pipelineId: $pipelineId, type: $type, stackBy: $stackBy)
   } 
 `;
 
@@ -254,7 +254,7 @@ export default {
   pipelineLabels,
   pipelineLabelDetail,
   itemsCountBySegments,
-  stagesByAssignedUser,
+  itemsCountByAssignedUser,
   tasks,
   deals,
   tickets

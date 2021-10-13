@@ -65,7 +65,13 @@ class Board extends React.Component<Props> {
     }
 
     if (viewType === 'chart') {
-      return <ChartStack pipelineId={pipeline._id} />;
+      return (
+        <ChartStack
+          stackBy={queryParams.stackBy}
+          type={options.type}
+          pipelineId={pipeline._id}
+        />
+      );
     }
 
     return (

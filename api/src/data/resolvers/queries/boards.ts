@@ -1,6 +1,7 @@
 import {
   Boards,
   Deals,
+  PipelineLabels,
   Pipelines,
   Segments,
   Stages,
@@ -15,7 +16,10 @@ import { IContext } from '../../types';
 import { paginate, regexSearchText } from '../../utils';
 import { IConformityQueryParams } from './types';
 import { getCollection } from '../../../db/models/boardUtils';
-import { IUserDocument } from '../../../db/models/definitions/users';
+import { IStageDocument } from '../../../db/models/definitions/boards';
+import { CLOSE_DATE_TYPES, PRIORITIES } from '../../constants';
+import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
+import { getCloseDateByType } from './boardUtils';
 
 export interface IDate {
   month: number;
@@ -325,19 +329,79 @@ const boardQueries = {
       .lean();
   },
 
-  async stagesByAssignedUser(_root, { pipelineId }: { pipelineId: string }) {
-    const stages = await Stages.find({ pipelineId });
+  async itemsCountByAssignedUser(
+    _root,
+    {
+      pipelineId,
+      type,
+      stackBy
+    }: { pipelineId: string; type: string; stackBy: string }
+  ) {
+    let groups;
+    let detailFilter;
+    let assignedUserFilter;
 
-    if (stages.length === 0) {
-      return {};
+    switch (stackBy) {
+      case 'stage': {
+        groups = (await Stages.find({ pipelineId })).map(stage => ({
+          _id: stage._id,
+          name: stage.name
+        }));
+
+        if (groups.length === 0) {
+          return {};
+        }
+
+        const stageIds = groups.map(stage => stage._id);
+
+        assignedUserFilter = { stageId: { $in: stageIds } };
+
+        detailFilter = (stage: IStageDocument) => ({ stageId: stage._id });
+
+        break;
+      }
+
+      case 'priority': {
+        groups = PRIORITIES.ALL.map(p => ({ name: p }));
+
+        assignedUserFilter = { priority: { $in: PRIORITIES.ALL } };
+
+        detailFilter = ({ name }: { name: string }) => ({ priority: name });
+
+        break;
+      }
+
+      case 'label': {
+        groups = await PipelineLabels.find({ pipelineId });
+
+        if (groups.length === 0) {
+          return {};
+        }
+
+        assignedUserFilter = { labelIds: { $in: groups.map(g => g._id) } };
+
+        detailFilter = (label: IPipelineLabelDocument) => ({
+          labelIds: { $in: [label._id] }
+        });
+
+        break;
+      }
+
+      case 'dueDate': {
+        groups = CLOSE_DATE_TYPES.ALL;
+
+        assignedUserFilter = {};
+
+        detailFilter = ({ value }: { value: string }) => ({
+          closeDate: getCloseDateByType(value)
+        });
+      }
     }
 
-    const { collection } = getCollection(stages[0].type);
-
-    const stageIds = stages.map(stage => stage._id);
+    const { collection } = getCollection(type);
 
     const assignedUserIds = await collection
-      .find({ stageId: { $in: stageIds } })
+      .find(assignedUserFilter)
       .distinct('assignedUserIds');
 
     const users = await Users.find({ _id: { $in: assignedUserIds } });
@@ -345,30 +409,28 @@ const boardQueries = {
     const usersWithInfo: { name: string }[] = [];
 
     for (const user of users) {
-      const stageWithCount = {};
+      const groupWithCount = {};
 
-      for (const stage of stages) {
+      for (const groupItem of groups) {
         const count = await collection.countDocuments({
-          stageId: stage._id,
+          ...detailFilter(groupItem),
           assignedUserIds: { $in: [user._id] }
         });
 
-        stageWithCount[stage.name || ''] = count;
+        groupWithCount[groupItem.name || ''] = count;
       }
 
       usersWithInfo.push({
         name: user.details
           ? user.details.fullName || user.email || 'No name'
           : 'No name',
-        ...stageWithCount
+        ...groupWithCount
       });
     }
 
-    console.log('usersWithInfo: ', usersWithInfo);
-
     return {
       usersWithInfo,
-      stages
+      groups
     };
   },
 

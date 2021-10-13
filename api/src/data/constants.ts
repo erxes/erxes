@@ -530,3 +530,41 @@ export const USER_PROPERTIES_INFO = {
     { field: 'username', label: 'User name' }
   ]
 };
+
+export const PRIORITIES = {
+  CRITICAL: 'Critical',
+  HIGH: 'High',
+  NORMAL: 'Normal',
+  LOW: 'Low',
+  ALL: ['Critical', 'High', 'Normal', 'Low']
+};
+
+export const CLOSE_DATE_TYPES = {
+  NEXT_DAY: 'nextDay',
+  NEXT_WEEk: 'nextWeek',
+  NEXT_MONTH: 'nextMonth',
+  NO_CLOSE_DATE: 'noCloseDate',
+  OVERDUE: 'overdue',
+  ALL: [
+    {
+      name: 'Next day',
+      value: 'nextDay'
+    },
+    {
+      name: 'Next week',
+      value: 'nextWeek'
+    },
+    {
+      name: 'Next month',
+      value: 'nextMonth'
+    },
+    {
+      name: 'No close date',
+      value: 'noCloseDate'
+    },
+    {
+      name: 'Over due',
+      value: 'overdue'
+    }
+  ]
+};
