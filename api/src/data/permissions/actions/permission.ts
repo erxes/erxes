@@ -248,7 +248,7 @@ export const moduleObjects = {
       },
       {
         name: 'dealPipelinesCopied',
-        description: 'Duplicated deal pipeline'
+        description: 'Duplicate deal pipeline'
       },
       {
         name: 'dealPipelinesUpdateOrder',
@@ -370,7 +370,7 @@ export const moduleObjects = {
       },
       {
         name: 'ticketPipelinesCopied',
-        description: 'Duplicated ticket pipeline'
+        description: 'Duplicate ticket pipeline'
       },
       {
         name: 'ticketPipelinesWatch',
@@ -627,7 +627,7 @@ export const moduleObjects = {
       },
       {
         name: 'taskPipelinesCopied',
-        description: 'Duplicated task pipeline'
+        description: 'Duplicate task pipeline'
       },
       {
         name: 'taskPipelinesWatch',
