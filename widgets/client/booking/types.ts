@@ -96,8 +96,6 @@ export interface IBooking {
   categoryTree: ICategoryTree[];
 
   mainProductCategory: IProductCategory;
-  formBrandCode: string;
-  formCode: string;
 
   leadData: ILeadData;
 }
