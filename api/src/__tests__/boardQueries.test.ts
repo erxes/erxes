@@ -40,6 +40,7 @@ describe('boardQueries', () => {
     type
     visibility
     members { _id }
+    createdUser { _id }
     isWatched
     state
     itemsTotalCount
