@@ -10,6 +10,7 @@ import { dimensions, colors } from 'modules/common/styles';
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
   height: 100%;
+  overflow: auto;
   background-image: radial-gradient(
     ${colors.bgActive} 20%,
     ${colors.colorWhite} 20%
