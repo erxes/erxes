@@ -2,6 +2,7 @@ import { colors, dimensions, typography } from 'modules/common/styles';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { GroupWrapper } from 'modules/automations/components/forms/actions/styles';
 
 const SegmentTitle = styled.h3`
   font-size: 12px;
@@ -17,17 +18,15 @@ const SegmentTitle = styled.h3`
 `;
 
 const SegmentWrapper = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
 `;
 
 const ConditionItem = styledTS<{ useMargin: boolean }>(styled.div)`
-  margin-bottom: ${dimensions.coreSpacing}px;
-  display: flex;
-  align-items: center;
-  margin-left: ${props => props.useMargin && '40px'};
-  button.round {
-    padding: 4px 8px;
-    margin-left: 20px;
+  margin-left: ${props => props.useMargin && '30px'};
+  
+  i{
+    cursor: pointer;
+    color: ${colors.colorCoreGray};
   }
 `;
 
@@ -63,18 +62,25 @@ const FilterBox = styled.div`
   overflow: auto;
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
-  margin-top: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px 0;
   border-radius: 5px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  position: relative;
+
+  > div:nth-last-child(2) {
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
+
   b {
     text-transform: uppercase;
     display: block;
     margin-bottom: ${dimensions.unitSpacing}px;
   }
+
   p {
     margin-top: ${dimensions.unitSpacing}px;
     font-weight: 500;
   }
+
   label {
     display: block;
   }
@@ -97,14 +103,17 @@ const SubProperties = styled.div`
 `;
 
 const ConjunctionButtons = styled.div`
-  margin-top: 30px;
+  position: absolute;
+  left: calc(100% - 60%);
+  top: -40px;
 `;
 
 const ConjunctionButtonsVertical = styled.div`
   position: absolute;
-  left: -10px;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
+
   button {
     display: block;
     padding: 10px 5px;
@@ -163,11 +172,8 @@ const SegmentBackIcon = styled.div`
 
 const Condition = styled.div`
   overflow: auto;
-  border: 1px solid #523297;
-  padding: ${dimensions.unitSpacing}px;
-  margin-top: ${dimensions.unitSpacing}px;
-  border-radius: 5px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 0 ${dimensions.unitSpacing}px;
+  position: relative;
   b {
     text-transform: uppercase;
     display: block;
@@ -179,6 +185,13 @@ const Condition = styled.div`
   }
   label {
     display: block;
+  }
+`;
+
+const ButtonWrapper = styledTS<{ hasCondition: boolean }>(styled.div)`
+  > button {
+    margin: ${props =>
+      !props.hasCondition ? '10px 0 10px 40px' : '0 0 10px 10px'};
   }
 `;
 
@@ -200,6 +213,11 @@ const PropertyText = styled.span`
     cursor: pointer;
     text-decoration: underline;
   }
+`;
+
+const ConditionGroup = styled(GroupWrapper)`
+  padding: 10px 10px 10px 0;
+  margin-bottom: ${dimensions.headerSpacing}px;
 `;
 
 const Count = styled.div`
@@ -232,5 +250,7 @@ export {
   FilterRow,
   FilterProperty,
   SubProperties,
-  Count
+  Count,
+  ConditionGroup,
+  ButtonWrapper
 };
