@@ -9,95 +9,51 @@ const generateData = (
   year: number
 ) => {
   for (const user of userList) {
+    const date = new Date(user.details[fieldName]);
+    const userYear = date.getFullYear();
+
     feeds.push({
-      updateOne: {
-        filter: {
-          recipientIds: { $in: [user._id] },
-          year,
-          contentType
-        },
-        update: {
-          title: 'Ceremony',
-          contentType,
-          recipientIds: [user._id],
-          ceremonyData: {
-            startedDate: user.details[fieldName],
-            willDate: new Date(
-              moment(user.details[fieldName])
-                .add(year - user.year, 'years')
-                .toISOString()
-            ),
-            howManyYear: year - user.year,
-            year
-          },
-          createdAt: new Date(),
-          createdBy: user._id
-        },
-        upsert: true
-      }
+      title: 'Ceremony',
+      contentType,
+      recipientIds: [user._id],
+      ceremonyData: {
+        startedDate: user.details[fieldName],
+        willDate: new Date(
+          moment(user.details[fieldName])
+            .add(year - userYear, 'years')
+            .toISOString()
+        ),
+        howManyYear: year - userYear,
+        year
+      },
+      createdAt: new Date(),
+      createdBy: user._id
     });
   }
 
   return feeds;
 };
 
-const getUsers = (
-  models,
-  fieldName: string,
-  year: number,
-  month: number,
-  day: number
-) => {
-  return models.Users.aggregate([
-    {
-      $project: {
-        _id: 1,
-        details: 1,
-        year: { $year: `$details.${fieldName}` },
-        month: { $month: `$details.${fieldName}` },
-        day: { $dayOfMonth: `$details.${fieldName}` }
-      }
-    },
-    {
-      $match: {
-        year: { $lt: year },
-        $or: [
-          {
-            month: { $gt: month }
-          },
-          {
-            month: { $gte: month },
-            day: { $gte: day }
-          }
-        ]
-      }
-    }
-  ]);
-};
-
 export const createCeremonies = async models => {
   console.log('starting to create ceremonies');
 
   const now = new Date();
-  const day = now.getDate();
-  const month = now.getMonth() + 1;
   const year = now.getFullYear();
 
-  const usersHasBirthday = await getUsers(
-    models,
-    'birthDate',
-    year,
-    month,
-    day
-  );
+  const usersHasBirthday = await models.Users.find({
+    'details.birthDate': { $exists: true }
+  });
 
-  const usersHasWorkAnniversary = await getUsers(
-    models,
-    'workStartedDate',
-    year,
-    month,
-    day
-  );
+  const usersHasWorkAnniversary = await models.Users.find({
+    'details.workStartedDate': { $exists: true }
+  });
+
+  await models.ExmFeed.deleteMany({
+    contentType: {
+      $in: [FEED_CONTENT_TYPES.BIRTHDAY, FEED_CONTENT_TYPES.WORK_ANNIVARSARY]
+    },
+    'ceremonyData.year': year
+  });
 
   let feeds = generateData(
     [],
@@ -116,7 +72,7 @@ export const createCeremonies = async models => {
   );
 
   if (feeds.length > 0) {
-    await models.ExmFeed.bulkWrite(feeds);
+    await models.ExmFeed.insertMany(feeds);
   }
 
   console.log('ending to create ceremonies');
@@ -137,7 +93,7 @@ export const createCeremonies = async models => {
 // 20:00
 export default [
   {
-    schedule: '20 14 * * *',
+    schedule: '*/10 * * * * *',
     handler: async ({ models }) => {
       await createCeremonies(models);
     }

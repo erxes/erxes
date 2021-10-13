@@ -37,15 +37,12 @@ export const feedSchema = {
   isPinned: { type: Boolean },
   contentType: { type: String, enum: FEED_CONTENT_TYPES.ALL },
   recipientIds: { type: [String] },
-  visibility: { type: String, enum: ['Public', 'Private'] },
   customFieldsData: {
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
   },
   ceremonyData: { type: ceremonyDataSchema },
-  where: { type: String },
-  impacted: { type: String },
   startDate: { type: Date },
   endDate: { type: Date },
   createdBy: { type: String, label: 'Created by' },
