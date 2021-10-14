@@ -27,11 +27,11 @@ const knowledgeBaseQueries = {
   ) {
     const selector: any = {};
 
-    if (searchValue) {
+    if (searchValue && searchValue.trim()) {
       selector.$or = [
-        { title: { $regex: new RegExp(searchValue) } },
-        { content: { $regex: new RegExp(searchValue) } },
-        { summary: { $regex: new RegExp(searchValue) } }
+        { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
       ];
     }
 
