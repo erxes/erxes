@@ -348,6 +348,12 @@ class Navigation extends React.Component<IProps> {
                 link: '/knowledgeBase',
                 value: 'Knowledgebase',
                 icon: 'icon-book-open'
+              },
+              {
+                permission: 'showForums',
+                link: '/forum',
+                value: 'Forums',
+                icon: 'icon-list-ui-alt'
               }
             ]
           )}
