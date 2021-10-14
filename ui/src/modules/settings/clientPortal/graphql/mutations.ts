@@ -21,8 +21,6 @@ const createOrUpdateConfig = `
     $ticketStageId: String
     $ticketPipelineId: String
     $ticketBoardId: String
-    $styles: StylesParams
-    $advanced: AdvancedParams
     $css: String
     $mobileResponsive: Boolean
     $googleCredentials: JSON

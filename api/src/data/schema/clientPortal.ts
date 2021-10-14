@@ -47,36 +47,6 @@ export const types = `
     primaryBtnColor: String
     secondaryBtnColor: String
   }
-
-  type Advanced {
-    authAllow: String
-    permission: String
-    viewTicket: String
-  }
-
-  input AdvancedParams {
-    authAllow: String
-    permission: String
-    viewTicket: String
-  }
-
-  input StylesParams {
-    bodyColor: String
-    headerColor: String
-    footerColor: String
-    helpColor: String
-    backgroundColor: String
-    activeTabColor: String
-    baseColor: String
-    headingColor: String
-    linkColor: String
-    linkHoverColor: String
-    dividerColor: String
-    primaryBtnColor: String
-    secondaryBtnColor: String
-    baseFont: String
-    headingFont: String
-  }
 `;
 
 export const queries = `
@@ -133,8 +103,6 @@ export const mutations = `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
-    styles: StylesParams
-    advanced: AdvancedParams
     css: String
     mobileResponsive: Boolean
     googleCredentials: JSON
