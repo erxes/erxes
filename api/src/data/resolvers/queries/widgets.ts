@@ -233,5 +233,9 @@ export default {
   },
   widgetsBookingDetail(_root, { _id }: { _id: string }) {
     return Bookings.getBooking(_id);
+  },
+
+  widgetsIntegrationDetail(_root, { _id }: { _id: string }) {
+    return Integrations.findOne({ _id });
   }
 };
