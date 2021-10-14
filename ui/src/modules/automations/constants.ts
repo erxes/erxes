@@ -10,7 +10,7 @@ export const ACTIONS = [
   },
   {
     type: 'setProperty',
-    icon: 'calcualtor',
+    icon: 'flask',
     label: __('Manage properties'),
     description: __(
       'Update existing default or custom properties for Contacts, Companies, Cards, Conversations'
@@ -40,7 +40,7 @@ export const ACTIONS = [
   },
   {
     type: 'delay',
-    icon: 'arrows-up-right',
+    icon: 'hourglass',
     label: __('Delay'),
     description: __(
       'Delay the next action with a timeframe, a specific event or activity'
@@ -48,8 +48,15 @@ export const ACTIONS = [
     isAvailable: true
   },
   {
+    type: 'customCode',
+    icon: 'graduation-hat',
+    label: __('Custom code'),
+    description: __('Custom code'),
+    isAvailable: false
+  },
+  {
     type: 'workflow',
-    icon: 'hourglass',
+    icon: 'glass-martini-alt',
     label: __('Workflow'),
     description: __(
       'Enroll in another workflow,  trigger outgoing webhook or write custom code'
@@ -69,7 +76,7 @@ export const TRIGGERS = [
   {
     type: 'customer',
     img: 'automation2.svg',
-    icon: 'file-plus',
+    icon: 'users-alt',
     label: __('Contact'),
     description: __(
       'Start with a blank workflow that enralls and is triggered off Contact (Customer, Lead, Visitor)'
@@ -78,7 +85,7 @@ export const TRIGGERS = [
   {
     type: 'company',
     img: 'automation2.svg',
-    icon: 'file-plus',
+    icon: 'university',
     label: __('Company'),
     description: __(
       'Start with a blank workflow that enralls and is triggered off company'
@@ -87,7 +94,7 @@ export const TRIGGERS = [
   {
     type: 'conversation',
     img: 'automation4.svg',
-    icon: 'file-plus',
+    icon: 'chat-bubble-user',
     label: __('Conversation'),
     description: __(
       'Start with a blank workflow that enralls and is triggered off conversation'
@@ -96,7 +103,7 @@ export const TRIGGERS = [
   {
     type: 'task',
     img: 'automation3.svg',
-    icon: 'file-plus',
+    icon: 'file-plus-alt',
     label: __('Task'),
     description: __(
       'Start with a blank workflow that enralls and is triggered off task'
@@ -114,7 +121,7 @@ export const TRIGGERS = [
   {
     type: 'deal',
     img: 'automation3.svg',
-    icon: 'file-plus',
+    icon: 'piggy-bank',
     label: __('Sales pipeline'),
     description: __(
       'Start with a blank workflow that enralls and is triggered off sales pipeline item'
@@ -123,7 +130,7 @@ export const TRIGGERS = [
   {
     type: 'user',
     img: 'automation4.svg',
-    icon: 'file-plus',
+    icon: 'users',
     label: __('Team member'),
     description: __(
       'Start with a blank workflow that enralls and is triggered off team members'
