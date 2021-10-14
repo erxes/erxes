@@ -17,7 +17,6 @@ export interface IContext {
     EngagesAPI: any;
     IntegrationsAPI: any;
     HelpersApi: any;
-    ClientPortalAPI: any;
   };
   dataLoaders: IDataLoaders;
 }

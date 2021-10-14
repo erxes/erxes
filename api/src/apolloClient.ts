@@ -6,8 +6,7 @@ import {
   AutomationsAPI,
   EngagesAPI,
   HelpersApi,
-  IntegrationsAPI,
-  ClientPortalAPI
+  IntegrationsAPI
 } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
@@ -49,8 +48,7 @@ const generateDataSources = () => {
     AutomationsAPI: new AutomationsAPI(),
     EngagesAPI: new EngagesAPI(),
     IntegrationsAPI: new IntegrationsAPI(),
-    HelpersApi: new HelpersApi(),
-    ClientPortalAPI: new ClientPortalAPI()
+    HelpersApi: new HelpersApi()
   };
 };
 
