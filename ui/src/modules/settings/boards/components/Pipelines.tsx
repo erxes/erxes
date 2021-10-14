@@ -7,7 +7,6 @@ import Table from 'modules/common/components/table';
 import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import SortHandler from 'modules/common/components/SortHandler';
 import FormControl from 'modules/common/components/form/Control';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
@@ -21,6 +20,7 @@ import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
 import { PipelineCount } from '../styles';
 import PipelineRow from './PipelineRow';
+import SortHandler from 'modules/common/components/SortHandler';
 
 type Props = {
   type: string;
@@ -28,6 +28,8 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
   remove: (pipelineId: string) => void;
+  archive: (pipelineId: string, status: string) => void;
+  copied: (pipelineId: string) => void;
   boardId: string;
   options?: IOption;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
@@ -155,6 +157,8 @@ class Pipelines extends React.Component<Props, State> {
         pipeline={pipeline}
         renderButton={renderButton}
         remove={this.props.remove}
+        archive={this.props.archive}
+        copied={this.props.copied}
         type={type}
         options={options}
         onTogglePopup={this.onTogglePopup}
@@ -164,6 +168,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderContent() {
     const { pipelines, options, type } = this.props;
+
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (pipelines.length === 0) {
@@ -195,6 +200,9 @@ class Pipelines extends React.Component<Props, State> {
             <th>
               <SortHandler sortField={'name'} label={__('pipelineName')} />
             </th>
+            <th>{__('Status')}</th>
+            <th>{__('Created at')}</th>
+            <th>{__('Created By')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -267,7 +275,6 @@ class Pipelines extends React.Component<Props, State> {
     return (
       <div id="pipelines-content">
         <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
-
         {this.renderContent()}
         {this.renderAddForm()}
       </div>

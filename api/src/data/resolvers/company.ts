@@ -13,11 +13,17 @@ export default {
       mainTypeId: company._id,
       relTypes: ['customer']
     });
-    return customer.loadMany(customerIds || []);
+    const customers = await customer.loadMany(customerIds || []);
+    return customers.filter(c => c);
   },
 
-  getTags(company: ICompanyDocument, _, { dataLoaders: { tag } }: IContext) {
-    return tag.loadMany(company.tagIds || []);
+  async getTags(
+    company: ICompanyDocument,
+    _,
+    { dataLoaders: { tag } }: IContext
+  ) {
+    const tags = await tag.loadMany(company.tagIds || []);
+    return tags.filter(t => t);
   },
 
   owner(company: ICompanyDocument, _, { dataLoaders: { user } }: IContext) {

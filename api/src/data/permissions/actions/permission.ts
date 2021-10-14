@@ -203,6 +203,8 @@ export const moduleObjects = {
           'dealPipelinesUpdateOrder',
           'dealPipelinesWatch',
           'dealPipelinesRemove',
+          'dealPipelinesArchive',
+          'dealPipelinesCopied',
           'dealStagesAdd',
           'dealStagesEdit',
           'dealStagesUpdateOrder',
@@ -239,6 +241,14 @@ export const moduleObjects = {
       {
         name: 'dealPipelinesRemove',
         description: 'Remove deal pipeline'
+      },
+      {
+        name: 'dealPipelinesArchive',
+        description: 'Archive deal pipeline'
+      },
+      {
+        name: 'dealPipelinesCopied',
+        description: 'Duplicate deal pipeline'
       },
       {
         name: 'dealPipelinesUpdateOrder',
@@ -311,6 +321,8 @@ export const moduleObjects = {
           'ticketPipelinesUpdateOrder',
           'ticketPipelinesWatch',
           'ticketPipelinesRemove',
+          'ticketPipelinesArchive',
+          'ticketPipelinesCopied',
           'ticketStagesAdd',
           'ticketStagesEdit',
           'ticketStagesUpdateOrder',
@@ -351,6 +363,14 @@ export const moduleObjects = {
       {
         name: 'ticketPipelinesRemove',
         description: 'Remove ticket pipeline'
+      },
+      {
+        name: 'ticketPipelinesArchive',
+        description: 'Archive ticket pipeline'
+      },
+      {
+        name: 'ticketPipelinesCopied',
+        description: 'Duplicate ticket pipeline'
       },
       {
         name: 'ticketPipelinesWatch',
@@ -423,6 +443,8 @@ export const moduleObjects = {
           'growthHackPipelinesUpdateOrder',
           'growthHackPipelinesWatch',
           'growthHackPipelinesRemove',
+          'growthHackPipelinesArchive',
+          'growthHackPipelinesCopied',
           'growthHackStagesAdd',
           'growthHackStagesEdit',
           'growthHackStagesUpdateOrder',
@@ -463,6 +485,14 @@ export const moduleObjects = {
       {
         name: 'growthHackPipelinesRemove',
         description: 'Remove growth hacking pipeline'
+      },
+      {
+        name: 'growthHackPipelinesArchive',
+        description: 'Archive growth hacking pipeline'
+      },
+      {
+        name: 'growthHackPipelinesCopied',
+        description: 'Copied growth hacking pipeline'
       },
       {
         name: 'growthHackPipelinesWatch',
@@ -551,6 +581,8 @@ export const moduleObjects = {
           'taskPipelinesUpdateOrder',
           'taskPipelinesWatch',
           'taskPipelinesRemove',
+          'taskPipelinesArchive',
+          'taskPipelinesCopied',
           'taskStagesAdd',
           'taskStagesEdit',
           'taskStagesUpdateOrder',
@@ -588,6 +620,14 @@ export const moduleObjects = {
       {
         name: 'taskPipelinesRemove',
         description: 'Remove task pipeline'
+      },
+      {
+        name: 'taskPipelinesArchive',
+        description: 'Archive task pipeline'
+      },
+      {
+        name: 'taskPipelinesCopied',
+        description: 'Duplicate task pipeline'
       },
       {
         name: 'taskPipelinesWatch',

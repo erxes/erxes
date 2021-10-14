@@ -17,6 +17,7 @@ function Messenger({
   isOnline = false,
   supporters,
   loading,
+  serverTime,
 }: Props) {
   const WithSupporters = (Component: any) => {
     return (
@@ -45,6 +46,16 @@ function Messenger({
 
     case "websiteApp":
       return <WebsiteAppDetail />;
+
+    case "faqCategories":
+      return (
+        <Home
+          supporters={supporters}
+          isOnline={isOnline}
+          serverTime={serverTime}
+          activeSupport={true}
+        />
+      );
 
     default:
       return WithSupporters(Home);

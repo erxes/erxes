@@ -10,8 +10,9 @@ export default {
     );
   },
 
-  getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.tag.loadMany(product.tagIds || []);
+  async getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(product.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
