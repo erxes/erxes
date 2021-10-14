@@ -15,7 +15,6 @@ export function ButtonComponent(props) {
           <Button>Default</Button>
           {buttons.map((e) => (
             <Button key={Math.random()} btnStyle={e.toLowerCase()}>
-              {" "}
               {e}
             </Button>
           ))}
@@ -38,7 +37,6 @@ export function ButtonComponent(props) {
         <div className={styles.styled}>
           {buttons.map((e) => (
             <Button key={Math.random()} size={e.toLowerCase()}>
-              {" "}
               {e}
             </Button>
           ))}
@@ -120,7 +118,6 @@ export function ButtonComponent(props) {
               btnStyle={e.toLowerCase()}
               icon={icons[index]}
             >
-              {" "}
               {e}
             </Button>
           ))}

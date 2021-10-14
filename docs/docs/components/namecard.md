@@ -3,19 +3,19 @@ id: namecard
 title: Name card
 ---
 
-import { Cards, Avatarsize, Username, Useremail, Secondline, Apinamecard } from "./namecard.js"
+import { CardComponent } from "./namecard.js"
 
 ## Username
 
 <p>Show username using <code>username</code> prop.</p>
-<Username></Username>
+<CardComponent type="username" name="Ariuka"></CardComponent>
 
 ## Full name
 
 <p>Show full name using <code>fullName</code> prop.</p>
-<Cards></Cards>
+<CardComponent type="fullName" name="Ariunzaya Enkhbayar"></CardComponent>
 
-## User E-mail
+<!-- ## User E-mail
 
 <p>Show user e-mail using <code>email</code> prop.</p>
 <Useremail></Useremail>
@@ -32,4 +32,4 @@ import { Cards, Avatarsize, Username, Useremail, Secondline, Apinamecard } from 
 
 ## API
 
-<Apinamecard></Apinamecard>
+<Apinamecard></Apinamecard> -->

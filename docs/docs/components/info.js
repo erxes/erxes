@@ -4,49 +4,56 @@ import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Table from "../../../ui/src/modules/common/components/table";
 
-function Infos() {
-  return (<>
-    <div>
-      <Info type="primary" title="Primary">This is primary info</Info>
-      <Info type="info" title="Info">This is info</Info>
-      <Info type="danger" title="Danger">This is danger info</Info>
-      <Info type="warning" title="Warning">This is warning info</Info>
-      <Info type="success" title="Success">This is success info</Info>
-    </div>
-    <CodeBlock className="language-jsx">{`<>
-      <Info type="primary" title="Primary">This is primary info</Info>
-      <Info type="info" title="Info">This is info</Info>
-      <Info type="danger" title="Danger">This is danger info</Info>
-      <Info type="warning" title="Warning">This is warning info</Info>
-      <Info type="success" title="Success">This is success info</Info>
-</>`}</CodeBlock>
-    </>
-  );
-}
+export function InfoComponent(props) {
+  const { type, types = [], icons = [], table = [] } = props;
 
-function InfoIcon() {
-  return (<>
-    <div>
-      <Info type="primary" title="Primary" iconShow="envelope-alt">This is primary info</Info>
-      <Info type="info" title="Info" iconShow="info-circle">This is info</Info>
-      <Info type="danger" title="Danger" iconShow="times-circle">This is danger info</Info>
-      <Info type="warning" title="Warning" iconShow="exclamation-triangle">This is warning info</Info>
-      <Info type="success" title="Success" iconShow="check-circle">This is success info</Info>
-    </div>
-    <CodeBlock className="language-jsx">{`<>
-      <Info type="primary" title="Primary" iconShow="envelope-alt">This is primary info</Info>
-      <Info type="info" title="Info" iconShow="info-circle">This is info</Info>
-      <Info type="danger" title="Danger" iconShow="times-circle">This is danger info</Info>
-      <Info type="warning" title="Warning" iconShow="exclamation-triangle">This is warning info</Info>
-      <Info type="success" title="Success" iconShow="check-circle">This is success info</Info>
-</>`}</CodeBlock>
-    </>
-  );
-}
-function ApiInfo(){
-  return(
-    <>
-    <Table>
+  if (type === "infos") {
+    return (
+      <>
+        <div>
+          {types.map((e) => (
+            <Info key={Math.random()} type={e.toLowerCase()} title={e}>
+              {"This is "}{e.toLowerCase()}{" info"}
+            </Info>
+          ))}
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`${types.map(
+            (e) => `\n\t<Info type="${e.toLowerCase()}" title="${e}">This is ${e.toLowerCase()} info</Info>`
+          )}`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "icon") {
+    return (
+      <>
+        <div>
+          {types.map((e, index) => (
+            <Info key={Math.random()} type={e.toLowerCase()} title={e} iconShow={icons[index]}>
+              {"This is "}{e.toLowerCase()}{" info"}
+            </Info>
+          ))}
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`${types.map(
+            (e, index) => `\n\t<Info type="${e.toLowerCase()}" title="${e}" iconShow="${icons[index]}">This is ${e.toLowerCase()} info</Info>`
+          )}`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "APIinfo") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import Info from "erxes-ui/lib/components/Info";`}</CodeBlock>
+        <Table>
           <thead>
             <tr>
               <th>Name</th>
@@ -56,21 +63,18 @@ function ApiInfo(){
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>type</td>
-              <td>"primary", "info", "danger", "warning", "success"</td>
-              <td>Primary</td>
-              <td>Set type of info.</td>
-            </tr>
-            <tr>
-              <td>iconShow</td>
-              <td>boolean</td>
-              <td></td>
-              <td>Add icon to your info. </td>
-            </tr>
+            {table.map((row, i) => (
+              <tr>
+                {row.map((cell) => (
+                  <td>{cell}</td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </Table>
-    </>
-  )
+      </>
+    );
   }
-export { InfoIcon, Infos, ApiInfo }
+
+  return null;
+}
