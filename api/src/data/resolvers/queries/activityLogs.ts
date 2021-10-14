@@ -65,14 +65,6 @@ const activityLogQueries = {
             result.createdAt = item.closeDate || item.createdAt;
           }
 
-          if (type === 'ticket_comments') {
-            result._id = item._id;
-            result.contentType = type;
-            result.createdAt = item.createdAt;
-            result.content = item.content;
-            result.createdBy = item.userId || item.customerId;
-          }
-
           activities.push(result);
         });
       }
