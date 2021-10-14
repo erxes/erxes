@@ -14,7 +14,7 @@ function Floor({ floor, goToBookings, booking }: Props) {
     return null;
   }
 
-  const { widgetColor } = booking.styles;
+  const { widgetColor } = booking.style;
 
   return (
     <div className="grid-13 mt-30">

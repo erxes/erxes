@@ -35,7 +35,7 @@ class Navigation extends React.Component<Props, State> {
       return null;
     }
 
-    const styles = booking.styles;
+    const style = booking.style;
     const { isOpen } = this.state;
 
     return (
@@ -46,7 +46,7 @@ class Navigation extends React.Component<Props, State> {
         tipSize={0.01}
         className={'top-0'}
         body={
-          <div className={`booking-navigation bn-${styles.widgetColor}`}>
+          <div className={`booking-navigation bn-${style.widgetColor}`}>
             <div className="flex-sb p-5">
               <div className="b"> Navigation </div>
               <div
@@ -65,7 +65,7 @@ class Navigation extends React.Component<Props, State> {
               items={JSON.parse(JSON.stringify(items))}
               parentId={parentId}
               changeRoute={changeRoute}
-              styles={styles}
+              styles={style}
             />
           </div>
         }

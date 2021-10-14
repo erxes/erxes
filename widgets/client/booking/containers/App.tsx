@@ -4,12 +4,12 @@ import { AppConsumer, AppProvider } from './AppContext';
 import { ChildProps, graphql, compose } from 'react-apollo';
 import { connection } from '../connection';
 import gql from 'graphql-tag';
-import { bookingDetail } from '../graphql';
+import { bookingDetail, integrationDetailQuery } from '../graphql';
 import { IBooking } from '../types';
 import { saveBrowserInfo } from '../../form/containers/utils';
 
 type QueryResponse = {
-  widgetsBookingDetail: IBooking;
+  widgetsIntegrationDetail: any;
 };
 
 type Props = {
@@ -24,12 +24,14 @@ function AppContainer(props: ChildProps<Props, QueryResponse>) {
 
   const { data, isPopupVisible } = props;
 
-  if (!data || data.loading || !data.widgetsBookingDetail) {
+  if (!data || data.loading || !data.widgetsIntegrationDetail) {
     return null;
   }
 
-  const booking = data.widgetsBookingDetail;
+  const integration = data.widgetsIntegrationDetail;
+  const booking = integration.bookingData || {};
   connection.data.booking = booking;
+  connection.data.integration = integration;
 
   const loadType = 'popup';
 
@@ -55,10 +57,10 @@ function AppContainer(props: ChildProps<Props, QueryResponse>) {
 }
 
 const WithData = compose(
-  graphql<{}, QueryResponse>(gql(bookingDetail), {
+  graphql<{}, QueryResponse>(gql(integrationDetailQuery), {
     options: () => ({
       variables: {
-        _id: connection.setting.booking_id
+        _id: connection.setting.integration_id
       }
     })
   })

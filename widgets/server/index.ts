@@ -59,18 +59,18 @@ app.get('/booking', (req, res) => {
   res.render('widget', {
     type: 'booking',
     env: getEnv(),
-    bookingId: req.query.bookingId
+    integrationId: req.query.integrationId
   });
 });
 
 app.get('/test', (req, res) => {
-  const { form_id, brand_id, topic_id, booking_id } = req.query;
+  const { form_id, brand_id, topic_id, integration_id } = req.query;
 
   res.render(`widget-${req.query.type}-test`, {
     topic_id,
     brand_id,
     form_id,
-    booking_id,
+    integration_id,
     env: getEnv()
   });
 });

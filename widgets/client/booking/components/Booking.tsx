@@ -20,10 +20,10 @@ function Booking({ goToIntro, booking }: Props) {
     description,
     childCategories,
     mainProductCategory,
-    styles
+    style
   } = booking;
   const { attachment } = mainProductCategory;
-  const { widgetColor } = styles;
+  const { widgetColor } = style;
 
   return (
     <div className="main-container">

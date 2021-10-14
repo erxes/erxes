@@ -19,7 +19,8 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
 
   const extendedProps = {
     ...props,
-    form: data.formDetail
+    form: data.formDetail,
+    booking: props.integration.bookingData
   };
 
   return <DumbForm {...extendedProps} hasTopBar={true} />;
@@ -30,7 +31,7 @@ type QueryResponse = {
 };
 
 interface IProps {
-  booking: IBooking;
+  integration: any;
   currentStatus: ICurrentStatus;
   onSubmit: (doc: any) => void;
   onCreateNew: () => void;
@@ -44,10 +45,10 @@ const FormWithData = graphql<IProps, QueryResponse>(
   gql(formDetailQuery),
 
   {
-    options: ({ booking }) => ({
+    options: ({ integration }) => ({
       fetchPolicy: 'network-only',
       variables: {
-        _id: booking.formId
+        _id: integration.formId
       }
     })
   }
@@ -61,10 +62,10 @@ const WithContext = () => (
       sendEmail,
       // callSubmit,
       isSubmitting,
-      getBooking,
+      getIntegration,
       save
     }) => {
-      const booking = getBooking();
+      const integration = getIntegration();
 
       return (
         <FormWithData
@@ -74,7 +75,7 @@ const WithContext = () => (
           onCreateNew={createNew}
           sendEmail={sendEmail}
           setHeight={() => console.log('set height')}
-          booking={booking}
+          integration={integration}
           callSubmit={false}
         />
       );

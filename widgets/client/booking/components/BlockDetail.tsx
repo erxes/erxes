@@ -14,7 +14,7 @@ function BlockDetail({ goToBookings, block, booking }: Props) {
     return null;
   }
 
-  const { widgetColor } = booking.styles;
+  const { widgetColor } = booking.style;
 
   return (
     <div className="main-container">

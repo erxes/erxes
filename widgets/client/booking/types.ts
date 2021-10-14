@@ -86,7 +86,7 @@ export interface IBooking {
   createdUser?: IUser;
 
   // style
-  styles: IStyle;
+  style: IStyle;
 
   // display blocks
   displayBlock: IDisplayBlock;

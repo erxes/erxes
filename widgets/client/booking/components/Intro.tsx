@@ -10,8 +10,8 @@ type Props = {
 };
 
 function Intro({ booking, goToBooking, showPopup }: Props) {
-  const { title, description, image, styles } = booking;
-  const { widgetColor } = styles;
+  const { title, description, image, style } = booking;
+  const { widgetColor } = style;
 
   return (
     <div className="main-container">

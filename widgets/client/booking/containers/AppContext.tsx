@@ -32,6 +32,7 @@ interface IStore extends IState {
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   save: (params: any) => void;
+  getIntegration: () => any;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -101,6 +102,10 @@ export class AppProvider extends React.Component<{}, IState> {
     return connection.data.booking;
   };
 
+  getIntegration = () => {
+    return connection.data.integration;
+  };
+
   showForm = () => {
     this.setState({
       isFormVisible: true
@@ -138,40 +143,7 @@ export class AppProvider extends React.Component<{}, IState> {
    */
 
   save = (doc: any) => {
-    this.setState({ isSubmitting: true });
-
-    saveLead({
-      doc,
-      browserInfo: {
-        hostname:
-          'http://localhost:3200/test?type=form&brand_id=Lqn43J&form_id=RxkbAB',
-        language: 'en-US',
-        url: '/test',
-        userAgent:
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
-      },
-      integrationId: this.getBooking()._id,
-      formId: this.getBooking().formId,
-      saveCallback: (response: ISaveFormResponse) => {
-        const { errors } = response;
-
-        const status = response.status === 'ok' ? 'SUCCESS' : 'ERROR';
-
-        postMessage({
-          message: 'submitResponse',
-          status
-        });
-
-        this.setState({
-          // callSubmit: false,
-          isSubmitting: false,
-          currentStatus: {
-            status,
-            errors
-          }
-        });
-      }
-    });
+    console.log(doc);
   };
 
   render() {
@@ -191,7 +163,8 @@ export class AppProvider extends React.Component<{}, IState> {
           closePopup: this.closePopup,
           createNew: this.createNew,
           sendEmail,
-          save: this.save
+          save: this.save,
+          getIntegration: this.getIntegration
         }}
       >
         {this.props.children}

@@ -18,7 +18,7 @@ function Product({ product, booking, goToBookings, showForm }: Props) {
     return null;
   }
 
-  const { widgetColor } = booking.styles;
+  const { widgetColor } = booking.style;
   const settings = {
     dots: true,
     dotsClass: 'slick-dots slick-thumb',
@@ -28,14 +28,7 @@ function Product({ product, booking, goToBookings, showForm }: Props) {
     autoplay: true,
     autoplaySpeed: 2000
   };
-  const onSimulate = () => {
-    const { ROOT_URL } = getEnv();
-    window.open(
-      `${ROOT_URL}/test?type=form&brand_id=${booking.formBrandCode}&form_id=${booking.formCode}`,
-      'formWindow',
-      'width=800,height=800'
-    );
-  };
+
   const showFull = (img: any) => {
     const image = document.getElementById(String(img.name));
     if (image) {

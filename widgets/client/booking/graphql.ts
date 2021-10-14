@@ -180,10 +180,49 @@ const formDetailQuery = `
   }
 `;
 
+const integrationDetailQuery = `
+  query widgetsIntegrationDetail($_id: String!) {
+    widgetsIntegrationDetail(_id: $_id) {
+      _id
+      name
+      languageCode
+      formId
+
+      bookingData {
+        name
+        description
+        image {
+          name
+          size
+          type
+          url
+        }
+        
+        childCategories {
+          ${productCategoryFields}
+        }
+
+        mainProductCategory {
+          ${productCategoryFields}
+        }
+
+        productCategoryId
+
+        categoryTree
+
+        style
+
+      }
+      
+    }
+  }
+`;
+
 export {
   bookingDetail,
   productCategory,
   productDetail,
   increaseViewCountMutation,
-  formDetailQuery
+  formDetailQuery,
+  integrationDetailQuery
 };

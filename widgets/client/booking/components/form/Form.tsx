@@ -32,6 +32,7 @@ type Props = {
   color?: string;
 
   booking: IBooking;
+  integration: any;
 };
 
 type State = {
@@ -417,7 +418,7 @@ class Form extends React.Component<Props, State> {
   }
 
   render() {
-    const { form, currentStatus, sendEmail, booking } = this.props;
+    const { form, currentStatus, sendEmail, integration } = this.props;
     const doc = this.state.doc;
 
     if (currentStatus.status === 'SUCCESS') {
@@ -433,7 +434,7 @@ class Form extends React.Component<Props, State> {
         thankTitle,
         thankContent,
         attachments
-      } = booking.leadData;
+      } = integration.leadData;
 
       // redirect to some url
       if (successAction === 'redirect') {
@@ -490,7 +491,7 @@ export default (props: Props) => (
           {...props}
           // if lead is in a messenger, return messenger theme color (getColor())
           // else return lead theme color
-          color={getColor ? getColor() : props.booking.styles.widgetColor || ''}
+          color={getColor ? getColor() : props.booking.style.widgetColor || ''}
         />
       );
     }}

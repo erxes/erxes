@@ -10,14 +10,11 @@ import client from '../apollo-client';
 import { connection } from './connection';
 import './sass/style.scss';
 import { App } from './containers';
-import { increaseViewCount } from './containers/utils';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 
 const render = () => {
-  increaseViewCount(connection.setting.booking_id);
-
   // render root react component
   ReactDOM.render(
     <ApolloProvider client={client}>
