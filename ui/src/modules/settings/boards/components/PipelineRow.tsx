@@ -134,7 +134,7 @@ class PipelineRow extends React.Component<Props, State> {
       <tr>
         <td>{pipeline.name}</td>
         <td>
-          <Label lblStyle={labelStyle}>{pipeline.status}</Label>
+          <Label lblStyle={labelStyle}>{pipeline.status || 'active'}</Label>
         </td>
         <td>
           <Icon icon="calender" />
