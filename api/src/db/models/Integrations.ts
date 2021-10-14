@@ -137,6 +137,14 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     get?: boolean
   ): Promise<IIntegrationDocument>;
   isOnline(integration: IIntegrationDocument, now?: Date): boolean;
+  createBookingIntegration(
+    doc: IIntegration,
+    userId: string
+  ): Promise<IIntegrationDocument>;
+  updateBookingIntegration(
+    _id: string,
+    doc: IIntegration
+  ): Promise<IIntegrationDocument>;
 }
 
 export const loadClass = () => {
@@ -545,6 +553,40 @@ export const loadClass = () => {
       }
 
       return false;
+    }
+
+    /**
+     * Create a booking kind integration
+     */
+    public static createBookingIntegration(
+      { bookingData = {}, ...mainDoc }: IIntegration,
+      userId: string
+    ) {
+      const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
+
+      if (Object.keys(bookingData).length === 0) {
+        throw new Error('Booking data must be supplied');
+      }
+
+      return Integrations.createIntegration(doc, userId);
+    }
+
+    /**
+     * Update booking integration
+     */
+    public static async updateBookingIntegration(
+      _id: string,
+      { bookingData = {}, ...mainDoc }: IIntegration
+    ) {
+      const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
+
+      await Integrations.updateOne(
+        { _id },
+        { $set: doc },
+        { runValidators: true }
+      );
+
+      return Integrations.findOne({ _id });
     }
   }
 

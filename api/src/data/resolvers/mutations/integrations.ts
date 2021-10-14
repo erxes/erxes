@@ -621,6 +621,67 @@ const integrationMutations = {
     await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return copiedIntegration;
+  },
+  /**
+   * Create a new booking integration
+   */
+  async integrationsCreateBookingIntegration(
+    _root,
+    doc: IIntegration,
+    { user }: IContext
+  ) {
+    const integration = await Integrations.createBookingIntegration(
+      doc,
+      user._id
+    );
+
+    if (doc.channelIds) {
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
+    }
+
+    // await putCreateLog(
+    //   {
+    //     type: MODULE_NAMES.INTEGRATION,
+    //     newData: { ...doc, createdUserId: user._id, isActive: true },
+    //     object: integration
+    //   },
+    //   user
+    // );
+
+    // telemetry.trackCli('integration_created', { type: 'lead' });
+
+    // await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
+
+    return integration;
+  },
+
+  /**
+   * Edit a boooking integration
+   */
+  async integrationsEditBookingIntegration(
+    _root,
+    { _id, ...doc }: IEditIntegration
+  ) {
+    const integration = await Integrations.getIntegration({ _id });
+
+    const updated = await Integrations.updateBookingIntegration(_id, doc);
+
+    await Channels.updateMany(
+      { integrationIds: integration._id },
+      { $pull: { integrationIds: integration._id } }
+    );
+
+    if (doc.channelIds) {
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
+    }
+
+    return updated;
   }
 };
 
