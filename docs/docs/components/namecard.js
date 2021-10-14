@@ -5,7 +5,7 @@ import styles from "../../src/components/styles.module.css";
 import Table from "../../../ui/src/modules/common/components/table";
 
 export function CardComponent(props) {
-  const { type, name } = props;
+  const { type, name, info, table = [] } = props;
 
   if (type === "username") {
     return (
@@ -37,44 +37,80 @@ export function CardComponent(props) {
     );
   }
 
+  if (type === "avatarSize") {
+    return (
+      <>
+        <div className={styles.styled}>
+          <NameCard key={Math.random()} user={{details:{fullName: name}}} avatarSize={info}></NameCard>
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<NameCard user={{details:{fullName: "${ name }"}}} avatarSize="${info}"></NameCard>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "usermail") {
+    return (
+      <>
+        <div className={styles.styled}>
+          <NameCard key={Math.random()} user={{details:{fullName: name}, email: info}}></NameCard>
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<NameCard user={{details:{fullName: "${ name }"}, email: "${info}"}}></NameCard>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "secondLine") {
+    return (
+      <>
+        <div className={styles.styled}>
+          <NameCard key={Math.random()} user={{details:{fullName: name}}} secondLine={info}></NameCard>
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<NameCard user={{details:{fullName: "${ name }"}, secondLine="${info}"}}></NameCard>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "APIcard") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import Button from "erxes-ui/lib/components/Button";`}</CodeBlock>
+        <Table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Object</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {table.map((row, i) => (
+              <tr>
+                {row.map((cell) => (
+                  <td>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </>
+    );
+  }
+
   return null;
 }
-
-// function Avatarsize() {
-//   return (<>
-//     <div className={styles.styled}>
-//       <NameCard user={{details:{fullName: "Ariunzaya Enkhbayar"}}} avatarSize="50"></NameCard>
-//     </div>
-//     <CodeBlock className="language-jsx">{`<>
-//       <NameCard user={{username: "Ariuka", details:{fullName: "Ariunzaya Enkhbayar"}}} avatarSize="100"></NameCard>
-
-// </>`}</CodeBlock>
-//     </>
-//   );
-// }
-
-// function Useremail() {
-//   return (<>
-//     <div className={styles.styled}>
-//       <NameCard user={{details:{fullName: "Ariunzaya Enkhbayar"}, email:"ariunzaya@gmail.com"}}></NameCard>
-//     </div>
-//     <CodeBlock className="language-jsx">{`<>
-//        <NameCard user={{username: "Ariuka", details:{fullName: "Ariunzaya Enkhbayar"}, email:"ariunzaya@gmail.com"}}></NameCard>
-// </>`}</CodeBlock>
-//     </>
-//   );
-// }
-// function Secondline() {
-//   return (<>
-//     <div className={styles.styled}>
-//       <NameCard user={{username: "Ariuka", details:{fullName: "Ariunzaya Enkhbayar"}}} secondLine="Intern"></NameCard>
-//     </div>
-//     <CodeBlock className="language-jsx">{`<>
-//        <NameCard user={{username: "Ariuka", details:{fullName: "Ariunzaya Enkhbayar"}, email:"ariunzaya@gmail.com"}}></NameCard>
-// </>`}</CodeBlock>
-//     </>
-//   );
-// }
 
 // function Apinamecard() {
 //   return(

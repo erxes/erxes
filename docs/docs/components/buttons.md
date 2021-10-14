@@ -17,7 +17,6 @@ import { ButtonComponent } from "./buttons.js"
 <p>Larger or smaller buttons? Add <code>size</code> for additional sizes.</p>
 <ButtonComponent type="size" buttons={['Large', 'Medium', 'Small']}></ButtonComponent>
 
-
 ## Disabled state
 <p>Make buttons look inactive by adding the <code>disabled</code> prop to.</p>
 <ButtonComponent type="activity"></ButtonComponent>
@@ -35,8 +34,6 @@ import { ButtonComponent } from "./buttons.js"
 <ButtonComponent type="icon" buttons={['Primary', 'Success', 'Danger', 'Warning', 'Simple', 'Link']} icons={['envelope-alt', 'check-circle', 'times-circle', 'exclamation-triangle', 'info-circle', 'link']}></ButtonComponent>
 
 ## API
-
-### Button
 <ButtonComponent type="APIbutton" table={[
     ['href', 'string', '', 'Defines a hyperlink'],
     ['type', 'string', 'button', 'Defines HTML button type attribute'],
