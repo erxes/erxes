@@ -3,7 +3,7 @@ id: spinners
 title: Spinners
 ---
 
-import { Objective, Size, Position } from "./spinners.js"
+import { Objective, Size, Position, Apispinners } from "./spinners.js"
 
 <p>Spinners can be used to show the loading state in your projects.</p>
 
@@ -24,3 +24,7 @@ import { Objective, Size, Position } from "./spinners.js"
 
 <p>Make your spinner objective by <code>objective</code> prop.</p>
 <Objective></Objective>
+
+## API
+
+<Apispinners></Apispinners>

@@ -345,6 +345,9 @@ function Normal() {
 function ApiTable() {
   return (
     <>
+      <CodeBlock className="language-jsx">{`<>
+      import Table from 'erxes-ui/lib/components/table/index';
+</>`}</CodeBlock>
       <Table>
         <thead>
           <tr>
@@ -355,7 +358,7 @@ function ApiTable() {
           </tr>
         </thead>
         <tbody>
-        <tr>
+          <tr>
             <td>bordered</td>
             <td>boolean</td>
             <td>false</td>
@@ -381,7 +384,9 @@ function ApiTable() {
           </tr>
           <tr>
             <td>white-space</td>
-            <td>"normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"</td>
+            <td>
+              "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
+            </td>
             <td></td>
             <td>Activate table hover.</td>
           </tr>
@@ -391,4 +396,3 @@ function ApiTable() {
   );
 }
 export { Tables, TableHover, Normal, Striped, ApiTable, Bordered };
- 
