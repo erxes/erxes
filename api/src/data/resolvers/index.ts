@@ -104,7 +104,6 @@ const resolvers: any = {
   CalendarGroup,
   CalendarBoard,
   Tag,
-
   Automation,
   AutomationNote,
   Trigger
