@@ -27,9 +27,8 @@ import { CardComponent } from "./namecard.js"
 
 ## API
 <CardComponent type="APIcard" table={[
-    ['user', 'username', 'string', 'Username object of user'],
-    ['user', 'fullName', 'string', 'Fullname object of user. If you have details and username, it will only show detail'],
-    ['user', 'email', 'string', 'Email object of user'],
+    ['fullName', 'string', 'Fullname object of user. If you have details and username, it will only show detail'],
+    ['email', 'string', 'Email object of user'],
     ['secondLine', '', 'string', 'Line below the username or full name. You can write anything in the second line'],
     ['avatarSize', '', 'number', 'Avatar size of your name card']
 ]}></CardComponent>

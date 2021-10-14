@@ -96,6 +96,12 @@ export function CardComponent(props) {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td rowSpan="3">user</td>
+              <td>username</td>
+              <td>string</td>
+              <td>Username object of user</td>
+            </tr>
             {table.map((row, i) => (
               <tr>
                 {row.map((cell) => (
@@ -111,52 +117,3 @@ export function CardComponent(props) {
 
   return null;
 }
-
-// function Apinamecard() {
-//   return(
-//     <>
-//     <Table>
-//           <thead>
-//             <tr>
-//               <th>Name</th>
-//               <th>Object</th>
-//               <th>Type</th>
-//               <th>Description</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             <tr>
-//               <td rowSpan="3">user</td>
-//               <td>username</td>
-//               <td>string</td>
-//               <td>Username object of user</td>
-//             </tr>
-//             <tr>
-//               <td>details</td>
-//               <td>string</td>
-//               <td>Fullname object of user. If you have details and username, it will only show detail</td>
-//             </tr>
-//             <tr>
-//               <td>email</td>
-//               <td>string</td>
-//               <td>Email object of user</td>
-//             </tr>
-//             <tr>
-//               <td>secondLine</td>
-//               <td></td>
-//               <td>string</td>
-//               <td>Line below the username or full name.You can write anything in the second line</td>
-//             </tr>
-//             <tr>
-//               <td>avatarSize</td>
-//               <td></td>
-//               <td>number</td>
-//               <td>Avatar size of your name card</td>
-//             </tr>
-//           </tbody>
-//         </Table>
-//     </>
-//   );
-// }
-
-// export { Cards, Avatarsize, Username, Useremail, Secondline, Apinamecard };

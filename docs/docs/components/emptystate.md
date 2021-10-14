@@ -3,13 +3,13 @@ id: emptystate
 title: Empty State
 ---
 
-import { Emptystate, Emptyimg, Emptyextra, Emptysize, Emptylight, Apiemptystate } from './emptystate.js'
+import { EmptyStateComponents } from './emptystate.js'
 
 
 <p>Empty state with <code>icon</code> and <code>text</code> props. </p>
-<Emptystate></Emptystate>
+<EmptyStateComponents type="simple" text="Text" icon="info-circle"></EmptyStateComponents>
 
-## Light
+<!-- ## Light
 
 <p>If you use <code>light</code> prop, your text won't show. </p>
 <Emptylight></Emptylight>
@@ -33,4 +33,4 @@ import { Emptystate, Emptyimg, Emptyextra, Emptysize, Emptylight, Apiemptystate 
 
 <Apiemptystate></Apiemptystate>
 
-
+ -->
