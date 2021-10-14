@@ -28,7 +28,7 @@ class Histories extends React.Component<Props> {
     if (!histories || histories.length === 0) {
       return (
         <EmptyState
-          image="/images/actions/8.svg"
+          image="/images/actions/5.svg"
           text="History has not yet been created"
         />
       );

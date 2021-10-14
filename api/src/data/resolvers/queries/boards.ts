@@ -99,9 +99,11 @@ const boardQueries = {
     { type }: { type: string },
     { commonQuerySelector }: IContext
   ) {
-    const boards = await Boards.find({ ...commonQuerySelector, type }).sort({
-      name: 1
-    }).lean();
+    const boards = await Boards.find({ ...commonQuerySelector, type })
+      .sort({
+        name: 1
+      })
+      .lean();
 
     const counts: Array<{ _id: string; name: string; count: number }> = [];
 
@@ -145,9 +147,11 @@ const boardQueries = {
     { type }: { type: string },
     { commonQuerySelector }: IContext
   ) {
-    return Boards.findOne({ ...commonQuerySelector, type }).sort({
-      createdAt: -1
-    }).lean();
+    return Boards.findOne({ ...commonQuerySelector, type })
+      .sort({
+        createdAt: -1
+      })
+      .lean();
   },
 
   /**
@@ -173,6 +177,7 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
+            status: { $ne: 'archived' },
             $or: [
               { visibility: 'public' },
               {
@@ -206,7 +211,9 @@ const boardQueries = {
       );
     }
 
-    return Pipelines.find(query).sort({ order: 1, createdAt: -1 }).lean();
+    return Pipelines.find(query)
+      .sort({ order: 1, createdAt: -1 })
+      .lean();
   },
 
   async pipelineStateCount(
@@ -313,7 +320,9 @@ const boardQueries = {
       filter.$or = [{ status: null }, { status: BOARD_STATUSES.ACTIVE }];
     }
 
-    return Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
+    return Stages.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .lean();
   },
 
   /**
