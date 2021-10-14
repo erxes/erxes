@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Form, Uploader, SelectTeamMembers } from 'erxes-ui';
+import DateControl from 'erxes-ui/lib/components/form/DateControl';
+import { Form, FormControl, Uploader, SelectTeamMembers } from 'erxes-ui';
 import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
 import { UploadItems } from '../styles';
 import { title, description } from '../utils';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import GenerateFields from './GenerateFields';
+import { __ } from 'erxes-ui/lib/utils';
 
 type Props = {
   item?: any;
@@ -21,6 +23,18 @@ export default function EventForm(props: Props) {
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
   );
+  const itemEventData = item.eventData || {};
+
+  const [eventData, setEventData] = useState({
+    visibility: itemEventData.visibility || 'public',
+    where: itemEventData.where || '',
+    startDate: itemEventData.startDate,
+    endDate: itemEventData.endDate
+  });
+
+  const onChangeEventData = (key, value) => {
+    setEventData({ ...eventData, [key]: value });
+  };
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
@@ -28,6 +42,48 @@ export default function EventForm(props: Props) {
 
     return (
       <>
+        <FormControl
+          componentClass='radio'
+          name='visibility'
+          checked={eventData.visibility === 'public'}
+          value='public'
+          onChange={(e: any) => onChangeEventData('visibility', e.target.value)}
+        >
+          Public
+        </FormControl>
+        <FormControl
+          componentClass='radio'
+          name='visibility'
+          value='private'
+          checked={eventData.visibility === 'private'}
+          onChange={(e: any) => onChangeEventData('visibility', e.target.value)}
+        >
+          Private
+        </FormControl>
+        <DateControl
+          value={eventData.startDate}
+          required={false}
+          name='startDate'
+          onChange={date => onChangeEventData('startDate', date)}
+          placeholder={'Start date'}
+          dateFormat={'YYYY-MM-DD HH:mm:ss'}
+          timeFormat={true}
+        />
+        <DateControl
+          value={eventData.endDate}
+          required={false}
+          name='endDate'
+          placeholder={'End date'}
+          onChange={date => onChangeEventData('endDate', date)}
+          dateFormat={'YYYY-MM-DD HH:mm:ss'}
+          timeFormat={true}
+        />
+        <FormControl
+          placeholder='Where'
+          componentClass='textarea'
+          value={eventData.where}
+          onChange={(e: any) => onChangeEventData('where', e.target.value)}
+        />
         <SelectTeamMembers
           label='Guests'
           name='recipientIds'
@@ -57,7 +113,8 @@ export default function EventForm(props: Props) {
             contentType: 'event',
             attachments,
             recipientIds,
-            customFieldsData
+            customFieldsData,
+            eventData
           },
           isSubmitted,
           callback: closeModal

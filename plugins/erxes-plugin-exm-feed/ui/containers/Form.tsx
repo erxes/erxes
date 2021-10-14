@@ -25,8 +25,6 @@ export default function FormContainer(props: Props) {
     }
   });
 
-  console.log('data: ', data);
-
   const renderButton = ({
     values,
     isSubmitted,

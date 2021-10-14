@@ -4,8 +4,9 @@ const commonVariables = `
   $contentType: ContentType!
   $images: [JSON]
   $attachments: [JSON]
-  $recipientIds: [String],
+  $recipientIds: [String]
   $customFieldsData: JSON
+  $eventData: ExmEventDataInput
 `;
 
 const commonParams = `
@@ -16,6 +17,7 @@ const commonParams = `
   attachments: $attachments
   recipientIds: $recipientIds
   customFieldsData: $customFieldsData
+  eventData: $eventData
 `;
 
 const addFeed = `

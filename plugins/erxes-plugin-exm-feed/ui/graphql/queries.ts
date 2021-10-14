@@ -30,6 +30,14 @@ const commonFeedFields = `
   updatedUser {
     ${userFields}
   }
+  eventData {
+    visibility
+    where
+    startDate
+    endDate
+    interestedUserIds
+    goingUserIds
+  }
   customFieldsData
 `;
 

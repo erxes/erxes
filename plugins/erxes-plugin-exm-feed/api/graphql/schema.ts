@@ -6,6 +6,15 @@ export const types = `
     year: Int
   }
 
+  type ExmEventData {
+    visibility: String
+    where: String
+    startDate: Date
+    endDate: Date
+    interestedUserIds: [String]
+    goingUserIds: [String]
+  }
+
   type ExmFeed {
     _id: String
     title: String
@@ -31,6 +40,7 @@ export const types = `
     updatedUser: User
     customFieldsData: JSON
     ceremonyData: ExmCeremonyData
+    eventData: ExmEventData
   }
 
   type ExmThank {
@@ -97,6 +107,13 @@ export const types = `
     today
     upcoming
   }
+
+  input ExmEventDataInput {
+    visibility: String
+    where: String
+    startDate: Date
+    endDate: Date
+  }
 `;
 
 export const queries = `
@@ -115,10 +132,7 @@ const feedCommonParams = `
   images: [JSON]
   attachments: [JSON]
   recipientIds: [String]
-  visibility: Visibility
-  where: String
-  startDate: Date
-  endDate: Date
+  eventData: ExmEventDataInput
   customFieldsData: JSON
   isPinned: Boolean
 `;

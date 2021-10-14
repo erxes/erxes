@@ -19,6 +19,15 @@ const ceremonyDataSchema = {
   year: { type: Number, label: 'Ceremony year' }
 };
 
+const eventDataSchema = {
+  visibility: { type: Boolean, enum: ['Public', 'Private'] },
+  where: { type: String },
+  startDate: { type: Date },
+  endDate: { type: Date },
+  interestedUserIds: { type: [String] },
+  goingUserIds: { type: [String] }
+};
+
 export const FEED_CONTENT_TYPES = {
   POST: 'post',
   EVENT: 'event',
@@ -43,6 +52,7 @@ export const feedSchema = {
     label: 'Custom fields data'
   },
   ceremonyData: { type: ceremonyDataSchema },
+  eventData: { type: eventDataSchema },
   startDate: { type: Date },
   endDate: { type: Date },
   createdBy: { type: String, label: 'Created by' },
