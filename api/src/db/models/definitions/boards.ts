@@ -76,12 +76,12 @@ export interface IBoardDocument extends IBoard, Document {
 export interface IPipeline extends ICommonFields {
   name?: string;
   boardId: string;
+  status?: string;
   visibility?: string;
   condition?: string;
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
-
   startDate?: Date;
   endDate?: Date;
   metric?: string;
@@ -232,6 +232,12 @@ export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   boardId: field({ type: String, label: 'Board' }),
+  status: field({
+    type: String,
+    enum: BOARD_STATUSES.ALL,
+    default: BOARD_STATUSES.ACTIVE,
+    label: 'Status'
+  }),
   visibility: field({
     type: String,
     enum: PIPELINE_VISIBLITIES.ALL,

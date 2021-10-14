@@ -10,7 +10,9 @@ export default {
   },
 
   form(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    return integration.formId && dataLoaders.form.load(integration.formId);
+    return (
+      (integration.formId && dataLoaders.form.load(integration.formId)) || null
+    );
   },
 
   channels(integration: IIntegrationDocument) {
@@ -19,8 +21,9 @@ export default {
     });
   },
 
-  tags(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.tag.loadMany(integration.tagIds || []);
+  async tags(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(integration.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   websiteMessengerApps(integration: IIntegrationDocument) {

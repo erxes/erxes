@@ -237,9 +237,17 @@ export const loadClass = () => {
       visitorId?: string;
       browserInfo: any;
     }) {
-      const { brandId, integrationId, customer, visitorId, browserInfo } = params;
+      const {
+        brandId,
+        integrationId,
+        customer,
+        visitorId,
+        browserInfo
+      } = params;
 
-      const customerObj = customer ? customer : { _id: '', state: CONTENT_TYPES.VISITOR };
+      const customerObj = customer
+        ? customer
+        : { _id: '', state: CONTENT_TYPES.VISITOR };
 
       let messages: IEngageMessageDocument[];
 

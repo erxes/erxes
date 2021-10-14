@@ -15,6 +15,7 @@ export const types = `
   type Pipeline {
     _id: String!
     name: String!
+    status: String
     boardId: String!
     visibility: String!
     condition: String!
@@ -23,7 +24,8 @@ export const types = `
     bgColor: String
     isWatched: Boolean
     itemsTotalCount: Int
-
+    userId: String
+    createdUser: User
     startDate: Date
     endDate: Date
     metric: String
@@ -94,6 +96,7 @@ export const queries = `
   boardDetail(_id: String!): Board
   pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
   pipelineDetail(_id: String!): Pipeline
+  pipelineAssignedUsers(_id: String!): [User]
   stages(
     isNotLost: Boolean,
     isAll: Boolean,
@@ -141,7 +144,8 @@ export const mutations = `
   pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
   pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
   pipelinesRemove(_id: String!): JSON
-
+  pipelinesArchive(_id: String!): JSON  
+  pipelinesCopied(_id: String!): JSON
   stagesUpdateOrder(orders: [OrderItem]): [Stage]
   stagesRemove(_id: String!): JSON
   stagesEdit(_id: String!, type: String, name: String, status: String): Stage

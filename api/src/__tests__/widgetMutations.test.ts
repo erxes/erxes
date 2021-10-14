@@ -296,11 +296,9 @@ describe('messenger connect', () => {
   });
 
   test('creates new visitor log', async () => {
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToLog')
-      .callsFake(() => {
-        return Promise.resolve('ok');
-      });
+    const logUtilsMock = sinon.stub(logUtils, 'sendToLog').callsFake(() => {
+      return Promise.resolve('ok');
+    });
 
     const response = await widgetMutations.widgetsMessengerConnect(
       {},
@@ -467,11 +465,9 @@ describe('insertMessage()', () => {
   });
 
   test('with visitorId', async () => {
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToLog')
-      .callsFake(() => {
-        return Promise.resolve('ok');
-      });
+    const logUtilsMock = sinon.stub(logUtils, 'sendToLog').callsFake(() => {
+      return Promise.resolve('ok');
+    });
 
     const conversation = await conversationFactory({});
 
@@ -1012,11 +1008,9 @@ describe('rest', () => {
   });
 
   test('widgetsSaveCustomerGetNotified without customerId', async () => {
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToLog')
-      .callsFake(() => {
-        return Promise.resolve('ok');
-      });
+    const logUtilsMock = sinon.stub(logUtils, 'sendToLog').callsFake(() => {
+      return Promise.resolve('ok');
+    });
 
     const customer = await widgetMutations.widgetsSaveCustomerGetNotified(
       {},

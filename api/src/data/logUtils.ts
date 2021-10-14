@@ -1555,7 +1555,8 @@ export const fetchLogs = async (
   }
 };
 
-export const sendToLog = (channel: string, data) => messageBroker().sendMessage(channel, data);
+export const sendToLog = (channel: string, data) =>
+  messageBroker().sendMessage(channel, data);
 
 interface IActivityLogParams {
   action: string;

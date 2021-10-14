@@ -6,13 +6,15 @@ import { IContext } from '../types';
 export default {
   integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
     return (
-      customer.integrationId &&
-      dataLoaders.integration.load(customer.integrationId)
+      (customer.integrationId &&
+        dataLoaders.integration.load(customer.integrationId)) ||
+      null
     );
   },
 
-  getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.tag.loadMany(customer.tagIds || []);
+  async getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(customer.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   async urlVisits(customer: ICustomerDocument) {
@@ -49,8 +51,15 @@ export default {
     });
   },
 
-  conversations(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return dataLoaders.conversationsByCustomerId.load(customer._id);
+  async conversations(
+    customer: ICustomerDocument,
+    _,
+    { dataLoaders }: IContext
+  ) {
+    const conversations = await dataLoaders.conversationsByCustomerId.load(
+      customer._id
+    );
+    return conversations.filter(conversation => conversation);
   },
 
   async companies(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
@@ -62,10 +71,12 @@ export default {
     const companies = await dataLoaders.company.loadMany(
       (companyIds || []).filter(x => x)
     );
-    return (companies || []).slice(0, 10);
+    return (companies || []).filter(c => c).slice(0, 10);
   },
 
-  owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return customer.ownerId && dataLoaders.user.load(customer.ownerId);
+  async owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
+    return (
+      (customer.ownerId && dataLoaders.user.load(customer.ownerId)) || null
+    );
   }
 };

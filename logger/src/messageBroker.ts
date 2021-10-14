@@ -22,7 +22,7 @@ export const initBroker = async server => {
     await receivePutLogCommand(data);
   });
 
-  consumeQueue('visitor:createOrUpdate', async (data) => {
+  consumeQueue('visitor:createOrUpdate', async data => {
     await Visitors.createOrUpdateVisitorLog(data);
   });
 
@@ -32,9 +32,12 @@ export const initBroker = async server => {
     sendToApi('visitor:convertResponse', visitor);
   });
 
-  consumeQueue('visitor:updateEntry', async ({ visitorId, location: browserInfo }) => {
-    await Visitors.updateVisitorLog({ visitorId, location: browserInfo });
-  });
+  consumeQueue(
+    'visitor:updateEntry',
+    async ({ visitorId, location: browserInfo }) => {
+      await Visitors.updateVisitorLog({ visitorId, location: browserInfo });
+    }
+  );
 
   consumeQueue('visitor:removeEntry', async ({ visitorId }) => {
     await Visitors.removeVisitorLog(visitorId);

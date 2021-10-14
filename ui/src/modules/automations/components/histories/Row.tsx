@@ -30,6 +30,7 @@ class HistoryRow extends React.Component<Props, State> {
 
   generateName = () => {
     const { triggerType, target } = this.props.history;
+
     switch (triggerType) {
       case 'visitor':
       case 'lead':
@@ -97,9 +98,11 @@ class HistoryRow extends React.Component<Props, State> {
     }
 
     if (action.actionType === 'setProperty') {
-      return `Update for ${(result.result || []).length} ${result.module}: ${(
-        result.fields || []
-      ).join(', ')}, (${result.result.map(r => (r.error && r.error) || '')})`;
+      return `Update for ${(result.result || []).length} ${
+        result.module
+      }: ${result.fields || ''}, (${result.result.map(
+        r => (r.error && r.error) || ''
+      )})`;
     }
 
     if (action.actionType === 'if') {
@@ -113,7 +116,7 @@ class HistoryRow extends React.Component<Props, State> {
     const { isShowDetail } = this.state;
 
     if (!isShowDetail) {
-      return '';
+      return null;
     }
 
     const { history, actionsByType } = this.props;

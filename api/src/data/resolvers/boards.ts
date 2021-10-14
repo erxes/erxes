@@ -9,11 +9,15 @@ export default {
     }
 
     if (user.isOwner) {
-      return Pipelines.find({ boardId: board._id });
+      return Pipelines.find({
+        boardId: board._id,
+        status: { $ne: 'archived' }
+      }).lean();
     }
 
     return Pipelines.find({
       $and: [
+        { status: { $ne: 'archived' } },
         { boardId: board._id },
         {
           $or: [
@@ -49,6 +53,6 @@ export default {
           ]
         }
       ]
-    });
+    }).lean();
   }
 };

@@ -184,7 +184,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
             });
           }
 
-          if (action === 'itemOfConformitiesUpdate') {
+          if (action === 'itemOfConformitiesUpdate' && item._id) {
             setTimeout(() => {
               client
                 .query({
@@ -208,7 +208,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
             this.refetchStage(destinationStageId);
           } else {
             // refetch stages info ===
-            const changedStageIds: string[] = [item.stageId];
+            const changedStageIds: string[] = item.stageId ? [item.stageId] : [];
 
             if (
               destinationStageId &&

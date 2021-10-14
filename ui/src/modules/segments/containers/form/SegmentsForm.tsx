@@ -135,7 +135,8 @@ class SegmentsFormContainer extends React.Component<
           boardId,
           pipelineId,
           conditionsConjunction
-        }
+        },
+        fetchPolicy: 'network-only'
       })
       .then(({ data }) => {
         this.setState({
