@@ -85,10 +85,6 @@ const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
   name: 'INTEGRATIONS_API_DOMAIN'
 });
 
-const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_DOMAIN'
-});
-
 const DASHBOARD_DOMAIN = getSubServiceDomain({
   name: 'DASHBOARD_DOMAIN'
 });
@@ -97,15 +93,7 @@ const ENGAGES_API_DOMAIN = getSubServiceDomain({
   name: 'ENGAGES_API_DOMAIN'
 });
 
-const CP_DOMAIN = getSubServiceDomain({
-  name: 'CP_DOMAIN'
-});
-
-const CLIENT_PORTAL_MN_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_MN_DOMAIN'
-});
-
-const CP_DOMAINS = getSubServiceDomain({
+const CLIENT_PORTAL_DOMAINS = getSubServiceDomain({
   name: 'CLIENT_PORTAL_DOMAINS'
 });
 
@@ -164,15 +152,13 @@ app.use(cookieParser());
 const domains = [
   MAIN_APP_DOMAIN,
   WIDGETS_DOMAIN,
-  CLIENT_PORTAL_DOMAIN,
-  CP_DOMAIN,
-  DASHBOARD_DOMAIN,
-  CLIENT_PORTAL_MN_DOMAIN
+  ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+  DASHBOARD_DOMAIN
 ];
 
 const corsOptions = {
   credentials: true,
-  origin: CP_DOMAINS ? [...domains, ...CP_DOMAINS.split(',')] : domains
+  origin: domains
 };
 
 app.use(cors(corsOptions));
