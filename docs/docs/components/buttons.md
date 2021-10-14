@@ -38,17 +38,12 @@ import { ButtonComponent } from "./buttons.js"
 
 ### Button
 <ButtonComponent type="APIbutton" table={[
-    ['href', 'string', '', 'Href description'], 
-    ['type', 'string', 'button', 'type description'], 
-    ['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'btnStyle description'], 
-    ['size', 'large | medium | small', 'medium', 'size description'], 
-    ['disabled', 'boolean', '', 'disabled description'], 
-    ['block', '', 'medium', 'size description']
+    ['href', 'string', '', 'Defines a hyperlink'],
+    ['type', 'string', 'button', 'Defines HTML button type attribute'],
+    ['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],
+    ['size', 'large | medium | small', 'medium', 'Specifies a large or small button'],
+    ['disabled', 'boolean', 'false', 'Disables the Button'],
+    ['block', 'boolean', 'false', 'Makes the button full-width'],
+    ['icon', 'string', '', 'Shows icon'],
+    ['uppercase', 'boolean', 'false', 'Makes the button text uppercase']
 ]}></ButtonComponent>
-
-<!-- ## API
-
-### Button
-
-<p>import Button from "erxes-ui/lib/components/Button";</p>
-<ApiButton></ApiButton> --> --> --> -->
