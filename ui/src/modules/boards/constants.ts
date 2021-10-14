@@ -97,3 +97,45 @@ export const EMPTY_CONTENT_TASK = {
     }
   ]
 };
+
+export const stackByChart = [
+  {
+    name: 'stage',
+    title: 'Stage'
+  },
+  {
+    name: 'label',
+    title: 'Label'
+  },
+  {
+    name: 'priority',
+    title: 'Priority'
+  },
+  {
+    name: 'dueDate',
+    title: 'Due Date'
+  }
+];
+
+export const chartTypes = [
+  {
+    name: 'line',
+    title: 'Line',
+    icon: 'chart-line'
+  },
+  {
+    name: 'area',
+    title: 'Area',
+    icon: 'arrow-growth'
+  },
+  {
+    name: 'bar',
+    title: 'Bar',
+    icon: 'chart-bar'
+  },
+  {
+    name: 'pie',
+    title: 'Pie',
+    icon: 'chart-pie'
+  }
+];

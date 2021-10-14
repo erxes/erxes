@@ -19,6 +19,8 @@ import { IBoard, IOptions, IPipeline } from '../types';
 import RightMenu from './RightMenu';
 import { GroupByContent } from '../styles/common';
 import Button from 'modules/common/components/Button';
+import { chartTypes, stackByChart } from 'modules/boards/constants';
+import SelectType from './SelectType';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -231,56 +233,25 @@ class MainActionBar extends React.Component<Props> {
       return null;
     }
 
-    const onFilterType = (selectType: string) => {
-      const { currentBoard, currentPipeline, options } = this.props;
-      const pipelineType = options.type;
-
-      if (currentBoard && currentPipeline) {
-        return `/${pipelineType}/list?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&stackBy=${selectType}`;
-      }
-
-      return `/${pipelineType}/${selectType}`;
-    };
-
-    const labelLink = onFilterType('label');
-    const stageLink = onFilterType('stage');
-    const priorityLink = onFilterType('priority');
-    const assignLink = onFilterType('assignee');
-    const dueDateLink = onFilterType('dueDate');
-
-    const typeName = queryParams.groupBy;
-
     return (
       <GroupByContent>
-        <Icon icon="list-2" />
-        <span>{__('Stack By:')}</span>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
-            <Button btnStyle="primary" size="small">
-              {typeName
-                ? typeName.charAt(0).toUpperCase() + typeName.slice(1)
-                : __('Assignee')}
-              <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <Link to={stageLink}>{__('Assignee')}</Link>
-            </li>
-            <li>
-              <Link to={labelLink}>{__('Stage')}</Link>
-            </li>
-            <li>
-              <Link to={priorityLink}>{__('Label')}</Link>
-            </li>
-            <li>
-              <Link to={assignLink}>{__('Priority')}</Link>
-            </li>
-            <li>
-              <Link to={dueDateLink}>{__('Due Date')}</Link>
-            </li>
-          </Dropdown.Menu>
-        </Dropdown>
+        <SelectType
+          title={__('Chart Type:')}
+          icon="chart-bar"
+          list={chartTypes}
+          text={__('Bar')}
+          queryParamName="chartType"
+          queryParams={queryParams}
+        />
+
+        <SelectType
+          title={__('Stack By:')}
+          icon="list-2"
+          list={stackByChart}
+          text={__('Stage')}
+          queryParamName="stackBy"
+          queryParams={queryParams}
+        />
       </GroupByContent>
     );
   };

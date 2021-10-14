@@ -70,6 +70,7 @@ class Board extends React.Component<Props> {
           stackBy={queryParams.stackBy}
           type={options.type}
           pipelineId={pipeline._id}
+          chartType={queryParams.chartType}
         />
       );
     }

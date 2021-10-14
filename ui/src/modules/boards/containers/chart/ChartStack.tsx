@@ -1,19 +1,23 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
+import EmptyState from 'modules/common/components/EmptyState';
 import { queries } from '../../graphql';
-import ChartStack from '../../components/chart/ChartStack';
+import ChartLine from 'modules/boards/components/chart/ChartLine';
+import ChartBar from 'modules/boards/components/chart/ChartBar';
 
 type Props = {
   pipelineId: string;
   type: string;
   stackBy: string;
+  chartType: string;
 };
 
 export default function ChartStackContainer({
   pipelineId,
   type,
-  stackBy
+  stackBy,
+  chartType
 }: Props) {
   const { data, loading, error } = useQuery(
     gql(queries.itemsCountByAssignedUser),
@@ -37,5 +41,13 @@ export default function ChartStackContainer({
   const bars = data.itemsCountByAssignedUser.groups || [];
   const usersWithInfo = data.itemsCountByAssignedUser.usersWithInfo || [];
 
-  return <ChartStack bars={bars} usersWithInfo={usersWithInfo} />;
+  if (bars.length === 0) {
+    return <EmptyState text="this data is empty" icon="piechart" />;
+  }
+
+  if (chartType === 'line') {
+    return <ChartLine bars={bars} usersWithInfo={usersWithInfo} />;
+  }
+
+  return <ChartBar bars={bars} usersWithInfo={usersWithInfo} />;
 }
