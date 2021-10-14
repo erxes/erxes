@@ -149,4 +149,5 @@ export const mutations = `
   widgetsSendTypingInfo(conversationId: String!, text: String): String
 
   widgetsBookingIncreaseViewCount(_id: String!): JSON
+  widgetsBookingConnect(_id: String): Integration
 `;

@@ -927,6 +927,10 @@ const widgetMutations = {
   },
   widgetsBookingIncreaseViewCount(_root, { _id }: { _id: string }) {
     return Bookings.increaseViewCount(_id);
+  },
+  // Find integration
+  async widgetsBookingConnect(_root, { _id }: { _id: string }) {
+    return Integrations.findOne({ _id });
   }
 };
 
