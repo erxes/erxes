@@ -149,16 +149,14 @@ app.use(
 
 app.use(cookieParser());
 
-const domains = [
-  MAIN_APP_DOMAIN,
-  WIDGETS_DOMAIN,
-  ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-  DASHBOARD_DOMAIN
-];
-
 const corsOptions = {
   credentials: true,
-  origin: domains
+  origin: [
+    MAIN_APP_DOMAIN,
+    WIDGETS_DOMAIN,
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    DASHBOARD_DOMAIN
+  ]
 };
 
 app.use(cors(corsOptions));
