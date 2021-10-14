@@ -23,7 +23,6 @@ export interface IClientPortal {
   domain?: string;
   dnsStatus?: string;
   styles?: IStyles;
-  css?: string;
   mobileResponsive?: boolean;
 }
 
@@ -94,7 +93,6 @@ export const clientPortalSchema = new Schema({
   domain: field({ type: String, optional: true }),
   dnsStatus: field({ type: String, optional: true }),
   styles: field({ type: stylesSchema, optional: true }),
-  css: field({ type: String, optional: true }),
   mobileResponsive: field({ type: Boolean, optional: true }),
   createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
   twilioAccountSid: field({ type: String, optional: true }),

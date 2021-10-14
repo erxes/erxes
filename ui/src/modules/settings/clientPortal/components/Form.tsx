@@ -61,7 +61,6 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       secondaryBtnColor: styles.secondaryBtnColor || '',
       dividerColor: styles.dividerColor || ''
     },
-    css: defaultConfigValues.css || '',
     mobileResponsive: defaultConfigValues.mobileResponsive || false,
     twilioAccountSid: defaultConfigValues.twilioAccountSid || '',
     twilioAuthToken: defaultConfigValues.twilioAuthToken || '',

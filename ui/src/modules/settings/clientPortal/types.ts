@@ -20,7 +20,6 @@ export type ClientPortalConfig = {
   ticketBoardId?: string;
   ticketPipelineId?: string;
   styles?: Styles;
-  css?: string;
   mobileResponsive?: boolean;
   googleCredentials?: object;
   twilioAccountSid?: string;

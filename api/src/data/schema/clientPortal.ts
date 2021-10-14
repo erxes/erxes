@@ -21,7 +21,6 @@ export const types = `
     ticketPipelineId: String
     ticketBoardId: String
     styles: Styles
-    css: String
     mobileResponsive: Boolean
     googleCredentials: JSON
     twilioAccountSid: String
@@ -121,7 +120,6 @@ export const mutations = `
     ticketPipelineId: String
     ticketBoardId: String
     styles: StylesParams
-    css: String
     mobileResponsive: Boolean
     googleCredentials: JSON
     twilioAccountSid: String

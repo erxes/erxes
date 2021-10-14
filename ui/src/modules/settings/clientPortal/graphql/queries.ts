@@ -36,7 +36,6 @@ export const commonFields = `
     primaryBtnColor
     secondaryBtnColor
   }
-  css
   mobileResponsive
   googleCredentials
   twilioAccountSid

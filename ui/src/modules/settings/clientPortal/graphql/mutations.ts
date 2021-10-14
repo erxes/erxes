@@ -22,7 +22,6 @@ const createOrUpdateConfig = `
     $ticketPipelineId: String
     $ticketBoardId: String
     $styles: StylesParams
-    $css: String
     $mobileResponsive: Boolean
     $googleCredentials: JSON
     $twilioAccountSid: String
@@ -50,7 +49,6 @@ const createOrUpdateConfig = `
       ticketPipelineId: $ticketPipelineId,
       ticketBoardId: $ticketBoardId
       styles: $styles
-      css: $css
       mobileResponsive: $mobileResponsive
       googleCredentials: $googleCredentials
       twilioAccountSid: $twilioAccountSid
