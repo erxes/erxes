@@ -77,36 +77,6 @@ export const types = `
     baseFont: String
     headingFont: String
   }
-
-  type TicketCommentProfile {
-    name: String
-    avatar: String
-  }
-
-  type TicketComment {
-    _id: String!
-    ticketId: String!
-    title: String
-    content: String!
-    userId: String
-    customerId: String
-    parentId: String
-    createdAt: Date
-
-    profile: TicketCommentProfile
-  }
-
-  type CPTicket {
-    _id: String!
-    name: String!
-    description: String
-    modifiedAt: Date
-    status: String
-    priority: String
-    createdAt: Date
-
-    comments: [TicketComment]
-  }
 `;
 
 export const queries = `
@@ -121,16 +91,6 @@ export const queries = `
   clientPortalTicket(_id: String!): CPTicket
 `;
 
-const commentParams = `
-  ticketId: String!
-  title: String
-  content: String!
-  userId: String
-  customerId: String
-  parentId: String
-  email: String
-`;
-
 export const mutations = `
   clientPortalCreateTicket(
     stageId: String!
@@ -139,18 +99,21 @@ export const mutations = `
     email: String!
     priority: String
   ): Ticket
+
   clientPortalCreateCustomer(
     configId: String!
     firstName: String!
     lastName: String
     email: String!
   ): Customer
+
   clientPortalCreateCompany(
     configId: String!
     companyName: String!
     email: String!
   ): Company
-  clientPortalConfigUpdate(
+
+  clientPortalConfigUpdate (
     _id: String
     name: String
     description: String
@@ -179,8 +142,4 @@ export const mutations = `
     twilioAuthToken: String
     twilioFromNumber: String
   ): ClientPortal
-  
-  createTicketComment(${commentParams}): TicketComment
-  updateTicketComment(_id: String! ${commentParams}): TicketComment
-  removeTicketComment(_id: String!): JSON
 `;
