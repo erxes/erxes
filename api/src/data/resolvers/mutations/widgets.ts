@@ -5,8 +5,13 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  DiscussionComments,
   Fields,
   Forms,
+  ForumDiscussions,
+  ForumReactions,
+  Forums,
+  ForumTopics,
   Integrations,
   KnowledgeBaseArticles,
   Users
@@ -48,6 +53,13 @@ import {
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
+import {
+  IDiscussion,
+  IForum,
+  ITopic,
+  IComment as IDiscussionComment,
+  IForumReaction
+} from '../../../db/models/definitions/forums';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -943,6 +955,98 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
+  },
+
+  widgetsForumsAdd(
+    _root,
+    { ...args }: { args: IForum; createdBy: string },
+    { docModifier }: IContext
+  ) {
+    return Forums.createDoc(docModifier(args), args.createdBy);
+  },
+
+  widgetsForumTopicsAdd(
+    _root,
+    { ...args }: { args: ITopic; createdBy: string },
+    { docModifier }: IContext
+  ) {
+    return ForumTopics.createDoc(docModifier(args), args.createdBy);
+  },
+
+  widgetsForumDiscussionAdd(
+    _root,
+    { ...args }: { args: IDiscussion; createdBy: string },
+    { docModifier }: IContext
+  ) {
+    return ForumDiscussions.createDoc(docModifier(args), args.createdBy);
+  },
+
+  widgetsDiscussionCommentsAdd(
+    _root,
+    { ...args }: { args: IDiscussionComment; createdBy: string },
+    { docModifier }: IContext
+  ) {
+    return DiscussionComments.createDoc(docModifier(args), args.createdBy);
+  },
+
+  async widgetsForumReactionsToggle(
+    _root,
+    {
+      ...args
+    }: {
+      args: IForumReaction;
+      type: string;
+      contentTypeId: string;
+      createdBy: string;
+    },
+    { docModifier }: IContext
+  ) {
+    return ForumReactions.createDoc(docModifier(args), args.createdBy);
+  },
+
+  async widgetsEditCustomer(
+    _root,
+    {
+      ...args
+    }: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      phone: string;
+      avatar: string;
+    }
+  ) {
+    const updated = await Customers.updateCustomer(args._id, args);
+
+    return updated;
+  },
+
+  /**
+   * remove discussion document
+   */
+  async widgetsForumDiscussionsRemove(_root, { _id }: { _id: string }) {
+    const removed = await ForumDiscussions.removeDoc(_id);
+
+    return removed;
+  },
+
+  async widgetsForumDiscussionsVote(
+    _root,
+    {
+      ...args
+    }: {
+      discussionId: string;
+      value: string;
+      customerId: string;
+    }
+  ) {
+    const voted = await ForumDiscussions.vote(
+      args.discussionId,
+      args.customerId,
+      args.value
+    );
+
+    return voted;
   }
 };
 
