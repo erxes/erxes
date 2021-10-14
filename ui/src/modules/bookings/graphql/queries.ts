@@ -61,13 +61,18 @@ export const commonFields = `
 
   bookingData {
     name
-    image
+    image {
+      name
+      type
+      url
+      size
+    }
  
     description
     userFilters
     productCategoryId
 
-    styles
+    style
     displayBlock
 
     childCategories {

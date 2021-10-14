@@ -29,13 +29,13 @@ export const types = `
 
   type BookingData {
     name: String
-    image: JSON
+    image: Attachment
  
     description: String
     userFilters: [String]
     productCategoryId: String
 
-    styles: JSON
+    style: JSON
     displayBlock: JSON
 
     childCategories: [ProductCategory]
@@ -94,8 +94,7 @@ export const types = `
     name: String
     description: String
     image: AttachmentInput
-   
-    
+    style: BookingStyleInput
    
     productCategoryId: String
   }
