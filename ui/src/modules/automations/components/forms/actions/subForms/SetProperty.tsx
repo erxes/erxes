@@ -133,8 +133,8 @@ class SetProperty extends React.Component<Props, State> {
       const onChangeRule = (name, value) => {
         this.onChangeField(
           'rules',
-          config.rules.map(
-            r => (r.id === rule.id && { ...rule, [name]: value }) || r
+          config.rules.map(r =>
+            r.id === rule.id ? { ...rule, [name]: value } : r
           )
         );
       };
@@ -144,9 +144,7 @@ class SetProperty extends React.Component<Props, State> {
       const onChangeValue = rConf => {
         this.onChangeField(
           'rules',
-          config.rules.map(
-            r => (r.id === rule.id && { ...rule, ...rConf }) || r
-          )
+          config.rules.map(r => (r.id === rule.id ? { ...rule, ...rConf } : r))
         );
       };
 

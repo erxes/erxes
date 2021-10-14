@@ -42,7 +42,8 @@ export interface ICondition {
     | 'task'
     | 'ticket'
     | 'form_submission'
-    | 'conversation';
+    | 'conversation'
+    | 'user';
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;

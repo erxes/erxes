@@ -10,14 +10,14 @@ import {
   ConjunctionButtons,
   ConjunctionButtonsVertical,
   FilterRow,
-  ConditionRemove
+  // ConditionRemove,
+  ConditionGroup,
+  ButtonWrapper
 } from '../styles';
 import PropertyDetail from '../../containers/preview/PropertyDetail';
-
 import Icon from 'modules/common/components/Icon';
-
 import EventDetail from './EventDetail';
-import { CenterContent } from 'modules/common/styles/main';
+import Tip from 'modules/common/components/Tip';
 
 type Props = {
   segment: ISegmentMap;
@@ -108,18 +108,16 @@ class ConditionsList extends React.Component<Props, State> {
     }
 
     return (
-      <CenterContent>
-        <ConjunctionButtons>
-          <Button.Group hasGap={false}>
-            <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
-              {__('And')}
-            </Button>
-            <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
-              {__('Or')}
-            </Button>
-          </Button.Group>
-        </ConjunctionButtons>
-      </CenterContent>
+      <ConjunctionButtons>
+        <Button.Group hasGap={false}>
+          <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
+            {__('And')}
+          </Button>
+          <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
+            {__('Or')}
+          </Button>
+        </Button.Group>
+      </ConjunctionButtons>
     );
   };
 
@@ -216,31 +214,24 @@ class ConditionsList extends React.Component<Props, State> {
     const { segment, index, isAutomation } = this.props;
 
     const { conditions } = segment;
+    const hasCondition = conditions && conditions.length <= 1;
 
     if (conditions.length === 0 && index === 0) {
       return <PropertyCondition {...this.props} hideBackButton={true} />;
     }
 
     return (
-      <div>
+      <ConditionGroup>
         {this.renderConjunction()}
-        <ConditionRemove>
-          <Button
-            className="round"
-            size="small"
-            btnStyle="simple"
-            icon="times"
-            onClick={this.removeSegment}
-          />
-        </ConditionRemove>
-        <Condition>
-          <div style={{ position: 'relative' }}>
-            {this.renderSubSegmentConjunction()}
-            {conditions.map(condition => {
-              return this.renderCondition(condition);
-            })}
-          </div>
 
+        <Condition>
+          {this.renderSubSegmentConjunction()}
+          {conditions.map(condition => {
+            return this.renderCondition(condition);
+          })}
+        </Condition>
+
+        <ButtonWrapper hasCondition={hasCondition}>
           <Button
             size="small"
             btnStyle="simple"
@@ -260,8 +251,17 @@ class ConditionsList extends React.Component<Props, State> {
               Add event
             </Button>
           ) : null}
-        </Condition>
-      </div>
+        </ButtonWrapper>
+
+        <Tip text={'Delete'}>
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={this.removeSegment}
+            icon="times"
+          />
+        </Tip>
+      </ConditionGroup>
     );
   }
 }
