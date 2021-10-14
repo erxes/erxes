@@ -10,10 +10,14 @@ import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
+  discussionCommentFactory,
+  forumDiscussionFactory,
+  forumTopicFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
+  tagsFactory,
   userFactory
 } from '../db/factories';
 import { Brands, Conversations, Customers, Integrations } from '../db/models';
@@ -421,5 +425,82 @@ describe('widgetQueries', () => {
     }
 
     envMock.restore();
+  });
+
+  test('widgetsForumTopicDetail', async () => {
+    // creating test data
+    const topic = await forumTopicFactory({});
+
+    const qry = `
+      query widgetsForumTopicDetail($_id: String!) {
+        widgetsForumTopicDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsForumTopicDetail', {
+      _id: topic._id
+    });
+
+    expect(response._id).toBe(topic._id);
+  });
+
+  test('widgetsForumDiscussionDetail', async () => {
+    const discussion = await forumDiscussionFactory({});
+
+    const qry = `
+      query widgetsForumDiscussionDetail($_id: String!) {
+        widgetsForumDiscussionDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsForumDiscussionDetail', {
+      _id: discussion._id
+    });
+
+    expect(response._id).toBe(discussion._id);
+  });
+
+  test('widgetsDiscussionComments', async () => {
+    const discussion = await forumDiscussionFactory({});
+
+    await discussionCommentFactory({
+      discussionId: discussion._id
+    });
+
+    const qry = `
+      query widgetsDiscussionComments($discussionId: String!) {
+        widgetsDiscussionComments(discussionId: $discussionId) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsDiscussionComments', {
+      discussionId: discussion._id
+    });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('widgetsForumTagsWithParent', async () => {
+    const tag = await tagsFactory({ type: 'forum', parentId: 'parent' });
+
+    const qry = `
+      query widgetsForumTagsWithParent($parentId: String!) {
+        widgetsForumTagsWithParent(parentId: $parentId) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsForumTagsWithParent', {
+      parentId: tag.parentId
+    });
+
+    expect(response.length).toBe(1);
   });
 });

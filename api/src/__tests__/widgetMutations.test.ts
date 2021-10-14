@@ -8,6 +8,7 @@ import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   companyFactory,
@@ -18,6 +19,9 @@ import {
   fieldFactory,
   fieldGroupFactory,
   formFactory,
+  forumDiscussionFactory,
+  forumFactory,
+  forumTopicFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
   messengerAppFactory,
@@ -31,6 +35,7 @@ import {
   Conversations,
   Customers,
   FormSubmissions,
+  ForumDiscussions,
   Integrations,
   KnowledgeBaseArticles,
   MessengerApps
@@ -1684,5 +1689,235 @@ describe('lead', () => {
 
     expect(response).toBe(undefined);
     mock.restore();
+  });
+
+  test('widgetsForumsAdd', async () => {
+    const doc = {
+      title: 'title',
+      description: 'description',
+      createdBy: 'user',
+      brandId: 'brandId'
+    };
+
+    const mutation = `
+      mutation widgetsForumsAdd($title: String $description: String $languageCode: String $brandId: String! $createdBy: String!) {
+        widgetsForumsAdd(title: $title description: $description languageCode: $languageCode brandId: $brandId createdBy: $createdBy) {
+          _id
+          title
+          description
+          brandId
+          createdBy
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(mutation, 'widgetsForumsAdd', {
+      ...doc
+    });
+
+    expect(response.title).toBe(doc.title);
+    expect(response.brandId).toBe(doc.brandId);
+  });
+
+  test('widgetsForumTopicsAdd', async () => {
+    const forum = await forumFactory({});
+
+    const doc = {
+      title: 'topic',
+      description: 'description',
+      forumId: forum._id,
+      createdBy: 'user'
+    };
+
+    const mutation = `
+      mutation widgetsForumTopicsAdd($title: String $description: String $forumId: String! $createdBy: String!) {
+        widgetsForumTopicsAdd(title: $title description: $description forumId: $forumId createdBy: $createdBy) {
+          _id
+          title
+          description
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(mutation, 'widgetsForumTopicsAdd', {
+      ...doc
+    });
+
+    expect(response.title).toBe(doc.title);
+    expect(response.description).toBe(doc.description);
+  });
+
+  test('widgetsForumDiscussionAdd', async () => {
+    const forum = await forumFactory({});
+    const topic = await forumTopicFactory({ forumId: forum._id });
+
+    const doc = {
+      title: 'discussion',
+      forumId: forum._id,
+      topicId: topic._id,
+      content: 'discussion content',
+      createdBy: 'user'
+    };
+
+    const mutation = `
+      mutation widgetsForumDiscussionAdd($title: String $forumId: String! $topicId: String! $content: String! $createdBy: String!) {
+        widgetsForumDiscussionAdd(title: $title forumId: $forumId topicId: $topicId content: $content createdBy: $createdBy) {
+          _id
+          forumId
+          topicId
+          content
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'widgetsForumDiscussionAdd',
+      {
+        ...doc
+      }
+    );
+
+    expect(response.content).toBe(doc.content);
+    expect(response.forumId).toBe(forum._id);
+    expect(response.topicId).toBe(topic._id);
+  });
+
+  test('widgetsDiscussionCommentsAdd', async () => {
+    const discussion = await forumDiscussionFactory({});
+
+    const doc = {
+      content: 'comment',
+      discussionId: discussion._id,
+      createdBy: 'user'
+    };
+
+    const mutation = `
+      mutation widgetsDiscussionCommentsAdd($title: String $content: String! $discussionId: String! $createdBy: String!) {
+        widgetsDiscussionCommentsAdd(title: $title content: $content discussionId: $discussionId createdBy: $createdBy) {
+          _id
+          content
+          discussionId
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'widgetsDiscussionCommentsAdd',
+      { ...doc }
+    );
+
+    expect(response.content).toBe(doc.content);
+    expect(response.discussionId).toBe(discussion._id);
+  });
+
+  test('widgetsForumReactionsToggle', async () => {
+    const discussion = await forumDiscussionFactory({});
+
+    const doc = {
+      contentType: 'discussion',
+      contentTypeId: discussion._id,
+      createdBy: 'user',
+      type: 'like'
+    };
+
+    const mutation = `
+      mutation widgetsForumReactionsToggle($contentType: String! $contentTypeId: String! $createdBy: String! $type: String!) {
+        widgetsForumReactionsToggle(contentType: $contentType contentTypeId: $contentTypeId createdBy: $createdBy type: $type)
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'widgetsForumReactionsToggle',
+      { ...doc }
+    );
+
+    expect(response.createdBy).toBe(doc.createdBy);
+    expect(response.type).toBe(doc.type);
+  });
+
+  test('widgetsEditCustomer', async () => {
+    const customer = await customerFactory({
+      firstName: 'Bold',
+      lastName: 'Bat'
+    });
+
+    const doc = {
+      _id: customer._id,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      phone: customer.primaryPhone
+    };
+
+    const mutation = `
+      mutation widgetsEditCustomer($_id: String! $firstName: String $lastName: String $phone: String) {
+        widgetsEditCustomer(_id: $_id firstName: $firstName lastName: $lastName phone: $phone) {
+          _id
+          firstName
+          lastName
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(mutation, 'widgetsEditCustomer', {
+      ...doc
+    });
+
+    expect(response._id).toBe(customer._id);
+    expect(response.firstName).toBe(customer.firstName);
+    expect(response.lastName).toBe(customer.lastName);
+  });
+
+  test('widgetsForumDiscussionsRemove', async () => {
+    const discussion = await forumDiscussionFactory({});
+
+    const mutation = `
+      mutation widgetsForumDiscussionsRemove($_id: String!) {
+        widgetsForumDiscussionsRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'widgetsForumDiscussionsRemove', {
+      _id: discussion._id
+    });
+
+    expect(await ForumDiscussions.findOne({ _id: discussion._id })).toBe(null);
+  });
+
+  test('widgetsForumDiscussionsVote', async () => {
+    const customer = await customerFactory({
+      firstName: 'bat',
+      lastName: 'bold'
+    });
+
+    const discussion = await forumDiscussionFactory({
+      pollOptions: [customer.firstName, customer.lastName]
+    });
+
+    const mutation = `
+      mutation widgetsForumDiscussionsVote($discussionId: String!, $customerId: String!, $value: String!) {
+         widgetsForumDiscussionsVote(discussionId: $discussionId, customerId: $customerId, value: $value) {
+           _id
+           pollData
+         }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'widgetsForumDiscussionsVote',
+      {
+        discussionId: discussion._id,
+        customerId: customer._id,
+        value: customer.firstName
+      }
+    );
+
+    const pollData = response.pollData;
+
+    expect(response._id).toBe(discussion._id);
+    expect(pollData.total).toBe(1);
   });
 });
