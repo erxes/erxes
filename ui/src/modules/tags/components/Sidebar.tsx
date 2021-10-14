@@ -42,11 +42,6 @@ function TagsSidebar() {
             {__('Product & Service')}
           </NavLink>
         </li>
-        <li>
-          <NavLink activeClassName="active" to="/tags/booking">
-            {__('Booking')}
-          </NavLink>
-        </li>
       </SidebarList>
     </LeftSidebar>
   );
