@@ -130,9 +130,9 @@ const formDetailQuery = `
   }
 `;
 
-const integrationDetailQuery = `
-  query widgetsIntegrationDetail($_id: String!) {
-    widgetsIntegrationDetail(_id: $_id) {
+const widgetsConnectMutation = `
+  mutation widgetsBookingConnect($_id: String!) {
+    widgetsBookingConnect(_id: $_id) {
       _id
       name
       languageCode
@@ -163,7 +163,6 @@ const integrationDetailQuery = `
         style
 
       }
-      
     }
   }
 `;
@@ -173,5 +172,5 @@ export {
   productDetail,
   increaseViewCountMutation,
   formDetailQuery,
-  integrationDetailQuery
+  widgetsConnectMutation
 };

@@ -1,45 +1,55 @@
-import * as dayjs from 'dayjs';
-import * as localizedFormat from 'dayjs/plugin/localizedFormat';
-import * as relativeTime from 'dayjs/plugin/relativeTime';
 import 'erxes-icon/css/erxes.min.css';
-
-import * as React from 'react';
-import { ApolloProvider } from 'react-apollo';
-import * as ReactDOM from 'react-dom';
 import client from '../apollo-client';
 import { connection } from './connection';
 import './sass/style.scss';
 import { App } from './containers';
 
-dayjs.extend(localizedFormat);
-dayjs.extend(relativeTime);
+import gql from 'graphql-tag';
+import { initStorage } from '../common';
+import { setLocale } from '../utils';
+import widgetConnect from '../widgetConnect';
+import { widgetsConnectMutation } from './graphql';
+import './sass/style.scss';
+import { listenForCommonRequests } from '../widgetUtils';
 
-const render = () => {
-  // render root react component
-  ReactDOM.render(
-    <ApolloProvider client={client}>
-      <App />
-    </ApolloProvider>,
+widgetConnect({
+  postParams: {
+    source: 'fromBookings'
+  },
 
-    document.getElementById('root')
-  );
-};
+  connectMutation: (event: MessageEvent) => {
+    const { setting, storage } = event.data;
 
-const settings = (window as any).bookingSettings;
+    connection.setting = setting;
 
-if (settings) {
-  connection.setting = settings;
-  render();
-} else {
-  window.addEventListener('message', event => {
-    const data = event.data;
+    initStorage(storage);
 
-    if (!(data.fromPublisher && data.setting)) {
-      return;
+    // call connect mutation
+    return client
+      .mutate({
+        mutation: gql(widgetsConnectMutation),
+        variables: {
+          _id: setting.integration_id
+        }
+      })
+      .catch(e => {
+        console.log(e.message);
+      });
+  },
+
+  connectCallback: (data: { widgetsBookingConnect: any }) => {
+    const response = data.widgetsBookingConnect;
+
+    if (!response) {
+      throw new Error('Integration not found');
     }
 
-    connection.setting = event.data.setting;
+    // save connection info
+    connection.data.integration = response;
 
-    render();
-  });
-}
+    // set language
+    setLocale(response.languageCode || 'en');
+  },
+
+  AppContainer: App
+});

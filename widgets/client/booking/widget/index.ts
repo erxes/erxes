@@ -5,7 +5,10 @@ declare const window: any;
  */
 
 // css
-import { generateIntegrationUrl } from '../../widgetUtils';
+import {
+  generateIntegrationUrl,
+  listenForCommonRequests
+} from '../../widgetUtils';
 import './index.css';
 
 // meta
@@ -57,3 +60,10 @@ if (!embedContainer) {
   embedContainer.appendChild(erxesContainer);
   trackIframe();
 }
+
+// listen for messages from widget
+window.addEventListener('message', async (event: MessageEvent) => {
+  listenForCommonRequests(event, iframe);
+
+  return null;
+});

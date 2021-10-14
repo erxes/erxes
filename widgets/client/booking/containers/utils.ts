@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
 import client from '../../apollo-client';
+import { requestBrowserInfo } from '../../utils';
+import { connection } from '../connection';
 import { increaseViewCountMutation } from '../graphql';
 
 /*
@@ -10,6 +12,18 @@ export const increaseViewCount = (bookingId: string) => {
     mutation: gql(increaseViewCountMutation),
     variables: {
       _id: bookingId
+    }
+  });
+};
+
+export const saveBrowserInfo = () => {
+  requestBrowserInfo({
+    source: 'fromBookings',
+    postData: {
+      setting: connection.setting
+    },
+    callback: browserInfo => {
+      connection.browserInfo = browserInfo;
     }
   });
 };

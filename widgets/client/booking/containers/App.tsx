@@ -1,69 +1,52 @@
 import * as React from 'react';
 import { App as DumbApp } from '../components';
 import { AppConsumer, AppProvider } from './AppContext';
-import { ChildProps, graphql, compose } from 'react-apollo';
 import { connection } from '../connection';
-import gql from 'graphql-tag';
-import { integrationDetailQuery } from '../graphql';
-import { saveBrowserInfo } from '../../form/containers/utils';
-
-type QueryResponse = {
-  widgetsIntegrationDetail: any;
-};
+import { saveBrowserInfo } from './utils';
 
 type Props = {
   isPopupVisible: boolean;
   activeRoute: string;
   isFormVisible: boolean;
   closePopup: () => void;
+  integration: any;
+  showPopup: () => void;
 };
 
-function AppContainer(props: ChildProps<Props, QueryResponse>) {
-  saveBrowserInfo();
-
-  const { data, isPopupVisible } = props;
-
-  if (!data || data.loading || !data.widgetsIntegrationDetail) {
-    return null;
+class AppContainer extends React.Component<Props> {
+  componentDidMount() {
+    saveBrowserInfo();
   }
 
-  const integration = data.widgetsIntegrationDetail;
-  const booking = integration.bookingData || {};
-  connection.data.booking = booking;
-  connection.data.integration = integration;
+  render() {
+    const { isPopupVisible, integration } = this.props;
 
-  const loadType = 'popup';
+    const booking = integration.bookingData || {};
+    connection.data.booking = booking;
 
-  let parentClass;
-  let containerClass = '';
+    const loadType = 'popup';
 
-  if (loadType) {
-    if (isPopupVisible) {
-      parentClass = 'erxes-modal-iframe';
-      containerClass = 'modal-form open';
-    } else {
-      parentClass = 'erxes-modal-iframe hidden';
-    }
-  }
+    let parentClass;
+    let containerClass = '';
 
-  const extendedProps = {
-    ...props,
-    booking,
-    containerClass
-  };
-
-  return <DumbApp {...extendedProps} />;
-}
-
-const WithData = compose(
-  graphql<{}, QueryResponse>(gql(integrationDetailQuery), {
-    options: () => ({
-      variables: {
-        _id: connection.setting.integration_id
+    if (loadType) {
+      if (isPopupVisible) {
+        parentClass = 'erxes-modal-iframe';
+        containerClass = 'modal-form open';
+      } else {
+        parentClass = 'erxes-modal-iframe hidden';
       }
-    })
-  })
-)(AppContainer);
+    }
+
+    const extendedProps = {
+      ...this.props,
+      booking,
+      containerClass
+    };
+
+    return <DumbApp {...extendedProps} />;
+  }
+}
 
 const WithContext = () => {
   return (
@@ -74,15 +57,18 @@ const WithContext = () => {
           isFormVisible,
           showPopup,
           closePopup,
-          isPopupVisible
+          isPopupVisible,
+          getIntegration
         }) => {
+          const integration = getIntegration();
           return (
-            <WithData
+            <AppContainer
               activeRoute={activeRoute}
               isFormVisible={isFormVisible}
               showPopup={showPopup}
               closePopup={closePopup}
               isPopupVisible={isPopupVisible}
+              integration={integration}
             />
           );
         }}
