@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { saveLead, sendEmail } from '../../form/containers/utils';
+import { sendEmail } from '../../form/containers/utils';
 import { ISaveFormResponse } from '../../form/types';
 import { IEmailParams } from '../../types';
 import { connection } from '../connection';
 import { IBooking, ICurrentStatus } from '../types';
+import { saveBooking } from './utils';
 
 interface IState {
   activeRoute: string;
@@ -16,6 +17,7 @@ interface IState {
   isSubmitting?: boolean;
 
   currentStatus: ICurrentStatus;
+  callSubmit: boolean;
 }
 
 interface IStore extends IState {
@@ -52,7 +54,8 @@ export class AppProvider extends React.Component<{}, IState> {
       isFormVisible: false,
       isPopupVisible: false,
       currentStatus: { status: 'INITIAL' },
-      isSubmitting: false
+      isSubmitting: false,
+      callSubmit: false
     };
   }
 
@@ -143,7 +146,33 @@ export class AppProvider extends React.Component<{}, IState> {
    */
 
   save = (doc: any) => {
-    console.log(doc);
+    this.setState({ isSubmitting: true });
+
+    saveBooking({
+      doc,
+      browserInfo: connection.browserInfo,
+      integrationId: this.getIntegration()._id,
+      formId: this.getIntegration().formId,
+      saveCallback: (response: ISaveFormResponse) => {
+        const { errors } = response;
+
+        const status = response.status === 'ok' ? 'SUCCESS' : 'ERROR';
+
+        postMessage({
+          message: 'submitResponse',
+          status
+        });
+
+        this.setState({
+          callSubmit: false,
+          isSubmitting: false,
+          currentStatus: {
+            status,
+            errors
+          }
+        });
+      }
+    });
   };
 
   render() {
