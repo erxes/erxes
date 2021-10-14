@@ -174,8 +174,16 @@
 
 .styled {
 	margin: 15px;
+	display: flex;
 }
 
+.spinner {
+	width: 100px;
+}
+
+.spinnerPos {
+	width: 33%;
+}
 code {
 	background-color: #282a36;
 	border: none;
