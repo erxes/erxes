@@ -4,9 +4,7 @@ import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
 import { ClientPortalConfig } from '../types';
-import Advanced from './forms/Advanced';
 import ColorFont from './forms/ColorFont';
-import StyleSheet from './forms/StyleSheet';
 import Config from './forms/Config';
 import { ButtonWrap } from '../styles';
 
@@ -115,12 +113,8 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     switch (configType) {
       case CONFIG_TYPES.GENERAL.VALUE:
         return <General {...commonProps} />;
-      case CONFIG_TYPES.ADVANCED.VALUE:
-        return <Advanced {...commonProps} />;
       case CONFIG_TYPES.COLOR_FONTS.VALUE:
         return <ColorFont {...commonProps} />;
-      case CONFIG_TYPES.STYLE_SHEET.VALUE:
-        return <StyleSheet {...commonProps} />;
       case CONFIG_TYPES.CONFIG.VALUE:
         return <Config {...commonProps} />;
       default:

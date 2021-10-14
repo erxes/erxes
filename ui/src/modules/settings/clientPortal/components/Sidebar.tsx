@@ -10,7 +10,7 @@ type Props = {
 };
 
 const { Title } = Sidebar.Section;
-const { GENERAL, ADVANCED, COLOR_FONTS, STYLE_SHEET } = CONFIG_TYPES;
+const { GENERAL, COLOR_FONTS } = CONFIG_TYPES;
 
 function ClientPortalSidebar({ selectedConfig, handleConfigType }: Props) {
   const [selected, setSelected] = useState<string>(selectedConfig);
@@ -41,9 +41,7 @@ function ClientPortalSidebar({ selectedConfig, handleConfigType }: Props) {
         <Title>{__('Configs')}</Title>
         <SidebarList id={'ClientPortalConfigsSidebar'}>
           {renderButton(GENERAL.LABEL, GENERAL.VALUE)}
-          {renderButton(ADVANCED.LABEL, ADVANCED.VALUE)}
           {renderButton(COLOR_FONTS.LABEL, COLOR_FONTS.VALUE)}
-          {renderButton(STYLE_SHEET.LABEL, STYLE_SHEET.VALUE)}
         </SidebarList>
       </Sidebar.Section>
     </Sidebar>

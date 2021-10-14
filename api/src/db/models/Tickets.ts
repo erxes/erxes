@@ -6,14 +6,7 @@ import {
   watchItem
 } from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import {
-  commentSchema,
-  IComment,
-  ICommentDocument,
-  ITicket,
-  ITicketDocument,
-  ticketSchema
-} from './definitions/tickets';
+import { ITicket, ITicketDocument, ticketSchema } from './definitions/tickets';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   createTicket(doc: ITicket): Promise<ITicketDocument>;
@@ -105,68 +98,11 @@ export const loadTicketClass = () => {
 
   return ticketSchema;
 };
-export interface ITicketCommentModel extends Model<ICommentDocument> {
-  createComment(doc: IComment): Promise<ICommentDocument>;
-  updateComment(_id: string, doc: IComment): Promise<ICommentDocument>;
-  removeComment(_id: string): void;
-}
-
-export const loadTicketCommentClass = () => {
-  class TicketComment {
-    /**
-     * Create a ticket comments
-     */
-    public static async createComment(doc: IComment) {
-      return TicketComments.create(doc);
-    }
-
-    /**
-     * Update ticket comment
-     */
-    public static async updateComment(_id: string, doc: IComment) {
-      const parentComment = await TicketComments.findOne({
-        _id: doc.parentId
-      }).lean();
-
-      if (parentComment && parentComment.parentId === _id) {
-        throw new Error('Cannot change comment');
-      }
-
-      await TicketComments.updateOne({ _id }, { $set: doc });
-
-      return TicketComments.findOne({ _id });
-    }
-
-    /**
-     * Remove ticket comment
-     */
-    public static async removeComment(_id: string) {
-      const count = await TicketComments.countDocuments({ parentId: _id });
-
-      if (count > 0) {
-        throw new Error("Can't remove a ticket comment");
-      }
-
-      return TicketComments.deleteOne({ _id });
-    }
-  }
-
-  commentSchema.loadClass(TicketComment);
-
-  return commentSchema;
-};
 
 loadTicketClass();
-loadTicketCommentClass();
 
 // tslint:disable-next-line
 export const Tickets = model<ITicketDocument, ITicketModel>(
   'tickets',
   ticketSchema
-);
-
-// tslint:disable-next-line
-export const TicketComments = model<ICommentDocument, ITicketCommentModel>(
-  'ticket_comments',
-  commentSchema
 );

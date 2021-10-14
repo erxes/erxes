@@ -3,17 +3,9 @@ export const CONFIG_TYPES = {
     LABEL: 'General',
     VALUE: 'general'
   },
-  ADVANCED: {
-    LABEL: 'Advanced Settings',
-    VALUE: 'advanced'
-  },
   COLOR_FONTS: {
     LABEL: 'Colors and Fonts',
     VALUE: 'colorFonts'
-  },
-  STYLE_SHEET: {
-    LABEL: 'Stylesheet',
-    VALUE: 'styleSheet'
   },
   CONFIG: {
     LABEL: 'System Configuration',

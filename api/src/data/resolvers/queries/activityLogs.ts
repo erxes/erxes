@@ -3,8 +3,7 @@ import {
   Conversations,
   EmailDeliveries,
   InternalNotes,
-  Tasks,
-  TicketComments
+  Tasks
 } from '../../../db/models';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
@@ -121,9 +120,11 @@ const activityLogQueries = {
 
     const collectInternalNotes = async () => {
       collectItems(
-        await InternalNotes.find({ contentTypeId: contentId }).sort({
-          createdAt: -1
-        }).lean(),
+        await InternalNotes.find({ contentTypeId: contentId })
+          .sort({
+            createdAt: -1
+          })
+          .lean(),
         'note'
       );
     };
@@ -152,15 +153,6 @@ const activityLogQueries = {
       );
     };
 
-    const collectTicketComments = async () => {
-      collectItems(
-        await TicketComments.find({ ticketId: contentId }).sort({
-          createdAt: -1
-        }),
-        'ticket_comments'
-      );
-    };
-
     const collectTasks = async () => {
       if (contentType !== 'task') {
         collectItems(
@@ -169,9 +161,11 @@ const activityLogQueries = {
               { _id: { $in: relatedTaskIds } },
               { status: { $ne: 'archived' } }
             ]
-          }).sort({
-            closeDate: 1
-          }).lean(),
+          })
+            .sort({
+              closeDate: 1
+            })
+            .lean(),
           'taskDetail'
         );
       }
@@ -225,10 +219,6 @@ const activityLogQueries = {
 
         case ACTIVITY_CONTENT_TYPES.SMS:
           await collectSms();
-          break;
-
-        case 'ticket_comments':
-          await collectTicketComments();
           break;
 
         case ACTIVITY_CONTENT_TYPES.CAMPAIGN:

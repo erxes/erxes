@@ -61,8 +61,7 @@ import {
   ForumTopics,
   ForumDiscussions,
   DiscussionComments,
-  ForumReactions,
-  TicketComments
+  ForumReactions
 } from './models';
 import { ICustomField } from './models/definitions/common';
 import {
@@ -1923,18 +1922,4 @@ export const forumReactionFactory = async (
     },
     params.userId || faker.random.word()
   );
-};
-
-export const ticketCommentFactory = async (params: {
-  ticketId?: string;
-  content?: string;
-  customerId?: string;
-}) => {
-  const comment = new TicketComments({
-    ticketId: params.ticketId || faker.random.word(),
-    content: params.content || faker.random.word(),
-    customerId: params.customerId || faker.random.word()
-  });
-
-  return comment.save();
 };

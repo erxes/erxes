@@ -8,7 +8,6 @@ import {
 } from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
-import { ticketComments as CPTicket, TicketComment } from './clientPortals';
 import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -114,8 +113,6 @@ const resolvers: any = {
   ForumTopic,
   ForumDiscussion,
   ForumDiscussionComment,
-  CPTicket,
-  TicketComment,
   Automation,
   AutomationNote,
   Trigger
