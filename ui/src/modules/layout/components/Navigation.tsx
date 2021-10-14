@@ -379,7 +379,6 @@ class Navigation extends React.Component<IProps> {
               }
             ]
           )}
-          {this.renderNavItem('showForums', __('Forum'), '/forum', 'icon-star')}
           {this.renderNavItem(
             'showAutomations',
             __('Automations'),

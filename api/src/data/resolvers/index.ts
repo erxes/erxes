@@ -48,10 +48,6 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
-import Forum from './forum';
-import ForumTopic from './forumTopic';
-import ForumDiscussion from './forumDiscussion';
-import ForumDiscussionComment from './forumDiscussionComment';
 import Automation from './automation';
 import AutomationNote from './automationNote';
 import Trigger from './trigger';
@@ -109,10 +105,6 @@ const resolvers: any = {
   CalendarBoard,
   Tag,
 
-  Forum,
-  ForumTopic,
-  ForumDiscussion,
-  ForumDiscussionComment,
   Automation,
   AutomationNote,
   Trigger

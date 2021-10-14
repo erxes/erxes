@@ -2,13 +2,9 @@ import * as momentTz from 'moment-timezone';
 import {
   ConversationMessages,
   Conversations,
-  DiscussionComments,
-  ForumDiscussions,
-  ForumTopics,
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
   KnowledgeBaseTopics,
-  Tags,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -239,37 +235,5 @@ export default {
       visitorId,
       customerId
     );
-  },
-  /**
-   * forum topic detail
-   */
-
-  widgetsForumTopicDetail(_root, { _id }: { _id: string }) {
-    return ForumTopics.findOne({ _id });
-  },
-
-  /**
-   * forum discussion detail
-   */
-
-  async widgetsForumDiscussionDetail(_root, { _id }: { _id: string }) {
-    return ForumDiscussions.findOne({ _id });
-  },
-
-  /**
-   * forum discussion comments
-   */
-
-  async widgetsDiscussionComments(_root, args: { discussionId: string }) {
-    return DiscussionComments.find({ discussionId: args.discussionId });
-  },
-
-  /** forum tags with parentId */
-
-  async widgetsForumTagsWithParent(_root, args: { parentId: string }) {
-    return await Tags.find({
-      type: 'forum',
-      parentId: args.parentId
-    });
   }
 };
