@@ -156,12 +156,7 @@ const timeTrackSchema = new Schema(
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   userId: field({ type: String, esType: 'keyword' }),
-  createdAt: field({
-    type: Date,
-    label: 'Created at',
-    esType: 'date',
-    default: Date.now
-  }),
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),

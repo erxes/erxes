@@ -102,7 +102,6 @@ export const loadTicketClass = () => {
 loadTicketClass();
 
 // tslint:disable-next-line
-export const Tickets = model<ITicketDocument, ITicketModel>(
-  'tickets',
-  ticketSchema
-);
+const Tickets = model<ITicketDocument, ITicketModel>('tickets', ticketSchema);
+
+export default Tickets;
