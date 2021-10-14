@@ -85,7 +85,7 @@ export function CardComponent(props) {
   if (type === "APIcard") {
     return (
       <>
-        <CodeBlock className="language-javascript">{`import Button from "erxes-ui/lib/components/Button";`}</CodeBlock>
+        <CodeBlock className="language-javascript">{`import NameCard from "erxes-ui/lib/components/nameCard/NameCard";`}</CodeBlock>
         <Table>
           <thead>
             <tr>
