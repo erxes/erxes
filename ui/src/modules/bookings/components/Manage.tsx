@@ -7,10 +7,10 @@ import { MarkdownWrapper } from 'modules/settings/styles';
 import React, { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
-import { IBookingDocument } from '../types';
+import { IBookingIntegration } from '../types';
 
 type Props = {
-  booking: IBookingDocument;
+  integration: IBookingIntegration;
   closeModal: () => void;
 };
 
@@ -50,10 +50,10 @@ const getInstallCode = (bookingId: string) => {
   `;
 };
 
-function Manage({ booking, closeModal }: Props) {
+function Manage({ integration, closeModal }: Props) {
   let code = '';
 
-  code = getInstallCode(booking._id || '');
+  code = getInstallCode(integration._id || '');
 
   const [state, setState] = useState<State>({
     code,
@@ -65,7 +65,7 @@ function Manage({ booking, closeModal }: Props) {
     // tslint:disable-next-line: no-shadowed-variable
 
     window.open(
-      `${REACT_APP_CDN_HOST}/test?type=booking&booking_id=${booking._id}`,
+      `${REACT_APP_CDN_HOST}/test?type=booking&integration_id=${integration._id}`,
       'bookingWindow',
       'width=800,height=800'
     );

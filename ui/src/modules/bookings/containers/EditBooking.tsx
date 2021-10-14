@@ -5,9 +5,9 @@ import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
 import Booking from '../components/Booking';
 import {
-  BookingDetailQueryResponse,
-  EditBookingMutationResponse,
-  IBooking
+  BookingIntegrationDetailQueryResponse,
+  EditBookingIntegrationMutationResponse,
+  EditBookingIntegrationMutationVariables
 } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -20,22 +20,22 @@ import { queries as templatesQuery } from 'modules/settings/emailTemplates/graph
 
 type Props = {
   queryParams: any;
-  bookingId: string;
+  contentTypeId: string;
   history: any;
 };
 
 type FinalProps = {
-  bookingDetailQuery: BookingDetailQueryResponse;
+  integrationDetailQuery: BookingIntegrationDetailQueryResponse;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
 } & IRouterProps &
   Props &
-  EditBookingMutationResponse;
+  EditBookingIntegrationMutationResponse;
 
 type State = {
   loading: boolean;
   isReadyToSaveForm: boolean;
-  doc?: IBooking;
+  doc?: any;
 };
 
 class EditBookingContainer extends React.Component<FinalProps, State> {
@@ -50,25 +50,25 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
 
   render() {
     const {
-      bookingDetailQuery,
-      editBookingMutation,
+      integrationDetailQuery,
+      editIntegrationMutation,
       history,
       emailTemplatesQuery
     } = this.props;
 
-    if (bookingDetailQuery.loading) {
+    if (integrationDetailQuery.loading) {
       return null;
     }
 
-    const bookingDetail = bookingDetailQuery.bookingDetail || [];
+    const integration = integrationDetailQuery.integrationDetail || {};
 
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
-        editBookingMutation({
+        editIntegrationMutation({
           variables: {
-            _id: bookingDetail._id,
+            _id: integration._id,
             formId: id,
             ...this.state.doc
           }
@@ -93,7 +93,7 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      bookingDetail,
+      integration,
       isActionLoading: this.state.loading,
       save,
       afterFormDbSave,
@@ -107,27 +107,12 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
 
 const commonOptions = () => ({
   refetchQueries: [
-    { query: gql(queries.bookings) },
-    { query: gql(queries.bookingsTotalCount) }
+    { query: gql(queries.integrations) },
+    { query: gql(queries.integrationsTotalCount) }
   ]
 });
 
 export default compose(
-  graphql<Props, BookingDetailQueryResponse, { _id: string }>(
-    gql(queries.bookingDetail),
-    {
-      name: 'bookingDetailQuery',
-      options: ({ bookingId }) => ({
-        variables: {
-          _id: bookingId
-        }
-      })
-    }
-  ),
-  graphql<{}, EditBookingMutationResponse>(gql(mutations.bookingsEdit), {
-    name: 'editBookingMutation',
-    options: commonOptions
-  }),
   graphql(gql(templatesQuery.totalCount), {
     name: 'emailTemplatesTotalCountQuery'
   }),
@@ -138,6 +123,26 @@ export default compose(
       options: ({ emailTemplatesTotalCountQuery }) => ({
         variables: {
           perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
+        }
+      })
+    }
+  ),
+  graphql<
+    {},
+    EditBookingIntegrationMutationResponse,
+    EditBookingIntegrationMutationVariables
+  >(gql(mutations.integrationsEditBooking), {
+    name: 'editIntegrationMutation',
+    options: commonOptions
+  }),
+  graphql<Props, BookingIntegrationDetailQueryResponse, { _id: string }>(
+    gql(queries.integrationDetail),
+    {
+      name: 'integrationDetailQuery',
+      options: ({ contentTypeId }) => ({
+        fetchPolicy: 'cache-and-network',
+        variables: {
+          _id: contentTypeId
         }
       })
     }

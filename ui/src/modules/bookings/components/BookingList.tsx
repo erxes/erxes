@@ -8,28 +8,30 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { EMPTY_CONTENT_POPUPS } from 'modules/settings/constants';
 import React from 'react';
-import { BookingsCount, IBookingDocument } from '../types';
+import { IBookingIntegration } from '../types';
 import Sidebar from './Sidebar';
 import Row from './BookingRow';
 import { Link } from 'react-router-dom';
 import { BarItems } from 'modules/layout/styles';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import { IntegrationsCount } from 'modules/leads/types';
 
 type Props = {
   queryParams: any;
   isAllSelected: boolean;
-  bulk: IBookingDocument[];
+  bulk: IBookingIntegration[];
   emptyBulk: () => void;
   loading: boolean;
   refetch: () => void;
-  toggleBulk: (target: IBookingDocument, toAdd: boolean) => void;
-  toggleAll: (bulk: IBookingDocument[], name: string) => void;
+  toggleBulk: (target: IBookingIntegration, toAdd: boolean) => void;
+  toggleAll: (bulk: IBookingIntegration[], name: string) => void;
   history: any;
-  bookings: IBookingDocument[];
+  bookings: IBookingIntegration[];
   remove: (bookingId: string) => void;
   totalCount: number;
-  counts: BookingsCount;
-  archive: (_id: string, status: boolean) => IBookingDocument;
+  counts: IntegrationsCount;
+  archive: (_id: string, status: boolean) => IBookingIntegration;
+  integrations: IBookingIntegration[];
 };
 
 function BookingList(props: Props) {
@@ -45,7 +47,8 @@ function BookingList(props: Props) {
     emptyBulk,
     totalCount,
     counts,
-    archive
+    archive,
+    integrations
   } = props;
 
   const onChange = () => {
@@ -53,11 +56,11 @@ function BookingList(props: Props) {
   };
 
   const renderRow = () => {
-    return bookings.map(booking => (
+    return integrations.map(integration => (
       <Row
-        key={booking._id}
-        booking={booking}
-        isChecked={bulk.includes(booking)}
+        key={integration._id}
+        integration={integration}
+        isChecked={bulk.includes(integration)}
         toggleBulk={toggleBulk}
         remove={remove}
         refetch={refetch}
@@ -78,7 +81,7 @@ function BookingList(props: Props) {
     actionBarLeft = (
       <BarItems>
         <TaggerPopover
-          type="booking"
+          type="integration"
           successCallback={emptyBulk}
           targets={bulk}
           trigger={tagButton}

@@ -1,23 +1,3 @@
-const styleFields = `
-  itemShape
-  widgetColor
-
-  productAvailable
-  productUnavailable
-  productSelected
-
-  textAvailable
-  textUnavailable
-  textSelected
-`;
-
-const displayBlockFields = `
-  shape
-  columns
-  rows
-  margin
-`;
-
 const formFields = `
   _id
   title
@@ -39,147 +19,12 @@ const formFields = `
 
 `;
 
-const productCategoryFields = `
-  _id
-  name
-  order
-  code
-  parentId
-  description
-  status
-  
-  attachment {
-    name
-    url
-    type
-    size
-  }
-
-  isRoot
-  productCount
-`;
-
-const userFields = `
-  _id
-
-  details {
-    avatar
-    fullName
-    position
-  }
-`;
-
-const bookingFields = `
-  _id
-  name
-
-  image {
-    name
-    url
-    type
-    size
-  }
-
-  tagIds
-
-  tags {
-    _id
-    name
-  }
-
-  description
-  createdDate
-  viewCount
-
-  userFilters
-  
-  brand {
-    _id
-    name
-  }
-
-  createdUser {
-    ${userFields}
-  }
-  
-  title
-  brandId
-  channelIds
-  languageCode
-  formId
-
-  productCategoryId
-
-  isActive
-
-  styles {
-    ${styleFields}
-  }
-
-  mainProductCategory {
-    ${productCategoryFields}
-  }
-
-  displayBlock {
-    ${displayBlockFields}
-  }
-
-  form {
-    ${formFields}
-  }
-
-  leadData
-`;
-
-const queryParamsDef = `
-  $page: Int
-  $perPage: Int
-  $brandId: String
-  $tagId: String
-  $status: String
-`;
-const queryParamsVal = `
-  page: $page
-  perPage: $perPage
-  brandId: $brandId
-  tagId: $tagId
-  status: $status
-`;
-
-const bookingDetail = `
-  query bookingDetail($_id: String!) {
-    bookingDetail(_id: $_id) {
-      ${bookingFields}  
-    }
-  }
-`;
-
-const bookings = `
-  query bookings(${queryParamsDef}) {
-    bookings(${queryParamsVal}) {
-      ${bookingFields}
-    }
-  }
-`;
-
 const productCategories = `
   query productCategories($parentId: String, $searchValue: String) {
     productCategories(parentId: $parentId, searchValue: $searchValue) {
       _id
       name
       isRoot
-    }
-  }
-`;
-
-const bookingsTotalCount = `
-  query bookingsTotalCount($channelId: String, $brandId: String, $tagId: String, $searchValue: String, $status: String){
-    bookingsTotalCount(channelId: $channelId, brandId: $brandId, tagId: $tagId, searchValue: $searchValue, status: $status){
-      total
-      byTag
-      byChannel
-      byBrand
-      byStatus
     }
   }
 `;
@@ -198,10 +43,95 @@ const fieldsGroups = `
   }
 `;
 
+export const commonFields = `
+  brandId
+  name
+  kind
+  code
+  brand {
+    _id
+    name
+    code
+  }
+  channels {
+    _id
+    name
+  }
+  languageCode
+
+  bookingData {
+    name
+    image
+ 
+    description
+    userFilters
+    productCategoryId
+
+    styles
+    displayBlock
+
+    childCategories {
+      _id
+    }
+    
+    categoryTree
+    
+    mainProductCategory {
+      _id
+    }
+  }
+
+  formId
+
+  tags {
+    _id
+    name
+    colorCode
+  }
+
+  form {
+    ${formFields}
+  }
+  
+  tagIds
+
+  isActive
+`;
+
+const integrations = `
+  query Integrations($perPage: Int, $page: Int, $kind: String, $tag: String, $brandId: String, $status: String, $sortField: String, $sortDirection: Int) {
+    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag, brandId: $brandId, status: $status, sortField: $sortField, sortDirection: $sortDirection) {
+      _id
+      ${commonFields}
+    }
+  }
+`;
+
+const integrationDetail = `
+  query integrationDetail($_id: String!) {
+    integrationDetail(_id: $_id) {
+      _id
+      ${commonFields}
+    }
+  }
+`;
+
+const integrationsTotalCount = `
+  query integrationsTotalCount($kind: String, $tag: String, $brandId: String, $status: String){
+    integrationsTotalCount(kind:$kind, tag:$tag, brandId: $brandId, status: $status){
+      byKind
+      byTag
+      byBrand
+      byStatus
+      total
+    }
+  }
+`;
+
 export default {
-  bookingDetail,
-  bookings,
   productCategories,
-  bookingsTotalCount,
-  fieldsGroups
+  fieldsGroups,
+  integrations,
+  integrationDetail,
+  integrationsTotalCount
 };

@@ -8,22 +8,23 @@ import gql from 'graphql-tag';
 import { mutations, queries } from '../graphql';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import {
-  ArchiveBookingMutationResponse,
-  BookingsQueryResponse,
-  CountQueryResponse,
-  RemoveBookingMutationResponse,
-  RemoveBookingMutationVariables
+  BookingIntegrationsQueryResponse,
+  RemoveMutationResponse,
+  RemoveMutationVariables
 } from '../types';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
+import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
+import { CountQueryResponse } from 'modules/leads/types';
 
 type Props = {
   queryParams: any;
 };
 
 type FinalProps = {
-  bookingsQuery: BookingsQueryResponse;
-  bookingsTotalCountQuery: CountQueryResponse;
-} & RemoveBookingMutationResponse &
-  ArchiveBookingMutationResponse &
+  integrationsTotalCountQuery: CountQueryResponse;
+  integrationsQuery: BookingIntegrationsQueryResponse;
+} & RemoveMutationResponse &
+  ArchiveIntegrationResponse &
   Props;
 
 function BookingListContainer(props: FinalProps) {
@@ -32,24 +33,24 @@ function BookingListContainer(props: FinalProps) {
   });
 
   const {
-    bookingsQuery,
-    bookingsRemoveMutation,
-    bookingsTotalCountQuery,
-    archiveMutation
+    removeMutation,
+    integrationsTotalCountQuery,
+    archiveIntegration,
+    integrationsQuery
   } = props;
 
-  const counts = bookingsTotalCountQuery
-    ? bookingsTotalCountQuery.bookingsTotalCount
+  const integrations = integrationsQuery.integrations || [];
+
+  const counts = integrationsTotalCountQuery
+    ? integrationsTotalCountQuery.integrationsTotalCount
     : null;
 
   const totalCount = (counts && counts.total) || 0;
 
-  const bookings = bookingsQuery.bookings || [];
-
-  const remove = (bookingId: string) => {
+  const remove = (integrationId: string) => {
     confirm().then(() => {
-      bookingsRemoveMutation({
-        variables: { _id: bookingId }
+      removeMutation({
+        variables: { _id: integrationId }
       })
         .then(() => {
           // refresh queries
@@ -63,7 +64,7 @@ function BookingListContainer(props: FinalProps) {
     });
   };
 
-  const archive = (bookingId: string, status: boolean) => {
+  const archive = (integrationId: string, status: boolean) => {
     let message = `If you archive this booking, the live booking on your website or erxes messenger will no longer be visible. But you can still see the contacts and submissions you've received.`;
     let action = 'archived';
 
@@ -73,7 +74,7 @@ function BookingListContainer(props: FinalProps) {
     }
 
     confirm(message).then(() => {
-      archiveMutation({ variables: { _id: bookingId, status } })
+      archiveIntegration({ variables: { _id: integrationId, status } })
         .then(({ data }) => {
           const integration = data.integrationsArchive;
 
@@ -90,19 +91,19 @@ function BookingListContainer(props: FinalProps) {
   };
 
   const refetch = () => {
-    bookingsQuery.refetch();
-    bookingsTotalCountQuery.refetch();
+    integrationsQuery.refetch();
+    integrationsTotalCountQuery.refetch();
   };
 
   const updatedProps = {
     ...props,
-    bookings,
-    loading: bookingsQuery.loading,
+    loading: integrationsQuery.loading,
     refetch,
     remove,
     counts,
     totalCount,
-    archive
+    archive,
+    integrations
   };
 
   // tslint:disable-next-line: no-shadowed-variable
@@ -116,42 +117,51 @@ function BookingListContainer(props: FinalProps) {
 export default compose(
   graphql<
     Props,
-    BookingsQueryResponse,
-    { page?: number; perPage?: number; brandId?: string }
-  >(gql(queries.bookings), {
-    name: 'bookingsQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        ...generatePaginationParams(queryParams),
-        brandId: queryParams.brand,
-        tagId: queryParams.tag,
-        status: queryParams.status,
-        sortField: queryParams.sortField,
-        sortDirection: queryParams.sortDirection
-          ? parseInt(queryParams.sortDirection, 10)
-          : undefined
-      }
-    })
-  }),
-  graphql<{}, RemoveBookingMutationResponse, RemoveBookingMutationVariables>(
-    gql(mutations.bookingsRemove),
+    BookingIntegrationsQueryResponse,
     {
-      name: 'bookingsRemoveMutation'
+      page?: number;
+      perPage?: number;
+      tag?: string;
+      kind?: string;
+      brand?: string;
+      status?: string;
     }
-  ),
-  graphql<Props, CountQueryResponse>(gql(queries.bookingsTotalCount), {
-    name: 'bookingsTotalCountQuery',
+  >(gql(queries.integrations), {
+    name: 'integrationsQuery',
+    options: ({ queryParams }) => {
+      return {
+        variables: {
+          ...generatePaginationParams(queryParams),
+          tag: queryParams.tag,
+          brandId: queryParams.brand,
+          kind: INTEGRATION_KINDS.BOOKING,
+          status: queryParams.status,
+          sortField: queryParams.sortField,
+          sortDirection: queryParams.sortDirection
+            ? parseInt(queryParams.sortDirection, 10)
+            : undefined
+        }
+      };
+    }
+  }),
+  graphql<{}, ArchiveIntegrationResponse>(gql(mutations.integrationsArchive), {
+    name: 'archiveIntegration'
+  }),
+  graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
+    name: 'integrationsTotalCountQuery',
     options: ({ queryParams }) => ({
       variables: {
-        channelId: queryParams.channelId,
-        tagId: queryParams.tagId,
-        status: queryParams.status,
-        brandId: queryParams.brandId,
-        searchValue: queryParams.searchValue
+        kind: INTEGRATION_KINDS.BOOKING,
+        tag: queryParams.tag,
+        brandId: queryParams.brand,
+        status: queryParams.status
       }
     })
   }),
-  graphql<{}, ArchiveBookingMutationResponse>(gql(mutations.bookingsArchive), {
-    name: 'archiveMutation'
-  })
+  graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
+    gql(mutations.integrationRemove),
+    {
+      name: 'removeMutation'
+    }
+  )
 )(BookingListContainer);

@@ -25,7 +25,7 @@ function TagFilterContainer(props: FinalProps) {
     <CountsByTag
       tags={(tagsQuery ? tagsQuery.tags : null) || []}
       counts={counts || {}}
-      manageUrl="/tags/booking"
+      manageUrl="/tags/integration"
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
     />
   );
@@ -42,7 +42,7 @@ export default withProps<Props>(
       skip: ({ loadingMainQuery }) => loadingMainQuery,
       options: () => ({
         variables: {
-          type: TAG_TYPES.BOOKING
+          type: TAG_TYPES.INTEGRATION
         }
       })
     })

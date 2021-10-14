@@ -37,7 +37,7 @@ function FormStep(props: Props) {
       onInit,
       formData,
       showMessage: false,
-      type: 'lead'
+      type: 'booking'
     };
 
     if (formId) {

@@ -11,32 +11,33 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
 import {
-  IBookingDocument,
-  IBooking,
   IStyle,
   IDisplayBlock,
-  ILeadData
+  IBookingIntegration,
+  IBookingData
 } from '../types';
+
 import { Steps, Step } from 'modules/common/components/step';
 import ChooseStyle from './steps/ChooseStyle';
 import ChooseContent from './steps/ChooseContent';
 import ChooseSettings from './steps/ChooseSettings';
+import FormStep from './steps/FormStep';
 import SuccessStep from 'modules/leads/components/step/SuccessStep';
+
 import FullPreview from './steps/FullPreview';
 import { IField } from 'modules/settings/properties/types';
 
 import { PreviewWrapper } from './steps/style';
 import { colors } from 'modules/common/styles';
-import FormStep from 'modules/leads/components/step/FormStep';
 import { IForm, IFormData } from 'modules/forms/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { ILeadData } from 'modules/leads/types';
 
 type Props = {
-  bookingDetail?: IBookingDocument;
+  integration?: IBookingIntegration;
   queryParams?: any;
   history: any;
-  bookingId?: any;
-  save: (doc: IBooking) => void;
+  save: (doc: any) => void;
   isActionLoading?: boolean;
   afterFormDbSave: (formId: string) => void;
   isReadyToSaveForm: boolean;
@@ -80,16 +81,19 @@ type DisplayBlock = {
   margin: number;
 };
 
-function Booking({
-  save,
-  isActionLoading,
-  bookingDetail,
-  afterFormDbSave,
-  isReadyToSaveForm,
-  emailTemplates
-}: Props) {
-  const booking = bookingDetail || ({} as IBooking);
-  const form = booking.form || ({} as IForm);
+function Booking(props: Props) {
+  const {
+    save,
+    isActionLoading,
+    afterFormDbSave,
+    isReadyToSaveForm,
+    emailTemplates
+  } = props;
+
+  const integration = props.integration || ({} as IBookingIntegration);
+  const booking = integration.bookingData || ({} as IBookingData);
+  const form = integration.form || ({} as IForm);
+  const channels = integration.channels || [];
 
   const [state, setState] = useState<State>({
     // content
@@ -102,11 +106,11 @@ function Booking({
     productCategoryId: booking.productCategoryId || '',
 
     // settings
-    title: booking.title || '',
-    brandId: booking.brandId || '',
-    channelIds: booking.channelIds || [],
-    languageCode: booking.languageCode || '',
-    formId: booking.formId || '',
+    title: integration.name || '',
+    brandId: integration.brandId || '',
+    channelIds: channels.map(item => item._id) || [],
+    languageCode: integration.languageCode || '',
+    formId: integration.formId || '',
 
     formData: {
       title: form.title || 'Form Title',
@@ -118,7 +122,7 @@ function Booking({
     }
   });
 
-  const bookingStyles = booking.styles || ({} as IStyle);
+  const bookingStyles = booking.style || ({} as IStyle);
 
   const [styles, setStyles] = useState<Style>({
     itemShape: bookingStyles.itemShape || '',
@@ -143,7 +147,7 @@ function Booking({
     margin: displayBlock.margin || 0
   });
 
-  const leadData = booking.leadData || ({} as ILeadData);
+  const leadData = integration.leadData || ({} as ILeadData);
 
   const [successData, setSuccessData] = useState({
     successAction: leadData.successAction || '',
@@ -185,15 +189,28 @@ function Booking({
     }
 
     const doc = {
-      ...state,
-      styles: {
-        ...styles
-      },
-      displayBlock: {
-        ...block
-      },
+      name: state.name,
+      brandId: state.brandId,
+      channelIds: state.channelIds,
+      languageCode: state.languageCode,
+
       leadData: {
-        ...successData
+        ...successData,
+        loadType: 'popup'
+      },
+      bookingData: {
+        name: state.title,
+        description: state.description,
+        image: state.image,
+        productCategoryId: state.productCategoryId,
+
+        style: {
+          ...styles
+        }
+
+        // displayBlock: {
+        //   ...block
+        // },
       }
     };
 
@@ -325,13 +342,11 @@ function Booking({
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <FormStep
-                type={'popup'}
-                color={''}
-                theme={(booking.styles && booking.styles.widgetColor) || ''}
+                theme={(booking.style && booking.style.widgetColor) || ''}
                 afterDbSave={afterFormDbSave}
                 formData={state.formData}
                 isReadyToSaveForm={isReadyToSaveForm}
-                formId={booking && booking.formId}
+                formId={integration.formId}
                 onDocChange={onFormDocChange}
                 onInit={onFormInit}
               />
@@ -349,10 +364,10 @@ function Booking({
                 thankContent={successData.thankContent}
                 type={'popup'}
                 color={''}
-                theme={(booking.styles && booking.styles.widgetColor) || ''}
+                theme={(booking.style && booking.style.widgetColor) || ''}
                 successAction={successData.successAction}
                 leadData={leadData}
-                formId={booking && booking.formId}
+                formId={integration.formId}
                 emailTemplates={emailTemplates ? emailTemplates : []}
               />
             </Step>

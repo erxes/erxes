@@ -9,7 +9,7 @@ import TextInfo from 'modules/common/components/TextInfo';
 import { RowTitle } from 'modules/engage/styles';
 import { Link } from 'react-router-dom';
 import ActionButtons from 'modules/common/components/ActionButtons';
-import { IBookingDocument } from '../types';
+import { IBookingIntegration } from '../types';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import { Capitalize } from 'modules/settings/permissions/styles';
@@ -20,17 +20,19 @@ import Manage from './Manage';
 
 type Props = {
   isChecked: boolean;
-  booking: IBookingDocument;
-  toggleBulk: (booking: IBookingDocument, checked: boolean) => void;
-  remove: (bookingId: string) => void;
+  integration: IBookingIntegration;
+  toggleBulk: (integration: IBookingIntegration, checked: boolean) => void;
+  remove: (integrationId: string) => void;
   refetch: () => void;
   archive: (_id: string, status: boolean) => void;
 };
 
-function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
-  const tags = booking.tags || [];
+function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
+  const tags = integration.tags || [];
+  const booking = integration.bookingData || {};
+  const form = integration.form || {};
 
-  const createdUser = booking.createdUser || {
+  const createdUser = form.createdUser || {
     _id: '',
     details: {
       fullName: ''
@@ -39,13 +41,14 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
 
   const onChange = e => {
     if (toggleBulk) {
-      toggleBulk(booking, e.target.checked);
+      toggleBulk(integration, e.target.checked);
     }
   };
 
-  const manageAction = bookingDetail => {
+  // tslint:disable-next-line: no-shadowed-variable
+  const manageAction = integration => {
     return (
-      <Link to={`/bookings/edit/${bookingDetail._id}`}>
+      <Link to={`/bookings/edit/${integration._id}`}>
         <Button id="skill-edit-skill" btnStyle="link">
           <Tip text={__('Manage')} placement="bottom">
             <Icon icon="edit-3" />
@@ -56,13 +59,13 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
   };
 
   const renderRemoveAction = () => {
-    const onClick = () => remove(booking._id);
+    const onClick = () => remove(integration._id);
 
     return (
-      <WithPermission action="bookingsRemove">
+      <WithPermission action="integrationsRemove">
         <Tip text={__('Delete')} placement="top">
           <Button
-            id="bookingDelete"
+            id="integrationDelete"
             btnStyle="link"
             onClick={onClick}
             icon="times-circle"
@@ -73,9 +76,9 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
   };
 
   const renderArchiveAction = () => {
-    const onClick = () => archive(booking._id, true);
+    const onClick = () => archive(integration._id, true);
 
-    if (!archive || !booking.isActive) {
+    if (!archive || !integration.isActive) {
       return null;
     }
 
@@ -89,9 +92,9 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
   };
 
   const renderUnarchiveAction = () => {
-    const onClick = () => archive(booking._id, false);
+    const onClick = () => archive(integration._id, false);
 
-    if (!archive || booking.isActive) {
+    if (!archive || integration.isActive) {
       return null;
     }
 
@@ -104,7 +107,7 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
     );
   };
   // tslint:disable-next-line: no-shadowed-variable
-  const renderEditAction = (booking: IBookingDocument) => {
+  const renderEditAction = (integration: IBookingIntegration) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Install code')} placement="top">
@@ -113,7 +116,7 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
       </Button>
     );
 
-    const content = props => <Manage booking={booking} {...props} />;
+    const content = props => <Manage integration={integration} {...props} />;
 
     return (
       <ModalTrigger
@@ -127,8 +130,8 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
     );
   };
 
-  const labelStyle = booking.isActive ? 'success' : 'warning';
-  const status = booking.isActive ? __('Active') : __('Archived');
+  const labelStyle = integration.isActive ? 'success' : 'warning';
+  const status = integration.isActive ? __('Active') : __('Archived');
 
   return (
     <tr>
@@ -141,15 +144,17 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
       </td>
       <td>
         <RowTitle>
-          <Link to={`/bookings/edit/${booking._id}`}>{booking.name}</Link>
+          <Link to={`/bookings/edit/${integration._id}`}>
+            {integration.name}
+          </Link>
         </RowTitle>
       </td>
       <td>
-        <TextInfo>{booking.brand && booking.brand.name}</TextInfo>
+        <TextInfo>{integration.brand && integration.brand.name}</TextInfo>
       </td>
 
       <td>
-        <TextInfo ignoreTrans={true}>{booking.viewCount || 0}</TextInfo>
+        <TextInfo ignoreTrans={true}>{0}</TextInfo>
       </td>
       <td>
         <Label lblStyle={labelStyle}>{status && status}</Label>
@@ -164,7 +169,7 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
       </td>
       <td>
         <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(booking.createdDate).format('ll')}</DateWrapper>
+        <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
       </td>
 
       <td>
@@ -173,8 +178,8 @@ function Row({ isChecked, toggleBulk, booking, remove, archive }: Props) {
 
       <td>
         <ActionButtons>
-          {manageAction(booking)}
-          {renderEditAction(booking)}
+          {manageAction(integration)}
+          {renderEditAction(integration)}
           {renderArchiveAction()}
           {renderUnarchiveAction()}
           {renderRemoveAction()}

@@ -28,11 +28,13 @@ const createBooking = () => {
 };
 
 const editBooking = ({ match, location }) => {
-  const { bookingId } = match.params;
+  const { contentTypeId } = match.params;
 
   const queryParams = queryString.parse(location.search);
 
-  return <EditBooking bookingId={bookingId} queryParams={queryParams} />;
+  return (
+    <EditBooking contentTypeId={contentTypeId} queryParams={queryParams} />
+  );
 };
 
 const routes = () => (
@@ -46,8 +48,8 @@ const routes = () => (
     />
     <Route
       exact={true}
-      key="/bookings/edit/:bookingId"
-      path="/bookings/edit/:bookingId"
+      key="/bookings/edit/:contentTypeId"
+      path="/bookings/edit/:contentTypeId"
       component={editBooking}
     />
   </React.Fragment>

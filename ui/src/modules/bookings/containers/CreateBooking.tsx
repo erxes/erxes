@@ -6,7 +6,10 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { mutations } from '../graphql';
-import { AddBookingMutationResponse, IBooking } from '../types';
+import {
+  AddBookingIntegrationMutationResponse,
+  AddBookingIntegrationMutationVariables
+} from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
 import {
@@ -23,12 +26,12 @@ type FinalProps = {
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
 } & Props &
   IRouterProps &
-  AddBookingMutationResponse;
+  AddBookingIntegrationMutationResponse;
 
 type State = {
   loading: boolean;
   isReadyToSaveForm: boolean;
-  doc?: IBooking;
+  doc?: any;
 };
 
 class CreateBookingContainer extends React.Component<FinalProps, State> {
@@ -42,13 +45,13 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { addBookingMutation, history, emailTemplatesQuery } = this.props;
+    const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
 
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
-        addBookingMutation({
+        addIntegrationMutation({
           variables: {
             ...this.state.doc,
             formId: id
@@ -85,9 +88,6 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
 }
 
 export default compose(
-  graphql<{}, AddBookingMutationResponse>(gql(mutations.bookingsAdd), {
-    name: 'addBookingMutation'
-  }),
   graphql(gql(templatesQuery.totalCount), {
     name: 'emailTemplatesTotalCountQuery'
   }),
@@ -101,5 +101,12 @@ export default compose(
         }
       })
     }
-  )
+  ),
+  graphql<
+    {},
+    AddBookingIntegrationMutationResponse,
+    AddBookingIntegrationMutationVariables
+  >(gql(mutations.integrationsCreateBooking), {
+    name: 'addIntegrationMutation'
+  })
 )(withRouter<FinalProps>(CreateBookingContainer));

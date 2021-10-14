@@ -1,74 +1,56 @@
-const bookingMutationParamsDef = `
-  $name: String!
-  $image: AttachmentInput
-  $description: String
-  $productCategoryId: String
+const integrationsArchive = `
+  mutation integrationsArchive($_id: String! $status: Boolean!) {
+    integrationsArchive(_id: $_id, status: $status) {
+      _id
+    }
+  }
+`;
 
-  $userFilters: [String]
+const integrationRemove = `
+  mutation integrationsRemove($_id: String!) {
+    integrationsRemove(_id: $_id)
+  }
+`;
 
-  $title: String
-  $brandId: String
+const commonBookingParamsDef = `
+  $name: String!,
+  $brandId: String!,
   $channelIds: [String]
-  $languageCode: String
-  $formId: String
-
-  $styles: BookingStylesInput
-  $displayBlock: DisplayBlockInput
-  $leadData: BookingLeadData
+  $formId: String!,
+  $languageCode: String,
+  $leadData: IntegrationLeadData
+  $bookingData: IntegrationBookingData
 `;
 
-const bookingMutationParamsVal = `
-  name: $name
-  image: $image
-  description: $description
-  productCategoryId: $productCategoryId
-
-  userFilters: $userFilters
-
-  title: $title,
+const commonBookingParams = `
+  name: $name,
   brandId: $brandId,
-  channelIds: $channelIds
-  languageCode: $languageCode
-  formId: $formId
-
-  styles: $styles
-  displayBlock: $displayBlock
+  channelIds: $channelIds,
+  formId: $formId,
+  languageCode: $languageCode,
   leadData: $leadData
+  bookingData: $bookingData
 `;
 
-const bookingsAdd = `
-  mutation bookingsAdd(${bookingMutationParamsDef}) {
-    bookingsAdd(${bookingMutationParamsVal}) {
+const integrationsCreateBooking = `
+  mutation integrationsCreateBookingIntegration(${commonBookingParamsDef}) {
+    integrationsCreateBookingIntegration(${commonBookingParams}) {
       _id
     }
   }
 `;
 
-const bookingsEdit = `
-  mutation bookingsEdit($_id: String!, ${bookingMutationParamsDef}) {
-    bookingsEdit(_id: $_id, ${bookingMutationParamsVal}) {
-      _id
-    }
-  }
-`;
-
-const bookingsRemove = `
-  mutation bookingsRemove($_id: String!) {
-    bookingsRemove(_id: $_id)
-  }
-`;
-
-const bookingsArchive = `
-  mutation bookingsArchive($_id: String! $status: Boolean!) {
-    bookingsArchive(_id: $_id, status: $status) {
+const integrationsEditBooking = `
+  mutation integrationsEditBookingIntegration($_id: String!, ${commonBookingParamsDef}){
+    integrationsEditBookingIntegration(_id: $_id, ${commonBookingParams}) {
       _id
     }
   }
 `;
 
 export default {
-  bookingsAdd,
-  bookingsRemove,
-  bookingsEdit,
-  bookingsArchive
+  integrationsArchive,
+  integrationRemove,
+  integrationsCreateBooking,
+  integrationsEditBooking
 };
