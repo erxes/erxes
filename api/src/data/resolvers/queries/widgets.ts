@@ -1,6 +1,5 @@
 import * as momentTz from 'moment-timezone';
 import {
-  Bookings,
   ConversationMessages,
   Conversations,
   Integrations,
@@ -231,10 +230,6 @@ export default {
   async widgetsProductDetail(_root, { _id }: { _id: string }) {
     return Products.findOne({ _id });
   },
-  widgetsBookingDetail(_root, { _id }: { _id: string }) {
-    return Bookings.getBooking(_id);
-  },
-
   widgetsIntegrationDetail(_root, { _id }: { _id: string }) {
     return Integrations.findOne({ _id });
   }

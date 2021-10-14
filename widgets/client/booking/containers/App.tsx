@@ -4,8 +4,7 @@ import { AppConsumer, AppProvider } from './AppContext';
 import { ChildProps, graphql, compose } from 'react-apollo';
 import { connection } from '../connection';
 import gql from 'graphql-tag';
-import { bookingDetail, integrationDetailQuery } from '../graphql';
-import { IBooking } from '../types';
+import { integrationDetailQuery } from '../graphql';
 import { saveBrowserInfo } from '../../form/containers/utils';
 
 type QueryResponse = {

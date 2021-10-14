@@ -69,8 +69,6 @@ export const queries = `
 
   widgetsProductCategory(_id: String!): ProductCategory
   widgetsProductDetail(_id: String!): Product
-  widgetsBookingDetail(_id: String!): Booking
-
   widgetsIntegrationDetail(_id: String): Integration
 `;
 

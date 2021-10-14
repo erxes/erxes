@@ -72,56 +72,6 @@ const displayBlockFields = `
   margin
 `;
 
-const bookingFields = `
-  _id
-  name
-  image {
-    name
-    url
-    type
-    size
-  }
-
-  description
-  title
-  languageCode
-  formId
-  productCategoryId
-
-  childCategories {
-    ${productCategoryFields}
-  }
-
-  mainProductCategory {
-    ${productCategoryFields}
-  }
-
-  categoryTree {
-    _id
-    name
-    parentId
-    type
-  }
-
-  styles {
-    ${styleFields}
-  }
-
-  displayBlock {
-    ${displayBlockFields}
-  }
-
-  leadData
-`;
-
-const bookingDetail = `
-  query widgetsBookingDetail($_id: String!) {
-    widgetsBookingDetail(_id: $_id) {
-      ${bookingFields}
-    }
-  }
-`;
-
 const productCategory = `
   query widgetsProductCategory($_id: String!) {
     widgetsProductCategory(_id: $_id) {
@@ -219,7 +169,6 @@ const integrationDetailQuery = `
 `;
 
 export {
-  bookingDetail,
   productCategory,
   productDetail,
   increaseViewCountMutation,
