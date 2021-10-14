@@ -931,6 +931,76 @@ const widgetMutations = {
   // Find integration
   async widgetsBookingConnect(_root, { _id }: { _id: string }) {
     return Integrations.findOne({ _id });
+  },
+
+  // create new conversation using form data
+  async widgetsSaveBooking(
+    _root,
+    args: {
+      integrationId: string;
+      formId: string;
+      submissions: ISubmission[];
+      browserInfo: any;
+      cachedCustomerId?: string;
+    }
+  ) {
+    const { integrationId, formId, submissions } = args;
+
+    const form = await Forms.findOne({ _id: formId });
+
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    const errors = await Forms.validate(formId, submissions);
+
+    if (errors.length > 0) {
+      return { status: 'error', errors };
+    }
+
+    const content = form.title;
+
+    const cachedCustomer = await solveSubmissions(args);
+
+    // create conversation
+    const conversation = await Conversations.createConversation({
+      integrationId,
+      customerId: cachedCustomer._id,
+      content
+    });
+
+    // create message
+    const message = await Messages.createMessage({
+      conversationId: conversation._id,
+      customerId: cachedCustomer._id,
+      content,
+      formWidgetData: submissions
+    });
+
+    // increasing form submitted count
+    await Integrations.increaseContactsGathered(formId);
+
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: message
+    });
+
+    graphqlPubsub.publish('conversationMessageInserted', {
+      conversationMessageInserted: message
+    });
+
+    await sendToWebhook('create', 'popupSubmitted', {
+      formId: args.formId,
+      submissions: args.submissions,
+      customer: cachedCustomer,
+      cachedCustomerId: cachedCustomer._id,
+      conversationId: conversation._id
+    });
+
+    return {
+      status: 'ok',
+      messageId: message._id,
+      customerId: cachedCustomer._id
+    };
   }
 };
 

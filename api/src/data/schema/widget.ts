@@ -150,4 +150,12 @@ export const mutations = `
 
   widgetsBookingIncreaseViewCount(_id: String!): JSON
   widgetsBookingConnect(_id: String): Integration
+
+  widgetsSaveBooking(
+    integrationId: String!
+    formId: String!
+    submissions: [FieldValueInput]
+    browserInfo: JSON!
+    cachedCustomerId: String
+  ): SaveFormResponse
 `;
