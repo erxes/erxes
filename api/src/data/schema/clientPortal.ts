@@ -21,7 +21,6 @@ export const types = `
     ticketPipelineId: String
     ticketBoardId: String
     styles: Styles
-    advanced: Advanced
     css: String
     mobileResponsive: Boolean
     googleCredentials: JSON
@@ -47,6 +46,24 @@ export const types = `
     primaryBtnColor: String
     secondaryBtnColor: String
   }
+
+  input StylesParams {
+    bodyColor: String
+    headerColor: String
+    footerColor: String
+    helpColor: String
+    backgroundColor: String
+    activeTabColor: String
+    baseColor: String
+    headingColor: String
+    linkColor: String
+    linkHoverColor: String
+    dividerColor: String
+    primaryBtnColor: String
+    secondaryBtnColor: String
+    baseFont: String
+    headingFont: String
+  }
 `;
 
 export const queries = `
@@ -58,7 +75,7 @@ export const queries = `
   clientPortalGetTasks(stageId: String!): [Task]
   clientPortalTickets(email: String!): [Ticket]
   clientPortalTask(_id: String!): Task
-  clientPortalTicket(_id: String!): CPTicket
+  clientPortalTicket(_id: String!): Ticket
 `;
 
 export const mutations = `
@@ -103,6 +120,7 @@ export const mutations = `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    styles: StylesParams
     css: String
     mobileResponsive: Boolean
     googleCredentials: JSON

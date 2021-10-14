@@ -36,11 +36,6 @@ export const commonFields = `
     primaryBtnColor
     secondaryBtnColor
   }
-  advanced {
-    authAllow
-    viewTicket
-    permission
-  }
   css
   mobileResponsive
   googleCredentials

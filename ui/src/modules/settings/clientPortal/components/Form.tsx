@@ -24,7 +24,6 @@ const isUrl = (value: string): boolean => {
 
 function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   const styles = defaultConfigValues.styles || {};
-  const advanced = defaultConfigValues.advanced || {};
 
   const [formValues, setFormValues] = useState<ClientPortalConfig>({
     name: defaultConfigValues.name || '',
@@ -61,11 +60,6 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       primaryBtnColor: styles.primaryBtnColor || '',
       secondaryBtnColor: styles.secondaryBtnColor || '',
       dividerColor: styles.dividerColor || ''
-    },
-    advanced: {
-      authAllow: advanced.authAllow || 'yes',
-      viewTicket: advanced.viewTicket || 'loggedInUsers',
-      permission: advanced.permission || 'loggedInUsers'
     },
     css: defaultConfigValues.css || '',
     mobileResponsive: defaultConfigValues.mobileResponsive || false,

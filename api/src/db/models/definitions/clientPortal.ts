@@ -23,7 +23,6 @@ export interface IClientPortal {
   domain?: string;
   dnsStatus?: string;
   styles?: IStyles;
-  advanced?: IAdvencedSettings;
   css?: string;
   mobileResponsive?: boolean;
 }
@@ -44,12 +43,6 @@ interface IStyles {
   dividerColor?: string;
   primaryBtnColor?: string;
   secondaryBtnColor?: string;
-}
-
-interface IAdvencedSettings {
-  authAllow?: string;
-  permission?: string;
-  viewTicket?: string;
 }
 
 export interface IClientPortalDocument extends IClientPortal, Document {
@@ -79,17 +72,6 @@ const stylesSchema = new Schema(
   }
 );
 
-const advancedSettingsSchema = new Schema(
-  {
-    authAllow: field({ type: String }),
-    permission: field({ type: String }),
-    viewTicket: field({ type: String })
-  },
-  {
-    _id: false
-  }
-);
-
 export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
@@ -112,7 +94,6 @@ export const clientPortalSchema = new Schema({
   domain: field({ type: String, optional: true }),
   dnsStatus: field({ type: String, optional: true }),
   styles: field({ type: stylesSchema, optional: true }),
-  advanced: field({ type: advancedSettingsSchema, optional: true }),
   css: field({ type: String, optional: true }),
   mobileResponsive: field({ type: Boolean, optional: true }),
   createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),

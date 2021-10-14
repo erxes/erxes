@@ -20,7 +20,6 @@ export type ClientPortalConfig = {
   ticketBoardId?: string;
   ticketPipelineId?: string;
   styles?: Styles;
-  advanced?: AdvancedSettings;
   css?: string;
   mobileResponsive?: boolean;
   googleCredentials?: object;
@@ -65,10 +64,4 @@ export type ClientPortalTotalQueryResponse = {
 export type ClientPortalGetLastQueryResponse = {
   clientPortalGetLast: ClientPortalConfig;
   loading?: boolean;
-};
-
-export type AdvancedSettings = {
-  authAllow?: string;
-  permission?: string;
-  viewTicket?: string;
 };
