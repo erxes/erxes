@@ -82,6 +82,58 @@ class PosConfig {
     }
 }
 
+
+/**
+ * productGroups
+ */
+
+export const productGroupSchema: any = {
+    _id: { pkey: true },
+    posId: { type: String },
+    name: { type: String },
+    description: { type: String },
+    categoryIds: { type: [String], optional: true },
+    excludeCategoryIds: { type: [String], optional: true },
+    excludeProductIds: { type: [String], optional: true }
+};
+
+class ProductGroup {
+
+    public static async groups(models, posId: string) {
+        return models.ProductGroups.find({ posId }).lean();
+    }
+
+    public static async groupsAdd(models, user, name, description) {
+        return models.ProductGroups.create({
+            userId: user._id,
+            name,
+            description,
+            createdAt: new Date()
+        })
+    }
+
+    public static async groupsEdit(models, { _id, name, description }: { _id: string, name: string, description: string }) {
+        const group = await models.ProductGroups.findOne({ _id }).lean();
+
+        if (!group) {
+            throw new Error('group not found');
+        }
+
+        await models.ProductGroups.update({ _id }, {
+            $set: {
+                name,
+                description
+            }
+        });
+
+        return await models.ProductGroups.findOne({ _id }).lean();;
+    }
+
+    public static async groupsRemove(models, _id: string) {
+        return models.ProductGroups.deleteOne({ _id });
+    }
+}
+
 export default [
     {
         name: 'Pos',
@@ -92,5 +144,10 @@ export default [
         name: 'PosConfigs',
         schema: posConfigSchema,
         klass: PosConfig
+    },
+    {
+        name: 'ProductGroups',
+        schema: productGroupSchema,
+        klass: ProductGroup
     },
 ];

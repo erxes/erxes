@@ -99,7 +99,7 @@ class GeneralSettings extends React.Component<Props, State> {
               />
             </FormGroup>
           </CollapseContent>
-          <CollapseContent title="Product Groups">
+          <CollapseContent title="Product Groups" description="Select pos to display in the product category.">
             <Description>
               Select pos to display in the product category.
             </Description>

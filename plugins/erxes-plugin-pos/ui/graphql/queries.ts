@@ -19,7 +19,22 @@ const configs = `
   }
 `
 
+const productGroups = `
+  query productGroups($posId: String!) {
+    productGroups(posId: $posId) {
+      _id
+      posId
+      name
+      description
+      categoryIds
+      excludeCategoryIds
+      excludeProductIds
+    }
+  }
+`
+
 export default {
   posList,
-  configs
+  configs,
+  productGroups
 };
