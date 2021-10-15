@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
-import DumbForm from '../../components/form/Form';
+import DumbForm from '../../../form/components/Form';
 import { formDetailQuery } from '../../graphql';
-import { ICurrentStatus } from '../../types';
+import { IBookingData, ICurrentStatus, IStyle } from '../../types';
 import { AppConsumer } from '../AppContext';
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
-  const data = props.data;
+  const { data } = props;
 
   if (!data || data.loading) {
     return null;
@@ -20,7 +20,7 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const extendedProps = {
     ...props,
     form: data.formDetail,
-    booking: props.integration.bookingData
+    integration: props.integration
   };
 
   return <DumbForm {...extendedProps} hasTopBar={true} />;

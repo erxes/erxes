@@ -161,6 +161,7 @@ function Booking(props: Props) {
     thankContent: leadData.thankContent || 'Thank you.',
     attachments: leadData.attachments || [],
     redirectUrl: leadData.redirectUrl || '',
+    themeColor: styles.widgetColor || '',
 
     isRequireOnce: leadData.isRequireOnce
   });
