@@ -2,8 +2,9 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import DumbForm from '../../../form/components/Form';
+import { ICurrentStatus, IForm } from '../../../form/types';
 import { formDetailQuery } from '../../graphql';
-import { IBookingData, ICurrentStatus, IStyle } from '../../types';
+import { IBookingData, IStyle } from '../../types';
 import { AppConsumer } from '../AppContext';
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
@@ -27,7 +28,7 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
 };
 
 type QueryResponse = {
-  formDetail: any;
+  formDetail: IForm;
 };
 
 interface IProps {
@@ -35,9 +36,7 @@ interface IProps {
   currentStatus: ICurrentStatus;
   onSubmit: (doc: any) => void;
   onCreateNew: () => void;
-  setHeight: () => void;
   sendEmail: (params: any) => void;
-  callSubmit: boolean;
   isSubmitting?: boolean;
 }
 
@@ -60,7 +59,6 @@ const WithContext = () => (
       currentStatus,
       createNew,
       sendEmail,
-      // callSubmit,
       isSubmitting,
       getIntegration,
       save
@@ -74,9 +72,7 @@ const WithContext = () => (
           onSubmit={save}
           onCreateNew={createNew}
           sendEmail={sendEmail}
-          setHeight={() => console.log('set height')}
           integration={integration}
-          callSubmit={false}
         />
       );
     }}

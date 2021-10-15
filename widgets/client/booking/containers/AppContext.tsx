@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { sendEmail } from '../../form/containers/utils';
-import { ISaveFormResponse } from '../../form/types';
+import { ICurrentStatus, ISaveFormResponse } from '../../form/types';
 import { IEmailParams, IProduct } from '../../types';
 import { connection } from '../connection';
-import { IBookingData, ICurrentStatus } from '../types';
+import { IBookingData } from '../types';
 import { saveBooking } from './utils';
 
 interface IState {
@@ -17,7 +17,6 @@ interface IState {
   isSubmitting?: boolean;
 
   currentStatus: ICurrentStatus;
-  callSubmit: boolean;
 }
 
 interface IStore extends IState {
@@ -54,8 +53,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isFormVisible: false,
       isPopupVisible: false,
       currentStatus: { status: 'INITIAL' },
-      isSubmitting: false,
-      callSubmit: false
+      isSubmitting: false
     };
   }
 
@@ -169,7 +167,6 @@ export class AppProvider extends React.Component<{}, IState> {
         });
 
         this.setState({
-          callSubmit: false,
           isSubmitting: false,
           currentStatus: {
             status,
