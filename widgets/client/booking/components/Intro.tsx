@@ -25,7 +25,7 @@ function Intro({ booking, goToBooking, showPopup }: Props) {
       <div className="flex-end">
         <Button
           text="Next"
-          onClickHandler={() => showPopup()}
+          onClickHandler={() => goToBooking(booking)}
           style={{ backgroundColor: widgetColor }}
         />
       </div>

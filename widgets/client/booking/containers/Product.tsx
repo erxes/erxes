@@ -4,12 +4,14 @@ import { AppConsumer } from './AppContext';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { productDetail } from '../graphql';
 import gql from 'graphql-tag';
-import { IBookingData, IProduct } from '../types';
+import { IBookingData } from '../types';
+import { IProduct } from '../../types';
 
 type Props = {
   productId: string;
   booking: IBookingData;
   goToBookings: () => void;
+  showPopup: () => void;
   showForm: () => void;
 };
 
@@ -44,7 +46,7 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeProduct, getBooking, goToBookings, showForm }) => {
+    {({ activeProduct, getBooking, goToBookings, showForm, showPopup }) => {
       const booking = getBooking();
       return (
         <WithData
@@ -52,6 +54,7 @@ const WithContext = () => (
           booking={booking}
           goToBookings={goToBookings}
           showForm={showForm}
+          showPopup={showPopup}
         />
       );
     }}

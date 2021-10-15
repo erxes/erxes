@@ -1,19 +1,27 @@
 import * as React from 'react';
-import { IBookingData, IProduct } from '../types';
+import { IBookingData } from '../types';
 import Slider from 'react-slick';
 import { readFile } from '../../utils';
 import Button from './common/Button';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { IProduct } from '../../types';
 
 type Props = {
   product?: IProduct;
   booking: IBookingData;
   goToBookings: () => void;
   showForm: () => void;
+  showPopup: () => void;
 };
 
-function Product({ product, booking, goToBookings, showForm }: Props) {
+function Product({
+  product,
+  booking,
+  goToBookings,
+  showForm,
+  showPopup
+}: Props) {
   if (!product || !booking) {
     return null;
   }
@@ -57,7 +65,11 @@ function Product({ product, booking, goToBookings, showForm }: Props) {
 
           <Slider className="mw-500" {...settings}>
             {product.attachmentMore?.map((img: any) => (
-              <div className="m-10" onClick={() => showFull(img)}>
+              <div
+                className="m-10"
+                onClick={() => showFull(img)}
+                key={Math.random()}
+              >
                 {' '}
                 <img
                   id={img.name}
@@ -82,7 +94,7 @@ function Product({ product, booking, goToBookings, showForm }: Props) {
         />
         <Button
           text={'Захиалах'}
-          onClickHandler={() => showForm()}
+          onClickHandler={() => showPopup()}
           style={{ backgroundColor: widgetColor }}
         />
       </div>
