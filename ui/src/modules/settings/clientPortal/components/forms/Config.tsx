@@ -1,9 +1,9 @@
-import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from 'modules/common/components/form';
+import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
 import { ClientPortalConfig } from '../../types';
 

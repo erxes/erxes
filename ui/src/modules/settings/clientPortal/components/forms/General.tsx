@@ -1,5 +1,3 @@
-import BoardSelect from 'erxes-ui/lib/boards/containers/BoardSelect';
-import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import { PipelinePopoverContent } from 'modules/boards/styles/item';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
@@ -16,6 +14,8 @@ import Select from 'react-select-plus';
 import { ClientPortalConfig } from '../../types';
 import { FlexRow, ChooserWrap, IconWrap } from '../../styles';
 import { Half } from 'modules/engage/styles';
+import { FlexContent } from 'modules/layout/styles';
+import BoardSelect from 'modules/boards/containers/BoardSelect';
 
 type Props = {
   topics: ITopic[];

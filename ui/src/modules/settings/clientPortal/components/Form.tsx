@@ -1,4 +1,3 @@
-import Button from 'erxes-ui/lib/components/Button';
 import { Alert } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
@@ -7,6 +6,7 @@ import { ClientPortalConfig } from '../types';
 import ColorFont from './forms/ColorFont';
 import Config from './forms/Config';
 import { ButtonWrap } from '../styles';
+import Button from 'modules/common/components/Button';
 
 type Props = {
   configType: string;
