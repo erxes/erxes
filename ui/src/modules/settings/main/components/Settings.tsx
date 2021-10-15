@@ -361,7 +361,7 @@ class Settings extends React.PureComponent {
               'Client Portal',
               '/images/icons/erxes-32.png',
               '/settings/client-portal',
-              '',
+              'manageClientPortal',
               [],
               'New'
             )}

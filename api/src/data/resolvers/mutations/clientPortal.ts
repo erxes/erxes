@@ -7,7 +7,7 @@ import {
 } from '../../../db/models';
 import { IClientPortal } from '../../../db/models/definitions/clientPortal';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
-import { requireLogin } from '../../permissions/wrappers';
+import { checkPermission } from '../../permissions/wrappers';
 
 interface ICreateCard {
   type: string;
@@ -91,6 +91,10 @@ const configClientPortalMutations = {
   }
 };
 
-requireLogin(configClientPortalMutations, 'clientPortalConfigUpdate');
+checkPermission(
+  configClientPortalMutations,
+  'clientPortalConfigUpdate',
+  'manageClientPortal'
+);
 
 export default configClientPortalMutations;

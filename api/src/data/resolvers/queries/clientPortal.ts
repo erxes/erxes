@@ -7,6 +7,7 @@ import {
   Tasks,
   Tickets
 } from '../../../db/models';
+
 import { paginate } from '../../utils';
 
 const configClientPortalQueries = {
