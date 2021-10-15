@@ -21,6 +21,7 @@ type Props = {
   messengerData: IIntegrationMessengerData;
   isOnline?: boolean;
   serverTime?: string;
+  activeSupport?: boolean;
 };
 
 type State = {
@@ -34,13 +35,20 @@ class Home extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: 120, activeSupport: true };
+    this.state = {
+      headHeight: 120,
+      activeSupport: true,
+    };
     this.toggleTab = this.toggleTab.bind(this);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.node && prevState.headHeight !== this.node.offsetHeight) {
       this.setState({ headHeight: this.node.offsetHeight });
+    }
+
+    if (prevProps.activeSupport === prevState.activeSupport) {
+      this.setState({ activeSupport: false });
     }
   }
 

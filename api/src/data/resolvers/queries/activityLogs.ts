@@ -82,7 +82,7 @@ const activityLogQueries = {
       collectItems(
         await Conversations.find({
           $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-        }),
+        }).lean(),
         'conversation'
       );
 
@@ -97,7 +97,7 @@ const activityLogQueries = {
             }
           );
           collectItems(
-            await Conversations.find({ _id: { $in: conversationIds } }),
+            await Conversations.find({ _id: { $in: conversationIds } }).lean(),
             'comment'
           );
         } catch (e) {
@@ -122,7 +122,7 @@ const activityLogQueries = {
       collectItems(
         await InternalNotes.find({ contentTypeId: contentId }).sort({
           createdAt: -1
-        }),
+        }).lean(),
         'note'
       );
     };
@@ -161,7 +161,7 @@ const activityLogQueries = {
             ]
           }).sort({
             closeDate: 1
-          }),
+          }).lean(),
           'taskDetail'
         );
       }
@@ -172,7 +172,7 @@ const activityLogQueries = {
 
       if (Array.isArray(contentIds)) {
         collectItems(
-          await Conversations.find({ _id: { $in: contentIds } }),
+          await Conversations.find({ _id: { $in: contentIds } }).lean(),
           'conversation'
         );
       }
@@ -180,7 +180,7 @@ const activityLogQueries = {
 
     const collectEmailDeliveries = async () => {
       await collectItems(
-        await EmailDeliveries.find({ customerId: contentId }),
+        await EmailDeliveries.find({ customerId: contentId }).lean(),
         'email'
       );
     };

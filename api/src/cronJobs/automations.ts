@@ -13,12 +13,6 @@ import messageBroker from '../messageBroker';
  * │    └──────────────────── minute (0 - 59)
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
-schedule.scheduleJob('0 0 * * *', () => {
-  return messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    triggerType: 'cronjob'
-  });
-});
-
 schedule.scheduleJob('*/10 * * * *', () => {
   return messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     actionType: 'waiting'

@@ -250,7 +250,7 @@ export const getCompanyIds = async (
     mainType,
     mainTypeId,
     relType: 'company'
-  });
+  }).lean();
 
   return conformities.map(c => c.relTypeId);
 };
@@ -263,7 +263,7 @@ export const getCustomerIds = async (
     mainType,
     mainTypeId,
     relType: 'customer'
-  });
+  }).lean();
 
   return conformities.map(c => c.relTypeId);
 };

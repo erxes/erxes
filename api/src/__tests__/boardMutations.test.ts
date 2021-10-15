@@ -314,6 +314,78 @@ describe('Test boards mutations', () => {
     expect(watchRemovePipeline.isWatched).toBe(false);
   });
 
+  test('Archive pipeline', async () => {
+    const mutation = `
+    mutation pipelinesArchive($_id: String!) {
+      pipelinesArchive(_id: $_id)
+    }
+  `;
+
+    const user = await userFactory();
+    const pipe = await pipelineFactory({ watchedUserIds: [user._id] });
+    await fieldGroupFactory({ pipelineIds: [pipe._id] });
+
+    await graphqlRequest(
+      mutation,
+      'pipelinesArchive',
+      { _id: pipe._id, status: 'archived' },
+      context
+    );
+    const response = await Pipelines.findOne({ _id: pipe.id });
+    expect(response?.status).toBe('archived');
+    await graphqlRequest(
+      mutation,
+      'pipelinesArchive',
+      { _id: pipe._id, status: 'active' },
+      context
+    );
+    const response1 = await Pipelines.findOne({ _id: pipe.id });
+    expect(response1?.status).toBe('active');
+  });
+
+  test('Duplicate pipeline', async () => {
+    const mutation = `
+      mutation pipelinesCopied($_id: String!) {
+        pipelinesCopied(_id: $_id)
+      }
+    `;
+
+    const sourcePipeline = await pipelineFactory({});
+    const sourceStage1 = await stageFactory({ pipelineId: sourcePipeline._id });
+    const sourceStage2 = await stageFactory({ pipelineId: sourcePipeline._id });
+
+    const copiedPipeline = await graphqlRequest(
+      mutation,
+      'pipelinesCopied',
+      { _id: sourcePipeline._id },
+      context
+    );
+
+    expect(copiedPipeline.name).toBe(`${sourcePipeline.name}-copied`);
+    expect(copiedPipeline.status).toBe(sourcePipeline.status);
+    expect(copiedPipeline.boardId).toBe(sourcePipeline.boardId);
+    expect(copiedPipeline.visibility).toBe(sourcePipeline.visibility);
+    expect(copiedPipeline.bgColor).toBe(sourcePipeline.bgColor);
+    expect(copiedPipeline.startDate).toBe(sourcePipeline.startDate);
+    expect(copiedPipeline.endDate).toBe(sourcePipeline.endDate);
+    expect(copiedPipeline.metric).toBe(sourcePipeline.metric);
+    expect(copiedPipeline.hackScoringType).toBe(sourcePipeline.hackScoringType);
+    expect(copiedPipeline.templateId).toBe(sourcePipeline.templateId);
+    expect(copiedPipeline.isCheckUser).toBe(sourcePipeline.isCheckUser);
+
+    const copiedStage1 = await Stages.findOne({
+      pipelineId: copiedPipeline._id,
+      name: sourceStage1.name
+    });
+    expect(copiedStage1).not.toBeNull();
+
+    const copiedStage2 = await Stages.findOne({
+      pipelineId: copiedPipeline._id,
+      name: sourceStage2.name
+    });
+    expect(copiedStage2).not.toBeNull();
+  });
+
   test('Remove pipeline', async () => {
     // disconnect stages connected to pipeline
     await Stages.updateMany({}, { $set: { pipelineId: 'fakePipelineId' } });
