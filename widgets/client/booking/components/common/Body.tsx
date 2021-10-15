@@ -19,7 +19,7 @@ function Body({ title, description, image, page, children }: Props) {
     <div className="body">
       <h4> {title}</h4>
       <p> {description} </p>
-      <div className={style}><img src={readFile(image && image.url)} alt={title} /></div>
+      <div className={style} ><img src={readFile(image && image.url)} alt={title} /></div>
      {children}
     </div>
   );

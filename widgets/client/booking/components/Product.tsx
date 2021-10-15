@@ -85,7 +85,7 @@ function Product({ product, booking, goToBookings }: Props) {
         </div>
       </div>
 
-      <div className="flex-sb">
+      <div className="footer flex-sb">
         <Button
           text="Back"
           onClickHandler={goToBookings}

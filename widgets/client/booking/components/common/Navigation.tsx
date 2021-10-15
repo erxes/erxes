@@ -40,6 +40,7 @@ class Navigation extends React.Component<Props, State> {
 
     return (
       <ReactPopover
+        className={"nav-popover"}
         isOpen={isOpen}
         preferPlace={'above'}
         place={'right'}

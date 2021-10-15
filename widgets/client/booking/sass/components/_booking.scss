@@ -66,7 +66,11 @@ img {
   height: 100%;
 }
 .header{
-  position:absolute; top:0px; left:0px; height:50px; right:0px;overflow:hidden;
+  position:fixed;
+   top:0px;
+    left:0px;
+     height:50px; right:0px;
+  overflow:hidden;
   .nav{
     display: flex;
     flex-direction: row;
@@ -96,23 +100,20 @@ img {
     right:0px;
     overflow:auto;
     .fullimg{
-      min-height: 400px;
-      display: block;
       img{
         height: 100%;
         width: 100%;
-        object-fit: contain;
+        object-fit: cover;
       }
     }
    
   }
   .footer{
-    position:absolute;
+    position:fixed;
     bottom:0px;
     height:50px;
     left:0px;
     right:0px;
-    overflow:hidden;
     background-color: #fff;
   }
 }
@@ -174,7 +175,7 @@ img {
 }
 
 .erxes-widget-container {
-  min-height: 400px;
+  min-height: 500px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
