@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import Tip from 'modules/common/components/Tip';
 import EmptyState from 'modules/common/components/EmptyState';
 import LoadMore from 'modules/common/components/LoadMore';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -16,6 +17,7 @@ import { ClientPortalConfig } from '../types';
 
 type Props = {
   configs: ClientPortalConfig[];
+  remove: (_id?: string) => void;
   totalCount: number;
   queryParams: any;
   loading: boolean;
@@ -23,14 +25,18 @@ type Props = {
 
 function ClientPortalList({
   configs,
+  remove,
   loading,
   totalCount,
   history,
-  queryParams,
-  ...props
+  queryParams
 }: Props) {
   const renderRow = () => {
     return configs.map(config => {
+      const onRemove = () => {
+        remove(config._id);
+      };
+
       return (
         <SidebarListItem
           key={config._id}
@@ -41,6 +47,10 @@ function ClientPortalList({
               {config.name}
               <StyledUrl>{config.url}</StyledUrl>
             </FieldStyle>
+
+            <Tip text="Delete" placement="bottom">
+              <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
+            </Tip>
           </Link>
         </SidebarListItem>
       );

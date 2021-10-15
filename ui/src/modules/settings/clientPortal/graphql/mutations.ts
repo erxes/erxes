@@ -60,4 +60,14 @@ const createOrUpdateConfig = `
   }
 `;
 
-export default { createOrUpdateConfig };
+const remove = `
+  mutation clientPortalRemove(
+    $_id: String!
+  ) {
+    clientPortalRemove(
+      _id: $_id,
+    )
+  }
+`;
+
+export default { createOrUpdateConfig, remove };

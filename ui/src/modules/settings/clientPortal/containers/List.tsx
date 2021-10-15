@@ -1,5 +1,5 @@
-import { withProps } from 'erxes-ui/lib/utils/core';
 import gql from 'graphql-tag';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
@@ -8,6 +8,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Component from '../components/List';
 import queries from '../graphql/queries';
+import mutations from '../graphql/mutations';
 import {
   ClientPortalConfigsQueryResponse,
   ClientPortalGetLastQueryResponse,
@@ -17,23 +18,50 @@ import {
 type ListProps = {
   _id?: string;
   queryParams: any;
-  history: any;
-};
+} & IRouterProps;
 
 type Props = {
   configsQuery: ClientPortalConfigsQueryResponse;
   totalCountQuery: ClientPortalTotalQueryResponse;
+  removeMutation;
 } & IRouterProps;
 
 class List extends React.Component<Props & ListProps> {
   render() {
-    const { configsQuery, totalCountQuery, ...props } = this.props;
+    const {
+      history,
+      removeMutation,
+      configsQuery,
+      totalCountQuery,
+      ...props
+    } = this.props;
+
+    // remove action
+    const remove = _id => {
+      confirm().then(() => {
+        removeMutation({
+          variables: { _id }
+        })
+          .then(() => {
+            configsQuery.refetch();
+            totalCountQuery.refetch();
+            Alert.success('You successfully deleted a client portal.');
+
+            history.push('/settings/client-portal');
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
 
     const configs = configsQuery.clientPortalGetConfigs || [];
     const totalCount = totalCountQuery.clientPortalConfigsTotalCount || 0;
 
     const updatedProps = {
       ...props,
+      history,
+      remove,
       totalCount,
       configs,
       loading: configsQuery.loading || false
@@ -43,7 +71,7 @@ class List extends React.Component<Props & ListProps> {
   }
 }
 
-const ListContainer = withProps<ListProps>(
+const ListContainer = withProps<ListProps & IRouterProps>(
   compose(
     graphql(gql(queries.getConfigs), {
       name: 'configsQuery',
@@ -56,6 +84,16 @@ const ListContainer = withProps<ListProps>(
     }),
     graphql(gql(queries.getTotalCount), {
       name: 'totalCountQuery'
+    }),
+    graphql<Props, any, any>(gql(mutations.remove), {
+      name: 'removeMutation',
+      options: () => ({
+        refetchQueries: [
+          'configsQuery',
+          'totalCountQuery',
+          'configGetLastQuery'
+        ]
+      })
     })
   )(List)
 );
@@ -65,8 +103,8 @@ type LastConfigProps = {
 };
 
 // Getting lastConfig id to currentConfig
-const LastConfig = (props: LastConfigProps & ListProps) => {
-  const { configGetLastQuery, history, queryParams } = props;
+const LastConfig = (props: LastConfigProps & ListProps & IRouterProps) => {
+  const { configGetLastQuery, history } = props;
 
   if (configGetLastQuery.loading) {
     return <Spinner objective={true} />;
@@ -79,9 +117,8 @@ const LastConfig = (props: LastConfigProps & ListProps) => {
   }
 
   const extendedProps = {
-    history,
-    queryParams,
-    _id: lastConfig && lastConfig._id
+    _id: lastConfig && lastConfig._id,
+    ...props
   };
 
   return <ListContainer {...extendedProps} />;

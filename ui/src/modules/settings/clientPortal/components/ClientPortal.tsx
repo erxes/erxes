@@ -41,7 +41,7 @@ class ClientPortal extends React.Component<Props, {}> {
           />
         }
         actionBar={<Wrapper.ActionBar left={leftActionBar} />}
-        leftSidebar={<List history={history} queryParams={queryParams} />}
+        leftSidebar={<List {...this.props} />}
         content={
           <DataWithLoader
             data={

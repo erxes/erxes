@@ -48,6 +48,8 @@ export type Styles = {
 export type ClientPortalConfigsQueryResponse = {
   clientPortalGetConfigs?: [ClientPortalConfig];
   loading?: boolean;
+  refetch: () => Promise<any>;
+  error?: string;
 };
 
 export type ClientPortalConfigQueryResponse = {
@@ -58,6 +60,8 @@ export type ClientPortalConfigQueryResponse = {
 export type ClientPortalTotalQueryResponse = {
   clientPortalConfigsTotalCount?: number;
   loading?: boolean;
+  refetch: () => Promise<any>;
+  error?: string;
 };
 
 export type ClientPortalGetLastQueryResponse = {

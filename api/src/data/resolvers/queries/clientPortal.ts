@@ -32,7 +32,7 @@ const configClientPortalQueries = {
   },
 
   async clientPortalGetConfig(_root, { _id }: { _id: string }) {
-    return ClientPortals.getConfig(_id);
+    return ClientPortals.findOne({ _id });
   },
 
   async clientPortalGetTaskStages(
