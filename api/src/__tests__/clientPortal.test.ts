@@ -60,6 +60,20 @@ describe('Client portal', () => {
     expect(response.name).toEqual('updated');
   });
 
+  test('Remove client portal', async () => {
+    const portal = await clientPortalFactory({});
+
+    const mutation = `
+      mutation clientPortalRemove($_id: String!) {
+        clientPortalRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'clientPortalRemove', { _id: portal._id });
+
+    expect(await ClientPortals.find().count()).toBe(0);
+  });
+
   test('Create customer', async () => {
     const portal = await clientPortalFactory({});
 

@@ -106,6 +106,8 @@ export const mutations = `
     twilioFromNumber: String
   ): ClientPortal
 
+  clientPortalRemove (_id: String!): JSON
+
   clientPortalCreateCard(
     type: String!
     stageId: String!

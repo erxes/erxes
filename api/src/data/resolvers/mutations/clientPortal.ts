@@ -19,6 +19,14 @@ interface ICreateCard {
 }
 
 const configClientPortalMutations = {
+  clientPortalConfigUpdate(_root, args: IClientPortal) {
+    return ClientPortals.createOrUpdateConfig(args);
+  },
+
+  clientPortalRemove(_root, { _id }: { _id: string }) {
+    return ClientPortals.deleteOne({ _id });
+  },
+
   async clientPortalCreateCustomer(
     _root,
     args: {
@@ -76,16 +84,18 @@ const configClientPortalMutations = {
       stageId,
       status: BOARD_STATUSES.ACTIVE
     });
-  },
-
-  clientPortalConfigUpdate(_root, args: IClientPortal) {
-    return ClientPortals.createOrUpdateConfig(args);
   }
 };
 
 checkPermission(
   configClientPortalMutations,
   'clientPortalConfigUpdate',
+  'manageClientPortal'
+);
+
+checkPermission(
+  configClientPortalMutations,
+  'clientPortalRemove',
   'manageClientPortal'
 );
 
