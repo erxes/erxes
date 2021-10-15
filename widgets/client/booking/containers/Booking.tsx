@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Booking } from '../components';
 import { AppConsumer } from './AppContext';
-import { IBooking } from '../types';
+import { IBookingData } from '../types';
 
 type Props = {
   goToIntro: () => void;
   goToFloor?: () => void;
-  booking: IBooking | null;
+  booking: IBookingData | null;
 };
 
 function BookingContainer(props: Props) {
@@ -20,7 +20,7 @@ function BookingContainer(props: Props) {
 const WithContext = () => {
   return (
     <AppConsumer>
-      {({ goToIntro, getBooking  }) => {
+      {({ goToIntro, getBooking }) => {
         const booking = getBooking();
         return <BookingContainer goToIntro={goToIntro} booking={booking} />;
       }}

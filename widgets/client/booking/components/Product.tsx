@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { IBooking, IProduct } from '../types';
+import { IBookingData, IProduct } from '../types';
 import Slider from 'react-slick';
-import { getEnv, readFile } from '../../utils';
+import { readFile } from '../../utils';
 import Button from './common/Button';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 type Props = {
   product?: IProduct;
-  booking: IBooking;
+  booking: IBookingData;
   goToBookings: () => void;
   showForm: () => void;
 };

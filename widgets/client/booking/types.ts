@@ -33,6 +33,34 @@ export interface IProductCategory {
   isRoot: boolean;
 }
 
+export interface ICategoryTree {
+  _id: string;
+  name: string;
+  parentId: string;
+  type: string;
+}
+
+export interface IBookingData {
+  _id: string;
+  // content
+  name: string;
+  description: string;
+  userFilters?: string[];
+  image?: any;
+
+  productCategoryId?: string;
+  // style
+  style: IStyle;
+
+  // display blocks
+  displayBlock: IDisplayBlock;
+
+  // child categories
+  childCategories: IProductCategory[];
+  categoryTree: ICategoryTree[];
+
+  mainProductCategory: IProductCategory;
+}
 export interface IProduct {
   _id: string;
   name?: string;
@@ -54,50 +82,6 @@ export interface IProduct {
   category: IProductCategory;
 
   customFieldsDataWithText?: JSON;
-}
-
-export interface ICategoryTree {
-  _id: string;
-  name: string;
-  parentId: string;
-  type: string;
-}
-
-export interface IBooking {
-  _id: string;
-  // content
-  name: string;
-  description: string;
-  userFilters?: string[];
-  image?: any;
-
-  productCategoryId?: string;
-
-  // settings
-  title?: string;
-  formId?: string;
-
-  buttonText?: string;
-
-  // common
-  createdDate?: Date;
-
-  brand?: IBrand;
-  createdUser?: IUser;
-
-  // style
-  style: IStyle;
-
-  // display blocks
-  displayBlock: IDisplayBlock;
-
-  // child categories
-  childCategories: IProductCategory[];
-  categoryTree: ICategoryTree[];
-
-  mainProductCategory: IProductCategory;
-
-  leadData: ILeadData;
 }
 
 export type FieldValue = string | number | Date | string[] | IAttachment[];

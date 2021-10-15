@@ -3,12 +3,12 @@ import { sendEmail } from '../../form/containers/utils';
 import { ISaveFormResponse } from '../../form/types';
 import { IEmailParams } from '../../types';
 import { connection } from '../connection';
-import { IBooking, ICurrentStatus } from '../types';
+import { IBookingData, ICurrentStatus } from '../types';
 import { saveBooking } from './utils';
 
 interface IState {
   activeRoute: string;
-  activeBooking: IBooking | null;
+  activeBooking: IBookingData | null;
   activeBlock: string | null;
   activeFloor: string | null;
   activeProduct: string | null;
@@ -22,12 +22,12 @@ interface IState {
 
 interface IStore extends IState {
   goToIntro: () => void;
-  goToBooking: (booking: IBooking) => void;
+  goToBooking: (booking: IBookingData) => void;
   goToBookings: () => void;
   goToBlock: (blockId: string) => void;
   goToFloor: (floorId: string) => void;
   goToProduct: (productId: string) => void;
-  getBooking: () => IBooking;
+  getBooking: () => IBookingData;
   showForm: () => void;
   showPopup: () => void;
   closePopup: () => void;

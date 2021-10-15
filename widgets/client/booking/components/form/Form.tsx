@@ -10,7 +10,7 @@ import { connection } from '../../connection';
 import TopBar from './TopBar';
 import Field from './Field';
 import {
-  IBooking,
+  IBookingData,
   IEmailParams,
   FieldValue,
   IForm,
@@ -31,7 +31,7 @@ type Props = {
   isSubmitting?: boolean;
   color?: string;
 
-  booking: IBooking;
+  booking: IBookingData;
   integration: any;
 };
 

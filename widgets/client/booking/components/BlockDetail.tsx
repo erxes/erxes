@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { IBooking, IProductCategory } from '../types';
+import { IBookingData, IProductCategory } from '../types';
 import { readFile } from '../../utils';
 import Button from './common/Button';
 
 type Props = {
   goToBookings: () => void;
   block?: IProductCategory;
-  booking?: IBooking;
+  booking?: IBookingData;
 };
 
 function BlockDetail({ goToBookings, block, booking }: Props) {

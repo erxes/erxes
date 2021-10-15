@@ -4,11 +4,11 @@ import { AppConsumer } from './AppContext';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { productDetail } from '../graphql';
 import gql from 'graphql-tag';
-import { IBooking, IProduct } from '../types';
+import { IBookingData, IProduct } from '../types';
 
 type Props = {
   productId: string;
-  booking: IBooking;
+  booking: IBookingData;
   goToBookings: () => void;
   showForm: () => void;
 };

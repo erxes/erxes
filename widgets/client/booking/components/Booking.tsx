@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { readFile } from '../../utils';
-import { IBooking } from '../types';
+import { IBookingData } from '../types';
 import { Block } from '../containers';
 import Button from './common/Button';
 
 type Props = {
   goToIntro: () => void;
   goToFloor?: () => void;
-  booking: IBooking | null;
+  booking: IBookingData | null;
 };
 
 function Booking({ goToIntro, booking }: Props) {
@@ -16,7 +16,7 @@ function Booking({ goToIntro, booking }: Props) {
   }
 
   const {
-    title,
+    name,
     description,
     childCategories,
     mainProductCategory,
@@ -28,7 +28,7 @@ function Booking({ goToIntro, booking }: Props) {
   return (
     <div className="main-container">
       <div className="main-header">
-        <h3>{title}</h3>
+        <h3>{name}</h3>
         {description}
       </div>
       <div className="main-body">

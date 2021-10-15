@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { IBooking, IProductCategory } from '../types';
+import { IProductCategory } from '../types';
 
 type Props = {
   block: IProductCategory;
-  widgetColor:string;
+  widgetColor: string;
   goToBlock: (blockId: string) => void;
 };
 

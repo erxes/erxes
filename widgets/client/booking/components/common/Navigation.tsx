@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { FilterableList } from '.';
-import { IBooking, ICategoryTree } from '../../types';
+import { IBookingData, ICategoryTree } from '../../types';
 import * as ReactPopover from 'react-popover';
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
   changeRoute: (item: any) => void;
-  booking?: IBooking;
+  booking?: IBookingData;
 };
 
 type State = {

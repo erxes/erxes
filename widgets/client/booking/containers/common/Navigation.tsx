@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AppConsumer } from '../AppContext';
 import { Navigation } from '../../components/common';
-import { IBooking, ICategoryTree } from '../../types';
+import { IBookingData, ICategoryTree } from '../../types';
 import { ChildProps } from 'react-apollo';
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   goToBlock?: (blockId: string) => void;
   goToFloor?: (floorId: string) => void;
   goToProduct?: (productId: string) => void;
-  booking?: IBooking;
+  booking?: IBookingData;
 };
 
 function NavigationContainer(props: ChildProps<Props>) {

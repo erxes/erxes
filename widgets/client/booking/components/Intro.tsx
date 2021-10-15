@@ -1,26 +1,26 @@
 import * as React from 'react';
 import { readFile } from '../../utils';
-import { IBooking } from '../types';
+import { IBookingData } from '../types';
 import Button from './common/Button';
 
 type Props = {
-  booking: IBooking;
-  goToBooking: (booking: IBooking) => void;
+  booking: IBookingData;
+  goToBooking: (booking: IBookingData) => void;
   showPopup: () => void;
 };
 
 function Intro({ booking, goToBooking, showPopup }: Props) {
-  const { title, description, image, style } = booking;
+  const { name, description, image, style } = booking;
   const { widgetColor } = style;
 
   return (
     <div className="main-container">
       <div className="main-header">
-        <h3>{title}</h3>
+        <h3>{name}</h3>
         {description}
       </div>
       <div className="main-body">
-        <img src={readFile(image && image.url)} alt={title} />
+        <img src={readFile(image && image.url)} alt={name} />
       </div>
       <div className="flex-end">
         <Button

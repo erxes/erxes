@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { iconClose } from '../../icons/Icons';
 import { Booking, Intro, BlockDetail, Floor, Product } from '../containers';
-import { IBooking } from '../types';
+import { IBookingData } from '../types';
 import Navigation from '../containers/common/Navigation';
 import Form from '../containers/form/Form';
 
 type Props = {
   activeRoute: string;
-  booking: IBooking;
+  booking: IBookingData;
   isFormVisible: boolean;
   containerClass: string;
   closePopup: () => void;
