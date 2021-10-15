@@ -10,6 +10,7 @@ import {
   Forms,
   Integrations,
   KnowledgeBaseArticles,
+  Products,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -982,11 +983,14 @@ const widgetMutations = {
 
     messages.push(message);
 
+    const product = await Products.findOne({ _id: productId });
+
     message = await Messages.createMessage({
       conversationId: conversation._id,
       customerId: cachedCustomer._id,
-      content: `<p>${productId}</p>`,
-      contentType: 'text'
+      content: `<p>submitted a new booking for <strong>${product?.name +
+        ' ' +
+        product?.code}</strong></p>`
     });
 
     messages.push(message);
