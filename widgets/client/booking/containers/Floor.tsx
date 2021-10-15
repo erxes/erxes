@@ -4,7 +4,8 @@ import { AppConsumer } from './AppContext';
 import { graphql, compose, ChildProps } from 'react-apollo';
 import gql from 'graphql-tag';
 import { productCategory } from '../graphql';
-import { IBookingData, IProductCategory } from '../types';
+import { IBookingData } from '../types';
+import { IProductCategory } from '../../types';
 
 type Props = {
   floorId?: string;

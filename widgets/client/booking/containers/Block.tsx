@@ -1,6 +1,6 @@
 import * as React from 'react';
+import { IProductCategory } from '../../types';
 import Block from '../components/Block';
-import { IProductCategory } from '../types';
 import { AppConsumer } from './AppContext';
 
 type Props = {

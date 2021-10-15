@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { IBookingData, IProductCategory } from '../types';
+import { IBookingData } from '../types';
 import { readFile } from '../../utils';
 import Button from './common/Button';
+import { IProductCategory } from '../../types';
 
 type Props = {
   floor?: IProductCategory;

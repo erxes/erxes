@@ -1,4 +1,4 @@
-import { IBrand, IUser } from '../types';
+import { IBrand, IProductCategory, IUser } from '../types';
 
 export interface IStyle {
   itemShape?: string;
@@ -17,20 +17,6 @@ export interface IDisplayBlock {
   columns?: string;
   rows?: string;
   margin?: string;
-}
-
-export interface IProductCategory {
-  _id: string;
-  name: string;
-  order: string;
-  code: string;
-  description?: string;
-  attachment?: any;
-  status: string;
-  parentId?: string;
-  createdAt: Date;
-  productCount: number;
-  isRoot: boolean;
 }
 
 export interface ICategoryTree {
@@ -60,28 +46,6 @@ export interface IBookingData {
   categoryTree: ICategoryTree[];
 
   mainProductCategory: IProductCategory;
-}
-export interface IProduct {
-  _id: string;
-  name?: string;
-  type: string;
-  categoryId: string;
-  description: string;
-  sku: string;
-  code: string;
-  unitPrice: number;
-  customFieldsData?: any;
-  createdAt: Date;
-  vendorId?: string;
-
-  attachment?: any;
-  attachmentMore?: any[];
-  supply: string;
-  productCount: number;
-  minimiumCount: number;
-  category: IProductCategory;
-
-  customFieldsDataWithText?: JSON;
 }
 
 export type FieldValue = string | number | Date | string[] | IAttachment[];

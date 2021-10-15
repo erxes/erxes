@@ -1,10 +1,10 @@
 import * as React from 'react';
 import BlockDetail from '../components/BlockDetail';
 import { AppConsumer } from './AppContext';
-import { IProductCategory } from '../types';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { productCategory } from '../graphql';
+import { IProductCategory } from '../../types';
 
 type Props = {
   goToBookings: () => void;
