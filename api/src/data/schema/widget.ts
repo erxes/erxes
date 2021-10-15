@@ -157,5 +157,6 @@ export const mutations = `
     submissions: [FieldValueInput]
     browserInfo: JSON!
     cachedCustomerId: String
+    productCode: String
   ): SaveFormResponse
 `;

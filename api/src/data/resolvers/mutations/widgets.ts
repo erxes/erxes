@@ -942,6 +942,7 @@ const widgetMutations = {
       submissions: ISubmission[];
       browserInfo: any;
       cachedCustomerId?: string;
+      productCode: string;
     }
   ) {
     const { integrationId, formId, submissions } = args;
@@ -969,36 +970,50 @@ const widgetMutations = {
       content
     });
 
+    const messages: any = [];
+
     // create message
-    const message = await Messages.createMessage({
+    let message = await Messages.createMessage({
       conversationId: conversation._id,
       customerId: cachedCustomer._id,
       content,
       formWidgetData: submissions
     });
 
-    // increasing form submitted count
-    await Integrations.increaseContactsGathered(formId);
+    messages.push(message);
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
+    message = await Messages.createMessage({
+      conversationId: conversation._id,
+      customerId: cachedCustomer._id,
+      content: `<p>Submitted new booking</p>`
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
+    messages.push(message);
 
-    await sendToWebhook('create', 'popupSubmitted', {
-      formId: args.formId,
-      submissions: args.submissions,
-      customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id,
-      conversationId: conversation._id
+    // // increasing form submitted count
+    // await Integrations.increaseContactsGathered(formId);
+
+    // tslint:disable-next-line: no-shadowed-variable
+    messages.map(async (message: any) => {
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: message
+      });
+
+      graphqlPubsub.publish('conversationMessageInserted', {
+        conversationMessageInserted: message
+      });
+
+      await sendToWebhook('create', 'popupSubmitted', {
+        formId: args.formId,
+        submissions: args.submissions,
+        customer: cachedCustomer,
+        cachedCustomerId: cachedCustomer._id,
+        conversationId: conversation._id
+      });
     });
 
     return {
       status: 'ok',
-      messageId: message._id,
       customerId: cachedCustomer._id
     };
   }
