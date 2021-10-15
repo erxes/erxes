@@ -19,6 +19,7 @@ export default function EventForm(props: Props) {
   const { item = {}, fields } = props;
 
   const [attachments, setAttachment] = useState(item.attachments || []);
+  const [images, setImages] = useState(item.images || []);
   const [recipientIds, setRecipientIds] = useState(item.recipientIds || []);
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
@@ -106,12 +107,19 @@ export default function EventForm(props: Props) {
             <ControlLabel>Add attachments:</ControlLabel>
           </div>
         </UploadItems>
+        <UploadItems>
+          <div>
+            <Uploader defaultFileList={images || []} onChange={setImages} />
+            <ControlLabel>Add images:</ControlLabel>
+          </div>
+        </UploadItems>
         {renderButton({
           values: {
             title: values.title,
             description: values.description ? values.description : null,
             contentType: 'event',
             attachments,
+            images,
             recipientIds,
             customFieldsData,
             eventData

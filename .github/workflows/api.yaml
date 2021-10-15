@@ -6,7 +6,7 @@ on:
       - '**'
     paths:
       - 'api/**'
-      - 'plugins/**'
+      - 'plugins/**/api'
       - '.github/workflows/api.yaml'
   pull_request:
     branches:
@@ -38,7 +38,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
         ports:
-        - 9200:9200
+          - 9200:9200
 
     steps:
       - uses: actions/checkout@v2

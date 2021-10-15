@@ -6,6 +6,7 @@ on:
       - '**'
     paths:
       - 'ui/**'
+      - 'plugins/**/ui'
       - '.github/workflows/ui.yaml'
       - '!ui/nginx/**'
       - '!ui/docker-entrypoint.sh'
