@@ -182,6 +182,7 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
+            status: { $ne: 'archived' },
             $or: [
               { visibility: 'public' },
               {
