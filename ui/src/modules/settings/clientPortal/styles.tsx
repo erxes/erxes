@@ -1,5 +1,4 @@
-import colors from 'erxes-ui/lib/styles/colors';
-import { dimensions } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
