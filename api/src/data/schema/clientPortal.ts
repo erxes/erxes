@@ -78,28 +78,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  clientPortalCreateCard(
-    type: String!
-    stageId: String!
-    subject: String!
-    description: String
-    email: String!
-    priority: String
-  ): Ticket
-
-  clientPortalCreateCustomer(
-    configId: String!
-    firstName: String!
-    lastName: String
-    email: String!
-  ): Customer
-
-  clientPortalCreateCompany(
-    configId: String!
-    companyName: String!
-    email: String!
-  ): Company
-
   clientPortalConfigUpdate (
     _id: String
     name: String
@@ -127,4 +105,26 @@ export const mutations = `
     twilioAuthToken: String
     twilioFromNumber: String
   ): ClientPortal
+
+  clientPortalCreateCard(
+    type: String!
+    stageId: String!
+    subject: String!
+    description: String
+    email: String!
+    priority: String
+  ): Ticket
+
+  clientPortalCreateCustomer(
+    configId: String!
+    firstName: String!
+    lastName: String
+    email: String!
+  ): Customer
+
+  clientPortalCreateCompany(
+    configId: String!
+    companyName: String!
+    email: String!
+  ): Company
 `;

@@ -28,11 +28,7 @@ const configClientPortalMutations = {
       email: string;
     }
   ) {
-    const config = await ClientPortals.findOne({ _id: args.configId }).lean();
-
-    if (!config) {
-      throw new Error('Config not found');
-    }
+    await ClientPortals.getConfig(args.configId);
 
     return Customers.createCustomer({
       firstName: args.firstName,
@@ -50,11 +46,7 @@ const configClientPortalMutations = {
       email: string;
     }
   ) {
-    const config = await ClientPortals.findOne({ _id: args.configId }).lean();
-
-    if (!config) {
-      throw new Error('Config not found');
-    }
+    await ClientPortals.getConfig(args.configId);
 
     return Companies.createCompany({
       primaryName: args.companyName,

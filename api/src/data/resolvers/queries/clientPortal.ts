@@ -50,7 +50,7 @@ const configClientPortalQueries = {
     const customer = await Customers.findOne({ primaryEmail: email }).lean();
 
     if (!customer) {
-      throw new Error('Customer not registered');
+      return [];
     }
 
     return Tickets.find({ userId: customer._id });

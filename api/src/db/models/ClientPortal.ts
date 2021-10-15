@@ -13,7 +13,13 @@ export interface IClientPortalModel extends Model<IClientPortalDocument> {
 export const loadClass = () => {
   class ClientPortal {
     public static async getConfig(_id: string) {
-      return ClientPortals.findOne({ _id });
+      const config = await ClientPortals.findOne({ _id }).lean();
+
+      if (!config) {
+        throw new Error('Config not found');
+      }
+
+      return config;
     }
 
     public static async createOrUpdateConfig({ _id, ...doc }: IClientPortal) {
