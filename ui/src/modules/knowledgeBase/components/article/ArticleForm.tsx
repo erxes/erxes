@@ -15,6 +15,7 @@ import {
 import { extractAttachment, __ } from 'modules/common/utils';
 import { articleReactions } from 'modules/knowledgeBase/icons.constant';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
+import { FILE_MIME_TYPES } from 'modules/settings/general/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IArticle, ITopic } from '../../types';
@@ -60,6 +61,12 @@ class ArticleForm extends React.Component<Props, State> {
       this.setState({ topicId: topics[0]._id, categoryId: currentCategoryId });
     }
   }
+
+  getFirstAttachment = () => {
+    const { attachments } = this.state;
+
+    return attachments.length > 0 ? attachments[0] : ({} as IAttachment);
+  };
 
   generateDoc = (values: {
     _id?: string;
@@ -108,6 +115,17 @@ class ArticleForm extends React.Component<Props, State> {
 
   onChangeAttachments = (attachments: IAttachment[]) =>
     this.setState({ attachments });
+
+  onChangeAttachment = (key: string, value: string | number) => {
+    this.setState({
+      attachments: [
+        {
+          ...this.getFirstAttachment(),
+          [key]: value
+        }
+      ]
+    });
+  };
 
   renderOption = option => {
     return (
@@ -195,6 +213,12 @@ class ArticleForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
     const { attachments, reactionChoices, content } = this.state;
+    const attachment = this.getFirstAttachment();
+
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+      value: item.value,
+      label: `${item.label} (${item.extension})`
+    }));
 
     const { isSubmitted, values } = formProps;
 
@@ -269,6 +293,41 @@ class ArticleForm extends React.Component<Props, State> {
           <Uploader
             defaultFileList={attachments}
             onChange={this.onChangeAttachments}
+            single={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>{__('File info')}</ControlLabel>
+          <FormControl
+            placeholder="Url"
+            value={attachment.url || ''}
+            onChange={(e: any) =>
+              this.onChangeAttachment('url', e.target.value)
+            }
+          />
+          <FormControl
+            placeholder="Name"
+            value={attachment.name || ''}
+            onChange={(e: any) =>
+              this.onChangeAttachment('name', e.target.value)
+            }
+          />
+          <FormControl
+            placeholder="Size (byte)"
+            value={attachment.size || ''}
+            type="number"
+            onChange={(e: any) =>
+              this.onChangeAttachment('size', parseInt(e.target.value, 10))
+            }
+          />
+          <FormControl
+            componentClass="select"
+            value={attachment.type || ''}
+            onChange={(e: any) =>
+              this.onChangeAttachment('type', e.target.value)
+            }
+            options={[{ value: '', label: 'Select type' }, ...mimeTypeOptions]}
           />
         </FormGroup>
 
