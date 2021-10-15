@@ -1,8 +1,8 @@
-import client from 'erxes-ui/lib/apolloClient';
-import Spinner from 'erxes-ui/lib/components/Spinner';
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import compose from 'lodash.flowright';
 import { BoardsQueryResponse, IPipeline } from 'modules/boards/types';
+import Spinner from 'modules/common/components/Spinner';
 import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
 import React, { useEffect, useState } from 'react';
 import { graphql } from 'react-apollo';

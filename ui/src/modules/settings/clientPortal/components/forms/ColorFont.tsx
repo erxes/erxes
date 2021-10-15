@@ -1,6 +1,3 @@
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -15,6 +12,8 @@ import {
   ColorChooserTile,
   FlexRow
 } from '../../styles';
+import { ControlLabel, FormGroup } from 'modules/common/components/form';
+import { FlexContent } from 'modules/layout/styles';
 
 type Props = {
   styles?: Styles;
