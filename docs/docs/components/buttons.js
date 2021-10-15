@@ -126,9 +126,7 @@ export function ButtonComponent(props) {
           {`<>`}
           {`${buttons.map(
             (e, index) =>
-              `\n\t<Button btnStyle="${e.toLowerCase()}" icon="${
-                icons[index]
-              }">${e}</Button>`
+              `\n\t<Button btnStyle="${e.toLowerCase()}" icon="${icons[index]}">${e}</Button>`
           )}`}
           {`\n</>`}
         </CodeBlock>
@@ -150,7 +148,7 @@ export function ButtonComponent(props) {
             </tr>
           </thead>
           <tbody>
-            {table.map((row, i) => (
+            {table.map((row) => (
               <tr>
                 {row.map((cell) => (
                   <td>{cell}</td>

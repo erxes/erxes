@@ -3,34 +3,38 @@ id: emptystate
 title: Empty State
 ---
 
-import { EmptyStateComponents } from './emptystate.js'
+import { EmptyComponents } from './emptystate.js'
 
+<p>Empty state with <code>icon</code> and <code>text</code> props.</p>
+<EmptyComponents type="simple" text="Text" icon="info-circle"></EmptyComponents>
 
-<p>Empty state with <code>icon</code> and <code>text</code> props. </p>
-<EmptyStateComponents type="simple" text="Text" icon="info-circle"></EmptyStateComponents>
-
-<!-- ## Light
+## Light
 
 <p>If you use <code>light</code> prop, your text won't show. </p>
-<Emptylight></Emptylight>
+<EmptyComponents type="light" text="Text" icon="info-circle"></EmptyComponents>
 
 ## Icon size
 
 <p>You can change the size of icon with <code>size</code> prop. </p>
-<Emptysize></Emptysize>
+<EmptyComponents type="size" text="Text" icon="info-circle" size="30"></EmptyComponents>
 
 ## Image
 
 <p>Empty state with <code>image</code> prop.</p>
-<Emptyimg></Emptyimg>
+<EmptyComponents type="image" text="Text" img="https://erxes.io/static/images/logo/logo_dark.svg"></EmptyComponents>
 
 ## Extra
 
 <p>Empty state with <code>extra</code> prop.</p>
-<Emptyextra></Emptyextra>
+<EmptyComponents type="extra" text="Text" icon="info-circle" size="30"></EmptyComponents>
 
 ## API
 
-<Apiemptystate></Apiemptystate>
-
- -->
+<EmptyComponents type="APIempty" table={[
+    ['text', 'string', 'Shows your text. If you want to show only text, use it with light prop'],
+    ['icon', 'string', 'Shows icon'],
+    ['image', 'string', 'Shows image'],
+    ['size', 'string', 'Changes the size of icon'],
+    ['extra', 'node', 'Adds other components or text'],
+    ['light', 'boolean', 'Show only first row']
+]}></EmptyComponents>

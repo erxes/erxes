@@ -10,30 +10,37 @@ import { ButtonComponent } from "./buttons.js"
 ## Examples
 
 ### Types
+
 <p>Use any of the available button style types to quickly create a styled button. Just modify the <code>btnStyle</code> prop.</p>
 <ButtonComponent type="type" buttons={['Primary', 'Success', 'Danger', 'Warning', 'Simple', 'Link']}></ButtonComponent>
 
 ### Sizes
+
 <p>Larger or smaller buttons? Add <code>size</code> for additional sizes.</p>
 <ButtonComponent type="size" buttons={['Large', 'Medium', 'Small']}></ButtonComponent>
 
 ## Disabled state
+
 <p>Make buttons look inactive by adding the <code>disabled</code> prop to.</p>
 <ButtonComponent type="activity"></ButtonComponent>
 
 ## Uppercase
+
 <p>Make button text uppercase by adding the <code>uppercase</code> prop to.</p>
 <ButtonComponent type="uppercase"></ButtonComponent>
 
 ## Block
+
 <p>Make button full-width by adding the <code>block</code> prop to.</p>
 <ButtonComponent type="block"></ButtonComponent>
 
 ## Icon
+
 <p>Add your favorite icon by using the <code>icon</code> prop.</p>
 <ButtonComponent type="icon" buttons={['Primary', 'Success', 'Danger', 'Warning', 'Simple', 'Link']} icons={['envelope-alt', 'check-circle', 'times-circle', 'exclamation-triangle', 'info-circle', 'link']}></ButtonComponent>
 
 ## API
+
 <ButtonComponent type="APIbutton" table={[
     ['href', 'string', '', 'Defines a hyperlink'],
     ['type', 'string', 'button', 'Defines HTML button type attribute'],

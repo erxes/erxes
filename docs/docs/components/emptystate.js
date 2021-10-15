@@ -5,101 +5,112 @@ import "erxes-icon/css/erxes.min.css";
 import Table from "../../../ui/src/modules/common/components/table";
 import Button from "erxes-ui/lib/components/Button";
 
-export function EmptyStateComponent(props) {
-  const { type, buttons = [], table = [], icon, text } = props;
+export function EmptyComponents(props) {
+  const { type, table = [], icon, img, text, size } = props;
 
   if (type === "simple") {
     return (
       <>
         <div>
-          <EmptyState icon={icon} text={text}/>
+          <EmptyState key={Math.random()} icon={icon} text={text} />
         </div>
         <CodeBlock className="language-jsx">
           {`<>`}
-          {`\n\t<EmptyState icon=${icon} text=${text}/>`}
+          {`\n\t<EmptyState icon="${icon}" text="${text}"/>`}
           {`\n</>`}
         </CodeBlock>
       </>
     );
   }
 
+  if (type === "light") {
+    return (
+      <>
+        <div>
+          <EmptyState key={Math.random()} icon={icon} text={text} light />
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<EmptyState icon="${icon}" text="${text}" light/>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "size") {
+    return (
+      <>
+        <div>
+          <EmptyState key={Math.random()} icon={icon} text={text} size={size} />
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<EmptyState icon="${icon}" text="${text}" size="${size}"/>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "image") {
+    return (
+      <>
+        <div>
+          <EmptyState key={Math.random()} image={img} text={text} />
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<EmptyState image="${img}" text="${text}"/>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "extra") {
+    return (
+      <>
+        <div>
+          <EmptyState key={Math.random()} icon={icon} text={text} extra={<Button>Button</Button>} />
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<EmptyState icon="${icon}" text="${text}" extra={<Button>Button</Button>} />`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "APIempty") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import EmptyState from "erxes-ui/lib/components/EmptyState";`}</CodeBlock>
+        <Table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {table.map((row, i) => (
+              <tr>
+                {row.map((cell) => (
+                  <td>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </>
+    );
+  }
+
   return null;
 }
-
-
-// function Emptystate() {
-//   return (
-//     <>
-//       <EmptyState icon="info-circle" text="Text" />
-//       <CodeBlock className="language-jsx">{`<>
-//       <EmptyState icon="info-circle" text="Text" />
-// </>`}</CodeBlock>
-//     </>
-//   );
-// }
-
-// function Emptylight() {
-//   return (
-//     <>
-//       <EmptyState icon="info-circle" text="Text" light />
-//       <CodeBlock className="language-jsx">{`<>
-//         <EmptyState icon="info-circle" text="Text" light />
-// </>`}</CodeBlock>
-//     </>
-//   );
-// }
-
-// function Emptyimg() {
-//   return (
-//     <>
-//       <EmptyState
-//         image="https://erxes.io/static/images/logo/logo_dark.svg"
-//         text="Erxes"
-//       />
-//       <CodeBlock className="language-jsx">{`<>
-//     <EmptyState
-//     image="https://erxes.io/static/images/logo/logo_dark.svg"
-//     text="Erxes"
-//     />
-// </>`}</CodeBlock>
-//     </>
-//   );
-// }
-
-// function Emptyextra() {
-//   return (<>
-//     <EmptyState
-//       icon="info-circle"
-//       text="Text"
-//       extra={
-//         <Button size="small">
-//           Button
-//         </Button>
-//       }
-//     />
-//     <CodeBlock className="language-jsx">{`<>
-//     <EmptyState
-//     icon="info-circle"
-//     text="Text"
-//     extra={
-//       <Button size="small">
-//         Button
-//       </Button>
-//     }
-//   />
-// </>`}</CodeBlock>
-//   </>);
-// }
-
-// function Emptysize() {
-//   return (<>
-//   <EmptyState icon="info-circle" text="Text" size="30" />
-//   <CodeBlock className="language-jsx">{`<>
-//       <EmptyState icon="info-circle" text="Text" size="30" />
-// </>`}</CodeBlock>
-//   </>
-//   )
-// }
 
 // function Apiemptystate(){
 // return(<>
