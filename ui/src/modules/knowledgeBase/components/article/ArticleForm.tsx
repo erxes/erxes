@@ -297,39 +297,57 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel required={true}>{__('File info')}</ControlLabel>
-          <FormControl
-            placeholder="Url"
-            value={attachment.url || ''}
-            onChange={(e: any) =>
-              this.onChangeAttachment('url', e.target.value)
-            }
-          />
-          <FormControl
-            placeholder="Name"
-            value={attachment.name || ''}
-            onChange={(e: any) =>
-              this.onChangeAttachment('name', e.target.value)
-            }
-          />
-          <FormControl
-            placeholder="Size (byte)"
-            value={attachment.size || ''}
-            type="number"
-            onChange={(e: any) =>
-              this.onChangeAttachment('size', parseInt(e.target.value, 10))
-            }
-          />
-          <FormControl
-            componentClass="select"
-            value={attachment.type || ''}
-            onChange={(e: any) =>
-              this.onChangeAttachment('type', e.target.value)
-            }
-            options={[{ value: '', label: 'Select type' }, ...mimeTypeOptions]}
-          />
-        </FormGroup>
+        <FlexContent>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File url')}</ControlLabel>
+              <FormControl
+                placeholder="Url"
+                value={attachment.url || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('url', e.target.value)
+                }
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('File name')}</ControlLabel>
+              <FormControl
+                placeholder="Name"
+                value={attachment.name || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('name', e.target.value)
+                }
+              />
+            </FormGroup>
+          </FlexItem>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File size (byte)')}</ControlLabel>
+              <FormControl
+                placeholder="Size (byte)"
+                value={attachment.size || ''}
+                type="number"
+                onChange={(e: any) =>
+                  this.onChangeAttachment('size', parseInt(e.target.value, 10))
+                }
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('File type')}</ControlLabel>
+              <FormControl
+                componentClass="select"
+                value={attachment.type || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('type', e.target.value)
+                }
+                options={[
+                  { value: '', label: 'Select type' },
+                  ...mimeTypeOptions
+                ]}
+              />
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
 
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
