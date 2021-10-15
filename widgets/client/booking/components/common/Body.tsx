@@ -11,7 +11,7 @@ type Props = {
 };
 
 function Body({ title, description, image, page, children }: Props) {
-  let style = "flex-center";
+  let style = "fullimg";
   if(page == "floor"){
       style = "grid-12"
   }

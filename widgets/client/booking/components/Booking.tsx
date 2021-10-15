@@ -24,7 +24,6 @@ function Booking({ goToIntro, booking }: Props) {
   } = booking;
   const { attachment } = mainProductCategory;
   const { widgetColor } = styles;
-console.log(childCategories)
   return (
     <>
         <Body page="block" title={title} description={description} image={attachment} >
@@ -35,7 +34,7 @@ console.log(childCategories)
   
         </div>
         </Body>
-        <div className="flex-sb">
+        <div className="footer">
         <Button
           text="Back"
           onClickHandler={() => goToIntro()}

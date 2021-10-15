@@ -41,10 +41,10 @@ class Navigation extends React.Component<Props, State> {
     return (
       <ReactPopover
         isOpen={isOpen}
-        preferPlace={'start'}
-        place={'left'}
+        preferPlace={'above'}
+        place={'right'}
         tipSize={0.01}
-        className={'top-0'}
+        enterExitTransitionDurationMs={600}
         body={
           <div className={`booking-navigation bn-${styles.widgetColor}`}>
             <div className="flex-sb p-5">

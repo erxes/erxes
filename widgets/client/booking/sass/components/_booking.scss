@@ -12,6 +12,10 @@ $color-11: #0078bf;
 $color-12: #F7CE53;
 
 $allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8, $color-9, $color-10, $color-11, $color-12;
+#root {
+  margin: 0;
+  height: 100%;
+}
 
 h4,p{
     margin-block-start: 0px;
@@ -55,31 +59,14 @@ img {
   width: 0;
   height: 0;
 }
-
 .layout {
-  max-width: 100%;
-  min-height: 100%;
   color: #333333 ;
   font-size: calc(0.25em + 1vmin);
-  margin: 0; 
-  display:flex; 
-  flex-direction:column; 
+  width: 100%;
+  height: 100%;
 }
-
-// @media only screen and (max-width: 320px){
-//   .layout{
-//     font-size: 10px;
-//   }
-// }
-// @media only screen and (max-width: 320px){
-//   .layout{
-//     font-size: 10px;
-//   }
-// }
 .header{
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0,3fr) minmax(0, 1fr);
-  font-size: 1.5em;
+  position:absolute; top:0px; left:0px; height:50px; right:0px;overflow:hidden;
   .nav{
     display: flex;
     flex-direction: row;
@@ -91,33 +78,55 @@ img {
     }
   }
 }
+.container{
+  position:absolute;
+  top:50px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+  font-size: 1.5em;
+  height: 100%;
+  overflow:hidden;
+  .body{
+    height: 100%;
+    position:absolute;
+    top:0px;
+    bottom:50px;
+    left:0px;
+    right:0px;
+    overflow:auto;
+    .fullimg{
+      min-height: 400px;
+      display: block;
+      img{
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
+      }
+    }
+   
+  }
+  .footer{
+    position:absolute;
+    bottom:0px;
+    height:50px;
+    left:0px;
+    right:0px;
+    overflow:hidden;
+    background-color: #fff;
+  }
+}
 .product{
   max-height: 100%;
   max-width: 100%;
   display: grid;
   grid-template-rows:  minmax(0, 10%)  minmax(0, 10%) 1fr  minmax(0, 10%)
 }
-.container{
-  min-height: 80%;
-  font-size: 1.5em;
-  margin-top:auto; 
-  .body{
-    max-height: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-  }
-  
-}
 .block {
   border: 1px solid $mid-grey;
   border-radius: 10px;
   flex: 0 1 calc(25% - 1em);
-  min-width: 10em;
-  min-height: 3em;
-  padding: 1em;
+  padding: 0.5em;
   &:hover,
   &:active {
     cursor: pointer;
@@ -165,7 +174,7 @@ img {
 }
 
 .erxes-widget-container {
-  height: 100vh;
+  min-height: 400px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -175,7 +184,7 @@ img {
 .erxes-booking-container {
   color: $text-color;
   margin: $kb-spacing;
-  max-width: 100%;
+  max-width: 900px;
   position: relative;
 }
 

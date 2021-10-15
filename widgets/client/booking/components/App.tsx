@@ -43,10 +43,9 @@ function App({ booking, activeRoute }: Props) {
           parentId={booking.productCategoryId}
         />
         <div/>
-        <Filter
-          booking={booking} />
       </div>
       <div className="container">{renderContent()}</div>
+
     </div>
   );
 }

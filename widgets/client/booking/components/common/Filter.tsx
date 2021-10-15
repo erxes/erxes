@@ -54,10 +54,10 @@ class Filter extends React.Component<Props, State> {
       <ReactPopover
         isOpen={isOpen}
         tipSize={0.01}
-        preferPlace={'column'}
+        preferPlace={'start'}
         place={"above"}
         body={
-          <div className={`booking-navigation bn-${styles.widgetColor}`}>
+          <div className={`booking-navigation filter bn-${styles.widgetColor}`}>
             <div className="flex-sb p-5">
               <div className="b"> Filter by</div>
               <div onClick={() => { this.setState({ isOpen: false })}}>
@@ -65,9 +65,9 @@ class Filter extends React.Component<Props, State> {
               </div>
             </div>
 
-            {/* <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} />
-                <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} />
-                <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} /> */}
+             {/* <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} /> */}
+                {/* <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} />
+                <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} />  */}
 
             <Button color={booking.styles.widgetColor} text={"Save"} onClickHandler = {() => alert("saved")}/>
            

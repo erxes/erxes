@@ -20,7 +20,7 @@ function Floor({ floor, goToBookings, booking }: Props) {
   return (
     <>
       <Body page="floor" title={"Penthouse"} description={" Please select your preffered floor"} image={floor.attachment}/>
-      <div className="flex-start">
+      <div className="footer flex-start">
         <Button
           text="Back"
           onClickHandler={goToBookings}
