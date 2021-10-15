@@ -112,11 +112,9 @@ const activityLogQueries = {
 
     const collectInternalNotes = async () => {
       collectItems(
-        await InternalNotes.find({ contentTypeId: contentId })
-          .sort({
-            createdAt: -1
-          })
-          .lean(),
+        await InternalNotes.find({ contentTypeId: contentId }).sort({
+          createdAt: -1
+        }).lean(),
         'note'
       );
     };
@@ -153,11 +151,9 @@ const activityLogQueries = {
               { _id: { $in: relatedTaskIds } },
               { status: { $ne: 'archived' } }
             ]
-          })
-            .sort({
-              closeDate: 1
-            })
-            .lean(),
+          }).sort({
+            closeDate: 1
+          }).lean(),
           'taskDetail'
         );
       }

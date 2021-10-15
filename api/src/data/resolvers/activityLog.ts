@@ -57,8 +57,7 @@ export default {
         item = (await Checklists.findOne({ _id: content._id }).lean()) || {};
         break;
       case 'checklistitem':
-        item =
-          (await ChecklistItems.findOne({ _id: content._id }).lean()) || {};
+        item = (await ChecklistItems.findOne({ _id: content._id }).lean()) || {};
         break;
     }
 
@@ -111,14 +110,10 @@ export default {
 
       switch (contentType) {
         case 'company':
-          result = await Companies.find({
-            _id: { $in: activityLog.content }
-          }).lean();
+          result = await Companies.find({ _id: { $in: activityLog.content } }).lean();
           break;
         case 'customer':
-          result = await Customers.find({
-            _id: { $in: activityLog.content }
-          }).lean();
+          result = await Customers.find({ _id: { $in: activityLog.content } }).lean();
           break;
       }
 
