@@ -226,3 +226,11 @@ export const calendarColumnQuery = (query, name) =>
       };
     }
   });
+
+export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
+  const keys = Object.keys(queryParams || {});
+
+  if (!(keys.length === 2 || (keys.includes('key') && keys.length === 3))) {
+    routerUtils.setParams(history, { key: Math.random() });
+  }
+};

@@ -13,6 +13,7 @@ import {
   Channels,
   ChecklistItems,
   Checklists,
+  ClientPortals,
   Companies,
   Configs,
   Conformities,
@@ -1316,6 +1317,7 @@ export const taskFactory = async (
 interface ITicketFactoryInput {
   name?: string;
   stageId?: string;
+  userId?: string;
   closeDate?: Date;
   noCloseDate?: boolean;
   assignedUserIds?: string[];
@@ -1345,6 +1347,7 @@ export const ticketFactory = async (
   const ticketDoc = {
     ...params,
     name: params.name || faker.random.word(),
+    userId: params.userId,
     stageId: params.stageId || stage._id,
     ...(!params.noCloseDate
       ? { closeDate: params.closeDate || new Date() }
@@ -1792,4 +1795,12 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+export const clientPortalFactory = async (params: { name?: string }) => {
+  const portal = new ClientPortals({
+    name: params.name || faker.random.word()
+  });
+
+  return portal.save();
 };
