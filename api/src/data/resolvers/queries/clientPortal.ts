@@ -1,3 +1,5 @@
+// TODO: check if related stages are selected in client portal config
+
 import {
   ClientPortals,
   Customers,

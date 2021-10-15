@@ -78,7 +78,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  clientPortalCreateTicket(
+  clientPortalCreateCard(
+    type: String!
     stageId: String!
     subject: String!
     description: String

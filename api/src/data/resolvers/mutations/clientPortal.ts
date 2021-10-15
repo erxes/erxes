@@ -2,13 +2,15 @@ import {
   ClientPortals,
   Companies,
   Customers,
+  Tasks,
   Tickets
 } from '../../../db/models';
 import { IClientPortal } from '../../../db/models/definitions/clientPortal';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { requireLogin } from '../../permissions/wrappers';
 
-interface ICustomerTicket {
+interface ICreateCard {
+  type: string;
   email: string;
   subject: string;
   description: string;
@@ -62,9 +64,9 @@ const configClientPortalMutations = {
     });
   },
 
-  async clientPortalCreateTicket(
+  async clientPortalCreateCard(
     _root,
-    { email, subject, priority, description, stageId }: ICustomerTicket
+    { type, email, subject, priority, description, stageId }: ICreateCard
   ) {
     const customer = await Customers.findOne({ primaryEmail: email }).lean();
 
@@ -72,7 +74,9 @@ const configClientPortalMutations = {
       throw new Error('Customer not registered');
     }
 
-    return Tickets.create({
+    const collection = type === 'ticket' ? Tickets : Tasks;
+
+    return collection.create({
       userId: customer._id,
       name: subject,
       description,
