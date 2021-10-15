@@ -279,4 +279,14 @@ describe('Client portal', () => {
     });
     expect(response.length).toBe(1);
   });
+
+  test('getConfig', async () => {
+    expect.assertions(1);
+
+    try {
+      await ClientPortals.getConfig('_id');
+    } catch (e) {
+      expect(e.message).toBe('Config not found');
+    }
+  });
 });
