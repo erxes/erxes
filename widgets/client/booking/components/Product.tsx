@@ -56,9 +56,9 @@ function Product({
           <a>
             <div className="mw-500" id="img-active">
               <img
-                id={product.attachment.name}
+                id={product.attachment && product.attachment.name}
                 src={readFile(product.attachment && product.attachment.url)}
-                alt={product.attachment.name}
+                alt={product.name}
               />
             </div>
           </a>

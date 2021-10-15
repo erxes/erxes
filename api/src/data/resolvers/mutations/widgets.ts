@@ -942,10 +942,10 @@ const widgetMutations = {
       submissions: ISubmission[];
       browserInfo: any;
       cachedCustomerId?: string;
-      productCode: string;
+      productId: string;
     }
   ) {
-    const { integrationId, formId, submissions } = args;
+    const { integrationId, formId, submissions, productId } = args;
 
     const form = await Forms.findOne({ _id: formId });
 
@@ -985,7 +985,8 @@ const widgetMutations = {
     message = await Messages.createMessage({
       conversationId: conversation._id,
       customerId: cachedCustomer._id,
-      content: `<p>Submitted new booking</p>`
+      content: `<p>${productId}</p>`,
+      contentType: 'text'
     });
 
     messages.push(message);

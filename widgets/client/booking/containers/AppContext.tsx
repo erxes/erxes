@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { sendEmail } from '../../form/containers/utils';
 import { ISaveFormResponse } from '../../form/types';
-import { IEmailParams } from '../../types';
+import { IEmailParams, IProduct } from '../../types';
 import { connection } from '../connection';
 import { IBookingData, ICurrentStatus } from '../types';
 import { saveBooking } from './utils';
@@ -146,6 +146,10 @@ export class AppProvider extends React.Component<{}, IState> {
    */
 
   save = (doc: any) => {
+    if (!this.state.activeProduct) {
+      return null;
+    }
+
     this.setState({ isSubmitting: true });
 
     saveBooking({
@@ -153,6 +157,7 @@ export class AppProvider extends React.Component<{}, IState> {
       browserInfo: connection.browserInfo,
       integrationId: this.getIntegration()._id,
       formId: this.getIntegration().formId,
+      productId: this.state.activeProduct,
       saveCallback: (response: ISaveFormResponse) => {
         const { errors } = response;
 

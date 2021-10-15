@@ -37,9 +37,17 @@ export const saveBooking = (params: {
   browserInfo: any;
   integrationId: string;
   formId: string;
+  productId: string;
   saveCallback: (response: any) => void;
 }) => {
-  const { doc, browserInfo, integrationId, formId, saveCallback } = params;
+  const {
+    doc,
+    browserInfo,
+    integrationId,
+    formId,
+    saveCallback,
+    productId
+  } = params;
 
   const submissions = Object.keys(doc).map(fieldId => {
     const {
@@ -74,7 +82,8 @@ export const saveBooking = (params: {
     formId,
     browserInfo,
     submissions: submissions.filter(e => e),
-    cachedCustomerId: getLocalStorageItem('customerId')
+    cachedCustomerId: getLocalStorageItem('customerId'),
+    productId
   };
 
   client

@@ -170,8 +170,8 @@ const widgetsConnectMutation = `
 `;
 
 export const saveBookingMutation = `
-  mutation widgetsSaveBooking($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String) {
-    widgetsSaveBooking(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
+  mutation widgetsSaveBooking($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String $productId: String) {
+    widgetsSaveBooking(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId productId: $productId) {
       status
       messageId
       customerId
