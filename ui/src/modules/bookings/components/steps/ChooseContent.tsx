@@ -39,7 +39,6 @@ function ChooseContent({
   onChange,
   name,
   description,
-  userFilters,
   productCategoryId,
   image,
   onChangeBlock,
@@ -94,7 +93,7 @@ function ChooseContent({
             single={true}
           />
         </FormGroup>
-
+        {/* 
         <FormGroup>
           <ControlLabel>User filters</ControlLabel>
           <Select
@@ -106,7 +105,7 @@ function ChooseContent({
             clearable={true}
             placeholder="Choose filters"
           />
-        </FormGroup>
+        </FormGroup> */}
       </>
     );
   };

@@ -368,8 +368,8 @@ function Booking(props: Props) {
             </Step>
 
             <Step
-              img="/images/icons/erxes-02.svg"
-              title="Form"
+              img="/images/icons/erxes-13.svg"
+              title="Confirmation"
               onClick={onStepClick}
               noButton={true}
             >
