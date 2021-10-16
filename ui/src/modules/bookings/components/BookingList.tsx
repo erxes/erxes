@@ -26,7 +26,6 @@ type Props = {
   toggleBulk: (target: IBookingIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: IBookingIntegration[], name: string) => void;
   history: any;
-  bookings: IBookingIntegration[];
   remove: (bookingId: string) => void;
   totalCount: number;
   counts: IntegrationsCount;
@@ -37,7 +36,6 @@ type Props = {
 function BookingList(props: Props) {
   const {
     isAllSelected,
-    bookings,
     bulk,
     toggleBulk,
     toggleAll,
@@ -52,7 +50,7 @@ function BookingList(props: Props) {
   } = props;
 
   const onChange = () => {
-    toggleAll(bookings, 'bookings');
+    toggleAll(integrations, 'integrations');
   };
 
   const renderRow = () => {

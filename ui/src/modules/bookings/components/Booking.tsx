@@ -31,6 +31,7 @@ import { colors } from 'modules/common/styles';
 import { IForm, IFormData } from 'modules/forms/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { ILeadData } from 'modules/leads/types';
+import { IAttachment } from 'modules/common/types';
 
 type Props = {
   integration?: IBookingIntegration;
@@ -57,8 +58,6 @@ type State = {
   languageCode: string;
   formId: string;
   formData: IFormData;
-  carousel: string;
-  isSkip: boolean;
 };
 
 type Style = {
@@ -79,6 +78,22 @@ type DisplayBlock = {
   columns: number;
   rows: number;
   margin: number;
+};
+
+type SuccessData = {
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankTitle?: string;
+  thankContent?: string;
+  attachments?: IAttachment[];
+  redirectUrl?: string;
+
+  carousel: string;
 };
 
 function Booking(props: Props) {
@@ -117,9 +132,7 @@ function Booking(props: Props) {
       fields: [],
       type: form.type || '',
       numberOfPages: form.numberOfPages || 1
-    },
-    carousel: 'form',
-    isSkip: true
+    }
   });
 
   const bookingStyles = booking.style || ({} as IStyle);
@@ -149,7 +162,7 @@ function Booking(props: Props) {
 
   const leadData = integration.leadData || ({} as ILeadData);
 
-  const [successData, setSuccessData] = useState({
+  const [successData, setSuccessData] = useState<SuccessData>({
     successAction: leadData.successAction || '',
     fromEmail: leadData.fromEmail || '',
     userEmailTitle: leadData.userEmailTitle || '',
@@ -161,8 +174,7 @@ function Booking(props: Props) {
     thankContent: leadData.thankContent || 'Thank you.',
     attachments: leadData.attachments || [],
     redirectUrl: leadData.redirectUrl || '',
-
-    isRequireOnce: leadData.isRequireOnce
+    carousel: 'form'
   });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
@@ -293,7 +305,7 @@ function Booking(props: Props) {
         carousel = 'success';
         break;
     }
-    return setState({ ...state, carousel });
+    return setSuccessData({ ...successData, carousel });
   };
 
   return (
@@ -398,17 +410,15 @@ function Booking(props: Props) {
 
         <PreviewWrapper>
           <FullPreview
-            onChange={onChange}
+            onChange={onChangeSuccess}
             onDocChange={onFormDocChange}
-            // bodyValue={bodyValue}
             type={'popup'}
             color={styles.widgetColor}
             theme={styles.widgetColor}
-            // image={logo}
             thankTitle={successData.thankTitle}
             thankContent={successData.thankContent}
-            skip={state.isSkip}
-            carousel={state.carousel}
+            skip={true}
+            carousel={successData.carousel}
             formData={state.formData}
           />
         </PreviewWrapper>
