@@ -58,6 +58,7 @@ type State = {
   languageCode: string;
   formId: string;
   formData: IFormData;
+  carousel: string;
 };
 
 type Style = {
@@ -92,8 +93,6 @@ type SuccessData = {
   thankContent?: string;
   attachments?: IAttachment[];
   redirectUrl?: string;
-
-  carousel: string;
 };
 
 function Booking(props: Props) {
@@ -132,7 +131,9 @@ function Booking(props: Props) {
       fields: [],
       type: form.type || '',
       numberOfPages: form.numberOfPages || 1
-    }
+    },
+
+    carousel: 'form'
   });
 
   const bookingStyles = booking.style || ({} as IStyle);
@@ -173,8 +174,7 @@ function Booking(props: Props) {
     thankTitle: leadData.thankTitle || 'Confirmation',
     thankContent: leadData.thankContent || 'Thank you.',
     attachments: leadData.attachments || [],
-    redirectUrl: leadData.redirectUrl || '',
-    carousel: 'form'
+    redirectUrl: leadData.redirectUrl || ''
   });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
@@ -305,7 +305,7 @@ function Booking(props: Props) {
         carousel = 'success';
         break;
     }
-    return setSuccessData({ ...successData, carousel });
+    return setState({ ...state, carousel });
   };
 
   return (
@@ -410,7 +410,7 @@ function Booking(props: Props) {
 
         <PreviewWrapper>
           <FullPreview
-            onChange={onChangeSuccess}
+            onChange={onChange}
             onDocChange={onFormDocChange}
             type={'popup'}
             color={styles.widgetColor}
@@ -418,7 +418,7 @@ function Booking(props: Props) {
             thankTitle={successData.thankTitle}
             thankContent={successData.thankContent}
             skip={true}
-            carousel={successData.carousel}
+            carousel={state.carousel}
             formData={state.formData}
           />
         </PreviewWrapper>

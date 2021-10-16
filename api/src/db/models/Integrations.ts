@@ -10,6 +10,7 @@ import {
 } from '.';
 import { KIND_CHOICES } from './definitions/constants';
 import {
+  IBookingData,
   IIntegration,
   IIntegrationDocument,
   ILeadData,
@@ -579,7 +580,17 @@ export const loadClass = () => {
       _id: string,
       { bookingData = {}, ...mainDoc }: IIntegration
     ) {
-      const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
+      const prevEntry = await Integrations.getIntegration({ _id });
+      const prevBookingData: IBookingData = prevEntry.bookingData || {};
+
+      const doc = {
+        ...mainDoc,
+        kind: KIND_CHOICES.BOOKING,
+        bookingData: {
+          ...bookingData,
+          viewCount: prevBookingData.viewCount
+        }
+      };
 
       await Integrations.updateOne(
         { _id },

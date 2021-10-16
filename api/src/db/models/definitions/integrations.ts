@@ -103,6 +103,7 @@ export interface IBookingData {
   style?: IBookingStyle;
   userFilters?: string[];
   productCategoryId?: string;
+  viewCount?: number;
 }
 
 export interface IBookingDataDocument extends IBookingData, Document {
