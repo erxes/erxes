@@ -1,6 +1,5 @@
 import * as strip from 'strip';
 import {
-  Bookings,
   Companies,
   Conformities,
   ConversationMessages,
@@ -928,9 +927,14 @@ const widgetMutations = {
   },
   // Find integration
   async widgetsBookingConnect(_root, { _id }: { _id: string }) {
+    const integration = await Integrations.getIntegration({
+      _id,
+      isActive: true
+    });
+
     await Integrations.increaseBookingViewCount(_id);
 
-    return Integrations.findOne({ _id });
+    return integration;
   },
 
   // create new conversation using form data
@@ -993,9 +997,6 @@ const widgetMutations = {
     });
 
     messages.push(message);
-
-    // // increasing form submitted count
-    // await Integrations.increaseContactsGathered(formId);
 
     // tslint:disable-next-line: no-shadowed-variable
     messages.map(async (message: any) => {

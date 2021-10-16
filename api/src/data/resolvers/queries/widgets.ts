@@ -231,6 +231,6 @@ export default {
     return Products.findOne({ _id });
   },
   widgetsIntegrationDetail(_root, { _id }: { _id: string }) {
-    return Integrations.findOne({ _id });
+    return Integrations.getIntegration({ _id });
   }
 };
