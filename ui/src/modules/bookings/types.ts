@@ -25,10 +25,6 @@ export interface IDisplayBlock {
   margin?: number;
 }
 
-export type Counts = {
-  [key: string]: number;
-};
-
 export interface IBookingIntegration extends IIntegration {
   brand: IBrand;
   tags: ITag[];

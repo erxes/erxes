@@ -1,9 +1,9 @@
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import BrandFilter from '../containers/filters/BrandFilter';
-import StatusFilter from '../containers/filters/StatusFilter';
-import TagFilter from '../containers/filters/TagFilter';
-import { Counts } from '../types';
+import BrandFilter from 'modules/leads/containers/filters/BrandFilter';
+import StatusFilter from 'modules/leads/containers/filters/StatusFilter';
+import TagFilter from 'modules/leads/containers/filters/TagFilter';
+import { Counts } from 'modules/leads/types';
 
 type Props = {
   counts: {
