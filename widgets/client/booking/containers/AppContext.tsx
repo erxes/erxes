@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { sendEmail } from '../../form/containers/utils';
 import { ICurrentStatus, ISaveFormResponse } from '../../form/types';
-import { IEmailParams, IProduct } from '../../types';
+import { IEmailParams, IIntegration, IProduct } from '../../types';
 import { connection } from '../connection';
 import { IBookingData } from '../types';
 import { saveBooking } from './utils';
@@ -33,7 +33,7 @@ interface IStore extends IState {
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   save: (params: any) => void;
-  getIntegration: () => any;
+  getIntegration: () => IIntegration;
 }
 
 const AppContext = React.createContext({} as IStore);

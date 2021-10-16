@@ -100,7 +100,7 @@ function Product({
           style={{ backgroundColor: widgetColor }}
         />
         <Button
-          text={'Захиалах'}
+          text={'Book product'}
           onClickHandler={() => showPopup()}
           style={{ backgroundColor: widgetColor }}
         />

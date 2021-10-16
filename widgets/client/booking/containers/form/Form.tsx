@@ -4,7 +4,6 @@ import { ChildProps, graphql } from 'react-apollo';
 import DumbForm from '../../../form/components/Form';
 import { ICurrentStatus, IForm } from '../../../form/types';
 import { formDetailQuery } from '../../graphql';
-import { IBookingData, IStyle } from '../../types';
 import { AppConsumer } from '../AppContext';
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
