@@ -2,22 +2,22 @@ import * as React from 'react';
 import Select from 'react-select';
 import * as ReactPopover from 'react-popover';
 import Button from './Button';
-import { IBooking, ICategoryTree } from '../../types';
+import { IBookingData } from '../../types';
 
 type Props = {
-  booking?: IBooking;
+  booking?: IBookingData;
 };
 
 type State = {
   isOpen: boolean;
-  selectedOption: any,
+  selectedOption: any;
 };
 
 const options = [
-    { value: 'chocolate', label: 'Chocolate' },
-    { value: 'strawberry', label: 'Strawberry' },
-    { value: 'vanilla', label: 'Vanilla' },
-  ];
+  { value: 'chocolate', label: 'Chocolate' },
+  { value: 'strawberry', label: 'Strawberry' },
+  { value: 'vanilla', label: 'Vanilla' }
+];
 
 class Filter extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -25,7 +25,7 @@ class Filter extends React.Component<Props, State> {
 
     this.state = {
       isOpen: false,
-      selectedOption:null
+      selectedOption: null
     };
   }
 
@@ -35,7 +35,7 @@ class Filter extends React.Component<Props, State> {
     }));
   };
 
-  handleChange = (selectedOption:any) => {
+  handleChange = (selectedOption: any) => {
     this.setState({ selectedOption }, () =>
       console.log(`Option selected:`, this.state.selectedOption)
     );
@@ -47,7 +47,7 @@ class Filter extends React.Component<Props, State> {
       return null;
     }
 
-    const styles = booking.styles;
+    const styles = booking.style;
     const { isOpen } = this.state;
 
     return (
@@ -55,22 +55,27 @@ class Filter extends React.Component<Props, State> {
         isOpen={isOpen}
         tipSize={0.01}
         preferPlace={'start'}
-        place={"above"}
+        place={'above'}
         body={
           <div className={`booking-navigation filter bn-${styles.widgetColor}`}>
             <div className="flex-sb p-5">
               <div className="b"> Filter by</div>
-              <div onClick={() => { this.setState({ isOpen: false })}}>
-               
-              </div>
+              <div
+                onClick={() => {
+                  this.setState({ isOpen: false });
+                }}
+              />
             </div>
 
-             {/* <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} /> */}
-                {/* <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} />
+            {/* <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} /> */}
+            {/* <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} />
                 <Select value={this.state.selectedOption} onChange={() => this.handleChange} options={options} />  */}
 
-            <Button color={booking.styles.widgetColor} text={"Save"} onClickHandler = {() => alert("saved")}/>
-           
+            <Button
+              color={booking.style.widgetColor}
+              text={'Save'}
+              onClickHandler={() => alert('saved')}
+            />
           </div>
         }
       >
@@ -91,8 +96,7 @@ const Burger = () => {
       <div />
       <div />
     </div>
-  )
-}
-
+  );
+};
 
 export default Filter;

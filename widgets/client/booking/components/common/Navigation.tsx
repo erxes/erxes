@@ -40,7 +40,7 @@ class Navigation extends React.Component<Props, State> {
 
     return (
       <ReactPopover
-        className={"nav-popover"}
+        className={'nav-popover'}
         isOpen={isOpen}
         preferPlace={'above'}
         place={'right'}
@@ -55,7 +55,7 @@ class Navigation extends React.Component<Props, State> {
                   this.setState({ isOpen: false });
                 }}
               >
-                <span className="arrow arrow-bar is-left"></span>
+                <span className="arrow arrow-bar is-left" />
               </div>
             </div>
 
@@ -73,7 +73,7 @@ class Navigation extends React.Component<Props, State> {
       >
         <div onClick={this.toggleNavigation}>
           <div className="nav">
-            <Burger /> 
+            <Burger />
             <p>Navigation</p>
           </div>
         </div>
@@ -89,8 +89,7 @@ const Burger = () => {
       <div />
       <div />
     </div>
-  )
-}
-
+  );
+};
 
 export default Navigation;
