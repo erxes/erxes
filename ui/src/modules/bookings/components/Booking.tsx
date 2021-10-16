@@ -23,11 +23,10 @@ import ChooseContent from './steps/ChooseContent';
 import ChooseSettings from './steps/ChooseSettings';
 import FormStep from './steps/FormStep';
 import SuccessStep from 'modules/leads/components/step/SuccessStep';
-
-import FullPreview from './steps/FullPreview';
 import { IField } from 'modules/settings/properties/types';
 
-import { PreviewWrapper } from './steps/style';
+import { PreviewWrapper } from 'modules/leads/components/step/style';
+import { FullPreview } from 'modules/leads/components/step';
 import { colors } from 'modules/common/styles';
 import { IForm, IFormData } from 'modules/forms/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
@@ -52,13 +51,14 @@ type State = {
 
   productCategoryId: string;
 
-  // settings
   title: string;
   brandId: string;
   channelIds: string[];
   languageCode: string;
   formId: string;
   formData: IFormData;
+  carousel: string;
+  isSkip: boolean;
 };
 
 type Style = {
@@ -96,7 +96,6 @@ function Booking(props: Props) {
   const channels = integration.channels || [];
 
   const [state, setState] = useState<State>({
-    // content
     name: booking.name || '',
     description: booking.description || '',
     image: booking.image,
@@ -105,7 +104,6 @@ function Booking(props: Props) {
 
     productCategoryId: booking.productCategoryId || '',
 
-    // settings
     title: integration.name || '',
     brandId: integration.brandId || '',
     channelIds: channels.map(item => item._id) || [],
@@ -119,7 +117,9 @@ function Booking(props: Props) {
       fields: [],
       type: form.type || '',
       numberOfPages: form.numberOfPages || 1
-    }
+    },
+    carousel: 'form',
+    isSkip: true
   });
 
   const bookingStyles = booking.style || ({} as IStyle);
@@ -282,6 +282,20 @@ function Booking(props: Props) {
       </Button.Group>
     );
   };
+
+  const onStepClick = currentStepNumber => {
+    let carousel = 'form';
+    switch (currentStepNumber) {
+      case 4:
+        carousel = 'form';
+        break;
+      case 5:
+        carousel = 'success';
+        break;
+    }
+    return setState({ ...state, carousel });
+  };
+
   return (
     <StepWrapper>
       <Wrapper.Header title={__('Booking')} breadcrumb={breadcrumb} />
@@ -340,7 +354,7 @@ function Booking(props: Props) {
             <Step
               img="/images/icons/erxes-02.svg"
               title="Form"
-              // onClick={this.onStepClick.bind(null, 'greeting')}
+              onClick={onStepClick}
             >
               <FormStep
                 theme={(booking.style && booking.style.widgetColor) || ''}
@@ -356,8 +370,8 @@ function Booking(props: Props) {
             <Step
               img="/images/icons/erxes-02.svg"
               title="Form"
+              onClick={onStepClick}
               noButton={true}
-              // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <SuccessStep
                 onChange={onChangeSuccess}
@@ -383,7 +397,20 @@ function Booking(props: Props) {
         </LeftContent>
 
         <PreviewWrapper>
-          <FullPreview />
+          <FullPreview
+            onChange={onChange}
+            onDocChange={onFormDocChange}
+            // bodyValue={bodyValue}
+            type={'popup'}
+            color={styles.widgetColor}
+            theme={styles.widgetColor}
+            // image={logo}
+            thankTitle={successData.thankTitle}
+            thankContent={successData.thankContent}
+            skip={state.isSkip}
+            carousel={state.carousel}
+            formData={state.formData}
+          />
         </PreviewWrapper>
       </Content>
     </StepWrapper>
