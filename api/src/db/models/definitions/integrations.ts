@@ -94,6 +94,11 @@ export interface IBookingStyle {
   textAvailable?: string;
   textUnavailable?: string;
   textSelected?: string;
+
+  line?: string;
+  rows?: number;
+  columns?: number;
+  margin?: number;
 }
 
 export interface IBookingData {
@@ -387,7 +392,12 @@ export const bookingStyleSchema = new Schema(
 
     textAvailable: field({ type: String, label: 'Text available' }),
     textUnavailable: field({ type: String, label: 'Text unavailable' }),
-    textSelected: field({ type: String, label: 'Select text' })
+    textSelected: field({ type: String, label: 'Select text' }),
+
+    line: field({ type: String, optional: true, label: 'Line' }),
+    columns: field({ type: Number, optional: true, label: 'Columns' }),
+    rows: field({ type: Number, optional: true, label: 'Rows' }),
+    margin: field({ type: Number, optional: true, label: 'Margin' })
   },
   { _id: false }
 );

@@ -16,6 +16,11 @@ export interface IStyle {
   textAvailable: string;
   textUnavailable: string;
   textSelected: string;
+
+  line?: string;
+  columns?: number;
+  rows?: number;
+  margin?: number;
 }
 
 export interface IDisplayBlock {

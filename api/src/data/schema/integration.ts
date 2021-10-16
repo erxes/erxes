@@ -90,6 +90,11 @@ export const types = `
     textAvailable: String
     textUnavailable: String
     textSelected: String
+
+    line: String
+    rows: Int
+    columns: Int
+    margin: Int
   }
 
   input IntegrationBookingData {

@@ -62,16 +62,6 @@ type State = {
   loadType: string;
 };
 
-// type Style = {
-// };
-
-// type DisplayBlock = {
-//   shape: string;
-//   columns: number;
-//   rows: number;
-//   margin: number;
-// };
-
 type Booking = {
   name: string;
   description: string;
@@ -89,6 +79,11 @@ type Booking = {
   textAvailable: string;
   textUnavailable: string;
   textSelected: string;
+
+  line?: string;
+  columns?: number;
+  rows?: number;
+  margin?: number;
 };
 
 function Booking(props: Props) {
@@ -157,17 +152,13 @@ function Booking(props: Props) {
 
     textAvailable: bookingStyle.textAvailable || colors.colorPrimary,
     textUnavailable: bookingStyle.textUnavailable || colors.colorLightGray,
-    textSelected: bookingStyle.textSelected || colors.colorCoreYellow
+    textSelected: bookingStyle.textSelected || colors.colorCoreYellow,
+
+    line: bookingStyle.line || '',
+    columns: bookingStyle.columns || 1,
+    rows: bookingStyle.rows || 1,
+    margin: bookingStyle.margin || 1
   });
-
-  // const displayBlock = bookingData.displayBlock || ({} as IDisplayBlock);
-
-  // const [block, setBlock] = useState<DisplayBlock>({
-  //   shape: displayBlock.shape || '',
-  //   columns: displayBlock.columns || 0,
-  //   rows: displayBlock.rows || 0,
-  //   margin: displayBlock.margin || 0
-  // });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
@@ -230,12 +221,13 @@ function Booking(props: Props) {
 
           textAvailable: booking.textAvailable,
           textUnavailable: booking.textUnavailable,
-          textSelected: booking.textSelected
-        }
+          textSelected: booking.textSelected,
 
-        // displayBlock: {
-        //   ...block
-        // },
+          line: booking.line,
+          rows: booking.rows,
+          columns: booking.columns,
+          margin: booking.margin
+        }
       }
     };
 
@@ -342,8 +334,10 @@ function Booking(props: Props) {
                 productCategoryId={booking.productCategoryId}
                 userFilters={booking.userFilters}
                 image={booking.image}
-                // onChangeBlock={onChangeBlock}
-                // displayBlock={block}
+                line={booking.line}
+                columns={booking.columns}
+                rows={booking.rows}
+                margin={booking.margin}
               />
             </Step>
 
