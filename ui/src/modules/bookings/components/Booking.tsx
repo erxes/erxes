@@ -18,9 +18,9 @@ import {
 } from '../types';
 
 import { Steps, Step } from 'modules/common/components/step';
-import ChooseStyle from './steps/ChooseStyle';
-import ChooseContent from './steps/ChooseContent';
-import ChooseSettings from './steps/ChooseSettings';
+import StyleStep from './steps/StyleStep';
+import ContentStep from './steps/ContentStep';
+import SettingsStep from './steps/SettingsStep';
 import FormStep from './steps/FormStep';
 import SuccessStep from 'modules/leads/components/step/SuccessStep';
 import { IField } from 'modules/settings/properties/types';
@@ -307,7 +307,7 @@ function Booking(props: Props) {
               title="Style"
               // onClick={this.onStepClick.bind(null, 'appearance')}
             >
-              <ChooseStyle
+              <StyleStep
                 onChangeStyle={onChangeStyle}
                 itemShape={styles.itemShape}
                 widgetColor={styles.widgetColor}
@@ -325,7 +325,7 @@ function Booking(props: Props) {
               title="Content"
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
-              <ChooseContent
+              <ContentStep
                 onChange={onChange}
                 name={state.name}
                 description={state.description}
@@ -342,7 +342,7 @@ function Booking(props: Props) {
               title="Settings"
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
-              <ChooseSettings
+              <SettingsStep
                 onChange={onChange}
                 title={state.title}
                 brandId={state.brandId}

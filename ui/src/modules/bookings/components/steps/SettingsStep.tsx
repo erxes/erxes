@@ -22,7 +22,7 @@ type Props = {
   languageCode: string;
 };
 
-function ChooseSettings({
+function SettingsStep({
   onChange,
   title,
   brandId,
@@ -85,4 +85,4 @@ function ChooseSettings({
   );
 }
 
-export default ChooseSettings;
+export default SettingsStep;

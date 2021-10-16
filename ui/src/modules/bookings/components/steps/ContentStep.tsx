@@ -35,7 +35,7 @@ type Props = {
   displayBlock: IDisplayBlock;
 };
 
-function ChooseContent({
+function ContentStep({
   onChange,
   name,
   description,
@@ -222,4 +222,4 @@ function ChooseContent({
   );
 }
 
-export default ChooseContent;
+export default ContentStep;
