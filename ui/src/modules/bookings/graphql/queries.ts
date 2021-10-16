@@ -1,3 +1,31 @@
+const bookingFields = `
+  name
+  image {
+    name
+    type
+    url
+    size
+  }
+
+  viewCount
+
+  description
+  userFilters
+  productCategoryId
+
+  style
+  displayBlock
+
+  childCategories {
+    _id
+  }
+  
+  categoryTree
+  
+  mainProductCategory {
+    _id
+  }
+`;
 const formFields = `
   _id
   title
@@ -29,66 +57,32 @@ const productCategories = `
   }
 `;
 
-const fieldsGroups = `
-  query fieldsGroups($contentType: String!) {
-    fieldsGroups(contentType: $contentType) {
-      _id
-      name
-
-      fields {
-        _id
-        text
-      }
-    }
-  }
-`;
-
 export const commonFields = `
   brandId
   name
   kind
   code
+  tagIds
+  isActive
+  leadData
+  languageCode
+
+  formId
+
   brand {
     _id
     name
     code
   }
+
   channels {
     _id
     name
   }
-  languageCode
 
   bookingData {
-    name
-    image {
-      name
-      type
-      url
-      size
-    }
-
-    viewCount
- 
-    description
-    userFilters
-    productCategoryId
-
-    style
-    displayBlock
-
-    childCategories {
-      _id
-    }
-    
-    categoryTree
-    
-    mainProductCategory {
-      _id
-    }
+    ${bookingFields}
   }
-
-  formId
 
   tags {
     _id
@@ -99,10 +93,6 @@ export const commonFields = `
   form {
     ${formFields}
   }
-  
-  tagIds
-
-  isActive
 `;
 
 const integrations = `
@@ -137,7 +127,6 @@ const integrationsTotalCount = `
 
 export default {
   productCategories,
-  fieldsGroups,
   integrations,
   integrationDetail,
   integrationsTotalCount

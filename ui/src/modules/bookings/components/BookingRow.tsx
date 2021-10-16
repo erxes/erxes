@@ -29,7 +29,7 @@ type Props = {
 
 function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
   const tags = integration.tags || [];
-  const booking = integration.bookingData || {};
+  const bookingData = integration.bookingData || {};
   const form = integration.form || {};
 
   const createdUser = form.createdUser || {
@@ -120,7 +120,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
 
     return (
       <ModalTrigger
-        title={`Install code of ${booking.name}`}
+        title={`Install code of ${bookingData.name}`}
         size="lg"
         trigger={trigger}
         content={content}
@@ -154,7 +154,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
       </td>
 
       <td>
-        <TextInfo ignoreTrans={true}>{booking.viewCount || 0}</TextInfo>
+        <TextInfo ignoreTrans={true}>{bookingData.viewCount || 0}</TextInfo>
       </td>
       <td>
         <Label lblStyle={labelStyle}>{status && status}</Label>

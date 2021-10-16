@@ -10,12 +10,7 @@ import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
-import {
-  IStyle,
-  IDisplayBlock,
-  IBookingIntegration,
-  IBookingData
-} from '../types';
+import { IStyle, IBookingIntegration, IBookingData } from '../types';
 
 import { Steps, Step } from 'modules/common/components/step';
 import StyleStep from './steps/StyleStep';
@@ -45,13 +40,6 @@ type Props = {
 };
 
 type State = {
-  name: string;
-  description: string;
-  userFilters: string[];
-  image: any;
-
-  productCategoryId: string;
-
   title: string;
   brandId: string;
   channelIds: string[];
@@ -59,9 +47,38 @@ type State = {
   formId: string;
   formData: IFormData;
   carousel: string;
+
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankTitle?: string;
+  thankContent?: string;
+  attachments?: IAttachment[];
+  redirectUrl?: string;
+  loadType: string;
 };
 
-type Style = {
+// type Style = {
+// };
+
+// type DisplayBlock = {
+//   shape: string;
+//   columns: number;
+//   rows: number;
+//   margin: number;
+// };
+
+type Booking = {
+  name: string;
+  description: string;
+  userFilters: string[];
+  image: any;
+
+  productCategoryId: string;
   itemShape: string;
   widgetColor: string;
 
@@ -74,27 +91,6 @@ type Style = {
   textSelected: string;
 };
 
-type DisplayBlock = {
-  shape: string;
-  columns: number;
-  rows: number;
-  margin: number;
-};
-
-type SuccessData = {
-  successAction?: string;
-  fromEmail?: string;
-  userEmailTitle?: string;
-  userEmailContent?: string;
-  adminEmails?: string[];
-  adminEmailTitle?: string;
-  adminEmailContent?: string;
-  thankTitle?: string;
-  thankContent?: string;
-  attachments?: IAttachment[];
-  redirectUrl?: string;
-};
-
 function Booking(props: Props) {
   const {
     save,
@@ -105,19 +101,13 @@ function Booking(props: Props) {
   } = props;
 
   const integration = props.integration || ({} as IBookingIntegration);
-  const booking = integration.bookingData || ({} as IBookingData);
+  const bookingData = integration.bookingData || ({} as IBookingData);
   const form = integration.form || ({} as IForm);
   const channels = integration.channels || [];
+  const bookingStyle = bookingData.style || ({} as IStyle);
+  const leadData = integration.leadData || ({} as ILeadData);
 
   const [state, setState] = useState<State>({
-    name: booking.name || '',
-    description: booking.description || '',
-    image: booking.image,
-
-    userFilters: booking.userFilters || [],
-
-    productCategoryId: booking.productCategoryId || '',
-
     title: integration.name || '',
     brandId: integration.brandId || '',
     channelIds: channels.map(item => item._id) || [],
@@ -133,37 +123,6 @@ function Booking(props: Props) {
       numberOfPages: form.numberOfPages || 1
     },
 
-    carousel: 'form'
-  });
-
-  const bookingStyles = booking.style || ({} as IStyle);
-
-  const [styles, setStyles] = useState<Style>({
-    itemShape: bookingStyles.itemShape || '',
-    widgetColor: bookingStyles.widgetColor || colors.colorPrimary,
-
-    productAvailable: bookingStyles.productAvailable || colors.colorPrimary,
-    productUnavailable:
-      bookingStyles.productUnavailable || colors.colorCoreGray,
-    productSelected: bookingStyles.productSelected || colors.colorCoreOrange,
-
-    textAvailable: bookingStyles.textAvailable || colors.colorPrimary,
-    textUnavailable: bookingStyles.textUnavailable || colors.colorLightGray,
-    textSelected: bookingStyles.textSelected || colors.colorCoreYellow
-  });
-
-  const displayBlock = booking.displayBlock || ({} as IDisplayBlock);
-
-  const [block, setBlock] = useState<DisplayBlock>({
-    shape: displayBlock.shape || '',
-    columns: displayBlock.columns || 0,
-    rows: displayBlock.rows || 0,
-    margin: displayBlock.margin || 0
-  });
-
-  const leadData = integration.leadData || ({} as ILeadData);
-
-  const [successData, setSuccessData] = useState<SuccessData>({
     successAction: leadData.successAction || '',
     fromEmail: leadData.fromEmail || '',
     userEmailTitle: leadData.userEmailTitle || '',
@@ -174,13 +133,46 @@ function Booking(props: Props) {
     thankTitle: leadData.thankTitle || 'Confirmation',
     thankContent: leadData.thankContent || 'Thank you.',
     attachments: leadData.attachments || [],
-    redirectUrl: leadData.redirectUrl || ''
+    redirectUrl: leadData.redirectUrl || '',
+    loadType: 'popup',
+
+    carousel: 'form'
   });
+
+  const [booking, setBooking] = useState<Booking>({
+    name: bookingData.name || '',
+    description: bookingData.description || '',
+    image: bookingData.image,
+
+    userFilters: bookingData.userFilters || [],
+
+    productCategoryId: bookingData.productCategoryId || '',
+
+    itemShape: bookingStyle.itemShape || '',
+    widgetColor: bookingStyle.widgetColor || colors.colorPrimary,
+
+    productAvailable: bookingStyle.productAvailable || colors.colorPrimary,
+    productUnavailable: bookingStyle.productUnavailable || colors.colorCoreGray,
+    productSelected: bookingStyle.productSelected || colors.colorCoreOrange,
+
+    textAvailable: bookingStyle.textAvailable || colors.colorPrimary,
+    textUnavailable: bookingStyle.textUnavailable || colors.colorLightGray,
+    textSelected: bookingStyle.textSelected || colors.colorCoreYellow
+  });
+
+  // const displayBlock = bookingData.displayBlock || ({} as IDisplayBlock);
+
+  // const [block, setBlock] = useState<DisplayBlock>({
+  //   shape: displayBlock.shape || '',
+  //   columns: displayBlock.columns || 0,
+  //   rows: displayBlock.rows || 0,
+  //   margin: displayBlock.margin || 0
+  // });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
   const handleSubmit = () => {
-    if (!state.name) {
+    if (!booking.name) {
       return Alert.error('Enter a Booking name');
     }
 
@@ -196,29 +188,49 @@ function Booking(props: Props) {
       return Alert.error('Enter a title');
     }
 
-    if (!state.productCategoryId) {
+    if (!booking.productCategoryId) {
       return Alert.error('Choose main product category');
     }
 
     const doc = {
-      name: state.name,
+      name: state.title,
       brandId: state.brandId,
       channelIds: state.channelIds,
       languageCode: state.languageCode,
 
       leadData: {
-        ...successData,
-        themeColor: styles.widgetColor,
+        themeColor: booking.widgetColor,
+        successAction: state.successAction,
+        fromEmail: state.fromEmail,
+        userEmailTitle: state.userEmailTitle,
+        userEmailContent: state.userEmailContent,
+        adminEmails: state.adminEmails,
+        adminEmailTitle: state.adminEmailTitle,
+        adminEmailContent: state.adminEmailContent,
+        thankTitle: state.thankTitle,
+        thankContent: state.thankContent,
+        attachments: state.attachments,
+        redirectUrl: state.redirectUrl,
         loadType: 'popup'
       },
+
       bookingData: {
-        name: state.title,
-        description: state.description,
-        image: state.image,
-        productCategoryId: state.productCategoryId,
+        name: booking.name,
+        description: booking.description,
+        image: booking.image,
+        productCategoryId: booking.productCategoryId,
 
         style: {
-          ...styles
+          itemShape: booking.itemShape,
+          widgetColor: booking.widgetColor,
+
+          productAvailable: booking.productAvailable,
+          productUnavailable: booking.productUnavailable,
+          productSelected: booking.productSelected,
+
+          textAvailable: booking.textAvailable,
+          textUnavailable: booking.textUnavailable,
+          textSelected: booking.textSelected
         }
 
         // displayBlock: {
@@ -237,23 +249,9 @@ function Booking(props: Props) {
     });
   };
 
-  const onChangeStyle = (key: string, value: any) => {
-    setStyles({
-      ...styles,
-      [key]: value
-    });
-  };
-
-  const onChangeBlock = (key: string, value: any) => {
-    setBlock({
-      ...block,
-      [key]: value
-    });
-  };
-
-  const onChangeSuccess = (key: string, value: any) => {
-    setSuccessData({
-      ...successData,
+  const onChangeBooking = (key: string, value: any) => {
+    setBooking({
+      ...booking,
       [key]: value
     });
   };
@@ -320,15 +318,15 @@ function Booking(props: Props) {
               // onClick={this.onStepClick.bind(null, 'appearance')}
             >
               <StyleStep
-                onChangeStyle={onChangeStyle}
-                itemShape={styles.itemShape}
-                widgetColor={styles.widgetColor}
-                productAvailable={styles.productAvailable}
-                productUnavailable={styles.productUnavailable}
-                productSelected={styles.productSelected}
-                textAvailable={styles.textAvailable}
-                textUnavailable={styles.textUnavailable}
-                textSelected={styles.textSelected}
+                onChangeBooking={onChangeBooking}
+                itemShape={booking.itemShape}
+                widgetColor={booking.widgetColor}
+                productAvailable={booking.productAvailable}
+                productUnavailable={booking.productUnavailable}
+                productSelected={booking.productSelected}
+                textAvailable={booking.textAvailable}
+                textUnavailable={booking.textUnavailable}
+                textSelected={booking.textSelected}
               />
             </Step>
 
@@ -338,14 +336,14 @@ function Booking(props: Props) {
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <ContentStep
-                onChange={onChange}
-                name={state.name}
-                description={state.description}
-                productCategoryId={state.productCategoryId}
-                userFilters={state.userFilters}
-                image={state.image}
-                onChangeBlock={onChangeBlock}
-                displayBlock={block}
+                onChangeBooking={onChangeBooking}
+                name={booking.name}
+                description={booking.description}
+                productCategoryId={booking.productCategoryId}
+                userFilters={booking.userFilters}
+                image={booking.image}
+                // onChangeBlock={onChangeBlock}
+                // displayBlock={block}
               />
             </Step>
 
@@ -369,7 +367,7 @@ function Booking(props: Props) {
               onClick={onStepClick}
             >
               <FormStep
-                theme={(booking.style && booking.style.widgetColor) || ''}
+                theme={booking.widgetColor || ''}
                 afterDbSave={afterFormDbSave}
                 formData={state.formData}
                 isReadyToSaveForm={isReadyToSaveForm}
@@ -386,13 +384,13 @@ function Booking(props: Props) {
               noButton={true}
             >
               <SuccessStep
-                onChange={onChangeSuccess}
-                thankTitle={successData.thankTitle}
-                thankContent={successData.thankContent}
-                type={'popup'}
-                color={''}
-                theme={(booking.style && booking.style.widgetColor) || ''}
-                successAction={successData.successAction}
+                onChange={onChange}
+                thankTitle={state.thankTitle}
+                thankContent={state.thankContent}
+                type={state.loadType}
+                color={booking.widgetColor}
+                theme={booking.widgetColor || ''}
+                successAction={state.successAction}
                 leadData={leadData}
                 formId={integration.formId}
                 emailTemplates={emailTemplates ? emailTemplates : []}
@@ -402,7 +400,7 @@ function Booking(props: Props) {
           <ControlWrapper>
             <Indicator>
               {__('You are')} {booking ? 'editing' : 'creating'}{' '}
-              <strong>{state.name}</strong> {__('form')}
+              <strong>{booking.name}</strong> {__('form')}
             </Indicator>
             {renderButtons()}
           </ControlWrapper>
@@ -412,11 +410,11 @@ function Booking(props: Props) {
           <FullPreview
             onChange={onChange}
             onDocChange={onFormDocChange}
-            type={'popup'}
-            color={styles.widgetColor}
-            theme={styles.widgetColor}
-            thankTitle={successData.thankTitle}
-            thankContent={successData.thankContent}
+            type={state.loadType}
+            color={booking.widgetColor}
+            theme={booking.widgetColor}
+            thankTitle={state.thankTitle}
+            thankContent={state.thankContent}
             skip={true}
             carousel={state.carousel}
             formData={state.formData}

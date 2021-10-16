@@ -30,7 +30,7 @@ type Name =
   | 'textSelected';
 
 type Props = {
-  onChangeStyle: (name: Name, value: any) => void;
+  onChangeBooking: (name: Name, value: any) => void;
 
   itemShape: string;
   widgetColor: string;
@@ -45,7 +45,7 @@ type Props = {
 };
 
 function Style({
-  onChangeStyle,
+  onChangeBooking,
   itemShape,
   widgetColor,
   productAvailable,
@@ -62,7 +62,7 @@ function Style({
           width="266px"
           triangle="hide"
           color={color}
-          onChange={e => onChangeStyle(item, e.hex)}
+          onChange={e => onChangeBooking(item, e.hex)}
           colors={COLORS}
         />
       </Popover>
@@ -92,7 +92,7 @@ function Style({
               <Select
                 clearable={false}
                 value={itemShape}
-                onChange={(e: any) => onChangeStyle('itemShape', e.value)}
+                onChange={(e: any) => onChangeBooking('itemShape', e.value)}
                 options={BOOKING_ITEM_SHAPE.ALL_LIST.map(e => ({
                   value: e.value,
                   label: e.label
