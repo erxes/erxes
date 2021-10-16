@@ -53,6 +53,8 @@ class Form extends React.Component<Props, State> {
       discount: discount ? discount : 0,
       totalAmount: totalAmount ? totalAmount : 0
     };
+
+    console.log(props.closeModal);
   }
 
   onChangeItems = items => {
@@ -103,6 +105,8 @@ class Form extends React.Component<Props, State> {
 
     values.templateItems = this.state.items;
 
+
+
     if (productTemplate) {
       values._id = productTemplate._id;
     }
@@ -150,6 +154,7 @@ class Form extends React.Component<Props, State> {
                   value={discount}
                   defaultValue={object.discount}
                   onChange={this.onDiscount}
+                  disabled={true}
                   min={1}
                   max={100}
                 />

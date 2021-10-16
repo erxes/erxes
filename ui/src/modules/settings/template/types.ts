@@ -67,12 +67,24 @@ export type ProductTemplatesRemoveMutationResponse = {
   }) => Promise<any>;
 };
 
+export type ProductTemplatesChangeStatusMutionResponse = {
+  productTemplatesChangeStatus: (params: {
+    variables: { _id: string; status: string };
+  }) => Promise<any>;
+};
+
+export type ProductTemplatesDuplicateMutionResponse = {
+  productTemplatesDuplicate: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
+};
+
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
   loading: boolean;  
 }
 
 export type CountByTagsQueryResponse = {
-  productCountByTags: { [key: string]: number };
+  productTemplateCountByTags: { [key: string]: number };
   loading: boolean;
 };

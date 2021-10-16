@@ -13,7 +13,8 @@ const options = {
     itemsTotalCountQuery: 'dealsTotalCount',
     detailQuery: 'dealDetail',
     archivedItemsQuery: 'archivedDeals',
-    archivedItemsCountQuery: 'archivedDealsCount'
+    archivedItemsCountQuery: 'archivedDealsCount',
+    productTemplatesQuery: 'productTemplates'
   },
   mutationsName: {
     addMutation: 'dealsAdd',
@@ -30,7 +31,8 @@ const options = {
     itemsTotalCountQuery: queries.dealsTotalCount,
     detailQuery: queries.dealDetail,
     archivedItemsQuery: queries.archivedDeals,
-    archivedItemsCountQuery: queries.archivedDealsCount
+    archivedItemsCountQuery: queries.archivedDealsCount,
+    productTemplatesQuery: queries.productTemplates
   },
   mutations: {
     addMutation: mutations.dealsAdd,

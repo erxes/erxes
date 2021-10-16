@@ -6,7 +6,8 @@ import {
   Customers,
   EngageMessages,
   Integrations,
-  Products
+  Products,
+  ProductTemplates
 } from '.';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { escapeRegExp } from '../../data/utils';
@@ -95,6 +96,9 @@ export const getCollection = type => {
     case 'product':
       collection = Products;
       break;
+    case 'productTemplate':
+      collection = ProductTemplates;
+      break;
   }
 
   return collection;
@@ -174,6 +178,8 @@ export const loadClass = () => {
     ) {
       const collection = getCollection(type);
 
+      console.log(collection);
+
       const prevTagsCount = await Tags.find({
         _id: { $in: tagIds },
         type
@@ -182,6 +188,9 @@ export const loadClass = () => {
       if (prevTagsCount !== tagIds.length) {
         throw new Error('Tag not found.');
       }
+      console.log({ _id: { $in: targetIds } },
+        { $set: { tagIds } },
+        { multi: true });
 
       await collection.updateMany(
         { _id: { $in: targetIds } },

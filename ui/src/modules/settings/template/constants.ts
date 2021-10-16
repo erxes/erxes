@@ -25,8 +25,13 @@ export const TEMPLATE_STATUS_CHOISES = {
   archived: 'Archived'
 };
 
-export const TYPE_CHOICES = [  
-  { value: '', label: '' },
+export const PRODUCT_TEMPLATE_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'archived']
+}
+
+export const TYPE_CHOICES = [    
   { value: 'productService', label: 'Product & Service' },
   { value: 'email', label: 'Email' },
   { value: 'chatResponse', label: 'Chat Response' },

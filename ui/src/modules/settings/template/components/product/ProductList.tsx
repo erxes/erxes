@@ -19,7 +19,9 @@ import React from 'react';
 // import { Link } from 'react-router-dom';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
-// import { IProductTemplate, IProductTemplateItem } from '../../types';
+import Row from './ProductRow';
+import { IProductTemplate } from '../../types';
+// import { PROPERTY_GROUPS } from 'modules/settings/properties/constants';
 // import Row from './ProductRow';
 
 interface IProps extends IRouterProps {
@@ -29,12 +31,16 @@ interface IProps extends IRouterProps {
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  remove: (doc: { productIds: string[] }, emptyBulk: () => void) => void;
+  remove: (doc: { ids: string[] }, emptyBulk: () => void) => void;
   toggleBulk: () => void;
+  toggleAll: (targets: IProductTemplate[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
   mergeProducts: () => void;
   mergeProductLoading;
+  products: IProductTemplate[];
+  changeStatus: (_id: string, status: string) => void;
+  duplicateTemplate: (_id: string) => void;
 }
 
 type State = {
@@ -52,33 +58,35 @@ class List extends React.Component<IProps, State> {
     };
   }
 
-  // renderRow = () => {
-  //   const { history, toggleBulk, bulk } = this.props;
+  renderRow = () => {
+    const { history, toggleBulk, bulk, products, changeStatus, duplicateTemplate } = this.props;
 
-  //   return products.map(product => (
-  //     <Row
-  //       history={history}
-  //       key={product._id}
-  //       product={product}
-  //       toggleBulk={toggleBulk}
-  //       isChecked={bulk.includes(product)}
-  //     />
-  //   ));
-  // };
+    return products.map(product => (
+      <Row
+        history={history}
+        key={product._id}
+        productTemplate={product}
+        toggleBulk={toggleBulk}
+        isChecked={bulk.includes(product)}
+        changeStatus={changeStatus}
+        duplicateTemplate={duplicateTemplate}
+      />
+    ));
+  };
 
-  // onChange = () => {
-  //   const { toggleAll, products } = this.props;
-  //   toggleAll(products, 'products');
-  // };
+  onChange = () => {
+    const { toggleAll, products } = this.props;
+    toggleAll(products, 'productTemplate');
+  };
 
   removeProducts = products => {
-    const productIds: string[] = [];
+    const ids: string[] = [];
 
     products.forEach(product => {
-      productIds.push(product._id);
+      ids.push(product._id);
     });
 
-    this.props.remove({ productIds }, this.props.emptyBulk);
+    this.props.remove({ ids }, this.props.emptyBulk);
   };
 
   renderCount = productCount => {
@@ -170,14 +178,14 @@ class List extends React.Component<IProps, State> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <ModalTrigger
-              title="Add new template"
+              title="Import items"
               trigger={trigger1}
               autoOpenKey="showProductModal"
               content={modalContent}
               size="lg"
             />
             <ModalTrigger
-              title="Add new template"
+              title="Place holder item"
               trigger={trigger2}
               autoOpenKey="showProductModal"
               content={modalContent}
@@ -210,7 +218,6 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        {this.renderCount(0)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -218,32 +225,30 @@ class List extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
-                // onChange={this.onChange}
+                  onChange={this.onChange}
                 />
               </th>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Category')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('SKU')}</th>
+              <th>{__('Title')}</th>
+              <th>{__('Description')}</th>
+              <th>{__('Number of items')}</th>
               <th>{__('Tags')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
-          {/* <tbody>{this.renderRow()}</tbody> */}
+          <tbody>{this.renderRow()}</tbody>
         </Table>
       </>
     );
 
-    // if (0 === 0) {
-    content = (
-      <EmptyState
-        image="/images/actions/8.svg"
-        text="No Brands"
-        size="small"
-      />
-    );
-    // }
+    if (productsCount === 0) {
+      content = (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    }
 
     if (bulk.length > 0) {
       const tagButton = (
@@ -279,7 +284,7 @@ class List extends React.Component<IProps, State> {
             />
           )} */}
           <TaggerPopover
-            type="product"
+            type="productTemplate"
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}

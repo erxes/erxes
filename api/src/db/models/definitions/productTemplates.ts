@@ -7,6 +7,7 @@ export interface IProductTemplate {
   totalAmount: number;
   description: string;
   templateItems: any[];
+  tagIds?: string[];
   status: string;
   updatedAt: Date;
   updatedBy: string;
@@ -37,6 +38,12 @@ export const productTemplateSchema = schemaWrapper(new Schema({
     type: [],
     default: [],
     label: 'Type'
+  }),
+  tagIds: field({
+    type: [String],
+    optional: true,
+    label: 'Tags',
+    index: true
   }),
   status: field({ type: String, label: 'Status' }),
   tags: field({ type: [String], label: 'Tags' }),

@@ -37,6 +37,7 @@ import Permission from './permission';
 import Pipeline from './pipeline';
 import Product from './product';
 import ProductCategory from './productCategory';
+import ProductTemplate from './productTemplate';
 import Query from './queries';
 import ResponseTemplate from './responseTemplate';
 import Script from './script';
@@ -88,6 +89,7 @@ const resolvers: any = {
 
   Product,
   ProductCategory,
+  ProductTemplate,
 
   ActivityLog,
   Form,

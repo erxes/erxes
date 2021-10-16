@@ -1,6 +1,6 @@
 import { queries as productQueries } from 'erxes-ui/lib/products/graphql';
 
-const productTemplateFields = `
+export const productTemplateFields = `
     _id    
     title
     discount
@@ -15,17 +15,33 @@ const productTemplateFields = `
     }    
 `
 
+export const productTemplateParamsDef = `
+  $searchValue: String,
+  $tag: String,
+  $status: String,
+  $page: Int,
+  $perPage: Int
+`;
+
+export const productTemplateParams = `
+  searchValue: $searchValue,
+  tag: $tag,
+  status: $status,
+  page: $page,
+  perPage: $perPage
+`;
+
 const productTemplates = `
-    query productTemplates {
-      productTemplates {
+    query productTemplates(${productTemplateParamsDef}) {
+      productTemplates(${productTemplateParams}) {
         ${productTemplateFields}
       }
     }
 `;
 
 const productTemplateTotalCount = `
-  query productCategoriesTotalCount {
-    productCategoriesTotalCount
+  query productTemplateTotalCount {
+    productTemplateTotalCount
   }
 `;
 
@@ -38,8 +54,8 @@ const productTemplateDetail = `
 `;
 
 const productTemplateCountByTags = `
-  query productCountByTags {
-    productCountByTags
+  query productTemplateCountByTags {
+    productTemplateCountByTags
   }
 `;
 

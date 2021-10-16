@@ -15,7 +15,7 @@ const TagFilterContainer = (props: {
 }) => {
   const { countByTagsQuery, tagsQuery } = props;
 
-  const counts = countByTagsQuery.productCountByTags || {};
+  const counts = countByTagsQuery.productTemplateCountByTags || {};
 
   return (
     <CountsByTag
@@ -35,7 +35,7 @@ export default compose(
     name: 'tagsQuery',
     options: () => ({
       variables: {
-        type: TAG_TYPES.PRODUCT
+        type: TAG_TYPES.PRODUCT_TEMPLATE
       }
     })
   })

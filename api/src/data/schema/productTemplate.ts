@@ -8,6 +8,7 @@ export const types = `
     description: String
     templateItems: JSON
     status: String
+    tagIds: [String]
     tags: [Tag]
     updatedAt: Date
     updatedBy: String
@@ -27,14 +28,25 @@ const templateParams = `
   status: String
 `;
 
+const productTemplateParams = `
+  searchValue: String,
+  tag: String,
+  status: String,
+  page: Int,
+  perPage: Int
+`;
+
 export const queries = `
-  productTemplates: [ProductTemplate]
+  productTemplates(${productTemplateParams}): [ProductTemplate]
   productTemplateTotalCount: Int
   productTemplateDetail(_id: String): ProductTemplate
+  productTemplateCountByTags: JSON
 `;
 
 export const mutations = `
   productTemplatesAdd(${templateParams}): ProductTemplate
   productTemplatesEdit(_id: String!, ${templateParams}): ProductTemplate
-  productTemplatesRemove(ids: [String!]): String
+  productTemplatesRemove(ids: [String!]): JSON
+  productTemplatesChangeStatus(_id: String!, status: String): ProductTemplate
+  productTemplatesDuplicate(_id: String!): ProductTemplate
 `;

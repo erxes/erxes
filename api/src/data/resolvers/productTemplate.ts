@@ -1,9 +1,9 @@
-// import { ProductCategories, ProductTemplates } from '../../db/models';
-// import { IProductTemplateDocument } from '../../db/models/definitions/productTemplates';
+import { IProductTemplateDocument } from '../../db/models/definitions/productTemplates';
+import { IContext } from '../types';
 
-// export default {
-
-//   async category(productTemplate: IProductTemplateDocument, {}) {
-//     return await ProductCategories.findOne( { _id : productTemplate.templateItems.categoryId });    
-//   }
-// };
+export default {
+  async tags(productTemplate: IProductTemplateDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(productTemplate.tagIds || []);
+    return tags.filter(tag => tag);
+  }
+};

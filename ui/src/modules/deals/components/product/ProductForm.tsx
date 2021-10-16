@@ -18,6 +18,8 @@ import PaymentForm from './PaymentForm';
 import ProductItem from './ProductItem';
 import ProductTotal from './ProductTotal';
 
+import FormControl from 'erxes-ui/lib/components/form/Control';
+
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
@@ -58,9 +60,10 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
 
     // initial product item
-    if (this.props.productsData.length === 0) {
-      this.addProductItem();
-    }
+
+    // if (this.props.productsData.length === 0) {
+    //   this.addProductItem();
+    // }
   }
 
   addProductItem = () => {
@@ -292,7 +295,19 @@ class ProductForm extends React.Component<Props, State> {
           >
             Add Product / Service
           </Button>
+
+          <FormControl
+            // {...formProps}
+            // name="type"
+            // defaultValue={object.type}
+            // required={true}
+            componentClass="select"
+          // options={TYPE_CHOICES}
+          >
+          </FormControl>
         </Add>
+
+
         <FooterInfo>
           <table>
             <tbody>
@@ -311,7 +326,7 @@ class ProductForm extends React.Component<Props, State> {
             </tbody>
           </table>
         </FooterInfo>
-      </FormContainer>
+      </FormContainer >
     );
   }
 

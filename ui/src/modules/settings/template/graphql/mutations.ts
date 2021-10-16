@@ -40,8 +40,26 @@ const productTemplatesRemove = `
   }
 `;
 
+const productTemplatesChangeStatus = `
+  mutation productTemplatesChangeStatus($_id: String!, $status: String) {
+    productTemplatesChangeStatus(_id: $_id, status: $status) {
+      _id
+    }
+  }
+`;
+
+const productTemplatesDuplicate = `
+  mutation productTemplatesDuplicate($_id: String!) {
+    productTemplatesDuplicate(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   productTemplatesAdd,
   productTemplatesEdit,
-  productTemplatesRemove
+  productTemplatesRemove,
+  productTemplatesChangeStatus,
+  productTemplatesDuplicate
 };

@@ -32,11 +32,9 @@ class StageItem extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const item = props || {} as IProductTemplateItem;
-    const { unitPrice, quantity, discount } = item;
-
-    console.log("item on stageItem");
-    console.log(item);
+    const item = props.item || {} as IProductTemplateItem;
+    const { unitPrice, quantity, discount, categoryId } = item;
+    const defaultCategoryId = categoryId ? categoryId : undefined;
 
     this.state = {
       productsCombo: [],
@@ -46,10 +44,10 @@ class StageItem extends React.Component<Props, State> {
       discount: discount ? discount : 0
     };
 
-    this.getProductByCategory();
+    this.getProductByCategory(defaultCategoryId, false);
   }
 
-  getProductByCategory = (categoryId?: string) => {
+  getProductByCategory = (categoryId?: string, isnew = true as boolean) => {
 
     if (!categoryId) {
       const { productCategories } = this.props;
@@ -72,10 +70,16 @@ class StageItem extends React.Component<Props, State> {
       this.setState({
         products: datas,
         productsCombo: tempArray,
-        unitPrice: 0,
-        quantity: 0,
-        discount: 0
+
       });
+
+      if (isnew) {
+        this.setState({
+          unitPrice: 0,
+          quantity: 0,
+          discount: 0
+        });
+      }
 
     });
   }

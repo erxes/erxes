@@ -7,13 +7,13 @@ import { SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import TagFilter from '../../containers/TagFilter';
-// import { IProductCategory } from '../../types';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 const TEMPLATE_TYPES = {
   EMAILS: 'Emails',
   CHAT_RESPONSES: 'Chat Responses',
+  GROWTH_HACKING: 'Growth Hacking',
   PRODUCTS_SERVICES: 'Products & Services',
   SEGMENTS: 'Segments',
   SALES_PIPELINE: 'Sales Pipeline',
@@ -26,9 +26,7 @@ interface IProps {
   history: any;
   queryParams: any;
   refetch?: any;
-  remove?: (productCategoryId: string) => void;
-  // productCategories: IProductCategory[];
-  productCategoriesCount: number;
+  types: any;
   loading: boolean;
 }
 
@@ -42,26 +40,13 @@ class List extends React.Component<IProps> {
 
   renderContent() {
     const result: React.ReactNode[] = [];
+    const { types } = this.props;
+
+    console.log(types);
 
     for (const key of Object.keys(TEMPLATE_TYPES)) {
-      // const name = category.isRoot ? (
-      //   `${category.name}`
-      // ) : (
-      //   <span>
-      //     {category.name}
-      //   </span>
-      // );
       const name = TEMPLATE_TYPES[key];
-
-      // const count = category.isRoot ? (
-      //   `${category.productCount}`
-      // ) : (
-      //   <span>
-      //     {category.productCount}
-      //   </span>
-      // );
-
-      const count = 0;
+      const count = types[key] || 0;
 
       result.push(
         <SidebarListItem

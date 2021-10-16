@@ -10,10 +10,10 @@ export const fillSearchTextItem = (
   doc: IProductTemplate,
   item?: IProductTemplate
 ) => {
-  const document = item || { title: '', description: '' };
+  const document = item || { title: '', description: '', discount: 0 , totalAmount: 0 };
   Object.assign(document, doc);
 
-  return validSearchText([document.title || '', document.description || '']);
+  return validSearchText([document.title || '', document.description || '' , document.discount || 0 , document.totalAmount || 0 ]);
 };
 
 
@@ -72,10 +72,9 @@ export const loadProductTemplateClass = () => {
      * Update Product Template
      */
     public static async updateProductTemplate(_id: string, doc: IProductTemplate) {
-      const searchText = fillSearchTextItem(doc, await ProductTemplate.getProductTemplate(_id));
+      const searchText = fillSearchTextItem(doc, await ProductTemplate.getProductTemplate({_id}));
     
-      await ProductTemplates.updateOne({ _id }, { $set: doc, searchText });
-    
+      await ProductTemplates.updateOne({ _id }, { $set: doc, searchText });    
       return ProductTemplates.findOne({ _id });
     }
 

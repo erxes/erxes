@@ -8,22 +8,26 @@ import * as compose from 'lodash.flowright';
 import { withProps } from 'erxes-ui/lib/utils/core';
 import { graphql } from '@apollo/react-hoc';
 import gql from 'graphql-tag';
-import { ProductCategoriesQueryResponse } from '../../types'
+import { ProductCategoriesQueryResponse, ProductTemplatesQueryResponse } from '../../types'
 import { queries } from '../../graphql'
-
+// import { generatePaginationParams } from 'modules/common/utils/router';
 
 type Props = {
   productTemplate?: IProductTemplate;
   closeModal: () => void;
+  queryParams?: any;
 };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
-} & Props;
+} & Props & ProductTemplatesQueryResponse;
 
 class ProductFormContainer extends React.Component<FinalProps> {
+
   render() {
     const { productCategoriesQuery } = this.props;
+
+    console.log(this.props);
 
     if (productCategoriesQuery.loading) {
       return null;
@@ -69,7 +73,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories'];
+  return ['productTemplates'];
 };
 
 export default withProps<Props>(
@@ -78,6 +82,15 @@ export default withProps<Props>(
       gql(queries.productCategories),
       {
         name: 'productCategoriesQuery'
+      }
+    ),
+    graphql<Props, ProductTemplatesQueryResponse, { page: number; perPage: number }>(
+      gql(queries.productTemplates),
+      {
+        name: 'productTemplatesQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
       }
     )
   )(ProductFormContainer)
