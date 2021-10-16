@@ -3,6 +3,7 @@ import Brands from './Brands';
 import { CalendarBoards, CalendarGroups, Calendars } from './Calendars';
 import Channels from './Channels';
 import { ChecklistItems, Checklists } from './Checklists';
+import ClientPortals from './ClientPortal';
 import Companies from './Companies';
 import Configs from './Configs';
 import Conformities from './Conformities';
@@ -81,6 +82,7 @@ export {
   ProductCategories,
   ProductTemplates,
   Configs,
+  ClientPortals,
   FieldsGroups,
   ImportHistory,
   MessengerApps,

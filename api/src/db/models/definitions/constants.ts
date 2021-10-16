@@ -853,3 +853,9 @@ export const WEBHOOK_STATUS = {
   UNAVAILABLE: 'unavailable',
   ALL: ['available', 'unavailable']
 };
+
+export const REACTION_CHOICES = {
+  LIKE: 'like',
+  DISLIKE: 'disLike',
+  ALL: ['like', 'dislike']
+};

@@ -1308,6 +1308,16 @@ export const moduleObjects = {
       }
     ]
   },
+  clientPortal: {
+    name: 'clientPortal',
+    description: 'Client portal',
+    actions: [
+      {
+        name: 'manageClientPortal',
+        description: 'Manage client portal'
+      }
+    ]
+  },
   productTemplates: {
     name: 'productTemplates',
     description: 'Product templates',
