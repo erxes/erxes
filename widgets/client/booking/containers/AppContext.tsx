@@ -126,10 +126,16 @@ export class AppProvider extends React.Component<{}, IState> {
    * When load type is popup, Hide popup
    */
   closePopup = () => {
+    const { currentStatus } = this.state;
+
     this.setState({
       isPopupVisible: false,
       isFormVisible: false
     });
+
+    if (currentStatus.status === 'SUCCESS') {
+      this.setState({ activeRoute: 'INTRO' });
+    }
   };
 
   /*
