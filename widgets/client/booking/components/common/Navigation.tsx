@@ -40,21 +40,22 @@ class Navigation extends React.Component<Props, State> {
 
     return (
       <ReactPopover
+        className={"nav-popover"}
         isOpen={isOpen}
-        preferPlace={'start'}
-        place={'left'}
+        preferPlace={'above'}
+        place={'right'}
         tipSize={0.01}
-        className={'top-0'}
+        enterExitTransitionDurationMs={600}
         body={
           <div className={`booking-navigation bn-${style.widgetColor}`}>
             <div className="flex-sb p-5">
-              <div className="b"> Navigation </div>
+              <h4> Navigation </h4>
               <div
                 onClick={() => {
                   this.setState({ isOpen: false });
                 }}
               >
-                <i className="icon-leftarrow" />
+                <span className="arrow arrow-bar is-left"></span>
               </div>
             </div>
 
@@ -71,8 +72,8 @@ class Navigation extends React.Component<Props, State> {
         }
       >
         <div onClick={this.toggleNavigation}>
-          <div className="flex-center">
-            <i className="icon-menu-2 mr-10" />
+          <div className="nav">
+            <Burger /> 
             <p>Navigation</p>
           </div>
         </div>
@@ -80,5 +81,16 @@ class Navigation extends React.Component<Props, State> {
     );
   }
 }
+
+const Burger = () => {
+  return (
+    <div className="burger-menu">
+      <div />
+      <div />
+      <div />
+    </div>
+  )
+}
+
 
 export default Navigation;

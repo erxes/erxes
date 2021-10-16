@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { IBookingData } from '../types';
-import { readFile } from '../../utils';
 import Button from './common/Button';
 import { IProductCategory } from '../../types';
+import Body from '../components/common/Body';
 
 type Props = {
   floor?: IProductCategory;
@@ -18,29 +18,21 @@ function Floor({ floor, goToBookings, booking }: Props) {
   const { widgetColor } = booking.style;
 
   return (
-    <div className="grid-13 mt-30">
-      <div className="detail">
-        <div className="flex-center b mb-10"> Penthouse</div>
-        <div className="flex-center mb-10">
-          Please select your preffered floor
-        </div>
-        <div className="flex-center">
-          <img
-            src={readFile(floor.attachment.url)}
-            alt="hello"
-            style={{ maxHeight: '500px' }}
-          />
-        </div>
-      </div>
-
-      <div className="flex-start">
+    <>
+      <Body
+        page="floor"
+        title={'Penthouse'}
+        description={' Please select your preffered floor'}
+        image={floor.attachment}
+      />
+      <div className="footer flex-start">
         <Button
           text="Back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor }}
         />
       </div>
-    </div>
+    </>
   );
 }
 

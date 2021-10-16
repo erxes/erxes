@@ -67,6 +67,7 @@
     "react-dom": "16.4.2",
     "react-modal": "^3.12.1",
     "react-popover": "^0.5.10",
+    "react-select": "^5.1.0",
     "react-slick": "^0.28.1",
     "react-transition-group": "^2.4.0",
     "sass-loader": "^6.0.6",

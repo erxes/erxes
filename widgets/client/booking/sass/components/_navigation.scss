@@ -1,16 +1,15 @@
 .booking-navigation {
-  min-width: 150px;
+  min-width: 200px;
   background-color: #fff;
-  position: fixed;
-  top: 10px;
-  left: 10px;
   text-align: left;
   display: inline-block;
   border-radius: 2px;
   padding: 10px;
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-  i {
-    margin: 5px;
+  filter{
+    position: fixed;
+    left: 0;
+    top: 0;
   }
   ul {
     padding-inline-start: 0;
@@ -32,17 +31,6 @@
   }
   .child-list {
     margin-left: 30px;
-    // &:last-child {
-
-    //   }
-  }
-  .toggle-icon {
-    i {
-      font-size: 10px;
-      &:before {
-        display: block;
-      }
-    }
   }
   .toggle-nav {
     width: 10px;
@@ -58,4 +46,11 @@
   ht {
     width: 200;
   }
+}
+
+
+.Popover-right{
+  position: fixed;
+  top:0 !important;
+  left:0 !important
 }

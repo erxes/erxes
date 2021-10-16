@@ -11,9 +11,8 @@ function Block({ block, widgetColor, goToBlock }: Props) {
   const handleOnClick = () => {
     goToBlock(block._id);
   };
-
   return (
-    <div className={`block border-${widgetColor}`} onClick={handleOnClick}>
+    <div className={`block`} onClick={handleOnClick}>
       <h4>{block.name}</h4>
       <p>{block.description}</p>
     </div>

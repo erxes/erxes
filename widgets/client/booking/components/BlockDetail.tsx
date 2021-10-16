@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { IBookingData } from '../types';
-import { readFile } from '../../utils';
 import Button from './common/Button';
+import Body from './common/Body';
 import { IProductCategory } from '../../types';
 
 type Props = {
@@ -14,30 +14,24 @@ function BlockDetail({ goToBookings, block, booking }: Props) {
   if (!block || !booking) {
     return null;
   }
-
   const { widgetColor } = booking.style;
 
   return (
-    <div className="main-container">
-      <div className="main-header">
-        <div className="flex-center b mb-10">{block.name}</div>
-        <div className="flex-center mb-10">{block.description}</div>
-        <div className="main-body">
-          <img
-            src={readFile(block.attachment && block.attachment.url)}
-            alt="hello"
-            style={{ maxHeight: '500px' }}
-          />
-        </div>
-      </div>
-      <div className="flex-sb w-100">
+    <>
+      <Body
+        page="block"
+        title={block.name}
+        description={block.description}
+        image={block.attachment}
+      />
+      <div className="footer">
         <Button
           text="Back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor }}
         />
       </div>
-    </div>
+    </>
   );
 }
 
