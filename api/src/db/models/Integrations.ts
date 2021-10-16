@@ -145,6 +145,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     _id: string,
     doc: IIntegration
   ): Promise<IIntegrationDocument>;
+  increaseBookingViewCount(_id: string): void;
 }
 
 export const loadClass = () => {
@@ -587,6 +588,17 @@ export const loadClass = () => {
       );
 
       return Integrations.findOne({ _id });
+    }
+
+    /**
+     * Increase booking view count
+     */
+
+    public static async increaseBookingViewCount(_id: string) {
+      await Integrations.updateOne(
+        { _id, bookingData: { $exists: true } },
+        { $inc: { 'bookingData.viewCount': 1 } }
+      );
     }
   }
 

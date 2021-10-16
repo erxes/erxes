@@ -148,7 +148,6 @@ export const mutations = `
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
 
-  widgetsBookingIncreaseViewCount(_id: String!): JSON
   widgetsBookingConnect(_id: String): Integration
 
   widgetsSaveBooking(

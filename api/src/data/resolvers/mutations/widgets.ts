@@ -926,11 +926,10 @@ const widgetMutations = {
 
     return { botData: botRequest.responses };
   },
-  widgetsBookingIncreaseViewCount(_root, { _id }: { _id: string }) {
-    return Bookings.increaseViewCount(_id);
-  },
   // Find integration
   async widgetsBookingConnect(_root, { _id }: { _id: string }) {
+    await Integrations.increaseBookingViewCount(_id);
+
     return Integrations.findOne({ _id });
   },
 

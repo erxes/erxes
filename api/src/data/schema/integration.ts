@@ -38,6 +38,8 @@ export const types = `
     style: JSON
     displayBlock: JSON
 
+    viewCount: Int
+
     childCategories: [ProductCategory]
     categoryTree: JSON
     mainProductCategory: ProductCategory

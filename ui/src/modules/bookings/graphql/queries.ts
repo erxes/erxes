@@ -67,6 +67,8 @@ export const commonFields = `
       url
       size
     }
+
+    viewCount
  
     description
     userFilters

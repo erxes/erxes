@@ -404,6 +404,11 @@ const bookingSchema = new Schema(
       type: String,
       optional: true,
       label: 'Product category'
+    }),
+    viewCount: field({
+      type: Number,
+      optional: true,
+      label: 'View count'
     })
   },
   { _id: false }
