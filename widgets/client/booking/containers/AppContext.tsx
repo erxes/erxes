@@ -167,11 +167,6 @@ export class AppProvider extends React.Component<{}, IState> {
 
         const status = response.status === 'ok' ? 'SUCCESS' : 'ERROR';
 
-        postMessage({
-          message: 'submitResponse',
-          status
-        });
-
         this.setState({
           isSubmitting: false,
           currentStatus: {

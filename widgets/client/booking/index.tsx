@@ -10,7 +10,6 @@ import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
 import { widgetsConnectMutation } from './graphql';
 import './sass/style.scss';
-import { listenForCommonRequests } from '../widgetUtils';
 
 widgetConnect({
   postParams: {

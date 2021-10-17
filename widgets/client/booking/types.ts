@@ -1,4 +1,4 @@
-import { IBrand, IProductCategory, IUser } from '../types';
+import { IProductCategory } from '../types';
 
 export interface IStyle {
   itemShape?: string;
@@ -10,10 +10,8 @@ export interface IStyle {
   textAvailable: string;
   textUnavailable: string;
   textSelected: string;
-}
 
-export interface IDisplayBlock {
-  shape?: string;
+  line?: string;
   columns?: string;
   rows?: string;
   margin?: string;
@@ -37,9 +35,6 @@ export interface IBookingData {
   productCategoryId?: string;
   // style
   style: IStyle;
-
-  // display blocks
-  displayBlock: IDisplayBlock;
 
   // child categories
   childCategories: IProductCategory[];

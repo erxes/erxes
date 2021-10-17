@@ -3,19 +3,7 @@ import client from '../../apollo-client';
 import { getLocalStorageItem, setLocalStorageItem } from '../../common';
 import { requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
-import { increaseViewCountMutation, saveBookingMutation } from '../graphql';
-
-/*
- * Increasing view count
- */
-export const increaseViewCount = (bookingId: string) => {
-  return client.mutate({
-    mutation: gql(increaseViewCountMutation),
-    variables: {
-      _id: bookingId
-    }
-  });
-};
+import { saveBookingMutation } from '../graphql';
 
 export const saveBrowserInfo = () => {
   requestBrowserInfo({
@@ -103,13 +91,6 @@ export const saveBooking = (params: {
             widgetsSaveBooking.customerId,
             connection.setting
           );
-        }
-
-        if (widgetsSaveBooking && widgetsSaveBooking.status === 'ok') {
-          postMessage({
-            message: 'bookingSuccess',
-            variables
-          });
         }
       }
     })

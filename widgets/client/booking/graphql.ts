@@ -52,26 +52,6 @@ const productFields = `
   customFieldsDataWithText
 `;
 
-const styleFields = `
-  itemShape
-  widgetColor
-
-  productAvailable
-  productUnavailable
-  productSelected
-
-  textAvailable
-  textUnavailable
-  textSelected
-`;
-
-const displayBlockFields = `
-  shape
-  columns
-  rows
-  margin
-`;
-
 const productCategory = `
   query widgetsProductCategory($_id: String!) {
     widgetsProductCategory(_id: $_id) {
@@ -85,12 +65,6 @@ const productDetail = `
     widgetsProductDetail(_id: $_id) {
       ${productFields}
     }
-  }
-`;
-
-const increaseViewCountMutation = `
-  mutation widgetsBookingIncreaseViewCount($_id: String!) {
-    widgetsBookingIncreaseViewCount(_id: $_id)
   }
 `;
 
@@ -187,7 +161,6 @@ export const saveBookingMutation = `
 export {
   productCategory,
   productDetail,
-  increaseViewCountMutation,
   formDetailQuery,
   widgetsConnectMutation
 };

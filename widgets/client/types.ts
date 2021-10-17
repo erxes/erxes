@@ -1,4 +1,4 @@
-import { ICategoryTree, IDisplayBlock, IStyle } from './booking/types';
+import { ICategoryTree, IStyle } from './booking/types';
 import { ICallout } from './form/types';
 import { IAttachment, IWebsiteApp } from './messenger/types';
 
@@ -166,7 +166,6 @@ export interface IIntegrationBookingData {
   productCategoryId?: string;
 
   style: IStyle;
-  displayBlock?: IDisplayBlock;
 
   childCategories?: IProductCategory[];
   categoryTree?: ICategoryTree;
