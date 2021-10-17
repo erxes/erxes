@@ -1,13 +1,14 @@
-import { IProductCategory, IProduct } from 'erxes-ui/lib/products/types';
+import { IProductCategory, IProduct, IBrand, IUser } from 'erxes-ui/lib/products/types';
+import { ITag } from 'erxes-ui/lib/tags/types';
 
 export type IConfigsMap = { [key: string]: any };
 
 // types 
 export type IPosConfig = {
   _id: string;
-  posId: string;
-  code: string;
-  value: any;
+  integrationId: string;
+  productDetails: string[];
+  productGroupIds: string[];
 };
 
 export type IProductGroup = {
@@ -15,7 +16,7 @@ export type IProductGroup = {
   name: string;
   description: string;
   categoryIds: string[];
-  excludedCategyIds: string[];
+  excludedCategoryIds: string[];
   excludedProductIds: string[];
   categories: IProductCategory[];
   excludedCategories: IProductCategory[];
@@ -52,3 +53,128 @@ export type GroupsQueryResponse = {
 export type PosRemoveMutationResponse = {
   removePos: (mutation: { variables: { _id: string } }) => Promise<any>;
 };
+
+export interface IRouterProps {
+  history: any;
+  location: any;
+  match: any;
+}
+
+export type Counts = {
+  [key: string]: number;
+};
+
+export type QueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  error?: string;
+};
+
+export type BrandsQueryResponse = {
+  brands: IBrand[];
+} & QueryResponse;
+
+
+export interface IIntegration {
+  _id: string;
+  kind: string;
+  name: string;
+  brandId?: string;
+  brand: IBrand;
+  isActive?: boolean;
+  createdUser: IUser;
+  tags: ITag[];
+}
+
+export type PosIntegrationsQueryResponse = {
+  integrations: IIntegration[];
+} & QueryResponse;
+
+export type IntegrationsCount = {
+  total: number;
+  byTag: Counts;
+  byBrand: Counts;
+  byKind: Counts;
+  byStatus: Counts;
+};
+
+export type CountQueryResponse = {
+  integrationsTotalCount: IntegrationsCount;
+} & QueryResponse;
+
+export type IntegrationDetailQueryResponse = {
+  integrationDetail: IIntegration;
+} & QueryResponse;
+
+export type PosConfigQueryResponse = {
+  posConfig: IPosConfig;
+} & QueryResponse;
+
+export type IntegrationMutationVariables = {
+  brandId: string;
+  name: string;
+};
+
+export type EditIntegrationMutationResponse = {
+  editIntegrationMutation: (params: {
+    variables: IntegrationMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: {
+    variables: { _id };
+  }) => Promise<any>;
+};
+
+export type CopyMutationResponse = {
+  copyMutation: (params: { variables: { _id: string } }) => Promise<void>;
+};
+
+export type ArchiveIntegrationResponse = {
+  archiveIntegration: (params: {
+    variables: { _id: string; status: boolean };
+  }) => Promise<any>;
+};
+
+export type ITagTypes =
+  | 'conversation'
+  | 'customer'
+  | 'engageMessage'
+  | 'company'
+  | 'integration';
+
+export type TagsQueryResponse = {
+  tags: ITag[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type TagMutationVariables = {
+  type: string;
+  targetIds: string[];
+  tagIds: string[];
+};
+
+export type TagMutationResponse = {
+  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
+};
+
+export type IButtonMutateProps = {
+  name?: string;
+  values: any;
+  isSubmitted: boolean;
+  confirmationUpdate?: boolean;
+  callback?: () => void;
+  resetSubmit?: () => void;
+  size?: string;
+  object?: any;
+  text?: string;
+  icon?: string;
+  type?: string;
+  disableLoading?: boolean;
+};
+
+export type ProductCategoriesQueryResponse = {
+  productCategories: IProductCategory[];
+} & QueryResponse;

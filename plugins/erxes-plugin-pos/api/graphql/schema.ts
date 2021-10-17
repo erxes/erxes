@@ -12,26 +12,29 @@ export const types = `
     createdAt: Date
   }
 
-  type PosConfig {
-    _id: String
-    posId: String
-    code: String
-    value: JSON
-  }
+
 
   type ProductGroups {
     _id: String
     name: String
     description: String
     categoryIds: [String]
-    excludeCategoryIds: [String]
-    excludeProductIds: [String]
+    excludedCategoryIds: [String]
+    excludedProductIds: [String]
+  }
+
+  type PosConfig {
+    _id: String
+    integrationId: String
+    productDetails: [String]
+    productGroupIds: [String]
+    productGroups: [ProductGroups]
   }
 `;
 
 export const queries = `
   allPos: [Pos]
-  posConfigs(posId: String!): [PosConfig]
+  posConfig(integrationId: String!): PosConfig
   productGroups(posId: String!): [ProductGroups]
 `;
 

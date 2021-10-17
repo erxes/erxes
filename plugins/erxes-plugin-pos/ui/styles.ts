@@ -1,4 +1,4 @@
-import { dimensions, colors} from 'erxes-ui'
+import { dimensions, colors, ContentHeader } from 'erxes-ui'
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -29,7 +29,7 @@ export const Description = styled.div`
 `;
 
 
-const LinkButton = styled.a`
+export const LinkButton = styled.a`
   cursor: pointer;
 
   &:hover {
@@ -54,6 +54,71 @@ export const ActionButtons = styled.div`
   }
 `;
 
+export const RowTitle = styled.div`
+  > a {
+    color: ${colors.textPrimary};
+  }
+
+  &:hover {
+    text-decoration: underline;
+    color: ${colors.colorBlack};
+    cursor: pointer;
+  }
+`;
+
+export const Content = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+
+  > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+`;
+
+export const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const TabletPreview = styled.div`
+  background: url('/images/previews/tablet.png') no-repeat center center;
+  width: 768px;
+  height: 1024px;
+  margin: 0 auto;
+  padding: 80px ${dimensions.coreSpacing}px;
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
+
+const PreviewContainer = styled.div`
+  position: relative;
+  height: 100%;
+  padding: 20px;
+`;
+
+export const PreviewWrapper = styled.div`
+  width: 40%;
+  background: ${colors.colorWhite};
+  margin-left: 5px;
+
+  ${TabletPreview} {
+    background-size: contain;
+    width: 85%;
+    height: 100%;
+
+    ${PreviewContainer} {
+      max-height: 600px;
+    }
+
+    @media (max-width: 1400px) {
+      padding: 40px 10px;
+    }
+  }
+`;
 
 export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
@@ -100,3 +165,32 @@ export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
+export const FlexColumn = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  ${ContentHeader} {
+    border-bottom: none;
+    border-top: 1px solid ${colors.borderPrimary};
+  }
+`;
+
+export const FlexItem = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+export const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
+  }
+`;

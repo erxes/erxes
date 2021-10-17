@@ -13,7 +13,7 @@ const queries = [
 
 
     {
-        name: 'posConfigs',
+        name: 'posConfig',
         handler: async (_root, { posId }: { posId: string }, { models, checkPermission, user }) => {
             await checkPermission('managePos', user);
             return await models.PosConfigs.configs(models, posId)
@@ -24,6 +24,7 @@ const queries = [
         name: 'productGroups',
         handler: async (_root, { posId }: { posId: string }, { models, checkPermission, user }) => {
             await checkPermission('managePos', user);
+            console.log("HI")
             return await models.ProductGroups.groups(models, posId)
         }
     },

@@ -1,6 +1,14 @@
-import { __, Info, Icon, FormGroup, FormControl, Button } from 'erxes-ui';
+import {
+  __,
+  Info,
+  Icon,
+  FormGroup,
+  FormControl,
+  Button,
+  CollapseContent
+} from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
-import { IProductGroup } from '../types';
+import { IProductGroup } from '../../types';
 
 type Props = {
   onFieldChange: (
@@ -11,102 +19,48 @@ type Props = {
   currentGroup: IProductGroup;
 };
 
-const showOptions = [
-  { value: 'show', label: 'Show this field' },
-  { value: 'hide', label: 'Hide this field' }
-];
+function ProductGroups(props: Props) {
+  const { groups } = props;
 
-function FieldLogics(props: Props) {
-  const { groups, currentGroup, onFieldChange } = props;
+  // const [categories, setCategories] = useState(currentGroup.categories || []);
 
-  const [categories, setCategories] = useState(currentGroup.categories || []);
+  // useEffect(() => {
+  //   onFieldChange('categories', categories);
+  // }, [categories, onFieldChange]);
 
-  useEffect(() => {
-    onFieldChange('categories', categories);
-  }, [categories, onFieldChange]);
+  // const onChangeLogicAction = e =>
+  // onFieldChange('logicAction', e.currentTarget.value);
 
-  const [isEnabled, toggleState] = useState(
-    currentGroup.categories ? currentGroup.categories.length > 0 : false
-  );
+  // const onChangeLogic = (name, value, index) => {
+  //   // find current editing one
+  //   const currentLogic = logics.find((l, i) => i === index);
 
-  const onChangeLogicAction = e =>
-    onFieldChange('logicAction', e.currentTarget.value);
+  //   // set new value
+  //   if (currentLogic) {
+  //     currentLogic[name] = value;
+  //   }
 
-  const onChangeLogic = (name, value, index) => {
-    // find current editing one
-    const currentLogic = logics.find((l, i) => i === index);
+  //   setLogics(logics);
+  //   onFieldChange('logics', logics);
+  // };
 
-    // set new value
-    if (currentLogic) {
-      currentLogic[name] = value;
-    }
-
-    setLogics(logics);
-    onFieldChange('logics', logics);
-  };
-
-  const addLogic = () => {
-    setLogics([
-      ...logics,
-      {
-        fieldId: '',
-        tempFieldId: '',
-        logicOperator: 'is',
-        logicValue: ''
-      }
-    ]);
-  };
-
-  const onEnableLogic = () => {
-    toggleState(true);
-    onFieldChange('logicAction', 'show');
-    addLogic();
-  };
-
-  const removeLogic = (index: number) => {
-    setLogics(logics.filter((l, i) => i !== index));
-  };
-
-  const renderContent = () => {
-    if (isEnabled) {
-      return (
-        <>
-          <FormGroup>
-            <FormControl
-              componentClass="select"
-              defaultValue={currentField.logicAction}
-              name="logicAction"
-              options={showOptions}
-              onChange={onChangeLogicAction}
-            />
-          </FormGroup>
-          {logics.map((logic, index) => (
-            <FieldLogic
-              key={index}
-              fields={fields.filter(field => field._id !== currentField._id)}
-              logic={logic}
-              onChangeLogic={onChangeLogic}
-              removeLogic={removeLogic}
-              index={index}
-            />
-          ))}
-
-          <LinkButton onClick={addLogic}>
-            <Icon icon="plus-1" /> Add Logic Rule
-          </LinkButton>
-        </>
-      );
-    }
-
+  const renderContent = (group: IProductGroup) => {
     return (
-      <Button
-        block={true}
-        btnStyle="success"
-        icon="check-circle"
-        onClick={onEnableLogic}
-      >
-        Enable Logic
-      </Button>
+      <CollapseContent title={group.name} description={group.description}>
+        <FormGroup>
+          <FormControl
+            value={group.name}
+            // onChange={this.handleInputChange}
+          />
+
+          <FormControl
+            name="description"
+            componentClass="textarea"
+            rows={5}
+            defaultValue={group.description}
+          />
+        </FormGroup>
+      </CollapseContent>
     );
   };
 
@@ -117,9 +71,9 @@ function FieldLogics(props: Props) {
           'Create rules to show or hide this element depending on the values of other fields'
         )}
       </Info>
-      {renderContent()}
+      {groups.map(group => renderContent(group))}
     </>
   );
 }
 
-export default FieldLogics;
+export default ProductGroups;

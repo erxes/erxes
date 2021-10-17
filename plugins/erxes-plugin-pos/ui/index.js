@@ -1,22 +1,41 @@
 import React from 'react';
-import Settings from './containers/Settings';
+import List from './pos/containers/List';
+import EditPos from './pos/containers/EditPos';
 import queryString from 'query-string';
 
-const SettingsComponent = ({ location, history }) => {
+const settingsComponent = ({ location, history }) => {
   return (
-    <Settings
+    <List
       queryParams={queryString.parse(location.search)}
       history={history}
     />
   );
 };
 
+const editPos = ({ match, location }) => {
+  const { integrationId } = match.params;
+  const queryParams = queryString.parse(location.search);
+
+  console.log("query: ",queryParams)
+
+  return (
+    <EditPos
+      queryParams={queryParams}
+      integrationId={integrationId}
+    />
+  );
+}
+
 export default () => ({
   routes: [
     {
       path: '/settings',
-      component: SettingsComponent
-    }
+      component: settingsComponent
+    },
+    {
+      path: '/pos/edit/:integrationId',
+      component: editPos
+    },
   ],
   settings: [
     {

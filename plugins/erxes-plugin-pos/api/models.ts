@@ -15,11 +15,15 @@ class Pos {
         return models.Pos.find().sort({ createdAt: 1 })
     }
 
-    public static async posAdd(models, user, name, description) {
+    public static async posAdd(models, user, name, brandId) {
+
+        const doc = { name, brandId, kind: 'pos' };
+        const integration = await models.Integrations.createIntegration(doc, user._id);
+        console.log('integration', integration)
+
         return models.Pos.create({
             userId: user._id,
             name,
-            description,
             createdAt: new Date()
         })
     }
@@ -47,54 +51,15 @@ class Pos {
 }
 
 /**
- * posConfig
- */
-
-export const posConfigSchema: any = {
-    _id: { pkey: true },
-    posId: { type: String },
-    code: { type: String },
-    value: { type: Object },
-};
-
-class PosConfig {
-
-    public static async configs(models, posId: string) {
-        return models.PosConfigs.find({ posId }).lean();
-    }
-
-    public static async createOrUpdateConfig(models, posId, {
-        code,
-        value
-    }: {
-        code: string;
-        value: any;
-    }) {
-        const obj = await models.PosConfigs.findOne({ posId, code });
-
-        if (obj) {
-            await models.PosConfigs.updateOne({ _id: obj._id }, { $set: { value } });
-
-            return models.PosConfigs.findOne({ _id: obj._id });
-        }
-
-        return models.PosConfigs.create({ code, value, posId });
-    }
-}
-
-
-/**
  * productGroups
  */
 
 export const productGroupSchema: any = {
-    _id: { pkey: true },
-    posId: { type: String },
     name: { type: String },
     description: { type: String },
     categoryIds: { type: [String], optional: true },
-    excludeCategoryIds: { type: [String], optional: true },
-    excludeProductIds: { type: [String], optional: true }
+    excludedCategoryIds: { type: [String], optional: true },
+    excludedProductIds: { type: [String], optional: true }
 };
 
 class ProductGroup {
@@ -131,6 +96,43 @@ class ProductGroup {
 
     public static async groupsRemove(models, _id: string) {
         return models.ProductGroups.deleteOne({ _id });
+    }
+}
+
+
+/**
+ * posConfig
+ */
+
+export const posConfigSchema: any = {
+    _id: { pkey: true },
+    integrationId: { type: String },
+    productDetails: { type: [String] },
+    productGroupIds: { type: [String] }
+};
+
+class PosConfig {
+
+    public static async configs(models, integrationId: string) {
+        return models.PosConfigs.findOne({ integrationId }).lean();
+    }
+
+    public static async createOrUpdateConfig(models, posId, {
+        code,
+        value
+    }: {
+        code: string;
+        value: any;
+    }) {
+        const obj = await models.PosConfigs.findOne({ posId, code });
+
+        if (obj) {
+            await models.PosConfigs.updateOne({ _id: obj._id }, { $set: { value } });
+
+            return models.PosConfigs.findOne({ _id: obj._id });
+        }
+
+        return models.PosConfigs.create({ code, value, posId });
     }
 }
 

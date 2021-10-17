@@ -17,6 +17,7 @@ import Sidebar from './Sidebar';
 import { ContentBox, Description } from '../styles';
 import { PRODUCT_DETAIL } from '../constants';
 import Select from 'react-select-plus';
+import List from '../containers/ProductGroup/List';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -98,11 +99,26 @@ class GeneralSettings extends React.Component<Props, State> {
                 multi={true}
               />
             </FormGroup>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                style={{}}
+                btnStyle="success"
+                onClick={this.save}
+                icon="check-circle"
+                uppercase={false}
+              >
+                Save
+              </Button>
+            </div>
           </CollapseContent>
-          <CollapseContent title="Product Groups" description="Select pos to display in the product category.">
-            <Description>
-              Select pos to display in the product category.
-            </Description>
+          <CollapseContent
+            title="Product Groups"
+            description="Select pos to display in the product category."
+          >
+            <List
+              queryParams={this.props.queryParams}
+              history={this.props.history}
+            />
           </CollapseContent>
         </ContentBox>
       );
@@ -116,17 +132,6 @@ class GeneralSettings extends React.Component<Props, State> {
       { title: __('Settings'), link: '/settings' },
       { title: __('POS config') }
     ];
-
-    const actionButtons = (
-      <Button
-        btnStyle="primary"
-        onClick={this.save}
-        icon="check-circle"
-        uppercase={false}
-      >
-        Save
-      </Button>
-    );
 
     const content = (
       <FlexItem>
@@ -161,12 +166,6 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.Header title={__('POS config')} breadcrumb={breadcrumb} />
         }
         mainHead={<Header />}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('POS configs')}</Title>}
-            right={actionButtons}
-          />
-        }
         leftSidebar={
           <Sidebar
             history={this.props.history}

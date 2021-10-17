@@ -104,6 +104,7 @@ export const KIND_CHOICES = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
+  POS: 'pos',
   ALL: [
     'messenger',
     'lead',
@@ -125,7 +126,8 @@ export const KIND_CHOICES = {
     'smooch-twilio',
     'whatsapp',
     'telnyx',
-    'webhook'
+    'webhook',
+    'pos'
   ]
 };
 

@@ -2,9 +2,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import PosList from '../../components/Pos/PosList';
+import List from '../../components/ProductGroup/List';
+
 import { mutations, queries } from '../../graphql';
-import {  GroupsQueryResponse } from '../../types';
+import { GroupsQueryResponse } from '../../types';
 // import { Alert, confirm } from 'erxes-ui';
 
 type Props = {
@@ -41,7 +42,7 @@ class ListContainer extends React.Component<FinalProps> {
       groups: groupsQuery.productGroups || []
     };
 
-    return <PosList {...extendedProps} />;
+    return <List {...extendedProps} />;
   }
 }
 
@@ -50,7 +51,14 @@ class ListContainer extends React.Component<FinalProps> {
 // });
 
 export default compose(
-  graphql<Props, GroupsQueryResponse>(gql(queries.productGroups), {
-    name: 'groupsQuery'
-  }),
+  graphql<{ queryParams: any }, GroupsQueryResponse, { posId: string }>(
+    gql(queries.productGroups),
+    {
+      name: 'groupsQuery',
+      options: ({ queryParams }) => ({
+        variables: { posId: queryParams.posId || '' },
+        fetchPolicy: 'network-only'
+      })
+    }
+  )
 )(ListContainer);

@@ -3,6 +3,16 @@ const commonFields = `
     $description: String
 `;
 
+const commonFormParamsDef = `
+  $name: String!,
+  $brandId: String!,
+`;
+
+const commonFormParams = `
+  name: $name,
+  brandId: $brandId,
+`;
+
 const commonVariables = `
     name: $name,
     description: $description,
@@ -41,9 +51,48 @@ const updateConfigs = `
   }
 `;
 
+const integrationRemove = `
+  mutation integrationsRemove($_id: String!) {
+    integrationsRemove(_id: $_id)
+  }
+`;
+
+const integrationsArchive = `
+  mutation integrationsArchive($_id: String!, $status: Boolean!) {
+    integrationsArchive(_id: $_id, status: $status) {
+      _id
+    }
+  }
+`;
+
+const integrationsEdit = `
+  mutation integrationsEditLeadIntegration($_id: String!, ${commonFormParamsDef}) {
+    integrationsEditLeadIntegration(_id: $_id, ${commonFormParams}) {
+      _id
+      ${commonFields}
+    }
+  }
+`;
+
+const brandAdd = `
+  mutation brandsAdd(  $name: String!,
+    $description: String,
+    $emailConfig: JSON,) {
+    brandsAdd(  name: $name,
+      description: $description,
+      emailConfig: $emailConfig,) {
+      _id
+    }
+  }
+`;
+
 export default {
   posAdd,
   podEdit,
   posRemove,
-  updateConfigs
+  updateConfigs,
+  integrationRemove,
+  integrationsArchive,
+  integrationsEdit,
+  brandAdd
 };

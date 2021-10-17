@@ -8,8 +8,8 @@ const mutations = [
         handler: async (_root, params, { models, checkPermission, user }) => {
             await checkPermission('managePos', user);
 
-            const { name, description } = params;
-            return await models.Pos.posAdd(models, user, name, description)
+            const { name, brandId } = params;
+            return await models.Pos.posAdd(models, user, name, brandId)
         }
     },
 
