@@ -117,7 +117,7 @@ const bookingQueries = {
     };
 
     // Counting bookings by tag
-    const tags = await Tags.find({ type: TAG_TYPES.BOOKING });
+    const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
 
     for (const tag of tags) {
       const countQueryResult = await count({ tagIds: tag._id, ...qry });
