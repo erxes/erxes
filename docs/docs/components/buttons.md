@@ -12,7 +12,7 @@ import { ButtonComponent } from "./buttons.js"
 ### Types
 
 <p>Use any of the available button style types to quickly create a styled button. Just modify the <code>btnStyle</code> prop.</p>
-<ButtonComponent type="type" buttons={['Primary', 'Success', 'Danger', 'Warning', 'Simple', 'Link']}></ButtonComponent>
+<ButtonComponent type="type" buttons={['Primary', 'Success', 'Danger', 'Warning', 'Simple', 'Link']} />
 
 ### Sizes
 

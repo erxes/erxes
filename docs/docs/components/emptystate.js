@@ -4,6 +4,7 @@ import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Table from "../../../ui/src/modules/common/components/table";
 import Button from "erxes-ui/lib/components/Button";
+import ApiTable from "./common.js"
 
 export function EmptyComponents(props) {
   const { type, table = [], icon, img, text, size } = props;
@@ -87,77 +88,10 @@ export function EmptyComponents(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import EmptyState from "erxes-ui/lib/components/EmptyState";`}</CodeBlock>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {table.map((row, i) => (
-              <tr>
-                {row.map((cell) => (
-                  <td>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        {ApiTable(table)}
       </>
     );
   }
 
   return null;
 }
-
-// function Apiemptystate(){
-// return(<>
-// <CodeBlock className="language-jsx">{`import EmptyState from "erxes-ui/lib/components/EmptyState";`}</CodeBlock>
-// <Table>
-//         <thead>
-//           <tr>
-//             <th>Name</th>
-//             <th>type</th>
-//             <th>description</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           <tr>
-//             <td>text</td>
-//             <td>string</td>
-//             <td>Show your text. If you want to show only text, use it with light prop.</td>
-//           </tr>
-//           <tr>
-//             <td>icon</td>
-//             <td>string</td>
-//             <td>Show icon.</td>
-//           </tr>
-//           <tr>
-//             <td>image</td>
-//             <td>string</td>
-//             <td>Show image.</td>
-//           </tr>
-//           <tr>
-//             <td>size</td>
-//             <td>string</td>
-//             <td>Size of icon.</td>
-//           </tr>
-//           <tr>
-//             <td>extra</td>
-//             <td>node</td>
-//             <td>Add other components or text.</td>
-//           </tr>
-//           <tr>
-//             <td>light</td>
-//             <td>boolean</td>
-//             <td>Show only first row.</td>
-//           </tr>
-//         </tbody>
-//       </Table>
-//   </>
-// )
-// }
-
-// export { Emptystate, Emptyimg, Emptyextra, Emptysize, Emptylight, Apiemptystate };

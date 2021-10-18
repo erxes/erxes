@@ -1,6 +1,7 @@
 import React from "react";
 import Table from "../../../ui/src/modules/common/components/table";
 import CodeBlock from "@theme/CodeBlock";
+import ApiTable from "./common.js"
 
 const simpleTable = (table) => {
   return (
@@ -96,7 +97,7 @@ export function TableComponent(props) {
         </Table>
         <CodeBlock className="language-jsx">
           {`<>`}
-          {`\n\t<Table bordered>`}
+          {`\n\t<Table merge>`}
           {`\n\t  <thead>`}
           {`\n\t    <tr>`}
           {`\n\t      <th>#</th>`}
@@ -217,25 +218,7 @@ export function TableComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Table from 'erxes-ui/lib/components/table/index';`}</CodeBlock>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Default</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {table.map((row) => (
-              <tr>
-                {row.map((cell) => (
-                  <td>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        {ApiTable(table)}
       </>
     );
   }
