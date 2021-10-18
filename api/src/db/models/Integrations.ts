@@ -146,7 +146,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     _id: string,
     doc: IIntegration
   ): Promise<IIntegrationDocument>;
-  increaseBookingViewCount(_id: string): void;
+  increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
 export const loadClass = () => {
@@ -567,7 +567,7 @@ export const loadClass = () => {
       const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
 
       if (Object.keys(bookingData).length === 0) {
-        throw new Error('Booking data must be supplied');
+        throw new Error('bookingData must be supplied');
       }
 
       return Integrations.createIntegration(doc, userId);
@@ -610,6 +610,8 @@ export const loadClass = () => {
         { _id, bookingData: { $exists: true } },
         { $inc: { 'bookingData.viewCount': 1 } }
       );
+
+      return Integrations.findOne({ _id });
     }
   }
 
