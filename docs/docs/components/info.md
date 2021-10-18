@@ -11,12 +11,12 @@ import { InfoComponent } from './info.js'
 
 <p>Infos are available for any length of text. Just choose one of the five variants and modify the{" "} <code>type</code> prop. And write your own title by modifying <code>title</code> prop.</p>
 <b>Primary is set by default.</b>
-<InfoComponent type="infos" types={['Primary', 'Info', 'Danger', 'Warning', 'Success']}></InfoComponent>
+<InfoComponent type="infos" ></InfoComponent>
 
 ## Icon
 
 <p>Add icons using <code>iconShow</code> prop.</p>
-<InfoComponent type="icon" types={['Primary', 'Info', 'Danger', 'Warning', 'Success']} icons={['envelope-alt', 'info-circle', 'times-circle', 'exclamation-triangle', 'check-circle']}></InfoComponent>
+<InfoComponent type="icon" ></InfoComponent>
 
 ## API
 

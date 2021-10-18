@@ -2,10 +2,18 @@ import React from "react";
 import Info from "erxes-ui/lib/components/Info";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import ApiTable from "./common.js"
+import ApiTable, { Api } from "./common.js";
 
 export function InfoComponent(props) {
-  const { type, types = [], icons = [], table = [] } = props;
+  const { type, table = [] } = props;
+  const types = ["Primary", "Info", "Danger", "Warning", "Success"];
+  const icons = [
+    "envelope-alt",
+    "info-circle",
+    "times-circle",
+    "exclamation-triangle",
+    "check-circle",
+  ];
 
   if (type === "infos") {
     return (
@@ -13,14 +21,17 @@ export function InfoComponent(props) {
         <div>
           {types.map((e) => (
             <Info key={Math.random()} type={e.toLowerCase()} title={e}>
-              {"This is "}{e.toLowerCase()}{" info"}
+              {"This is "}
+              {e.toLowerCase()}
+              {" info"}
             </Info>
           ))}
         </div>
         <CodeBlock className="language-jsx">
           {`<>`}
           {`${types.map(
-            (e) => `\n\t<Info type="${e.toLowerCase()}" title="${e}">This is ${e.toLowerCase()} info</Info>`
+            (e) =>
+              `\n\t<Info type="${e.toLowerCase()}" title="${e}">This is ${e.toLowerCase()} info</Info>`
           )}`}
           {`\n</>`}
         </CodeBlock>
@@ -33,15 +44,25 @@ export function InfoComponent(props) {
       <>
         <div>
           {types.map((e, index) => (
-            <Info key={Math.random()} type={e.toLowerCase()} title={e} iconShow={icons[index]}>
-              {"This is "}{e.toLowerCase()}{" info"}
+            <Info
+              key={Math.random()}
+              type={e.toLowerCase()}
+              title={e}
+              iconShow={icons[index]}
+            >
+              {"This is "}
+              {e.toLowerCase()}
+              {" info"}
             </Info>
           ))}
         </div>
         <CodeBlock className="language-jsx">
           {`<>`}
           {`${types.map(
-            (e, index) => `\n\t<Info type="${e.toLowerCase()}" title="${e}" iconShow="${icons[index]}">This is ${e.toLowerCase()} info</Info>`
+            (e, index) =>
+              `\n\t<Info type="${e.toLowerCase()}" title="${e}" iconShow="${
+                icons[index]
+              }">This is ${e.toLowerCase()} info</Info>`
           )}`}
           {`\n</>`}
         </CodeBlock>
@@ -52,7 +73,7 @@ export function InfoComponent(props) {
   if (type === "APIinfo") {
     return (
       <>
-        <CodeBlock className="language-javascript">{`import Info from "erxes-ui/lib/components/Info";`}</CodeBlock>
+        {Api("Info")}
         {ApiTable(table)}
       </>
     );
