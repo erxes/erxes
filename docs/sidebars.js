@@ -131,7 +131,8 @@ module.exports = {
         "components/label",
         "components/spinners",
         "components/table",
-        "components/errormsg"
+        "components/errormsg",
+        "components/tip"
       ],
     },
   ],
