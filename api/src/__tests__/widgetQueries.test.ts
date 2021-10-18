@@ -11,6 +11,8 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
+  productCategoryFactory,
+  productFactory,
   userFactory
 } from '../db/factories';
 import { Brands, Conversations, Customers, Integrations } from '../db/models';
@@ -418,5 +420,59 @@ describe('widgetQueries', () => {
     }
 
     envMock.restore();
+  });
+
+  test('widgetsProductCategory', async () => {
+    const productCategory = await productCategoryFactory({});
+
+    const qry = `
+      query widgetsProductCategory($_id: String!) {
+        widgetsProductCategory(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsProductCategory', {
+      _id: productCategory._id
+    });
+
+    expect(productCategory._id).toBe(response._id);
+  });
+
+  test('widgetsProductDetail', async () => {
+    const product = await productFactory({});
+
+    const qry = `
+      query widgetsProductDetail($_id: String!) {
+        widgetsProductDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsProductDetail', {
+      _id: product._id
+    });
+
+    expect(product._id).toBe(response._id);
+  });
+
+  test('widgetsIntegrationDetail', async () => {
+    const integration = await integrationFactory({});
+
+    const qry = `
+      query widgetsIntegrationDetail($_id: String!) {
+        widgetsIntegrationDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsIntegrationDetail', {
+      _id: integration._id
+    });
+
+    expect(integration._id).toBe(response._id);
   });
 });

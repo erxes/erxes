@@ -1729,4 +1729,15 @@ describe('lead', () => {
     expect(response).toBe(undefined);
     mock.restore();
   });
+
+  test('widgetsBookingConnect', async () => {
+    const integration = await integrationFactory({});
+
+    const response = await widgetMutations.widgetsBookingConnect(
+      {},
+      { _id: integration._id }
+    );
+
+    expect(integration._id).toBe(response._id);
+  });
 });
