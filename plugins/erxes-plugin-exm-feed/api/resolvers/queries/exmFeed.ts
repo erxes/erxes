@@ -71,6 +71,20 @@ const exmFeedQueries = [
 
       if (
         contentTypes &&
+        contentTypes.includes('event') &&
+        type === 'recipient'
+      ) {
+        doc.$or = [
+          { 'eventData.visibility': 'public' },
+          {
+            'eventData.visibility': 'private',
+            recipientIds: { $in: [user._id] }
+          }
+        ];
+      }
+
+      if (
+        contentTypes &&
         contentTypes.includes('bravo') &&
         type === 'recipient'
       ) {
