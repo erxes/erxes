@@ -14,6 +14,51 @@ export function InfoComponent(props) {
     "exclamation-triangle",
     "check-circle",
   ];
+  
+  const propDatas = (propName, icon, index) => {
+    const kind = {
+      [propName]:
+        propName === "type"
+          ? btn.toLowerCase()
+          : true,
+    };
+
+    const datas = {
+      ...kind,
+      icon: icon && icons[index],
+    };
+
+    return datas;
+  };
+
+  const renderBlock = (propName, icon) => {
+    console.log();
+    return (
+      <>
+        <div className={styles.styled}>
+
+          {types.map((info, index) => {
+            return (
+              <Info key={index} {...propDatas(propName, icon, index)}>
+                {info}
+              </Info>
+            );
+          })}
+        </div>
+
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<Button>${
+            defaultBtn ? defaultBtn : "Default"
+          }</Button>${buttons.map((btn, index) => {
+            console.log(propDatas(propName, btn, icon, index));
+            return `\n\t<Button ${JSON.stringify(
+              propDatas(propName, btn, icon, index)
+            )}>${btn}</Button>`;
+          })}\n</>`}
+        </CodeBlock>
+      </>
+    );
+  };
 
   if (type === "infos") {
     return (
