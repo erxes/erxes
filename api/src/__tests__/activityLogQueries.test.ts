@@ -521,10 +521,10 @@ describe('activityLogQueries', () => {
   test('Activity log by action', async () => {
     const pipeline = await pipelineFactory();
     const stage = await stageFactory({ pipelineId: pipeline._id });
-    const deal = await dealFactory({ stageId: stage._id });
+    const mydeal = await dealFactory({ stageId: stage._id });
 
     const doc = {
-      contentId: deal._id,
+      contentId: mydeal._id,
       contentType: 'deal',
       action: 'create'
     };
@@ -552,10 +552,10 @@ describe('activityLogQueries', () => {
   test('Activity log by action (delete)', async () => {
     const pipeline = await pipelineFactory();
     const stage = await stageFactory({ pipelineId: pipeline._id });
-    const deal = await dealFactory({ stageId: stage._id });
+    const mydeal = await dealFactory({ stageId: stage._id });
 
     const doc = {
-      contentId: deal._id,
+      contentId: mydeal._id,
       contentType: 'deal',
       action: 'delete'
     };
@@ -585,9 +585,12 @@ describe('activityLogQueries', () => {
   test('Activity log by action (add note)', async () => {
     const pipeline = await pipelineFactory();
     const stage = await stageFactory({ pipelineId: pipeline._id });
-    const deal = await dealFactory({ stageId: stage._id });
+    const mydeal = await dealFactory({ stageId: stage._id });
 
-    await internalNoteFactory({ contentTypeId: deal._id, contentType: 'deal' });
+    await internalNoteFactory({
+      contentTypeId: mydeal._id,
+      contentType: 'deal'
+    });
 
     const args = {
       contentType: 'deal',

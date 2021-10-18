@@ -47,23 +47,22 @@ app.get(
       delete filter.perPage;
       delete filter.page;
 
-      const activityLogs = await ActivityLogs.find(filter)
-        .sort({
-          createdAt: -1
-        })
-        .skip(perPage * (page - 1))
-        .limit(perPage);
-
-      const totalCount = await ActivityLogs.countDocuments(filter);
-
-      return res.json({ activityLogs, totalCount });
+      return res.json({
+        activityLogs: await ActivityLogs.find(filter)
+          .sort({
+            createdAt: -1
+          })
+          .skip(perPage * (page - 1))
+          .limit(perPage),
+        totalCount: await ActivityLogs.countDocuments(filter)
+      });
     }
 
-    const activityLogs = await ActivityLogs.find(filter).sort({
-      createdAt: -1
-    });
-
-    return res.json(activityLogs);
+    return res.json(
+      await ActivityLogs.find(filter).sort({
+        createdAt: -1
+      })
+    );
   })
 );
 

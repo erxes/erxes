@@ -49,9 +49,9 @@ class Sidebar extends React.Component<Props, State> {
 
     const action: any = [];
 
-    for (let i = 0; i < checkboxes.length; i++) {
-      if (checkboxes[i].checked) {
-        action.push(checkboxes[i].value);
+    for (const checkbox of checkboxes) {
+      if (checkbox.checked) {
+        action.push(checkbox.value);
       }
     }
 
