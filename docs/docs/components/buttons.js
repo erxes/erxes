@@ -8,24 +8,31 @@ import "erxes-icon/css/erxes.min.css";
 export function ButtonComponent(props) {
   const { type, buttons = [], icons = [], table = [] } = props;
 
+  const propDatas = (propName, btn, icon) => {
+    const kind = {
+      [propName]:
+        propName === "btnStyle" || propName === "size"
+          ? btn.toLowerCase()
+          : true,
+    };
+
+    const datas = {
+      ...kind,
+      icon: icon && icons[index],
+    };
+
+    return datas;
+  };
+
   const renderBlock = (propName, defaultBtn, icon) => {
-  
     return (
       <>
         <div className={styles.styled}>
           {defaultBtn && <Button>{defaultBtn}</Button>}
-          {buttons.map((btn, index) => {
-            const kind = {[propName]: propName === "btnStyle" || propName === "size"
-            ? btn.toLowerCase()
-            : true};
 
-            const datas = {
-              ...kind,
-              icon: icon && icons[index],
-            };
-            // console.log(type, propName, datas)
+          {buttons.map((btn, index) => {
             return (
-              <Button key={index} {...datas}>
+              <Button key={index} {...propDatas(propName, btn, icon)}>
                 {btn}
               </Button>
             );
@@ -36,13 +43,16 @@ export function ButtonComponent(props) {
           {`<>\n\t<Button>${
             defaultBtn ? defaultBtn : "Default"
           }</Button>${buttons.map(
-            (btn) => `\n\t<Button>${btn}</Button>`
+            (btn) =>
+              `\n\t<Button ${{
+                ...propDatas(propName, btn, icon),
+              }}>${btn}</Button>`
           )}\n</>`}
         </CodeBlock>
       </>
     );
   };
-  console.log(type)
+
   if (type === "btnStyle") {
     return renderBlock("btnStyle", "Default");
   }
