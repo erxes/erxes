@@ -3,6 +3,7 @@ import Info from "erxes-ui/lib/components/Info";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Table from "../../../ui/src/modules/common/components/table";
+import ApiTable from "./common.js"
 
 export function InfoComponent(props) {
   const { type, types = [], icons = [], table = [] } = props;
@@ -53,25 +54,7 @@ export function InfoComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Info from "erxes-ui/lib/components/Info";`}</CodeBlock>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Default</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {table.map((row, i) => (
-              <tr>
-                {row.map((cell) => (
-                  <td>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        {ApiTable(table)}
       </>
     );
   }

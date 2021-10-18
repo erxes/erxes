@@ -4,6 +4,7 @@ import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
+import ApiTable from "./common.js"
 
 export function ButtonComponent(props) {
   const { type, buttons = [], icons = [], table = [] } = props;
@@ -138,25 +139,7 @@ export function ButtonComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Button from "erxes-ui/lib/components/Button";`}</CodeBlock>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Default</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {table.map((row) => (
-              <tr>
-                {row.map((cell) => (
-                  <td>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        {ApiTable(table)}
       </>
     );
   }

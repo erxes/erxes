@@ -125,13 +125,13 @@ module.exports = {
       label: "Components",
       items: [
         "components/buttons",
-        "components/info",
-        "components/namecard",
         "components/emptystate",
+        "components/errormsg",
+        "components/info",
         "components/label",
+        "components/namecard",
         "components/spinners",
         "components/table",
-        "components/errormsg",
         "components/tip"
       ],
     },

@@ -45,7 +45,7 @@ export function CardComponent(props) {
         </div>
         <CodeBlock className="language-jsx">
           {`<>`}
-          {`\n\t<NameCard user={{details:{fullName: "${ name }"}}} avatarSize="${info}"></NameCard>`}
+          {`\n\t<NameCard user={{details:{fullName: "${ name }"}}} avatarSize=${info}></NameCard>`}
           {`\n</>`}
         </CodeBlock>
       </>
