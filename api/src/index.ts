@@ -1,4 +1,5 @@
 import * as cookieParser from 'cookie-parser';
+
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
@@ -48,6 +49,7 @@ import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
+
 import init from './startup';
 
 // load environment variables
@@ -82,17 +84,17 @@ const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
   name: 'INTEGRATIONS_API_DOMAIN'
 });
-const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_DOMAIN'
-});
+
 const DASHBOARD_DOMAIN = getSubServiceDomain({
   name: 'DASHBOARD_DOMAIN'
 });
+
 const ENGAGES_API_DOMAIN = getSubServiceDomain({
   name: 'ENGAGES_API_DOMAIN'
 });
-const CLIENT_PORTAL_MN_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_MN_DOMAIN'
+
+const CLIENT_PORTAL_DOMAINS = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_DOMAINS'
 });
 
 const handleTelnyxWebhook = (req, res, next, hookName: string) => {
@@ -152,9 +154,8 @@ const corsOptions = {
   origin: [
     MAIN_APP_DOMAIN,
     WIDGETS_DOMAIN,
-    CLIENT_PORTAL_DOMAIN,
-    DASHBOARD_DOMAIN,
-    CLIENT_PORTAL_MN_DOMAIN
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    DASHBOARD_DOMAIN
   ]
 };
 

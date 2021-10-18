@@ -1326,5 +1326,15 @@ export const moduleObjects = {
         description: 'Manage exm'
       }
     ]
+  },
+  clientPortal: {
+    name: 'clientPortal',
+    description: 'Client portal',
+    actions: [
+      {
+        name: 'manageClientPortal',
+        description: 'Manage client portal'
+      }
+    ]
   }
 };

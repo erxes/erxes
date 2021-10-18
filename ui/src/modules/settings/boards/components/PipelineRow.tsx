@@ -128,6 +128,7 @@ class PipelineRow extends React.Component<Props, State> {
 
   render() {
     const { pipeline } = this.props;
+    const { createdUser } = pipeline;
     const labelStyle = pipeline.status === 'active' ? 'success' : 'warning';
 
     return (
@@ -143,7 +144,9 @@ class PipelineRow extends React.Component<Props, State> {
           </DateWrapper>
         </td>
         <td>
-          <Capitalize>{pipeline.createdUser.details.fullName}</Capitalize>
+          <Capitalize>
+            {createdUser.details && createdUser.details.fullName}
+          </Capitalize>
         </td>
         <td>
           <ActionButtons>
