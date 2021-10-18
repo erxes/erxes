@@ -8,27 +8,27 @@ import { CardComponent } from "./namecard.js"
 ## Username
 
 <p>Show username using <code>username</code> prop.</p>
-<CardComponent type="username" name="Ariuka"></CardComponent>
+<CardComponent type="username" username="Ariuka" />
 
 ## Full name
 
 <p>Show full name using <code>fullName</code> prop.</p>
-<CardComponent type="fullName" name="Ariunzaya Enkhbayar"></CardComponent>
+<CardComponent type="fullName" />
 
 ## Avatar size
 
 <p>You can change avatar size with <code>avatarSize</code> prop.</p>
-<CardComponent type="avatarSize" name="Ariunzaya Enkhbayar" info="50"></CardComponent>
+<CardComponent type="avatarSize" info={50} />
 
 ## User E-mail
 
 <p>Show user e-mail using <code>email</code> prop.</p>
-<CardComponent type="usermail" name="Ariunzaya Enkhbayar" info="ariunzaya@gmail.com"></CardComponent>
+<CardComponent type="usermail" info="ariunzaya@gmail.com" />
 
 ## Second line
 
 <p>Show second line using <code>secondLine</code> prop. </p>
-<CardComponent type="secondLine" name="Ariunzaya Enkhbayar" info="Intern"></CardComponent>
+<CardComponent type="secondLine" info="Intern" />
 
 ## API
 
@@ -37,4 +37,4 @@ import { CardComponent } from "./namecard.js"
     ['email', 'string', 'Email object of user'],
     ['secondLine', '', 'string', 'Line below the username or full name. You can write anything in the second line'],
     ['avatarSize', '', 'number', 'Avatar size of your name card']
-]}></CardComponent>
+]} />

@@ -28,12 +28,10 @@ export function InfoComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${types.map(
+          {`<>${types.map(
             (e) =>
               `\n\t<Info type="${e.toLowerCase()}" title="${e}">This is ${e.toLowerCase()} info</Info>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );
@@ -57,14 +55,12 @@ export function InfoComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${types.map(
+          {`<>${types.map(
             (e, index) =>
               `\n\t<Info type="${e.toLowerCase()}" title="${e}" iconShow="${
                 icons[index]
               }">This is ${e.toLowerCase()} info</Info>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );

@@ -13,7 +13,7 @@ import { TableComponent } from './table.js'
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat'],
     ['3', 'Larry', 'Bird', '@twitter']
-]}></TableComponent>
+]} />
 
 ## Merge cells
 
@@ -21,7 +21,7 @@ import { TableComponent } from './table.js'
 <TableComponent type="merge" table={[
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat']
-]}></TableComponent>
+]} />
 
 ## Striped
 
@@ -30,7 +30,7 @@ import { TableComponent } from './table.js'
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat'],
     ['3', 'Larry', 'Bird', '@twitter']
-]}></TableComponent>
+]} />
 
 ## Table hover
 
@@ -39,7 +39,7 @@ import { TableComponent } from './table.js'
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat'],
     ['3', 'Larry', 'Bird', '@twitter']
-]}></TableComponent>
+]} />
 
 ## White-space
 
@@ -47,7 +47,7 @@ import { TableComponent } from './table.js'
 <TableComponent type="whiteSpace" table={[
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat']
-]}></TableComponent>
+]} />
 
 ## API
 
@@ -57,4 +57,4 @@ import { TableComponent } from './table.js'
     ['striped', 'boolean', 'false', 'Gives table strip color'],
     ['hover', 'boolean', 'false', 'Activates table hover'],
     ['white-space', 'normal | nowrap | pre | pre-wrap | pre-line | break-spaces', '', 'Costumizes thee cells']
-]}></TableComponent>
+]} />
