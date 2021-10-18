@@ -8,7 +8,7 @@ import "erxes-icon/css/erxes.min.css";
 export function ButtonComponent(props) {
   const { type, buttons = [], icons = [], table = [] } = props;
 
-  const propDatas = (propName, btn, icon) => {
+  const propDatas = (propName, btn, icon, index) => {
     const kind = {
       [propName]:
         propName === "btnStyle" || propName === "size"
@@ -32,7 +32,7 @@ export function ButtonComponent(props) {
 
           {buttons.map((btn, index) => {
             return (
-              <Button key={index} {...propDatas(propName, btn, icon)}>
+              <Button key={index} {...propDatas(propName, btn, icon, index)}>
                 {btn}
               </Button>
             );
@@ -45,7 +45,7 @@ export function ButtonComponent(props) {
           }</Button>${buttons.map(
             (btn) =>
               `\n\t<Button ${{
-                ...propDatas(propName, btn, icon),
+                ...propDatas(propName, btn, icon, index),
               }}>${btn}</Button>`
           )}\n</>`}
         </CodeBlock>
