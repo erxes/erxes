@@ -129,7 +129,8 @@ module.exports = {
         "components/table",
         "components/spinners",
         "components/namecard",
-        "components/emptystate"
+        "components/emptystate",
+        "components/label"
       ],
     },
   ],
