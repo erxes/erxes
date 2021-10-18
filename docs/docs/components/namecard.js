@@ -2,7 +2,7 @@ import React from "react";
 import NameCard from "erxes-ui/lib/components/nameCard/NameCard";
 import CodeBlock from "@theme/CodeBlock";
 import styles from "../../src/components/styles.module.css";
-import Table from "../../../ui/src/modules/common/components/table";
+import ApiTable from "./common.js"
 
 export function CardComponent(props) {
   const { type, name, info, table = [] } = props;
@@ -86,31 +86,7 @@ export function CardComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import NameCard from "erxes-ui/lib/components/nameCard/NameCard";`}</CodeBlock>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Object</th>
-              <th>Type</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td rowSpan="3">user</td>
-              <td>username</td>
-              <td>string</td>
-              <td>Username object of user</td>
-            </tr>
-            {table.map((row, i) => (
-              <tr>
-                {row.map((cell) => (
-                  <td>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        {ApiTable(table)}
       </>
     );
   }

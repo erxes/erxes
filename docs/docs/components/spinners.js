@@ -3,7 +3,6 @@ import Spinner from "erxes-ui/lib/components/Spinner";
 import styles from "../../src/components/styles.module.css";
 import CodeBlock from '@theme/CodeBlock';
 import "erxes-icon/css/erxes.min.css";
-import Table from 'erxes-ui/lib/components/table/index';
 import ApiTable from "./common.js"
 
 export function SpinnerComponent(props) {

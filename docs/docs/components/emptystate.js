@@ -66,11 +66,7 @@ export function EmptyComponents(props) {
     return (
       <>
         <div>
-          <EmptyState
-            icon={icon}
-            text={text}
-            extra={<Button>Button</Button>}
-          />
+          <EmptyState icon={icon} text={text} extra={<Button>Button</Button>} />
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<EmptyState icon="${icon}" text="${text}" extra={<Button>Button</Button>} />\n</>`}

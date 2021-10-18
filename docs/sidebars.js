@@ -124,6 +124,7 @@ module.exports = {
       type: "category",
       label: "Components",
       items: [
+        "components/box",
         "components/buttons",
         "components/emptystate",
         "components/errormsg",
@@ -132,7 +133,6 @@ module.exports = {
         "components/namecard",
         "components/spinners",
         "components/table",
-        "components/tip"
       ],
     },
   ],

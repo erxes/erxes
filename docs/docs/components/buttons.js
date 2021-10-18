@@ -3,7 +3,7 @@ import styles from "../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import ApiTable from "./common.js";
-import Button from "erxes-ui/lib/components/Button"
+import Button from "erxes-ui/lib/components/Button";
 
 const renderButton = (buttons, type, icons) => {
   if (type === "size") {
@@ -32,6 +32,7 @@ const renderButton = (buttons, type, icons) => {
 
   return (
     <>
+      <Button>Default</Button>
       {buttons.map((e, i) => (
         <Button key={i} btnStyle={e.toLowerCase()}>
           {e}
@@ -42,15 +43,22 @@ const renderButton = (buttons, type, icons) => {
 };
 
 const renderCode = (buttons, prop) => {
+  if (prop === "size" || prop === "btnStyle") {
+    return (
+      <>
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<Button>Default</Button>${buttons.map(
+            (e) => `\n\t<Button ${prop}="${e.toLowerCase()}">${e}</Button>`
+          )}\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
   return (
     <>
       <CodeBlock className="language-jsx">
-        {`<>`}
-        {`\n\t<Button>Default</Button>`}
-        {`${buttons.map(
-          (e) => `\n\t<Button ${prop}="${e.toLowerCase()}">${e}</Button>`
-        )}`}
-        {`\n</>`}
+      {`<>\n\t<Button>Normal</Button>\n\t<Button ${prop.toLowerCase()}>{prop}</Button>\n</>`}
       </CodeBlock>
     </>
   );
@@ -59,28 +67,18 @@ const renderCode = (buttons, prop) => {
 export function ButtonComponent(props) {
   const { type, buttons = [], icons = [], table = [] } = props;
 
-  if (type === "type") {
+  if (type === "btnStyle" || type === "size") {
     return (
       <>
         <div className={styles.styled}>
-          <Button>Default</Button>
           {renderButton(buttons, type)}
         </div>
-          {renderCode(buttons, "btnStyle")}
+          {renderCode(buttons, type)}
       </>
     );
   }
 
-  if (type === "size") {
-    return (
-      <>
-        <div className={styles.styled}>{renderButton(buttons, type)}</div>
-        {renderCode(buttons, "size")}
-      </>
-    );
-  }
-
-  if (type === "activity") {
+  if (type === "Disabled") {
     return (
       <>
         <div className={styles.styled}>
@@ -88,14 +86,12 @@ export function ButtonComponent(props) {
             Disabled
           </Button>
         </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<Button>Normal</Button>\n\t<Button disabled>Disabled</Button>\n</>`}
-        </CodeBlock>
+        {renderCode(buttons, type)}
       </>
     );
   }
 
-  if (type === "uppercase") {
+  if (type === "Uppercase") {
     return (
       <>
         <div className={styles.styled}>
@@ -103,14 +99,12 @@ export function ButtonComponent(props) {
             Uppercase
           </Button>
         </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<Button>Normal</Button>\n\t<Button uppercase>Uppercase</Button>\n</>`}
-        </CodeBlock>
+        {renderCode(buttons, type)}
       </>
     );
   }
 
-  if (type === "block") {
+  if (type === "Block") {
     return (
       <>
         <div className={styles.styled}>
@@ -118,9 +112,7 @@ export function ButtonComponent(props) {
             Block
           </Button>
         </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<Button>Normal</Button>\n\t<Button block>Block</Button>\n</>`}
-        </CodeBlock>
+        {renderCode(buttons, type)}
       </>
     );
   }
@@ -132,14 +124,12 @@ export function ButtonComponent(props) {
           {renderButton(buttons, type, icons)}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${buttons.map(
-            (e, index) =>
+          {`<>${buttons.map(
+            (e, i) =>
               `\n\t<Button btnStyle="${e.toLowerCase()}" icon="${
-                icons[index]
+                icons[i]
               }">${e}</Button>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );
