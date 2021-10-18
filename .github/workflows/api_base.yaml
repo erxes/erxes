@@ -21,5 +21,5 @@ jobs:
       run: |
         cd api
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:$TAG_VERSION -f base.Dockerfile .
-        docker push erxes/erxes-api:$TAG_VERSION
+        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t mninawa/erxes-api:$TAG_VERSION -f base.Dockerfile .
+        docker push mninawa/erxes-api:$TAG_VERSION
