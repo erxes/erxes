@@ -73,6 +73,7 @@ class Filter extends React.Component<Props, State> {
 
             <Button
               color={booking.style.widgetColor}
+              type=""
               text={'Save'}
               onClickHandler={() => alert('saved')}
             />

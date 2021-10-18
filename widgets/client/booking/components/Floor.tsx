@@ -28,6 +28,7 @@ function Floor({ floor, goToBookings, booking }: Props) {
       <div className="footer flex-start">
         <Button
           text="Back"
+          type="back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor }}
         />

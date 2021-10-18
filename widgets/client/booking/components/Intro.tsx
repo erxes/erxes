@@ -18,8 +18,9 @@ function Intro({ booking, goToBooking, showPopup }: Props) {
       <div className="footer">
         <Button
           text="Next"
+          type="next"
           onClickHandler={() => goToBooking(booking)}
-          style={{ backgroundColor: widgetColor }}
+          style={{ backgroundColor: widgetColor, right: 0 }}
         />
       </div>
     </>

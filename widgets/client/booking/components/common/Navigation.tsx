@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { GiHamburgerMenu } from 'react-icons/gi'
+import { HiArrowNarrowLeft } from "react-icons/hi"
 import { FilterableList } from '.';
 import { IBookingData, ICategoryTree } from '../../types';
 import * as ReactPopover from 'react-popover';
@@ -48,14 +50,14 @@ class Navigation extends React.Component<Props, State> {
         enterExitTransitionDurationMs={600}
         body={
           <div className={`booking-navigation bn-${style.widgetColor}`}>
-            <div className="flex-sb p-5">
+            <div className="booking-header">
               <h4> Navigation </h4>
               <div
                 onClick={() => {
                   this.setState({ isOpen: false });
                 }}
               >
-                <span className="arrow arrow-bar is-left" />
+                <HiArrowNarrowLeft width="1.2em" />
               </div>
             </div>
 
@@ -73,7 +75,7 @@ class Navigation extends React.Component<Props, State> {
       >
         <div onClick={this.toggleNavigation}>
           <div className="nav">
-            <Burger />
+            <GiHamburgerMenu style={{ marginRight: "5px" }} />
             <p>Navigation</p>
           </div>
         </div>
@@ -82,14 +84,5 @@ class Navigation extends React.Component<Props, State> {
   }
 }
 
-const Burger = () => {
-  return (
-    <div className="burger-menu">
-      <div />
-      <div />
-      <div />
-    </div>
-  );
-};
 
 export default Navigation;

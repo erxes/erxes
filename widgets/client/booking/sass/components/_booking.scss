@@ -1,17 +1,7 @@
-$color-1: #4bbf6b;
-$color-2: #F47373;
-$color-3: #AAAAAA;
-$color-4:#697689;
-$color-5: #89609D;
-$color-5: #FF6900;
-$color-7: #EB144C;
-$color-8:#CD5A91;
-$color-9:#D29034;
-$color-10: #63D2D6;
-$color-11: #0078bf;
-$color-12: #F7CE53;
+$slick-font-path: "~slick-carousel/slick/fonts/";
+$slick-loader-path: "~slick-carousel/slick/";
 
-$allcolors: $color-1, $color-2, $color-3, $color-4, $color-5, $color-7, $color-8, $color-9, $color-10, $color-11, $color-12;
+@import '~slick-carousel/slick/slick', '~slick-carousel/slick/slick-theme';
 #root {
   margin: 0;
   height: 100%;
@@ -43,8 +33,13 @@ img {
 
 .slider{
   .active{
-    height: min-content;
+    width: 150px; /* width of container */
+    height: 150px; /* height of container */
+    overflow: hidden;
     img{
+      display: block;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
   }
@@ -60,6 +55,10 @@ img {
   height: 0;
 }
 .layout {
+  position: fixed;
+  top: 50px;
+  left:0;
+  right: 0;
   color: #333333 ;
   font-size: calc(0.25em + 1vmin);
   width: 100%;
@@ -67,10 +66,10 @@ img {
 }
 .header{
   position:fixed;
-   top:0px;
-    left:0px;
-     height:50px; right:0px;
-  overflow:hidden;
+  top:0px;
+  left:0px;
+  height:50px; right:0px;
+  background-color:  #fff;
   .nav{
     display: flex;
     flex-direction: row;
@@ -79,12 +78,14 @@ img {
     p{
       margin-right: 5px;
       margin-left: 5px;
+      margin-top: 1em;
+      margin-bottom: 1em;
     }
   }
 }
 .container{
   position:absolute;
-  top:50px;
+  top:0px;
   bottom:0px;
   left:0px;
   right:0px;
@@ -98,7 +99,7 @@ img {
     bottom:50px;
     left:0px;
     right:0px;
-    overflow:auto;
+    background-color:  #fff;
     .fullimg{
       img{
         height: 100%;
@@ -114,14 +115,15 @@ img {
     height:50px;
     left:0px;
     right:0px;
-    background-color: #fff;
+    background-color:  #fff;
+    display: flex;
+    padding:10px;
   }
 }
 .product{
   max-height: 100%;
   max-width: 100%;
-  display: grid;
-  grid-template-rows:  minmax(0, 10%)  minmax(0, 10%) 1fr  minmax(0, 10%)
+  display: block;
 }
 .block {
   border: 1px solid $mid-grey;
@@ -134,27 +136,6 @@ img {
     border-color: $primary;
     box-shadow: 0px 4px 8px rgba(136, 111, 221, 0.24);
   }
-}
-
-.burger-menu{
-  width: 1.1rem;
-  height: 1.1rem;
-  display: flex;
-  justify-content: space-around;
-  flex-flow: column nowrap;
-  div{
-    width:1.1rem;
-    height: 0.1rem;
-    background-color: #525252;
-    transform-origin: 1px;
-  }
-  
-}
-
-.arrow{
-  margin: 10px;
-  @include arrow( 8px, 2px, 2px, 20px);
-  @include arrowColor($mid-grey);
 }
 .erxes-booking {
   height: 100%;
@@ -196,16 +177,19 @@ img {
 }
 
 .btn {
+  position: absolute;
   border: none;
-  width: 85px;
-  height: 36px;
   color: white;
+  min-width: 80px;
   font-weight: bold;
   padding: 10px 14px 10px 12px;
   text-align: center;
   text-decoration: none;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(79, 51, 175, 0.24);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
   &:hover {
     cursor: pointer;
   }
@@ -219,38 +203,4 @@ hr {
 
 .detail{
   grid-column-start: 2;
-}
-
-@each $color in $allcolors {
-  .text-#{unquote("\\" + $color)} {
-    color: $color;
-  }
-
-  .bg-#{unquote("\\" + $color)} {
-    background-color: $color;
-  }
-
-  .border-#{unquote("\\" + $color)} {
-    &:hover{
-      border-color: $color;
-    }
-  }
-
-  .li-down {
-    &-#{unquote("\\" + $color)}{
-      @include li-down($color);
-    }
-    &-#{$color}{
-      @include li-down($color);
-    }
-  }
-
-  .li-right {
-    &-#{unquote("\\" + $color)}{
-      @include li-right($color);
-    }
-    &-#{$color}{
-      @include li-right($color);
-    }
-  }
 }

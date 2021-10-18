@@ -64,18 +64,17 @@ function App({
     <>
       <div className="erxes-content">
         <div className={containerClass} style={{ zIndex: 10000 }}>
-          {renderCloseButton()}
           {renderForm()}
         </div>
       </div>
+      <div className="header">
+        <Navigation
+          items={booking.categoryTree}
+          parentId={booking.productCategoryId}
+        />
+        <div />
+      </div>
       <div className="layout">
-        <div className="header">
-          <Navigation
-            items={booking.categoryTree}
-            parentId={booking.productCategoryId}
-          />
-          <div />
-        </div>
         <div className="container">{renderContent()}</div>
       </div>
     </>

@@ -1,11 +1,13 @@
 import * as React from 'react';
+import { HiArrowSmLeft, HiArrowSmRight } from "react-icons/hi"
 import { IBookingData } from '../types';
 import Slider from 'react-slick';
 import { readFile } from '../../utils';
-import Button from './common/Button';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
 import { IProduct } from '../../types';
+import Button from './common/Button';
+
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 type Props = {
   product?: IProduct;
@@ -35,22 +37,6 @@ function Product({
     }
   };
 
-  const renderDetail = () => {
-    // console.log(product)
-    // const {sku, customFieldsDataWithText, } = product;
-
-    // if(customFieldsDataWithText){
-
-    //       return <div>
-    //          <span>{`Id is: ${}`}</span>
-    //          <span>{`Name is: `}</span>
-    //       </div>
-
-    // }
-
-    return <div>vhjk</div>;
-  };
-
   const settings = {
     dots: true,
     infinite: true,
@@ -64,7 +50,6 @@ function Product({
     <div className="product">
       <h4>{product.name}</h4>
       <p>{product.description}</p>
-
       <div className="grid-21">
         <div className="slider">
           <div className="active">
@@ -90,23 +75,34 @@ function Product({
             </Slider>
           </div>
         </div>
-        <div className="detail">{renderDetail}</div>
+        <div>
+          <div><strong>Price per unit:</strong> {product.unitPrice}</div>
+          <div><strong>Sqm:</strong> {product.sku}</div>
+          <div><strong>Floor:</strong> {product.category.name}</div>
+          <Button
+            text={'Book product'}
+            type=""
+            onClickHandler={() => showPopup()}
+            style={{ backgroundColor: widgetColor, marginTop: "100px" }}
+          />
+        </div>
+
+
       </div>
 
-      <div className="footer flex-sb">
+      <div className="footer">
         <Button
           text="Back"
+          type="back"
           onClickHandler={goToBookings}
-          style={{ backgroundColor: widgetColor }}
+          style={{ backgroundColor: widgetColor, left: 0 }}
         />
-        <Button
-          text={'Book product'}
-          onClickHandler={() => showPopup()}
-          style={{ backgroundColor: widgetColor }}
-        />
+
       </div>
     </div>
   );
 }
+
+
 
 export default Product;

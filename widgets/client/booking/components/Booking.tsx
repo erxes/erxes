@@ -23,7 +23,25 @@ function Booking({ goToIntro, booking }: Props) {
     style
   } = booking;
   const { attachment } = mainProductCategory;
-  const { widgetColor } = style;
+  const { widgetColor, line, columns, rows, margin } = style;
+
+  style.columns = "3";
+  style.margin = "10px";
+  const blockCount = childCategories.length;
+  const column: string = columns!
+  const colCount = parseInt(column) >= 4 ? "4" : columns;
+
+
+  const blocksStyle = {
+    width: "100%",
+    display: "grid",
+    marginTop: "10px",
+    gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+    gridAutoColumns: "minmax(100px, auto)",
+    gap: margin,
+  };
+
+  console.log(blocksStyle);
   return (
     <>
       <Body
@@ -32,7 +50,7 @@ function Booking({ goToIntro, booking }: Props) {
         description={description}
         image={attachment}
       >
-        <div className={`flex-sa`}>
+        <div style={blocksStyle}>
           {childCategories.map((block, index) => {
             return (
               <Block key={index} block={block} widgetColor={widgetColor} />
@@ -43,12 +61,14 @@ function Booking({ goToIntro, booking }: Props) {
       <div className="footer">
         <Button
           text="Back"
+          type="back"
           onClickHandler={() => goToIntro()}
-          style={{ backgroundColor: widgetColor }}
+          style={{ backgroundColor: style.widgetColor }}
         />
       </div>
     </>
   );
 }
+
 
 export default Booking;

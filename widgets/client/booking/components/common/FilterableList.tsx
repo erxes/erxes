@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { RiArrowDownSFill, RiArrowRightSFill } from 'react-icons/ri'
 import { IStyle } from '../../types';
 
 type Props = {
@@ -89,20 +90,13 @@ class FilterableList extends React.Component<Props, State> {
     this.setState({ parentIds });
   };
 
-  renderIcons(item: any, hasChildren: boolean, isOpen: boolean, stock: string) {
+  renderIcons(item: any, hasChildren: boolean, isOpen: boolean, color: string) {
     return hasChildren ? (
       <div
         className="toggle-nav"
         onClick={this.onToggle.bind(this, item._id, isOpen)}
       >
-        <div
-          className={`li ${isOpen ? 'li-down' : 'li-right'}-${stock}`}
-          style={
-            isOpen
-              ? { borderTop: `5px solid ${stock}` }
-              : { borderLeft: `5px solid ${stock}` }
-          }
-        />
+        {isOpen ? <RiArrowDownSFill /> : <RiArrowRightSFill />}
       </div>
     ) : null;
   }
@@ -119,26 +113,28 @@ class FilterableList extends React.Component<Props, State> {
 
     const isOpen = this.state.parentIds[item._id] || !!key;
 
-    let stock = stockCnt === 0 ? productUnavailable : widgetColor;
+    let color = stockCnt === 0 ? productUnavailable : widgetColor;
 
     if (stockCnt > 0 && stockCnt < 10) {
-      stock = productAvailable;
+      color = productAvailable;
     }
+
+    console.log(styles)
 
     return (
       <li
         key={item._id}
         className={`list flex-sb `}
-        style={{ color: stock }}
+        style={{ color: color }}
         onClick={onClick}
       >
         <div className="flex-center">
-          {this.renderIcons(item, hasChildren, isOpen, stock)}
+          {this.renderIcons(item, hasChildren, isOpen, color)}
           <div className="mr-30" onClick={() => changeRoute(item)}>
             {item.name || '[undefined]'}
           </div>
         </div>
-        <div className={`circle center `} style={{ backgroundColor: stock }}>
+        <div className={`circle center `} style={{ backgroundColor: color }}>
           {stockCnt}
         </div>
       </li>

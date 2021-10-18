@@ -27,6 +27,7 @@ function BlockDetail({ goToBookings, block, booking }: Props) {
       <div className="footer">
         <Button
           text="Back"
+          type="back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor }}
         />

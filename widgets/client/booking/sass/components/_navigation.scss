@@ -6,10 +6,13 @@
   border-radius: 2px;
   padding: 10px;
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-  filter{
-    position: fixed;
-    left: 0;
-    top: 0;
+  .booking-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    h4{
+      margin:0 
+    }
   }
   ul {
     padding-inline-start: 0;
@@ -33,8 +36,6 @@
     margin-left: 30px;
   }
   .toggle-nav {
-    width: 10px;
-    height: 10px;
     div {
       background-color: #fff !important;
     }
@@ -47,8 +48,6 @@
     width: 200;
   }
 }
-
-
 .Popover-right{
   position: fixed;
   top:0 !important;
