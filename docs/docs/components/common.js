@@ -8,7 +8,7 @@ export function Api(prop) {
   );
 }
 
-export default function ApiTable(table) {
+export function ApiTable(table) {
   return (
     <>
       <Table>
@@ -34,7 +34,7 @@ export default function ApiTable(table) {
   );
 }
 
-export default function renderApiTable(btnName, table) {
+export function renderApiTable(btnName, table) {
   return (
     <>
       {btnName && (
