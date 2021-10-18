@@ -5,6 +5,9 @@ import EmptyState from 'modules/common/components/EmptyState';
 import { queries } from '../../graphql';
 import ChartLine from 'modules/boards/components/chart/ChartLine';
 import ChartBar from 'modules/boards/components/chart/ChartBar';
+import ChartArea from 'modules/boards/components/chart/ChartArea';
+import ChartPie from 'modules/boards/components/chart/ChartPie';
+import ChartBarStack from 'modules/boards/components/chart/ChartBarStack';
 
 type Props = {
   pipelineId: string;
@@ -49,5 +52,17 @@ export default function ChartStackContainer({
     return <ChartLine bars={bars} usersWithInfo={usersWithInfo} />;
   }
 
-  return <ChartBar bars={bars} usersWithInfo={usersWithInfo} />;
+  if (chartType === 'bar') {
+    return <ChartBar bars={bars} usersWithInfo={usersWithInfo} />;
+  }
+
+  if (chartType === 'area') {
+    return <ChartArea bars={bars} usersWithInfo={usersWithInfo} />;
+  }
+
+  if (chartType === 'pie') {
+    return <ChartPie bars={bars} usersWithInfo={usersWithInfo} />;
+  }
+
+  return <ChartBarStack bars={bars} usersWithInfo={usersWithInfo} />;
 }

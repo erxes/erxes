@@ -9,11 +9,16 @@ type Props = {
   usersWithInfo: any[];
 };
 
-export default function ChartBar({ bars, usersWithInfo }: Props) {
+export default function ChartBarStack({ bars, usersWithInfo }: Props) {
   return (
     <MainChart component={BarChart} data={usersWithInfo}>
       {bars.map((stage, index) => (
-        <Bar key={index} dataKey={stage.name} fill={getColors(index)} />
+        <Bar
+          key={index}
+          dataKey={stage.name}
+          stackId="a"
+          fill={getColors(index)}
+        />
       ))}
     </MainChart>
   );

@@ -134,6 +134,11 @@ export const chartTypes = [
     icon: 'chart-bar'
   },
   {
+    name: 'barStack',
+    title: 'Bar Stacked',
+    icon: 'chart-growth'
+  },
+  {
     name: 'pie',
     title: 'Pie',
     icon: 'chart-pie'

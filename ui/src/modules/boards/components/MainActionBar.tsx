@@ -243,7 +243,7 @@ class MainActionBar extends React.Component<Props> {
           queryParamName="chartType"
           queryParams={queryParams}
         />
-
+        &nbsp;&nbsp;&nbsp;
         <SelectType
           title={__('Stack By:')}
           icon="list-2"

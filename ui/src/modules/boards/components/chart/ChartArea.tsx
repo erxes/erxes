@@ -1,4 +1,4 @@
-import { LineChart, Line } from 'recharts';
+import { AreaChart, Area } from 'recharts';
 
 import React from 'react';
 import { getColors } from 'modules/boards/utils';
@@ -9,15 +9,16 @@ type Props = {
   usersWithInfo: any[];
 };
 
-export default function ChartLine({ bars, usersWithInfo }: Props) {
+export default function ChartArea({ bars, usersWithInfo }: Props) {
   return (
-    <MainChart component={LineChart} data={usersWithInfo}>
+    <MainChart component={AreaChart} data={usersWithInfo}>
       {bars.map((item, index) => (
-        <Line
+        <Area
           type="monotone"
           dataKey={item.name}
           stroke={getColors(index)}
-          activeDot={{ r: 8 }}
+          stackId="1"
+          fill={getColors(index)}
         />
       ))}
     </MainChart>

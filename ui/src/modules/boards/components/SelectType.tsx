@@ -37,6 +37,7 @@ const SelectType = ({
               }
             >
               <Icon icon={m.icon} />
+              &nbsp;
               {m.title}
             </a>
           </li>
@@ -53,7 +54,7 @@ const SelectType = ({
       <span>{title}</span>
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
-          <Button btnStyle="primary" size="small">
+          <Button btnStyle="default" size="small">
             {foundTypeName
               ? foundTypeName.name.charAt(0).toUpperCase() +
                 foundTypeName.name.slice(1)

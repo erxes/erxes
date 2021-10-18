@@ -12,16 +12,16 @@ export default function MainChart({ component, data, children }) {
   const ChartComponent = component;
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" backgroundColor="#ffffff">
       <ChartComponent
         data={data}
-        margin={{ top: 50, left: 50, bottom: 50, right: 50 }}
+        margin={{ top: 100, left: 130, bottom: 150, right: 200 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
+        <XAxis dataKey="name" padding={{ top: 10 }} />
+        <YAxis padding={{ right: 10 }} />
         <Tooltip />
-        <Legend />
+        <Legend height={0} />
         {children}
       </ChartComponent>
     </ResponsiveContainer>
