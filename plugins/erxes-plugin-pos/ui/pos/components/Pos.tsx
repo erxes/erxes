@@ -149,6 +149,7 @@ class Lead extends React.Component<Props, State> {
                   onChange={this.onChange}
                   name={integration ? integration.name || '' : ''}
                   description={''}
+                  brand={brand}
                 />
               </Step>
 

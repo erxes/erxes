@@ -1,3 +1,5 @@
+import { IPOSIntegration } from "./types";
+
 /**
  * pos
  */
@@ -8,6 +10,9 @@ export const posSChema = {
     description: { type: String, label: 'description' },
     userId: { type: String, optional: true, label: 'created by' },
     createdAt: { type: Date, label: 'Created at' },
+    integrationId: { type: String },
+    productDetails: { type: [String] },
+    productGroupIds: { type: [String] }
 };
 
 class Pos {
@@ -15,37 +20,50 @@ class Pos {
         return models.Pos.find().sort({ createdAt: 1 })
     }
 
-    public static async posAdd(models, user, name, brandId) {
-
-        const doc = { name, brandId, kind: 'pos' };
-        const integration = await models.Integrations.createIntegration(doc, user._id);
-        console.log('integration', integration)
-
-        return models.Pos.create({
-            userId: user._id,
-            name,
-            createdAt: new Date()
-        })
-    }
-
-    public static async posEdit(models, { _id, name, description }: { _id: string, name: string, description: string }) {
+    public static async getPos(models, _id: string) {
         const pos = await models.Pos.findOne({ _id }).lean();
 
         if (!pos) {
-            throw new Error('pos not found');
+            throw new Error('POS not found');
+        }
+        return pos;
+    }
+
+    public static async posAdd(models, user, doc: IPOSIntegration) {
+        try {
+            const integration = await models.Integrations.createIntegration({ ...doc, kind: 'pos' }, user._id);
+
+            return models.Pos.create({
+                userId: user._id,
+                integrationId: integration._id,
+                createdAt: new Date(),
+                ...doc
+            })
+        } catch (e) {
+            throw new Error(`Can not create POS integration. Error message: ${e.message}`)
         }
 
-        await models.Pos.update({ _id }, {
-            $set: {
-                name,
-                description
-            }
-        });
+    }
+
+    public static async posEdit(models, _id: string, doc: IPOSIntegration) {
+        const pos = await models.Pos.getPos(models, _id);
+
+        await models.Pos.updateOne({ _id },
+            { $set: doc },
+            { runValidators: true });
+
+        await models.Integrations.updateOne({ _id: pos.integrationId },
+            { $set: doc },
+            { runValidators: true })
 
         return await models.Pos.findOne({ _id }).lean();;
     }
 
     public static async posRemove(models, _id: string) {
+        const pos = await models.Pos.getPos(models, _id);
+
+        await models.Integrations.removeIntegration(pos.integrationId)
+
         return models.Pos.deleteOne({ _id });
     }
 }
@@ -99,53 +117,11 @@ class ProductGroup {
     }
 }
 
-
-/**
- * posConfig
- */
-
-export const posConfigSchema: any = {
-    _id: { pkey: true },
-    integrationId: { type: String },
-    productDetails: { type: [String] },
-    productGroupIds: { type: [String] }
-};
-
-class PosConfig {
-
-    public static async configs(models, integrationId: string) {
-        return models.PosConfigs.findOne({ integrationId }).lean();
-    }
-
-    public static async createOrUpdateConfig(models, posId, {
-        code,
-        value
-    }: {
-        code: string;
-        value: any;
-    }) {
-        const obj = await models.PosConfigs.findOne({ posId, code });
-
-        if (obj) {
-            await models.PosConfigs.updateOne({ _id: obj._id }, { $set: { value } });
-
-            return models.PosConfigs.findOne({ _id: obj._id });
-        }
-
-        return models.PosConfigs.create({ code, value, posId });
-    }
-}
-
 export default [
     {
         name: 'Pos',
         schema: posSChema,
         klass: Pos
-    },
-    {
-        name: 'PosConfigs',
-        schema: posConfigSchema,
-        klass: PosConfig
     },
     {
         name: 'ProductGroups',

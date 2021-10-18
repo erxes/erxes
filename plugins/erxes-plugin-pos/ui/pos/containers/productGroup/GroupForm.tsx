@@ -17,7 +17,6 @@ class GroupContainer extends React.Component<FinalProps> {
   render() {
     const { productCategoriesQuery } = this.props;
 
-    const categories = productCategoriesQuery.productCategories || [];
 
     console.log('productCategoriesQuery: ',productCategoriesQuery.productCategories)
 
