@@ -325,7 +325,7 @@ class Navigation extends React.Component<IProps> {
                 icon: 'icon-box'
               },
               {
-                permission: 'showBookings',
+                permission: 'showIntegrations',
                 link: '/bookings',
                 value: 'Bookings',
                 icon: 'icon-home'
