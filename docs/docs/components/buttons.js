@@ -1,10 +1,60 @@
 import React from "react";
-import Button from "erxes-ui/lib/components/Button";
-import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import ApiTable from "./common.js"
+import ApiTable from "./common.js";
+import Button from "erxes-ui/lib/components/Button"
+
+const renderButton = (buttons, type, icons) => {
+  if (type === "size") {
+    return (
+      <>
+        {buttons.map((e, i) => (
+          <Button key={i} size={e.toLowerCase()}>
+            {e}
+          </Button>
+        ))}
+      </>
+    );
+  }
+
+  if (type === "icon") {
+    return (
+      <>
+        {buttons.map((e, i) => (
+          <Button key={i} btnStyle={e.toLowerCase()} icon={icons[i]}>
+            {e}
+          </Button>
+        ))}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {buttons.map((e, i) => (
+        <Button key={i} btnStyle={e.toLowerCase()}>
+          {e}
+        </Button>
+      ))}
+    </>
+  );
+};
+
+const renderCode = (buttons, prop) => {
+  return (
+    <>
+      <CodeBlock className="language-jsx">
+        {`<>`}
+        {`\n\t<Button>Default</Button>`}
+        {`${buttons.map(
+          (e) => `\n\t<Button ${prop}="${e.toLowerCase()}">${e}</Button>`
+        )}`}
+        {`\n</>`}
+      </CodeBlock>
+    </>
+  );
+};
 
 export function ButtonComponent(props) {
   const { type, buttons = [], icons = [], table = [] } = props;
@@ -14,20 +64,9 @@ export function ButtonComponent(props) {
       <>
         <div className={styles.styled}>
           <Button>Default</Button>
-          {buttons.map((e) => (
-            <Button key={Math.random()} btnStyle={e.toLowerCase()}>
-              {e}
-            </Button>
-          ))}
+          {renderButton(buttons, type)}
         </div>
-        <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<Button>Default</Button>`}
-          {`${buttons.map(
-            (e) => `\n\t<Button btnStyle="${e.toLowerCase()}">${e}</Button>`
-          )}`}
-          {`\n</>`}
-        </CodeBlock>
+          {renderCode(buttons, "btnStyle")}
       </>
     );
   }
@@ -35,21 +74,8 @@ export function ButtonComponent(props) {
   if (type === "size") {
     return (
       <>
-        <div className={styles.styled}>
-          {buttons.map((e) => (
-            <Button key={Math.random()} size={e.toLowerCase()}>
-              {e}
-            </Button>
-          ))}
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<Button>Default</Button>`}
-          {`${buttons.map(
-            (e) => `\n\t<Button size="${e.toLowerCase()}">${e}</Button>`
-          )}`}
-          {`\n</>`}
-        </CodeBlock>
+        <div className={styles.styled}>{renderButton(buttons, type)}</div>
+        {renderCode(buttons, "size")}
       </>
     );
   }
@@ -58,16 +84,12 @@ export function ButtonComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <Button>Normal</Button>
           <Button key={Math.random()} disabled>
             Disabled
           </Button>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<Button>Normal</Button>`}
-          {`\n\t<Button disabled>Disabled</Button>`}
-          {`\n</>`}
+          {`<>\n\t<Button>Normal</Button>\n\t<Button disabled>Disabled</Button>\n</>`}
         </CodeBlock>
       </>
     );
@@ -77,16 +99,12 @@ export function ButtonComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <Button>Normal</Button>
           <Button key={Math.random()} uppercase>
             Uppercase
           </Button>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<Button>Normal</Button>`}
-          {`\n\t<Button uppercase>Uppercase</Button>`}
-          {`\n</>`}
+          {`<>\n\t<Button>Normal</Button>\n\t<Button uppercase>Uppercase</Button>\n</>`}
         </CodeBlock>
       </>
     );
@@ -101,9 +119,7 @@ export function ButtonComponent(props) {
           </Button>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<Button block>Block</Button>`}
-          {`\n</>`}
+          {`<>\n\t<Button>Normal</Button>\n\t<Button block>Block</Button>\n</>`}
         </CodeBlock>
       </>
     );
@@ -113,21 +129,15 @@ export function ButtonComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          {buttons.map((e, index) => (
-            <Button
-              key={Math.random()}
-              btnStyle={e.toLowerCase()}
-              icon={icons[index]}
-            >
-              {e}
-            </Button>
-          ))}
+          {renderButton(buttons, type, icons)}
         </div>
         <CodeBlock className="language-jsx">
           {`<>`}
           {`${buttons.map(
             (e, index) =>
-              `\n\t<Button btnStyle="${e.toLowerCase()}" icon="${icons[index]}">${e}</Button>`
+              `\n\t<Button btnStyle="${e.toLowerCase()}" icon="${
+                icons[index]
+              }">${e}</Button>`
           )}`}
           {`\n</>`}
         </CodeBlock>

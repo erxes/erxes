@@ -17,27 +17,27 @@ import { ButtonComponent } from "./buttons.js"
 ### Sizes
 
 <p>Larger or smaller buttons? Add <code>size</code> for additional sizes.</p>
-<ButtonComponent type="size" buttons={['Large', 'Medium', 'Small']}></ButtonComponent>
+<ButtonComponent type="size" buttons={['Large', 'Medium', 'Small']} />
 
 ## Disabled state
 
 <p>Make buttons look inactive by adding the <code>disabled</code> prop to.</p>
-<ButtonComponent type="activity"></ButtonComponent>
+<ButtonComponent type="activity" />
 
 ## Uppercase
 
 <p>Make button text uppercase by adding the <code>uppercase</code> prop to.</p>
-<ButtonComponent type="uppercase"></ButtonComponent>
+<ButtonComponent type="uppercase" />
 
 ## Block
 
 <p>Make button full-width by adding the <code>block</code> prop to.</p>
-<ButtonComponent type="block"></ButtonComponent>
+<ButtonComponent type="block" />
 
 ## Icon
 
 <p>Add your favorite icon by using the <code>icon</code> prop.</p>
-<ButtonComponent type="icon" buttons={['Primary', 'Success', 'Danger', 'Warning', 'Simple', 'Link']} icons={['envelope-alt', 'check-circle', 'times-circle', 'exclamation-triangle', 'info-circle', 'link']}></ButtonComponent>
+<ButtonComponent type="icon" buttons={['Primary', 'Success', 'Danger', 'Warning', 'Simple', 'Link']} icons={['envelope-alt', 'check-circle', 'times-circle', 'exclamation-triangle', 'info-circle', 'link']} />
 
 ## API
 
@@ -50,4 +50,4 @@ import { ButtonComponent } from "./buttons.js"
     ['block', 'boolean', 'false', 'Makes the button full-width'],
     ['icon', 'string', '', 'Shows icon'],
     ['uppercase', 'boolean', 'false', 'Makes the button text uppercase']
-]}></ButtonComponent>
+]} />
