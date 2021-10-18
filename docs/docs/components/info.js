@@ -2,7 +2,6 @@ import React from "react";
 import Info from "erxes-ui/lib/components/Info";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import Table from "../../../ui/src/modules/common/components/table";
 import ApiTable from "./common.js"
 
 export function InfoComponent(props) {

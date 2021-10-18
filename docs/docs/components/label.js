@@ -1,8 +1,8 @@
 import React from "react";
 import Label from "erxes-ui/lib/components/Label";
 import CodeBlock from "@theme/CodeBlock";
-import Table from "../../../ui/src/modules/common/components/table";
 import styles from "../../src/components/styles.module.css";
+import ApiTable from "./common";
 
 export function LabelComponent(props) {
   const { type, style = [], table = [] } = props;
@@ -88,25 +88,7 @@ export function LabelComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Label from "erxes-ui/lib/components/Label";`}</CodeBlock>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Default</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {table.map((row, i) => (
-              <tr>
-                {row.map((cell) => (
-                  <td>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        {ApiTable(table)}
       </>
     );
   }
