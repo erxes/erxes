@@ -7,7 +7,6 @@ import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
 import { RowFill, FieldStyle } from '../../styles/viewtype';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IRouterProps } from 'modules/common/types';
-import Box from 'modules/common/components/Box';
 import Icon from 'modules/common/components/Icon';
 
 const { Section } = Wrapper.Sidebar;
@@ -23,26 +22,6 @@ type State = {
 };
 
 class Sidebar extends React.Component<Props, State> {
-  ListItem(key: string, value: string, label: string) {
-    const { history, queryParams } = this.props;
-
-    const onClick = () => {
-      router.setParams(history, { [key]: value });
-    };
-
-    return (
-      <li>
-        <a
-          href="#filter"
-          className={queryParams[key] === value ? 'active' : ''}
-          onClick={onClick}
-        >
-          {__(label)}
-        </a>
-      </li>
-    );
-  }
-
   clearItem(key: string) {
     const { history } = this.props;
 
@@ -141,70 +120,6 @@ class Sidebar extends React.Component<Props, State> {
             </li>
           ))}
         </SidebarList>
-        <Box
-          extraButtons={this.clearItem('assignee')}
-          title={__('Assignee')}
-          name="showByAssignee"
-          isOpen={true}
-        >
-          <SidebarList>
-            {this.ListItem('assignee', 'added', 'Added assignee')}
-            {this.ListItem('assignee', 'removed', 'Removed assignee')}
-          </SidebarList>
-        </Box>
-        <Box
-          extraButtons={this.clearItem('label')}
-          title={__('Labels')}
-          name="showLabal"
-          isOpen={true}
-        >
-          <SidebarList>
-            {this.ListItem('label', 'added', 'Added labels')}
-            {this.ListItem('label', 'removed', 'Removed labels')}
-          </SidebarList>
-        </Box>
-        <Box
-          extraButtons={this.clearItem('attachment')}
-          title={__('Attachments')}
-          name="showAttachments"
-        >
-          <SidebarList>
-            {this.ListItem('attachment', 'added', 'Added attachments')}
-            {this.ListItem('attachment', 'deleted', 'Deleted attachments')}
-          </SidebarList>
-        </Box>
-        <Box
-          extraButtons={this.clearItem('checklist')}
-          title={__('Checklist')}
-          name="showByAssignee"
-        >
-          <SidebarList>
-            {this.ListItem('checklist', 'added', 'Added checklist')}
-            {this.ListItem('checklist', 'updated', 'Updated checklist')}
-            {this.ListItem('checklist', 'deleted', 'Deleted checklist')}
-          </SidebarList>
-        </Box>
-        <Box
-          extraButtons={this.clearItem('dueDate')}
-          title={__('Due Date')}
-          name="showByDueDate"
-        >
-          <SidebarList>
-            {this.ListItem('dueDate', 'added', 'Added date')}
-            {this.ListItem('dueDate', 'changed', 'Changed date')}
-            {this.ListItem('dueDate', 'removed', 'Removed date')}
-          </SidebarList>
-        </Box>
-        <Box
-          extraButtons={this.clearItem('priority')}
-          title={__('Priority')}
-          name="showPriority"
-        >
-          <SidebarList>
-            {this.ListItem('priority', 'added', 'Added priority')}
-            {this.ListItem('priority', 'changed', 'Changed priority')}
-          </SidebarList>
-        </Box>
       </Wrapper.Sidebar>
     );
   }

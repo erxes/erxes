@@ -11,7 +11,7 @@ import {
   AvatarSection,
   CreatedUser
 } from 'modules/notifications/components/styles';
-import ActionIcon from './ActionIcon';
+import RoundedBackgroundIcon from '../RoundedBackgroundIcon';
 
 type Props = {
   activityLog: any;
@@ -76,6 +76,33 @@ class ActivityLogsByActionRow extends React.Component<Props> {
     );
   }
 
+  getIcon() {
+    const action = this.props.activityLog.action;
+    let icon = 'user-check';
+
+    if (action.includes('moved')) {
+      icon = 'move';
+    }
+
+    if (action.includes('delete')) {
+      icon = 'file-minus';
+    }
+
+    if (action.includes('addNote')) {
+      icon = 'notes';
+    }
+
+    if (action.includes('create')) {
+      icon = 'file-check';
+    }
+
+    if (action.includes('archive')) {
+      icon = 'archive-alt';
+    }
+
+    return icon;
+  }
+
   render() {
     const { activityLog } = this.props;
 
@@ -85,7 +112,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
           <NameCard.Avatar
             user={activityLog.createdUser}
             size={30}
-            icon={<ActionIcon queryParams={activityLog.action} />}
+            icon={<RoundedBackgroundIcon icon={this.getIcon()} />}
           />
         </AvatarSection>
         <InfoSection>{this.renderAllContent()}</InfoSection>

@@ -10,20 +10,6 @@ import { graphql } from 'react-apollo';
 import { ColumnProps, getCommonParams } from './components/Calendar';
 import PriorityIndicator from './components/editForm/PriorityIndicator';
 import { IDraggableLocation, IItem, IItemMap } from './types';
-import { ICON_AND_COLOR_TABLE } from './constants';
-
-export const getIconAndColor = action => {
-  const iconAndColor = ICON_AND_COLOR_TABLE[action];
-
-  if (!iconAndColor) {
-    return {
-      icon: 'focus-add',
-      color: '#8c7ae6'
-    };
-  }
-
-  return iconAndColor;
-};
 
 type Options = {
   _id: string;

@@ -31,7 +31,7 @@ class ActivityLogs extends React.Component<Props> {
         <EmptyState
           image="/images/actions/26.svg"
           size="large"
-          text="Has not been activity yet"
+          text="There is no activity at the moment!"
         />
       );
     }

@@ -105,32 +105,3 @@ export const SEARCH_ACTIVITY_CHECKBOX = [
   { action: 'delete', value: 'Deleted archived card' },
   { action: 'addNote', value: 'Added notes' }
 ];
-
-const dodgerBlue = '#3B85F4';
-const pomegranateRed = '#F44236';
-const scooterBlue = '#34c1c6';
-const koromikoOrange = '#fdb761';
-const mediumPurple = '#8c7ae6';
-
-export const ICON_AND_COLOR_TABLE = {
-  moved: {
-    icon: 'move',
-    color: dodgerBlue
-  },
-  delete: {
-    icon: 'file-minus',
-    color: pomegranateRed
-  },
-  addNote: {
-    icon: 'notes',
-    color: mediumPurple
-  },
-  create: {
-    icon: 'file-check',
-    color: scooterBlue
-  },
-  archive: {
-    icon: 'archive-alt',
-    color: koromikoOrange
-  }
-};
