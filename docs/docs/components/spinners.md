@@ -3,7 +3,7 @@ id: spinners
 title: Spinners
 ---
 
-import { Objective, Size, Position, Apispinners } from "./spinners.js"
+import { SpinnerComponent } from "./spinners.js"
 
 <p>Spinners can be used to show the loading state in your projects.</p>
 
@@ -12,19 +12,25 @@ import { Objective, Size, Position, Apispinners } from "./spinners.js"
 ### Sizing
 
 <p>Change the sizing using <code>size</code> prop. <b>Default size: 26</b></p>
-<Size></Size>
+<SpinnerComponent type="size" sizes={['15', '40']}></SpinnerComponent>
 
 ## Position
 
 <p>Change the position with <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code> props depending on your purpose.</p>
-<p><b>Default position: left="50%", right="auto", top="50%", bottom="auto"</b></p>
-<Position></Position>
+<SpinnerComponent type="position" lefts={['10%', '50%', 'auto']} rights={['auto', 'auto', '10%']}></SpinnerComponent>
 
 ## Objective
 
 <p>Make your spinner objective by <code>objective</code> prop.</p>
-<Objective></Objective>
+<SpinnerComponent type="objective"></SpinnerComponent>
 
 ## API
 
-<Apispinners></Apispinners>
+<SpinnerComponent type="APIspinner" table={[
+    ['objective', 'boolean', 'false', 'Make your spinner objective'],
+    ['size', 'number', '26', 'Change the spinning size'],
+    ['left', 'string', '50%', 'Determine space from left side'],
+    ['right', 'string', 'auto', 'Determine space from right side'],
+    ['top', 'string', '50%', 'Determine space from top side'],
+    ['bottom', 'string', 'auto', 'Determine space from bottom side']
+]}></SpinnerComponent>

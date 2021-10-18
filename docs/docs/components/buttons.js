@@ -15,7 +15,6 @@ export function ButtonComponent(props) {
           <Button>Default</Button>
           {buttons.map((e) => (
             <Button key={Math.random()} btnStyle={e.toLowerCase()}>
-              {" "}
               {e}
             </Button>
           ))}
@@ -38,7 +37,6 @@ export function ButtonComponent(props) {
         <div className={styles.styled}>
           {buttons.map((e) => (
             <Button key={Math.random()} size={e.toLowerCase()}>
-              {" "}
               {e}
             </Button>
           ))}
@@ -120,7 +118,6 @@ export function ButtonComponent(props) {
               btnStyle={e.toLowerCase()}
               icon={icons[index]}
             >
-              {" "}
               {e}
             </Button>
           ))}
@@ -129,9 +126,7 @@ export function ButtonComponent(props) {
           {`<>`}
           {`${buttons.map(
             (e, index) =>
-              `\n\t<Button btnStyle="${e.toLowerCase()}" icon="${
-                icons[index]
-              }">${e}</Button>`
+              `\n\t<Button btnStyle="${e.toLowerCase()}" icon="${icons[index]}">${e}</Button>`
           )}`}
           {`\n</>`}
         </CodeBlock>
@@ -153,7 +148,7 @@ export function ButtonComponent(props) {
             </tr>
           </thead>
           <tbody>
-            {table.map(( row, i ) => (
+            {table.map((row) => (
               <tr>
                 {row.map((cell) => (
                   <td>{cell}</td>
@@ -161,34 +156,6 @@ export function ButtonComponent(props) {
               </tr>
             ))}
           </tbody>
-          {/* {table.map(i, value => value.map((number) => (
-            if(i === 0) {
-              console
-            }
-          )))} */}
-          {/* {table.map(value => value.map(number => number * 2))} */}
-          {/* {table.map(( row, index ) => (
-            row.map(( cell, index ) => (
-              console.log(table[ind])
-            ))
-          ))} */}
-          {/* {for (let i = 0; i < table.length(); i++) {
-            // for (let j = 0; j < 4; j++) {
-              if(i === 0) {
-                <thead>
-                  <tr>
-                    <th>g</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Username</th>
-                  </tr>
-                </thead>
-              }
-            // }
-          }} */}
-          {/* {table.map((e, index) => (
-            
-          ))} */}
         </Table>
       </>
     );

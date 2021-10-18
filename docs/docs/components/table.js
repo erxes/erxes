@@ -2,40 +2,9 @@ import React from "react";
 import Table from "../../../ui/src/modules/common/components/table";
 import CodeBlock from "@theme/CodeBlock";
 
-function Tables() {
+const simpleTable = (table) => {
   return (
     <>
-      <Table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td colSpan="2">Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </Table>
-      <CodeBlock className="language-jsx">{`<>
-      <Table>
       <thead>
         <tr>
           <th>#</th>
@@ -45,354 +14,231 @@ function Tables() {
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td colSpan="2">Larry the Bird</td>
-          <td>@twitter</td>
-        </tr>
+        {table.map((row) => (
+          <tr>
+            {row.map((cell) => (
+              <td>{cell}</td>
+            ))}
+          </tr>
+        ))}
       </tbody>
-    </Table>
-</>`}</CodeBlock>
     </>
-  );
+  )
 }
 
-function Bordered() {
+const tableCode = (table, bool) => {
   return (
     <>
-      <Table bordered>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td colSpan="2">Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </Table>
-      <CodeBlock className="language-jsx">{`<>
-      <Table bordered>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Username</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td colSpan="2">Larry the Bird</td>
-          <td>@twitter</td>
-        </tr>
-      </tbody>
-    </Table>
-</>`}</CodeBlock>
+      <CodeBlock className="language-jsx">
+        {`\n\t<Table ${bool}>`}
+        {`\n\t  <thead>`}
+        {`\n\t    <tr>`}
+        {`\n\t      <th>#</th>`}
+        {`\n\t      <th>First Name</th>`}
+        {`\n\t      <th>Last Name</th>`}
+        {`\n\t      <th>Username</th>`}
+        {`\n\t    <tr>`}
+        {`\n\t  </thead>`}
+        {`\n\t  <tbody>`}
+        {`${table.map(
+          (row) =>
+            `\n\t    <tr>${row.map(
+              (cell) => `\n\t      <td>${cell}</td>`
+            )}\n\t    <tr>`
+        )}`}
+        {`\n\t  </tbody>`}
+        {`\n\t</Table>`}
+      </CodeBlock>
     </>
-  );
-}
-function Striped() {
-  return (
-    <>
-      <Table striped>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td colSpan="2">Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </Table>
-      <CodeBlock className="language-jsx">{`<>
-      <Table striped>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Username</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td colSpan="2">Larry the Bird</td>
-          <td>@twitter</td>
-        </tr>
-      </tbody>
-    </Table>
-</>`}</CodeBlock>
-    </>
-  );
+  )
 }
 
-function TableHover() {
-  return (
-    <div>
-      <Table hover>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td colSpan="2">Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </Table>
-      <CodeBlock className="language-jsx">{`<>
-      <Table hover>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Username</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td colSpan="2">Larry the Bird</td>
-          <td>@twitter</td>
-        </tr>
-      </tbody>
-    </Table>
-</>`}</CodeBlock>
-    </div>
-  );
-}
+export function TableComponent(props) {
+  const { type, table = [] } = props;
 
-function Normal() {
-  return (
-    <>
-      <Table whiteSpace="normal">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td colSpan="2">
-              Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+  if (type === "bordered") {
+    return (
+      <>
+        <Table bordered>
+          {simpleTable(table)}
+        </Table>
+        {tableCode(table, type)}
+      </>
+    );
+  }
+
+  if (type === "merge") {
+    return (
+      <>
+        <Table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Username</th>
+            </tr>
+          </thead>
+          <tbody>
+            {table.map((row, i) => (
+              <tr>
+                {row.map((cell) => (
+                  <td>{cell}</td>
+                ))}
+              </tr>
+            ))}
+            <tr>
+              <td>3</td>
+              <td colSpan="2">Larry the Bird</td>
+              <td>@twitter</td>
+            </tr>
+          </tbody>
+        </Table>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<Table bordered>`}
+          {`\n\t  <thead>`}
+          {`\n\t    <tr>`}
+          {`\n\t      <th>#</th>`}
+          {`\n\t      <th>First Name</th>`}
+          {`\n\t      <th>Last Name</th>`}
+          {`\n\t      <th>Username</th>`}
+          {`\n\t    <tr>`}
+          {`\n\t  </thead>`}
+          {`\n\t  <tbody>`}
+          {`${table.map(
+            (row) =>
+              `\n\t    <tr>${row.map(
+                (cell) => `\n\t      <td>${cell}</td>`
+              )}\n\t    <tr>`
+          )}`}
+          {`\n\t    <tr>`}
+          {`\n\t      <td>3</td>`}
+          {`\n\t      <td colSpan="2">Larry the bird</td>`}
+          {`\n\t      <td>@twitter</td>`}
+          {`\n\t    <tr>`}
+          {`\n\t  </tbody>`}
+          {`\n\t</Table>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
+
+  if (type === "striped") {
+    return (
+      <>
+        <Table striped>
+          {simpleTable(table)}
+        </Table>
+        {tableCode(table, type)}
+      </>
+    );
+  }
+  
+  if (type === "hover") {
+    return (
+      <>
+        <Table hover>
+          {simpleTable(table)}
+        </Table>
+        {tableCode(table, type)}
+      </>
+    );
+  }
+
+  if (type === "whiteSpace") {
+    return (
+      <>
+        <Table whiteSpace="normal">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Username</th>
+            </tr>
+          </thead>
+          <tbody>
+            {table.map((row, i) => (
+              <tr>
+                {row.map((cell) => (
+                  <td>{cell}</td>
+                ))}
+              </tr>
+            ))}
+            <tr>
+              <td>3</td>
+              <td colSpan="2">Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
               American former professional basketball player, coach and
               executive in the National Basketball Association (NBA). Nicknamed
               "the Hick from French Lick" and "Larry Legend," Bird is widely
-              regarded as one of the greatest basketball players of all time.{" "}
-            </td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </Table>
-      <CodeBlock className="language-jsx">{`<>
-      <Table whiteSpace="normal">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Username</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td colSpan="2">Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed "the Hick from French Lick" and "Larry Legend," Bird is widely regarded as one of the greatest basketball players of all time. </td>
-          <td>@twitter</td>
-        </tr>
-      </tbody>
-    </Table>
-</>`}</CodeBlock>
-    </>
-  );
-}
+              regarded as one of the greatest basketball players of all time.{" "}</td>
+              <td>@twitter</td>
+            </tr>
+          </tbody>
+        </Table>
+        <CodeBlock className="language-jsx">
+          {`<>`}
+          {`\n\t<Table whiteSpace="normal">`}
+          {`\n\t  <thead>`}
+          {`\n\t    <tr>`}
+          {`\n\t      <th>#</th>`}
+          {`\n\t      <th>First Name</th>`}
+          {`\n\t      <th>Last Name</th>`}
+          {`\n\t      <th>Username</th>`}
+          {`\n\t    <tr>`}
+          {`\n\t  </thead>`}
+          {`\n\t  <tbody>`}
+          {`${table.map(
+            (row) =>
+              `\n\t    <tr>${row.map(
+                (cell) => `\n\t      <td>${cell}</td>`
+              )}\n\t    <tr>`
+          )}`}
+          {`\n\t    <tr>`}
+          {`\n\t      <td>3</td>`}
+          {`\n\t      <td colSpan="2">Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+              American former professional basketball player, coach and
+              executive in the National Basketball Association (NBA). Nicknamed
+              "the Hick from French Lick" and "Larry Legend," Bird is widely
+              regarded as one of the greatest basketball players of all time.{" "}</td>`}
+          {`\n\t      <td>@twitter</td>`}
+          {`\n\t    <tr>`}
+          {`\n\t  </tbody>`}
+          {`\n\t</Table>`}
+          {`\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
 
-function ApiTable() {
-  return (
-    <>
-      <CodeBlock className="language-jsx">{`<>
-      import Table from 'erxes-ui/lib/components/table/index';
-</>`}</CodeBlock>
-      <Table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>type</th>
-            <th>default</th>
-            <th>description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>bordered</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>Add border color.</td>
-          </tr>
-          <tr>
-            <td>colsPan</td>
-            <td>number</td>
-            <td></td>
-            <td>Merging row cells.</td>
-          </tr>
-          <tr>
-            <td>striped</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>Gives table strip color.</td>
-          </tr>
-          <tr>
-            <td>hover</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>Activate table hover.</td>
-          </tr>
-          <tr>
-            <td>white-space</td>
-            <td>
-              "normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"
-            </td>
-            <td></td>
-            <td>Activate table hover.</td>
-          </tr>
-        </tbody>
-      </Table>
-    </>
-  );
+  if (type === "APItable") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import Table from 'erxes-ui/lib/components/table/index';`}</CodeBlock>
+        <Table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {table.map((row) => (
+              <tr>
+                {row.map((cell) => (
+                  <td>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </>
+    );
+  }
+
+  return null;
 }
-export { Tables, TableHover, Normal, Striped, ApiTable, Bordered };

@@ -126,11 +126,12 @@ module.exports = {
       items: [
         "components/buttons",
         "components/info",
-        "components/table",
-        "components/spinners",
         "components/namecard",
         "components/emptystate",
-        "components/label"
+        "components/label",
+        "components/spinners",
+        "components/table",
+        "components/errormsg"
       ],
     },
   ],
