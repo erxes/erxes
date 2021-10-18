@@ -2,7 +2,7 @@ import React from "react";
 import styles from "../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import ApiTable from "./common.js";
+import ApiTable, { Api } from "./common.js";
 import Button from "erxes-ui/lib/components/Button";
 
 const renderButton = (buttons, type, icons) => {
@@ -58,7 +58,7 @@ const renderCode = (buttons, prop) => {
   return (
     <>
       <CodeBlock className="language-jsx">
-      {`<>\n\t<Button>Normal</Button>\n\t<Button ${prop.toLowerCase()}>{prop}</Button>\n</>`}
+        {`<>\n\t<Button>Normal</Button>\n\t<Button ${prop.toLowerCase()}>{prop}</Button>\n</>`}
       </CodeBlock>
     </>
   );
@@ -70,10 +70,8 @@ export function ButtonComponent(props) {
   if (type === "btnStyle" || type === "size") {
     return (
       <>
-        <div className={styles.styled}>
-          {renderButton(buttons, type)}
-        </div>
-          {renderCode(buttons, type)}
+        <div className={styles.styled}>{renderButton(buttons, type)}</div>
+        {renderCode(buttons, type)}
       </>
     );
   }
@@ -138,7 +136,7 @@ export function ButtonComponent(props) {
   if (type === "APIbutton") {
     return (
       <>
-        <CodeBlock className="language-javascript">{`import Button from "erxes-ui/lib/components/Button";`}</CodeBlock>
+        {Api("Button")}
         {ApiTable(table)}
       </>
     );

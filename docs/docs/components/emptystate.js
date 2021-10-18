@@ -78,7 +78,7 @@ export function EmptyComponents(props) {
   if (type === "APIempty") {
     return (
       <>
-        <CodeBlock className="language-javascript">{`import EmptyState from "erxes-ui/lib/components/EmptyState";`}</CodeBlock>
+        {Api("EmptyState")}
         {ApiTable(table)}
       </>
     );
