@@ -61,6 +61,18 @@ export default function EventForm(props: Props) {
         >
           Private
         </FormControl>
+        <br />
+        {eventData.visibility === 'private' && (
+          <>
+            <SelectTeamMembers
+              label='Who'
+              name='recipientIds'
+              initialValue={recipientIds}
+              onSelect={setRecipientIds}
+            />
+            <br />
+          </>
+        )}
         <DateControl
           value={eventData.startDate}
           required={false}
@@ -79,17 +91,12 @@ export default function EventForm(props: Props) {
           dateFormat={'YYYY-MM-DD HH:mm:ss'}
           timeFormat={true}
         />
+        <br />
         <FormControl
           placeholder='Where'
           componentClass='textarea'
           value={eventData.where}
           onChange={(e: any) => onChangeEventData('where', e.target.value)}
-        />
-        <SelectTeamMembers
-          label='Guests'
-          name='recipientIds'
-          initialValue={recipientIds}
-          onSelect={setRecipientIds}
         />
         {title(formProps, item)}
         {description(formProps, item)}
