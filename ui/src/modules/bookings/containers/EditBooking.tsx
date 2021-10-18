@@ -7,7 +7,8 @@ import Booking from '../components/Booking';
 import {
   BookingIntegrationDetailQueryResponse,
   EditBookingIntegrationMutationResponse,
-  EditBookingIntegrationMutationVariables
+  EditBookingIntegrationMutationVariables,
+  IBookingData
 } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -17,6 +18,7 @@ import {
   EmailTemplatesTotalCountQueryResponse
 } from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
+import { ILeadData } from 'modules/leads/types';
 
 type Props = {
   queryParams: any;
@@ -35,7 +37,14 @@ type FinalProps = {
 type State = {
   loading: boolean;
   isReadyToSaveForm: boolean;
-  doc?: any;
+  doc?: {
+    name: string;
+    brandId: string;
+    languageCode: string;
+    leadData: ILeadData;
+    channelIds?: string[];
+    bookingData: IBookingData;
+  };
 };
 
 class EditBookingContainer extends React.Component<FinalProps, State> {
@@ -62,7 +71,7 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
 
     const integration = integrationDetailQuery.integrationDetail || {};
 
-    const afterFormDbSave = id => {
+    const afterFormDbSave = (id: string) => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
@@ -74,7 +83,7 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
           }
         })
           .then(() => {
-            Alert.success('You successfully added a booking');
+            Alert.success('You successfully edited a booking');
             history.push('/bookings');
           })
 

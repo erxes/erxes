@@ -32,7 +32,14 @@ type Props = {
   integration?: IBookingIntegration;
   queryParams?: any;
   history: any;
-  save: (doc: any) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode?: string;
+    leadData: ILeadData;
+    channelIds?: string[];
+    bookingData: IBookingData;
+  }) => void;
   isActionLoading?: boolean;
   afterFormDbSave: (formId: string) => void;
   isReadyToSaveForm: boolean;
@@ -304,11 +311,7 @@ function Booking(props: Props) {
       <Content>
         <LeftContent>
           <Steps>
-            <Step
-              img="/images/icons/erxes-04.svg"
-              title="Style"
-              // onClick={this.onStepClick.bind(null, 'appearance')}
-            >
+            <Step img="/images/icons/erxes-04.svg" title="Style">
               <StyleStep
                 onChangeBooking={onChangeBooking}
                 itemShape={booking.itemShape}
@@ -322,11 +325,7 @@ function Booking(props: Props) {
               />
             </Step>
 
-            <Step
-              img="/images/icons/erxes-09.svg"
-              title="Content"
-              // onClick={this.onStepClick.bind(null, 'greeting')}
-            >
+            <Step img="/images/icons/erxes-09.svg" title="Content">
               <ContentStep
                 onChangeBooking={onChangeBooking}
                 name={booking.name}
@@ -341,11 +340,7 @@ function Booking(props: Props) {
               />
             </Step>
 
-            <Step
-              img="/images/icons/erxes-01.svg"
-              title="Settings"
-              // onClick={this.onStepClick.bind(null, 'greeting')}
-            >
+            <Step img="/images/icons/erxes-01.svg" title="Settings">
               <SettingsStep
                 onChange={onChange}
                 title={state.title}
