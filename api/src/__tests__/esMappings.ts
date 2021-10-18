@@ -178,6 +178,16 @@ const event_mapping = {
 
 const form_submissions_mapping = {};
 
+const users_mapping = {
+  email: { type: 'keyword' },
+  username: { type: 'keyword' },
+  details: nestedType,
+  links: nestedType,
+  isActive: { type: 'keyword' },
+  groupIds: { type: 'keyword' },
+  brandIds: { type: 'keyword' }
+};
+
 const analysis = {
   analyzer: {
     uax_url_email_analyzer: {
@@ -214,6 +224,7 @@ export const putMappings = async () => {
   await putMapping(`${prefix}tickets`, ticket_mapping);
   await putMapping(`${prefix}conformities`, conformity_mapping);
   await putMapping(`${prefix}form_submissions`, form_submissions_mapping);
+  await putMapping(`${prefix}users`, users_mapping);
 };
 
 export const deleteAllIndexes = async () => {
@@ -232,4 +243,5 @@ export const deleteAllIndexes = async () => {
   await del('tickets');
   await del('conformities');
   await del('form_submissions');
+  await del('users');
 };

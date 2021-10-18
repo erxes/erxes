@@ -21,6 +21,7 @@ const pipelines = `
     pipelines(boardId: $boardId, type: $type, isAll: $isAll) {
       _id
       name
+      status
       boardId
       visibility
       memberIds
@@ -32,6 +33,12 @@ const pipelines = `
       metric
       isCheckUser
       excludeCheckUserIds
+      createdAt
+      createdUser{
+        details {
+          fullName
+        } 
+      }
     }
   }
 `;

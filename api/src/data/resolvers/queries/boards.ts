@@ -99,9 +99,11 @@ const boardQueries = {
     { type }: { type: string },
     { commonQuerySelector }: IContext
   ) {
-    const boards = await Boards.find({ ...commonQuerySelector, type }).sort({
-      name: 1
-    });
+    const boards = await Boards.find({ ...commonQuerySelector, type })
+      .sort({
+        name: 1
+      })
+      .lean();
 
     const counts: Array<{ _id: string; name: string; count: number }> = [];
 
@@ -134,7 +136,7 @@ const boardQueries = {
     { _id }: { _id: string },
     { commonQuerySelector }: IContext
   ) {
-    return Boards.findOne({ ...commonQuerySelector, _id });
+    return Boards.findOne({ ...commonQuerySelector, _id }).lean();
   },
 
   /**
@@ -145,9 +147,11 @@ const boardQueries = {
     { type }: { type: string },
     { commonQuerySelector }: IContext
   ) {
-    return Boards.findOne({ ...commonQuerySelector, type }).sort({
-      createdAt: -1
-    });
+    return Boards.findOne({ ...commonQuerySelector, type })
+      .sort({
+        createdAt: -1
+      })
+      .lean();
   },
 
   /**
@@ -173,6 +177,7 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
+            status: { $ne: 'archived' },
             $or: [
               { visibility: 'public' },
               {
@@ -206,7 +211,9 @@ const boardQueries = {
       );
     }
 
-    return Pipelines.find(query).sort({ order: 1, createdAt: -1 });
+    return Pipelines.find(query)
+      .sort({ order: 1, createdAt: -1 })
+      .lean();
   },
 
   async pipelineStateCount(
@@ -269,7 +276,7 @@ const boardQueries = {
    *  Pipeline detail
    */
   pipelineDetail(_root, { _id }: { _id: string }) {
-    return Pipelines.findOne({ _id });
+    return Pipelines.findOne({ _id }).lean();
   },
 
   /**
@@ -287,7 +294,7 @@ const boardQueries = {
       .find({ stageId: { $in: stageIds } })
       .distinct('assignedUserIds');
 
-    return Users.find({ _id: { $in: assignedUserIds } });
+    return Users.find({ _id: { $in: assignedUserIds } }).lean();
   },
 
   /**
@@ -313,14 +320,16 @@ const boardQueries = {
       filter.$or = [{ status: null }, { status: BOARD_STATUSES.ACTIVE }];
     }
 
-    return Stages.find(filter).sort({ order: 1, createdAt: -1 });
+    return Stages.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .lean();
   },
 
   /**
    *  Stage detail
    */
   stageDetail(_root, { _id }: { _id: string }) {
-    return Stages.findOne({ _id });
+    return Stages.findOne({ _id }).lean();
   },
 
   /**
@@ -366,7 +375,7 @@ const boardQueries = {
     let ticketUrl = '';
     let taskUrl = '';
 
-    const deal = await Deals.findOne(filter);
+    const deal = await Deals.findOne(filter).lean();
 
     if (deal) {
       const stage = await Stages.getStage(deal.stageId);
@@ -376,7 +385,7 @@ const boardQueries = {
       dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
     }
 
-    const task = await Tasks.findOne(filter);
+    const task = await Tasks.findOne(filter).lean();
 
     if (task) {
       const stage = await Stages.getStage(task.stageId);
@@ -386,7 +395,7 @@ const boardQueries = {
       taskUrl = `/task/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${task._id}`;
     }
 
-    const ticket = await Tickets.findOne(filter);
+    const ticket = await Tickets.findOne(filter).lean();
 
     if (ticket) {
       const stage = await Stages.getStage(ticket.stageId);
@@ -415,7 +424,7 @@ const boardQueries = {
       contentType: type,
       boardId,
       pipelineId
-    });
+    }).lean();
 
     const counts = {};
 
