@@ -22,6 +22,24 @@ const exmFeedResolvers = [
   },
   {
     type: 'ExmFeed',
+    field: 'eventGoingUsers',
+    handler: (exmFeed, {}, { models }) => {
+      return models.Users.find({
+        _id: { $in: (exmFeed.eventData || {}).goingUserIds || [] }
+      });
+    }
+  },
+  {
+    type: 'ExmFeed',
+    field: 'eventInterestedUsers',
+    handler: (exmFeed, {}, { models }) => {
+      return models.Users.find({
+        _id: { $in: (exmFeed.eventData || {}).interestedUserIds || [] }
+      });
+    }
+  },
+  {
+    type: 'ExmFeed',
     field: 'commentCount',
     handler: (exmFeed, {}, { models }) => {
       return models.ExmFeedComments.find({

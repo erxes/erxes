@@ -41,6 +41,8 @@ export const types = `
     customFieldsData: JSON
     ceremonyData: ExmCeremonyData
     eventData: ExmEventData
+    eventGoingUsers: [User]
+    eventInterestedUsers: [User]
   }
 
   type ExmThank {
@@ -98,11 +100,6 @@ export const types = `
     sent
   }
 
-  enum Visibility {
-    Public
-    Private
-  }
-
   enum FilterType {
     today
     upcoming
@@ -113,6 +110,11 @@ export const types = `
     where: String
     startDate: Date
     endDate: Date
+  }
+
+  enum ExmGoingOrInterested {
+    going
+    interested
   }
 `;
 
@@ -164,4 +166,6 @@ export const mutations = `
   exmFeedEmojiReact(feedId: String!, type: String): String
 
   exmFeedToggleIsPinned(_id: String): Boolean
+
+  exmFeedEventGoingOrInterested(_id: String!, goingOrInterested: ExmGoingOrInterested): ExmFeed
 `;
