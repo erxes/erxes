@@ -642,19 +642,6 @@ const integrationMutations = {
       );
     }
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.INTEGRATION,
-    //     newData: { ...doc, createdUserId: user._id, isActive: true },
-    //     object: integration
-    //   },
-    //   user
-    // );
-
-    // telemetry.trackCli('integration_created', { type: 'lead' });
-
-    // await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
-
     return integration;
   },
 
@@ -734,6 +721,16 @@ checkPermission(
   integrationMutations,
   'integrationsCopyLeadIntegration',
   'integrationsCreateLeadIntegration'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsCreateBookingIntegration',
+  'integrationsCreateBookingIntegration'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsEditBookingIntegration',
+  'integrationsEditBookingIntegration'
 );
 
 export default integrationMutations;

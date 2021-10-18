@@ -950,3 +950,190 @@ describe('save integration messenger configurations test', () => {
     expect(response.brand._id).toBe(brand._id);
   });
 });
+
+describe('booking integration create model test without bookingData', () => {
+  let _user;
+  let _brand;
+  let _form;
+
+  beforeEach(async () => {
+    _user = await userFactory({});
+    _brand = await brandFactory({});
+    _form = await formFactory({});
+  });
+
+  afterEach(async () => {
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
+  });
+
+  test('check if create booking integration test without bookingData is throwing exception', async () => {
+    expect.assertions(1);
+
+    const mainDoc = {
+      name: 'booking integration test',
+      brandId: _brand._id,
+      formId: _form._id,
+      kind: KIND_CHOICES.BOOKING,
+      leadData: {
+        loadType: LEAD_LOAD_TYPES.POPUP
+      }
+    };
+
+    try {
+      await Integrations.createBookingIntegration(mainDoc, _user._id);
+    } catch (e) {
+      expect(e.message).toEqual('bookingData must be supplied');
+    }
+  });
+});
+
+describe('create booking integration', () => {
+  let _user;
+  let _brand;
+  let _form;
+
+  beforeEach(async () => {
+    _user = await userFactory({});
+    _brand = await brandFactory({});
+    _form = await formFactory({});
+  });
+
+  afterEach(async () => {
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
+  });
+
+  test('test if create booking integration is working successfully', async () => {
+    const mainDoc = {
+      name: 'booking integration test',
+      brandId: _brand._id,
+      formId: _form._id,
+      kind: KIND_CHOICES.BOOKING,
+
+      leadData: {
+        loadType: LEAD_LOAD_TYPES.POPUP
+      }
+    };
+
+    const bookingData = {
+      name: 'bookingData name'
+    };
+
+    const integration = await Integrations.createBookingIntegration(
+      {
+        ...mainDoc,
+        bookingData
+      },
+      _user._id
+    );
+
+    if (!integration || !integration.bookingData) {
+      throw new Error('Integration not found');
+    }
+
+    expect(integration.formId).toEqual(_form._id);
+    expect(integration.name).toEqual(mainDoc.name);
+    expect(integration.brandId).toEqual(_brand._id);
+    expect(integration.kind).toEqual(KIND_CHOICES.BOOKING);
+    expect(integration.bookingData.name).toEqual(bookingData.name);
+  });
+});
+
+describe('edit lead integration', () => {
+  let _brand;
+  let _brand2;
+  let _form;
+  let _bookingIntegration;
+
+  beforeEach(async () => {
+    _brand = await brandFactory({});
+    _brand2 = await brandFactory({});
+    _form = await formFactory({});
+
+    _bookingIntegration = await integrationFactory({
+      name: 'booking integration test',
+      brandId: _brand._id,
+      formId: _form._id,
+      kind: KIND_CHOICES.BOOKING,
+      leadData: {
+        loadType: LEAD_LOAD_TYPES.POPUP
+      },
+      bookingData: {
+        name: 'Booking data',
+        description: 'description'
+      }
+    });
+  });
+
+  afterEach(async () => {
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
+  });
+
+  test('test if integration booking update method is running successfully', async () => {
+    const mainDoc = {
+      name: 'booking integration test 2',
+      brandId: _brand2._id,
+      formId: _form._id,
+      kind: KIND_CHOICES.BOOKING,
+      leadData: {
+        loadType: LEAD_LOAD_TYPES.POPUP
+      }
+    };
+
+    const bookingData = {
+      name: 'Booking'
+    };
+
+    const integration = await Integrations.updateBookingIntegration(
+      _bookingIntegration._id,
+      {
+        ...mainDoc,
+        bookingData
+      }
+    );
+
+    if (!integration || !integration.bookingData) {
+      throw new Error('Integration not found');
+    }
+
+    expect(integration.name).toEqual(mainDoc.name);
+    expect(integration.formId).toEqual(_form._id);
+    expect(integration.brandId).toEqual(_brand2._id);
+    expect(integration.bookingData.name).toEqual(bookingData.name);
+
+    const integrationNoBookingData = await Integrations.updateBookingIntegration(
+      _bookingIntegration._id,
+      {
+        ...mainDoc
+      }
+    );
+
+    expect(
+      integrationNoBookingData.bookingData &&
+        integrationNoBookingData.bookingData.userFilters
+    ).toHaveLength(0);
+  });
+
+  test('Increase view count of booking', async () => {
+    expect.assertions(2);
+
+    let updated = await Integrations.increaseBookingViewCount(
+      _bookingIntegration._id
+    );
+
+    expect(updated.bookingData && updated.bookingData.viewCount).toBe(1);
+
+    updated = await Integrations.increaseBookingViewCount(
+      _bookingIntegration._id
+    );
+    expect(updated.bookingData && updated.bookingData.viewCount).toBe(2);
+  });
+});

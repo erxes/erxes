@@ -205,11 +205,6 @@ import {
   queries as SmsDeliveryQueries,
   types as SmsDeliveryTypes
 } from './smsDelivery';
-import {
-  types as BookingTypes,
-  queries as BookingQueries,
-  mutations as BookingMutations
-} from './bookings';
 
 export let types = `
   scalar JSON
@@ -258,7 +253,6 @@ export let types = `
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
-  ${BookingTypes}
 `;
 
 export let queries = `
@@ -304,7 +298,6 @@ export let queries = `
   ${CalendarQueries}
   ${MessengerAppQueries}
   ${SmsDeliveryQueries}
-  ${BookingQueries}
 `;
 
 export let mutations = `
@@ -347,7 +340,6 @@ export let mutations = `
   ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
-  ${BookingMutations}
 `;
 
 export let subscriptions = `

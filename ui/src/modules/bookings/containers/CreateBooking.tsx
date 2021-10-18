@@ -8,7 +8,8 @@ import gql from 'graphql-tag';
 import { mutations } from '../graphql';
 import {
   AddBookingIntegrationMutationResponse,
-  AddBookingIntegrationMutationVariables
+  AddBookingIntegrationMutationVariables,
+  IBookingData
 } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -16,6 +17,7 @@ import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
 } from 'modules/settings/emailTemplates/containers/List';
+import { ILeadData } from 'modules/leads/types';
 
 type Props = {
   history: any;
@@ -31,7 +33,14 @@ type FinalProps = {
 type State = {
   loading: boolean;
   isReadyToSaveForm: boolean;
-  doc?: any;
+  doc?: {
+    name: string;
+    brandId: string;
+    languageCode: string;
+    leadData: ILeadData;
+    channelIds?: string[];
+    bookingData: IBookingData;
+  };
 };
 
 class CreateBookingContainer extends React.Component<FinalProps, State> {
@@ -47,7 +56,7 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
   render() {
     const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
 
-    const afterFormDbSave = id => {
+    const afterFormDbSave = (id: string) => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
