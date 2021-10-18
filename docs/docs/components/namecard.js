@@ -2,21 +2,23 @@ import React from "react";
 import NameCard from "erxes-ui/lib/components/nameCard/NameCard";
 import CodeBlock from "@theme/CodeBlock";
 import styles from "../../src/components/styles.module.css";
-import ApiTable from "./common.js"
+import ApiTable from "./common.js";
 
 export function CardComponent(props) {
-  const { type, name, info, table = [] } = props;
+  const { type, username, info, table = [] } = props;
+  const name = "Ariunzaya Enkhbayar";
 
   if (type === "username") {
     return (
       <>
         <div className={styles.styled}>
-          <NameCard key={Math.random()} user={{ username: name }}></NameCard>
+          <NameCard
+            key={Math.random()}
+            user={{ username: username }}
+          ></NameCard>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<NameCard user={{ username: "${ name }" }}></NameCard>`}
-          {`\n</>`}
+          {`<>\n\t<NameCard user={{ username: "${name}" }}></NameCard>\n</>`}
         </CodeBlock>
       </>
     );
@@ -26,12 +28,13 @@ export function CardComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <NameCard key={Math.random()} user={{details:{fullName: name}}}></NameCard>
+          <NameCard
+            key={Math.random()}
+            user={{ details: { fullName: name } }}
+          ></NameCard>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<NameCard user={{details:{fullName: "${ name }"}}}></NameCard>`}
-          {`\n</>`}
+          {`<>\n\t<NameCard user={{details:{fullName: "${name}"}}}></NameCard>\n</>`}
         </CodeBlock>
       </>
     );
@@ -41,12 +44,14 @@ export function CardComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <NameCard key={Math.random()} user={{details:{fullName: name}}} avatarSize={info}></NameCard>
+          <NameCard
+            key={Math.random()}
+            user={{ details: { fullName: name } }}
+            avatarSize={info}
+          ></NameCard>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<NameCard user={{details:{fullName: "${ name }"}}} avatarSize=${info}></NameCard>`}
-          {`\n</>`}
+          {`<>\n\t<NameCard user={{details:{fullName: "${name}"}}} avatarSize=${info}></NameCard>\n</>`}
         </CodeBlock>
       </>
     );
@@ -56,12 +61,13 @@ export function CardComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <NameCard key={Math.random()} user={{details:{fullName: name}, email: info}}></NameCard>
+          <NameCard
+            key={Math.random()}
+            user={{ details: { fullName: name }, email: info }}
+          ></NameCard>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<NameCard user={{details:{fullName: "${ name }"}, email: "${info}"}}></NameCard>`}
-          {`\n</>`}
+          {`<>\n\t<NameCard user={{details:{fullName: "${name}"}, email: "${info}"}}></NameCard>\n</>`}
         </CodeBlock>
       </>
     );
@@ -71,12 +77,14 @@ export function CardComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <NameCard key={Math.random()} user={{details:{fullName: name}}} secondLine={info}></NameCard>
+          <NameCard
+            key={Math.random()}
+            user={{ details: { fullName: name } }}
+            secondLine={info}
+          ></NameCard>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<NameCard user={{details:{fullName: "${ name }"}, secondLine="${info}"}}></NameCard>`}
-          {`\n</>`}
+          {`<>\n\t<NameCard user={{details:{fullName: "${name}"}, secondLine="${info}"}}></NameCard>\n</>`}
         </CodeBlock>
       </>
     );

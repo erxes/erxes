@@ -174,7 +174,10 @@
 
 .styled {
 	margin: 15px;
-	/* display: flex; */
+}
+
+.styleSpinner {
+	display: flex;
 }
 
 .spinner {

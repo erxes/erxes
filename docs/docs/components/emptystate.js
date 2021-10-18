@@ -3,7 +3,7 @@ import EmptyState from "erxes-ui/lib/components/EmptyState";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Button from "erxes-ui/lib/components/Button";
-import ApiTable from "./common.js";
+import ApiTable, { Api } from "./common.js";
 
 export function EmptyComponents(props) {
   const { type, table = [], img } = props;
