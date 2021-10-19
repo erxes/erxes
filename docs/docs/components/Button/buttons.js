@@ -1,8 +1,8 @@
 import React from "react";
 import Button from "erxes-ui/lib/components/Button";
-import styles from "../../src/components/styles.module.css";
+import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "./common.js";
+import { renderApiTable } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function ButtonComponent(props) {

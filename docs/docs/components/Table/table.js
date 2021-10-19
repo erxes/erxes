@@ -1,7 +1,7 @@
 import React from "react";
-import Table from "../../../ui/src/modules/common/components/table";
+import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import ApiTable from "./common.js"
+import { renderApiTable } from "../common.js";
 
 const simpleTable = (table) => {
   return (

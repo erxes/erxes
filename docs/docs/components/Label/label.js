@@ -1,8 +1,8 @@
 import React from "react";
 import Label from "erxes-ui/lib/components/Label";
 import CodeBlock from "@theme/CodeBlock";
-import styles from "../../src/components/styles.module.css";
-import ApiTable, { Api } from "./common";
+import styles from "../../../src/components/styles.module.css";
+import { renderApiTable } from "../common.js";
 
 export function LabelComponent(props) {
   const { type, style = [], table = [] } = props;
