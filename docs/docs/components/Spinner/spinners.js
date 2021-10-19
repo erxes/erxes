@@ -1,9 +1,9 @@
 import React from "react";
 import Spinner from "erxes-ui/lib/components/Spinner";
-import styles from "../../src/components/styles.module.css";
+import styles from "../../../src/components/styles.module.css";
 import CodeBlock from '@theme/CodeBlock';
 import "erxes-icon/css/erxes.min.css";
-import ApiTable, { Api } from "./common.js"
+import { renderApiTable } from "../common.js";
 
 export function SpinnerComponent(props) {
   const { type, sizes = [], lefts = [], rights = [], table = [] } = props;
@@ -64,8 +64,8 @@ export function SpinnerComponent(props) {
   if (type === "APIspinner") {
     return (
       <>
-        {Api("Spinner")}
-        {ApiTable(table)}
+        {/* {Api("Spinner")}
+        {ApiTable(table)} */}
       </>
     );
   }

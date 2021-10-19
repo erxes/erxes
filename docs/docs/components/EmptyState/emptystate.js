@@ -3,7 +3,7 @@ import EmptyState from "erxes-ui/lib/components/EmptyState";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Button from "erxes-ui/lib/components/Button";
-import ApiTable, { Api } from "./common.js";
+import { renderApiTable } from "../common.js";
 
 export function EmptyComponents(props) {
   const { type, table = [], img } = props;
@@ -78,8 +78,8 @@ export function EmptyComponents(props) {
   if (type === "APIempty") {
     return (
       <>
-        {Api("EmptyState")}
-        {ApiTable(table)}
+        {/* {Api("EmptyState")}
+        {ApiTable(table)} */}
       </>
     );
   }

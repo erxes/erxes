@@ -1,8 +1,8 @@
 import React from "react";
 import NameCard from "erxes-ui/lib/components/nameCard/NameCard";
 import CodeBlock from "@theme/CodeBlock";
-import styles from "../../src/components/styles.module.css";
-import ApiTable from "./common.js";
+import styles from "../../../src/components/styles.module.css";
+import { renderApiTable } from "../common.js";
 
 export function CardComponent(props) {
   const { type, username, info, table = [] } = props;
@@ -94,7 +94,7 @@ export function CardComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import NameCard from "erxes-ui/lib/components/nameCard/NameCard";`}</CodeBlock>
-        {ApiTable(table)}
+        {/* {ApiTable(table)} */}
       </>
     );
   }

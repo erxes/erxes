@@ -2,7 +2,7 @@ import React from "react";
 import ErrorMsg from "erxes-ui/lib/components/ErrorMsg";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import ApiTable, { Api } from "./common";
+import { renderApiTable } from "../common.js";
 
 export function ErrorMsgComponent(props) {
   const { children, table = [] } = props;
@@ -19,8 +19,8 @@ export function ErrorMsgComponent(props) {
   if (table) {
     return (
       <>
-        {Api("ErrorMsg")}
-        {ApiTable(table)}
+        {/* {Api("ErrorMsg")}
+        {ApiTable(table)} */}
       </>
     );
   }

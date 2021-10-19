@@ -1,7 +1,7 @@
 import React from "react";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import ApiTable from "./common.js"
+import ApiTable from "../common.js"
 import Chip from "erxes-ui/lib/components/Chip";
 import Icon from "erxes-ui/lib/components/Icon";
 import Button from "erxes-ui/lib/components/Button"
