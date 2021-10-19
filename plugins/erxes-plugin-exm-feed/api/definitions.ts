@@ -62,7 +62,6 @@ export const feedSchema = {
   ceremonyData: { type: ceremonyDataSchema },
   eventData: { type: eventDataSchema },
   startDate: { type: Date },
-  scheduleDate: { type: Date },
   endDate: { type: Date },
   createdBy: { type: String, label: 'Created by' },
   createdAt: { type: Date, label: 'Created at' },

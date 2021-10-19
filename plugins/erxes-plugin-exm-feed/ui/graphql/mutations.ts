@@ -7,7 +7,7 @@ const commonVariables = `
   $recipientIds: [String]
   $customFieldsData: JSON
   $eventData: ExmEventDataInput
-  $scheduleDate: Date
+  $createdAt: Date
 `;
 
 const commonParams = `
@@ -19,7 +19,7 @@ const commonParams = `
   recipientIds: $recipientIds
   customFieldsData: $customFieldsData
   eventData: $eventData
-  scheduleDate: $scheduleDate
+  createdAt: $createdAt
 `;
 
 const addFeed = `

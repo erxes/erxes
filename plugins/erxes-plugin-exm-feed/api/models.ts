@@ -27,7 +27,7 @@ class Feed {
   public static async createExmFeed(models, doc: any, user: any) {
     const exm = await models.ExmFeed.create({
       createdBy: user._id,
-      createdAt: new Date(),
+      createdAt: doc.createdAt || new Date(),
       ...doc
     });
 

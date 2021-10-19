@@ -43,7 +43,6 @@ export const types = `
     eventData: ExmEventData
     eventGoingUsers: [User]
     eventInterestedUsers: [User]
-    scheduleDate: Date
   }
 
   type ExmThank {
@@ -139,7 +138,7 @@ const feedCommonParams = `
   eventData: ExmEventDataInput
   customFieldsData: JSON
   isPinned: Boolean
-  scheduleDate: Date
+  createdAt: Date
 `;
 
 const thankCommonParams = `

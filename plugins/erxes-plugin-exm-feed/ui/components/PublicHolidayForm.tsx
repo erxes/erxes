@@ -19,7 +19,7 @@ export default function PostForm(props: Props) {
   const fields = props.fields;
 
   const [images, setImage] = useState(item.images || []);
-  const [scheduleDate, setScheduleDate] = useState(item.scheduleDate);
+  const [createdAt, setCreatedAt] = useState(item.createdAt);
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
   );
@@ -33,10 +33,10 @@ export default function PostForm(props: Props) {
         {title(formProps, item)}
         {description(formProps, item)}
         <DateControl
-          value={scheduleDate}
+          value={createdAt}
           required={false}
-          name='scheduleDate'
-          onChange={date => setScheduleDate(date)}
+          name='createdAt'
+          onChange={date => setCreatedAt(date)}
           placeholder={'Date'}
           dateFormat={'YYYY-MM-DD HH:mm:ss'}
           timeFormat={true}
@@ -58,7 +58,7 @@ export default function PostForm(props: Props) {
             description: values.description ? values.description : null,
             contentType: 'publicHoliday',
             images,
-            scheduleDate,
+            createdAt,
             customFieldsData
           },
           isSubmitted,
