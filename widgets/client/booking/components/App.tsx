@@ -75,9 +75,7 @@ function App({
         />
         <div />
       </div>
-      <div className="layout">
-        <div className="container">{renderContent()}</div>
-      </div>
+      {renderContent()}
     </>
   );
 }

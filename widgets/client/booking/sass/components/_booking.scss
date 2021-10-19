@@ -6,7 +6,9 @@ $slick-loader-path: "~slick-carousel/slick/";
   margin: 0;
   height: 100%;
 }
-
+*{
+  font-size: calc(0.5rem + 1.2vmin)
+}
 h4,p{
     margin-block-start: 0px;
     margin-block-end: 0px;
@@ -26,45 +28,49 @@ h4,p{
 
 
 .slider{
+  padding-left: 30px;
   .active{
-    width: 150px; /* width of container */
-    height: 150px; /* height of container */
+    width: 100%;
+    height: 40vh;
     overflow: hidden;
     img{
-      display: block;
-      width: 100%;
-      height: 100%;
       object-fit: cover;
+      height: 100%;
     }
   }
+}
+.slick-slider .slick-initialized{
+height: 18vh;
+}
+.slick-slider{
+  height: 18vh;
+}
+.slick-list{
+  width: 100%;
 }
 .slick-slide{
   margin: 10px;
 }
-.slick-list{
-  max-width: 100%;
+.slider-item{
+  width:30%;
+  height: 100px;
+  overflow: hidden;
+  img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 .li {
   width: 0;
   height: 0;
-}
-.layout {
-  position: fixed;
-  top: 50px;
-  left:0;
-  right: 0;
-  color: #333333 ;
-  font-size: calc(0.25em + 1vmin);
-  width: 100%;
-  height: 100%;
-  overflow: auto;
 }
 .header{
   position:fixed;
   top:0px;
   left:0px;
   height:50px; right:0px;
-  background-color:  #fff;
+  background-color:  #FCFCFC;
   .nav{
     display: flex;
     flex-direction: row;
@@ -78,30 +84,20 @@ h4,p{
     }
   }
 }
-.container{
-  position:absolute;
-  top:0px;
-  bottom:0px;
-  left:0px;
-  right:0px;
-  font-size: 1.5em;
-  height: 100%;
-  overflow: auto;
   .body{
-    height: 100%;
-    position:absolute;
-    top:0px;
-    bottom:50px;
+    position:fixed;
+    top:50px;
+    bottom:80px;
     left:0px;
     right:0px;
-    background-color:  #fff;
+    color: #333333 ;
+    display: block;
     overflow: auto;
+    padding-bottom: 10px;
     .block-det{
       height:50vh;
       overflow: hidden;
       img{
-        height: 100%;
-        width: 100%;
         object-fit: cover;
       }
     }
@@ -112,16 +108,9 @@ h4,p{
     height:50px;
     left:0px;
     right:0px;
-    background-color:  #fff;
     display: flex;
     padding:10px;
   }
-}
-.product{
-  max-height: 100%;
-  max-width: 100%;
-  display: block;
-}
 .block {
   border: 1px solid $mid-grey;
   border-radius: 10px;
@@ -131,7 +120,7 @@ h4,p{
   &:active {
     cursor: pointer;
     border-color: $primary;
-    box-shadow: 0px 4px 8px rgba(136, 111, 221, 0.24);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
   }
 }
 .erxes-booking {
@@ -183,7 +172,7 @@ h4,p{
   text-align: center;
   text-decoration: none;
   border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(79, 51, 175, 0.24);
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -200,4 +189,7 @@ hr {
 
 .detail{
   grid-column-start: 2;
+}
+.slick-prev, .slick-next{
+  color: #333333 !important;
 }

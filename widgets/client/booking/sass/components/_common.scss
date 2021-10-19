@@ -81,8 +81,6 @@
   max-height: 70vh;
   img{
     grid-column-start: 2;
-    height: 100%;
-    width:100%;
   }
 }
 
@@ -104,5 +102,5 @@
   min-height: 23px;
   padding: 3px;
   color: white;
-  font-size: 10px;
+  font-size: calc(0.25em + 1vmin)
 }

@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { HiArrowSmLeft, HiArrowSmRight } from 'react-icons/hi';
+import { HiArrowSmLeft, HiArrowSmRight, } from 'react-icons/hi';
+import { MdOutlineArrowBackIos, MdOutlineArrowForwardIos } from 'react-icons/md';
+
 import { IBookingData } from '../types';
 import Slider from 'react-slick';
 import { readFile } from '../../utils';
@@ -38,33 +40,33 @@ function Product({
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 2,
-    slidesToScroll: 2
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    nextArrow: <MdOutlineArrowForwardIos />,
+    prevArrow: <MdOutlineArrowBackIos />,
   };
-  console.log(product);
 
   return (
-    <div className="product">
+    <div className="body">
       <h4>{product.name}</h4>
       <p>{product.description}</p>
       <div className="grid-21">
         <div className="slider">
-          <div className="active">
+          <div className="active flex-center">
             <img
               id="img-active"
               src={readFile(product.attachment && product.attachment.url)}
-              alt={product.attachment.name}
+              alt={product.attachment && product.attachment.name}
             />
           </div>
           <div>
             <Slider {...settings}>
               {(product.attachmentMore || []).map((img, index) => (
-                <div key={index} onClick={() => showFull(img)}>
+                <div className="slider-item flex-center" key={index} onClick={() => showFull(img)}>
                   <img
-                    id={img.name}
+                    id={img && img.name}
                     src={readFile(img && img.url)}
-                    alt={img.name}
-                    style={{ width: '200px', height: '150px' }}
+                    alt={img && img.name}
                   />
                 </div>
               ))}

@@ -25,12 +25,11 @@ function Booking({ goToIntro, booking }: Props) {
   const { attachment } = mainProductCategory;
   const { widgetColor, line, columns, rows, margin } = style;
 
-  style.columns = "3";
-  style.margin = "10px";
   const blockCount = childCategories.length;
   const column: string = columns!
   const colCount = parseInt(column) >= 4 ? "4" : columns;
 
+  console.log(colCount, margin)
 
   const blocksStyle = {
     width: "100%",
@@ -55,6 +54,7 @@ function Booking({ goToIntro, booking }: Props) {
             );
           })}
         </div>
+
       </Body>
       <div className="footer">
         <Button
