@@ -79,8 +79,8 @@ export function LabelComponent(props) {
   if (type === "APIlabel") {
     return (
       <>
-        {Api("Label")}
-        {ApiTable(table)}
+        {/* {Api("Label")}
+        {ApiTable(table)} */}
       </>
     );
   }

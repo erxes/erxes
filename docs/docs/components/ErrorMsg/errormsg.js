@@ -19,8 +19,8 @@ export function ErrorMsgComponent(props) {
   if (table) {
     return (
       <>
-        {Api("ErrorMsg")}
-        {ApiTable(table)}
+        {/* {Api("ErrorMsg")}
+        {ApiTable(table)} */}
       </>
     );
   }

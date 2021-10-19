@@ -64,8 +64,8 @@ export function SpinnerComponent(props) {
   if (type === "APIspinner") {
     return (
       <>
-        {Api("Spinner")}
-        {ApiTable(table)}
+        {/* {Api("Spinner")}
+        {ApiTable(table)} */}
       </>
     );
   }

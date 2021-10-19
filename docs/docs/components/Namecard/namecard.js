@@ -94,7 +94,7 @@ export function CardComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import NameCard from "erxes-ui/lib/components/nameCard/NameCard";`}</CodeBlock>
-        {ApiTable(table)}
+        {/* {ApiTable(table)} */}
       </>
     );
   }

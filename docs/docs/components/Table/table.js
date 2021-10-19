@@ -2,6 +2,7 @@ import React from "react";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable } from "../common.js";
+import Table from 'erxes-ui/lib/components/table/index';
 
 const simpleTable = (table) => {
   return (
@@ -218,7 +219,7 @@ export function TableComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Table from 'erxes-ui/lib/components/table/index';`}</CodeBlock>
-        {ApiTable(table)}
+        {/* {ApiTable(table)} */}
       </>
     );
   }

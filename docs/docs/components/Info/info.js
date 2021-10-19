@@ -114,8 +114,8 @@ export function InfoComponent(props) {
   if (type === "APIinfo") {
     return (
       <>
-        {Api("Info")}
-        {ApiTable(table)}
+        {/* {Api("Info")}
+        {ApiTable(table)} */}
       </>
     );
   }
