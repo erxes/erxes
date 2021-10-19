@@ -25,22 +25,22 @@ export function EmptyComponents(props) {
   };
 
   const renderBlock = (propName, style, additional) => {
-    let blah2 = JSON.stringify(
+    let string = JSON.stringify(
       propDatas(propName, style)
     );
-    blah2 = blah2.replace(/{"/g, '');
-    blah2 = blah2.replace(/":/g, '=');
-    blah2 = blah2.replace(/,"/g, ' ');
-    blah2 = blah2.replace(/}/g, '');
-    // blah2 = blah2.replace(/[}]/g, '');
-    // blah2 = blah2.replace(/["]/g, ' ');
-    // blah2 = blah2.replace(/[":]/g, '=');
+    string = string.replace(/{"/g, '');
+    string = string.replace(/":/g, '=');
+    string = string.replace(/,"/g, ' ');
+    string = string.replace(/}/g, '');
+    // string = string.replace(/[}]/g, '');
+    // string = string.replace(/["]/g, ' ');
+    // string = string.replace(/[":]/g, '=');
     
     return (
       <>
         <EmptyState text="Text" {...propDatas(propName, style, additional)} />
         <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState ${blah2} />\n</>`}
+          {`<>\n\t<EmptyState ${string} />\n</>`}
         </CodeBlock>
       </>
     );
