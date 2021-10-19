@@ -6,82 +6,68 @@ import Button from "erxes-ui/lib/components/Button";
 import { renderApiTable } from "../common.js";
 
 export function EmptyComponents(props) {
-  const { type, table = [], img } = props;
-  const text = "Text",
-    size = "30",
-    icon = "info-circle";
-  if (type === "simple") {
-    return (
-      <>
-        <div>
-          <EmptyState icon={icon} text={text} />
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState icon="${icon}" text="${text}"/>\n</>`}
-        </CodeBlock>
-      </>
-    );
-  }
+  const { type, table = [], item } = props;
 
-  if (type === "light") {
+  const propDatas = (propName, style, additional) => {
+    const extra = additional && <Button>Extra</Button> ;
+
+    const kind = {
+      [propName]: propName === "icon" || propName === "image" ? item : true,
+      [style]: style === "size" ? "30" : true,
+      extra
+    };
+
+    const datas = {
+      ...kind,
+    };
+
+    return datas;
+  };
+
+  const renderBlock = (propName, style, additional) => {
+    let blah2 = JSON.stringify(
+      propDatas(propName, style)
+    );
+    blah2 = blah2.replace(/{"/g, '');
+    blah2 = blah2.replace(/":/g, '=');
+    blah2 = blah2.replace(/,"/g, ' ');
+    blah2 = blah2.replace(/}/g, '');
+    // blah2 = blah2.replace(/[}]/g, '');
+    // blah2 = blah2.replace(/["]/g, ' ');
+    // blah2 = blah2.replace(/[":]/g, '=');
+    
     return (
       <>
-        <div>
-          <EmptyState icon={icon} text={text} light />
-        </div>
+        <EmptyState text="Text" {...propDatas(propName, style, additional)} />
         <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState icon="${icon}" text="${text}" light/>\n</>`}
+          {`<>\n\t<EmptyState ${blah2} />\n</>`}
         </CodeBlock>
       </>
     );
+  };
+
+  if (type === "simple") {
+    return renderBlock("icon");
   }
 
   if (type === "size") {
-    return (
-      <>
-        <div>
-          <EmptyState icon={icon} text={text} size={size} />
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState icon="${icon}" text="${text}" size="${size}"/>\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("icon", "size");
   }
 
   if (type === "image") {
-    return (
-      <>
-        <div>
-          <EmptyState image={img} text={text} />
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState image="${img}" text="${text}"/>\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("image");
+  }
+
+  if (type === "light") {
+    return renderBlock("icon", "light");
   }
 
   if (type === "extra") {
-    return (
-      <>
-        <div>
-          <EmptyState icon={icon} text={text} extra={<Button>Button</Button>} />
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState icon="${icon}" text="${text}" extra={<Button>Button</Button>} />\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("icon", "light", "extra");
   }
 
   if (type === "APIempty") {
-    return (
-      <>
-        {/* {Api("EmptyState")}
-        {ApiTable(table)} */}
-      </>
-    );
+    return renderApiTable("EmptyState", table);
   }
 
   return null;

@@ -6,27 +6,27 @@ title: Empty State
 import { EmptyComponents } from './emptystate.js'
 
 <p>Empty state with <code>icon</code> and <code>text</code> props.</p>
-<EmptyComponents type="simple" />
+<EmptyComponents type="simple" item="info-circle" />
 
 ## Light
 
 <p>If you use <code>light</code> prop, your text won't show. </p>
-<EmptyComponents type="light" />
+<EmptyComponents type="light" item="info-circle" />
 
 ## Icon size
 
 <p>You can change the size of icon with <code>size</code> prop. </p>
-<EmptyComponents type="size" />
+<EmptyComponents type="size" item="info-circle" size="30" />
 
 ## Image
 
 <p>Empty state with <code>image</code> prop.</p>
-<EmptyComponents type="image" img="https://erxes.io/static/images/logo/logo_dark.svg" />
+<EmptyComponents type="image" item="https://erxes.io/static/images/logo/logo_dark.svg" />
 
 ## Extra
 
 <p>Empty state with <code>extra</code> prop.</p>
-<EmptyComponents type="extra" />
+<EmptyComponents type="extra" item="info-circle" />
 
 ## API
 

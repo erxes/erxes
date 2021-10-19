@@ -2,11 +2,11 @@ import React from "react";
 import Table from "../../../ui/src/modules/common/components/table";
 import CodeBlock from "@theme/CodeBlock";
 
-export function renderApiTable(btnName, table) {
+export function renderApiTable(Name, table) {
   return (
     <>
-      {btnName && (
-        <CodeBlock className="language-javascript">{`import ${btnName} from "erxes-ui/lib/components/${btnName}";`}</CodeBlock>
+      {Name && (
+        <CodeBlock className="language-javascript">{`import ${Name} from "erxes-ui/lib/components/${Name}";`}</CodeBlock>
       )}
 
       <Table>

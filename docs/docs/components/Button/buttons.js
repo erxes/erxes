@@ -25,7 +25,6 @@ export function ButtonComponent(props) {
   };
 
   const renderBlock = (propName, defaultBtn, icon) => {
-    console.log();
     return (
       <>
         <div className={styles.styled}>
@@ -44,7 +43,6 @@ export function ButtonComponent(props) {
           {`<>\n\t<Button>${
             defaultBtn ? defaultBtn : "Default"
           }</Button>${buttons.map((btn, index) => {
-            console.log(propDatas(propName, btn, icon, index));
             return `\n\t<Button ${JSON.stringify(
               propDatas(propName, btn, icon, index)
             )}>${btn}</Button>`;
