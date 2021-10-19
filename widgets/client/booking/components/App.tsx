@@ -65,6 +65,7 @@ function App({
       <div className="erxes-content">
         <div className={containerClass} style={{ zIndex: 10000 }}>
           {renderForm()}
+          {renderCloseButton()}
         </div>
       </div>
       <div className="header">

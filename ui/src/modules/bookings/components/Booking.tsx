@@ -174,6 +174,10 @@ function Booking(props: Props) {
       return Alert.error('Enter a Booking name');
     }
 
+    if (!booking.description) {
+      return Alert.error('Enter a description');
+    }
+
     if (!state.brandId) {
       return Alert.error('Choose a brand');
     }
@@ -231,9 +235,9 @@ function Booking(props: Props) {
           textSelected: booking.textSelected,
 
           line: booking.line,
-          rows: booking.rows,
-          columns: booking.columns,
-          margin: booking.margin
+          rows: Number(booking.rows),
+          columns: Number(booking.columns),
+          margin: Number(booking.margin)
         }
       }
     };
