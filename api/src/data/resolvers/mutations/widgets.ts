@@ -1007,14 +1007,6 @@ const widgetMutations = {
       graphqlPubsub.publish('conversationMessageInserted', {
         conversationMessageInserted: message
       });
-
-      await sendToWebhook('create', 'popupSubmitted', {
-        formId: args.formId,
-        submissions: args.submissions,
-        customer: cachedCustomer,
-        cachedCustomerId: cachedCustomer._id,
-        conversationId: conversation._id
-      });
     });
 
     return {
