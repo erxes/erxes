@@ -17,6 +17,7 @@ import Row from './Row';
 import Sidebar from './Sidebar';
 import { ITag } from 'erxes-ui/lib/tags/types';
 import TaggerPopover from './TaggerPopover';
+import { PLUGIN_URL } from '../../constants';
 
 type Props = {
   integrations: IIntegration[];
@@ -103,7 +104,7 @@ class List extends React.Component<Props, {}> {
     }
 
     const actionBarRight = (
-      <Link to="/forms/create">
+      <Link to={`${PLUGIN_URL}/pos/create`}>
         <Button btnStyle="success" size="small" icon="plus-circle">
           Create POS
         </Button>
@@ -159,7 +160,25 @@ class List extends React.Component<Props, {}> {
             data={content}
             loading={loading}
             count={integrations.length}
-            emptyContent={<EmptyContent content={''} maxItemWidth="360px" />}
+            emptyContent={
+              <EmptyContent
+                content={{
+                  title: __('Getting Started with erxes POS'),
+                  description: __('BLA bla bla bla'),
+                  steps: [
+                    {
+                      title: __('Create POS'),
+                      description: __(
+                        'Fill out the details and create your POS'
+                      ),
+                      url: `${PLUGIN_URL}/pos/create`,
+                      urlText: 'Create POS'
+                    }
+                  ]
+                }}
+                maxItemWidth="360px"
+              />
+            }
           />
         }
       />

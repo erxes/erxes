@@ -4,12 +4,24 @@ const groupCommonFields = `
   name: String
 `;
 
+const posCommonFields = `
+  name: String
+  description: String
+  brandId: String
+  tagIds: [String]
+  productDetails: [String]
+  productGroupIds: [String]
+`
+
 export const types = `
   type Pos {
     _id: String
     name: String
     description: String
     createdAt: Date
+    integrationId: String 
+    productDetails: [String] 
+    productGroupIds: [String] 
   }
 
 
@@ -34,23 +46,17 @@ export const types = `
 
 export const queries = `
   allPos: [Pos]
+  posDetail(integrationId: String!): Pos
   posConfig(integrationId: String!): PosConfig
   productGroups(posId: String!): [ProductGroups]
 `;
 
 export const mutations = `
-  posAdd(
-    name: String description: String
-  ): Pos
-
-  posEdit(
-    _id: String name: String description: String
-  ): Pos
-
+  posAdd(${posCommonFields}): Pos
+  posEdit(_id: String ${posCommonFields}): Pos
   posRemove(_id: String!): JSON
-
-  posConfigsUpdate(posId: String!, configsMap: JSON!): JSON
-
-  productGroupsAdd(${groupCommonFields}): ProductGroups
-  productGroupsEdit(_id: String! ${groupCommonFields}): ProductGroups
 `;
+
+// posConfigsUpdate(posId: String!, configsMap: JSON!): JSON
+// productGroupsAdd(${groupCommonFields}): ProductGroups
+// productGroupsEdit(_id: String! ${groupCommonFields}): ProductGroups

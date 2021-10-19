@@ -12,7 +12,7 @@ type Props = {
   onDelete: (group: IProductGroup) => void;
   onCancel: () => void;
   mode: 'create' | 'update';
-  categories: IProductCategory[];
+  categories: any[];
 };
 
 type State = {
@@ -23,8 +23,6 @@ type State = {
 class GroupForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    console.log(props)
 
     this.state = {
       group: props.group,
@@ -39,6 +37,8 @@ class GroupForm extends React.Component<Props, State> {
   render() {
     const { mode, onDelete, onSubmit, onCancel } = this.props;
     const { group, categories } = this.state;
+    
+    console.log('group: ',group )
 
     const categoryOptions = categories.map(e => {
       return { value: e._id, label: e.name };
@@ -72,8 +72,8 @@ class GroupForm extends React.Component<Props, State> {
           <ControlLabel>Product Category</ControlLabel>
           {/* <Description>Select pos to display in the product category.</Description> */}
           <Select
-            options={categories}
-            value={categoryOptions}
+            options={categoryOptions}
+            value={group.categoryIds}
             onChange={this.onChangeCategories}
             multi={true}
           />
@@ -83,8 +83,8 @@ class GroupForm extends React.Component<Props, State> {
           <ControlLabel>Exclude Product Category</ControlLabel>
           {/* <Description>Select pos to display in the product category.</Description> */}
           <Select
-            options={categories}
-            value={categoryOptions}
+            options={categoryOptions}
+            value={group.excludedCategoryIds}
             onChange={this.onChangeCategories}
             multi={true}
           />
@@ -105,7 +105,7 @@ class GroupForm extends React.Component<Props, State> {
             btnStyle="success"
             icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
           >
-            {mode === 'update' ? 'Save' : 'Add to Form'}
+            {mode === 'update' ? 'Save' : 'Add to POS'}
           </Button>
         </Modal.Footer>
       </>

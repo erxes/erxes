@@ -1,40 +1,54 @@
-const commonFields = `
-    $name: String,
-    $description: String
-`;
-
 const commonFormParamsDef = `
-  $name: String!,
-  $brandId: String!,
+  $name: String!
+  $brandId: String!
 `;
 
 const commonFormParams = `
-  name: $name,
-  brandId: $brandId,
+  name: $name
+  brandId: $brandId
+`;
+
+const commonFields = `
+    $name: String
+    $description: String
+    $brandId: String
+    $productDetails: [String]
+    $productGroupIds: [String]
 `;
 
 const commonVariables = `
     name: $name,
     description: $description,
+    brandId: $brandId
+    productDetails: $productDetails
+    productGroupIds: $productGroupIds
 `;
 
 
 const posAdd = `
   mutation posAdd(${commonFields}) {
     posAdd(${commonVariables}){
-        _id
-        name
-        description
+      _id
+      name
+      description
+      createdAt
+      integrationId
+      productDetails
+      productGroupIds
     }
   }
 `;
 
-const podEdit = `
-  mutation podEdit($_id: String, ${commonFields}) {
-    podEdit(_id: $_id, ${commonVariables}){
-        _id
-        name
-        description
+const posEdit = `
+  mutation posEdit($_id: String, ${commonFields}) {
+    posEdit(_id: $_id, ${commonVariables}){
+      _id
+      name
+      description
+      createdAt
+      integrationId
+      productDetails
+      productGroupIds
     }
   }
 `;
@@ -88,7 +102,7 @@ const brandAdd = `
 
 export default {
   posAdd,
-  podEdit,
+  posEdit,
   posRemove,
   updateConfigs,
   integrationRemove,

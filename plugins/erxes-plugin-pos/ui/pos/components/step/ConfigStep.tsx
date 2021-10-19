@@ -11,17 +11,21 @@ import React from 'react';
 import { Description, FlexColumn, FlexItem, LinkButton } from '../../../styles';
 import Select from 'react-select-plus';
 import { PRODUCT_DETAIL } from '../../../constants';
-import { IPosConfig } from '../../../types';
+import { IPos, IPosConfig, IProductGroup } from '../../../types';
 import GroupForm from '../../containers/productGroup/GroupForm';
 
 type Props = {
-  onChange: (name: 'config' | 'description', value: any) => void;
-  config?: IPosConfig;
+  onChange: (name: 'pos' | 'description', value: any) => void;
+  pos?: IPos;
 };
 
 class OptionsStep extends React.Component<Props, {}> {
   onChangeFunction = (name: any, value: any) => {
     this.props.onChange(name, value);
+  };
+
+  onChangeGroup = (group: IProductGroup) => {
+    console.log(group);
   };
 
   renderAddGroup = () => {
@@ -38,29 +42,35 @@ class OptionsStep extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <GroupForm group={{}} {...props} renderButton={renderButton} />
+      <GroupForm
+        group={{}}
+        {...props}
+        onSubmit={this.onChangeGroup}
+        renderButton={renderButton}
+      />
     );
 
     return (
-      <ModalTrigger title="Add grop" trigger={trigger} content={content} />
+      <ModalTrigger title="Add group" trigger={trigger} content={content} />
     );
   };
 
   render() {
-    const { config } = this.props;
+    const { pos } = this.props;
 
-    const onChangeMultiCombo = values => {
-      console.log(values);
-      this.onChangeFunction('config', { productDetails: values });
+    const onChangeDetail = options => {
+      console.log(options);
+      pos.productDetails = options.map(e => e.value);
+      this.onChangeFunction('pos', pos);
     };
 
-    const productDetails = config ? config.productDetails || [] : [];
+    const productDetails = pos ? pos.productDetails || [] : [];
 
     return (
       <FlexItem>
         <FlexColumn>
           <LeftItem>
-            <CollapseContent title="Default Settings">
+            <CollapseContent title="Default Settings" open={true}>
               <FormGroup>
                 <ControlLabel>Product Details</ControlLabel>
                 <Description>
@@ -69,7 +79,7 @@ class OptionsStep extends React.Component<Props, {}> {
                 <Select
                   options={PRODUCT_DETAIL}
                   value={productDetails}
-                  onChange={onChangeMultiCombo}
+                  onChange={onChangeDetail}
                   multi={true}
                 />
               </FormGroup>

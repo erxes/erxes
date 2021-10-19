@@ -1,4 +1,4 @@
-import { IPOSIntegration } from "./types";
+import { IPOS } from "./types";
 
 /**
  * pos
@@ -20,8 +20,8 @@ class Pos {
         return models.Pos.find().sort({ createdAt: 1 })
     }
 
-    public static async getPos(models, _id: string) {
-        const pos = await models.Pos.findOne({ _id }).lean();
+    public static async getPos(models, query: any) {
+        const pos = await models.Pos.findOne(query).lean();
 
         if (!pos) {
             throw new Error('POS not found');
@@ -29,9 +29,9 @@ class Pos {
         return pos;
     }
 
-    public static async posAdd(models, user, doc: IPOSIntegration) {
+    public static async posAdd(models, user, doc: IPOS) {
         try {
-            const integration = await models.Integrations.createIntegration({ ...doc, kind: 'pos' }, user._id);
+            const integration = await models.Integrations.createIntegration({ ...doc, kind: 'pos', isActive: true }, user._id);
 
             return models.Pos.create({
                 userId: user._id,
@@ -45,8 +45,8 @@ class Pos {
 
     }
 
-    public static async posEdit(models, _id: string, doc: IPOSIntegration) {
-        const pos = await models.Pos.getPos(models, _id);
+    public static async posEdit(models, _id: string, doc: IPOS) {
+        const pos = await models.Pos.getPos(models, {_id});
 
         await models.Pos.updateOne({ _id },
             { $set: doc },
@@ -60,7 +60,7 @@ class Pos {
     }
 
     public static async posRemove(models, _id: string) {
-        const pos = await models.Pos.getPos(models, _id);
+        const pos = await models.Pos.getPos(models, {_id});
 
         await models.Integrations.removeIntegration(pos.integrationId)
 

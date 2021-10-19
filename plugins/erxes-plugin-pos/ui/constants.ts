@@ -5,3 +5,5 @@ export const PRODUCT_DETAIL = [
     { label: 'Remainder', value: 'remainder' },
     { label: 'Featured Image', value: 'featuredImage' },
 ];
+
+export const PLUGIN_URL = '/erxes-plugin-pos'

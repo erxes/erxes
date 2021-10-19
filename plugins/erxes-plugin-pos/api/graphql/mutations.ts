@@ -1,3 +1,4 @@
+import { IPOS } from "../types";
 
 const mutations = [
     /**
@@ -5,11 +6,10 @@ const mutations = [
      */
     {
         name: 'posAdd',
-        handler: async (_root, params, { models, checkPermission, user }) => {
+        handler: async (_root, params: IPOS, { models, checkPermission, user }) => {
             await checkPermission('managePos', user);
 
-            const { name, brandId } = params;
-            return await models.Pos.posAdd(models, user, name, brandId)
+            return await models.Pos.posAdd(models, user, params)
         }
     },
 
@@ -18,10 +18,10 @@ const mutations = [
      */
     {
         name: 'posEdit',
-        handler: async (_root, params, { models, checkPermission, user }) => {
+        handler: async (_root, { _id, ...params }, { models, checkPermission, user }) => {
             await checkPermission('managePos', user);
 
-            return await models.Pos.posEdit(models, params)
+            return await models.Pos.posEdit(models, _id, params)
         }
     },
 
@@ -37,27 +37,27 @@ const mutations = [
         }
     },
 
-    {
-        name: 'posConfigsUpdate',
-        handler: async (_root, { posId, configsMap }, { models, checkPermission, user }) => {
-            await checkPermission('managePos', user);
+    // {
+    //     name: 'posConfigsUpdate',
+    //     handler: async (_root, { posId, configsMap }, { models, checkPermission, user }) => {
+    //         await checkPermission('managePos', user);
 
-            const codes = Object.keys(configsMap);
+    //         const codes = Object.keys(configsMap);
 
-            for (const code of codes) {
-                if (!code) {
-                    continue;
-                }
+    //         for (const code of codes) {
+    //             if (!code) {
+    //                 continue;
+    //             }
 
-                const value = configsMap[code];
-                const doc = { code, value };
+    //             const value = configsMap[code];
+    //             const doc = { code, value };
 
-                return await models.PosConfigs.createOrUpdateConfig(models, posId, doc)
-            }
+    //             return await models.PosConfigs.createOrUpdateConfig(models, posId, doc)
+    //         }
 
 
-        }
-    },
+    //     }
+    // },
 
 
 ]

@@ -7,11 +7,14 @@ import { IRouterProps } from 'erxes-ui/lib/types';
 import { queries, mutations } from '../../graphql';
 import {
   EditIntegrationMutationResponse,
+  EditPosMutationResponse,
   IntegrationDetailQueryResponse,
   IntegrationMutationVariables,
-  PosConfigQueryResponse
+  PosConfigQueryResponse,
+  PosDetailQueryResponse
 } from '../../types';
 import Pos from '../components/Pos';
+import { PLUGIN_URL } from '../../constants';
 
 type Props = {
   integrationId: string;
@@ -20,34 +23,28 @@ type Props = {
 
 type State = {
   isLoading: boolean;
-  isReadyToSaveForm: boolean;
-  doc?: {
-    brandId: string;
-    name: string;
-  };
 };
 
 type FinalProps = {
   integrationDetailQuery: IntegrationDetailQueryResponse;
-  configQuery: PosConfigQueryResponse;
+  posDetailQuery: PosDetailQueryResponse;
 } & Props &
-  EditIntegrationMutationResponse &
+  EditPosMutationResponse &
   IRouterProps;
 
 class EditPosContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { isLoading: false, isReadyToSaveForm: false };
+    this.state = { isLoading: false };
   }
 
   render() {
-    console.log('props: ',this.props)
-
     const {
       formId,
       integrationDetailQuery,
-      editIntegrationMutation,
+      posDetailQuery,
+      editPosMutation,
       history
     } = this.props;
 
@@ -56,56 +53,51 @@ class EditPosContainer extends React.Component<FinalProps, State> {
     }
 
     const integration = integrationDetailQuery.integrationDetail || {};
-
-    const afterFormDbSave = () => {
-      if (this.state.doc) {
-        const {
-          leadData,
-          brandId,
-          name,
-          languageCode,
-          channelIds
-        } = this.state.doc;
-
-        editIntegrationMutation({
-          variables: {
-            _id: integration._id,
-            formId,
-            leadData,
-            brandId,
-            name,
-            languageCode,
-            channelIds
-          }
-        })
-          .then(() => {
-            Alert.success('You successfully updated a form');
-
-            history.push({
-              pathname: '/pos',
-              search: '?refetchList=true'
-            });
-          })
-
-          .catch(error => {
-            Alert.error(error.message);
-
-            this.setState({ isReadyToSaveForm: false, isLoading: false });
-          });
-      }
-    };
+    const pos = posDetailQuery.posDetail || {};
 
     const save = doc => {
-      this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
+      this.setState({ isLoading: true });
+
+      const {
+        description,
+        brandId,
+        name,
+        productDetails,
+        productGroupIds
+      } = doc;
+
+      editPosMutation({
+        variables: {
+          _id: pos._id,
+          description,
+          brandId,
+          name,
+          productDetails,
+          productGroupIds
+        }
+      })
+        .then(() => {
+          Alert.success('You successfully updated a pos');
+
+          history.push({
+            pathname: `${PLUGIN_URL}/pos`,
+            search: '?refetchList=true'
+          });
+        })
+
+        .catch(error => {
+          Alert.error(error.message);
+
+          this.setState({ isLoading: false });
+        });
     };
 
     const updatedProps = {
       ...this.props,
       integration,
+      pos,
       save,
-      afterFormDbSave,
-      isActionLoading: this.state.isLoading,
-      isReadyToSaveForm: this.state.isReadyToSaveForm
+      isActionLoading: this.state.isLoading
     };
 
     return <Pos {...updatedProps} />;
@@ -127,10 +119,10 @@ export default withProps<FinalProps>(
       }
     ),
 
-    graphql<Props, PosConfigQueryResponse, { integrationId: string }>(
-      gql(queries.posConfig),
+    graphql<Props, PosDetailQueryResponse, { integrationId: string }>(
+      gql(queries.posDetail),
       {
-        name: 'configQuery',
+        name: 'posDetailQuery',
         options: ({ integrationId }) => ({
           fetchPolicy: 'cache-and-network',
           variables: {
@@ -139,6 +131,14 @@ export default withProps<FinalProps>(
         })
       }
     ),
+
+    graphql<
+      {},
+      EditPosMutationResponse,
+      { _id: string } & IntegrationMutationVariables
+    >(gql(mutations.posEdit), {
+      name: 'editPosMutation'
+    })
 
     // graphql<Props,EditIntegrationMutationResponse,IntegrationMutationVariables>(
     //   gql(mutations.integrationsEdit),

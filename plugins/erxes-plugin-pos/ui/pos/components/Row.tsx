@@ -16,6 +16,7 @@ import {
 import { IIntegration } from '../../types';
 import { RowTitle } from '../../styles';
 import { DateWrapper } from 'erxes-ui/lib/styles/main';
+import { PLUGIN_URL } from '../../constants';
 
 type Props = {
   integration: IIntegration;
@@ -32,7 +33,7 @@ class Row extends React.Component<Props> {
     const { formId } = integration;
 
     return (
-      <Link to={`/erxes-plugin-pos/pos/edit/${integration._id}`}>
+      <Link to={`${PLUGIN_URL}/pos/edit/${integration._id}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
@@ -139,7 +140,9 @@ class Row extends React.Component<Props> {
         </td>
         <td>
           <RowTitle>
-            <Link to={`/erxes-plugin-pos/pos/edit/${integration._id}`}>{integration.name}</Link>
+            <Link to={`${PLUGIN_URL}/pos/edit/${integration._id}`}>
+              {integration.name}
+            </Link>
           </RowTitle>
         </td>
         <td>

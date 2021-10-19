@@ -8,3 +8,14 @@ export interface IPOSIntegration {
     productDetails: string[];
     productGroupIds: string[];
 }
+
+export interface IPOS {
+    name: string;
+    description?: string;
+    brandId: string;
+    tagIds?: string[];
+    productDetails: string[];
+    productGroupIds: string[];
+}
+
+

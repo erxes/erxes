@@ -14,25 +14,25 @@ import {
 } from 'erxes-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IIntegration, IPosConfig } from '../../types';
+import { IIntegration, IPos } from '../../types';
 import { LeftContent, Content, PreviewWrapper } from '../../styles';
 import OptionsStep from './step/OptionsStep';
 import ConfigStep from './step/ConfigStep';
 
 type Props = {
   integration?: IIntegration;
-  config?: IPosConfig;
+  pos?: IPos;
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
-  afterFormDbSave: (formId: string) => void;
   save: (params: { name: string; brandId: string; config: any }) => void;
 };
 
 type State = {
   brand?: string;
-  title?: string;
-  config?: IPosConfig;
+  name?: string;
+  description?: string;
+  pos?: IPos;
   carousel: string;
   currentMode: 'create' | 'update' | undefined;
 };
@@ -42,10 +42,11 @@ class Lead extends React.Component<Props, State> {
     super(props);
 
     const integration = props.integration || ({} as IIntegration);
+    const pos = props.pos || ({} as IPos);
 
     this.state = {
       brand: integration.brandId,
-      title: integration.name || 'POS name',
+      pos,
       carousel: 'pos',
       currentMode: undefined,
       config: props.config
@@ -55,9 +56,9 @@ class Lead extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, title } = this.state;
+    const { brand, pos } = this.state;
 
-    if (!title) {
+    if (!pos.name) {
       return Alert.error('Enter a Pos name');
     }
 
@@ -65,7 +66,12 @@ class Lead extends React.Component<Props, State> {
       return Alert.error('Choose a Brand');
     }
 
-    const doc = {};
+    const doc = {
+      name: pos.name,
+      brandId: brand,
+      description: pos.description,
+      productDetails: pos.productDetails || []
+    };
 
     this.props.save(doc);
   };
@@ -127,7 +133,7 @@ class Lead extends React.Component<Props, State> {
   };
 
   render() {
-    const { title, config, carousel, currentMode } = this.state;
+    const { pos, config, carousel, currentMode } = this.state;
 
     const { integration } = this.props;
     const leadData = integration && integration.leadData;
@@ -142,44 +148,17 @@ class Lead extends React.Component<Props, State> {
             <Steps>
               <Step
                 img="/images/icons/erxes-04.svg"
-                title={`Options`}
+                title={`General`}
                 onClick={this.onStepClick}
               >
-                <OptionsStep
-                  onChange={this.onChange}
-                  name={integration ? integration.name || '' : ''}
-                  description={''}
-                  brand={brand}
-                />
+                <OptionsStep onChange={this.onChange} pos={pos} brand={brand} />
               </Step>
-
               <Step
                 img="/images/icons/erxes-04.svg"
                 title={`Product & Service`}
                 onClick={this.onStepClick}
               >
-                <ConfigStep
-                  onChange={this.onChange}
-                  config={config}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-03.svg"
-                title="General"
-                onClick={this.onStepClick}
-              >
-                {/* <CallOut
-                  onChange={this.onChange}
-                  type={type}
-                  calloutTitle={calloutTitle}
-                  calloutBtnText={calloutBtnText}
-                  calloutImgSize={calloutImgSize}
-                  bodyValue={bodyValue}
-                  color={color}
-                  theme={theme}
-                  image={logo}
-                  skip={isSkip}
-                /> */}
+                <ConfigStep onChange={this.onChange} pos={pos} />
               </Step>
               <Step
                 img="/images/icons/erxes-12.svg"
@@ -205,7 +184,7 @@ class Lead extends React.Component<Props, State> {
             <ControlWrapper>
               <Indicator>
                 {__('You are')} {integration ? 'editing' : 'creating'}{' '}
-                <strong>{title}</strong> {__('pos')}
+                <strong>{name}</strong> {__('pos')}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>

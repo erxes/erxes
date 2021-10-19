@@ -2,6 +2,7 @@ import React from 'react';
 import List from './pos/containers/List';
 import EditPos from './pos/containers/EditPos';
 import queryString from 'query-string';
+import CreatePos from './pos/containers/CreatePos';
 
 const settingsComponent = ({ location, history }) => {
   return (
@@ -12,36 +13,47 @@ const settingsComponent = ({ location, history }) => {
   );
 };
 
-const editPos = ({ match, location }) => {
+const editPos = ({ match, location, history }) => {
   const { integrationId } = match.params;
   const queryParams = queryString.parse(location.search);
-
-  console.log("query: ",queryParams)
 
   return (
     <EditPos
       queryParams={queryParams}
       integrationId={integrationId}
+      history={history}
     />
+  );
+}
+
+const createPos = ({ match, location, history }) => {
+  return (
+    <CreatePos location={location}
+      match={match}
+      history={history} />
   );
 }
 
 export default () => ({
   routes: [
     {
-      path: '/settings',
+      path: '/pos',
       component: settingsComponent
     },
     {
       path: '/pos/edit/:integrationId',
       component: editPos
     },
+    {
+      path: '/pos/create',
+      component: createPos
+    }
   ],
   settings: [
     {
       name: 'POS',
       image: '/images/icons/erxes-05.svg',
-      to: '/erxes-plugin-pos/settings/',
+      to: '/erxes-plugin-pos/pos/',
       action: 'posConfig',
       permissions: [],
     }

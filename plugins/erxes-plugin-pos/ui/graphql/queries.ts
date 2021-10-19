@@ -111,6 +111,20 @@ const posConfig = `
   }
 `;
 
+const posDetail =`
+query posDetail($integrationId: String!) {
+  posDetail(integrationId: $integrationId) {
+    _id
+    name
+    description
+    createdAt
+    integrationId
+    productDetails
+    productGroupIds
+  }
+}
+`
+
 export default {
   posList,
   configs,
@@ -119,5 +133,6 @@ export default {
   integrationsTotalCount,
   integrations,
   integrationDetail,
-  posConfig
+  posConfig,
+  posDetail
 };

@@ -6,8 +6,15 @@ import { graphql } from 'react-apollo';
 import { queries } from 'erxes-ui/lib/products/graphql';
 import { IProductGroup, ProductCategoriesQueryResponse } from '../../../types';
 import GroupForm from '../../components/productGroup/GroupForm';
+import { Spinner } from 'erxes-ui';
 
-type Props = { history: any; queryParams: any; group: IProductGroup };
+type Props = {
+  closeModal: () => void;
+  onSubmit: (group: IProductGroup) => void;
+  history: any;
+  queryParams: any;
+  ongroup: IProductGroup;
+};
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
@@ -17,14 +24,15 @@ class GroupContainer extends React.Component<FinalProps> {
   render() {
     const { productCategoriesQuery } = this.props;
 
+    const categories = productCategoriesQuery.productCategories || [];
 
-    console.log('productCategoriesQuery: ',productCategoriesQuery.productCategories)
-
+    if (productCategoriesQuery.loading) {
+      return <Spinner objective={true} />;
+    }
+    console.log('asd asd = ', categories);
     const updatedProps = {
       ...this.props,
-
-      categories: productCategoriesQuery.productCategories || [],
-      loading: productCategoriesQuery.loading
+      categories
     };
 
     return <GroupForm {...updatedProps} />;

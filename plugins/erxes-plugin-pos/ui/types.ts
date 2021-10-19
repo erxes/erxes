@@ -27,6 +27,10 @@ export type IPos = {
   _id: string;
   name: string;
   description: string;
+  createdAt: Date
+  integrationId: string
+  productDetails: [string]
+  productGroupIds: [string]
 }
 
 // query types
@@ -110,15 +114,34 @@ export type PosConfigQueryResponse = {
   posConfig: IPosConfig;
 } & QueryResponse;
 
+export type PosDetailQueryResponse = {
+  posDetail: IPos;
+} & QueryResponse;
+
 export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
+  description: string;
+  productDetails: string[];
+  productGroupIds: string[];
 };
 
 export type EditIntegrationMutationResponse = {
   editIntegrationMutation: (params: {
     variables: IntegrationMutationVariables;
   }) => Promise<void>;
+};
+
+export type AddPosMutationResponse = {
+  addPosMutation: (params: {
+    variables: IntegrationMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditPosMutationResponse = {
+  editPosMutation: (params: {
+    variables: { _id: string; } & IntegrationMutationVariables;
+  }) => Promise<any>;
 };
 
 export type RemoveMutationResponse = {
