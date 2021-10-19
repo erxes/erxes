@@ -32,24 +32,37 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get(
   '/activityLogs',
   routeErrorHandling(async (req, res) => {
-    const params = JSON.parse(req.body.params || '{}');
-    const { contentType, contentId } = params;
+    const filter: {
+      contentType?: string;
+      contentId?: any;
+      action?: string;
+      perPage?: number;
+      page?: number;
+    } = JSON.parse(req.body.params || '{}');
 
-    const filter: { contentType?: string; contentId?: string } = {};
+    if (filter.page && filter.perPage) {
+      const perPage = filter.perPage || 20;
+      const page = filter.page || 1;
 
-    if (contentType) {
-      filter.contentType = contentType;
+      delete filter.perPage;
+      delete filter.page;
+
+      return res.json({
+        activityLogs: await ActivityLogs.find(filter)
+          .sort({
+            createdAt: -1
+          })
+          .skip(perPage * (page - 1))
+          .limit(perPage),
+        totalCount: await ActivityLogs.countDocuments(filter)
+      });
     }
 
-    if (contentId) {
-      filter.contentId = contentId;
-    }
-
-    const activityLogs = await ActivityLogs.find(filter).sort({
-      createdAt: -1
-    });
-
-    return res.json(activityLogs);
+    return res.json(
+      await ActivityLogs.find(filter).sort({
+        createdAt: -1
+      })
+    );
   })
 );
 
@@ -62,7 +75,7 @@ app.get(
         createdAt?: any;
         createdBy?: string;
         action?: string;
-        type?: string;
+        type?: string | { $in: string[] };
         description?: object;
       }
 

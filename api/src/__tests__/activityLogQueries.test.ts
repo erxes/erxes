@@ -12,6 +12,7 @@ import {
   growthHackFactory,
   integrationFactory,
   internalNoteFactory,
+  pipelineFactory,
   stageFactory,
   tagsFactory,
   taskFactory,
@@ -59,6 +60,28 @@ describe('activityLogQueries', () => {
         createdByDetail
         contentDetail
         contentTypeDetail
+      }
+    }
+  `;
+
+  const qryActivityLogsByAction = `
+    query activityLogsByAction($contentType: String, $action: String, $pipelineId: String) {
+      activityLogsByAction(contentType: $contentType, action: $action, pipelineId: $pipelineId) {
+        activityLogs {
+          _id
+          action
+          contentId
+          contentType
+          content
+          createdAt
+          createdBy
+          
+          createdUser {
+            _id
+          }
+          contentTypeDetail
+        }
+        totalCount
       }
     }
   `;
@@ -324,6 +347,30 @@ describe('activityLogQueries', () => {
     }
   });
 
+  test('Activity log content type detail (throw error)', async () => {
+    const createdBy = integration._id;
+
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+
+    const doc = {
+      contentId: 'contentId1',
+      contentType: 'deal',
+      createdBy
+    };
+
+    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
+
+    const args = { contentId: 'contentId2', contentType: 'Deal' };
+
+    try {
+      await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+    } catch (e) {
+      expect(e.message).toBe('Deal not found');
+    }
+
+    spy.mockRestore();
+  });
+
   test('Activity log action merge', async () => {
     const customer = await customerFactory();
     const company = await companyFactory();
@@ -496,5 +543,109 @@ describe('activityLogQueries', () => {
     expect(response.length).toBe(1);
 
     spy.mockRestore();
+  });
+
+  test('Activity log by action', async () => {
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const mydeal = await dealFactory({ stageId: stage._id });
+
+    const doc = {
+      contentId: mydeal._id,
+      contentType: 'deal',
+      action: 'create'
+    };
+
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+    spy.mockImplementation(async () => ({
+      activityLogs: [await activityLogFactory(doc)],
+      totalCount: 1
+    }));
+
+    const args = {
+      contentType: 'deal',
+      action: 'create',
+      pipelineId: pipeline._id
+    };
+
+    const response = await graphqlRequest(
+      qryActivityLogsByAction,
+      'activityLogsByAction',
+      args
+    );
+
+    expect(response.activityLogs.length).toBe(1);
+
+    spy.mockRestore();
+  });
+
+  test('Activity log by action (delete)', async () => {
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const mydeal = await dealFactory({ stageId: stage._id });
+
+    const doc = {
+      contentId: mydeal._id,
+      contentType: 'deal',
+      action: 'delete'
+    };
+
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+    spy.mockImplementation(async () => ({
+      logs: [await activityLogFactory(doc)]
+    }));
+
+    const args = {
+      contentType: 'deal',
+      action: 'delete',
+      pipelineId: pipeline._id
+    };
+
+    const response = await graphqlRequest(
+      qryActivityLogsByAction,
+      'activityLogsByAction',
+      args
+    );
+
+    expect(response.activityLogs.length).toBe(1);
+
+    spy.mockRestore();
+  });
+
+  test('Activity log by action (add note)', async () => {
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const mydeal = await dealFactory({ stageId: stage._id });
+
+    await internalNoteFactory({
+      contentTypeId: mydeal._id,
+      contentType: 'deal'
+    });
+
+    const args = {
+      contentType: 'deal',
+      action: 'addNote',
+      pipelineId: pipeline._id
+    };
+
+    const response = await graphqlRequest(
+      qryActivityLogsByAction,
+      'activityLogsByAction',
+      args
+    );
+
+    expect(response.activityLogs.length).toBe(1);
+  });
+
+  test('Activity log by action (empty action)', async () => {
+    const args = { action: '' };
+
+    const response = await graphqlRequest(
+      qryActivityLogsByAction,
+      'activityLogsByAction',
+      args
+    );
+
+    expect(response.activityLogs.length).toBe(0);
   });
 });
