@@ -1,88 +1,61 @@
 import React from "react";
 import Label from "erxes-ui/lib/components/Label";
 import CodeBlock from "@theme/CodeBlock";
-import styles from "../../../src/components/styles.module.css";
 import { renderApiTable } from "../common.js";
 
 export function LabelComponent(props) {
-  const { type, style = [], table = [] } = props;
+  const { type, styles = [], color, table = [] } = props;
+
+  const propDatas = (propName, stl) => {
+    const kind = {
+      [propName]: propName === "lblStyle" || propName === "lblColor" || propName === "classname" || propName === "children"
+      ? stl.toLowerCase() : true,
+    };
+    const datas = {
+      ...kind,
+    };
+    return datas;
+  };
+  const renderBlock = (propName) => {
+    console.log();
+    return (
+      <>
+        <div>
+          {styles.map((stl, index) => {
+            return (
+              <Label key={index} {...propDatas(propName, stl)}>
+                {stl}
+              </Label>
+            );
+          })}
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>\t${styles.map((stl, index) => {
+            console.log(propDatas(propName, stl));
+            return `\n\t<Label ${JSON.stringify(
+              propDatas(propName, stl)
+            )}>${stl}</Label>`;
+          })}\n</>`}
+        </CodeBlock>
+      </>
+    );
+  };
 
   if (type === "lblStyle") {
-    return (
-      <>
-        <div className={styles.styled}>
-          {style.map((e) => (
-            <Label key={Math.random()} lblStyle={e.toLowerCase()}>
-              {e}
-            </Label>
-          ))}
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>${style.map(
-            (e) => `\n\t<Label lblStyle="${e.toLowerCase()}">${e}</Label>`
-          )}\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("lblStyle");
   }
   if (type === "lblColor") {
-    return (
-      <>
-        <div className={styles.styled}>
-          {style.map((e) => (
-            <Label key={Math.random()} lblColor={e.toLowerCase()}>
-              {e}
-            </Label>
-          ))}
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>${style.map(
-            (e) => `\n\t<Label lblColor="${e.toLowerCase()}">${e}</Label>`
-          )}\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("lblColor")
   }
   if (type === "className") {
-    return (
-      <>
-        <div className={styles.styled}>
-          {style.map((e) => (
-            <Label key={Math.random()} className={e.toLowerCase()}>
-              Styled
-            </Label>
-          ))}
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>${style.map(
-            (e) => `\n\t<Label className=${e.toLowerCase()}>Styled</Label>`
-          )}\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("className")
   }
   if (type === "children") {
-    return (
-      <>
-        <div className={styles.styled}>
-          {style.map((e) => (
-            <Label key={Math.random()} children={e.toLowerCase()} />
-          ))}
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>${style.map((e) => `\n\t<Label children="${e.toLowerCase()}"/>`)}\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("children")
   }
 
   if (type === "APIlabel") {
-    return (
-      <>
-        {/* {Api("Label")}
-        {ApiTable(table)} */}
-      </>
-    );
+    return renderApiTable("Label", table);
   }
   return null;
 }

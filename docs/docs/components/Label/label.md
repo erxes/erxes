@@ -8,23 +8,23 @@ import { LabelComponent } from './label.js'
  ## Style
 
 <p>Use any of the available label style types to quickly create a styled label. Just modify the <code>lblStyle</code> prop.</p>
-<LabelComponent type="lblStyle" style={['Default', 'Primary', 'Success', 'Danger', 'Warning', 'Simple']} />
+<LabelComponent type="lblStyle" styles={['Default', 'Primary', 'Success', 'Danger', 'Warning', 'Simple']} />
 
 ## Color
 
 <p>Wants your own color? Just give color to <code>lblColor</code> prop.</p>
-<LabelComponent type="lblColor" style={['red']} />
+<LabelComponent type="lblColor" styles={['red']} />
 
 
 ## Classname
 
 <p>Wants your own style? Just create style on your css and declare it to <code>className</code> prop.</p>
-<LabelComponent type="className" style={['styles.styled']} />
+<LabelComponent type="className" styles={['styles.styled']} />
 
 ## Children
 
 <p>Want to declare your value inside the tag? Use <code>children</code> prop.</p>
-<LabelComponent type="children" style={['children']} />
+<LabelComponent type="children" styles={['children']} />
 
 ## API
 
