@@ -1,6 +1,4 @@
 import {
-  ChecklistItems,
-  Checklists,
   Companies,
   Customers,
   Deals,
