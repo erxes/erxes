@@ -7,6 +7,7 @@ import BravoForm from '../components/BravoForm';
 import { IButtonMutateProps } from 'erxes-ui/lib/types';
 import { ButtonMutate } from 'erxes-ui';
 import EventForm from '../components/EventForm';
+import PublicHolidayForm from '../components/PublicHolidayForm';
 
 type Props = {
   contentType?: string;
@@ -74,6 +75,10 @@ export default function FormContainer(props: Props) {
 
   if (props.contentType === 'event') {
     return <EventForm {...updateProps} />;
+  }
+
+  if (props.contentType === 'publicHoliday') {
+    return <PublicHolidayForm {...updateProps} />;
   }
 
   return <BravoForm {...updateProps} />;

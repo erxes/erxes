@@ -86,6 +86,12 @@ export default function Home(props: Props) {
           >
             Thank you
           </TabTitle>
+          <TabTitle
+            className={currentTab === 'publicHoliday' ? 'active' : ''}
+            onClick={() => setCurrentTab('publicHoliday')}
+          >
+            Public holiday
+          </TabTitle>
         </Tabs>
         {renderTabContent()}
       </FeedLayout>

@@ -34,7 +34,15 @@ export const FEED_CONTENT_TYPES = {
   BRAVO: 'bravo',
   BIRTHDAY: 'birthday',
   WORK_ANNIVARSARY: 'workAnniversary',
-  ALL: ['post', 'event', 'bravo', 'birthday', 'workAnniversary']
+  PUBLIC_HOLIDAY: 'publicHoliday',
+  ALL: [
+    'post',
+    'event',
+    'bravo',
+    'birthday',
+    'workAnniversary',
+    'publicHoliday'
+  ]
 };
 
 export const feedSchema = {
@@ -54,6 +62,7 @@ export const feedSchema = {
   ceremonyData: { type: ceremonyDataSchema },
   eventData: { type: eventDataSchema },
   startDate: { type: Date },
+  scheduleDate: { type: Date },
   endDate: { type: Date },
   createdBy: { type: String, label: 'Created by' },
   createdAt: { type: Date, label: 'Created at' },

@@ -46,8 +46,10 @@ export default function List({
 
     return <ModalTrigger title='Edit' trigger={trigger} content={content} />;
   };
+
   const renderItem = (item: any) => {
     const createdUser = item.createdUser || {};
+
     return (
       <div key={item._id}>
         <HeaderFeed>

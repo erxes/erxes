@@ -39,6 +39,7 @@ const commonFeedFields = `
     goingUserIds
   }
   customFieldsData
+  scheduleDate
 `;
 
 const feed = `

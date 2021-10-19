@@ -61,6 +61,14 @@ const exmFeedQueries = [
 
       const doc: any = {};
 
+      if (
+        contentTypes &&
+        contentTypes.includes('publicHoliday') &&
+        type === 'recipient'
+      ) {
+        doc.scheduleDate = { $lt: new Date() };
+      }
+
       if (title) {
         doc.title = new RegExp(`.*${title}.*`, 'i');
       }

@@ -43,6 +43,7 @@ export const types = `
     eventData: ExmEventData
     eventGoingUsers: [User]
     eventInterestedUsers: [User]
+    scheduleDate: Date
   }
 
   type ExmThank {
@@ -93,6 +94,7 @@ export const types = `
     bravo
     birthday
     workAnniversary
+    publicHoliday
   }
 
   enum RecipientType {
@@ -137,6 +139,7 @@ const feedCommonParams = `
   eventData: ExmEventDataInput
   customFieldsData: JSON
   isPinned: Boolean
+  scheduleDate: Date
 `;
 
 const thankCommonParams = `

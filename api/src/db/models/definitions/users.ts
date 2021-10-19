@@ -94,7 +94,8 @@ export const userSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: field({
       type: Date,
-      default: Date.now
+      default: Date.now,
+      label: 'Created at'
     }),
     username: field({ type: String, label: 'Username' }),
     password: field({ type: String }),
