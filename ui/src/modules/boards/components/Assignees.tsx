@@ -7,6 +7,7 @@ const Wrapper = styled.div`
   > img {
     border-radius: 14px;
     float: left;
+    object-fit: cover;
     margin-left: 2px;
   }
 `;
