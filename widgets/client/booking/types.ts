@@ -25,18 +25,14 @@ export interface ICategoryTree {
 }
 
 export interface IBookingData {
-  _id: string;
-  // content
   name: string;
   description: string;
   userFilters?: string[];
   image?: any;
 
   productCategoryId?: string;
-  // style
   style: IStyle;
 
-  // child categories
   childCategories: IProductCategory[];
   categoryTree: ICategoryTree[];
 

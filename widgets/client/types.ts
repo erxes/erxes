@@ -1,4 +1,4 @@
-import { ICategoryTree, IStyle } from './booking/types';
+import { IBookingData } from './booking/types';
 import { ICallout } from './form/types';
 import { IAttachment, IWebsiteApp } from './messenger/types';
 
@@ -158,20 +158,6 @@ export interface IIntegrationUiOptions {
   showVideoCallRequest: boolean;
 }
 
-export interface IIntegrationBookingData {
-  name: string;
-  description: string;
-  userFilters?: string[];
-  image?: any;
-  productCategoryId?: string;
-
-  style: IStyle;
-
-  childCategories?: IProductCategory[];
-  categoryTree?: ICategoryTree;
-  mainProductCategory: IProductCategory;
-}
-
 export interface IIntegration {
   _id: string;
   kind: string;
@@ -185,7 +171,7 @@ export interface IIntegration {
   twitterData: IIntegrationTwitterData;
   facebookData: IIntegrationFacebookData;
   uiOptions: IIntegrationUiOptions;
-  bookingData: IIntegrationBookingData;
+  bookingData: IBookingData;
 }
 export interface IRule {
   _id: string;

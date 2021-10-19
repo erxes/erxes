@@ -3,13 +3,15 @@ import { App as DumbApp } from '../components';
 import { AppConsumer, AppProvider } from './AppContext';
 import { connection } from '../connection';
 import { saveBrowserInfo } from './utils';
+import { connection as formConnection } from '../../form/connection';
+import { IIntegration } from '../../types';
 
 type Props = {
   isPopupVisible: boolean;
   activeRoute: string;
   isFormVisible: boolean;
   closePopup: () => void;
-  integration: any;
+  integration: IIntegration;
   showPopup: () => void;
 };
 
@@ -23,6 +25,7 @@ class AppContainer extends React.Component<Props> {
 
     const booking = integration.bookingData || {};
     connection.data.booking = booking;
+    formConnection.data.form = integration.formId;
 
     const loadType = 'popup';
 
