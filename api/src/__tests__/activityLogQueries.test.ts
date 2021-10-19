@@ -612,4 +612,16 @@ describe('activityLogQueries', () => {
 
     expect(response.activityLogs.length).toBe(1);
   });
+
+  test('Activity log by action (empty action)', async () => {
+    const args = { action: '' };
+
+    const response = await graphqlRequest(
+      qryActivityLogsByAction,
+      'activityLogsByAction',
+      args
+    );
+
+    expect(response.activityLogs.length).toBe(0);
+  });
 });

@@ -256,11 +256,14 @@ const activityLogQueries = {
     const allActivityLogs: any[] = [];
     let allTotalCount: number = 0;
 
-    let actionArr = action.split(',');
-
-    if (actionArr.length === 0) {
-      return [];
+    if (!action) {
+      return {
+        activityLogs: [],
+        totalCount: 0
+      };
     }
+
+    let actionArr = action.split(',');
 
     const perPageForAction = perPage / actionArr.length;
 
