@@ -29,7 +29,7 @@ class GroupContainer extends React.Component<FinalProps> {
     if (productCategoriesQuery.loading) {
       return <Spinner objective={true} />;
     }
-    console.log('asd asd = ', categories);
+
     const updatedProps = {
       ...this.props,
       categories

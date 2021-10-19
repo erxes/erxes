@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'erxes-ui';
+import { Alert, withProps, Spinner } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IRouterProps } from 'erxes-ui/lib/types';
@@ -54,6 +54,11 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
     const integration = integrationDetailQuery.integrationDetail || {};
     const pos = posDetailQuery.posDetail || {};
+    // const categories = productCategoriesQuery.productCategories || [];
+
+    if (integrationDetailQuery.loading || posDetailQuery.loading) {
+      return <Spinner objective={true} />;
+    }
 
     const save = doc => {
       this.setState({ isLoading: true });

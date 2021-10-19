@@ -10,7 +10,7 @@ type Props = {
   group: IProductGroup;
   onSubmit: (group: IProductGroup) => void;
   onDelete: (group: IProductGroup) => void;
-  onCancel: () => void;
+  closeModal: () => void;
   mode: 'create' | 'update';
   categories: any[];
 };
@@ -30,19 +30,56 @@ class GroupForm extends React.Component<Props, State> {
     };
   }
 
-  onChangeCategories = values => {
-    console.log(values);
+  onChangeFunction = (name: any, value: any) => {
+    const { group } = this.state;
+    group[name] = value;
+    this.setState({ group });
+  };
+
+  onClicksave = () => {
+    console.log(this.state.group);
+    this.props.onSubmit(this.state.group);
+    this.props.closeModal();
   };
 
   render() {
     const { mode, onDelete, onSubmit, onCancel } = this.props;
     const { group, categories } = this.state;
-    
-    console.log('group: ',group )
 
     const categoryOptions = categories.map(e => {
       return { value: e._id, label: e.name };
     });
+
+    const categoryIds = group.categoryIds || [];
+    const excludedCategoryIds = group.excludedCategoryIds || [];
+
+    const onChangeName = e => {
+      this.onChangeFunction(
+        'name',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    const onChangeDescription = e => {
+      this.onChangeFunction(
+        'description',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    const onChangeCategories = values => {
+      this.onChangeFunction(
+        'categoryIds',
+        values.map(e => e.value)
+      );
+    };
+
+    const onChangeExcludeCategories = values => {
+      this.onChangeFunction(
+        'excludedCategoryIds',
+        values.map(e => e.value)
+      );
+    };
 
     return (
       <>
@@ -54,6 +91,7 @@ class GroupForm extends React.Component<Props, State> {
             defaultValue={group.name}
             required={true}
             autoFocus={true}
+            onChange={onChangeName}
           />
         </FormGroup>
 
@@ -65,6 +103,7 @@ class GroupForm extends React.Component<Props, State> {
             componentClass="textarea"
             rows={5}
             defaultValue={group.description}
+            onChange={onChangeDescription}
           />
         </FormGroup>
 
@@ -72,9 +111,11 @@ class GroupForm extends React.Component<Props, State> {
           <ControlLabel>Product Category</ControlLabel>
           {/* <Description>Select pos to display in the product category.</Description> */}
           <Select
-            options={categoryOptions}
+            options={categoryOptions.filter(
+              e => !excludedCategoryIds.includes(e.value)
+            )}
             value={group.categoryIds}
-            onChange={this.onChangeCategories}
+            onChange={onChangeCategories}
             multi={true}
           />
         </FormGroup>
@@ -83,9 +124,11 @@ class GroupForm extends React.Component<Props, State> {
           <ControlLabel>Exclude Product Category</ControlLabel>
           {/* <Description>Select pos to display in the product category.</Description> */}
           <Select
-            options={categoryOptions}
+            options={categoryOptions.filter(
+              e => !categoryIds.includes(e.value)
+            )}
             value={group.excludedCategoryIds}
-            onChange={this.onChangeCategories}
+            onChange={onChangeExcludeCategories}
             multi={true}
           />
         </FormGroup>
@@ -101,7 +144,7 @@ class GroupForm extends React.Component<Props, State> {
           </Button>
 
           <Button
-            onClick={onSubmit}
+            onClick={this.onClicksave}
             btnStyle="success"
             icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
           >

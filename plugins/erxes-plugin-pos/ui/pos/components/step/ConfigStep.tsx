@@ -25,7 +25,7 @@ class OptionsStep extends React.Component<Props, {}> {
   };
 
   onChangeGroup = (group: IProductGroup) => {
-    console.log(group);
+    console.log('onChangeGroup: ',group);
   };
 
   renderAddGroup = () => {
