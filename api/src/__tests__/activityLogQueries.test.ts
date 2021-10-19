@@ -67,18 +67,21 @@ describe('activityLogQueries', () => {
   const qryActivityLogsByAction = `
     query activityLogsByAction($contentType: String, $action: String, $pipelineId: String) {
       activityLogsByAction(contentType: $contentType, action: $action, pipelineId: $pipelineId) {
-        _id
-        action
-        contentId
-        contentType
-        content
-        createdAt
-        createdBy
-
-        createdUser {
+        activityLogs {
           _id
+          action
+          contentId
+          contentType
+          content
+          createdAt
+          createdBy
+          
+          createdUser {
+            _id
+          }
+          contentTypeDetail
         }
-        contentTypeDetail
+        totalCount
       }
     }
   `;
@@ -530,7 +533,10 @@ describe('activityLogQueries', () => {
     };
 
     const spy = jest.spyOn(logUtils, 'fetchLogs');
-    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
+    spy.mockImplementation(async () => ({
+      activityLogs: [await activityLogFactory(doc)],
+      totalCount: 1
+    }));
 
     const args = {
       contentType: 'deal',
@@ -544,7 +550,7 @@ describe('activityLogQueries', () => {
       args
     );
 
-    expect(response.length).toBe(1);
+    expect(response.activityLogs.length).toBe(1);
 
     spy.mockRestore();
   });
@@ -577,7 +583,7 @@ describe('activityLogQueries', () => {
       args
     );
 
-    expect(response.length).toBe(1);
+    expect(response.activityLogs.length).toBe(1);
 
     spy.mockRestore();
   });
@@ -604,6 +610,6 @@ describe('activityLogQueries', () => {
       args
     );
 
-    expect(response.length).toBe(1);
+    expect(response.activityLogs.length).toBe(1);
   });
 });
