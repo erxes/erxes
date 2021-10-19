@@ -5,19 +5,34 @@ import { renderApiTable } from "../common.js";
 
 export function LabelComponent(props) {
   const { type, styles = [], color, table = [] } = props;
+  let string;
 
   const propDatas = (propName, stl) => {
     const kind = {
-      [propName]: propName === "lblStyle" || propName === "lblColor" || propName === "classname" || propName === "children"
-      ? stl.toLowerCase() : true,
+      [propName]:
+        propName === "lblStyle" ||
+        propName === "lblColor" ||
+        propName === "classname" ||
+        propName === "children"
+          ? stl.toLowerCase()
+          : true,
     };
+
     const datas = {
       ...kind,
     };
+
+    string = JSON.stringify(datas);
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/}/g, "");
+
     return datas;
   };
   const renderBlock = (propName) => {
-    console.log();
+
+    
     return (
       <>
         <div>
@@ -31,10 +46,7 @@ export function LabelComponent(props) {
         </div>
         <CodeBlock className="language-jsx">
           {`<>\t${styles.map((stl, index) => {
-            console.log(propDatas(propName, stl));
-            return `\n\t<Label ${JSON.stringify(
-              propDatas(propName, stl)
-            )}>${stl}</Label>`;
+            return `\n\t<Label ${string}>${stl}</Label>`;
           })}\n</>`}
         </CodeBlock>
       </>
@@ -45,13 +57,13 @@ export function LabelComponent(props) {
     return renderBlock("lblStyle");
   }
   if (type === "lblColor") {
-    return renderBlock("lblColor")
+    return renderBlock("lblColor");
   }
   if (type === "className") {
-    return renderBlock("className")
+    return renderBlock("className");
   }
   if (type === "children") {
-    return renderBlock("children")
+    return renderBlock("children");
   }
 
   if (type === "APIlabel") {
