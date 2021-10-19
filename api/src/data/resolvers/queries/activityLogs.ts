@@ -3,8 +3,10 @@ import {
   Conversations,
   EmailDeliveries,
   InternalNotes,
+  Stages,
   Tasks
 } from '../../../db/models';
+import { getCollection } from '../../../db/models/boardUtils';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
@@ -19,14 +21,20 @@ export interface IListArgs {
   activityType: string;
 }
 
+interface IListArgsByAction {
+  contentType: string;
+  action: string;
+  pipelineId: string;
+  perPage?: number;
+  page?: number;
+}
+
 const activityLogQueries = {
   /**
    * Get activity log list
    */
   async activityLogs(_root, doc: IListArgs, { dataSources, user }: IContext) {
     const { contentType, contentId, activityType } = doc;
-
-    console.log(doc);
 
     let activities: IActivityLogDocument[] = [];
 
@@ -112,9 +120,11 @@ const activityLogQueries = {
 
     const collectInternalNotes = async () => {
       collectItems(
-        await InternalNotes.find({ contentTypeId: contentId }).sort({
-          createdAt: -1
-        }).lean(),
+        await InternalNotes.find({ contentTypeId: contentId })
+          .sort({
+            createdAt: -1
+          })
+          .lean(),
         'note'
       );
     };
@@ -151,9 +161,11 @@ const activityLogQueries = {
               { _id: { $in: relatedTaskIds } },
               { status: { $ne: 'archived' } }
             ]
-          }).sort({
-            closeDate: 1
-          }).lean(),
+          })
+            .sort({
+              closeDate: 1
+            })
+            .lean(),
           'taskDetail'
         );
       }
@@ -229,6 +241,128 @@ const activityLogQueries = {
     });
 
     return activities;
+  },
+
+  async activityLogsByAction(
+    _root,
+    {
+      contentType,
+      action,
+      pipelineId,
+      perPage = 10,
+      page = 1
+    }: IListArgsByAction
+  ) {
+    const allActivityLogs: any[] = [];
+    let allTotalCount: number = 0;
+
+    if (!action) {
+      return {
+        activityLogs: [],
+        totalCount: 0
+      };
+    }
+
+    let actionArr = action.split(',');
+
+    const perPageForAction = perPage / actionArr.length;
+
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    const { collection } = getCollection(contentType);
+
+    const contentIds = await collection
+      .find({ stageId: { $in: stageIds } })
+      .distinct('_id');
+
+    actionArr = actionArr.filter(a => a !== 'delete' && a !== 'addNote');
+
+    if (actionArr.length > 0) {
+      const { activityLogs, totalCount } = await fetchLogs(
+        {
+          contentType,
+          contentId: { $in: contentIds },
+          action: { $in: actionArr },
+          perPage: perPageForAction * 3,
+          page
+        },
+        'activityLogs'
+      );
+
+      for (const log of activityLogs) {
+        allActivityLogs.push({
+          _id: log._id,
+          action: log.action,
+          createdAt: log.createdAt,
+          createdBy: log.createdBy,
+          contentType: log.contentType,
+          contentId: log.contentId,
+          content: log.content
+        });
+      }
+
+      allTotalCount += totalCount;
+    }
+
+    if (action.includes('delete')) {
+      const { logs, totalCount } = await fetchLogs(
+        {
+          action: 'delete',
+          type: contentType,
+          perPage: perPageForAction,
+          page
+        },
+        'logs'
+      );
+
+      for (const log of logs) {
+        allActivityLogs.push({
+          _id: log._id,
+          action: log.action,
+          contentType: log.type,
+          contentId: log.objectId,
+          createdAt: log.createdAt,
+          createdBy: log.createdBy,
+          content: log.description
+        });
+      }
+
+      allTotalCount += totalCount;
+    }
+
+    if (action.includes('addNote')) {
+      const filter = {
+        contentTypeId: { $in: contentIds }
+      };
+
+      const internalNotes = await InternalNotes.find(filter)
+        .sort({
+          createdAt: -1
+        })
+        .skip(perPageForAction * (page - 1))
+        .limit(perPageForAction);
+
+      for (const note of internalNotes) {
+        allActivityLogs.push({
+          _id: note._id,
+          action: 'addNote',
+          contentType: note.contentType,
+          contentId: note.contentTypeId,
+          createdAt: note.createdAt,
+          createdBy: note.createdUserId,
+          content: note.content
+        });
+      }
+
+      const totalCount = await InternalNotes.countDocuments(filter);
+
+      allTotalCount += totalCount;
+    }
+
+    return {
+      activityLogs: allActivityLogs,
+      totalCount: allTotalCount
+    };
   }
 };
 

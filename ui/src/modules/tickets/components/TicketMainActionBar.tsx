@@ -11,7 +11,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import options from '../options';
-import Dropdown from 'react-bootstrap/Dropdown';
+import { Dropdown } from 'react-bootstrap';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Button from 'modules/common/components/Button';
 
@@ -42,6 +42,10 @@ const TicketMainActionBar = (props: Props) => {
     viewType = 'calendar';
   }
 
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
+  }
+
   if (window.location.href.includes('list')) {
     viewType = 'list';
   }
@@ -60,6 +64,7 @@ const TicketMainActionBar = (props: Props) => {
     const boardLink = onFilterClick('board');
     const listLink = onFilterClick('list');
     const calendarLink = onFilterClick('calendar');
+    const activityLink = onFilterClick('activity');
 
     return (
       <ButtonGroup>
@@ -85,6 +90,14 @@ const TicketMainActionBar = (props: Props) => {
                 className={viewType === 'calendar' ? 'active' : ''}
               >
                 {__('Calendar')}
+              </Link>
+            </li>
+            <li key="activity">
+              <Link
+                to={activityLink}
+                className={viewType === 'activity' ? 'active' : ''}
+              >
+                {__('Activity')}
               </Link>
             </li>
             <li key="list">
