@@ -976,7 +976,7 @@ const widgetMutations = {
 
     const messages: any = [];
 
-    // create message
+    // create messages
     let message = await Messages.createMessage({
       conversationId: conversation._id,
       customerId: cachedCustomer._id,
@@ -986,7 +986,7 @@ const widgetMutations = {
 
     messages.push(message);
 
-    const product = await Products.findOne({ _id: productId });
+    const product = await Products.getProduct({ _id: productId });
 
     message = await Messages.createMessage({
       conversationId: conversation._id,
