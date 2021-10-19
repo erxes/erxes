@@ -11,8 +11,11 @@ type Props = {
 
 function Body({ title, description, image, page, children }: Props) {
   let style = 'fullimg';
-  if (page == 'floor') {
+  if (page == 'floor' || page == 'block-det') {
     style = 'grid-12';
+  }
+  if(page =='booking'){
+    style = 'block-det'
   }
   return (
     <div className="body">

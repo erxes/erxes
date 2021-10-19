@@ -77,9 +77,12 @@
   display: grid;
   grid-template-columns: minmax(0, 40%) minmax(0, 60%);
   grid-gap: 1rem;
+  overflow: hidden;
+  max-height: 70vh;
   img{
     grid-column-start: 2;
-    max-width: 90%;
+    height: 100%;
+    width:100%;
   }
 }
 

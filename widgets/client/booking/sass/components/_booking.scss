@@ -24,12 +24,6 @@ h4,p{
     }
 }
 
-img {
-	display: block;
-	border: 0;
-	width: 100%;
-	height: auto;
-}
 
 .slider{
   .active{
@@ -63,6 +57,7 @@ img {
   font-size: calc(0.25em + 1vmin);
   width: 100%;
   height: 100%;
+  overflow: auto;
 }
 .header{
   position:fixed;
@@ -91,7 +86,7 @@ img {
   right:0px;
   font-size: 1.5em;
   height: 100%;
-  overflow:hidden;
+  overflow: auto;
   .body{
     height: 100%;
     position:absolute;
@@ -100,14 +95,16 @@ img {
     left:0px;
     right:0px;
     background-color:  #fff;
-    .fullimg{
+    overflow: auto;
+    .block-det{
+      height:50vh;
+      overflow: hidden;
       img{
         height: 100%;
         width: 100%;
         object-fit: cover;
       }
     }
-   
   }
   .footer{
     position:fixed;

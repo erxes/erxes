@@ -19,7 +19,7 @@ function BlockDetail({ goToBookings, block, booking }: Props) {
   return (
     <>
       <Body
-        page="block"
+        page="block-det"
         title={block.name}
         description={block.description}
         image={block.attachment}

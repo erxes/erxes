@@ -40,12 +40,10 @@ function Booking({ goToIntro, booking }: Props) {
     gridAutoColumns: "minmax(100px, auto)",
     gap: margin,
   };
-
-  console.log(blocksStyle);
   return (
     <>
       <Body
-        page="block"
+        page="booking"
         title={name}
         description={description}
         image={attachment}
