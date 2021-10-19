@@ -347,6 +347,30 @@ describe('activityLogQueries', () => {
     }
   });
 
+  test('Activity log content type detail (throw error)', async () => {
+    const createdBy = integration._id;
+
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+
+    const doc = {
+      contentId: 'contentId1',
+      contentType: 'deal',
+      createdBy
+    };
+
+    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
+
+    const args = { contentId: 'contentId2', contentType: 'Deal' };
+
+    try {
+      await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+    } catch (e) {
+      expect(e.message).toBe('Deal not found');
+    }
+
+    spy.mockRestore();
+  });
+
   test('Activity log action merge', async () => {
     const customer = await customerFactory();
     const company = await companyFactory();
