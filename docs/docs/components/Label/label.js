@@ -2,7 +2,7 @@ import React from "react";
 import Label from "erxes-ui/lib/components/Label";
 import CodeBlock from "@theme/CodeBlock";
 import styles from "../../src/components/styles.module.css";
-import ApiTable from "./common";
+import ApiTable, { Api } from "./common";
 
 export function LabelComponent(props) {
   const { type, style = [], table = [] } = props;
@@ -18,11 +18,9 @@ export function LabelComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${style.map(
+          {`<>${style.map(
             (e) => `\n\t<Label lblStyle="${e.toLowerCase()}">${e}</Label>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );
@@ -38,11 +36,9 @@ export function LabelComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${style.map(
+          {`<>${style.map(
             (e) => `\n\t<Label lblColor="${e.toLowerCase()}">${e}</Label>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );
@@ -58,11 +54,9 @@ export function LabelComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${style.map(
+          {`<>${style.map(
             (e) => `\n\t<Label className=${e.toLowerCase()}>Styled</Label>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );
@@ -76,9 +70,7 @@ export function LabelComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${style.map((e) => `\n\t<Label children="${e.toLowerCase()}"/>`)}`}
-          {`\n</>`}
+          {`<>${style.map((e) => `\n\t<Label children="${e.toLowerCase()}"/>`)}\n</>`}
         </CodeBlock>
       </>
     );
@@ -87,7 +79,7 @@ export function LabelComponent(props) {
   if (type === "APIlabel") {
     return (
       <>
-        <CodeBlock className="language-javascript">{`import Label from "erxes-ui/lib/components/Label";`}</CodeBlock>
+        {Api("Label")}
         {ApiTable(table)}
       </>
     );

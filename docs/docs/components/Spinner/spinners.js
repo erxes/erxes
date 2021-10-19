@@ -3,7 +3,7 @@ import Spinner from "erxes-ui/lib/components/Spinner";
 import styles from "../../src/components/styles.module.css";
 import CodeBlock from '@theme/CodeBlock';
 import "erxes-icon/css/erxes.min.css";
-import ApiTable from "./common.js"
+import ApiTable, { Api } from "./common.js"
 
 export function SpinnerComponent(props) {
   const { type, sizes = [], lefts = [], rights = [], table = [] } = props;
@@ -11,7 +11,7 @@ export function SpinnerComponent(props) {
   if (type === "size") {
     return (
       <>
-        <div className={styles.styled}>
+        <div className={styles.styleSpinner}>
           {sizes.map((e) => (
             <div className={styles.spinner}>
               <Spinner key={Math.random()} size={e} objective/>
@@ -19,11 +19,9 @@ export function SpinnerComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${sizes.map(
+          {`<>${sizes.map(
             (e) => `\n\t<Spinner size="${e}" objective/>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );
@@ -32,7 +30,7 @@ export function SpinnerComponent(props) {
   if (type === "position") {
     return (
       <>
-        <div className={styles.styled}>
+        <div className={styles.styleSpinner}>
           {lefts.map((e, i) => (
             <div className={styles.spinnerPos}>
               <Spinner key={Math.random()} left={e} right={rights[i]} objective/>
@@ -40,11 +38,9 @@ export function SpinnerComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`${lefts.map(
+          {`<>${lefts.map(
             (e, i) => `\n\t<Spinner left="${e}" right="${rights[i]}" objective/>`
-          )}`}
-          {`\n</>`}
+          )}\n</>`}
         </CodeBlock>
       </>
     );
@@ -59,9 +55,7 @@ export function SpinnerComponent(props) {
           </div>
         </div>
         <CodeBlock className="language-jsx">
-          {`<>`}
-          {`\n\t<Spinner objective/>`}
-          {`\n</>`}
+          {`<>\n\t<Spinner objective/>\n</>`}
         </CodeBlock>
       </>
     );
@@ -70,7 +64,7 @@ export function SpinnerComponent(props) {
   if (type === "APIspinner") {
     return (
       <>
-        <CodeBlock className="language-javascript">{`import Spinner from "erxes-ui/lib/components/Spinner";`}</CodeBlock>
+        {Api("Spinner")}
         {ApiTable(table)}
       </>
     );
