@@ -6,9 +6,6 @@ import { readFile } from '../../utils';
 import { IProduct } from '../../types';
 import Button from './common/Button';
 
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-
 type Props = {
   product?: IProduct;
   booking: IBookingData;
@@ -40,11 +37,11 @@ function Product({
   const settings = {
     dots: true,
     infinite: true,
-    autoplay: true,
-    autoplaySpeed: 2000,
-    slidesToShow: 3,
-    slidesToScroll: 1
+    speed: 500,
+    slidesToShow: 2,
+    slidesToScroll: 2
   };
+  console.log(product);
 
   return (
     <div className="product">
@@ -61,15 +58,14 @@ function Product({
           </div>
           <div>
             <Slider {...settings}>
-              {product.attachmentMore?.map((img: any, index) => (
-                // tslint:disable-next-line: jsx-key
-                <div onClick={() => showFull(img)} key={index}>
-                  {' '}
+              {(product.attachmentMore || []).map((img, index) => (
+                <div key={index} onClick={() => showFull(img)}>
                   <img
                     id={img.name}
                     src={readFile(img && img.url)}
                     alt={img.name}
-                  />{' '}
+                    style={{ width: '200px', height: '150px' }}
+                  />
                 </div>
               ))}
             </Slider>
