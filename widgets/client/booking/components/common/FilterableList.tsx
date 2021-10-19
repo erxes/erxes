@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { RiArrowDownSFill, RiArrowRightSFill } from 'react-icons/ri'
+import { RiArrowDownSFill, RiArrowRightSFill } from 'react-icons/ri';
 import { IStyle } from '../../types';
 
 type Props = {
@@ -119,13 +119,11 @@ class FilterableList extends React.Component<Props, State> {
       color = productAvailable;
     }
 
-    console.log(styles)
-
     return (
       <li
         key={item._id}
         className={`list flex-sb `}
-        style={{ color: color }}
+        style={{ color }}
         onClick={onClick}
       >
         <div className="flex-center">
@@ -145,13 +143,17 @@ class FilterableList extends React.Component<Props, State> {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
 
-    const num = childrens ? childrens.length : 0;
+    const productCount = subFields.filter(
+      (el: any) => el.type === 'product' && el.parentIds.includes(parent._id)
+    );
+
+    let stockCnt = productCount ? productCount.length : 0;
 
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
       return (
         <ul key={`parent-${parent._id}`}>
-          {this.renderItem(parent, true, num)}
+          {this.renderItem(parent, true, stockCnt)}
           <li className="child-list">
             {isOpen &&
               childrens.map((childparent: any) => {
@@ -162,7 +164,11 @@ class FilterableList extends React.Component<Props, State> {
       );
     }
 
-    return this.renderItem(parent, false, num);
+    if (parent.type === 'product') {
+      stockCnt = 1;
+    }
+
+    return this.renderItem(parent, false, stockCnt);
   }
 
   renderItems() {

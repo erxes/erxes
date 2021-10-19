@@ -12,10 +12,11 @@ export default {
       name: string;
       parentId?: string;
       type: 'category' | 'product';
+      parentIds?: string[];
     }> = [];
 
     // tslint:disable-next-line: no-shadowed-variable
-    const generateTree = async (parentId: any) => {
+    const generateTree = async (parentId: any, grandParentId?: string) => {
       const categories = await ProductCategories.find({ parentId });
 
       if (categories.length === 0) {
@@ -26,7 +27,8 @@ export default {
             _id: product._id,
             name: product.name,
             parentId,
-            type: 'product'
+            type: 'product',
+            parentIds: [parentId, grandParentId]
           });
         }
       }
@@ -36,10 +38,11 @@ export default {
           _id: category._id,
           name: category.name,
           parentId,
-          type: 'category'
+          type: 'category',
+          parentIds: [parentId, grandParentId]
         });
 
-        await generateTree(category._id);
+        await generateTree(category._id, category.parentId);
       }
     };
 
