@@ -7,7 +7,6 @@ import "erxes-icon/css/erxes.min.css";
 
 export function ButtonComponent(props) {
   const { type, buttons = [], icons = [], table = [] } = props;
-  let string;
 
   const propDatas = (propName, btn, icon, index) => {
     const kind = {
@@ -21,15 +20,20 @@ export function ButtonComponent(props) {
       ...kind,
       icon: icon && icons[index],
     };
-    string = JSON.stringify(datas);
+
+    return datas;
+  };
+
+  const Stringify = (datas) => {
+    let string = JSON.stringify(datas);
     string = string.replace(/{"/g, "");
     string = string.replace(/":/g, "=");
     string = string.replace(/,"/g, " ");
     string = string.replace(/}/g, "");
     string = string.replace(/=true/g, "");
-
-    return datas;
-  };
+    
+    return string;
+  }
 
   const renderBlock = (propName, defaultBtn, icon) => {
     return (
@@ -50,8 +54,7 @@ export function ButtonComponent(props) {
           {`<>\n\t<Button>${
             defaultBtn ? defaultBtn : "Default"
           }</Button>${buttons.map((btn, index) => {
-            console.log(string);
-            return `\n\t<Button ${string}>${btn}</Button>`;
+            return `\n\t<Button ${Stringify(propDatas(propName, btn, icon, index))}>${btn}</Button>`;
           })}\n</>`}
         </CodeBlock>
       </>

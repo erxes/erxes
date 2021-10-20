@@ -11,7 +11,7 @@ export function CardComponent(props) {
 
 
     const kind = {
-      user: {[propName]: propName === "username" ? name : {[fullName]: name}},
+      user: {[propName]: propName === "username" ? name : {[fullName]: name, [email]: info}},
       [additional]: info
     };
   
@@ -32,7 +32,7 @@ export function CardComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-        <NameCard {...propDatas(propName, additional)} />
+        <NameCard {...propDatas(propName, additional, fullName)} />
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<EmptyState ${JSON.stringify(propDatas(propName, additional, fullName, email))} />\n</>`}
@@ -74,7 +74,7 @@ export function CardComponent(props) {
   // }
 
   if (type === "secondLine") {
-    return renderBlock("details", "secondLine", "fullName");
+    return renderBlock("details", "", "fullName");
   }
 
   if (type === "APIcard") {
