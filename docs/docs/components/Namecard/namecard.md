@@ -23,7 +23,7 @@ import { CardComponent } from "./namecard.js"
 ## User E-mail
 
 <p>Show user e-mail using <code>email</code> prop.</p>
-<CardComponent type="usermail" name="Ariunzaya Enkhbayar" info="ariunzaya@gmail.com" />
+<CardComponent type="usermail" name="Ariunzaya Enkhbayar" mail="ariunzaya@gmail.com" />
 
 ## Second line
 

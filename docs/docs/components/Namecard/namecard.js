@@ -5,16 +5,17 @@ import { renderApiTable } from "../common.js";
 import styles from "../../../src/components/styles.module.css";
 
 export function CardComponent(props) {
-  const { type, info, name, table = [] } = props;
+  const { type, info, name, mail, table = [] } = props;
   // let string;
-  const propDatas = (propName, additional, fullName, email) => {
-
-
+  const propDatas = (propName, fullName, additional, email) => {
     const kind = {
-      user: {[propName]: propName === "username" ? name : {[fullName]: name}},
-      [additional]: info
+      user: {
+        [propName]: propName === "username" ? name : { [fullName]: name },
+        email: mail,
+      },
+      [additional]: info,
     };
-  
+
     const datas = {
       ...kind,
     };
@@ -28,14 +29,16 @@ export function CardComponent(props) {
     return datas;
   };
 
-  const renderBlock = (propName, additional, fullName, email) => {
+  const renderBlock = (propName, fullName, additional, email) => {
     return (
       <>
         <div className={styles.styled}>
-        <NameCard {...propDatas(propName, additional)} />
+          <NameCard {...propDatas(propName, fullName, additional, email)} />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState ${JSON.stringify(propDatas(propName, additional, fullName, email))} />\n</>`}
+          {`<>\n\t<NameCard ${JSON.stringify(
+            propDatas(propName, fullName, additional, email)
+          )} />\n</>`}
         </CodeBlock>{" "}
       </>
     );
@@ -46,35 +49,19 @@ export function CardComponent(props) {
   }
 
   if (type === "avatarSize") {
-    return renderBlock("username", "avatarSize");
+    return renderBlock("details", "fullName", "avatarSize");
   }
 
-  // if (type === "usermail"){
-  //   return renderBlock("usermail", "mail")
-  // }
+  if (type === "usermail") {
+    return renderBlock("details", "fullName", "usermail", "email");
+  }
 
-  // if (type === "fullName") {
-  //   return renderBlock("details");
-  // }
-
-  // if (type === "usermail") {
-  //   return (
-  //     <>
-  //       <div className={styles.styled}>
-  //         <NameCard
-  //           key={Math.random()}
-  //           user={{ details: { fullName: name }, email: info }}
-  //         ></NameCard>
-  //       </div>
-  //       <CodeBlock className="language-jsx">
-  //         {`<>\n\t<NameCard user={{details:{fullName: "${name}"}, email: "${info}"}}></NameCard>\n</>`}
-  //       </CodeBlock>
-  //     </>
-  //   );
-  // }
+  if (type === "fullName") {
+    return renderBlock("details", "fullName");
+  }
 
   if (type === "secondLine") {
-    return renderBlock("details", "secondLine", "fullName");
+    return renderBlock("details", "fullName", "secondLine");
   }
 
   if (type === "APIcard") {
