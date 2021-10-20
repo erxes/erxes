@@ -60,10 +60,6 @@ class FilterableList extends React.Component<Props, State> {
 
   toggleItem = (id: string) => {
     const items = this.state.items;
-    // const item = items.find(i => i._id === id);
-
-    // items[items.indexOf(item)].selectedBy =
-    //   item.selectedBy === 'all' ? 'none' : 'all';
 
     this.setState({ items });
 
@@ -105,7 +101,12 @@ class FilterableList extends React.Component<Props, State> {
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
     const { showCheckmark = true, changeRoute, styles } = this.props;
-    const { widgetColor, productAvailable, productUnavailable } = styles;
+    const {
+      widgetColor,
+      productAvailable,
+      productUnavailable,
+      productSelected
+    } = styles;
     const { key } = this.state;
 
     if (key && item.name.toLowerCase().indexOf(key.toLowerCase()) < 0) {
@@ -121,21 +122,23 @@ class FilterableList extends React.Component<Props, State> {
       color = productAvailable;
     }
 
-    //let listStyle = { color: color, fontWeight: 400 }
-
+    // tslint:disable-next-line: no-shadowed-variable
     const handleClick = (item: any) => {
       changeRoute(item);
       this.setState({ selectedItem: item });
-    }
+    };
 
     return (
       <li
         key={item._id}
         className={`list flex-sb `}
-        style={(this.state.selectedItem && item._id === this.state.selectedItem._id) ? { fontWeight: 500, color } : { fontWeight: 400, color }}
+        style={
+          this.state.selectedItem && item._id === this.state.selectedItem._id
+            ? { fontWeight: 500, color: productSelected }
+            : { fontWeight: 400, color }
+        }
         onClick={onClick}
       >
-
         <div className="flex-center">
           {this.renderIcons(item, hasChildren, isOpen, color)}
           <div className="mr-30" onClick={() => handleClick(item)}>
