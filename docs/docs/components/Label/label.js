@@ -12,7 +12,7 @@ export function LabelComponent(props) {
       [propName]:
         propName === "lblStyle" || propName === "lblColor"
           ? stl.toLowerCase()
-          : "Label",
+          : style,
     };
 
     const datas = {
@@ -51,9 +51,9 @@ export function LabelComponent(props) {
   if (type === "lblColor") {
     return renderBlock("lblColor");
   }
-  // if (type === "className") {
-  //   return renderBlock("className");
-  // }
+  if (type === "className") {
+    return renderBlock("className");
+  }
   if (type === "children") {
     return renderBlock("children");
   }
