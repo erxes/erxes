@@ -1,4 +1,4 @@
-import { BarChart, Bar } from 'recharts';
+import { BarChart, Bar, LabelList } from 'recharts';
 
 import React from 'react';
 import { getColors } from 'modules/boards/utils';
@@ -10,6 +10,26 @@ type Props = {
 };
 
 export default function ChartBarStack({ bars, usersWithInfo }: Props) {
+  const renderCustomizedLabel = props => {
+    const { x, y, width, value } = props;
+    const radius = 10;
+
+    return (
+      <g>
+        <circle cx={x + width / 2} cy={y - radius} r={radius} fill="#8884d8" />
+        <text
+          x={x + width / 2}
+          y={y - radius}
+          fill="#fff"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          {value.split(' ')[1]}
+        </text>
+      </g>
+    );
+  };
+
   return (
     <MainChart component={BarChart} data={usersWithInfo}>
       {bars.map((stage, index) => (
@@ -18,7 +38,9 @@ export default function ChartBarStack({ bars, usersWithInfo }: Props) {
           dataKey={stage.name}
           stackId="a"
           fill={getColors(index)}
-        />
+        >
+          <LabelList dataKey="name" content={renderCustomizedLabel} />
+        </Bar>
       ))}
     </MainChart>
   );
