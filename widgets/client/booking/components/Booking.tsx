@@ -16,20 +16,16 @@ function Booking({ goToIntro, booking }: Props) {
   }
 
   const {
-    name,
-    description,
     childCategories,
     mainProductCategory,
     style
   } = booking;
-  const { attachment } = mainProductCategory;
-  const { widgetColor, line, columns, rows, margin } = style;
+  const { name, attachment, description } = mainProductCategory;
+  let { widgetColor, line, columns, rows, margin } = style;
 
   const blockCount = childCategories.length;
-  const column: string = columns!
-  const colCount = parseInt(column) >= 4 ? "4" : columns;
-
-  console.log(colCount, margin)
+  let column: string = columns!
+  let colCount = parseInt(column) >= 4 ? "4" : columns;
 
   const blocksStyle = {
     width: "100%",
@@ -39,6 +35,18 @@ function Booking({ goToIntro, booking }: Props) {
     gridAutoColumns: "minmax(100px, auto)",
     gap: margin,
   };
+
+  let hover = false;
+  let hoverStyle = { borderColor: "", color: "" };
+
+  const toggleHover = () => {
+    hover = !hover;
+    if (hover === true) {
+      hoverStyle.borderColor = widgetColor;
+      hoverStyle.color = widgetColor
+    }
+  }
+
   return (
     <>
       <Body

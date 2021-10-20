@@ -21,8 +21,8 @@ function Floor({ floor, goToBookings, booking }: Props) {
     <>
       <Body
         page="floor"
-        title={'Penthouse'}
-        description={' Please select your preffered floor'}
+        title={floor.name}
+        description={floor.description}
         image={floor.attachment}
       />
       <div className="footer flex-start">

@@ -85,17 +85,17 @@ height: 18vh;
   }
 }
   .body{
-    position:fixed;
-    top:50px;
-    bottom:80px;
-    left:0px;
-    right:0px;
+    padding-top: 60px;
     color: #333333 ;
     display: block;
     overflow: auto;
     padding-bottom: 10px;
+    p{
+      padding-left: 10px;
+    padding-right: 10px;
+    }
     .block-det{
-      height:50vh;
+      height: 40vh;
       overflow: hidden;
       img{
         object-fit: cover;

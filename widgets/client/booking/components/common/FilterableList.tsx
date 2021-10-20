@@ -121,8 +121,6 @@ class FilterableList extends React.Component<Props, State> {
       color = productAvailable;
     }
 
-    //let listStyle = { color: color, fontWeight: 400 }
-
     const handleClick = (item: any) => {
       changeRoute(item);
       this.setState({ selectedItem: item });
@@ -198,6 +196,7 @@ class FilterableList extends React.Component<Props, State> {
 
     return parents.map(parent => this.renderTree(parent, subFields));
   }
+
   togglePopover = () => {
     this.setState({ isOpen: !this.state.isOpen });
   };

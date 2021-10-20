@@ -5,23 +5,16 @@ import { IStyle } from '../types';
 type Props = {
   block: IProductCategory;
   widgetColor: string;
+  onHoverHandler?: () => void;
   goToBlock: (blockId: string) => void;
 };
 
-function Block({ block, widgetColor, goToBlock }: Props) {
+function Block({ block, widgetColor, goToBlock, onHoverHandler }: Props) {
   const handleOnClick = () => {
     goToBlock(block._id);
   };
-
-  let hover = false
-
-  const hoverStyle = {
-    borderColor: widgetColor,
-    color: widgetColor
-  }
   return (
-    <div className={`block`} onClick={handleOnClick} onMouseEnter={() => hover = true} onMouseLeave={() => hover = false}
-      style={{ ...(hover ? hoverStyle : null) }}>
+    <div className={`block`} onClick={handleOnClick} onMouseEnter={onHoverHandler}>
       <h4>{block.name}</h4>
       <p>{block.description}</p>
     </div>
