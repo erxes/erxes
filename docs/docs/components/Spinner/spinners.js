@@ -3,11 +3,10 @@ import Spinner from "erxes-ui/lib/components/Spinner";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import { renderApiTable } from "../common.js";
+import { renderApiTable, stringify } from "../common.js";
 
 export function SpinnerComponent(props) {
   const { type, values = [], rights = [], table = [] } = props;
-  let string;
 
   const propDatas = (propName, value, index) => {
     const datas = {
@@ -15,13 +14,6 @@ export function SpinnerComponent(props) {
       right: rights && rights[index],
       objective: true,
     };
-
-    string = JSON.stringify(datas);
-    string = string.replace(/{"/g, "");
-    string = string.replace(/":/g, "=");
-    string = string.replace(/,"/g, " ");
-    string = string.replace(/}/g, "");
-    string = string.replace(/=true/g, "");
 
     return datas;
   };
@@ -32,16 +24,14 @@ export function SpinnerComponent(props) {
         <div className={styles.styleSpinner}>
           {values.map((value, index) => (
             <div className={styles.spinner}>
-              <Spinner
-                key={index}
-                {...propDatas(propName, value, index)}
-              />
+              <Spinner key={index} {...propDatas(propName, value, index)} />
             </div>
           ))}
         </div>
         <CodeBlock className="language-jsx">
           {`<>${values.map(
-            (value, index) => `\n\t<Spinner ${string} objective/>`
+            (value, index) =>
+              `\n\t<Spinner ${stringify(propDatas(propName, value, index))}/>`
           )}
           \n</>`}
         </CodeBlock>

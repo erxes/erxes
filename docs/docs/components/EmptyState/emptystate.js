@@ -3,11 +3,10 @@ import EmptyState from "erxes-ui/lib/components/EmptyState";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Button from "erxes-ui/lib/components/Button";
-import { renderApiTable } from "../common.js";
+import { renderApiTable, stringify } from "../common.js";
 
 export function EmptyComponents(props) {
   const { type, table = [], item } = props;
-  let string;
 
   const propDatas = (view, style, additional) => {
     const extra = additional && <Button>Extra</Button>;
@@ -22,12 +21,6 @@ export function EmptyComponents(props) {
       ...kind,
     };
 
-    // string = JSON.stringify(datas);
-    // string = string.replace(/{"/g, "");
-    // string = string.replace(/":/g, "=");
-    // string = string.replace(/,"/g, " ");
-    // string = string.replace(/}/g, "");
-
     return datas;
   };
 
@@ -36,7 +29,7 @@ export function EmptyComponents(props) {
       <>
         <EmptyState text="Text" {...propDatas(view, style, additional)} />
         {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState ${string} />\n</>`}
+          {`<>\n\t<EmptyState ${stringify(propDatas(propName, btn, icon, index))} />\n</>`}
         </CodeBlock> */}
       </>
     );

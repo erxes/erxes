@@ -16,15 +16,15 @@ import { LabelComponent } from './label.js'
 <LabelComponent type="lblColor" style={['red']} />
 
 
-## Classname
+<!-- ## Classname
 
 <p>Wants your own style? Just create style on your css and declare it to <code>className</code> prop.</p>
-<LabelComponent type="className" style={['styles.styled']} />
+<LabelComponent type="className" style={['styled']} /> -->
 
 ## Children
 
 <p>Want to declare your value inside the tag? Use <code>children</code> prop.</p>
-<LabelComponent type="children" style={['children']} />
+<LabelComponent type="children" style={['']} />
 
 ## API
 

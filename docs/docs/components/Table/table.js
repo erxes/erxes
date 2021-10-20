@@ -1,24 +1,16 @@
 import React from "react";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../common.js";
+import { renderApiTable, stringify } from "../common.js";
 import Table from "erxes-ui/lib/components/table/index";
 
 export function TableComponent(props) {
   const { type, table = [], mergedCellText } = props;
-  let string;
 
   const propDatas = (propName) => {
     const datas = {
-      [propName]: propName === "whiteSpace" ? normal : true,
+      [propName]: propName === "whiteSpace" ? "normal" : true,
     };
-
-    string = JSON.stringify(datas);
-    string = string.replace(/{"/g, "");
-    string = string.replace(/":/g, "=");
-    string = string.replace(/,"/g, " ");
-    string = string.replace(/}/g, "");
-    string = string.replace(/=true/g, "");
 
     return datas;
   };
@@ -58,35 +50,30 @@ export function TableComponent(props) {
           </Table>
         </div>
 
-        {/* <CodeBlock className="language-jsx">
-        {`\n\t<Table ${string}>`}
-        {`\n\t  <thead>`}
-        {`\n\t    <tr>`}
-        {`\n\t      <th>#</th>`}
-        {`\n\t      <th>First Name</th>`}
-        {`\n\t      <th>Last Name</th>`}
-        {`\n\t      <th>Username</th>`}
-        {`\n\t    <tr>`}
-        {`\n\t  </thead>`}
-        {`\n\t  <tbody>`}
-        {`${table.map(
-          (row) =>
-            `\n\t    <tr>${row.map(
-              (cell) => `\n\t      <td>${cell}</td>`
-            )}\n\t    <tr>`
-        )}`}
-        {`\n\t  </tbody>`}
-        {`\n\t</Table>`}
-      </CodeBlock> */}
-
-        {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<Button>${
-            defaultBtn ? defaultBtn : "Default"
-          }</Button>${buttons.map((btn, index) => {
-            console.log(string);
-            return `\n\t<Button ${string}>${btn}</Button>`;
-          })}\n</>`}
-        </CodeBlock> */}
+        <CodeBlock className="language-jsx">
+          {`<Table ${stringify(propDatas(propName))}>`}
+          {`\n  <thead>`}
+          {`\n    <tr>`}
+          {`\n      <th>#</th>`}
+          {`\n      <th>First Name</th>`}
+          {`\n      <th>Last Name</th>`}
+          {`\n      <th>Username</th>`}
+          {`\n    <tr>`}
+          {`\n  </thead>`}
+          {`\n  <tbody>`}
+          {`${table.map(
+            (row) =>
+              `\n    <tr>${row.map(
+                (cell) => `\n      <td>${cell}</td>`
+              )}\n    <tr>`
+          )}`}
+          {`${
+            additional &&
+            `\n    <tr>\n      <td>3</td>\n      <td colSpan="2">${mergedCellText}</td>\n      <td>@twitter</td>\n    <tr>`
+          }`}
+          {`\n  </tbody>`}
+          {`\n</Table>`}
+        </CodeBlock>
       </>
     );
   };
@@ -108,39 +95,17 @@ export function TableComponent(props) {
   }
 
   if (type === "whiteSpace") {
-    return renderBlock("striped", "merge");
+    return renderBlock("whiteSpace", "merge");
   }
 
   if (type === "APItable") {
-    return renderApiTable("",table);
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import Table from "erxes-ui/lib/components/table/index";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
+    );
   }
 
   return null;
 }
-
-// const tableCode = (table, bool) => {
-//   return (
-//     <>
-      // <CodeBlock className="language-jsx">
-      //   {`\n\t<Table ${bool}>`}
-      //   {`\n\t  <thead>`}
-      //   {`\n\t    <tr>`}
-      //   {`\n\t      <th>#</th>`}
-      //   {`\n\t      <th>First Name</th>`}
-      //   {`\n\t      <th>Last Name</th>`}
-      //   {`\n\t      <th>Username</th>`}
-      //   {`\n\t    <tr>`}
-      //   {`\n\t  </thead>`}
-      //   {`\n\t  <tbody>`}
-      //   {`${table.map(
-      //     (row) =>
-      //       `\n\t    <tr>${row.map(
-      //         (cell) => `\n\t      <td>${cell}</td>`
-      //       )}\n\t    <tr>`
-      //   )}`}
-      //   {`\n\t  </tbody>`}
-      //   {`\n\t</Table>`}
-      // </CodeBlock>
-//     </>
-//   );
-// };

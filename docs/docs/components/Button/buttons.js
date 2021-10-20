@@ -2,7 +2,7 @@ import React from "react";
 import Button from "erxes-ui/lib/components/Button";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../common.js";
+import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function ButtonComponent(props) {
@@ -24,17 +24,6 @@ export function ButtonComponent(props) {
     return datas;
   };
 
-  const Stringify = (datas) => {
-    let string = JSON.stringify(datas);
-    string = string.replace(/{"/g, "");
-    string = string.replace(/":/g, "=");
-    string = string.replace(/,"/g, " ");
-    string = string.replace(/}/g, "");
-    string = string.replace(/=true/g, "");
-    
-    return string;
-  }
-
   const renderBlock = (propName, defaultBtn, icon) => {
     return (
       <>
@@ -54,7 +43,9 @@ export function ButtonComponent(props) {
           {`<>\n\t<Button>${
             defaultBtn ? defaultBtn : "Default"
           }</Button>${buttons.map((btn, index) => {
-            return `\n\t<Button ${Stringify(propDatas(propName, btn, icon, index))}>${btn}</Button>`;
+            return `\n\t<Button ${stringify(
+              propDatas(propName, btn, icon, index)
+            )} >${btn}</Button>`;
           })}\n</>`}
         </CodeBlock>
       </>
