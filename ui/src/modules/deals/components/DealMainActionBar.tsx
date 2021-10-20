@@ -52,6 +52,10 @@ const DealMainActionBar = (props: Props) => {
     viewType = 'conversion';
   }
 
+  if (window.location.href.includes('chart')) {
+    viewType = 'chart';
+  }
+
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
       const { currentBoard, currentPipeline } = props;
@@ -68,6 +72,7 @@ const DealMainActionBar = (props: Props) => {
     const conversionlink = onFilterClick('conversion');
     const activityLink = onFilterClick('activity');
     const listLink = onFilterClick('list');
+    const chartLink = onFilterClick('chart');
 
     return (
       <ButtonGroup>
@@ -117,6 +122,14 @@ const DealMainActionBar = (props: Props) => {
                 className={viewType === 'list' ? 'active' : ''}
               >
                 {__('List')}
+              </Link>
+            </li>
+            <li key="chart">
+              <Link
+                to={chartLink}
+                className={viewType === 'chart' ? 'active' : ''}
+              >
+                {__('Chart')}
               </Link>
             </li>
           </Dropdown.Menu>

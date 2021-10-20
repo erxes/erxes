@@ -8,6 +8,7 @@ import ChartBar from 'modules/boards/components/chart/ChartBar';
 import ChartArea from 'modules/boards/components/chart/ChartArea';
 import ChartPie from 'modules/boards/components/chart/ChartPie';
 import ChartBarStack from 'modules/boards/components/chart/ChartBarStack';
+import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
   pipelineId: string;
@@ -34,7 +35,7 @@ export default function ChartStackContainer({
   );
 
   if (loading) {
-    return <div>...</div>;
+    return <Spinner />;
   }
 
   if (error) {

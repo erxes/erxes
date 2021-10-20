@@ -36,7 +36,7 @@ const SelectType = ({
                 routerUtils.setParams(history, { [queryParamName]: m.name })
               }
             >
-              <Icon icon={m.icon} />
+              <Icon icon={m.icon} color="#673FBD" />
               &nbsp;
               {m.title}
             </a>
@@ -54,7 +54,7 @@ const SelectType = ({
       <span>{title}</span>
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
-          <Button btnStyle="default" size="small">
+          <Button btnStyle="primary" size="small">
             {foundTypeName
               ? foundTypeName.name.charAt(0).toUpperCase() +
                 foundTypeName.name.slice(1)

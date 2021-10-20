@@ -239,7 +239,7 @@ class MainActionBar extends React.Component<Props> {
           title={__('Chart Type:')}
           icon="chart-bar"
           list={chartTypes}
-          text={__('Bar')}
+          text={__('Stacked Bar Chart')}
           queryParamName="chartType"
           queryParams={queryParams}
         />

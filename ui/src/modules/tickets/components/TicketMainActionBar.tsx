@@ -50,6 +50,10 @@ const TicketMainActionBar = (props: Props) => {
     viewType = 'list';
   }
 
+  if (window.location.href.includes('chart')) {
+    viewType = 'chart';
+  }
+
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
       const { currentBoard, currentPipeline } = props;
@@ -65,6 +69,7 @@ const TicketMainActionBar = (props: Props) => {
     const listLink = onFilterClick('list');
     const calendarLink = onFilterClick('calendar');
     const activityLink = onFilterClick('activity');
+    const chartLink = onFilterClick('chart');
 
     return (
       <ButtonGroup>
@@ -106,6 +111,14 @@ const TicketMainActionBar = (props: Props) => {
                 className={viewType === 'list' ? 'active' : ''}
               >
                 {__('List')}
+              </Link>
+            </li>
+            <li key="chart">
+              <Link
+                to={chartLink}
+                className={viewType === 'chart' ? 'active' : ''}
+              >
+                {__('Chart')}
               </Link>
             </li>
           </Dropdown.Menu>
