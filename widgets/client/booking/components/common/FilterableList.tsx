@@ -24,6 +24,7 @@ type State = {
   isOpen: boolean;
   key: string;
   items: any[];
+  selectedItem: any;
   parentIds: { [key: string]: boolean };
 };
 
@@ -35,6 +36,7 @@ class FilterableList extends React.Component<Props, State> {
       isOpen: false,
       key: '',
       items: props.items,
+      selectedItem: undefined,
       parentIds: {}
     };
   }
@@ -119,16 +121,24 @@ class FilterableList extends React.Component<Props, State> {
       color = productAvailable;
     }
 
+    //let listStyle = { color: color, fontWeight: 400 }
+
+    const handleClick = (item: any) => {
+      changeRoute(item);
+      this.setState({ selectedItem: item });
+    }
+
     return (
       <li
         key={item._id}
         className={`list flex-sb `}
-        style={{ color }}
+        style={(this.state.selectedItem && item._id === this.state.selectedItem._id) ? { fontWeight: 500, color } : { fontWeight: 400, color }}
         onClick={onClick}
       >
+
         <div className="flex-center">
           {this.renderIcons(item, hasChildren, isOpen, color)}
-          <div className="mr-30" onClick={() => changeRoute(item)}>
+          <div className="mr-30" onClick={() => handleClick(item)}>
             {item.name || '[undefined]'}
           </div>
         </div>
