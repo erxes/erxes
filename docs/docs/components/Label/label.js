@@ -2,9 +2,11 @@ import React from "react";
 import Label from "erxes-ui/lib/components/Label";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable } from "../common.js";
+import styles from "../../../src/components/styles.module.css";
+
 
 export function LabelComponent(props) {
-  const { type, styles = [], color, table = [] } = props;
+  const { type, style = [], color, table = [] } = props;
   let string;
 
   const propDatas = (propName, stl) => {
@@ -35,8 +37,8 @@ export function LabelComponent(props) {
     
     return (
       <>
-        <div>
-          {styles.map((stl, index) => {
+        <div className={styles.styled}>
+          {style.map((stl, index) => {
             return (
               <Label key={index} {...propDatas(propName, stl)}>
                 {stl}
@@ -45,7 +47,7 @@ export function LabelComponent(props) {
           })}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\t${styles.map((stl, index) => {
+          {`<>\t${style.map((stl, index) => {
             return `\n\t<Label ${string}>${stl}</Label>`;
           })}\n</>`}
         </CodeBlock>

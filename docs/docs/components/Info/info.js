@@ -6,7 +6,9 @@ import { renderApiTable } from "../common.js";
 
 export function InfoComponent(props) {
   const { func, table = [] } = props;
+  let string;
   const types = ["Primary", "Info", "Danger", "Warning", "Success"];
+  const title = ["Primary", "Info", "Danger", "Warning", "Success"];
   const icons = [
     "envelope-alt",
     "info-circle",
@@ -15,12 +17,19 @@ export function InfoComponent(props) {
     "check-circle",
   ];
   
-  const propDatas = (type, info, iconShow, index) => {
+  const propDatas = (type, info, iconShow, title, index) => {
 
     const datas = {
       iconShow: iconShow && icons[index],
       type: info.toLowerCase(),
+      title: title[index],
     };
+
+    string = JSON.stringify(datas);
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/}/g, "");
 
     return datas;
   };
@@ -33,7 +42,7 @@ export function InfoComponent(props) {
 
           {types.map((info, index) => {
             return (
-              <Info key={index} {...propDatas(type, info, iconShow, index)}>
+              <Info key={index} {...propDatas(type, info, iconShow, title, index)}>
                 {info}
               </Info>
             );
@@ -42,10 +51,7 @@ export function InfoComponent(props) {
 
         <CodeBlock className="language-jsx">
           {`<>\t${types.map((info, index) => {
-            console.log(propDatas(type, info, iconShow, index));
-            return `\n\t<Info ${JSON.stringify(
-              propDatas(type, info, iconShow,index)
-            )}>${info}</Info>`;
+            return `\n\t<Info ${string}>${info}</Info>`;
           })}\n</>`}
         </CodeBlock>
       </>
