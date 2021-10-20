@@ -17,7 +17,8 @@ import { routeErrorHandling } from './utils';
 
 ddTracer.init({
   hostname: process.env.DD_HOST,
-  logInjection: true
+  logInjection: true,
+  profiling: true,
 });
 
 connect();
