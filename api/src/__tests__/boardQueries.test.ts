@@ -23,6 +23,7 @@ import {
   PROBABILITY
 } from '../db/models/definitions/constants';
 import './setup.ts';
+import { mergeSchemas } from 'graphql-tools';
 
 describe('boardQueries', () => {
   const commonBoardTypes = `
@@ -38,8 +39,11 @@ describe('boardQueries', () => {
     _id
     name
     type
+    boardId
     visibility
+    condition
     members { _id }
+    memberIds
     createdUser { _id }
     isWatched
     state
@@ -207,29 +211,88 @@ describe('boardQueries', () => {
 
   test('Pipelines with condition', async () => {
     const board = await boardFactory();
-    const user = await userFactory();
-    const u1 = await userFactory();
-    const u2 = await userFactory();
-    const args = { boardId: board._id };
+    const user = await userFactory({});
+    const user1 = await userFactory({ isOwner: false });
+    const user2 = await userFactory({ isOwner: false });
 
-    await pipelineFactory(args);
-    await pipelineFactory(args);
-    await pipelineFactory({
+    const args1 = {
       boardId: board._id,
       visibility: 'private',
-      condition: 'include',
-      memberIds: [user._id, u1._id, u2._id]
-    });
-    await pipelineFactory({ boardId: board._id, userId: user._id });
+      condition: 'include'
+    };
+    const args2 = {
+      boardId: board._id,
+      visibility: 'private',
+      condition: 'exclude'
+    };
+    const args3 = {
+      boardId: board._id,
+      visibility: 'public'
+    };
 
-    const resp = await graphqlRequest(pipelineQry, 'pipelines', args, {
-      user: u2
+    await pipelineFactory({
+      ...args1,
+      memberIds: [user._id, user1._id]
+    });
+    await pipelineFactory({
+      ...args2,
+      memberIds: [user1._id]
+    });
+    await pipelineFactory({
+      ...args1,
+      memberIds: [user2._id]
+    });
+    await pipelineFactory({
+      ...args3,
+      condition: 'exclude',
+      memberIds: [user._id, user1._id, user2._id]
     });
 
-    const response = await graphqlRequest(pipelineQry, 'pipelines', args, {
-      user
-    });
-    expect(response.length).toBe(4);
+    const responseUser = await graphqlRequest(
+      pipelineQry,
+      'pipelines',
+      {},
+      { user }
+    );
+    const responseUser1 = await graphqlRequest(
+      pipelineQry,
+      'pipelines',
+      {},
+      { user: user1 }
+    );
+    const responseUser2 = await graphqlRequest(
+      pipelineQry,
+      'pipelines',
+      {},
+      { user: user2 }
+    );
+    expect(responseUser.length).toBe(4);
+    expect(responseUser1.length).toBe(2);
+    expect(responseUser2.length).toBe(2);
+
+    expect(responseUser[0].condition).toBe('include');
+    expect(responseUser[1].condition).toBe('exclude');
+    expect(responseUser[2].condition).toBe('include');
+    expect(responseUser[3].condition).toBe('exclude');
+
+    expect(responseUser[0].visibility).toBe('private');
+    expect(responseUser[1].visibility).toBe('private');
+    expect(responseUser[2].visibility).toBe('private');
+    expect(responseUser[3].visibility).toBe('public');
+
+    const responseMemberIds = await responseUser.map(e => e.memberIds);
+    expect(responseMemberIds[0].includes(user._id)).toBe(true);
+    expect(responseMemberIds[1].includes(user._id)).toBe(false);
+    expect(responseMemberIds[2].includes(user._id)).toBe(false);
+    expect(responseMemberIds[3].includes(user._id)).toBe(true);
+
+    const responseMemberIds1 = await responseUser1.map(e => e.memberIds);
+    expect(responseMemberIds1[0].includes(user1._id)).toBe(true);
+    expect(responseMemberIds1[1].includes(user1._id)).toBe(true);
+
+    const responseMemberIds2 = await responseUser2.map(e => e.memberIds);
+    expect(responseMemberIds2[0].includes(user2._id)).toBe(false);
+    expect(responseMemberIds2[1].includes(user2._id)).toBe(true);
   });
 
   test('Pipelines with filter', async () => {

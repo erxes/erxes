@@ -1094,6 +1094,7 @@ export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
     type,
     userId: params.userId,
     visibility: params.visibility || 'public',
+    condition: params.condition || 'include',
     bgColor: params.bgColor || 'fff',
     hackScoringType: params.hackScoringType,
     memberIds: params.memberIds,

@@ -38,12 +38,7 @@ export default {
                     {
                       $and: [
                         { condition: 'exclude' },
-                        {
-                          $or: [
-                            { excludMemberIds: user._id },
-                            { userId: user._id }
-                          ]
-                        }
+                        { memberIds: { $nin: user.id } }
                       ]
                     }
                   ]
