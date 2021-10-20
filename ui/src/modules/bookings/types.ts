@@ -23,13 +23,6 @@ export interface IStyle {
   margin?: number;
 }
 
-export interface IDisplayBlock {
-  shape?: string;
-  columns?: number;
-  rows?: number;
-  margin?: number;
-}
-
 export interface IBookingIntegration extends IIntegration {
   brand: IBrand;
   tags: ITag[];
@@ -53,7 +46,6 @@ export interface IBookingData {
   userFilters?: string[];
   productCategoryId?: string;
   style?: IStyle;
-  displayBlock?: IDisplayBlock;
   mainProductCategory?: IProductCategory;
 
   viewCount?: number;
