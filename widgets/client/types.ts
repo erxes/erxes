@@ -215,5 +215,5 @@ export interface IProduct {
   minimiumCount: number;
   category: IProductCategory;
 
-  customFieldsDataWithText?: JSON;
+  customFieldsDataWithText?: any;
 }

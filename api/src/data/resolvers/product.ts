@@ -20,13 +20,15 @@ export default {
   },
 
   async customFieldsDataWithText(product: IProductDocument) {
-    const { customFieldsData } = product;
+    let { customFieldsData } = product;
 
     if (!customFieldsData) {
       return null;
     }
 
-    const data: any = {};
+    customFieldsData = customFieldsData.filter(el => el.value);
+
+    const data: any = [];
 
     for (const el of customFieldsData) {
       const field = await Fields.aggregate([
@@ -35,10 +37,10 @@ export default {
       ]);
       const { text } = field[0];
 
-      data[text] = {
+      data.push({
         text,
         value: el.value
-      };
+      });
     }
 
     return data;

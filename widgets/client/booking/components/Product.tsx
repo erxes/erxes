@@ -1,6 +1,9 @@
 import * as React from 'react';
-import { HiArrowSmLeft, HiArrowSmRight, } from 'react-icons/hi';
-import { MdOutlineArrowBackIos, MdOutlineArrowForwardIos } from 'react-icons/md';
+import { HiArrowSmLeft, HiArrowSmRight } from 'react-icons/hi';
+import {
+  MdOutlineArrowBackIos,
+  MdOutlineArrowForwardIos
+} from 'react-icons/md';
 
 import { IBookingData } from '../types';
 import Slider from 'react-slick';
@@ -12,22 +15,16 @@ type Props = {
   product?: IProduct;
   booking: IBookingData;
   goToBookings: () => void;
-  showForm: () => void;
   showPopup: () => void;
 };
 
-function Product({
-  product,
-  booking,
-  goToBookings,
-  showForm,
-  showPopup
-}: Props) {
+function Product({ product, booking, goToBookings, showPopup }: Props) {
   if (!product || !booking) {
     return null;
   }
 
   const { widgetColor } = booking.style;
+  const customFieldsDataWithText = product.customFieldsDataWithText || [];
 
   const showFull = (img: any) => {
     const image = document.getElementById('img-active') as HTMLImageElement;
@@ -43,8 +40,15 @@ function Product({
     slidesToShow: 3,
     slidesToScroll: 1,
     nextArrow: <MdOutlineArrowForwardIos />,
-    prevArrow: <MdOutlineArrowBackIos />,
+    prevArrow: <MdOutlineArrowBackIos />
   };
+
+  const renderFieldData = () =>
+    customFieldsDataWithText.map((el: any) => (
+      <div>
+        <strong>{el.text}:</strong> {el.value}
+      </div>
+    ));
 
   return (
     <div className="body">
@@ -62,7 +66,11 @@ function Product({
           <div>
             <Slider {...settings}>
               {(product.attachmentMore || []).map((img, index) => (
-                <div className="slider-item flex-center" key={index} onClick={() => showFull(img)}>
+                <div
+                  className="slider-item flex-center"
+                  key={index}
+                  onClick={() => showFull(img)}
+                >
                   <img
                     id={img && img.name}
                     src={readFile(img && img.url)}
@@ -77,12 +85,7 @@ function Product({
           <div>
             <strong>Price per unit:</strong> {product.unitPrice}
           </div>
-          <div>
-            <strong>Sqm:</strong> {product.sku}
-          </div>
-          <div>
-            <strong>Floor:</strong> {product.category.name}
-          </div>
+          {renderFieldData()}
           <Button
             text={'Book product'}
             type=""
