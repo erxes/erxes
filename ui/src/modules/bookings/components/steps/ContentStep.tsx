@@ -102,19 +102,6 @@ function ContentStep({
             single={true}
           />
         </FormGroup>
-        {/* 
-        <FormGroup>
-          <ControlLabel>User filters</ControlLabel>
-          <Select
-            multi={true}
-            value={userFilters}
-            onChangeBooking={(e: any) =>
-              onChangeBooking('userFilters', e.map(el => el.value) || [])
-            }
-            clearable={true}
-            placeholder="Choose filters"
-          />
-        </FormGroup> */}
       </>
     );
   };
@@ -179,22 +166,6 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
         </FlexContent>
-        {/*
-        <FormGroup>
-          <Title>Product Details</Title>
-          <Description>
-            Select properties to display in the product detail page.
-          </Description>
-          <Select
-            multi={true}
-            // value={productDetail.properties}
-            options={PRODUCT_PROPERTIES.ALL_LIST.map(el => ({
-              value: el.value,
-              label: el.label
-            }))}
-            placeholder="Choose properties"
-          />
-        </FormGroup> */}
       </>
     );
   };

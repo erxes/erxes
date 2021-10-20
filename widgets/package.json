@@ -78,7 +78,7 @@
     "styled-components": "^5.3.1",
     "styled-components-ts": "^0.0.14",
     "subscriptions-transport-ws": "^0.9.14",
-    "terser-webpack-plugin": "4.2.3",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "url-loader": "^1.0.1",
     "webpack": "4.16.3",
     "webpack-cli": "^3.1.0",
