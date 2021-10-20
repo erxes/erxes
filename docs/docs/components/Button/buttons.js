@@ -2,12 +2,11 @@ import React from "react";
 import Button from "erxes-ui/lib/components/Button";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../common.js";
+import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function ButtonComponent(props) {
   const { type, buttons = [], icons = [], table = [] } = props;
-  let string;
 
   const propDatas = (propName, btn, icon, index) => {
     const kind = {
@@ -21,12 +20,6 @@ export function ButtonComponent(props) {
       ...kind,
       icon: icon && icons[index],
     };
-    string = JSON.stringify(datas);
-    string = string.replace(/{"/g, "");
-    string = string.replace(/":/g, "=");
-    string = string.replace(/,"/g, " ");
-    string = string.replace(/}/g, "");
-    string = string.replace(/=true/g, "");
 
     return datas;
   };
@@ -50,8 +43,9 @@ export function ButtonComponent(props) {
           {`<>\n\t<Button>${
             defaultBtn ? defaultBtn : "Default"
           }</Button>${buttons.map((btn, index) => {
-            console.log(string);
-            return `\n\t<Button ${string}>${btn}</Button>`;
+            return `\n\t<Button ${stringify(
+              propDatas(propName, btn, icon, index)
+            )} >${btn}</Button>`;
           })}\n</>`}
         </CodeBlock>
       </>

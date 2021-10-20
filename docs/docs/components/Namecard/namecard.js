@@ -33,7 +33,11 @@ export function CardComponent(props) {
     return (
       <>
         <div className={styles.styled}>
+<<<<<<< HEAD
           <NameCard {...propDatas(propName, fullName, additional, email)} />
+=======
+        <NameCard {...propDatas(propName, additional, fullName)} />
+>>>>>>> 00a4a7f611c4de9268d23ca0164d984414a4eeb5
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<NameCard ${JSON.stringify(
@@ -61,7 +65,11 @@ export function CardComponent(props) {
   }
 
   if (type === "secondLine") {
+<<<<<<< HEAD
     return renderBlock("details", "fullName", "secondLine");
+=======
+    return renderBlock("details", "", "fullName");
+>>>>>>> 00a4a7f611c4de9268d23ca0164d984414a4eeb5
   }
 
   if (type === "APIcard") {
