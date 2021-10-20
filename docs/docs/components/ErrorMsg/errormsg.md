@@ -5,8 +5,11 @@ title: Error message
 
 import { ErrorMsgComponent } from "./errormsg.js"
 
-<p>Example of error message</p>
-<ErrorMsgComponent />
+<p>Provide error message to indicate an error that occurred.</p>
+
+## Example
+
+<ErrorMsgComponent children="This is error" />
 
 ## API
 

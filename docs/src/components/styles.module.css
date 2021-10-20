@@ -177,14 +177,11 @@
 }
 
 .styleSpinner {
+	margin: 15px;
 	display: flex;
 }
 
 .spinner {
-	width: 100px;
-}
-
-.spinnerPos {
 	width: 33%;
 }
 

@@ -12,13 +12,13 @@ import { TableComponent } from './table.js'
 <TableComponent type="bordered" table={[
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat'],
-    ['3', 'Larry', 'Bird', '@twitter']
+    ['3', 'Larry', '', '@twitter']
 ]} />
 
 ## Merge cells
 
 <p>Merge cells by <code>colSpan</code> prop.</p>
-<TableComponent type="merge" table={[
+<TableComponent type="merge" mergedCellText="Larry the bird" table={[
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat']
 ]} />
@@ -29,7 +29,7 @@ import { TableComponent } from './table.js'
 <TableComponent type="striped" table={[
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat'],
-    ['3', 'Larry', 'Bird', '@twitter']
+    ['3', 'Larry', '', '@twitter']
 ]} />
 
 ## Table hover
@@ -38,13 +38,13 @@ import { TableComponent } from './table.js'
 <TableComponent type="hover" table={[
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat'],
-    ['3', 'Larry', 'Bird', '@twitter']
+    ['3', 'Larry', '', '@twitter']
 ]} />
 
 ## White-space
 
 <p>Customize cell type with <code>white-space</code> prop.</p>
-<TableComponent type="whiteSpace" table={[
+<TableComponent type="whiteSpace" mergedCellText="Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird is widely regarded as one of the greatest basketball players of all time." table={[
     ['1', 'Mark', 'Otto', '@mdo'],
     ['2', 'Jacob', 'Thornton', '@fat']
 ]} />

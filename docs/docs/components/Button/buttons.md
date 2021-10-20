@@ -22,17 +22,17 @@ import { ButtonComponent } from "./buttons.js"
 ## Disabled state
 
 <p>Make buttons look inactive by adding the <code>disabled</code> prop to.</p>
-<ButtonComponent type="disabled" buttons={['Primary']} />
+<ButtonComponent type="disabled" buttons={['Disabled']} />
 
 ## Uppercase
 
 <p>Make button text uppercase by adding the <code>uppercase</code> prop to.</p>
-<ButtonComponent type="uppercase" buttons={['Primary']} />
+<ButtonComponent type="uppercase" buttons={['Uppercase']} />
 
 ## Block
 
 <p>Make button full-width by adding the <code>block</code> prop to.</p>
-<ButtonComponent type="block" buttons={['Primary']} />
+<ButtonComponent type="block" buttons={['Block']} />
 
 ## Icon
 

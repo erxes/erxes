@@ -7,41 +7,37 @@ import { renderApiTable } from "../common.js";
 
 export function EmptyComponents(props) {
   const { type, table = [], item } = props;
+  let string;
 
-  const propDatas = (propName, style, additional) => {
-    const extra = additional && <Button>Extra</Button> ;
+  const propDatas = (view, style, additional) => {
+    const extra = additional && <Button>Extra</Button>;
 
     const kind = {
-      [propName]: propName === "icon" || propName === "image" ? item : true,
+      [view]: view === "icon" || view === "image" ? item : true,
       [style]: style === "size" ? "30" : true,
-      extra
+      extra,
     };
 
     const datas = {
       ...kind,
     };
 
+    // string = JSON.stringify(datas);
+    // string = string.replace(/{"/g, "");
+    // string = string.replace(/":/g, "=");
+    // string = string.replace(/,"/g, " ");
+    // string = string.replace(/}/g, "");
+
     return datas;
   };
 
-  const renderBlock = (propName, style, additional) => {
-    let string = JSON.stringify(
-      propDatas(propName, style)
-    );
-    string = string.replace(/{"/g, '');
-    string = string.replace(/":/g, '=');
-    string = string.replace(/,"/g, ' ');
-    string = string.replace(/}/g, '');
-    // string = string.replace(/[}]/g, '');
-    // string = string.replace(/["]/g, ' ');
-    // string = string.replace(/[":]/g, '=');
-    
+  const renderBlock = (view, style, additional) => {
     return (
       <>
-        <EmptyState text="Text" {...propDatas(propName, style, additional)} />
-        <CodeBlock className="language-jsx">
+        <EmptyState text="Text" {...propDatas(view, style, additional)} />
+        {/* <CodeBlock className="language-jsx">
           {`<>\n\t<EmptyState ${string} />\n</>`}
-        </CodeBlock>
+        </CodeBlock> */}
       </>
     );
   };

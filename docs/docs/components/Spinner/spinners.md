@@ -11,18 +11,18 @@ import { SpinnerComponent } from "./spinners.js"
 
 ### Sizing
 
-<p>Change the sizing using <code>size</code> prop. <b>Default size: 26</b></p>
-<SpinnerComponent type="size" sizes={['15', '40']} />
+<p>Change the sizing using <code>size</code> prop.</p>
+<SpinnerComponent type="size" values={[40, 15 ]} />
 
 ## Position
 
 <p>Change the position with <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code> props depending on your purpose.</p>
-<SpinnerComponent type="position" lefts={['10%', '50%', 'auto']} rights={['auto', 'auto', '10%']} />
+<SpinnerComponent type="position" values={['10%', '50%', 'auto']} rights={['auto', 'auto', '10%']} />
 
 ## Objective
 
 <p>Make your spinner objective by <code>objective</code> prop.</p>
-<SpinnerComponent type="objective" />
+<SpinnerComponent type="objective" values={['10%']}/>
 
 ## API
 

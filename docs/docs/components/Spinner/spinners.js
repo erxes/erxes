@@ -1,73 +1,68 @@
 import React from "react";
 import Spinner from "erxes-ui/lib/components/Spinner";
 import styles from "../../../src/components/styles.module.css";
-import CodeBlock from '@theme/CodeBlock';
+import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import { renderApiTable } from "../common.js";
 
 export function SpinnerComponent(props) {
-  const { type, sizes = [], lefts = [], rights = [], table = [] } = props;
+  const { type, values = [], rights = [], table = [] } = props;
+  let string;
 
-  if (type === "size") {
+  const propDatas = (propName, value, index) => {
+    const datas = {
+      [propName]: value,
+      right: rights && rights[index],
+      objective: true,
+    };
+
+    string = JSON.stringify(datas);
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/}/g, "");
+    string = string.replace(/=true/g, "");
+
+    return datas;
+  };
+
+  const renderBlock = (propName) => {
     return (
       <>
         <div className={styles.styleSpinner}>
-          {sizes.map((e) => (
+          {values.map((value, index) => (
             <div className={styles.spinner}>
-              <Spinner key={Math.random()} size={e} objective/>
+              <Spinner
+                key={index}
+                {...propDatas(propName, value, index)}
+              />
             </div>
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>${sizes.map(
-            (e) => `\n\t<Spinner size="${e}" objective/>`
-          )}\n</>`}
+          {`<>${values.map(
+            (value, index) => `\n\t<Spinner ${string} objective/>`
+          )}
+          \n</>`}
         </CodeBlock>
       </>
     );
+  };
+
+  if (type === "size") {
+    return renderBlock("size");
   }
 
   if (type === "position") {
-    return (
-      <>
-        <div className={styles.styleSpinner}>
-          {lefts.map((e, i) => (
-            <div className={styles.spinnerPos}>
-              <Spinner key={Math.random()} left={e} right={rights[i]} objective/>
-            </div>
-          ))}
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>${lefts.map(
-            (e, i) => `\n\t<Spinner left="${e}" right="${rights[i]}" objective/>`
-          )}\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("left");
   }
 
   if (type === "objective") {
-    return (
-      <>
-        <div className={styles.styled}>
-          <div className={styles.spinner}>
-            <Spinner key={Math.random()} left="15%" objective/>
-          </div>
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<Spinner objective/>\n</>`}
-        </CodeBlock>
-      </>
-    );
+    return renderBlock("left");
   }
 
   if (type === "APIspinner") {
-    return (
-      <>
-        {/* {Api("Spinner")}
-        {ApiTable(table)} */}
-      </>
-    );
+    return renderApiTable("Spinner", table);
   }
 
   return null;
