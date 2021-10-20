@@ -1,4 +1,7 @@
 import { queries as boardQueries } from 'erxes-ui/lib/boards/graphql';
+import * as teamQueries from 'erxes-ui/lib/team/graphql';
+
+const detailFields = teamQueries.detailFields;
 
 const pipelineLabelFields = `
   _id
@@ -238,6 +241,45 @@ const itemsCountByAssignedUser = `
   } 
 `;
 
+const activityLogsByAction = `
+  query activityLogsByAction(
+    $contentType: String,
+    $action: String,
+    $pipelineId: String
+    $perPage: Int,
+    $page: Int
+  ) {
+    activityLogsByAction(
+      contentType: $contentType,
+      action: $action,
+      pipelineId: $pipelineId,
+      perPage: $perPage,
+      page: $page,
+    ) {
+      activityLogs {
+        _id
+        createdUser {
+          _id
+          username
+          email
+          
+          details {
+            ${detailFields}
+          }
+        }
+
+        action
+        content
+        createdAt
+        contentType
+        contentTypeDetail
+      }
+
+      totalCount
+    }
+  }
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -257,5 +299,6 @@ export default {
   itemsCountByAssignedUser,
   tasks,
   deals,
-  tickets
+  tickets,
+  activityLogsByAction
 };

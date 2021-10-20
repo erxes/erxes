@@ -144,3 +144,11 @@ export const chartTypes = [
     icon: 'chart-pie'
   }
 ];
+
+export const SEARCH_ACTIVITY_CHECKBOX = [
+  { action: 'create', value: 'Added new card' },
+  { action: 'moved', value: 'Moved card' },
+  { action: 'archive', value: 'Archived card' },
+  { action: 'delete', value: 'Deleted archived card' },
+  { action: 'addNote', value: 'Added notes' }
+];

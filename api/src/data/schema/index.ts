@@ -32,6 +32,11 @@ import {
   queries as ChecklistQueries,
   types as ChecklistTypes
 } from './checklist';
+import {
+  mutations as ClientPortalMutations,
+  queries as ClientPortalQueries,
+  types as ClientPortalTypes
+} from './clientPortal';
 import { types as CommonTypes } from './common';
 import {
   mutations as CompanyMutations,
@@ -114,7 +119,6 @@ import {
   queries as InternalNoteQueries,
   types as InternalNoteTypes
 } from './internalNote';
-
 import {
   mutations as KnowledgeBaseMutations,
   queries as KnowledgeBaseQueries,
@@ -224,6 +228,7 @@ export let types = `
   ${IntegrationTypes}
   ${ResponseTemplate}
   ${Script}
+  ${ClientPortalTypes}
   ${SkillTypes}
   ${EmailTemplate}
   ${EngageTypes}
@@ -271,6 +276,7 @@ export let queries = `
   ${ScriptQueries}
   ${SkillQueries}
   ${EmailTemplateQueries}
+  ${ClientPortalQueries}
   ${EmailDeliveryQueries}
   ${FieldQueries}
   ${EngageQueries}
@@ -318,6 +324,7 @@ export let mutations = `
   ${ResponseTemplateMutations}
   ${ScriptMutations}
   ${EmailTemplateMutations}
+  ${ClientPortalMutations}
   ${InternalNoteMutations}
   ${CustomerMutations}
   ${SegmentMutations}

@@ -24,7 +24,7 @@ export default function ChartBarStack({ bars, usersWithInfo }: Props) {
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          {value.split(' ')[1]}
+          {value}
         </text>
       </g>
     );
@@ -39,7 +39,7 @@ export default function ChartBarStack({ bars, usersWithInfo }: Props) {
           stackId="a"
           fill={getColors(index)}
         >
-          <LabelList dataKey="name" content={renderCustomizedLabel} />
+          <LabelList dataKey={index} content={renderCustomizedLabel} />
         </Bar>
       ))}
     </MainChart>

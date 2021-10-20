@@ -13,6 +13,7 @@ import { queries } from '../graphql';
 import { RootBack, ScrolledContent } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
+import PipelineActivity from './PipelineActivity';
 import ListPipeline from './ListPipeline';
 import ChartStack from './chart/ChartStack';
 
@@ -53,6 +54,17 @@ class Board extends React.Component<Props> {
 
     const pipeline = pipelineDetailQuery.pipelineDetail;
 
+    if (viewType === 'activity') {
+      return (
+        <PipelineActivity
+          key={pipeline._id}
+          options={options}
+          pipeline={pipeline}
+          queryParams={queryParams}
+        />
+      );
+    }
+
     if (viewType === 'list') {
       return (
         <ListPipeline
@@ -79,9 +91,9 @@ class Board extends React.Component<Props> {
       <RootBack style={{ backgroundColor: pipeline.bgColor }}>
         <ScrolledContent>
           <Pipeline
+            key={pipeline._id}
             options={options}
             pipeline={pipeline}
-            key={pipeline._id}
             queryParams={queryParams}
           />
         </ScrolledContent>
