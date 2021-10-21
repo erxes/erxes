@@ -36,13 +36,13 @@ const installCodeIncludeScript = (type: string) => {
   `;
 };
 
-const getInstallCode = (bookingId: string) => {
+const getInstallCode = (integrationId: string) => {
   return `
-    <div data-erxes-booking style="width:100%;height:900px"></div>
+    <div data-erxes-booking style="width:100%;height:100vh"></div>
     <script>
       window.erxesSettings = {
         booking: {
-          booking_id: "${bookingId}",
+          integration_id: "${integrationId}",
         },
       };
       ${installCodeIncludeScript('booking')}

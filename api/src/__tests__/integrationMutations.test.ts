@@ -936,7 +936,8 @@ describe('mutations', () => {
       channelIds: [channel._id],
       bookingData: {
         name: 'booking name',
-        description: 'booking description'
+        description: 'booking description',
+        productCategoryId: 'test'
       },
       ...commonLeadProperties
     };
@@ -998,7 +999,8 @@ describe('mutations', () => {
       channelIds: [channel._id],
       bookingData: {
         name: 'booking name',
-        description: 'booking description'
+        description: 'booking description',
+        productCategoryId: 'test1'
       },
       ...commonLeadProperties
     };
