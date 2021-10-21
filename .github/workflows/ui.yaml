@@ -73,46 +73,9 @@ jobs:
           ${{ runner.os }}-yarn-ui-
           ${{ runner.os }}-yarn-
 
-    - name: Cypress prepare api
-      run: |
-        cd api
-        yarn install
-        yarn loadTestData
-        yarn dev &
-        sleep 20
-      env:
-        DEBUG: 'erxes*'
-        MONGO_URL: mongodb://localhost/erxes
-        JWT_TOKEN_SECRET: token
-        MAIN_APP_DOMAIN: http://localhost:3000
-        WIDGETS_DOMAIN: http://localhost:3200
-        RABBITMQ_HOST: amqp://localhost
-        ELASTICSEARCH_URL: http://localhost:9200
-        PORT: 3300
-
-    - name: Cypress prepare ui
-      run: |
-        cd ui
-        yarn install
-        yarn start &
-        sleep 120
-      env:
-        PORT: 3000
-        NODE_ENV: development
-        REACT_APP_CDN_HOST: http://localhost:3200
-        REACT_APP_API_URL: http://localhost:3300
-        REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
-
-    - name: Cypress run
-      run: |
-        cd ui
-        yarn install
-#        yarn record-cypress
-
     - name: Build
       run: |
         cd ui
-        rm -rf node_modules
         rm -rf src/__tests__
         rm src/setupTests.ts
         yarn install --frozen-lockfile --production
