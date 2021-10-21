@@ -107,7 +107,10 @@ export const userSchema = schemaHooksWrapper(
       type: String,
       unique: true,
       match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
+        /**
+         * RFC 5322 compliant regex. Taken from http://emailregex.com/
+         */
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         'Please fill a valid email address'
       ],
       label: 'Email'
