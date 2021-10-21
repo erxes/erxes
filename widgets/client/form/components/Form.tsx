@@ -134,12 +134,14 @@ class Form extends React.Component<Props, State> {
   };
 
   canChangePage = () => {
-    const fields = this.getCurrentFields();
-
-    const requiredFields = fields.filter(f => f.isRequired);
+    const requiredFields = this.getCurrentFields().filter(f => f.isRequired);
 
     for (const field of requiredFields) {
       const value = this.state.doc[field._id].value;
+     
+      if (this.state.doc[field._id].isHidden) {
+        continue;
+      }
 
       if (!value) {
         return false;

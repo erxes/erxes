@@ -81,6 +81,7 @@ const ErxesSupporters = styled.div`
     border-radius: 22px;
     height: 40px;
     width: 40px;
+    object-fit: cover;
   }
 `;
 

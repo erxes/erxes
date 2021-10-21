@@ -1,9 +1,11 @@
 import sift from 'sift';
+
 import {
   Brands,
   Channels,
   Integrations,
   MessengerApps,
+  Products,
   Tags,
   Users
 } from '../../../db/models';
@@ -23,7 +25,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags',
+  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);
@@ -54,6 +56,10 @@ export const getDocumentList = async (
         break;
       }
 
+      case 'products': {
+        list = await Products.find().lean();
+        break;
+      }
       case 'tags': {
         list = await Tags.find().lean();
         break;

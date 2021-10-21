@@ -2193,9 +2193,10 @@ describe('conversationQueries', () => {
 
   test('Conversation detail', async () => {
     await conversationFactory({ integrationId: integration._id });
-
+    const tag = await tagsFactory();
     const conversation = await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
+      tagIds: [tag._id]
     });
 
     const response = await graphqlRequest(

@@ -2,7 +2,6 @@ import MainActionBar from 'modules/boards/components/MainActionBar';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
 import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
@@ -12,6 +11,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import options from '../options';
+import { Dropdown } from 'react-bootstrap';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Button from 'modules/common/components/Button';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -34,9 +36,19 @@ const TicketMainActionBar = (props: Props) => {
   const { queryParams, onSelect } = props;
 
   // get selected type from URL
-  const viewType = window.location.href.includes('calendar')
-    ? 'calendar'
-    : 'board';
+  let viewType = 'board';
+
+  if (window.location.href.includes('calendar')) {
+    viewType = 'calendar';
+  }
+
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
+  }
+
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
+  }
 
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
@@ -50,23 +62,54 @@ const TicketMainActionBar = (props: Props) => {
     };
 
     const boardLink = onFilterClick('board');
+    const listLink = onFilterClick('list');
     const calendarLink = onFilterClick('calendar');
+    const activityLink = onFilterClick('activity');
 
     return (
       <ButtonGroup>
-        <Tip text={__('Board')} placement="bottom">
-          <Link to={boardLink} className={viewType === 'board' ? 'active' : ''}>
-            <Icon icon="window-section" />
-          </Link>
-        </Tip>
-        <Tip text={__('Calendar')} placement="bottom">
-          <Link
-            to={calendarLink}
-            className={viewType === 'calendar' ? 'active' : ''}
-          >
-            <Icon icon="calender" />
-          </Link>
-        </Tip>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
+            <Button btnStyle="primary" icon="list-ui-alt">
+              {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <li key="board">
+              <Link
+                to={boardLink}
+                className={viewType === 'board' ? 'active' : ''}
+              >
+                {__('Board')}
+              </Link>
+            </li>
+            <li key="calendar">
+              <Link
+                to={calendarLink}
+                className={viewType === 'calendar' ? 'active' : ''}
+              >
+                {__('Calendar')}
+              </Link>
+            </li>
+            <li key="activity">
+              <Link
+                to={activityLink}
+                className={viewType === 'activity' ? 'active' : ''}
+              >
+                {__('Activity')}
+              </Link>
+            </li>
+            <li key="list">
+              <Link
+                to={listLink}
+                className={viewType === 'list' ? 'active' : ''}
+              >
+                {__('List')}
+              </Link>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
       </ButtonGroup>
     );
   };
@@ -124,7 +167,7 @@ const TicketMainActionBar = (props: Props) => {
     rightContent: viewChooser
   };
 
-  return <MainActionBar {...extendedProps} />;
+  return <MainActionBar viewType={viewType} {...extendedProps} />;
 };
 
 export default TicketMainActionBar;

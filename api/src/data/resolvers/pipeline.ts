@@ -5,7 +5,7 @@ import {
   PIPELINE_VISIBLITIES
 } from '../../db/models/definitions/constants';
 import { IContext } from '../types';
-import { getDocumentList } from './mutations/cacheUtils';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
@@ -14,6 +14,10 @@ import {
 } from './queries/boardUtils';
 
 export default {
+  createdUser(pipeline: IPipelineDocument) {
+    return getDocument('users', { _id: pipeline.userId });
+  },
+
   members(pipeline: IPipelineDocument, {}) {
     if (pipeline.visibility === PIPELINE_VISIBLITIES.PRIVATE) {
       return getDocumentList('users', { _id: { $in: pipeline.memberIds } });

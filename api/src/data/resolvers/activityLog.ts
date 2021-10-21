@@ -1,6 +1,4 @@
 import {
-  ChecklistItems,
-  Checklists,
   Companies,
   Customers,
   Deals,
@@ -11,7 +9,9 @@ import {
 } from '../../db/models';
 import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
+import { ITagDocument } from '../../db/models/definitions/tags';
 import { IUserDocument } from '../../db/models/definitions/users';
+import { getContentTypeDetail } from './activityLogByAction';
 import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
@@ -34,33 +34,8 @@ export default {
     return;
   },
 
-  async contentTypeDetail(activityLog: IActivityLog) {
-    const { contentType, contentId, content } = activityLog;
-
-    let item = {};
-
-    switch (contentType) {
-      case 'deal':
-        item = await Deals.getDeal(contentId);
-        break;
-      case 'task':
-        item = await Tasks.getTask(contentId);
-        break;
-      case 'growthHack':
-        item = await GrowthHacks.getGrowthHack(contentId);
-        break;
-      case 'ticket':
-        item = await Tickets.getTicket(contentId);
-        break;
-      case 'checklist':
-        item = (await Checklists.findOne({ _id: content._id })) || {};
-        break;
-      case 'checklistitem':
-        item = (await ChecklistItems.findOne({ _id: content._id })) || {};
-        break;
-    }
-
-    return item;
+  contentTypeDetail(activityLog: IActivityLog) {
+    return getContentTypeDetail(activityLog);
   },
 
   async contentDetail(activityLog: IActivityLog) {
@@ -88,8 +63,8 @@ export default {
 
       const destinationStage = await Stages.findOne({
         _id: destinationStageId
-      });
-      const oldStage = await Stages.findOne({ _id: oldStageId });
+      }).lean();
+      const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
       if (destinationStage && oldStage) {
         return {
@@ -109,10 +84,14 @@ export default {
 
       switch (contentType) {
         case 'company':
-          result = await Companies.find({ _id: { $in: activityLog.content } });
+          result = await Companies.find({
+            _id: { $in: activityLog.content }
+          }).lean();
           break;
         case 'customer':
-          result = await Customers.find({ _id: { $in: activityLog.content } });
+          result = await Customers.find({
+            _id: { $in: activityLog.content }
+          }).lean();
           break;
       }
 
@@ -133,6 +112,15 @@ export default {
       }
 
       return { addedUsers, removedUsers };
+    }
+
+    if (action === ACTIVITY_ACTIONS.TAGGED) {
+      let tags: ITagDocument[] = [];
+      if (content) {
+        tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
+      }
+
+      return { tags };
     }
   }
 };
