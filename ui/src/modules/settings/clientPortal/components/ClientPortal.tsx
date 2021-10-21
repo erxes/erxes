@@ -10,7 +10,6 @@ import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
 import List from '../containers/List';
 
 type Props = {
-  integrationsCount: number;
   queryParams: any;
   loading?: boolean;
 } & IRouterProps;
@@ -24,7 +23,8 @@ class ClientPortal extends React.Component<Props, {}> {
       { title: __('Client Portal'), link: '/settings/client-portal' }
     ];
 
-    const leftActionBar = <Title>Client portal</Title>;
+    const count = queryParams._id ? 1 : 0;
+    const leftActionBar = <Title>{__('Client portal')}</Title>;
 
     return (
       <Wrapper
@@ -52,9 +52,10 @@ class ClientPortal extends React.Component<Props, {}> {
                 />
               </ContentBox>
             }
+            count={count}
             loading={loading}
-            emptyText="Add an integration in this Brand"
-            emptyImage="/images/actions/2.svg"
+            emptyText="Getting Started with Client Portal"
+            emptyImage="/images/actions/13.svg"
           />
         }
       />

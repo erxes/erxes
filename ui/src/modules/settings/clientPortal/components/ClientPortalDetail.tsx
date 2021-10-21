@@ -9,7 +9,7 @@ type Props = {
   handleUpdate: (doc: ClientPortalConfig) => void;
 };
 
-function ClientPortal({ config, handleUpdate }: Props) {
+function ClientPortalDetail({ config, handleUpdate }: Props) {
   const commonProps = {
     defaultConfigValues: config,
     handleUpdate
@@ -30,4 +30,4 @@ function ClientPortal({ config, handleUpdate }: Props) {
   );
 }
 
-export default ClientPortal;
+export default ClientPortalDetail;

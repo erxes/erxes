@@ -8,7 +8,7 @@ import { TopHeader } from 'modules/common/styles/main';
 import { IRouterProps } from 'modules/common/types';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import { SidebarListItem } from 'modules/settings/styles';
+import { SidebarListItem, ActionButtons } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
@@ -47,11 +47,12 @@ function ClientPortalList({
               {config.name}
               <StyledUrl>{config.url}</StyledUrl>
             </FieldStyle>
-
+          </Link>
+          <ActionButtons>
             <Tip text="Delete" placement="bottom">
               <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
             </Tip>
-          </Link>
+          </ActionButtons>
         </SidebarListItem>
       );
     });
@@ -65,7 +66,7 @@ function ClientPortalList({
         uppercase={false}
         icon="plus-circle"
       >
-        New Client Portal
+        Add New Client Portal
       </Button>
     );
 
@@ -94,7 +95,10 @@ function ClientPortalList({
       </SidebarList>
       {loading && <Spinner />}
       {!loading && totalCount === 0 && (
-        <EmptyState image="/images/actions/18.svg" text="There is no brand" />
+        <EmptyState
+          image="/images/actions/18.svg"
+          text="There is no client portal"
+        />
       )}
     </LeftSidebar>
   );
