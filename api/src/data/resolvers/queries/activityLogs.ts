@@ -52,30 +52,28 @@ const activityLogQueries = {
     });
 
     const collectItems = (items: any, type?: string) => {
-      if (items) {
-        items.map(item => {
-          let result: IActivityLogDocument = {} as any;
+      (items || []).map(item => {
+        let result: IActivityLogDocument = {} as any;
 
-          if (!type) {
-            result = item;
-          }
+        if (!type) {
+          result = item;
+        }
 
-          if (type && type !== 'taskDetail') {
-            result._id = item._id;
-            result.contentType = type;
-            result.contentId = contentId;
-            result.createdAt = item.createdAt;
-          }
+        if (type && type !== 'taskDetail') {
+          result._id = item._id;
+          result.contentType = type;
+          result.contentId = contentId;
+          result.createdAt = item.createdAt;
+        }
 
-          if (type === 'taskDetail') {
-            result._id = item._id;
-            result.contentType = type;
-            result.createdAt = item.closeDate || item.createdAt;
-          }
+        if (type === 'taskDetail') {
+          result._id = item._id;
+          result.contentType = type;
+          result.createdAt = item.closeDate || item.createdAt;
+        }
 
-          activities.push(result);
-        });
-      }
+        activities.push(result);
+      });
     };
 
     const collectConversations = async () => {
