@@ -14,6 +14,7 @@ export function SpinnerComponent(props) {
       right: rights && rights[index],
       objective: true,
     };
+    
     return datas;
   };
 
