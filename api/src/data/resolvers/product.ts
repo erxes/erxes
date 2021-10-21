@@ -20,21 +20,20 @@ export default {
   },
 
   async customFieldsDataWithText(product: IProductDocument) {
-    let { customFieldsData } = product;
-
-    if (!customFieldsData) {
-      return null;
-    }
-
+    let customFieldsData = product.customFieldsData || [];
     customFieldsData = customFieldsData.filter(el => el.value);
 
-    const data: any = [];
+    const data: Array<{
+      text: string;
+      value: string;
+    }> = [];
 
     for (const el of customFieldsData) {
       const field = await Fields.aggregate([
         { $match: { _id: el.field } },
         { $project: { text: '$text' } }
       ]);
+
       const { text } = field[0];
 
       data.push({
