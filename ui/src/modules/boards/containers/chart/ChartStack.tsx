@@ -53,7 +53,7 @@ export default function ChartStackContainer({
     return <ChartLine items={items} assignees={assignees} />;
   }
 
-  if (chartType === 'simple Bar') {
+  if (chartType === 'simpleBar') {
     return <ChartBar items={items} assignees={assignees} />;
   }
 

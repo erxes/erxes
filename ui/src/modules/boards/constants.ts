@@ -129,12 +129,12 @@ export const chartTypes = [
     icon: 'arrow-growth'
   },
   {
-    name: 'simple Bar',
-    title: 'Bar Chart',
+    name: 'simpleBar',
+    title: 'Simple Bar Chart',
     icon: 'chart-bar'
   },
   {
-    name: 'stacked Bar',
+    name: 'stackedBar',
     title: 'Stacked Bar Chart',
     icon: 'chart'
   }

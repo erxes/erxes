@@ -56,9 +56,8 @@ const SelectType = ({
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
           <Button btnStyle="primary" size="small">
             {foundTypeName
-              ? foundTypeName.name.charAt(0).toUpperCase() +
-                foundTypeName.name.slice(1) +
-                ' Chart'
+              ? foundTypeName.title.charAt(0).toUpperCase() +
+                foundTypeName.title.slice(1)
               : text}
             <Icon icon="angle-down" />
           </Button>
