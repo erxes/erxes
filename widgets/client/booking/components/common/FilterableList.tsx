@@ -122,6 +122,7 @@ class FilterableList extends React.Component<Props, State> {
       color = productAvailable;
     }
 
+    // tslint:disable-next-line: no-shadowed-variable
     const handleClick = (item: any) => {
       changeRoute(item);
       this.setState({ selectedItem: item });
