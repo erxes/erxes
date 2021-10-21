@@ -42,7 +42,7 @@ const tickets = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <TicketBoard queryParams={queryParams} />;
+  return <TicketBoard viewType="board" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {
@@ -57,6 +57,18 @@ const calendar = ({ location }) => {
       MainActionBarComponent={MainActionBar}
     />
   );
+};
+
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="list" queryParams={queryParams} />;
+};
+
+const activity = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="activity" queryParams={queryParams} />;
 };
 
 const routes = () => {
@@ -76,6 +88,20 @@ const routes = () => {
         exact={true}
         path="/ticket/calendar"
         component={calendar}
+      />
+
+      <Route
+        key="ticket/list"
+        exact={true}
+        path="/ticket/list"
+        component={list}
+      />
+
+      <Route
+        key="ticket/activity"
+        exact={true}
+        path="/ticket/activity"
+        component={activity}
       />
     </>
   );

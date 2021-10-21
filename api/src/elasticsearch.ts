@@ -10,6 +10,7 @@ dotenv.config();
 const {
   NODE_ENV,
   MONGO_URL,
+  TEST_MONGO_URL = 'mongodb://localhost/test',
   ELASTICSEARCH_URL = 'http://localhost:9200'
 } = process.env;
 
@@ -29,7 +30,11 @@ export const getIndexPrefix = () => {
     return `${telemetry.getMachineId().toString()}__`;
   }
 
-  const uriObject = mongoUri.parse(MONGO_URL);
+  let uriObject = mongoUri.parse(MONGO_URL);
+  if (NODE_ENV === 'test') {
+    uriObject = mongoUri.parse(TEST_MONGO_URL);
+  }
+
   const dbName = uriObject.database;
 
   return `${dbName}__`;
@@ -48,14 +53,8 @@ export const fetchElk = async ({
   _id?: string;
   defaultValue?: any;
 }) => {
-  if (NODE_ENV === 'test') {
-    return action === 'search'
-      ? { hits: { total: { value: 0 }, hits: [] } }
-      : 0;
-  }
-
   try {
-    const params: { index: string; body: any; id?: string } = {
+    const params: any = {
       index: `${getIndexPrefix()}${index}`,
       body
     };

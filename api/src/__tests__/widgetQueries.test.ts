@@ -1,4 +1,7 @@
+import './setup.ts';
+
 import * as sinon from 'sinon';
+
 import { isMessengerOnline } from '../data/resolvers/queries/widgets';
 import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
@@ -16,11 +19,10 @@ import {
   userFactory
 } from '../db/factories';
 import { Brands, Conversations, Customers, Integrations } from '../db/models';
-import './setup.ts';
 
 describe('widgetQueries', () => {
-  const widgetsGetEngageMessageQuery = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
-    widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
+  const widgetsGetEngageMessageQuery = `query widgetsGetEngageMessage($integrationId: String, $customerId: String!, $browserInfo: JSON!) {
+    widgetsGetEngageMessage(integrationId: $integrationId, customerId: $customerId, browserInfo: $browserInfo) {
       _id
       engageData {
         messageId
@@ -363,6 +365,7 @@ describe('widgetQueries', () => {
       widgetsGetEngageMessageQuery,
       'widgetsGetEngageMessage',
       {
+        integrationId: integration._id,
         customerId: customer._id,
         browserInfo: {
           url: 'url',

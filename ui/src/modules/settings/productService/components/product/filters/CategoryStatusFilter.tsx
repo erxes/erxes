@@ -30,12 +30,13 @@ class CategoryStatusFilter extends React.Component<IProps> {
 
     const onClick = (key, value) => {
       router.setParams(history, { [key]: value });
+      router.setParams(history, { categoryId: null });
     };
 
     return (
       <Box
         extraButtons={extraButtons}
-        title={__('Category by status')}
+        title={__('Filter category by status')}
         name="showFilterByType"
       >
         <SidebarList>

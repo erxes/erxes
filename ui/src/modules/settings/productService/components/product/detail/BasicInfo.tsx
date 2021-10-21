@@ -1,6 +1,5 @@
 import { Content } from 'modules/boards/styles/item';
 import Attachment from 'modules/common/components/Attachment';
-import FormControl from 'modules/common/components/form/Control';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
@@ -31,12 +30,10 @@ type Props = {
 };
 
 class BasicInfo extends React.Component<Props> {
-
-  onRadio = (e) => {
+  onRadio = e => {
     const { product, chooseFeature } = this.props;
     chooseFeature(product._id, e.target.value);
-
-  }
+  };
 
   renderVendor = vendor => {
     if (!vendor) {
@@ -59,12 +56,13 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderView = (name, variable, variable1) => {
-    const view = variable ? variable : variable1;
+  renderView = (name, variable) => {
+    const defaultName = name.includes('count') ? 0 : '-';
+
     return (
       <li>
         <FieldStyle>{__(name)}</FieldStyle>
-        <SidebarCounter>{view}</SidebarCounter>
+        <SidebarCounter>{variable || defaultName}</SidebarCounter>
       </li>
     );
   };
@@ -100,48 +98,37 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
-  renderFeatures = (items?: IAttachment[], feature?: IAttachment) => {
-    if (!items || !feature) {
-      return null;
-    }
-
-    const elemets: any[] = [];
-    let counter = 0;
-
-    items.map(e => {
-      const checked = feature.name === e.name ? true : false;
-      elemets.push(<FormControl
-        name="SelectFeature"
-        onChange={this.onRadio}
-        value={counter}
-        checked={checked}
-        componentClass="radio"
-      >
-        {e.name}
-      </FormControl>);
-      counter++;
-    });
-
-    return elemets;
-  };
-
   renderImage = (item: IAttachment) => {
     if (!item) {
       return null;
     }
 
-    return <Attachment attachment={item} />
+    return <Attachment attachment={item} />;
   };
 
   renderInfo() {
     const { product } = this.props;
 
     const content = props => <ProductForm {...props} product={product} />;
+    const {
+      code,
+      name,
+      type,
+      category,
+      supply,
+      productCount,
+      minimiumCount,
+      unitPrice,
+      sku,
+      attachment,
+      vendor,
+      description
+    } = product;
 
     return (
       <Sidebar.Section>
         <InfoWrapper>
-          <Name>{product.name}</Name>
+          <Name>{name}</Name>
           <ModalTrigger
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
@@ -152,29 +139,22 @@ class BasicInfo extends React.Component<Props> {
 
         {this.renderAction()}
 
-        {this.renderImage(product.attachment)}
-        {this.renderFeatures(product.attachmentMore, product.attachment)}
+        {this.renderImage(attachment)}
         <SidebarList className="no-link">
-          {this.renderView('Code', product.code, '-')}
-          {this.renderView('Type', product.type, '-')}
-          {this.renderView(
-            'Category',
-            product.category ? product.category.name : '', '-'
-          )}
-          {this.renderView(
-            'Unit price',
-            (product.unitPrice || 0).toLocaleString(), '-'
-          )}
-          {this.renderView('Sku', product.sku, '-')}
-          {this.renderVendor(product.vendor)}
-          {this.renderView('Supply', product.supply, '-')}
-          {this.renderView('Product count', product.productCount, 0)}
-          {this.renderView('Minimium product', product.minimiumCount, 0)}
+          {this.renderView('Code', code)}
+          {this.renderView('Type', type)}
+          {this.renderView('Category', category ? category.name : '')}
+          {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
+          {this.renderView('Sku', sku)}
+          {this.renderVendor(vendor)}
+          {this.renderView('Supply', supply)}
+          {this.renderView('Product count', productCount)}
+          {this.renderView('Minimium product count', minimiumCount)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <Content
           dangerouslySetInnerHTML={{
-            __html: xss(product.description)
+            __html: xss(description)
           }}
         />
       </Sidebar.Section>

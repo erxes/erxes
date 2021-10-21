@@ -48,6 +48,7 @@ export interface IUser {
   isSubscribed?: string;
   sessionCode?: string;
   isShowNotification?: boolean;
+  score?: number;
   customFieldsData?: ICustomField[];
 }
 
@@ -81,7 +82,7 @@ const detailSchema = new Schema(
     operatorPhone: field({
       type: String,
       optional: true,
-      label: 'Company phone'
+      label: 'Operator phone'
     })
   },
   { _id: false }
@@ -106,7 +107,10 @@ export const userSchema = schemaHooksWrapper(
       type: String,
       unique: true,
       match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
+        /**
+         * RFC 5322 compliant regex. Taken from http://emailregex.com/
+         */
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         'Please fill a valid email address'
       ],
       label: 'Email'
@@ -151,6 +155,12 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: false,
       label: 'Check if user shows'
+    }),
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
+      esType: 'number'
     }),
     customFieldsData: field({
       type: [customFieldSchema],

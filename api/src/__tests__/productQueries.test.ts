@@ -6,7 +6,7 @@ import {
   productFactory,
   tagsFactory
 } from '../db/factories';
-import { ProductCategories, Products } from '../db/models';
+import { ProductCategories, Products, Tags } from '../db/models';
 import { PRODUCT_TYPES, TAG_TYPES } from '../db/models/definitions/constants';
 
 import './setup.ts';
@@ -16,6 +16,7 @@ describe('productQueries', () => {
     // Clearing test data
     await Products.deleteMany({});
     await ProductCategories.deleteMany({});
+    await Tags.deleteMany({});
   });
 
   test('Products', async () => {
@@ -215,8 +216,11 @@ describe('productQueries', () => {
       contentType: 'product'
     });
 
+    const tag = await tagsFactory({});
+
     const product = await productFactory({
       vendorId: (await companyFactory())._id,
+      tagIds: [tag._id],
       customFieldsData: [
         { field: field._id, value: field.text, stringValue: field.text }
       ]

@@ -17,7 +17,6 @@ import { IProductCategory } from '../../types';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
 
-
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
@@ -124,7 +123,6 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryHeader() {
-
     const trigger = (
       <Button btnStyle="success" icon="plus-circle" block={true}>
         Add category

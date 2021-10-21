@@ -211,16 +211,32 @@ export default {
   async widgetsGetEngageMessage(
     _root,
     {
+      integrationId,
       customerId,
       visitorId,
       browserInfo
-    }: { customerId?: string; visitorId?: string; browserInfo: IBrowserInfo }
+    }: {
+      integrationId: string;
+      customerId?: string;
+      visitorId?: string;
+      browserInfo: IBrowserInfo;
+    }
   ) {
     if (isUsingElk()) {
-      return getOrCreateEngageMessageElk(browserInfo, visitorId, customerId);
+      return getOrCreateEngageMessageElk(
+        integrationId,
+        browserInfo,
+        visitorId,
+        customerId
+      );
     }
 
-    return getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    return getOrCreateEngageMessage(
+      integrationId,
+      browserInfo,
+      visitorId,
+      customerId
+    );
   },
 
   async widgetsProductCategory(_root, { _id }: { _id: string }) {

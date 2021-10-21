@@ -119,4 +119,20 @@ module.exports = {
       ],
     },
   ],
+  components: [
+    {
+      type: "category",
+      label: "Components",
+      items: [
+        "components/Button/buttons",
+        "components/EmptyState/emptystate",
+        "components/ErrorMsg/errormsg",
+        "components/Info/info",
+        "components/Label/label",
+        "components/Namecard/namecard",
+        "components/Spinner/spinners",
+        "components/Table/table",
+      ],
+    },
+  ],
 };

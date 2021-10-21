@@ -1,4 +1,7 @@
 import { queries as boardQueries } from 'erxes-ui/lib/boards/graphql';
+import * as teamQueries from 'erxes-ui/lib/team/graphql';
+
+const detailFields = teamQueries.detailFields;
 
 const pipelineLabelFields = `
   _id
@@ -13,6 +16,18 @@ const pipelineLabels = `
   query pipelineLabels($pipelineId: String!) {
     pipelineLabels(pipelineId: $pipelineId) {
       ${pipelineLabelFields}
+    }
+  }
+`;
+
+const pipelineAssignedUsers = `
+  query pipelineAssignedUsers($_id: String!) {
+    pipelineAssignedUsers(_id: $_id) {
+      _id
+      details {
+        avatar
+        fullName
+      }
     }
   }
 `;
@@ -32,7 +47,6 @@ const boardGetLast = `
     boardGetLast(type: $type) {
       _id
       name
-
       pipelines {
         _id
         name
@@ -46,7 +60,6 @@ const boardDetail = `
     boardDetail(_id: $_id) {
       _id
       name
-
       pipelines {
         _id
         name
@@ -222,6 +235,45 @@ const itemsCountBySegments = `
   } 
 `;
 
+const activityLogsByAction = `
+  query activityLogsByAction(
+    $contentType: String,
+    $action: String,
+    $pipelineId: String
+    $perPage: Int,
+    $page: Int
+  ) {
+    activityLogsByAction(
+      contentType: $contentType,
+      action: $action,
+      pipelineId: $pipelineId,
+      perPage: $perPage,
+      page: $page,
+    ) {
+      activityLogs {
+        _id
+        createdUser {
+          _id
+          username
+          email
+          
+          details {
+            ${detailFields}
+          }
+        }
+
+        action
+        content
+        createdAt
+        contentType
+        contentTypeDetail
+      }
+
+      totalCount
+    }
+  }
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -234,10 +286,12 @@ export default {
   stages,
   conversionStages,
   stageDetail,
+  pipelineAssignedUsers,
   pipelineLabels,
   pipelineLabelDetail,
   itemsCountBySegments,
   tasks,
   deals,
-  tickets
+  tickets,
+  activityLogsByAction
 };

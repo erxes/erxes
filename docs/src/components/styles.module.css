@@ -171,3 +171,22 @@
 		padding: 50px 0;
 	}
 }
+
+.styled {
+	margin: 15px;
+}
+
+.styleSpinner {
+	margin: 15px;
+	display: flex;
+}
+
+.spinner {
+	width: 33%;
+}
+
+code {
+	background-color: #282a36;
+	border: none;
+	color: white;
+}

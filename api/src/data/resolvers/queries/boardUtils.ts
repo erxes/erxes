@@ -189,6 +189,10 @@ export const generateCommonFilters = async (
 
   if (stageId) {
     filter.stageId = stageId;
+  } else if (pipelineId) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    filter.stageId = { $in: stageIds };
   }
 
   if (labelIds) {
@@ -228,7 +232,7 @@ export const generateCommonFilters = async (
 
   if (segment) {
     const segmentObj = await Segments.findOne({ _id: segment }).lean();
-    const itemIds = await fetchSegment('search', segmentObj);
+    const itemIds = await fetchSegment(segmentObj);
 
     filter._id = { $in: itemIds };
   }
@@ -394,7 +398,7 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
   const filter: any = { status: BOARD_STATUSES.ARCHIVED };
   const { page = 0, perPage = 0 } = listArgs;
 
-  const stages = await Stages.find({ pipelineId });
+  const stages = await Stages.find({ pipelineId }).lean();
 
   if (stages.length > 0) {
     filter.stageId = { $in: stages.map(stage => stage._id) };
@@ -409,7 +413,8 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
         modifiedAt: -1
       })
       .skip(page || 0)
-      .limit(perPage || 20);
+      .limit(perPage || 20)
+      .lean();
   }
 
   return [];

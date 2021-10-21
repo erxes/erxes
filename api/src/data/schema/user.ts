@@ -67,12 +67,12 @@ export const types = `
   }
 `;
 
-const commonParams = `	
-  username: String,	
-  email: String,	
-  details: UserDetails,	
-  links: JSON,	
-  channelIds: [String],	
+const commonParams = `
+  username: String,
+  email: String,
+  details: UserDetails,
+  links: JSON,
+  channelIds: [String],
   groupIds: [String]
   brandIds: [String]
   customFieldsData: JSON
@@ -96,8 +96,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String 
-  login(email: String!, password: String! deviceToken: String): String 
+  usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
+  login(email: String!, password: String! deviceToken: String): String
   logout: String
   forgotPassword(email: String!): String!
   resetPassword(token: String!, newPassword: String!): JSON
