@@ -286,37 +286,4 @@ describe('Test products mutations', () => {
 
     expect(product1.code).toBe(args.productFields.code);
   });
-
-  test('Select feature', async () => {
-    const attachment = attachmentFactory();
-    const attachment1 = attachmentFactory();
-    const attachmentMore = [attachment, attachment1];
-
-    const withAttachmentProduct = await productFactory({
-      attachmentMore
-    });
-
-    const args = {
-      _id: withAttachmentProduct._id,
-      counter: '0'
-    };
-
-    const mutation = `
-      mutation productSelectFeature($_id: String, $counter: String) {
-        productSelectFeature(_id: $_id, counter: $counter) {
-          name
-          code
-          _id
-        }
-      }   
-    `;
-
-    const product1 = await graphqlRequest(
-      mutation,
-      'productSelectFeature',
-      args
-    );
-
-    expect(product1._id).toBe(args._id);
-  });
 });

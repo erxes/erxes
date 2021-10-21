@@ -94,6 +94,5 @@ export const mutations = `
   productsMerge(productIds: [String], productFields: JSON): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
-  productCategoriesRemove(_id: String!): JSON
-  productSelectFeature(_id: String, counter: String): Product
+  productCategoriesRemove(_id: String!): JSON  
 `;

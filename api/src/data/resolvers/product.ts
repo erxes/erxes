@@ -17,9 +17,6 @@ export default {
   },
 
   vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
-    if (product.vendorId) {
-      return dataLoaders?.company.load(product.vendorId);
-    }
     return (
       (product.vendorId && dataLoaders.company.load(product.vendorId)) || null
     );
