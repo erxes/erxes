@@ -10,7 +10,7 @@ import { IRouterProps } from '../../../../../common/types';
 
 import { IProduct } from 'modules/settings/productService/types';
 import { mutations } from '../../../graphql';
-import { ProductRemoveMutationResponse, SelectFeatureMutationResponse } from '../../../types';
+import { ProductRemoveMutationResponse } from '../../../types';
 
 type Props = {
   product: IProduct;
@@ -19,11 +19,10 @@ type Props = {
 
 type FinalProps = { currentUser: IUser } & Props &
   IRouterProps &
-  ProductRemoveMutationResponse &
-  SelectFeatureMutationResponse;
+  ProductRemoveMutationResponse;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { product, productsRemove, history, productSelectFeature } = props;
+  const { product, productsRemove, history } = props;
 
   const { _id } = product;
 
@@ -38,20 +37,9 @@ const BasicInfoContainer = (props: FinalProps) => {
       });
   };
 
-  const chooseFeature = (_id: string, counter: string) => {
-    productSelectFeature({ variables: { _id, counter } })
-      .then(() => {
-        Alert.success('You successfully selected a feature');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const updatedProps = {
     ...props,
-    remove,
-    chooseFeature
+    remove
   };
 
   return <BasicInfo {...updatedProps} />;
@@ -68,15 +56,6 @@ export default withProps<Props>(
       {
         name: 'productsRemove',
         options: generateOptions
-      }
-    ),
-    graphql<Props, SelectFeatureMutationResponse, { _id: string, counter: string }>(
-      gql(mutations.productSelectFeature),
-      {
-        name: 'productSelectFeature',
-        options: ({ refetchQueries }) => ({
-          refetchQueries
-        })
       }
     )
   )(withRouter<FinalProps>(BasicInfoContainer))

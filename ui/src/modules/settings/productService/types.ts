@@ -85,14 +85,3 @@ export type MergeMutationResponse = {
     variables: MergeMutationVariables;
   }) => Promise<any>;
 };
-
-export type SelectFeatureMutationVariables = {
-  _id: string;
-  counter: string;
-};
-
-export type SelectFeatureMutationResponse = {
-  productSelectFeature: (params: {
-    variables: SelectFeatureMutationVariables;
-  }) => Promise<any>;
-};

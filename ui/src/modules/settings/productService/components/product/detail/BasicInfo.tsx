@@ -26,15 +26,9 @@ import xss from 'xss';
 type Props = {
   product: IProduct;
   remove: () => void;
-  chooseFeature: (_id: string, counter: string) => void;
 };
 
 class BasicInfo extends React.Component<Props> {
-  onRadio = e => {
-    const { product, chooseFeature } = this.props;
-    chooseFeature(product._id, e.target.value);
-  };
-
   renderVendor = vendor => {
     if (!vendor) {
       return (
