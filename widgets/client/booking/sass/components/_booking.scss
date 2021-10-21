@@ -1,14 +1,8 @@
-$slick-font-path: "~slick-carousel/slick/fonts/";
-$slick-loader-path: "~slick-carousel/slick/";
-
-@import '~slick-carousel/slick/slick', '~slick-carousel/slick/slick-theme';
 #root {
   margin: 0;
   height: 100%;
 }
-*{
-  font-size: calc(0.5rem + 1.2vmin)
-}
+
 h4,p{
     margin-block-start: 0px;
     margin-block-end: 0px;
@@ -28,7 +22,6 @@ h4,p{
 
 
 .slider{
-  padding-left: 30px;
   .active{
     width: 100%;
     height: 40vh;
@@ -39,26 +32,34 @@ h4,p{
     }
   }
 }
-.slick-slider .slick-initialized{
-height: 18vh;
-}
-.slick-slider{
+
+#carousel{
   height: 18vh;
-}
-.slick-list{
-  width: 100%;
-}
-.slick-slide{
-  margin: 10px;
-}
-.slider-item{
-  width:30%;
-  height: 100px;
+  width: auto;
+  margin:20px;
   overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+
+  }
+
+.slider-item{
+  flex-shrink: 0;
+  width: 25%;
+  height: 100%;
+  overflow: hidden;
+  margin-left:10px;
+  margin-right:10px;
+  cursor: grab;
   img{
     width: 100%;
     height: 100%;
     object-fit: cover;
+    cursor: pointer;
+    transition:  0.5s ease;
+    &:hover{
+      transform: scale(1.2);
+    }
   }
 }
 .li {

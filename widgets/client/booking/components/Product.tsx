@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { HiArrowSmLeft, HiArrowSmRight } from 'react-icons/hi';
 import {
   MdOutlineArrowBackIos,
   MdOutlineArrowForwardIos
 } from 'react-icons/md';
 
 import { IBookingData } from '../types';
-import Slider from 'react-slick';
 import { readFile } from '../../utils';
 import { IProduct } from '../../types';
 import Button from './common/Button';
@@ -22,7 +20,6 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
   if (!product || !booking) {
     return null;
   }
-
   const { widgetColor } = booking.style;
   const customFieldsDataWithText = product.customFieldsDataWithText || [];
 
@@ -33,22 +30,40 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
     }
   };
 
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    nextArrow: <MdOutlineArrowForwardIos />,
-    prevArrow: <MdOutlineArrowBackIos />
-  };
-
   const renderFieldData = () =>
     customFieldsDataWithText.map((el: any) => (
       <div>
         <strong>{el.text}:</strong> {el.value}
       </div>
     ));
+
+  let scrollPerClick = 200;
+  let scrollAmount = 0;
+  const moveCarousel = (orientation: string) => {
+    const carousel = document.getElementById('carousel') as HTMLElement;
+    if (orientation === "left") {
+      carousel.scrollTo({
+        top: 0,
+        left: (scrollAmount -= scrollPerClick),
+        behavior: 'smooth',
+      })
+
+      if (scrollAmount < 0) {
+        scrollAmount = 0;
+      }
+    }
+    else {
+      if (scrollAmount <= carousel.scrollWidth - carousel.clientWidth) {
+        carousel.scrollTo({
+          top: 0,
+          left: (scrollAmount += scrollPerClick),
+          behavior: "smooth"
+        })
+      }
+
+    }
+  }
+
 
   return (
     <div className="body">
@@ -63,8 +78,10 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
               alt={product.attachment && product.attachment.name}
             />
           </div>
-          <div>
-            <Slider {...settings}>
+          <div className="flex-center">
+            <MdOutlineArrowBackIos size={40} onClick={() => moveCarousel("left")} />
+            <div id="carousel">
+
               {(product.attachmentMore || []).map((img, index) => (
                 <div
                   className="slider-item flex-center"
@@ -78,7 +95,9 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
                   />
                 </div>
               ))}
-            </Slider>
+
+            </div>
+            <MdOutlineArrowForwardIos size={40} onClick={() => moveCarousel("right")} />
           </div>
         </div>
         <div>
@@ -106,5 +125,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
     </div>
   );
 }
+
+
 
 export default Product;

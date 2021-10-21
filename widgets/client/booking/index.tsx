@@ -1,6 +1,4 @@
-import "erxes-icon/css/erxes.min.css";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import "erxes-icon/css/erxes.min.css";;
 import client from "../apollo-client";
 import { connection } from "./connection";
 import "./sass/style.scss";
@@ -11,7 +9,6 @@ import { initStorage } from "../common";
 import { setLocale } from "../utils";
 import widgetConnect from "../widgetConnect";
 import { widgetsConnectMutation } from "./graphql";
-import "./sass/style.scss";
 
 widgetConnect({
   postParams: {
