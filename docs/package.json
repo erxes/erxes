@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "docusaurus start",
+    "start": "docusaurus start --port 4300",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy"
@@ -13,9 +13,23 @@
     "@docusaurus/preset-classic": "2.0.0-alpha.75",
     "@docusaurus/theme-search-algolia": "^2.0.0-alpha.32",
     "classnames": "^2.2.6",
+    "dayjs": "^1.10.7",
+    "erxes-icon": "^1.2.1",
+    "erxes-ui": "0.0.68-beta",
+    "html-react-parser": "^1.3.0",
+    "i18n-react": "^0.7.0",
+    "query-string": "^7.0.1",
     "react": "^16.13.1",
+    "raw-loader": "^4.0.2",
+    "react-bootstrap": "^1.6.3",
+    "react-code-blocks": "0.0.9-0",
     "react-dom": "^16.8.4",
-    "react-feather": "^2.0.8"
+    "react-feather": "^2.0.8",
+    "react-router-dom": "^5.3.0",
+    "react-scroll": "^1.8.4",
+    "styled-components": "^5.3.1",
+    "styled-components-ts": "0.0.15",
+    "svg-url-loader": "^7.1.1"
   },
   "browserslist": {
     "production": [
