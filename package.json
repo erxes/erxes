@@ -47,6 +47,9 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "fs-extra": "^9.0.1"
+    "erxes-icon": "file:erxes-icon",
+    "fs-extra": "^9.0.1",
+    "styled-components": "^5.3.1",
+    "styled-components-ts": "0.0.15"
   }
 }
