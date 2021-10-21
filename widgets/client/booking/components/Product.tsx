@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { HiArrowSmLeft, HiArrowSmRight } from 'react-icons/hi';
 import {
   MdOutlineArrowBackIos,
   MdOutlineArrowForwardIos
@@ -45,6 +44,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
 
   const renderFieldData = () =>
     customFieldsDataWithText.map((el: any) => (
+      // tslint:disable-next-line: jsx-key
       <div>
         <strong>{el.text}:</strong> {el.value}
       </div>

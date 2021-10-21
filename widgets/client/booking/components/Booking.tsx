@@ -15,37 +15,34 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const {
-    childCategories,
-    mainProductCategory,
-    style
-  } = booking;
+  const { childCategories, mainProductCategory, style } = booking;
   const { name, attachment, description } = mainProductCategory;
-  let { widgetColor, line, columns, rows, margin } = style;
+  const { widgetColor, line, columns, rows, margin } = style;
 
   const blockCount = childCategories.length;
-  let column: string = columns!
-  let colCount = parseInt(column) >= 4 ? "4" : columns;
+  const column: string = columns!;
+  // tslint:disable-next-line: radix
+  const colCount = parseInt(column) >= 4 ? '4' : columns;
 
   const blocksStyle = {
-    width: "100%",
-    display: "grid",
-    marginTop: "10px",
+    width: '100%',
+    display: 'grid',
+    marginTop: '10px',
     gridTemplateColumns: `repeat(${colCount}, 1fr)`,
-    gridAutoColumns: "minmax(100px, auto)",
-    gap: margin,
+    gridAutoColumns: 'minmax(100px, auto)',
+    gap: margin
   };
 
   let hover = false;
-  let hoverStyle = { borderColor: "", color: "" };
+  const hoverStyle = { borderColor: '', color: '' };
 
   const toggleHover = () => {
     hover = !hover;
     if (hover === true) {
       hoverStyle.borderColor = widgetColor;
-      hoverStyle.color = widgetColor
+      hoverStyle.color = widgetColor;
     }
-  }
+  };
 
   return (
     <>
@@ -62,7 +59,6 @@ function Booking({ goToIntro, booking }: Props) {
             );
           })}
         </div>
-
       </Body>
       <div className="footer">
         <Button
@@ -75,6 +71,5 @@ function Booking({ goToIntro, booking }: Props) {
     </>
   );
 }
-
 
 export default Booking;

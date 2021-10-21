@@ -9,12 +9,16 @@ type Props = {
   goToBlock: (blockId: string) => void;
 };
 
-function Block({ block, widgetColor, goToBlock, onHoverHandler }: Props) {
+function Block({ block, goToBlock, onHoverHandler }: Props) {
   const handleOnClick = () => {
     goToBlock(block._id);
   };
   return (
-    <div className={`block`} onClick={handleOnClick} onMouseEnter={onHoverHandler}>
+    <div
+      className={`block`}
+      onClick={handleOnClick}
+      onMouseEnter={onHoverHandler}
+    >
       <h4>{block.name}</h4>
       <p>{block.description}</p>
     </div>
