@@ -8,6 +8,7 @@ import {
   fieldFactory,
   formFactory,
   integrationFactory,
+  productCategoryFactory,
   userFactory
 } from '../db/factories';
 import {
@@ -15,6 +16,7 @@ import {
   ConversationMessages,
   Forms,
   Integrations,
+  ProductCategories,
   Users
 } from '../db/models';
 import {
@@ -994,11 +996,13 @@ describe('create booking integration', () => {
   let _user;
   let _brand;
   let _form;
+  let _productCategory;
 
   beforeEach(async () => {
     _user = await userFactory({});
     _brand = await brandFactory({});
     _form = await formFactory({});
+    _productCategory = await productCategoryFactory({});
   });
 
   afterEach(async () => {
@@ -1006,6 +1010,7 @@ describe('create booking integration', () => {
     await Integrations.deleteMany({});
     await Users.deleteMany({});
     await Forms.deleteMany({});
+    await ProductCategories.deleteMany({});
   });
 
   test('test if create booking integration is working successfully', async () => {
@@ -1042,18 +1047,61 @@ describe('create booking integration', () => {
     expect(integration.kind).toEqual(KIND_CHOICES.BOOKING);
     expect(integration.bookingData.name).toEqual(bookingData.name);
   });
+
+  test('create booking integration Error(Main product category already registered)', async () => {
+    const mainDoc = {
+      name: 'booking integration test',
+      brandId: _brand._id,
+      formId: _form._id,
+      kind: KIND_CHOICES.BOOKING,
+
+      leadData: {
+        loadType: LEAD_LOAD_TYPES.POPUP
+      }
+    };
+
+    const bookingData = {
+      name: 'bookingData name',
+      productCategoryId: _productCategory._id
+    };
+
+    // create booking integration
+    await Integrations.createBookingIntegration(
+      {
+        ...mainDoc,
+        bookingData
+      },
+      _user._id
+    );
+
+    try {
+      await Integrations.createBookingIntegration(
+        {
+          ...mainDoc,
+          bookingData
+        },
+        _user._id
+      );
+    } catch (e) {
+      expect(e.message).toBe('Product main category already registered!');
+    }
+  });
 });
 
-describe('edit lead integration', () => {
+describe('edit booking integration', () => {
   let _brand;
   let _brand2;
   let _form;
   let _bookingIntegration;
+  let _productCategory;
+  let _user;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
     _brand2 = await brandFactory({});
     _form = await formFactory({});
+    _productCategory = await productCategoryFactory({});
+    _user = await userFactory({});
 
     _bookingIntegration = await integrationFactory({
       name: 'booking integration test',
@@ -1065,7 +1113,8 @@ describe('edit lead integration', () => {
       },
       bookingData: {
         name: 'Booking data',
-        description: 'description'
+        description: 'description',
+        productCategoryId: _productCategory._id
       }
     });
   });
@@ -1075,6 +1124,7 @@ describe('edit lead integration', () => {
     await Integrations.deleteMany({});
     await Users.deleteMany({});
     await Forms.deleteMany({});
+    await ProductCategories.deleteMany({});
   });
 
   test('test if integration booking update method is running successfully', async () => {
@@ -1135,5 +1185,43 @@ describe('edit lead integration', () => {
       _bookingIntegration._id
     );
     expect(updated.bookingData && updated.bookingData.viewCount).toBe(2);
+  });
+
+  test('edit booking integration Error(Main product category already registered)', async () => {
+    const mainDoc = {
+      name: 'booking integration test',
+      brandId: _brand._id,
+      formId: _form._id,
+      kind: KIND_CHOICES.BOOKING,
+
+      leadData: {
+        loadType: LEAD_LOAD_TYPES.POPUP
+      }
+    };
+
+    const bookingData = {
+      name: 'bookingData name'
+    };
+
+    // create booking integration
+    const integration = await Integrations.createBookingIntegration(
+      {
+        ...mainDoc,
+        bookingData
+      },
+      _user._id
+    );
+
+    try {
+      await Integrations.updateBookingIntegration(integration._id, {
+        ...mainDoc,
+        bookingData: {
+          ...bookingData,
+          productCategoryId: _productCategory._id
+        }
+      });
+    } catch (e) {
+      expect(e.message).toBe('Product main category already registered!');
+    }
   });
 });

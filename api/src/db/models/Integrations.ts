@@ -560,10 +560,19 @@ export const loadClass = () => {
     /**
      * Create a booking kind integration
      */
-    public static createBookingIntegration(
+    public static async createBookingIntegration(
       { bookingData = {}, ...mainDoc }: IIntegration,
       userId: string
     ) {
+      // check duplication
+      const isDuplicated = await Integrations.findOne({
+        'bookingData.productCategoryId': bookingData.productCategoryId
+      });
+
+      if (isDuplicated) {
+        throw new Error('Product main category already registered!');
+      }
+
       const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
 
       if (Object.keys(bookingData).length === 0) {
@@ -582,6 +591,16 @@ export const loadClass = () => {
     ) {
       const prevEntry = await Integrations.getIntegration({ _id });
       const prevBookingData: IBookingData = prevEntry.bookingData || {};
+
+      // check duplication
+      const isDuplicated = await Integrations.findOne({
+        'bookingData.productCategoryId': bookingData.productCategoryId,
+        _id: { $ne: prevEntry._id }
+      });
+
+      if (isDuplicated) {
+        throw new Error('Product main category already registered!');
+      }
 
       const doc = {
         ...mainDoc,
