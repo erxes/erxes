@@ -9,7 +9,7 @@ import { InfoComponent } from './info.js'
 
 ## Examples
 
-<p>Infos are available for any length of text. Just choose one of the five variants and modify the{" "} <code>type</code> prop. And write your own title by modifying <code>title</code> prop.</p>
+<p>Infos are available for any length of text. Just choose one of the five variants and modify the{" "} <code>type</code> prop. And write your own title by using <code>title</code> prop.</p>
 <b>Primary is set by default.</b>
 <InfoComponent func="infos" />
 
@@ -22,6 +22,6 @@ import { InfoComponent } from './info.js'
 
 <InfoComponent func="APIinfo" table={[
     ['type', 'primary | info | danger | warning | success', 'primary', 'Set type of info'],
-    ['iconShow', 'boolean', '', 'Shows icon'],
+    ['iconShow', 'boolean', '', 'Shows icon depending on the info type'],
     ['title', 'string', '', 'Shows title on top of the info']
 ]} />

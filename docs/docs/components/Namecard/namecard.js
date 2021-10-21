@@ -1,8 +1,9 @@
 import React from "react";
 import NameCard from "erxes-ui/lib/components/nameCard/NameCard";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify  } from "../common.js";
+import { renderApiTable, stringify } from "../common.js";
 import styles from "../../../src/components/styles.module.css";
+import Table from "erxes-ui/lib/components/table/index";
 
 export function CardComponent(props) {
   const { type, info, name, mail, table = [] } = props;
@@ -59,7 +60,44 @@ export function CardComponent(props) {
   }
 
   if (type === "APIcard") {
-    return renderApiTable("NameCard", table);
+    return (
+    <>
+      <CodeBlock className="language-javascript">{`import Namecard from "erxes-ui/lib/components/namecard/Namecard";`}</CodeBlock>
+      <Table>
+        <thead>
+          <tr>
+            <th colSpan="3">Name</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowSpan="2">user</td>
+            <td>details</td>
+            <td>fullName</td>
+            <td>string</td>
+            <td>Fullname object of user. If you have details and username, it will only show detail</td>
+          </tr>
+          <tr>
+            <td colSpan="2">email</td>
+            <td>string</td>
+            <td>Email object of user</td>
+          </tr>
+          <tr>
+            <td colSpan="3">secondLine</td>
+            <td>string</td>
+            <td>Line below the username or full name. You can write anything in the second line</td>
+          </tr>
+          <tr>
+            <td colSpan="3">avatarSize</td>
+            <td>number</td>
+            <td>Avatar size of your name card</td>
+          </tr>
+        </tbody>
+      </Table>
+    </>
+    )
   }
 
   return null;

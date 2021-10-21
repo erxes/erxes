@@ -40,9 +40,9 @@ export function ButtonComponent(props) {
         </div>
 
         <CodeBlock className="language-jsx">
-          {`<>\n\t<Button>${
-            defaultBtn ? defaultBtn : "Default"
-          }</Button>${buttons.map((btn, index) => {
+          {`<>${
+            defaultBtn ? `\n\t<Button>${defaultBtn}</Button>` : ``
+          }${buttons.map((btn, index) => {
             return `\n\t<Button ${stringify(
               propDatas(propName, btn, icon, index)
             )} >${btn}</Button>`;

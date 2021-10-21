@@ -2,7 +2,6 @@ import React from "react";
 import EmptyState from "erxes-ui/lib/components/EmptyState";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import Button from "erxes-ui/lib/components/Button";
 import { renderApiTable, stringify } from "../common.js";
 
 export function EmptyComponents(props) {
@@ -26,7 +25,6 @@ export function EmptyComponents(props) {
   };
 
   const renderBlock = (view, style, additional) => {
-    console.log({...propDatas(view, style, additional)})
     return (
       <>
         <EmptyState {...propDatas(view, style, additional)} />
