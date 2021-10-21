@@ -73,6 +73,21 @@ jobs:
           ${{ runner.os }}-yarn-ui-
           ${{ runner.os }}-yarn-
 
+    - name: Install dependencies
+      run: |
+        yarn install
+        cd ui
+        yarn install --frozen-lockfile
+
+    - name: Lint
+      run: |
+        yarn lint ui
+
+    - name: Tsc
+      run: |
+        cd ui
+        yarn tsc
+
     - name: Build
       run: |
         cd ui
