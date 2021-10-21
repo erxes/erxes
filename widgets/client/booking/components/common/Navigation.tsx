@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { GiHamburgerMenu } from 'react-icons/gi'
-import { HiArrowNarrowLeft } from "react-icons/hi"
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { HiArrowNarrowLeft } from 'react-icons/hi';
 import { FilterableList } from '.';
-import { IBookingData, ICategoryTree, IStyle } from '../../types';
+import { IBookingData, ICategoryTree } from '../../types';
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
@@ -36,10 +36,9 @@ class Navigation extends React.Component<Props, State> {
     }
 
     const style = booking.style;
-    const { isOpen } = this.state;
     return (
-      <div className={`booking-navigation bn-${style.widgetColor} slide-in`} >
-        <div className="booking-header" >
+      <div className={`booking-navigation bn-${style.widgetColor} slide-in`}>
+        <div className="booking-header">
           <h4> Navigation </h4>
           <div>
             <HiArrowNarrowLeft width="1.2em" onClick={this.toggleNavigation} />
@@ -56,22 +55,19 @@ class Navigation extends React.Component<Props, State> {
           styles={style}
         />
       </div>
-    )
+    );
   }
   render() {
     return (
       <div>
         <div className="nav" onClick={this.toggleNavigation}>
-          <GiHamburgerMenu style={{ marginRight: "5px" }} />
+          <GiHamburgerMenu style={{ marginRight: '5px' }} />
           <p>Navigation</p>
         </div>
-        {this.state.isOpen === true ? this.renderNav() : ""}
+        {this.state.isOpen === true ? this.renderNav() : ''}
       </div>
     );
   }
 }
-
-
-
 
 export default Navigation;

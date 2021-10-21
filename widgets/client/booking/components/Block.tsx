@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { IProductCategory } from '../../types';
-import { IStyle } from '../types';
 
 type Props = {
   block: IProductCategory;

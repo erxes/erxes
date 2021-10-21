@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { HiArrowRight, HiArrowLeft } from "react-icons/hi"
+import { HiArrowRight, HiArrowLeft } from 'react-icons/hi';
 type Props = {
   text: string;
   onClickHandler: () => void;
@@ -7,7 +7,7 @@ type Props = {
   style?: {};
   type: string;
 };
-function Button({ color, text, type, onClickHandler, style }: Props) {
+function Button({ text, type, onClickHandler, style }: Props) {
   return (
     <button
       type="button"
@@ -15,9 +15,9 @@ function Button({ color, text, type, onClickHandler, style }: Props) {
       onClick={onClickHandler}
       style={style}
     >
-      {type === "back" && <HiArrowLeft width="1,2em" strokeWidth="1.2px" />}
-      <div style={{ padding: "5px" }}>{`${text}`} </div>
-      {type === "next" && <HiArrowRight width="1,2em" strokeWidth="1.2px" />}
+      {type === 'back' && <HiArrowLeft width="1,2em" strokeWidth="1.2px" />}
+      <div style={{ padding: '5px' }}>{`${text}`} </div>
+      {type === 'next' && <HiArrowRight width="1,2em" strokeWidth="1.2px" />}
     </button>
   );
 }
