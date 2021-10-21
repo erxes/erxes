@@ -48,9 +48,6 @@
   },
   "dependencies": {
     "@docusaurus/plugin-content-blog": "^2.0.0-alpha.70",
-    "erxes-icon": "file:erxes-icon",
-    "fs-extra": "^9.0.1",
-    "styled-components": "^5.3.1",
-    "styled-components-ts": "0.0.15"
+    "fs-extra": "^9.0.1"
   }
 }
