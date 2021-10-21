@@ -97,3 +97,11 @@ export const EMPTY_CONTENT_TASK = {
     }
   ]
 };
+
+export const SEARCH_ACTIVITY_CHECKBOX = [
+  { action: 'create', value: 'Added new card' },
+  { action: 'moved', value: 'Moved card' },
+  { action: 'archive', value: 'Archived card' },
+  { action: 'delete', value: 'Deleted archived card' },
+  { action: 'addNote', value: 'Added notes' }
+];

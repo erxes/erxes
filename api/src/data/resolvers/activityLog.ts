@@ -1,6 +1,4 @@
 import {
-  ChecklistItems,
-  Checklists,
   Companies,
   Customers,
   Deals,
@@ -13,6 +11,7 @@ import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
 import { ITagDocument } from '../../db/models/definitions/tags';
 import { IUserDocument } from '../../db/models/definitions/users';
+import { getContentTypeDetail } from './activityLogByAction';
 import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
@@ -35,33 +34,8 @@ export default {
     return;
   },
 
-  async contentTypeDetail(activityLog: IActivityLog) {
-    const { contentType, contentId, content } = activityLog;
-
-    let item = {};
-
-    switch (contentType) {
-      case 'deal':
-        item = await Deals.getDeal(contentId);
-        break;
-      case 'task':
-        item = await Tasks.getTask(contentId);
-        break;
-      case 'growthHack':
-        item = await GrowthHacks.getGrowthHack(contentId);
-        break;
-      case 'ticket':
-        item = await Tickets.getTicket(contentId);
-        break;
-      case 'checklist':
-        item = (await Checklists.findOne({ _id: content._id }).lean()) || {};
-        break;
-      case 'checklistitem':
-        item = (await ChecklistItems.findOne({ _id: content._id }).lean()) || {};
-        break;
-    }
-
-    return item;
+  contentTypeDetail(activityLog: IActivityLog) {
+    return getContentTypeDetail(activityLog);
   },
 
   async contentDetail(activityLog: IActivityLog) {
@@ -110,10 +84,14 @@ export default {
 
       switch (contentType) {
         case 'company':
-          result = await Companies.find({ _id: { $in: activityLog.content } }).lean();
+          result = await Companies.find({
+            _id: { $in: activityLog.content }
+          }).lean();
           break;
         case 'customer':
-          result = await Customers.find({ _id: { $in: activityLog.content } }).lean();
+          result = await Customers.find({
+            _id: { $in: activityLog.content }
+          }).lean();
           break;
       }
 

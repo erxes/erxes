@@ -11,6 +11,7 @@ import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
+import { IActivityLog } from 'modules/activityLogs/types';
 
 export interface IOptions {
   EditForm: any;
@@ -366,3 +367,8 @@ export type StagesSortItemsMutationResponse = ({
     sortType: string;
   };
 }) => Promise<any>;
+
+export type ActivityLogsByActionQueryResponse = {
+  activityLogsByAction: { activityLogs: IActivityLog[]; totalCount: number };
+  totalCount: number;
+} & QueryResponse;
