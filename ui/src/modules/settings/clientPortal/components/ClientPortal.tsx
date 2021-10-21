@@ -1,8 +1,6 @@
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
-import { Title } from 'modules/common/styles/main';
 import { IRouterProps } from 'modules/common/types';
-import { ContentBox } from 'modules/settings/styles';
 import React from 'react';
 import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
@@ -24,7 +22,6 @@ class ClientPortal extends React.Component<Props, {}> {
     ];
 
     const count = queryParams._id ? 1 : 0;
-    const leftActionBar = <Title>{__('Client portal')}</Title>;
 
     return (
       <Wrapper
@@ -40,17 +37,14 @@ class ClientPortal extends React.Component<Props, {}> {
             )}
           />
         }
-        actionBar={<Wrapper.ActionBar left={leftActionBar} />}
         leftSidebar={<List {...this.props} />}
         content={
           <DataWithLoader
             data={
-              <ContentBox>
-                <ClientPortalDetailContainer
-                  queryParams={queryParams}
-                  history={history}
-                />
-              </ContentBox>
+              <ClientPortalDetailContainer
+                queryParams={queryParams}
+                history={history}
+              />
             }
             count={count}
             loading={loading}
