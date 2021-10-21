@@ -19,7 +19,6 @@ function Booking({ goToIntro, booking }: Props) {
   const { name, attachment, description } = mainProductCategory;
   const { widgetColor, line, columns, rows, margin } = style;
 
-  const blockCount = childCategories.length;
   const column: string = columns!;
   // tslint:disable-next-line: radix
   const colCount = parseInt(column) >= 4 ? '4' : columns;

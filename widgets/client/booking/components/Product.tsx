@@ -31,40 +31,37 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
   };
 
   const renderFieldData = () =>
-    customFieldsDataWithText.map((el: any) => (
+    customFieldsDataWithText.map((el: any, index: any) => (
       // tslint:disable-next-line: jsx-key
-      <div>
+      <div key={index}>
         <strong>{el.text}:</strong> {el.value}
       </div>
     ));
 
-  let scrollPerClick = 200;
+  const scrollPerClick = 200;
   let scrollAmount = 0;
   const moveCarousel = (orientation: string) => {
     const carousel = document.getElementById('carousel') as HTMLElement;
-    if (orientation === "left") {
+    if (orientation === 'left') {
       carousel.scrollTo({
         top: 0,
-        left: (scrollAmount -= scrollPerClick),
-        behavior: 'smooth',
-      })
+        left: scrollAmount -= scrollPerClick,
+        behavior: 'smooth'
+      });
 
       if (scrollAmount < 0) {
         scrollAmount = 0;
       }
-    }
-    else {
+    } else {
       if (scrollAmount <= carousel.scrollWidth - carousel.clientWidth) {
         carousel.scrollTo({
           top: 0,
-          left: (scrollAmount += scrollPerClick),
-          behavior: "smooth"
-        })
+          left: scrollAmount += scrollPerClick,
+          behavior: 'smooth'
+        });
       }
-
     }
-  }
-
+  };
 
   return (
     <div className="body">
@@ -80,9 +77,11 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
             />
           </div>
           <div className="flex-center">
-            <MdOutlineArrowBackIos size={40} onClick={() => moveCarousel("left")} />
+            <MdOutlineArrowBackIos
+              size={40}
+              onClick={() => moveCarousel('left')}
+            />
             <div id="carousel">
-
               {(product.attachmentMore || []).map((img, index) => (
                 <div
                   className="slider-item flex-center"
@@ -96,9 +95,11 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
                   />
                 </div>
               ))}
-
             </div>
-            <MdOutlineArrowForwardIos size={40} onClick={() => moveCarousel("right")} />
+            <MdOutlineArrowForwardIos
+              size={40}
+              onClick={() => moveCarousel('right')}
+            />
           </div>
         </div>
         <div>
@@ -126,7 +127,5 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
     </div>
   );
 }
-
-
 
 export default Product;

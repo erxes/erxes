@@ -5,10 +5,9 @@ import Body from './common/Body';
 type Props = {
   booking: IBookingData;
   goToBooking: (booking: IBookingData) => void;
-  showPopup: () => void;
 };
 
-function Intro({ booking, goToBooking, showPopup }: Props) {
+function Intro({ booking, goToBooking }: Props) {
   const { name, description, image, style } = booking;
   const { widgetColor } = style;
 
