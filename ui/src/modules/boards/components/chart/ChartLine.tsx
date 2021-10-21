@@ -3,16 +3,17 @@ import { LineChart, Line } from 'recharts';
 import React from 'react';
 import { getColors } from 'modules/boards/utils';
 import MainChart from './MainChart';
+import { Item, Assignee } from 'modules/boards/types';
 
 type Props = {
-  bars: any[];
-  usersWithInfo: any[];
+  items: Item[];
+  assignees: Assignee[];
 };
 
-export default function ChartLine({ bars, usersWithInfo }: Props) {
+export default function ChartLine({ items, assignees }: Props) {
   return (
-    <MainChart component={LineChart} data={usersWithInfo}>
-      {bars.map((item, index) => (
+    <MainChart component={LineChart} data={assignees}>
+      {items.map((item, index) => (
         <Line
           type="monotone"
           dataKey={item.name}

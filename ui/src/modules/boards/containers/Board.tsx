@@ -78,12 +78,20 @@ class Board extends React.Component<Props> {
 
     if (viewType === 'chart') {
       return (
-        <ChartStack
-          stackBy={queryParams.stackBy}
-          type={options.type}
-          pipelineId={pipeline._id}
-          chartType={queryParams.chartType}
-        />
+        <RootBack
+          style={{
+            backgroundColor: '#fff',
+            margin: '20px',
+            borderRadius: '5px'
+          }}
+        >
+          <ChartStack
+            stackBy={queryParams.stackBy}
+            type={options.type}
+            pipelineId={pipeline._id}
+            chartType={queryParams.chartType}
+          />
+        </RootBack>
       );
     }
 

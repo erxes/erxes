@@ -6,9 +6,9 @@ import { queries } from '../../graphql';
 import ChartLine from 'modules/boards/components/chart/ChartLine';
 import ChartBar from 'modules/boards/components/chart/ChartBar';
 import ChartArea from 'modules/boards/components/chart/ChartArea';
-import ChartPie from 'modules/boards/components/chart/ChartPie';
 import ChartBarStack from 'modules/boards/components/chart/ChartBarStack';
 import Spinner from 'modules/common/components/Spinner';
+import ErrorMsg from 'modules/common/components/ErrorMsg';
 
 type Props = {
   pipelineId: string;
@@ -39,31 +39,27 @@ export default function ChartStackContainer({
   }
 
   if (error) {
-    return <div>{error.message}</div>;
+    return <ErrorMsg>{error.message}</ErrorMsg>;
   }
 
-  const bars = data.itemsCountByAssignedUser.groups || [];
-  const usersWithInfo = data.itemsCountByAssignedUser.usersWithInfo || [];
+  const items = data.itemsCountByAssignedUser.groups || [];
+  const assignees = data.itemsCountByAssignedUser.usersWithInfo || [];
 
-  if (bars.length === 0) {
+  if (items.length === 0) {
     return <EmptyState text="this data is empty" icon="piechart" />;
   }
 
   if (chartType === 'line') {
-    return <ChartLine bars={bars} usersWithInfo={usersWithInfo} />;
+    return <ChartLine items={items} assignees={assignees} />;
   }
 
-  if (chartType === 'bar') {
-    return <ChartBar bars={bars} usersWithInfo={usersWithInfo} />;
+  if (chartType === 'simple Bar') {
+    return <ChartBar items={items} assignees={assignees} />;
   }
 
   if (chartType === 'area') {
-    return <ChartArea bars={bars} usersWithInfo={usersWithInfo} />;
+    return <ChartArea items={items} assignees={assignees} />;
   }
 
-  if (chartType === 'pie') {
-    return <ChartPie bars={bars} usersWithInfo={usersWithInfo} />;
-  }
-
-  return <ChartBarStack bars={bars} usersWithInfo={usersWithInfo} />;
+  return <ChartBarStack items={items} assignees={assignees} />;
 }

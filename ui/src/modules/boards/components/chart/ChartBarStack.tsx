@@ -3,13 +3,14 @@ import { BarChart, Bar, LabelList } from 'recharts';
 import React from 'react';
 import { getColors } from 'modules/boards/utils';
 import MainChart from './MainChart';
+import { Item, Assignee } from 'modules/boards/types';
 
 type Props = {
-  bars: any[];
-  usersWithInfo: any[];
+  items: Item[];
+  assignees: Assignee[];
 };
 
-export default function ChartBarStack({ bars, usersWithInfo }: Props) {
+export default function ChartBarStack({ items, assignees }: Props) {
   const renderCustomizedLabel = props => {
     const { x, y, width, value } = props;
     const radius = 10;
@@ -31,8 +32,8 @@ export default function ChartBarStack({ bars, usersWithInfo }: Props) {
   };
 
   return (
-    <MainChart component={BarChart} data={usersWithInfo}>
-      {bars.map((stage, index) => (
+    <MainChart component={BarChart} data={assignees}>
+      {items.map((stage, index) => (
         <Bar
           key={index}
           dataKey={stage.name}

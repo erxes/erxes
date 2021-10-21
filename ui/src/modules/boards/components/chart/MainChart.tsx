@@ -8,7 +8,13 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-export default function MainChart({ component, data, children }) {
+type Props = {
+  data: { [key: string]: number }[];
+  component: typeof React.Component;
+  children: React.ReactElement<any>[];
+};
+
+export default function MainChart({ component, data, children }: Props) {
   const ChartComponent = component;
 
   const CustomizedAxisTick = props => {
@@ -31,7 +37,7 @@ export default function MainChart({ component, data, children }) {
   };
 
   return (
-    <ResponsiveContainer width="100%" height="100%" backgroundColor="#ffffff">
+    <ResponsiveContainer width="100%" height="100%">
       <ChartComponent
         data={data}
         margin={{ top: 100, left: 130, bottom: 150, right: 200 }}
@@ -41,7 +47,7 @@ export default function MainChart({ component, data, children }) {
           dataKey="name"
           padding={{ top: 10 }}
           label={{
-            value: 'Assignee',
+            value: 'Assignees',
             position: 'insideBottomRight',
             offset: 0
           }}

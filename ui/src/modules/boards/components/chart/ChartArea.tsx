@@ -3,16 +3,17 @@ import { AreaChart, Area } from 'recharts';
 import React from 'react';
 import { getColors } from 'modules/boards/utils';
 import MainChart from './MainChart';
+import { Item, Assignee } from 'modules/boards/types';
 
 type Props = {
-  bars: any[];
-  usersWithInfo: any[];
+  items: Item[];
+  assignees: Assignee[];
 };
 
-export default function ChartArea({ bars, usersWithInfo }: Props) {
+export default function ChartArea({ items, assignees }: Props) {
   return (
-    <MainChart component={AreaChart} data={usersWithInfo}>
-      {bars.map((item, index) => (
+    <MainChart component={AreaChart} data={assignees}>
+      {items.map((item, index) => (
         <Area
           type="monotone"
           dataKey={item.name}

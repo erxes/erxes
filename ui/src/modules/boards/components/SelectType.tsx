@@ -57,7 +57,8 @@ const SelectType = ({
           <Button btnStyle="primary" size="small">
             {foundTypeName
               ? foundTypeName.name.charAt(0).toUpperCase() +
-                foundTypeName.name.slice(1)
+                foundTypeName.name.slice(1) +
+                ' Chart'
               : text}
             <Icon icon="angle-down" />
           </Button>
