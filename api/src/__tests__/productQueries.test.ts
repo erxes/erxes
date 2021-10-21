@@ -1,6 +1,7 @@
 import { graphqlRequest } from '../db/connection';
 import {
   companyFactory,
+  fieldFactory,
   productCategoryFactory,
   productFactory,
   tagsFactory
@@ -204,12 +205,21 @@ describe('productQueries', () => {
           category { _id }
           getTags { _id }
           vendor { _id }
+          customFieldsDataWithText
         }
       }
     `;
 
+    // add field
+    const field = await fieldFactory({
+      contentType: 'product'
+    });
+
     const product = await productFactory({
-      vendorId: (await companyFactory())._id
+      vendorId: (await companyFactory())._id,
+      customFieldsData: [
+        { field: field._id, value: field.text, stringValue: field.text }
+      ]
     });
 
     const response = await graphqlRequest(qry, 'productDetail', {
