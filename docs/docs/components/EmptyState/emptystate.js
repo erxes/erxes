@@ -9,28 +9,30 @@ export function EmptyComponents(props) {
   const { type, table = [], item } = props;
 
   const propDatas = (view, style, additional) => {
-    const extra = additional && <Button>Extra</Button>;
+    const styling = style === "size" ? "30" : true;
 
     const kind = {
       [view]: view === "icon" || view === "image" ? item : true,
-      [style]: style === "size" ? "30" : true,
-      extra,
+      [style]: style && styling,
     };
 
     const datas = {
       ...kind,
+      text: "Text",
+      extra: additional && "Extra text",
     };
 
     return datas;
   };
 
   const renderBlock = (view, style, additional) => {
+    console.log({...propDatas(view, style, additional)})
     return (
       <>
-        <EmptyState text="Text" {...propDatas(view, style, additional)} />
-        {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState ${stringify(propDatas(propName, btn, icon, index))} />\n</>`}
-        </CodeBlock> */}
+        <EmptyState {...propDatas(view, style, additional)} />
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<EmptyState ${stringify(propDatas(view, style, additional))} />\n</>`}
+        </CodeBlock>
       </>
     );
   };
@@ -52,7 +54,7 @@ export function EmptyComponents(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("icon", "light", "extra");
+    return renderBlock("icon", "size", "extra");
   }
 
   if (type === "APIempty") {
