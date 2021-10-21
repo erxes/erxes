@@ -4,6 +4,7 @@ import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
 import CalendarRoutes from './calendars/routes';
 import ChannelsRoutes from './channels/routes';
+import ClientPortalRoutes from './clientPortal/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
@@ -48,6 +49,7 @@ const routes = () => (
     <WebhookRoutes key="WebhookRoutes" />
     <CalendarRoutes key="CalendarRoutes" />
     <SkillsRoutes key="SkillsRoutes" />
+    <ClientPortalRoutes key="ClientPortalRoutes" />
     <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
   </React.Fragment>
 );

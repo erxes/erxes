@@ -1,7 +1,10 @@
 export const PROPERTY_TYPES = {
   deal: [
     { label: 'Deal', value: 'deal' },
-    { label: 'Contact', value: 'customer' }
+    { label: 'Contact', value: 'customer' },
+    { label: 'Company', value: 'company' },
+    { label: 'Task', value: 'task' },
+    { label: 'Ticket', value: 'ticket' }
   ],
 
   customer: [
@@ -16,12 +19,14 @@ export const PROPERTY_TYPES = {
 
   company: [
     { label: 'Company', value: 'company' },
+    { label: 'Contact', value: 'customer' },
     { label: 'Deal', value: 'deal' },
     { label: 'Task', value: 'task' },
     { label: 'Ticket', value: 'ticket' }
   ],
 
   conversation: [{ label: 'Conversation', value: 'conversation' }],
+
   user: [{ label: 'User', value: 'user' }],
 
   lead: [
@@ -43,8 +48,22 @@ export const PROPERTY_TYPES = {
     { label: 'Conversation', value: 'conversation' },
     { label: 'Form Submission', value: 'form_submission' }
   ],
-  task: [{ label: 'task', value: 'task' }],
-  ticket: [{ label: 'ticket', value: 'ticket' }]
+
+  task: [
+    { label: 'task', value: 'task' },
+    { label: 'Contact', value: 'customer' },
+    { label: 'Company', value: 'company' },
+    { label: 'Deal', value: 'deal' },
+    { label: 'Ticket', value: 'ticket' }
+  ],
+
+  ticket: [
+    { label: 'ticket', value: 'ticket' },
+    { label: 'Contact', value: 'customer' },
+    { label: 'Company', value: 'company' },
+    { label: 'Deal', value: 'deal' },
+    { label: 'Task', value: 'task' }
+  ]
 };
 
 export const OPERATORS = {

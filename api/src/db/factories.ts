@@ -13,6 +13,7 @@ import {
   Channels,
   ChecklistItems,
   Checklists,
+  ClientPortals,
   Companies,
   Configs,
   Conformities,
@@ -179,8 +180,11 @@ interface IUserFactoryInput {
   isShowNotification?: boolean;
 }
 
-export const userFactory = async (params: IUserFactoryInput = {}) => {
-  const user = new Users({
+export const userFactory = async (
+  params: IUserFactoryInput = {},
+  syncToEs = false
+) => {
+  const userDoc = {
     username: params.username || faker.internet.userName(),
     details: {
       fullName: params.fullName || faker.random.word(),
@@ -209,9 +213,19 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     isSubscribed: params.isSubscribed,
     isShowNotification: params.isShowNotification,
     ...(params.code ? { code: params.code } : {})
-  });
+  };
 
-  return user.save();
+  const user = new Users(userDoc);
+  await user.save();
+
+  return syncToEs
+    ? await fetchElk({
+        action: 'create',
+        index: 'users',
+        body: userDoc,
+        _id: user._id
+      })
+    : user;
 };
 
 interface ITagFactoryInput {
@@ -1303,6 +1317,7 @@ export const taskFactory = async (
 interface ITicketFactoryInput {
   name?: string;
   stageId?: string;
+  userId?: string;
   closeDate?: Date;
   noCloseDate?: boolean;
   assignedUserIds?: string[];
@@ -1332,6 +1347,7 @@ export const ticketFactory = async (
   const ticketDoc = {
     ...params,
     name: params.name || faker.random.word(),
+    userId: params.userId,
     stageId: params.stageId || stage._id,
     ...(!params.noCloseDate
       ? { closeDate: params.closeDate || new Date() }
@@ -1783,4 +1799,12 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+export const clientPortalFactory = async (params: { name?: string }) => {
+  const portal = new ClientPortals({
+    name: params.name || faker.random.word()
+  });
+
+  return portal.save();
 };

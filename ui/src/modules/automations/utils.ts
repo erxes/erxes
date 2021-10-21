@@ -70,7 +70,7 @@ export const yesEndPoint = {
 export const noEndPoint = {
   endpoint: 'Dot',
   paintStyle: {
-    fill: rgba(colors.colorSecondary, 1),
+    fill: rgba(colors.colorCoreRed, 1),
     radius: 10
   },
   isSource: true,
@@ -90,7 +90,7 @@ export const noEndPoint = {
         label: 'False',
         visible: true,
         labelStyle: {
-          color: colors.colorSecondary
+          color: colors.colorCoreRed
         }
       }
     ]

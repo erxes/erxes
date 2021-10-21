@@ -42,7 +42,7 @@ const tickets = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <TicketBoard queryParams={queryParams} />;
+  return <TicketBoard viewType="board" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {

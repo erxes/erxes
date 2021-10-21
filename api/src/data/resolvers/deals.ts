@@ -29,7 +29,7 @@ export const generateProducts = async productsData => {
     const customFields = [];
 
     for (const customFieldData of customFieldsData || []) {
-      const field = await Fields.findOne({ _id: customFieldData.field });
+      const field = await Fields.findOne({ _id: customFieldData.field }).lean();
 
       if (field) {
         customFields[customFieldData.field] = {
