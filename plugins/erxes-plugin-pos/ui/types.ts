@@ -4,13 +4,6 @@ import { ITag } from 'erxes-ui/lib/tags/types';
 export type IConfigsMap = { [key: string]: any };
 
 // types 
-export type IPosConfig = {
-  _id: string;
-  integrationId: string;
-  productDetails: string[];
-  productGroupIds: string[];
-};
-
 export type IProductGroup = {
   _id: string;
   name: string;
@@ -27,10 +20,13 @@ export type IPos = {
   _id: string;
   name: string;
   description: string;
-  createdAt: Date
-  integrationId: string
-  productDetails: [string]
-  productGroupIds: [string]
+  createdAt: Date;
+  integrationId: string;
+  productDetails: [string];
+  adminIds: [string];
+  cashierIds: [string];
+  integration: IIntegration;
+  user: IUser;
 }
 
 // query types
@@ -41,7 +37,7 @@ export type ConfigsQueryResponse = {
 };
 
 export type PosListQueryResponse = {
-  allPos: IPos[];
+  posList: IPos[];
   loading: boolean;
   refetch: () => void;
 };
@@ -110,9 +106,6 @@ export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
 
-export type PosConfigQueryResponse = {
-  posConfig: IPosConfig;
-} & QueryResponse;
 
 export type PosDetailQueryResponse = {
   posDetail: IPos;
@@ -123,7 +116,6 @@ export type IntegrationMutationVariables = {
   name: string;
   description: string;
   productDetails: string[];
-  productGroupIds: string[];
 };
 
 export type EditIntegrationMutationResponse = {
@@ -201,3 +193,12 @@ export type IButtonMutateProps = {
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
 } & QueryResponse;
+
+export type GroupsBulkInsertMutationResponse = {
+  productGroupsBulkInsertMutation: (params: {
+    variables: {
+      posId: string;
+      groups: IProductGroup[];
+    };
+  }) => Promise<void>;
+};

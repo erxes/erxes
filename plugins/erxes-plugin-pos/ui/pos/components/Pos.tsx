@@ -14,10 +14,10 @@ import {
 } from 'erxes-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IIntegration, IPos } from '../../types';
+import { IIntegration, IPos, IProductGroup } from '../../types';
 import { LeftContent, Content, PreviewWrapper } from '../../styles';
-import OptionsStep from './step/OptionsStep';
 import ConfigStep from './step/ConfigStep';
+import GeneralStep from './step/GeneralStep';
 
 type Props = {
   integration?: IIntegration;
@@ -25,7 +25,8 @@ type Props = {
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
-  save: (params: { name: string; brandId: string; config: any }) => void;
+  groups: IProductGroup[];
+  save: (params: any) => void;
 };
 
 type State = {
@@ -33,6 +34,7 @@ type State = {
   name?: string;
   description?: string;
   pos?: IPos;
+  groups: IProductGroup[];
   carousel: string;
   currentMode: 'create' | 'update' | undefined;
 };
@@ -49,14 +51,15 @@ class Lead extends React.Component<Props, State> {
       pos,
       carousel: 'pos',
       currentMode: undefined,
-      config: props.config
+      config: props.config,
+      groups: props.groups || []
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, pos } = this.state;
+    const { brand, pos, groups } = this.state;
 
     if (!pos.name) {
       return Alert.error('Enter a Pos name');
@@ -66,11 +69,16 @@ class Lead extends React.Component<Props, State> {
       return Alert.error('Choose a Brand');
     }
 
+    console.log('---------------------------- ',pos)
+
     const doc = {
       name: pos.name,
       brandId: brand,
       description: pos.description,
-      productDetails: pos.productDetails || []
+      productDetails: pos.productDetails || [],
+      groups,
+      adminIds: pos.adminIds,
+      cashierIds: pos.cashierIds
     };
 
     this.props.save(doc);
@@ -78,6 +86,9 @@ class Lead extends React.Component<Props, State> {
 
   onChange = (key: string, value: any) => {
     this.setState({ [key]: value } as any);
+
+    console.log(this.state)
+
   };
 
   onFormDocChange = formData => {
@@ -133,10 +144,9 @@ class Lead extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, config, carousel, currentMode } = this.state;
+    const { pos, groups, config, carousel, currentMode } = this.state;
 
     const { integration } = this.props;
-    const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('pos'), link: '/pos' }];
 
@@ -151,14 +161,14 @@ class Lead extends React.Component<Props, State> {
                 title={`General`}
                 onClick={this.onStepClick}
               >
-                <OptionsStep onChange={this.onChange} pos={pos} brand={brand} />
+                <GeneralStep onChange={this.onChange} pos={pos} brand={brand} />
               </Step>
               <Step
                 img="/images/icons/erxes-04.svg"
                 title={`Product & Service`}
                 onClick={this.onStepClick}
               >
-                <ConfigStep onChange={this.onChange} pos={pos} />
+                <ConfigStep onChange={this.onChange} pos={pos} groups={groups} />
               </Step>
               <Step
                 img="/images/icons/erxes-12.svg"

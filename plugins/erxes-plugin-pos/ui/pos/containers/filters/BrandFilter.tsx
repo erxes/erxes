@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries } from '../../../graphql';
+import { queries } from '../../graphql';
 import { BrandsQueryResponse, Counts } from '../../../types';
 import { withProps } from 'erxes-ui';
 import BrandFilter from '../../components/filters/BrandFilter';

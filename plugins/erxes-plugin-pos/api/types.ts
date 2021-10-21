@@ -15,7 +15,8 @@ export interface IPOS {
     brandId: string;
     tagIds?: string[];
     productDetails: string[];
-    productGroupIds: string[];
+    adminIds: string[];
+    cashierIds: string[];
 }
 
 

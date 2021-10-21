@@ -37,28 +37,41 @@ const mutations = [
         }
     },
 
-    // {
-    //     name: 'posConfigsUpdate',
-    //     handler: async (_root, { posId, configsMap }, { models, checkPermission, user }) => {
-    //         await checkPermission('managePos', user);
 
-    //         const codes = Object.keys(configsMap);
+    {
+        name: 'productGroupsBulkInsert',
+        handler: async (_root, { posId, groups }: { posId: string, groups: any[] }, { models }) => {
+            const dbGroups = await models.ProductGroups.groups(models, posId);
 
-    //         for (const code of codes) {
-    //             if (!code) {
-    //                 continue;
-    //             }
+            const groupsToAdd = [];
+            const groupsToUpdate = [];
 
-    //             const value = configsMap[code];
-    //             const doc = { code, value };
+            for (const group of groups) {
+                if (group._id.includes('temporaryId')) {
+                    delete group._id;
+                    groupsToAdd.push({ ...group, posId })
+                } else {
+                    groupsToUpdate.push(group);
+                    await models.ProductGroups.groupsEdit(models, group._id, group)
+                }
+            }
 
-    //             return await models.PosConfigs.createOrUpdateConfig(models, posId, doc)
-    //         }
+            const groupsToRemove = dbGroups.filter(el => {
+                const index = groupsToUpdate.findIndex(g => g._id === el._id);
+                if (index === -1) {
+                    return el._id;
+                }
+            });
 
+            if (groupsToRemove.length > 0) {
+                await models.ProductGroups.deleteMany({ _id: { $in: groupsToRemove } })
+            }
 
-    //     }
-    // },
+            await models.ProductGroups.insertMany(groupsToAdd)
 
+            return models.ProductGroups.groups(models, posId);
+        }
+    }
 
 ]
 

@@ -4,20 +4,21 @@ import { Alert, withProps, Spinner } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IRouterProps } from 'erxes-ui/lib/types';
-import { queries, mutations } from '../../graphql';
+import { queries, mutations } from '../graphql';
 import {
-  EditIntegrationMutationResponse,
   EditPosMutationResponse,
+  GroupsBulkInsertMutationResponse,
+  GroupsQueryResponse,
   IntegrationDetailQueryResponse,
   IntegrationMutationVariables,
-  PosConfigQueryResponse,
+  IProductGroup,
   PosDetailQueryResponse
 } from '../../types';
 import Pos from '../components/Pos';
 import { PLUGIN_URL } from '../../constants';
 
 type Props = {
-  integrationId: string;
+  posId: string;
   queryParams: any;
 };
 
@@ -28,8 +29,10 @@ type State = {
 type FinalProps = {
   integrationDetailQuery: IntegrationDetailQueryResponse;
   posDetailQuery: PosDetailQueryResponse;
+  groupsQuery: GroupsQueryResponse;
 } & Props &
   EditPosMutationResponse &
+  GroupsBulkInsertMutationResponse &
   IRouterProps;
 
 class EditPosContainer extends React.Component<FinalProps, State> {
@@ -41,35 +44,26 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
   render() {
     const {
-      formId,
-      integrationDetailQuery,
+      groupsQuery,
       posDetailQuery,
       editPosMutation,
+      productGroupsBulkInsertMutation,
       history
     } = this.props;
 
-    if (integrationDetailQuery.loading) {
-      return false;
-    }
-
-    const integration = integrationDetailQuery.integrationDetail || {};
     const pos = posDetailQuery.posDetail || {};
+    const groups = groupsQuery.productGroups || [];
+    const integration = pos.integration || {};
     // const categories = productCategoriesQuery.productCategories || [];
 
-    if (integrationDetailQuery.loading || posDetailQuery.loading) {
+    if (posDetailQuery.loading || groupsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     const save = doc => {
       this.setState({ isLoading: true });
 
-      const {
-        description,
-        brandId,
-        name,
-        productDetails,
-        productGroupIds
-      } = doc;
+      const { description, brandId, name, productDetails, adminIds, cashierIds } = doc;
 
       editPosMutation({
         variables: {
@@ -78,9 +72,25 @@ class EditPosContainer extends React.Component<FinalProps, State> {
           brandId,
           name,
           productDetails,
-          productGroupIds
+          adminIds,
+          cashierIds
         }
       })
+        .then(() => {
+          productGroupsBulkInsertMutation({
+            variables: {
+              posId: pos._id,
+              groups: doc.groups.map(e => ({
+                _id: e._id,
+                name: e.name,
+                description: e.description,
+                categoryIds: e.categoryIds || [],
+                excludedCategoryIds: e.excludedCategoryIds || [],
+                excludedProductIds: e.excludedProductIds || [],
+              }))
+            }
+          });
+        })
         .then(() => {
           Alert.success('You successfully updated a pos');
 
@@ -100,6 +110,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       integration,
+      groups,
       pos,
       save,
       isActionLoading: this.state.isLoading
@@ -111,27 +122,27 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
 export default withProps<FinalProps>(
   compose(
-    graphql<Props, IntegrationDetailQueryResponse, { _id: string }>(
-      gql(queries.integrationDetail),
+    graphql<Props, PosDetailQueryResponse, { posId: string }>(
+      gql(queries.posDetail),
       {
-        name: 'integrationDetailQuery',
-        options: ({ integrationId }) => ({
+        name: 'posDetailQuery',
+        options: ({ posId }) => ({
           fetchPolicy: 'cache-and-network',
           variables: {
-            _id: integrationId
+            _id: posId
           }
         })
       }
     ),
 
-    graphql<Props, PosDetailQueryResponse, { integrationId: string }>(
-      gql(queries.posDetail),
+    graphql<Props, GroupsQueryResponse, { posId: string }>(
+      gql(queries.productGroups),
       {
-        name: 'posDetailQuery',
-        options: ({ integrationId }) => ({
+        name: 'groupsQuery',
+        options: ({ posId }) => ({
           fetchPolicy: 'cache-and-network',
           variables: {
-            integrationId
+            posId
           }
         })
       }
@@ -143,6 +154,14 @@ export default withProps<FinalProps>(
       { _id: string } & IntegrationMutationVariables
     >(gql(mutations.posEdit), {
       name: 'editPosMutation'
+    }),
+
+    graphql<
+      {},
+      GroupsBulkInsertMutationResponse,
+      { posId: string; groups: IProductGroup[] }
+    >(gql(mutations.saveProductGroups), {
+      name: 'productGroupsBulkInsertMutation'
     })
 
     // graphql<Props,EditIntegrationMutationResponse,IntegrationMutationVariables>(

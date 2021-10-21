@@ -13,7 +13,8 @@ const commonFields = `
     $description: String
     $brandId: String
     $productDetails: [String]
-    $productGroupIds: [String]
+    $adminIds: [String]
+    $cashierIds: [String]
 `;
 
 const commonVariables = `
@@ -21,7 +22,8 @@ const commonVariables = `
     description: $description,
     brandId: $brandId
     productDetails: $productDetails
-    productGroupIds: $productGroupIds
+    adminIds: $adminIds
+    cashierIds: $cashierIds
 `;
 
 
@@ -34,7 +36,6 @@ const posAdd = `
       createdAt
       integrationId
       productDetails
-      productGroupIds
     }
   }
 `;
@@ -48,7 +49,6 @@ const posEdit = `
       createdAt
       integrationId
       productDetails
-      productGroupIds
     }
   }
 `;
@@ -100,6 +100,14 @@ const brandAdd = `
   }
 `;
 
+const saveProductGroups = `
+mutation productGroupsBulkInsert($posId: String, $groups: [GroupInput]) {
+  productGroupsBulkInsert(posId: $posId, groups: $groups) {
+    _id
+  }
+}
+`
+
 export default {
   posAdd,
   posEdit,
@@ -108,5 +116,6 @@ export default {
   integrationRemove,
   integrationsArchive,
   integrationsEdit,
-  brandAdd
+  brandAdd,
+  saveProductGroups
 };

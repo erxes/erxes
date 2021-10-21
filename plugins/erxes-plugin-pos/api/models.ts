@@ -12,7 +12,9 @@ export const posSChema = {
     createdAt: { type: Date, label: 'Created at' },
     integrationId: { type: String },
     productDetails: { type: [String] },
-    productGroupIds: { type: [String] }
+    adminIds: { type: [String] },
+    cashierIds: { type: [String] },
+    waitingScreen: { type: Object }
 };
 
 class Pos {
@@ -46,7 +48,10 @@ class Pos {
     }
 
     public static async posEdit(models, _id: string, doc: IPOS) {
-        const pos = await models.Pos.getPos(models, {_id});
+
+        console.log(doc)
+
+        const pos = await models.Pos.getPos(models, { _id });
 
         await models.Pos.updateOne({ _id },
             { $set: doc },
@@ -60,7 +65,7 @@ class Pos {
     }
 
     public static async posRemove(models, _id: string) {
-        const pos = await models.Pos.getPos(models, {_id});
+        const pos = await models.Pos.getPos(models, { _id });
 
         await models.Integrations.removeIntegration(pos.integrationId)
 
@@ -73,8 +78,10 @@ class Pos {
  */
 
 export const productGroupSchema: any = {
+    _id: { pkey: true },
     name: { type: String },
     description: { type: String },
+    posId: { type: String },
     categoryIds: { type: [String], optional: true },
     excludedCategoryIds: { type: [String], optional: true },
     excludedProductIds: { type: [String], optional: true }
@@ -95,18 +102,15 @@ class ProductGroup {
         })
     }
 
-    public static async groupsEdit(models, { _id, name, description }: { _id: string, name: string, description: string }) {
+    public static async groupsEdit(models, _id, doc) {
         const group = await models.ProductGroups.findOne({ _id }).lean();
 
         if (!group) {
             throw new Error('group not found');
         }
 
-        await models.ProductGroups.update({ _id }, {
-            $set: {
-                name,
-                description
-            }
+        await models.ProductGroups.updateOne({ _id }, {
+            $set: doc
         });
 
         return await models.ProductGroups.findOne({ _id }).lean();;

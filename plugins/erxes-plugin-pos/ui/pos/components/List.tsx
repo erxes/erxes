@@ -12,7 +12,7 @@ import {
 } from 'erxes-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IIntegration, IntegrationsCount } from '../../types';
+import { IIntegration, IntegrationsCount, IPos } from '../../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import { ITag } from 'erxes-ui/lib/tags/types';
@@ -20,7 +20,7 @@ import TaggerPopover from './TaggerPopover';
 import { PLUGIN_URL } from '../../constants';
 
 type Props = {
-  integrations: IIntegration[];
+  posList: IPos[];
   tags: ITag[];
   bulk: IIntegration[];
   isAllSelected: boolean;
@@ -40,13 +40,13 @@ type Props = {
 
 class List extends React.Component<Props, {}> {
   onChange = () => {
-    const { toggleAll, integrations } = this.props;
-    toggleAll(integrations, 'integrations');
+    const { toggleAll, posList } = this.props;
+    toggleAll(posList, 'posList');
   };
 
   renderRow() {
     const {
-      integrations,
+      posList,
       remove,
       bulk,
       toggleBulk,
@@ -55,15 +55,14 @@ class List extends React.Component<Props, {}> {
       copy
     } = this.props;
 
-    return integrations.map(integration => (
+    return posList.map(pos => (
       <Row
-        key={integration._id}
-        isChecked={bulk.includes(integration)}
+        key={pos._id}
+        isChecked={bulk.includes(pos)}
         toggleBulk={toggleBulk}
-        integration={integration}
+        pos={pos}
         remove={remove}
         archive={archive}
-        showCode={integration._id === queryParams.showInstallCode}
         copy={copy}
       />
     ));
@@ -77,7 +76,7 @@ class List extends React.Component<Props, {}> {
       bulk,
       emptyBulk,
       isAllSelected,
-      integrations,
+      posList,
       counts
     } = this.props;
 
@@ -159,7 +158,7 @@ class List extends React.Component<Props, {}> {
           <DataWithLoader
             data={content}
             loading={loading}
-            count={integrations.length}
+            count={posList.length}
             emptyContent={
               <EmptyContent
                 content={{

@@ -7,7 +7,7 @@ import Select from 'react-select-plus';
 import { IProductCategory } from 'erxes-ui/lib/products/types';
 
 type Props = {
-  group: IProductGroup;
+  group?: IProductGroup;
   onSubmit: (group: IProductGroup) => void;
   onDelete: (group: IProductGroup) => void;
   closeModal: () => void;
@@ -25,7 +25,14 @@ class GroupForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      group: props.group,
+      group: props.group || {
+        _id: `temporaryId${String(Math.random())}`,
+        name: '',
+        description: '',
+        categoryIds: [],
+        excludedCategoryIds: [],
+        excludedProductIds: []
+      },
       categories: props.categories
     };
   }
@@ -37,7 +44,6 @@ class GroupForm extends React.Component<Props, State> {
   };
 
   onClicksave = () => {
-    console.log(this.state.group);
     this.props.onSubmit(this.state.group);
     this.props.closeModal();
   };

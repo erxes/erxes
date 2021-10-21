@@ -13,7 +13,7 @@ type Props = {
   onSubmit: (group: IProductGroup) => void;
   history: any;
   queryParams: any;
-  ongroup: IProductGroup;
+  group?: IProductGroup;
 };
 
 type FinalProps = {

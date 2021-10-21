@@ -15,14 +15,43 @@ tags {
 isActive
 `
 
+const posCommonFields = `
+_id
+name
+description
+createdAt
+integrationId
+adminIds
+cashierIds
+integration {
+    brandId
+    brand {
+        _id
+        name
+        code
+    }
+    isActive
+    tags {
+        _id
+        name
+        colorCode
+    }
+}
+user {
+    _id
+    details {
+        avatar
+        fullName
+    }
+}
+`
+
 const posList = `
   query posList {
-    allPos {
-      _id
-      name
-      description
+    posList {
+        ${posCommonFields}
     }
-  }
+}
 `;
 
 const configs = `
@@ -44,8 +73,8 @@ const productGroups = `
       name
       description
       categoryIds
-      excludeCategoryIds
-      excludeProductIds
+      excludedCategoryIds
+      excludedProductIds
     }
   }
 `
@@ -93,34 +122,13 @@ const integrationDetail = `
   }
 `;
 
-const posConfig = `
-  query posConfig($integrationId: String!) {
-    posConfig(integrationId: $integrationId) {
-      _id
-      integrationId
-      productDetails
-      productGroupIds
-      productGroups {
-        name
-        description
-        categoryIds
-        excludeCategoryIds
-        excludeProductIds
-      }
-    }
-  }
-`;
 
-const posDetail =`
-query posDetail($integrationId: String!) {
-  posDetail(integrationId: $integrationId) {
-    _id
-    name
-    description
-    createdAt
-    integrationId
+
+const posDetail = `
+query posDetail($_id: String!) {
+  posDetail(_id: $_id) {
+    ${posCommonFields}
     productDetails
-    productGroupIds
   }
 }
 `
@@ -133,6 +141,5 @@ export default {
   integrationsTotalCount,
   integrations,
   integrationDetail,
-  posConfig,
   posDetail
 };

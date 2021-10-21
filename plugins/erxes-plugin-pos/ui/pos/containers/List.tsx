@@ -1,12 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import {
-  Alert,
-  confirm,
-  withProps,
-  Bulk,
-  router
-} from 'erxes-ui';
+import { Alert, confirm, withProps, Bulk, router } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
@@ -18,7 +12,7 @@ import {
   RemoveMutationResponse
 } from '../../types';
 
-import { queries, mutations } from '../../graphql';
+import { queries, mutations } from '../graphql';
 import List from '../components/List';
 
 type Props = {
@@ -46,25 +40,25 @@ class ListContainer extends React.Component<FinalProps> {
 
   componentDidUpdate(prevProps) {
     if (this.props.queryParams.page !== prevProps.queryParams.page) {
-      this.props.integrationsQuery.refetch();
+      this.props.posListQuery.refetch();
     }
   }
 
   refetch = () => {
-    const { integrationsQuery } = this.props;
+    const { posListQuery } = this.props;
 
-    integrationsQuery.refetch();
+    posListQuery.refetch();
   };
 
   render() {
     const {
-      integrationsQuery,
+      posListQuery,
       integrationsTotalCountQuery,
       removeMutation,
       archiveIntegration
     } = this.props;
 
-    const integrations = integrationsQuery.integrations || [];
+    const posList = posListQuery.posList || [];
 
     const counts = integrationsTotalCountQuery
       ? integrationsTotalCountQuery.integrationsTotalCount
@@ -73,8 +67,7 @@ class ListContainer extends React.Component<FinalProps> {
     const totalCount = (counts && counts.total) || 0;
 
     const remove = (integrationId: string) => {
-      const message =
-        'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
+      const message = 'Are you sure?';
 
       confirm(message).then(() => {
         removeMutation({
@@ -84,7 +77,7 @@ class ListContainer extends React.Component<FinalProps> {
             // refresh queries
             this.refetch();
 
-            Alert.success('You successfully deleted a form.');
+            Alert.success('You successfully deleted a pos.');
           })
           .catch(e => {
             Alert.error(e.message);
@@ -93,11 +86,11 @@ class ListContainer extends React.Component<FinalProps> {
     };
 
     const archive = (integrationId: string, status: boolean) => {
-      let message = `If you archive this form, the live form on your website or erxes messenger will no longer be visible. But you can still see the contacts and submissions you've received.`;
+      let message = `Are you sure ?`;
       let action = 'archived';
 
       if (!status) {
-        message = 'You are going to unarchive this form. Are you sure?';
+        message = 'You are going to unarchive this pos. Are you sure?';
         action = 'unarchived';
       }
 
@@ -120,11 +113,11 @@ class ListContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      integrations,
+      posList,
       counts,
       totalCount,
       remove,
-      loading: integrationsQuery.loading,
+      loading: posListQuery.loading,
       archive,
       refetch: this.refetch
     };
@@ -141,7 +134,7 @@ export default withProps<Props>(
   compose(
     graphql<
       Props,
-      PosIntegrationsQueryResponse,
+      PosListQueryResponse,
       {
         page?: number;
         perPage?: number;
@@ -150,8 +143,8 @@ export default withProps<Props>(
         brand?: string;
         status?: string;
       }
-    >(gql(queries.integrations), {
-      name: 'integrationsQuery',
+    >(gql(queries.posList), {
+      name: 'posListQuery',
       options: ({ queryParams }) => {
         return {
           variables: {

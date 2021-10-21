@@ -14,13 +14,13 @@ const settingsComponent = ({ location, history }) => {
 };
 
 const editPos = ({ match, location, history }) => {
-  const { integrationId } = match.params;
+  const { posId } = match.params;
   const queryParams = queryString.parse(location.search);
 
   return (
     <EditPos
       queryParams={queryParams}
-      integrationId={integrationId}
+      posId={posId}
       history={history}
     />
   );
@@ -41,7 +41,7 @@ export default () => ({
       component: settingsComponent
     },
     {
-      path: '/pos/edit/:integrationId',
+      path: '/pos/edit/:posId',
       component: editPos
     },
     {

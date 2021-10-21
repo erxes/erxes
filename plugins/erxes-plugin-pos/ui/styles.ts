@@ -42,7 +42,7 @@ export const ActionButtons = styled.div`
   overflow: hidden;
   align-items: center;
   transition: all 0.3s ease;
-  width: 0;
+  float: right;
 
   * {
     padding: 0;
@@ -52,6 +52,10 @@ export const ActionButtons = styled.div`
       margin-left: 0;
     }
   }
+`;
+
+export const Actions = styled.div`
+  float: right
 `;
 
 export const RowTitle = styled.div`
@@ -176,10 +180,13 @@ export const FlexColumn = styled.div`
   }
 `;
 
+
+
 export const FlexItem = styled.div`
   display: flex;
   height: 100%;
 `;
+
 
 export const Row = styled.div`
   display: flex;
@@ -192,5 +199,13 @@ export const Row = styled.div`
     flex-shrink: 0;
     margin-left: 10px;
     align-self: baseline;
+  }
+`;
+
+export const ClickableRow = styled.div`
+  cursor: pointer;
+
+  &:hover {
+    color: ${colors.textSecondary};
   }
 `;

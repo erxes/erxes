@@ -2,6 +2,9 @@ const groupCommonFields = `
   posId: String
   description: String
   name: String
+  categoryIds: [String]
+  excludedCategoryIds: [String]
+  excludedProductIds: [String]
 `;
 
 const posCommonFields = `
@@ -10,7 +13,8 @@ const posCommonFields = `
   brandId: String
   tagIds: [String]
   productDetails: [String]
-  productGroupIds: [String]
+  adminIds: [String]
+  cashierIds: [String]
 `
 
 export const types = `
@@ -19,35 +23,38 @@ export const types = `
     name: String
     description: String
     createdAt: Date
-    integrationId: String 
+    integrationId: String
+    userId: String 
     productDetails: [String] 
-    productGroupIds: [String] 
+    adminIds: [String] 
+    cashierIds: [String] 
+    integration: Integration
+    user: User
   }
-
-
 
   type ProductGroups {
     _id: String
     name: String
     description: String
+    posId: String
     categoryIds: [String]
     excludedCategoryIds: [String]
     excludedProductIds: [String]
   }
 
-  type PosConfig {
+  input GroupInput {
     _id: String
-    integrationId: String
-    productDetails: [String]
-    productGroupIds: [String]
-    productGroups: [ProductGroups]
+    description: String
+    name: String
+    categoryIds: [String]
+    excludedCategoryIds: [String]
+    excludedProductIds: [String]
   }
 `;
 
 export const queries = `
-  allPos: [Pos]
-  posDetail(integrationId: String!): Pos
-  posConfig(integrationId: String!): PosConfig
+  posList: [Pos]
+  posDetail(_id: String!): Pos
   productGroups(posId: String!): [ProductGroups]
 `;
 
@@ -55,8 +62,9 @@ export const mutations = `
   posAdd(${posCommonFields}): Pos
   posEdit(_id: String ${posCommonFields}): Pos
   posRemove(_id: String!): JSON
+  productGroupsAdd(${groupCommonFields}): ProductGroups
+  productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]
 `;
 
-// posConfigsUpdate(posId: String!, configsMap: JSON!): JSON
-// productGroupsAdd(${groupCommonFields}): ProductGroups
-// productGroupsEdit(_id: String! ${groupCommonFields}): ProductGroups
+
+

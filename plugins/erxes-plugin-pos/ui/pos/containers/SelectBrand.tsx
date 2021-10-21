@@ -5,7 +5,7 @@ import { IFormProps } from 'erxes-ui/lib/types';
 import { IButtonMutateProps } from '../../types';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
-import { mutations, queries } from '../../graphql';
+import { mutations, queries } from '../graphql';
 import { BrandsQueryResponse } from '../../types';
 import SelectBrand from '../components/SelectBrand';
 

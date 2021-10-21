@@ -10,7 +10,7 @@ import {
 } from '../../types';
 import { PLUGIN_URL } from '../../constants';
 import Pos from '../components/Pos';
-import { mutations } from '../../graphql';
+import { mutations } from '../graphql';
 
 type Props = {} & IRouterProps & AddPosMutationResponse;
 
@@ -35,7 +35,6 @@ class CreatePosContainer extends React.Component<Props, State> {
         brandId,
         name,
         productDetails,
-        productGroupIds
       } = doc;
 
       addPosMutation({
@@ -44,7 +43,6 @@ class CreatePosContainer extends React.Component<Props, State> {
           brandId,
           name,
           productDetails,
-          productGroupIds
         }
       })
         .then(() => {

@@ -13,27 +13,25 @@ import {
   WithPermission,
   Tags
 } from 'erxes-ui';
-import { IIntegration } from '../../types';
+import { IIntegration, IPos } from '../../types';
 import { RowTitle } from '../../styles';
 import { DateWrapper } from 'erxes-ui/lib/styles/main';
 import { PLUGIN_URL } from '../../constants';
 
 type Props = {
-  integration: IIntegration;
+  pos: IPos;
   isChecked: boolean;
-  toggleBulk: (integration: IIntegration, checked: boolean) => void;
-  remove: (integrationId: string) => void;
-  archive: (integrationId: string, status: boolean) => void;
-  copy: (integrationId: string) => void;
+  toggleBulk: (pos: IPos, checked: boolean) => void;
+  remove: (posId: string) => void;
+  archive: (posId: string, status: boolean) => void;
+  copy: (posId: string) => void;
   showCode?: boolean;
 };
 
 class Row extends React.Component<Props> {
-  manageAction(integration) {
-    const { formId } = integration;
-
+  manageAction(pos) {
     return (
-      <Link to={`${PLUGIN_URL}/pos/edit/${integration._id}`}>
+      <Link to={`${PLUGIN_URL}/pos/edit/${pos._id}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
@@ -44,7 +42,8 @@ class Row extends React.Component<Props> {
   }
 
   renderArchiveAction() {
-    const { integration, archive } = this.props;
+    const { pos, archive } = this.props;
+    const { integration } = pos;
 
     const onClick = () => archive(integration._id, true);
 
@@ -62,11 +61,11 @@ class Row extends React.Component<Props> {
   }
 
   renderUnarchiveAction() {
-    const { integration, archive } = this.props;
+    const { pos, archive } = this.props;
 
-    const onClick = () => archive(integration._id, false);
+    const onClick = () => archive(pos._id, false);
 
-    if (!archive || integration.isActive) {
+    if (!archive || pos.isActive) {
       return null;
     }
 
@@ -99,9 +98,9 @@ class Row extends React.Component<Props> {
   }
 
   renderCopyAction() {
-    const { integration, copy } = this.props;
+    const { pos, copy } = this.props;
 
-    const onClick = () => copy(integration._id);
+    const onClick = () => copy(pos._id);
 
     return (
       <Tip text={__('Duplicate')} placement="top">
@@ -111,18 +110,18 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { integration, isChecked, toggleBulk } = this.props;
+    const { pos, isChecked, toggleBulk } = this.props;
+    const { integration } = pos;
+    const tags = integration.tags || [];
 
-    const tags = integration.tags;
-
-    const createdUser = {
+    const createdUser = pos.user || {
       _id: '',
       details: { fullName: '' }
     };
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(integration, e.target.checked);
+        toggleBulk(pos, e.target.checked);
       }
     };
 
@@ -140,9 +139,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>
           <RowTitle>
-            <Link to={`${PLUGIN_URL}/pos/edit/${integration._id}`}>
-              {integration.name}
-            </Link>
+            <Link to={`${PLUGIN_URL}/pos/edit/${pos._id}`}>{pos.name}</Link>
           </RowTitle>
         </td>
         <td>
