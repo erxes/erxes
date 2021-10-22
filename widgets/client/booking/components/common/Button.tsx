@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { HiArrowRight, HiArrowLeft } from 'react-icons/hi';
+
 type Props = {
   text: string;
   onClickHandler: () => void;
@@ -7,6 +8,7 @@ type Props = {
   style?: {};
   type: string;
 };
+
 function Button({ text, type, onClickHandler, style }: Props) {
   return (
     <button

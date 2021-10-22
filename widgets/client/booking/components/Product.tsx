@@ -38,30 +38,41 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
       </div>
     ));
 
-  const scrollPerClick = 200;
+  let scrollPerClick = 200;
   let scrollAmount = 0;
+
   const moveCarousel = (orientation: string) => {
     const carousel = document.getElementById('carousel') as HTMLElement;
-    if (orientation === 'left') {
+
+    if (orientation === "left") {
       carousel.scrollTo({
         top: 0,
-        left: scrollAmount -= scrollPerClick,
-        behavior: 'smooth'
-      });
+        left: (scrollAmount -= scrollPerClick),
+        behavior: 'smooth',
+      })
 
       if (scrollAmount < 0) {
         scrollAmount = 0;
       }
-    } else {
+    }
+
+    if (orientation === "right") {
       if (scrollAmount <= carousel.scrollWidth - carousel.clientWidth) {
         carousel.scrollTo({
           top: 0,
-          left: scrollAmount += scrollPerClick,
-          behavior: 'smooth'
-        });
+          left: (scrollAmount += scrollPerClick),
+          behavior: "smooth"
+        })
+      }
+      else {
+        carousel.scrollTo({
+          top: 0,
+          left: (scrollAmount = -scrollPerClick),
+          behavior: 'smooth',
+        })
       }
     }
-  };
+  }
 
   return (
     <div className="body">
@@ -77,10 +88,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
             />
           </div>
           <div className="flex-center">
-            <MdOutlineArrowBackIos
-              size={40}
-              onClick={() => moveCarousel('left')}
-            />
+            {(product.attachmentMore) && (product.attachmentMore).length > 0 ? <MdOutlineArrowBackIos size={40} onClick={() => moveCarousel("left")} /> : ""}
             <div id="carousel">
               {(product.attachmentMore || []).map((img, index) => (
                 <div
@@ -96,10 +104,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
                 </div>
               ))}
             </div>
-            <MdOutlineArrowForwardIos
-              size={40}
-              onClick={() => moveCarousel('right')}
-            />
+            {(product.attachmentMore) && (product.attachmentMore).length > 0 ? <MdOutlineArrowForwardIos size={40} onClick={() => moveCarousel("right")} /> : ""}
           </div>
         </div>
         <div>
