@@ -12,14 +12,12 @@ type Props = {
 function EditFrom(props: Props) {
   const [currentTab, setCurrentTab] = useState('General');
 
-  const { exm, edit } = props;
-
   const renderTabContent = () => {
     if (currentTab === 'General') {
-      return <General exm={exm} edit={edit} />;
+      return <General {...props} />;
     }
 
-    return <Appearance exm={exm} edit={edit} />;
+    return <Appearance {...props} />;
   };
 
   return (

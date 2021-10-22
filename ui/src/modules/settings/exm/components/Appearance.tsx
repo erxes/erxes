@@ -99,7 +99,6 @@ export default function Appearance(props: Props) {
 
   const onChangeAttachment = (e: any) => {
     setLogo(e);
-    console.log(e, '========');
   };
 
   const renderColorSelect = (item, color) => {
