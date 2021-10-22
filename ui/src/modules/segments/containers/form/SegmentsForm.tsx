@@ -29,7 +29,7 @@ type Props = {
   closeModal: () => void;
   activeTrigger?: ITrigger;
   addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
-  addFilter?: (segmentId: String) => void;
+  addFilter?: (segmentId: string) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
   usageType?: string;

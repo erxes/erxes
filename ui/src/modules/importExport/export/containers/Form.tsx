@@ -67,7 +67,7 @@ class FormContainer extends React.Component<
     const { count, loading } = this.state;
 
     if (!fieldsQuery || fieldsQuery.loading) {
-      return <Spinner></Spinner>;
+      return <Spinner />;
     }
 
     const columns = (fieldsQuery.fieldsCombinedByContentType || []).map(
