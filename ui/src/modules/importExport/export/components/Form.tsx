@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom';
 import ConfigsForm from './ConfigsForm';
 import queryString from 'query-string';
 import { Description, SubHeading } from 'modules/settings/styles';
-import SettingsForm from './SettingsForm';
+
 import {
   Content,
   ImageWrapper,
@@ -152,14 +152,6 @@ class ExportForm extends React.Component<Props, State> {
                     />
                   </FlexPad>
                 </FlexItem>
-              </Step>
-
-              <Step
-                img="/images/icons/erxes-07.svg"
-                title="Settings"
-                noButton={true}
-              >
-                <SettingsForm />
               </Step>
             </Steps>
 
