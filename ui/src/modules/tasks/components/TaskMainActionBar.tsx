@@ -2,14 +2,14 @@ import MainActionBar from 'modules/boards/components/MainActionBar';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import { __ } from 'modules/common/utils';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import options from '../options';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import { __ } from 'modules/common/utils';
+import { Dropdown } from 'react-bootstrap';
 import Button from 'modules/common/components/Button';
 
 type Props = {
@@ -39,6 +39,10 @@ const TaskMainActionBar = (props: Props) => {
     viewType = 'calendar';
   }
 
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
+  }
+
   if (window.location.href.includes('list')) {
     viewType = 'list';
   }
@@ -57,6 +61,7 @@ const TaskMainActionBar = (props: Props) => {
     const boardLink = onFilterClick('board');
     const listLink = onFilterClick('list');
     const calendarLink = onFilterClick('calendar');
+    const activityLink = onFilterClick('activity');
 
     return (
       <ButtonGroup>
@@ -82,6 +87,14 @@ const TaskMainActionBar = (props: Props) => {
                 className={viewType === 'calendar' ? 'active' : ''}
               >
                 {__('Calendar')}
+              </Link>
+            </li>
+            <li key="activity">
+              <Link
+                to={activityLink}
+                className={viewType === 'activity' ? 'active' : ''}
+              >
+                {__('Activity')}
               </Link>
             </li>
             <li key="list">

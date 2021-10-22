@@ -9,7 +9,7 @@ import SelectProducts from 'modules/settings/productService/containers/product/S
 import React from 'react';
 import { Link } from 'react-router-dom';
 import options from '../options';
-import Dropdown from 'react-bootstrap/Dropdown';
+import { Dropdown } from 'react-bootstrap';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Button from 'modules/common/components/Button';
 
@@ -40,6 +40,10 @@ const DealMainActionBar = (props: Props) => {
     viewType = 'calendar';
   }
 
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
+  }
+
   if (window.location.href.includes('list')) {
     viewType = 'list';
   }
@@ -62,6 +66,7 @@ const DealMainActionBar = (props: Props) => {
     const boardLink = onFilterClick('board');
     const calendarLink = onFilterClick('calendar');
     const conversionlink = onFilterClick('conversion');
+    const activityLink = onFilterClick('activity');
     const listLink = onFilterClick('list');
 
     return (
@@ -96,6 +101,14 @@ const DealMainActionBar = (props: Props) => {
                 className={viewType === 'conversion' ? 'active' : ''}
               >
                 {__('Conversion')}
+              </Link>
+            </li>
+            <li key="activity">
+              <Link
+                to={activityLink}
+                className={viewType === 'activity' ? 'active' : ''}
+              >
+                {__('Activity')}
               </Link>
             </li>
             <li key="list">
