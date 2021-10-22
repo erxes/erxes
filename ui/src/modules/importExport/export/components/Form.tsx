@@ -125,7 +125,7 @@ class ExportForm extends React.Component<Props, State> {
         <Content>
           <LeftContent>
             <Steps active={1}>
-              <Step img="/images/icons/erxes-01.svg" title="Content">
+              <Step img="/images/icons/erxes-10.svg" title="Content">
                 <ConfigsForm
                   columns={columns}
                   onClickField={this.onClickField}
@@ -134,7 +134,7 @@ class ExportForm extends React.Component<Props, State> {
                 />
               </Step>
 
-              <Step img="/images/icons/erxes-04.svg" title="Filter">
+              <Step img="/images/icons/erxes-14.svg" title="Filter">
                 <FlexItem>
                   <FlexPad direction="column" overflow="auto">
                     <SubHeading>{__('Filter')}</SubHeading>
@@ -155,7 +155,7 @@ class ExportForm extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img="/images/icons/erxes-16.svg"
+                img="/images/icons/erxes-07.svg"
                 title="Settings"
                 noButton={true}
               >
