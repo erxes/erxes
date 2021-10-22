@@ -23,7 +23,7 @@ type Props = {
   ) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
-  isAutomation: boolean;
+  hideDetailForm: boolean;
   changeSubSegmentConjunction: (
     segmentKey: string,
     conjunction: string

@@ -23,6 +23,7 @@ export const types = `
 export const queries = `
   importHistories(perPage: Int, page: Int, type: String!): ImportHistoryList
   importHistoryDetail(_id: String!): ImportHistory
+  importHistoryPreviewExportCount(segmentId: String, contentType: String!): Int
 `;
 
 export const mutations = `
