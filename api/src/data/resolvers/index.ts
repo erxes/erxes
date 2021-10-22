@@ -1,5 +1,6 @@
 import * as permissionActions from '../permissions/actions';
 import ActivityLog from './activityLog';
+import ActivityLogByAction from './activityLogByAction';
 import Board from './boards';
 import Brand from './brand';
 import {
@@ -92,6 +93,7 @@ const resolvers: any = {
   ProductTemplate,
 
   ActivityLog,
+  ActivityLogByAction,
   Form,
   FieldsGroup: fieldsGroup,
   Field: field,

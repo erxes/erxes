@@ -14,6 +14,7 @@ import { ProductRemoveMutationResponse } from '../../../types';
 
 type Props = {
   product: IProduct;
+  refetchQueries?: any[];
 };
 
 type FinalProps = { currentUser: IUser } & Props &
