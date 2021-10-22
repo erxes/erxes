@@ -12,7 +12,8 @@ const options = {
     itemsTotalCountQuery: 'growthHacksTotalCount',
     detailQuery: 'growthHackDetail',
     archivedItemsQuery: 'archivedGrowthHacks',
-    archivedItemsCountQuery: 'archivedGrowthHacksCount'
+    archivedItemsCountQuery: 'archivedGrowthHacksCount',
+    productTemplatesQuery: 'productTemplates'
   },
   mutationsName: {
     addMutation: 'growthHacksAdd',
@@ -28,7 +29,8 @@ const options = {
     itemsTotalCountQuery: queries.growthHacksTotalCount,
     detailQuery: queries.growthHackDetail,
     archivedItemsQuery: queries.archivedGrowthHacks,
-    archivedItemsCountQuery: queries.archivedGrowthHacksCount
+    archivedItemsCountQuery: queries.archivedGrowthHacksCount,
+    productTemplatesQuery: queries.productTemplates
   },
   mutations: {
     addMutation: mutations.growthHacksAdd,

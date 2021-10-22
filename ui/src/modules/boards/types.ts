@@ -11,7 +11,6 @@ import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
-
 export interface IOptions {
   EditForm: any;
   Item: any;
@@ -23,6 +22,7 @@ export interface IOptions {
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
+    productTemplatesQuery: string;
   };
   mutationsName: {
     addMutation: string;
@@ -39,6 +39,7 @@ export interface IOptions {
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
+    productTemplatesQuery: string;
   };
   mutations: {
     addMutation: string;
@@ -186,6 +187,8 @@ export interface IItemMap {
   [key: string]: IItem[];
 }
 
+
+
 export type BoardsQueryResponse = BoardsQueryResponseC;
 
 export interface IBoardCount {
@@ -279,6 +282,8 @@ export type PipelineLabelsQueryResponse = {
 export type PipelineLabelDetailQueryResponse = {
   pipelineLabelDetail: IPipelineLabel;
 } & QueryResponse;
+
+
 
 // mutation response
 export type AddPipelineLabelMutationResponse = ({

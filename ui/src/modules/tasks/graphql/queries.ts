@@ -6,6 +6,7 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from 'modules/conformity/graphql/queries';
+import { productTemplateFields , productTemplateParamsDef , productTemplateParams } from '../../settings/template/graphql/queries'
 
 const commonParams = `
   $companyIds: [String],
@@ -120,10 +121,19 @@ const archivedTasksCount = `
   }
 `;
 
+const productTemplates = `
+    query productTemplates(${productTemplateParamsDef}) {
+      productTemplates(${productTemplateParams}) {
+        ${productTemplateFields}
+      }
+    }
+`;
+
 export default {
   tasks,
   tasksTotalCount,
   taskDetail,
   archivedTasks,
-  archivedTasksCount
+  archivedTasksCount,
+  productTemplates
 };

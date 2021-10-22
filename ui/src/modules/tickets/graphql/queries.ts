@@ -6,6 +6,7 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from 'modules/conformity/graphql/queries';
+import { productTemplateFields , productTemplateParamsDef , productTemplateParams } from '../../settings/template/graphql/queries'
 
 const commonParams = `
   $companyIds: [String],
@@ -129,10 +130,19 @@ const archivedTicketsCount = `
   }
 `;
 
+const productTemplates = `
+    query productTemplates(${productTemplateParamsDef}) {
+      productTemplates(${productTemplateParams}) {
+        ${productTemplateFields}
+      }
+    }
+`;
+
 export default {
   tickets,
   ticketsTotalCount,
   ticketDetail,
   archivedTickets,
-  archivedTicketsCount
+  archivedTicketsCount,
+  productTemplates
 };

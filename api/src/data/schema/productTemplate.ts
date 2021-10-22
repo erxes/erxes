@@ -7,6 +7,7 @@ export const types = `
     totalAmount: Int
     description: String
     templateItems: JSON
+    templateItemsProduct: JSON
     status: String
     tagIds: [String]
     tags: [Tag]

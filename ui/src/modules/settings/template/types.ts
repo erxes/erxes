@@ -17,6 +17,7 @@ export interface IProductTemplate {
   totalAmount: number;
   description: string;
   templateItems: IProductTemplateItem[];
+  templateItemsProduct: any[];
   status: string;
   tags: ITag[];    
 }

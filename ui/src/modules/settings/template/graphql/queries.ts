@@ -7,6 +7,7 @@ export const productTemplateFields = `
     totalAmount
     description
     templateItems 
+    templateItemsProduct
     status
     tags {
       _id

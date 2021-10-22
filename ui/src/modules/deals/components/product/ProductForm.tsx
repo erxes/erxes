@@ -17,7 +17,7 @@ import { IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
 import ProductItem from './ProductItem';
 import ProductTotal from './ProductTotal';
-
+import { IProductTemplate } from '../../../settings/template/types';
 import FormControl from 'erxes-ui/lib/components/form/Control';
 
 type Props = {
@@ -27,6 +27,7 @@ type Props = {
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;
+  productTemplates: IProductTemplate[];
   closeModal: () => void;
   uom: string[];
   currencies: string[];
@@ -91,6 +92,83 @@ class ProductForm extends React.Component<Props, State> {
       onChangeProductsData(productsData);
     });
   };
+
+  addProductTemplateItem = (product: IProduct, discountT: number, quantity: number) => {
+
+    console.log(product);
+    console.log(discountT, quantity);
+    console.log("addItem");
+
+    const { productsData, onChangeProductsData, currencies } = this.props;
+    const { tax, discount } = this.state;
+    const unitPrice = product ? product.unitPrice : 0;
+    const amount = discountT && discountT > 0 ? unitPrice / 100 * discountT : 0;
+
+    const currency = currencies ? currencies[0] : '';
+
+    this.setState({ tempId: Math.random().toString() }, () => {
+      productsData.push({
+        _id: this.state.tempId,
+        quantity: quantity ? quantity : 1,
+        unitPrice,
+        tax: 0,
+        taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
+        discount: discountT ? discountT : 0,
+        discountPercent: discount[currency]
+          ? discount[currency].percent || 0
+          : 0,
+        amount,
+        currency,
+        tickUsed: true,
+        product: product ? product : {} as IProduct
+      });
+
+      onChangeProductsData(productsData);
+    });
+  };
+
+  calculateAmount = (type: string, productData: IProductData) => {
+    const amount = productData.unitPrice * productData.quantity;
+
+    if (amount > 0) {
+      if (type === 'discount') {
+        productData.discountPercent = (productData.discount * 100) / amount;
+      } else {
+        productData.discount = (amount * productData.discountPercent) / 100;
+      }
+
+      productData.tax =
+        ((amount - productData.discount || 0) * productData.taxPercent) / 100;
+      productData.amount =
+        amount - (productData.discount || 0) + (productData.tax || 0);
+    } else {
+      productData.tax = 0;
+      productData.discount = 0;
+      productData.amount = 0;
+    }
+
+    // const { updateTotal } = this.props;
+
+    // if (updateTotal) {
+    this.updateTotal();
+    // }
+  };
+
+  addProductTemplate = (e) => {
+    const templateId = e.target.value;
+
+    alert(templateId);
+
+    let template = {} as IProductTemplate;
+
+    const templateItems = template.templateItemsProduct || [];
+
+    templateItems.forEach(e => {
+      console.log("foreach");
+      this.addProductTemplateItem(e.product, e.discount, e.quantity);
+    });
+
+  }
 
   removeProductItem = productId => {
     const { productsData, onChangeProductsData } = this.props;
@@ -268,6 +346,7 @@ class ProductForm extends React.Component<Props, State> {
 
   renderTabContent() {
     const { total, tax, discount, currentTab } = this.state;
+    const productTemplates = this.props.productTemplates || [];
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
@@ -284,6 +363,11 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
+    const comboProductTemplate: any[] = [];
+    productTemplates.forEach(productTemplate => {
+      comboProductTemplate.push({ value: productTemplate._id, label: productTemplate.title });
+    });
+
     return (
       <FormContainer>
         {this.renderContent()}
@@ -297,12 +381,10 @@ class ProductForm extends React.Component<Props, State> {
           </Button>
 
           <FormControl
-            // {...formProps}
-            // name="type"
-            // defaultValue={object.type}
-            // required={true}
+
+            onChange={this.addProductTemplate}
             componentClass="select"
-          // options={TYPE_CHOICES}
+            options={comboProductTemplate}
           >
           </FormControl>
         </Add>

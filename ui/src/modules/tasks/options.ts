@@ -13,7 +13,8 @@ const options = {
     itemsTotalCountQuery: 'tasksTotalCount',
     detailQuery: 'taskDetail',
     archivedItemsQuery: 'archivedTasks',
-    archivedItemsCountQuery: 'archivedTasksCount'
+    archivedItemsCountQuery: 'archivedTasksCount',
+    productTemplatesQuery: 'productTemplates'
   },
   mutationsName: {
     addMutation: 'tasksAdd',
@@ -30,7 +31,8 @@ const options = {
     itemsTotalCountQuery: queries.tasksTotalCount,
     detailQuery: queries.taskDetail,
     archivedItemsQuery: queries.archivedTasks,
-    archivedItemsCountQuery: queries.archivedTasksCount
+    archivedItemsCountQuery: queries.archivedTasksCount,
+    productTemplatesQuery: queries.productTemplates
   },
   mutations: {
     addMutation: mutations.tasksAdd,

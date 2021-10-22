@@ -1,3 +1,5 @@
+import { productTemplateFields , productTemplateParamsDef , productTemplateParams } from '../../settings/template/graphql/queries'
+
 const commonParams = `
   $pipelineId: String,
   $assignedUserIds: [String],
@@ -211,6 +213,14 @@ const archivedGrowthHacksCount = `
   }
 `;
 
+const productTemplates = `
+    query productTemplates(${productTemplateParamsDef}) {
+      productTemplates(${productTemplateParams}) {
+        ${productTemplateFields}
+      }
+    }
+`;
+
 export default {
   growthHacks,
   growthHacksPriorityMatrix,
@@ -219,5 +229,6 @@ export default {
   pipelineDetail,
   pipelineStateCount,
   archivedGrowthHacks,
-  archivedGrowthHacksCount
+  archivedGrowthHacksCount,
+  productTemplates
 };

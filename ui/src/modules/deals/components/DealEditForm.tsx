@@ -12,10 +12,12 @@ import PortableTickets from 'modules/tickets/components/PortableTickets';
 import { pluginsOfItemSidebar } from 'pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
+import { IProductTemplate } from '../../settings/template/types';
 
 type Props = {
   options: IOptions;
   item: IDeal;
+  productTemplates: IProductTemplate[];
   addItem: (doc: IDealParams, callback: () => void) => void;
   saveItem: (doc: IDealParams, callback?: (item) => void) => void;
   copyItem: (itemId: string, callback: () => void) => void;
@@ -149,6 +151,8 @@ export default class DealEditForm extends React.Component<Props, State> {
     const payDataChange = payData =>
       this.onChangeField('paymentsData', payData);
 
+    const { productTemplates } = this.props;
+
     return (
       <ProductSection
         onChangeProductsData={pDataChange}
@@ -158,6 +162,7 @@ export default class DealEditForm extends React.Component<Props, State> {
         paymentsData={paymentsData}
         products={products}
         saveProductsData={this.saveProductsData}
+        productTemplates={productTemplates}
       />
     );
   };
