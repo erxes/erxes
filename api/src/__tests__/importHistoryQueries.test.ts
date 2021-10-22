@@ -99,7 +99,8 @@ describe('Import history queries', () => {
       'visitor',
       'deal',
       'ticket',
-      'task'
+      'task',
+      'company'
     ];
 
     for (const contentType of contentTypes) {
