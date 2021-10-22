@@ -239,3 +239,17 @@ export const pluginsOfPaymentForm = (
     />
   );
 };
+
+export const pluginsOfWebhooks = () => {
+  let webhookActions: any = [];
+
+  for (const pluginName of Object.keys(pluginModules)) {
+    const plugin = pluginModules[pluginName]();
+
+    if (plugin.webhookActions) {
+      webhookActions = webhookActions.concat(plugin.webhookActions);
+    }
+  }
+
+  return { webhookActions };
+};
