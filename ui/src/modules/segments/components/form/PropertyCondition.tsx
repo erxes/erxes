@@ -28,7 +28,7 @@ type Props = {
   ) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
-  isAutomation: boolean;
+  hideDetailForm: boolean;
   changeSubSegmentConjunction: (
     segmentKey: string,
     conjunction: string
@@ -98,14 +98,14 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   renderBoardFields = () => {
-    const { boards = [], isAutomation, contentType } = this.props;
+    const { boards = [], hideDetailForm, contentType } = this.props;
     const { boardId, pipelineId, propertyType } = this.state;
 
     if (!isBoardKind(propertyType)) {
       return null;
     }
 
-    if (!isAutomation && isBoardKind(contentType)) {
+    if (!hideDetailForm && isBoardKind(contentType)) {
       return null;
     }
 
