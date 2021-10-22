@@ -8,7 +8,7 @@ export const CONFIG_TYPES = {
     VALUE: 'appearance'
   },
   CUSTOM: {
-    LABEL: 'Custom StyleSheet',
+    LABEL: 'System configuration',
     VALUE: 'custom'
   }
 };

@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { RowTitle } from '../main/styles';
 
 export const StyledUrl = styled.div`
   color: ${colors.colorCoreGray};
@@ -71,11 +72,13 @@ export const RadioButtonWrap = styled.div`
 
 export const ColorPickerWrap = styled.div`
   display: flex;
+  flex: 1;
   margin-top: ${dimensions.unitSpacing}px;
 
-  > div{
+  > div {
     padding-right: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
     margin-bottom: 0;
+  }
 `;
 
 export const Wrap = styled.div`
@@ -105,5 +108,60 @@ export const SelectWrap = styled.div`
 export const IconWrap = styled.div`
   i {
     cursor: pointer;
+  }
+`;
+
+export const Content = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+export const Block = styled.div`
+  border-bottom: 1px dashed ${colors.borderPrimary};
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  padding-bottom: ${dimensions.unitSpacing}px;
+
+  .Select {
+    min-width: 300px;
+  }
+
+  > h4 {
+    margin-bottom: ${dimensions.coreSpacing}px;
+    color: ${colors.colorPrimary};
+  }
+`;
+
+export const BlockRow = styled(FlexRow)`
+  align-items: center;
+
+  > div {
+    padding-right: ${dimensions.coreSpacing}px;
+    width: 25%;
+
+    &.description {
+      width: 50%;
+    }
+
+    @media (max-width: 1250px) {
+      flex: 1;
+    }
+  }
+`;
+
+export const BlockRowTitle = styled(RowTitle)`
+  width: 150px;
+  margin: 0;
+`;
+
+export const ToggleWrap = styled.div`
+  width: 180px !important;
+
+  > div > div {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+`;
+
+export const LogoWrapper = styled.div`
+  > div > div {
+    width: ${dimensions.coreSpacing}%;
   }
 `;
