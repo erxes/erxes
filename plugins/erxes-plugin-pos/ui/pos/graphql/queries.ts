@@ -45,6 +45,10 @@ user {
     }
 }
 waitingScreen
+kitchenScreen
+kioskMachine
+formSectionTitle
+formIntegrationIds
 `
 
 const posList = `

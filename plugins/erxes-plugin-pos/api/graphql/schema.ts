@@ -16,22 +16,21 @@ const posCommonFields = `
   adminIds: [String]
   cashierIds: [String]
   waitingScreen: JSON
+  kitchenScreen: JSON
+  kioskMachine: JSON
+  formSectionTitle: String
+  formIntegrationIds: [String]
 `
 
 export const types = `
   type Pos {
     _id: String
-    name: String
-    description: String
     createdAt: Date
     integrationId: String
     userId: String 
-    productDetails: [String] 
-    adminIds: [String] 
-    cashierIds: [String] 
     integration: Integration
     user: User
-    waitingScreen: JSON
+    ${posCommonFields}
   }
 
   type ProductGroups {

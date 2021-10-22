@@ -1,18 +1,20 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'erxes-ui';
+import { Alert, withProps, Spinner } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
   AddPosMutationResponse,
   IntegrationMutationVariables,
+  IntegrationsQueryResponse,
   IRouterProps
 } from '../../types';
 import { PLUGIN_URL } from '../../constants';
 import Pos from '../components/Pos';
-import { mutations } from '../graphql';
+import { queries, mutations } from '../graphql';
 
-type Props = {} & IRouterProps & AddPosMutationResponse;
+type Props = { integrationsQuery: IntegrationsQueryResponse } & IRouterProps &
+  AddPosMutationResponse;
 
 type State = {
   isLoading: boolean;
@@ -25,24 +27,26 @@ class CreatePosContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addPosMutation, history } = this.props;
+    const { addPosMutation, history, integrationsQuery } = this.props;
+
+    const formIntegrations = integrationsQuery.integrations || [];
+    // const categories = productCategoriesQuery.productCategories || [];
+
+    if (integrationsQuery.loading) {
+      return <Spinner objective={true} />;
+    }
 
     const save = doc => {
       this.setState({ isLoading: true });
 
-      const {
-        description,
-        brandId,
-        name,
-        productDetails,
-      } = doc;
+      const { description, brandId, name, productDetails } = doc;
 
       addPosMutation({
         variables: {
           description,
           brandId,
           name,
-          productDetails,
+          productDetails
         }
       })
         .then(() => {
@@ -63,6 +67,7 @@ class CreatePosContainer extends React.Component<Props, State> {
 
     const updatedProps = {
       ...this.props,
+      formIntegrations,
       save,
       isActionLoading: this.state.isLoading
     };
@@ -78,6 +83,15 @@ export default withProps<Props>(
       {
         name: 'addPosMutation'
       }
-    )
+    ),
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'integrationsQuery',
+      options: () => ({
+        fetchPolicy: 'cache-and-network',
+        variables: {
+          kind: 'lead'
+        }
+      })
+    })
   )(CreatePosContainer)
 );

@@ -26,6 +26,7 @@ type Props = {
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
   groups: IProductGroup[];
+  formIntegrations: IIntegration[];
   save: (params: any) => void;
 };
 
@@ -69,8 +70,6 @@ class Lead extends React.Component<Props, State> {
       return Alert.error('Choose a Brand');
     }
 
-    console.log('---------------------------- ',pos)
-
     const doc = {
       name: pos.name,
       brandId: brand,
@@ -78,7 +77,12 @@ class Lead extends React.Component<Props, State> {
       productDetails: pos.productDetails || [],
       groups,
       adminIds: pos.adminIds,
-      cashierIds: pos.cashierIds
+      cashierIds: pos.cashierIds,
+      kioskMachine: pos.kioskMachine,
+      waitingScreen: pos.waitingScreen,
+      kitchenScreen: pos.kitchenScreen,
+      formSectionTitle: pos.formSectionTitle,
+      formIntegrationIds: pos.formIntegrationIds
     };
 
     this.props.save(doc);
@@ -87,8 +91,7 @@ class Lead extends React.Component<Props, State> {
   onChange = (key: string, value: any) => {
     this.setState({ [key]: value } as any);
 
-    console.log(this.state)
-
+    console.log(this.state);
   };
 
   onFormDocChange = formData => {
@@ -144,9 +147,9 @@ class Lead extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, groups, config, carousel, currentMode } = this.state;
-
-    const { integration } = this.props;
+    const { pos, groups, carousel, currentMode } = this.state;
+ 
+    const { integration, formIntegrations } = this.props;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('pos'), link: '/pos' }];
 
@@ -161,14 +164,23 @@ class Lead extends React.Component<Props, State> {
                 title={`General`}
                 onClick={this.onStepClick}
               >
-                <GeneralStep onChange={this.onChange} pos={pos} brand={brand} />
+                <GeneralStep
+                  onChange={this.onChange}
+                  pos={pos}
+                  brand={brand}
+                  formIntegrations={formIntegrations}
+                />
               </Step>
               <Step
                 img="/images/icons/erxes-04.svg"
                 title={`Product & Service`}
                 onClick={this.onStepClick}
               >
-                <ConfigStep onChange={this.onChange} pos={pos} groups={groups} />
+                <ConfigStep
+                  onChange={this.onChange}
+                  pos={pos}
+                  groups={groups}
+                />
               </Step>
               <Step
                 img="/images/icons/erxes-12.svg"

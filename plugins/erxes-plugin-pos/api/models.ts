@@ -14,7 +14,11 @@ export const posSChema = {
     productDetails: { type: [String] },
     adminIds: { type: [String] },
     cashierIds: { type: [String] },
-    waitingScreen: { type: Object }
+    waitingScreen: { type: Object },
+    kioskMachine: { type: Object },
+    kitchenScreen: { type: Object },
+    formSectionTitle: { type: String },
+    formIntegrationIds: { type: [String] }
 };
 
 class Pos {

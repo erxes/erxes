@@ -14,12 +14,14 @@ import React from 'react';
 import { DomainRow, FlexColumn, FlexItem, Row } from '../../../styles';
 import { IBrand } from 'erxes-ui/lib/products/types';
 import SelectBrand from '../../containers/SelectBrand';
-import { IPos } from '../../../types';
+import { IIntegration, IPos } from '../../../types';
+import Select from 'react-select-plus';
 
 type Props = {
   onChange: (name: 'pos' | 'brand', value: any) => void;
   pos?: IPos;
   brand?: IBrand;
+  formIntegrations: IIntegration[];
 };
 
 class GeneralStep extends React.Component<Props, {}> {
@@ -45,6 +47,12 @@ class GeneralStep extends React.Component<Props, {}> {
     const onChangeType = e => {
       e.preventDefault();
       pos.waitingScreen.type = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeValue = e => {
+      e.preventDefault();
+      pos.waitingScreen.value = e.target.value;
       this.onChangeFunction('pos', pos);
     };
 
@@ -127,6 +135,7 @@ class GeneralStep extends React.Component<Props, {}> {
               id="changeValue"
               type="text"
               value={waitingScreen.value}
+              onChange={onChangeValue}
             />
           </DomainRow>
         )}
@@ -190,6 +199,12 @@ class GeneralStep extends React.Component<Props, {}> {
     const onChangeType = e => {
       e.preventDefault();
       pos.kitchenScreen.type = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeValue = e => {
+      e.preventDefault();
+      pos.kitchenScreen.value = e.target.value;
       this.onChangeFunction('pos', pos);
     };
 
@@ -273,6 +288,7 @@ class GeneralStep extends React.Component<Props, {}> {
                   id="changeValue"
                   type="text"
                   value={kitchenScreen.value}
+                  onChange={onChangeValue}
                 />
               </>
             ) : null}
@@ -283,7 +299,7 @@ class GeneralStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { pos, brand } = this.props;
+    const { pos, brand, formIntegrations = [] } = this.props;
 
     const onChangeBrand = e => {
       this.onChangeFunction(
@@ -292,13 +308,8 @@ class GeneralStep extends React.Component<Props, {}> {
       );
     };
 
-    const onChangeName = e => {
-      pos.name = (e.currentTarget as HTMLInputElement).value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeDescription = e => {
-      pos.description = (e.currentTarget as HTMLInputElement).value;
+    const onChangeInput = e => {
+      pos[e.target.id] = (e.currentTarget as HTMLInputElement).value;
       this.onChangeFunction('pos', pos);
     };
 
@@ -309,6 +320,11 @@ class GeneralStep extends React.Component<Props, {}> {
 
     const onCashierSelect = users => {
       pos.cashierIds = users;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeForms = values => {
+      pos.formIntegrationIds = values.map(item => item.value) || [];
       this.onChangeFunction('pos', pos);
     };
 
@@ -335,7 +351,7 @@ class GeneralStep extends React.Component<Props, {}> {
                   id="name"
                   type="text"
                   value={name}
-                  onChange={onChangeName}
+                  onChange={onChangeInput}
                 />
               </FormGroup>
 
@@ -345,7 +361,7 @@ class GeneralStep extends React.Component<Props, {}> {
                   id="description"
                   componentClass="textarea"
                   value={description}
-                  onChange={onChangeDescription}
+                  onChange={onChangeInput}
                 />
               </FormGroup>
 
@@ -365,7 +381,25 @@ class GeneralStep extends React.Component<Props, {}> {
             </CollapseContent>
 
             <CollapseContent title="Features">
-              <></>
+              <ControlLabel>Display name for form section</ControlLabel>
+              <FormControl
+                id="formSectionTitle"
+                type="text"
+                value={pos.formSectionTitle || ''}
+                onChange={onChangeInput}
+              />
+              <br />
+              <ControlLabel>Display name for form section</ControlLabel>
+              <Select
+                placeholder={__('Choose which forms to display')}
+                value={pos.formIntegrationIds}
+                onChange={onChangeForms}
+                options={formIntegrations.map(e => ({
+                  value: e._id,
+                  label: e.name
+                }))}
+                multi={true}
+              />
             </CollapseContent>
 
             <CollapseContent title="Permission">

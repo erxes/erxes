@@ -15,6 +15,11 @@ const commonFields = `
     $productDetails: [String]
     $adminIds: [String]
     $cashierIds: [String]
+    $kitchenScreen: JSON
+    $waitingScreen: JSON
+    $kioskMachine: JSON
+    $formSectionTitle: String
+    $formIntegrationIds: [String]
 `;
 
 const commonVariables = `
@@ -24,6 +29,11 @@ const commonVariables = `
     productDetails: $productDetails
     adminIds: $adminIds
     cashierIds: $cashierIds
+    kitchenScreen: $kitchenScreen
+    waitingScreen: $waitingScreen
+    kioskMachine: $kioskMachine
+    formSectionTitle: $formSectionTitle
+    formIntegrationIds: $formIntegrationIds
 `;
 
 

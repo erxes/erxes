@@ -16,7 +16,7 @@ export type IProductGroup = {
   excludedProducts: IProduct[];
 }
 
-export type IConfigWaitingScreen = {
+export type IScreenConfig = {
   isActive: boolean;
   type: string;
   value: number;
@@ -33,7 +33,11 @@ export type IPos = {
   cashierIds: [string];
   integration: IIntegration;
   user: IUser;
-  waitingScreen?: IConfigWaitingScreen;
+  waitingScreen?: IScreenConfig;
+  kioskMachine?: IScreenConfig;
+  kitchenScreen?: IScreenConfig;
+  formSectionTitle?: string;
+  formIntegrationIds: string[];
 }
 
 // query types
@@ -78,16 +82,10 @@ export type BrandsQueryResponse = {
 
 export interface IIntegration {
   _id: string;
-  kind: string;
   name: string;
-  brandId?: string;
-  brand: IBrand;
-  isActive?: boolean;
-  createdUser: IUser;
-  tags: ITag[];
 }
 
-export type PosIntegrationsQueryResponse = {
+export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
 } & QueryResponse;
 

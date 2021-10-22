@@ -11,6 +11,7 @@ import {
   GroupsQueryResponse,
   IntegrationDetailQueryResponse,
   IntegrationMutationVariables,
+  IntegrationsQueryResponse,
   IProductGroup,
   PosDetailQueryResponse
 } from '../../types';
@@ -30,6 +31,7 @@ type FinalProps = {
   integrationDetailQuery: IntegrationDetailQueryResponse;
   posDetailQuery: PosDetailQueryResponse;
   groupsQuery: GroupsQueryResponse;
+  integrationsQuery: IntegrationsQueryResponse;
 } & Props &
   EditPosMutationResponse &
   GroupsBulkInsertMutationResponse &
@@ -48,32 +50,27 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       posDetailQuery,
       editPosMutation,
       productGroupsBulkInsertMutation,
-      history
+      history,
+      integrationsQuery
     } = this.props;
 
     const pos = posDetailQuery.posDetail || {};
     const groups = groupsQuery.productGroups || [];
     const integration = pos.integration || {};
+    const formIntegrations = integrationsQuery.integrations || [];
     // const categories = productCategoriesQuery.productCategories || [];
 
-    if (posDetailQuery.loading || groupsQuery.loading) {
+    if (posDetailQuery.loading || groupsQuery.loading || integrationsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     const save = doc => {
       this.setState({ isLoading: true });
 
-      const { description, brandId, name, productDetails, adminIds, cashierIds } = doc;
-
       editPosMutation({
         variables: {
           _id: pos._id,
-          description,
-          brandId,
-          name,
-          productDetails,
-          adminIds,
-          cashierIds
+          ...doc
         }
       })
         .then(() => {
@@ -86,7 +83,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
                 description: e.description,
                 categoryIds: e.categoryIds || [],
                 excludedCategoryIds: e.excludedCategoryIds || [],
-                excludedProductIds: e.excludedProductIds || [],
+                excludedProductIds: e.excludedProductIds || []
               }))
             }
           });
@@ -111,6 +108,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       ...this.props,
       integration,
       groups,
+      formIntegrations,
       pos,
       save,
       isActionLoading: this.state.isLoading
@@ -147,6 +145,16 @@ export default withProps<FinalProps>(
         })
       }
     ),
+
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'integrationsQuery',
+      options: () => ({
+        fetchPolicy: 'cache-and-network',
+        variables: {
+          kind: 'lead'
+        }
+      })
+    }),
 
     graphql<
       {},

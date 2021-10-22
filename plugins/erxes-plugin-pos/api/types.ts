@@ -17,6 +17,11 @@ export interface IPOS {
     productDetails: string[];
     adminIds: string[];
     cashierIds: string[];
+    kitchenScreen: any;
+    waitinScreen: any;
+    kioskMachine: any;
+    formSectionTitle: string;
+    formIntegrationIds: string[];
 }
 
 
