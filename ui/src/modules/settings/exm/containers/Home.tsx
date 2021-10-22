@@ -2,53 +2,24 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 
+import ErrorMsg from 'modules/common/components/ErrorMsg';
+import Spinner from 'modules/common/components/Spinner';
+
 import DumbHome from '../components/Home';
 import { queries } from '../graphql';
 
-type PropsWithData = {
-  lastExmId: string;
-};
-
-function HomeWithData(props: PropsWithData) {
-  const { data, loading } = useQuery(gql(queries.exmDetail), {
-    variables: { _id: props.lastExmId }
-  });
+function Home() {
+  const { data, loading, error } = useQuery(gql(queries.exmGetLast));
 
   if (loading) {
-    return <div>...</div>;
+    return <Spinner />;
   }
 
-  return <DumbHome exm={data.exmDetail || {}} />;
-}
-
-function HomeLastExm() {
-  const { data, loading } = useQuery(gql(queries.exmGetLast));
-
-  if (loading) {
-    return <div>...</div>;
+  if (error) {
+    return <ErrorMsg>{error.message}</ErrorMsg>;
   }
 
-  if (!data.exmGetLast) {
-    return <DumbHome />;
-  }
-
-  window.location.href = `/settings/exm?_id=${data.exmGetLast._id}`;
-
-  return null;
-}
-
-type Props = {
-  queryParams: any;
-};
-
-function Home(props: Props) {
-  const { queryParams } = props;
-
-  if (!queryParams._id) {
-    return <HomeLastExm />;
-  }
-
-  return <HomeWithData lastExmId={queryParams._id} />;
+  return <DumbHome exm={data.exmGetLast} />;
 }
 
 export default Home;

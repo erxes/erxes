@@ -1,7 +1,7 @@
 const commonParamsDef = `
   $name: String,
   $description: String,
-  $features: JSON,
+  $features: [ExmFeatureInput],
   $logo: AttachmentInput,
   $appearance: ExmAppearanceInput,
   $welcomeContent: [ExmWelcomeContentInput],

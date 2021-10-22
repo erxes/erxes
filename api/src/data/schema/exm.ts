@@ -11,12 +11,22 @@ export const types = `
     secondaryColor: String
   }
 
+  type ExmFeature {
+    _id: String
+    icon: String
+    name: String
+    description: String
+    contentType: String
+    contentId: String
+    subContentId: String
+  }
+
   type Exm {
     _id: String
     name: String
     description: String
     logo: Attachment
-    features: JSON
+    features: [ExmFeature]
     welcomeContent: [ExmWelcomeContent]
     appearance: ExmAppearance
     createdAt: Date
@@ -39,6 +49,16 @@ export const types = `
     image: AttachmentInput
     content: String
   }
+
+  input ExmFeatureInput {
+    _id: String
+    icon: String
+    name: String
+    description: String
+    contentType: String
+    contentId: String
+    subContentId: String
+  }
 `;
 
 export const queries = `
@@ -50,7 +70,7 @@ export const queries = `
 const commonParams = `
   name: String
   description: String
-  features: JSON
+  features: [ExmFeatureInput]
   logo: AttachmentInput
   welcomeContent: [ExmWelcomeContentInput]
   appearance: ExmAppearanceInput

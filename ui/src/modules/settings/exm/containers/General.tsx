@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-import General from '../components/General';
+
 import { queries as leadQueries } from 'modules/leads/graphql';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
+import ErrorMsg from 'modules/common/components/ErrorMsg';
+import Spinner from 'modules/common/components/Spinner';
+
+import General from '../components/General';
+import { IExm } from '../types';
 
 type Props = {
-  exm: any;
-  edit: (variables: any) => void;
+  exm: IExm;
+  edit: (variables: IExm) => void;
 };
 
 export default function GeneralContainer(props: Props) {
@@ -19,7 +24,15 @@ export default function GeneralContainer(props: Props) {
   const [kbCategories, setKbCategories] = useState({});
 
   if (integrationQuery.loading || kbQuery.loading) {
-    return <div>...</div>;
+    return <Spinner />;
+  }
+
+  if (integrationQuery.error) {
+    return <ErrorMsg>{integrationQuery.error.message}</ErrorMsg>;
+  }
+
+  if (kbQuery.error) {
+    return <ErrorMsg>{kbQuery.error.message}</ErrorMsg>;
   }
 
   const getKbCategories = (topicId: string) => {

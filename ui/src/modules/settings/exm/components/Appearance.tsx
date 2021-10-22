@@ -9,28 +9,32 @@ import {
   GeneralWrapper,
   Colors,
   Logos,
-  WelcomeContent,
-  AppearanceWrapper
+  AppearanceWrapper,
+  WelcomeContent
 } from '../styles';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { IExm, IWelcomeContent } from '../types';
 
 const getEmptyPage = () => ({
   _id: Math.random().toString(),
-  image: null,
+  image: undefined,
   title: '',
   content: ''
 });
 
-type Props = { exm: any; edit: (variables: any) => void };
+type Props = {
+  exm: IExm;
+  edit: (variables: IExm) => void;
+};
 
 export default function Appearance(props: Props) {
   const { exm, edit } = props;
   const exmLogo = exm.logo;
   const exmAppearance = exm.appearance;
-  const exmPages = exm.welcomeContent || [];
+  const exmPages = exm.welcomeContent || ([] as IWelcomeContent[]);
   const [logo, setLogo] = useState(exmLogo);
   const [appearance, setAppearance] = useState(
     exmAppearance
@@ -54,7 +58,7 @@ export default function Appearance(props: Props) {
                 size: e.image.size,
                 type: e.image.type
               }
-            : null
+            : undefined
         }))
       : [getEmptyPage()]
   );
@@ -69,7 +73,7 @@ export default function Appearance(props: Props) {
             size: logo.size,
             type: logo.type
           }
-        : null,
+        : undefined,
       welcomeContent,
       appearance
     });
@@ -91,8 +95,10 @@ export default function Appearance(props: Props) {
 
   const onChangePageItem = (_id: string, key: string, value: any) => {
     const page = welcomeContent.find(f => f._id === _id);
+
     if (page) {
       page[key] = value;
+
       setWelcomeContent([...welcomeContent]);
     }
   };
@@ -131,6 +137,46 @@ export default function Appearance(props: Props) {
     );
   };
 
+  const renderWelcomeContent = (page, index: number) => {
+    const image = welcomeContent[index].image;
+
+    return (
+      <div key={index}>
+        <button
+          style={{ float: 'right' }}
+          onClick={() => onChangePageCount('remove', page._id)}
+        >
+          X
+        </button>
+        <ControlLabel>Page {index + 1}</ControlLabel>
+        <Uploader
+          defaultFileList={image ? [image] : []}
+          onChange={(e: any) => {
+            return onChangePageItem(page._id, 'image', e[0]);
+          }}
+          single={true}
+        />
+        <FormControl
+          name="title"
+          placeholder="Title"
+          value={page.title}
+          onChange={(e: any) => {
+            return onChangePageItem(page._id, 'title', e.target.value);
+          }}
+        />
+        <FormControl
+          name="description"
+          placeholder="Description"
+          componentClass="textarea"
+          value={page.content}
+          onChange={(e: any) => {
+            return onChangePageItem(page._id, 'content', e.target.value);
+          }}
+        />
+      </div>
+    );
+  };
+
   return (
     <AppearanceWrapper>
       <GeneralWrapper>
@@ -157,51 +203,9 @@ export default function Appearance(props: Props) {
         <WelcomeContent>
           <p>Welcome content</p>
           <Button onClick={() => onChangePageCount('add')}>+ Add Page</Button>
-          {welcomeContent.map((page, index) => {
-            return (
-              <div key={index}>
-                <button
-                  style={{ float: 'right' }}
-                  onClick={() => onChangePageCount('remove', page._id)}
-                >
-                  X
-                </button>
-                <ControlLabel>Page {index + 1}</ControlLabel>
-                <Uploader
-                  defaultFileList={
-                    welcomeContent[index].image
-                      ? [welcomeContent[index].image]
-                      : []
-                  }
-                  onChange={(e: any) => {
-                    return onChangePageItem(page._id, 'image', e[0]);
-                  }}
-                  single={true}
-                />
-                <FormControl
-                  name="title"
-                  placeholder="Title"
-                  value={page.title}
-                  onChange={(e: any) => {
-                    return onChangePageItem(page._id, 'title', e.target.value);
-                  }}
-                />
-                <FormControl
-                  name="description"
-                  placeholder="Description"
-                  componentClass="textarea"
-                  value={page.content}
-                  onChange={(e: any) => {
-                    return onChangePageItem(
-                      page._id,
-                      'content',
-                      e.target.value
-                    );
-                  }}
-                />
-              </div>
-            );
-          })}
+          {welcomeContent.map((page, index) =>
+            renderWelcomeContent(page, index)
+          )}
         </WelcomeContent>
         <Button btnStyle="success" onClick={onSave}>
           Save

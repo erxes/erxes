@@ -1,14 +1,14 @@
 import React from 'react';
 
-import DataWithLoader from 'modules/common/components/DataWithLoader';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
 import EditForm from '../containers/EditForm';
 import AddForm from '../containers/AddForm';
+import { IExm } from '../types';
 
 type Props = {
-  exm?: any;
+  exm?: IExm;
 };
 
 function Home(props: Props) {
@@ -40,14 +40,7 @@ function Home(props: Props) {
         />
       }
       actionBar={<Wrapper.ActionBar left={leftActionBar} />}
-      content={
-        <DataWithLoader
-          data={content()}
-          emptyText="Add an integration in this Brand"
-          emptyImage="/images/actions/2.svg"
-          loading={false}
-        />
-      }
+      content={content()}
     />
   );
 }

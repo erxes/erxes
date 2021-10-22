@@ -12,6 +12,10 @@ import {
 import Button from 'modules/common/components/Button';
 import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
 import { generateTree } from 'modules/settings/team/utils';
+import { IExm } from '../types';
+import { IIntegration } from 'modules/settings/integrations/types';
+import { ICategory, ITopic } from 'modules/knowledgeBase/types';
+import { removeTypename } from '../utils';
 
 const getEmptyFeature = () => ({
   _id: Math.random().toString(),
@@ -19,15 +23,16 @@ const getEmptyFeature = () => ({
   contentType: 'form',
   name: '',
   description: '',
-  contentId: ''
+  contentId: '',
+  subContentId: ''
 });
 
 type Props = {
-  exm: any;
-  edit: (variables: any) => void;
-  forms: any[];
-  kbTopics: any[];
-  kbCategories: any;
+  exm: IExm;
+  edit: (variables: IExm) => void;
+  forms: IIntegration[];
+  kbTopics: ITopic[];
+  kbCategories: { [key: string]: ICategory[] };
   getKbCategories: (topicId: string) => void;
 };
 
@@ -37,7 +42,7 @@ export default function General(props: Props) {
   const [name, setName] = useState(exm.name || '');
   const [description, setDescription] = useState(exm.description || '');
   const [features, setFeatures] = useState(
-    exmFeatures.length > 0 ? exmFeatures : [getEmptyFeature()]
+    exmFeatures.length > 0 ? removeTypename(exmFeatures) : [getEmptyFeature()]
   );
 
   const onChangeFeature = (type: string, _id?: string) => {
@@ -52,6 +57,7 @@ export default function General(props: Props) {
 
   const onChangeFeatureItem = (_id: string, key: string, value: any) => {
     const feature = features.find(f => f._id === _id);
+
     if (feature) {
       feature[key] = value;
 

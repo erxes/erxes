@@ -4,7 +4,7 @@ import { FormControl } from 'modules/common/components/form';
 import Button from 'modules/common/components/Button';
 
 type Props = {
-  add: (variables: any) => void;
+  add: (variables: { name: string }) => void;
 };
 
 export default function AddForm({ add }: Props) {

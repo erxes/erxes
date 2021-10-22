@@ -1,26 +1,21 @@
-const commonField = `
-  _id
-  name
-  description
-  createdAt
-`;
-
-const exms = `
-  query exms($page: Int, $perPage: Int) {
-    exms(page: $page, perPage: $perPage) {
-      list {
-        ${commonField}
+const exmGetLast = `
+  query exmGetLast {
+    exmGetLast {
+      _id
+      name
+      description
+      createdAt
+      
+      features {
+        _id
+        icon
+        name
+        description
+        contentType
+        contentId
+        subContentId
       }
-      totalCount
-    }
-  }
-`;
-
-const exmDetail = `
-  query exmDetail($_id: String!) {
-    exmDetail(_id: $_id) {
-      ${commonField}
-      features
+      
       welcomeContent {
         _id
         title
@@ -32,10 +27,12 @@ const exmDetail = `
           size
         }
       }
+      
       appearance {
         primaryColor
         secondaryColor
       }
+      
       logo {
         url
         name
@@ -46,13 +43,4 @@ const exmDetail = `
   }
 `;
 
-const exmGetLast = `
-  query exmGetLast {
-    exmGetLast {
-      ${commonField}
-      features
-    }
-  }
-`;
-
-export default { exms, exmDetail, exmGetLast };
+export default { exmGetLast };

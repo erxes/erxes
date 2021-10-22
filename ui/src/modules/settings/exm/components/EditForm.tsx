@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from '../../../common/utils';
 import General from '../containers/General';
-import Appearance from '../containers/Appearance';
+import Appearance from './Appearance';
+import { IExm } from '../types';
 
 type Props = {
-  exm: any;
-  edit: (variables: any) => void;
+  exm: IExm;
+  edit: (variables: IExm) => void;
 };
 
 function EditFrom(props: Props) {
