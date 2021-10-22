@@ -328,12 +328,6 @@ class Navigation extends React.Component<IProps> {
                 link: '/settings/product-service',
                 value: 'Products & Service',
                 icon: 'icon-box'
-              },
-              {
-                permission: 'showIntegrations',
-                link: '/bookings',
-                value: 'Bookings',
-                icon: 'icon-home'
               }
             ]
           )}
@@ -390,6 +384,14 @@ class Navigation extends React.Component<IProps> {
             __('Automations'),
             '/automations',
             'icon-circular',
+            [],
+            lbl
+          )}
+          {this.renderNavItem(
+            'showIntegrations',
+            __('Bookings'),
+            '/bookings',
+            'icon-home',
             [],
             lbl
           )}
