@@ -22,6 +22,7 @@ type Props = {
   pos?: IPos;
   brand?: IBrand;
   formIntegrations: IIntegration[];
+  currentMode: 'create' | 'update' | undefined;
 };
 
 class GeneralStep extends React.Component<Props, {}> {
@@ -98,17 +99,21 @@ class GeneralStep extends React.Component<Props, {}> {
         <br />
         {!waitingScreen.isActive ? null : (
           <DomainRow>
-            <ControlLabel>Link</ControlLabel>
-            <Row>
-              <FormControl
-                id="waitingLink"
-                type="text"
-                disabled={true}
-                value={`${REACT_APP_API_URL}/pos/${posId}/waiting`}
-              />
+            {this.props.currentMode !== 'update' ? null : (
+              <>
+                <ControlLabel>Link</ControlLabel>
+                <Row>
+                  <FormControl
+                    id="waitingLink"
+                    type="text"
+                    disabled={true}
+                    value={`${REACT_APP_API_URL}/pos/${posId}/waiting`}
+                  />
 
-              <Button>{__('Copy')}</Button>
-            </Row>
+                  <Button>{__('Copy')}</Button>
+                </Row>{' '}
+              </>
+            )}
             <br />
             <ControlLabel>Change type</ControlLabel>
             <FormControl
@@ -232,9 +237,6 @@ class GeneralStep extends React.Component<Props, {}> {
       { label: 'Manual', value: 'manual' }
     ];
 
-    const valueTitle =
-      kitchenScreen.type === 'time' ? 'Change time (sec)' : 'Change count';
-
     return (
       <FormGroup>
         <ControlLabel>Kitchen screen</ControlLabel>
@@ -250,17 +252,22 @@ class GeneralStep extends React.Component<Props, {}> {
         <br />
         {!kitchenScreen.isActive ? null : (
           <DomainRow>
-            <ControlLabel>Link</ControlLabel>
-            <Row>
-              <FormControl
-                id="kitchenLink"
-                type="text"
-                disabled={true}
-                value={`${REACT_APP_API_URL}/pos/${posId}/kitchen`}
-              />
+            {this.props.currentMode !== 'update' ? null : (
+              <>
+                <ControlLabel>Link</ControlLabel>
+                <Row>
+                  <FormControl
+                    id="kitchenLink"
+                    type="text"
+                    disabled={true}
+                    value={`${REACT_APP_API_URL}/pos/${posId}/kitchen`}
+                  />
 
-              <Button>{__('Copy')}</Button>
-            </Row>
+                  <Button>{__('Copy')}</Button>
+                </Row>{' '}
+              </>
+            )}
+
             <br />
             <ControlLabel>Status change</ControlLabel>
             <FormControl
@@ -376,7 +383,7 @@ class GeneralStep extends React.Component<Props, {}> {
 
             <CollapseContent title="Domain">
               {this.renderWaitingScreen()}
-              {this.renderKiosk()}
+              {this.props.currentMode !== 'update' ? null : this.renderKiosk()}
               {this.renderKitchen()}
             </CollapseContent>
 

@@ -111,7 +111,8 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       formIntegrations,
       pos,
       save,
-      isActionLoading: this.state.isLoading
+      isActionLoading: this.state.isLoading,
+      currentMode: 'update'
     };
 
     return <Pos {...updatedProps} />;

@@ -69,6 +69,7 @@ class CreatePosContainer extends React.Component<Props, State> {
       ...this.props,
       formIntegrations,
       save,
+      currentMode: 'create',
       isActionLoading: this.state.isLoading
     };
 

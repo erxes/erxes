@@ -168,6 +168,7 @@ class Lead extends React.Component<Props, State> {
                   onChange={this.onChange}
                   pos={pos}
                   brand={brand}
+                  currentMode={currentMode}
                   formIntegrations={formIntegrations}
                 />
               </Step>
