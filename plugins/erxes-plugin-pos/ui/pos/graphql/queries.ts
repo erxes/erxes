@@ -44,6 +44,7 @@ user {
         fullName
     }
 }
+waitingScreen
 `
 
 const posList = `

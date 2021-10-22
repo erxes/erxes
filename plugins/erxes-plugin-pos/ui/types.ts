@@ -16,6 +16,12 @@ export type IProductGroup = {
   excludedProducts: IProduct[];
 }
 
+export type IConfigWaitingScreen = {
+  isActive: boolean;
+  type: string;
+  value: number;
+}
+
 export type IPos = {
   _id: string;
   name: string;
@@ -27,15 +33,10 @@ export type IPos = {
   cashierIds: [string];
   integration: IIntegration;
   user: IUser;
+  waitingScreen?: IConfigWaitingScreen;
 }
 
 // query types
-export type ConfigsQueryResponse = {
-  posConfigs: IPosConfig[];
-  loading: boolean;
-  refetch: () => void;
-};
-
 export type PosListQueryResponse = {
   posList: IPos[];
   loading: boolean;

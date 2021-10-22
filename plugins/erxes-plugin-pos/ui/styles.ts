@@ -202,6 +202,14 @@ export const Row = styled.div`
   }
 `;
 
+export const DomainRow = styled.div`
+  background: ${colors.bgLight};
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
 export const ClickableRow = styled.div`
   cursor: pointer;
 

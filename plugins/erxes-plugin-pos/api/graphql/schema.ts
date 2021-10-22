@@ -15,6 +15,7 @@ const posCommonFields = `
   productDetails: [String]
   adminIds: [String]
   cashierIds: [String]
+  waitingScreen: JSON
 `
 
 export const types = `
@@ -30,6 +31,7 @@ export const types = `
     cashierIds: [String] 
     integration: Integration
     user: User
+    waitingScreen: JSON
   }
 
   type ProductGroups {
