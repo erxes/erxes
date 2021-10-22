@@ -134,7 +134,11 @@ class ExportForm extends React.Component<Props, State> {
                 />
               </Step>
 
-              <Step img="/images/icons/erxes-14.svg" title="Filter">
+              <Step
+                img="/images/icons/erxes-14.svg"
+                title="Filter"
+                noButton={true}
+              >
                 <FlexItem>
                   <FlexPad direction="column" overflow="auto">
                     <SubHeading>{__('Filter')}</SubHeading>
