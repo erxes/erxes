@@ -77,7 +77,8 @@ const importHistoryQueries = {
         count = await Companies.countDocuments();
 
         break;
-      case 'task':
+
+      case 'ticket':
         count = await Tasks.countDocuments();
 
         break;
