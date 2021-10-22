@@ -76,6 +76,7 @@ function General({
   const [show, setShow] = useState<boolean>(false);
 
   const handleToggleBoardSelect = () => setShow(!show);
+
   const handleSelectChange = (option?: { value: string; label: string }) => {
     handleFormChange('knowledgeBaseTopicId', !option ? '' : option.value);
   };
@@ -179,7 +180,7 @@ function General({
     );
   }
 
-  function renderTaskPipelines() {
+  const renderTaskPipelines = () => {
     const renderSelect = (
       options: IBoard[] | IPipeline[],
       handleSelect: (args: OptionItem) => void,
@@ -217,9 +218,9 @@ function General({
         </FormGroup>
       </>
     );
-  }
+  };
 
-  function renderMain() {
+  const renderMain = () => {
     return (
       <Block>
         <h4>{__('Client portal')}</h4>
@@ -252,126 +253,98 @@ function General({
         </BlockRow>
       </Block>
     );
-  }
+  };
 
-  function renderFeatures() {
+  const renderFeatureBlock = (title: string, childrens: any) => {
+    return (
+      <BlockRow>
+        <BlockRowTitle>{__(title)}</BlockRowTitle>
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Show {title}</ControlLabel>
+            {<p>Show in Client Portal</p>}
+            <Toggle
+              checked={true}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
+        {childrens}
+      </BlockRow>
+    );
+  };
+
+  const renderFeatures = () => {
     return (
       <Block>
         <h4>{__('Features')}</h4>
-        <BlockRow>
-          <BlockRowTitle>{__('KnowledgeBase')}</BlockRowTitle>
-          <ToggleWrap>
+        {renderFeatureBlock(
+          'Knowledge Base',
+          <>
+            {renderControl({
+              label: 'Knowledge Base Name',
+              subtitle: 'Shown name on menu',
+              formValueName: 'knowledgeBaseLabel',
+              formValue: knowledgeBaseLabel,
+              placeholder: 'Please enter a label for Knowledge base'
+            })}
             <FormGroup>
-              <ControlLabel>Show Knowledge Base</ControlLabel>
-              {<p>Show in Client Portal</p>}
-              <Toggle
-                checked={true}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
+              <ControlLabel required={true}>Knowledge base topic</ControlLabel>
+              <p>Knowledge base topic in Client Portal</p>
+              <Select
+                placeholder="Select a knowledge base topic"
+                value={knowledgeBaseTopicId}
+                options={generateOptions(topics, '_id', 'title')}
+                onChange={handleSelectChange}
               />
             </FormGroup>
-          </ToggleWrap>
-          {renderControl({
-            label: 'Knowledge Base Name',
-            subtitle: 'Shown name on menu',
-            formValueName: 'knowledgeBaseLabel',
-            formValue: knowledgeBaseLabel,
-            placeholder: 'Please enter a label for Knowledge base'
-          })}
-          <FormGroup>
-            <ControlLabel required={true}>Knowledge base topic</ControlLabel>
-            <p>Knowledge base topic in Client Portal</p>
-            <Select
-              placeholder="Select a knowledge base topic"
-              value={knowledgeBaseTopicId}
-              options={generateOptions(topics, '_id', 'title')}
-              onChange={handleSelectChange}
-            />
-          </FormGroup>
-        </BlockRow>
+          </>
+        )}
+        {renderFeatureBlock('Public Task', renderTaskPipelines())}
 
-        <BlockRow>
-          <BlockRowTitle>{__('Public Task')}</BlockRowTitle>
-          <ToggleWrap>
-            <FormGroup>
-              <ControlLabel>Show Tasks</ControlLabel>
-              {<p>Show in Client Portal</p>}
-              <Toggle
-                checked={true}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </FormGroup>
-          </ToggleWrap>
-          {renderTaskPipelines()}
-        </BlockRow>
+        {renderFeatureBlock(
+          'Tickets',
+          <>
+            {renderControl({
+              label: 'Tickets',
+              subtitle: 'Shown name on menu',
+              formValueName: 'ticketLabel',
+              formValue: ticketLabel,
+              placeholder: 'Please enter a label for Ticket'
+            })}
+            {renderBoardSelect({
+              type: 'ticket',
+              stageId: ticketStageId,
+              pipelineId: ticketPipelineId,
+              boardId: ticketBoardId
+            })}
+          </>
+        )}
 
-        <BlockRow>
-          <BlockRowTitle>{__('Tickets')}</BlockRowTitle>
-          <ToggleWrap>
-            <FormGroup>
-              <ControlLabel>Show Tickets</ControlLabel>
-              {<p>Show in Client Portal</p>}
-              <Toggle
-                checked={true}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </FormGroup>
-          </ToggleWrap>
-          {renderControl({
-            label: 'Tickets',
-            subtitle: 'Shown name on menu',
-            formValueName: 'ticketLabel',
-            formValue: ticketLabel,
-            placeholder: 'Please enter a label for Ticket'
-          })}
-          {renderBoardSelect({
-            type: 'ticket',
-            stageId: ticketStageId,
-            pipelineId: ticketPipelineId,
-            boardId: ticketBoardId
-          })}
-        </BlockRow>
-
-        <BlockRow>
-          <BlockRowTitle>{__('Tasks')}</BlockRowTitle>
-          <ToggleWrap>
-            <FormGroup>
-              <ControlLabel>Show Tasks</ControlLabel>
-              {<p>Show in Client Portal</p>}
-              <Toggle
-                checked={true}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </FormGroup>
-          </ToggleWrap>
-          {renderControl({
-            label: 'Tasks incoming pipeline',
-            subtitle: 'Shown name on menu',
-            formValueName: 'taskLabel',
-            formValue: taskLabel,
-            placeholder: 'Please enter a label for Task'
-          })}
-          {renderBoardSelect({
-            type: 'task',
-            stageId: taskStageId,
-            pipelineId: taskPipelineId,
-            boardId: taskBoardId
-          })}
-        </BlockRow>
+        {renderFeatureBlock(
+          'Tasks',
+          <>
+            {renderControl({
+              label: 'Tasks incoming pipeline',
+              subtitle: 'Shown name on menu',
+              formValueName: 'taskLabel',
+              formValue: taskLabel,
+              placeholder: 'Please enter a label for Task'
+            })}
+            {renderBoardSelect({
+              type: 'task',
+              stageId: taskStageId,
+              pipelineId: taskPipelineId,
+              boardId: taskBoardId
+            })}
+          </>
+        )}
       </Block>
     );
-  }
+  };
 
   return (
     <>
