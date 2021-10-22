@@ -61,7 +61,7 @@ class ExportForm extends React.Component<Props, State> {
   }
 
   addFilter = segmentId => {
-    this.setState({ segmentId: segmentId });
+    this.setState({ segmentId });
 
     this.props.previewCount(segmentId);
   };

@@ -69,8 +69,8 @@ class ConfigsForm extends React.Component<Props, {}> {
 
     return Object.keys(objects).map(key => {
       return (
-        <FormColumn>
-          <OperatorList key={Math.random()}>
+        <FormColumn key={Math.random()}>
+          <OperatorList>
             <FormGroup>
               <b>{key}</b>
               {this.renderFields(objects[key])}
