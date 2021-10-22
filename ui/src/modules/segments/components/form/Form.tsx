@@ -682,7 +682,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           <>
             {renderButton({
               name: 'segment',
-              text: 'apply',
+              text: 'Apply',
               values: this.generateDoc(values),
               callback: closeModal || afterSave,
               isSubmitted,

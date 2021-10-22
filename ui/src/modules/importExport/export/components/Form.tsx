@@ -139,7 +139,7 @@ class ExportForm extends React.Component<Props, State> {
                   <FlexPad direction="column" overflow="auto">
                     <SubHeading>{__('Filter')}</SubHeading>
                     <Description>
-                      {__('Skip this step if you wish tp export all items')}
+                      {__('Skip this step if you wish to export all items')}
                     </Description>
                     <SegmentsForm
                       {...this.props}
