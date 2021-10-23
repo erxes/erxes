@@ -12,7 +12,7 @@ export function LabelComponent(props) {
       [propName]:
         propName === "lblStyle" || propName === "lblColor"
           ? stl.toLowerCase()
-          : style,
+          : "Label",
     };
 
     const datas = {
@@ -26,7 +26,7 @@ export function LabelComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          {style.map((stl, index) => {
+          {propName === "children" ? <Label children="Label"></Label> : style.map((stl, index) => {
             return (
               <Label key={index} {...propDatas(propName, stl)}>
                 {stl}
@@ -35,7 +35,9 @@ export function LabelComponent(props) {
           })}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\t${style.map((stl, index) => {
+          {`<>${
+            propName === "children" ? `\n\t<Label children="Label"></Label>` : ``
+          }${style.map((stl, index) => {
             return `\n\t<Label ${stringify(
               propDatas(propName, stl)
             )}>${stl}</Label>`;
@@ -48,12 +50,11 @@ export function LabelComponent(props) {
   if (type === "lblStyle") {
     return renderBlock("lblStyle");
   }
+
   if (type === "lblColor") {
     return renderBlock("lblColor");
   }
-  if (type === "className") {
-    return renderBlock("className");
-  }
+
   if (type === "children") {
     return renderBlock("children");
   }
@@ -61,5 +62,6 @@ export function LabelComponent(props) {
   if (type === "APIlabel") {
     return renderApiTable("Label", table);
   }
+
   return null;
 }

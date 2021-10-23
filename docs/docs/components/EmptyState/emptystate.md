@@ -10,7 +10,7 @@ import { EmptyComponents } from './emptystate.js'
 
 ## Light
 
-<p>If you use <code>light</code> prop, your text won't show. </p>
+<p>Make your text invisible by using <code>light</code> prop. </p>
 <EmptyComponents type="light" item="info-circle" />
 
 ## Icon size
@@ -20,12 +20,12 @@ import { EmptyComponents } from './emptystate.js'
 
 ## Image
 
-<p>Empty state with <code>image</code> prop.</p>
+<p>Replace the icon with image by <code>image</code> prop.</p>
 <EmptyComponents type="image" item="https://erxes.io/static/images/logo/logo_dark.svg" />
 
 ## Extra
 
-<p>Empty state with <code>extra</code> prop.</p>
+<p>You can add extra item (text, number, tags, etc) to your empty state with <code>extra</code> prop.</p>
 <EmptyComponents type="extra" item="info-circle" />
 
 ## API

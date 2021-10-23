@@ -2,23 +2,23 @@ import React from "react";
 import EmptyState from "erxes-ui/lib/components/EmptyState";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
-import Button from "erxes-ui/lib/components/Button";
 import { renderApiTable, stringify } from "../common.js";
 
 export function EmptyComponents(props) {
   const { type, table = [], item } = props;
 
   const propDatas = (view, style, additional) => {
-    const extra = additional && <Button>Extra</Button>;
+    const styling = style === "size" ? "30" : true;
 
     const kind = {
       [view]: view === "icon" || view === "image" ? item : true,
-      [style]: style === "size" ? "30" : true,
-      extra,
+      [style]: style && styling,
     };
 
     const datas = {
       ...kind,
+      text: "Text",
+      extra: additional && "Extra text",
     };
 
     return datas;
@@ -27,10 +27,10 @@ export function EmptyComponents(props) {
   const renderBlock = (view, style, additional) => {
     return (
       <>
-        <EmptyState text="Text" {...propDatas(view, style, additional)} />
-        {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState ${stringify(propDatas(propName, btn, icon, index))} />\n</>`}
-        </CodeBlock> */}
+        <EmptyState {...propDatas(view, style, additional)} />
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<EmptyState ${stringify(propDatas(view, style, additional))} />\n</>`}
+        </CodeBlock>
       </>
     );
   };
@@ -52,7 +52,7 @@ export function EmptyComponents(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("icon", "light", "extra");
+    return renderBlock("icon", "size", "extra");
   }
 
   if (type === "APIempty") {

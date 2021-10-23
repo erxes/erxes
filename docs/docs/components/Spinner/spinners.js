@@ -14,7 +14,7 @@ export function SpinnerComponent(props) {
       right: rights && rights[index],
       objective: true,
     };
-
+    
     return datas;
   };
 
@@ -31,9 +31,8 @@ export function SpinnerComponent(props) {
         <CodeBlock className="language-jsx">
           {`<>${values.map(
             (value, index) =>
-              `\n\t<Spinner ${stringify(propDatas(propName, value, index))}/>`
-          )}
-          \n</>`}
+            `\n\t<Spinner ${stringify(propDatas(propName, value, index))}/>`
+          )}\n</>`}
         </CodeBlock>
       </>
     );
