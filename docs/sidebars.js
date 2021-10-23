@@ -132,6 +132,7 @@ module.exports = {
         "components/Namecard/namecard",
         "components/Spinner/spinners",
         "components/Table/table",
+        "components/Toggle/toggle"
       ],
     },
   ],
