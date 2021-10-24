@@ -218,12 +218,12 @@ function General({
     return (
       <>
         <FormGroup>
-          <ControlLabel>Task public pipeline</ControlLabel>
+          <ControlLabel required={true}>Task public pipeline</ControlLabel>
           <p>Public task pipeline</p>
           {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Task public pipeline</ControlLabel>
+          <ControlLabel required={true}>Task public pipeline</ControlLabel>
           <p>Public task stage</p>
           {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
         </FormGroup>

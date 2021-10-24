@@ -24,6 +24,7 @@ export const FlexRow = styled.div`
   flex: 1;
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
 
   > div:first-child {
     padding-right: ${dimensions.coreSpacing}px;

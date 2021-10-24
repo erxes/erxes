@@ -30,20 +30,20 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     description: defaultConfigValues.description || '',
     icon: defaultConfigValues.icon || '',
     logo: defaultConfigValues.logo || '',
-    url: defaultConfigValues.url || '',
+    url: defaultConfigValues.url || undefined,
     knowledgeBaseLabel: defaultConfigValues.knowledgeBaseLabel || '',
     knowledgeBaseTopicId: defaultConfigValues.knowledgeBaseTopicId || '',
     ticketLabel: defaultConfigValues.ticketLabel || '',
     taskLabel: defaultConfigValues.taskLabel || '',
-    taskPublicBoardId: defaultConfigValues.taskPublicBoardId || '',
-    taskPublicPipelineId: defaultConfigValues.taskPublicPipelineId || '',
-    taskStageId: defaultConfigValues.taskStageId || '',
-    taskBoardId: defaultConfigValues.taskBoardId || '',
-    taskPipelineId: defaultConfigValues.taskPipelineId || '',
-    ticketStageId: defaultConfigValues.ticketStageId || '',
-    ticketBoardId: defaultConfigValues.ticketBoardId || '',
-    ticketPipelineId: defaultConfigValues.ticketPipelineId || '',
-    domain: defaultConfigValues.domain || '',
+    taskPublicBoardId: defaultConfigValues.taskPublicBoardId || undefined,
+    taskPublicPipelineId: defaultConfigValues.taskPublicPipelineId || undefined,
+    taskStageId: defaultConfigValues.taskStageId || undefined,
+    taskBoardId: defaultConfigValues.taskBoardId || undefined,
+    taskPipelineId: defaultConfigValues.taskPipelineId || undefined,
+    ticketStageId: defaultConfigValues.ticketStageId || undefined,
+    ticketBoardId: defaultConfigValues.ticketBoardId || undefined,
+    ticketPipelineId: defaultConfigValues.ticketPipelineId || undefined,
+    domain: defaultConfigValues.domain || undefined,
     styles: {
       bodyColor: styles.bodyColor || '',
       headerColor: styles.headerColor || '',
@@ -77,9 +77,9 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
 
   const handleSubmit = e => {
     e.preventDefault();
-
-    if (!formValues.knowledgeBaseTopicId) {
-      return Alert.error('Please choose a Knowledge base topic');
+    console.log(formValues);
+    if (!formValues.name) {
+      return Alert.error('Please enter a client portal name');
     }
 
     if (formValues.url && !isUrl(formValues.url)) {
@@ -90,6 +90,14 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       return Alert.error('Please enter a valid domain');
     }
 
+    if (!formValues.knowledgeBaseTopicId) {
+      return Alert.error('Please choose a Knowledge base topic');
+    }
+
+    if (!formValues.taskPublicBoardId) {
+      return Alert.error('Please select a public task board first');
+    }
+
     if (!formValues.taskPublicPipelineId) {
       return Alert.error('Please select a public task pipeline');
     }
@@ -97,7 +105,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     handleUpdate(formValues);
   };
 
-  function renderContent() {
+  const renderContent = () => {
     const commonProps = {
       ...formValues,
       handleFormChange
@@ -113,9 +121,9 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       default:
         return null;
     }
-  }
+  };
 
-  function renderSubmit() {
+  const renderSubmit = () => {
     return (
       <ButtonWrap>
         <Button btnStyle="success" type="submit">
@@ -123,7 +131,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
         </Button>
       </ButtonWrap>
     );
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>

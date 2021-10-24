@@ -70,14 +70,18 @@ function ClientPortalList({
       </Button>
     );
 
-    const content = _props => (
-      <ClientPortalDetailContainer queryParams="" history={history} />
+    const content = props => (
+      <ClientPortalDetailContainer
+        {...props}
+        queryParams=""
+        history={history}
+      />
     );
 
     return (
       <TopHeader>
         <ModalTrigger
-          size="lg"
+          size="xl"
           title="New Client Portal"
           trigger={addBrand}
           enforceFocus={false}
