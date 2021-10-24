@@ -122,7 +122,7 @@ const pipelineParams = `
   type: String!,
   stages: JSON,
   visibility: String!,
-  condition: String!
+  condition: String
   memberIds: [String],
   bgColor: String,
   startDate: Date,
