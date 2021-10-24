@@ -164,7 +164,7 @@ class FilterableList extends React.Component<Props, State> {
       return (
         <ul key={`parent-${parent._id}`}>
           {this.renderItem(parent, true, stockCnt)}
-          <li className="child-list">
+          <li className="child-list" key={`child-${parent._id}`}>
             {isOpen &&
               childrens.map((childparent: any) => {
                 return this.renderTree(childparent, subFields);

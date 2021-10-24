@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { AppConsumer } from '../AppContext';
-import { Navigation } from '../../components/common';
+import Header from '../../components/common/Header';
 import { IBookingData, ICategoryTree } from '../../types';
 import { ChildProps } from 'react-apollo';
 
@@ -13,7 +13,7 @@ type Props = {
   booking?: IBookingData;
 };
 
-function NavigationContainer(props: ChildProps<Props>) {
+function HeaderContainer(props: ChildProps<Props>) {
   const { parentId, goToBlock, goToFloor, goToProduct } = props;
 
   const changeRoute = (item: ICategoryTree) => {
@@ -29,7 +29,7 @@ function NavigationContainer(props: ChildProps<Props>) {
       return goToProduct(item._id);
     }
   };
-  return <Navigation {...props} changeRoute={changeRoute} />;
+  return <Header {...props} changeRoute={changeRoute} />;
 }
 
 const WithContext = (props: Props) => {
@@ -38,7 +38,7 @@ const WithContext = (props: Props) => {
       {({ goToBlock, goToFloor, goToProduct, getBooking }) => {
         const booking = getBooking();
         return (
-          <NavigationContainer
+          <HeaderContainer
             {...props}
             goToBlock={goToBlock}
             goToFloor={goToFloor}

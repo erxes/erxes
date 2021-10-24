@@ -70,13 +70,11 @@ h4,p{
   position:fixed;
   top:0px;
   left:0px;
-  height:50px; right:0px;
+  height:50px;
+  right:0px;
   background-color:  #FCFCFC;
   .nav{
-    display: flex;
-    flex-direction: row;
-    align-content: center;
-    align-items: center;
+    width: 50%;
     p{
       margin-right: 5px;
       margin-left: 5px;
@@ -85,6 +83,7 @@ h4,p{
     }
   }
 }
+
   .body{
     padding-top: 60px;
     color: #333333 ;
@@ -111,6 +110,7 @@ h4,p{
     right:0px;
     display: flex;
     padding:10px;
+    background-color: #FCFCFC;
   }
 .block {
   border: 1px solid $mid-grey;

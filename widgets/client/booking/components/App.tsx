@@ -2,7 +2,7 @@ import * as React from 'react';
 import { iconClose } from '../../icons/Icons';
 import { Booking, Intro, BlockDetail, Floor, Product } from '../containers';
 import { IBookingData } from '../types';
-import Navigation from '../containers/common/Navigation';
+import Header from '../containers/common/Header';
 import Form from '../containers/form/Form';
 
 type Props = {
@@ -68,13 +68,11 @@ function App({
           {renderCloseButton()}
         </div>
       </div>
-      <div className="header">
-        <Navigation
-          items={booking.categoryTree}
-          parentId={booking.productCategoryId}
-        />
-        <div />
-      </div>
+      <Header
+        items={booking.categoryTree}
+        parentId={booking.productCategoryId}
+      />
+      <div />
       {renderContent()}
     </>
   );

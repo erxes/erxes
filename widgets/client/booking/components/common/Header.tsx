@@ -14,10 +14,9 @@ type State = {
   isOpen: boolean;
 };
 
-class Navigation extends React.Component<Props, State> {
+class Header extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     this.state = {
       isOpen: false
     };
@@ -58,17 +57,23 @@ class Navigation extends React.Component<Props, State> {
       </div>
     );
   }
+
   render() {
     return (
-      <div>
-        <div className="nav" onClick={this.toggleNavigation}>
+      <div className="header">
+        {this.state.isOpen === true ? this.renderNav() : ''}
+        <div className="nav flex-center" onClick={this.toggleNavigation}>
           <GiHamburgerMenu style={{ marginRight: '5px' }} />
           <p>Navigation</p>
         </div>
-        {this.state.isOpen === true ? this.renderNav() : ''}
+        <div>
+          Filter
+        </div>
       </div>
+
     );
   }
 }
 
-export default Navigation;
+
+export default Header;
