@@ -56,7 +56,6 @@ class PipelinesContainer extends React.Component<FinalProps> {
     if (pipelinesQuery.loading) {
       return <Spinner />;
     }
-    console.log('----------------', pipelinesQuery);
     const pipelines = pipelinesQuery.pipelines;
 
     // archive action

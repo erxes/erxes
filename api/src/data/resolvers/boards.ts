@@ -14,8 +14,7 @@ export default {
         status: { $ne: 'archived' }
       }).lean();
     }
-
-    return Pipelines.find({
+    const response = Pipelines.find({
       $and: [
         { status: { $ne: 'archived' } },
         { boardId: board._id },
@@ -38,7 +37,7 @@ export default {
                     {
                       $and: [
                         { condition: 'exclude' },
-                        { memberIds: { $nin: user.id } }
+                        { memberIds: { $nin: [user._id] } }
                       ]
                     }
                   ]
@@ -49,5 +48,6 @@ export default {
         }
       ]
     }).lean();
+    return response;
   }
 };
