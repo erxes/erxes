@@ -25,6 +25,7 @@ const pipelines = `
       boardId
       visibility
       memberIds
+      condition
       bgColor
       hackScoringType
       templateId

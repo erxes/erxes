@@ -18,7 +18,7 @@ export const types = `
     status: String
     boardId: String!
     visibility: String!
-    condition: String!
+    condition: String
     memberIds: [String]
     members: [User]
     bgColor: String

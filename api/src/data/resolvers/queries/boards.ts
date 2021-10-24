@@ -173,40 +173,36 @@ const boardQueries = {
     },
     { user }
   ) {
-    const query: any =
-      user.isOwner || isAll
-        ? {}
-        : {
-            $or: [
-              { visibility: 'public' },
-              {
-                $and: [
-                  { visibility: 'private' },
-                  {
-                    $or: [
-                      {
-                        $and: [
-                          { condition: 'include' },
-                          {
-                            $or: [
-                              { membersIds: user._id },
-                              { userId: user._id }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        $and: [
-                          { condition: 'exclude' },
-                          { membersIds: { $nin: [user._id] } }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          };
+    const query: any = user.isOwner
+      ? {}
+      : {
+          $or: [
+            { visibility: 'public' },
+            {
+              $and: [
+                { visibility: 'private' },
+                {
+                  $or: [
+                    {
+                      $and: [
+                        { condition: 'include' },
+                        {
+                          $or: [{ memberIds: user._id }, { userId: user._id }]
+                        }
+                      ]
+                    },
+                    {
+                      $and: [
+                        { condition: 'exclude' },
+                        { memberIds: { $nin: [user._id] } }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
     const { page, perPage } = queryParams;
     if (boardId) {
       query.boardId = boardId;
@@ -215,7 +211,11 @@ const boardQueries = {
     if (type) {
       query.type = type;
     }
-
+    if (isAll) {
+      return Pipelines.find(query)
+        .sort({ order: 1, createdAt: -1 })
+        .lean();
+    }
     if (page && perPage) {
       return paginate(
         Pipelines.find(query)

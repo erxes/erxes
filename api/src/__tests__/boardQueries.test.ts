@@ -266,9 +266,10 @@ describe('boardQueries', () => {
       {},
       { user: user2 }
     );
+
     expect(responseUser.length).toBe(4);
     expect(responseUser1.length).toBe(2);
-    expect(responseUser2.length).toBe(2);
+    expect(responseUser2.length).toBe(3);
 
     expect(responseUser[0].condition).toBe('include');
     expect(responseUser[1].condition).toBe('exclude');
@@ -293,6 +294,7 @@ describe('boardQueries', () => {
     const responseMemberIds2 = await responseUser2.map(e => e.memberIds);
     expect(responseMemberIds2[0].includes(user2._id)).toBe(false);
     expect(responseMemberIds2[1].includes(user2._id)).toBe(true);
+    expect(responseMemberIds2[2].includes(user2._id)).toBe(true);
   });
 
   test('Pipelines with filter', async () => {

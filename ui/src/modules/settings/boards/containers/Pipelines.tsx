@@ -56,12 +56,12 @@ class PipelinesContainer extends React.Component<FinalProps> {
     if (pipelinesQuery.loading) {
       return <Spinner />;
     }
-
+    console.log('----------------', pipelinesQuery);
     const pipelines = pipelinesQuery.pipelines;
 
     // archive action
     const archive = (pipelineId: string, status: string) => {
-      let message = ` This will archive the current pipeline. Are you absolutely sure?`;
+      let message = ` This  archive the current pipeline. Are you absolutely sure?`;
       let action = 'archived';
 
       if (status === 'archived') {
