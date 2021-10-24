@@ -102,7 +102,7 @@ function Appearance({
 
     return (
       <FormGroup>
-        <ColorChooserTile>{label}</ColorChooserTile>
+        <ColorChooserTile>{__(label)}</ColorChooserTile>
         <div>
           <OverlayTrigger
             trigger="click"
@@ -139,7 +139,7 @@ function Appearance({
           <FlexContent>
             <FormGroup>
               <ControlLabel>Main Logo</ControlLabel>
-              <p>Client portal main logo PNG.</p>
+              <p>{__('Client portal main logo PNG')}.</p>
               <AvatarUpload
                 avatar={logo}
                 onAvatarUpload={handleAvatarUploader}
@@ -148,7 +148,7 @@ function Appearance({
 
             <FormGroup>
               <ControlLabel>Favicon</ControlLabel>
-              <p>16x16px transparent PNG.</p>
+              <p>{__('16x16px transparent PNG')}.</p>
               <AvatarUpload
                 avatar={icon}
                 onAvatarUpload={handleAvatarUploader}

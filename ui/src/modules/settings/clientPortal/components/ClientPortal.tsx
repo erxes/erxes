@@ -31,7 +31,7 @@ class ClientPortal extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title={'Client Portals'}
+            title="Client Portal"
             description={__(
               'Add unlimited Client Portals with unlimited support to further your growth and accelerate your business'
             )}

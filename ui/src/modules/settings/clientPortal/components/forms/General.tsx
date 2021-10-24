@@ -159,7 +159,7 @@ function General({
       <div className={className && className}>
         <FormGroup>
           <ControlLabel required={required}>{label}</ControlLabel>
-          {subtitle && <p>{subtitle}</p>}
+          {subtitle && <p>{__(subtitle)}</p>}
           <FlexContent>
             <FormControl
               {...formProps}
@@ -218,13 +218,13 @@ function General({
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Task public pipeline</ControlLabel>
-          <p>Public task pipeline</p>
+          <ControlLabel required={true}>Task public board</ControlLabel>
+          <p>{__('Public task board')}</p>
           {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>Task public pipeline</ControlLabel>
-          <p>Public task stage</p>
+          <p>{__('Public task pipeline')}</p>
           {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
         </FormGroup>
       </>
@@ -273,7 +273,7 @@ function General({
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>Show {title}</ControlLabel>
-            {<p>Show in Client Portal</p>}
+            <p>{__('Show in Client Portal')}</p>
             <Toggle
               checked={toggle[title]}
               onChange={() => onChangeToggle(title, !toggle[title])}
@@ -307,7 +307,7 @@ function General({
             })}
             <FormGroup>
               <ControlLabel required={true}>Knowledge base topic</ControlLabel>
-              <p>Knowledge base topic in Client Portal</p>
+              <p>{__('Knowledge base topic in Client Portal')}</p>
               <Select
                 placeholder="Select a knowledge base topic"
                 value={knowledgeBaseTopicId}

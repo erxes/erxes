@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
 import { StyledUrl } from '../styles';
 import { ClientPortalConfig } from '../types';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   configs: ClientPortalConfig[];
@@ -49,7 +50,7 @@ function ClientPortalList({
             </FieldStyle>
           </Link>
           <ActionButtons>
-            <Tip text="Delete" placement="bottom">
+            <Tip text={__('Delete')} placement="bottom">
               <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
             </Tip>
           </ActionButtons>

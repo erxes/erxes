@@ -126,7 +126,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   const renderSubmit = () => {
     return (
       <ButtonWrap>
-        <Button btnStyle="success" type="submit">
+        <Button btnStyle="success" icon="check-circle" type="submit">
           Submit
         </Button>
       </ButtonWrap>
