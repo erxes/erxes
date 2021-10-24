@@ -23,7 +23,6 @@ import {
   PROBABILITY
 } from '../db/models/definitions/constants';
 import './setup.ts';
-import { mergeSchemas } from 'graphql-tools';
 
 describe('boardQueries', () => {
   const commonBoardTypes = `
@@ -71,8 +70,8 @@ describe('boardQueries', () => {
   `;
 
   const pipelineQry = `
-    query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
-      pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
+    query pipelines($boardId: String, $isAll: Boolean, $type: String, $perPage: Int, $page: Int) {
+      pipelines(boardId: $boardId, isAll: $isAll, type: $type, perPage: $perPage, page: $page) {
         ${commonPipelineTypes}
       }
     }
@@ -295,6 +294,33 @@ describe('boardQueries', () => {
     expect(responseMemberIds2[0].includes(user2._id)).toBe(false);
     expect(responseMemberIds2[1].includes(user2._id)).toBe(true);
     expect(responseMemberIds2[2].includes(user2._id)).toBe(true);
+  });
+
+  test('Pipelines isAll', async () => {
+    const board = await boardFactory();
+    const user = await userFactory({});
+    const arg = { boardId: board._id };
+
+    await pipelineFactory(arg);
+    await pipelineFactory(arg);
+    await pipelineFactory(arg);
+    await pipelineFactory(arg);
+
+    const response1 = await graphqlRequest(
+      pipelineQry,
+      'pipelines',
+      { isAll: true, page: 1, perPage: 1 },
+      { user }
+    );
+    const response2 = await graphqlRequest(
+      pipelineQry,
+      'pipelines',
+      { isAll: false, page: 1, perPage: 2 },
+      { user }
+    );
+
+    expect(response1.length).toBe(4);
+    expect(response2.length).toBe(2);
   });
 
   test('Pipelines with filter', async () => {
