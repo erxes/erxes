@@ -15,7 +15,8 @@ import {
   Block,
   BlockRow,
   BlockRowTitle,
-  ToggleWrap
+  ToggleWrap,
+  Features
 } from '../../styles';
 import { FlexContent } from 'modules/layout/styles';
 import BoardSelect from 'modules/boards/containers/BoardSelect';
@@ -74,11 +75,21 @@ function General({
   handleFormChange
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
+  const [toggle, setToggle] = useState({
+    knowledgeBase: true,
+    tasks: false,
+    tickets: false,
+    publicTask: true
+  });
 
   const handleToggleBoardSelect = () => setShow(!show);
 
   const handleSelectChange = (option?: { value: string; label: string }) => {
     handleFormChange('knowledgeBaseTopicId', !option ? '' : option.value);
+  };
+
+  const onChangeToggle = (key: string, value: boolean) => {
+    setToggle({ ...toggle, [key]: value } as any);
   };
 
   function generateOptions(options: any, valueKey: string, labelKey: string) {
@@ -264,7 +275,8 @@ function General({
             <ControlLabel>Show {title}</ControlLabel>
             {<p>Show in Client Portal</p>}
             <Toggle
-              checked={true}
+              checked={toggle[title]}
+              onChange={() => onChangeToggle(title, !toggle[title])}
               icons={{
                 checked: <span>Yes</span>,
                 unchecked: <span>No</span>
@@ -272,7 +284,9 @@ function General({
             />
           </FormGroup>
         </ToggleWrap>
-        {childrens}
+        <Features isToggled={toggle[title]}>
+          <BlockRow>{childrens}</BlockRow>
+        </Features>
       </BlockRow>
     );
   };
@@ -282,7 +296,7 @@ function General({
       <Block>
         <h4>{__('Features')}</h4>
         {renderFeatureBlock(
-          'Knowledge Base',
+          'knowledgeBase',
           <>
             {renderControl({
               label: 'Knowledge Base Name',
@@ -303,10 +317,10 @@ function General({
             </FormGroup>
           </>
         )}
-        {renderFeatureBlock('Public Task', renderTaskPipelines())}
+        {renderFeatureBlock('publicTask', renderTaskPipelines())}
 
         {renderFeatureBlock(
-          'Tickets',
+          'tickets',
           <>
             {renderControl({
               label: 'Tickets',
@@ -325,7 +339,7 @@ function General({
         )}
 
         {renderFeatureBlock(
-          'Tasks',
+          'tasks',
           <>
             {renderControl({
               label: 'Tasks incoming pipeline',

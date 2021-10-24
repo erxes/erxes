@@ -127,8 +127,10 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Content>{renderContent()}</Content>
-      {renderSubmit()}
+      <Content>
+        {renderContent()}
+        {renderSubmit()}
+      </Content>
     </form>
   );
 }

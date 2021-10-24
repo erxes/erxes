@@ -132,6 +132,7 @@ export const Block = styled.div`
 
 export const BlockRow = styled(FlexRow)`
   align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
 
   > div {
     padding-right: ${dimensions.coreSpacing}px;
@@ -164,4 +165,16 @@ export const LogoWrapper = styled.div`
   > div > div {
     width: ${dimensions.coreSpacing}%;
   }
+`;
+
+export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
+  > div > div {
+    width: 300px;
+  }
+
+  display: flex;
+  flex: 1;
+  transition: all ease .3s;
+  filter: ${props => !props.isToggled && `blur(4px)`};
+  pointer-events: ${props => !props.isToggled && `none`};
 `;
