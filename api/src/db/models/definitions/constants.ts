@@ -257,6 +257,19 @@ export const PIPELINE_CONDITION = {
   EXCLUDE: 'exclude',
   ALL: ['include', 'exclude']
 };
+export const PRODUCT_CATEGORY_STATUSES = {
+  ACTIVE: 'active',
+  DISABLED: 'disabled',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'disabled', 'archived']
+};
+
+export const PRODUCT_SUPPLY = {
+  UNIQUE: 'unique',
+  LIMITED: 'limited',
+  UNLIMITED: 'unlimited',
+  ALL: ['unique', 'limited', 'unlimited']
+};
 
 export const PIPELINE_VISIBLITIES = {
   PUBLIC: 'public',
@@ -850,4 +863,10 @@ export const WEBHOOK_STATUS = {
   AVAILABLE: 'available',
   UNAVAILABLE: 'unavailable',
   ALL: ['available', 'unavailable']
+};
+
+export const REACTION_CHOICES = {
+  LIKE: 'like',
+  DISLIKE: 'disLike',
+  ALL: ['like', 'dislike']
 };

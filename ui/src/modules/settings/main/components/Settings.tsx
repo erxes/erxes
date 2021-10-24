@@ -357,6 +357,14 @@ class Settings extends React.PureComponent {
               'growthHacksAll',
               growthHackPermissions
             )}
+            {this.renderBox(
+              'Client Portal',
+              '/images/icons/erxes-32.png',
+              '/settings/client-portal',
+              'manageClientPortal',
+              [],
+              'New'
+            )}
           </div>
         </Row>
         <Divider />
