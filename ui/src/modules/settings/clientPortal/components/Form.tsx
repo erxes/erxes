@@ -30,11 +30,8 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const defaultConfigValues =
-      props.defaultConfigValues || ({} as ClientPortalConfig);
-
     this.state = {
-      formValues: defaultConfigValues
+      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
     };
   }
 

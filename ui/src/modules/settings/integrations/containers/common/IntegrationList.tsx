@@ -124,7 +124,7 @@ const IntegrationListContainer = (props: FinalProps) => {
         Alert.error(error.message);
       });
   };
-  console.log('int', integrationsQuery);
+
   const updatedProps = {
     ...props,
     repair,
