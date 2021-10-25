@@ -147,9 +147,9 @@ const userMutations = {
   },
 
   async logout(_root, _args, { res, user }: IContext ) {
-    const loggedout = await Users.logout(user ,res.req?.cookies['auth-token']);
+    await Users.logout(user ,res.req?.cookies['auth-token']);
     res.clearCookie('auth-token');
-    return loggedout;
+    return 'loggedout';
   },
 
   /*
