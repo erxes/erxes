@@ -133,7 +133,8 @@ module.exports = {
         "components/Spinner/spinners",
         "components/Table/table",
         "components/Timer/timer",
-        "components/Toggle/toggle"
+        "components/Toggle/toggle",
+        "components/Uploader/uploader"
       ],
     },
   ],

@@ -30,7 +30,8 @@
     "react-toggle": "^4.1.2",
     "styled-components": "^5.3.1",
     "styled-components-ts": "0.0.15",
-    "svg-url-loader": "^7.1.1"
+    "svg-url-loader": "^7.1.1",
+    "validator": "^13.6.0"
   },
   "browserslist": {
     "production": [
