@@ -161,7 +161,8 @@ export const userSchema = schemaHooksWrapper(
       type: Number,
       optional: true,
       label: 'Score',
-      esType: 'number'
+      esType: 'number',
+      default: 0
     }),
     customFieldsData: field({
       type: [customFieldSchema],

@@ -39,6 +39,12 @@ const appearanceSchema = new Schema(
   }
 );
 
+const scoringConfigSchema = new Schema({
+  action: field({ type: String }),
+  earnOrSpend: field({ type: String, enum: ['earn', 'spend'] }),
+  amount: field({ type: String })
+});
+
 // Mongoose schemas =======================
 
 export const exmSchema = new Schema({
@@ -49,6 +55,7 @@ export const exmSchema = new Schema({
   logo: field({ type: attachmentSchema }),
   welcomeContent: field({ type: [welcomeContentSchema] }),
   appearance: field({ type: appearanceSchema }),
+  scoringConfig: field({ type: [scoringConfigSchema] }),
   createdBy: field({ type: String, label: 'Created by' }),
   createdAt: field({ type: Date, label: 'Created at' })
 });

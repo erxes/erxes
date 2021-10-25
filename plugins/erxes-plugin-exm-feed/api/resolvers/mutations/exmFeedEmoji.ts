@@ -1,3 +1,5 @@
+// import { updateUserScore, getScoringConfig } from 'erxes-api-utils';
+
 export type EmojiDoc = {
   feedId: string;
   type: string;
@@ -14,13 +16,34 @@ const exmFeedEmojiMutations = [
         userId: user._id
       };
 
-      const emoji = await models.ExmFeedEmojis.findOne(doc);
+      const alreadyReacted = await models.ExmFeedEmojis.exists(doc);
 
-      if (emoji) {
+      // let action;
+      // let earnOrSpend;
+
+      if (alreadyReacted) {
+        // action = 'unheart';
+        // earnOrSpend = 'earn';
+
         await models.ExmFeedEmojis.removeEmoji(models, doc);
       } else {
+        // action = 'heart';
+        // earnOrSpend = 'spend';
+
         await models.ExmFeedEmojis.createEmoji(models, doc);
       }
+
+      // const scoringConfig = await getScoringConfig(models, action, earnOrSpend);
+
+      // if (scoringConfig) {
+      //   const amount = scoringConfig.amount || 0;
+
+      //   updateUserScore(
+      //     models,
+      //     user._id,
+      //     alreadyReacted ? amount * -1 : amount
+      //   );
+      // }
 
       return 'success';
     }
