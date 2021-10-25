@@ -15,6 +15,7 @@ export default function ChartArea({ items, assignees }: Props) {
     <MainChart component={AreaChart} data={assignees}>
       {items.map((item, index) => (
         <Area
+          key={index}
           type="monotone"
           dataKey={item.name}
           stroke={getColors(index)}

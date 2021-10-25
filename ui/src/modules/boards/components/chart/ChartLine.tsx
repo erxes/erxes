@@ -15,6 +15,7 @@ export default function ChartLine({ items, assignees }: Props) {
     <MainChart component={LineChart} data={assignees}>
       {items.map((item, index) => (
         <Line
+          key={index}
           type="monotone"
           dataKey={item.name}
           stroke={getColors(index)}
