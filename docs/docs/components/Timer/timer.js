@@ -5,7 +5,7 @@ import { renderApiTable, stringify } from "../common.js";
 import styles from "../../../src/components/styles.module.css";
 
 export function TimerComponent(props) {
-  const { id, taskstatus, time, startedAt, table=[] } = props;
+  const { id, taskstatus, time, startedAt, table=[], type } = props;
 
   const propDatas = (taskId, status, timeSpent, startDate) => {
     const datas = {
@@ -23,11 +23,20 @@ export function TimerComponent(props) {
     <>
     <TaskTimer {...propDatas(taskId, status, timeSpent, startDate)}/>
     <CodeBlock className="language-jsx">
-          {`<>\n\t<TaskTimer ${JSON.stringify(propDatas(taskId, status, timeSpent, startDate))} />\n</>`}
+          {`<>\n\t<TaskTimer ${stringify(propDatas(taskId, status, timeSpent, startDate))} />\n</>`}
         </CodeBlock>
     </>
   );
 };
+
+if (type === "APItimer"){
+  return(<>
+    <CodeBlock className="language-jsx">import TaskTimer from "erxes-ui/lib/components/Timer";
+</CodeBlock>
+    {renderApiTable("",table)}
+    </>
+  )
+}
 
 return renderBlock("taskId", "status", "timeSpent", "startDate")
 }
