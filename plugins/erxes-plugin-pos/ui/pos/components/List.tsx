@@ -31,10 +31,8 @@ type Props = {
   toggleBulk: (target: IIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: IIntegration[], name: string) => void;
   loading: boolean;
-  remove: (integrationId: string) => void;
-  archive: (integrationId: string, status: boolean) => void;
+  remove: (posId: string) => void;
   refetch?: () => void;
-  copy: (integrationId: string) => void;
   counts: IntegrationsCount;
 };
 

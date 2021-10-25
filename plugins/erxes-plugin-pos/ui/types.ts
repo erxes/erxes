@@ -193,6 +193,10 @@ export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
 } & QueryResponse;
 
+export type ProductsQueryResponse = {
+  products: IProduct[];
+} & QueryResponse;
+
 export type GroupsBulkInsertMutationResponse = {
   productGroupsBulkInsertMutation: (params: {
     variables: {

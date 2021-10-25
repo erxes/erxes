@@ -4,7 +4,7 @@ import { IProductGroup } from '../../../types';
 import Modal from 'react-bootstrap/Modal';
 import { Description } from '../../../styles';
 import Select from 'react-select-plus';
-import { IProductCategory } from 'erxes-ui/lib/products/types';
+import { IProductCategory, IProduct } from 'erxes-ui/lib/products/types';
 
 type Props = {
   group?: IProductGroup;
@@ -13,11 +13,13 @@ type Props = {
   closeModal: () => void;
   mode: 'create' | 'update';
   categories: any[];
+  products: IProduct[];
 };
 
 type State = {
   group: IProductGroup;
   categories: IProductCategory[];
+  products: IProduct[];
 };
 
 class GroupForm extends React.Component<Props, State> {
@@ -33,7 +35,8 @@ class GroupForm extends React.Component<Props, State> {
         excludedCategoryIds: [],
         excludedProductIds: []
       },
-      categories: props.categories
+      categories: props.categories,
+      products: props.products
     };
   }
 
@@ -50,9 +53,13 @@ class GroupForm extends React.Component<Props, State> {
 
   render() {
     const { mode, onDelete, onSubmit, onCancel } = this.props;
-    const { group, categories } = this.state;
+    const { group, categories, products } = this.state;
 
     const categoryOptions = categories.map(e => {
+      return { value: e._id, label: e.name };
+    });
+
+    const productOptions = products.map(e => {
       return { value: e._id, label: e.name };
     });
 
@@ -86,6 +93,13 @@ class GroupForm extends React.Component<Props, State> {
         values.map(e => e.value)
       );
     };
+
+    const onChangeExcludeProducts = values => {
+      this.onChangeFunction(
+        'excludedProductIds',
+        values.map(e => e.value)
+      );
+    }
 
     return (
       <>
@@ -135,6 +149,17 @@ class GroupForm extends React.Component<Props, State> {
             )}
             value={group.excludedCategoryIds}
             onChange={onChangeExcludeCategories}
+            multi={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Exclude Products</ControlLabel>
+          {/* <Description>Select pos to display in the product category.</Description> */}
+          <Select
+            options={productOptions}
+            value={group.excludedProductIds}
+            onChange={onChangeExcludeProducts}
             multi={true}
           />
         </FormGroup>

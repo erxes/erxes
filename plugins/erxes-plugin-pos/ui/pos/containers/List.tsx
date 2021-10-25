@@ -7,7 +7,6 @@ import {
   ArchiveIntegrationResponse,
   CountQueryResponse,
   IRouterProps,
-  PosIntegrationsQueryResponse,
   PosListQueryResponse,
   RemoveMutationResponse
 } from '../../types';
@@ -66,12 +65,12 @@ class ListContainer extends React.Component<FinalProps> {
 
     const totalCount = (counts && counts.total) || 0;
 
-    const remove = (integrationId: string) => {
+    const remove = (posId: string) => {
       const message = 'Are you sure?';
 
       confirm(message).then(() => {
         removeMutation({
-          variables: { _id: integrationId }
+          variables: { _id: posId }
         })
           .then(() => {
             // refresh queries
@@ -162,7 +161,7 @@ export default withProps<Props>(
       }
     }),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
-      gql(mutations.integrationRemove),
+      gql(mutations.posRemove),
       {
         name: 'removeMutation'
       }

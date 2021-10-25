@@ -5,8 +5,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import {
   AddPosMutationResponse,
+  GroupsBulkInsertMutationResponse,
   IntegrationMutationVariables,
   IntegrationsQueryResponse,
+  IProductGroup,
   IRouterProps
 } from '../../types';
 import { PLUGIN_URL } from '../../constants';
@@ -14,7 +16,8 @@ import Pos from '../components/Pos';
 import { queries, mutations } from '../graphql';
 
 type Props = { integrationsQuery: IntegrationsQueryResponse } & IRouterProps &
-  AddPosMutationResponse;
+  AddPosMutationResponse &
+  GroupsBulkInsertMutationResponse;
 
 type State = {
   isLoading: boolean;
@@ -27,7 +30,12 @@ class CreatePosContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addPosMutation, history, integrationsQuery } = this.props;
+    const {
+      addPosMutation,
+      history,
+      integrationsQuery,
+      productGroupsBulkInsertMutation
+    } = this.props;
 
     const formIntegrations = integrationsQuery.integrations || [];
     // const categories = productCategoriesQuery.productCategories || [];
@@ -39,16 +47,26 @@ class CreatePosContainer extends React.Component<Props, State> {
     const save = doc => {
       this.setState({ isLoading: true });
 
-      const { description, brandId, name, productDetails } = doc;
-
       addPosMutation({
         variables: {
-          description,
-          brandId,
-          name,
-          productDetails
+          ...doc
         }
       })
+        .then(data => {
+          productGroupsBulkInsertMutation({
+            variables: {
+              posId: data.data.posAdd._id,
+              groups: doc.groups.map(e => ({
+                _id: e._id,
+                name: e.name,
+                description: e.description,
+                categoryIds: e.categoryIds || [],
+                excludedCategoryIds: e.excludedCategoryIds || [],
+                excludedProductIds: e.excludedProductIds || []
+              }))
+            }
+          });
+        })
         .then(() => {
           Alert.success('You successfully added a POS');
 
@@ -93,6 +111,13 @@ export default withProps<Props>(
           kind: 'lead'
         }
       })
+    }),
+    graphql<
+      {},
+      GroupsBulkInsertMutationResponse,
+      { posId: string; groups: IProductGroup[] }
+    >(gql(mutations.saveProductGroups), {
+      name: 'productGroupsBulkInsertMutation'
     })
   )(CreatePosContainer)
 );

@@ -41,47 +41,10 @@ class Row extends React.Component<Props> {
     );
   }
 
-  renderArchiveAction() {
-    const { pos, archive } = this.props;
-    const { integration } = pos;
-
-    const onClick = () => archive(integration._id, true);
-
-    if (!archive || !integration.isActive) {
-      return null;
-    }
-
-    return (
-      <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
-        </Tip>
-      </WithPermission>
-    );
-  }
-
-  renderUnarchiveAction() {
-    const { pos, archive } = this.props;
-
-    const onClick = () => archive(pos._id, false);
-
-    if (!archive || pos.isActive) {
-      return null;
-    }
-
-    return (
-      <WithPermission action="integrationsArchive">
-        <Tip text={__('Unarchive')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="redo" />
-        </Tip>
-      </WithPermission>
-    );
-  }
-
   renderRemoveAction() {
-    const { integration, remove } = this.props;
+    const { pos, remove } = this.props;
 
-    const onClick = () => remove(integration._id);
+    const onClick = () => remove(pos._id);
 
     return (
       <WithPermission action="integrationsRemove">
@@ -94,18 +57,6 @@ class Row extends React.Component<Props> {
           />
         </Tip>
       </WithPermission>
-    );
-  }
-
-  renderCopyAction() {
-    const { pos, copy } = this.props;
-
-    const onClick = () => copy(pos._id);
-
-    return (
-      <Tip text={__('Duplicate')} placement="top">
-        <Button btnStyle="link" onClick={onClick} icon="copy-1" />
-      </Tip>
     );
   }
 
@@ -167,9 +118,6 @@ class Row extends React.Component<Props> {
         <td>
           <ActionButtons>
             {this.manageAction(integration)}
-            {this.renderArchiveAction()}
-            {this.renderUnarchiveAction()}
-            {this.renderCopyAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>
