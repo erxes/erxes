@@ -20,6 +20,11 @@ describe('productQueries', () => {
 
   test('Products', async () => {
     const category = await productCategoryFactory({ code: '1' });
+    const categoryStatusNoActive = await productCategoryFactory({
+      code: '2',
+      status: 'archived'
+    });
+
     const tag = await tagsFactory({ type: TAG_TYPES.PRODUCT });
 
     const product = await productFactory({
@@ -27,7 +32,7 @@ describe('productQueries', () => {
       type: PRODUCT_TYPES.PRODUCT
     });
     await productFactory({
-      categoryId: category._id,
+      categoryId: categoryStatusNoActive._id,
       type: PRODUCT_TYPES.SERVICE
     });
     await productFactory({ tagIds: [tag._id], type: PRODUCT_TYPES.SERVICE });
@@ -47,13 +52,21 @@ describe('productQueries', () => {
             type
             size
           }
+          attachmentMore {
+            name
+            url
+            type
+            size
+          }
+          productCount
+          minimiumCount
         }
       }
     `;
 
     let response = await graphqlRequest(qry, 'products', {
       page: 1,
-      perPage: 2
+      perPage: 3
     });
 
     expect(response.length).toBe(2);
@@ -68,7 +81,7 @@ describe('productQueries', () => {
       categoryId: category._id
     });
 
-    expect(response.length).toBe(2);
+    expect(response.length).toBe(1);
 
     response = await graphqlRequest(qry, 'products', { ids: [product._id] });
 
@@ -109,15 +122,35 @@ describe('productQueries', () => {
 
   test('Product categories', async () => {
     const parent = await productCategoryFactory({ code: '1' });
-    await productCategoryFactory({ parentId: parent._id, code: '2' });
-    await productCategoryFactory({ parentId: parent._id, code: '3' });
+    await productCategoryFactory({
+      parentId: parent._id,
+      code: '2',
+      status: 'archived'
+    });
+    await productCategoryFactory({
+      parentId: parent._id,
+      code: '3',
+      status: 'archived'
+    });
+    await productCategoryFactory({
+      parentId: parent._id,
+      code: '4',
+      status: 'active'
+    });
+    await productCategoryFactory({ parentId: parent._id, code: '5' });
 
     const qry = `
-      query productCategories($parentId: String $searchValue: String) {
-        productCategories(parentId: $parentId searchValue: $searchValue) {
+      query productCategories($parentId: String $searchValue: String, $status: String) {
+        productCategories(parentId: $parentId searchValue: $searchValue, status: $status) {
           _id
           name
           parentId
+          attachment {
+            name
+            url
+            type
+            size
+          }
           isRoot
           productCount
         }
@@ -127,6 +160,12 @@ describe('productQueries', () => {
     let response = await graphqlRequest(qry, 'productCategories');
 
     expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'productCategories', {
+      status: 'archived'
+    });
+
+    expect(response.length).toBe(2);
 
     response = await graphqlRequest(qry, 'productCategories', {
       parentId: parent._id

@@ -43,13 +43,21 @@ const productQueries = {
 
     if (categoryId) {
       const category = await ProductCategories.getProductCatogery({
-        _id: categoryId
+        _id: categoryId,
+        status: { $in: [null, 'active'] }
       });
+
       const product_category_ids = await ProductCategories.find(
         { order: { $regex: new RegExp(category.order) } },
         { _id: 1 }
       );
       filter.categoryId = { $in: product_category_ids };
+    } else {
+      const notActiveCategories = await ProductCategories.find({
+        status: { $nin: [null, 'active'] }
+      });
+
+      filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
     }
 
     if (ids && ids.length > 0) {
@@ -101,10 +109,20 @@ const productQueries = {
 
   productCategories(
     _root,
-    { parentId, searchValue }: { parentId: string; searchValue: string },
+    {
+      parentId,
+      searchValue,
+      status
+    }: { parentId: string; searchValue: string; status: string },
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
+
+    filter.status = { $nin: ['disabled', 'archived'] };
+
+    if (status && status !== 'active') {
+      filter.status = status;
+    }
 
     if (parentId) {
       filter.parentId = parentId;
