@@ -52,6 +52,21 @@ class PlaceHolderInput extends React.Component<Props, State> {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.config !== this.props.config) {
+      this.setState({ config: nextProps.config });
+    }
+  }
+
+  onSelect = conf => {
+    const { inputName } = this.props;
+    const { config } = this.state;
+    config[inputName] = conf[inputName];
+
+    this.setState({ config });
+    this.props.onChange({ ...config });
+  };
+
   renderSelect() {
     const { fieldType, options, inputName, isMulti } = this.props;
     if (fieldType !== 'select') {
@@ -62,7 +77,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       <SelectOption
         inputName={inputName}
         config={this.state.config}
-        setConfig={conf => this.setState({ config: conf })}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
         options={options || []}
         isMulti={isMulti}
@@ -81,7 +96,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       <SelectBoard
         type={type}
         config={this.state.config}
-        setConfig={conf => this.setState({ config: conf })}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
         inputName={inputName}
       />
@@ -98,7 +113,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       <SelectDate
         inputName={inputName}
         config={this.state.config}
-        setConfig={conf => this.setState({ config: conf })}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
       />
     );
@@ -132,7 +147,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       <Attribution
         inputName={inputName}
         config={this.state.config}
-        setConfig={conf => this.setState({ config: conf })}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
         onlySet={this.getOnlySet()}
         fieldType={fieldType}

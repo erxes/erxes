@@ -52,7 +52,7 @@ export const ACTIONS = [
     icon: 'graduation-hat',
     label: __('Custom code'),
     description: __('Custom code'),
-    isAvailable: false
+    isAvailable: true
   },
   {
     type: 'workflow',

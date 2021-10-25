@@ -1,15 +1,19 @@
-import { addBoardItem } from './actions';
-import { setProperty } from './actions/setProperty';
-import { ACTIONS } from './constants';
-import { debugBase } from './debuggers';
-import { getActionsMap } from './helpers';
-import { sendRPCMessage } from './messageBroker';
 import Automations, {
   IActionsMap,
   ITrigger,
   TriggerType
 } from './models/Automations';
-import { Executions, EXECUTION_STATUS, IExecAction, IExecutionDocument } from './models/Executions';
+import { ACTIONS } from './constants';
+import { addBoardItem, customCode, setProperty } from './actions';
+import { debugBase } from './debuggers';
+import {
+  EXECUTION_STATUS,
+  Executions,
+  IExecAction,
+  IExecutionDocument
+} from './models/Executions';
+import { getActionsMap } from './helpers';
+import { sendRPCMessage } from './messageBroker';
 
 export const getEnv = ({
   name,
@@ -110,6 +114,10 @@ export const executeActions = async (
       const type = action.type.substring(6).toLocaleLowerCase();
 
       actionResponse = await addBoardItem({ action, execution, type });
+    }
+
+    if (action.type === ACTIONS.CUSTOM_CODE) {
+      actionResponse = await customCode({ action, execution })
     }
   } catch (e) {
     execAction.result = { error: e.message };

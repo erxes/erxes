@@ -130,16 +130,16 @@ class SetProperty extends React.Component<Props, State> {
       const operators =
         PROPERTY_OPERATOR[chosenField.type] || PROPERTY_OPERATOR.Default;
 
-      const onChangeRule = (name, value) => {
+      const onChangeSelect = (field, e) => {
+        const value = e.value;
+
+        rule = { ...rule, [field]: value };
+
         this.onChangeField(
           'rules',
-          config.rules.map(r =>
-            r.id === rule.id ? { ...rule, [name]: value } : r
-          )
+          config.rules.map(r => (r.id === rule.id ? { ...rule } : r))
         );
       };
-
-      const onChangeSelect = (field, e) => onChangeRule(field, e.value);
 
       const onChangeValue = rConf => {
         this.onChangeField(
