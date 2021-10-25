@@ -1,17 +1,21 @@
 import { Alert } from 'modules/common/utils';
-import React, { useState } from 'react';
+import React from 'react';
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
 import { ClientPortalConfig } from '../types';
-import ColorFont from './forms/ColorFont';
+import Appearance from './forms/Appearance';
 import Config from './forms/Config';
-import { ButtonWrap } from '../styles';
+import { ButtonWrap, Content } from '../styles';
 import Button from 'modules/common/components/Button';
 
 type Props = {
   configType: string;
   defaultConfigValues?: ClientPortalConfig;
   handleUpdate: (doc: ClientPortalConfig) => void;
+};
+
+type State = {
+  formValues: ClientPortalConfig;
 };
 
 const isUrl = (value: string): boolean => {
@@ -22,64 +26,30 @@ const isUrl = (value: string): boolean => {
   }
 };
 
-function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
-  const styles = defaultConfigValues.styles || {};
+class Form extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const [formValues, setFormValues] = useState<ClientPortalConfig>({
-    name: defaultConfigValues.name || '',
-    description: defaultConfigValues.description || '',
-    icon: defaultConfigValues.icon || '',
-    logo: defaultConfigValues.logo || '',
-    url: defaultConfigValues.url || '',
-    knowledgeBaseLabel: defaultConfigValues.knowledgeBaseLabel || '',
-    knowledgeBaseTopicId: defaultConfigValues.knowledgeBaseTopicId || '',
-    ticketLabel: defaultConfigValues.ticketLabel || '',
-    taskLabel: defaultConfigValues.taskLabel || '',
-    taskPublicBoardId: defaultConfigValues.taskPublicBoardId || '',
-    taskPublicPipelineId: defaultConfigValues.taskPublicPipelineId || '',
-    taskStageId: defaultConfigValues.taskStageId || '',
-    taskBoardId: defaultConfigValues.taskBoardId || '',
-    taskPipelineId: defaultConfigValues.taskPipelineId || '',
-    ticketStageId: defaultConfigValues.ticketStageId || '',
-    ticketBoardId: defaultConfigValues.ticketBoardId || '',
-    ticketPipelineId: defaultConfigValues.ticketPipelineId || '',
-    domain: defaultConfigValues.domain || '',
-    styles: {
-      bodyColor: styles.bodyColor || '',
-      headerColor: styles.headerColor || '',
-      footerColor: styles.footerColor || '',
-      helpColor: styles.helpColor || '',
-      backgroundColor: styles.backgroundColor || '',
-      activeTabColor: styles.activeTabColor || '',
-      baseColor: styles.baseColor || '',
-      headingColor: styles.headingColor || '',
-      baseFont: styles.baseFont || '',
-      headingFont: styles.headingFont || '',
-      linkColor: styles.linkColor || '',
-      linkHoverColor: styles.linkHoverColor || '',
-      primaryBtnColor: styles.primaryBtnColor || '',
-      secondaryBtnColor: styles.secondaryBtnColor || '',
-      dividerColor: styles.dividerColor || ''
-    },
-    mobileResponsive: defaultConfigValues.mobileResponsive || false,
-    twilioAccountSid: defaultConfigValues.twilioAccountSid || '',
-    twilioAuthToken: defaultConfigValues.twilioAuthToken || '',
-    twilioFromNumber: defaultConfigValues.twilioFromNumber || '',
-    googleCredentials: defaultConfigValues.googleCredentials
-  });
+    this.state = {
+      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
+    };
+  }
 
-  const handleFormChange = (name: string, value: string | object) => {
-    setFormValues({
-      ...formValues,
-      [name]: value
-    });
-  };
+  componentWillReceiveProps(nextProps) {
+    if (
+      this.props.defaultConfigValues &&
+      nextProps.defaultConfigValues !== this.props.defaultConfigValues
+    ) {
+      this.setState({ formValues: nextProps.defaultConfigValues });
+    }
+  }
 
-  const handleSubmit = e => {
+  handleSubmit = e => {
     e.preventDefault();
+    const { formValues } = this.state;
 
-    if (!formValues.knowledgeBaseTopicId) {
-      return Alert.error('Please choose a Knowledge base topic');
+    if (!formValues.name) {
+      return Alert.error('Please enter a client portal name');
     }
 
     if (formValues.url && !isUrl(formValues.url)) {
@@ -90,47 +60,70 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       return Alert.error('Please enter a valid domain');
     }
 
+    if (!formValues.knowledgeBaseTopicId) {
+      return Alert.error('Please choose a Knowledge base topic');
+    }
+
+    if (!formValues.taskPublicBoardId) {
+      return Alert.error('Please select a public task board first');
+    }
+
     if (!formValues.taskPublicPipelineId) {
       return Alert.error('Please select a public task pipeline');
     }
 
-    handleUpdate(formValues);
+    delete (formValues.styles || ({} as any)).__typename;
+
+    this.props.handleUpdate(formValues);
   };
 
-  function renderContent() {
+  handleFormChange = (name: string, value: string | object) => {
+    this.setState({
+      formValues: {
+        ...this.state.formValues,
+        [name]: value
+      }
+    });
+  };
+
+  renderContent = () => {
     const commonProps = {
-      ...formValues,
-      handleFormChange
+      ...this.state.formValues,
+      handleFormChange: this.handleFormChange
     };
 
-    switch (configType) {
+    switch (this.props.configType) {
       case CONFIG_TYPES.GENERAL.VALUE:
         return <General {...commonProps} />;
-      case CONFIG_TYPES.COLOR_FONTS.VALUE:
-        return <ColorFont {...commonProps} />;
-      case CONFIG_TYPES.CONFIG.VALUE:
+      case CONFIG_TYPES.APPEARANCE.VALUE:
+        return <Appearance {...commonProps} />;
+      case CONFIG_TYPES.CUSTOM.VALUE:
         return <Config {...commonProps} />;
       default:
         return null;
     }
-  }
+  };
 
-  function renderSubmit() {
+  renderSubmit = () => {
     return (
       <ButtonWrap>
-        <Button btnStyle="success" type="submit">
+        <Button btnStyle="success" icon="check-circle" type="submit">
           Submit
         </Button>
       </ButtonWrap>
     );
-  }
+  };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {renderContent()}
-      {renderSubmit()}
-    </form>
-  );
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <Content>
+          {this.renderContent()}
+          {this.renderSubmit()}
+        </Content>
+      </form>
+    );
+  }
 }
 
 export default Form;
