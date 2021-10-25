@@ -29,7 +29,8 @@ type Props = {
   }) => void;
   counterLoading: boolean;
   isModal: boolean;
-  isAutomation?: boolean;
+  hideDetailForm?: boolean;
+  usageType?: string;
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
@@ -37,7 +38,7 @@ type Props = {
 
 const SegmentsForm = (props: Props) => {
   const renderHelpText = () => {
-    let text = 'User(s) will receive this message';
+    let text = 'User(s) found';
 
     if (!['customer', 'lead', 'visitor'].includes(contentType)) {
       text = `${contentType}(s) found.`;
@@ -55,11 +56,12 @@ const SegmentsForm = (props: Props) => {
     headSegments,
     boards,
     isModal,
-    isAutomation,
+    hideDetailForm,
     closeModal,
     segments,
     previewCount,
-    count
+    count,
+    usageType
   } = props;
 
   const renderSidebar = () => {
@@ -105,9 +107,10 @@ const SegmentsForm = (props: Props) => {
       segments={segments}
       closeModal={closeModal}
       isModal={isModal}
-      isAutomation={isAutomation}
+      hideDetailForm={hideDetailForm}
       previewCount={previewCount}
       count={count}
+      usageType={usageType}
     />
   );
 

@@ -29,7 +29,7 @@ import {
   updateContactValidationStatus
 } from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
-import { Users } from './db/models';
+import { Segments, Users } from './db/models';
 import initWatchers from './db/watchers';
 import {
   debugBase,
@@ -256,10 +256,19 @@ app.get(
   '/file-export',
   routeErrorHandling(async (req: any, res) => {
     const { query, user } = req;
+    const { segment } = query;
 
     const result = await buildFile(query, user);
 
     res.attachment(`${result.name}.xlsx`);
+
+    if (segment) {
+      try {
+        Segments.removeSegment(segment);
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
 
     return res.send(result.response);
   })
