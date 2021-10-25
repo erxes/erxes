@@ -156,12 +156,15 @@ class ProductForm extends React.Component<Props, State> {
 
   addProductTemplate = (e) => {
     const templateId = e.target.value;
-
     alert(templateId);
 
-    let template = {} as IProductTemplate;
+    const productTemplates = this.props.productTemplates || [];
+    const template = productTemplates.filter(p => p._id === templateId);
 
-    const templateItems = template.templateItemsProduct || [];
+    const templateItems = template[0].templateItemsProduct || [];
+
+    console.log("templateItems");
+    console.log(templateItems);
 
     templateItems.forEach(e => {
       console.log("foreach");
