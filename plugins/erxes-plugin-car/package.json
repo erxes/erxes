@@ -1,0 +1,8 @@
+{
+  "name": "erxes-plugin-car",
+  "version": "0.0.1",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "erxes-api-utils": "^0.0.29"
+  }
+}
