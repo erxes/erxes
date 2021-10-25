@@ -55,7 +55,7 @@ function Appearance({
     baseFont,
     headingColor,
     headingFont
-  } = styles;
+  } = styles || ({} as Styles);
 
   const handleAvatarUploader = (logoUrl: string) => {
     handleFormChange('logo', logoUrl);

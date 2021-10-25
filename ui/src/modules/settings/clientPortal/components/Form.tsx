@@ -1,5 +1,5 @@
 import { Alert } from 'modules/common/utils';
-import React, { useState } from 'react';
+import React from 'react';
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
 import { ClientPortalConfig } from '../types';
@@ -14,6 +14,10 @@ type Props = {
   handleUpdate: (doc: ClientPortalConfig) => void;
 };
 
+type State = {
+  formValues: ClientPortalConfig;
+};
+
 const isUrl = (value: string): boolean => {
   try {
     return Boolean(new URL(value));
@@ -22,62 +26,31 @@ const isUrl = (value: string): boolean => {
   }
 };
 
-function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
-  const styles = defaultConfigValues.styles || {};
+class Form extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const [formValues, setFormValues] = useState<ClientPortalConfig>({
-    name: defaultConfigValues.name || '',
-    description: defaultConfigValues.description || '',
-    icon: defaultConfigValues.icon || '',
-    logo: defaultConfigValues.logo || '',
-    url: defaultConfigValues.url || undefined,
-    knowledgeBaseLabel: defaultConfigValues.knowledgeBaseLabel || '',
-    knowledgeBaseTopicId: defaultConfigValues.knowledgeBaseTopicId || '',
-    ticketLabel: defaultConfigValues.ticketLabel || '',
-    taskLabel: defaultConfigValues.taskLabel || '',
-    taskPublicBoardId: defaultConfigValues.taskPublicBoardId || undefined,
-    taskPublicPipelineId: defaultConfigValues.taskPublicPipelineId || undefined,
-    taskStageId: defaultConfigValues.taskStageId || undefined,
-    taskBoardId: defaultConfigValues.taskBoardId || undefined,
-    taskPipelineId: defaultConfigValues.taskPipelineId || undefined,
-    ticketStageId: defaultConfigValues.ticketStageId || undefined,
-    ticketBoardId: defaultConfigValues.ticketBoardId || undefined,
-    ticketPipelineId: defaultConfigValues.ticketPipelineId || undefined,
-    domain: defaultConfigValues.domain || undefined,
-    styles: {
-      bodyColor: styles.bodyColor || '',
-      headerColor: styles.headerColor || '',
-      footerColor: styles.footerColor || '',
-      helpColor: styles.helpColor || '',
-      backgroundColor: styles.backgroundColor || '',
-      activeTabColor: styles.activeTabColor || '',
-      baseColor: styles.baseColor || '',
-      headingColor: styles.headingColor || '',
-      baseFont: styles.baseFont || '',
-      headingFont: styles.headingFont || '',
-      linkColor: styles.linkColor || '',
-      linkHoverColor: styles.linkHoverColor || '',
-      primaryBtnColor: styles.primaryBtnColor || '',
-      secondaryBtnColor: styles.secondaryBtnColor || '',
-      dividerColor: styles.dividerColor || ''
-    },
-    mobileResponsive: defaultConfigValues.mobileResponsive || false,
-    twilioAccountSid: defaultConfigValues.twilioAccountSid || '',
-    twilioAuthToken: defaultConfigValues.twilioAuthToken || '',
-    twilioFromNumber: defaultConfigValues.twilioFromNumber || '',
-    googleCredentials: defaultConfigValues.googleCredentials
-  });
+    const defaultConfigValues =
+      props.defaultConfigValues || ({} as ClientPortalConfig);
 
-  const handleFormChange = (name: string, value: string | object) => {
-    setFormValues({
-      ...formValues,
-      [name]: value
-    });
-  };
+    this.state = {
+      formValues: defaultConfigValues
+    };
+  }
 
-  const handleSubmit = e => {
+  componentWillReceiveProps(nextProps) {
+    if (
+      this.props.defaultConfigValues &&
+      nextProps.defaultConfigValues !== this.props.defaultConfigValues
+    ) {
+      this.setState({ formValues: nextProps.defaultConfigValues });
+    }
+  }
+
+  handleSubmit = e => {
     e.preventDefault();
-    console.log(formValues);
+    const { formValues } = this.state;
+
     if (!formValues.name) {
       return Alert.error('Please enter a client portal name');
     }
@@ -102,16 +75,27 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       return Alert.error('Please select a public task pipeline');
     }
 
-    handleUpdate(formValues);
+    delete (formValues.styles || ({} as any)).__typename;
+
+    this.props.handleUpdate(formValues);
   };
 
-  const renderContent = () => {
+  handleFormChange = (name: string, value: string | object) => {
+    this.setState({
+      formValues: {
+        ...this.state.formValues,
+        [name]: value
+      }
+    });
+  };
+
+  renderContent = () => {
     const commonProps = {
-      ...formValues,
-      handleFormChange
+      ...this.state.formValues,
+      handleFormChange: this.handleFormChange
     };
 
-    switch (configType) {
+    switch (this.props.configType) {
       case CONFIG_TYPES.GENERAL.VALUE:
         return <General {...commonProps} />;
       case CONFIG_TYPES.APPEARANCE.VALUE:
@@ -123,7 +107,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     }
   };
 
-  const renderSubmit = () => {
+  renderSubmit = () => {
     return (
       <ButtonWrap>
         <Button btnStyle="success" icon="check-circle" type="submit">
@@ -133,14 +117,16 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     );
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <Content>
-        {renderContent()}
-        {renderSubmit()}
-      </Content>
-    </form>
-  );
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <Content>
+          {this.renderContent()}
+          {this.renderSubmit()}
+        </Content>
+      </form>
+    );
+  }
 }
 
 export default Form;
