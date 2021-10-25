@@ -117,6 +117,7 @@ export type FieldsCombinedByType = {
   brandId?: string;
   type: string;
   selectOptions?: any[];
+  order?: number;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {

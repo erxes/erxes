@@ -4,13 +4,13 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { Formgroup } from 'modules/common/components/form/styles';
 import { IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
-import { WEBHOOK_ACTIONS } from 'modules/settings/constants';
 import { WEBHOOK_DOC_URL } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 import { IWebhook } from '../types';
+import { getWebhookActions } from '../utils';
 
 type Props = {
   object?: IWebhook;
@@ -66,8 +66,9 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
   collectValues = selectedActions =>
     selectedActions.map(
       selectedAction =>
-        WEBHOOK_ACTIONS.find(action => action.label === selectedAction.label) ||
-        {}
+        getWebhookActions().find(
+          action => action.label === selectedAction.label
+        ) || {}
     );
 
   generateDoc = (values: { _id?: string; url: string }) => {
@@ -91,7 +92,8 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
   };
 
   generateActions = () => {
-    return WEBHOOK_ACTIONS.map(action => {
+    const actions = getWebhookActions();
+    return actions.map(action => {
       return { label: action.label, value: action.label };
     });
   };
