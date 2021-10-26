@@ -150,27 +150,34 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <FormGroup>
-        <ControlLabel>Condition</ControlLabel>
-        <FormControl
-          name="condition"
-          componentClass="select"
-          value={this.state.condition}
-          onChange={this.onChangeCondition}
-        >
-          <option value="include">{__('Include')}</option>
-          <option value="exclude">{__('Exclude')}</option>
-        </FormControl>
-        <SelectMemberStyled zIndex={2002}>
-          <ControlLabel>Members</ControlLabel>
-          <SelectTeamMembers
-            label="Choose members"
-            name="selectedMemberIds"
-            initialValue={selectedMemberIds}
-            onSelect={this.onChangeMembers}
-          />
-        </SelectMemberStyled>
-      </FormGroup>
+      <>
+        <FormGroup>
+          <ControlLabel>Condition</ControlLabel>
+
+          <FormControl
+            name="condition"
+            componentClass="select"
+            value={this.state.condition}
+            onChange={this.onChangeCondition}
+          >
+            <option value="include">{__('Include')}</option>
+            <option value="exclude">{__('Exclude')}</option>
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <SelectMemberStyled zIndex={2002}>
+            <ControlLabel>Members</ControlLabel>
+
+            <SelectTeamMembers
+              label="Choose members"
+              name="selectedMemberIds"
+              initialValue={selectedMemberIds}
+              onSelect={this.onChangeMembers}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
+      </>
     );
   }
 
@@ -298,8 +305,9 @@ class PipelineForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexContent>
 
-          <FormGroup>
+          {/* <FormGroup>
             <ControlLabel required={true}>Label</ControlLabel>
+
             <FormGroup>
               <FormControl
                 name="Label"
@@ -325,25 +333,25 @@ class PipelineForm extends React.Component<Props, State> {
                 </div>
               </FormControl>
             </FormGroup>
-          </FormGroup>
+          </FormGroup> */}
 
           <FormGroup>
             <ControlLabel required={true}>Visibility</ControlLabel>
-            <FormGroup>
-              <ControlLabel>State</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="visibility"
-                componentClass="select"
-                value={this.state.visibility}
-                onChange={this.onChangeVisibility}
-              >
-                <option value="public">{__('Public')}</option>
-                <option value="private">{__('Private')}</option>
-              </FormControl>
-              {this.renderSelectMembers()}
-            </FormGroup>
+
+            <FormControl
+              {...formProps}
+              name="visibility"
+              componentClass="select"
+              value={this.state.visibility}
+              onChange={this.onChangeVisibility}
+            >
+              <option value="public">{__('Public')}</option>
+              <option value="private">{__('Private')}</option>
+            </FormControl>
           </FormGroup>
+
+          {this.renderSelectMembers()}
+
           <FormGroup>
             <ControlLabel>
               {__(`Show only the user's assigned(created)`)} {this.props.type}s
