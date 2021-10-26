@@ -618,25 +618,10 @@ describe('User mutations', () => {
         return 'clearCookie';
       }
     };
-    const mutation1 = `
-      mutation login($email: String! $password: String! $deviceToken: String) {
-        login(email: $email password: $password deviceToken: $deviceToken)
-      }
-    `;
 
-    await graphqlRequest(mutation1, 'login', {
-      email: _user.email,
-      password: 'pass'
-    });
-    const updatedUser = await Users.getUser(_user.id);
-    const requestInfo = {cookies: {'auth-token' : updatedUser?.validatedTokens?.[0]}}
-    context.requestInfo = requestInfo;
-    context.res = res;
+    const response = await graphqlRequest(mutation, 'logout', {}, { res });
 
-    const response = await graphqlRequest(mutation, 'logout', {}, context);
-    
-    
-    expect(response).toBe('loggedout');
+    expect(response).toBe('token not found');
   });
 
   test('Reset member password', async () => {
