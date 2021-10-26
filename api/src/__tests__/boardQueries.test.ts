@@ -228,6 +228,10 @@ describe('boardQueries', () => {
       boardId: board._id,
       visibility: 'public'
     };
+    const args4 = {
+      boardId: board.id,
+      visibility: 'private'
+    };
 
     await pipelineFactory({
       ...args1,
@@ -241,12 +245,13 @@ describe('boardQueries', () => {
       ...args1,
       memberIds: [user2._id]
     });
-    await pipelineFactory({
-      ...args3,
-      condition: 'exclude',
-      memberIds: [user._id, user1._id, user2._id]
-    });
-
+    await pipelineFactory(args3);
+    await pipelineFactory({ ...args3, memberIds: [user1._id] });
+    await pipelineFactory(args4);
+    await pipelineFactory({ ...args4, memberIds: [user2._id] });
+    await pipelineFactory({ ...args4, memberIds: [user1._id] });
+    await pipelineFactory({ ...args4, memberIds: [user2._id, user1._id] });
+    await pipelineFactory({ ...args4, memberIds: [user._id] });
     const responseUser = await graphqlRequest(
       pipelineQry,
       'pipelines',
@@ -265,15 +270,22 @@ describe('boardQueries', () => {
       {},
       { user: user2 }
     );
-
-    expect(responseUser.length).toBe(4);
-    expect(responseUser1.length).toBe(2);
-    expect(responseUser2.length).toBe(3);
+    console.log(
+      '----',
+      responseUser,
+      '++++',
+      responseUser1,
+      '=====',
+      responseUser2
+    );
+    expect(responseUser.length).toBe(10);
+    expect(responseUser1.length).toBe(6);
+    expect(responseUser2.length).toBe(6);
 
     expect(responseUser[0].condition).toBe('include');
     expect(responseUser[1].condition).toBe('exclude');
     expect(responseUser[2].condition).toBe('include');
-    expect(responseUser[3].condition).toBe('exclude');
+    expect(responseUser[3].condition).toBe('include');
 
     expect(responseUser[0].visibility).toBe('private');
     expect(responseUser[1].visibility).toBe('private');
@@ -284,7 +296,7 @@ describe('boardQueries', () => {
     expect(responseMemberIds[0].includes(user._id)).toBe(true);
     expect(responseMemberIds[1].includes(user._id)).toBe(false);
     expect(responseMemberIds[2].includes(user._id)).toBe(false);
-    expect(responseMemberIds[3].includes(user._id)).toBe(true);
+    expect(responseMemberIds[3].includes(user._id)).toBe(false);
 
     const responseMemberIds1 = await responseUser1.map(e => e.memberIds);
     expect(responseMemberIds1[0].includes(user1._id)).toBe(true);
@@ -293,7 +305,7 @@ describe('boardQueries', () => {
     const responseMemberIds2 = await responseUser2.map(e => e.memberIds);
     expect(responseMemberIds2[0].includes(user2._id)).toBe(false);
     expect(responseMemberIds2[1].includes(user2._id)).toBe(true);
-    expect(responseMemberIds2[2].includes(user2._id)).toBe(true);
+    expect(responseMemberIds2[2].includes(user2._id)).toBe(false);
   });
 
   test('Pipelines isAll', async () => {

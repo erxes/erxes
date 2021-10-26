@@ -194,6 +194,9 @@ const boardQueries = {
                     { condition: 'exclude' },
                     { memberIds: { $nin: [user._id] } }
                   ]
+                },
+                {
+                  $or: [{ memberIds: user._id }, { userId: user._id }]
                 }
               ]
             }
