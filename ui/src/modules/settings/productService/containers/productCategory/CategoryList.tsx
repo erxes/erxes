@@ -12,12 +12,13 @@ import {
   ProductsQueryResponse
 } from '../../types';
 
-type Props = { history: any; queryParams: any };
+type Props = { history: any; queryParams: any; };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
   productsQuery: ProductsQueryResponse;
+
 } & Props &
   ProductCategoryRemoveMutationResponse;
 class ProductListContainer extends React.Component<FinalProps> {
@@ -101,8 +102,11 @@ export default withProps<Props>(
         options
       }
     ),
-    graphql<Props, ProductsQueryResponse>(gql(queries.products), {
-      name: 'productsQuery'
-    })
+    graphql<Props, ProductsQueryResponse>(
+      gql(queries.products),
+      {
+        name: 'productsQuery'
+      }
+    )
   )(ProductListContainer)
 );
