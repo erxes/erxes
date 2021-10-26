@@ -8,11 +8,7 @@ const getUserInfo = user => {
     return '';
   }
 
-  if (details.firstName && details.lastName) {
-    return details.firstName + ' ' + details.lastName;
-  }
-
-  return details.firstName || details.lastName || user.email || '';
+  return details.fullName || user.email || '';
 };
 
 const generateData = (
