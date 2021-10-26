@@ -10,30 +10,18 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
-import {
-  Companies,
-  Customers,
-  OnboardingHistories,
-  Users,
-  Webhooks
-} from '../db/models';
-import { getBoardItemLink } from '../db/models/boardUtils';
 import { IBrandDocument } from '../db/models/definitions/brands';
-import {
-  WEBHOOK_STATUS,
-  WEBHOOK_TYPES
-} from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import { ACTIVITY_LOG_ACTIONS } from './logUtils';
 import {
   fieldsCombinedByContentType,
   getCustomFields
 } from './modules/fields/utils';
 import { generateAmounts, generateProducts } from './resolvers/deals';
+import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -569,7 +557,7 @@ export const replaceEditorAttributes = async (args: {
   if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
-      value: Customers.getCustomerName(customer)
+      value: models.Customers.getCustomerName(customer)
     });
 
     for (const field of customerFields) {
@@ -698,7 +686,7 @@ export type ISendNotification = ISendNotificationC;
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
-  await Users.updateMany(
+  await models.Users.updateMany(
     { _id: { $in: doc.receivers } },
     { $set: { isShowNotification: false } }
   );
@@ -741,7 +729,7 @@ export const registerOnboardHistory = ({
   type: string;
   user: IUserDocument;
 }) =>
-  OnboardingHistories.getOrCreate({ type, user })
+  models.OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
       if (status === 'created') {
         graphqlPubsub.publish('onboardingChanged', {
@@ -818,52 +806,7 @@ export const sendToWebhook = async (
   type: string,
   params: any
 ) => {
-  const webhooks = await Webhooks.find({
-    actions: { $elemMatch: { action, type } }
-  });
-
-  if (!webhooks) {
-    return;
-  }
-
-  let data = params;
-  for (const webhook of webhooks) {
-    if (!webhook.url || webhook.url.length === 0) {
-      continue;
-    }
-
-    if (action === 'delete') {
-      data = { type, object: { _id: params.object._id } };
-    }
-
-    const { slackContent, content, url } = await prepareWebhookContent(
-      type,
-      action,
-      data
-    );
-
-    sendRequest({
-      url: webhook.url,
-      headers: {
-        'Erxes-token': webhook.token || ''
-      },
-      method: 'post',
-      body: {
-        data: JSON.stringify(data),
-        text: slackContent,
-        content,
-        url,
-        action,
-        type
-      }
-    })
-      .then(async () => {
-        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
-      })
-      .catch(async () => {
-        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.UNAVAILABLE);
-      });
-  }
+  await sendToWebhookC(models, { action, type, params });
 };
 
 export default {
@@ -873,99 +816,6 @@ export default {
   readFile,
   createTransporter,
   sendToWebhook
-};
-
-export const prepareWebhookContent = async (type, action, data) => {
-  let actionText = 'created';
-  let url;
-  let content = '';
-
-  switch (action) {
-    case 'update':
-      actionText = 'has been updated';
-      break;
-    case 'delete':
-      actionText = 'has been deleted';
-      break;
-    case ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG:
-      content = `${type} with name ${data.data.item.name ||
-        ''} has moved from ${data.data.activityLogContent.text}`;
-      url = data.data.link;
-    default:
-      actionText = 'has been created';
-      break;
-  }
-
-  switch (type) {
-    case WEBHOOK_TYPES.CUSTOMER:
-      url = `/contacts/details/${data.object._id}`;
-      content = `Customer ${actionText}`;
-      break;
-
-    case WEBHOOK_TYPES.COMPANY:
-      url = `/companies/details/${data.object._id}`;
-      content = `Company ${actionText}`;
-      break;
-
-    case WEBHOOK_TYPES.KNOWLEDGEBASE:
-      url = `/knowledgeBase?id=${data.newData.categoryIds[0]}`;
-      content = `Knowledge base article ${actionText}`;
-      break;
-
-    case WEBHOOK_TYPES.USER_MESSAGES:
-      url = `/inbox/index?_id=${data.conversationId}`;
-      content = 'Admin has replied to a conversation';
-      break;
-
-    case WEBHOOK_TYPES.CUSTOMER_MESSAGES:
-      url = `/inbox/index?_id=${data.conversationId}`;
-      content = 'Customer has send a conversation message';
-      break;
-
-    case WEBHOOK_TYPES.CONVERSATION:
-      url = `/inbox/index?_id=${data._id}`;
-      content = 'Customer has started new conversation';
-      break;
-
-    case WEBHOOK_TYPES.FORM_SUBMITTED:
-      url = `/inbox/index?_id=${data.conversationId}`;
-      content = 'Customer has submitted a form';
-      break;
-
-    case WEBHOOK_TYPES.CAMPAIGN:
-      url = `/campaigns/show/${data._id}`;
-
-      if (data.method === 'messenger') {
-        url = `/campaigns/edit/${data.$_id}`;
-      }
-
-      content = 'Campaign has been created';
-      break;
-
-    default:
-      break;
-  }
-
-  if (
-    [WEBHOOK_TYPES.DEAL, WEBHOOK_TYPES.TASK, WEBHOOK_TYPES.TICKET].includes(
-      type
-    ) &&
-    ['create', 'update'].includes(action)
-  ) {
-    const { object } = data;
-    url = await getBoardItemLink(object.stageId, object._id);
-    content = `${type} ${actionText}`;
-  }
-
-  url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
-
-  let slackContent = '';
-
-  if (action !== 'delete') {
-    slackContent = `<${url}|${content}>`;
-  }
-
-  return { slackContent, content, url };
 };
 
 export const cleanHtml = (content?: string) =>
@@ -990,11 +840,17 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await Customers.updateOne({ _id: cid }, { $set: { isSubscribed: 'No' } });
+    await models.Customers.updateOne(
+      { _id: cid },
+      { $set: { isSubscribed: 'No' } }
+    );
   }
 
   if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
+    await models.Users.updateOne(
+      { _id: uid },
+      { $set: { isSubscribed: 'No' } }
+    );
   }
 };
 
@@ -1135,7 +991,7 @@ export const findCustomer = async doc => {
   let customer;
 
   if (doc.customerPrimaryEmail) {
-    customer = await Customers.findOne({
+    customer = await models.Customers.findOne({
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
@@ -1144,7 +1000,7 @@ export const findCustomer = async doc => {
   }
 
   if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({
+    customer = await models.Customers.findOne({
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
@@ -1153,7 +1009,7 @@ export const findCustomer = async doc => {
   }
 
   if (!customer && doc.customerCode) {
-    customer = await Customers.findOne({ code: doc.customerCode });
+    customer = await models.Customers.findOne({ code: doc.customerCode });
   }
 
   return customer;
@@ -1163,7 +1019,7 @@ export const findCompany = async doc => {
   let company;
 
   if (doc.companyPrimaryName) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
         { primaryName: doc.companyPrimaryName }
@@ -1172,25 +1028,25 @@ export const findCompany = async doc => {
   }
 
   if (!company && doc.name) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
     });
   }
 
   if (!company && doc.email) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     });
   }
 
   if (!company && doc.phone) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     });
   }
 
   if (!company && doc.companyPrimaryEmail) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
         { primaryEmail: doc.companyPrimaryEmail }
@@ -1199,7 +1055,7 @@ export const findCompany = async doc => {
   }
 
   if (!company && doc.companyPrimaryPhone) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
         { primaryPhone: doc.companyPrimaryPhone }
@@ -1208,7 +1064,7 @@ export const findCompany = async doc => {
   }
 
   if (!company && doc.companyCode) {
-    company = await Companies.findOne({ code: doc.companyCode });
+    company = await models.Companies.findOne({ code: doc.companyCode });
   }
 
   return company;
