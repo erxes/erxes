@@ -64,10 +64,8 @@ class Header extends React.Component<Props, State> {
         {this.state.isOpen === true ? this.renderNav() : ''}
         <div className="nav" onClick={this.toggleNavigation}>
           <GiHamburgerMenu style={{ marginRight: '5px' }} />
-          <p>Navigation</p>
         </div>
       </div>
-
     );
   }
 }

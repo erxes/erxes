@@ -18,7 +18,7 @@ function Button({ text, type, onClickHandler, style }: Props) {
       style={style}
     >
       {type === 'back' && <HiArrowLeft width="1,2em" strokeWidth="1.2px" />}
-      <div style={{ padding: '5px' }}>{`${text}`} </div>
+      <div style={{ padding: '5px' }}>{`${text}`}</div>
       {type === 'next' && <HiArrowRight width="1,2em" strokeWidth="1.2px" />}
     </button>
   );

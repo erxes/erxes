@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IBookingData } from '../types';
-import { Block } from '../containers';
+import { Card } from '../containers';
 import Button from './common/Button';
 import Body from './common/Body';
 
@@ -19,16 +19,14 @@ function Booking({ goToIntro, booking }: Props) {
   const { name, attachment, description } = mainProductCategory;
   const { widgetColor, line, columns, rows, margin } = style;
 
+  const type = name || "Блок";
   const column: string = columns!;
   // tslint:disable-next-line: radix
   const colCount = parseInt(column) >= 4 ? '4' : columns;
 
-  const blocksStyle = {
-    width: '100%',
-    display: 'grid',
+  let blocksStyle = {
     marginTop: '10px',
-    gridTemplateColumns: `repeat(${colCount}, 1fr)`,
-    gridAutoColumns: 'minmax(100px, auto)',
+    gridTemplateColumns: `repeat(${colCount}, minmax(120px, 1fr))`,
     gap: margin
   };
 
@@ -51,10 +49,10 @@ function Booking({ goToIntro, booking }: Props) {
         description={description}
         image={attachment}
       >
-        <div style={blocksStyle}>
+        <div className="items" style={blocksStyle}>
           {childCategories.map((block, index) => {
             return (
-              <Block key={index} block={block} widgetColor={widgetColor} />
+              <Card key={index.toString()} type={type} widgetColor={widgetColor} />
             );
           })}
         </div>

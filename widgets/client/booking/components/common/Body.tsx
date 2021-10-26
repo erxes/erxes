@@ -20,6 +20,7 @@ function Body({ title, description, image, page, children }: Props) {
   if (page === 'booking') {
     style = 'block-det flex-center';
   }
+  console.log(children)
 
   return (
     <div className="body">
@@ -30,7 +31,7 @@ function Body({ title, description, image, page, children }: Props) {
           src={readFile(image && image.url)}
           alt={title}
           style={{
-            maxHeight: '60vh',
+            maxHeight: '100%',
             maxWidth: '100%'
           }}
         />

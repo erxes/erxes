@@ -184,7 +184,7 @@ class FilterableList extends React.Component<Props, State> {
   renderItems() {
     const { loading, parentId } = this.props;
     const { items } = this.state;
-
+    console.log("item,", items)
     if (loading) {
       return null;
     }
