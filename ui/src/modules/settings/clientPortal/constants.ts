@@ -1,15 +1,15 @@
 export const CONFIG_TYPES = {
   GENERAL: {
-    LABEL: 'General',
+    LABEL: 'General Settings',
     VALUE: 'general'
   },
-  COLOR_FONTS: {
-    LABEL: 'Colors and Fonts',
-    VALUE: 'colorFonts'
+  APPEARANCE: {
+    LABEL: 'Appearance',
+    VALUE: 'appearance'
   },
-  CONFIG: {
-    LABEL: 'System Configuration',
-    VALUE: 'System Configuration'
+  CUSTOM: {
+    LABEL: 'System configuration',
+    VALUE: 'custom'
   }
 };
 
