@@ -1,19 +1,19 @@
 // import { paginate } from 'erxes-api-utils'
 
-const sendError = (message) => ({
-  status: "error",
-  errorMessage: message,
+const sendError = message => ({
+  status: 'error',
+  errorMessage: message
 });
 
-const sendSuccess = (data) => ({
-  status: "success",
-  data,
+const sendSuccess = data => ({
+  status: 'success',
+  data
 });
 
 export default [
   {
-    method: "RPCQueue",
-    channel: "rpc_queue:erxes-pos",
+    method: 'RPCQueue',
+    channel: 'rpc_queue:erxes-pos',
     handler: async (msg, { models }) => {
       const { action, data } = msg;
       let filter = {};
@@ -36,4 +36,4 @@ export default [
       }
     }
   }
-]
+];

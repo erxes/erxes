@@ -6,10 +6,7 @@ import CreatePos from './pos/containers/CreatePos';
 
 const settingsComponent = ({ location, history }) => {
   return (
-    <List
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
+    <List queryParams={queryString.parse(location.search)} history={history} />
   );
 };
 
@@ -17,22 +14,12 @@ const editPos = ({ match, location, history }) => {
   const { posId } = match.params;
   const queryParams = queryString.parse(location.search);
 
-  return (
-    <EditPos
-      queryParams={queryParams}
-      posId={posId}
-      history={history}
-    />
-  );
-}
+  return <EditPos queryParams={queryParams} posId={posId} history={history} />;
+};
 
 const createPos = ({ match, location, history }) => {
-  return (
-    <CreatePos location={location}
-      match={match}
-      history={history} />
-  );
-}
+  return <CreatePos location={location} match={match} history={history} />;
+};
 
 export default () => ({
   routes: [
@@ -55,7 +42,7 @@ export default () => ({
       image: '/images/icons/erxes-05.svg',
       to: '/erxes-plugin-pos/pos/',
       action: 'posConfig',
-      permissions: [],
+      permissions: []
     }
-  ],
+  ]
 });

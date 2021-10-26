@@ -36,7 +36,6 @@ const commonVariables = `
     formIntegrationIds: $formIntegrationIds
 `;
 
-
 const posAdd = `
   mutation posAdd(${commonFields}) {
     posAdd(${commonVariables}){
@@ -116,7 +115,7 @@ mutation productGroupsBulkInsert($posId: String, $groups: [GroupInput]) {
     _id
   }
 }
-`
+`;
 
 export default {
   posAdd,

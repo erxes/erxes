@@ -13,7 +13,7 @@ tags {
   colorCode
 }
 isActive
-`
+`;
 
 const posCommonFields = `
 _id
@@ -49,7 +49,7 @@ kitchenScreen
 kioskMachine
 formSectionTitle
 formIntegrationIds
-`
+`;
 
 const posList = `
   query posList {
@@ -68,7 +68,7 @@ const configs = `
       value
     }
   }
-`
+`;
 
 const productGroups = `
   query productGroups($posId: String!) {
@@ -82,7 +82,7 @@ const productGroups = `
       excludedProductIds
     }
   }
-`
+`;
 
 const brands = `
   query brands($page: Int, $perPage: Int, $searchValue: String) {
@@ -127,8 +127,6 @@ const integrationDetail = `
   }
 `;
 
-
-
 const posDetail = `
 query posDetail($_id: String!) {
   posDetail(_id: $_id) {
@@ -136,7 +134,7 @@ query posDetail($_id: String!) {
     productDetails
   }
 }
-`
+`;
 
 const getDbSchemaLabels = `
   query getDbSchemaLabels($type: String) {

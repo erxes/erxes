@@ -1,8 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import {
-    __, Alert, withProps
-  } from 'erxes-ui';
+import { __, Alert, withProps } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
@@ -12,7 +10,6 @@ import {
   TagsQueryResponse
 } from '../../types';
 import Tagger from '../components/Tagger';
-
 
 type Props = {
   // targets can be conversation, customer, company etc ...

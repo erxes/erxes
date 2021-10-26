@@ -23,7 +23,7 @@ class BrandFilterContainer extends React.Component<FinalProps> {
       ...this.props,
       brands: (brandsQuery ? brandsQuery.brands : null) || [],
       loading: (brandsQuery ? brandsQuery.loading : null) || false,
-      counts: counts || {},
+      counts: counts || {}
     };
 
     return <BrandFilter {...updatedProps} />;

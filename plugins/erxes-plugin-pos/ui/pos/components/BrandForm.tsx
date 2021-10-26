@@ -1,15 +1,9 @@
-import {
-  Button,
-  FormControl,
-  Form,
-  FormGroup,
-  ControlLabel,
-} from 'erxes-ui';
+import { Button, FormControl, Form, FormGroup, ControlLabel } from 'erxes-ui';
 import { IFormProps } from 'erxes-ui/lib/types';
 import { IButtonMutateProps } from '../../types';
 import React from 'react';
 import { IBrand } from 'erxes-ui/lib/products/types';
-import { ModalFooter} from 'erxes-ui/lib/styles/main'
+import { ModalFooter } from 'erxes-ui/lib/styles/main';
 
 type Props = {
   brand?: IBrand;
@@ -24,7 +18,6 @@ const BrandForm = (props: Props) => {
   const { brand, closeModal, renderButton, afterSave } = props;
   const object = brand || ({} as IBrand);
 
-
   const renderFooter = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -33,7 +26,7 @@ const BrandForm = (props: Props) => {
     }
 
     const updatedValues = {
-      ...values,
+      ...values
     };
 
     return (

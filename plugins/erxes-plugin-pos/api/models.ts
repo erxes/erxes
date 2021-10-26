@@ -1,80 +1,100 @@
-import { IPOS } from "./types";
-
+import { IPOS } from './types';
+import * as Random from 'meteor-random';
 /**
  * pos
  */
 
 export const posSChema = {
-    _id: { pkey: true },
-    name: { type: String, label: 'name' },
-    description: { type: String, label: 'description' },
-    userId: { type: String, optional: true, label: 'created by' },
-    createdAt: { type: Date, label: 'Created at' },
-    integrationId: { type: String },
-    productDetails: { type: [String] },
-    adminIds: { type: [String] },
-    cashierIds: { type: [String] },
-    waitingScreen: { type: Object },
-    kioskMachine: { type: Object },
-    kitchenScreen: { type: Object },
-    formSectionTitle: { type: String },
-    formIntegrationIds: { type: [String] }
+  _id: { pkey: true },
+  name: { type: String, label: 'name' },
+  description: { type: String, label: 'description' },
+  userId: { type: String, optional: true, label: 'created by' },
+  createdAt: { type: Date, label: 'Created at' },
+  integrationId: { type: String },
+  productDetails: { type: [String] },
+  adminIds: { type: [String] },
+  cashierIds: { type: [String] },
+  waitingScreen: { type: Object },
+  kioskMachine: { type: Object },
+  kitchenScreen: { type: Object },
+  formSectionTitle: { type: String },
+  formIntegrationIds: { type: [String] },
+  token: { type: String }
 };
 
 class Pos {
-    public static async getPosList(models) {
-        return models.Pos.find().sort({ createdAt: 1 })
+  public static async getPosList(models) {
+    return models.Pos.find().sort({ createdAt: 1 });
+  }
+
+  public static async getPos(models, query: any) {
+    const pos = await models.Pos.findOne(query).lean();
+
+    if (!pos) {
+      throw new Error('POS not found');
+    }
+    return pos;
+  }
+
+  public static async generateToken(models, code?: string) {
+    let generatedCode = code || (Math.random() + 1).toString(36).substring(7);
+
+    let prevPos = await models.Pos.findOne({ token: generatedCode });
+
+    // search until not existing one found
+    while (prevPos) {
+      generatedCode = Random.id().substr(0, 6);
+
+      prevPos = await models.Pos.findOne({ token: generatedCode });
     }
 
-    public static async getPos(models, query: any) {
-        const pos = await models.Pos.findOne(query).lean();
+    return generatedCode;
+  }
 
-        if (!pos) {
-            throw new Error('POS not found');
-        }
-        return pos;
+  public static async posAdd(models, user, doc: IPOS) {
+    try {
+      const integration = await models.Integrations.createIntegration(
+        { ...doc, kind: 'pos', isActive: true },
+        user._id
+      );
+
+      return models.Pos.create({
+        userId: user._id,
+        integrationId: integration._id,
+        createdAt: new Date(),
+        token: await this.generateToken(models),
+        ...doc
+      });
+    } catch (e) {
+      throw new Error(
+        `Can not create POS integration. Error message: ${e.message}`
+      );
     }
+  }
 
-    public static async posAdd(models, user, doc: IPOS) {
-        try {
-            const integration = await models.Integrations.createIntegration({ ...doc, kind: 'pos', isActive: true }, user._id);
+  public static async posEdit(models, _id: string, doc: IPOS) {
+    console.log(doc);
 
-            return models.Pos.create({
-                userId: user._id,
-                integrationId: integration._id,
-                createdAt: new Date(),
-                ...doc
-            })
-        } catch (e) {
-            throw new Error(`Can not create POS integration. Error message: ${e.message}`)
-        }
+    const pos = await models.Pos.getPos(models, { _id });
 
-    }
+    await models.Pos.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
-    public static async posEdit(models, _id: string, doc: IPOS) {
+    await models.Integrations.updateOne(
+      { _id: pos.integrationId },
+      { $set: doc },
+      { runValidators: true }
+    );
 
-        console.log(doc)
+    return await models.Pos.findOne({ _id }).lean();
+  }
 
-        const pos = await models.Pos.getPos(models, { _id });
+  public static async posRemove(models, _id: string) {
+    const pos = await models.Pos.getPos(models, { _id });
 
-        await models.Pos.updateOne({ _id },
-            { $set: doc },
-            { runValidators: true });
+    await models.Integrations.removeIntegration(pos.integrationId);
 
-        await models.Integrations.updateOne({ _id: pos.integrationId },
-            { $set: doc },
-            { runValidators: true })
-
-        return await models.Pos.findOne({ _id }).lean();;
-    }
-
-    public static async posRemove(models, _id: string) {
-        const pos = await models.Pos.getPos(models, { _id });
-
-        await models.Integrations.removeIntegration(pos.integrationId)
-
-        return models.Pos.deleteOne({ _id });
-    }
+    return models.Pos.deleteOne({ _id });
+  }
 }
 
 /**
@@ -82,58 +102,60 @@ class Pos {
  */
 
 export const productGroupSchema: any = {
-    _id: { pkey: true },
-    name: { type: String },
-    description: { type: String },
-    posId: { type: String },
-    categoryIds: { type: [String], optional: true },
-    excludedCategoryIds: { type: [String], optional: true },
-    excludedProductIds: { type: [String], optional: true }
+  _id: { pkey: true },
+  name: { type: String },
+  description: { type: String },
+  posId: { type: String },
+  categoryIds: { type: [String], optional: true },
+  excludedCategoryIds: { type: [String], optional: true },
+  excludedProductIds: { type: [String], optional: true }
 };
 
 class ProductGroup {
+  public static async groups(models, posId: string) {
+    return models.ProductGroups.find({ posId }).lean();
+  }
 
-    public static async groups(models, posId: string) {
-        return models.ProductGroups.find({ posId }).lean();
+  public static async groupsAdd(models, user, name, description) {
+    return models.ProductGroups.create({
+      userId: user._id,
+      name,
+      description,
+      createdAt: new Date()
+    });
+  }
+
+  public static async groupsEdit(models, _id, doc) {
+    const group = await models.ProductGroups.findOne({ _id }).lean();
+
+    if (!group) {
+      throw new Error('group not found');
     }
 
-    public static async groupsAdd(models, user, name, description) {
-        return models.ProductGroups.create({
-            userId: user._id,
-            name,
-            description,
-            createdAt: new Date()
-        })
-    }
+    await models.ProductGroups.updateOne(
+      { _id },
+      {
+        $set: doc
+      }
+    );
 
-    public static async groupsEdit(models, _id, doc) {
-        const group = await models.ProductGroups.findOne({ _id }).lean();
+    return await models.ProductGroups.findOne({ _id }).lean();
+  }
 
-        if (!group) {
-            throw new Error('group not found');
-        }
-
-        await models.ProductGroups.updateOne({ _id }, {
-            $set: doc
-        });
-
-        return await models.ProductGroups.findOne({ _id }).lean();;
-    }
-
-    public static async groupsRemove(models, _id: string) {
-        return models.ProductGroups.deleteOne({ _id });
-    }
+  public static async groupsRemove(models, _id: string) {
+    return models.ProductGroups.deleteOne({ _id });
+  }
 }
 
 export default [
-    {
-        name: 'Pos',
-        schema: posSChema,
-        klass: Pos
-    },
-    {
-        name: 'ProductGroups',
-        schema: productGroupSchema,
-        klass: ProductGroup
-    },
+  {
+    name: 'Pos',
+    schema: posSChema,
+    klass: Pos
+  },
+  {
+    name: 'ProductGroups',
+    schema: productGroupSchema,
+    klass: ProductGroup
+  }
 ];

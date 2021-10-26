@@ -1,4 +1,4 @@
-import { dimensions, colors, ContentHeader } from 'erxes-ui'
+import { dimensions, colors, ContentHeader } from 'erxes-ui';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -16,7 +16,6 @@ export const SettingsContent = styled.div`
   padding: 30px;
 `;
 
-
 export const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
   max-width: 640px;
@@ -27,7 +26,6 @@ export const Description = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
 `;
-
 
 export const LinkButton = styled.a`
   cursor: pointer;
@@ -55,7 +53,7 @@ export const ActionButtons = styled.div`
 `;
 
 export const Actions = styled.div`
-  float: right
+  float: right;
 `;
 
 export const RowTitle = styled.div`
@@ -96,7 +94,6 @@ const TabletPreview = styled.div`
   padding: 80px ${dimensions.coreSpacing}px;
   margin-top: ${dimensions.coreSpacing}px;
 `;
-
 
 const PreviewContainer = styled.div`
   position: relative;
@@ -180,13 +177,10 @@ export const FlexColumn = styled.div`
   }
 `;
 
-
-
 export const FlexItem = styled.div`
   display: flex;
   height: 100%;
 `;
-
 
 export const Row = styled.div`
   display: flex;

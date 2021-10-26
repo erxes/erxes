@@ -14,7 +14,6 @@ type Props = {
   mode: 'create' | 'update';
   categories: any[];
   products: IProduct[];
-  
 };
 
 type State = {
@@ -100,7 +99,7 @@ class GroupForm extends React.Component<Props, State> {
         'excludedProductIds',
         values.map(e => e.value)
       );
-    }
+    };
 
     return (
       <>

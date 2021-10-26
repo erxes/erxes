@@ -20,7 +20,7 @@ const posCommonFields = `
   kioskMachine: JSON
   formSectionTitle: String
   formIntegrationIds: [String]
-`
+`;
 
 export const types = `
   type Pos {
@@ -66,6 +66,3 @@ export const mutations = `
   productGroupsAdd(${groupCommonFields}): ProductGroups
   productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]
 `;
-
-
-
