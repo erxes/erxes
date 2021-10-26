@@ -697,12 +697,14 @@ export const loadClass = () => {
      public static async logout(user: IUserDocument, currentToken: string) {
       const currentUser:any = await this.getUser(user._id);
       let validatedTokens: string[] = currentUser.validatedTokens || [];
+
       if(validatedTokens.includes(currentToken)){
         // invalidating token.
         validatedTokens = await validatedTokens.filter(token => token !== currentToken)
         await Users.updateOne({ _id: currentUser._id }, { $set: { validatedTokens } });
         return 'loggedout';
       }
+      
       return 'token not found';
     }
 

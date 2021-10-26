@@ -146,10 +146,10 @@ const userMutations = {
     return login(args, res, requestInfo.secure);
   },
 
-  async logout(_root, _args, { res, user }: IContext ) {
-    await Users.logout(user ,res.req?.cookies['auth-token']);
+  async logout(_root, _args, { res, user, requestInfo }: IContext ) {
+    const loggedout = await Users.logout(user, requestInfo.cookies['auth-token']);
     res.clearCookie('auth-token');
-    return 'loggedout';
+    return loggedout;
   },
 
   /*
