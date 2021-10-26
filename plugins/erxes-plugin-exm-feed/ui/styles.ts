@@ -1,46 +1,46 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const FeedLayout = styled.div`
-  width: 690px;
+  flex: 1;
+
   p {
     margin-bottom: 0;
   }
-  > div:first-child {
-    border-left: 1px solid #DDD;
-    border-right: 1px solid #DDD;
-  }
 
-  > div:nth-child(3) {
-    > div:first-child {
-      border: 1px solid #DDD;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      > span:first-child {
-        > div:first-child {
-          margin-left: 10px;
-        }
-      }
+  .hxZkUW {
+    justify-content: center;
+
+    > span {
+      min-width: 120px;
+      text-align: center;
     }
   }
+`;
+
+export const TabContent = styled.div`
+  width: 700px;
+  margin: 20px auto;
 
   form {
-    border: 1px solid #DDD;
+    padding: 10px 20px;
+    background: #f4f4f7;
+    border-radius: 10px;
+    border: 1px solid #eee;
     margin-bottom: 20px;
-    padding: 10px;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    button {
-      margin-top: 10px;
-      align-self: end;
+
+    > span {
+      display: block;
+      margin-bottom: 10px;
     }
   }
+`;
 
+export const ButtonWrap = styled.div`
+  display: flex;
+  justify-content: flex-end;
 `;
 
 export const UploadItems = styled.div`
-  margin-top: 10px;
   > div {
     display: flex;
     flex-direction: column-reverse;
@@ -49,20 +49,20 @@ export const UploadItems = styled.div`
 
 export const NewsFeedLayout = styled.div`
   > div {
-    border: 1px solid #DDD;
+    border: 1px solid #ddd;
     margin-bottom: 20px;
     border-radius: 10px;
     > img {
       width: 100%;
-      border-top: 1px solid #DDD;
+      border-top: 1px solid #ddd;
     }
   }
 
   > button {
-    border: 1px solid #DDD;
+    border: 1px solid #ddd;
     margin-bottom: 20px;
     &:hover {
-      background: rgba(10,30,65,0.08);
+      background: rgba(10, 30, 65, 0.08);
     }
   }
 `;
@@ -91,7 +91,7 @@ export const NavItem = styled.div`
   border-radius: 50%;
   margin-left: auto;
   &:hover {
-    background-color: #DDD;
+    background-color: #ddd;
     cursor: pointer;
   }
 
@@ -101,7 +101,7 @@ export const NavItem = styled.div`
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    
+
     div:first-child {
       display: table-cell;
       vertical-align: middle;
@@ -127,7 +127,7 @@ export const TextFeed = styled.div`
 
 export const LikeCommentShare = styled.div`
   display: flex;
-  border-top: 1px solid #DDD;
+  border-top: 1px solid #ddd;
   padding: 10px;
   b {
     margin-right: 20px;
@@ -139,11 +139,15 @@ export const LikeCommentShare = styled.div`
 `;
 
 export const Attachments = styled.div`
-  border-top: 1px solid #DDD;
+  border-top: 1px solid #ddd;
   color: #444;
   font-size: 14px;
   padding: 10px;
   &:hover {
-    background: rgba(10,30,65,0.08);
+    background: rgba(10, 30, 65, 0.08);
   }
+`;
+
+export const MainContent = styled.div`
+  padding: 20px;
 `;

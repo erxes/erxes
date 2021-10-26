@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Form, Uploader } from 'erxes-ui';
-import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
-import { UploadItems } from '../styles';
-import { description, title } from '../utils';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import GenerateFields from './GenerateFields';
+import React, { useState } from "react";
+import { Form, Uploader } from "erxes-ui";
+import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
+import { UploadItems, ButtonWrap } from "../styles";
+import { description, title } from "../utils";
+import ControlLabel from "erxes-ui/lib/components/form/Label";
+import GenerateFields from "./GenerateFields";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -49,18 +49,20 @@ export default function PostForm(props: Props) {
             <ControlLabel>Add image:</ControlLabel>
           </div>
         </UploadItems>
-        {renderButton({
-          values: {
-            title: values.title,
-            description: values.description ? values.description : null,
-            contentType: 'post',
-            images,
-            attachments,
-            customFieldsData
-          },
-          isSubmitted,
-          callback: closeModal
-        })}
+        <ButtonWrap>
+          {renderButton({
+            values: {
+              title: values.title,
+              description: values.description ? values.description : null,
+              contentType: "post",
+              images,
+              attachments,
+              customFieldsData,
+            },
+            isSubmitted,
+            callback: closeModal,
+          })}
+        </ButtonWrap>
       </>
     );
   };
