@@ -6,7 +6,7 @@ on:
       - '**'
     paths:
       - 'api/**'
-      - 'plugins/erxes-plugin-exm-feed/api'
+      - 'plugins/erxes-plugin-exm-feed/api/**'
       - '.github/workflows/api.yaml'
   pull_request:
     branches:
