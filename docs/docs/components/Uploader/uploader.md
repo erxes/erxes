@@ -8,7 +8,7 @@ import { UploaderComponent } from "./uploader.js"
 ## Multiple
 
 <p>Choose multiple file</p>
-<UploaderComponent ></UploaderComponent>
+<UploaderComponent multi={true}></UploaderComponent>
 
 <p>Choose only one file</p>
 <UploaderComponent multi={false}></UploaderComponent>
