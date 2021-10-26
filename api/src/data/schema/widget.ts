@@ -28,6 +28,7 @@ export const types = `
     errors: [Error]
     messageId: String
     customerId: String
+    userId: String
   }
 
   type Error {
@@ -126,6 +127,7 @@ export const mutations = `
     submissions: [FieldValueInput]
     browserInfo: JSON!
     cachedCustomerId: String
+    userId: String
   ): SaveFormResponse
 
   widgetsSendEmail(

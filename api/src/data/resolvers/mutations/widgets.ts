@@ -7,6 +7,7 @@ import {
   Customers,
   Fields,
   Forms,
+  FormSubmissions,
   Integrations,
   KnowledgeBaseArticles,
   Users
@@ -175,9 +176,10 @@ const widgetMutations = {
       submissions: ISubmission[];
       browserInfo: any;
       cachedCustomerId?: string;
+      userId?: string;
     }
   ) {
-    const { integrationId, formId, submissions } = args;
+    const { integrationId, formId, submissions, userId } = args;
 
     const form = await Forms.findOne({ _id: formId });
 
@@ -193,25 +195,44 @@ const widgetMutations = {
 
     const content = form.title;
 
-    const cachedCustomer = await solveSubmissions(args);
+    let customerOrUser;
+    let cachedCustomer;
+
+    if (userId) {
+      await FormSubmissions.createFormSubmission({
+        formId,
+        userId,
+        submittedAt: new Date()
+      });
+
+      customerOrUser = {
+        userId
+      };
+    } else {
+      cachedCustomer = await solveSubmissions(args);
+
+      customerOrUser = {
+        customerId: cachedCustomer._id
+      };
+
+      // increasing form submitted count
+      await Integrations.increaseContactsGathered(formId);
+    }
 
     // create conversation
     const conversation = await Conversations.createConversation({
       integrationId,
-      customerId: cachedCustomer._id,
+      ...customerOrUser,
       content
     });
 
     // create message
     const message = await Messages.createMessage({
       conversationId: conversation._id,
-      customerId: cachedCustomer._id,
+      ...customerOrUser,
       content,
       formWidgetData: submissions
     });
-
-    // increasing form submitted count
-    await Integrations.increaseContactsGathered(formId);
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
       conversationClientMessageInserted: message
@@ -221,20 +242,22 @@ const widgetMutations = {
       conversationMessageInserted: message
     });
 
-    const formData = {
-      formId: args.formId,
-      submissions: args.submissions,
-      customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id,
-      conversationId: conversation._id
-    };
+    if (cachedCustomer) {
+      const formData = {
+        formId: args.formId,
+        submissions: args.submissions,
+        customer: cachedCustomer,
+        cachedCustomerId: cachedCustomer._id,
+        conversationId: conversation._id
+      };
 
-    await sendToWebhook('create', 'popupSubmitted', formData);
+      await sendToWebhook('create', 'popupSubmitted', formData);
+    }
 
     return {
       status: 'ok',
       messageId: message._id,
-      customerId: cachedCustomer._id
+      ...customerOrUser
     };
   },
 
