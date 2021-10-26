@@ -12,7 +12,6 @@ import {
 import Tagger from '../components/Tagger';
 
 type Props = {
-  // targets can be conversation, customer, company etc ...
   targets?: any[];
   event?: 'onClick' | 'onExit';
   type: ITagTypes | string;
