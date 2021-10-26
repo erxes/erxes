@@ -1,8 +1,17 @@
 #root {
   margin: 0;
   height: 100%;
-  font-size: 12px;
-  text-align: center;
+  font-size: 10px;
+}
+h4{
+  line-height: 150%;
+  font-size: 2.5em;
+  font-weight: 500;
+}
+p {
+  font-size: 1.6em;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 h4,p{
@@ -12,16 +21,7 @@ h4,p{
     margin-inline-end: 0px;
     margin-top: 1em;
     margin-bottom: 1em;
-    text-align: center;
-    h4 {
-      font-size: 2em;
-      font-weight: 500;
-    }
-    p {
-      font-size: 1em;
-    }
 }
-
 
 .slider{
   .active{
@@ -40,7 +40,6 @@ h4,p{
   width: auto;
   margin:20px;
   overflow: hidden;
-  white-space: nowrap;
   display: flex;
 
   }
@@ -50,8 +49,8 @@ h4,p{
   width: 25%;
   height: 100%;
   overflow: hidden;
-  margin-left:10px;
-  margin-right:10px;
+  margin-left:1em;
+  margin-right:1em;
   cursor: grab;
   img{
     width: 100%;
@@ -69,35 +68,22 @@ h4,p{
   height: 0;
 }
 .header{
-  position:fixed;
-  top:0px;
-  left:0px;
-  height:50px;
-  right:0px;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: max-content;
+  right: 0px;
+  width: 100%;
+  padding-left: 1em;
+  padding-top: 1em;
   background-color:  #FCFCFC;
-  .nav{
-    width: 30%;
-    display: flex;
-    align-items: center !important;
-    p{
-      margin-right: 5px;
-      margin-left: 5px;
-      margin-top: 1em;
-      margin-bottom: 1em;
-    }
-  }
 }
 
   .body{
-    padding-top: 60px;
+    padding-top: 5em;
     color: #333333 ;
     display: block;
     overflow: auto;
-    padding-bottom: 1em;
-    p{
-      padding-left: 1em;
-      padding-right: 1em;
-    }
     .block-det{
       height: 40vh;
       overflow: hidden;
@@ -109,7 +95,7 @@ h4,p{
   .footer{
     position:fixed;
     bottom:0px;
-    height:50px;
+    height:5em;
     left:0px;
     right:0px;
     display: flex;
@@ -126,13 +112,12 @@ h4,p{
   grid-auto-columns: -webkit-max-content;
   grid-auto-columns: max-content;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  grid-column-gap: 1rem;
-  grid-row-gap: 1rem;
+  grid-column-gap: 1.6em;
+  grid-row-gap: 1.6em;
 }
 .item {
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
-  border-radius: 0.4em;
-  padding: 0.1em;
+  border-radius: 0.5em;
+  padding: 0.5em 0.8em;
   background: #fff;
   overflow: hidden;
   width: auto;
@@ -141,7 +126,7 @@ h4,p{
   min-width: 100px;
   display: block;
   margin: 0.1em;
-  min-height: 4em;
+  height: fit-content;
   &:hover {
     cursor: pointer;
     box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
