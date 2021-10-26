@@ -1,22 +1,38 @@
 import { FEED_CONTENT_TYPES } from './definitions';
 import * as moment from 'moment';
 
+const getUserInfo = user => {
+  const details = user.details;
+
+  if (!details) {
+    return '';
+  }
+
+  if (details.firstName && details.lastName) {
+    return details.firstName + ' ' + details.lastName;
+  }
+
+  return details.firstName || details.lastName || user.email || '';
+};
+
 const generateData = (
   feeds,
   userList,
   contentType: string,
-  fieldName: string,
-  year: number
+  fieldName?: string,
+  year?: number
 ) => {
   for (const user of userList) {
-    const date = new Date(user.details[fieldName]);
-    const userYear = date.getFullYear();
+    let ceremonyData = {};
+    let title = `Welcome to our company, ${getUserInfo(user)}`;
 
-    feeds.push({
-      title: 'Ceremony',
-      contentType,
-      recipientIds: [user._id],
-      ceremonyData: {
+    if (fieldName && user) {
+      title = 'Ceremony';
+
+      const date = new Date(user.details[fieldName]);
+      const userYear = date.getFullYear();
+
+      ceremonyData = {
         startedDate: user.details[fieldName],
         willDate: new Date(
           moment(user.details[fieldName])
@@ -25,7 +41,14 @@ const generateData = (
         ),
         howManyYear: year - userYear,
         year
-      },
+      };
+    }
+
+    feeds.push({
+      title,
+      contentType,
+      recipientIds: [user._id],
+      ceremonyData,
       createdAt: new Date(),
       createdBy: user._id
     });
@@ -46,6 +69,14 @@ export const createCeremonies = async models => {
 
   const usersHasWorkAnniversary = await models.Users.find({
     'details.workStartedDate': { $exists: true }
+  });
+
+  const yesterday = moment()
+    .add(-1, 'days')
+    .format('YYYY-MM-DD');
+
+  const newUsers = await models.Users.find({
+    createdAt: { $gte: new Date(yesterday) }
   });
 
   await models.ExmFeed.deleteMany({
@@ -71,6 +102,8 @@ export const createCeremonies = async models => {
     year
   );
 
+  feeds = generateData(feeds, newUsers, FEED_CONTENT_TYPES.POST);
+
   if (feeds.length > 0) {
     await models.ExmFeed.insertMany(feeds);
   }
@@ -93,7 +126,7 @@ export const createCeremonies = async models => {
 // 20:00
 export default [
   {
-    schedule: '00 13 * * *',
+    schedule: '8 * * *',
     handler: async ({ models }) => {
       await createCeremonies(models);
     }
