@@ -1,9 +1,9 @@
 import { getContext } from "./utils";
 
 export const customCode = async ({ action, execution }) => {
-  let codeStr: string = action.config.code
+  const codeStr: string = action.config.code
   if (!codeStr || !codeStr.includes('exports.main = async (execution, context) => ')) {
-    return 'not valid code: exports.main = async (execution, context)'
+    return {error: 'not valid code: exports.main = async (execution, context)'}
   }
   const exports: { main: any } = { main: undefined };
 
