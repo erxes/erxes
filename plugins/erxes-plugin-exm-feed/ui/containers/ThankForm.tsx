@@ -3,7 +3,7 @@ import { IButtonMutateProps } from "erxes-ui/lib/types";
 import { ButtonMutate } from "erxes-ui";
 import { mutations } from "../graphql";
 import ThankForm from "../components/ThankForm";
-import { ButtonWrap } from "../styles";
+import { ButtonWrap, FormWrap } from "../styles";
 
 type Props = {
   item?: any;
@@ -50,5 +50,9 @@ export default function ThankFormContainer(props: Props) {
     );
   };
 
-  return <ThankForm {...props} renderButton={renderButton} />;
+  return (
+    <FormWrap transparent={true}>
+      <ThankForm {...props} renderButton={renderButton} />
+    </FormWrap>
+  );
 }

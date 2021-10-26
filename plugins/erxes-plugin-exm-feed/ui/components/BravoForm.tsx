@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import { Form } from 'erxes-ui';
-import { IFormProps, IButtonMutateProps, IOption } from 'erxes-ui/lib/types';
-import { title, description, getUserOptions } from '../utils';
-import { IUser } from 'erxes-ui/lib/auth/types';
-import withTeamMembers from '../containers/withTeamMembers';
-import GenerateFields from './GenerateFields';
+import React, { useState } from "react";
+import Select from "react-select-plus";
+import { Form } from "erxes-ui";
+import { IFormProps, IButtonMutateProps, IOption } from "erxes-ui/lib/types";
+import { title, description, getUserOptions } from "../utils";
+import { IUser } from "erxes-ui/lib/auth/types";
+import withTeamMembers from "../containers/withTeamMembers";
+import GenerateFields from "./GenerateFields";
 
 type Props = {
   item?: any;
@@ -20,14 +20,14 @@ function BravoForm(props: Props & { users: IUser[] }) {
   const [recipientId, setRecipientId] = useState(
     item.recipientIds && item.recipientIds.length > 0
       ? item.recipientIds[0]
-      : ''
+      : ""
   );
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
   );
 
   const onChangeRecipient = (option: IOption) => {
-    setRecipientId(option ? option.value : '');
+    setRecipientId(option ? option.value : "");
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -37,8 +37,8 @@ function BravoForm(props: Props & { users: IUser[] }) {
     return (
       <>
         <Select
-          placeholder='Choose one'
-          name='recipientId'
+          placeholder="Choose one"
+          name="recipientId"
           value={recipientId}
           onChange={onChangeRecipient}
           multi={false}
@@ -54,16 +54,17 @@ function BravoForm(props: Props & { users: IUser[] }) {
           customFieldsData={customFieldsData}
           setCustomFieldsData={setCustomFieldsData}
         />
+
         {renderButton({
           values: {
             title: values.title,
             description: values.description ? values.description : null,
-            contentType: 'bravo',
+            contentType: "bravo",
             recipientIds: [recipientId],
-            customFieldsData
+            customFieldsData,
           },
           isSubmitted,
-          callback: closeModal
+          callback: closeModal,
         })}
       </>
     );

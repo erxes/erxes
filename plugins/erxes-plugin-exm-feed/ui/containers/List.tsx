@@ -23,10 +23,23 @@ export default function ListContainer(props: Props) {
   });
 
   const [deleteMutation] = useMutation(gql(mutations.deleteFeed));
+  const [pinMutation] = useMutation(gql(mutations.pinFeed));
 
   if (feedResponse.loading) {
     return <div>...</div>;
   }
+
+  const pinItem = (_id: string) => {
+    pinMutation({ variables: { _id } })
+      .then(() => {
+        Alert.success("You successfully pinned.");
+
+        feedResponse.refetch();
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
 
   const deleteItem = (_id: string) => {
     confirm().then(() => {
@@ -47,6 +60,7 @@ export default function ListContainer(props: Props) {
   return (
     <List
       deleteItem={deleteItem}
+      pinItem={pinItem}
       list={list}
       totalCount={totalCount}
       limit={limit}

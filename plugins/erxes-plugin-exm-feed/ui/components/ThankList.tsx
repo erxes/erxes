@@ -73,7 +73,7 @@ export default function ThankList({
           <NavItem>
             <Dropdown alignRight={true}>
               <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
-                <Icon icon="angle-down" size={14} />
+                <Icon icon="ellipsis-h" size={14} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
                 <li>{editItem(item)}</li>

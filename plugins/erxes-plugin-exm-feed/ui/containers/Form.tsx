@@ -8,16 +8,17 @@ import { IButtonMutateProps } from "erxes-ui/lib/types";
 import { ButtonMutate } from "erxes-ui";
 import EventForm from "../components/EventForm";
 import PublicHolidayForm from "../components/PublicHolidayForm";
-import { ButtonWrap } from "../styles";
+import { ButtonWrap, FormWrap } from "../styles";
 
 type Props = {
   contentType?: string;
   item?: any;
+  transparent?: boolean;
   closeModal?: () => void;
 };
 
 export default function FormContainer(props: Props) {
-  const { contentType, item } = props;
+  const { contentType, item, transparent } = props;
 
   const { data } = useQuery(gql(queries.fields), {
     variables: {
@@ -74,17 +75,21 @@ export default function FormContainer(props: Props) {
     renderButton,
   };
 
-  if (props.contentType === "post") {
-    return <Form {...updateProps} />;
-  }
+  const renderContent = () => {
+    if (props.contentType === "post") {
+      return <Form {...updateProps} />;
+    }
 
-  if (props.contentType === "event") {
-    return <EventForm {...updateProps} />;
-  }
+    if (props.contentType === "event") {
+      return <EventForm {...updateProps} />;
+    }
 
-  if (props.contentType === "publicHoliday") {
-    return <PublicHolidayForm {...updateProps} />;
-  }
+    if (props.contentType === "publicHoliday") {
+      return <PublicHolidayForm {...updateProps} />;
+    }
 
-  return <BravoForm {...updateProps} />;
+    return <BravoForm {...updateProps} />;
+  };
+
+  return <FormWrap transparent={transparent}>{renderContent()}</FormWrap>;
 }

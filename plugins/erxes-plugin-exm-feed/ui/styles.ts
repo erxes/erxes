@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 export const FeedLayout = styled.div`
   flex: 1;
@@ -21,24 +22,6 @@ export const FeedLayout = styled.div`
 export const TabContent = styled.div`
   width: 700px;
   margin: 20px auto;
-
-  form {
-    padding: 10px 20px;
-    background: #f4f4f7;
-    border-radius: 10px;
-    border: 1px solid #eee;
-    margin-bottom: 20px;
-
-    > span,
-    .Select {
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    label {
-      margin-right: 20px;
-    }
-  }
 `;
 
 export const ButtonWrap = styled.div`
@@ -121,12 +104,11 @@ export const NavItem = styled.div`
 
   .dropdown-menu {
     min-width: 150px;
-    li {
-      margin-top: 0;
-      margin-bottom: 0;
-      padding: 0;
-      box-shadow: none;
-      border-radius: 0;
+
+    > li,
+    > li a {
+      height: 30px;
+      line-height: 2;
     }
   }
 `;
@@ -185,6 +167,26 @@ export const CustomRangeContainer = styled.div`
       border-radius: 0;
       box-shadow: none;
       font-size: 13px;
+    }
+  }
+`;
+
+export const FormWrap = styledTS<{ transparent?: boolean }>(styled.div)`
+  form {
+    padding: 10px 20px;
+    background: ${(props) => !props.transparent && "#f4f4f7"};
+    border-radius: 10px;
+    border: ${(props) => !props.transparent && "1px solid #eee"} ;
+    margin-bottom: 20px;
+
+    > span,
+    .Select {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    label {
+      margin-right: 20px;
     }
   }
 `;

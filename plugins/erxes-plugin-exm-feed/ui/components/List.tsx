@@ -22,10 +22,17 @@ type Props = {
   list: any;
   totalCount: number;
   deleteItem: (_id: string) => void;
+  pinItem: (_id: string) => void;
   limit: number;
 };
 
-export default function List({ list, deleteItem, totalCount, limit }: Props) {
+export default function List({
+  list,
+  deleteItem,
+  pinItem,
+  totalCount,
+  limit,
+}: Props) {
   const editItem = (item) => {
     const trigger = (
       <span>
@@ -34,7 +41,14 @@ export default function List({ list, deleteItem, totalCount, limit }: Props) {
     );
 
     const content = (props) => {
-      return <Form contentType={item.contentType} item={item} {...props} />;
+      return (
+        <Form
+          contentType={item.contentType}
+          item={item}
+          transparent={true}
+          {...props}
+        />
+      );
     };
 
     return <ModalTrigger title="Edit" trigger={trigger} content={content} />;
@@ -75,6 +89,9 @@ export default function List({ list, deleteItem, totalCount, limit }: Props) {
                 <li>{editItem(item)}</li>
                 <li>
                   <a onClick={() => deleteItem(item._id)}>Delete</a>
+                </li>
+                <li>
+                  <a onClick={() => pinItem(item._id)}>Pin</a>
                 </li>
               </Dropdown.Menu>
             </Dropdown>

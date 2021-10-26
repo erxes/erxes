@@ -38,6 +38,14 @@ const editFeed = `
   }
 `;
 
+const pinFeed = `
+  mutation pinFeed($_id: String) {
+    exmFeedToggleIsPinned(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 const deleteFeed = `
   mutation deleteFeed($_id: String!) {
     exmFeedRemove(_id: $_id)
@@ -82,5 +90,6 @@ export default {
   deleteFeed,
   addThank,
   editThank,
-  deleteThank
+  deleteThank,
+  pinFeed,
 };
