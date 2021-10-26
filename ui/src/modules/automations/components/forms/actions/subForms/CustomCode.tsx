@@ -47,7 +47,7 @@ class Delay extends React.Component<Props, State> {
     const { config } = this.state;
 
     const onChangeValue = code => this.onChangeField('code', code);
-    console.log(languages);
+
     return (
       <DrawerDetail>
         <FormGroup>

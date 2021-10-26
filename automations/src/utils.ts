@@ -120,7 +120,7 @@ export const executeActions = async (
       actionResponse = await customCode({ action, execution })
     }
   } catch (e) {
-    execAction.result = { error: e.message };
+    execAction.result = { error: e.message, result: e.result };
     execution.actions = [...(execution.actions || []), execAction]
     execution.status = EXECUTION_STATUS.ERROR
     execution.description = `An error occurred while working action: ${action.type}`
