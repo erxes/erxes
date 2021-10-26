@@ -260,6 +260,7 @@ class Pipelines extends React.Component<Props, State> {
   render() {
     const { currentBoard, pipelines, options } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
+
     const leftActionBar = (
       <Title>
         {currentBoard ? currentBoard.name : ''}
