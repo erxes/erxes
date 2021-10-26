@@ -122,7 +122,7 @@ export const createCeremonies = async models => {
 // 20:00
 export default [
   {
-    schedule: '15 9 * * *',
+    schedule: '25 9 * * *',
     handler: async ({ models }) => {
       await createCeremonies(models);
     }
