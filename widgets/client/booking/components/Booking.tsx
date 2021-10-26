@@ -6,7 +6,6 @@ import Body from './common/Body';
 
 type Props = {
   goToIntro: () => void;
-  goToFloor?: () => void;
   booking: IBookingData | null;
 };
 
@@ -19,12 +18,12 @@ function Booking({ goToIntro, booking }: Props) {
   const { name, attachment, description } = mainProductCategory;
   const { widgetColor, line, columns, rows, margin } = style;
 
-  const type = name || "Блок";
+  const type = name || 'Блок';
   const column: string = columns!;
   // tslint:disable-next-line: radix
   const colCount = parseInt(column) >= 4 ? '4' : columns;
 
-  let blocksStyle = {
+  const categoriesStyle = {
     marginTop: '10px',
     gridTemplateColumns: `repeat(${colCount}, minmax(120px, 1fr))`,
     gap: margin
@@ -49,10 +48,14 @@ function Booking({ goToIntro, booking }: Props) {
         description={description}
         image={attachment}
       >
-        <div className="items" style={blocksStyle}>
-          {childCategories.map((block, index) => {
+        <div className="items" style={categoriesStyle}>
+          {childCategories.map(({}, index) => {
             return (
-              <Card key={index.toString()} type={type} widgetColor={widgetColor} />
+              <Card
+                key={index.toString()}
+                type={type}
+                widgetColor={widgetColor}
+              />
             );
           })}
         </div>

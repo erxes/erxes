@@ -1,5 +1,5 @@
 import * as React from 'react';
-import BlockDetail from '../components/BlockDetail';
+import CategoryDetail from '../components/CategoryDetail';
 import { AppConsumer } from './AppContext';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -8,7 +8,6 @@ import { IProductCategory } from '../../types';
 
 type Props = {
   goToBookings: () => void;
-  blockId?: string | null;
   categoryId?: string;
 };
 
@@ -16,7 +15,7 @@ type QueryResponse = {
   widgetsProductCategory: IProductCategory;
 };
 
-function BlockDetailContainer(props: ChildProps<Props, QueryResponse>) {
+function CategoryDetailContainer(props: ChildProps<Props, QueryResponse>) {
   const { data } = props;
 
   if (!data || data.loading) {
@@ -25,29 +24,30 @@ function BlockDetailContainer(props: ChildProps<Props, QueryResponse>) {
 
   const extendedProps = {
     ...props,
-    block: data.widgetsProductCategory
+    category: data.widgetsProductCategory
   };
-  return <BlockDetail {...extendedProps} />;
+
+  return <CategoryDetail {...extendedProps} />;
 }
 
 const WithData = compose(
   graphql<Props, QueryResponse>(gql(productCategory), {
-    options: ({ blockId }) => ({
+    options: ({ categoryId }) => ({
       variables: {
-        _id: blockId
+        _id: categoryId
       }
     })
   })
-)(BlockDetailContainer);
+)(CategoryDetailContainer);
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeBlock, goToBookings, getBooking }) => {
+    {({ activeCategory, goToBookings, getBooking }) => {
       const booking = getBooking();
       return (
         <WithData
           goToBookings={goToBookings}
-          blockId={activeBlock}
+          categoryId={activeCategory}
           booking={booking}
         />
       );

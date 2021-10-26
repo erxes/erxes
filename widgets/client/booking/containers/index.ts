@@ -2,8 +2,7 @@ import App from './App';
 import Intro from './Intro';
 import Booking from './Booking';
 import Card from './common/Card';
-import BlockDetail from './BlockDetail';
-import Floor from './Floor';
+import CategoryDetail from './CategoryDetail';
 import Product from './Product';
 
-export { App, Intro, Booking, Card, BlockDetail, Floor, Product };
+export { App, Intro, Booking, Card, CategoryDetail, Product };

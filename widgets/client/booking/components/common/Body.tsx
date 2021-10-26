@@ -10,7 +10,6 @@ type Props = {
 };
 
 function Body({ title, description, image, page, children }: Props) {
-
   let style = 'flex-center';
 
   if (page === 'floor' || page === 'block-det') {
@@ -20,7 +19,6 @@ function Body({ title, description, image, page, children }: Props) {
   if (page === 'booking') {
     style = 'block-det flex-center';
   }
-  console.log(children)
 
   return (
     <div className="body">

@@ -1,20 +1,19 @@
 import * as React from 'react';
-import Button from "../common/Button"
+import Button from '../common/Button';
 
 type Props = {
-    goToBookings?: () => void;
-    goToFloor?: () => void;
-    goToProduct?: () => void;
+  goToBookings?: () => void;
+  goToProduct?: () => void;
 };
 
-let onClickHandler = () => {
-    // typees n hamaaraad shiljdeg bh 
-}
+const onClickHandler = () => {
+  // typees n hamaaraad shiljdeg bh
+};
 
-function Block({ }: Props) {
-    return (
-        <div className="footer">
-            {/* <Button
+function Block({}: Props) {
+  return (
+    <div className="footer">
+      {/* <Button
                 text={"Back"}
                 type="back"
                 onClickHandler={onClickHandler}
@@ -26,6 +25,6 @@ function Block({ }: Props) {
                 onClickHandler={onClickHandler}
                 style={{ backgroundColor: widgetColor }}
             /> */}
-        </div>
-    );
+    </div>
+  );
 }

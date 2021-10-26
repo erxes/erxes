@@ -2,6 +2,7 @@ import * as React from 'react';
 import { IBookingData } from '../types';
 import Button from './common/Button';
 import Body from './common/Body';
+
 type Props = {
   booking: IBookingData;
   goToBooking: (booking: IBookingData) => void;

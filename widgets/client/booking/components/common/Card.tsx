@@ -10,10 +10,10 @@ type Props = {
 
 function Card({ widgetColor, type, key, description, status }: Props) {
   return (
-    <div className={`item ${type === "block" ? " block " : ""}`}>
+    <div className={`item ${type === 'category' ? ' category ' : ''}`}>
       <h4> {`${type} ${key}`} </h4>
       {description && <p> {description} </p>}
-      {status && <div className="status block "> {status} </div>}
+      {status && <div className="status category "> {status} </div>}
     </div>
   );
 }
