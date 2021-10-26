@@ -26,6 +26,7 @@ import TutorialRoutes from './modules/tutorial/routes';
 import VideoCallRoutes from './modules/videoCall/routes';
 import AutomationsRoutes from './modules/automations/routes';
 import ImportExportRoutes from './modules/importExport/routes';
+import ForumRoutes from './modules/forum/routes';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -110,6 +111,7 @@ const renderRoutes = currentUser => {
           <DashboardRoutes />
           <AutomationsRoutes />
           <ImportExportRoutes />
+          <ForumRoutes />
 
           {specialPluginRoutes}
           {pluginRoutes}
