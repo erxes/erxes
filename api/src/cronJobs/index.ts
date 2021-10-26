@@ -15,6 +15,7 @@ import './engages';
 import './integrations';
 import './notificatons';
 import './robot';
+import './forum';
 
 // load environment variables
 dotenv.config();

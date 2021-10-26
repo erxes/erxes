@@ -42,6 +42,13 @@ import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
+import {
+  Forums,
+  ForumTopics,
+  ForumDiscussions,
+  ForumReactions,
+  DiscussionComments
+} from './Forums';
 
 export {
   EmailDeliveries,
@@ -98,5 +105,10 @@ export {
   Webhooks,
   Calendars,
   CalendarGroups,
-  CalendarBoards
+  CalendarBoards,
+  Forums,
+  ForumTopics,
+  ForumDiscussions,
+  ForumReactions,
+  DiscussionComments
 };

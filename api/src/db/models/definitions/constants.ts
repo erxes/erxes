@@ -25,7 +25,8 @@ export const TAG_TYPES = {
     'engageMessage',
     'company',
     'integration',
-    'product'
+    'product',
+    'forum'
   ]
 };
 
@@ -744,7 +745,7 @@ export const CUSTOMER_SELECT_OPTIONS = {
 
 export const DEFAULT_CONSTANT_VALUES = {
   sex_choices: DEFAULT_SEX_CHOICES,
-  company_industry_types: DEFAULT_COMPANY_INDUSTRY_TYPES.map((v) => ({
+  company_industry_types: DEFAULT_COMPANY_INDUSTRY_TYPES.map(v => ({
     label: v,
     value: v
   })),
@@ -862,6 +863,18 @@ export const WEBHOOK_STATUS = {
 
 export const REACTION_CHOICES = {
   LIKE: 'like',
-  DISLIKE: 'disLike',
+  DISLIKE: 'dislike',
   ALL: ['like', 'dislike']
+};
+
+export const FORUM_CONTENT_TYPE = {
+  DISCUSSION: 'discussion',
+  COMMENT: 'comment',
+  ALL: ['discussion', 'comment']
+};
+
+export const FORUM_DISCUSSION_STATUSES = {
+  PUBLISH: 'publish',
+  CLOSED: 'closed',
+  ALL: ['publish', 'closed']
 };

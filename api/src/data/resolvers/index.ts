@@ -52,6 +52,10 @@ import UsersGroup from './usersGroup';
 import Automation from './automation';
 import AutomationNote from './automationNote';
 import Trigger from './trigger';
+import Forum from './forum';
+import ForumTopic from './forumTopic';
+import ForumDiscussion from './forumDiscussion';
+import ForumDiscussionComment from './forumDiscussionComment';
 
 const resolvers: any = {
   ...customScalars,
@@ -108,7 +112,11 @@ const resolvers: any = {
   Tag,
   Automation,
   AutomationNote,
-  Trigger
+  Trigger,
+  Forum,
+  ForumTopic,
+  ForumDiscussion,
+  ForumDiscussionComment
 };
 
 export default resolvers;
