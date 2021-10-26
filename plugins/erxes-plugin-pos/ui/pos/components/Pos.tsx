@@ -149,7 +149,7 @@ class Lead extends React.Component<Props, State> {
 
   render() {
     const { pos, groups, carousel, currentMode } = this.state;
- 
+
     const { integration, formIntegrations } = this.props;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('pos'), link: '/pos' }];
@@ -182,7 +182,9 @@ class Lead extends React.Component<Props, State> {
                   onChange={this.onChange}
                   pos={pos}
                   groups={groups}
-                  productSchemas={this.props.productSchemas}
+                  productSchemas={this.props.productSchemas.filter(
+                    e => e.label !== ''
+                  )}
                 />
               </Step>
               <Step
@@ -191,19 +193,7 @@ class Lead extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                {/* <FormStep
-                  type={type}
-                  color={color}
-                  theme={theme}
-                  formId={integration && integration.formId}
-                  formData={formData}
-                  afterDbSave={this.props.afterFormDbSave}
-                  onDocChange={this.onFormDocChange}
-                  onInit={this.onFormInit}
-                  isReadyToSaveForm={this.props.isReadyToSaveForm}
-                  currentMode={this.state.currentMode}
-                  currentField={this.state.currentField}
-                /> */}
+                {}
               </Step>
             </Steps>
             <ControlWrapper>
@@ -215,25 +205,7 @@ class Lead extends React.Component<Props, State> {
             </ControlWrapper>
           </LeftContent>
 
-          <PreviewWrapper>
-            {/* <FullPreview
-              onChange={this.onChange}
-              onDocChange={this.onFormDocChange}
-              calloutTitle={calloutTitle}
-              calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
-              type={type}
-              color={color}
-              theme={theme}
-              image={logo}
-              thankTitle={thankTitle}
-              thankContent={thankContent}
-              skip={isSkip}
-              carousel={carousel}
-              formData={formData}
-              calloutImgSize={calloutImgSize}
-            /> */}
-          </PreviewWrapper>
+          <PreviewWrapper>{}</PreviewWrapper>
         </Content>
       </StepWrapper>
     );
