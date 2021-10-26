@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { iconClose } from '../../icons/Icons';
-import { Booking, Intro, BlockDetail, Floor, Product } from '../containers';
+import { Booking, Intro, CategoryDetail, Product } from '../containers';
 import { IBookingData } from '../types';
 import Header from '../containers/common/Header';
 import Form from '../containers/form/Form';
@@ -37,12 +37,8 @@ function App({
       return <Booking />;
     }
 
-    if (activeRoute === 'BLOCK_DETAIL') {
-      return <BlockDetail />;
-    }
-
-    if (activeRoute === 'FLOOR_DETAIL') {
-      return <Floor />;
+    if (activeRoute === 'CATEGORY_DETAIL') {
+      return <CategoryDetail />;
     }
 
     if (activeRoute === 'PRODUCT_DETAIL') {

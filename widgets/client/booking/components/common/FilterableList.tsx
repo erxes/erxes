@@ -90,9 +90,7 @@ class FilterableList extends React.Component<Props, State> {
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean, color: string) {
     return hasChildren ? (
-      <>
-        {isOpen ? <RiArrowDownSFill /> : <RiArrowRightSFill />}
-      </>
+      <>{isOpen ? <RiArrowDownSFill /> : <RiArrowRightSFill />}</>
     ) : null;
   }
 
@@ -126,7 +124,9 @@ class FilterableList extends React.Component<Props, State> {
     };
 
     return (
-      <li key={item._id} className={`list flex-sb `}
+      <li
+        key={item._id}
+        className={`list flex-sb `}
         style={
           this.state.selectedItem && item._id === this.state.selectedItem._id
             ? { fontWeight: 500, color: productSelected }
@@ -135,7 +135,10 @@ class FilterableList extends React.Component<Props, State> {
         onClick={onClick}
       >
         <div className="flex-center">
-          <div className="toggle-nav" onClick={this.onToggle.bind(this, item._id, isOpen)}>
+          <div
+            className="toggle-nav"
+            onClick={this.onToggle.bind(this, item._id, isOpen)}
+          >
             {this.renderIcons(item, hasChildren, isOpen, color)}
           </div>
           <div className="mr-30" onClick={() => handleClick(item)}>
@@ -184,7 +187,7 @@ class FilterableList extends React.Component<Props, State> {
   renderItems() {
     const { loading, parentId } = this.props;
     const { items } = this.state;
-    console.log("item,", items)
+
     if (loading) {
       return null;
     }

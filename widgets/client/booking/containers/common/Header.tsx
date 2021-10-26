@@ -7,22 +7,17 @@ import { ChildProps } from 'react-apollo';
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
-  goToBlock?: (blockId: string) => void;
-  goToFloor?: (floorId: string) => void;
+  goToCategory?: (categoryId: string) => void;
   goToProduct?: (productId: string) => void;
   booking?: IBookingData;
 };
 
 function HeaderContainer(props: ChildProps<Props>) {
-  const { parentId, goToBlock, goToFloor, goToProduct } = props;
+  const { goToCategory, goToProduct } = props;
 
   const changeRoute = (item: ICategoryTree) => {
-    if (item.parentId === parentId && goToBlock) {
-      return goToBlock(item._id);
-    }
-
-    if (item.type === 'category' && goToFloor) {
-      return goToFloor(item._id);
+    if (item.type === 'category' && goToCategory) {
+      return goToCategory(item._id);
     }
 
     if (item.type === 'product' && goToProduct) {
@@ -35,13 +30,12 @@ function HeaderContainer(props: ChildProps<Props>) {
 const WithContext = (props: Props) => {
   return (
     <AppConsumer>
-      {({ goToBlock, goToFloor, goToProduct, getBooking }) => {
+      {({ goToCategory, goToProduct, getBooking }) => {
         const booking = getBooking();
         return (
           <HeaderContainer
             {...props}
-            goToBlock={goToBlock}
-            goToFloor={goToFloor}
+            goToCategory={goToCategory}
             goToProduct={goToProduct}
             booking={booking}
           />

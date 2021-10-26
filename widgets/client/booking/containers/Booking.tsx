@@ -5,7 +5,6 @@ import { IBookingData } from '../types';
 
 type Props = {
   goToIntro: () => void;
-  goToFloor?: () => void;
   booking: IBookingData | null;
 };
 
