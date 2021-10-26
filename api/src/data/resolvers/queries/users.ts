@@ -6,6 +6,8 @@ import { paginate } from '../../utils';
 interface IListArgs {
   page?: number;
   perPage?: number;
+  sortDirection?: number;
+  sortField?: string;
   searchValue?: string;
   excludeIds?: boolean;
   isActive?: boolean;
@@ -70,7 +72,13 @@ const userQueries = {
    */
   async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
     const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
-    const sort = { username: 1 };
+
+    const { sortField, sortDirection } = args;
+
+    const sort =
+      sortField && sortDirection
+        ? { [sortField]: sortDirection }
+        : { username: 1 };
 
     return paginate(Users.find(selector).sort(sort), args);
   },

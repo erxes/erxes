@@ -89,7 +89,7 @@ const commonSelector = `
 `;
 
 export const queries = `
-  users(page: Int, perPage: Int, status: String, excludeIds: Boolean, ${commonSelector}): [User]
+  users(sortField: String, sortDirection: Int, page: Int, perPage: Int, status: String, excludeIds: Boolean, ${commonSelector}): [User]
   allUsers(isActive: Boolean): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
