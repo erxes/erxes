@@ -5,6 +5,7 @@ export const FeedLayout = styled.div`
 
   p {
     margin-bottom: 0;
+    color: #666;
   }
 
   .hxZkUW {

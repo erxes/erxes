@@ -7,17 +7,18 @@ import { mutations, queries } from "../graphql";
 
 type Props = {
   queryParams: any;
-  filter: string;
+  contentType: string;
 };
 
 export default function ListContainer(props: Props) {
-  const { queryParams, filter } = props;
+  const { queryParams, contentType } = props;
 
   const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : 20;
 
   const feedResponse = useQuery(gql(queries.feed), {
     variables: {
       limit,
+      contentTypes: [contentType || "post"],
     },
   });
 
@@ -49,7 +50,6 @@ export default function ListContainer(props: Props) {
       list={list}
       totalCount={totalCount}
       limit={limit}
-      filter={filter}
     />
   );
 }

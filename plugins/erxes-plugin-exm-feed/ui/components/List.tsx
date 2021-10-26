@@ -1,20 +1,20 @@
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import { ModalTrigger, readFile, getUserAvatar, __ } from 'erxes-ui';
-import FilterableListStyles from 'erxes-ui/lib/components/filterableList/styles';
-import LoadMore from 'modules/common/components/LoadMore';
-import Icon from 'modules/common/components/Icon';
-import dayjs from 'dayjs';
-import Form from '../containers/Form';
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import { ModalTrigger, readFile, getUserAvatar, __ } from "erxes-ui";
+import FilterableListStyles from "erxes-ui/lib/components/filterableList/styles";
+import LoadMore from "modules/common/components/LoadMore";
+import Icon from "modules/common/components/Icon";
+import dayjs from "dayjs";
+import Form from "../containers/Form";
 import {
   NewsFeedLayout,
   NavItem,
   Attachments,
   LikeCommentShare,
   HeaderFeed,
-  TextFeed
-} from '../styles';
+  TextFeed,
+} from "../styles";
 
 const AvatarImg = FilterableListStyles.AvatarImg;
 
@@ -23,28 +23,21 @@ type Props = {
   totalCount: number;
   deleteItem: (_id: string) => void;
   limit: number;
-  filter: string;
 };
 
-export default function List({
-  list,
-  deleteItem,
-  totalCount,
-  limit,
-  filter
-}: Props) {
-  const editItem = item => {
+export default function List({ list, deleteItem, totalCount, limit }: Props) {
+  const editItem = (item) => {
     const trigger = (
       <span>
         <a>Edit</a>
       </span>
     );
 
-    const content = props => {
+    const content = (props) => {
       return <Form contentType={item.contentType} item={item} {...props} />;
     };
 
-    return <ModalTrigger title='Edit' trigger={trigger} content={content} />;
+    return <ModalTrigger title="Edit" trigger={trigger} content={content} />;
   };
 
   const renderItem = (item: any) => {
@@ -58,7 +51,7 @@ export default function List({
               (createdUser &&
                 createdUser.details &&
                 createdUser.details.fullName) ||
-              'author'
+              "author"
             }
             src={getUserAvatar(createdUser)}
           />
@@ -70,13 +63,13 @@ export default function List({
                   createdUser.email)}
             </b>
             <p>
-              {dayjs(item.createdAt).format('lll')} <b>#{item.contentType}</b>
+              {dayjs(item.createdAt).format("lll")} <b>#{item.contentType}</b>
             </p>
           </div>
           <NavItem>
             <Dropdown alignRight={true}>
-              <Dropdown.Toggle as={DropdownToggle} id='dropdown-user'>
-                <Icon icon='angle-down' size={14} />
+              <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+                <Icon icon="angle-down" size={14} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
                 <li>{editItem(item)}</li>
@@ -96,7 +89,7 @@ export default function List({
             <a key={index} href={readFile(a.url)}>
               <Attachments>
                 <b>
-                  {a.name} <Icon icon='external-link-alt' />
+                  {a.name} <Icon icon="external-link-alt" />
                 </b>
               </Attachments>
             </a>
@@ -116,9 +109,7 @@ export default function List({
 
   return (
     <NewsFeedLayout>
-      {list
-        .filter(item => (item.contentType || '').includes(filter))
-        .map(filteredItem => renderItem(filteredItem))}
+      {list.map((filteredItem) => renderItem(filteredItem))}
       <LoadMore perPage={limit} all={totalCount} />
     </NewsFeedLayout>
   );

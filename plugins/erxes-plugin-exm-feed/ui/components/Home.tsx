@@ -8,8 +8,6 @@ import ThankForm from "../containers/ThankForm";
 import List from "../containers/List";
 import { FeedLayout, MainContent, TabContent } from "../styles";
 import ThankList from "../containers/ThankList";
-import Select from "react-select-plus";
-import { options } from "../constants";
 
 type Props = {
   queryParams: any;
@@ -18,22 +16,9 @@ type Props = {
 export default function Home(props: Props) {
   const [currentTab, setCurrentTab] = useState("post");
   const { queryParams } = props;
-  const [filter, setFilter] = useState("");
 
-  const filterOnChange = (value) => {
-    setFilter(value.value);
-  };
-
-  const filterContent = () => {
-    return (
-      <Select
-        clearable={false}
-        value={filter}
-        onChange={filterOnChange.bind(this)}
-        placeholder={"filter"}
-        options={options}
-      />
-    );
+  const onClickTab = (type: string) => {
+    setCurrentTab(type);
   };
 
   const renderTabContent = () => {
@@ -49,8 +34,7 @@ export default function Home(props: Props) {
     return (
       <>
         <Form contentType={currentTab} />
-        {filterContent()}
-        <List queryParams={queryParams} filter={filter} />
+        <List queryParams={queryParams} contentType={currentTab} />
       </>
     );
   };
@@ -61,19 +45,19 @@ export default function Home(props: Props) {
         <Tabs full={true}>
           <TabTitle
             className={currentTab === "post" ? "active" : ""}
-            onClick={() => setCurrentTab("post")}
+            onClick={() => onClickTab("post")}
           >
             Post
           </TabTitle>
           <TabTitle
             className={currentTab === "event" ? "active" : ""}
-            onClick={() => setCurrentTab("event")}
+            onClick={() => onClickTab("event")}
           >
             Event
           </TabTitle>
           <TabTitle
             className={currentTab === "bravo" ? "active" : ""}
-            onClick={() => setCurrentTab("bravo")}
+            onClick={() => onClickTab("bravo")}
           >
             Bravo{" "}
             <Link target="_blank" to={`/settings/properties?type=exmFeedBravo`}>
@@ -82,13 +66,13 @@ export default function Home(props: Props) {
           </TabTitle>
           <TabTitle
             className={currentTab === "thank" ? "active" : ""}
-            onClick={() => setCurrentTab("thank")}
+            onClick={() => onClickTab("thank")}
           >
             Thank you
           </TabTitle>
           <TabTitle
             className={currentTab === "publicHoliday" ? "active" : ""}
-            onClick={() => setCurrentTab("publicHoliday")}
+            onClick={() => onClickTab("publicHoliday")}
           >
             Public holiday
           </TabTitle>
