@@ -13,7 +13,8 @@ import {
   IntegrationMutationVariables,
   IntegrationsQueryResponse,
   IProductGroup,
-  PosDetailQueryResponse
+  PosDetailQueryResponse,
+  SchemaLabelsQueryResponse
 } from '../../types';
 import Pos from '../components/Pos';
 import { PLUGIN_URL } from '../../constants';
@@ -32,6 +33,7 @@ type FinalProps = {
   posDetailQuery: PosDetailQueryResponse;
   groupsQuery: GroupsQueryResponse;
   integrationsQuery: IntegrationsQueryResponse;
+  schemaLabelsQuery: SchemaLabelsQueryResponse;
 } & Props &
   EditPosMutationResponse &
   GroupsBulkInsertMutationResponse &
@@ -51,16 +53,22 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       editPosMutation,
       productGroupsBulkInsertMutation,
       history,
-      integrationsQuery
+      integrationsQuery,
+      schemaLabelsQuery
     } = this.props;
 
     const pos = posDetailQuery.posDetail || {};
     const groups = groupsQuery.productGroups || [];
     const integration = pos.integration || {};
     const formIntegrations = integrationsQuery.integrations || [];
-    // const categories = productCategoriesQuery.productCategories || [];
+    const productSchemas = schemaLabelsQuery.getDbSchemaLabels || [];
 
-    if (posDetailQuery.loading || groupsQuery.loading || integrationsQuery.loading) {
+    if (
+      posDetailQuery.loading ||
+      groupsQuery.loading ||
+      integrationsQuery.loading ||
+      schemaLabelsQuery.loading
+    ) {
       return <Spinner objective={true} />;
     }
 
@@ -112,7 +120,8 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       pos,
       save,
       isActionLoading: this.state.isLoading,
-      currentMode: 'update'
+      currentMode: 'update',
+      productSchemas
     };
 
     return <Pos {...updatedProps} />;
@@ -171,20 +180,11 @@ export default withProps<FinalProps>(
       { posId: string; groups: IProductGroup[] }
     >(gql(mutations.saveProductGroups), {
       name: 'productGroupsBulkInsertMutation'
-    })
+    }),
 
-    // graphql<Props,EditIntegrationMutationResponse,IntegrationMutationVariables>(
-    //   gql(mutations.integrationsEdit),
-    //   {
-    //     name: 'editIntegrationMutation',
-    //     options: {
-    //       refetchQueries: [
-    //         'leadIntegrations',
-    //         'leadIntegrationCounts',
-    //         'formDetail'
-    //       ]
-    //     }
-    //   }
-    // )
+    graphql<Props, SchemaLabelsQueryResponse>(gql(queries.getDbSchemaLabels), {
+      name: 'schemaLabelsQuery',
+      options: () => ({ variables: { type: 'product' } })
+    })
   )(EditPosContainer)
 );

@@ -1,9 +1,14 @@
-import { IProductCategory, IProduct, IBrand, IUser } from 'erxes-ui/lib/products/types';
+import {
+  IProductCategory,
+  IProduct,
+  IBrand,
+  IUser
+} from 'erxes-ui/lib/products/types';
 import { ITag } from 'erxes-ui/lib/tags/types';
 
 export type IConfigsMap = { [key: string]: any };
 
-// types 
+// types
 export type IProductGroup = {
   _id: string;
   name: string;
@@ -14,13 +19,13 @@ export type IProductGroup = {
   categories: IProductCategory[];
   excludedCategories: IProductCategory[];
   excludedProducts: IProduct[];
-}
+};
 
 export type IScreenConfig = {
   isActive: boolean;
   type: string;
   value: number;
-}
+};
 
 export type IPos = {
   _id: string;
@@ -38,7 +43,7 @@ export type IPos = {
   kitchenScreen?: IScreenConfig;
   formSectionTitle?: string;
   formIntegrationIds: string[];
-}
+};
 
 // query types
 export type PosListQueryResponse = {
@@ -52,7 +57,6 @@ export type GroupsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
-
 
 // mutation types
 export type PosRemoveMutationResponse = {
@@ -79,7 +83,6 @@ export type BrandsQueryResponse = {
   brands: IBrand[];
 } & QueryResponse;
 
-
 export interface IIntegration {
   _id: string;
   name: string;
@@ -104,7 +107,6 @@ export type CountQueryResponse = {
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
-
 
 export type PosDetailQueryResponse = {
   posDetail: IPos;
@@ -131,14 +133,12 @@ export type AddPosMutationResponse = {
 
 export type EditPosMutationResponse = {
   editPosMutation: (params: {
-    variables: { _id: string; } & IntegrationMutationVariables;
+    variables: { _id: string } & IntegrationMutationVariables;
   }) => Promise<any>;
 };
 
 export type RemoveMutationResponse = {
-  removeMutation: (params: {
-    variables: { _id };
-  }) => Promise<any>;
+  removeMutation: (params: { variables: { _id } }) => Promise<any>;
 };
 
 export type CopyMutationResponse = {
@@ -205,3 +205,11 @@ export type GroupsBulkInsertMutationResponse = {
     };
   }) => Promise<void>;
 };
+
+export interface IProductShema {
+  [key: string]: any;
+}
+
+export type SchemaLabelsQueryResponse = {
+  getDbSchemaLabels: IProductShema[];
+} & QueryResponse;

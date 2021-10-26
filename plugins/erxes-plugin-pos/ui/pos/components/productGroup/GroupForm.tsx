@@ -1,6 +1,6 @@
 import { Button, FormControl, FormGroup, ControlLabel } from 'erxes-ui';
 import React from 'react';
-import { IProductGroup } from '../../../types';
+import { IProductGroup, IProductShema } from '../../../types';
 import Modal from 'react-bootstrap/Modal';
 import { Description } from '../../../styles';
 import Select from 'react-select-plus';
@@ -14,6 +14,7 @@ type Props = {
   mode: 'create' | 'update';
   categories: any[];
   products: IProduct[];
+  
 };
 
 type State = {

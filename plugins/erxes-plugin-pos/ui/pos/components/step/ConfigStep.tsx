@@ -23,13 +23,14 @@ import {
 } from '../../../styles';
 import Select from 'react-select-plus';
 import { PRODUCT_DETAIL } from '../../../constants';
-import { IPos, IPosConfig, IProductGroup } from '../../../types';
+import { IPos, IPosConfig, IProductGroup, IProductShema } from '../../../types';
 import GroupForm from '../../containers/productGroup/GroupForm';
 
 type Props = {
   onChange: (name: 'pos' | 'description' | 'groups', value: any) => void;
   pos?: IPos;
   groups: IProductGroup[];
+  productSchemas: IProductShema[];
 };
 
 type State = {
@@ -79,32 +80,6 @@ class OptionsStep extends React.Component<Props, State> {
     return <ModalTrigger title={title} trigger={trigger} content={content} />;
   }
 
-  // renderAddGroup = () => {
-  //   const { renderButton, creatable = true } = this.props;
-
-  //   if (!creatable) {
-  //     return;
-  //   }
-
-  //   const trigger = (
-  //     <Button btnStyle="primary" icon="plus-circle">
-  //       Add group
-  //     </Button>
-  //   );
-
-  //   const content = props => (
-  //     <GroupForm
-  //       {...props}
-  //       onSubmit={this.onSubmitGroup}
-  //       renderButton={renderButton}
-  //     />
-  //   );
-
-  //   return (
-  //     <ModalTrigger title="Add group" trigger={trigger} content={content} />
-  //   );
-  // };
-
   renderEditAction(group: IProductGroup) {
     const trigger = (
       <Button btnStyle="link" style={{ float: 'right' }}>
@@ -143,16 +118,6 @@ class OptionsStep extends React.Component<Props, State> {
             {group.name}
             <Description>{group.description}</Description>
           </ControlLabel>
-
-          {/* 
-          <Button
-            size="small"
-            onClick={remove}
-            btnStyle="danger"
-            icon="times"
-            style={{ float: 'right' }}
-          /> */}
-
           <ActionButtons>
             {this.renderEditAction(group)}
             {this.renderRemoveAction(group)}
@@ -189,7 +154,10 @@ class OptionsStep extends React.Component<Props, State> {
                   Select pos to display in the product card.
                 </Description>
                 <Select
-                  options={PRODUCT_DETAIL}
+                  options={this.props.productSchemas.map(e => ({
+                    label: e.label,
+                    value: e.name
+                  }))}
                   value={productDetails}
                   onChange={onChangeDetail}
                   multi={true}
@@ -201,10 +169,7 @@ class OptionsStep extends React.Component<Props, State> {
               description="Select pos to display in the product category."
             >
               <FormGroup>
-                {/* {this.props.groups.map(group => this.renderGroup(group))} */}
-                {/* <tr className="crow"> */}
                 {this.props.groups.map(group => this.renderGroup(group))}
-                {/* </tr> */}
               </FormGroup>
 
               {this.renderFormTrigger(trigger)}

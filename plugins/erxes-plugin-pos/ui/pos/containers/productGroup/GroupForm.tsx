@@ -28,11 +28,11 @@ type FinalProps = {
 
 class GroupContainer extends React.Component<FinalProps> {
   render() {
-    const {productsQuery, productCategoriesQuery } = this.props;
+    const { productsQuery, productCategoriesQuery, schemaLabelsQuery } = this.props;
 
     const categories = productCategoriesQuery.productCategories || [];
     const products = productsQuery.products || [];
-
+   
     if (productCategoriesQuery.loading) {
       return <Spinner objective={true} />;
     }
@@ -40,7 +40,7 @@ class GroupContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       categories,
-      products
+      products,
     };
 
     return <GroupForm {...updatedProps} />;

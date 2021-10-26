@@ -14,7 +14,7 @@ import {
 } from 'erxes-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IIntegration, IPos, IProductGroup } from '../../types';
+import { IIntegration, IPos, IProductGroup, IProductShema } from '../../types';
 import { LeftContent, Content, PreviewWrapper } from '../../styles';
 import ConfigStep from './step/ConfigStep';
 import GeneralStep from './step/GeneralStep';
@@ -27,6 +27,7 @@ type Props = {
   isReadyToSaveForm: boolean;
   groups: IProductGroup[];
   formIntegrations: IIntegration[];
+  productSchemas: IProductShema[];
   save: (params: any) => void;
 };
 
@@ -51,7 +52,7 @@ class Lead extends React.Component<Props, State> {
       brand: integration.brandId,
       pos,
       carousel: 'pos',
-      currentMode: undefined,
+      currentMode: props.currentMode,
       config: props.config,
       groups: props.groups || []
     };
@@ -181,6 +182,7 @@ class Lead extends React.Component<Props, State> {
                   onChange={this.onChange}
                   pos={pos}
                   groups={groups}
+                  productSchemas={this.props.productSchemas}
                 />
               </Step>
               <Step

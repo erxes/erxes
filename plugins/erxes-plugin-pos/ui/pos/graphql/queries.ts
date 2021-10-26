@@ -138,6 +138,15 @@ query posDetail($_id: String!) {
 }
 `
 
+const getDbSchemaLabels = `
+  query getDbSchemaLabels($type: String) {
+    getDbSchemaLabels(type: $type) {
+      name
+      label
+    }
+  }
+`;
+
 export default {
   posList,
   configs,
@@ -146,5 +155,6 @@ export default {
   integrationsTotalCount,
   integrations,
   integrationDetail,
-  posDetail
+  posDetail,
+  getDbSchemaLabels
 };

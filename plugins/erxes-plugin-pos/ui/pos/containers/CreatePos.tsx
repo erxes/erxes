@@ -9,13 +9,17 @@ import {
   IntegrationMutationVariables,
   IntegrationsQueryResponse,
   IProductGroup,
-  IRouterProps
+  IRouterProps,
+  SchemaLabelsQueryResponse
 } from '../../types';
 import { PLUGIN_URL } from '../../constants';
 import Pos from '../components/Pos';
 import { queries, mutations } from '../graphql';
 
-type Props = { integrationsQuery: IntegrationsQueryResponse } & IRouterProps &
+type Props = {
+  integrationsQuery: IntegrationsQueryResponse;
+  schemaLabelsQuery: SchemaLabelsQueryResponse;
+} & IRouterProps &
   AddPosMutationResponse &
   GroupsBulkInsertMutationResponse;
 
@@ -34,13 +38,14 @@ class CreatePosContainer extends React.Component<Props, State> {
       addPosMutation,
       history,
       integrationsQuery,
-      productGroupsBulkInsertMutation
+      productGroupsBulkInsertMutation,
+      schemaLabelsQuery
     } = this.props;
 
     const formIntegrations = integrationsQuery.integrations || [];
-    // const categories = productCategoriesQuery.productCategories || [];
+    const productSchemas = schemaLabelsQuery.getDbSchemaLabels || [];
 
-    if (integrationsQuery.loading) {
+    if (integrationsQuery.loading || schemaLabelsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
@@ -88,7 +93,8 @@ class CreatePosContainer extends React.Component<Props, State> {
       formIntegrations,
       save,
       currentMode: 'create',
-      isActionLoading: this.state.isLoading
+      isActionLoading: this.state.isLoading,
+      productSchemas
     };
 
     return <Pos {...updatedProps} />;
@@ -112,6 +118,12 @@ export default withProps<Props>(
         }
       })
     }),
+
+    graphql<Props, SchemaLabelsQueryResponse>(gql(queries.getDbSchemaLabels), {
+      name: 'schemaLabelsQuery',
+      options: () => ({ variables: { type: 'product' } })
+    }),
+
     graphql<
       {},
       GroupsBulkInsertMutationResponse,
