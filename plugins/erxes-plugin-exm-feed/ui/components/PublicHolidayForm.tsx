@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Form, Uploader } from 'erxes-ui';
-import DateControl from 'erxes-ui/lib/components/form/DateControl';
-import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
-import { UploadItems } from '../styles';
-import { description, title } from '../utils';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import GenerateFields from './GenerateFields';
+import React, { useState } from "react";
+import { Form, Uploader } from "erxes-ui";
+import DateControl from "erxes-ui/lib/components/form/DateControl";
+import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
+import { UploadItems, CustomRangeContainer } from "../styles";
+import { description, title } from "../utils";
+import ControlLabel from "erxes-ui/lib/components/form/Label";
+import GenerateFields from "./GenerateFields";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -32,15 +32,17 @@ export default function PostForm(props: Props) {
       <>
         {title(formProps, item)}
         {description(formProps, item)}
-        <DateControl
-          value={createdAt}
-          required={false}
-          name='createdAt'
-          onChange={date => setCreatedAt(date)}
-          placeholder={'Date'}
-          dateFormat={'YYYY-MM-DD HH:mm:ss'}
-          timeFormat={true}
-        />
+        <CustomRangeContainer>
+          <DateControl
+            value={createdAt}
+            required={false}
+            name="createdAt"
+            onChange={(date) => setCreatedAt(date)}
+            placeholder={"Date"}
+            dateFormat={"YYYY-MM-DD HH:mm:ss"}
+            timeFormat={true}
+          />
+        </CustomRangeContainer>
         <GenerateFields
           fields={fields}
           customFieldsData={customFieldsData}
@@ -56,13 +58,13 @@ export default function PostForm(props: Props) {
           values: {
             title: values.title,
             description: values.description ? values.description : null,
-            contentType: 'publicHoliday',
+            contentType: "publicHoliday",
             images,
             createdAt,
-            customFieldsData
+            customFieldsData,
           },
           isSubmitted,
-          callback: closeModal
+          callback: closeModal,
         })}
       </>
     );

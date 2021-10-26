@@ -22,7 +22,7 @@ export default function Home(props: Props) {
   };
 
   const renderTabContent = () => {
-    if (currentTab === "thank") {
+    if (currentTab === "thankyou") {
       return (
         <>
           <ThankForm queryParams={queryParams} />
@@ -65,8 +65,8 @@ export default function Home(props: Props) {
             </Link>
           </TabTitle>
           <TabTitle
-            className={currentTab === "thank" ? "active" : ""}
-            onClick={() => onClickTab("thank")}
+            className={currentTab === "thankyou" ? "active" : ""}
+            onClick={() => onClickTab("thankyou")}
           >
             Thank you
           </TabTitle>

@@ -68,8 +68,8 @@ export default function List({ list, deleteItem, totalCount, limit }: Props) {
           </div>
           <NavItem>
             <Dropdown alignRight={true}>
-              <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
-                <Icon icon="angle-down" size={14} />
+              <Dropdown.Toggle as={DropdownToggle} id="comment-settings">
+                <Icon icon="ellipsis-h" size={14} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
                 <li>{editItem(item)}</li>

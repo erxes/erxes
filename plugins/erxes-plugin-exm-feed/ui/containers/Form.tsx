@@ -8,6 +8,7 @@ import { IButtonMutateProps } from "erxes-ui/lib/types";
 import { ButtonMutate } from "erxes-ui";
 import EventForm from "../components/EventForm";
 import PublicHolidayForm from "../components/PublicHolidayForm";
+import { ButtonWrap } from "../styles";
 
 type Props = {
   contentType?: string;
@@ -46,20 +47,22 @@ export default function FormContainer(props: Props) {
     }
 
     return (
-      <ButtonMutate
-        mutation={variables._id ? mutations.editFeed : mutations.addFeed}
-        variables={variables}
-        callback={callBackResponse}
-        refetchQueries={[{ query: gql(queries.feed) }]}
-        isSubmitted={isSubmitted}
-        successMessage={`You successfully ${
-          variables._id ? "edited" : "added"
-        }`}
-        type="submit"
-        icon="check-circle"
-      >
-        Send
-      </ButtonMutate>
+      <ButtonWrap>
+        <ButtonMutate
+          mutation={variables._id ? mutations.editFeed : mutations.addFeed}
+          variables={variables}
+          callback={callBackResponse}
+          refetchQueries={[{ query: gql(queries.feed) }]}
+          isSubmitted={isSubmitted}
+          successMessage={`You successfully ${
+            variables._id ? "edited" : "added"
+          }`}
+          type="submit"
+          icon="check-circle"
+        >
+          Send
+        </ButtonMutate>
+      </ButtonWrap>
     );
   };
 

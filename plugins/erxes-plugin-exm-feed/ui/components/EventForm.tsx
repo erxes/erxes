@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import DateControl from 'erxes-ui/lib/components/form/DateControl';
-import { Form, FormControl, Uploader, SelectTeamMembers } from 'erxes-ui';
-import { IFormProps, IButtonMutateProps } from 'erxes-ui/lib/types';
-import { UploadItems } from '../styles';
-import { title, description } from '../utils';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import GenerateFields from './GenerateFields';
-import { __ } from 'erxes-ui/lib/utils';
+import React, { useState } from "react";
+import DateControl from "erxes-ui/lib/components/form/DateControl";
+import { Form, FormControl, Uploader, SelectTeamMembers } from "erxes-ui";
+import { IFormProps, IButtonMutateProps } from "erxes-ui/lib/types";
+import { UploadItems, CustomRangeContainer } from "../styles";
+import { title, description } from "../utils";
+import ControlLabel from "erxes-ui/lib/components/form/Label";
+import GenerateFields from "./GenerateFields";
+import { __ } from "erxes-ui/lib/utils";
 
 type Props = {
   item?: any;
@@ -27,10 +27,10 @@ export default function EventForm(props: Props) {
   const itemEventData = item.eventData || {};
 
   const [eventData, setEventData] = useState({
-    visibility: itemEventData.visibility || 'public',
-    where: itemEventData.where || '',
+    visibility: itemEventData.visibility || "public",
+    where: itemEventData.where || "",
     startDate: itemEventData.startDate,
-    endDate: itemEventData.endDate
+    endDate: itemEventData.endDate,
   });
 
   const onChangeEventData = (key, value) => {
@@ -43,63 +43,72 @@ export default function EventForm(props: Props) {
 
     return (
       <>
-        <FormControl
-          componentClass='radio'
-          name='visibility'
-          checked={eventData.visibility === 'public'}
-          value='public'
-          onChange={(e: any) => onChangeEventData('visibility', e.target.value)}
-        >
-          Public
-        </FormControl>
-        <FormControl
-          componentClass='radio'
-          name='visibility'
-          value='private'
-          checked={eventData.visibility === 'private'}
-          onChange={(e: any) => onChangeEventData('visibility', e.target.value)}
-        >
-          Private
-        </FormControl>
-        <br />
-        {eventData.visibility === 'private' && (
+        <span>
+          <FormControl
+            componentClass="radio"
+            name="visibility"
+            checked={eventData.visibility === "public"}
+            value="public"
+            onChange={(e: any) =>
+              onChangeEventData("visibility", e.target.value)
+            }
+          >
+            Public
+          </FormControl>
+          <FormControl
+            componentClass="radio"
+            name="visibility"
+            value="private"
+            checked={eventData.visibility === "private"}
+            onChange={(e: any) =>
+              onChangeEventData("visibility", e.target.value)
+            }
+          >
+            Private
+          </FormControl>
+        </span>
+        {eventData.visibility === "private" && (
           <>
             <SelectTeamMembers
-              label='Who'
-              name='recipientIds'
+              label="Who"
+              name="recipientIds"
               initialValue={recipientIds}
               onSelect={setRecipientIds}
             />
             <br />
           </>
         )}
-        <DateControl
-          value={eventData.startDate}
-          required={false}
-          name='startDate'
-          onChange={date => onChangeEventData('startDate', date)}
-          placeholder={'Start date'}
-          dateFormat={'YYYY-MM-DD HH:mm:ss'}
-          timeFormat={true}
-        />
-        <DateControl
-          value={eventData.endDate}
-          required={false}
-          name='endDate'
-          placeholder={'End date'}
-          onChange={date => onChangeEventData('endDate', date)}
-          dateFormat={'YYYY-MM-DD HH:mm:ss'}
-          timeFormat={true}
-        />
-        <br />
-        <FormControl
-          placeholder='Where'
-          componentClass='textarea'
-          value={eventData.where}
-          onChange={(e: any) => onChangeEventData('where', e.target.value)}
-        />
+        <CustomRangeContainer>
+          <DateControl
+            value={eventData.startDate}
+            required={false}
+            name="startDate"
+            onChange={(date) => onChangeEventData("startDate", date)}
+            placeholder={"Start date"}
+            dateFormat={"YYYY-MM-DD HH:mm:ss"}
+            timeFormat={true}
+          />
+          <DateControl
+            value={eventData.endDate}
+            required={false}
+            name="endDate"
+            placeholder={"End date"}
+            onChange={(date) => onChangeEventData("endDate", date)}
+            dateFormat={"YYYY-MM-DD HH:mm:ss"}
+            timeFormat={true}
+          />
+        </CustomRangeContainer>
+
         {title(formProps, item)}
         {description(formProps, item)}
+
+        <FormControl
+          placeholder="Where"
+          componentClass="textarea"
+          value={eventData.where}
+          onChange={(e: any) => onChangeEventData("where", e.target.value)}
+        />
+
         <GenerateFields
           fields={fields}
           customFieldsData={customFieldsData}
@@ -124,15 +133,15 @@ export default function EventForm(props: Props) {
           values: {
             title: values.title,
             description: values.description ? values.description : null,
-            contentType: 'event',
+            contentType: "event",
             attachments,
             images,
             recipientIds,
             customFieldsData,
-            eventData
+            eventData,
           },
           isSubmitted,
-          callback: closeModal
+          callback: closeModal,
         })}
       </>
     );

@@ -29,9 +29,14 @@ export const TabContent = styled.div`
     border: 1px solid #eee;
     margin-bottom: 20px;
 
-    > span {
+    > span,
+    .Select {
       display: block;
       margin-bottom: 10px;
+    }
+
+    label {
+      margin-right: 20px;
     }
   }
 `;
@@ -50,9 +55,10 @@ export const UploadItems = styled.div`
 
 export const NewsFeedLayout = styled.div`
   > div {
-    border: 1px solid #ddd;
     margin-bottom: 20px;
     border-radius: 10px;
+    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+
     > img {
       width: 100%;
       border-top: 1px solid #ddd;
@@ -70,7 +76,7 @@ export const NewsFeedLayout = styled.div`
 
 export const HeaderFeed = styled.div`
   display: flex;
-  padding: 10px;
+  padding: 20px;
 
   > div {
     > p {
@@ -91,6 +97,8 @@ export const NavItem = styled.div`
   height: 40px;
   border-radius: 50%;
   margin-left: auto;
+  transition: all ease 0.3s;
+
   &:hover {
     background-color: #ddd;
     cursor: pointer;
@@ -101,6 +109,7 @@ export const NavItem = styled.div`
     text-align: center;
     width: 40px;
     height: 40px;
+    line-height: 40px;
     border-radius: 50%;
 
     div:first-child {
@@ -123,13 +132,14 @@ export const NavItem = styled.div`
 `;
 
 export const TextFeed = styled.div`
-  padding: 10px;
+  padding: 0 20px 15px;
 `;
 
 export const LikeCommentShare = styled.div`
   display: flex;
   border-top: 1px solid #ddd;
-  padding: 10px;
+  padding: 10px 20px;
+
   b {
     margin-right: 20px;
   }
@@ -144,6 +154,7 @@ export const Attachments = styled.div`
   color: #444;
   font-size: 14px;
   padding: 10px;
+
   &:hover {
     background: rgba(10, 30, 65, 0.08);
   }
@@ -151,4 +162,29 @@ export const Attachments = styled.div`
 
 export const MainContent = styled.div`
   padding: 20px;
+`;
+
+export const CustomRangeContainer = styled.div`
+  margin: 10px 0;
+  display: flex;
+  align-items: flex-end;
+
+  > span {
+    flex: 1;
+    margin-right: 8px;
+
+    input[type="text"] {
+      border: none;
+      width: 100%;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
 `;

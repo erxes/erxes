@@ -1,10 +1,9 @@
-import React from 'react';
-import gql from 'graphql-tag';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
-import { ButtonMutate } from 'erxes-ui';
-
-import { mutations, queries } from '../graphql';
-import ThankForm from '../components/ThankForm';
+import React from "react";
+import { IButtonMutateProps } from "erxes-ui/lib/types";
+import { ButtonMutate } from "erxes-ui";
+import { mutations } from "../graphql";
+import ThankForm from "../components/ThankForm";
+import { ButtonWrap } from "../styles";
 
 type Props = {
   item?: any;
@@ -18,7 +17,7 @@ export default function ThankFormContainer(props: Props) {
   const renderButton = ({
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     const callBackResponse = () => {
       if (callback) {
@@ -27,7 +26,7 @@ export default function ThankFormContainer(props: Props) {
     };
 
     const variables = {
-      ...values
+      ...values,
     };
 
     if (item) {
@@ -35,17 +34,19 @@ export default function ThankFormContainer(props: Props) {
     }
 
     return (
-      <ButtonMutate
-        mutation={variables._id ? mutations.editThank : mutations.addThank}
-        variables={variables}
-        callback={callBackResponse}
-        isSubmitted={isSubmitted}
-        successMessage={`You successfully ${
-          variables._id ? 'edited' : 'added'
-        } a thank you`}
-        type='submit'
-        icon='check-circle'
-      />
+      <ButtonWrap>
+        <ButtonMutate
+          mutation={variables._id ? mutations.editThank : mutations.addThank}
+          variables={variables}
+          callback={callBackResponse}
+          isSubmitted={isSubmitted}
+          successMessage={`You successfully ${
+            variables._id ? "edited" : "added"
+          } a thank you`}
+          type="submit"
+          icon="check-circle"
+        />
+      </ButtonWrap>
     );
   };
 
