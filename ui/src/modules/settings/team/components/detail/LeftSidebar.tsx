@@ -3,8 +3,6 @@ import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
@@ -47,53 +45,11 @@ function LeftSidebar({
   renderSkillForm,
   renderEditForm
 }: Props) {
-  const { details = {}, links = {} } = user;
-
-  const content = props => {
-    return renderEditForm({ ...props, user });
-  };
-
-  function renderLink(link, icon) {
-    if (!link) {
-      return null;
-    }
-
-    return (
-      <a href={link} target="_blank" rel="noopener noreferrer">
-        <Icon icon={icon} />
-      </a>
-    );
-  }
-
-  function renderLinks(item) {
-    return (
-      <Links>
-        {renderLink(item.facebook, 'facebook-official')}
-        {renderLink(item.linkedIn, 'linkedin')}
-        {renderLink(item.twitter, 'twitter')}
-        {renderLink(item.youtube, 'youtube-play')}
-        {renderLink(item.github, 'github-circled')}
-        {renderLink(item.website, 'external-link-alt')}
-      </Links>
-    );
-  }
+  const { details = {} } = user;
 
   function renderUserInfo() {
     return (
       <Section>
-        <InfoWrapper>
-          <NameCard
-            user={user}
-            avatarSize={50}
-            secondLine={renderLinks(links)}
-          />
-          <ModalTrigger
-            title="Edit"
-            trigger={<Icon icon="pen-1" />}
-            size="lg"
-            content={content}
-          />
-        </InfoWrapper>
         <SidebarList className="no-link">
           <li>
             <FieldStyle>{__('Primary Email')}:</FieldStyle>

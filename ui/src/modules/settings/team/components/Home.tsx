@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
-
 import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
 import UserList from '../containers/UserList';
 import Sidebar from './Sidebar';
 import { menuContacts } from 'modules/common/utils/menus';
@@ -147,17 +145,6 @@ export default function Home(props: Props) {
   return (
     <Wrapper
       header={<Wrapper.Header title={'Team members'} submenu={menuContacts} />}
-      mainHead={
-        <HeaderDescription
-          icon="/images/actions/21.svg"
-          title="Team members"
-          description={`${__(
-            'Your team members are the bolts and nuts of your business'
-          )}.${__('Make sure all the parts are set and ready to go')}.${__(
-            'Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info'
-          )}`}
-        />
-      }
       leftSidebar={<Sidebar />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
