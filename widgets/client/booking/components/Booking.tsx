@@ -14,9 +14,19 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const { childCategories, mainProductCategory, style } = booking;
+  const {
+    mainProductCategory,
+    style,
+    categoryTree,
+    productCategoryId
+  } = booking;
+
   const { name, attachment, description } = mainProductCategory;
   const { widgetColor, line, columns, rows, margin } = style;
+
+  const childCategories = categoryTree.filter(
+    tree => tree.parentId === productCategoryId && tree.type === 'category'
+  );
 
   const type = name || 'Блок';
   const column: string = columns!;

@@ -124,10 +124,6 @@ const widgetsConnectMutation = `
           url
         }
         
-        childCategories {
-          ${productCategoryFields}
-        }
-
         mainProductCategory {
           ${productCategoryFields}
         }

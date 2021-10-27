@@ -2,10 +2,6 @@ import { ProductCategories, Products } from '../../db/models';
 import { IBookingData } from '../../db/models/definitions/integrations';
 
 export default {
-  async childCategories(booking: IBookingData) {
-    return ProductCategories.find({ parentId: booking.productCategoryId });
-  },
-
   async categoryTree(booking: IBookingData) {
     const tree: Array<{
       _id: string;

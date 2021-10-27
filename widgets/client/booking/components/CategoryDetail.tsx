@@ -14,7 +14,14 @@ function CategoryDetail({ goToBookings, category, booking }: Props) {
   if (!category || !booking) {
     return null;
   }
+
+  const { categoryTree } = booking;
   const { widgetColor } = booking.style;
+
+  // use this
+  const childCategories = categoryTree.filter(
+    tree => tree.parentId === category._id && tree.type === 'category'
+  );
 
   return (
     <>

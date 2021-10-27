@@ -40,7 +40,6 @@ export const types = `
 
     viewCount: Int
 
-    childCategories: [ProductCategory]
     categoryTree: JSON
     mainProductCategory: ProductCategory
   }
