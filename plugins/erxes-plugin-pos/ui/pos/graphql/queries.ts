@@ -161,6 +161,15 @@ const tags = `
   }
 `;
 
+const integrations = `
+  query integrations($perPage: Int, $page: Int, $kind: String, $tag: String, $brandId: String, $status: String, $sortField: String, $sortDirection: Int) {
+    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag, brandId: $brandId, status: $status, sortField: $sortField, sortDirection: $sortDirection) {
+      _id
+      ${commonFields}
+    }
+  }
+`;
+
 export default {
   posList,
   configs,
@@ -169,5 +178,6 @@ export default {
   integrationsTotalCount,
   posDetail,
   getDbSchemaLabels,
-  tags
+  tags,
+  integrations
 };

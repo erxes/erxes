@@ -167,6 +167,16 @@ export default withProps<FinalProps>(
     graphql<Props, SchemaLabelsQueryResponse>(gql(queries.getDbSchemaLabels), {
       name: 'schemaLabelsQuery',
       options: () => ({ variables: { type: 'product' } })
-    })
+    }),
+
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'integrationsQuery',
+      options: () => ({
+        fetchPolicy: 'cache-and-network',
+        variables: {
+          kind: 'lead'
+        }
+      })
+    }),
   )(EditPosContainer)
 );

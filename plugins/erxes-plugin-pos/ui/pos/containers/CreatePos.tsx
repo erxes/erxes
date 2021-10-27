@@ -121,6 +121,16 @@ export default withProps<Props>(
       { posId: string; groups: IProductGroup[] }
     >(gql(mutations.saveProductGroups), {
       name: 'productGroupsBulkInsertMutation'
-    })
+    }),
+
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'integrationsQuery',
+      options: () => ({
+        fetchPolicy: 'cache-and-network',
+        variables: {
+          kind: 'lead'
+        }
+      })
+    }),
   )(CreatePosContainer)
 );

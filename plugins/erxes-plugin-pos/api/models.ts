@@ -1,4 +1,5 @@
 import { IPOS } from './types';
+import * as Random from 'meteor-random';
 /**
  * pos
  */
@@ -36,13 +37,13 @@ class Pos {
   }
 
   public static async generateToken(models, code?: string) {
-    let generatedCode = code || (Math.random() + 1).toString(36).substring(12);
+    let generatedCode = code || Random.id().substr(0, 10);
 
     let prevPos = await models.Pos.findOne({ token: generatedCode });
 
     // search until not existing one found
     while (prevPos) {
-      generatedCode = (Math.random() + 1).toString(36).substring(12);
+      generatedCode = Random.id().substr(0, 10);
 
       prevPos = await models.Pos.findOne({ token: generatedCode });
     }
