@@ -69,11 +69,11 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
   };
 
   return (
-    <div className="body">
+    <div className="container">
       <h4>{product.name}</h4>
       <p>{product.description}</p>
-      <div className="grid-21">
-        <div className="slider">
+      <div className="flex-sa">
+        <div className="slider w-50">
           <div className="active flex-center">
             <img
               id="img-active"
@@ -114,12 +114,6 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
             <strong>Price per unit:</strong> {product.unitPrice}
           </div>
           {renderFieldData()}
-          <Button
-            text={'Book product'}
-            type=""
-            onClickHandler={() => showPopup()}
-            style={{ backgroundColor: widgetColor, marginTop: '100px' }}
-          />
         </div>
       </div>
 
@@ -129,6 +123,12 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
           type="back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor, left: 0 }}
+        />
+        <Button
+          text={'Book product'}
+          type=""
+          onClickHandler={() => showPopup()}
+          style={{ backgroundColor: widgetColor, marginTop: '100px' }}
         />
       </div>
     </div>

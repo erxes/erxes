@@ -1,6 +1,7 @@
 .booking-navigation {
   position: fixed;
   top: 0;
+  left:0;
   min-width: 20%;
   background-color: #fff; 
   text-align: left;
@@ -16,7 +17,7 @@
     align-items: center;
     h4{
       margin:0;
-      font-size: 2em
+      font-size: 1.1em
     }
     svg:hover {
       cursor: pointer;

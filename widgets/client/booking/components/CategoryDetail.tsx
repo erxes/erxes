@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { IBookingData } from '../types';
 import Button from './common/Button';
+import Card from '../components/common/Card'
+import { IBookingData } from '../types';
 import { IProductCategory } from '../../types';
 import { readFile } from '../../utils';
+
 
 type Props = {
   goToBookings: () => void;
@@ -23,13 +25,19 @@ function CategoryDetail({ goToBookings, category, booking }: Props) {
     tree => tree.parentId === category._id && tree.type === 'category'
   );
 
+  let selectedId = "";
+
+  const goNext = (id: any) => {
+    selectedId = id;
+  };
+
   return (
     <>
-      <div className="body">
+      <div className="container">
         <h4> {category.name} </h4>
         <p> {category.description} </p>
-        <div className="grid-12">
-          <div>
+        <div className="flex-sa">
+          <div className="img-container w-50">
             <img
               src={readFile(category.attachment && category.attachment.url)}
               alt={category.attachment && category.attachment.title}
@@ -39,6 +47,21 @@ function CategoryDetail({ goToBookings, category, booking }: Props) {
               }}
             />
           </div>
+          <div className="cards w-50">
+            {childCategories.map((el, i = 1) => {
+              return (
+                <div onClick={() => goNext(el._id)}>
+                  <Card
+                    key={i}
+                    type={"category"}
+                    title={el.name}
+                    widgetColor={widgetColor}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
         </div>
       </div>
       <div />

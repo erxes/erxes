@@ -1,16 +1,27 @@
 import * as React from 'react';
 
 type Props = {
+  title: string;
+  key: any;
   type: string;
-  key: string;
-  widgetColor?: string;
+  widgetColor: string;
   status?: string;
+  description?: string;
+  goTo?: () => void;
 };
 
-function Card({ widgetColor, type, key, status }: Props) {
+function Card({ widgetColor, title, type, key, status }: Props) {
+  const [style, setStyle] = React.useState({
+    borderColor: widgetColor,
+  });
+
+  const onClick = () => {
+    const addedStyle = { backgroundColor: widgetColor };
+    //setStyle({ ...style, addedStyle);
+  };
   return (
-    <div className={`item ${type === 'block' ? ' block ' : ''}`}>
-      <h4> {`${type} ${key}`} </h4>
+    <div onMouseEnter={onClick} className="card">
+      <h4> {title} </h4>
     </div>
   );
 }

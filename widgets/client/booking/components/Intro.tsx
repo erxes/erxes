@@ -13,10 +13,9 @@ function Intro({ booking, goToBooking }: Props) {
   const { widgetColor } = style;
 
   return (
-    <div className="body">
+    <div className="container" style={{ overflow: "hidden" }}>
       <h4> {name}</h4>
       <p> {description} </p>
-
       <div className="img-container flex-center">
         <img
           src={readFile(image && image.url)}
@@ -26,7 +25,7 @@ function Intro({ booking, goToBooking }: Props) {
 
       <div className="footer">
         <Button
-          text="Next"
+          text={`Next`}
           type="next"
           onClickHandler={() => goToBooking(booking)}
           style={{ backgroundColor: widgetColor, right: 0 }}

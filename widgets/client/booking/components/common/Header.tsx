@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { GiHamburgerMenu } from 'react-icons/gi';
-import { HiArrowNarrowLeft } from 'react-icons/hi';
+
 import { FilterableList } from '.';
 import { IBookingData, ICategoryTree } from '../../types';
 type Props = {
@@ -36,13 +35,14 @@ class Header extends React.Component<Props, State> {
     }
 
     const style = booking.style;
+    const navigationName = "Navigation"
 
     return (
       <div className={`booking-navigation bn-${style.widgetColor} slide-in`}>
         <div className="booking-header">
-          <h4> Navigation </h4>
+          <h4>{navigationName}</h4>
           <div>
-            <div onClick={this.toggleNavigation} > back</div>
+            <div onClick={this.toggleNavigation} > </div>
           </div>
         </div>
         <hr />

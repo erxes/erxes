@@ -27,10 +27,6 @@ function Booking({ goToIntro, booking }: Props) {
     tree => tree.parentId === productCategoryId && tree.type === 'category'
   );
 
-  console.log(childCategories)
-
-  const block = name || 'Блок';
-  const blockDescription = name || 'Блок';
   const column: string = columns!;
   // tslint:disable-next-line: radix
   const colCount = parseInt(column) >= 4 ? '4' : columns;
@@ -41,44 +37,42 @@ function Booking({ goToIntro, booking }: Props) {
     gap: margin
   };
 
-  let hover = false;
-  const hoverStyle = { borderColor: '', color: '' };
+  let selectedId = "";
 
-  console.log(childCategories)
-
-  const toggleHover = () => {
-    hover = !hover;
-    if (hover === true) {
-      hoverStyle.borderColor = widgetColor;
-      hoverStyle.color = widgetColor;
-    }
+  const goNext = (id: any) => {
+    selectedId = id;
   };
 
-  return (
-    <div>
-      <h4> {name}</h4>
-      <p> {description} </p>
-
-      <div className="category flex-center">
-        <img
-          src={readFile(attachment && attachment.url)}
-          alt={'s'}
-        />
+  const Body = () => {
+    return (
+      <div className="body">
+        <div className="img-container sub flex-center">
+          <img
+            src={readFile(attachment && attachment.url)}
+            alt={'s'}
+          />
+        </div>
+        <div className="cards" style={categoriesStyle}>
+          {childCategories.map((el) => {
+            return (
+              <div onClick={() => goNext(el._id)}>
+                <Card
+                  key={el._id}
+                  title={el.name}
+                  type={"main"}
+                  description={"Desctiption"}
+                  widgetColor={widgetColor}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
+    )
+  }
 
-      <div className="items" style={categoriesStyle}>
-        {childCategories.map(({ }, index) => {
-          return (
-            <Card
-              key={index.toString()}
-              type={block}
-              description={blockDescription}
-              widgetColor={widgetColor}
-            />
-          );
-        })}
-      </div>
-
+  const Footer = () => {
+    return (
       <div className="footer">
         <Button
           text="Back"
@@ -86,7 +80,22 @@ function Booking({ goToIntro, booking }: Props) {
           onClickHandler={() => goToIntro()}
           style={{ backgroundColor: style.widgetColor }}
         />
+        <Button
+          text="Next"
+          type="next"
+          onClickHandler={() => goToIntro()}
+          style={{ backgroundColor: style.widgetColor }}
+        />
       </div>
+    )
+  }
+
+  return (
+    <div className="container">
+      <h4> {name}</h4>
+      <p> {description} </p>
+      <Body />
+      <Footer />
     </div>
   );
 }

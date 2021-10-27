@@ -9,7 +9,6 @@ type Props = {
   className?: string;
   treeView?: boolean;
   parentId?: string;
-
   styles: IStyle;
 
   changeRoute: (item: any) => void;
@@ -89,8 +88,9 @@ class FilterableList extends React.Component<Props, State> {
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean, color: string) {
     return hasChildren ? (
-      <>{isOpen ? "🍕" : "🍔"}</>
-    ) : null;
+      <> {isOpen ? <div className="arrow-down" />
+        : <div className="arrow-right" />
+      }</>) : null;
   }
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {

@@ -22,7 +22,7 @@ h4{
   margin-top: 1em;
 }
 p {
-  font-size: 1.6em;
+  font-size: 1.7em;
   text-align: justify;
   text-justify: inter-word;
 }
@@ -93,8 +93,8 @@ h4,p{
   justify-content: space-between;
 }
 
-  .body{
-    padding: 0 2em;
+  .container{
+    padding: 0 2em 10em;
     height: fit-content;
     max-height: 100%;
     color: #333333 ;
@@ -107,21 +107,17 @@ h4,p{
   }
   .img-container{
     height: 200em;
-    max-height: 80vh;;
+    max-height: 40vh;;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
     img{
       height: 100%;
       width: 100%;
       object-fit: contain;
     }
-  }
-  .category{
-    height: 200em;
-    max-height: 30vh;
-    img{
-      height: 100%;
-      width: 100%;
-      object-fit: contain;
+    .sub{
+      max-height: 20vh;
     }
   }
   .footer{
@@ -137,33 +133,36 @@ h4,p{
 .block {
   flex: 0 1 calc(25% - 1em);
 }
-
-.items {
+.cards {
   display: grid;
-  grid-auto-rows: auto;
-  grid-auto-columns: -webkit-max-content;
+  grid-auto-rows: max-content;
   grid-auto-columns: max-content;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   grid-column-gap: 1.6em;
   grid-row-gap: 1.6em;
 }
-.item {
-  border-radius: 0.5em;
+.card {
+  border-radius: 0.8em;
   padding: 0.5em 0.8em;
   background: #fff;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
+  rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  // border: 1px solid $main-color;
   overflow: hidden;
   width: auto;
   position: relative;
-  font-size: 0.8em;
+  font-size: 0.5em;
   min-width: 100px;
   display: block;
   margin: 0.1em;
   height: fit-content;
-  flex: 0 1 calc(25% - 1em);
+  min-height: 4em;
+  text-align: center;
+  h4{
+    margin:2em;
+  }
   &:hover {
     cursor: pointer;
-    box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
-      rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   }
 }
 .status {
@@ -211,12 +210,6 @@ h4,p{
   position: relative;
 }
 
-.category-container {
-  background: rgba($black, 0.044);
-  border-radius: $border-radius;
-  padding: $kb-spacing;
-}
-
 .btn {
   position: absolute;
   border: none;
@@ -257,4 +250,18 @@ hr {
 .hamburger {
   display: block;
   cursor: pointer;
+}
+.arrow {
+  width: 0; 
+  height: 0; ;
+  &.down {
+    border-left: 1em solid transparent;
+    border-right: 1em solid transparent;
+    border-bottom: 1em solid #333333;
+  }
+  &.right {
+    border-top: 1em solid transparent;
+    border-bottom: 1em solid transparent;
+    border-left: 1em solid #333333;
+  }
 }
