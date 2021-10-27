@@ -24,7 +24,7 @@ class LeftSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
-        <BasicInfo product={product} />
+        <BasicInfo product={product} refetchQueries={refetchQueries} />
         <CustomFieldsSection product={product} />
         <TaggerSection
           data={product}
