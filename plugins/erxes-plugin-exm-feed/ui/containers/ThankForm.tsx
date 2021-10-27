@@ -7,12 +7,13 @@ import { ButtonWrap, FormWrap } from "../styles";
 
 type Props = {
   item?: any;
+  transparent?: boolean;
   closeModal?: () => void;
   queryParams?: any;
 };
 
 export default function ThankFormContainer(props: Props) {
-  const { item } = props;
+  const { item, transparent } = props;
 
   const renderButton = ({
     values,
@@ -51,7 +52,7 @@ export default function ThankFormContainer(props: Props) {
   };
 
   return (
-    <FormWrap transparent={true}>
+    <FormWrap transparent={transparent}>
       <ThankForm {...props} renderButton={renderButton} />
     </FormWrap>
   );

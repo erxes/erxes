@@ -22,6 +22,10 @@ const commonFeedFields = `
   createdAt
   updatedAt
   likeCount
+  heartCount
+  isHearted
+  isLiked
+  isPinned
   commentCount
   recipientIds
   createdUser {

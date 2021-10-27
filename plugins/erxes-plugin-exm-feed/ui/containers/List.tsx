@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery, useMutation } from "react-apollo";
 import gql from "graphql-tag";
-import { Alert, confirm } from "erxes-ui";
+import { Alert, confirm, Spinner } from "erxes-ui";
 import List from "../components/List";
 import { mutations, queries } from "../graphql";
 
@@ -26,13 +26,13 @@ export default function ListContainer(props: Props) {
   const [pinMutation] = useMutation(gql(mutations.pinFeed));
 
   if (feedResponse.loading) {
-    return <div>...</div>;
+    return <Spinner objective={true} />;
   }
 
   const pinItem = (_id: string) => {
     pinMutation({ variables: { _id } })
       .then(() => {
-        Alert.success("You successfully pinned.");
+        Alert.success("Success!");
 
         feedResponse.refetch();
       })

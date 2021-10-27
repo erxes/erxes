@@ -1,10 +1,15 @@
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownToggle from "modules/common/components/DropdownToggle";
-import { ModalTrigger, readFile, getUserAvatar, __ } from "erxes-ui";
+import {
+  ModalTrigger,
+  readFile,
+  getUserAvatar,
+  LoadMore,
+  Icon,
+  __,
+} from "erxes-ui";
 import FilterableListStyles from "erxes-ui/lib/components/filterableList/styles";
-import LoadMore from "modules/common/components/LoadMore";
-import Icon from "modules/common/components/Icon";
 import dayjs from "dayjs";
 import Form from "../containers/Form";
 import {
@@ -14,6 +19,7 @@ import {
   LikeCommentShare,
   HeaderFeed,
   TextFeed,
+  FeedActions,
 } from "../styles";
 
 const AvatarImg = FilterableListStyles.AvatarImg;
@@ -60,42 +66,49 @@ export default function List({
     return (
       <div key={item._id}>
         <HeaderFeed>
-          <AvatarImg
-            alt={
-              (createdUser &&
-                createdUser.details &&
-                createdUser.details.fullName) ||
-              "author"
-            }
-            src={getUserAvatar(createdUser)}
-          />
-          <div>
-            <b>
-              {createdUser &&
-                ((createdUser.details && createdUser.details.fullName) ||
-                  createdUser.username ||
-                  createdUser.email)}
-            </b>
-            <p>
-              {dayjs(item.createdAt).format("lll")} <b>#{item.contentType}</b>
-            </p>
-          </div>
-          <NavItem>
-            <Dropdown alignRight={true}>
-              <Dropdown.Toggle as={DropdownToggle} id="comment-settings">
-                <Icon icon="ellipsis-h" size={14} />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <li>{editItem(item)}</li>
-                <li>
-                  <a onClick={() => deleteItem(item._id)}>Delete</a>
-                </li>
-                <li>
-                  <a onClick={() => pinItem(item._id)}>Pin</a>
-                </li>
-              </Dropdown.Menu>
-            </Dropdown>
-          </NavItem>
+          <FeedActions>
+            <AvatarImg
+              alt={
+                (createdUser &&
+                  createdUser.details &&
+                  createdUser.details.fullName) ||
+                "author"
+              }
+              src={getUserAvatar(createdUser)}
+            />
+            <div>
+              <b>
+                {createdUser &&
+                  ((createdUser.details && createdUser.details.fullName) ||
+                    createdUser.username ||
+                    createdUser.email)}
+              </b>
+              <p>
+                {dayjs(item.createdAt).format("lll")} <b>#{item.contentType}</b>
+              </p>
+            </div>
+          </FeedActions>
+          <FeedActions showPin={item.isPinned}>
+            <Icon icon="map-pin-alt" size={16} />
+            <NavItem>
+              <Dropdown alignRight={true}>
+                <Dropdown.Toggle as={DropdownToggle} id="comment-settings">
+                  <Icon icon="ellipsis-h" size={14} />
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <li>{editItem(item)}</li>
+                  <li>
+                    <a onClick={() => deleteItem(item._id)}>Delete</a>
+                  </li>
+                  <li>
+                    <a onClick={() => pinItem(item._id)}>
+                      {item.isPinned ? "UnPin" : "Pin"}
+                    </a>
+                  </li>
+                </Dropdown.Menu>
+              </Dropdown>
+            </NavItem>
+          </FeedActions>
         </HeaderFeed>
         <TextFeed>
           <b dangerouslySetInnerHTML={{ __html: item.title }} />
@@ -124,9 +137,26 @@ export default function List({
     );
   };
 
+  const renderList = () => {
+    const datas = list || [];
+    const pinnedList = datas.filter((data) => data.isPinned);
+    const normalList = datas.filter((data) => !data.isPinned);
+
+    const showList = (items) => {
+      return items.map((filteredItem) => renderItem(filteredItem));
+    };
+
+    return (
+      <>
+        {showList(pinnedList)}
+        {showList(normalList)}
+      </>
+    );
+  };
+
   return (
     <NewsFeedLayout>
-      {list.map((filteredItem) => renderItem(filteredItem))}
+      {renderList()}
       <LoadMore perPage={limit} all={totalCount} />
     </NewsFeedLayout>
   );

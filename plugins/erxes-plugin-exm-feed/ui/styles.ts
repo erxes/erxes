@@ -59,19 +59,23 @@ export const NewsFeedLayout = styled.div`
 
 export const HeaderFeed = styled.div`
   display: flex;
+  justify-content: space-between;
   padding: 20px;
 
   > div {
-    > p {
-      > b {
-        color: green;
+    > div {
+      > p {
+        > b {
+          color: green;
+        }
       }
     }
-  }
-  > img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+
+    > img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
   }
 `;
 
@@ -79,7 +83,6 @@ export const NavItem = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin-left: auto;
   transition: all ease 0.3s;
 
   &:hover {
@@ -110,6 +113,18 @@ export const NavItem = styled.div`
       height: 30px;
       line-height: 2;
     }
+  }
+`;
+
+export const FeedActions = styledTS<{ showPin?: boolean | undefined }>(
+  styled.div
+)`
+  display: flex;
+  align-items: center;
+
+  > i {
+    visibility: ${(props) => (props.showPin ? "visible" : "hidden")};
+    color: #e91e27
   }
 `;
 

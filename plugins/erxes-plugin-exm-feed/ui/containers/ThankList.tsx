@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery, useMutation } from "react-apollo";
 import gql from "graphql-tag";
-import { Alert, confirm } from "erxes-ui";
+import { Alert, confirm, Spinner } from "erxes-ui";
 import ThankList from "../components/ThankList";
 import { mutations, queries } from "../graphql";
 
@@ -23,7 +23,7 @@ export default function ThankListContainer(props: Props) {
   const [deleteMutation] = useMutation(gql(mutations.deleteThank));
 
   if (queryResponse.loading) {
-    return <div>...</div>;
+    return <Spinner objective={true} />;
   }
 
   const deleteItem = (_id: string) => {
