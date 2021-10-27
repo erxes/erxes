@@ -21,6 +21,7 @@ name
 description
 createdAt
 integrationId
+token
 adminIds
 cashierIds
 integration {

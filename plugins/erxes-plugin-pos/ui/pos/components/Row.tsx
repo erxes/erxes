@@ -11,12 +11,14 @@ import {
   Tip,
   __,
   WithPermission,
-  Tags
+  Tags,
+  Alert
 } from 'erxes-ui';
 import { IPos } from '../../types';
 import { RowTitle } from '../../styles';
 import { DateWrapper } from 'erxes-ui/lib/styles/main';
 import { PLUGIN_URL } from '../../constants';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
 type Props = {
   pos: IPos;
@@ -57,6 +59,22 @@ class Row extends React.Component<Props> {
       </WithPermission>
     );
   }
+
+  renderCopyAction = object => {
+    const onCopy = () => {
+      Alert.success('Copied');
+    };
+
+    return (
+      <CopyToClipboard text={object.token} onCopy={onCopy}>
+        <Button btnStyle="link">
+          <Tip text={__('Copy token')} placement="top">
+            <Icon icon="copy" size={15} />
+          </Tip>
+        </Button>
+      </CopyToClipboard>
+    );
+  };
 
   render() {
     const { pos, isChecked, toggleBulk } = this.props;
@@ -115,7 +133,8 @@ class Row extends React.Component<Props> {
 
         <td>
           <ActionButtons>
-            {this.manageAction(integration)}
+            {this.manageAction(pos)}
+            {this.renderCopyAction(pos)}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

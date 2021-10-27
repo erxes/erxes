@@ -20,6 +20,7 @@ const posCommonFields = `
   kioskMachine: JSON
   formSectionTitle: String
   formIntegrationIds: [String]
+  token: String
 `;
 
 export const types = `
