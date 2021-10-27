@@ -91,6 +91,8 @@ class Pos {
 
     await models.Integrations.removeIntegration(pos.integrationId);
 
+    await models.ProductGroups.remove({ posId: pos._id });
+
     return models.Pos.deleteOne({ _id });
   }
 }
