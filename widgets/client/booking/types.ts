@@ -20,8 +20,10 @@ export interface IStyle {
 export interface ICategoryTree {
   _id: string;
   name: string;
+  description: string;
   parentId: string;
   type: string;
+  status?: string;
 }
 
 export interface IBookingData {
