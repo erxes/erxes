@@ -13,7 +13,8 @@ import {
   HeaderButton,
   HeaderLabel,
   HeaderLink,
-  PageHeader
+  PageHeader,
+  ButtonGroup
 } from '../styles/header';
 import { IBoard, IOptions, IPipeline } from '../types';
 import RightMenu from './RightMenu';
@@ -40,7 +41,7 @@ type Props = {
   boardText?: string;
   pipelineText?: string;
   options: IOptions;
-  viewType?: string;
+  viewType: string;
 };
 
 class MainActionBar extends React.Component<Props> {
@@ -256,6 +257,92 @@ class MainActionBar extends React.Component<Props> {
     );
   };
 
+  renderViewChooser = () => {
+    const onFilterClick = (type: string) => {
+      const { currentBoard, currentPipeline, options } = this.props;
+
+      if (currentBoard && currentPipeline) {
+        return `/${options.type}/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
+      }
+
+      return `/${options.type}/${type}`;
+    };
+
+    const boardLink = onFilterClick('board');
+    const listLink = onFilterClick('list');
+    const chartLink = onFilterClick('chart');
+    const calendarLink = onFilterClick('calendar');
+    const activityLink = onFilterClick('activity');
+    const conversionlink = onFilterClick('conversion');
+
+    const { viewType, options } = this.props;
+
+    return (
+      <ButtonGroup>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
+            <Button btnStyle="primary" icon="list-ui-alt">
+              {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <li key="board">
+              <Link
+                to={boardLink}
+                className={viewType === 'board' ? 'active' : ''}
+              >
+                {__('Board')}
+              </Link>
+            </li>
+            <li key="calendar">
+              <Link
+                to={calendarLink}
+                className={viewType === 'calendar' ? 'active' : ''}
+              >
+                {__('Calendar')}
+              </Link>
+            </li>
+            {options.type === 'deal' && (
+              <li key="conversion">
+                <Link
+                  to={conversionlink}
+                  className={viewType === 'conversion' ? 'active' : ''}
+                >
+                  {__('Conversion')}
+                </Link>
+              </li>
+            )}
+            <li key="activity">
+              <Link
+                to={activityLink}
+                className={viewType === 'activity' ? 'active' : ''}
+              >
+                {__('Activity')}
+              </Link>
+            </li>
+            <li key="list">
+              <Link
+                to={listLink}
+                className={viewType === 'list' ? 'active' : ''}
+              >
+                {__('List')}
+              </Link>
+            </li>
+            <li key="chart">
+              <Link
+                to={chartLink}
+                className={viewType === 'chart' ? 'active' : ''}
+              >
+                {__('Chart')}
+              </Link>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      </ButtonGroup>
+    );
+  };
+
   render() {
     const {
       currentBoard,
@@ -323,6 +410,8 @@ class MainActionBar extends React.Component<Props> {
         {this.renderGroupBy()}
 
         {this.renderChartView()}
+
+        {this.renderViewChooser()}
 
         {rightContent && rightContent()}
 

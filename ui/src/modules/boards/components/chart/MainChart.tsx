@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 
 type Props = {
-  data: { [key: string]: number }[];
+  data: any;
   component: typeof React.Component;
   children: React.ReactElement<any>[];
 };

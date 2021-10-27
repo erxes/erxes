@@ -254,3 +254,29 @@ export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
     routerUtils.setParams(history, { key: Math.random() });
   }
 };
+
+export const getBoardViewType = () => {
+  let viewType = 'board';
+
+  if (window.location.href.includes('calendar')) {
+    viewType = 'calendar';
+  }
+
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
+  }
+
+  if (window.location.href.includes('conversion')) {
+    viewType = 'conversion';
+  }
+
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
+  }
+
+  if (window.location.href.includes('chart')) {
+    viewType = 'chart';
+  }
+
+  return viewType;
+};
