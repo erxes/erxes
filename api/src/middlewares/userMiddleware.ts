@@ -62,6 +62,12 @@ const userMiddleware = async (req, _res, next) => {
       // verify user token and retrieve stored user information
       const { user } = jwt.verify(token, Users.getSecret());
 
+      // invalid token access.
+      const currentUser = await Users.getUser(user._id);
+      if(!currentUser.validatedTokens?.includes(token)){
+        return next();
+      }
+
       // save user in request
       req.user = user;
       req.user.loginToken = token;
