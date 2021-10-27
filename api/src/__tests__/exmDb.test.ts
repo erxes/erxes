@@ -16,20 +16,6 @@ describe('Test exm model', () => {
     await Exms.deleteMany({});
   });
 
-  test('Get exm ', async () => {
-    const response = await Exms.getExm(exm._id);
-
-    expect(response).toBeDefined();
-  });
-
-  test('Get exm Error: Exm not found', async () => {
-    try {
-      await Exms.getExm('fakeId');
-    } catch (e) {
-      expect(e.message).toBe('Exm not found');
-    }
-  });
-
   test('Create exm ', async () => {
     const response = await Exms.createExm(
       { name: 'test' },
@@ -49,5 +35,21 @@ describe('Test exm model', () => {
     await Exms.removeExm(exm._id);
 
     expect(await Exms.find().countDocuments()).toBe(0);
+  });
+
+  describe('Get exm', () => {
+    test('When there is Exm, return Exm object', async () => {
+      const response = await Exms.getExm(exm._id);
+
+      expect(response).toBeDefined();
+    });
+
+    test('When there is no exm, return `Exm not found` error message', async () => {
+      try {
+        await Exms.getExm('fakeId');
+      } catch (e) {
+        expect(e.message).toBe('Exm not found');
+      }
+    });
   });
 });
