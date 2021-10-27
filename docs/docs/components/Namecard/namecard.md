@@ -32,7 +32,4 @@ import { CardComponent } from "./namecard.js"
 
 ## API
 
-<CardComponent type="APIcard" table={[
-    ['secondLine', 'string', 'Line below the username or full name. You can write anything in the second line'],
-    ['avatarSize', 'number', 'Avatar size of your name card']
-]} />
+<CardComponent type="APIcard" />

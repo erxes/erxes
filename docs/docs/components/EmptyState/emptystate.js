@@ -1,5 +1,6 @@
 import React from "react";
 import EmptyState from "erxes-ui/lib/components/EmptyState";
+import Button from "erxes-ui/lib/components/Button";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import { renderApiTable, stringify } from "../common.js";
@@ -9,16 +10,16 @@ export function EmptyComponents(props) {
 
   const propDatas = (view, style, additional) => {
     const styling = style === "size" ? "30" : true;
-
+    const extra = additional && [<Button>Extra button</Button>];
     const kind = {
       [view]: view === "icon" || view === "image" ? item : true,
       [style]: style && styling,
+      extra,
     };
 
     const datas = {
       ...kind,
       text: "Text",
-      extra: additional && "Extra text",
     };
 
     return datas;
@@ -28,9 +29,9 @@ export function EmptyComponents(props) {
     return (
       <>
         <EmptyState {...propDatas(view, style, additional)} />
-        <CodeBlock className="language-jsx">
+        {/* <CodeBlock className="language-jsx">
           {`<>\n\t<EmptyState ${stringify(propDatas(view, style, additional))} />\n</>`}
-        </CodeBlock>
+        </CodeBlock> */}
       </>
     );
   };
