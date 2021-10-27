@@ -22,8 +22,8 @@ export const posSChema = {
 };
 
 class Pos {
-  public static async getPosList(models) {
-    return models.Pos.find().sort({ createdAt: 1 });
+  public static async getPosList(models, query: any) {
+    return models.Pos.find(query).sort({ createdAt: 1 });
   }
 
   public static async getPos(models, query: any) {

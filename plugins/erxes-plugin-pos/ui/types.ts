@@ -86,6 +86,9 @@ export type BrandsQueryResponse = {
 export interface IIntegration {
   _id: string;
   name: string;
+  isActive: boolean;
+  tags: ITag[];
+  brand: IBrand;
 }
 
 export type IntegrationsQueryResponse = {
@@ -103,6 +106,10 @@ export type IntegrationsCount = {
 export type CountQueryResponse = {
   integrationsTotalCount: IntegrationsCount;
 } & QueryResponse;
+
+export type TagCountQueryResponse = {
+  [key: string]: number;
+};
 
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;

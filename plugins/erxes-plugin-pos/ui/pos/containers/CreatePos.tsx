@@ -109,15 +109,6 @@ export default withProps<Props>(
         name: 'addPosMutation'
       }
     ),
-    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
-      options: () => ({
-        fetchPolicy: 'cache-and-network',
-        variables: {
-          kind: 'lead'
-        }
-      })
-    }),
 
     graphql<Props, SchemaLabelsQueryResponse>(gql(queries.getDbSchemaLabels), {
       name: 'schemaLabelsQuery',

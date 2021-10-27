@@ -23,8 +23,6 @@ type Props = {
   isChecked: boolean;
   toggleBulk: (pos: IPos, checked: boolean) => void;
   remove: (posId: string) => void;
-  archive: (posId: string, status: boolean) => void;
-  copy: (posId: string) => void;
   showCode?: boolean;
 };
 
@@ -47,7 +45,7 @@ class Row extends React.Component<Props> {
     const onClick = () => remove(pos._id);
 
     return (
-      <WithPermission action="integrationsRemove">
+      <WithPermission action="managePos">
         <Tip text={__('Delete')} placement="top">
           <Button
             id="integrationDelete"

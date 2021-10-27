@@ -42,7 +42,7 @@ export default () => ({
       image: '/images/icons/erxes-05.svg',
       to: '/erxes-plugin-pos/pos/',
       action: 'posConfig',
-      permissions: []
+      permissions: ['showPos']
     }
   ]
 });

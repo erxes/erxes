@@ -43,15 +43,7 @@ class List extends React.Component<Props, {}> {
   };
 
   renderRow() {
-    const {
-      posList,
-      remove,
-      bulk,
-      toggleBulk,
-      archive,
-      queryParams,
-      copy
-    } = this.props;
+    const { posList, remove, bulk, toggleBulk } = this.props;
 
     return posList.map(pos => (
       <Row
@@ -60,8 +52,6 @@ class List extends React.Component<Props, {}> {
         toggleBulk={toggleBulk}
         pos={pos}
         remove={remove}
-        archive={archive}
-        copy={copy}
       />
     ));
   }
@@ -145,7 +135,10 @@ class List extends React.Component<Props, {}> {
         header={
           <Wrapper.Header
             title={__('POS')}
-            breadcrumb={[{ title: __('POS list') }]}
+            breadcrumb={[
+              { title: 'Settings', link: '/settings' },
+              { title: __('POS list') }
+            ]}
             queryParams={queryParams}
           />
         }
@@ -161,7 +154,7 @@ class List extends React.Component<Props, {}> {
               <EmptyContent
                 content={{
                   title: __('Getting Started with erxes POS'),
-                  description: __('BLA bla bla bla'),
+                  description: __('replace description text'),
                   steps: [
                     {
                       title: __('Create POS'),

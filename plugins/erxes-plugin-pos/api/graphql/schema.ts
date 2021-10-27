@@ -54,7 +54,13 @@ export const types = `
 `;
 
 export const queries = `
-  posList: [Pos]
+  posList(page: Int,
+    perPage: Int,
+    brandId: String,
+    tag: String,
+    status: String,
+    sortField: String
+    sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
   productGroups(posId: String!): [ProductGroups]
 `;

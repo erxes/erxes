@@ -31,7 +31,7 @@ const TaggerContainer = (props: FinalProps) => {
   const tag = selectedTagIds => {
     const variables = {
       type,
-      targetIds: targets.map(t => t._id),
+      targetIds: targets.map(t => t.integrationId),
       tagIds: selectedTagIds
     };
 

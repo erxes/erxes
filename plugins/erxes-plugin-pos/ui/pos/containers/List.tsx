@@ -138,7 +138,6 @@ export default withProps<Props>(
         page?: number;
         perPage?: number;
         tag?: string;
-        kind?: string;
         brand?: string;
         status?: string;
       }
@@ -150,13 +149,13 @@ export default withProps<Props>(
             ...router.generatePaginationParams(queryParams || {}),
             tag: queryParams.tag,
             brandId: queryParams.brand,
-            kind: 'pos',
             status: queryParams.status,
             sortField: queryParams.sortField,
             sortDirection: queryParams.sortDirection
               ? parseInt(queryParams.sortDirection, 10)
               : undefined
-          }
+          },
+          fetchPolicy: 'network-only'
         };
       }
     }),

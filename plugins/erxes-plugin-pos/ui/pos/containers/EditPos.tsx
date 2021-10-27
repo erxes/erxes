@@ -156,29 +156,11 @@ export default withProps<FinalProps>(
       }
     ),
 
-    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
-      options: () => ({
-        fetchPolicy: 'cache-and-network',
-        variables: {
-          kind: 'lead'
-        }
-      })
-    }),
-
-    graphql<
-      {},
-      EditPosMutationResponse,
-      { _id: string } & IntegrationMutationVariables
-    >(gql(mutations.posEdit), {
+    graphql<Props, EditPosMutationResponse, { _id: string } & IntegrationMutationVariables>(gql(mutations.posEdit), {
       name: 'editPosMutation'
     }),
 
-    graphql<
-      {},
-      GroupsBulkInsertMutationResponse,
-      { posId: string; groups: IProductGroup[] }
-    >(gql(mutations.saveProductGroups), {
+    graphql<Props,GroupsBulkInsertMutationResponse,{ posId: string; groups: IProductGroup[] }>(gql(mutations.saveProductGroups), {
       name: 'productGroupsBulkInsertMutation'
     }),
 

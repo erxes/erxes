@@ -52,11 +52,28 @@ formIntegrationIds
 `;
 
 const posList = `
-  query posList {
-    posList {
-        ${posCommonFields}
-    }
+query posList(
+  $page: Int
+  $perPage: Int
+  $brandId: String
+  $tag: String
+  $status: String
+  $sortField: String
+  $sortDirection: Int
+) {
+  posList(
+    page: $page
+    perPage: $perPage
+    brandId: $brandId
+    tag: $tag
+    status: $status
+    sortField: $sortField
+    sortDirection: $sortDirection
+  ) {
+    ${posCommonFields}
+  }
 }
+
 `;
 
 const configs = `
@@ -109,24 +126,6 @@ const integrationsTotalCount = `
   }
 `;
 
-const integrations = `
-  query integrations($perPage: Int, $page: Int, $kind: String, $tag: String, $brandId: String, $status: String, $sortField: String, $sortDirection: Int) {
-    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag, brandId: $brandId, status: $status, sortField: $sortField, sortDirection: $sortDirection) {
-      _id
-      ${commonFields}
-    }
-  }
-`;
-
-const integrationDetail = `
-  query integrationDetail($_id: String!) {
-    integrationDetail(_id: $_id) {
-      _id
-      ${commonFields}
-    }
-  }
-`;
-
 const posDetail = `
 query posDetail($_id: String!) {
   posDetail(_id: $_id) {
@@ -145,14 +144,30 @@ const getDbSchemaLabels = `
   }
 `;
 
+const tags = `
+  query tagsQuery($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      type
+      colorCode
+      createdAt
+      objectCount
+      totalObjectCount
+      parentId
+      order
+      relatedIds
+    }
+  }
+`;
+
 export default {
   posList,
   configs,
   productGroups,
   brands,
   integrationsTotalCount,
-  integrations,
-  integrationDetail,
   posDetail,
-  getDbSchemaLabels
+  getDbSchemaLabels,
+  tags
 };

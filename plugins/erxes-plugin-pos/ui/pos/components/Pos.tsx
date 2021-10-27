@@ -18,6 +18,7 @@ import { IIntegration, IPos, IProductGroup, IProductShema } from '../../types';
 import { LeftContent, Content, PreviewWrapper } from '../../styles';
 import ConfigStep from './step/ConfigStep';
 import GeneralStep from './step/GeneralStep';
+import { PLUGIN_URL } from '../../constants';
 
 type Props = {
   integration?: IIntegration;
@@ -150,7 +151,10 @@ class Lead extends React.Component<Props, State> {
 
     const { integration, formIntegrations } = this.props;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('pos'), link: '/pos' }];
+    const breadcrumb = [
+      { title: 'POS List', link: `${PLUGIN_URL}/pos` },
+      { title: 'POS' }
+    ];
 
     return (
       <StepWrapper>

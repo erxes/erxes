@@ -116,6 +116,7 @@ const renderSettings = (
     hasPluginsSettings = true;
     const pluginSettings: React.ReactNode[] = [];
     for (const perSettings of plugin.settings) {
+      console.log('perSettings: ', perSettings);
       pluginSettings.push(
         <span key={Math.random()}>
           {renderBox(
