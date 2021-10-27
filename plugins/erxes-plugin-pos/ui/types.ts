@@ -41,6 +41,7 @@ export type IPos = {
   waitingScreen?: IScreenConfig;
   kioskMachine?: IScreenConfig;
   kitchenScreen?: IScreenConfig;
+  uiOptions?: any;
   formSectionTitle?: string;
   formIntegrationIds: string[];
 };

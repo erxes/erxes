@@ -18,6 +18,7 @@ const posCommonFields = `
   waitingScreen: JSON
   kitchenScreen: JSON
   kioskMachine: JSON
+  uiOptions: JSON
   formSectionTitle: String
   formIntegrationIds: [String]
   token: String

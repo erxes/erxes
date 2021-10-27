@@ -9,6 +9,7 @@ export interface IPOS {
   kitchenScreen: any;
   waitinScreen: any;
   kioskMachine: any;
+  uiOptions: any;
   formSectionTitle: string;
   formIntegrationIds: string[];
 }

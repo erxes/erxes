@@ -19,6 +19,8 @@ import { LeftContent, Content, PreviewWrapper } from '../../styles';
 import ConfigStep from './step/ConfigStep';
 import GeneralStep from './step/GeneralStep';
 import { PLUGIN_URL } from '../../constants';
+import Appearance, { IUIOptions } from './step/Appearance';
+import FullPreview from './step/FullPreview';
 
 type Props = {
   integration?: IIntegration;
@@ -38,8 +40,10 @@ type State = {
   description?: string;
   pos?: IPos;
   groups: IProductGroup[];
-  carousel: string;
   currentMode: 'create' | 'update' | undefined;
+  logoPreviewStyle: any;
+  logoPreviewUrl: string;
+  uiOptions: IUIOptions;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -49,20 +53,29 @@ class Lead extends React.Component<Props, State> {
     const integration = props.integration || ({} as IIntegration);
     const pos = props.pos || ({} as IPos);
 
+    const uiOptions = pos.uiOptions || {
+      backgroundColors: {},
+      tabColors: {},
+      textColors: {},
+      buttonColors: {},
+      logo: '/images/erxes.png',
+      bgImage: ''
+    };
+
     this.state = {
       brand: integration.brandId,
       pos,
       carousel: 'pos',
       currentMode: props.currentMode,
-      config: props.config,
-      groups: props.groups || []
+      groups: props.groups || [],
+      uiOptions
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, pos, groups } = this.state;
+    const { brand, pos, groups, uiOptions } = this.state;
 
     if (!pos.name) {
       return Alert.error('Enter a Pos name');
@@ -84,7 +97,8 @@ class Lead extends React.Component<Props, State> {
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
       formSectionTitle: pos.formSectionTitle,
-      formIntegrationIds: pos.formIntegrationIds
+      formIntegrationIds: pos.formIntegrationIds,
+      uiOptions
     };
 
     this.props.save(doc);
@@ -92,6 +106,26 @@ class Lead extends React.Component<Props, State> {
 
   onChange = (key: string, value: any) => {
     this.setState({ [key]: value } as any);
+  };
+
+  onChangeAppearance = (key: string, value: any) => {
+    let uiOptions = this.state.pos || {};
+    let { pos } = this.state || {};
+    uiOptions[key] = value;
+
+    if (uiOptions[key]) {
+      uiOptions[key] = value;
+    } else {
+      uiOptions = { [key]: value };
+    }
+
+    if (pos.uiOptions) {
+      pos.uiOptions = uiOptions;
+    } else {
+      pos = { uiOptions };
+    }
+
+    this.setState({ pos });
   };
 
   onFormDocChange = formData => {
@@ -147,7 +181,7 @@ class Lead extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, groups, carousel, currentMode } = this.state;
+    const { pos, groups, currentMode, uiOptions } = this.state;
 
     const { integration, formIntegrations } = this.props;
     const brand = integration && integration.brand;
@@ -155,6 +189,10 @@ class Lead extends React.Component<Props, State> {
       { title: 'POS List', link: `${PLUGIN_URL}/pos` },
       { title: 'POS' }
     ];
+
+    console.log('uiOptions: ', uiOptions);
+
+    const logoPreviewUrl = uiOptions.logo;
 
     return (
       <StepWrapper>
@@ -195,7 +233,11 @@ class Lead extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                {}
+                <Appearance
+                  onChange={this.onChange}
+                  uiOptions={uiOptions}
+                  logoPreviewUrl={logoPreviewUrl}
+                />
               </Step>
             </Steps>
             <ControlWrapper>
@@ -207,7 +249,9 @@ class Lead extends React.Component<Props, State> {
             </ControlWrapper>
           </LeftContent>
 
-          <PreviewWrapper>{}</PreviewWrapper>
+          <PreviewWrapper>
+            <FullPreview uiOptions={uiOptions} pos={pos} />
+          </PreviewWrapper>
         </Content>
       </StepWrapper>
     );

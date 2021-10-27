@@ -48,6 +48,7 @@ user {
 waitingScreen
 kitchenScreen
 kioskMachine
+uiOptions
 formSectionTitle
 formIntegrationIds
 `;

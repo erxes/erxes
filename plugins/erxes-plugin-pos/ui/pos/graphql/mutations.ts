@@ -18,6 +18,7 @@ const commonFields = `
     $kitchenScreen: JSON
     $waitingScreen: JSON
     $kioskMachine: JSON
+    $uiOptions: JSON
     $formSectionTitle: String
     $formIntegrationIds: [String]
 `;
@@ -32,6 +33,7 @@ const commonVariables = `
     kitchenScreen: $kitchenScreen
     waitingScreen: $waitingScreen
     kioskMachine: $kioskMachine
+    uiOptions: $uiOptions
     formSectionTitle: $formSectionTitle
     formIntegrationIds: $formIntegrationIds
 `;

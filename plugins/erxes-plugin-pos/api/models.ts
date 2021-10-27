@@ -17,6 +17,7 @@ export const posSChema = {
   waitingScreen: { type: Object, label: 'Waiting screen config' },
   kioskMachine: { type: Object, label: 'Kiosk config' },
   kitchenScreen: { type: Object, label: 'Kitchen screen config' },
+  uiOptions: { type: Object, label: 'UI Options' },
   formSectionTitle: { type: String, label: 'Form section title' },
   formIntegrationIds: { type: [String], label: 'Form integration ids' },
   token: { type: String, label: 'Pos token' }

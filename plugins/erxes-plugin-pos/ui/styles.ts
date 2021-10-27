@@ -2,6 +2,9 @@ import { dimensions, colors, ContentHeader } from 'erxes-ui';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
+const coreSpace = `${dimensions.coreSpacing}px`;
+const unitSpace = `${dimensions.unitSpacing}px`;
+
 export const LoyaltyAmount = styled.div`
   font-weight: 800;
   line-height: 20px;
@@ -210,4 +213,69 @@ export const ClickableRow = styled.div`
   &:hover {
     color: ${colors.textSecondary};
   }
+`;
+
+export const ColorPick = styled.div`
+  border-radius: 4px;
+  display: inline-block;
+  padding: 3px;
+  border: 1px solid ${colors.borderDarker};
+  cursor: pointer;
+`;
+
+export const ColorPicker = styled.div`
+  width: 80px;
+  height: 27px;
+  border-radius: 2px;
+`;
+
+export const SubItem = styled.div`
+  margin-bottom: ${coreSpace};
+
+  img {
+    background-color: ${colors.colorLightGray};
+    max-height: 100px;
+    margin-right: 5px;
+  }
+
+  i:hover {
+    cursor: pointer;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+  }
+`;
+
+export const WidgetBackgrounds = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`;
+
+export const AppearanceRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin: 10px;
+`;
+
+export const FullPreview = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px;
+  overflow: auto;
+`;
+
+export const DesktopPreview = styled.div`
+  background: url('/images/previews/desktop.png') no-repeat;
+  background-size: cover;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: ${dimensions.unitSpacing / 2}px;
+  flex: 1;
+  overflow: auto;
+  padding-top: ${dimensions.headerSpacing - 20}px;
+  margin-top: ${dimensions.coreSpacing}px;
 `;
