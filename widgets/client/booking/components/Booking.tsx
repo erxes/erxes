@@ -13,12 +13,24 @@ function Booking({ goToIntro, booking }: Props) {
     return null;
   }
 
-  const { childCategories, mainProductCategory, style } = booking;
+  const {
+    mainProductCategory,
+    style,
+    categoryTree,
+    productCategoryId
+  } = booking;
+
   const { name, attachment, description } = mainProductCategory;
   const { widgetColor, line, columns, rows, margin } = style;
 
-  const block = childCategories[0].name;
-  const blockDescription = childCategories[0].description;
+  const childCategories = categoryTree.filter(
+    tree => tree.parentId === productCategoryId && tree.type === 'category'
+  );
+
+  console.log(childCategories)
+
+  const block = name || 'Блок';
+  const blockDescription = name || 'Блок';
   const column: string = columns!;
   // tslint:disable-next-line: radix
   const colCount = parseInt(column) >= 4 ? '4' : columns;

@@ -33,7 +33,6 @@ export interface IBookingData {
   productCategoryId?: string;
   style: IStyle;
 
-  childCategories: IProductCategory[];
   categoryTree: ICategoryTree[];
 
   mainProductCategory: IProductCategory;
