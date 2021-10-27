@@ -97,7 +97,6 @@ h4,p{
     padding: 0 2em;
     height: fit-content;
     max-height: 100%;
-    background-color: aqua;
     color: #333333 ;
     display: block;
     overflow: auto;
@@ -133,8 +132,7 @@ h4,p{
     right:0px;
     display: flex;
     padding:10px;
-    //background-color: #FCFCFC;
-    background-color: red;
+    background-color: #FCFCFC;
   }
 .block {
   flex: 0 1 calc(25% - 1em);
