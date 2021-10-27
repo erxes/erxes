@@ -2,8 +2,7 @@ import * as React from 'react';
 import { IBookingData } from '../types';
 import { Card } from '../containers';
 import Button from './common/Button';
-import Body from './common/Body';
-
+import { readFile } from "../../utils"
 type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
@@ -18,7 +17,8 @@ function Booking({ goToIntro, booking }: Props) {
   const { name, attachment, description } = mainProductCategory;
   const { widgetColor, line, columns, rows, margin } = style;
 
-  const type = name || 'Блок';
+  const block = childCategories[0].name;
+  const blockDescription = childCategories[0].description;
   const column: string = columns!;
   // tslint:disable-next-line: radix
   const colCount = parseInt(column) >= 4 ? '4' : columns;
@@ -32,6 +32,8 @@ function Booking({ goToIntro, booking }: Props) {
   let hover = false;
   const hoverStyle = { borderColor: '', color: '' };
 
+  console.log(childCategories)
+
   const toggleHover = () => {
     hover = !hover;
     if (hover === true) {
@@ -41,25 +43,30 @@ function Booking({ goToIntro, booking }: Props) {
   };
 
   return (
-    <>
-      <Body
-        page="booking"
-        title={name}
-        description={description}
-        image={attachment}
-      >
-        <div className="items" style={categoriesStyle}>
-          {childCategories.map(({}, index) => {
-            return (
-              <Card
-                key={index.toString()}
-                type={type}
-                widgetColor={widgetColor}
-              />
-            );
-          })}
-        </div>
-      </Body>
+    <div>
+      <h4> {name}</h4>
+      <p> {description} </p>
+
+      <div className="category flex-center">
+        <img
+          src={readFile(attachment && attachment.url)}
+          alt={'s'}
+        />
+      </div>
+
+      <div className="items" style={categoriesStyle}>
+        {childCategories.map(({ }, index) => {
+          return (
+            <Card
+              key={index.toString()}
+              type={block}
+              description={blockDescription}
+              widgetColor={widgetColor}
+            />
+          );
+        })}
+      </div>
+
       <div className="footer">
         <Button
           text="Back"
@@ -68,7 +75,7 @@ function Booking({ goToIntro, booking }: Props) {
           style={{ backgroundColor: style.widgetColor }}
         />
       </div>
-    </>
+    </div>
   );
 }
 

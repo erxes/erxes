@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { RiArrowDownSFill, RiArrowRightSFill } from 'react-icons/ri';
 import { IStyle } from '../../types';
 
 type Props = {
@@ -90,7 +89,7 @@ class FilterableList extends React.Component<Props, State> {
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean, color: string) {
     return hasChildren ? (
-      <>{isOpen ? <RiArrowDownSFill /> : <RiArrowRightSFill />}</>
+      <>{isOpen ? "🍕" : "🍔"}</>
     ) : null;
   }
 

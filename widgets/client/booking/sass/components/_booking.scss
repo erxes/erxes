@@ -2,11 +2,24 @@
   margin: 0;
   height: 100%;
   font-size: 10px;
+  margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  li {
+    list-style: none;
 }
+
+a {
+    text-decoration: none;
+}
+
+}
+
 h4{
   line-height: 150%;
   font-size: 2.5em;
   font-weight: 500;
+  margin-top: 1em;
 }
 p {
   font-size: 1.6em;
@@ -19,7 +32,6 @@ h4,p{
     margin-block-end: 0px;
     margin-inline-start: 0px;
     margin-inline-end: 0px;
-    margin-top: 1em;
     margin-bottom: 1em;
 }
 
@@ -75,21 +87,42 @@ h4,p{
   right: 0px;
   width: 100%;
   padding-left: 1em;
-  padding-top: 1em;
-  background-color:  #FCFCFC;
+  display: flex;
+  padding: 0 2em 0;;
+  background-color: #FCFCFC;
+  justify-content: space-between;
 }
 
   .body{
-    padding-top: 5em;
+    padding: 0 2em;
+    height: fit-content;
+    max-height: 100%;
+    background-color: aqua;
     color: #333333 ;
     display: block;
     overflow: auto;
-    .block-det{
-      height: 40vh;
-      overflow: hidden;
-      img{
-        object-fit: cover;
-      }
+    h4{
+      margin-top:2em ;
+    }
+  
+  }
+  .img-container{
+    height: 200em;
+    max-height: 80vh;;
+    overflow: hidden;
+    img{
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
+    }
+  }
+  .category{
+    height: 200em;
+    max-height: 30vh;
+    img{
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
     }
   }
   .footer{
@@ -100,7 +133,8 @@ h4,p{
     right:0px;
     display: flex;
     padding:10px;
-    background-color: #FCFCFC;
+    //background-color: #FCFCFC;
+    background-color: red;
   }
 .block {
   flex: 0 1 calc(25% - 1em);
@@ -122,11 +156,12 @@ h4,p{
   overflow: hidden;
   width: auto;
   position: relative;
-  font-size: 1.5em;
+  font-size: 0.8em;
   min-width: 100px;
   display: block;
   margin: 0.1em;
   height: fit-content;
+  flex: 0 1 calc(25% - 1em);
   &:hover {
     cursor: pointer;
     box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
@@ -211,4 +246,17 @@ hr {
 
 .slick-prev, .slick-next{
   color: #333333 !important;
+}
+.bar{
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  background-color: #101010;
+}
+.hamburger {
+  display: block;
+  cursor: pointer;
 }

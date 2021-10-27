@@ -1,9 +1,4 @@
 import * as React from 'react';
-import {
-  MdOutlineArrowBackIos,
-  MdOutlineArrowForwardIos
-} from 'react-icons/md';
-
 import { IBookingData } from '../types';
 import { readFile } from '../../utils';
 import { IProduct } from '../../types';
@@ -88,10 +83,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
           </div>
           <div className="flex-center">
             {product.attachmentMore && product.attachmentMore.length > 0 ? (
-              <MdOutlineArrowBackIos
-                size={40}
-                onClick={() => moveCarousel('left')}
-              />
+              "<"
             ) : (
               ''
             )}
@@ -111,10 +103,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
               ))}
             </div>
             {product.attachmentMore && product.attachmentMore.length > 0 ? (
-              <MdOutlineArrowForwardIos
-                size={40}
-                onClick={() => moveCarousel('right')}
-              />
+              ">"
             ) : (
               ''
             )}

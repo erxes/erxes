@@ -42,7 +42,7 @@ class Header extends React.Component<Props, State> {
         <div className="booking-header">
           <h4> Navigation </h4>
           <div>
-            <HiArrowNarrowLeft width="2em" onClick={this.toggleNavigation} />
+            <div onClick={this.toggleNavigation} > back</div>
           </div>
         </div>
         <hr />
@@ -62,10 +62,20 @@ class Header extends React.Component<Props, State> {
     return (
       <div className="header" onClick={this.toggleNavigation} >
         {this.state.isOpen === true ? this.renderNav() : ''}
-        <GiHamburgerMenu width="2em" height="2em" style={{ marginRight: '5px' }} />
+        <Burger />
       </div>
     );
   }
+}
+
+const Burger = () => {
+  return (
+    <div className="hamburger">
+      <span className="bar"></span>
+      <span className="bar"></span>
+      <span className="bar"></span>
+    </div>
+  )
 }
 
 
