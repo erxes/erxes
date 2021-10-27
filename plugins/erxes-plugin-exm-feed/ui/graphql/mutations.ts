@@ -40,9 +40,7 @@ const editFeed = `
 
 const pinFeed = `
   mutation pinFeed($_id: String) {
-    exmFeedToggleIsPinned(_id: $_id) {
-      _id
-    }
+    exmFeedToggleIsPinned(_id: $_id)
   }
 `;
 

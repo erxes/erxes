@@ -1,4 +1,4 @@
-import * as teamQueries from 'erxes-ui/lib/team/graphql';
+import * as teamQueries from "erxes-ui/lib/team/graphql";
 
 const detailFields = teamQueries.detailFields;
 const allUsers = teamQueries.allUsers;
@@ -42,8 +42,8 @@ const commonFeedFields = `
 `;
 
 const feed = `
-  query feed($title: String, $limit: Int) {
-    exmFeed(title: $title, limit: $limit) {
+  query feed($title: String, $limit: Int, $contentTypes: [ContentType]) {
+    exmFeed(title: $title, limit: $limit, contentTypes: $contentTypes) {
       list {
         ${commonFeedFields}
       }
