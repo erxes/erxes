@@ -81,7 +81,12 @@ function UserDetails({
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
       mainHead={
         <UserHeader>
-          <InfoSection nameSize={16} avatarSize={60} customer={user}>
+          <InfoSection
+            nameSize={16}
+            avatarSize={60}
+            user={user}
+            renderEditForm={renderEditForm}
+          >
             <ActionSection customer={user} />
           </InfoSection>
           <LeadState customer={user} />

@@ -3,14 +3,20 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { renderFullName } from 'modules/common/utils';
-import CustomerForm from 'modules/customers/containers/CustomerForm';
-import { ICustomer } from 'modules/customers/types';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
-import { CustomerState, NameContainer, Name } from 'modules/customers/styles';
+import { NameContainer, Name } from 'modules/customers/styles';
+import { IUser } from 'modules/auth/types';
 
 type Props = {
-  customer: ICustomer;
+  user: IUser;
+  renderEditForm: ({
+    closeModal,
+    user
+  }: {
+    closeModal: () => void;
+    user: IUser;
+  }) => React.ReactNode;
   hideForm?: boolean;
   avatarSize?: number;
   nameSize?: number;
@@ -53,19 +59,15 @@ class InfoSection extends React.Component<Props> {
     );
   }
 
-  renderPosition() {
-    return <p>{this.props.customer.position}</p>;
-  }
-
   renderEditForm = () => {
-    if (this.props.hideForm) {
+    const { hideForm, renderEditForm, user } = this.props;
+
+    if (hideForm) {
       return null;
     }
 
     const customerForm = props => {
-      return (
-        <CustomerForm {...props} size="lg" customer={this.props.customer} />
-      );
+      return renderEditForm({ ...props, user });
     };
 
     return (
@@ -79,22 +81,20 @@ class InfoSection extends React.Component<Props> {
   };
 
   render() {
-    const { customer, avatarSize = 50, children, nameSize } = this.props;
-    const { links = {}, isOnline, state } = customer;
+    const { user, avatarSize = 50, children, nameSize } = this.props;
+    const { links = {} } = user;
 
     return (
       <InfoWrapper>
-        <AvatarWrapper isOnline={isOnline} size={avatarSize}>
-          <NameCard.Avatar customer={customer} size={avatarSize} />
-          <CustomerState>{state}</CustomerState>
+        <AvatarWrapper size={avatarSize}>
+          <NameCard.Avatar user={user} size={avatarSize} />
         </AvatarWrapper>
 
         <NameContainer>
           <Name fontSize={nameSize}>
-            {renderFullName(customer)}
+            {renderUserFullName(user)}
             {this.renderEditForm()}
           </Name>
-          {this.renderPosition()}
           {this.renderLinks(links)}
         </NameContainer>
         {children}
