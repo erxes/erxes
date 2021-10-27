@@ -1,6 +1,4 @@
-import { PipelinePopoverContent } from 'modules/boards/styles/item';
 import { IBoard, IPipeline } from 'modules/boards/types';
-import AvatarUpload from 'modules/common/components/AvatarUpload';
 import {
   ControlLabel,
   FormControl,
@@ -9,13 +7,21 @@ import {
 import Icon from 'modules/common/components/Icon';
 import { ITopic } from 'modules/knowledgeBase/types';
 import React, { useState } from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { ClientPortalConfig } from '../../types';
-import { FlexRow, ChooserWrap, IconWrap } from '../../styles';
-import { Half } from 'modules/engage/styles';
+import {
+  IconWrap,
+  Block,
+  BlockRow,
+  BlockRowTitle,
+  ToggleWrap,
+  Features
+} from '../../styles';
 import { FlexContent } from 'modules/layout/styles';
 import BoardSelect from 'modules/boards/containers/BoardSelect';
+import { __ } from 'modules/common/utils';
+import Toggle from 'modules/common/components/Toggle';
 
 type Props = {
   topics: ITopic[];
@@ -43,13 +49,12 @@ type ControlItem = {
   pipelineId?: string;
   boardId?: string;
   url?: string;
+  className?: string;
 };
 
 function General({
   name,
   description,
-  icon,
-  logo,
   url,
   knowledgeBaseLabel,
   knowledgeBaseTopicId,
@@ -70,10 +75,21 @@ function General({
   handleFormChange
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
+  const [toggle, setToggle] = useState({
+    knowledgeBase: true,
+    tasks: false,
+    tickets: false,
+    publicTask: true
+  });
 
   const handleToggleBoardSelect = () => setShow(!show);
+
   const handleSelectChange = (option?: { value: string; label: string }) => {
     handleFormChange('knowledgeBaseTopicId', !option ? '' : option.value);
+  };
+
+  const onChangeToggle = (key: string, value: boolean) => {
+    setToggle({ ...toggle, [key]: value } as any);
   };
 
   function generateOptions(options: any, valueKey: string, labelKey: string) {
@@ -104,21 +120,17 @@ function General({
     const onChangeBoard = brId => handleFormChange(`${type}BoardId`, brId);
 
     return (
-      <Popover id={`popover-${type}`}>
-        <PipelinePopoverContent>
-          <BoardSelect
-            type={type}
-            stageId={stageId}
-            boardId={boardId || ''}
-            pipelineId={pipelineId || ''}
-            onChangeStage={onChangeStage}
-            onChangePipeline={onChangePipeline}
-            onChangeBoard={onChangeBoard}
-            autoSelectStage={false}
-            callback={handleToggleBoardSelect}
-          />
-        </PipelinePopoverContent>
-      </Popover>
+      <BoardSelect
+        type={type}
+        stageId={stageId}
+        boardId={boardId || ''}
+        pipelineId={pipelineId || ''}
+        onChangeStage={onChangeStage}
+        onChangePipeline={onChangePipeline}
+        onChangeBoard={onChangeBoard}
+        autoSelectStage={false}
+        callback={handleToggleBoardSelect}
+      />
     );
   }
 
@@ -133,7 +145,8 @@ function General({
     formProps,
     stageId,
     pipelineId,
-    boardId
+    boardId,
+    className
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
       handleFormChange(
@@ -143,40 +156,42 @@ function General({
     };
 
     return (
-      <FormGroup>
-        <ControlLabel required={required}>{label}</ControlLabel>
-        {subtitle && <p>{subtitle}</p>}
-        <FlexContent>
-          <FormControl
-            {...formProps}
-            name={formValueName}
-            value={formValue}
-            placeholder={placeholder}
-            onChange={handleChange}
-          />
-          {boardType && (
-            <OverlayTrigger
-              trigger="click"
-              placement="bottom-end"
-              overlay={renderBoardSelect({
-                type: boardType,
-                stageId,
-                boardId,
-                pipelineId
-              })}
-              rootClose={true}
-            >
-              <IconWrap>
-                <Icon icon="cog" size={24} />
-              </IconWrap>
-            </OverlayTrigger>
-          )}
-        </FlexContent>
-      </FormGroup>
+      <div className={className && className}>
+        <FormGroup>
+          <ControlLabel required={required}>{label}</ControlLabel>
+          {subtitle && <p>{__(subtitle)}</p>}
+          <FlexContent>
+            <FormControl
+              {...formProps}
+              name={formValueName}
+              value={formValue}
+              placeholder={placeholder}
+              onChange={handleChange}
+            />
+            {boardType && (
+              <OverlayTrigger
+                trigger="click"
+                placement="bottom-end"
+                overlay={renderBoardSelect({
+                  type: boardType,
+                  stageId,
+                  boardId,
+                  pipelineId
+                })}
+                rootClose={true}
+              >
+                <IconWrap>
+                  <Icon icon="cog" size={24} />
+                </IconWrap>
+              </OverlayTrigger>
+            )}
+          </FlexContent>
+        </FormGroup>
+      </div>
     );
   }
 
-  function renderTaskPipelines() {
+  const renderTaskPipelines = () => {
     const renderSelect = (
       options: IBoard[] | IPipeline[],
       handleSelect: (args: OptionItem) => void,
@@ -201,91 +216,98 @@ function General({
     };
 
     return (
-      <FormGroup>
-        <ControlLabel>Task public pipeline</ControlLabel>
-        <ChooserWrap>
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Task public board</ControlLabel>
+          <p>{__('Public task board')}</p>
           {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
-        </ChooserWrap>
-        {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
-      </FormGroup>
-    );
-  }
-
-  function renderFavicon() {
-    const handleAvatarUploader = (iconUrl: string) =>
-      handleFormChange('icon', iconUrl);
-
-    return (
-      <Half>
-        <FormGroup>
-          <ControlLabel>Favicon</ControlLabel>
-          <p>16x16px transparent PNG.</p>
-          <AvatarUpload avatar={icon} onAvatarUpload={handleAvatarUploader} />
         </FormGroup>
-      </Half>
-    );
-  }
-
-  function renderLogo() {
-    const handleAvatarUploader = (logoUrl: string) =>
-      handleFormChange('logo', logoUrl);
-
-    return (
-      <Half>
         <FormGroup>
-          <ControlLabel>Main Logo</ControlLabel>
-          <p>16x16px transparent PNG.</p>
-          <AvatarUpload avatar={logo} onAvatarUpload={handleAvatarUploader} />
+          <ControlLabel required={true}>Task public pipeline</ControlLabel>
+          <p>{__('Public task pipeline')}</p>
+          {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
         </FormGroup>
-      </Half>
+      </>
     );
-  }
+  };
 
-  return (
-    <>
-      {renderControl({
-        required: true,
-        label: 'Client Portal Name',
-        formValueName: 'name',
-        formValue: name,
-        formProps: {
-          autoFocus: true
-        }
-      })}
+  const renderMain = () => {
+    return (
+      <Block>
+        <h4>{__('Client portal')}</h4>
+        <BlockRow>
+          {renderControl({
+            required: true,
+            label: 'Client Portal Name',
+            subtitle: 'Displayed in the header area',
+            formValueName: 'name',
+            formValue: name,
+            formProps: {
+              autoFocus: true
+            }
+          })}
 
-      {renderControl({
-        label: 'Description',
-        formValueName: 'description',
-        formValue: description
-      })}
+          {renderControl({
+            label: 'Description',
+            subtitle: 'Displayed in the header area',
+            className: 'description',
+            formValueName: 'description',
+            formValue: description
+          })}
 
-      {renderControl({
-        label: 'Website',
-        formValueName: 'url',
-        formValue: url
-      })}
+          {renderControl({
+            label: 'Website',
+            subtitle: 'Redirect URL to the main website',
+            formValueName: 'url',
+            formValue: url
+          })}
+        </BlockRow>
+      </Block>
+    );
+  };
 
-      <FlexContent>
-        {renderFavicon()}
-        {renderLogo()}
-      </FlexContent>
+  const renderFeatureBlock = (title: string, childrens: any) => {
+    return (
+      <BlockRow>
+        <BlockRowTitle>{__(title)}</BlockRowTitle>
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Show {title}</ControlLabel>
+            <p>{__('Show in Client Portal')}</p>
+            <Toggle
+              checked={toggle[title]}
+              onChange={() => onChangeToggle(title, !toggle[title])}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
+        <Features isToggled={toggle[title]}>
+          <BlockRow>{childrens}</BlockRow>
+        </Features>
+      </BlockRow>
+    );
+  };
 
-      <FlexContent>
-        <FlexRow>
-          <Half>
+  const renderFeatures = () => {
+    return (
+      <Block>
+        <h4>{__('Features')}</h4>
+        {renderFeatureBlock(
+          'knowledgeBase',
+          <>
             {renderControl({
-              label: 'Knowledge Base',
+              label: 'Knowledge Base Name',
               subtitle: 'Shown name on menu',
               formValueName: 'knowledgeBaseLabel',
               formValue: knowledgeBaseLabel,
               placeholder: 'Please enter a label for Knowledge base'
             })}
-          </Half>
-
-          <Half>
             <FormGroup>
               <ControlLabel required={true}>Knowledge base topic</ControlLabel>
-              <p>Knowledge base topic in Client Portal</p>
+              <p>{__('Knowledge base topic in Client Portal')}</p>
               <Select
                 placeholder="Select a knowledge base topic"
                 value={knowledgeBaseTopicId}
@@ -293,35 +315,55 @@ function General({
                 onChange={handleSelectChange}
               />
             </FormGroup>
-          </Half>
-        </FlexRow>
-      </FlexContent>
+          </>
+        )}
+        {renderFeatureBlock('publicTask', renderTaskPipelines())}
 
-      {renderControl({
-        label: 'Tickets',
-        subtitle: 'Shown name on menu',
-        formValueName: 'ticketLabel',
-        formValue: ticketLabel,
-        placeholder: 'Please enter a label for Ticket',
-        boardType: 'ticket',
-        stageId: ticketStageId,
-        pipelineId: ticketPipelineId,
-        boardId: ticketBoardId
-      })}
+        {renderFeatureBlock(
+          'tickets',
+          <>
+            {renderControl({
+              label: 'Tickets',
+              subtitle: 'Shown name on menu',
+              formValueName: 'ticketLabel',
+              formValue: ticketLabel,
+              placeholder: 'Please enter a label for Ticket'
+            })}
+            {renderBoardSelect({
+              type: 'ticket',
+              stageId: ticketStageId,
+              pipelineId: ticketPipelineId,
+              boardId: ticketBoardId
+            })}
+          </>
+        )}
 
-      {renderTaskPipelines()}
+        {renderFeatureBlock(
+          'tasks',
+          <>
+            {renderControl({
+              label: 'Tasks incoming pipeline',
+              subtitle: 'Shown name on menu',
+              formValueName: 'taskLabel',
+              formValue: taskLabel,
+              placeholder: 'Please enter a label for Task'
+            })}
+            {renderBoardSelect({
+              type: 'task',
+              stageId: taskStageId,
+              pipelineId: taskPipelineId,
+              boardId: taskBoardId
+            })}
+          </>
+        )}
+      </Block>
+    );
+  };
 
-      {renderControl({
-        label: 'Tasks incoming pipeline',
-        subtitle: 'Shown name on menu',
-        formValueName: 'taskLabel',
-        formValue: taskLabel,
-        placeholder: 'Please enter a label for Task',
-        boardType: 'task',
-        stageId: taskStageId,
-        pipelineId: taskPipelineId,
-        boardId: taskBoardId
-      })}
+  return (
+    <>
+      {renderMain()}
+      {renderFeatures()}
     </>
   );
 }

@@ -44,7 +44,7 @@ type Props = {
   onClickEvent: (condition, segmentKey) => void;
   chosenProperty?: IField;
   chosenCondition?: ISegmentCondition;
-  isAutomation: boolean;
+  hideDetailForm: boolean;
   boardId: string;
   pipelineId: string;
 };
@@ -211,7 +211,7 @@ class ConditionsList extends React.Component<Props, State> {
   }
 
   render() {
-    const { segment, index, isAutomation } = this.props;
+    const { segment, index, hideDetailForm } = this.props;
 
     const { conditions } = segment;
     const hasCondition = conditions && conditions.length <= 1;
@@ -241,7 +241,7 @@ class ConditionsList extends React.Component<Props, State> {
             Add property
           </Button>
 
-          {!isAutomation ? (
+          {!hideDetailForm ? (
             <Button
               size="small"
               btnStyle="simple"
