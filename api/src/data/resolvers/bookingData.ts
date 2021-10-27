@@ -6,9 +6,11 @@ export default {
     const tree: Array<{
       _id: string;
       name: string;
+      description?: string;
       parentId?: string;
       type: 'category' | 'product';
       parentIds?: string[];
+      status?: string;
     }> = [];
 
     // tslint:disable-next-line: no-shadowed-variable
@@ -22,6 +24,7 @@ export default {
           tree.push({
             _id: product._id,
             name: product.name,
+            description: product.description,
             parentId,
             type: 'product',
             parentIds: [parentId, grandParentId]
@@ -33,9 +36,11 @@ export default {
         tree.push({
           _id: category._id,
           name: category.name,
+          description: category.description,
           parentId,
           type: 'category',
-          parentIds: [parentId, grandParentId]
+          parentIds: [parentId, grandParentId],
+          status: category.status
         });
 
         await generateTree(category._id, category.parentId);
