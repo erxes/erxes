@@ -1,5 +1,3 @@
-// import { paginate } from 'erxes-api-utils'
-
 const sendError = message => ({
   status: 'error',
   errorMessage: message

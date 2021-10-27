@@ -5,12 +5,10 @@ import { ITag } from 'erxes-ui/lib/tags/types';
 
 type Props = {
   type: ITagTypes | string;
-  // targets can be conversation, customer, company etc ...
   targets?: any[];
   event?: 'onClick' | 'onExit';
   className?: string;
 
-  // from container
   loading: boolean;
   tags: ITag[];
   tag: (tags: ITag[]) => void;

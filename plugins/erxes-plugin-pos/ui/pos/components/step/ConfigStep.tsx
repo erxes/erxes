@@ -12,18 +12,12 @@ import { LeftItem } from 'erxes-ui/lib/components/step/styles';
 import React from 'react';
 import {
   ActionButtons,
-  Actions,
-  ClickableRow,
   Description,
   FlexColumn,
-  FlexItem,
-  FlexPad,
-  GroupRow,
-  LinkButton
+  FlexItem
 } from '../../../styles';
 import Select from 'react-select-plus';
-import { PRODUCT_DETAIL } from '../../../constants';
-import { IPos, IPosConfig, IProductGroup, IProductShema } from '../../../types';
+import { IPos, IProductGroup, IProductShema } from '../../../types';
 import GroupForm from '../../containers/productGroup/GroupForm';
 
 type Props = {
@@ -52,12 +46,8 @@ class OptionsStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onClick = e => {
-    console.log(e.target);
-  };
-
   onSubmitGroup = (group: IProductGroup) => {
-    const { currentMode, groups } = this.state;
+    const { groups } = this.state;
 
     const index = groups.findIndex(e => e._id === group._id);
 

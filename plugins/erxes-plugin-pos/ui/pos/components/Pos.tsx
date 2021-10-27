@@ -91,8 +91,6 @@ class Lead extends React.Component<Props, State> {
 
   onChange = (key: string, value: any) => {
     this.setState({ [key]: value } as any);
-
-    console.log(this.state);
   };
 
   onFormDocChange = formData => {

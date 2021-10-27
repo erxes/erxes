@@ -35,8 +35,6 @@ export default {
 
           const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN' });
 
-          console.log('WIDGETS_DOMAIN: ', WIDGETS_DOMAIN);
-
           const forms = [];
 
           for (const integration of leadIntegrations) {

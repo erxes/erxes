@@ -1,8 +1,7 @@
 import { Button, FormControl, FormGroup, ControlLabel } from 'erxes-ui';
 import React from 'react';
-import { IProductGroup, IProductShema } from '../../../types';
+import { IProductGroup } from '../../../types';
 import Modal from 'react-bootstrap/Modal';
-import { Description } from '../../../styles';
 import Select from 'react-select-plus';
 import { IProductCategory, IProduct } from 'erxes-ui/lib/products/types';
 
@@ -52,7 +51,7 @@ class GroupForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { mode, onDelete, onSubmit, onCancel } = this.props;
+    const { mode, onCancel } = this.props;
     const { group, categories, products } = this.state;
 
     const categoryOptions = categories.map(e => {
@@ -105,7 +104,6 @@ class GroupForm extends React.Component<Props, State> {
       <>
         <FormGroup>
           <ControlLabel required={true}>Group Name</ControlLabel>
-
           <FormControl
             name="name"
             defaultValue={group.name}
@@ -114,10 +112,8 @@ class GroupForm extends React.Component<Props, State> {
             onChange={onChangeName}
           />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel>Group Description</ControlLabel>
-
           <FormControl
             name="description"
             componentClass="textarea"
@@ -126,10 +122,8 @@ class GroupForm extends React.Component<Props, State> {
             onChange={onChangeDescription}
           />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel>Product Category</ControlLabel>
-          {/* <Description>Select pos to display in the product category.</Description> */}
           <Select
             options={categoryOptions.filter(
               e => !excludedCategoryIds.includes(e.value)
@@ -139,10 +133,8 @@ class GroupForm extends React.Component<Props, State> {
             multi={true}
           />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel>Exclude Product Category</ControlLabel>
-          {/* <Description>Select pos to display in the product category.</Description> */}
           <Select
             options={categoryOptions.filter(
               e => !categoryIds.includes(e.value)
@@ -152,10 +144,8 @@ class GroupForm extends React.Component<Props, State> {
             multi={true}
           />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel>Exclude Products</ControlLabel>
-          {/* <Description>Select pos to display in the product category.</Description> */}
           <Select
             options={productOptions}
             value={group.excludedProductIds}
@@ -163,7 +153,6 @@ class GroupForm extends React.Component<Props, State> {
             multi={true}
           />
         </FormGroup>
-
         <Modal.Footer>
           <Button
             btnStyle="simple"

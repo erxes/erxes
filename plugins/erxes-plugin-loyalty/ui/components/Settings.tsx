@@ -20,8 +20,6 @@ class GeneralSettings extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    console.log(props.configsMap)
-
     this.state = {
       configsMap: props.configsMap,
     };

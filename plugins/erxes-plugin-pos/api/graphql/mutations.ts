@@ -69,6 +69,7 @@ const mutations = [
 
       const groupsToRemove = dbGroups.filter(el => {
         const index = groupsToUpdate.findIndex(g => g._id === el._id);
+
         if (index === -1) {
           return el._id;
         }

@@ -1,25 +1,24 @@
 import { IPOS } from './types';
-import * as Random from 'meteor-random';
 /**
  * pos
  */
 
 export const posSChema = {
   _id: { pkey: true },
-  name: { type: String, label: 'name' },
-  description: { type: String, label: 'description' },
-  userId: { type: String, optional: true, label: 'created by' },
+  name: { type: String, label: 'Name' },
+  description: { type: String, label: 'Description' },
+  userId: { type: String, optional: true, label: 'Created by' },
   createdAt: { type: Date, label: 'Created at' },
-  integrationId: { type: String },
-  productDetails: { type: [String] },
-  adminIds: { type: [String] },
-  cashierIds: { type: [String] },
-  waitingScreen: { type: Object },
-  kioskMachine: { type: Object },
-  kitchenScreen: { type: Object },
-  formSectionTitle: { type: String },
-  formIntegrationIds: { type: [String] },
-  token: { type: String }
+  integrationId: { type: String, label: 'Integration id' },
+  productDetails: { type: [String], label: 'Product fields' },
+  adminIds: { type: [String], label: 'Admin user ids' },
+  cashierIds: { type: [String], label: 'Cashier ids' },
+  waitingScreen: { type: Object, label: 'Waiting screen config' },
+  kioskMachine: { type: Object, label: 'Kiosk config' },
+  kitchenScreen: { type: Object, label: 'Kitchen screen config' },
+  formSectionTitle: { type: String, label: 'Form section title' },
+  formIntegrationIds: { type: [String], label: 'Form integration ids' },
+  token: { type: String, label: 'Pos token' }
 };
 
 class Pos {
@@ -37,13 +36,13 @@ class Pos {
   }
 
   public static async generateToken(models, code?: string) {
-    let generatedCode = code || (Math.random() + 1).toString(36).substring(7);
+    let generatedCode = code || (Math.random() + 1).toString(36).substring(12);
 
     let prevPos = await models.Pos.findOne({ token: generatedCode });
 
     // search until not existing one found
     while (prevPos) {
-      generatedCode = Random.id().substr(0, 6);
+      generatedCode = (Math.random() + 1).toString(36).substring(12);
 
       prevPos = await models.Pos.findOne({ token: generatedCode });
     }
@@ -73,8 +72,6 @@ class Pos {
   }
 
   public static async posEdit(models, _id: string, doc: IPOS) {
-    console.log(doc);
-
     const pos = await models.Pos.getPos(models, { _id });
 
     await models.Pos.updateOne({ _id }, { $set: doc }, { runValidators: true });
@@ -103,12 +100,20 @@ class Pos {
 
 export const productGroupSchema: any = {
   _id: { pkey: true },
-  name: { type: String },
-  description: { type: String },
-  posId: { type: String },
-  categoryIds: { type: [String], optional: true },
-  excludedCategoryIds: { type: [String], optional: true },
-  excludedProductIds: { type: [String], optional: true }
+  name: { type: String, label: 'Name' },
+  description: { type: String, label: 'Description' },
+  posId: { type: String, label: 'Pos id' },
+  categoryIds: { type: [String], optional: true, label: 'Category ids' },
+  excludedCategoryIds: {
+    type: [String],
+    optional: true,
+    label: 'Exclude Category ids'
+  },
+  excludedProductIds: {
+    type: [String],
+    optional: true,
+    label: 'Exclude Product ids'
+  }
 };
 
 class ProductGroup {

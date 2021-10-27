@@ -4,7 +4,6 @@ import { withProps } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from 'erxes-ui/lib/products/graphql';
-import { queries as productQueries } from 'erxes-ui/lib/products/graphql';
 import {
   IProductGroup,
   ProductCategoriesQueryResponse,
@@ -28,10 +27,7 @@ type FinalProps = {
 
 class GroupContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      productsQuery,
-      productCategoriesQuery
-    } = this.props;
+    const { productsQuery, productCategoriesQuery } = this.props;
 
     const categories = productCategoriesQuery.productCategories || [];
     const products = productsQuery.products || [];

@@ -13,7 +13,7 @@ import {
   WithPermission,
   Tags
 } from 'erxes-ui';
-import { IIntegration, IPos } from '../../types';
+import { IPos } from '../../types';
 import { RowTitle } from '../../styles';
 import { DateWrapper } from 'erxes-ui/lib/styles/main';
 import { PLUGIN_URL } from '../../constants';
