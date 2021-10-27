@@ -2,13 +2,14 @@ import * as React from 'react';
 import { IBookingData } from '../types';
 import { Card } from '../containers';
 import Button from './common/Button';
-import { readFile } from "../../utils"
+import { readFile } from '../../utils';
 type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
+  goToCategory: (categoryId: string) => void;
 };
 
-function Booking({ goToIntro, booking }: Props) {
+function Booking({ goToIntro, booking, goToCategory }: Props) {
   if (!booking) {
     return null;
   }
@@ -37,30 +38,21 @@ function Booking({ goToIntro, booking }: Props) {
     gap: margin
   };
 
-  let selectedId = "";
-
-  const goNext = (id: any) => {
-    selectedId = id;
-  };
-
   const Body = () => {
     return (
       <div className="body">
         <div className="img-container sub flex-center">
-          <img
-            src={readFile(attachment && attachment.url)}
-            alt={'s'}
-          />
+          <img src={readFile(attachment && attachment.url)} alt={'s'} />
         </div>
         <div className="cards" style={categoriesStyle}>
-          {childCategories.map((el) => {
+          {childCategories.map(el => {
             return (
-              <div onClick={() => goNext(el._id)}>
+              <div onClick={() => goToCategory(el._id)}>
                 <Card
                   key={el._id}
                   title={el.name}
-                  type={"main"}
-                  description={"Desctiption"}
+                  type={'main'}
+                  description={'Desctiption'}
                   widgetColor={widgetColor}
                 />
               </div>
@@ -68,8 +60,8 @@ function Booking({ goToIntro, booking }: Props) {
           })}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const Footer = () => {
     return (
@@ -87,8 +79,8 @@ function Booking({ goToIntro, booking }: Props) {
           style={{ backgroundColor: style.widgetColor }}
         />
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="container">

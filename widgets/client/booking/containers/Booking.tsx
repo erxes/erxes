@@ -6,6 +6,7 @@ import { IBookingData } from '../types';
 type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
+  goToCategory: (categoryId: string) => void;
 };
 
 function BookingContainer(props: Props) {
@@ -19,9 +20,15 @@ function BookingContainer(props: Props) {
 const WithContext = () => {
   return (
     <AppConsumer>
-      {({ goToIntro, getBooking }) => {
+      {({ goToIntro, getBooking, goToCategory }) => {
         const booking = getBooking();
-        return <BookingContainer goToIntro={goToIntro} booking={booking} />;
+        return (
+          <BookingContainer
+            goToIntro={goToIntro}
+            booking={booking}
+            goToCategory={goToCategory}
+          />
+        );
       }}
     </AppConsumer>
   );

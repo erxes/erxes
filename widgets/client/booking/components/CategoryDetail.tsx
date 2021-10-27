@@ -1,86 +1,110 @@
 import * as React from 'react';
 import Button from './common/Button';
-import Card from '../components/common/Card'
+import Card from '../components/common/Card';
 import { IBookingData } from '../types';
 import { IProductCategory } from '../../types';
 import { readFile } from '../../utils';
-
 
 type Props = {
   goToBookings: () => void;
   category?: IProductCategory;
   booking?: IBookingData;
+  goToCategory: (categoryId: string) => void;
+  goToProduct: (productId: string) => void;
 };
 
-function CategoryDetail({ goToBookings, category, booking }: Props) {
-  if (!category || !booking) {
-    return null;
+class CategoryDetail extends React.Component<Props> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      activeChild: ''
+    };
   }
 
-  const { categoryTree } = booking;
-  const { widgetColor } = booking.style;
+  render() {
+    const {
+      category,
+      booking,
+      goToBookings,
+      goToCategory,
+      goToProduct
+    } = this.props;
 
-  // use this
-  const childCategories = categoryTree.filter(
-    tree => tree.parentId === category._id && tree.type === 'category'
-  );
+    if (!category || !booking) {
+      return null;
+    }
 
-  let selectedId = "";
+    const { categoryTree } = booking;
+    const { widgetColor } = booking.style;
 
-  const goNext = (id: any) => {
-    selectedId = id;
-  };
+    // use this
+    let childs = categoryTree.filter(
+      tree => tree.parentId === category._id && tree.type === 'category'
+    );
 
-  return (
-    <>
-      <div className="container">
-        <h4> {category.name} </h4>
-        <p> {category.description} </p>
-        <div className="flex-sa">
-          <div className="img-container w-50">
-            <img
-              src={readFile(category.attachment && category.attachment.url)}
-              alt={category.attachment && category.attachment.title}
-              style={{
-                maxHeight: '100%',
-                maxWidth: '100%'
-              }}
-            />
+    if (childs.length < 1) {
+      childs = categoryTree.filter(
+        tree => tree.parentId === category._id && tree.type === 'product'
+      );
+    }
+
+    return (
+      <>
+        <div className="container">
+          <h4> {category.name} </h4>
+          <p> {category.description} </p>
+          <div className="flex-sa">
+            <div className="img-container w-50">
+              <img
+                src={readFile(category.attachment && category.attachment.url)}
+                alt={category.attachment && category.attachment.title}
+                style={{
+                  maxHeight: '100%',
+                  maxWidth: '100%'
+                }}
+              />
+            </div>
+            <div className="cards w-50">
+              {childs.map(el => {
+                return (
+                  <div
+                    key={el._id}
+                    onClick={() =>
+                      el.type === 'category'
+                        ? goToCategory(el._id)
+                        : goToProduct(el._id)
+                    }
+                  >
+                    <Card
+                      type={'category'}
+                      title={el.name}
+                      widgetColor={widgetColor}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="cards w-50">
-            {childCategories.map((el, i = 1) => {
-              return (
-                <div onClick={() => goNext(el._id)}>
-                  <Card
-                    key={i}
-                    type={"category"}
-                    title={el.name}
-                    widgetColor={widgetColor}
-                  />
-                </div>
-              );
-            })}
-          </div>
-
         </div>
-      </div>
-      <div />
-      <div className="footer">
-        <Button
-          text={'Back'}
-          type="back"
-          onClickHandler={goToBookings}
-          style={{ backgroundColor: widgetColor }}
-        />
-        <Button
-          text={'Next'}
-          type="back"
-          onClickHandler={goToBookings}
-          style={{ backgroundColor: widgetColor }}
-        />
-      </div>
-    </>
-  );
+        <div />
+        <div className="footer">
+          <Button
+            text={'Back'}
+            type="back"
+            onClickHandler={goToBookings}
+            style={{ backgroundColor: widgetColor }}
+          />
+          <Button
+            text={'Next'}
+            type="back"
+            onClickHandler={goToBookings}
+            style={{ backgroundColor: widgetColor }}
+          />
+        </div>
+      </>
+    );
+  }
 }
 
 export default CategoryDetail;
