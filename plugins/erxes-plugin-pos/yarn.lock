@@ -137,9 +137,9 @@
     xdg-basedir "^4.0.0"
 
 "@grpc/grpc-js@~1.3.6":
-  version "1.3.7"
-  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.3.7.tgz#58b687aff93b743aafde237fd2ee9a3259d7f2d8"
-  integrity sha512-CKQVuwuSPh40tgOkR7c0ZisxYRiN05PcKPW72mQL5y++qd7CwBRoaJZvU5xfXnCJDFBmS3qZGQ71Frx6Ofo2XA==
+  version "1.3.8"
+  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.3.8.tgz#0d7dce9de7aeb20702a28f0704e61b0bf34061c1"
+  integrity sha512-4qJqqn+CU/nBydz9ePJP+oa8dz0U42Ut/GejlbyaQ1xTkynCc+ndNHHnISlNeHawDsv4MOAyP3mV/EnDNUw2zA==
   dependencies:
     "@types/node" ">=12.12.47"
 
@@ -222,9 +222,9 @@
   integrity sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==
 
 "@types/node@*", "@types/node@>=12.12.47", "@types/node@>=13.7.0":
-  version "16.10.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.10.3.tgz#7a8f2838603ea314d1d22bb3171d899e15c57bd5"
-  integrity sha512-ho3Ruq+fFnBrZhUYI46n/bV2GjwzSkwuT4dTf0GkuNFmnb8nq4ny2z9JEVemFi6bdEJanHLlYfy9c6FN9B9McQ==
+  version "16.11.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.6.tgz#6bef7a2a0ad684cf6e90fcfe31cecabd9ce0a3ae"
+  integrity sha512-ua7PgUoeQFjmWPcoo9khiPum3Pd60k4/2ZGXt18sm2Slk0W0xZTqt5Y0Ny1NyBiN1EVQ/+FaF9NcY4Qe6rwk5w==
 
 "@types/node@^10.12.18":
   version "10.17.60"
@@ -303,9 +303,9 @@ available-typed-arrays@^1.0.5:
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
 aws-sdk@^2.151.0:
-  version "2.1002.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1002.0.tgz#8f2d3143109a08b19385b21433c9a7178b3f5295"
-  integrity sha512-duG9sJL1RETBXV0ZNx1wCVX/Y2xURXdG+jJo380nOI5xlvxyiZxSDhdYYaxNjT4Jgaz/qzGJ7mbkVFu1zQ3/1w==
+  version "2.1016.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1016.0.tgz#e5d985c82c8198816c46e460083786268cf41650"
+  integrity sha512-6QY4sJBMtPzxJdzSMjmf22mASZ9RO7e5QjW4PMYI5PVal+jPdl7h37IbtC7abmWNgMubIQ1SIBoUktRQGIE8tw==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -463,9 +463,9 @@ configstore@^5.0.0:
     xdg-basedir "^4.0.0"
 
 core-js@^3.6.0:
-  version "3.18.2"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.18.2.tgz#63a551e8a29f305cd4123754846e65896619ba5b"
-  integrity sha512-zNhPOUoSgoizoSQFdX1MeZO16ORRb9FFQLts8gSYbZU5FcgXhp24iMWMxnOQo5uIaIG7/6FA/IqJPwev1o9ZXQ==
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.19.0.tgz#9e40098a9bc326c7e81b486abbd5e12b9d275176"
+  integrity sha512-L1TpFRWXZ76vH1yLM+z6KssLZrP8Z6GxxW4auoCj+XiViOzNPJCAuTIkn03BGdFe6Z5clX5t64wRIRypsZQrUg==
 
 core-util-is@1.0.2:
   version "1.0.2"
@@ -1222,9 +1222,9 @@ is-callable@^1.1.4, is-callable@^1.2.4:
   integrity sha512-nsuwtxZfMX67Oryl9LCQ+upnC0Z0BgpwntpS89m1H/TLF0zNfzfLMV/9Wa/6MZsj0acpEjAO0KF1xT6ZdLl95w==
 
 is-core-module@^2.2.0:
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.7.0.tgz#3c0ef7d31b4acfc574f80c58409d568a836848e3"
-  integrity sha512-ByY+tjCciCr+9nLryBYcSD50EOGWt95c7tIsKTG1J2ixKKXPvF7Ej3AVd+UfDydAJom3biBGDBALaO79ktwgEQ==
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.8.0.tgz#0321336c3d0925e497fd97f5d95cb114a5ccd548"
+  integrity sha512-vd15qHsaqrRL7dtH6QNuy0ndJmRDrS9HAM1CAiSifNUFv4x1a0CCVsj18hJ1mShxIG6T2i1sO78MkP56r0nYRw==
   dependencies:
     has "^1.0.3"
 

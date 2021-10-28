@@ -17,6 +17,8 @@ export default [
       let filter = {};
       let sort = {};
 
+      console.log(data)
+
       switch (action) {
         case 'getUsers':
           try {
