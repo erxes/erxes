@@ -105,12 +105,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
               : ''}
           </div>
         </div>
-        <div>
-          <div>
-            <strong>Price per unit:</strong> {product.unitPrice}
-          </div>
-          {renderFieldData()}
-        </div>
+        <div>{renderFieldData()}</div>
       </div>
 
       <div className="footer">
