@@ -214,7 +214,7 @@ class Lead extends React.Component<Props, State> {
           <LeftContent>
             <Steps>
               <Step
-                img="/images/icons/erxes-04.svg"
+                img="/images/icons/erxes-12.svg"
                 title={`General`}
                 onClick={this.onStepClick}
               >
@@ -227,7 +227,7 @@ class Lead extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img="/images/icons/erxes-04.svg"
+                img="/images/icons/erxes-10.svg"
                 title={`Product & Service`}
                 onClick={this.onStepClick}
               >
@@ -241,7 +241,7 @@ class Lead extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img="/images/icons/erxes-12.svg"
+                img="/images/icons/erxes-04.svg"
                 title={'Appearance'}
                 onClick={this.onStepClick}
                 noButton={true}
