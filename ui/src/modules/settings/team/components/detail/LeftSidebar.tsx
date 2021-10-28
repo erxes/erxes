@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
 import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
+import { IDepartment } from '../../types';
 
 type Props = {
   user: IUser;
@@ -19,13 +20,6 @@ type Props = {
   skills: ISkillDocument[];
   excludeUserSkill: (skillId: string, userId: string) => void;
   renderSkillForm: ({
-    closeModal,
-    user
-  }: {
-    closeModal: () => void;
-    user: IUser;
-  }) => React.ReactNode;
-  renderEditForm: ({
     closeModal,
     user
   }: {
@@ -42,61 +36,44 @@ function LeftSidebar({
   skills = [],
   channels,
   excludeUserSkill,
-  renderSkillForm,
-  renderEditForm
+  renderSkillForm
 }: Props) {
-  const { details = {} } = user;
+  const { details = {}, department = {} as IDepartment } = user;
+
+  const renderRow = (title: string, value: any, nowrap?: boolean) => {
+    return (
+      <li>
+        <FieldStyle>{__(title)}:</FieldStyle>
+        <SidebarCounter nowrap={nowrap}>{value || '-'}</SidebarCounter>
+      </li>
+    );
+  };
 
   function renderUserInfo() {
     return (
       <Section>
         <SidebarList className="no-link">
-          <li>
-            <FieldStyle>{__('Primary Email')}:</FieldStyle>
-            <SidebarCounter>{user.email || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('User name')}:</FieldStyle>
-            <SidebarCounter>{user.username || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Short name')}:</FieldStyle>
-            <SidebarCounter>{details.shortName || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Location')}:</FieldStyle>
-            <SidebarCounter>{details.location || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Birthdate')}:</FieldStyle>
-            <SidebarCounter>
-              {details.birthDate
-                ? dayjs(details.birthDate).format('YYYY-MM-DD')
-                : '-'}
-            </SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Position')}:</FieldStyle>
-            <SidebarCounter>{details.position || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Score')}:</FieldStyle>
-            <SidebarCounter>{user.score || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Joined date')}:</FieldStyle>
-            <SidebarCounter>
-              {details.workStartedDate
-                ? dayjs(details.workStartedDate).format('YYYY-MM-DD')
-                : '-'}
-            </SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Description')}:</FieldStyle>
-            <SidebarCounter nowrap={true}>
-              {details.description || '-'}
-            </SidebarCounter>
-          </li>
+          {renderRow('Primary Email', user.email)}
+          {renderRow('Operator Phone number', details.operatorPhone)}
+          {renderRow('User name', user.username)}
+          {renderRow('Short name', details.shortName)}
+          {renderRow('Location', details.location)}
+          {renderRow(
+            'Birthdate',
+            details.birthDate
+              ? dayjs(details.birthDate).format('YYYY-MM-DD')
+              : '-'
+          )}
+          {renderRow('Position', details.position)}
+          {department && renderRow('Department', department.title)}
+          {renderRow('Score', user.score)}
+          {renderRow(
+            'Joined date',
+            details.workStartedDate
+              ? dayjs(details.workStartedDate).format('YYYY-MM-DD')
+              : '-'
+          )}
+          {renderRow('Description', details.description, true)}
         </SidebarList>
       </Section>
     );
@@ -161,9 +138,9 @@ function LeftSidebar({
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
-      <CustomFieldsSection user={user} isDetail={true} />
       {renderChannels()}
       {renderSkills()}
+      <CustomFieldsSection user={user} isDetail={true} />
     </Sidebar>
   );
 }

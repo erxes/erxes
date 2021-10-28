@@ -2,6 +2,22 @@ import * as teamQueries from 'erxes-ui/lib/team/graphql';
 
 const detailFields = teamQueries.detailFields;
 
+const departmentField = `
+  _id
+  title
+  description
+  parentId
+  code
+  supervisorId
+  userIds
+  users {
+    _id
+    details {
+      ${detailFields}
+    }
+  }
+`;
+
 const userDetail = `
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
@@ -19,6 +35,9 @@ const userDetail = `
       emailSignatures
       getNotificationByEmail
       customFieldsData
+      department {
+        ${departmentField}
+      }
     }
   }
 `;
@@ -91,22 +110,6 @@ const structureDetail = `
           ${detailFields}
         }
       }
-    }
-  }
-`;
-
-const departmentField = `
-  _id
-  title
-  description
-  parentId
-  code
-  supervisorId
-  userIds
-  users {
-    _id
-    details {
-      ${detailFields}
     }
   }
 `;

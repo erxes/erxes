@@ -12,6 +12,7 @@ import { UserHeader } from 'modules/customers/styles';
 import InfoSection from './InfoSection';
 import LeadState from 'modules/customers/containers/LeadState';
 import ActionSection from '../../containers/ActionSection';
+import RightSidebar from './RightSidebar';
 
 type Props = {
   user: IUser;
@@ -99,9 +100,9 @@ function UserDetails({
           skills={skills}
           excludeUserSkill={excludeUserSkill}
           renderSkillForm={renderSkillForm}
-          renderEditForm={renderEditForm}
         />
       }
+      rightSidebar={<RightSidebar user={user} />}
       content={content}
       transparent={true}
     />

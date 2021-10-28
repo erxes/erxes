@@ -2,7 +2,6 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
-// import { generatePaginationParams } from "modules/common/utils/router";
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -67,40 +66,17 @@ const ActionSectionContainer = (props: FinalProps) => {
   return <ActionSection {...updatedProps} />;
 };
 
-// const generateOptions = () => ({
-//   refetchQueries: ["customersMain", "customerCounts", "customerDetail"],
-// });
-
 export default withProps<Props>(
   compose(
-    // mutations
     graphql<{ queryParams: any }>(gql(mutations.usersSetActiveStatus), {
       name: 'statusChangedMutation',
       options: ({ queryParams }) => ({
         refetchQueries: [
           {
             query: gql(queries.users)
-            // variables: {
-            //   ...generatePaginationParams(queryParams),
-            //   isActive: !(queryParams.isActive === "false" ? false : true),
-            // },
           }
         ]
       })
     })
-    // graphql<Props, MergeMutationResponse, MergeMutationVariables>(
-    //   gql(mutations.customersMerge),
-    //   {
-    //     name: "customersMerge",
-    //     options: generateOptions(),
-    //   }
-    // ),
-    // graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
-    //   gql(mutations.customersChangeState),
-    //   {
-    //     name: "customersChangeState",
-    //     options: generateOptions(),
-    //   }
-    // )
   )(withRouter<FinalProps>(ActionSectionContainer))
 );
