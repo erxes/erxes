@@ -6,7 +6,7 @@ import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function SortableListComponent() {
-  const names = []
+  const names = ["name", "age"]
   return (<>
   <SortableList fields={names}>
   </SortableList>
