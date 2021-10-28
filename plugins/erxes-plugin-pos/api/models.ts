@@ -7,7 +7,7 @@ import { IPOS } from './types';
 export const posSChema = {
   _id: { pkey: true },
   name: { type: String, label: 'Name' },
-  description: { type: String, label: 'Description' },
+  description: { type: String, label: 'Description', optional: true },
   userId: { type: String, optional: true, label: 'Created by' },
   createdAt: { type: Date, label: 'Created at' },
   integrationId: { type: String, label: 'Integration id' },
