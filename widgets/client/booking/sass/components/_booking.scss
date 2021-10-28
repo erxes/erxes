@@ -137,13 +137,13 @@ h4,p{
   width: 100%;
   padding-left: 1em;
   display: flex;
-  padding: 0 2em 0;;
+  padding: 1em;
   background-color: #FCFCFC;
   justify-content: space-between;
 }
 
   .container{
-    padding: 0 2em 10em;
+    padding: 1em 2em 10em;
     height: fit-content;
     max-height: 100%;
     color: #333333 ;
@@ -303,12 +303,13 @@ hr {
 }
 .bar{
   display: block;
-  width: 25px;
-  height: 3px;
-  margin: 5px auto;
+  width: 1em;
+  height: 2px;
+  margin: 3px auto;
+  border-radius: 5em;
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
-  background-color: #101010;
+  background-color: #333;
 }
 .hamburger {
   display: block;

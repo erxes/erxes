@@ -148,13 +148,12 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <li
         key={item._id}
-        className={`list flex-sb ${stockCnt === 0 ? 'disabled' : ''}`}
+        className={`list flex-sb ${(item.status === "disabled" || item.count === 0) ? 'card-disabled' : ''}`}
         style={
           this.state.selectedItem && item._id === this.state.selectedItem._id
             ? { fontWeight: 500, color: productSelected }
             : { fontWeight: 400, color }
         }
-        onClick={onClick}
       >
         <div className="flex-center">
           <div

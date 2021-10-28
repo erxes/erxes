@@ -53,17 +53,21 @@ class CategoryDetail extends React.Component<Props, State> {
     let isCardSelected = false;
     const wrapperstyle = childs.length > 6 ? "cards" : "flex-cards"
 
-    const selectCard = (el: any) => {
-      if (this.state.activeChild._id !== el._id) {
-        isCardSelected = true;
-      }
-      this.setState({ activeChild: el });
-    }
 
     const goNext = () => {
       if (this.state.activeChild && this.state.activeChild._id !== null) {
         this.state.activeChild.type === "category" ? goToCategory(this.state.activeChild._id) : goToProduct(this.state.activeChild._id)
       }
+    }
+
+    const selectCard = (el: any) => {
+      if (this.state.activeChild._id !== el._id) {
+        isCardSelected = true;
+      }
+      this.setState({ activeChild: el });
+      setTimeout(() => {
+        goNext();
+      }, 1000);
     }
 
     return (

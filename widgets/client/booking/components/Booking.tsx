@@ -46,6 +46,9 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
       isAnotherCardSelected = true;
     }
     selectedId = id;
+    setTimeout(() => {
+      goNext()
+    }, 1000);
   }
 
   const goNext = () => {
