@@ -50,6 +50,7 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  validatedTokens?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -137,6 +138,11 @@ export const userSchema = schemaHooksWrapper(
       type: [String],
       default: [],
       label: 'Device tokens'
+    }),
+    validatedTokens: field({
+      type: [String],
+      default: [],
+      label: 'Validated access tokens'
     }),
     code: field({ type: String }),
     doNotDisturb: field({

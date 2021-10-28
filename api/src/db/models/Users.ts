@@ -97,6 +97,7 @@ export interface IUserModel extends Model<IUserDocument> {
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(params: ILoginParams): { token: string; refreshToken: string };
   getTokenFields(user: IUserDocument);
+  logout(_user: IUserDocument, token: string): string;
 }
 
 export const loadClass = () => {
@@ -664,6 +665,13 @@ export const loadClass = () => {
         this.getSecret()
       );
 
+      // storing tokens in user collection.
+      if(token){
+        const validatedTokens: string[] = user.validatedTokens || [];
+        validatedTokens.push(token);
+        await user.update({ $set: { validatedTokens } });
+      }
+
       if (deviceToken) {
         const deviceTokens: string[] = user.deviceTokens || [];
 
@@ -681,6 +689,23 @@ export const loadClass = () => {
         token,
         refreshToken
       };
+    }
+
+    /**
+     * Logging out user from database
+     */
+     public static async logout(user: IUserDocument, currentToken: string) {
+      const currentUser:any = await this.getUser(user._id);
+      let validatedTokens: string[] = currentUser.validatedTokens || [];
+
+      if(validatedTokens.includes(currentToken)){
+        // invalidating token.
+        validatedTokens = await validatedTokens.filter(token => token !== currentToken)
+        await Users.updateOne({ _id: currentUser._id }, { $set: { validatedTokens } });
+        return 'loggedout';
+      }
+      
+      return 'token not found';
     }
 
     public static async generateUserCodeField() {
