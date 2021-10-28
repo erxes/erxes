@@ -20,7 +20,7 @@ export const posSChema = {
   uiOptions: { type: Object, label: 'UI Options' },
   formSectionTitle: { type: String, label: 'Form section title' },
   formIntegrationIds: { type: [String], label: 'Form integration ids' },
-  token: { type: String, label: 'Pos token' }
+  token: { type: String, label: 'Pos token' },
 };
 
 class Pos {
@@ -37,19 +37,19 @@ class Pos {
     return pos;
   }
 
-  public static async generateToken(models, code?: string) {
-    let generatedCode = code || Math.random().toString(36).substr(2, 10)
+  public static generateToken(length: number = 32) {
+    const a = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split(
+      ''
+    );
+    const b = [];
 
-    let prevPos = await models.Pos.findOne({ token: generatedCode });
+    for (let i = 0; i < length; i++) {
+      const j = (Math.random() * (a.length - 1)).toFixed(0);
 
-    // search until not existing one found
-    while (prevPos) {
-      generatedCode = Math.random().toString(36).substr(2, 10)
-
-      prevPos = await models.Pos.findOne({ token: generatedCode });
+      b[i] = a[j];
     }
 
-    return generatedCode;
+    return b.join('');
   }
 
   public static async posAdd(models, user, doc: IPOS) {
@@ -60,11 +60,11 @@ class Pos {
       );
 
       return models.Pos.create({
+        ...doc,
         userId: user._id,
         integrationId: integration._id,
         createdAt: new Date(),
-        token: await this.generateToken(models),
-        ...doc
+        token: this.generateToken(),
       });
     } catch (e) {
       throw new Error(
@@ -84,7 +84,7 @@ class Pos {
       { runValidators: true }
     );
 
-    return await models.Pos.findOne({ _id }).lean();
+    return models.Pos.findOne({ _id }).lean();
   }
 
   public static async posRemove(models, _id: string) {
@@ -111,13 +111,13 @@ export const productGroupSchema: any = {
   excludedCategoryIds: {
     type: [String],
     optional: true,
-    label: 'Exclude Category ids'
+    label: 'Exclude Category ids',
   },
   excludedProductIds: {
     type: [String],
     optional: true,
-    label: 'Exclude Product ids'
-  }
+    label: 'Exclude Product ids',
+  },
 };
 
 class ProductGroup {
@@ -130,7 +130,7 @@ class ProductGroup {
       userId: user._id,
       name,
       description,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
   }
 
@@ -144,7 +144,7 @@ class ProductGroup {
     await models.ProductGroups.updateOne(
       { _id },
       {
-        $set: doc
+        $set: doc,
       }
     );
 
@@ -160,11 +160,11 @@ export default [
   {
     name: 'Pos',
     schema: posSChema,
-    klass: Pos
+    klass: Pos,
   },
   {
     name: 'ProductGroups',
     schema: productGroupSchema,
-    klass: ProductGroup
-  }
+    klass: ProductGroup,
+  },
 ];

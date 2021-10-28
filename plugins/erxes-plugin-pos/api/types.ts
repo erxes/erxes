@@ -7,7 +7,7 @@ export interface IPOS {
   adminIds: string[];
   cashierIds: string[];
   kitchenScreen: any;
-  waitinScreen: any;
+  waitingScreen: any;
   kioskMachine: any;
   uiOptions: any;
   formSectionTitle: string;

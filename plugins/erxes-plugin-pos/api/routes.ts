@@ -1,28 +1,35 @@
 export default {
   routes: [
     {
-      method: 'POST',
+      method: 'GET',
       path: '/pos',
       handler: async ({ req, models }) => {
-        const { pos_token } = req.headers;
-        const pos = await models.Pos.getPos(models, { token: pos_token });
+        const token = req.headers['pos-token'];
+        const pos = await models.Pos.findOne({ token });
+        const data: any = { pos };
 
-        const data: any = {};
-
-        data.pos = pos;
+        const userFields = {
+          email: 1,
+          username: 1,
+          password: 1,
+          isOwner: 1,
+          isActive: 1
+        };
 
         // collect admin users
         if (pos.adminIds) {
           data.adminUsers = await models.Users.find({
-            _id: { $in: pos.adminIds }
-          });
+            _id: { $in: pos.adminIds },
+            isActive: true
+          }, userFields).lean();
         }
 
         // collect cashiers
         if (pos.cashierIds) {
           data.cashiers = await models.Users.find({
-            _id: { $in: pos.cashierIds }
-          });
+            _id: { $in: pos.cashierIds },
+            isActive: true
+          }, userFields).lean();
         }
 
         if (pos.formIntegrationIds) {
@@ -107,6 +114,6 @@ export default {
 
         return data;
       }
-    }
+    } // end /pos route
   ]
 };
