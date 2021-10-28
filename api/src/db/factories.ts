@@ -183,6 +183,7 @@ interface IUserFactoryInput {
   registrationTokenExpires?: Date;
   isSubscribed?: string;
   isShowNotification?: boolean;
+  validatedTokens?: string;
 }
 
 export const userFactory = async (
@@ -217,6 +218,7 @@ export const userFactory = async (
     deviceTokens: params.deviceTokens,
     isSubscribed: params.isSubscribed,
     isShowNotification: params.isShowNotification,
+    validatedTokens: params.validatedTokens,
     ...(params.code ? { code: params.code } : {})
   };
 
