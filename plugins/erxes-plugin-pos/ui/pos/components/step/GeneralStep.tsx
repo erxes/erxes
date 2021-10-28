@@ -353,7 +353,7 @@ class GeneralStep extends React.Component<Props, {}> {
           <LeftItem>
             <CollapseContent title="POS" open={true}>
               <FormGroup>
-                <ControlLabel>Name</ControlLabel>
+                <ControlLabel required={true}>Name</ControlLabel>
                 <FormControl
                   id="name"
                   type="text"
@@ -411,7 +411,7 @@ class GeneralStep extends React.Component<Props, {}> {
 
             <CollapseContent title="Permission">
               <FormGroup>
-                <ControlLabel>POS admin</ControlLabel>
+                <ControlLabel required={true}>POS admin</ControlLabel>
                 <SelectTeamMembers
                   label={__('Choose team member')}
                   name="adminIds"
@@ -421,7 +421,7 @@ class GeneralStep extends React.Component<Props, {}> {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>POS cashier</ControlLabel>
+                <ControlLabel required={true}>POS cashier</ControlLabel>
                 <SelectTeamMembers
                   label={__('Choose team member')}
                   name="cashierIds"

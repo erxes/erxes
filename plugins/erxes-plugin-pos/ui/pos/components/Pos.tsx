@@ -90,6 +90,14 @@ class Lead extends React.Component<Props, State> {
       return Alert.error('Choose a Brand');
     }
 
+    if (!pos.adminIds || !pos.adminIds.length) {
+      return Alert.error('Choose a admin users');
+    }
+
+    if (!pos.cashierIds || !pos.cashierIds.length) {
+      return Alert.error('Choose a cashier users');
+    }
+
     const doc = {
       name: pos.name,
       brandId: brand,
@@ -195,7 +203,7 @@ class Lead extends React.Component<Props, State> {
       { title: 'POS' }
     ];
 
-    console.log('uiOptions: ', uiOptions);
+    const name = pos.name || '';
 
     const logoPreviewUrl = uiOptions.logo;
 
