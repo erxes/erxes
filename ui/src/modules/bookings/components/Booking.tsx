@@ -91,6 +91,8 @@ type Booking = {
   columns?: number;
   rows?: number;
   margin?: number;
+
+  navigationText?: string;
 };
 
 function Booking(props: Props) {
@@ -149,6 +151,8 @@ function Booking(props: Props) {
     userFilters: bookingData.userFilters || [],
 
     productCategoryId: bookingData.productCategoryId || '',
+
+    navigationText: bookingData.navigationText || '',
 
     itemShape: bookingStyle.itemShape || '',
     widgetColor: bookingStyle.widgetColor || colors.colorPrimary,
@@ -221,6 +225,7 @@ function Booking(props: Props) {
         description: booking.description,
         image: booking.image,
         productCategoryId: booking.productCategoryId,
+        navigationText: booking.navigationText,
 
         style: {
           itemShape: booking.itemShape,
@@ -341,6 +346,7 @@ function Booking(props: Props) {
                 columns={booking.columns}
                 rows={booking.rows}
                 margin={booking.margin}
+                navigationText={booking.navigationText}
               />
             </Step>
 

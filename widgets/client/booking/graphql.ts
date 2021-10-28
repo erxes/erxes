@@ -127,6 +127,7 @@ const widgetsConnectMutation = `
         mainProductCategory {
           ${productCategoryFields}
         }
+        navigationText
 
         productCategoryId
 
