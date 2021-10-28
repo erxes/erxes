@@ -54,15 +54,19 @@ class Lead extends React.Component<Props, State> {
     const pos = props.pos || ({} as IPos);
 
     const uiOptions = pos.uiOptions || {
-      backgroundColors: { bodyColor: '', headerColor: '', footerColor: '' },
-      tabColors: { defaultColor: '', selectedColor: '' },
-      textColors: {
-        bodyTextColor: '',
-        linkColor: '',
-        linkHoverColor: '',
-        linkPressedColor: ''
+      backgroundColors: {
+        bodyColor: '#FFFFFF',
+        headerColor: '#6569DF',
+        footerColor: '#3CCC38'
       },
-      buttonColors: { defaultColor: '', pressedColor: '' },
+      tabColors: { defaultColor: '#FFFFFF', selectedColor: '#3CCC38' },
+      textColors: {
+        bodyTextColor: '#FFFFFF',
+        linkColor: '#0693e3',
+        linkHoverColor: '#6569DF',
+        linkPressedColor: '#002575'
+      },
+      buttonColors: { defaultColor: '#FFFFFF', pressedColor: '#3CCC38' },
       logo: '/images/erxes.png',
       bgImage: ''
     };
