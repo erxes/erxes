@@ -19,8 +19,6 @@ const bookingFields = `
   displayBlock
 
   
-  categoryTree
-  
   mainProductCategory {
     _id
   }

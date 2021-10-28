@@ -24,6 +24,7 @@ export interface ICategoryTree {
   parentId: string;
   type: string;
   status?: string;
+  count: string;
 }
 
 export interface IBookingData {

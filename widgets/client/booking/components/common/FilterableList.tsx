@@ -87,27 +87,33 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean, color: string) {
-    const arrowsize = "0.3em"
+    const arrowsize = '0.3em';
     const downTraingle = {
       borderColor: `${color} transparent transparent transparent`,
-      borderStyle: "solid",
+      borderStyle: 'solid',
       borderWidth: `${arrowsize} ${arrowsize} 0px ${arrowsize}`,
-      height: "0px",
-      width: "0px"
-    }
+      height: '0px',
+      width: '0px'
+    };
 
     const rightTraingle = {
       borderColor: `transparent transparent transparent ${color}`,
-      borderStyle: "solid",
+      borderStyle: 'solid',
       borderWidth: `${arrowsize} 0px ${arrowsize} ${arrowsize}`,
-      height: "0px",
-      width: "0px"
-    }
+      height: '0px',
+      width: '0px'
+    };
 
     return hasChildren ? (
-      <div> {isOpen ? <div style={downTraingle}></div>
-        : <div style={rightTraingle}></div>
-      }</div>) : null;
+      <div>
+        {' '}
+        {isOpen ? (
+          <div style={downTraingle}></div>
+        ) : (
+          <div style={rightTraingle}></div>
+        )}
+      </div>
+    ) : null;
   }
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
@@ -129,7 +135,6 @@ class FilterableList extends React.Component<Props, State> {
 
     let color = stockCnt === 0 ? productUnavailable : widgetColor;
 
-
     if (stockCnt > 0 && stockCnt < 10) {
       color = productAvailable;
     }
@@ -143,7 +148,7 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <li
         key={item._id}
-        className={`list flex-sb ${stockCnt === 0 ? "disabled" : ""}`}
+        className={`list flex-sb ${stockCnt === 0 ? 'disabled' : ''}`}
         style={
           this.state.selectedItem && item._id === this.state.selectedItem._id
             ? { fontWeight: 500, color: productSelected }
@@ -158,7 +163,13 @@ class FilterableList extends React.Component<Props, State> {
           >
             {this.renderIcons(item, hasChildren, isOpen, color)}
           </div>
-          <div style={{ fontSize: "1em", marginRight: "2em" }} onClick={() => handleClick(item)}>
+          <div
+            style={{
+              fontSize: '1em',
+              marginRight: '2em'
+            }}
+            onClick={() => handleClick(item)}
+          >
             {item.name || '[undefined]'}
           </div>
         </div>
@@ -173,11 +184,7 @@ class FilterableList extends React.Component<Props, State> {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
 
-    const productCount = subFields.filter(
-      (el: any) => el.parentIds.includes(parent._id)
-    );
-
-    let stockCnt = productCount.length;
+    let stockCnt = parent.count;
 
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
@@ -192,10 +199,6 @@ class FilterableList extends React.Component<Props, State> {
           </li>
         </ul>
       );
-    }
-
-    if (parent.type === 'product') {
-      stockCnt = 1;
     }
 
     return this.renderItem(parent, false, stockCnt);
