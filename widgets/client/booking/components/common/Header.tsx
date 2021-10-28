@@ -41,9 +41,7 @@ class Header extends React.Component<Props, State> {
       <div className={`booking-navigation bn-${style.widgetColor} slide-in`}>
         <div className="booking-header">
           <h4>{navigationName}</h4>
-          <div>
-            <div onClick={this.toggleNavigation} > </div>
-          </div>
+          <div onClick={this.toggleNavigation} style={{ fontSize: "1.3em", transform: "rotate(180deg)" }} > &#10140; </div>
         </div>
         <hr />
         <FilterableList
@@ -60,10 +58,12 @@ class Header extends React.Component<Props, State> {
 
   render() {
     return (
-      <div className="header" onClick={this.toggleNavigation} >
+      <>
         {this.state.isOpen === true ? this.renderNav() : ''}
-        <Burger />
-      </div>
+        <div className="header" onClick={this.toggleNavigation} >
+          <Burger />
+        </div>
+      </>
     );
   }
 }

@@ -18,12 +18,15 @@ function CategoryDetail({ goToBookings, category, booking }: Props) {
   }
 
   const { categoryTree } = booking;
-  const { widgetColor } = booking.style;
+  const style = booking.style;
+  const description = category.description && category.description.replace(/<\/?[^>]+(>|$)/g, "")
 
   // use this
   const childCategories = categoryTree.filter(
     tree => tree.parentId === category._id && tree.type === 'category'
   );
+
+  const wrapperstyle = childCategories.length > 6 ? "cards" : "flex-cards"
 
   let selectedId = "";
 
@@ -35,7 +38,7 @@ function CategoryDetail({ goToBookings, category, booking }: Props) {
     <>
       <div className="container">
         <h4> {category.name} </h4>
-        <p> {category.description} </p>
+        <p> {description} </p>
         <div className="flex-sa">
           <div className="img-container w-50">
             <img
@@ -45,17 +48,17 @@ function CategoryDetail({ goToBookings, category, booking }: Props) {
                 maxHeight: '100%',
                 maxWidth: '100%'
               }}
-            />
+            />n
           </div>
-          <div className="cards w-50">
+          <div className={wrapperstyle}>
             {childCategories.map((el, i = 1) => {
               return (
-                <div onClick={() => goNext(el._id)}>
+                <div onClick={() => goNext(el._id)} className={wrapperstyle}>
                   <Card
                     key={i}
                     type={"category"}
                     title={el.name}
-                    widgetColor={widgetColor}
+                    style={style}
                   />
                 </div>
               );
@@ -70,13 +73,13 @@ function CategoryDetail({ goToBookings, category, booking }: Props) {
           text={'Back'}
           type="back"
           onClickHandler={goToBookings}
-          style={{ backgroundColor: widgetColor }}
+          style={{ backgroundColor: style.widgetColor }}
         />
         <Button
           text={'Next'}
           type="back"
           onClickHandler={goToBookings}
-          style={{ backgroundColor: widgetColor }}
+          style={{ backgroundColor: style.widgetColor }}
         />
       </div>
     </>
