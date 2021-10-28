@@ -4,7 +4,6 @@ import { sendRPCMessage } from '../messageBroker';
 export const addBoardItem = async ({ action, execution, type }) => {
   const { config = {} } = action;
 
-
   let newData = action.config.assignedTo ? await replacePlaceHolders({
     actionData: { assignedTo: action.config.assignedTo },
     target: execution.target, isRelated: false
