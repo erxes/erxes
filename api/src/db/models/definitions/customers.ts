@@ -122,214 +122,217 @@ const getEnum = (fieldName: string): string[] => {
   return CUSTOMER_SELECT_OPTIONS[fieldName].map(option => option.value);
 };
 
-export const customerSchema = schemaWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
+const customer = new Schema({
+  _id: field({ pkey: true }),
 
-    state: field({
-      type: String,
-      esType: 'keyword',
-      label: 'State',
-      default: 'visitor',
-      enum: getEnum('STATE'),
-      index: true,
-      selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
-    }),
+  state: field({
+    type: String,
+    esType: 'keyword',
+    label: 'State',
+    default: 'visitor',
+    enum: getEnum('STATE'),
+    index: true,
+    selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
+  }),
 
-    createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
-    modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
-    avatar: field({ type: String, optional: true, label: 'Avatar' }),
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
+  avatar: field({ type: String, optional: true, label: 'Avatar' }),
 
-    firstName: field({ type: String, label: 'First name', optional: true }),
-    lastName: field({ type: String, label: 'Last name', optional: true }),
-    middleName: field({ type: String, label: 'Middle name', optional: true }),
+  firstName: field({ type: String, label: 'First name', optional: true }),
+  lastName: field({ type: String, label: 'Last name', optional: true }),
+  middleName: field({ type: String, label: 'Middle name', optional: true }),
 
-    birthDate: field({
-      type: Date,
-      label: 'Date of birth',
-      optional: true,
-      esType: 'date'
-    }),
-    sex: field({
-      type: Number,
-      label: 'Pronoun',
-      optional: true,
-      esType: 'keyword',
-      default: 0,
-      enum: getEnum('SEX'),
-      selectOptions: CUSTOMER_SELECT_OPTIONS.SEX
-    }),
+  birthDate: field({
+    type: Date,
+    label: 'Date of birth',
+    optional: true,
+    esType: 'date'
+  }),
+  sex: field({
+    type: Number,
+    label: 'Pronoun',
+    optional: true,
+    esType: 'keyword',
+    default: 0,
+    enum: getEnum('SEX'),
+    selectOptions: CUSTOMER_SELECT_OPTIONS.SEX
+  }),
 
-    primaryEmail: field({
-      type: String,
-      label: 'Primary Email',
-      optional: true,
-      esType: 'email'
-    }),
-    emails: field({ type: [String], optional: true, label: 'Emails' }),
-    emailValidationStatus: field({
-      type: String,
-      enum: getEnum('EMAIL_VALIDATION_STATUSES'),
-      default: 'unknown',
-      label: 'Email validation status',
-      esType: 'keyword',
-      selectOptions: CUSTOMER_SELECT_OPTIONS.EMAIL_VALIDATION_STATUSES
-    }),
+  primaryEmail: field({
+    type: String,
+    label: 'Primary Email',
+    optional: true,
+    esType: 'email'
+  }),
+  emails: field({ type: [String], optional: true, label: 'Emails' }),
+  emailValidationStatus: field({
+    type: String,
+    enum: getEnum('EMAIL_VALIDATION_STATUSES'),
+    default: 'unknown',
+    label: 'Email validation status',
+    esType: 'keyword',
+    selectOptions: CUSTOMER_SELECT_OPTIONS.EMAIL_VALIDATION_STATUSES
+  }),
 
-    primaryPhone: field({
-      type: String,
-      label: 'Primary Phone',
-      optional: true
-    }),
-    phones: field({ type: [String], optional: true, label: 'Phones' }),
+  primaryPhone: field({
+    type: String,
+    label: 'Primary Phone',
+    optional: true
+  }),
+  phones: field({ type: [String], optional: true, label: 'Phones' }),
 
-    phoneValidationStatus: field({
-      type: String,
-      enum: getEnum('PHONE_VALIDATION_STATUSES'),
-      default: 'unknown',
-      label: 'Phone validation status',
-      esType: 'keyword',
-      selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES
-    }),
-    profileScore: field({
-      type: Number,
-      index: true,
-      optional: true,
-      esType: 'number'
-    }),
+  phoneValidationStatus: field({
+    type: String,
+    enum: getEnum('PHONE_VALIDATION_STATUSES'),
+    default: 'unknown',
+    label: 'Phone validation status',
+    esType: 'keyword',
+    selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES
+  }),
+  profileScore: field({
+    type: Number,
+    index: true,
+    optional: true,
+    esType: 'number'
+  }),
 
-    score: field({
-      type: Number,
-      optional: true,
-      label: 'Score',
-      esType: 'number'
-    }),
+  score: field({
+    type: Number,
+    optional: true,
+    label: 'Score',
+    esType: 'number'
+  }),
 
-    ownerId: field({ type: String, optional: true }),
-    position: field({
-      type: String,
-      optional: true,
-      label: 'Position',
-      esType: 'keyword'
-    }),
-    department: field({ type: String, optional: true, label: 'Department' }),
+  ownerId: field({ type: String, optional: true }),
+  position: field({
+    type: String,
+    optional: true,
+    label: 'Position',
+    esType: 'keyword'
+  }),
+  department: field({ type: String, optional: true, label: 'Department' }),
 
-    leadStatus: field({
-      type: String,
-      enum: getEnum('LEAD_STATUS_TYPES'),
-      optional: true,
-      label: 'Lead Status',
-      esType: 'keyword',
-      selectOptions: CUSTOMER_SELECT_OPTIONS.LEAD_STATUS_TYPES
-    }),
+  leadStatus: field({
+    type: String,
+    enum: getEnum('LEAD_STATUS_TYPES'),
+    optional: true,
+    label: 'Lead Status',
+    esType: 'keyword',
+    selectOptions: CUSTOMER_SELECT_OPTIONS.LEAD_STATUS_TYPES
+  }),
 
-    status: field({
-      type: String,
-      enum: getEnum('STATUSES'),
-      optional: true,
-      label: 'Status',
-      default: 'Active',
-      esType: 'keyword',
-      index: true,
-      selectOptions: CUSTOMER_SELECT_OPTIONS.STATUSES
-    }),
+  status: field({
+    type: String,
+    enum: getEnum('STATUSES'),
+    optional: true,
+    label: 'Status',
+    default: 'Active',
+    esType: 'keyword',
+    index: true,
+    selectOptions: CUSTOMER_SELECT_OPTIONS.STATUSES
+  }),
 
-    hasAuthority: field({
-      type: String,
-      optional: true,
-      default: 'No',
-      label: 'Has authority',
-      enum: getEnum('HAS_AUTHORITY'),
-      selectOptions: CUSTOMER_SELECT_OPTIONS.HAS_AUTHORITY
-    }),
-    description: field({ type: String, optional: true, label: 'Description' }),
-    doNotDisturb: field({
-      type: String,
-      optional: true,
-      default: 'No',
-      enum: getEnum('DO_NOT_DISTURB'),
-      label: 'Do not disturb',
-      selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
-    }),
-    isSubscribed: field({
-      type: String,
-      optional: true,
-      default: 'Yes',
-      enum: getEnum('DO_NOT_DISTURB'),
-      label: 'Subscribed',
-      selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
-    }),
-    links: field({ type: Object, default: {}, label: 'Links' }),
+  hasAuthority: field({
+    type: String,
+    optional: true,
+    default: 'No',
+    label: 'Has authority',
+    enum: getEnum('HAS_AUTHORITY'),
+    selectOptions: CUSTOMER_SELECT_OPTIONS.HAS_AUTHORITY
+  }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  doNotDisturb: field({
+    type: String,
+    optional: true,
+    default: 'No',
+    enum: getEnum('DO_NOT_DISTURB'),
+    label: 'Do not disturb',
+    selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
+  }),
+  isSubscribed: field({
+    type: String,
+    optional: true,
+    default: 'Yes',
+    enum: getEnum('DO_NOT_DISTURB'),
+    label: 'Subscribed',
+    selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
+  }),
+  links: field({ type: Object, default: {}, label: 'Links' }),
 
-    relatedIntegrationIds: field({
-      type: [String],
-      label: 'Related integrations',
-      esType: 'keyword',
-      optional: true
-    }),
-    integrationId: field({
-      type: String,
-      optional: true,
-      label: 'Integration',
-      index: true,
-      esType: 'keyword'
-    }),
-    tagIds: field({
-      type: [String],
-      optional: true,
-      index: true,
-      label: 'Tags'
-    }),
+  relatedIntegrationIds: field({
+    type: [String],
+    label: 'Related integrations',
+    esType: 'keyword',
+    optional: true
+  }),
+  integrationId: field({
+    type: String,
+    optional: true,
+    label: 'Integration',
+    index: true,
+    esType: 'keyword'
+  }),
+  tagIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
+  }),
 
-    // Merged customer ids
-    mergedIds: field({ type: [String], optional: true }),
+  // Merged customer ids
+  mergedIds: field({ type: [String], optional: true }),
 
-    trackedData: field({
-      type: [customFieldSchema],
-      optional: true,
-      label: 'Tracked Data'
-    }),
-    customFieldsData: field({
-      type: [customFieldSchema],
-      optional: true,
-      label: 'Custom fields data'
-    }),
+  trackedData: field({
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Tracked Data'
+  }),
+  customFieldsData: field({
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Custom fields data'
+  }),
 
-    location: field({
-      type: locationSchema,
-      optional: true,
-      label: 'Location'
-    }),
+  location: field({
+    type: locationSchema,
+    optional: true,
+    label: 'Location'
+  }),
 
-    // if customer is not a user then we will contact with this visitor using
-    // this information
-    visitorContactInfo: field({
-      type: visitorContactSchema,
-      optional: true,
-      label: 'Visitor contact info'
-    }),
+  // if customer is not a user then we will contact with this visitor using
+  // this information
+  visitorContactInfo: field({
+    type: visitorContactSchema,
+    optional: true,
+    label: 'Visitor contact info'
+  }),
 
-    deviceTokens: field({ type: [String], default: [] }),
-    searchText: field({ type: String, optional: true, index: true }),
-    code: field({ type: String, label: 'Code', optional: true }),
+  deviceTokens: field({ type: [String], default: [] }),
+  searchText: field({ type: String, optional: true, index: true }),
+  code: field({ type: String, label: 'Code', optional: true }),
 
-    isOnline: field({
-      type: Boolean,
-      label: 'Is online',
-      optional: true
-    }),
-    lastSeenAt: field({
-      type: Date,
-      label: 'Last seen at',
-      optional: true,
-      esType: 'date'
-    }),
-    sessionCount: field({
-      type: Number,
-      label: 'Session count',
-      optional: true,
-      esType: 'number'
-    }),
-    visitorId: field({ type: String, optional: true })
-  })
-);
+  isOnline: field({
+    type: Boolean,
+    label: 'Is online',
+    optional: true
+  }),
+  lastSeenAt: field({
+    type: Date,
+    label: 'Last seen at',
+    optional: true,
+    esType: 'date'
+  }),
+  sessionCount: field({
+    type: Number,
+    label: 'Session count',
+    optional: true,
+    esType: 'number'
+  }),
+  visitorId: field({ type: String, optional: true })
+});
+customer.index({emails: 1, primaryEmail: 1});
+customer.index({phone: 1, primaryPhone: 1});
+customer.index({code: 1});
+
+export const customerSchema = schemaWrapper( customer );

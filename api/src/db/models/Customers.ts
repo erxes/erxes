@@ -755,14 +755,15 @@ export const loadClass = () => {
         modifiedAt: new Date()
       };
 
-      await Customers.updateOne({ _id }, { $set: modifier });
-
       const updateCustomer = await Customers.getCustomer(_id);
-
       const pssDoc = await Customers.calcPSS(updateCustomer);
-
-      await Customers.updateOne({ _id }, { $set: pssDoc });
-
+      
+      // parallel update customer.
+      await Promise.all([
+        Customers.updateOne({ _id }, { $set: modifier }), 
+        Customers.updateOne({ _id }, { $set: pssDoc })
+      ]);
+      
       return Customers.findOne({ _id });
     }
 

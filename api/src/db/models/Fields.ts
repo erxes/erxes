@@ -243,7 +243,7 @@ export const loadFieldClass = () => {
      * fixes values if necessary
      */
     public static async clean(_id: string, _value: string | Date | number) {
-      const field = await Fields.findOne({ _id });
+      const field = await Fields.findOne({ _id }).lean();
 
       let value = _value;
 
@@ -484,7 +484,7 @@ export const loadFieldClass = () => {
         const customField = await Fields.findOne({
           contentType,
           text: key
-        });
+        }).lean();
 
         let value = data[key];
 
