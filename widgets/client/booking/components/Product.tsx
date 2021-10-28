@@ -69,10 +69,13 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
     }
   };
 
+  let allAttachments = product.attachmentMore || [];
+  allAttachments.push(product.attachment);
+
   const renderBtn = (type: string) => {
     return (
       <div className="btn-container">
-        {product.attachmentMore && product.attachmentMore.length > 0 ? (
+        {allAttachments && allAttachments.length > 0 ? (
           <div onClick={() => moveCarousel(type)} className={`btn-move btn-move-${type}`} />
         ) : (
           ''
@@ -97,7 +100,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
               />
             </div>
             <div id="carousel">
-              {(product.attachmentMore || []).map((img, index) => (
+              {(allAttachments || []).map((img, index) => (
                 <div
                   className="slider-item flex-center"
                   key={index}
