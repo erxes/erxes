@@ -245,31 +245,58 @@ describe('boardQueries', () => {
       ...args1,
       memberIds: [user2._id]
     });
-    await pipelineFactory(args3);
-    await pipelineFactory({ ...args3, memberIds: [user1._id] });
-    await pipelineFactory(args4);
-    await pipelineFactory({ ...args4, memberIds: [user2._id] });
-    await pipelineFactory({ ...args4, memberIds: [user1._id] });
-    await pipelineFactory({ ...args4, memberIds: [user2._id, user1._id] });
-    await pipelineFactory({ ...args4, memberIds: [user._id] });
+
+    await (await pipelineFactory(args3)).updateOne({
+      $set: { condition: null }
+    });
+    await (
+      await pipelineFactory({ ...args3, memberIds: [user1._id] })
+    ).updateOne({
+      $set: { condition: null }
+    });
+    await (await pipelineFactory(args4)).updateOne({
+      $set: { condition: undefined }
+    });
+    await (
+      await pipelineFactory({ ...args4, memberIds: [user2._id] })
+    ).updateOne({
+      $set: { condition: undefined }
+    });
+    await (
+      await pipelineFactory({ ...args4, memberIds: [user1._id] })
+    ).updateOne({
+      $set: { condition: undefined }
+    });
+    await (
+      await pipelineFactory({ ...args4, memberIds: [user2._id, user1._id] })
+    ).updateOne({ $set: { condition: undefined } });
+    await (
+      await pipelineFactory({ ...args4, memberIds: [user._id] })
+    ).updateOne({
+      $set: { condition: undefined }
+    });
+
     const responseUser = await graphqlRequest(
       pipelineQry,
       'pipelines',
       {},
       { user }
     );
+
     const responseUser1 = await graphqlRequest(
       pipelineQry,
       'pipelines',
       {},
       { user: user1 }
     );
+
     const responseUser2 = await graphqlRequest(
       pipelineQry,
       'pipelines',
       {},
       { user: user2 }
     );
+
     console.log(
       '----',
       responseUser,
@@ -285,7 +312,7 @@ describe('boardQueries', () => {
     expect(responseUser[0].condition).toBe('include');
     expect(responseUser[1].condition).toBe('exclude');
     expect(responseUser[2].condition).toBe('include');
-    expect(responseUser[3].condition).toBe('include');
+    expect(responseUser[3].condition).toBe(null);
 
     expect(responseUser[0].visibility).toBe('private');
     expect(responseUser[1].visibility).toBe('private');

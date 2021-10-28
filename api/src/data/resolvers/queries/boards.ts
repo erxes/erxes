@@ -196,7 +196,12 @@ const boardQueries = {
                   ]
                 },
                 {
-                  $or: [{ memberIds: user._id }, { userId: user._id }]
+                  $and: [
+                    { condition: { $exists: false } },
+                    {
+                      $or: [{ memberIds: user._id }, { userId: user._id }]
+                    }
+                  ]
                 }
               ]
             }
@@ -233,10 +238,11 @@ const boardQueries = {
         queryParams
       );
     }
-
-    return Pipelines.find(query)
+    const pipelines = Pipelines.find(query)
       .sort({ order: 1, createdAt: -1 })
       .lean();
+
+    return pipelines;
   },
 
   async pipelineStateCount(
