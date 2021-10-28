@@ -2,8 +2,7 @@ import { graphqlRequest } from '../db/connection';
 import {
   productCategoryFactory,
   productFactory,
-  tagsFactory,
-  attachmentFactory
+  tagsFactory
 } from '../db/factories';
 import { ProductCategories, Products, Tags } from '../db/models';
 
