@@ -9,8 +9,10 @@ type Props = {
 };
 
 function Intro({ booking, goToBooking }: Props) {
-  const { name, description, image, style } = booking;
+  const { name, image, style } = booking;
   const { widgetColor } = style;
+
+  const description = booking.description.replace(/<\/?[^>]+(>|$)/g, "")
 
   return (
     <div className="container" style={{ overflow: 'hidden' }}>

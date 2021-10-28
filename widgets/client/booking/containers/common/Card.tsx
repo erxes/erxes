@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IProductCategory } from '../../../types';
+import { IStyle } from '../../types';
 import Card from '../../components/common/Card';
 import { AppConsumer } from '../AppContext';
 
@@ -7,7 +8,7 @@ type Props = {
   title: string;
   key: any;
   type: string;
-  widgetColor: string;
+  style: IStyle;
   status?: string;
   description?: string;
   goTo?: () => void;

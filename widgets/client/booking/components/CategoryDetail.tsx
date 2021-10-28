@@ -13,12 +13,13 @@ type Props = {
   goToProduct: (productId: string) => void;
 };
 
-class CategoryDetail extends React.Component<Props> {
+type State = { activeChild: any };
+
+class CategoryDetail extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     this.state = {
-      activeChild: ''
+      activeChild: {}
     };
   }
 
@@ -35,8 +36,8 @@ class CategoryDetail extends React.Component<Props> {
       return null;
     }
 
-    const { categoryTree } = booking;
-    const { widgetColor } = booking.style;
+
+    const { categoryTree, style, description } = booking;
 
     // use this
     let childs = categoryTree.filter(
@@ -49,11 +50,28 @@ class CategoryDetail extends React.Component<Props> {
       );
     }
 
+    let isCardSelected = false;
+    const wrapperstyle = childs.length > 6 ? "cards" : "flex-cards"
+
+    const selectCard = (el: any) => {
+      if (this.state.activeChild._id !== el._id) {
+        isCardSelected = true;
+      }
+      this.setState({ activeChild: el });
+    }
+
+    const goNext = () => {
+      if (this.state.activeChild && this.state.activeChild._id !== null) {
+        this.state.activeChild.type === "category" ? goToCategory(this.state.activeChild._id) : goToProduct(this.state.activeChild._id)
+      }
+    }
+
     return (
       <>
         <div className="container">
           <h4> {category.name} </h4>
-          <p> {category.description} </p>
+          <p> {description} </p>
+
           <div className="flex-sa">
             <div className="img-container w-50">
               <img
@@ -65,42 +83,38 @@ class CategoryDetail extends React.Component<Props> {
                 }}
               />
             </div>
-            <div className="cards w-50">
+            <div className={wrapperstyle}>
               {childs.map(el => {
                 return (
-                  <div
-                    key={el._id}
-                    onClick={() =>
-                      el.type === 'category'
-                        ? goToCategory(el._id)
-                        : goToProduct(el._id)
-                    }
-                  >
+                  <div onClick={() => selectCard(el)}>
                     <Card
-                      type={'category'}
+                      key={el._id}
                       title={el.name}
-                      widgetColor={widgetColor}
+                      style={style}
+                      status={el.status}
+                      isAnotherCardSelected={isCardSelected}
                     />
                   </div>
                 );
               })}
             </div>
           </div>
-        </div>
-        <div />
-        <div className="footer">
-          <Button
-            text={__('Back')}
-            type="back"
-            onClickHandler={goToBookings}
-            style={{ backgroundColor: widgetColor }}
-          />
-          <Button
-            text={__('Next')}
-            type="back"
-            onClickHandler={goToBookings}
-            style={{ backgroundColor: widgetColor }}
-          />
+
+          <div className="footer">
+            <Button
+              text={'Back'}
+              type="back"
+              onClickHandler={goToBookings}
+              style={{ backgroundColor: style.widgetColor, left: 0 }}
+            />
+            <Button
+              text={'Next'}
+              type="next"
+              onClickHandler={goNext}
+              style={{ backgroundColor: style.widgetColor, right: 0 }}
+            />
+          </div>
+
         </div>
       </>
     );

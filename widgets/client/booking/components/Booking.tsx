@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IBookingData } from '../types';
-import { Card } from '../containers';
+import Card from './common/Card';
 import Button from './common/Button';
 import { readFile, __ } from '../../utils';
 type Props = {
@@ -22,7 +22,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   } = booking;
 
   const { name, attachment, description } = mainProductCategory;
-  const { widgetColor, line, columns, rows, margin } = style;
+  const { columns, rows, line, margin } = style;
 
   const childCategories = categoryTree.filter(
     tree => tree.parentId === productCategoryId && tree.type === 'category'
@@ -32,30 +32,49 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   // tslint:disable-next-line: radix
   const colCount = parseInt(column) >= 4 ? '4' : columns;
 
-  const categoriesStyle = {
+  const gridStyle = {
     marginTop: '10px',
     gridTemplateColumns: `repeat(${colCount}, minmax(120px, 1fr))`,
     gap: margin
   };
 
+  let selectedId = "";
+  let isAnotherCardSelected = false;
+
+  const selectCard = (id: string) => {
+    if (selectedId !== id) {
+      isAnotherCardSelected = true;
+    }
+    selectedId = id;
+  }
+
+  const goNext = () => {
+    if (selectedId) goToCategory(selectedId)
+  }
+
   const Body = () => {
     return (
       <div className="body">
-        <div className="img-container sub flex-center">
-          <img src={readFile(attachment && attachment.url)} alt={'s'} />
+        <div style={{ maxHeight: "40vh" }} className="img-container">
+          <img
+            src={readFile(attachment && attachment.url)}
+            alt={'s'}
+          />
         </div>
-        <div className="cards" style={categoriesStyle}>
-          {childCategories.map(el => {
+        <div className="cards" style={gridStyle}>
+          {childCategories.map((el) => {
             return (
-              <div onClick={() => goToCategory(el._id)}>
+              <div onClick={() => selectCard(el._id)}>
                 <Card
                   key={el._id}
                   title={el.name}
-                  type={'main'}
-                  description={'Desctiption'}
-                  widgetColor={widgetColor}
+                  status={el.status}
+                  description={el.description}
+                  style={style}
+                  isAnotherCardSelected={isAnotherCardSelected}
                 />
               </div>
+
             );
           })}
         </div>
@@ -70,13 +89,13 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
           text={__('Back')}
           type="back"
           onClickHandler={() => goToIntro()}
-          style={{ backgroundColor: style.widgetColor }}
+          style={{ backgroundColor: style.widgetColor, left: 0 }}
         />
         <Button
           text={__('Next')}
           type="next"
-          onClickHandler={() => goToIntro()}
-          style={{ backgroundColor: style.widgetColor }}
+          onClickHandler={() => goNext()}
+          style={{ backgroundColor: style.widgetColor, right: 0 }}
         />
       </div>
     );

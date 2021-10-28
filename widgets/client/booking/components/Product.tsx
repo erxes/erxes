@@ -17,6 +17,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
   }
   const { widgetColor } = booking.style;
   const customFieldsDataWithText = product.customFieldsDataWithText || [];
+  const description = product.description.replace(/<\/?[^>]+(>|$)/g, "");
 
   const showFull = (img: any) => {
     const image = document.getElementById('img-active') as HTMLImageElement;
@@ -28,9 +29,9 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
   const renderFieldData = () =>
     customFieldsDataWithText.map((el: any, index: any) => (
       // tslint:disable-next-line: jsx-key
-      <div key={index}>
+      <p key={index}>
         <strong>{el.text}:</strong> {el.value}
-      </div>
+      </p>
     ));
 
   const scrollPerClick = 200;
@@ -68,23 +69,33 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
     }
   };
 
+  const renderBtn = (type: string) => {
+    return (
+      <div className="btn-container">
+        {product.attachmentMore && product.attachmentMore.length > 0 ? (
+          <div onClick={() => moveCarousel(type)} className={`btn-move btn-move-${type}`} />
+        ) : (
+          ''
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="container">
       <h4>{product.name}</h4>
-      <p>{product.description}</p>
+      <p>{description}</p>
       <div className="flex-sa">
         <div className="slider w-50">
-          <div className="active flex-center">
-            <img
-              id="img-active"
-              src={readFile(product.attachment && product.attachment.url)}
-              alt={product.attachment && product.attachment.name}
-            />
-          </div>
-          <div className="flex-center">
-            {product.attachmentMore && product.attachmentMore.length > 0
-              ? '<'
-              : ''}
+          {renderBtn("left")}
+          <div className="sliderWrapper">
+            <div className="active flex-center">
+              <img
+                id="img-active"
+                src={readFile(product.attachment && product.attachment.url)}
+                alt={product.attachment && product.attachment.name}
+              />
+            </div>
             <div id="carousel">
               {(product.attachmentMore || []).map((img, index) => (
                 <div
@@ -100,12 +111,12 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
                 </div>
               ))}
             </div>
-            {product.attachmentMore && product.attachmentMore.length > 0
-              ? '>'
-              : ''}
           </div>
+
+          {renderBtn("right")}
+
         </div>
-        <div>{renderFieldData()}</div>
+        <div className="w-40">{renderFieldData()}</div>
       </div>
 
       <div className="footer">
@@ -119,7 +130,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
           text={'Book product'}
           type=""
           onClickHandler={() => showPopup()}
-          style={{ backgroundColor: widgetColor, marginTop: '100px' }}
+          style={{ backgroundColor: widgetColor, right: 0 }}
         />
       </div>
     </div>

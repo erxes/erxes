@@ -87,10 +87,27 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   renderIcons(item: any, hasChildren: boolean, isOpen: boolean, color: string) {
+    const arrowsize = "0.3em"
+    const downTraingle = {
+      borderColor: `${color} transparent transparent transparent`,
+      borderStyle: "solid",
+      borderWidth: `${arrowsize} ${arrowsize} 0px ${arrowsize}`,
+      height: "0px",
+      width: "0px"
+    }
+
+    const rightTraingle = {
+      borderColor: `transparent transparent transparent ${color}`,
+      borderStyle: "solid",
+      borderWidth: `${arrowsize} 0px ${arrowsize} ${arrowsize}`,
+      height: "0px",
+      width: "0px"
+    }
+
     return hasChildren ? (
-      <> {isOpen ? <div className="arrow-down" />
-        : <div className="arrow-right" />
-      }</>) : null;
+      <div> {isOpen ? <div style={downTraingle}></div>
+        : <div style={rightTraingle}></div>
+      }</div>) : null;
   }
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
@@ -106,11 +123,12 @@ class FilterableList extends React.Component<Props, State> {
     if (key && item.name.toLowerCase().indexOf(key.toLowerCase()) < 0) {
       return false;
     }
-    const onClick = () => this.toggleItem(item._id);
+    const onClick = () => this.onToggle(item._id, isOpen);
 
     const isOpen = this.state.parentIds[item._id] || !!key;
 
     let color = stockCnt === 0 ? productUnavailable : widgetColor;
+
 
     if (stockCnt > 0 && stockCnt < 10) {
       color = productAvailable;
@@ -125,7 +143,7 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <li
         key={item._id}
-        className={`list flex-sb `}
+        className={`list flex-sb ${stockCnt === 0 ? "disabled" : ""}`}
         style={
           this.state.selectedItem && item._id === this.state.selectedItem._id
             ? { fontWeight: 500, color: productSelected }
@@ -136,11 +154,11 @@ class FilterableList extends React.Component<Props, State> {
         <div className="flex-center">
           <div
             className="toggle-nav"
-            onClick={this.onToggle.bind(this, item._id, isOpen)}
+            onClick={() => this.onToggle(item._id, isOpen)}
           >
             {this.renderIcons(item, hasChildren, isOpen, color)}
           </div>
-          <div className="mr-30" onClick={() => handleClick(item)}>
+          <div style={{ fontSize: "1em", marginRight: "2em" }} onClick={() => handleClick(item)}>
             {item.name || '[undefined]'}
           </div>
         </div>
@@ -156,10 +174,10 @@ class FilterableList extends React.Component<Props, State> {
     const childrens = groupByParent[parent._id];
 
     const productCount = subFields.filter(
-      (el: any) => el.type === 'product' && el.parentIds.includes(parent._id)
+      (el: any) => el.parentIds.includes(parent._id)
     );
 
-    let stockCnt = productCount ? productCount.length : 0;
+    let stockCnt = productCount.length;
 
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;

@@ -36,25 +36,62 @@ h4,p{
 }
 
 .slider{
+  width:60%;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: row;
+  justify-content: center;
   .active{
     width: 100%;
     height: 40vh;
     overflow: hidden;
+    border: 1px solid rgba(79, 63, 104, 0.3);
     img{
       object-fit: cover;
       height: 100%;
     }
   }
+  .sliderWrapper{
+    width:80%;
+  }
 }
 
 #carousel{
   height: 18vh;
-  width: auto;
-  margin:20px;
+  width: 100%;
+  margin-top:1em;
+  margin-bottom:1em;
   overflow: hidden;
   display: flex;
+  border: 1px solid rgba(79, 63, 104, 0.3);
+}
+.btn-container{
+  height: 18vh;
+  width:30px;
+  margin:1em;
+  display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover{
+      cursor: pointer;
+    }
+}
 
+.arrow{
+  border-color: #333;
+  border-style: solid; 
+  height: 20px;
+  width: 20px;
+  
+  &-right{
+    border-width: 20px 20px 0 0 ;
+    transform: rotate(45deg);
   }
+  &-left{
+    border-width: 20px 20px 0 0 ;
+    transform: rotate(-45deg);
+  }
+}
 
 .slider-item{
   flex-shrink: 0;
@@ -72,6 +109,9 @@ h4,p{
     transition:  0.5s ease;
     &:hover{
       transform: scale(1.2);
+    }
+    &:active{
+      border: 1px solid rgba(79, 63, 104, 0.3);
     }
   }
 }
@@ -99,7 +139,7 @@ h4,p{
     max-height: 100%;
     color: #333333 ;
     display: block;
-    overflow: auto;
+    overflow: hidden;
     h4{
       margin-top:2em ;
     }
@@ -107,7 +147,7 @@ h4,p{
   }
   .img-container{
     height: 200em;
-    max-height: 40vh;;
+    max-height: 60vh;;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -115,9 +155,6 @@ h4,p{
       height: 100%;
       width: 100%;
       object-fit: contain;
-    }
-    .sub{
-      max-height: 20vh;
     }
   }
   .footer{
@@ -129,10 +166,11 @@ h4,p{
     display: flex;
     padding:10px;
     background-color: #FCFCFC;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
   }
-.block {
-  flex: 0 1 calc(25% - 1em);
-}
 .cards {
   display: grid;
   grid-auto-rows: max-content;
@@ -141,25 +179,40 @@ h4,p{
   grid-column-gap: 1.6em;
   grid-row-gap: 1.6em;
 }
+.flex-cards {
+  width:20%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  .card{
+    margin-bottom: 1em;
+  }
+}
 .card {
   border-radius: 0.8em;
-  padding: 0.5em 0.8em;
+  padding: 1em 1.2em;
   background: #fff;
-  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
-  rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
-  // border: 1px solid $main-color;
+  border: 1px solid rgba(107, 107, 107, 0.25) ;
   overflow: hidden;
   width: auto;
   position: relative;
-  font-size: 0.5em;
+  font-size: 1em;
   min-width: 100px;
   display: block;
   margin: 0.1em;
   height: fit-content;
   min-height: 4em;
   text-align: center;
+  &-disabled {
+    pointer-events:none; 
+    opacity:0.6;        
+  }
   h4{
-    margin:2em;
+    margin:1em;
+    font-size: 1.8em;
+  }
+  p{
+    text-align: center;
   }
   &:hover {
     cursor: pointer;
@@ -224,6 +277,7 @@ h4,p{
   display: flex;
   justify-content: space-around;
   align-items: center;
+  font-size: 1.5em;
   &:hover {
     cursor: pointer;
   }
@@ -250,18 +304,5 @@ hr {
 .hamburger {
   display: block;
   cursor: pointer;
-}
-.arrow {
-  width: 0; 
-  height: 0; ;
-  &.down {
-    border-left: 1em solid transparent;
-    border-right: 1em solid transparent;
-    border-bottom: 1em solid #333333;
-  }
-  &.right {
-    border-top: 1em solid transparent;
-    border-bottom: 1em solid transparent;
-    border-left: 1em solid #333333;
-  }
+  margin-top:1em;
 }
