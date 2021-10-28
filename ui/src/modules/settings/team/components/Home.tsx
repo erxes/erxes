@@ -21,13 +21,14 @@ type Props = {
   queryParams: any;
   history: any;
   configsEnvQuery: any;
+  loading: boolean;
   usersGroups: IUserGroup[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function Home(props: Props) {
   let timer;
-  const { queryParams, history, configsEnvQuery = {} } = props;
+  const { queryParams, history, loading, configsEnvQuery = {} } = props;
   const [searchValue, setSearchValue] = useState('');
 
   const search = e => {
@@ -145,7 +146,7 @@ export default function Home(props: Props) {
   return (
     <Wrapper
       header={<Wrapper.Header title={'Team members'} submenu={menuContacts} />}
-      leftSidebar={<Sidebar />}
+      leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
     />

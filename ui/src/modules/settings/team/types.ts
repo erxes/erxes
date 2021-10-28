@@ -32,6 +32,12 @@ export type UserDetailQueryResponse = {
   userDetail: IUser;
 } & QueryResponse;
 
+export type CountQueryResponse = {
+  usersTotalCount: {
+    bySegment: { [key: string]: number };
+  };
+} & QueryResponse;
+
 export type EditMutationResponse = {
   usersEdit: (params: {
     variables: { _id: string } & IUserDoc;

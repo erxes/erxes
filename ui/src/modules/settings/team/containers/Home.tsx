@@ -57,6 +57,7 @@ function HomeContainer(props: Props) {
       configsEnvQuery={configsEnvQuery}
       usersGroups={usersGroups}
       renderButton={renderButton}
+      loading={usersGroupQuery.loading}
       {...props}
     />
   );
