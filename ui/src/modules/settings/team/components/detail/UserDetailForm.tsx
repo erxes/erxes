@@ -10,8 +10,8 @@ import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';
 import { UserHeader } from 'modules/customers/styles';
 import InfoSection from './InfoSection';
-import ActionSection from 'modules/customers/containers/common/ActionSection';
 import LeadState from 'modules/customers/containers/LeadState';
+import ActionSection from '../../containers/ActionSection';
 
 type Props = {
   user: IUser;
@@ -87,7 +87,7 @@ function UserDetails({
             user={user}
             renderEditForm={renderEditForm}
           >
-            <ActionSection customer={user} />
+            <ActionSection user={user} renderEditForm={renderEditForm} />
           </InfoSection>
           <LeadState customer={user} />
         </UserHeader>

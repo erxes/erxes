@@ -86,7 +86,7 @@ class InfoSection extends React.Component<Props> {
 
     return (
       <InfoWrapper>
-        <AvatarWrapper size={avatarSize}>
+        <AvatarWrapper size={avatarSize} isOnline={user.isActive}>
           <NameCard.Avatar user={user} size={avatarSize} />
         </AvatarWrapper>
 

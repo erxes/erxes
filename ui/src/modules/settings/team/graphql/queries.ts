@@ -8,6 +8,7 @@ const userDetail = `
       _id
       username
       email
+      isActive
       status
       groupIds
 
