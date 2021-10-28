@@ -45,10 +45,13 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     if (selectedId !== id) {
       isAnotherCardSelected = true;
     }
+
     selectedId = id;
+
     setTimeout(() => {
       goNext()
-    }, 1000);
+    }, 100);
+
   }
 
   const goNext = () => {

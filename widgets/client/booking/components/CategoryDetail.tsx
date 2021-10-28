@@ -67,7 +67,7 @@ class CategoryDetail extends React.Component<Props, State> {
       this.setState({ activeChild: el });
       setTimeout(() => {
         goNext();
-      }, 1000);
+      }, 100);
     }
 
     return (

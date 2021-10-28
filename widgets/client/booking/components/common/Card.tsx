@@ -39,6 +39,7 @@ class Card extends React.Component<Props, State> {
         }
       })
     }
+
     if (this.state.isSelected === true) {
       this.setState({
         style: {
