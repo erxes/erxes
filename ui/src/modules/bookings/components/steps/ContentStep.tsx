@@ -25,7 +25,8 @@ type Name =
   | 'line'
   | 'columns'
   | 'rows'
-  | 'margin';
+  | 'margin'
+  | 'navigationText';
 
 type Props = {
   onChangeBooking: (name: Name, value: any) => void;
@@ -38,6 +39,7 @@ type Props = {
   columns?: number;
   rows?: number;
   margin?: number;
+  navigationText?: string;
 };
 
 function ContentStep({
@@ -49,7 +51,8 @@ function ContentStep({
   line,
   columns,
   rows,
-  margin
+  margin,
+  navigationText
 }: Props) {
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
@@ -100,6 +103,22 @@ function ContentStep({
             onChange={e => onChangeBooking('image', e.length ? e[0] : null)}
             multiple={false}
             single={true}
+          />
+        </FormGroup>
+        <br />
+        <h4>{__('Widget Header')}</h4>
+
+        <FormGroup>
+          <Title>{__('Navigation')}</Title>
+          <Description>
+            Type in a word to display as the navigation button text
+          </Description>
+          <FormControl
+            type="text"
+            value={navigationText}
+            onChange={(e: any) =>
+              onChangeBooking('navigationText', e.target.value)
+            }
           />
         </FormGroup>
       </>

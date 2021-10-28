@@ -180,6 +180,7 @@ h4,p{
   grid-row-gap: 1.6em;
 }
 .flex-cards {
+  width:20%;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -191,8 +192,6 @@ h4,p{
   border-radius: 0.8em;
   padding: 1em 1.2em;
   background: #fff;
-  box-shadow: rgba(130, 131, 134, 0.25) 0px 4px 8px -2px,
-  rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   border: 1px solid rgba(107, 107, 107, 0.25) ;
   overflow: hidden;
   width: auto;
@@ -204,6 +203,10 @@ h4,p{
   height: fit-content;
   min-height: 4em;
   text-align: center;
+  &-disabled {
+    pointer-events:none; 
+    opacity:0.6;        
+  }
   h4{
     margin:1em;
     font-size: 1.8em;

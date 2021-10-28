@@ -9,6 +9,8 @@ import { IProductCategory } from '../../types';
 type Props = {
   goToBookings: () => void;
   categoryId?: string;
+  goToCategory: (categoryId: string) => void;
+  goToProduct: (productId: string) => void;
 };
 
 type QueryResponse = {
@@ -42,13 +44,21 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeCategory, goToBookings, getBooking }) => {
+    {({
+      activeCategory,
+      goToBookings,
+      getBooking,
+      goToCategory,
+      goToProduct
+    }) => {
       const booking = getBooking();
       return (
         <WithData
           goToBookings={goToBookings}
           categoryId={activeCategory}
           booking={booking}
+          goToCategory={goToCategory}
+          goToProduct={goToProduct}
         />
       );
     }}

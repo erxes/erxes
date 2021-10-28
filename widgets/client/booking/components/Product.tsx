@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IBookingData } from '../types';
-import { readFile } from '../../utils';
+import { readFile, __ } from '../../utils';
 import { IProduct } from '../../types';
 import Button from './common/Button';
 
@@ -116,20 +116,12 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
           {renderBtn("right")}
 
         </div>
-
-
-        <div className="w-40">
-          <p>
-            <strong>Price per unit:</strong> {product.unitPrice}
-          </p>
-          {renderFieldData()}
-        </div>
-
+        <div className="w-40">{renderFieldData()}</div>
       </div>
 
       <div className="footer">
         <Button
-          text="Back"
+          text={__('Back')}
           type="back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor, left: 0 }}

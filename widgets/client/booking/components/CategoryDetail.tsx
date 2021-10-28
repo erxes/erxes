@@ -1,89 +1,124 @@
 import * as React from 'react';
 import Button from './common/Button';
-import Card from '../components/common/Card'
+import Card from '../components/common/Card';
 import { IBookingData } from '../types';
 import { IProductCategory } from '../../types';
-import { readFile } from '../../utils';
-
+import { readFile, __ } from '../../utils';
 
 type Props = {
   goToBookings: () => void;
   category?: IProductCategory;
   booking?: IBookingData;
+  goToCategory: (categoryId: string) => void;
+  goToProduct: (productId: string) => void;
 };
 
-function CategoryDetail({ goToBookings, category, booking }: Props) {
-  if (!category || !booking) {
-    return null;
+type State = { activeChild: any };
+
+class CategoryDetail extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      activeChild: {}
+    };
   }
 
-  const { categoryTree } = booking;
-  const style = booking.style;
-  const description = category.description && category.description.replace(/<\/?[^>]+(>|$)/g, "")
+  render() {
+    const {
+      category,
+      booking,
+      goToBookings,
+      goToCategory,
+      goToProduct
+    } = this.props;
 
-  // use this
-  const childCategories = categoryTree.filter(
-    tree => tree.parentId === category._id && tree.type === 'category'
-  );
+    if (!category || !booking) {
+      return null;
+    }
 
-  const wrapperstyle = childCategories.length > 6 ? "cards" : "flex-cards"
 
-  let selectedId = "";
+    const { categoryTree, style, description } = booking;
 
-  const goNext = (id: any) => {
-    selectedId = id;
-  };
+    // use this
+    let childs = categoryTree.filter(
+      tree => tree.parentId === category._id && tree.type === 'category'
+    );
 
-  return (
-    <>
-      <div className="container">
-        <h4> {category.name} </h4>
-        <p> {description} </p>
-        <div className="flex-sa">
-          <div className="img-container w-50">
-            <img
-              src={readFile(category.attachment && category.attachment.url)}
-              alt={category.attachment && category.attachment.title}
-              style={{
-                maxHeight: '100%',
-                maxWidth: '100%'
-              }}
-            />n
+    if (childs.length < 1) {
+      childs = categoryTree.filter(
+        tree => tree.parentId === category._id && tree.type === 'product'
+      );
+    }
+
+    let isCardSelected = false;
+    const wrapperstyle = childs.length > 6 ? "cards" : "flex-cards"
+
+    const selectCard = (el: any) => {
+      if (this.state.activeChild._id !== el._id) {
+        isCardSelected = true;
+      }
+      this.setState({ activeChild: el });
+    }
+
+    const goNext = () => {
+      if (this.state.activeChild && this.state.activeChild._id !== null) {
+        this.state.activeChild.type === "category" ? goToCategory(this.state.activeChild._id) : goToProduct(this.state.activeChild._id)
+      }
+    }
+
+    return (
+      <>
+        <div className="container">
+          <h4> {category.name} </h4>
+          <p> {description} </p>
+
+          <div className="flex-sa">
+            <div className="img-container w-50">
+              <img
+                src={readFile(category.attachment && category.attachment.url)}
+                alt={category.attachment && category.attachment.title}
+                style={{
+                  maxHeight: '100%',
+                  maxWidth: '100%'
+                }}
+              />
+            </div>
+            <div className={wrapperstyle}>
+              {childs.map(el => {
+                return (
+                  <div onClick={() => selectCard(el)}>
+                    <Card
+                      key={el._id}
+                      title={el.name}
+                      style={style}
+                      status={el.status}
+                      isAnotherCardSelected={isCardSelected}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className={wrapperstyle}>
-            {childCategories.map((el, i = 1) => {
-              return (
-                <div onClick={() => goNext(el._id)} className={wrapperstyle}>
-                  <Card
-                    key={i}
-                    type={"category"}
-                    title={el.name}
-                    style={style}
-                  />
-                </div>
-              );
-            })}
+
+          <div className="footer">
+            <Button
+              text={'Back'}
+              type="back"
+              onClickHandler={goToBookings}
+              style={{ backgroundColor: style.widgetColor, left: 0 }}
+            />
+            <Button
+              text={'Next'}
+              type="next"
+              onClickHandler={goNext}
+              style={{ backgroundColor: style.widgetColor, right: 0 }}
+            />
           </div>
 
         </div>
-      </div>
-      <div />
-      <div className="footer">
-        <Button
-          text={'Back'}
-          type="back"
-          onClickHandler={goToBookings}
-          style={{ backgroundColor: style.widgetColor }}
-        />
-        <Button
-          text={'Next'}
-          type="back"
-          onClickHandler={goToBookings}
-          style={{ backgroundColor: style.widgetColor }}
-        />
-      </div>
-    </>
-  );
+      </>
+    );
+  }
 }
 
 export default CategoryDetail;

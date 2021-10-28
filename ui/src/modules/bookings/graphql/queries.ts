@@ -8,6 +8,8 @@ const bookingFields = `
   }
 
   viewCount
+  
+  navigationText
 
   description
   userFilters

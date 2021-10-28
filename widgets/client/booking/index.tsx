@@ -1,18 +1,19 @@
-import "erxes-icon/css/erxes.min.css";;
-import client from "../apollo-client";
-import { connection } from "./connection";
-import "./sass/style.scss";
-import { App } from "./containers";
+import 'erxes-icon/css/erxes.min.css';
+import client from '../apollo-client';
+import { connection } from './connection';
+import './sass/style.scss';
+import { App } from './containers';
 
-import gql from "graphql-tag";
-import { initStorage } from "../common";
-import { setLocale } from "../utils";
-import widgetConnect from "../widgetConnect";
-import { widgetsConnectMutation } from "./graphql";
+import gql from 'graphql-tag';
+import { initStorage } from '../common';
+import { setLocale } from '../utils';
+import widgetConnect from '../widgetConnect';
+import { widgetsConnectMutation } from './graphql';
+import { IIntegration } from '../types';
 
 widgetConnect({
   postParams: {
-    source: "fromBookings",
+    source: 'fromBookings'
   },
 
   connectMutation: (event: MessageEvent) => {
@@ -27,27 +28,27 @@ widgetConnect({
       .mutate({
         mutation: gql(widgetsConnectMutation),
         variables: {
-          _id: setting.integration_id,
-        },
+          _id: setting.integration_id
+        }
       })
-      .catch((e) => {
+      .catch(e => {
         console.log(e.message);
       });
   },
 
-  connectCallback: (data: { widgetsBookingConnect: any }) => {
+  connectCallback: (data: { widgetsBookingConnect: IIntegration }) => {
     const response = data.widgetsBookingConnect;
 
     if (!response) {
-      throw new Error("Integration not found");
+      throw new Error('Integration not found');
     }
 
     // save connection info
     connection.data.integration = response;
 
     // set language
-    setLocale(response.languageCode || "en");
+    setLocale(response.languageCode || 'en');
   },
 
-  AppContainer: App,
+  AppContainer: App
 });

@@ -109,6 +109,7 @@ export interface IBookingData {
   userFilters?: string[];
   productCategoryId?: string;
   viewCount?: number;
+  navigationText?: string;
 }
 
 export interface IBookingDataDocument extends IBookingData, Document {
@@ -420,6 +421,11 @@ const bookingSchema = new Schema(
       type: Number,
       optional: true,
       label: 'View count'
+    }),
+    navigationText: field({
+      type: String,
+      optional: true,
+      label: 'Navigation text'
     })
   },
   { _id: false }

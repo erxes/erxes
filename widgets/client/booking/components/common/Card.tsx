@@ -3,16 +3,16 @@ import { IStyle } from '../../types';
 
 type Props = {
   title: string;
-  key: any;
-  type: string;
   style: IStyle;
   status?: string;
   description?: string;
-  goTo?: () => void;
+  isAnotherCardSelected?: boolean;
 };
 
 type State = {
   style: {};
+  isSelected: boolean;
+  isAnotherCardSelected?: boolean;
 };
 
 class Card extends React.Component<Props, State> {
@@ -20,50 +20,70 @@ class Card extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      isSelected: false,
+      isAnotherCardSelected: false,
       style: {
-        borderColor: "",
-        color: "",
-        boxShadow: "",
-        transition: "all 0.5s",
+        borderColor: this.props.style.productAvailable,
+        backgroundColor: "#fff",
+        color: this.props.style.textAvailable,
+        transition: "all 0.2s",
       }
     };
   }
 
   onMouseEnter = () => {
-    this.setState({
-      style: {
-        borderColor: this.props.style.productAvailable,
-        boxShadow: "none",
-        color: this.props.style.widgetColor
-      }
-    });
+    if (this.state.isSelected === false) {
+      this.setState({
+        style: {
+          borderColor: this.props.style.productAvailable,
+          backgroundColor: this.props.style.productAvailable,
+          color: "#fff",
+          transition: "all 0.2s",
+        }
+      });
+    }
   };
 
   onMouseLeave = () => {
-    this.setState({
-      style: {
-        borderColor: "",
-        boxShadow: "",
-        transition: "all 0.5s",
-        color: ""
-      }
-    });
+    if (this.state.isSelected === false) {
+      this.setState({
+        style: {
+          borderColor: this.props.style.productAvailable,
+          backgroundColor: "#fff",
+          color: this.props.style.textAvailable,
+          transition: "all 0.2s",
+        }
+      });
+    }
   }
 
   onClick = () => {
     this.setState({
+      isSelected: !this.state.isSelected,
       style: {
         borderColor: this.props.style.productSelected,
-        boxShadow: "",
-        transition: "all 0.5s",
-        color: this.props.style.textSelected
+        backgroundColor: this.props.style.productSelected,
+        color: "#fff",
+        transition: "all 0.2s",
       }
     });
   }
 
   render() {
+    if (this.props.isAnotherCardSelected === true) {
+      this.setState({
+        isSelected: false,
+        style: {
+          borderColor: this.props.style.productAvailable,
+          backgroundColor: "#fff",
+          color: this.props.style.textAvailable,
+          transition: "all 0.2s",
+        }
+      })
+    }
+
     return (
-      <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} className={`card`} style={this.state.style} >
+      <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onClick={this.onClick} className={`card card-${this.props.status}`} style={this.state.style} >
         <h4> {this.props.title} </h4>
         <p> {this.props.description} </p>
       </div>
