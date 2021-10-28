@@ -183,7 +183,12 @@ const boardQueries = {
               $or: [
                 {
                   $and: [
-                    { condition: 'include' },
+                    {
+                      $or: [
+                        { condition: 'include' },
+                        { condition: { $exists: false } }
+                      ]
+                    },
                     {
                       $or: [{ memberIds: user._id }, { userId: user._id }]
                     }
@@ -193,14 +198,6 @@ const boardQueries = {
                   $and: [
                     { condition: 'exclude' },
                     { memberIds: { $nin: [user._id] } }
-                  ]
-                },
-                {
-                  $and: [
-                    { condition: { $exists: false } },
-                    {
-                      $or: [{ memberIds: user._id }, { userId: user._id }]
-                    }
                   ]
                 }
               ]

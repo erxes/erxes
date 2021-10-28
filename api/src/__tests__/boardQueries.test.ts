@@ -208,6 +208,24 @@ describe('boardQueries', () => {
     expect(response.length).toBe(3);
   });
 
+  test('Pipelines without condition', async () => {
+    const arg = { visibility: 'private' };
+    const user1 = await userFactory({ isOwner: false });
+
+    await pipelineFactory({ ...arg, condition: 'include', memberIds: [user1] });
+    await pipelineFactory({ ...arg, condition: 'exclude', memberIds: [user1] });
+    const pip = await pipelineFactory({ ...arg, memberIds: [user1] });
+    await pip.updateOne({ $unset: { condition: 1 } });
+
+    const response1 = await graphqlRequest(
+      pipelineQry,
+      'pipelines',
+      {},
+      { user: user1 }
+    );
+    expect(response1.length).toBe(2);
+  });
+
   test('Pipelines with condition', async () => {
     const board = await boardFactory();
     const user = await userFactory({});
@@ -228,10 +246,6 @@ describe('boardQueries', () => {
       boardId: board._id,
       visibility: 'public'
     };
-    const args4 = {
-      boardId: board.id,
-      visibility: 'private'
-    };
 
     await pipelineFactory({
       ...args1,
@@ -245,35 +259,10 @@ describe('boardQueries', () => {
       ...args1,
       memberIds: [user2._id]
     });
-
-    await (await pipelineFactory(args3)).updateOne({
-      $set: { condition: null }
-    });
-    await (
-      await pipelineFactory({ ...args3, memberIds: [user1._id] })
-    ).updateOne({
-      $set: { condition: null }
-    });
-    await (await pipelineFactory(args4)).updateOne({
-      $set: { condition: undefined }
-    });
-    await (
-      await pipelineFactory({ ...args4, memberIds: [user2._id] })
-    ).updateOne({
-      $set: { condition: undefined }
-    });
-    await (
-      await pipelineFactory({ ...args4, memberIds: [user1._id] })
-    ).updateOne({
-      $set: { condition: undefined }
-    });
-    await (
-      await pipelineFactory({ ...args4, memberIds: [user2._id, user1._id] })
-    ).updateOne({ $set: { condition: undefined } });
-    await (
-      await pipelineFactory({ ...args4, memberIds: [user._id] })
-    ).updateOne({
-      $set: { condition: undefined }
+    await pipelineFactory({
+      ...args3,
+      condition: 'exclude',
+      memberIds: [user._id, user1._id, user2._id]
     });
 
     const responseUser = await graphqlRequest(
@@ -282,14 +271,12 @@ describe('boardQueries', () => {
       {},
       { user }
     );
-
     const responseUser1 = await graphqlRequest(
       pipelineQry,
       'pipelines',
       {},
       { user: user1 }
     );
-
     const responseUser2 = await graphqlRequest(
       pipelineQry,
       'pipelines',
@@ -297,22 +284,14 @@ describe('boardQueries', () => {
       { user: user2 }
     );
 
-    console.log(
-      '----',
-      responseUser,
-      '++++',
-      responseUser1,
-      '=====',
-      responseUser2
-    );
-    expect(responseUser.length).toBe(10);
-    expect(responseUser1.length).toBe(6);
-    expect(responseUser2.length).toBe(6);
+    expect(responseUser.length).toBe(4);
+    expect(responseUser1.length).toBe(2);
+    expect(responseUser2.length).toBe(3);
 
     expect(responseUser[0].condition).toBe('include');
     expect(responseUser[1].condition).toBe('exclude');
     expect(responseUser[2].condition).toBe('include');
-    expect(responseUser[3].condition).toBe(null);
+    expect(responseUser[3].condition).toBe('exclude');
 
     expect(responseUser[0].visibility).toBe('private');
     expect(responseUser[1].visibility).toBe('private');
@@ -323,7 +302,7 @@ describe('boardQueries', () => {
     expect(responseMemberIds[0].includes(user._id)).toBe(true);
     expect(responseMemberIds[1].includes(user._id)).toBe(false);
     expect(responseMemberIds[2].includes(user._id)).toBe(false);
-    expect(responseMemberIds[3].includes(user._id)).toBe(false);
+    expect(responseMemberIds[3].includes(user._id)).toBe(true);
 
     const responseMemberIds1 = await responseUser1.map(e => e.memberIds);
     expect(responseMemberIds1[0].includes(user1._id)).toBe(true);
@@ -332,7 +311,7 @@ describe('boardQueries', () => {
     const responseMemberIds2 = await responseUser2.map(e => e.memberIds);
     expect(responseMemberIds2[0].includes(user2._id)).toBe(false);
     expect(responseMemberIds2[1].includes(user2._id)).toBe(true);
-    expect(responseMemberIds2[2].includes(user2._id)).toBe(false);
+    expect(responseMemberIds2[2].includes(user2._id)).toBe(true);
   });
 
   test('Pipelines isAll', async () => {
