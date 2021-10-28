@@ -3,7 +3,7 @@ import Button from './common/Button';
 import Card from '../components/common/Card';
 import { IBookingData } from '../types';
 import { IProductCategory } from '../../types';
-import { readFile } from '../../utils';
+import { readFile, __ } from '../../utils';
 
 type Props = {
   goToBookings: () => void;
@@ -90,13 +90,13 @@ class CategoryDetail extends React.Component<Props> {
         <div />
         <div className="footer">
           <Button
-            text={'Back'}
+            text={__('Back')}
             type="back"
             onClickHandler={goToBookings}
             style={{ backgroundColor: widgetColor }}
           />
           <Button
-            text={'Next'}
+            text={__('Next')}
             type="back"
             onClickHandler={goToBookings}
             style={{ backgroundColor: widgetColor }}

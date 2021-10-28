@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IBookingData } from '../types';
-import { readFile } from '../../utils';
+import { readFile, __ } from '../../utils';
 import { IProduct } from '../../types';
 import Button from './common/Button';
 
@@ -82,11 +82,9 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
             />
           </div>
           <div className="flex-center">
-            {product.attachmentMore && product.attachmentMore.length > 0 ? (
-              "<"
-            ) : (
-              ''
-            )}
+            {product.attachmentMore && product.attachmentMore.length > 0
+              ? '<'
+              : ''}
             <div id="carousel">
               {(product.attachmentMore || []).map((img, index) => (
                 <div
@@ -102,11 +100,9 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
                 </div>
               ))}
             </div>
-            {product.attachmentMore && product.attachmentMore.length > 0 ? (
-              ">"
-            ) : (
-              ''
-            )}
+            {product.attachmentMore && product.attachmentMore.length > 0
+              ? '>'
+              : ''}
           </div>
         </div>
         <div>
@@ -119,7 +115,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
 
       <div className="footer">
         <Button
-          text="Back"
+          text={__('Back')}
           type="back"
           onClickHandler={goToBookings}
           style={{ backgroundColor: widgetColor, left: 0 }}

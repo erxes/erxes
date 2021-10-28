@@ -2,7 +2,7 @@ import * as React from 'react';
 import { IBookingData } from '../types';
 import { Card } from '../containers';
 import Button from './common/Button';
-import { readFile } from '../../utils';
+import { readFile, __ } from '../../utils';
 type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
@@ -67,13 +67,13 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     return (
       <div className="footer">
         <Button
-          text="Back"
+          text={__('Back')}
           type="back"
           onClickHandler={() => goToIntro()}
           style={{ backgroundColor: style.widgetColor }}
         />
         <Button
-          text="Next"
+          text={__('Next')}
           type="next"
           onClickHandler={() => goToIntro()}
           style={{ backgroundColor: style.widgetColor }}
