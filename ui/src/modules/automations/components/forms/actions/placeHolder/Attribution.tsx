@@ -39,9 +39,9 @@ export default class Attribution extends React.Component<Props> {
   onClickAttribute = item => {
     this.overlay.hide();
 
-    const { config, setConfig, inputName = 'value' } = this.props;
+    const { config, setConfig, onlySet, inputName = 'value' } = this.props;
 
-    if (this.props.onlySet) {
+    if (onlySet) {
       config[inputName] = `{{ ${item.name} }}`;
     } else {
       config[inputName] = `${config[inputName] || ''}${this.getComma(
@@ -56,7 +56,7 @@ export default class Attribution extends React.Component<Props> {
     const { attributions, attrType } = this.props;
     let filterAttrs = attributions;
 
-    if (attrType) {
+    if (attrType && attrType !== 'String') {
       filterAttrs = filterAttrs.filter(f => f.type === attrType);
     }
 
