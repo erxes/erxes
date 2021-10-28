@@ -34,6 +34,7 @@ export const types = `
     description: String
     parentId: String
     type: String
+    status: String
     
     count: Int
   }
