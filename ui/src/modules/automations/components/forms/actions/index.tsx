@@ -6,6 +6,7 @@ import Button from 'modules/common/components/Button';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 
 type Props = {
@@ -48,5 +49,6 @@ export const ActionForms = {
   delay: Delay,
   setProperty: SetProperty,
   if: IfForm,
-  boardItem: BoardItemForm
+  boardItem: BoardItemForm,
+  customCode: CustomCode
 };
