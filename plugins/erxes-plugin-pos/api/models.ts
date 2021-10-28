@@ -20,7 +20,7 @@ export const posSChema = {
   uiOptions: { type: Object, label: 'UI Options' },
   formSectionTitle: { type: String, label: 'Form section title' },
   formIntegrationIds: { type: [String], label: 'Form integration ids' },
-  token: { type: String, label: 'Pos token' },
+  token: { type: String, label: 'Pos token' }
 };
 
 class Pos {
@@ -64,7 +64,7 @@ class Pos {
         userId: user._id,
         integrationId: integration._id,
         createdAt: new Date(),
-        token: this.generateToken(),
+        token: this.generateToken()
       });
     } catch (e) {
       throw new Error(
@@ -105,19 +105,19 @@ class Pos {
 export const productGroupSchema: any = {
   _id: { pkey: true },
   name: { type: String, label: 'Name' },
-  description: { type: String, label: 'Description' },
+  description: { type: String, label: 'Description', optional: true },
   posId: { type: String, label: 'Pos id' },
   categoryIds: { type: [String], optional: true, label: 'Category ids' },
   excludedCategoryIds: {
     type: [String],
     optional: true,
-    label: 'Exclude Category ids',
+    label: 'Exclude Category ids'
   },
   excludedProductIds: {
     type: [String],
     optional: true,
-    label: 'Exclude Product ids',
-  },
+    label: 'Exclude Product ids'
+  }
 };
 
 class ProductGroup {
@@ -130,7 +130,7 @@ class ProductGroup {
       userId: user._id,
       name,
       description,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
   }
 
@@ -144,7 +144,7 @@ class ProductGroup {
     await models.ProductGroups.updateOne(
       { _id },
       {
-        $set: doc,
+        $set: doc
       }
     );
 
@@ -160,11 +160,11 @@ export default [
   {
     name: 'Pos',
     schema: posSChema,
-    klass: Pos,
+    klass: Pos
   },
   {
     name: 'ProductGroups',
     schema: productGroupSchema,
-    klass: ProductGroup,
-  },
+    klass: ProductGroup
+  }
 ];
