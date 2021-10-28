@@ -33,7 +33,7 @@ export default function List({ listQuery }: Props) {
 
   const trigger = (
     <a href="#settings" tabIndex={0}>
-      <Icon icon="plus" size={10} />
+      <Icon icon="plus-circle" />
     </a>
   );
 

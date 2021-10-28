@@ -4,6 +4,7 @@ import { useQuery } from 'react-apollo';
 
 import { queries } from '../../graphql';
 import Box from '../../components/structure/Box';
+import Spinner from 'modules/common/components/Spinner';
 
 export default function BoxContainer() {
   const { data, loading, refetch } = useQuery(gql(queries.structureDetail), {
@@ -11,7 +12,7 @@ export default function BoxContainer() {
   });
 
   if (loading) {
-    return <div>...</div>;
+    return <Spinner />;
   }
 
   return <Box refetch={refetch} structure={data.structureDetail} />;

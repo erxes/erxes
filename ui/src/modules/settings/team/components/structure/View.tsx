@@ -1,5 +1,5 @@
 import React from 'react';
-import { SidebarList } from 'modules/layout/styles';
+import { SidebarList, FieldStyle, SidebarCounter } from 'modules/layout/styles';
 import { IStructure } from '../../types';
 import { __ } from 'modules/common/utils';
 import Box from 'modules/common/components/Box';
@@ -17,6 +17,15 @@ export default function View({ structure, showEdit }: Props) {
     </a>
   );
 
+  const renderRow = (name: string, value: any) => {
+    return (
+      <li>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{value || '-'}</SidebarCounter>
+      </li>
+    );
+  };
+
   const { title, supervisor, description, code } = structure;
 
   return (
@@ -27,28 +36,15 @@ export default function View({ structure, showEdit }: Props) {
       name="showStructure"
     >
       <SidebarList className="no-link">
-        <li>
-          <b>{__(`Name`)}</b>:{` `}
-          {title}
-        </li>
-        {description && (
-          <li>
-            <b>{__(`Description`)}</b>: {description}
-          </li>
+        {renderRow('Name', title)}
+        {renderRow('Description', description)}
+        {renderRow(
+          'Supervisor',
+          supervisor.details
+            ? supervisor.details.fullName || supervisor.email
+            : supervisor.email
         )}
-        {supervisor && (
-          <li>
-            <b>{__(`Supervisor`)}</b>: {` `}
-            {supervisor.details
-              ? supervisor.details.fullName || supervisor.email
-              : supervisor.email}
-          </li>
-        )}
-        {code && (
-          <li>
-            <b>{__(`Code`)}</b>: {code}
-          </li>
-        )}
+        {renderRow('Code', code)}
       </SidebarList>
     </Box>
   );

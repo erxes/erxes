@@ -11,10 +11,12 @@ type Props = {
 
 export default function DumpBox({ structure, refetch }: Props) {
   const [showView, setShowView] = useState(Boolean(structure));
+  console.log(structure);
+  if (showView) {
+    return <View structure={structure} showEdit={() => setShowView(false)} />;
+  }
 
-  return showView ? (
-    <View structure={structure} showEdit={() => setShowView(false)} />
-  ) : (
+  return (
     <Form
       refetch={refetch}
       structure={structure}
