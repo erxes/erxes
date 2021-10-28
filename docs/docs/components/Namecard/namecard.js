@@ -1,18 +1,17 @@
 import React from "react";
 import NameCard from "erxes-ui/lib/components/nameCard/NameCard";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../common.js";
 import styles from "../../../src/components/styles.module.css";
 import Table from "erxes-ui/lib/components/table/index";
 
 export function CardComponent(props) {
-  const { type, info, name, mail, table = [] } = props;
+  const { type, info, name, mail } = props;
 
   const propDatas = (propName, fullName, additional, email) => {
     const kind = {
       user: {
         [propName]: propName === "username" ? name : { [fullName]: name },
-        email: mail,
+        email: email && mail,
       },
       [additional]: info,
     };
@@ -24,6 +23,20 @@ export function CardComponent(props) {
     return datas;
   };
 
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/}},"/g, "}} ");
+    string = string.replace(/},"/g, "}, ");
+    string = string.replace(/":/g, ":");
+    string = string.replace(/{"/g, "{");
+    string = string.slice(1, string.length - 1);
+    string = string.replace(/user:/g, "user=");
+    string = string.replace(/avatarSize:/g, "avatarSize=");
+    string = string.replace(/secondLine:/g, "secondLine=");
+
+    return string;
+  }
+
   const renderBlock = (propName, fullName, additional, email) => {
     return (
       <>
@@ -31,7 +44,7 @@ export function CardComponent(props) {
           <NameCard {...propDatas(propName, fullName, additional, email)} />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<NameCard ${JSON.stringify(
+          {`<>\n\t<NameCard ${stringify(
             propDatas(propName, fullName, additional, email)
           )} />\n</>`}
         </CodeBlock>{" "}
