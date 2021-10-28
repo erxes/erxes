@@ -50,8 +50,12 @@ class GroupForm extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
+  onClickCancel = () => {
+    this.props.closeModal();
+  };
+
   render() {
-    const { mode, onCancel } = this.props;
+    const { mode } = this.props;
     const { group, categories, products } = this.state;
 
     const categoryOptions = categories.map(e => {
@@ -158,7 +162,7 @@ class GroupForm extends React.Component<Props, State> {
             btnStyle="simple"
             type="button"
             icon="times-circle"
-            onClick={onCancel}
+            onClick={this.onClickCancel}
           >
             Cancel
           </Button>

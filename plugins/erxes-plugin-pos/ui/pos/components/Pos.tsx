@@ -169,7 +169,7 @@ class Lead extends React.Component<Props, State> {
     const SmallLoader = ButtonMutate.SmallLoader;
 
     const cancelButton = (
-      <Link to="/forms">
+      <Link to={`${PLUGIN_URL}/pos`}>
         <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
