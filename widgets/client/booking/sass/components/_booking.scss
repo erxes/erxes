@@ -34,7 +34,16 @@ h4,p{
     margin-inline-end: 0px;
     margin-bottom: 1em;
 }
-
+.nav{
+  width:50%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  div{
+    font-size: 2em;
+    margin:0 10px;
+  }
+}
 .slider{
   width:60%;
   display: flex;

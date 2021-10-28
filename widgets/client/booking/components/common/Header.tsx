@@ -35,7 +35,7 @@ class Header extends React.Component<Props, State> {
     }
 
     const style = booking.style;
-    const navigationText = booking.navigationText
+    const navigationText = booking && booking.navigationText || "Navigation"
 
     return (
       <div className={`booking-navigation bn-${style.widgetColor} slide-in`}>
@@ -64,8 +64,11 @@ class Header extends React.Component<Props, State> {
       <>
         {this.state.isOpen === true ? this.renderNav() : ''}
         <div className="header" onClick={this.toggleNavigation} >
-          <Burger />
-          <p>{navigationText}</p>
+          <div className="nav">
+            <Burger />
+            <div>{navigationText}</div>
+          </div>
+
         </div>
       </>
     );
