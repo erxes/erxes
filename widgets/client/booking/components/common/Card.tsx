@@ -21,51 +21,35 @@ class Card extends React.Component<Props, State> {
 
     this.state = {
       isSelected: false,
-      isAnotherCardSelected: false,
       style: {
-        borderColor: this.props.style.productAvailable,
-        backgroundColor: "#fff",
-        color: this.props.style.textAvailable,
+        backgroundColor: this.props.style.productAvailable,
+        color: "#fff",
         transition: "all 0.2s",
       }
     };
   }
 
-  onMouseEnter = () => {
+  onClick = () => {
     if (this.state.isSelected === false) {
       this.setState({
         style: {
-          borderColor: this.props.style.productAvailable,
+          backgroundColor: this.props.style.productSelected,
+          color: "#fff",
+          transition: "all 0.2s",
+        }
+      })
+    }
+    if (this.state.isSelected === true) {
+      this.setState({
+        style: {
           backgroundColor: this.props.style.productAvailable,
           color: "#fff",
           transition: "all 0.2s",
         }
-      });
+      })
     }
-  };
-
-  onMouseLeave = () => {
-    if (this.state.isSelected === false) {
-      this.setState({
-        style: {
-          borderColor: this.props.style.productAvailable,
-          backgroundColor: "#fff",
-          color: this.props.style.textAvailable,
-          transition: "all 0.2s",
-        }
-      });
-    }
-  }
-
-  onClick = () => {
     this.setState({
       isSelected: !this.state.isSelected,
-      style: {
-        borderColor: this.props.style.productSelected,
-        backgroundColor: this.props.style.productSelected,
-        color: "#fff",
-        transition: "all 0.2s",
-      }
     });
   }
 
@@ -74,16 +58,15 @@ class Card extends React.Component<Props, State> {
       this.setState({
         isSelected: false,
         style: {
-          borderColor: this.props.style.productAvailable,
-          backgroundColor: "#fff",
-          color: this.props.style.textAvailable,
+          backgroundColor: this.props.style.productAvailable,
+          color: "#fff",
           transition: "all 0.2s",
         }
       })
     }
 
     return (
-      <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onClick={this.onClick} className={`card card-${this.props.status}`} style={this.state.style} >
+      <div onClick={this.onClick} className={`card card-${this.props.status}`} style={this.state.style} >
         <h4> {this.props.title} </h4>
         <p> {this.props.description} </p>
       </div>
