@@ -1,4 +1,23 @@
-import { paginate } from 'erxes-api-utils';
+export const paginate = (
+  collection,
+  params: {
+    ids?: string[];
+    page?: number;
+    perPage?: number;
+    excludeIds?: boolean;
+  }
+) => {
+  const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
+
+  const _page = Number(page || "1");
+  const _limit = Number(perPage || "20");
+
+  if (ids && ids.length > 0) {
+    return excludeIds ? collection.limit(_limit) : collection;
+  }
+
+  return collection.limit(_limit).skip((_page - 1) * _limit);
+};
 
 const generateFilterQuery = async (
   models,

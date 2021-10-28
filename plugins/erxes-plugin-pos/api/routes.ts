@@ -1,5 +1,3 @@
-import { getEnv } from 'erxes-api-utils';
-
 export default {
   routes: [
     {
@@ -33,8 +31,8 @@ export default {
             kind: 'lead'
           });
 
-          const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN' });
-
+          const WIDGETS_DOMAIN = process.env.WIDGETS_DOMAIN;
+          
           const forms = [];
 
           for (const integration of leadIntegrations) {
