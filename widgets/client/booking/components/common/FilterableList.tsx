@@ -10,7 +10,7 @@ type Props = {
   treeView?: boolean;
   parentId?: string;
   styles: IStyle;
-  selectedItem: string;
+  selectedItem?: string;
 
   changeRoute: (item: any) => void;
 

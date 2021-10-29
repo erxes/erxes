@@ -10,7 +10,7 @@ type Props = {
   goToCategory?: (categoryId: string) => void;
   goToProduct?: (productId: string) => void;
   booking?: IBookingData;
-  selectedItem: string;
+  selectedItem?: string;
 };
 
 function HeaderContainer(props: ChildProps<Props>) {

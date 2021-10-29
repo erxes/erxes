@@ -7,7 +7,7 @@ type Props = {
   parentId?: string;
   changeRoute: (item: any) => void;
   booking?: IBookingData;
-  selectedItem: string;
+  selectedItem?: string;
 };
 
 type State = {
