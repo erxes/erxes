@@ -6,7 +6,7 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { EMPTY_CONTENT_POPUPS } from 'modules/settings/constants';
+import { EMPTY_CONTENT_BOOKINGS } from 'modules/settings/constants';
 import React from 'react';
 import { IBookingIntegration } from '../types';
 import Sidebar from './Sidebar';
@@ -143,7 +143,10 @@ function BookingList(props: Props) {
           loading={false}
           count={totalCount}
           emptyContent={
-            <EmptyContent content={EMPTY_CONTENT_POPUPS} maxItemWidth="360px" />
+            <EmptyContent
+              content={EMPTY_CONTENT_BOOKINGS}
+              maxItemWidth="360px"
+            />
           }
         />
       }
