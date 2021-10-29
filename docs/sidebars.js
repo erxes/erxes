@@ -132,6 +132,7 @@ module.exports = {
         "components/ErrorMsg/errormsg",
         "components/Info/info",
         "components/Label/label",
+        "components/ModifiableList/modifiablelist",
         "components/Namecard/namecard",
         "components/ProgressBar/progressbar",
         "components/SortableList/sortablelist",
