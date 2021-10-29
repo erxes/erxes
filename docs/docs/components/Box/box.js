@@ -9,11 +9,7 @@ import "erxes-icon/css/erxes.min.css";
 export function BoxComponent(props) {
   const { type, table = [] } = props;
 
-  const propDatas = (propName) => {
-    // const extraButtons = propName === "extraButtons" && [
-    //   <Button btnStyle="simple">Extra button</Button>,
-    // ];
-
+  const propDatas = (propName, extra) => {
     const kind = {
       [propName]: propName !== "extraButtons" && true,
     };
@@ -22,20 +18,18 @@ export function BoxComponent(props) {
       ...kind,
       title: "Title",
       name: "name",
-      extraButtons: propName === "extraButtons" && [
-        <Button btnStyle="simple">Extra button</Button>,
-      ]
+      extraButtons: extra && [<Button btnStyle="simple">Extra button</Button>],
     };
 
     return datas;
   };
 
-  const renderBlock = (propName) => {
+  const renderBlock = (propName, extra) => {
     // console.log(JSON.stringify(propDatas(propName)));
     return (
       <>
         <div className={styles.styled}>
-          <Box {...propDatas(propName)}>
+          <Box {...propDatas(propName, extra)}>
             <div className={styles.styled}>
               <p>
                 Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
@@ -58,11 +52,11 @@ export function BoxComponent(props) {
             </div>
           </Box>
         </div>
-        <CodeBlock className="language-jsx">
+        {/* <CodeBlock className="language-jsx">
           {`<>\n\t<Button ${stringify(
               propDatas(propName)
             )} >paragraphhhhhh</Button>\n</>`}
-        </CodeBlock>
+        </CodeBlock> */}
       </>
     );
   };
@@ -80,7 +74,7 @@ export function BoxComponent(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("extraButtons");
+    return renderBlock("collapsible", "extraButtons");
   }
 
   if (type === "APIbox") {
