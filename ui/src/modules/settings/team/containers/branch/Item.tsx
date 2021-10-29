@@ -10,7 +10,7 @@ import { IBranch } from '../../types';
 type Props = {
   branch: IBranch;
   refetch: () => void;
-  depth?: number;
+  isChild?: boolean;
 };
 
 export default function ItemContainer(props: Props) {

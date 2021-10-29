@@ -1,5 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '../styles';
 import { SidebarList } from 'modules/layout/styles';
 
@@ -86,8 +87,21 @@ const FormTable = styled.table`
   }
 `;
 
-const SideList = styled(SidebarListItem)`
+const SideList = styledTS<{ isChild?: boolean }>(styled(SidebarListItem))`
   white-space: normal !important;
+  border: 0;
+  padding-left: ${props => props.isChild && `30px`} !important;
+
+  > span {
+    width: 90%;
+    display: flex;
+
+    > i {
+      margin-right: 5px;
+      color: ${props =>
+        props.isChild ? colors.colorCoreBlue : colors.colorCoreGreen};
+    }
+  }
 `;
 
 const StructureList = styled(SidebarList)`
