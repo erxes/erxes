@@ -22,6 +22,12 @@ const MainActionBar = asyncComponent(() =>
   )
 );
 
+const GanttChart = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MainActionBar" */ '../boards/components/gantt/GanttChart'
+  )
+);
+
 const tasks = () => {
   let link = '/task/board';
 
@@ -75,6 +81,8 @@ const routes = () => {
   return (
     <>
       <Route key="/task" exact={true} path="/task" render={tasks} />
+
+      <Route key="/gantt" exact={true} path="/gantt" render={GanttChart} />
 
       <Route
         key="/task/board"

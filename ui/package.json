@@ -43,6 +43,7 @@
     "erxes-icon": "^1.2.1",
     "erxes-ui": "^0.0.77",
     "fuzzysearch-highlight": "^1.0.3",
+    "gantt-task-react": "^0.2.2",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
     "i18n-react": "^0.6.4",

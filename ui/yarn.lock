@@ -5546,6 +5546,11 @@ fuzzysearch-highlight@^1.0.3:
   resolved "https://registry.yarnpkg.com/fuzzysearch-highlight/-/fuzzysearch-highlight-1.0.3.tgz#d4012f9f8e0778914b6b292b2c074301faa70b55"
   integrity sha512-ZnMrUqkiOXTbsWWm3mXqwLC/042+yaBdCSgXCaKq0C66EKTbg4P6j+aE++Myx5PZiq7n/3R/cPMBt84dM2mXog==
 
+gantt-task-react@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/gantt-task-react/-/gantt-task-react-0.2.2.tgz#6e0c906d4319db0ffa9b17a8595b01d75f360161"
+  integrity sha512-RWft2yGdA31EOj3AcbHI+7Foch6KsP5714IdPFiHzHctpgMg2hiXTlum1K38qW71sNPJbDzdf5xoc0l8oo70Qw==
+
 gauge@~2.7.3:
   version "2.7.4"
   resolved "https://registry.yarnpkg.com/gauge/-/gauge-2.7.4.tgz#2c03405c7538c39d7eb37b317022e325fb018bf7"
