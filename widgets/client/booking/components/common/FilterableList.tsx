@@ -107,11 +107,7 @@ class FilterableList extends React.Component<Props, State> {
     return hasChildren ? (
       <div>
         {' '}
-        {isOpen ? (
-          <div style={downTraingle}></div>
-        ) : (
-          <div style={rightTraingle}></div>
-        )}
+        {isOpen ? <div style={downTraingle} /> : <div style={rightTraingle} />}
       </div>
     ) : null;
   }
@@ -148,7 +144,9 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <li
         key={item._id}
-        className={`list flex-sb ${(item.status === "disabled" || item.count === 0) ? 'card-disabled' : ''}`}
+        className={`list flex-sb ${
+          item.status === 'disabled' || item.count === 0 ? 'card-disabled' : ''
+        }`}
         style={
           this.state.selectedItem && item._id === this.state.selectedItem._id
             ? { fontWeight: 500, color: productSelected }
@@ -183,7 +181,7 @@ class FilterableList extends React.Component<Props, State> {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
 
-    let stockCnt = parent.count;
+    const stockCnt = parent.count;
 
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;

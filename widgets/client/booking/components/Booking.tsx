@@ -38,7 +38,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     gap: margin
   };
 
-  let selectedId = "";
+  let selectedId = '';
   let isAnotherCardSelected = false;
 
   const selectCard = (el: any) => {
@@ -48,28 +48,26 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
 
     selectedId = el._id;
     const count: string = el.count!;
-    const status = (el.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
+    const status =
+      el.status === 'disabled' || Number(count) === 0 ? 'disabled' : '';
 
     setTimeout(() => {
-      if (status !== "disabled") {
-        goToCategory(selectedId)
+      if (status !== 'disabled') {
+        goToCategory(selectedId);
       }
     }, 100);
-
-  }
+  };
 
   const Body = () => {
     return (
       <div className="body">
-        <div style={{ maxHeight: "40vh" }} className="img-container">
-          <img
-            src={readFile(attachment && attachment.url)}
-            alt={'s'}
-          />
+        <div style={{ maxHeight: '40vh' }} className="img-container">
+          <img src={readFile(attachment && attachment.url)} alt={'s'} />
         </div>
         <div className="cards" style={gridStyle}>
-          {childCategories.map((el) => {
+          {childCategories.map(el => {
             return (
+              // tslint:disable-next-line: jsx-key
               <div onClick={() => selectCard(el)}>
                 <Card
                   key={el._id}
@@ -81,7 +79,6 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
                   isAnotherCardSelected={isAnotherCardSelected}
                 />
               </div>
-
             );
           })}
         </div>

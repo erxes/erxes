@@ -24,8 +24,8 @@ class Card extends React.Component<Props, State> {
       isSelected: false,
       style: {
         backgroundColor: this.props.style.productAvailable,
-        color: "#fff",
-        transition: "all 0.2s",
+        color: '#fff',
+        transition: 'all 0.2s'
       }
     };
   }
@@ -35,25 +35,25 @@ class Card extends React.Component<Props, State> {
       this.setState({
         style: {
           backgroundColor: this.props.style.productSelected,
-          color: "#fff",
-          transition: "all 0.2s",
+          color: '#fff',
+          transition: 'all 0.2s'
         }
-      })
+      });
     }
 
     if (this.state.isSelected === true) {
       this.setState({
         style: {
           backgroundColor: this.props.style.productAvailable,
-          color: "#fff",
-          transition: "all 0.2s",
+          color: '#fff',
+          transition: 'all 0.2s'
         }
-      })
+      });
     }
     this.setState({
-      isSelected: !this.state.isSelected,
+      isSelected: !this.state.isSelected
     });
-  }
+  };
 
   render() {
     if (this.props.isAnotherCardSelected === true) {
@@ -61,23 +61,27 @@ class Card extends React.Component<Props, State> {
         isSelected: false,
         style: {
           backgroundColor: this.props.style.productAvailable,
-          color: "#fff",
-          transition: "all 0.2s",
+          color: '#fff',
+          transition: 'all 0.2s'
         }
-      })
+      });
     }
 
     const count: string = this.props.count!;
-    const status = (this.props.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
+    const status =
+      this.props.status === 'disabled' || Number(count) === 0 ? 'disabled' : '';
 
     return (
-      <div onClick={this.onClick} className={`card card-${status}`} style={this.state.style} >
+      <div
+        onClick={this.onClick}
+        className={`card card-${status}`}
+        style={this.state.style}
+      >
         <h4> {this.props.title} </h4>
         <p> {this.props.description} </p>
       </div>
     );
   }
-
 }
 
 export default Card;

@@ -36,7 +36,6 @@ class CategoryDetail extends React.Component<Props, State> {
       return null;
     }
 
-
     const { categoryTree, style, description } = booking;
 
     // use this
@@ -51,17 +50,25 @@ class CategoryDetail extends React.Component<Props, State> {
     }
 
     let isCardSelected = false;
-    const wrapperstyle = childs.length > 6 ? "cards" : "flex-cards"
-
+    const wrapperstyle = childs.length > 6 ? 'cards' : 'flex-cards';
 
     const goNext = () => {
       const count: string = this.state.activeChild.count!;
-      const status = (this.state.activeChild.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
+      const status =
+        this.state.activeChild.status === 'disabled' || Number(count) === 0
+          ? 'disabled'
+          : '';
 
-      if (this.state.activeChild && this.state.activeChild._id !== null && status !== "disabled") {
-        this.state.activeChild.type === "category" ? goToCategory(this.state.activeChild._id) : goToProduct(this.state.activeChild._id)
+      if (
+        this.state.activeChild &&
+        this.state.activeChild._id !== null &&
+        status !== 'disabled'
+      ) {
+        this.state.activeChild.type === 'category'
+          ? goToCategory(this.state.activeChild._id)
+          : goToProduct(this.state.activeChild._id);
       }
-    }
+    };
 
     const selectCard = (el: any) => {
       if (this.state.activeChild._id !== el._id) {
@@ -71,7 +78,7 @@ class CategoryDetail extends React.Component<Props, State> {
       setTimeout(() => {
         goNext();
       }, 100);
-    }
+    };
 
     return (
       <>
@@ -93,6 +100,7 @@ class CategoryDetail extends React.Component<Props, State> {
             <div className={wrapperstyle}>
               {childs.map(el => {
                 return (
+                  // tslint:disable-next-line: jsx-key
                   <div onClick={() => selectCard(el)}>
                     <Card
                       key={el._id}
@@ -116,7 +124,6 @@ class CategoryDetail extends React.Component<Props, State> {
               style={{ backgroundColor: style.widgetColor, left: 0 }}
             />
           </div>
-
         </div>
       </>
     );

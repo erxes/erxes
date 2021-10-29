@@ -16,9 +16,14 @@ function Button({ text, type, onClickHandler, style }: Props) {
       onClick={onClickHandler}
       style={style}
     >
-      {type === 'back' && <div style={{ fontSize: "1.3em", transform: "rotate(180deg)" }} > &#10140; </div>}
+      {type === 'back' && (
+        <div style={{ fontSize: '1.3em', transform: 'rotate(180deg)' }}>
+          {' '}
+          &#10140;{' '}
+        </div>
+      )}
       <div style={{ padding: '5px' }}>{`${text}`}</div>
-      {type === 'next' && <div style={{ fontSize: "1.3em" }}>  &#10140; </div>}
+      {type === 'next' && <div style={{ fontSize: '1.3em' }}> &#10140; </div>}
     </button>
   );
 }
