@@ -268,13 +268,6 @@ class MainActionBar extends React.Component<Props> {
       return `/${options.type}/${type}`;
     };
 
-    const boardLink = onFilterClick('board');
-    const listLink = onFilterClick('list');
-    const chartLink = onFilterClick('chart');
-    const calendarLink = onFilterClick('calendar');
-    const activityLink = onFilterClick('activity');
-    const conversionlink = onFilterClick('conversion');
-
     const { viewType, options } = this.props;
 
     return (
@@ -289,7 +282,7 @@ class MainActionBar extends React.Component<Props> {
           <Dropdown.Menu>
             <li key="board">
               <Link
-                to={boardLink}
+                to={onFilterClick('board')}
                 className={viewType === 'board' ? 'active' : ''}
               >
                 {__('Board')}
@@ -297,7 +290,7 @@ class MainActionBar extends React.Component<Props> {
             </li>
             <li key="calendar">
               <Link
-                to={calendarLink}
+                to={onFilterClick('calendar')}
                 className={viewType === 'calendar' ? 'active' : ''}
               >
                 {__('Calendar')}
@@ -306,7 +299,7 @@ class MainActionBar extends React.Component<Props> {
             {options.type === 'deal' && (
               <li key="conversion">
                 <Link
-                  to={conversionlink}
+                  to={onFilterClick('conversion')}
                   className={viewType === 'conversion' ? 'active' : ''}
                 >
                   {__('Conversion')}
@@ -315,7 +308,7 @@ class MainActionBar extends React.Component<Props> {
             )}
             <li key="activity">
               <Link
-                to={activityLink}
+                to={onFilterClick('activity')}
                 className={viewType === 'activity' ? 'active' : ''}
               >
                 {__('Activity')}
@@ -323,7 +316,7 @@ class MainActionBar extends React.Component<Props> {
             </li>
             <li key="list">
               <Link
-                to={listLink}
+                to={onFilterClick('list')}
                 className={viewType === 'list' ? 'active' : ''}
               >
                 {__('List')}
@@ -331,7 +324,7 @@ class MainActionBar extends React.Component<Props> {
             </li>
             <li key="chart">
               <Link
-                to={chartLink}
+                to={onFilterClick('chart')}
                 className={viewType === 'chart' ? 'active' : ''}
               >
                 {__('Chart')}
