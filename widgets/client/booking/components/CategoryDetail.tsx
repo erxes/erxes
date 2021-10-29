@@ -101,9 +101,8 @@ class CategoryDetail extends React.Component<Props, State> {
               {childs.map(el => {
                 return (
                   // tslint:disable-next-line: jsx-key
-                  <div onClick={() => selectCard(el)}>
+                  <div onClick={() => selectCard(el)} key={el._id}>
                     <Card
-                      key={el._id}
                       title={el.name}
                       style={style}
                       status={el.status}
@@ -118,9 +117,14 @@ class CategoryDetail extends React.Component<Props, State> {
 
           <div className="footer">
             <Button
-              text={'Back'}
+              text={__('Back')}
               type="back"
-              onClickHandler={goToBookings}
+              onClickHandler={() =>
+                category.parentId &&
+                category.parentId !== booking.productCategoryId
+                  ? goToCategory(category.parentId)
+                  : goToBookings()
+              }
               style={{ backgroundColor: style.widgetColor, left: 0 }}
             />
           </div>

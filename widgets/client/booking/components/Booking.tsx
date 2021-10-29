@@ -68,9 +68,8 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
           {childCategories.map(el => {
             return (
               // tslint:disable-next-line: jsx-key
-              <div onClick={() => selectCard(el)}>
+              <div onClick={() => selectCard(el)} key={el._id}>
                 <Card
-                  key={el._id}
                   title={el.name}
                   status={el.status}
                   count={el.count}

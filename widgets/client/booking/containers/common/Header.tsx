@@ -10,6 +10,7 @@ type Props = {
   goToCategory?: (categoryId: string) => void;
   goToProduct?: (productId: string) => void;
   booking?: IBookingData;
+  selectedItem: string;
 };
 
 function HeaderContainer(props: ChildProps<Props>) {
@@ -30,7 +31,7 @@ function HeaderContainer(props: ChildProps<Props>) {
 const WithContext = (props: Props) => {
   return (
     <AppConsumer>
-      {({ goToCategory, goToProduct, getBooking }) => {
+      {({ goToCategory, goToProduct, getBooking, selectedItem }) => {
         const booking = getBooking();
         return (
           <HeaderContainer
@@ -38,6 +39,7 @@ const WithContext = (props: Props) => {
             goToCategory={goToCategory}
             goToProduct={goToProduct}
             booking={booking}
+            selectedItem={selectedItem}
           />
         );
       }}

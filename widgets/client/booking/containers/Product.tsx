@@ -10,7 +10,7 @@ import { IProduct } from '../../types';
 type Props = {
   productId: string;
   booking: IBookingData;
-  goToBookings: () => void;
+  goToCategory: (categoryId: string) => void;
   showPopup: () => void;
 };
 
@@ -45,13 +45,13 @@ const WithData = compose(
 
 const WithContext = () => (
   <AppConsumer>
-    {({ activeProduct, getBooking, goToBookings, showPopup }) => {
+    {({ activeProduct, getBooking, showPopup, goToCategory }) => {
       const booking = getBooking();
       return (
         <WithData
           productId={activeProduct}
           booking={booking}
-          goToBookings={goToBookings}
+          goToCategory={goToCategory}
           showPopup={showPopup}
         />
       );

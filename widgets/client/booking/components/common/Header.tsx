@@ -7,6 +7,7 @@ type Props = {
   parentId?: string;
   changeRoute: (item: any) => void;
   booking?: IBookingData;
+  selectedItem: string;
 };
 
 type State = {
@@ -28,7 +29,7 @@ class Header extends React.Component<Props, State> {
   };
 
   renderNav() {
-    const { items, parentId, changeRoute, booking } = this.props;
+    const { items, parentId, changeRoute, booking, selectedItem } = this.props;
 
     if (!booking) {
       return null;
@@ -57,6 +58,7 @@ class Header extends React.Component<Props, State> {
           parentId={parentId}
           changeRoute={changeRoute}
           styles={style}
+          selectedItem={selectedItem}
         />
       </div>
     );

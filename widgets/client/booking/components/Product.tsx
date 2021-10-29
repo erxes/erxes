@@ -7,11 +7,11 @@ import Button from './common/Button';
 type Props = {
   product?: IProduct;
   booking: IBookingData;
-  goToBookings: () => void;
+  goToCategory: (categoryId: string) => void;
   showPopup: () => void;
 };
 
-function Product({ product, booking, goToBookings, showPopup }: Props) {
+function Product({ product, booking, goToCategory, showPopup }: Props) {
   if (!product || !booking) {
     return null;
   }
@@ -128,7 +128,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
         <Button
           text={__('Back')}
           type="back"
-          onClickHandler={goToBookings}
+          onClickHandler={() => goToCategory(product.categoryId)}
           style={{ backgroundColor: widgetColor, left: 0 }}
         />
         <Button

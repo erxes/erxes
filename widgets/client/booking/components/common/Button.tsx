@@ -13,7 +13,7 @@ function Button({ text, type, onClickHandler, style }: Props) {
     <button
       type="button"
       className={`btn`}
-      onClick={onClickHandler}
+      onClick={() => onClickHandler()}
       style={style}
     >
       {type === 'back' && (

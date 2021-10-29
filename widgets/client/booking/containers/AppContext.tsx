@@ -15,6 +15,8 @@ interface IState {
   isPopupVisible: boolean;
   isSubmitting?: boolean;
 
+  selectedItem: string;
+
   currentStatus: ICurrentStatus;
 }
 
@@ -50,7 +52,8 @@ export class AppProvider extends React.Component<{}, IState> {
       isFormVisible: false,
       isPopupVisible: false,
       currentStatus: { status: 'INITIAL' },
-      isSubmitting: false
+      isSubmitting: false,
+      selectedItem: ''
     };
   }
 
@@ -64,28 +67,32 @@ export class AppProvider extends React.Component<{}, IState> {
   goToBooking = (booking: any) => {
     this.setState({
       activeRoute: 'BOOKING',
-      activeBooking: booking
+      activeBooking: booking,
+      selectedItem: ''
     });
   };
 
   goToBookings = () => {
     this.setState({
       activeRoute: 'BOOKING',
-      activeCategory: null
+      activeCategory: null,
+      selectedItem: ''
     });
   };
 
   goToCategory = (categoryId: any) => {
     this.setState({
       activeRoute: 'CATEGORY_DETAIL',
-      activeCategory: categoryId
+      activeCategory: categoryId,
+      selectedItem: categoryId
     });
   };
 
   goToProduct = (productId: string) => {
     this.setState({
       activeRoute: 'PRODUCT_DETAIL',
-      activeProduct: productId
+      activeProduct: productId,
+      selectedItem: productId
     });
   };
 
