@@ -4,6 +4,11 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Form from '../../containers/department/Form';
 import { IDepartment } from '../../types';
+import { ActionButtons } from 'modules/settings/styles';
+import Tip from 'modules/common/components/Tip';
+import Button from 'modules/common/components/Button';
+import { __ } from 'modules/common/utils';
+import { SideList } from '../../styles';
 
 type Props = {
   department: IDepartment;
@@ -23,7 +28,11 @@ export default function Item({
   };
 
   const trigger = (
-    <Icon size={10} icon="edit" style={{ paddingRight: '10px' }} />
+    <Button btnStyle="link">
+      <Tip text={__('Edit')} placement="bottom">
+        <Icon icon="edit" />
+      </Tip>
+    </Button>
   );
 
   const editButton = (
@@ -45,19 +54,21 @@ export default function Item({
   };
 
   return (
-    <li key={department._id} style={{ justifyContent: 'space-between' }}>
+    <SideList key={department._id} isActive={false}>
       <span>
         {generatePrefix()}
         {department.title}
       </span>
-      <span>
+      <ActionButtons>
         {editButton}
-        <Icon
-          color="red"
-          icon="trash"
-          onClick={() => deleteDepartment(department._id, refetch)}
-        />
-      </span>
-    </li>
+        <Tip text="Delete" placement="bottom">
+          <Button
+            btnStyle="link"
+            onClick={() => deleteDepartment(department._id, refetch)}
+            icon="cancel-1"
+          />
+        </Tip>
+      </ActionButtons>
+    </SideList>
   );
 }

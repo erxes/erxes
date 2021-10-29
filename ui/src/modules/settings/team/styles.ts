@@ -1,5 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
+import { SidebarListItem } from '../styles';
+import { SidebarList } from 'modules/layout/styles';
 
 const FilterContainer = styled.div`
   position: relative;
@@ -84,6 +86,16 @@ const FormTable = styled.table`
   }
 `;
 
+const SideList = styled(SidebarListItem)`
+  white-space: normal !important;
+`;
+
+const StructureList = styled(SidebarList)`
+  > li {
+    justify-content: space-between;
+  }
+`;
+
 export {
   FilterContainer,
   FlexRow,
@@ -92,5 +104,7 @@ export {
   LinkButton,
   RemoveRow,
   InviteOption,
-  FormTable
+  FormTable,
+  SideList,
+  StructureList
 };
