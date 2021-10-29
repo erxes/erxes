@@ -126,9 +126,7 @@ module.exports = {
       items: [
         "components/Box/box",
         "components/BreadCrumb/breadcrumbs",
-        "components/Bulk/bulk",
         "components/Button/buttons",
-        "components/ButtonMutate/buttonmutate",
         "components/Chip/chip",
         "components/EmptyState/emptystate",
         "components/ErrorMsg/errormsg",
