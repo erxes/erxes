@@ -5,6 +5,7 @@ type Props = {
   title: string;
   style: IStyle;
   status?: string;
+  count?: string;
   description?: string;
   isAnotherCardSelected?: boolean;
 };
@@ -66,8 +67,11 @@ class Card extends React.Component<Props, State> {
       })
     }
 
+    const count: string = this.props.count!;
+    const status = (this.props.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
+
     return (
-      <div onClick={this.onClick} className={`card card-${this.props.status}`} style={this.state.style} >
+      <div onClick={this.onClick} className={`card card-${status}`} style={this.state.style} >
         <h4> {this.props.title} </h4>
         <p> {this.props.description} </p>
       </div>

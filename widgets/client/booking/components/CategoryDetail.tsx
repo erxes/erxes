@@ -55,7 +55,10 @@ class CategoryDetail extends React.Component<Props, State> {
 
 
     const goNext = () => {
-      if (this.state.activeChild && this.state.activeChild._id !== null) {
+      const count: string = this.state.activeChild.count!;
+      const status = (this.state.activeChild.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
+
+      if (this.state.activeChild && this.state.activeChild._id !== null && status !== "disabled") {
         this.state.activeChild.type === "category" ? goToCategory(this.state.activeChild._id) : goToProduct(this.state.activeChild._id)
       }
     }
@@ -96,6 +99,7 @@ class CategoryDetail extends React.Component<Props, State> {
                       title={el.name}
                       style={style}
                       status={el.status}
+                      count={el.count}
                       isAnotherCardSelected={isCardSelected}
                     />
                   </div>
@@ -110,12 +114,6 @@ class CategoryDetail extends React.Component<Props, State> {
               type="back"
               onClickHandler={goToBookings}
               style={{ backgroundColor: style.widgetColor, left: 0 }}
-            />
-            <Button
-              text={'Next'}
-              type="next"
-              onClickHandler={goNext}
-              style={{ backgroundColor: style.widgetColor, right: 0 }}
             />
           </div>
 

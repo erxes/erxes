@@ -58,7 +58,7 @@ class Header extends React.Component<Props, State> {
 
   render() {
 
-    const navigationText = this.props.booking && this.props.booking.navigationText || "Navigation"
+    const navigationText = (this.props.booking && this.props.booking.navigationText) || "Navigation"
 
     return (
       <>

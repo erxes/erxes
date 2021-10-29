@@ -41,21 +41,21 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   let selectedId = "";
   let isAnotherCardSelected = false;
 
-  const selectCard = (id: string) => {
-    if (selectedId !== id) {
+  const selectCard = (el: any) => {
+    if (selectedId !== el._id) {
       isAnotherCardSelected = true;
     }
 
-    selectedId = id;
+    selectedId = el._id;
+    const count: string = el.count!;
+    const status = (el.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
 
     setTimeout(() => {
-      goNext()
+      if (status !== "disabled") {
+        goToCategory(selectedId)
+      }
     }, 100);
 
-  }
-
-  const goNext = () => {
-    if (selectedId) goToCategory(selectedId)
   }
 
   const Body = () => {
@@ -70,11 +70,12 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
         <div className="cards" style={gridStyle}>
           {childCategories.map((el) => {
             return (
-              <div onClick={() => selectCard(el._id)}>
+              <div onClick={() => selectCard(el)}>
                 <Card
                   key={el._id}
                   title={el.name}
                   status={el.status}
+                  count={el.count}
                   description={el.description}
                   style={style}
                   isAnotherCardSelected={isAnotherCardSelected}
@@ -96,12 +97,6 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
           type="back"
           onClickHandler={() => goToIntro()}
           style={{ backgroundColor: style.widgetColor, left: 0 }}
-        />
-        <Button
-          text={__('Next')}
-          type="next"
-          onClickHandler={() => goNext()}
-          style={{ backgroundColor: style.widgetColor, right: 0 }}
         />
       </div>
     );
