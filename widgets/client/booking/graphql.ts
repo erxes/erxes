@@ -29,6 +29,7 @@ const productFields = `
   sku
   
   createdAt
+  categoryId
 
   category {
     _id

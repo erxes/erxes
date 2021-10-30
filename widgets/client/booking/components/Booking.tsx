@@ -27,9 +27,9 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   const childCategories = categoryTree.filter(
     tree => tree.parentId === productCategoryId && tree.type === 'category'
   );
-   const sortedChilds = childCategories.sort(function(a, b) {
+  const sortedChilds = childCategories.sort(function (a, b) {
     return a.name.localeCompare(b.name);
- });
+  });
 
   const column: string = columns!;
   // tslint:disable-next-line: radix
@@ -41,7 +41,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     gap: margin
   };
 
-  let selectedId = "";
+  let selectedId = '';
   let isAnotherCardSelected = false;
 
   const selectCard = (el: any) => {
@@ -51,31 +51,28 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
 
     selectedId = el._id;
     const count: string = el.count!;
-    const status = (el.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
+    const status =
+      el.status === 'disabled' || Number(count) === 0 ? 'disabled' : '';
 
     setTimeout(() => {
-      if (status !== "disabled") {
-        goToCategory(selectedId)
+      if (status !== 'disabled') {
+        goToCategory(selectedId);
       }
     }, 100);
-
-  }
+  };
 
   const Body = () => {
     return (
       <div className="body">
-        <div style={{ maxHeight: "40vh" }} className="img-container">
-          <img
-            src={readFile(attachment && attachment.url)}
-            alt={'s'}
-          />
+        <div style={{ maxHeight: '40vh' }} className="img-container">
+          <img src={readFile(attachment && attachment.url)} alt={'s'} />
         </div>
         <div className="cards" style={gridStyle}>
           {sortedChilds.map((el) => {
             return (
-              <div onClick={() => selectCard(el)}>
+              // tslint:disable-next-line: jsx-key
+              <div onClick={() => selectCard(el)} key={el._id}>
                 <Card
-                  key={el._id}
                   title={el.name}
                   status={el.status}
                   count={el.count}
@@ -84,7 +81,6 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
                   isAnotherCardSelected={isAnotherCardSelected}
                 />
               </div>
-
             );
           })}
         </div>

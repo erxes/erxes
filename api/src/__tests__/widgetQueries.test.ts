@@ -483,11 +483,11 @@ describe('widgetQueries', () => {
           _id
 
           bookingData {
-            childCategories {
+            categoryTree {
               _id
+              name
+              count
             }
-
-            categoryTree
 
             mainProductCategory {
               _id

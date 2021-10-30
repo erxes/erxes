@@ -7,17 +7,17 @@ import Button from './common/Button';
 type Props = {
   product?: IProduct;
   booking: IBookingData;
-  goToBookings: () => void;
+  goToCategory: (categoryId: string) => void;
   showPopup: () => void;
 };
 
-function Product({ product, booking, goToBookings, showPopup }: Props) {
+function Product({ product, booking, goToCategory, showPopup }: Props) {
   if (!product || !booking) {
     return null;
   }
   const { widgetColor } = booking.style;
   const customFieldsDataWithText = product.customFieldsDataWithText || [];
-  const description = product.description.replace(/<\/?[^>]+(>|$)/g, "");
+  const description = product.description.replace(/<\/?[^>]+(>|$)/g, '');
 
   const showFull = (img: any) => {
     const image = document.getElementById('img-active') as HTMLImageElement;
@@ -69,20 +69,23 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
     }
   };
 
-  let allAttachments = product.attachmentMore || [];
+  const allAttachments = product.attachmentMore || [];
   allAttachments.push(product.attachment);
 
   const renderBtn = (type: string) => {
     return (
       <div className="btn-container">
         {allAttachments && allAttachments.length > 0 ? (
-          <div onClick={() => moveCarousel(type)} className={`btn-move btn-move-${type}`} />
+          <div
+            onClick={() => moveCarousel(type)}
+            className={`btn-move btn-move-${type}`}
+          />
         ) : (
           ''
         )}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="container">
@@ -90,7 +93,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
       <p>{description}</p>
       <div className="flex-sa">
         <div className="slider w-50">
-          {renderBtn("left")}
+          {renderBtn('left')}
           <div className="sliderWrapper">
             <div className="active flex-center">
               <img
@@ -116,8 +119,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
             </div>
           </div>
 
-          {renderBtn("right")}
-
+          {renderBtn('right')}
         </div>
         <div className="w-40">{renderFieldData()}</div>
       </div>
@@ -126,7 +128,7 @@ function Product({ product, booking, goToBookings, showPopup }: Props) {
         <Button
           text={__('Back')}
           type="back"
-          onClickHandler={goToBookings}
+          onClickHandler={() => goToCategory(product.categoryId)}
           style={{ backgroundColor: widgetColor, left: 0 }}
         />
         <Button
