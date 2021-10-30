@@ -27,6 +27,9 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   const childCategories = categoryTree.filter(
     tree => tree.parentId === productCategoryId && tree.type === 'category'
   );
+   const sortedChilds = childCategories.sort(function(a, b) {
+    return a.name.localeCompare(b.name);
+ });
 
   const column: string = columns!;
   // tslint:disable-next-line: radix
@@ -68,7 +71,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
           />
         </div>
         <div className="cards" style={gridStyle}>
-          {childCategories.map((el) => {
+          {sortedChilds.map((el) => {
             return (
               <div onClick={() => selectCard(el)}>
                 <Card

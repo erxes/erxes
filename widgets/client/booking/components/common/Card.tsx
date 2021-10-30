@@ -45,7 +45,7 @@ class Card extends React.Component<Props, State> {
       this.setState({
         style: {
           backgroundColor: this.props.style.productAvailable,
-          color: "#fff",
+          color: this.props.style.textAvailable,
           transition: "all 0.2s",
         }
       })
@@ -56,22 +56,19 @@ class Card extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.props.isAnotherCardSelected === true) {
-      this.setState({
-        isSelected: false,
-        style: {
-          backgroundColor: this.props.style.productAvailable,
-          color: "#fff",
-          transition: "all 0.2s",
-        }
-      })
-    }
 
     const count: string = this.props.count!;
     const status = (this.props.status === "disabled" || parseInt(count) === 0) ? "disabled" : ""
 
+    const disabledStyle = {
+      pointEvents: "none",
+      backgroundColor: this.props.style.productUnavailable,
+      color: this.props.style.textUnavailable,
+      transition: "all 0.2s"
+    }
+
     return (
-      <div onClick={this.onClick} className={`card card-${status}`} style={this.state.style} >
+      <div onClick={this.onClick} className={`card ${status === "disabled" ? disabledStyle : ""}`} style={this.state.style} >
         <h4> {this.props.title} </h4>
         <p> {this.props.description} </p>
       </div>
