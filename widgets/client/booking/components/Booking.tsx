@@ -27,9 +27,9 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   const childCategories = categoryTree.filter(
     tree => tree.parentId === productCategoryId && tree.type === 'category'
   );
-  const sortedChilds = childCategories.sort(function (a, b) {
-    return a.name.localeCompare(b.name);
-  });
+  const sortedChilds = childCategories.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   const column: string = columns!;
   // tslint:disable-next-line: radix
@@ -68,7 +68,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
           <img src={readFile(attachment && attachment.url)} alt={'s'} />
         </div>
         <div className="cards" style={gridStyle}>
-          {sortedChilds.map((el) => {
+          {sortedChilds.map(el => {
             return (
               // tslint:disable-next-line: jsx-key
               <div onClick={() => selectCard(el)} key={el._id}>

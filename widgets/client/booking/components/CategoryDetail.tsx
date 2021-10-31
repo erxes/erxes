@@ -50,7 +50,7 @@ class CategoryDetail extends React.Component<Props, State> {
     }
 
     let isCardSelected = false;
-    let sortedChilds = childs.sort((a, b) => a.name.localeCompare(b.name))
+    const sortedChilds = childs.sort((a, b) => a.name.localeCompare(b.name));
 
     const goNext = () => {
       const count: string = this.state.activeChild.count!;
@@ -101,7 +101,11 @@ class CategoryDetail extends React.Component<Props, State> {
               {sortedChilds.map(el => {
                 return (
                   // tslint:disable-next-line: jsx-key
-                  <div onClick={() => selectCard(el)} key={el._id} style={{margin:"0.2em"}}>
+                  <div
+                    onClick={() => selectCard(el)}
+                    key={el._id}
+                    style={{ margin: '0.2em' }}
+                  >
                     <Card
                       title={el.name}
                       style={style}

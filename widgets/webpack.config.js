@@ -12,7 +12,7 @@ module.exports = {
     knowledgebaseWidget: './client/knowledgebase/widget/index.ts',
     events: './client/events/index.ts',
     eventsWidget: './client/events/widget/index.ts',
-    booking: './client/booking/index.tsx',
+    booking: './client/booking/index.ts',
     bookingWidget: './client/booking/widget/index.ts'
   },
 
@@ -39,12 +39,13 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [{
-          loader: "style-loader"
-        },
-        {
-          loader: "css-loader"
-        }
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader'
+          }
         ]
       },
       {
