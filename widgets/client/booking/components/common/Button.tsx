@@ -17,13 +17,13 @@ function Button({ text, type, onClickHandler, style }: Props) {
       style={style}
     >
       {type === 'back' && (
-        <div style={{ fontSize: '1.3em', transform: 'rotate(180deg)' }}>
+        <div style={{ fontSize: '1.2em', transform: 'rotate(180deg)' }}>
           {' '}
           &#10140;{' '}
         </div>
       )}
       <div style={{ padding: '5px' }}>{`${text}`}</div>
-      {type === 'next' && <div style={{ fontSize: '1.3em' }}> &#10140; </div>}
+      {type === 'next' && <div style={{ fontSize: '1.2em' }}> &#10140; </div>}
     </button>
   );
 }

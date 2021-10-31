@@ -189,12 +189,12 @@ h4,p{
   grid-row-gap: 1.6em;
 }
 .flex-cards {
-  width:20%;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  max-height: 60vh;
   .card{
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
   }
 }
 .card {
