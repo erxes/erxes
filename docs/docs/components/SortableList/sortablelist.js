@@ -6,9 +6,17 @@ import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function SortableListComponent() {
-  const names = []
-  return (<>
-  <SortableList fields={names}>
-  </SortableList>
-  </>)
+  const child = (field) => {
+    let array = [["Name"], ["Age"]];
+    return array;
+  };
+  return (
+    <>
+      <SortableList
+        fields={[{ _id: 1 }, { _id: 2 }, { _id: 3 }]}
+        child={child}
+        isDragDisabled={false}
+      />
+    </>
+  );
 }

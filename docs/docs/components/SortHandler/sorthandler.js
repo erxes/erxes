@@ -5,26 +5,26 @@ import styles from "../../../src/components/styles.module.css";
 import { renderApiTable } from "../common.js";
 
 export function SortHandlerComponent(props) {
-const {type, table=[]} = props;
+  const { type, table = [] } = props;
 
-if (type === "sorthandler"){
-  return (
-    <>
-      <div className={styles.styled}>
-        <SortHandler sortField="field1" label="First Name" />
-        <SortHandler sortField="field1" label="Last Name" />
-        <SortHandler sortField="field2" label="Age" />
-      </div>
-      <CodeBlock className="language-jsx">
-        {`<>\n\t<SortHandler sortField="field1" label="Name" />\n\t<SortHandler sortField="field2" label="Age" />\n</>`}
-      </CodeBlock>
-    </>
-  );
-}
+  if (type === "sorthandler") {
+    return (
+      <>
+        <div className={styles.styled}>
+          <SortHandler sortField="field1" label="First Name" />
+          <SortHandler sortField="field1" label="Last Name" />
+          <SortHandler sortField="field2" label="Age" />
+        </div>
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<SortHandler sortField="field1" label="First Name" />\n\t<SortHandler sortField="field1" label="Last Name" />\n\t<SortHandler sortField="field2" label="Age" />\n</>`}
+        </CodeBlock>
+      </>
+    );
+  }
 
-if (type === "APIsorthandler"){
-  return renderApiTable("SortHandler", table);
-}
+  if (type === "APIsorthandler") {
+    return renderApiTable("SortHandler", table);
+  }
 
-return null;
+  return null;
 }
