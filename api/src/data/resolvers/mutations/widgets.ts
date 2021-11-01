@@ -524,26 +524,24 @@ const widgetMutations = {
       content: message
     });
 
-    const ConversationNewData = {
-      // Reopen its conversation if it's closed
-      status: CONVERSATION_STATUSES.OPEN,
-
-      // setting conversation's content to last message
-      content: conversationContent,
-
-      // Mark as unread
-      readUserIds: [],
-
-      customerId,
-
-      // clear visitorId
-      visitorId: ''
-    };
-
-    const dbConversation = await Conversations.updateOne(
+    await Conversations.updateOne(
       { _id: msg.conversationId },
       {
-        $set: ConversationNewData
+        $set: {
+          // Reopen its conversation if it's closed
+          status: CONVERSATION_STATUSES.OPEN,
+
+          // setting conversation's content to last message
+          content: conversationContent,
+
+          // Mark as unread
+          readUserIds: [],
+
+          customerId,
+
+          // clear visitorId
+          visitorId: ''
+        }
       }
     );
 
