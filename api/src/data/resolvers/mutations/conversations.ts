@@ -624,11 +624,7 @@ const conversationMutations = {
       closedAt: new Date()
     };
 
-    const updated = await Conversations.resolveAllConversation(
-      query,
-      user._id,
-      param
-    );
+    const updated = await Conversations.resolveAllConversation(query, param);
 
     const updatedConversations = await Conversations.find(query);
 

@@ -4,7 +4,10 @@ import { stream } from '../../data/bulkUtils';
 import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
-import { IMessageDocument } from './definitions/conversationMessages';
+import {
+  IMessageDocument,
+  IResolveAllConversationParam
+} from './definitions/conversationMessages';
 import {
   conversationSchema,
   IConversation,
@@ -72,8 +75,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   resolveAllConversation(
     query: any,
-    userId: string,
-    param?: { status: string; closedAt: Date; closedUserId: string }
+    param: IResolveAllConversationParam
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
@@ -415,16 +417,11 @@ export const loadClass = () => {
     /**
      * Resolve all conversation
      */
-    public static resolveAllConversation(query: any, userId: string, param) {
-      const closedAt = param.closedAt || new Date();
-      const closedUserId = param.closedUserId || userId;
-      const status = param.status || CONVERSATION_STATUSES.CLOSED;
-
-      return Conversations.updateMany(
-        query,
-        { $set: { status, closedAt, closedUserId } },
-        { multi: true }
-      );
+    public static resolveAllConversation(
+      query: any,
+      param: IResolveAllConversationParam
+    ) {
+      return Conversations.updateMany(query, { $set: param }, { multi: true });
     }
 
     public static async getUserRelevance(args: { skillId?: string }) {
