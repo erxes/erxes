@@ -15,6 +15,7 @@ import {
 } from '../../../db/models/definitions/checklists';
 import { ruleSchema } from '../../../db/models/definitions/common';
 import { companySchema } from '../../../db/models/definitions/companies';
+import { conversationSchema } from '../../../db/models/definitions/conversations';
 import {
   customerSchema,
   locationSchema,
@@ -111,6 +112,10 @@ const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.CHANNEL,
     schemas: [channelSchema]
+  },
+  {
+    name: MODULE_NAMES.CONVERSATION,
+    schemas: [conversationSchema]
   },
   {
     name: MODULE_NAMES.CHECKLIST,
