@@ -34,7 +34,11 @@ import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { sendToLog } from '../../logUtils';
-import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import {
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES,
+  RABBITMQ_QUEUES
+} from '../../constants';
 import { IContext } from '../../types';
 import {
   findCompany,
@@ -48,6 +52,7 @@ import {
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
+import messageBroker from '../../../messageBroker';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -524,24 +529,26 @@ const widgetMutations = {
       content: message
     });
 
-    await Conversations.updateOne(
+    const ConversationNewData = {
+      // Reopen its conversation if it's closed
+      status: CONVERSATION_STATUSES.OPEN,
+
+      // setting conversation's content to last message
+      content: conversationContent,
+
+      // Mark as unread
+      readUserIds: [],
+
+      customerId,
+
+      // clear visitorId
+      visitorId: ''
+    };
+
+    const dbConversation = await Conversations.updateOne(
       { _id: msg.conversationId },
       {
-        $set: {
-          // Reopen its conversation if it's closed
-          status: CONVERSATION_STATUSES.OPEN,
-
-          // setting conversation's content to last message
-          content: conversationContent,
-
-          // Mark as unread
-          readUserIds: [],
-
-          customerId,
-
-          // clear visitorId
-          visitorId: ''
-        }
+        $set: ConversationNewData
       }
     );
 
@@ -658,6 +665,11 @@ const widgetMutations = {
     }
 
     await sendToWebhook('create', 'customerMessages', msg);
+
+    await messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+      type: `conversation`,
+      targets: [dbConversation]
+    });
 
     return msg;
   },

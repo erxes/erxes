@@ -72,7 +72,8 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   resolveAllConversation(
     query: any,
-    userId: string
+    userId: string,
+    param?: { status: string; closedAt: Date; closedUserId: string }
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
@@ -411,10 +412,10 @@ export const loadClass = () => {
     /**
      * Resolve all conversation
      */
-    public static resolveAllConversation(query: any, userId: string) {
-      const closedAt = new Date();
-      const closedUserId = userId;
-      const status = CONVERSATION_STATUSES.CLOSED;
+    public static resolveAllConversation(query: any, userId: string, param) {
+      const closedAt = param.closedAt || new Date();
+      const closedUserId = param.closedUserId || userId;
+      const status = param.status || CONVERSATION_STATUSES.CLOSED;
 
       return Conversations.updateMany(
         query,
