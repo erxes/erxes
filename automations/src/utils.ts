@@ -218,16 +218,16 @@ export const receiveTrigger = async ({
   type: TriggerType;
   targets: any[];
 }) => {
+  const automations = await Automations.find({
+    status: 'active',
+    'triggers.type': { $in: [type] }
+  }).lean();
+
+  if (!automations.length) {
+    return;
+  }
+
   for (const target of targets) {
-    const automations = await Automations.find({
-      status: 'active',
-      'triggers.type': { $in: [type] }
-    }).lean();
-
-    if (!automations.length) {
-      return;
-    }
-
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
         if (trigger.type !== type) {
