@@ -12,7 +12,6 @@ export default {
       status?: string;
     }> = [];
 
-    // tslint:disable-next-line: no-shadowed-variable
     const generateTree = async (parentId: any) => {
       const categories = await ProductCategories.find({ parentId });
 

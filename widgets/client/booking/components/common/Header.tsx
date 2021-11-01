@@ -5,7 +5,7 @@ import { IBookingData, ICategoryTree } from '../../types';
 type Props = {
   items: ICategoryTree[];
   parentId?: string;
-  changeRoute: (item: any) => void;
+  changeRoute: (treeItem: ICategoryTree) => void;
   booking?: IBookingData;
   selectedItem?: string;
 };

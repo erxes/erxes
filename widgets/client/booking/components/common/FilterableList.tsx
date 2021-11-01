@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { IStyle } from '../../types';
+import { ICategoryTree, IStyle } from '../../types';
 
 type Props = {
-  items?: any[];
+  items?: ICategoryTree[];
   links?: any[];
-  showCheckmark?: boolean;
   loading?: boolean;
   className?: string;
   treeView?: boolean;
@@ -12,7 +11,7 @@ type Props = {
   styles: IStyle;
   selectedItem?: string;
 
-  changeRoute: (item: any) => void;
+  changeRoute: (item: ICategoryTree) => void;
 
   // hooks
   onClick?: (items: any[], id: string) => void;
@@ -112,7 +111,7 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   renderItem(item: any, hasChildren: boolean, stockCnt: number) {
-    const { showCheckmark = true, changeRoute, styles } = this.props;
+    const { changeRoute, styles } = this.props;
     const {
       widgetColor,
       productAvailable,
@@ -124,7 +123,6 @@ class FilterableList extends React.Component<Props, State> {
     if (key && item.name.toLowerCase().indexOf(key.toLowerCase()) < 0) {
       return false;
     }
-    const onClick = () => this.onToggle(item._id, isOpen);
 
     const isOpen = this.state.parentIds[item._id] || !!key;
 
@@ -134,9 +132,8 @@ class FilterableList extends React.Component<Props, State> {
       color = productAvailable;
     }
 
-    // tslint:disable-next-line: no-shadowed-variable
-    const handleClick = (item: any) => {
-      changeRoute(item);
+    const handleClick = (treeItem: ICategoryTree) => {
+      changeRoute(treeItem);
     };
 
     return (

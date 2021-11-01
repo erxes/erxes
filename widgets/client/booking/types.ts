@@ -41,3 +41,8 @@ export interface IBookingData {
 
   mainProductCategory: IProductCategory;
 }
+
+export interface IFieldDataWithText {
+  text: string;
+  value: string;
+}

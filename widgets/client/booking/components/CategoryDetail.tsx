@@ -100,7 +100,6 @@ class CategoryDetail extends React.Component<Props, State> {
             <div className={`w-50 flex-cards`}>
               {sortedChilds.map(el => {
                 return (
-                  // tslint:disable-next-line: jsx-key
                   <div
                     onClick={() => selectCard(el)}
                     key={el._id}

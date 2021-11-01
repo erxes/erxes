@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IBookingData } from '../types';
+import { IBookingData, IFieldDataWithText } from '../types';
 import { readFile, __ } from '../../utils';
 import { IProduct } from '../../types';
 import Button from './common/Button';
@@ -27,10 +27,9 @@ function Product({ product, booking, goToCategory, showPopup }: Props) {
   };
 
   const renderFieldData = () =>
-    customFieldsDataWithText.map((el: any, index: any) => (
-      // tslint:disable-next-line: jsx-key
+    customFieldsDataWithText.map((field: IFieldDataWithText, index: any) => (
       <p key={index}>
-        <strong>{el.text}:</strong> {el.value}
+        <strong>{field.text}:</strong> {field.value}
       </p>
     ));
 

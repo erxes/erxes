@@ -1,4 +1,4 @@
-import { IBookingData } from './booking/types';
+import { IBookingData, IFieldDataWithText } from './booking/types';
 import { ICallout } from './form/types';
 import { IAttachment, IWebsiteApp } from './messenger/types';
 
@@ -215,5 +215,5 @@ export interface IProduct {
   minimiumCount: number;
   category: IProductCategory;
 
-  customFieldsDataWithText?: any;
+  customFieldsDataWithText?: IFieldDataWithText[];
 }

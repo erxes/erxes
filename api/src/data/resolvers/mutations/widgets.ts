@@ -997,18 +997,18 @@ const widgetMutations = {
     const messages: any = [];
 
     // create messages
-    let message = await Messages.createMessage({
+    let bookingMessage = await Messages.createMessage({
       conversationId: conversation._id,
       customerId: cachedCustomer._id,
       content,
       formWidgetData: submissions
     });
 
-    messages.push(message);
+    messages.push(bookingMessage);
 
     const product = await Products.getProduct({ _id: productId });
 
-    message = await Messages.createMessage({
+    bookingMessage = await Messages.createMessage({
       conversationId: conversation._id,
       customerId: cachedCustomer._id,
       content: `<p>submitted a new booking for <strong>${product?.name +
@@ -1016,9 +1016,8 @@ const widgetMutations = {
         product?.code}</strong></p>`
     });
 
-    messages.push(message);
+    messages.push(bookingMessage);
 
-    // tslint:disable-next-line: no-shadowed-variable
     messages.map(async (message: any) => {
       graphqlPubsub.publish('conversationClientMessageInserted', {
         conversationClientMessageInserted: message

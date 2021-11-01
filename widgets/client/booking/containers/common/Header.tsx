@@ -16,13 +16,13 @@ type Props = {
 function HeaderContainer(props: ChildProps<Props>) {
   const { goToCategory, goToProduct } = props;
 
-  const changeRoute = (item: ICategoryTree) => {
-    if (item.type === 'category' && goToCategory) {
-      return goToCategory(item._id);
+  const changeRoute = (treeItem: ICategoryTree) => {
+    if (treeItem.type === 'category' && goToCategory) {
+      return goToCategory(treeItem._id);
     }
 
-    if (item.type === 'product' && goToProduct) {
-      return goToProduct(item._id);
+    if (treeItem.type === 'product' && goToProduct) {
+      return goToProduct(treeItem._id);
     }
   };
   return <Header {...props} changeRoute={changeRoute} />;

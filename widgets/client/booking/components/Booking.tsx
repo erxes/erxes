@@ -32,8 +32,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   );
 
   const column: string = columns!;
-  // tslint:disable-next-line: radix
-  const colCount = parseInt(column) >= 4 ? '4' : columns;
+  const colCount = parseInt(column, 10) >= 4 ? '4' : columns;
 
   const gridStyle = {
     marginTop: '10px',
@@ -52,7 +51,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     selectedId = el._id;
     const count: string = el.count!;
     const status =
-      el.status === 'disabled' || Number(count) === 0 ? 'disabled' : '';
+      el.status === 'disabled' || parseInt(count, 10) === 0 ? 'disabled' : '';
 
     setTimeout(() => {
       if (status !== 'disabled') {
@@ -70,7 +69,6 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
         <div className="cards" style={gridStyle}>
           {sortedChilds.map(el => {
             return (
-              // tslint:disable-next-line: jsx-key
               <div onClick={() => selectCard(el)} key={el._id}>
                 <Card
                   title={el.name}
