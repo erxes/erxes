@@ -340,10 +340,14 @@ const conversationMutations = {
       customer.primaryPhone &&
       customer.phoneValidationStatus === 'valid'
     ) {
+      /**
+       * SMS part is limited to 160 characters, so we split long content by 160 characters.
+       * See below for details.
+       * https://developers.telnyx.com/docs/v2/messaging/configuration-and-limitations/character-and-rate-limits
+       */
       const chunks =
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
-      // tslint:disable-next-line:prefer-for-of
       for (let i = 0; i < chunks.length; i++) {
         await messageBroker().sendMessage(
           'erxes-api:integrations-notification',
