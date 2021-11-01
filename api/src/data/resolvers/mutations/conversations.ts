@@ -626,7 +626,9 @@ const conversationMutations = {
 
     const updated = await Conversations.resolveAllConversation(query, param);
 
-    const updatedConversations = await Conversations.find(query);
+    const updatedConversations = await Conversations.find({
+      _id: { $in: Object.keys(oldConversationById) }
+    }).lean();
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
