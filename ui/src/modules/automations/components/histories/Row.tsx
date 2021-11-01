@@ -77,11 +77,11 @@ class HistoryRow extends React.Component<Props, State> {
       return 'Result has not been recorded yet';
     }
 
-    if (action.result.error) {
-      return action.result.error;
-    }
-
     const { result } = action;
+
+    if (result.error) {
+      return result.error;
+    }
 
     if (
       ['createTask', 'createDeal', 'createTicket'].includes(action.actionType)

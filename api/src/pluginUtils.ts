@@ -16,6 +16,8 @@ import memoryStorage from './inmemoryStorage';
 import messageBroker from './messageBroker';
 import { graphqlPubsub } from './pubsub';
 
+export { allModels };
+
 interface ISubAfterMutations {
   [action: string]: {
     callBack: void;
