@@ -290,6 +290,9 @@ export const loadClass = () => {
       return Conversations.find({
         status: {
           $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]
+        },
+        updatedAt: {
+          $gte: new Date(new Date().getTime() - 12 * 60 * 1000)
         }
       });
     }

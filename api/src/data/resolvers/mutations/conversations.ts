@@ -416,17 +416,6 @@ const conversationMutations = {
     // Publishing both admin & client
     publishMessage(dbMessage, conversation.customerId);
 
-    await putUpdateLog(
-      {
-        type: 'conversation',
-        description: 'added message',
-        object: conversation,
-        newData: dbMessage,
-        updatedDocument: await Conversations.getConversation(conversationId)
-      },
-      user
-    );
-
     return dbMessage;
   },
 
