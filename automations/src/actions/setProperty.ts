@@ -36,30 +36,33 @@ const getToChangeObjects = async ({ triggerType, target, module }) => {
   }
 
   if (triggerType === 'conversation' && ['task', 'ticket', 'deal'].includes(module)) {
-    return sendRPCMessage('findObjects', { model: `${module[0].toUpperCase()}${module.substr(1)}s`, selector: { sourceConversationIds: { $in: [target._id] } } })
+    return sendRPCMessage('find-objects', { model: `${module[0].toUpperCase()}${module.substr(1)}s`, selector: { sourceConversationIds: { $in: [target._id] } } })
   }
 
   if (['customer', 'company'].includes(module) && triggerType === 'conversation') {
-    return sendRPCMessage('findObjects', {
+    return sendRPCMessage('find-objects', {
       model: module === 'company' ? 'Companies' : 'Customers', selector: { _id: target[`${module}Id`] }
     });
   }
 
   if (['task', 'ticket', 'deal', 'customer', 'company'].includes(triggerType) && ['task', 'ticket', 'deal', 'customer', 'company'].includes(module)) {
-    return sendRPCMessage('findConformities', { mainType: triggerType, mainTypeId: target._id, relType: module });
+    return sendRPCMessage('find-conformities', { mainType: triggerType, mainTypeId: target._id, relType: module });
   }
 
   return [];
 }
 
 const getPerValue = async (conformity, rule, target) => {
-  const { field, operator, value } = rule
+  const { field, operator, value } = rule;
+  const op1Type = typeof(conformity[field]);
   let op1 = conformity[field];
 
-  let updatedValue = (await replacePlaceHolders({ actionData: { config: value }, target })).config;
+  let updatedValue = (
+    await replacePlaceHolders({ actionData: { config: value }, target, isRelated: op1Type === 'string' ? true : false })
+  ).config;
 
   if(field.includes('Ids')) {
-    updatedValue = updatedValue.trim().split(', ')
+    updatedValue = [...new Set(updatedValue.replace(/, /g, ',').trim().split(','))];
   }
 
   if ([OPERATORS.ADD, OPERATORS.SUBTRACT, OPERATORS.MULTIPLY, OPERATORS.DIVIDE, OPERATORS.PERCENT].includes(operator)) {
@@ -106,6 +109,14 @@ const getPerValue = async (conformity, rule, target) => {
 export const setProperty = async ({ triggerType, actionConfig, target }) => {
   const { module, rules } = actionConfig;
   const result = [];
+  const modelBy = {
+    customer: 'Customers',
+    company: 'Companies',
+    deal: 'Deals',
+    task: 'Tasks',
+    ticket: 'Tickets'
+  }
+
   try {
     const conformities = await getToChangeObjects({ triggerType, target, module });
 
@@ -114,7 +125,7 @@ export const setProperty = async ({ triggerType, actionConfig, target }) => {
       for (const rule of rules) {
         setDoc[rule.field] = (await getPerValue(conformity, rule, target));
       }
-      const response = await sendRPCMessage('set-property', { module, _id: conformity._id, setDoc });
+      const response = await sendRPCMessage('set-property', { model: modelBy[module], _id: conformity._id, setDoc });
       if (response.error) {
         result.push(response);
         continue;

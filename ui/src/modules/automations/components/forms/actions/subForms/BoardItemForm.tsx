@@ -107,8 +107,10 @@ class BoardItemForm extends React.Component<Props, State> {
     );
   }
 
-  onChange = config => {
-    this.setState({ config });
+  onChange = rConf => {
+    const { config } = this.state;
+
+    this.setState({ config: { ...config, ...rConf } });
   };
 
   render() {
