@@ -120,46 +120,29 @@ const exmFeedMutations = [
     name: 'exmFeedEventGoingOrInterested',
     handler: async (_root, { _id, goingOrInterested }, { models, user }) => {
       const exmFeed = await models.ExmFeed.getExmFeed(models, _id);
-      const eventData = exmFeed.eventData || {};
-
-      const anotherUserIds =
-        goingOrInterested === 'going'
-          ? eventData.interestedUserIds || []
-          : eventData.goingUserIds || [];
-
-      // Example: goingOrInterested is 'going' but user has chosen 'interested' before then exclude first
-      if (anotherUserIds.includes(user._id)) {
-        await models.ExmFeed.updateOne(
-          { _id },
-          {
-            $pull: {
-              [`eventData.${
-                goingOrInterested === 'going'
-                  ? 'interestedUserIds'
-                  : 'goingUserIds'
-              }`]: user._id
-            }
-          }
-        );
-      }
 
       const updateModifier: { $push?: any; $pull?: any } = {};
-      const updateDoc = {
-        [`eventData.${
-          goingOrInterested === 'going' ? 'goingUserIds' : 'interestedUserIds'
-        }`]: user._id
-      };
+      const eventData = exmFeed.eventData || {};
 
-      const userIds =
-        goingOrInterested === 'going'
-          ? eventData.goingUserIds || []
-          : eventData.interestedUserIds || [];
+      if (goingOrInterested === 'neither') {
+        updateModifier.$pull = {
+          'eventData.goingUserIds': user._id,
+          'eventData.interestedUserIds': user._id
+        };
+      } else if (goingOrInterested === 'interested') {
+        if ((eventData.interestedUserIds || []).includes(user._id)) {
+          return exmFeed;
+        }
 
-      // when not interested or not going
-      if (userIds.includes(user._id)) {
-        updateModifier.$pull = updateDoc;
-      } else {
-        updateModifier.$push = updateDoc;
+        updateModifier.$pull = { 'eventData.goingUserIds': user._id };
+        updateModifier.$push = { 'eventData.interestedUserIds': user._id };
+      } else if (goingOrInterested === 'going') {
+        if ((eventData.goingUserIds || []).includes(user._id)) {
+          return exmFeed;
+        }
+
+        updateModifier.$push = { 'eventData.goingUserIds': user._id };
+        updateModifier.$pull = { 'eventData.interestedUserIds': user._id };
       }
 
       await models.ExmFeed.updateOne({ _id }, updateModifier);

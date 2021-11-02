@@ -116,6 +116,7 @@ export const types = `
   enum ExmGoingOrInterested {
     going
     interested
+    neither
   }
 `;
 
@@ -169,5 +170,5 @@ export const mutations = `
 
   exmFeedToggleIsPinned(_id: String): Boolean
 
-  exmFeedEventGoingOrInterested(_id: String!, goingOrInterested: ExmGoingOrInterested): ExmFeed
+  exmFeedEventGoingOrInterested(_id: String!, goingOrInterested: ExmGoingOrInterested!): ExmFeed
 `;
