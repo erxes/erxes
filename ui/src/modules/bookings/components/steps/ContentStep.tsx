@@ -1,5 +1,5 @@
 import React from 'react';
-import { Description } from 'modules/settings/styles';
+import { Description, SubHeading } from 'modules/settings/styles';
 import { FlexItem } from 'modules/layout/styles';
 import { FlexContent } from 'modules/boards/styles/item';
 import {
@@ -10,8 +10,7 @@ import {
 import { LeftItem } from 'modules/common/components/step/styles';
 import { extractAttachment, __ } from 'modules/common/utils';
 import Select from 'react-select-plus';
-import { FlexItem as FlexItemContainer, Title } from './style';
-
+import { FlexItem as FlexItemContainer } from './style';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import Uploader from 'modules/common/components/Uploader';
 
@@ -73,12 +72,10 @@ function ContentStep({
   const renderGeneralSettings = () => {
     return (
       <>
-        <h4>{__('General')}</h4>
-
         <FlexContent>
           <FlexItem>
             <FormGroup>
-              <ControlLabel>Name</ControlLabel>
+              <ControlLabel required={true}>Booking Name</ControlLabel>
               <FormControl
                 type="text"
                 value={name}
@@ -89,7 +86,7 @@ function ContentStep({
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel required={true}>Booking Description</ControlLabel>
           <FormControl
             type="text"
             value={description}
@@ -100,7 +97,7 @@ function ContentStep({
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Image</ControlLabel>
+          <ControlLabel>Booking Image</ControlLabel>
           <Uploader
             defaultFileList={images}
             onChange={e => onChangeBooking('image', e.length ? e[0] : null)}
@@ -109,10 +106,10 @@ function ContentStep({
           />
         </FormGroup>
         <br />
-        <h4>{__('Widget Header')}</h4>
+        <SubHeading>{__('Widget Header')}</SubHeading>
 
         <FormGroup>
-          <Title>{__('Navigation')}</Title>
+          <ControlLabel>{__('Navigation')}</ControlLabel>
           <Description>
             Type in a word to display as the navigation button text
           </Description>
@@ -195,10 +192,12 @@ function ContentStep({
   const renderProductDetail = () => {
     return (
       <>
-        <h4>{__('Products')}</h4>
+        <SubHeading>{__('Products')}</SubHeading>
 
         <FormGroup>
-          <Title>{__('Main Product Category')}</Title>
+          <ControlLabel required={true}>
+            {__('Main Product Category')}
+          </ControlLabel>
           <Description>
             Select the main Product Category of the products and services you
             want to display. If you haven't created one, please go to
@@ -219,7 +218,7 @@ function ContentStep({
     return (
       <>
         <FormGroup>
-          <Title>{__('Booking Form Button Text')}</Title>
+          <SubHeading>{__('Booking Form Button Text')}</SubHeading>
           <Description>
             Type in a word to display as the booking form button text in the
             product detail page.

@@ -1,17 +1,17 @@
+import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+
 import {
   ControlWrapper,
   Indicator,
   StepWrapper
 } from 'modules/common/components/step/styles';
 import Button from 'modules/common/components/Button';
-import { Link } from 'react-router-dom';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { Alert, __ } from 'modules/common/utils';
-import React, { useState } from 'react';
-import { IStyle, IBookingIntegration, IBookingData } from '../types';
-
+import { IStyle, IBookingIntegration, IBookingData, IBooking } from '../types';
 import { Steps, Step } from 'modules/common/components/step';
 import StyleStep from './steps/StyleStep';
 import ContentStep from './steps/ContentStep';
@@ -19,7 +19,6 @@ import SettingsStep from './steps/SettingsStep';
 import FormStep from './steps/FormStep';
 import SuccessStep from 'modules/leads/components/step/SuccessStep';
 import { IField } from 'modules/settings/properties/types';
-
 import { PreviewWrapper } from 'modules/leads/components/step/style';
 import { FullPreview } from 'modules/leads/components/step';
 import { colors } from 'modules/common/styles';
@@ -69,33 +68,6 @@ type State = {
   loadType: string;
 };
 
-type Booking = {
-  name: string;
-  description: string;
-  userFilters: string[];
-  image: any;
-
-  productCategoryId: string;
-  itemShape: string;
-  widgetColor: string;
-
-  productAvailable: string;
-  productUnavailable: string;
-  productSelected: string;
-
-  textAvailable: string;
-  textUnavailable: string;
-  textSelected: string;
-
-  line?: string;
-  columns?: number;
-  rows?: number;
-  margin?: number;
-
-  navigationText?: string;
-  bookingFormText?: string;
-};
-
 function Booking(props: Props) {
   const {
     save,
@@ -116,7 +88,7 @@ function Booking(props: Props) {
     title: integration.name || '',
     brandId: integration.brandId || '',
     channelIds: channels.map(item => item._id) || [],
-    languageCode: integration.languageCode || '',
+    languageCode: integration.languageCode || 'en',
     formId: integration.formId || '',
 
     formData: {
@@ -144,28 +116,18 @@ function Booking(props: Props) {
     carousel: 'form'
   });
 
-  const [booking, setBooking] = useState<Booking>({
+  const [booking, setBooking] = useState<IBooking>({
     name: bookingData.name || '',
     description: bookingData.description || '',
     image: bookingData.image,
-
     userFilters: bookingData.userFilters || [],
-
     productCategoryId: bookingData.productCategoryId || '',
     navigationText: bookingData.navigationText || '',
     bookingFormText: bookingData.bookingFormText || 'Book product',
-
     itemShape: bookingStyle.itemShape || '',
     widgetColor: bookingStyle.widgetColor || colors.colorPrimary,
-
     productAvailable: bookingStyle.productAvailable || colors.colorPrimary,
-    productUnavailable: bookingStyle.productUnavailable || colors.colorCoreGray,
-    productSelected: bookingStyle.productSelected || colors.colorCoreOrange,
-
     textAvailable: bookingStyle.textAvailable || colors.colorPrimary,
-    textUnavailable: bookingStyle.textUnavailable || colors.colorLightGray,
-    textSelected: bookingStyle.textSelected || colors.colorCoreYellow,
-
     line: bookingStyle.line || '',
     columns: bookingStyle.columns || 1,
     rows: bookingStyle.rows || 1,
@@ -176,19 +138,15 @@ function Booking(props: Props) {
 
   const handleSubmit = () => {
     if (!booking.name) {
-      return Alert.error('Enter a Booking name');
+      return Alert.error('Enter a booking name');
     }
 
     if (!booking.description) {
-      return Alert.error('Enter a description');
+      return Alert.error('Enter a booking description');
     }
 
     if (!state.brandId) {
       return Alert.error('Choose a brand');
-    }
-
-    if (!state.languageCode) {
-      return Alert.error('Choose a language');
     }
 
     if (!state.title) {
@@ -232,15 +190,8 @@ function Booking(props: Props) {
         style: {
           itemShape: booking.itemShape,
           widgetColor: booking.widgetColor,
-
           productAvailable: booking.productAvailable,
-          productUnavailable: booking.productUnavailable,
-          productSelected: booking.productSelected,
-
           textAvailable: booking.textAvailable,
-          textUnavailable: booking.textUnavailable,
-          textSelected: booking.textSelected,
-
           line: booking.line,
           rows: Number(booking.rows),
           columns: Number(booking.columns),
@@ -328,11 +279,7 @@ function Booking(props: Props) {
                 itemShape={booking.itemShape}
                 widgetColor={booking.widgetColor}
                 productAvailable={booking.productAvailable}
-                productUnavailable={booking.productUnavailable}
-                productSelected={booking.productSelected}
                 textAvailable={booking.textAvailable}
-                textUnavailable={booking.textUnavailable}
-                textSelected={booking.textSelected}
               />
             </Step>
 

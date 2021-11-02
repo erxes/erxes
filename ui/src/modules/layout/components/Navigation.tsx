@@ -391,7 +391,7 @@ class Navigation extends React.Component<IProps> {
             'showIntegrations',
             __('Bookings'),
             '/bookings',
-            'icon-home',
+            'icon-paste',
             [],
             lbl
           )}

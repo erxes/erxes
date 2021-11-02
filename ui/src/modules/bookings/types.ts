@@ -10,13 +10,7 @@ export interface IStyle {
   itemShape?: string;
   widgetColor: string;
   productAvailable: string;
-  productUnavailable: string;
-  productSelected: string;
-
   textAvailable: string;
-  textUnavailable: string;
-  textSelected: string;
-
   line?: string;
   columns?: number;
   rows?: number;
@@ -42,6 +36,24 @@ export interface IBookingData {
 
   viewCount?: number;
 }
+
+export type IBooking = {
+  name: string;
+  description: string;
+  userFilters: string[];
+  image: any;
+  productCategoryId: string;
+  itemShape: string;
+  widgetColor: string;
+  productAvailable: string;
+  textAvailable: string;
+  line?: string;
+  columns?: number;
+  rows?: number;
+  margin?: number;
+  navigationText?: string;
+  bookingFormText?: string;
+};
 
 // query types
 export type BookingIntegrationsQueryResponse = {

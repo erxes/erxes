@@ -55,7 +55,7 @@ function SettingsStep({
 
         <FormGroup>
           <SelectBrand
-            required={true}
+            isRequired={true}
             defaultValue={brandId}
             onChange={(e: any) => onChange('brandId', e.target.value)}
           />
