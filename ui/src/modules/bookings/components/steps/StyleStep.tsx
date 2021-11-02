@@ -18,6 +18,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from 'modules/bookings/constants';
 import { FlexContent } from 'modules/boards/styles/item';
+import { FONTS } from 'modules/settings/clientPortal/constants';
 
 type Name = 'itemShape' | 'widgetColor' | 'productSelected' | 'textAvailable';
 
@@ -27,6 +28,7 @@ type Props = {
   widgetColor: string;
   productAvailable: string;
   textAvailable: string;
+  baseFont: string;
 };
 
 function Style({
@@ -34,7 +36,8 @@ function Style({
   itemShape,
   widgetColor,
   productAvailable,
-  textAvailable
+  textAvailable,
+  baseFont
 }: Props) {
   const renderColorSelect = (item, color) => {
     const popoverBottom = (
@@ -78,6 +81,19 @@ function Style({
                   value: e.value,
                   label: e.label
                 }))}
+              />
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+
+        <FlexContent>
+          <FlexItem>
+            <FormGroup>
+              <ControlLabel>Base Font</ControlLabel>
+              <Select
+                placeholder="Please select a font"
+                value={baseFont}
+                options={FONTS.map(item => ({ label: item, value: item }))}
               />
             </FormGroup>
           </FlexItem>

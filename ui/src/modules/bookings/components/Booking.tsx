@@ -280,6 +280,7 @@ function Booking(props: Props) {
                 widgetColor={booking.widgetColor}
                 productAvailable={booking.productAvailable}
                 textAvailable={booking.textAvailable}
+                baseFont=""
               />
             </Step>
 
