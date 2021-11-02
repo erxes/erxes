@@ -29,7 +29,7 @@ const contains = (values: string[]) => {
 };
 
 export const getCloseDateByType = (closeDateType: string) => {
-  if (closeDateType === 'nextDay') {
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
     const tommorrow = moment().add(1, 'days');
 
     return {
@@ -38,7 +38,7 @@ export const getCloseDateByType = (closeDateType: string) => {
     };
   }
 
-  if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_WEEK) {
     const monday = moment()
       .day(1 + 7)
       .format('YYYY-MM-DD');

@@ -541,7 +541,7 @@ export const PRIORITIES = {
 
 export const CLOSE_DATE_TYPES = {
   NEXT_DAY: 'nextDay',
-  NEXT_WEEk: 'nextWeek',
+  NEXT_WEEK: 'nextWeek',
   NEXT_MONTH: 'nextMonth',
   NO_CLOSE_DATE: 'noCloseDate',
   OVERDUE: 'overdue',

@@ -340,22 +340,26 @@ const boardQueries = {
   ) {
     let groups;
     let detailFilter;
-    let assignedUserFilter;
+
+    const stages = await Stages.find({ pipelineId });
+
+    if (stages.length === 0) {
+      return {};
+    }
+
+    const stageIds = stages.map(stage => stage._id);
+
+    const filter: any = {
+      stageId: { $in: stageIds },
+      status: BOARD_STATUSES.ACTIVE
+    };
 
     switch (stackBy) {
       case 'stage': {
-        groups = (await Stages.find({ pipelineId })).map(stage => ({
+        groups = stages.map(stage => ({
           _id: stage._id,
           name: stage.name
         }));
-
-        if (groups.length === 0) {
-          return {};
-        }
-
-        const stageIds = groups.map(stage => stage._id);
-
-        assignedUserFilter = { stageId: { $in: stageIds } };
 
         detailFilter = (stage: IStageDocument) => ({ stageId: stage._id });
 
@@ -365,7 +369,7 @@ const boardQueries = {
       case 'priority': {
         groups = PRIORITIES.ALL.map(p => ({ name: p }));
 
-        assignedUserFilter = { priority: { $in: PRIORITIES.ALL } };
+        filter.priority = { $in: PRIORITIES.ALL };
 
         detailFilter = ({ name }: { name: string }) => ({ priority: name });
 
@@ -379,7 +383,7 @@ const boardQueries = {
           return {};
         }
 
-        assignedUserFilter = { labelIds: { $in: groups.map(g => g._id) } };
+        filter.labelIds = { $in: groups.map(g => g._id) };
 
         detailFilter = (label: IPipelineLabelDocument) => ({
           labelIds: { $in: [label._id] }
@@ -391,8 +395,6 @@ const boardQueries = {
       case 'dueDate': {
         groups = CLOSE_DATE_TYPES.ALL;
 
-        assignedUserFilter = {};
-
         detailFilter = ({ value }: { value: string }) => ({
           closeDate: getCloseDateByType(value)
         });
@@ -402,7 +404,7 @@ const boardQueries = {
     const { collection } = getCollection(type);
 
     const assignedUserIds = await collection
-      .find(assignedUserFilter)
+      .find(filter)
       .distinct('assignedUserIds');
 
     const users = await Users.find({ _id: { $in: assignedUserIds } });
@@ -415,7 +417,9 @@ const boardQueries = {
       for (const groupItem of groups) {
         const count = await collection.countDocuments({
           ...detailFilter(groupItem),
-          assignedUserIds: { $in: [user._id] }
+          assignedUserIds: { $in: [user._id] },
+          status: BOARD_STATUSES.ACTIVE,
+          stageId: { $in: stageIds }
         });
 
         groupWithCount[groupItem.name || ''] = count;
