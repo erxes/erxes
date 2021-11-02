@@ -757,7 +757,6 @@ const widgetMutations = {
 
     // do not use Customers.getCustomer() because it throws error if not found
     const customer = await Customers.findOne({ _id: customerId });
-
     const form = await Forms.getForm(formId || '');
 
     let finalContent = content;
