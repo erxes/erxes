@@ -3,29 +3,28 @@ import TextInfo from "erxes-ui/lib/components/TextInfo";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import { renderApiTable, stringify } from "../common.js";
-import Button from "erxes-ui/lib/components/Button";
 
 export function TextInfoComponent(props) {
   const { style = [], type, table = [] } = props;
 
-  const propDatas = (textStyle, stl) => {
+  const propDatas = (propname, stl) => {
     const kind = {
-      [textStyle]: stl,
+      [propname]:
+        propname === "textStyle" || propname === "hugeness" ? stl : true,
     };
 
     return kind;
   };
 
-  const renderBlock = (textStyle) => {
+  const renderBlock = (propname, stl) => {
     return (
       <>
         {style.map((stl, index) => {
           return (
             <>
-              <TextInfo {...propDatas(textStyle, stl)} hugeness="big">
+              <TextInfo key={index} {...propDatas(propname, stl)}>
                 {stl}
               </TextInfo>{" "}
-              <TextInfo {...propDatas(textStyle, stl)}>{stl}</TextInfo>
             </>
           );
         })}
@@ -33,11 +32,8 @@ export function TextInfoComponent(props) {
           {`<>${style.map((stl, index) => {
             return `\n\t
             <TextInfo ${stringify(
-              propDatas(textStyle, stl, index)
-            )} hugeness="big" >${stl}</TextInfo>\n\t
-            <TextInfo ${stringify(
-              propDatas(textStyle, stl, index)
-            )} hugeness="small" >${stl}</TextInfo>`;
+              propDatas(propname, stl, index)
+            )} >${stl}</TextInfo>`;
           })}\n</>`}
         </CodeBlock>
       </>
@@ -47,6 +43,11 @@ export function TextInfoComponent(props) {
   if (type === "APItextinfo") {
     return renderApiTable("TextInfo", table);
   }
-
-  return renderBlock("textStyle");
+  if (type === "textStyle") {
+    return renderBlock("textStyle");
+  }
+  if (type === "hugeness") {
+    return renderBlock("hugeness");
+  }
+  return null;
 }

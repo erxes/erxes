@@ -25,12 +25,12 @@ export function TipComponent(props) {
           {place.map((plc, index) => {
             return (
               <Tip key={index} {...propDatas(text, placement, plc)}>
-                <Button> {plc} </Button>
+                <Button> <p>{plc}</p><p>{plc}</p><p>{plc}</p> </Button>
               </Tip>
             );
           })}
         </div>
-
+        <br/>
         <CodeBlock className="language-jsx">
           {`<>${place.map((plc, index) => {
             return `\n\t<Tip ${stringify(
