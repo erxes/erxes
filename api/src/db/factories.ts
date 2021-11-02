@@ -1446,6 +1446,7 @@ interface IProductFactoryInput {
   vendorId?: string;
   customFieldsData?: ICustomField[];
   attachmentMore?: any[];
+  unitPrice?: number;
 }
 
 export const productFactory = async (params: IProductFactoryInput = {}) => {
@@ -1460,7 +1461,8 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     code: await getUniqueValue(Products, 'code'),
     vendorId: params.vendorId,
     createdAt: new Date(),
-    tagIds: params.tagIds || []
+    tagIds: params.tagIds || [],
+    unitPrice: params.unitPrice || 10
   });
 
   return product.save();
