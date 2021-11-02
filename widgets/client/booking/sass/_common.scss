@@ -20,7 +20,7 @@
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: space-between;
   margin-top: 10px;
 }
 .flex-items-center {
@@ -65,9 +65,6 @@
 }
 .mr-30 {
   margin-right: 30px !important;
-  &:hover {
-    cursor: pointer;
-  }
 }
 .mb-10 {
   margin-bottom: 10px !important;
@@ -109,16 +106,17 @@
 .text-center {
   text-align: center;
 }
+.relative {
+  position: relative;
+}
 
 .btn-move {
   background-repeat: no-repeat;
   width: 30px;
   height: 30px;
   flex: 0 0 30px;
-  margin-left: 10px;
   border-radius: 4px;
-  border: 1px solid rgb(204, 204, 204);
-  background-color: #fff;
+  border: 1px solid #ddd;
   background-size: 10px;
   background-position: center center;
   &-right {

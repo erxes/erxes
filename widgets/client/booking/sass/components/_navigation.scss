@@ -66,6 +66,10 @@
           border-color: #1dc51d transparent transparent !important;
         }
       }
+
+      &.card-disabled {
+        pointer-events: none;
+      }
     }
   }
 

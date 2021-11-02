@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { IBookingData } from '../types';
-import Card from './common/Card';
-import Button from './common/Button';
-import { readFile, __ } from '../../utils';
+import * as React from "react";
+import { IBookingData } from "../types";
+import Card from "./common/Card";
+import Button from "./common/Button";
+import { readFile, __ } from "../../utils";
 type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
@@ -18,43 +18,38 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     mainProductCategory,
     style,
     categoryTree,
-    productCategoryId
+    productCategoryId,
   } = booking;
 
   const { name, attachment, description } = mainProductCategory;
   const { columns, rows, line, margin } = style;
 
   const childCategories = categoryTree.filter(
-    tree => tree.parentId === productCategoryId && tree.type === 'category'
+    (tree) => tree.parentId === productCategoryId && tree.type === "category"
   );
   const sortedChilds = childCategories.sort((a, b) =>
     a.name.localeCompare(b.name)
   );
 
   const column: string = columns!;
-  const colCount = parseInt(column, 10) >= 4 ? '4' : columns;
+  const colCount = parseInt(column, 10) >= 4 ? "4" : columns;
 
   const gridStyle = {
-    marginTop: '10px',
+    marginTop: "10px",
     gridTemplateColumns: `repeat(${colCount}, minmax(120px, 1fr))`,
-    gap: margin
+    gap: margin || "10px",
   };
 
-  let selectedId = '';
-  let isAnotherCardSelected = false;
+  let selectedId = "";
 
   const selectCard = (el: any) => {
-    if (selectedId !== el._id) {
-      isAnotherCardSelected = true;
-    }
-
     selectedId = el._id;
     const count: string = el.count!;
     const status =
-      el.status === 'disabled' || parseInt(count, 10) === 0 ? 'disabled' : '';
+      el.status === "disabled" || parseInt(count, 10) === 0 ? "disabled" : "";
 
     setTimeout(() => {
-      if (status !== 'disabled') {
+      if (status !== "disabled") {
         goToCategory(selectedId);
       }
     }, 100);
@@ -63,24 +58,26 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   const Body = () => {
     return (
       <div className="body">
-        <div style={{ maxHeight: '40vh' }} className="img-container">
-          <img src={readFile(attachment && attachment.url)} alt={'s'} />
+        <div className="img-container">
+          <img
+            src={readFile(attachment && attachment.url)}
+            alt={attachment.url}
+          />
         </div>
         <div className="cards" style={gridStyle}>
-          {sortedChilds.map(el => {
-            return (
-              <div onClick={() => selectCard(el)} key={el._id}>
-                <Card
-                  title={el.name}
-                  status={el.status}
-                  count={el.count}
-                  description={el.description}
-                  style={style}
-                  isAnotherCardSelected={isAnotherCardSelected}
-                />
-              </div>
-            );
-          })}
+          {sortedChilds.map((el) => (
+            <React.Fragment key={el._id}>
+              <Card
+                title={el.name}
+                status={el.status}
+                count={el.count}
+                description={el.description}
+                style={style}
+                onClick={() => selectCard(el)}
+                key={el._id}
+              />
+            </React.Fragment>
+          ))}
         </div>
       </div>
     );
@@ -90,7 +87,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     return (
       <div className="footer">
         <Button
-          text={__('Back')}
+          text={__("Back")}
           type="back"
           onClickHandler={() => goToIntro()}
           style={{ backgroundColor: style.widgetColor, left: 0 }}
@@ -100,12 +97,14 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   };
 
   return (
-    <div className="container">
-      <h4> {name}</h4>
-      <p> {description} </p>
+    <>
+      <div className="title text-center">
+        <h4> {name}</h4>
+        <p className="text-center"> {description} </p>
+      </div>
       <Body />
       <Footer />
-    </div>
+    </>
   );
 }
 
