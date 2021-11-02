@@ -38,6 +38,7 @@ export interface IBookingData {
 
   categoryTree: ICategoryTree[];
   navigationText: string;
+  bookingFormText: string;
 
   mainProductCategory: IProductCategory;
 }

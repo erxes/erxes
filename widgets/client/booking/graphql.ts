@@ -129,6 +129,7 @@ const widgetsConnectMutation = `
           ${productCategoryFields}
         }
         navigationText
+        bookingFormText
 
         productCategoryId
 

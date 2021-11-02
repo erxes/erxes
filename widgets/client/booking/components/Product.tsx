@@ -131,7 +131,7 @@ function Product({ product, booking, goToCategory, showPopup }: Props) {
           style={{ backgroundColor: widgetColor, left: 0 }}
         />
         <Button
-          text={'Book product'}
+          text={booking.bookingFormText}
           type=""
           onClickHandler={() => showPopup()}
           style={{ backgroundColor: widgetColor, right: 0 }}
