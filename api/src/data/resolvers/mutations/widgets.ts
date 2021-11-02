@@ -983,7 +983,11 @@ const widgetMutations = {
       return { status: 'error', errors };
     }
 
-    const content = form.title;
+    const product = await Products.getProduct({ _id: productId });
+
+    const content = `<p>submitted a new booking for <strong>${product?.name +
+      +' ' +
+      product?.code}</strong></p>`;
 
     const cachedCustomer = await solveSubmissions(args);
 
@@ -991,41 +995,27 @@ const widgetMutations = {
     const conversation = await Conversations.createConversation({
       integrationId,
       customerId: cachedCustomer._id,
+      content,
+      bookingProductId: product._id
+    });
+
+    const message = await Messages.createMessage({
+      conversationId: conversation._id,
+      customerId: cachedCustomer._id,
+      bookingWidgetData: {
+        formWidgetData: submissions,
+        productId,
+        content: product.name
+      },
       content
     });
 
-    const messages: any = [];
-
-    // create messages
-    let bookingMessage = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId: cachedCustomer._id,
-      content,
-      formWidgetData: submissions
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: message
     });
 
-    messages.push(bookingMessage);
-
-    const product = await Products.getProduct({ _id: productId });
-
-    bookingMessage = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId: cachedCustomer._id,
-      content: `<p>submitted a new booking for <strong>${product?.name +
-        ' ' +
-        product?.code}</strong></p>`
-    });
-
-    messages.push(bookingMessage);
-
-    messages.map(async (message: any) => {
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: message
-      });
-
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: message
-      });
+    graphqlPubsub.publish('conversationMessageInserted', {
+      conversationMessageInserted: message
     });
 
     return {
