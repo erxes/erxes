@@ -551,7 +551,6 @@ export const replaceEditorAttributes = async (args: {
     }
 
     customer.customFieldsData = customFieldsData;
-    console.log('argsss =', customer.customFieldsData);
   }
 
   // replace customer fields
@@ -568,8 +567,6 @@ export const replaceEditorAttributes = async (args: {
           : 'customFieldsData';
 
         for (const subField of customer[dbFieldName] || []) {
-          console.log('subField: ', subField);
-
           replacers.push({
             key: `{{ customer.${dbFieldName}.${subField.field} }}`,
             value: subField.value || ''

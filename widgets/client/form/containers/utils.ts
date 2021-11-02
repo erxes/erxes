@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import client from '../../apollo-client';
-import { getLocalStorageItem, setLocalStorageItem } from '../../common';
+import { getLocalStorageItem } from '../../common';
 import { IBrowserInfo, IEmailParams } from '../../types';
 import { requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
@@ -50,6 +50,10 @@ export const sendEmail = ({
   formId,
   attachments
 }: IEmailParams) => {
+  const customerId = connection.customerId
+    ? connection.customerId
+    : getLocalStorageItem('customerId');
+
   client.mutate({
     mutation: gql(sendEmailMutation),
     variables: {
@@ -57,7 +61,7 @@ export const sendEmail = ({
       fromEmail,
       title,
       content,
-      customerId: getLocalStorageItem('customerId'),
+      customerId,
       formId,
       attachments
     }
@@ -116,12 +120,16 @@ export const saveLead = (params: {
     };
   });
 
+  const cachedCustomerId = connection.customerId
+    ? connection.customerId
+    : getLocalStorageItem('customerId');
+
   const variables = {
     integrationId,
     formId,
     browserInfo,
     submissions: submissions.filter(e => e),
-    cachedCustomerId: getLocalStorageItem('customerId')
+    cachedCustomerId
   };
 
   client
@@ -133,15 +141,19 @@ export const saveLead = (params: {
     .then(({ data }) => {
       if (data) {
         const { widgetsSaveLead } = data;
-        saveCallback(widgetsSaveLead);
 
         if (widgetsSaveLead.customerId) {
-          setLocalStorageItem(
-            'customerId',
-            widgetsSaveLead.customerId,
-            connection.setting
-          );
+          connection.customerId = widgetsSaveLead.customerId;
+
+          postMessage({
+            fromErxes: true,
+            message: 'setLocalStorageItem',
+            key: 'customerId',
+            value: widgetsSaveLead.customerId
+          });
         }
+
+        saveCallback(widgetsSaveLead);
 
         if (widgetsSaveLead && widgetsSaveLead.status === 'ok') {
           postMessage({
