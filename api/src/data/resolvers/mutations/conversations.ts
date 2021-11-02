@@ -687,6 +687,7 @@ const conversationMutations = {
         const product = await Products.getProduct({ _id: bookingProductId });
 
         let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
+
         let dealCurrency = await Configs.find({
           code: 'dealCurrency'
         }).distinct('value');
