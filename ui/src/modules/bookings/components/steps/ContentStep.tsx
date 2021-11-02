@@ -26,7 +26,8 @@ type Name =
   | 'columns'
   | 'rows'
   | 'margin'
-  | 'navigationText';
+  | 'navigationText'
+  | 'bookingFormText';
 
 type Props = {
   onChangeBooking: (name: Name, value: any) => void;
@@ -40,6 +41,7 @@ type Props = {
   rows?: number;
   margin?: number;
   navigationText?: string;
+  bookingFormText?: string;
 };
 
 function ContentStep({
@@ -52,7 +54,8 @@ function ContentStep({
   columns,
   rows,
   margin,
-  navigationText
+  navigationText,
+  bookingFormText
 }: Props) {
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
@@ -212,12 +215,34 @@ function ContentStep({
     );
   };
 
+  const renderBookingFormText = () => {
+    return (
+      <>
+        <FormGroup>
+          <Title>{__('Booking Form Button Text')}</Title>
+          <Description>
+            Type in a word to display as the booking form button text in the
+            product detail page.
+          </Description>
+          <FormControl
+            type="text"
+            value={bookingFormText}
+            onChange={(e: any) =>
+              onChangeBooking('bookingFormText', e.target.value)
+            }
+          />
+        </FormGroup>
+      </>
+    );
+  };
+
   return (
     <FlexItemContainer>
       <LeftItem>
         {renderGeneralSettings()}
         {renderProductDetail()}
         {renderDisplayBlock()}
+        {renderBookingFormText()}
       </LeftItem>
     </FlexItemContainer>
   );

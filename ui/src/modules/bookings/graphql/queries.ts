@@ -10,6 +10,7 @@ const bookingFields = `
   viewCount
   
   navigationText
+  bookingFormText
 
   description
   userFilters

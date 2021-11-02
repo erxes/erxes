@@ -38,6 +38,7 @@ export interface IBookingData {
   style?: IStyle;
   mainProductCategory?: IProductCategory;
   navigationText?: string;
+  bookingFormText?: string;
 
   viewCount?: number;
 }

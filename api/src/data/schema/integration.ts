@@ -49,12 +49,12 @@ export const types = `
 
     style: JSON
     displayBlock: JSON
-
     viewCount: Int
 
     categoryTree: [BookingTree]
     mainProductCategory: ProductCategory
     navigationText: String
+    bookingFormText: String
   }
 
   type integrationsTotalCount {
@@ -118,6 +118,7 @@ export const types = `
     productCategoryId: String
 
     navigationText: String
+    bookingFormText: String
   }
 
   input MessengerOnlineHoursSchema {
