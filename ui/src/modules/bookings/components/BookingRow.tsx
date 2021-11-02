@@ -45,7 +45,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     }
   };
 
-  const manageAction = (integration: IBookingIntegration) => {
+  const manageAction = () => {
     return (
       <Link to={`/bookings/edit/${integration._id}`}>
         <Button id="skill-edit-skill" btnStyle="link">
@@ -106,7 +106,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     );
   };
 
-  const renderEditAction = (integration: IBookingIntegration) => {
+  const renderEditAction = () => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Install code')} placement="top">
@@ -176,8 +176,8 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
 
       <td>
         <ActionButtons>
-          {manageAction(integration)}
-          {renderEditAction(integration)}
+          {manageAction()}
+          {renderEditAction()}
           {renderArchiveAction()}
           {renderUnarchiveAction()}
           {renderRemoveAction()}

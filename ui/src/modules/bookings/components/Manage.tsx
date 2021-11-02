@@ -51,12 +51,12 @@ const getInstallCode = (integrationId: string) => {
 };
 
 function Manage({ integration, closeModal }: Props) {
-  let code = '';
+  let installCode = '';
 
-  code = getInstallCode(integration._id || '');
+  installCode = getInstallCode(integration._id || '');
 
   const [state, setState] = useState<State>({
-    code,
+    code: installCode,
     copied: false
   });
 

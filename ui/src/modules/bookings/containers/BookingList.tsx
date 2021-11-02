@@ -106,8 +106,8 @@ function BookingListContainer(props: FinalProps) {
     integrations
   };
 
-  const content = props => {
-    return <BookingList {...updatedProps} {...props} />;
+  const content = bulkProps => {
+    return <BookingList {...updatedProps} {...bulkProps} />;
   };
 
   return <Bulk content={content} refetch={refetch} />;
