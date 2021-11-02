@@ -20,13 +20,26 @@ class Card extends React.Component<Props, State> {
     super(props);
 
     const count: string = props.count!;
+    const { productAvailable, itemShape } = props.style;
+
+    let borderRadius = "5px";
+
+    switch (itemShape) {
+      case "round":
+        borderRadius = "80px";
+        break;
+      case "circle":
+        borderRadius = "50%";
+        break;
+    }
 
     this.state = {
       isDisabled:
         props.status === "disabled" || parseInt(count, 10) === 0 ? true : false,
       style: {
-        borderColor: props.style.productAvailable,
-        color: props.style.productAvailable,
+        borderColor: productAvailable,
+        color: productAvailable,
+        borderRadius,
       },
     };
   }

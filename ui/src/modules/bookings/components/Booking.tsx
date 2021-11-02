@@ -93,7 +93,7 @@ function Booking(props: Props) {
 
     formData: {
       title: form.title || 'Form Title',
-      description: form.description || 'Form Description',
+      description: form.description || '',
       buttonText: form.buttonText || 'Send',
       fields: [],
       type: form.type || '',
