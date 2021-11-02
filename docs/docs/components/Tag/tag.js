@@ -6,30 +6,60 @@ import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../../src/components/styles.module.css";
 
 function TagComponent(props) {
-  const { tag = [], lmt } = props;
+  const { type, colors = [] } = props;
 
-  const propDatas = (tags, limit) => {
+  const propDatas = (limit) => {
+    const arr = [];
+    colors.map((clr, i) => {
+      arr.push({ _id: i, type: "default", name: clr, colorCode: clr })
+
+    });
+    console.log(arr);
+    const kind = {
+      tags: arr,
+    };
+
     const datas = {
-      tags: tag,
-      limit: lmt,
+      ...kind,
+      limit: limit && 3,
     };
 
     return datas;
   };
 
-  const renderBlock = (tags, limit) => {
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/{"tags":/g, "tags=");
+    string = string.replace(/{"/g, "\n\t\t{");
+    string = string.replace(/":/g, ":");
+    string = string.replace(/,"/g, ", ");
+    string = string.replace(/]}/g, "\n\t]");
+
+    return string;
+  }
+
+  const renderBlock = (limit) => {
     return (
       <>
         <div className={styles.styled}>
-          <Tags {...propDatas(tags, limit)} />
+          <Tags {...propDatas(limit)} />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<Tags ${JSON.stringify(propDatas(tags, limit))} />\n</>`}
+          {`<>\n\t<Tags ${stringify(propDatas(limit))} />\n</>`}
         </CodeBlock>
       </>
     );
   };
-  return renderBlock("tags", "limit");
+
+  if (type === "color") {
+    return renderBlock();
+  }
+
+  if (type === "limit") {
+    return renderBlock("limit");
+  }
+
+  return null;
 }
 
 function ApiTable() {

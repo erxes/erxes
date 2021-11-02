@@ -6,7 +6,7 @@ import { renderApiTable, stringify } from "../common.js";
 export function UploaderComponent(props) {
 const { singl, multi, lmt, type, table=[] } = props;
   
-const propDatas = (single, multiple, limit) => {
+const propDatas = () => {
   const datas = {
     single : singl,
     multiple: multi,
@@ -16,13 +16,13 @@ const propDatas = (single, multiple, limit) => {
   return datas;
 };
 
-const renderBlock = (single, multiple, limit) => {
+const renderBlock = () => {
   return(
     <>
-    <Uploader {...propDatas(single, multiple, limit)} />
+    <Uploader {...propDatas()} />
     <CodeBlock className="language-jsx">
           {`<>\n\t<Uploader ${stringify(
-            propDatas(single, multiple, limit)
+            propDatas()
           )} />\n</>`}
         </CodeBlock>
     </>
@@ -33,5 +33,5 @@ if (type === "APIuploader"){
   return renderApiTable("Uploader", table);
 };
 
-return renderBlock("single", "multiple", "limit");
+return renderBlock();
 }
