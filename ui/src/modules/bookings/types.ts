@@ -29,17 +29,7 @@ export interface IBookingIntegration extends IIntegration {
   createdUser: IUser;
 }
 
-// query types
-export type BookingIntegrationsQueryResponse = {
-  integrations: IBookingIntegration[];
-} & QueryResponse;
-
-export type BookingIntegrationDetailQueryResponse = {
-  integrationDetail: IBookingIntegration;
-} & QueryResponse;
-
 export interface IBookingData {
-  // content
   name?: string;
   image?: any;
   description?: string;
@@ -52,6 +42,16 @@ export interface IBookingData {
   viewCount?: number;
 }
 
+// query types
+export type BookingIntegrationsQueryResponse = {
+  integrations: IBookingIntegration[];
+} & QueryResponse;
+
+export type BookingIntegrationDetailQueryResponse = {
+  integrationDetail: IBookingIntegration;
+} & QueryResponse;
+
+// mutation types
 export type RemoveMutationVariables = {
   _id: string;
 };

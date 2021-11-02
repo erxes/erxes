@@ -62,7 +62,6 @@ function Manage({ integration, closeModal }: Props) {
 
   const onSimulate = () => {
     const { REACT_APP_CDN_HOST } = getEnv();
-    // tslint:disable-next-line: no-shadowed-variable
 
     window.open(
       `${REACT_APP_CDN_HOST}/test?type=booking&integration_id=${integration._id}`,
@@ -74,7 +73,6 @@ function Manage({ integration, closeModal }: Props) {
   const renderContent = () => {
     const onCopy = () => setState({ ...state, copied: true });
 
-    // tslint:disable-next-line: no-shadowed-variable
     const { code, copied } = state;
 
     return (
