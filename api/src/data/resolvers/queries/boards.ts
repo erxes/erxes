@@ -371,7 +371,10 @@ const boardQueries = {
 
         filter.priority = { $in: PRIORITIES.ALL };
 
-        detailFilter = ({ name }: { name: string }) => ({ priority: name });
+        detailFilter = ({ name }: { name: string }) => ({
+          priority: name,
+          stageId: { $in: stageIds }
+        });
 
         break;
       }
@@ -386,7 +389,8 @@ const boardQueries = {
         filter.labelIds = { $in: groups.map(g => g._id) };
 
         detailFilter = (label: IPipelineLabelDocument) => ({
-          labelIds: { $in: [label._id] }
+          labelIds: { $in: [label._id] },
+          stageId: { $in: stageIds }
         });
 
         break;
@@ -396,7 +400,8 @@ const boardQueries = {
         groups = CLOSE_DATE_TYPES.ALL;
 
         detailFilter = ({ value }: { value: string }) => ({
-          closeDate: getCloseDateByType(value)
+          closeDate: getCloseDateByType(value),
+          stageId: { $in: stageIds }
         });
       }
     }
@@ -416,10 +421,9 @@ const boardQueries = {
 
       for (const groupItem of groups) {
         const count = await collection.countDocuments({
-          ...detailFilter(groupItem),
           assignedUserIds: { $in: [user._id] },
           status: BOARD_STATUSES.ACTIVE,
-          stageId: { $in: stageIds }
+          ...detailFilter(groupItem)
         });
 
         groupWithCount[groupItem.name || ''] = count;
