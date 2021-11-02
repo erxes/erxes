@@ -1,11 +1,13 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
+  Configs,
   Conformities,
   ConversationMessages,
   Conversations,
   Customers,
-  Integrations
+  Integrations,
+  Products
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
@@ -50,6 +52,7 @@ interface IConversationConvert {
   itemId: string;
   stageId: string;
   itemName: string;
+  bookingProductId?: string;
 }
 
 /**
@@ -671,7 +674,7 @@ const conversationMutations = {
     params: IConversationConvert,
     { user, docModifier }: IContext
   ) {
-    const { _id, type, itemId, itemName, stageId } = params;
+    const { _id, type, itemId, itemName, stageId, bookingProductId } = params;
 
     const conversation = await Conversations.getConversation(_id);
 
@@ -679,6 +682,37 @@ const conversationMutations = {
 
     if (itemId) {
       const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+      if (bookingProductId) {
+        const product = await Products.getProduct({ _id: bookingProductId });
+
+        let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
+        let dealCurrency = await Configs.find({
+          code: 'dealCurrency'
+        }).distinct('value');
+
+        if (dealUOM.length > 0) {
+          dealUOM = dealUOM[0];
+        } else {
+          throw new Error(
+            'Please choose UNIT OF MEASUREMENT from general settings!'
+          );
+        }
+
+        if (dealCurrency.length > 0) {
+          dealCurrency = dealCurrency[0];
+        } else {
+          throw new Error('Please choose currency from general settings!');
+        }
+
+        oldItem.productsData.push({
+          productId: product._id,
+          unitPrice: product.unitPrice,
+          uom: dealUOM,
+          currency: dealCurrency,
+          quantity: product.productCount
+        });
+      }
 
       const doc = oldItem;
 
