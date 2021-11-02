@@ -131,32 +131,7 @@ p {
     margin-top: 2em;
   }
 }
-.img-container {
-  height: 200em;
-  max-height: 60vh;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  img {
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-  }
-}
-.footer {
-  position: fixed;
-  bottom: 0px;
-  height: 5em;
-  left: 0px;
-  right: 0px;
-  display: flex;
-  padding: 10px;
-  background-color: #fcfcfc;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-}
+
 .cards {
   display: grid;
   grid-auto-rows: max-content;
@@ -249,23 +224,24 @@ p {
 }
 
 .btn {
-  position: absolute;
   border: none;
   color: white;
   min-width: 80px;
   font-weight: bold;
-  padding: 10px 14px 10px 12px;
-  text-align: center;
-  text-decoration: none;
+  padding: 8px 15px;
   border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
     rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  font-size: 1.5em;
+  font-size: 12px;
+  cursor: pointer;
+  outline: 0;
+  transition: all ease 0.3s;
+
   &:hover {
-    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px 0px,
+      rgba(0, 0, 0, 0.08) 0px 1px 2px 0px;
   }
 }
 
@@ -296,7 +272,7 @@ hr {
 }
 
 .header {
-  padding: 10px;
+  padding: 10px 20px;
 
   .nav {
     display: flex;
@@ -311,5 +287,50 @@ hr {
     .hamburger {
       font-size: 16px;
     }
+  }
+}
+
+.booking-main-content {
+  padding: 10px 20px;
+
+  .title {
+    h4 {
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 14px;
+      margin-bottom: 20px;
+      text-align: justify;
+      text-align-last: center;
+      color: #333;
+      letter-spacing: 0.3px;
+      line-height: 18px;
+    }
+  }
+
+  .img-container {
+    max-height: 800px;
+    overflow: hidden;
+
+    img {
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 10px;
+    height: 5em;
+    left: 0px;
+    right: 0px;
+    display: flex;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
   }
 }

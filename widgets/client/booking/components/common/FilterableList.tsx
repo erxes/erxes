@@ -136,14 +136,12 @@ class FilterableList extends React.Component<Props, State> {
         }`}
       >
         <div className="flex-items-center">
-          {hasChildren && (
-            <div
-              className="toggle-nav"
-              onClick={() => this.onToggle(item._id, isOpen)}
-            >
-              {this.renderIcons(isOpen, color)}
-            </div>
-          )}
+          <div
+            className="toggle-nav"
+            onClick={() => this.onToggle(item._id, isOpen)}
+          >
+            {hasChildren && this.renderIcons(isOpen, color)}
+          </div>
           <div
             className={`list-item`}
             onClick={() => handleClick(item)}

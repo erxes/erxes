@@ -74,17 +74,11 @@
   }
 
   .child-list {
-    margin-left: 30px;
+    margin-left: 20px;
   }
   .toggle-nav {
-    width: 15px !important;
-    div {
-      background-color: #fff !important;
-    }
-
-    &:hover {
-      cursor: pointer;
-    }
+    width: 12px !important;
+    cursor: pointer;
   }
   ht {
     width: 200;

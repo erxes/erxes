@@ -69,7 +69,7 @@ function App({
           items={booking.categoryTree}
           parentId={booking.productCategoryId}
         />
-        {renderContent()}
+        <div className="booking-main-content">{renderContent()}</div>
       </div>
     </>
   );
