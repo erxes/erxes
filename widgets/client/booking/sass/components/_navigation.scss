@@ -1,31 +1,31 @@
 .booking-navigation {
   position: fixed;
   top: 0;
-  left:0;
-  min-width: 20%;
-  background-color: #fff; 
-  text-align: left;
-  display: inline-block;
+  left: 0;
+  min-width: 200px;
+  background-color: #fff;
   border-radius: 2px;
   padding: 10px;
-  z-index:2;
+  z-index: 10;
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-  font-size: 1.8em;
-  .booking-header{
+  font-size: 14px;
+
+  .booking-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    h4{
-      margin:0;
-      font-size: 1.2em
+
+    h4 {
+      margin: 0;
+      font-size: 15px;
+      padding-right: 10px;
+      max-width: 300px;
+      line-height: 16px;
     }
-    div{
-      font-size: 1.5em;
-      &:hover {
-        cursor: pointer;
-      }
+
+    svg {
+      height: 18px;
     }
-    
   }
   ul {
     padding-inline-start: 0;
@@ -42,7 +42,7 @@
     div {
       width: max-content;
       margin-right: 5px;
-    }    
+    }
   }
   .child-list {
     margin-left: 30px;
@@ -61,8 +61,9 @@
     width: 200;
   }
 }
-.Popover-right{
+
+.Popover-right {
   position: fixed;
-  top:0 !important;
-  left:0 !important
+  top: 0 !important;
+  left: 0 !important;
 }

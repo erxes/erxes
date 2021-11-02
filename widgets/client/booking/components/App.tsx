@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { iconClose } from '../../icons/Icons';
-import { Booking, Intro, CategoryDetail, Product } from '../containers';
-import { IBookingData } from '../types';
-import Header from '../containers/common/Header';
-import Form from '../containers/form/Form';
+import * as React from "react";
+import { iconClose } from "../../icons/Icons";
+import { Booking, Intro, CategoryDetail, Product } from "../containers";
+import { IBookingData } from "../types";
+import Header from "../containers/common/Header";
+import Form from "../containers/form/Form";
 
 type Props = {
   activeRoute: string;
@@ -18,7 +18,7 @@ function App({
   activeRoute,
   isFormVisible,
   containerClass,
-  closePopup
+  closePopup,
 }: Props) {
   const renderCloseButton = () => {
     return (
@@ -29,19 +29,19 @@ function App({
   };
 
   const renderContent = () => {
-    if (activeRoute === 'INTRO') {
+    if (activeRoute === "INTRO") {
       return <Intro />;
     }
 
-    if (activeRoute === 'BOOKING') {
+    if (activeRoute === "BOOKING") {
       return <Booking />;
     }
 
-    if (activeRoute === 'CATEGORY_DETAIL') {
+    if (activeRoute === "CATEGORY_DETAIL") {
       return <CategoryDetail />;
     }
 
-    if (activeRoute === 'PRODUCT_DETAIL') {
+    if (activeRoute === "PRODUCT_DETAIL") {
       return <Product />;
     }
 
@@ -64,12 +64,13 @@ function App({
           {renderCloseButton()}
         </div>
       </div>
-      <Header
-        items={booking.categoryTree}
-        parentId={booking.productCategoryId}
-      />
-      <div />
-      {renderContent()}
+      <div className="booking-main-container">
+        <Header
+          items={booking.categoryTree}
+          parentId={booking.productCategoryId}
+        />
+        {renderContent()}
+      </div>
     </>
   );
 }
