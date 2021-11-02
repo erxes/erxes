@@ -11,7 +11,7 @@ import {
 type Props = {
   data: any;
   component: typeof React.Component;
-  children: React.ReactElement<any>[];
+  children: React.ReactNode;
 };
 
 export default function MainChart({ component, data, children }: Props) {

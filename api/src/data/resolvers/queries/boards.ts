@@ -409,7 +409,7 @@ const boardQueries = {
 
     const users = await Users.find({ _id: { $in: assignedUserIds } });
 
-    const usersWithInfo: { name: string }[] = [];
+    const usersWithInfo: Array<{ name: string }> = [];
 
     for (const user of users) {
       const groupWithCount = {};

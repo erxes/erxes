@@ -258,17 +258,15 @@ class MainActionBar extends React.Component<Props> {
   };
 
   renderViewChooser = () => {
-    const onFilterClick = (type: string) => {
-      const { currentBoard, currentPipeline, options } = this.props;
+    const { currentBoard, currentPipeline, options, viewType } = this.props;
 
+    const onFilterClick = (type: string) => {
       if (currentBoard && currentPipeline) {
         return `/${options.type}/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
       }
 
       return `/${options.type}/${type}`;
     };
-
-    const { viewType, options } = this.props;
 
     return (
       <ButtonGroup>
