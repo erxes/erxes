@@ -1819,7 +1819,7 @@ describe('lead', () => {
     expect(response && response.status).toBe('ok');
 
     expect(await Conversations.find().countDocuments()).toBe(1);
-    expect(await ConversationMessages.find().countDocuments()).toBe(2);
+    expect(await ConversationMessages.find().countDocuments()).toBe(1);
     expect(await Customers.find().countDocuments()).toBe(2);
     expect(await FormSubmissions.find().countDocuments()).toBe(1);
   });
