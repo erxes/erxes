@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import TimeLine from 'react-gantt-timeline';
-import './styles.css';
 import Generator from './Generator.js';
+import {
+  GanttContainer,
+  NavContainer,
+  ModeTitle,
+  OperationButtonContainer,
+  ModeContainer,
+  TimelineContainer
+} from 'modules/boards/styles/viewtype';
 
 const config = {
   header: {
@@ -196,30 +203,28 @@ class GanttChart extends Component {
 
   render() {
     return (
-      <div className="app-container">
-        <div className="nav-container">
-          <div className="mode-container-title">Full Demo</div>
-          <div className="operation-button-container">
-            <div className="operation-button-container">
-              <div className="mode-button" onClick={this.addTask}>
-                <svg height={30} width={30} viewBox="0 0 48 48">
-                  <path
-                    fill="silver"
-                    d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm10 22h-8v8h-4v-8h-8v-4h8v-8h4v8h8v4z"
-                  />
-                </svg>
-              </div>
-              <div className="mode-button" onClick={this.delete}>
-                <svg height={30} width={30} viewBox="0 0 48 48">
-                  <path
-                    fill="silver"
-                    d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm10 22H14v-4h20v4z"
-                  />
-                </svg>
-              </div>
+      <GanttContainer>
+        <NavContainer>
+          <ModeTitle>Full Demo</ModeTitle>
+          <OperationButtonContainer>
+            <div className="mode-button" onClick={this.addTask}>
+              <svg height={30} width={30} viewBox="0 0 48 48">
+                <path
+                  fill="silver"
+                  d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm10 22h-8v8h-4v-8h-8v-4h8v-8h4v8h8v4z"
+                />
+              </svg>
             </div>
-          </div>
-          <div className="mode-container">
+            <div className="mode-button" onClick={this.delete}>
+              <svg height={30} width={30} viewBox="0 0 48 48">
+                <path
+                  fill="silver"
+                  d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm10 22H14v-4h20v4z"
+                />
+              </svg>
+            </div>
+          </OperationButtonContainer>
+          <ModeContainer>
             <div
               className="mode-container-item mode-container-item-left"
               onClick={e => this.modeChange('day')}
@@ -259,9 +264,9 @@ class GanttChart extends Component {
             >
               {this.state.nonEditableName ? 'Enable' : 'Disable'} name edition
             </div>
-          </div>
-        </div>
-        <div className="time-line-container">
+          </ModeContainer>
+        </NavContainer>
+        <TimelineContainer>
           <TimeLine
             config={config}
             data={this.state.data}
@@ -275,8 +280,8 @@ class GanttChart extends Component {
             selectedItem={this.state.selectedItem}
             nonEditableName={this.state.nonEditableName}
           />
-        </div>
-      </div>
+        </TimelineContainer>
+      </GanttContainer>
     );
   }
 }

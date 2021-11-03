@@ -38,3 +38,84 @@ export const DateType = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 11px;
 `;
+
+export const GanttContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+`;
+
+export const TimelineContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 500px;
+  margin: 10px;
+`;
+
+export const NavContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background: -moz-linear-gradient(top, #eeeeee 0%, #cccccc 100%);
+  background: -webkit-linear-gradient(
+    top,
+    #eeeeee 0%,
+    #cccccc 100%
+  ); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #eeeeee 0%, #cccccc 100%);
+  height: 50px;
+  color: grey;
+  align-items: center;
+`;
+
+export const List = styled.div`
+  width: 200px;
+  height: 50%;
+  border: solid 1px silver;
+  border-radius: 10px;
+  box-shadow: 2px 2px silver;
+`;
+
+export const ModeContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+  justify-self: flex-end;
+  margin: 0px 20px;
+`;
+export const ModeTitle = styled.div`
+  margin: 0px 20px;
+  flex: 1 1 auto;
+  margin: 0px 20px;
+  text-shadow: 0.5px 0.5px white;
+  font-family: Helvetica, sans-serif;
+  font-size: 22px;
+  font-weight: bolder;
+`;
+
+export const ModeItem = styled.div`
+  flex: 0 0 auto;
+  width: 80px;
+  padding: 5px;
+  border: solid 1px silver;
+  background-color: #333333;
+  color: white;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+`;
+
+export const OperationButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+  justify-self: flex-end;
+`;
