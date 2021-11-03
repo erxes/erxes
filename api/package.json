@@ -100,7 +100,7 @@
     "underscore": "^1.8.3",
     "uuid": "^3.3.3",
     "uuid-by-string": "^3.0.2",
-    "validator": "^9.0.0",
+    "validator": "^13.7.0",
     "vm2": "^3.9.2",
     "xlsx-populate": "^1.20.1",
     "xlsx-stream-reader": "^1.1.1",
