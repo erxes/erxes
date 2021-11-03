@@ -255,6 +255,35 @@ const sendNotifications = async ({
   }
 };
 
+// check booking convert
+const checkBookingConvert = async (productId: string) => {
+  const product = await Products.getProduct({ _id: productId });
+
+  let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
+
+  let dealCurrency = await Configs.find({
+    code: 'dealCurrency'
+  }).distinct('value');
+
+  if (dealUOM.length > 0) {
+    dealUOM = dealUOM[0];
+  } else {
+    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
+  }
+
+  if (dealCurrency.length > 0) {
+    dealCurrency = dealCurrency[0];
+  } else {
+    throw new Error('Please choose currency from general settings!');
+  }
+
+  return {
+    product,
+    dealUOM,
+    dealCurrency
+  };
+};
+
 const conversationMutations = {
   /**
    * Create new message in conversation
@@ -684,27 +713,9 @@ const conversationMutations = {
       const oldItem = await collection.findOne({ _id: itemId }).lean();
 
       if (bookingProductId) {
-        const product = await Products.getProduct({ _id: bookingProductId });
-
-        let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
-
-        let dealCurrency = await Configs.find({
-          code: 'dealCurrency'
-        }).distinct('value');
-
-        if (dealUOM.length > 0) {
-          dealUOM = dealUOM[0];
-        } else {
-          throw new Error(
-            'Please choose UNIT OF MEASUREMENT from general settings!'
-          );
-        }
-
-        if (dealCurrency.length > 0) {
-          dealCurrency = dealCurrency[0];
-        } else {
-          throw new Error('Please choose currency from general settings!');
-        }
+        const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+          bookingProductId
+        );
 
         oldItem.productsData.push({
           productId: product._id,
@@ -768,6 +779,22 @@ const conversationMutations = {
       doc.sourceConversationIds = [_id];
       doc.customerIds = [conversation.customerId];
       doc.assignedUserIds = [conversation.assignedUserId];
+
+      if (bookingProductId) {
+        const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+          bookingProductId
+        );
+
+        doc.productsData = [
+          {
+            productId: product._id,
+            unitPrice: product.unitPrice,
+            uom: dealUOM,
+            currency: dealCurrency,
+            quantity: product.productCount
+          }
+        ];
+      }
 
       const item = await itemsAdd(doc, type, create, user, docModifier);
 
