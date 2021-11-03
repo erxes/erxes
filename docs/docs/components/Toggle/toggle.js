@@ -1,43 +1,51 @@
 import React from "react";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../common.js";
+import { renderApiTable} from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 import Toggle from "erxes-ui/lib/components/Toggle";
 import styles from "../../../src/components/styles.module.css";
 
 export function ToggleComponent(props) {
-  const { type, extra, table = [] } = props;
+  const { type, table = [] } = props;
 
-  const propDatas = (addition, extra) => {
+  let icon = {
+              checked: "Y",
+              unchecked: "N",
+            }
+
+  const propDatas = (propName, extra) => {
     const kind = {
-      [addition]: (addition = true),
-      [extra]: (extra = true),
+      [propName]: propName === "icons" ? icon : true,
+      [extra]: extra && true,
     };
 
-    const datas = {
-      ...kind,
-    };
-    return datas;
+    return kind;
   };
-  const renderBlock = (addition, extra) => {
+
+  const stringify = (kind) => {
+    let string = JSON.stringify(kind);
+    string = string.replace(/}},"/g, "}} ");
+    string = string.replace(/},"/g, "}, ");
+    string = string.replace(/":/g, ":");
+    string = string.replace(/{"/g, "{");
+    string = string.slice(1, string.length - 1);
+    string = string.replace(/icons:/g, "icons=");
+    string = string.replace(/,"/g, ", ");
+
+    return string;
+  }
+
+  const renderBlock = (propName, extra) => {
     return (
       <>
         <div className={styles.styled}>
           <Toggle
-            icons={{
-              checked: <span>{"Yes"}</span>,
-              unchecked: <span>{"No"}</span>,
-            }}
-            {...propDatas(addition, extra)}
+            {...propDatas(propName, extra)}
           />
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n<Toggle 
-    icons={{
-      checked: <span>{'Yes'}</span>,
-      unchecked: <span>{'No'}</span>
-    }}
-    ${propDatas(addition, extra)}
+    ${stringify(propDatas(propName, extra))}
     />\n</>`}
         </CodeBlock>
       </>
@@ -50,6 +58,10 @@ export function ToggleComponent(props) {
 
   if (type === "checked") {
     return renderBlock("checked");
+  }
+
+  if (type === "icons") {
+    return renderBlock("icons");
   }
 
   if (type === "defaultChecked") {
