@@ -387,6 +387,7 @@ class Navigation extends React.Component<IProps> {
             [],
             lbl
           )}
+
           {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
       </LeftNavigation>
