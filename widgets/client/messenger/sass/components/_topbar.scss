@@ -1,24 +1,23 @@
-$name-white: rgba(255, 255, 255, 0.8);
-$topbar-shadow: rgba(0, 0, 0, 0.1);
+$name-white: rgba(255, 255, 255, .8);
+$topbar-shadow: rgba(0, 0, 0, .1);
 
 .head-wrapper {
   background-color: $main-color;
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
   box-shadow: 0 4px 6px 0 $topbar-shadow;
-  transition: height 0.25s ease-in-out;
-  background-image: url("https://s3.amazonaws.com/erxes/pattern.png");
+  transition: height .25s ease-in-out;
+  background-image: url('https://s3.amazonaws.com/erxes/pattern.png');
   background-repeat: repeat;
   background-size: cover;
   position: relative;
   z-index: 10;
 
   &::before {
-    background: url("https://s3.amazonaws.com/erxes/radial.png") left top
-      no-repeat;
+    background: url('https://s3.amazonaws.com/erxes/radial.png') left top no-repeat;
     background-size: cover;
     bottom: 0;
-    content: "";
+    content: '';
     left: 0;
     position: absolute;
     right: 0;
@@ -103,7 +102,7 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
     padding: 3px 5px;
     position: absolute;
     top: 10px;
-    transition: all 0.3s ease;
+    transition: all .3s ease;
 
     &:hover {
       background: $topbar-shadow;
@@ -117,7 +116,7 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
   .socials {
     a {
       margin-right: 12px;
-      opacity: 0.6;
+      opacity: .6;
 
       &:hover {
         opacity: 1;
@@ -240,12 +239,10 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
   position: relative;
 
   img {
-    background: rgba($black, 0.2);
+    background: rgba($black, .2);
     border: 2px solid transparent;
     border-radius: $core-spacing + 2;
     display: block;
-    object-fit: cover;
-    object-position: center;
     height: ($core-spacing * 2);
     width: ($core-spacing * 2);
   }

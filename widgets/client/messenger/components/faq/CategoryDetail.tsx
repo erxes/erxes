@@ -4,8 +4,6 @@ import { TopBar } from "../../containers";
 import { Articles } from "../../containers/faq";
 import { IFaqCategory } from "../../types";
 import { SearchBar } from "./";
-import { AppConsumer } from "../../containers/AppContext";
-import { __ } from "../../../utils";
 
 type Props = {
   category: IFaqCategory;
@@ -58,16 +56,6 @@ class CategoryDetail extends React.Component<Props, IState> {
 
     return (
       <div className="erxes-content slide-in">
-        <AppConsumer>
-          {({ changeRoute }) => (
-            <button
-              className="back-category-button left"
-              onClick={() => changeRoute("faqCategories")}
-            >
-              {iconLeft("#888")} {__("Back to categories")}
-            </button>
-          )}
-        </AppConsumer>
         <SearchBar onSearch={this.search} searchString={searchString} />
         <div className="scroll-wrapper">
           <Articles
