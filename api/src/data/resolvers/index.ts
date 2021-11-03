@@ -108,7 +108,7 @@ const resolvers: any = {
   Tag,
   Automation,
   AutomationNote,
-  Trigger,
+  Trigger
 };
 
 export default resolvers;

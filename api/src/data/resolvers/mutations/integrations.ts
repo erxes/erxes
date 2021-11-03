@@ -621,7 +621,7 @@ const integrationMutations = {
     await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return copiedIntegration;
-  },
+  }
 };
 
 checkPermission(

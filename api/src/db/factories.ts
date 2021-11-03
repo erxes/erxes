@@ -826,7 +826,7 @@ export const integrationFactory = async (
     isActive:
       params.isActive === undefined || params.isActive === null
         ? true
-        : params.isActive,
+        : params.isActive
   };
 
   if (params.messengerData && !params.messengerData.timezone) {

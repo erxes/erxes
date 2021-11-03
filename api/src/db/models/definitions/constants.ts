@@ -125,7 +125,7 @@ export const KIND_CHOICES = {
     'smooch-twilio',
     'whatsapp',
     'telnyx',
-    'webhook',
+    'webhook'
   ]
 };
 

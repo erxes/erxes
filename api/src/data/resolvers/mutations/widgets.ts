@@ -943,7 +943,7 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
-  },
+  }
 };
 
 export default widgetMutations;
