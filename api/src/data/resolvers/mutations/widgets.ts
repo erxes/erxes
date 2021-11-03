@@ -985,9 +985,7 @@ const widgetMutations = {
 
     const product = await Products.getProduct({ _id: productId });
 
-    const content = `<p>submitted a new booking for <strong>${product?.name +
-      +' ' +
-      product?.code}</strong></p>`;
+    const content = `<p>submitted a new booking for <strong><a href="/settings/product-service/details/${productId}">${product?.name}</a> ${product?.code}</strong></p>`;
 
     const cachedCustomer = await solveSubmissions(args);
 
