@@ -235,5 +235,5 @@ export default {
       visitorId,
       customerId
     );
-  },
+  }
 };
