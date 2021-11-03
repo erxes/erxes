@@ -50,9 +50,26 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       return null;
     }
 
-    return attachments.map((attachment, index) => (
-      <Attachment key={index} attachment={attachment} simple={true} />
-    ));
+    return attachments.map((attachment, index) => {
+      if (attachment.type === 'audio') {
+        return (
+          <audio controls={true}>
+            <source src={attachment.url} type="audio/ogg" />
+          </audio>
+        );
+      }
+
+      if (attachment.type === 'video') {
+        return (
+          <video controls={true} loop={true}>
+            <source src={attachment.url} type="video/mp4" />
+            {__('Your browser does not support the video tag')}.
+          </video>
+        );
+      }
+
+      return <Attachment key={index} attachment={attachment} simple={true} />;
+    });
   }
 
   renderVideoCallRequest() {

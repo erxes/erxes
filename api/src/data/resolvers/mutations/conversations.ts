@@ -73,11 +73,11 @@ const sendConversationToIntegrations = async (
       m.replace(regex, '$1')
     );
 
-    const attachments = doc.attachments as any[];
-
     images.forEach(img => {
-      attachments.push({ type: 'image', url: img });
+      doc.attachments.push({ type: 'image', url: img });
     });
+
+    const content = strip(doc.content);
 
     try {
       await messageBroker().sendRPCMessage(
@@ -88,7 +88,7 @@ const sendConversationToIntegrations = async (
           payload: JSON.stringify({
             integrationId,
             conversationId,
-            content: strip(doc.content),
+            content: content.replace(/&amp;/g, '&'),
             attachments: doc.attachments || [],
             tag: facebookMessageTag
           })
