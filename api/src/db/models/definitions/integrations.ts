@@ -87,13 +87,9 @@ export interface IAttachment {
 export interface IBookingStyle {
   itemShape?: string;
   widgetColor?: string;
-  productAvailable?: string;
-  productUnavailable?: string;
-  productSelected?: string;
 
+  productAvailable?: string;
   textAvailable?: string;
-  textUnavailable?: string;
-  textSelected?: string;
 
   line?: string;
   rows?: number;
@@ -389,12 +385,7 @@ export const bookingStyleSchema = new Schema(
     widgetColor: field({ type: String, label: 'Widget color' }),
 
     productAvailable: field({ type: String, label: 'Product available' }),
-    productUnavailable: field({ type: String, label: 'Product unavailable' }),
-    productSelected: field({ type: String, label: 'Select Product' }),
-
     textAvailable: field({ type: String, label: 'Text available' }),
-    textUnavailable: field({ type: String, label: 'Text unavailable' }),
-    textSelected: field({ type: String, label: 'Select text' }),
 
     line: field({ type: String, optional: true, label: 'Line' }),
     columns: field({ type: Number, optional: true, label: 'Columns' }),

@@ -95,13 +95,9 @@ export const types = `
   input BookingStyleInput {
     itemShape: String
     widgetColor: String
+    
     productAvailable: String
-    productUnavailable: String
-    productSelected: String
-
     textAvailable: String
-    textUnavailable: String
-    textSelected: String
 
     line: String
     rows: Int
