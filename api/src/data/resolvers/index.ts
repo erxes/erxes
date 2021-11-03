@@ -52,7 +52,6 @@ import UsersGroup from './usersGroup';
 import Automation from './automation';
 import AutomationNote from './automationNote';
 import Trigger from './trigger';
-import BookingData from './bookingData';
 
 const resolvers: any = {
   ...customScalars,
@@ -110,7 +109,6 @@ const resolvers: any = {
   Automation,
   AutomationNote,
   Trigger,
-  BookingData
 };
 
 export default resolvers;

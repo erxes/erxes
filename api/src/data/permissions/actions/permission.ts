@@ -1035,8 +1035,6 @@ export const moduleObjects = {
           'integrationsRemove',
           'integrationsArchive',
           'integrationsEdit',
-          'integrationsCreateBookingIntegration',
-          'integrationsEditBookinIntegration'
         ]
       },
       {
@@ -1079,14 +1077,6 @@ export const moduleObjects = {
         name: 'integrationsEdit',
         description: 'Edit common integration fields'
       },
-      {
-        name: 'integrationsCreateBookingIntegration',
-        description: 'Create booking integration'
-      },
-      {
-        name: 'integrationsEditBookingIntegration',
-        description: 'Edit booking integration'
-      }
     ]
   },
   inbox: {

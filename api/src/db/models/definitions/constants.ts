@@ -104,7 +104,6 @@ export const KIND_CHOICES = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
-  BOOKING: 'booking',
   ALL: [
     'messenger',
     'lead',
@@ -127,7 +126,6 @@ export const KIND_CHOICES = {
     'whatsapp',
     'telnyx',
     'webhook',
-    'booking'
   ]
 };
 
@@ -571,8 +569,7 @@ export const NOTIFICATION_TYPES = {
 export const FORM_TYPES = {
   LEAD: 'lead',
   GROWTH_HACK: 'growthHack',
-  BOOKING: 'booking',
-  ALL: ['lead', 'growthHack', 'booking']
+  ALL: ['lead', 'growthHack']
 };
 
 export const NOTIFICATION_CONTENT_TYPES = {

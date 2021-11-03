@@ -622,54 +622,6 @@ const integrationMutations = {
 
     return copiedIntegration;
   },
-  /**
-   * Create a new booking integration
-   */
-  async integrationsCreateBookingIntegration(
-    _root,
-    doc: IIntegration,
-    { user }: IContext
-  ) {
-    const integration = await Integrations.createBookingIntegration(
-      doc,
-      user._id
-    );
-
-    if (doc.channelIds) {
-      await Channels.updateMany(
-        { _id: { $in: doc.channelIds } },
-        { $push: { integrationIds: integration._id } }
-      );
-    }
-
-    return integration;
-  },
-
-  /**
-   * Edit a boooking integration
-   */
-  async integrationsEditBookingIntegration(
-    _root,
-    { _id, ...doc }: IEditIntegration
-  ) {
-    const integration = await Integrations.getIntegration({ _id });
-
-    const updated = await Integrations.updateBookingIntegration(_id, doc);
-
-    await Channels.updateMany(
-      { integrationIds: integration._id },
-      { $pull: { integrationIds: integration._id } }
-    );
-
-    if (doc.channelIds) {
-      await Channels.updateMany(
-        { _id: { $in: doc.channelIds } },
-        { $push: { integrationIds: integration._id } }
-      );
-    }
-
-    return updated;
-  }
 };
 
 checkPermission(
@@ -721,16 +673,6 @@ checkPermission(
   integrationMutations,
   'integrationsCopyLeadIntegration',
   'integrationsCreateLeadIntegration'
-);
-checkPermission(
-  integrationMutations,
-  'integrationsCreateBookingIntegration',
-  'integrationsCreateBookingIntegration'
-);
-checkPermission(
-  integrationMutations,
-  'integrationsEditBookingIntegration',
-  'integrationsEditBookingIntegration'
 );
 
 export default integrationMutations;

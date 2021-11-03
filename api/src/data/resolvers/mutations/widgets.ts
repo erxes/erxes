@@ -9,7 +9,6 @@ import {
   Forms,
   Integrations,
   KnowledgeBaseArticles,
-  Products,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -945,95 +944,6 @@ const widgetMutations = {
 
     return { botData: botRequest.responses };
   },
-  // Find integration
-  async widgetsBookingConnect(_root, { _id }: { _id: string }) {
-    const integration = await Integrations.getIntegration({
-      _id,
-      isActive: true
-    });
-
-    await Integrations.increaseBookingViewCount(_id);
-
-    return integration;
-  },
-
-  // create new conversation using form data
-  async widgetsSaveBooking(
-    _root,
-    args: {
-      integrationId: string;
-      formId: string;
-      submissions: ISubmission[];
-      browserInfo: any;
-      cachedCustomerId?: string;
-      productId: string;
-    }
-  ) {
-    const { integrationId, formId, submissions, productId } = args;
-
-    const form = await Forms.findOne({ _id: formId });
-
-    if (!form) {
-      throw new Error('Form not found');
-    }
-
-    const errors = await Forms.validate(formId, submissions);
-
-    if (errors.length > 0) {
-      return { status: 'error', errors };
-    }
-
-    const content = form.title;
-
-    const cachedCustomer = await solveSubmissions(args);
-
-    // create conversation
-    const conversation = await Conversations.createConversation({
-      integrationId,
-      customerId: cachedCustomer._id,
-      content
-    });
-
-    const messages: any = [];
-
-    // create messages
-    let message = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId: cachedCustomer._id,
-      content,
-      formWidgetData: submissions
-    });
-
-    messages.push(message);
-
-    const product = await Products.getProduct({ _id: productId });
-
-    message = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId: cachedCustomer._id,
-      content: `<p>submitted a new booking for <strong>${product?.name +
-        ' ' +
-        product?.code}</strong></p>`
-    });
-
-    messages.push(message);
-
-    // tslint:disable-next-line: no-shadowed-variable
-    messages.map(async (message: any) => {
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: message
-      });
-
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: message
-      });
-    });
-
-    return {
-      status: 'ok',
-      customerId: cachedCustomer._id
-    };
-  }
 };
 
 export default widgetMutations;
