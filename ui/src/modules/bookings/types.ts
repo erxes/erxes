@@ -15,6 +15,7 @@ export interface IStyle {
   columns?: number;
   rows?: number;
   margin?: number;
+  baseFont?: string;
 }
 
 export interface IBookingIntegration extends IIntegration {
@@ -53,6 +54,7 @@ export type IBooking = {
   margin?: number;
   navigationText?: string;
   bookingFormText?: string;
+  baseFont: string;
 };
 
 // query types

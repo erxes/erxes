@@ -131,7 +131,8 @@ function Booking(props: Props) {
     line: bookingStyle.line || '',
     columns: bookingStyle.columns || 1,
     rows: bookingStyle.rows || 1,
-    margin: bookingStyle.margin || 1
+    margin: bookingStyle.margin || 1,
+    baseFont: bookingStyle.baseFont || ''
   });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
@@ -195,7 +196,8 @@ function Booking(props: Props) {
           line: booking.line,
           rows: Number(booking.rows),
           columns: Number(booking.columns),
-          margin: Number(booking.margin)
+          margin: Number(booking.margin),
+          baseFont: booking.baseFont
         }
       }
     };
@@ -280,7 +282,7 @@ function Booking(props: Props) {
                 widgetColor={booking.widgetColor}
                 productAvailable={booking.productAvailable}
                 textAvailable={booking.textAvailable}
-                baseFont=""
+                baseFont={booking.baseFont}
               />
             </Step>
 

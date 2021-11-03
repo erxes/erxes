@@ -90,6 +90,7 @@ export interface IBookingStyle {
 
   productAvailable?: string;
   textAvailable?: string;
+  baseFont?: string;
 
   line?: string;
   rows?: number;
@@ -386,6 +387,7 @@ export const bookingStyleSchema = new Schema(
 
     productAvailable: field({ type: String, label: 'Product available' }),
     textAvailable: field({ type: String, label: 'Text available' }),
+    baseFont: field({ type: String, optional: true, label: 'Font' }),
 
     line: field({ type: String, optional: true, label: 'Line' }),
     columns: field({ type: Number, optional: true, label: 'Columns' }),

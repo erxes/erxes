@@ -20,7 +20,12 @@ import { BOOKING_ITEM_SHAPE } from 'modules/bookings/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 import { FONTS } from 'modules/settings/clientPortal/constants';
 
-type Name = 'itemShape' | 'widgetColor' | 'productSelected' | 'textAvailable';
+type Name =
+  | 'itemShape'
+  | 'widgetColor'
+  | 'productSelected'
+  | 'textAvailable'
+  | 'baseFont';
 
 type Props = {
   onChangeBooking: (name: Name, value: any) => void;
@@ -94,6 +99,9 @@ function Style({
                 placeholder="Please select a font"
                 value={baseFont}
                 options={FONTS.map(item => ({ label: item, value: item }))}
+                onChange={(e: any) =>
+                  onChangeBooking('baseFont', e ? e.value : null)
+                }
               />
             </FormGroup>
           </FlexItem>
