@@ -9,33 +9,33 @@ const commonFormParams = `
 `;
 
 const commonFields = `
-    $name: String
-    $description: String
-    $brandId: String
-    $productDetails: [String]
-    $adminIds: [String]
-    $cashierIds: [String]
-    $kitchenScreen: JSON
-    $waitingScreen: JSON
-    $kioskMachine: JSON
-    $uiOptions: JSON
-    $formSectionTitle: String
-    $formIntegrationIds: [String]
+  $name: String
+  $description: String
+  $brandId: String
+  $productDetails: [String]
+  $adminIds: [String]
+  $cashierIds: [String]
+  $kitchenScreen: JSON
+  $waitingScreen: JSON
+  $kioskMachine: JSON
+  $uiOptions: JSON
+  $formSectionTitle: String
+  $formIntegrationIds: [String]
 `;
 
 const commonVariables = `
-    name: $name,
-    description: $description,
-    brandId: $brandId
-    productDetails: $productDetails
-    adminIds: $adminIds
-    cashierIds: $cashierIds
-    kitchenScreen: $kitchenScreen
-    waitingScreen: $waitingScreen
-    kioskMachine: $kioskMachine
-    uiOptions: $uiOptions
-    formSectionTitle: $formSectionTitle
-    formIntegrationIds: $formIntegrationIds
+  name: $name,
+  description: $description,
+  brandId: $brandId
+  productDetails: $productDetails
+  adminIds: $adminIds
+  cashierIds: $cashierIds
+  kitchenScreen: $kitchenScreen
+  waitingScreen: $waitingScreen
+  kioskMachine: $kioskMachine
+  uiOptions: $uiOptions
+  formSectionTitle: $formSectionTitle
+  formIntegrationIds: $formIntegrationIds
 `;
 
 const posAdd = `
@@ -100,23 +100,19 @@ const integrationsEdit = `
 `;
 
 const brandAdd = `
-  mutation brandsAdd(  $name: String!,
-    $description: String,
-    $emailConfig: JSON,) {
-    brandsAdd(  name: $name,
-      description: $description,
-      emailConfig: $emailConfig,) {
+  mutation brandsAdd($name: String!, $description: String, $emailConfig: JSON,) {
+    brandsAdd(name: $name, description: $description, emailConfig: $emailConfig,) {
       _id
     }
   }
 `;
 
 const saveProductGroups = `
-mutation productGroupsBulkInsert($posId: String, $groups: [GroupInput]) {
-  productGroupsBulkInsert(posId: $posId, groups: $groups) {
-    _id
+  mutation productGroupsBulkInsert($posId: String, $groups: [GroupInput]) {
+    productGroupsBulkInsert(posId: $posId, groups: $groups) {
+      _id
+    }
   }
-}
 `;
 
 export default {
@@ -128,5 +124,5 @@ export default {
   integrationsArchive,
   integrationsEdit,
   brandAdd,
-  saveProductGroups
+  saveProductGroups,
 };

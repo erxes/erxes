@@ -1,81 +1,85 @@
 const commonFields = `
-brandId
-name
-kind
-brand {
-  _id
+  brandId
   name
-  code
-}
-tags {
-  _id
-  name
-  colorCode
-}
-isActive
+  kind
+  isActive
+
+  brand {
+    _id
+    name
+    code
+  }
+
+  tags {
+    _id
+    name
+    colorCode
+  }
 `;
 
 const posCommonFields = `
-_id
-name
-description
-createdAt
-integrationId
-token
-adminIds
-cashierIds
-integration {
+  _id
+  name
+  description
+  createdAt
+  integrationId
+  token
+  adminIds
+  cashierIds
+  
+  integration {
     brandId
     brand {
-        _id
-        name
-        code
+      _id
+      name
+      code
     }
     isActive
     tags {
-        _id
-        name
-        colorCode
+      _id
+      name
+      colorCode
     }
-}
-user {
+  }
+
+  user {
     _id
     details {
-        avatar
-        fullName
+      avatar
+      fullName
     }
-}
-waitingScreen
-kitchenScreen
-kioskMachine
-uiOptions
-formSectionTitle
-formIntegrationIds
+  }
+
+  waitingScreen
+  kitchenScreen
+  kioskMachine
+  uiOptions
+  formSectionTitle
+  formIntegrationIds
 `;
 
 const posList = `
-query posList(
-  $page: Int
-  $perPage: Int
-  $brandId: String
-  $tag: String
-  $status: String
-  $sortField: String
-  $sortDirection: Int
-) {
-  posList(
-    page: $page
-    perPage: $perPage
-    brandId: $brandId
-    tag: $tag
-    status: $status
-    sortField: $sortField
-    sortDirection: $sortDirection
+  query posList(
+    $page: Int
+    $perPage: Int
+    $brandId: String
+    $tag: String
+    $status: String
+    $sortField: String
+    $sortDirection: Int
   ) {
-    ${posCommonFields}
+    posList(
+      page: $page
+      perPage: $perPage
+      brandId: $brandId
+      tag: $tag
+      status: $status
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
+      ${posCommonFields}
+    }
   }
-}
-
 `;
 
 const configs = `
@@ -129,12 +133,12 @@ const integrationsTotalCount = `
 `;
 
 const posDetail = `
-query posDetail($_id: String!) {
-  posDetail(_id: $_id) {
-    ${posCommonFields}
-    productDetails
+  query posDetail($_id: String!) {
+    posDetail(_id: $_id) {
+      ${posCommonFields}
+      productDetails
+    }
   }
-}
 `;
 
 const getDbSchemaLabels = `

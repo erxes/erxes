@@ -12,17 +12,13 @@ import {
   FlexItem,
   SubItem
 } from '../../../styles';
-import { TEXT_COLORS } from '../../../constants';
 
 interface IColor {
   [key: string]: string;
 }
 
 export interface IUIOptions {
-  backgroundColors: IColor;
-  tabColors: IColor;
-  textColors: IColor;
-  buttonColors: IColor;
+  colors: IColor;
   logo: string;
   bgImage: string;
 }
@@ -46,9 +42,7 @@ class Appearance extends React.Component<Props, State> {
 
     const uiOptions = props.uiOptions || {};
 
-    this.state = {
-      uiOptions
-    };
+    this.state = { uiOptions };
   }
 
   onChangeFunction = (name: any, value: any) => {
@@ -127,85 +121,18 @@ class Appearance extends React.Component<Props, State> {
   }
 
   render() {
-    const { pos } = this.props;
-    const { uiOptions } = this.state;
-    const { color = '', textColor = '' } = uiOptions;
-
-    const onChangeColor = (key, e) => {
-      uiOptions[key] = e.hex;
-      pos.uiOptions = uiOptions;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const popoverContent = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          color={color}
-          onChange={onChangeColor.bind(this, 'color')}
-          triangle="hide"
-        />
-      </Popover>
-    );
-
-    const textColorContent = (
-      <Popover id="text-color-picker">
-        <TwitterPicker
-          color={textColor}
-          onChange={onChangeColor.bind(this, 'textColor')}
-          colors={TEXT_COLORS}
-          triangle="hide"
-        />
-      </Popover>
-    );
-
     return (
       <FlexItem>
         <LeftItem>
           <AppearanceRow>
             {this.renderUploadImage('logo', __('Logo'))}
-
-            {this.renderUploadImage('bgImage', __('BackGround Image'))}
+            {this.renderUploadImage('bgImage', __('Background Image'))}
           </AppearanceRow>
           <FormGroup>
-            <ControlLabel>{__('Background colors')}</ControlLabel>
+            <ControlLabel>{__('Colors')}</ControlLabel>
             <AppearanceRow>
-              {this.renderPicker('backgroundColors', 'bodyColor', 'Body')}
-              {this.renderPicker('backgroundColors', 'headerColor', 'Header')}
-              {this.renderPicker('backgroundColors', 'footerColor', 'Footer')}
-            </AppearanceRow>
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>{__('Tab colors')}</ControlLabel>
-            <AppearanceRow>
-              {this.renderPicker('tabColors', 'defaultColor', 'Default')}
-              {this.renderPicker('tabColors', 'selectedColor', 'Selected')}
-            </AppearanceRow>
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>{__('Text colors')}</ControlLabel>
-            <AppearanceRow>
-              {this.renderPicker('textColors', 'bodyTextColor', 'Default')}
-              {this.renderPicker('textColors', 'linkColor', 'Links')}
-              {this.renderPicker(
-                'textColors',
-                'linkHoverColor',
-                'Link hovered'
-              )}
-              {this.renderPicker(
-                'textColors',
-                'linkPressedColor',
-                'Link pressed'
-              )}
-            </AppearanceRow>
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>{__('Buttons')}</ControlLabel>
-            <AppearanceRow>
-              {this.renderPicker('buttonColors', 'defaultColor', 'Default')}
-              {this.renderPicker('buttonColors', 'pressedColor', 'Pressed')}
+              {this.renderPicker('colors', 'primary', 'Primary')}
+              {this.renderPicker('colors', 'secondary', 'Secondary')}
             </AppearanceRow>
           </FormGroup>
         </LeftItem>

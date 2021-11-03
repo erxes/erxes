@@ -20,7 +20,6 @@ import ConfigStep from './step/ConfigStep';
 import GeneralStep from './step/GeneralStep';
 import { PLUGIN_URL } from '../../constants';
 import Appearance, { IUIOptions } from './step/Appearance';
-import FullPreview from './step/FullPreview';
 
 type Props = {
   integration?: IIntegration;
@@ -208,7 +207,6 @@ class Lead extends React.Component<Props, State> {
     ];
 
     const name = pos.name || '';
-
     const logoPreviewUrl = uiOptions.logo;
 
     return (
@@ -265,10 +263,6 @@ class Lead extends React.Component<Props, State> {
               {this.renderButtons()}
             </ControlWrapper>
           </LeftContent>
-
-          <PreviewWrapper>
-            <FullPreview uiOptions={uiOptions} pos={pos} />
-          </PreviewWrapper>
         </Content>
       </StepWrapper>
     );
