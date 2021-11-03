@@ -11,6 +11,7 @@ type Props = {
   categoryId?: string;
   goToCategory: (categoryId: string) => void;
   goToProduct: (productId: string) => void;
+  goToIntro: () => void;
 };
 
 type QueryResponse = {
@@ -49,7 +50,8 @@ const WithContext = () => (
       goToBookings,
       getBooking,
       goToCategory,
-      goToProduct
+      goToProduct,
+      goToIntro
     }) => {
       const booking = getBooking();
       return (
@@ -59,6 +61,7 @@ const WithContext = () => (
           booking={booking}
           goToCategory={goToCategory}
           goToProduct={goToProduct}
+          goToIntro={goToIntro}
         />
       );
     }}

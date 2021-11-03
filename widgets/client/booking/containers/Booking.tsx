@@ -7,6 +7,7 @@ type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
   goToCategory: (categoryId: string) => void;
+  goToProduct: (productId: string) => void;
 };
 
 function BookingContainer(props: Props) {
@@ -20,13 +21,14 @@ function BookingContainer(props: Props) {
 const WithContext = () => {
   return (
     <AppConsumer>
-      {({ goToIntro, getBooking, goToCategory }) => {
+      {({ goToIntro, getBooking, goToCategory, goToProduct }) => {
         const booking = getBooking();
         return (
           <BookingContainer
             goToIntro={goToIntro}
             booking={booking}
             goToCategory={goToCategory}
+            goToProduct={goToProduct}
           />
         );
       }}

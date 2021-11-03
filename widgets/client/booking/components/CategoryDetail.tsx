@@ -1,9 +1,9 @@
-import * as React from "react";
-import Button from "./common/Button";
-import Card from "../components/common/Card";
-import { IBookingData } from "../types";
-import { IProductCategory } from "../../types";
-import { readFile, __ } from "../../utils";
+import * as React from 'react';
+import Button from './common/Button';
+import Card from '../components/common/Card';
+import { IBookingData } from '../types';
+import { IProductCategory } from '../../types';
+import { readFile, __ } from '../../utils';
 
 type Props = {
   goToBookings: () => void;
@@ -11,6 +11,7 @@ type Props = {
   booking?: IBookingData;
   goToCategory: (categoryId: string) => void;
   goToProduct: (productId: string) => void;
+  goToIntro: () => void;
 };
 
 type State = { activeChild: any };
@@ -20,7 +21,7 @@ class CategoryDetail extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      activeChild: {},
+      activeChild: {}
     };
   }
 
@@ -31,6 +32,7 @@ class CategoryDetail extends React.Component<Props, State> {
       goToBookings,
       goToCategory,
       goToProduct,
+      goToIntro
     } = this.props;
 
     if (!category || !booking) {
@@ -42,12 +44,12 @@ class CategoryDetail extends React.Component<Props, State> {
 
     // use this
     let childs = categoryTree.filter(
-      (tree) => tree.parentId === category._id && tree.type === "category"
+      tree => tree.parentId === category._id && tree.type === 'category'
     );
 
     if (childs.length < 1) {
       childs = categoryTree.filter(
-        (tree) => tree.parentId === category._id && tree.type === "product"
+        tree => tree.parentId === category._id && tree.type === 'product'
       );
     }
 
@@ -56,16 +58,16 @@ class CategoryDetail extends React.Component<Props, State> {
     const goNext = () => {
       const count: string = this.state.activeChild.count!;
       const status =
-        this.state.activeChild.status === "disabled" || Number(count) === 0
-          ? "disabled"
-          : "";
+        this.state.activeChild.status === 'disabled' || Number(count) === 0
+          ? 'disabled'
+          : '';
 
       if (
         this.state.activeChild &&
         this.state.activeChild._id !== null &&
-        status !== "disabled"
+        status !== 'disabled'
       ) {
-        this.state.activeChild.type === "category"
+        this.state.activeChild.type === 'category'
           ? goToCategory(this.state.activeChild._id)
           : goToProduct(this.state.activeChild._id);
       }
@@ -93,13 +95,13 @@ class CategoryDetail extends React.Component<Props, State> {
                 src={readFile(attachment && attachment.url)}
                 alt={attachment && attachment.title}
                 style={{
-                  maxHeight: "100%",
-                  maxWidth: "100%",
+                  maxHeight: '100%',
+                  maxWidth: '100%'
                 }}
               />
             </div>
             <div className={`flex-cards right-sidebar`}>
-              {sortedChilds.map((el) => {
+              {sortedChilds.map(el => {
                 return (
                   <React.Fragment key={el._id}>
                     <Card
@@ -117,13 +119,15 @@ class CategoryDetail extends React.Component<Props, State> {
 
           <div className="footer">
             <Button
-              text={__("Back")}
+              text={__('Back')}
               type="back"
               onClickHandler={() =>
                 category.parentId &&
                 category.parentId !== booking.productCategoryId
                   ? goToCategory(category.parentId)
-                  : goToBookings()
+                  : category.parentId === booking.productCategoryId
+                  ? goToBookings()
+                  : goToIntro()
               }
               style={{ backgroundColor: style.widgetColor, left: 0 }}
             />

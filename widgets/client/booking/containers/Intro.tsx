@@ -5,10 +5,16 @@ import { AppConsumer } from './AppContext';
 function IntroContainer() {
   return (
     <AppConsumer>
-      {({ goToBooking, getBooking }) => {
+      {({ goToBooking, getBooking, goToCategory }) => {
         const booking = getBooking();
 
-        return <Intro booking={booking} goToBooking={goToBooking} />;
+        return (
+          <Intro
+            booking={booking}
+            goToBooking={goToBooking}
+            goToCategory={goToCategory}
+          />
+        );
       }}
     </AppConsumer>
   );
