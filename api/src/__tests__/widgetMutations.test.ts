@@ -1437,12 +1437,12 @@ describe('lead', () => {
 
     const companyNameField = await fieldFactory({
       ...params,
-      type: 'companyName'
+      type: 'company_primaryName'
     });
 
     const companyNameField2 = await fieldFactory({
       ...params,
-      type: 'companyName',
+      type: 'company_primaryName',
       groupId: (group && group._id) || ''
     });
 
@@ -1453,7 +1453,7 @@ describe('lead', () => {
 
     const companyAvatarField = await fieldFactory({
       ...params,
-      type: 'companyAvatar'
+      type: 'company_avatar'
     });
 
     const industryField = await fieldFactory({
@@ -1519,12 +1519,12 @@ describe('lead', () => {
 
     const companyDescriptionField = await fieldFactory({
       ...params,
-      type: 'companyDescription'
+      type: 'company_description'
     });
 
     const companyDoNotDisturbField = await fieldFactory({
       ...params,
-      type: 'companyDoNotDisturb'
+      type: 'company_isSubscribed'
     });
 
     const integration = await integrationFactory({ formId: form._id });
@@ -1560,18 +1560,18 @@ describe('lead', () => {
           { _id: companyNameField._id, type: 'companyName', value: 'company' },
           {
             _id: companyNameField2._id,
-            type: 'companyName',
+            type: 'company_primaryName',
             value: 'com',
             groupId: (group && group._id) || ''
           },
           {
             _id: companyEmailField._id,
-            type: 'companyEmail',
+            type: 'company_primaryEmail',
             value: 'info@company.com'
           },
           {
             _id: companyPhoneField._id,
-            type: 'companyPhone',
+            type: 'company_primaryPhone',
             value: '+99112233'
           },
           {
@@ -1581,7 +1581,7 @@ describe('lead', () => {
           },
           {
             _id: companyAvatarField._id,
-            type: 'companyAvatar',
+            type: 'company_avatar',
             value: [{ url: 'https://i.pravatar.cc/150?img=63' }]
           },
           { _id: industryField._id, type: 'industry', value: 'Banks' },
@@ -1615,7 +1615,7 @@ describe('lead', () => {
           },
           {
             _id: companyDoNotDisturbField._id,
-            type: 'companyDoNotDisturb',
+            type: 'company_isSubscribed',
             value: 'Yes'
           }
         ],
@@ -1629,7 +1629,7 @@ describe('lead', () => {
 
     expect(await Conversations.find().countDocuments()).toBe(1);
     expect(await ConversationMessages.find().countDocuments()).toBe(1);
-    expect(await Customers.find().countDocuments()).toBe(2);
+    expect(await Customers.find().countDocuments()).toBe(1);
     expect(await FormSubmissions.find().countDocuments()).toBe(1);
 
     const message = await ConversationMessages.findOne();
@@ -1820,7 +1820,7 @@ describe('lead', () => {
 
     expect(await Conversations.find().countDocuments()).toBe(1);
     expect(await ConversationMessages.find().countDocuments()).toBe(2);
-    expect(await Customers.find().countDocuments()).toBe(2);
+    expect(await Customers.find().countDocuments()).toBe(1);
     expect(await FormSubmissions.find().countDocuments()).toBe(1);
   });
 });

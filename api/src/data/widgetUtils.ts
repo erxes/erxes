@@ -360,8 +360,8 @@ export const solveSubmissions = async (args: {
 
   let cachedCustomer;
 
-  const customerSchema = await getDbSchemaLabels('customer');
-  const companySchema = await getDbSchemaLabels('company');
+  const customerSchemaLabels = await getDbSchemaLabels('customer');
+  const companySchemaLabels = await getDbSchemaLabels('company');
   const customerDoc: any = {};
   const companyDoc: any = {};
 
@@ -385,23 +385,19 @@ export const solveSubmissions = async (args: {
         continue;
       }
 
-      if (customerSchema.findIndex(e => e.name === submissionType) !== -1) {
-        customerDoc[submissionType] = submission.value;
-        continue;
-      }
+      if (
+        customerSchemaLabels.findIndex(e => e.name === submissionType) !== -1
+      ) {
+        if (
+          submissionType === 'avatar' &&
+          submission.value &&
+          submission.value.length > 0
+        ) {
+          customerDoc.avatar = submission.value[0].url;
+          continue;
+        }
 
-      if (companySchema.findIndex(e => e.name === submissionType) !== -1) {
-        companyDoc[submissionType] = submission.value;
-        continue;
-      }
-
-      switch (submissionType) {
-        case 'avatar':
-          if (submission.value && submission.value.length > 0) {
-            customerDoc.avatar = submission.value[0].url;
-          }
-          break;
-        case 'pronoun':
+        if (submissionType === 'pronoun') {
           switch (submission.value) {
             case 'Male':
               customerDoc.pronoun = 1;
@@ -416,27 +412,33 @@ export const solveSubmissions = async (args: {
               customerDoc.pronoun = 0;
               break;
           }
-          break;
-        case 'companyAvatar':
-          if (submission.value && submission.value.length > 0) {
-            companyDoc.avatar = submission.value[0].url;
-          }
-          break;
-        case 'companyName':
-          companyDoc.primaryName = submission.value;
-          break;
-        case 'companyEmail':
-          companyDoc.primaryEmail = submission.value;
-          break;
-        case 'companyPhone':
-          companyDoc.primaryPhone = submission.value;
-          break;
-        case 'companyDescription':
-          companyDoc.description = submission.value;
-          break;
-        case 'companyIsSubscribed':
-          companyDoc.isSubscribed = submission.value;
-          break;
+          continue;
+        }
+
+        customerDoc[submissionType] = submission.value;
+
+        continue;
+      }
+
+      if (
+        companySchemaLabels.findIndex(e => e.name === submissionType) !== -1
+      ) {
+        if (
+          submissionType === 'company_avatar' &&
+          submission.value &&
+          submission.value.length > 0
+        ) {
+          companyDoc.avatar = submission.value[0].url;
+        }
+
+        if (submissionType.includes('company_')) {
+          const key = submissionType.split('_')[1];
+          companyDoc[key] = submission.value;
+          continue;
+        }
+
+        companyDoc[submissionType] = submission.value;
+        continue;
       }
 
       if (
