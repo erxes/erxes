@@ -82,7 +82,7 @@ const routes = () => {
     <>
       <Route key="/task" exact={true} path="/task" render={tasks} />
 
-      <Route key="/gantt" exact={true} path="/gantt" render={GanttChart} />
+      <Route key="/gantt" exact={true} path="/gantt" component={GanttChart} />
 
       <Route
         key="/task/board"
