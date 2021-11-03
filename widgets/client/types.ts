@@ -1,4 +1,3 @@
-import { IBookingData } from './booking/types';
 import { ICallout } from './form/types';
 import { IAttachment, IWebsiteApp } from './messenger/types';
 
@@ -171,7 +170,6 @@ export interface IIntegration {
   twitterData: IIntegrationTwitterData;
   facebookData: IIntegrationFacebookData;
   uiOptions: IIntegrationUiOptions;
-  bookingData: IBookingData;
 }
 export interface IRule {
   _id: string;

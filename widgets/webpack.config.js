@@ -12,8 +12,6 @@ module.exports = {
     knowledgebaseWidget: './client/knowledgebase/widget/index.ts',
     events: './client/events/index.ts',
     eventsWidget: './client/events/widget/index.ts',
-    booking: './client/booking/index.tsx',
-    bookingWidget: './client/booking/widget/index.ts'
   },
 
   output: {

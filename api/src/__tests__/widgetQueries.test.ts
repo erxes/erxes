@@ -460,47 +460,4 @@ describe('widgetQueries', () => {
 
     expect(product._id).toBe(response._id);
   });
-
-  test('widgetsIntegrationDetail', async () => {
-    // to prepare bookingData data
-    const productCategory = await productCategoryFactory({});
-    const childCategory = await productCategoryFactory({
-      parentId: productCategory._id
-    });
-    await productFactory({ categoryId: childCategory._id });
-
-    const integration = await integrationFactory({
-      bookingData: {
-        name: 'booking data',
-        description: 'booking description',
-        productCategoryId: productCategory._id
-      }
-    });
-
-    const qry = `
-      query widgetsIntegrationDetail($_id: String!) {
-        widgetsIntegrationDetail(_id: $_id) {
-          _id
-
-          bookingData {
-            childCategories {
-              _id
-            }
-
-            categoryTree
-
-            mainProductCategory {
-              _id
-            }
-          }
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'widgetsIntegrationDetail', {
-      _id: integration._id
-    });
-
-    expect(integration._id).toBe(response._id);
-  });
 });
