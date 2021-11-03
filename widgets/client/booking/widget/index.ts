@@ -1,9 +1,5 @@
 declare const window: any;
 
-/*
- * Knowledge base's embeddable script
- */
-
 // css
 import {
   generateIntegrationUrl,
