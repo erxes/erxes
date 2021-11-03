@@ -1,22 +1,53 @@
 import React from "react";
 import SortableList from "erxes-ui/lib/components/SortableList";
-import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../common.js";
-import "erxes-icon/css/erxes.min.css";
 
 export function SortableListComponent() {
-  const child = (field) => {
-    let array = [["Name"], ["Age"]];
+  const arrays = ["Name", "Age", "School"];
+
+  const propDatas = () => {
+    let array = [];
+
+    arrays.map((arr, index) => {
+      array.push({ _id: index, name: arr });
+    });
+
     return array;
   };
-  return (
-    <>
-      <SortableList
-        fields={[{ _id: 1 }, { _id: 2 }, { _id: 3 }]}
-        child={child}
-        isDragDisabled={false}
-      />
-    </>
-  );
+
+  const child = (array) => {
+    return <div> {array.name}</div>;
+  };
+
+  // function onChangeItems(updatedItems, destinationIndex) {
+  // setItems(updatedItems);
+  // props.updateOrderItems(updatedItems[destinationIndex], destinationIndex);
+  // }
+
+  const onChangeFields = (array) => {
+    let scr = source.name;
+    let dest = destination.name;
+    let extra ;
+    src => extra; 
+    dest => src;
+    extra => dest;
+  };
+
+  const renderBlock = () => {
+    return (
+      <>
+        <SortableList
+          fields={propDatas()}
+          child={child}
+          // isDragDisabled={true}
+          // showDragHandler={false}
+          onChangeFields={onChangeFields}
+          droppableId="droppable"
+        />
+      </>
+    );
+  };
+
+  return renderBlock("");
 }

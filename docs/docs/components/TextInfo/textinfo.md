@@ -17,7 +17,6 @@ import { TextInfoComponent } from "./textinfo.js"
 
 <TextInfoComponent type="APItextinfo" table={[
 ['children', 'node', '', 'text or text container'],
-['ignoreTrans', 'boolean', '', 'translate text'],
 ['textStyle', 'string', 'default', 'put style to text'],
 ['hugeness', 'string', 'small', 'choose hugeness of the text']
 ]}></TextInfoComponent>
