@@ -129,9 +129,9 @@ function Booking(props: Props) {
     productAvailable: bookingStyle.productAvailable || colors.colorPrimary,
     textAvailable: bookingStyle.textAvailable || colors.colorPrimary,
     line: bookingStyle.line || '',
-    columns: bookingStyle.columns || 1,
+    columns: bookingStyle.columns || 2,
     rows: bookingStyle.rows || 1,
-    margin: bookingStyle.margin || 1,
+    margin: bookingStyle.margin || 15,
     baseFont: bookingStyle.baseFont || ''
   });
 
