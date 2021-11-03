@@ -8,40 +8,33 @@ import "erxes-icon/css/erxes.min.css";
 
 export function ChipComponent(props) {
   const { type, table = [] } = props;
-  const handleClick = () => {
-    alert("Clicked!!");
-  };
 
-  const propDatas = (propName, onClick) => {
+  const propDatas = (propName) => {
     const kind = {
       [propName]:
-        propName === "frontContent"
-          ? <Icon icon="check-circle" />
-          : true,
+        propName === "frontContent" ? <Icon icon="check-circle" /> : true,
     };
 
     const datas = {
       ...kind,
-      onClick: onClick && {handleClick},
     };
 
     return datas;
   };
 
-  const renderBlock = (propName, onClick) => {
+  const renderBlock = (propName) => {
+    const id = "demo";
     return (
       <>
         <div className={styles.styled}>
-          <Chip {...propDatas(propName, onClick)}>
-            chip
-          </Chip>
+          <Chip {...propDatas(propName)}>chip</Chip>
         </div>
 
-        {/* <CodeBlock className="language-jsx">
-          {`<Button ${stringify(
+        <CodeBlock className="language-jsx">
+          {`<Chip ${stringify(
               propDatas(propName)
-            )} >${btn}</Button>`}
-        </CodeBlock> */}
+            )} >chip</Chip>`}
+        </CodeBlock>
       </>
     );
   };
@@ -58,10 +51,6 @@ export function ChipComponent(props) {
     return renderBlock("frontContent");
   }
 
-  if (type === "onClick") {
-    return renderBlock("capitalize", "onClick");
-  }
-
   if (type === "APIchip") {
     return renderApiTable("Chip", table);
   }
@@ -70,10 +59,12 @@ export function ChipComponent(props) {
 }
 // export function ChipComponent(props) {
 //   const handleClick = () => {
-//     alert("Clicked!!");
+//     document.getElementById("demo").innerHTML = "Hello World";
 //   };
+
 //   return (
-//       <Chip ={<Icon icon="check-circle" />}
-//       >hhahah</Chip>
+//     <>
+//       <Chip onClick={this.innerHTML = "Hello World"}>hhahah</Chip>
+//     </>
 //   );
 // };

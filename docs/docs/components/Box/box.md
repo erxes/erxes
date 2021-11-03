@@ -30,11 +30,11 @@ import { BoxComponent } from "./box.js"
 
 ## API
 
-<ButtonComponent type="APIbox" table={[
+<BoxComponent type="APIbox" table={[
     ['title', 'string', '', 'Shows title of the box'],
-    ['type', 'string', 'button', 'Defines HTML button type attribute'],
-    ['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],
-    ['size', 'large | medium | small', 'medium', 'Specifies a large or small button'],
+    ['name', 'string', '', 'Defines name'],
+    ['isOpen', 'boolean', 'false', 'Makes the box expanded on start'],
+    ['collapsible', 'boolean', 'false', ''],
     ['disabled', 'boolean', 'false', 'Disables the Button'],
     ['block', 'boolean', 'false', 'Makes the button full-width'],
     ['icon', 'string', '', 'Shows icon'],

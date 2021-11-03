@@ -18,18 +18,17 @@ export function BoxComponent(props) {
       ...kind,
       title: "Title",
       name: "name",
-      extraButtons: extra && [<Button btnStyle="simple">Extra button</Button>],
+      extraButtons: extra && <Button btnStyle="simple">Extra button</Button>,
     };
 
     return datas;
   };
 
   const renderBlock = (propName, extra) => {
-    // console.log(JSON.stringify(propDatas(propName)));
     return (
       <>
         <div className={styles.styled}>
-          <Box {...propDatas(propName, extra)}>
+          <Box {...propDatas(propName, extra )}>
             <div className={styles.styled}>
               <p>
                 Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
@@ -52,11 +51,26 @@ export function BoxComponent(props) {
             </div>
           </Box>
         </div>
-        {/* <CodeBlock className="language-jsx">
+        <CodeBlock className="language-jsx">
           {`<>\n\t<Button ${stringify(
-              propDatas(propName)
-            )} >paragraphhhhhh</Button>\n</>`}
-        </CodeBlock> */}
+              propDatas(propName, extra)
+            )} >Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+            American former professional basketball player, coach and
+            executive in the National Basketball Association (NBA).
+            Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
+            is widely regarded as one of the greatest basketball players of
+            all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
+            is an American former professional basketball player, coach and
+            executive in the National Basketball Association (NBA).
+            Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
+            is widely regarded as one of the greatest basketball players of
+            all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
+            is an American former professional basketball player, coach and
+            executive in the National Basketball Association (NBA).
+            Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
+            is widely regarded as one of the greatest basketball players of
+            all time.</Button>\n</>`}
+        </CodeBlock>
       </>
     );
   };

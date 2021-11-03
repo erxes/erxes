@@ -5,7 +5,7 @@ title: Chip
 
 import { ChipComponent } from "./chip.js"
 
-<p>Chipppp</p>
+<p>Chip</p>
 
 ## Examples
 
@@ -18,10 +18,6 @@ import { ChipComponent } from "./chip.js"
 ## Front Content
 
 <ChipComponent type="frontContent" />
-
-## Close Button Click
-
-<ChipComponent type="onClick" />
 
 ## API
 
