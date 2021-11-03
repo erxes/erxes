@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { ILink } from './common';
+import { customFieldSchema, ICustomField, ILink } from './common';
 import { IPermissionDocument } from './permissions';
 import { field, schemaHooksWrapper } from './utils';
 
@@ -15,6 +15,8 @@ export interface IDetail {
   fullName?: string;
   shortName?: string;
   position?: string;
+  birthDate?: Date;
+  workStartedDate?: Date;
   location?: string;
   description?: string;
   operatorPhone?: string;
@@ -45,6 +47,10 @@ export interface IUser {
   doNotDisturb?: string;
   isSubscribed?: string;
   sessionCode?: string;
+  isShowNotification?: boolean;
+  score?: number;
+  customFieldsData?: ICustomField[];
+  validatedTokens?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -69,13 +75,15 @@ const detailSchema = new Schema(
     avatar: field({ type: String, label: 'Avatar' }),
     shortName: field({ type: String, optional: true, label: 'Short name' }),
     fullName: field({ type: String, label: 'Full name' }),
+    birthDate: field({ type: Date, label: 'Birth date' }),
+    workStartedDate: field({ type: Date, label: 'Date to joined to work' }),
     position: field({ type: String, label: 'Position' }),
     location: field({ type: String, optional: true, label: 'Location' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     operatorPhone: field({
       type: String,
       optional: true,
-      label: 'Company phone'
+      label: 'Operator phone'
     })
   },
   { _id: false }
@@ -100,7 +108,10 @@ export const userSchema = schemaHooksWrapper(
       type: String,
       unique: true,
       match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
+        /**
+         * RFC 5322 compliant regex. Taken from http://emailregex.com/
+         */
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         'Please fill a valid email address'
       ],
       label: 'Email'
@@ -127,6 +138,11 @@ export const userSchema = schemaHooksWrapper(
       default: [],
       label: 'Device tokens'
     }),
+    validatedTokens: field({
+      type: [String],
+      default: [],
+      label: 'Validated access tokens'
+    }),
     code: field({ type: String }),
     doNotDisturb: field({
       type: String,
@@ -139,6 +155,23 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: 'Yes',
       label: 'Subscribed'
+    }),
+    isShowNotification: field({
+      type: Boolean,
+      optional: true,
+      default: false,
+      label: 'Check if user shows'
+    }),
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
+      esType: 'number'
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
     })
   }),
   'erxes_users'

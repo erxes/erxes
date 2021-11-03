@@ -23,7 +23,7 @@ type Props = {
   integration: IIntegration;
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
-  onSubmit: (doc: IFormDoc) => void;
+  onSubmit: (doc: IFormDoc, formCode: string) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
@@ -130,16 +130,18 @@ class Form extends React.Component<Props, State> {
       }
     }
 
-    this.props.onSubmit(doc);
+    this.props.onSubmit(doc, this.props.form.code);
   };
 
   canChangePage = () => {
-    const fields = this.getCurrentFields();
-
-    const requiredFields = fields.filter(f => f.isRequired);
+    const requiredFields = this.getCurrentFields().filter(f => f.isRequired);
 
     for (const field of requiredFields) {
       const value = this.state.doc[field._id].value;
+     
+      if (this.state.doc[field._id].isHidden) {
+        continue;
+      }
 
       if (!value) {
         return false;
@@ -187,7 +189,8 @@ class Form extends React.Component<Props, State> {
         type: field.type,
         validation: field.validation,
         value,
-        isHidden
+        isHidden,
+        column: field.column
       };
     });
 

@@ -23,6 +23,14 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   sendToBoard?: (item: any) => void;
+  updateTimeTrack: (
+    {
+      _id,
+      status,
+      timeSpent
+    }: { _id: string; status: string; timeSpent: number; startDate?: string },
+    callback?: () => void
+  ) => void;
 };
 
 type State = {
@@ -32,6 +40,7 @@ type State = {
   paymentsData: IPaymentsData;
   changePayData: IPaymentsData;
   updatedItem?: IItem;
+  refresh: boolean;
 };
 
 export default class DealEditForm extends React.Component<Props, State> {
@@ -46,7 +55,8 @@ export default class DealEditForm extends React.Component<Props, State> {
       // collecting data for ItemCounter component
       products: item.products ? item.products.map(p => p.product) : [],
       paymentsData: item.paymentsData,
-      changePayData: {}
+      changePayData: {},
+      refresh: false
     };
   }
 
@@ -71,6 +81,12 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
+  };
+
+  onChangeRefresh = () => {
+    this.setState({
+      refresh: !this.state.refresh
+    });
   };
 
   saveProductsData = () => {
@@ -171,7 +187,14 @@ export default class DealEditForm extends React.Component<Props, State> {
     copy,
     remove
   }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
+    const {
+      item,
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack
+    } = this.props;
 
     return (
       <>
@@ -195,11 +218,13 @@ export default class DealEditForm extends React.Component<Props, State> {
             item={item}
             addItem={addItem}
             onChangeStage={onChangeStage}
+            onChangeRefresh={this.onChangeRefresh}
           />
 
           <Sidebar
             options={options}
             item={item}
+            updateTimeTrack={updateTimeTrack}
             sidebar={this.renderProductSection}
             saveItem={saveItem}
             renderItems={this.renderItems}
@@ -215,8 +240,11 @@ export default class DealEditForm extends React.Component<Props, State> {
       amount: this.renderAmount,
       sidebar: this.renderProductSection,
       formContent: this.renderFormContent,
-      beforePopupClose: this.beforePopupClose
+      beforePopupClose: this.beforePopupClose,
+      refresh: this.state.refresh
     };
+
+    console.log('item: ', this.props.item);
 
     return <EditForm {...extendedProps} />;
   }

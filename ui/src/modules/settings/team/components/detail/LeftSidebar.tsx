@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
@@ -11,6 +12,7 @@ import { ISkillDocument } from 'modules/settings/skills/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
+import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
 
 type Props = {
@@ -110,8 +112,28 @@ function LeftSidebar({
             <SidebarCounter>{details.location || '-'}</SidebarCounter>
           </li>
           <li>
+            <FieldStyle>{__('Birthdate')}:</FieldStyle>
+            <SidebarCounter>
+              {details.birthDate
+                ? dayjs(details.birthDate).format('YYYY-MM-DD')
+                : '-'}
+            </SidebarCounter>
+          </li>
+          <li>
             <FieldStyle>{__('Position')}:</FieldStyle>
             <SidebarCounter>{details.position || '-'}</SidebarCounter>
+          </li>
+          <li>
+            <FieldStyle>{__('Score')}:</FieldStyle>
+            <SidebarCounter>{user.score || '-'}</SidebarCounter>
+          </li>
+          <li>
+            <FieldStyle>{__('Joined date')}:</FieldStyle>
+            <SidebarCounter>
+              {details.workStartedDate
+                ? dayjs(details.workStartedDate).format('YYYY-MM-DD')
+                : '-'}
+            </SidebarCounter>
           </li>
           <li>
             <FieldStyle>{__('Description')}:</FieldStyle>
@@ -168,7 +190,6 @@ function LeftSidebar({
                 key={skill._id}
                 btnStyle="simple"
                 size="small"
-                uppercase={false}
                 onClick={handleRemove}
               >
                 {skill.name}&nbsp;
@@ -184,6 +205,7 @@ function LeftSidebar({
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
+      <CustomFieldsSection user={user} isDetail={true} />
       {renderChannels()}
       {renderSkills()}
     </Sidebar>

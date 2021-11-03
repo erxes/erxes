@@ -40,6 +40,7 @@ describe('boardQueries', () => {
     type
     visibility
     members { _id }
+    createdUser { _id }
     isWatched
     state
     itemsTotalCount
@@ -288,6 +289,27 @@ describe('boardQueries', () => {
 
     expect(response._id).toBe(growthHackPipeline._id);
     expect(response.itemsTotalCount).toBe(0);
+  });
+
+  test('Get assigned users related pipeline', async () => {
+    const qry = `
+      query pipelineAssignedUsers($_id: String!) {
+        pipelineAssignedUsers(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const user = await userFactory();
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    await dealFactory({ stageId: stage._id, assignedUserIds: [user._id] });
+
+    const response = await graphqlRequest(qry, 'pipelineAssignedUsers', {
+      _id: pipeline._id
+    });
+
+    expect(response[0]._id).toBe(user._id);
   });
 
   test('Get state by startDate and endDate', async () => {
@@ -652,7 +674,7 @@ describe('boardQueries', () => {
       `/task/board?_id=${taskBoard._id}&pipelineId=${taskPipeline._id}&itemId=${task._id}`
     );
     expect(response.ticketUrl).toBe(
-      `/inbox/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`
+      `/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`
     );
 
     response = await graphqlRequest(qry, 'convertToInfo', {

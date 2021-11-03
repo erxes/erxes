@@ -9,7 +9,6 @@ import {
   IItemParams,
   IOptions
 } from 'modules/boards/types';
-import TaskTimer, { STATUS_TYPES } from 'modules/common/components/Timer';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
@@ -34,24 +33,28 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
-export default class TaskEditForm extends React.Component<Props> {
-  renderItems = () => {
-    const { item, updateTimeTrack } = this.props;
+type State = {
+  refresh: boolean;
+};
 
-    const timeTrack = item.timeTrack || {
-      timeSpent: 0,
-      status: STATUS_TYPES.STOPPED
+export default class TaskEditForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      refresh: false
     };
+  }
 
+  onChangeRefresh = () => {
+    this.setState({
+      refresh: !this.state.refresh
+    });
+  };
+
+  renderItems = () => {
     return (
       <>
-        <TaskTimer
-          taskId={item._id}
-          status={timeTrack.status}
-          timeSpent={timeTrack.timeSpent}
-          startDate={timeTrack.startDate}
-          update={updateTimeTrack}
-        />
         <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
         <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
       </>
@@ -65,7 +68,14 @@ export default class TaskEditForm extends React.Component<Props> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
+    const {
+      item,
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack
+    } = this.props;
 
     return (
       <>
@@ -88,12 +98,14 @@ export default class TaskEditForm extends React.Component<Props> {
             item={item}
             addItem={addItem}
             onChangeStage={onChangeStage}
+            onChangeRefresh={this.onChangeRefresh}
           />
 
           <Sidebar
             options={options}
             item={item}
             saveItem={saveItem}
+            updateTimeTrack={updateTimeTrack}
             renderItems={this.renderItems}
           />
         </FlexContent>
@@ -105,7 +117,8 @@ export default class TaskEditForm extends React.Component<Props> {
     const extendedProps = {
       ...this.props,
       formContent: this.renderFormContent,
-      extraFields: this.state
+      extraFields: this.state,
+      refresh: this.state.refresh
     };
 
     return <EditForm {...extendedProps} />;

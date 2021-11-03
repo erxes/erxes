@@ -709,4 +709,34 @@ describe('User db utils', () => {
       );
     }
   });
+
+  test('Logout user & check token exist', async () => {
+    expect.assertions(6);
+
+    // invalid token ==============
+    const loggedout = await Users.logout(_user, '');
+    expect(loggedout).toBe('token not found');
+    
+
+    // valid login
+    const response = await Users.login({
+      email: _user.email.toUpperCase(),
+      password: 'pass'
+    });
+
+    expect(response.token).toBeDefined();
+    expect(response.refreshToken).toBeDefined();
+
+    // wrong token
+    const result = await Users.logout(_user, response.refreshToken);
+    expect(result).toBe('token not found');
+
+    // valid Logout
+    const message = await Users.logout(_user, response.token);
+    expect(message).toBe('loggedout');
+
+    // check token exist.
+    const userFull = await Users.getUser(_user._id);
+    expect(userFull.validatedTokens).not.toContain(response.token);
+  });
 });

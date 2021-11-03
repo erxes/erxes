@@ -7,7 +7,7 @@ import {
   IIntegrationLink,
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
-  IUser
+  IUser,
 } from "../../types";
 import { __ } from "../../utils";
 import { Integrations, TopBar } from "../containers";
@@ -21,6 +21,7 @@ type Props = {
   messengerData: IIntegrationMessengerData;
   isOnline?: boolean;
   serverTime?: string;
+  activeSupport?: boolean;
 };
 
 type State = {
@@ -34,13 +35,20 @@ class Home extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: 120, activeSupport: true };
+    this.state = {
+      headHeight: 120,
+      activeSupport: true,
+    };
     this.toggleTab = this.toggleTab.bind(this);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.node && prevState.headHeight !== this.node.offsetHeight) {
       this.setState({ headHeight: this.node.offsetHeight });
+    }
+
+    if (prevProps.activeSupport === prevState.activeSupport) {
+      this.setState({ activeSupport: false });
     }
   }
 
@@ -62,7 +70,7 @@ class Home extends React.Component<Props, State> {
     }
 
     const indicatorClasses = classNames("indicator", {
-      left: this.state.activeSupport
+      left: this.state.activeSupport,
     });
 
     return (
@@ -123,15 +131,15 @@ class Home extends React.Component<Props, State> {
       supporters,
       loading,
       messengerData,
-      serverTime
+      serverTime,
     } = this.props;
 
     return (
       <div
         className={classNames("erxes-welcome", {
-          tabbed: messengerData.knowledgeBaseTopicId
+          tabbed: messengerData.knowledgeBaseTopicId,
         })}
-        ref={node => {
+        ref={(node) => {
           this.node = node;
         }}
       >
@@ -161,7 +169,7 @@ class Home extends React.Component<Props, State> {
         <TopBar middle={this.renderHead()} />
         <div
           className={classNames("erxes-home-content", {
-            tabbed: topicId
+            tabbed: topicId,
           })}
         >
           <RTG.CSSTransition

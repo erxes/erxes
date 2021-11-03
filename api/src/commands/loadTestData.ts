@@ -562,14 +562,17 @@ const main = async () => {
     content: `<p>${faker.lorem.sentences()}</p>\n`
   });
 
-  const segment = await Segments.createSegment({
-    name: 'Happy customers',
-    description: faker.lorem.sentence(),
-    contentType: 'customer',
-    color: faker.internet.color(),
-    subOf: '',
-    conditions: []
-  });
+  const segment = await Segments.createSegment(
+    {
+      name: 'Happy customers',
+      description: faker.lorem.sentence(),
+      contentType: 'customer',
+      color: faker.internet.color(),
+      subOf: '',
+      conditions: []
+    },
+    []
+  );
 
   const docAutoMessage = {
     kind: MESSAGE_KINDS.VISITOR_AUTO,

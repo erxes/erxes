@@ -367,7 +367,7 @@ export const integrationSchema = schemaHooksWrapper(
       optional: true,
       label: 'Language code'
     }),
-    tagIds: field({ type: [String], label: 'Tags' }),
+    tagIds: field({ type: [String], label: 'Tags', index: true }),
     formId: field({ type: String, label: 'Form' }),
     leadData: field({ type: leadDataSchema, label: 'Lead data' }),
     isActive: field({
@@ -380,7 +380,7 @@ export const integrationSchema = schemaHooksWrapper(
     // TODO: remove
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
-    uiOptions: field({ type: uiOptionsSchema })
+    uiOptions: field({ type: uiOptionsSchema }),
   }),
   'erxes_integrations'
 );

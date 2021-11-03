@@ -15,13 +15,13 @@ import CategoryForm from '../../containers/productCategory/CategoryForm';
 import TagFilter from '../../containers/TagFilter';
 import { IProductCategory } from '../../types';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
+import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   history: any;
   queryParams: any;
-  refetch: any;
   remove: (productCategoryId: string) => void;
   productCategories: IProductCategory[];
   productCategoriesCount: number;
@@ -124,12 +124,7 @@ class List extends React.Component<IProps> {
 
   renderCategoryHeader() {
     const trigger = (
-      <Button
-        btnStyle="success"
-        uppercase={false}
-        icon="plus-circle"
-        block={true}
-      >
+      <Button btnStyle="success" icon="plus-circle" block={true}>
         Add category
       </Button>
     );
@@ -139,6 +134,7 @@ class List extends React.Component<IProps> {
         <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
         <Section.Title>
           {__('Categories')}
+
           <Section.QuickButtons>
             {router.getParam(this.props.history, 'categoryId') && (
               <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
@@ -180,6 +176,7 @@ class List extends React.Component<IProps> {
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>
+        <CategoryStatusFilter />
         <ProductTypeFilter />
         <TagFilter />
       </Sidebar>

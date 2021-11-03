@@ -87,6 +87,7 @@ export type IButtonMutateProps = {
 export type IMentionUser = {
   id: string;
   avatar: string;
+  username: string;
   fullName: string;
 };
 
@@ -107,10 +108,11 @@ export type IEditorProps = {
   autoGrowMinHeight?: number;
   autoGrowMaxHeight?: number;
   name?: string;
+  isSubmitted?: boolean;
 };
 
 export type QueryResponse = {
   loading: boolean;
-  refetch: () => void;
+  refetch: () => Promise<any>;
   error?: string;
 };

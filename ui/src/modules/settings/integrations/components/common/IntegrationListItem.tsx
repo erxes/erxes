@@ -10,7 +10,10 @@ import WithPermission from 'modules/common/components/WithPermission';
 import { Alert, getEnv } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
+import {
+  INTEGRATION_KINDS,
+  WEBHOOK_DOC_URL
+} from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
@@ -110,6 +113,12 @@ class IntegrationListItem extends React.Component<Props, State> {
             <b>URL</b>: {REACT_APP_API_URL}/webhooks/{integration._id} <br />
             <b>Token</b>: {webhookData.token}
           </div>
+          <p>
+            {'For more information, please review the '}
+            <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
+              documentaion.
+            </a>
+          </p>
         </div>
       );
     };
@@ -283,21 +292,6 @@ class IntegrationListItem extends React.Component<Props, State> {
     switch (kind) {
       case INTEGRATION_KINDS.CALLPRO:
         value = externalData.phoneNumber;
-        break;
-      case INTEGRATION_KINDS.CHATFUEL:
-        value = (externalData.chatfuelConfigs || {}).toString();
-        break;
-      case INTEGRATION_KINDS.WHATSAPP:
-        value = externalData.whatsappToken;
-        break;
-      case INTEGRATION_KINDS.SMOOCH_TELEGRAM:
-        value = externalData.telegramBotToken;
-        break;
-      case INTEGRATION_KINDS.SMOOCH_VIBER:
-        value = externalData.viberBotToken;
-        break;
-      case INTEGRATION_KINDS.SMOOCH_LINE:
-        value = externalData.lineChannelId;
         break;
       case INTEGRATION_KINDS.TELNYX:
         value = externalData.telnyxPhoneNumber;

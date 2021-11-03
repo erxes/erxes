@@ -99,8 +99,10 @@ class PropertyForm extends React.Component<Props, State> {
 
   onTypeChange = e => {
     const value = e.target.value;
-
-    let doc = { hasOptions: false, options: [] };
+    let doc: { hasOptions: boolean; options: any[] } = {
+      hasOptions: false,
+      options: []
+    };
 
     if (
       value === 'select' ||
@@ -108,7 +110,7 @@ class PropertyForm extends React.Component<Props, State> {
       value === 'check' ||
       value === 'radio'
     ) {
-      doc = { hasOptions: true, options: [] };
+      doc = { hasOptions: true, options: this.state.options };
     }
 
     this.setState({ type: value, ...doc });
@@ -130,7 +132,7 @@ class PropertyForm extends React.Component<Props, State> {
   renderAddGroup = () => {
     const { queryParams } = this.props;
 
-    const trigger = <Button uppercase={false}>Create group</Button>;
+    const trigger = <Button>Create group</Button>;
     const content = props => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
@@ -208,12 +210,14 @@ class PropertyForm extends React.Component<Props, State> {
           >
             <option />
             <option value="input">Input</option>
+            <option value="list">List</option>
             <option value="textarea">Text area</option>
             <option value="select">Select</option>
             <option value="multiSelect">Multiple select</option>
             <option value="check">Checkbox</option>
             <option value="radio">Radio button</option>
             <option value="file">File</option>
+            <option value="customer">Customer</option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
@@ -235,12 +239,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
           </Button>
 

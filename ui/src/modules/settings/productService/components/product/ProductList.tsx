@@ -133,8 +133,8 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add Product / Service
+      <Button btnStyle="success" icon="plus-circle">
+        Add items
       </Button>
     );
 
@@ -151,12 +151,12 @@ class List extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
         <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
-            {__('Go to import')}
+          <Button btnStyle="simple" icon="arrow-from-right">
+            {__('Import items')}
           </Button>
         </Link>
         <ModalTrigger
-          title="Add Product / Service"
+          title="Add Product/Services"
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}
@@ -181,6 +181,9 @@ class List extends React.Component<IProps, State> {
               <th>{__('Name')}</th>
               <th>{__('Type')}</th>
               <th>{__('Category')}</th>
+              <th>{__('Supply')}</th>
+              <th>{__('Product count')}</th>
+              <th>{__('Minimium count')}</th>
               <th>{__('Unit Price')}</th>
               <th>{__('SKU')}</th>
               <th>{__('Tags')}</th>
@@ -280,7 +283,11 @@ class List extends React.Component<IProps, State> {
           <HeaderDescription
             icon="/images/actions/30.svg"
             title={'Product & Service'}
-            description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+            description={`${__(
+              'All information and know-how related to your business products and services are found here'
+            )}.${__(
+              'Create and add in unlimited products and servicess so that you and your team members can edit and share'
+            )}`}
           />
         }
         actionBar={

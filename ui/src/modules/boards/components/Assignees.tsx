@@ -7,6 +7,7 @@ const Wrapper = styled.div`
   > img {
     border-radius: 14px;
     float: left;
+    object-fit: cover;
     margin-left: 2px;
   }
 `;
@@ -23,9 +24,11 @@ function Assignees(props: Props) {
 
   const { users = [], limit = 3 } = props;
 
+  const activeUsers = users.filter(user => user.isActive);
+
   return (
     <Wrapper>
-      {users.slice(0, limit).map(user => (
+      {activeUsers.slice(0, limit).map(user => (
         <img
           alt={getFullName(user)}
           title={getFullName(user)}

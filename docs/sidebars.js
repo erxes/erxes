@@ -28,7 +28,7 @@ module.exports = {
           ]
         },
         {
-          "Contributing on open sourse": [
+          "Contributing on open source": [
             "getting-started/contributing-guide",
             "getting-started/submitting",
             "getting-started/commit"
@@ -59,7 +59,7 @@ module.exports = {
             ] 
           },
         {
-          Turorials: [
+          Tutorials: [
            "developer/graphql-api",
            "developer/android-sdk",
            "developer/ios-sdk",
@@ -116,6 +116,22 @@ module.exports = {
         "user/notification",
         "user/mobile-apps",
         "user/import",
+      ],
+    },
+  ],
+  components: [
+    {
+      type: "category",
+      label: "Components",
+      items: [
+        "components/Button/buttons",
+        "components/EmptyState/emptystate",
+        "components/ErrorMsg/errormsg",
+        "components/Info/info",
+        "components/Label/label",
+        "components/Namecard/namecard",
+        "components/Spinner/spinners",
+        "components/Table/table",
       ],
     },
   ],

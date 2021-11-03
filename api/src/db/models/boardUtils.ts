@@ -1,20 +1,19 @@
 import {
+  Boards,
   Checklists,
-  Companies,
   Conformities,
-  Customers,
   Deals,
   GrowthHacks,
   InternalNotes,
+  Pipelines,
+  Stages,
   Tasks,
   Tickets
 } from '.';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
-import { ICompanyDocument } from './definitions/companies';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
-import { ICustomerDocument } from './definitions/customers';
 
 interface ISetOrderParam {
   collection: any;
@@ -198,12 +197,14 @@ export const getCollection = (type: string) => {
   let collection;
   let create;
   let update;
+  let remove;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
       collection = Deals;
       create = Deals.createDeal;
       update = Deals.updateDeal;
+      remove = Deals.removeDeals;
       break;
     }
     case BOARD_TYPES.GROWTH_HACK: {
@@ -216,21 +217,23 @@ export const getCollection = (type: string) => {
       collection = Tasks;
       create = Tasks.createTask;
       update = Tasks.updateTask;
+      remove = Tasks.removeTasks;
       break;
     }
     case BOARD_TYPES.TICKET: {
       collection = Tickets;
       create = Tickets.createTicket;
       update = Tickets.updateTicket;
+      remove = Tickets.removeTickets;
       break;
     }
   }
 
-  return { collection, create, update };
+  return { collection, create, update, remove };
 };
 
-export const getItem = async (type: string, _id: string) => {
-  const item = await getCollection(type).collection.findOne({ _id });
+export const getItem = async (type: string, doc: any) => {
+  const item = await getCollection(type).collection.findOne({ ...doc });
 
   if (!item) {
     throw new Error(`${type} not found`);
@@ -239,34 +242,30 @@ export const getItem = async (type: string, _id: string) => {
   return item;
 };
 
-export const getCompanies = async (
+export const getCompanyIds = async (
   mainType: string,
   mainTypeId: string
-): Promise<ICompanyDocument[]> => {
+): Promise<string[]> => {
   const conformities = await Conformities.find({
     mainType,
     mainTypeId,
     relType: 'company'
-  });
+  }).lean();
 
-  const companyIds = conformities.map(c => c.relTypeId);
-
-  return Companies.find({ _id: { $in: companyIds } });
+  return conformities.map(c => c.relTypeId);
 };
 
-export const getCustomers = async (
+export const getCustomerIds = async (
   mainType: string,
   mainTypeId: string
-): Promise<ICustomerDocument[]> => {
+): Promise<string[]> => {
   const conformities = await Conformities.find({
     mainType,
     mainTypeId,
     relType: 'customer'
-  });
+  }).lean();
 
-  const customerIds = conformities.map(c => c.relTypeId);
-
-  return Customers.find({ _id: { $in: customerIds } });
+  return conformities.map(c => c.relTypeId);
 };
 
 // Removes all board item related things
@@ -285,4 +284,13 @@ export const destroyBoardItemRelations = async (
     mainTypeId: contentTypeId
   });
   await InternalNotes.deleteMany({ contentType, contentTypeId });
+};
+
+// Get board item link
+export const getBoardItemLink = async (stageId: string, itemId: string) => {
+  const stage = await Stages.getStage(stageId);
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  const board = await Boards.getBoard(pipeline.boardId);
+
+  return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };

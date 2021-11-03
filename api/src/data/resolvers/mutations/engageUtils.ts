@@ -1,5 +1,6 @@
 import { Transform } from 'stream';
 import {
+  Conformities,
   Customers,
   EngageMessages,
   Integrations,
@@ -15,9 +16,10 @@ import {
 import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { fetchElk } from '../../../elasticsearch';
+import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
-import { fetchBySegments } from '../../modules/segments/queryBuilder';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { chunkArray, isUsingElk, replaceEditorAttributes } from '../../utils';
 
 interface IEngageParams {
@@ -27,11 +29,13 @@ interface IEngageParams {
 }
 
 export const generateCustomerSelector = async ({
+  engageId,
   customerIds,
   segmentIds = [],
   tagIds = [],
   brandIds = []
 }: {
+  engageId?: string;
   customerIds?: string[];
   segmentIds?: string[];
   tagIds?: string[];
@@ -39,6 +43,7 @@ export const generateCustomerSelector = async ({
 }): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
+  let customersItemsMapping: { [key: string]: any } = {};
 
   if (customerIds && customerIds.length > 0) {
     customerQuery = { _id: { $in: customerIds } };
@@ -66,15 +71,69 @@ export const generateCustomerSelector = async ({
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await fetchBySegments(segment, 'search', {
+      const cIds = await fetchSegment(segment, {
         associatedCustomers: true
       });
+
+      if (
+        engageId &&
+        ['company', 'deal', 'task', 'ticket'].includes(segment.contentType)
+      ) {
+        const returnFields = [
+          'name',
+          'description',
+          'closeDate',
+          'createdAt',
+          'modifiedAt',
+          'customFieldsData'
+        ];
+
+        if (segment.contentType === 'deal') {
+          returnFields.push('productsData');
+        }
+
+        const items = await fetchSegment(segment, {
+          returnFields
+        });
+
+        for (const item of items) {
+          const cusIds = await Conformities.savedConformity({
+            mainType: segment.contentType,
+            mainTypeId: item._id,
+            relTypes: ['customer']
+          });
+
+          for (const customerId of cusIds) {
+            if (!customersItemsMapping[customerId]) {
+              customersItemsMapping[customerId] = [];
+            }
+
+            customersItemsMapping[customerId].push({
+              contentType: segment.contentType,
+              name: item.name,
+              description: item.description,
+              closeDate: item.closeDate,
+              createdAt: item.createdAt,
+              modifiedAt: item.modifiedAt,
+              customFieldsData: item.customFieldsData,
+              productsData: item.productsData
+            });
+          }
+        }
+      }
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
 
     customerQuery = { _id: { $in: customerIdsBySegments } };
-  }
+  } // end segmentIds if
+
+  await set(
+    `${engageId}_customers_items_mapping`,
+    JSON.stringify(customersItemsMapping)
+  );
+
+  customersItemsMapping = {};
 
   return {
     ...customerQuery,
@@ -126,6 +185,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   }
 
   const customersSelector = await generateCustomerSelector({
+    engageId: engageMessage._id,
     customerIds,
     segmentIds,
     tagIds: customerTagIds,
@@ -154,13 +214,18 @@ const sendEmailOrSms = async (
 ) => {
   const engageMessageId = engageMessage._id;
 
-  await sendQueueMessage({
-    action: 'writeLog',
-    data: {
-      engageMessageId,
-      msg: `Run at ${new Date()}`
-    }
-  });
+  const MINUTELY =
+    engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
+
+  if (!(engageMessage.kind === MESSAGE_KINDS.AUTO && MINUTELY)) {
+    await sendQueueMessage({
+      action: 'writeLog',
+      data: {
+        engageMessageId,
+        msg: `Run at ${new Date()}`
+      }
+    });
+  }
 
   const customerInfos: Array<{
     _id: string;
@@ -173,6 +238,7 @@ const sendEmailOrSms = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
+  // TODO: refactor customerFields. try removing this paramter in replaceEditorAttributes.
   const { customerFields } = await replaceEditorAttributes({
     content: emailContent
   });
@@ -186,11 +252,13 @@ const sendEmailOrSms = async (
       throw new Error('No customers found');
     }
 
-    const MINUTELY =
-      engageMessage.scheduleDate &&
-      engageMessage.scheduleDate.type === 'minute';
-
-    if (!(engageMessage.kind === MESSAGE_KINDS.AUTO && MINUTELY)) {
+    if (
+      !(
+        engageMessage.kind === MESSAGE_KINDS.AUTO &&
+        MINUTELY &&
+        customerInfos.length === 0
+      )
+    ) {
       await sendQueueMessage({
         action: 'writeLog',
         data: {
@@ -241,26 +309,37 @@ const sendEmailOrSms = async (
         await sendQueueMessage({ action, data });
       }
     }
+
+    await removeKey(`${engageMessage._id}_customers_items_mapping`);
   };
+
+  const customersItemsMapping = JSON.parse(
+    (await get(`${engageMessage._id}_customers_items_mapping`)) || '{}'
+  );
 
   const customerTransformerStream = new Transform({
     objectMode: true,
 
     async transform(customer: ICustomerDocument, _encoding, callback) {
-      const { replacers } = await replaceEditorAttributes({
-        content: emailContent,
-        customer,
-        customerFields
-      });
+      const itemsMapping = customersItemsMapping[customer._id] || [null];
 
-      customerInfos.push({
-        _id: customer._id,
-        primaryEmail: customer.primaryEmail,
-        emailValidationStatus: customer.emailValidationStatus,
-        phoneValidationStatus: customer.phoneValidationStatus,
-        primaryPhone: customer.primaryPhone,
-        replacers
-      });
+      for (const item of itemsMapping) {
+        const { replacers } = await replaceEditorAttributes({
+          content: emailContent,
+          customer,
+          item,
+          customerFields
+        });
+
+        customerInfos.push({
+          _id: customer._id,
+          primaryEmail: customer.primaryEmail,
+          emailValidationStatus: customer.emailValidationStatus,
+          phoneValidationStatus: customer.phoneValidationStatus,
+          primaryPhone: customer.primaryPhone,
+          replacers
+        });
+      }
 
       // signal upstream that we are ready to take more data
       callback();
@@ -444,7 +523,7 @@ export const checkCustomerExists = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await fetchBySegments(segment);
+      const cIds = await fetchSegment(segment);
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }

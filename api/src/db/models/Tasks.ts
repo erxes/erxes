@@ -15,12 +15,6 @@ export interface ITaskModel extends Model<ITaskDocument> {
   updateTask(_id: string, doc: ITask): Promise<ITaskDocument>;
   watchTask(_id: string, isAdd: boolean, userId: string): void;
   removeTasks(_ids: string[]): Promise<{ n: number; ok: number }>;
-  updateTimeTracking(
-    _id: string,
-    status: string,
-    timeSpent: number,
-    startDate: string
-  ): Promise<ITaskDocument>;
 }
 
 export const loadTaskClass = () => {
@@ -93,26 +87,6 @@ export const loadTaskClass = () => {
       }
 
       return Tasks.deleteMany({ _id: { $in: _ids } });
-    }
-
-    public static async updateTimeTracking(
-      _id: string,
-      status: string,
-      timeSpent: number,
-      startDate?: string
-    ) {
-      const doc: { status: string; timeSpent: number; startDate?: string } = {
-        status,
-        timeSpent
-      };
-
-      if (startDate) {
-        doc.startDate = startDate;
-      }
-
-      await Tasks.updateOne({ _id }, { $set: { timeTrack: doc } });
-
-      return Tasks.findOne({ _id }).lean();
     }
   }
 

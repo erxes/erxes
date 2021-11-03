@@ -3,6 +3,11 @@ import {
   types as ActivityLogTypes
 } from './activityLog';
 import {
+  mutations as AutomationMutations,
+  queries as AutomationQueries,
+  types as AutomationTypes
+} from './automations';
+import {
   mutations as BoardMutations,
   queries as BoardQueries,
   types as BoardTypes
@@ -27,6 +32,11 @@ import {
   queries as ChecklistQueries,
   types as ChecklistTypes
 } from './checklist';
+import {
+  mutations as ClientPortalMutations,
+  queries as ClientPortalQueries,
+  types as ClientPortalTypes
+} from './clientPortal';
 import { types as CommonTypes } from './common';
 import {
   mutations as CompanyMutations,
@@ -109,7 +119,6 @@ import {
   queries as InternalNoteQueries,
   types as InternalNoteTypes
 } from './internalNote';
-
 import {
   mutations as KnowledgeBaseMutations,
   queries as KnowledgeBaseQueries,
@@ -219,6 +228,7 @@ export let types = `
   ${IntegrationTypes}
   ${ResponseTemplate}
   ${Script}
+  ${ClientPortalTypes}
   ${SkillTypes}
   ${EmailTemplate}
   ${EngageTypes}
@@ -253,6 +263,7 @@ export let types = `
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
+  ${AutomationTypes}
 `;
 
 export let queries = `
@@ -265,6 +276,7 @@ export let queries = `
   ${ScriptQueries}
   ${SkillQueries}
   ${EmailTemplateQueries}
+  ${ClientPortalQueries}
   ${EmailDeliveryQueries}
   ${FieldQueries}
   ${EngageQueries}
@@ -298,6 +310,7 @@ export let queries = `
   ${CalendarQueries}
   ${MessengerAppQueries}
   ${SmsDeliveryQueries}
+  ${AutomationQueries}
 `;
 
 export let mutations = `
@@ -311,6 +324,7 @@ export let mutations = `
   ${ResponseTemplateMutations}
   ${ScriptMutations}
   ${EmailTemplateMutations}
+  ${ClientPortalMutations}
   ${InternalNoteMutations}
   ${CustomerMutations}
   ${SegmentMutations}
@@ -340,6 +354,7 @@ export let mutations = `
   ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
+  ${AutomationMutations}
 `;
 
 export let subscriptions = `
@@ -354,9 +369,11 @@ export let subscriptions = `
   activityLogsChanged: Boolean
   importHistoryChanged(_id: String!): ImportHistory
   notificationInserted(userId: String): Notification
+  notificationRead(userId: String): JSON
   onboardingChanged(userId: String!): OnboardingNotification
 
   pipelinesChanged(_id: String!): PipelineChangeResponse
+  userChanged(userId: String): JSON
 
   checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
   checklistDetailChanged(_id: String!): Checklist

@@ -163,12 +163,7 @@ class UserInvitationForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={onCancel}
-            uppercase={false}
-            icon="times-circle"
-          >
+          <Button btnStyle="simple" onClick={onCancel} icon="times-circle">
             Cancel
           </Button>
 
@@ -176,7 +171,6 @@ class UserInvitationForm extends React.Component<Props, State> {
             btnStyle="success"
             icon="check-circle"
             onClick={this.addInvitees}
-            uppercase={false}
           >
             Add Invites
           </Button>
@@ -304,12 +298,7 @@ class UserInvitationForm extends React.Component<Props, State> {
         </InviteOption>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
 

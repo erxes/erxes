@@ -9,8 +9,20 @@ export const CONTENT_TYPES = {
   DEAL: 'deal',
   TASK: 'task',
   TICKET: 'ticket',
+  CONVERSATION: 'conversation',
+  USER: 'user',
 
-  ALL: ['customer', 'lead', 'visitor', 'company', 'deal', 'task', 'ticket']
+  ALL: [
+    'customer',
+    'lead',
+    'visitor',
+    'company',
+    'deal',
+    'task',
+    'ticket',
+    'conversation',
+    'user'
+  ]
 };
 
 export interface IAttributeFilter {
@@ -20,8 +32,18 @@ export interface IAttributeFilter {
 }
 
 export interface ICondition {
-  type: 'property' | 'event';
+  type: 'property' | 'event' | 'subSegment';
 
+  propertyType?:
+    | 'customer'
+    | 'company'
+    | 'deal'
+    | 'task'
+    | 'task'
+    | 'ticket'
+    | 'form_submission'
+    | 'conversation'
+    | 'user';
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
@@ -30,6 +52,14 @@ export interface ICondition {
   eventOccurence?: 'exactly' | 'atleast' | 'atmost';
   eventOccurenceValue?: number;
   eventAttributeFilters?: IAttributeFilter[];
+
+  subSegmentId?: string;
+  subSegmentForPreview?: ISegment;
+
+  pipelineId?: string;
+  boardId?: string;
+
+  formId?: string;
 }
 
 export interface IConditionDocument extends ICondition, Document {}
@@ -39,9 +69,12 @@ export interface ISegment {
   contentType: string;
   name: string;
   description?: string;
-  subOf: string;
-  color: string;
+  subOf?: string;
+  color?: string;
+
   conditions: ICondition[];
+  conditionsConjunction?: 'and' | 'or';
+
   scopeBrandIds?: string[];
 
   boardId?: string;
@@ -65,6 +98,11 @@ const eventAttributeSchema = new Schema(
 export const conditionSchema = new Schema(
   {
     type: field({ type: String }),
+
+    propertyType: field({
+      type: String,
+      optional: true
+    }),
 
     propertyName: field({
       type: String,
@@ -96,7 +134,24 @@ export const conditionSchema = new Schema(
       optional: true
     }),
 
-    eventAttributeFilters: field({ type: [eventAttributeSchema] })
+    eventAttributeFilters: field({ type: [eventAttributeSchema] }),
+
+    subSegmentId: field({ type: String, optional: true }),
+
+    pipelineId: field({
+      type: String,
+      optional: true
+    }),
+
+    boardId: field({
+      type: String,
+      optional: true
+    }),
+
+    formId: field({
+      type: String,
+      optional: true
+    })
   },
   { _id: false }
 );
@@ -107,15 +162,24 @@ export const segmentSchema = schemaWrapper(
     contentType: field({
       type: String,
       enum: CONTENT_TYPES.ALL,
-      label: 'Content type'
+      label: 'Content type',
+      index: true
     }),
-    name: field({ type: String }),
+    name: field({ type: String, optional: true }),
     description: field({ type: String, optional: true }),
-    subOf: field({ type: String, optional: true }),
+    subOf: field({ type: String, optional: true, index: true }),
     color: field({ type: String }),
+
+    conditionsConjunction: field({
+      type: String,
+      enum: ['and', 'or'],
+      default: 'and',
+      label: 'Conjunction'
+    }),
+
     conditions: field({ type: [conditionSchema] }),
 
-    boardId: field({ type: String }),
-    pipelineId: field({ type: String })
+    boardId: field({ type: String, optional: true }),
+    pipelineId: field({ type: String, optional: true })
   })
 );

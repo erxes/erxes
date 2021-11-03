@@ -14,6 +14,12 @@ export const types = `
   input InputRule {
     ${ruleFields}
   }
+
+  type TimeTrack {
+    status: String,
+    timeSpent: Int,
+    startDate: String
+  }
 `;
 
 export const conformityQueryFields = `
@@ -44,12 +50,14 @@ export const commonTypes = `
   attachments: [Attachment]
   userId: String
 
-  assignedUsers: [User]
+  assignedUsers: JSON
   stage: Stage
   labels: [PipelineLabel]
   pipeline: Pipeline
   createdUser: User
   customFieldsData: JSON
+  score: Float
+  timeTrack: TimeTrack
 `;
 
 export const commonMutationParams = `
@@ -93,4 +101,5 @@ export const commonListTypes = `
   modifiedAt: Date
   priority: String
   hasNotified: Boolean
+  score: Float
 `;

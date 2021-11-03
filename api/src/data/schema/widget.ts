@@ -51,6 +51,7 @@ export const types = `
     associatedFieldId: String
     stageId: String
     groupId: String
+    column: Int
   }
 `;
 
@@ -64,7 +65,7 @@ export const queries = `
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-  widgetsGetEngageMessage(customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
+  widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 `;
 
 export const mutations = `

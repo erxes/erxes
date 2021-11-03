@@ -294,6 +294,7 @@ const ExpandWrapper = styled.div`
 
 const FlexRow = styled.div`
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   align-items: center;
 `;
@@ -305,6 +306,14 @@ const FlexItem = styled(DateContainer)`
 
   &:first-child {
     margin-left: 0;
+  }
+`;
+
+const SidebarList = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  > div {
+    border-top: 1px solid ${colors.borderPrimary};
   }
 `;
 
@@ -323,6 +332,7 @@ export {
   ColorPick,
   ColorPicker,
   LogoContainer,
+  SidebarList,
   SidebarListItem,
   ActionButtons,
   Description,

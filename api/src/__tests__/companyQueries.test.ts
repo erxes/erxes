@@ -1,6 +1,20 @@
 import { graphqlRequest } from '../db/connection';
-import { companyFactory, segmentFactory, tagsFactory } from '../db/factories';
-import { Companies, Segments, Tags } from '../db/models';
+import {
+  companyFactory,
+  conformityFactory,
+  customerFactory,
+  segmentFactory,
+  tagsFactory
+} from '../db/factories';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Segments,
+  Tags
+} from '../db/models';
+import * as sinon from 'sinon';
+import * as elk from '../elasticsearch';
 
 import './setup.ts';
 
@@ -55,11 +69,23 @@ describe('companyQueries', () => {
     }
   `;
 
+  let mock;
+
+  beforeEach(async () => {
+    mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({ hits: { hits: [] } });
+    });
+  });
+
   afterEach(async () => {
     // Clearing test data
     await Companies.deleteMany({});
     await Tags.deleteMany({});
     await Segments.deleteMany({});
+    await Customers.deleteMany({});
+    await Conformities.deleteMany({});
+
+    mock.restore();
   });
 
   test('Companies', async () => {
@@ -101,7 +127,52 @@ describe('companyQueries', () => {
   });
 
   test('Company detail', async () => {
-    const company = await companyFactory();
+    const tag = await tagsFactory({ type: 'company' });
+    const customer = await customerFactory();
+    const company = await companyFactory({ tagIds: [tag._id] });
+    const conformity = await conformityFactory({
+      mainType: 'company',
+      mainTypeId: company._id,
+      relType: 'customer',
+      relTypeId: customer._id
+    });
+
+    mock.restore();
+
+    const cmock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        took: 0,
+        timed_out: false,
+        _shards: {
+          total: 1,
+          successful: 1,
+          skipped: 0,
+          failed: 0
+        },
+        hits: {
+          total: {
+            value: 1,
+            relation: 'eq'
+          },
+          max_score: 10.735046,
+          hits: [
+            {
+              _index: 'erxes__conformities',
+              _type: '_doc',
+              _id: conformity._id,
+              _score: 10.735046,
+              _source: {
+                mainType: 'company',
+                mainTypeId: company._id,
+                relType: 'customer',
+                relTypeId: customer._id,
+                __v: 0
+              }
+            }
+          ]
+        }
+      });
+    });
 
     const qry = `
       query companyDetail($_id: String!) {
@@ -143,6 +214,7 @@ describe('companyQueries', () => {
       _id: company._id
     });
 
+    cmock.restore();
     expect(response._id).toBe(company._id);
   });
 });

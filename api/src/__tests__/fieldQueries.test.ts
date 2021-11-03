@@ -189,6 +189,10 @@ describe('fieldQueries', () => {
       contentType: 'product'
     });
 
+    await graphqlRequest(qry, 'fieldsCombinedByContentType', {
+      contentType: 'deal'
+    });
+
     // getting fields of customers schema
     responseFields = responses.map(response => response.name);
 
@@ -217,7 +221,7 @@ describe('fieldQueries', () => {
       contentType: 'customer'
     });
 
-    expect(responses.length).toBe(8);
+    expect(responses.length).toBe(9);
     expect(responses[0].name).toBe('location.country');
     expect(responses[1].name).toBe('firstName');
     expect(responses[2].name).toBe('lastName');
@@ -228,7 +232,7 @@ describe('fieldQueries', () => {
       contentType: 'company'
     });
 
-    expect(responses.length).toBe(7);
+    expect(responses.length).toBe(8);
     expect(responses[0].name).toBe('primaryName');
     expect(responses[1].name).toBe('size');
     expect(responses[3].name).toBe('industry');
@@ -308,11 +312,20 @@ describe('fieldQueries', () => {
     };
 
     await fieldGroupFactory({
+      contentType: 'task',
+      isDefinedByErxes: true,
+      order: 1,
+      boardIds: [board._id],
+      pipelineIds: [pipeline._id]
+    });
+
+    await fieldGroupFactory({
       ...fieldGroupCommonFields,
       order: 1,
       boardIds: [board._id],
       pipelineIds: [pipeline._id]
     });
+
     await fieldGroupFactory({
       ...fieldGroupCommonFields,
       order: 2,
@@ -331,8 +344,8 @@ describe('fieldQueries', () => {
     });
 
     const qry = `
-      query fieldsGroups($contentType: String, $boardId: String, $pipelineId: String) {
-        fieldsGroups(contentType: $contentType, boardId: $boardId, pipelineId: $pipelineId) {
+      query fieldsGroups($contentType: String, $isDefinedByErxes: Boolean, $boardId: String, $pipelineId: String) {
+        fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, boardId: $boardId, pipelineId: $pipelineId) {
           _id
           lastUpdatedUser {
             _id
@@ -348,7 +361,8 @@ describe('fieldQueries', () => {
     const responses = await graphqlRequest(qry, 'fieldsGroups', {
       contentType: 'task',
       boardId: board._id,
-      pipelineId: pipeline._id
+      pipelineId: pipeline._id,
+      isDefinedByErxes: false
     });
 
     expect(responses.length).toBe(3);
@@ -459,7 +473,7 @@ describe('fieldQueries', () => {
           text
         }
       }
-    }    
+    }
  `;
 
     const responses = await graphqlRequest(qry, 'fields', {
@@ -563,5 +577,36 @@ describe('fieldQueries', () => {
     expect(response).toBeDefined();
     expect(response._id).toEqual(customerGroup && customerGroup._id);
     expect(response.fields[0]._id).toEqual(customerField._id);
+  });
+
+  test('fieldsItemTyped', async () => {
+    const p1 = await pipelineFactory({});
+    const g1 = await fieldGroupFactory({
+      contentType: 'deal',
+      pipelineIds: [p1._id]
+    });
+    await fieldFactory({ groupId: g1 ? g1._id : '' });
+
+    const p2 = await pipelineFactory({});
+    const g2 = await fieldGroupFactory({
+      contentType: 'ticket',
+      pipelineIds: [p2._id]
+    });
+    await fieldFactory({ groupId: g2 ? g2._id : '' });
+
+    const p3 = await pipelineFactory({});
+    const g3 = await fieldGroupFactory({
+      contentType: 'task',
+      pipelineIds: [p3._id]
+    });
+    await fieldFactory({ groupId: g3 ? g3._id : '' });
+
+    const qry = `
+      query fieldsItemTyped {
+        fieldsItemTyped
+      }
+    `;
+
+    await graphqlRequest(qry, 'fieldsItemTyped');
   });
 });

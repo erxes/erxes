@@ -97,6 +97,7 @@ export interface IUserModel extends Model<IUserDocument> {
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(params: ILoginParams): { token: string; refreshToken: string };
   getTokenFields(user: IUserDocument);
+  logout(_user: IUserDocument, token: string): string;
 }
 
 export const loadClass = () => {
@@ -190,39 +191,22 @@ export const loadClass = () => {
     /**
      * Update user information
      */
-    public static async updateUser(
-      _id: string,
-      {
-        username,
-        email,
-        password,
-        details,
-        links,
-        groupIds,
-        brandIds
-      }: IUpdateUser
-    ) {
-      email = (email || '').toLowerCase().trim();
-      password = (password || '').trim();
+    public static async updateUser(_id: string, doc: IUpdateUser) {
+      doc.password = (doc.password || '').trim();
+      doc.email = (doc.email || '').toLowerCase().trim();
 
-      const doc: any = {
-        username,
-        email,
-        password,
-        details,
-        links,
-        groupIds,
-        brandIds
-      };
-
-      // Checking duplicated email
-      await this.checkDuplication({ email, idsToExclude: _id });
+      if (doc.email) {
+        // Checking duplicated email
+        await this.checkDuplication({ email: doc.email, idsToExclude: _id });
+      } else {
+        delete doc.email;
+      }
 
       // change password
-      if (password) {
-        this.checkPassword(password);
+      if (doc.password) {
+        this.checkPassword(doc.password);
 
-        doc.password = await this.generatePassword(password);
+        doc.password = await this.generatePassword(doc.password);
 
         // if there is no password specified then leave password field alone
       } else {
@@ -681,6 +665,13 @@ export const loadClass = () => {
         this.getSecret()
       );
 
+      // storing tokens in user collection.
+      if(token){
+        const validatedTokens: string[] = user.validatedTokens || [];
+        validatedTokens.push(token);
+        await user.update({ $set: { validatedTokens } });
+      }
+
       if (deviceToken) {
         const deviceTokens: string[] = user.deviceTokens || [];
 
@@ -698,6 +689,23 @@ export const loadClass = () => {
         token,
         refreshToken
       };
+    }
+
+    /**
+     * Logging out user from database
+     */
+     public static async logout(user: IUserDocument, currentToken: string) {
+      const currentUser:any = await this.getUser(user._id);
+      let validatedTokens: string[] = currentUser.validatedTokens || [];
+
+      if(validatedTokens.includes(currentToken)){
+        // invalidating token.
+        validatedTokens = await validatedTokens.filter(token => token !== currentToken)
+        await Users.updateOne({ _id: currentUser._id }, { $set: { validatedTokens } });
+        return 'loggedout';
+      }
+      
+      return 'token not found';
     }
 
     public static async generateUserCodeField() {

@@ -1,4 +1,10 @@
-import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
+import {
+  HeaderContent,
+  HeaderContentSmall,
+  HeaderRow,
+  TitleRow
+} from 'modules/boards/styles/item';
+import { ControlLabel } from 'modules/common/components/form';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import React, { useEffect, useState } from 'react';
@@ -50,7 +56,25 @@ function Top(props: Props) {
   };
 
   const onChangeName = e => {
-    setName(e.target.value);
+    const itemName = (e.target as HTMLInputElement).value;
+
+    setName(itemName);
+    localStorage.setItem(`${props.item._id}Name`, itemName);
+  };
+
+  const renderScore = () => {
+    const { score } = item;
+
+    if (!score) {
+      return null;
+    }
+
+    return (
+      <HeaderContentSmall>
+        <ControlLabel>Score</ControlLabel>
+        <p>{score.toLocaleString()}</p>
+      </HeaderContentSmall>
+    );
   };
 
   return (
@@ -69,6 +93,7 @@ function Top(props: Props) {
           </TitleRow>
         </HeaderContent>
 
+        {renderScore()}
         {amount && amount()}
       </HeaderRow>
 

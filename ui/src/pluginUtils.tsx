@@ -8,6 +8,7 @@ import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import pluginModules from './plugins';
+import { ISubNav } from 'modules/layout/components/Navigation';
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -74,6 +75,7 @@ export const pluginsOfNavigations = (
     text: string,
     url: string,
     icon: string,
+    childrens?: ISubNav[],
     label?: React.ReactNode
   ) => React.ReactNode
 ) => {
@@ -236,4 +238,18 @@ export const pluginsOfPaymentForm = (
       }}
     />
   );
+};
+
+export const pluginsOfWebhooks = () => {
+  let webhookActions: any = [];
+
+  for (const pluginName of Object.keys(pluginModules)) {
+    const plugin = pluginModules[pluginName]();
+
+    if (plugin.webhookActions) {
+      webhookActions = webhookActions.concat(plugin.webhookActions);
+    }
+  }
+
+  return { webhookActions };
 };

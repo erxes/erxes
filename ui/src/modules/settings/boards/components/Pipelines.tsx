@@ -4,10 +4,12 @@ import Button from 'modules/common/components/Button';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import EmptyState from 'modules/common/components/EmptyState';
 import Table from 'modules/common/components/table';
-import { Count, Title } from 'modules/common/styles/main';
+import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
+import FormControl from 'modules/common/components/form/Control';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { BarItems } from 'modules/layout/styles';
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
   EMPTY_CONTENT_TASK_PIPELINE
@@ -16,7 +18,9 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
+import { PipelineCount } from '../styles';
 import PipelineRow from './PipelineRow';
+import SortHandler from 'modules/common/components/SortHandler';
 
 type Props = {
   type: string;
@@ -24,6 +28,8 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
   remove: (pipelineId: string) => void;
+  archive: (pipelineId: string, status: string) => void;
+  copied: (pipelineId: string) => void;
   boardId: string;
   options?: IOption;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
@@ -34,6 +40,28 @@ type State = {
   showModal: boolean;
   pipelines: IPipeline[];
   isDragDisabled: boolean;
+  searchValue: string;
+};
+
+const sortItems = (arr, direction, field) => {
+  if (!field || !direction) {
+    return;
+  }
+
+  arr.sort((a, b) => {
+    const valueA = a[field].toLowerCase();
+    const valueB = b[field].toLowerCase();
+
+    if (valueA < valueB) {
+      return -direction;
+    }
+
+    if (valueA > valueB) {
+      return direction;
+    }
+
+    return 0;
+  });
 };
 
 class Pipelines extends React.Component<Props, State> {
@@ -47,7 +75,8 @@ class Pipelines extends React.Component<Props, State> {
     this.state = {
       showModal,
       pipelines: props.pipelines,
-      isDragDisabled: false
+      isDragDisabled: false,
+      searchValue: ''
     };
   }
 
@@ -92,16 +121,44 @@ class Pipelines extends React.Component<Props, State> {
     this.setState({ isDragDisabled: !isDragDisabled });
   };
 
+  searchHandler = event => {
+    const searchValue = event.target.value.toLowerCase();
+    const { history, pipelines } = this.props;
+
+    router.setParams(history, { searchValue: event.target.value });
+
+    let updatedPipelines = pipelines;
+
+    if (searchValue) {
+      updatedPipelines = pipelines.filter(p =>
+        p.name.toLowerCase().includes(searchValue)
+      );
+    }
+
+    this.setState({ pipelines: updatedPipelines });
+  };
+
   renderRows() {
-    const { renderButton, type, options } = this.props;
+    const { renderButton, type, options, history } = this.props;
     const { pipelines } = this.state;
 
-    return pipelines.map(pipeline => (
+    const sortDirection = router.getParam(history, 'sortDirection');
+    const sortField = router.getParam(history, 'sortField');
+
+    const sortedPipelines = [...pipelines];
+
+    if (sortDirection && sortField) {
+      sortItems(sortedPipelines, sortDirection, sortField);
+    }
+
+    return sortedPipelines.map(pipeline => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
         renderButton={renderButton}
         remove={this.props.remove}
+        archive={this.props.archive}
+        copied={this.props.copied}
         type={type}
         options={options}
         onTogglePopup={this.onTogglePopup}
@@ -111,6 +168,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderContent() {
     const { pipelines, options, type } = this.props;
+
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (pipelines.length === 0) {
@@ -136,21 +194,20 @@ class Pipelines extends React.Component<Props, State> {
     }
 
     return (
-      <>
-        <Count>
-          {pipelines.length} {__(pipelineName)}
-          {pipelines.length > 1 && 's'}
-        </Count>
-        <Table>
-          <thead>
-            <tr>
-              <th>{__(pipelineName)}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRows()}</tbody>
-        </Table>
-      </>
+      <Table>
+        <thead>
+          <tr>
+            <th>
+              <SortHandler sortField={'name'} label={__('pipelineName')} />
+            </th>
+            <th>{__('Status')}</th>
+            <th>{__('Created at')}</th>
+            <th>{__('Created By')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderRows()}</tbody>
+      </Table>
     );
   }
 
@@ -160,7 +217,7 @@ class Pipelines extends React.Component<Props, State> {
     if (options && options.additionalButton) {
       return (
         <Link to={options.additionalButton}>
-          <Button uppercase={false} icon="arrow-to-right" btnStyle="simple">
+          <Button icon="arrow-to-right" btnStyle="simple">
             {options.additionalButtonText}
           </Button>
         </Link>
@@ -171,7 +228,7 @@ class Pipelines extends React.Component<Props, State> {
   };
 
   renderButton() {
-    const { options, boardId } = this.props;
+    const { options, boardId, history } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (!boardId) {
@@ -179,31 +236,45 @@ class Pipelines extends React.Component<Props, State> {
     }
 
     return (
-      <>
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={this.searchHandler}
+          value={router.getParam(history, 'searchValue')}
+          autoFocus={true}
+        />
+
         {this.renderAdditionalButton()}
         <Button
-          btnStyle="primary"
-          uppercase={false}
+          btnStyle="success"
           icon="plus-circle"
           onClick={this.addPipeline}
         >
           Add {pipelineName}
         </Button>
-      </>
+      </BarItems>
     );
   }
 
   render() {
-    const { currentBoard } = this.props;
+    const { currentBoard, pipelines, options } = this.props;
+    const pipelineName = options ? options.pipelineName : 'pipeline';
 
     const leftActionBar = (
-      <Title>{currentBoard ? currentBoard.name : ''}</Title>
+      <Title>
+        {currentBoard ? currentBoard.name : ''}
+
+        <PipelineCount>
+          ({pipelines.length} {__(pipelineName)}
+          {pipelines.length > 1 && 's'})
+        </PipelineCount>
+      </Title>
     );
 
     return (
       <div id="pipelines-content">
         <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
-
         {this.renderContent()}
         {this.renderAddForm()}
       </div>

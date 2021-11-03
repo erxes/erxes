@@ -12,10 +12,6 @@ const IntegrationWrapper = styled.div`
   min-width: 1000px;
   background: ${colors.colorWhite};
   z-index: 1;
-
-  h3 {
-    margin: 30px 0 0 ${dimensions.coreSpacing}px;
-  }
 `;
 
 const IntegrationRow = styled.div`
@@ -205,68 +201,15 @@ const Content = styled(Contents)`
   padding-left: ${dimensions.unitSpacing}px;
 `;
 
-const Category = styledTS<{ isActive?: boolean }>(styled.li)`
-  margin-bottom: ${dimensions.unitSpacing - 5}px;
-  transition: all ease 0.3s;
-  cursor: pointer;
-  color: ${props => props.isActive && colors.colorPrimary};
-  font-weight: ${props => props.isActive && 500};
-
-  &:hover {
-    color: ${colors.colorPrimary};
-  }
-`;
-
-const SidebarList = styled.ul`
-  margin: 0;
-  padding: ${dimensions.unitSpacing}px 0;
-  list-style: none;
-
-  a {
-    color: ${colors.textPrimary};
-  }
-
-  h4 {
-    margin-bottom: ${dimensions.coreSpacing - 5}px;
-  }
-`;
-
-const LeftSidebar = styled.div`
-  width: 200px;
-  position: relative;
-  margin: 10px;
-  flex-shrink: 0;
-`;
-
-const FixedSection = styled.div`
-  position: fixed;
-  width: 200px;
-  top: 220px;
-  bottom: ${dimensions.coreSpacing}px;
-  transition: all ease 0.5s;
-  overflow-y: hidden;
-
-  &:hover {
-    overflow-y: scroll;
-  }
-
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 5px;
-  }
-`;
-
-const SearchInput = styled.div`
+const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
   position: relative;
 
   input {
     border: 1px solid ${colors.borderPrimary};
     padding: 20px 20px 20px 30px;
     border-radius: 5px;
-    min-width: 500px;
+    width: ${props => (props.isInPopover ? '250px' : '500px')};
+    margin:  ${props => props.isInPopover && '5px 5px 0'};
     background: ${colors.colorWhite};
 
     @media (max-width: 1300px) {
@@ -295,10 +238,6 @@ export {
   Box,
   Type,
   Content,
-  Category,
-  SidebarList,
-  LeftSidebar,
-  FixedSection,
   SearchInput,
   Ribbon,
   FullHeight

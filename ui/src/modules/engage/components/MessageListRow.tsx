@@ -120,7 +120,9 @@ class Row extends React.Component<Props> {
   };
 
   renderSegments(message) {
-    const segments = message.segments || ([] as ISegment[]);
+    let segments = message.segments || ([] as ISegment[]);
+
+    segments = segments.filter(segment => segment && segment._id);
 
     return segments.map(segment => (
       <HelperText key={segment._id}>
@@ -164,39 +166,30 @@ class Row extends React.Component<Props> {
 
   renderStatus() {
     const { message } = this.props;
-    const {
-      stats = { send: 0, total: 0 },
-      kind,
-      validCustomersCount,
-      smsStats = { total: 0 },
-      scheduleDate,
-      isLive
-    } = message;
+    const { kind, scheduleDate, isLive, runCount, isDraft } = message;
+    let labelStyle = 'primary';
+    let labelText = 'Sending';
 
-    const totalEmailsMatch = validCustomersCount === stats.total;
+    if (!isLive && isDraft) {
+      labelStyle = 'simple';
+      labelText = 'Paused';
+    }
+    if (isLive && !isDraft) {
+      labelStyle = 'primary';
+      labelText = 'Sending';
+    }
 
     if (kind === MESSAGE_KINDS.MANUAL) {
-      if (
-        message.method === METHODS.MESSENGER ||
-        totalEmailsMatch ||
-        validCustomersCount === smsStats.total
-      ) {
-        return <Label lblStyle="success">Sent</Label>;
+      if (runCount > 0) {
+        labelStyle = 'success';
+        labelText = 'Sent';
       }
-
-      if (message.method === METHODS.SMS && smsStats.total === 0) {
-        return <Label lblStyle="danger">Not sent</Label>;
-      }
-
-      return <Label lblStyle="success">Sent</Label>;
     }
 
     // scheduled auto campaign
     if (scheduleDate && kind === MESSAGE_KINDS.AUTO) {
       const scheduledDate = new Date(scheduleDate.dateTime);
       const now = new Date();
-      let labelStyle = 'primary';
-      let labelText = 'Sending';
 
       if (
         scheduleDate.type === 'pre' &&
@@ -209,19 +202,9 @@ class Row extends React.Component<Props> {
         labelStyle = 'success';
         labelText = 'Sent';
       }
-      if (!isLive) {
-        labelStyle = totalEmailsMatch ? 'success' : 'simple';
-        labelText = totalEmailsMatch ? 'Sent' : 'Paused';
-      }
-      if (isLive) {
-        labelStyle = 'primary';
-        labelText = 'Sending';
-      }
-
-      return <Label lblStyle={labelStyle}>{labelText}</Label>;
     }
 
-    return <Label lblStyle="primary">Sending</Label>;
+    return <Label lblStyle={labelStyle}>{labelText}</Label>;
   }
 
   renderType(msg) {
@@ -262,20 +245,10 @@ class Row extends React.Component<Props> {
   render() {
     const { isChecked, message, remove } = this.props;
     const {
-      stats = { send: '' },
       brand = { name: '' },
-      smsStats = { total: 0 },
-      method,
-      scheduleDate
+      scheduleDate,
+      totalCustomersCount = 0
     } = message;
-    let totalCount = 0;
-
-    if (method === METHODS.SMS) {
-      totalCount = smsStats.total;
-    }
-    if (method === METHODS.EMAIL || method === METHODS.MESSENGER) {
-      totalCount = stats.total;
-    }
 
     return (
       <tr key={message._id}>
@@ -298,7 +271,7 @@ class Row extends React.Component<Props> {
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
-          <b> {s.numberFormat(totalCount)}</b>
+          <b> {s.numberFormat(totalCustomersCount)}</b>
         </td>
         <td>{this.renderType(message)}</td>
         <td>

@@ -318,7 +318,6 @@ class PipelineForm extends React.Component<Props, State> {
               type="button"
               icon="times-circle"
               onClick={closeModal}
-              uppercase={false}
             >
               Cancel
             </Button>

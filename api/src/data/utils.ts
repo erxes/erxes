@@ -10,24 +10,18 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
-import {
-  Companies,
-  Customers,
-  OnboardingHistories,
-  Users,
-  Webhooks
-} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
-import {
-  WEBHOOK_STATUS,
-  WEBHOOK_TYPES
-} from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import { fieldsCombinedByContentType } from './modules/fields/utils';
+import {
+  fieldsCombinedByContentType,
+  getCustomFields
+} from './modules/fields/utils';
+import { generateAmounts, generateProducts } from './resolvers/deals';
+import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -196,7 +190,7 @@ export const uploadFileAWS = async (
   const IS_PUBLIC = forcePrivate
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'true');
-  const AWS_PREFIX = await getConfig('AWS_PREFIX');
+  const AWS_PREFIX = await getConfig('AWS_PREFIX', '');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
   // initialize s3
@@ -509,15 +503,15 @@ export const replaceEditorAttributes = async (args: {
   customer?: ICustomer | null;
   user?: IUser | null;
   customerFields?: string[];
+  item?: any;
   brand?: IBrandDocument;
 }): Promise<{
   replacers: IReplacer[];
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  const { content, user, brand } = args;
+  const { content, user, brand, item } = args;
   const customer = args.customer || {};
-
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
@@ -560,10 +554,10 @@ export const replaceEditorAttributes = async (args: {
   }
 
   // replace customer fields
-  if (customer) {
+  if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
-      value: Customers.getCustomerName(customer)
+      value: models.Customers.getCustomerName(customer)
     });
 
     for (const field of customerFields) {
@@ -616,6 +610,60 @@ export const replaceEditorAttributes = async (args: {
     replacedContent = replacedContent.replace(regex, replacer.value);
   }
 
+  // deal, ticket, task mapping
+  if (item) {
+    replacers.push({ key: '{{ itemName }}', value: item.name || '' });
+    replacers.push({
+      key: '{{ itemDescription }}',
+      value: item.description || ''
+    });
+
+    replacers.push({
+      key: '{{ itemCloseDate }}',
+      value: item.closeDate ? new Date(item.closeDate).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemCreatedAt }}',
+      value: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemModifiedAt }}',
+      value: item.modifiedAt
+        ? new Date(item.modifiedAt).toLocaleDateString()
+        : ''
+    });
+
+    const products = await generateProducts(item.productsData);
+    const amounts = generateAmounts(item.productsData);
+
+    replacers.push({
+      key: '{{ dealProducts }}',
+      value: products.map(p => p.product.name).join(',')
+    });
+    replacers.push({
+      key: '{{ dealAmounts }}',
+      value: Object.keys(amounts)
+        .map(key => `${amounts[key]}${key}`)
+        .join(',')
+    });
+
+    const customFields = await getCustomFields(item.contentType);
+
+    for (const customField of customFields) {
+      const cFieldsData = item.customFieldsData || [];
+      const customFieldData = cFieldsData.find(
+        c => c.field === customField._id
+      );
+
+      if (customFieldData) {
+        replacers.push({
+          key: `{{ itemCustomField.${customField._id} }}`,
+          value: customFieldData.stringValue || customFieldData.value
+        });
+      }
+    }
+  }
+
   return { replacedContent, replacers, customerFields };
 };
 
@@ -638,6 +686,17 @@ export type ISendNotification = ISendNotificationC;
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
+  await models.Users.updateMany(
+    { _id: { $in: doc.receivers } },
+    { $set: { isShowNotification: false } }
+  );
+
+  for (const userId of doc.receivers) {
+    graphqlPubsub.publish('userChanged', {
+      userChanged: { userId }
+    });
+  }
+
   return utils.sendNotification(models, memoryStorage, graphqlPubsub, doc);
 };
 
@@ -670,7 +729,7 @@ export const registerOnboardHistory = ({
   type: string;
   user: IUserDocument;
 }) =>
-  OnboardingHistories.getOrCreate({ type, user })
+  models.OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
       if (status === 'created') {
         graphqlPubsub.publish('onboardingChanged', {
@@ -747,45 +806,7 @@ export const sendToWebhook = async (
   type: string,
   params: any
 ) => {
-  const webhooks = await Webhooks.find({
-    'actions.action': action,
-    'actions.type': type
-  });
-
-  if (!webhooks) {
-    return;
-  }
-
-  let data = params;
-  for (const webhook of webhooks) {
-    if (!webhook.url || webhook.url.length === 0) {
-      continue;
-    }
-
-    if (action === 'delete') {
-      data = { type, object: { _id: params.object._id } };
-    }
-
-    sendRequest({
-      url: webhook.url,
-      headers: {
-        'Erxes-token': webhook.token || ''
-      },
-      method: 'post',
-      body: {
-        data: JSON.stringify(data),
-        text: prepareWebhookContent(type, action, data),
-        action,
-        type
-      }
-    })
-      .then(async () => {
-        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
-      })
-      .catch(async () => {
-        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.UNAVAILABLE);
-      });
-  }
+  await sendToWebhookC(models, { action, type, params });
 };
 
 export default {
@@ -795,83 +816,6 @@ export default {
   readFile,
   createTransporter,
   sendToWebhook
-};
-
-export const prepareWebhookContent = (type, action, data) => {
-  let actionText = 'created';
-  let url;
-  let content = '';
-
-  switch (action) {
-    case 'update':
-      actionText = 'has been updated';
-      break;
-    case 'delete':
-      actionText = 'has been deleted';
-      break;
-    default:
-      actionText = 'has been created';
-      break;
-  }
-
-  switch (type) {
-    case WEBHOOK_TYPES.CUSTOMER:
-      url = `/contacts/details/${data.object._id}`;
-      content = `Customer ${actionText}`;
-      break;
-
-    case WEBHOOK_TYPES.COMPANY:
-      url = `/companies/details/${data.object._id}`;
-      content = `Company ${actionText}`;
-      break;
-
-    case WEBHOOK_TYPES.KNOWLEDGEBASE:
-      url = `/knowledgeBase?id=${data.newData.categoryIds[0]}`;
-      content = `Knowledge base article ${actionText}`;
-      break;
-
-    case WEBHOOK_TYPES.USER_MESSAGES:
-      url = `/inbox/index?_id=${data.conversationId}`;
-      content = 'Admin has replied to a conversation';
-      break;
-
-    case WEBHOOK_TYPES.CUSTOMER_MESSAGES:
-      url = `/inbox/index?_id=${data.conversationId}`;
-      content = 'Customer has send a conversation message';
-      break;
-
-    case WEBHOOK_TYPES.CONVERSATION:
-      url = `/inbox/index?_id=${data._id}`;
-      content = 'Customer has started new conversation';
-      break;
-
-    case WEBHOOK_TYPES.FORM_SUBMITTED:
-      url = `/inbox/index?_id=${data.conversationId}`;
-      content = 'Customer has submitted a form';
-      break;
-
-    case WEBHOOK_TYPES.CAMPAIGN:
-      url = `/campaigns/show/${data._id}`;
-
-      if (data.method === 'messenger') {
-        url = `/campaigns/edit/${data.$_id}`;
-      }
-
-      content = 'Campaign has been created';
-      break;
-
-    default:
-      break;
-  }
-
-  url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
-  content = `erxes: ${content}`;
-
-  if (action !== 'delete') {
-    content = `<${url}|${content}>`;
-  }
-
-  return content;
 };
 
 export const cleanHtml = (content?: string) =>
@@ -896,11 +840,17 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await Customers.updateOne({ _id: cid }, { $set: { isSubscribed: 'No' } });
+    await models.Customers.updateOne(
+      { _id: cid },
+      { $set: { isSubscribed: 'No' } }
+    );
   }
 
   if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
+    await models.Users.updateOne(
+      { _id: uid },
+      { $set: { isSubscribed: 'No' } }
+    );
   }
 };
 
@@ -927,7 +877,8 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
-    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`
+    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`,
+    AUTOMATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/automations`
   };
 
   const domain = getEnv({ name });
@@ -1040,7 +991,7 @@ export const findCustomer = async doc => {
   let customer;
 
   if (doc.customerPrimaryEmail) {
-    customer = await Customers.findOne({
+    customer = await models.Customers.findOne({
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
@@ -1049,7 +1000,7 @@ export const findCustomer = async doc => {
   }
 
   if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({
+    customer = await models.Customers.findOne({
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
@@ -1058,7 +1009,7 @@ export const findCustomer = async doc => {
   }
 
   if (!customer && doc.customerCode) {
-    customer = await Customers.findOne({ code: doc.customerCode });
+    customer = await models.Customers.findOne({ code: doc.customerCode });
   }
 
   return customer;
@@ -1067,8 +1018,35 @@ export const findCustomer = async doc => {
 export const findCompany = async doc => {
   let company;
 
-  if (doc.companyPrimaryEmail) {
-    company = await Companies.findOne({
+  if (doc.companyPrimaryName) {
+    company = await models.Companies.findOne({
+      $or: [
+        { names: { $in: [doc.companyPrimaryName] } },
+        { primaryName: doc.companyPrimaryName }
+      ]
+    });
+  }
+
+  if (!company && doc.name) {
+    company = await models.Companies.findOne({
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
+    });
+  }
+
+  if (!company && doc.email) {
+    company = await models.Companies.findOne({
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+    });
+  }
+
+  if (!company && doc.phone) {
+    company = await models.Companies.findOne({
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+    });
+  }
+
+  if (!company && doc.companyPrimaryEmail) {
+    company = await models.Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
         { primaryEmail: doc.companyPrimaryEmail }
@@ -1077,7 +1055,7 @@ export const findCompany = async doc => {
   }
 
   if (!company && doc.companyPrimaryPhone) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
         { primaryPhone: doc.companyPrimaryPhone }
@@ -1085,8 +1063,9 @@ export const findCompany = async doc => {
     });
   }
 
-  if (!company && doc.companyPrimaryName) {
-    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
+  if (!company && doc.companyCode) {
+    company = await models.Companies.findOne({ code: doc.companyCode });
   }
+
   return company;
 };

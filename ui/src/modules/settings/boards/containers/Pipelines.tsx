@@ -18,6 +18,10 @@ import {
   IOption,
   RemovePipelineMutationResponse,
   RemovePipelineMutationVariables,
+  ArchivePipelineMutationResponse,
+  ArchivePipelineMutationVariables,
+  CopiedPipelineMutationResponse,
+  CopiedPipelineMutationVariables,
   UpdateOrderPipelineMutationResponse,
   UpdateOrderPipelineMutationVariables
 } from '../types';
@@ -33,6 +37,8 @@ type FinalProps = {
   boardDetailQuery: BoardDetailQueryResponse;
 } & Props &
   RemovePipelineMutationResponse &
+  ArchivePipelineMutationResponse &
+  CopiedPipelineMutationResponse &
   UpdateOrderPipelineMutationResponse;
 
 class PipelinesContainer extends React.Component<FinalProps> {
@@ -41,6 +47,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
       boardId,
       pipelinesQuery,
       removePipelineMutation,
+      archivePipelineMutation,
+      copiedPipelineMutation,
       pipelinesUpdateOrderMutation,
       boardDetailQuery
     } = this.props;
@@ -50,6 +58,57 @@ class PipelinesContainer extends React.Component<FinalProps> {
     }
 
     const pipelines = pipelinesQuery.pipelines;
+
+    // archive action
+    const archive = (pipelineId: string, status: string) => {
+      let message = ` This will archive the current pipeline. Are you absolutely sure?`;
+      let action = 'archived';
+
+      if (status === 'archived') {
+        message = `This will unarchive the current pipeline. Are you absolutely sure?`;
+        action = 'unarchived';
+      }
+      confirm(message).then(() => {
+        archivePipelineMutation({
+          variables: { _id: pipelineId },
+          refetchQueries: getRefetchQueries(boardId, pipelineId)
+        })
+          .then(() => {
+            pipelinesQuery.refetch({ boardId });
+            const msg = `${__(`You succesfully ${action} a`)} ${__(
+              'pipeline'
+            )}.`;
+
+            Alert.success(msg);
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
+
+    // duplicate action
+    const copied = pipelineId => {
+      const message = `This will duplicate the current pipeline. Are you absolutely sure?`;
+      confirm(message).then(() => {
+        copiedPipelineMutation({
+          variables: { _id: pipelineId },
+          refetchQueries: getRefetchQueries(boardId, pipelineId)
+        })
+          .then(() => {
+            pipelinesQuery.refetch({ boardId });
+
+            const msg = `${__(`You succesfully duplicated a`)} ${__(
+              'pipeline'
+            )}.`;
+
+            Alert.success(msg);
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
 
     // remove action
     const remove = pipelineId => {
@@ -100,7 +159,6 @@ class PipelinesContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries(boardId, object ? object._id : '')}
           isSubmitted={isSubmitted}
           type="submit"
-          uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -122,6 +180,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
       refetch: pipelinesQuery.refetch,
       loading: pipelinesQuery.loading,
       remove,
+      archive,
+      copied,
       renderButton,
       updateOrder,
       currentBoard: boardDetailQuery ? boardDetailQuery.boardDetail : undefined
@@ -188,6 +248,21 @@ export default withProps<Props>(
     >(gql(mutations.pipelineRemove), {
       name: 'removePipelineMutation'
     }),
+    graphql<
+      Props,
+      ArchivePipelineMutationResponse,
+      ArchivePipelineMutationVariables
+    >(gql(mutations.pipelinesArchive), {
+      name: 'archivePipelineMutation'
+    }),
+    graphql<
+      Props,
+      CopiedPipelineMutationResponse,
+      CopiedPipelineMutationVariables
+    >(gql(mutations.pipelinesCopied), {
+      name: 'copiedPipelineMutation'
+    }),
+
     graphql<
       Props,
       UpdateOrderPipelineMutationResponse,

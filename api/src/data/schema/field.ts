@@ -74,9 +74,10 @@ export const fieldsTypes = `
 
 export const fieldsQueries = `
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
-  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String): JSON
+  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String, formId: String): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsInbox: FieldsInbox
+  fieldsItemTyped: JSON
 `;
 
 const fieldsCommonFields = `
@@ -144,7 +145,7 @@ const fieldsGroupsCommonFields = `
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String, boardId: String, pipelineId: String): [FieldsGroup]
+  fieldsGroups(contentType: String, isDefinedByErxes: Boolean, boardId: String, pipelineId: String): [FieldsGroup]
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

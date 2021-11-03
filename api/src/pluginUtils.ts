@@ -1,6 +1,7 @@
 import { withFilter } from 'apollo-server-express';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
+import * as schedule from 'node-schedule';
 import * as path from 'path';
 import { ILogDataParams } from './data/logUtils';
 import { can, registerModule } from './data/permissions/utils';
@@ -14,6 +15,8 @@ import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
 import messageBroker from './messageBroker';
 import { graphqlPubsub } from './pubsub';
+
+export { allModels };
 
 interface ISubAfterMutations {
   [action: string]: {
@@ -37,6 +40,7 @@ interface IActivityContents {
 const callAfterMutations: IAfterMutations[] | {} = {};
 const callActivityContents: IActivityContents | {} = {};
 const pluginsConsumers = {};
+const cronJobs: any[] = [];
 
 const tryRequire = requirPath => {
   try {
@@ -69,6 +73,7 @@ export const execInEveryPlugin = callback => {
         let afterMutations = [];
         let activityContents = [];
         let constants = {};
+        let crons = [];
 
         const graphqlSchema = {
           types: '',
@@ -91,6 +96,7 @@ export const execInEveryPlugin = callback => {
         const activityContentsPath = `${pluginsPath}/${plugin}/api/graphql/activityContents.${ext}`;
         const modelsPath = `${pluginsPath}/${plugin}/api/models.${ext}`;
         const constantsPath = `${pluginsPath}/${plugin}/api/constants.${ext}`;
+        const cronsPath = `${pluginsPath}/${plugin}/api/cronJobs.${ext}`;
 
         if (fs.existsSync(permissionsPath)) {
           registerModule({
@@ -164,6 +170,10 @@ export const execInEveryPlugin = callback => {
           }
         }
 
+        if (fs.existsSync(cronsPath)) {
+          crons = tryRequire(cronsPath).default;
+        }
+
         callback({
           isLastIteration: pluginsCount === index + 1,
           routes,
@@ -176,7 +186,8 @@ export const execInEveryPlugin = callback => {
           afterMutations,
           activityContents,
           models,
-          constants
+          constants,
+          crons
         });
       });
     });
@@ -193,7 +204,8 @@ export const execInEveryPlugin = callback => {
       activityContents: {},
       routes: [],
       models: [],
-      msgBrokers: []
+      msgBrokers: [],
+      crons: []
     });
   }
 };
@@ -228,7 +240,8 @@ export const extendViaPlugins = (
         activityContents,
         routes,
         models,
-        msgBrokers
+        msgBrokers,
+        crons
       }) => {
         routes.forEach(route => {
           app[route.method.toLowerCase()](route.path, (req, res) => {
@@ -384,6 +397,12 @@ export const extendViaPlugins = (
           });
         }
 
+        if (crons && crons.length) {
+          crons.forEach(async cron => {
+            cronJobs.push(cron);
+          });
+        }
+
         if (isLastIteration) {
           return resolve({ types, queries, mutations, subscriptions });
         }
@@ -486,5 +505,18 @@ export const collectPluginContent = async (
     return collectItemsDefault(items);
   } catch (e) {
     throw new Error(e.message);
+  }
+};
+
+export const pluginsCronJobRunner = async () => {
+  const context = {
+    models: allModels,
+    memoryStorage
+  };
+
+  for (const cronJob of cronJobs) {
+    schedule.scheduleJob(`${cronJob.schedule}`, () => {
+      cronJob.handler(context);
+    });
   }
 };

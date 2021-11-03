@@ -16,14 +16,7 @@ export const types = `
     _id: String!
     companies: [Company]
     customers: [Customer]
-    timeTrack: TimeTrack
     ${commonTypes}
-  }
-
-  type TimeTrack {
-    status: String,
-    timeSpent: Int,
-    startDate: String
   }
 `;
 
@@ -66,5 +59,4 @@ export const mutations = `
   tasksWatch(_id: String, isAdd: Boolean): Task
   tasksCopy(_id: String!, proccessId: String): Task
   tasksArchive(stageId: String!, proccessId: String): String
-  taskUpdateTimeTracking(_id: String!, status: String!, timeSpent: Int!, startDate: String): JSON
 `;

@@ -85,6 +85,11 @@ export const schema = new Schema({
     label: 'Session count',
     optional: true
   }),
+  scopeBrandIds: field({
+    type: [String],
+    label: 'Related brands',
+    optional: true
+  }),
   createdAt: field({ type: Date, default: Date.now })
 });
 
@@ -148,7 +153,7 @@ export const loadVisitorClass = () => {
     }
 
     public static getVisitorLog(visitorId: string) {
-      return Visitors.findOne({ visitorId });
+      return Visitors.findOne({ visitorId }).lean();
     }
 
     public static removeVisitorLog(visitorId: string) {

@@ -7,15 +7,18 @@ import {
   Pipelines,
   Stages
 } from '../../db/models';
-import { getCollection, getNewOrder } from '../../db/models/boardUtils';
+import { getNewOrder } from '../../db/models/boardUtils';
+import { IConformityAdd } from '../../db/models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
+import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { can } from '../permissions/utils';
 import { checkLogin } from '../permissions/wrappers';
 import utils from '../utils';
+import * as _ from 'underscore';
 
 export const notifiedUserIds = async (item: any) => {
   let userIds: string[] = [];
@@ -66,12 +69,6 @@ export const sendNotifications = async ({
     content = `${contentType} '${item.name}'`;
   }
 
-  let route = '';
-
-  if (contentType === 'ticket') {
-    route = '/inbox';
-  }
-
   const usersToExclude = [
     ...(removedUsers || []),
     ...(invitedUsers || []),
@@ -86,7 +83,7 @@ export const sendNotifications = async ({
     notifType: type,
     action: action ? action : `has updated ${contentType}`,
     content,
-    link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
+    link: `/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
 
     // exclude current user, invited user and removed users
     receivers: (await notifiedUserIds(item)).filter(id => {
@@ -136,10 +133,13 @@ const PERMISSION_MAP = {
     pipelinesAdd: 'dealPipelinesAdd',
     pipelinesEdit: 'dealPipelinesEdit',
     pipelinesRemove: 'dealPipelinesRemove',
+    pipelinesArchive: 'dealPipelinesArchive',
+    pipelinesCopied: 'dealPipelinesCopied',
     pipelinesWatch: 'dealPipelinesWatch',
     stagesEdit: 'dealStagesEdit',
     stagesRemove: 'dealStagesRemove',
-    itemsSort: 'dealsSort'
+    itemsSort: 'dealsSort',
+    updateTimeTracking: 'dealUpdateTimeTracking'
   },
   ticket: {
     boardsAdd: 'ticketBoardsAdd',
@@ -148,10 +148,13 @@ const PERMISSION_MAP = {
     pipelinesAdd: 'ticketPipelinesAdd',
     pipelinesEdit: 'ticketPipelinesEdit',
     pipelinesRemove: 'ticketPipelinesRemove',
+    pipelinesArchive: 'ticketPipelinesArchive',
+    pipelinesCopied: 'ticketPipelinesCopied',
     pipelinesWatch: 'ticketPipelinesWatch',
     stagesEdit: 'ticketStagesEdit',
     stagesRemove: 'ticketStagesRemove',
-    itemsSort: 'ticketsSort'
+    itemsSort: 'ticketsSort',
+    updateTimeTracking: 'ticketUpdateTimeTracking'
   },
   task: {
     boardsAdd: 'taskBoardsAdd',
@@ -160,10 +163,13 @@ const PERMISSION_MAP = {
     pipelinesAdd: 'taskPipelinesAdd',
     pipelinesEdit: 'taskPipelinesEdit',
     pipelinesRemove: 'taskPipelinesRemove',
+    pipelinesArchive: 'taskPipelinesArchive',
+    pipelinesCopied: 'taskPipelinesCopied',
     pipelinesWatch: 'taskPipelinesWatch',
     stagesEdit: 'taskStagesEdit',
     stagesRemove: 'taskStagesRemove',
-    itemsSort: 'tasksSort'
+    itemsSort: 'tasksSort',
+    updateTimeTracking: 'taskUpdateTimeTracking'
   },
   growthHack: {
     boardsAdd: 'growthHackBoardsAdd',
@@ -172,6 +178,8 @@ const PERMISSION_MAP = {
     pipelinesAdd: 'growthHackPipelinesAdd',
     pipelinesEdit: 'growthHackPipelinesEdit',
     pipelinesRemove: 'growthHackPipelinesRemove',
+    pipelinesArchive: 'growthHackPipelinesArchive',
+    pipelinesCopied: 'growthHackPipelinesCopied',
     pipelinesWatch: 'growthHackPipelinesWatch',
     stagesEdit: 'growthHackStagesEdit',
     templatesAdd: 'growthHackTemplatesAdd',
@@ -217,23 +225,27 @@ export const createConformity = async ({
   mainType: string;
   mainTypeId: string;
 }) => {
-  for (const companyId of companyIds || []) {
-    await Conformities.addConformity({
+  const companyConformities: IConformityAdd[] = (companyIds || []).map(
+    companyId => ({
       mainType,
       mainTypeId,
       relType: 'company',
       relTypeId: companyId
-    });
-  }
+    })
+  );
 
-  for (const customerId of customerIds || []) {
-    await Conformities.addConformity({
+  const customerConformities: IConformityAdd[] = (customerIds || []).map(
+    customerId => ({
       mainType,
       mainTypeId,
       relType: 'customer',
       relTypeId: customerId
-    });
-  }
+    })
+  );
+
+  const allConformities = companyConformities.concat(customerConformities);
+
+  await Conformities.addConformities(allConformities);
 };
 
 interface ILabelParams {
@@ -248,8 +260,8 @@ interface ILabelParams {
 export const copyPipelineLabels = async (params: ILabelParams) => {
   const { item, doc, user } = params;
 
-  const oldStage = await Stages.findOne({ _id: item.stageId });
-  const newStage = await Stages.findOne({ _id: doc.stageId });
+  const oldStage = await Stages.findOne({ _id: item.stageId }).lean();
+  const newStage = await Stages.findOne({ _id: doc.stageId }).lean();
 
   if (!(oldStage && newStage)) {
     throw new Error('Stage not found');
@@ -259,30 +271,52 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     return;
   }
 
-  const oldLabels = await PipelineLabels.find({ _id: { $in: item.labelIds } });
+  const oldLabels = await PipelineLabels.find({
+    _id: { $in: item.labelIds }
+  }).lean();
   const updatedLabelIds: string[] = [];
 
+  const existingLabels = await PipelineLabels.find({
+    name: { $in: oldLabels.map(o => o.name) },
+    colorCode: { $in: oldLabels.map(o => o.colorCode) },
+    pipelineId: newStage.pipelineId
+  }).lean();
+
+  // index using only name and colorCode, since all pipelineIds are same
+  const existingLabelsByUnique = _.indexBy(
+    existingLabels,
+    ({ name, colorCode }) => JSON.stringify({ name, colorCode })
+  );
+
+  // Collect labels that don't exist on the new stage's pipeline here
+  const notExistingLabels: any[] = [];
+
   for (const label of oldLabels) {
-    const filter = {
-      name: label.name,
-      colorCode: label.colorCode,
-      pipelineId: newStage.pipelineId
-    };
-
-    const exists = await PipelineLabels.findOne(filter);
-
+    const exists =
+      existingLabelsByUnique[
+        JSON.stringify({ name: label.name, colorCode: label.colorCode })
+      ];
     if (!exists) {
-      const newLabel = await PipelineLabels.createPipelineLabel({
-        ...filter,
+      notExistingLabels.push({
+        name: label.name,
+        colorCode: label.colorCode,
+        pipelineId: newStage.pipelineId,
         createdAt: new Date(),
         createdBy: user._id
       });
-
-      updatedLabelIds.push(newLabel._id);
     } else {
       updatedLabelIds.push(exists._id);
     }
   } // end label loop
+
+  // Insert labels that don't already exist on the new stage's pipeline
+  const newLabels = await PipelineLabels.insertMany(notExistingLabels, {
+    ordered: false
+  });
+
+  for (const newLabel of newLabels) {
+    updatedLabelIds.push(newLabel._id);
+  }
 
   await PipelineLabels.labelsLabel(
     newStage.pipelineId,
@@ -304,43 +338,56 @@ interface IChecklistParams {
 export const copyChecklists = async (params: IChecklistParams) => {
   const { contentType, contentTypeId, targetContentId, user } = params;
 
-  const checklists = await Checklists.find({ contentType, contentTypeId });
+  const originalChecklists = await Checklists.find({
+    contentType,
+    contentTypeId
+  }).lean();
 
-  for (const list of checklists) {
-    const checklist = await Checklists.createChecklist(
-      {
-        contentType,
-        contentTypeId: targetContentId,
-        title: `${list.title}-copied`
-      },
-      user
+  const clonedChecklists = await Checklists.insertMany(
+    originalChecklists.map(originalChecklist => ({
+      contentType,
+      contentTypeId: targetContentId,
+      title: originalChecklist.title,
+      createdUserId: user._id,
+      createdDate: new Date()
+    })),
+    { ordered: true }
+  );
+
+  const originalChecklistIdToClonedId = new Map<string, string>();
+
+  for (let i = 0; i < originalChecklists.length; i++) {
+    originalChecklistIdToClonedId.set(
+      originalChecklists[i]._id,
+      clonedChecklists[i]._id
     );
+  }
 
-    const items = await ChecklistItems.find({ checklistId: list._id });
+  const originalChecklistItems = await ChecklistItems.find({
+    checklistId: { $in: originalChecklists.map(x => x._id) }
+  }).lean();
 
-    for (const item of items) {
-      await ChecklistItems.createChecklistItem(
-        {
-          isChecked: false,
-          checklistId: checklist._id,
-          content: item.content
-        },
-        user
-      );
-    }
-  } // end checklist loop
+  await ChecklistItems.insertMany(
+    originalChecklistItems.map(({ content, order, checklistId }) => ({
+      checklistId: originalChecklistIdToClonedId.get(checklistId),
+      isChecked: false,
+      createdUserId: user._id,
+      createdDate: new Date(),
+      content,
+      order
+    })),
+    { ordered: false }
+  );
 };
 
 export const prepareBoardItemDoc = async (
-  _id: string,
-  type: string,
+  item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
+  collection: string,
   userId: string
 ) => {
-  const { collection } = await getCollection(type);
-  const item = await collection.findOne({ _id });
-
   const doc = {
     ...item,
+    _id: undefined,
     userId,
     modifiedBy: userId,
     watchedUserIds: [userId],
@@ -364,8 +411,6 @@ export const prepareBoardItemDoc = async (
       size: a.size
     }))
   };
-
-  delete doc._id;
 
   return doc;
 };

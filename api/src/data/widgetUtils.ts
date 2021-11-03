@@ -18,33 +18,25 @@ import { ICustomerDocument } from '../db/models/definitions/customers';
 import { ISubmission } from '../db/models/definitions/fields';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
-import { getVisitorLog, sendToVisitorLog } from './logUtils';
+import { sendToLog } from './logUtils';
+import { getDocument } from './resolvers/mutations/cacheUtils';
 import { findCompany, findCustomer } from './utils';
 
 export const getOrCreateEngageMessage = async (
+  integrationId: string,
   browserInfo: IBrowserInfo,
   visitorId?: string,
   customerId?: string
 ) => {
-  let integrationId;
-
   let customer;
 
   if (customerId) {
     customer = await Customers.getCustomer(customerId);
   }
 
-  let visitor;
-
-  if (visitorId) {
-    visitor = await getVisitorLog(visitorId);
-  }
-
-  if (!customer && !visitor) {
+  if (!customer && !visitorId) {
     return null;
   }
-
-  integrationId = customer ? customer.integrationId : visitor.integrationId;
 
   const integration = await Integrations.getIntegration({
     _id: integrationId,
@@ -58,7 +50,7 @@ export const getOrCreateEngageMessage = async (
     brandId: brand._id,
     integrationId: integration._id,
     customer,
-    visitor,
+    visitorId,
     browserInfo
   });
 
@@ -72,28 +64,13 @@ export const getOrCreateEngageMessage = async (
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
-export const convertVisitorToCustomer = async (visitorId: string) => {
-  let visitor;
+export const receiveVisitorDetail = async visitor => {
+  const { visitorId } = visitor;
 
-  try {
-    visitor = await getVisitorLog(visitorId);
+  delete visitor.visitorId;
+  delete visitor._id;
 
-    delete visitor.visitorId;
-    delete visitor._id;
-  } catch (e) {
-    debugError(e.message);
-  }
-
-  const doc = { state: 'visitor', ...visitor };
-  const customer = await Customers.createCustomer(doc);
-
-  await Messages.updateVisitorEngageMessages(visitorId, customer._id);
-  await Conversations.updateMany(
-    {
-      visitorId
-    },
-    { $set: { customerId: customer._id, visitorId: '' } }
-  );
+  const customer = await Customers.update({ visitorId }, { $set: visitor });
 
   const index = `${getIndexPrefix()}events`;
 
@@ -122,7 +99,7 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
     debugError(`Update event error ${e.message}`);
   }
 
-  await sendToVisitorLog({ visitorId }, 'remove');
+  sendToLog('visitor:removeEntry', { visitorId });
 
   return customer;
 };
@@ -156,12 +133,11 @@ const fetchHelper = async (index: string, query, errorMessage?: string) => {
 };
 
 export const getOrCreateEngageMessageElk = async (
+  integrationId: string,
   browserInfo: IBrowserInfo,
   visitorId?: string,
   customerId?: string
 ) => {
-  let integrationId;
-
   let customer;
 
   if (customerId) {
@@ -176,17 +152,9 @@ export const getOrCreateEngageMessageElk = async (
     }
   }
 
-  let visitor;
-
-  if (visitorId) {
-    visitor = await getVisitorLog(visitorId);
-  }
-
-  if (!customer && !visitor) {
+  if (!customer && !visitorId) {
     return null;
   }
-
-  integrationId = customer ? customer.integrationId : visitor.integrationId;
 
   const integration = await fetchHelper(
     'integrations',
@@ -216,7 +184,7 @@ export const getOrCreateEngageMessageElk = async (
     brandId: brand._id,
     integrationId: integration._id,
     customer,
-    visitor,
+    visitorId,
     browserInfo
   });
 
@@ -291,6 +259,7 @@ export const updateCustomerFromForm = async (
     middleName: customer.middleName || doc.middleName,
     sex: doc.pronoun,
     birthDate: doc.birthDate,
+    scopeBrandIds: [...doc.scopeBrandIds, ...(customer.scopeBrandIds || [])],
     ...(customer.primaryEmail
       ? {}
       : {
@@ -387,6 +356,7 @@ export const solveSubmissions = async (args: {
 }) => {
   let { cachedCustomerId } = args;
   const { integrationId, browserInfo, formId } = args;
+  const integration = await getDocument('integrations', { _id: integrationId });
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 
@@ -581,7 +551,8 @@ export const solveSubmissions = async (args: {
           firstName,
           lastName,
           middleName,
-          primaryPhone: phone
+          primaryPhone: phone,
+          scopeBrandIds: [integration.brandId || '']
         });
       }
 
@@ -602,7 +573,8 @@ export const solveSubmissions = async (args: {
           isSubscribed,
           email,
           phone,
-          links: customerLinks
+          links: customerLinks,
+          scopeBrandIds: [integration.brandId || '']
         },
         cachedCustomer
       );
@@ -627,7 +599,8 @@ export const solveSubmissions = async (args: {
           firstName,
           lastName,
           middleName,
-          primaryPhone: phone
+          primaryPhone: phone,
+          scopeBrandIds: [integration.brandId || '']
         });
       }
 
@@ -648,7 +621,8 @@ export const solveSubmissions = async (args: {
           isSubscribed,
           email,
           phone,
-          links: customerLinks
+          links: customerLinks,
+          scopeBrandIds: [integration.brandId || '']
         },
         customer
       );
@@ -675,7 +649,8 @@ export const solveSubmissions = async (args: {
       size,
       isSubscribed: companyIsSubscribed,
       description: companyDescription,
-      businessType
+      businessType,
+      scopeBrandIds: [integration.brandId || '']
     };
 
     if (logo.length > 0) {
@@ -720,6 +695,14 @@ export const solveSubmissions = async (args: {
     }
 
     company = await Companies.updateCompany(company._id, companyDoc);
+
+    // if company scopeBrandIds does not contain brandId
+    if (company.scopeBrandIds.indexOf(integration.brandId) === -1) {
+      await Companies.update(
+        { _id: company._id },
+        { $push: { scopeBrandIds: integration.brandId } }
+      );
+    }
 
     conformityIds[groupId] = {
       companyId: company._id,

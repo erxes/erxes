@@ -3,8 +3,8 @@ import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
 import {
   destroyBoardItemRelations,
   getCollection,
-  getCompanies,
-  getCustomers,
+  getCompanyIds,
+  getCustomerIds,
   getItem,
   getNewOrder
 } from '../../../db/models/boardUtils';
@@ -87,19 +87,21 @@ export const itemsAdd = async (
     aboveItemId: string;
   },
   type: string,
-  user: IUserDocument,
-  docModifier: any,
-  createModel: any
+  createModel: any,
+  user?: IUserDocument,
+  docModifier?: any
 ) => {
   const { collection } = getCollection(type);
 
   doc.initialStageId = doc.stageId;
-  doc.watchedUserIds = [user._id];
+  doc.watchedUserIds = user && [user._id];
+
+  const modifiedDoc = docModifier ? docModifier(doc) : doc;
 
   const extendedDoc = {
-    ...docModifier(doc),
-    modifiedBy: user._id,
-    userId: user._id,
+    ...modifiedDoc,
+    modifiedBy: user && user._id,
+    userId: user && user._id,
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
@@ -116,23 +118,25 @@ export const itemsAdd = async (
     customerIds: doc.customerIds
   });
 
-  await sendNotifications({
-    item,
-    user,
-    type: NOTIFICATION_TYPES.DEAL_ADD,
-    action: `invited you to the ${type}`,
-    content: `'${item.name}'.`,
-    contentType: type
-  });
+  if (user) {
+    await sendNotifications({
+      item,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_ADD,
+      action: `invited you to the ${type}`,
+      content: `'${item.name}'.`,
+      contentType: type
+    });
 
-  await putCreateLog(
-    {
-      type,
-      newData: extendedDoc,
-      object: item
-    },
-    user
-  );
+    await putCreateLog(
+      {
+        type,
+        newData: extendedDoc,
+        object: item
+      },
+      user
+    );
+  }
 
   const stage = await Stages.getStage(item.stageId);
 
@@ -255,7 +259,7 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    await putActivityLog({
+    putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
       data: {
         item: updatedItem,
@@ -283,7 +287,7 @@ export const itemsEdit = async (
 
     const activityContent = { addedUserIds, removedUserIds };
 
-    await putActivityLog({
+    putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
       data: {
         contentId: _id,
@@ -299,7 +303,7 @@ export const itemsEdit = async (
 
   await sendNotifications(notificationDoc);
 
-  await putUpdateLog(
+  putUpdateLog(
     {
       type,
       object: oldItem,
@@ -404,6 +408,8 @@ const itemMover = async (
 
     content = `${board.name}-${pipeline.name}-${stage.name}`;
 
+    const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
+
     const activityLogContent = {
       oldStageId,
       destinationStageId,
@@ -416,11 +422,10 @@ const itemMover = async (
         item,
         contentType,
         userId,
-        activityLogContent
+        activityLogContent,
+        link
       }
     });
-
-    const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
 
     await Notifications.updateMany(
       { contentType, contentTypeId: item._id },
@@ -446,7 +451,7 @@ export const itemsChange = async (
     sourceStageId
   } = doc;
 
-  const item = await getItem(type, itemId);
+  const item = await getItem(type, { _id: itemId });
 
   const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
@@ -516,7 +521,7 @@ export const itemsRemove = async (
   type: string,
   user: IUserDocument
 ) => {
-  const item = await getItem(type, _id);
+  const item = await getItem(type, { _id });
 
   await sendNotifications({
     item,
@@ -544,9 +549,10 @@ export const itemsCopy = async (
   extraDocParam: string[],
   modelCreate: any
 ) => {
-  const item = await getItem(type, _id);
+  const { collection } = getCollection(type);
+  const item = await collection.findOne({ _id }).lean();
 
-  const doc = await prepareBoardItemDoc(_id, type, user._id);
+  const doc = await prepareBoardItemDoc(item, collection, user._id);
 
   for (const param of extraDocParam) {
     doc[param] = item[param];
@@ -554,14 +560,14 @@ export const itemsCopy = async (
 
   const clone = await modelCreate(doc);
 
-  const companies = await getCompanies(type, _id);
-  const customers = await getCustomers(type, _id);
+  const companyIds = await getCompanyIds(type, _id);
+  const customerIds = await getCustomerIds(type, _id);
 
   await createConformity({
     mainType: type,
     mainTypeId: clone._id,
-    customerIds: customers.map(c => c._id),
-    companyIds: companies.map(c => c._id)
+    customerIds,
+    companyIds
   });
 
   await copyChecklists({
@@ -587,6 +593,8 @@ export const itemsCopy = async (
     }
   });
 
+  await publishHelperItemsConformities(clone, stage);
+
   return clone;
 };
 
@@ -598,10 +606,12 @@ export const itemsArchive = async (
 ) => {
   const { collection } = getCollection(type);
 
-  const items = await collection.find({
-    stageId,
-    status: { $ne: BOARD_STATUSES.ARCHIVED }
-  });
+  const items = await collection
+    .find({
+      stageId,
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    })
+    .lean();
 
   await collection.updateMany(
     { stageId },
@@ -636,4 +646,22 @@ export const itemsArchive = async (
   }
 
   return 'ok';
+};
+
+export const publishHelperItemsConformities = async (
+  item: IDealDocument | ITicketDocument | ITaskDocument | IGrowthHackDocument,
+  stage: IStageDocument
+) => {
+  graphqlPubsub.publish('pipelinesChanged', {
+    pipelinesChanged: {
+      _id: stage.pipelineId,
+      proccessId: Math.random().toString(),
+      action: 'itemOfConformitiesUpdate',
+      data: {
+        item: {
+          ...item
+        }
+      }
+    }
+  });
 };

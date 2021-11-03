@@ -12,7 +12,8 @@ import {
   DEVICE_PROPERTIES_INFO,
   FIELD_CONTENT_TYPES,
   PRODUCT_INFO,
-  PROPERTY_GROUPS
+  PROPERTY_GROUPS,
+  USER_PROPERTIES_INFO
 } from '../../data/constants';
 import { updateOrder } from './boardUtils';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
@@ -61,7 +62,12 @@ export interface IFieldModel extends Model<IFieldDocument> {
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: any }): any;
   generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
-  generateTypedItem(field: string, value: string, type: string): ITypedListItem;
+  generateTypedItem(
+    field: string,
+    value: string,
+    type: string,
+    validation?: string
+  ): ITypedListItem;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
   ): Promise<ITypedListItem[]>;
@@ -75,6 +81,12 @@ export interface IFieldModel extends Model<IFieldDocument> {
     groupId: string,
     contentType: string
   ): Promise<IFieldDocument[]>;
+  generateCustomFieldsData(
+    data: {
+      [key: string]: any;
+    },
+    contentType: string
+  ): Promise<any>;
 }
 
 export const loadFieldClass = () => {
@@ -205,10 +217,9 @@ export const loadFieldClass = () => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      const index = `customFieldsData.${_id}`;
       await Customers.updateMany(
-        { [index]: { $exists: true } },
-        { $unset: { [index]: 1 } }
+        { 'customFieldsData.field': _id },
+        { $pull: { customFieldsData: { field: _id } } }
       );
 
       // Removing form associated field
@@ -301,7 +312,8 @@ export const loadFieldClass = () => {
     public static generateTypedItem(
       field: string,
       value: string | number | string[],
-      type: string
+      type: string,
+      validation?: string
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -309,6 +321,13 @@ export const loadFieldClass = () => {
 
       if (value) {
         stringValue = value.toString();
+
+        // string
+        if (type === 'input' && !validation) {
+          numberValue = null;
+          value = stringValue;
+          return { field, value, stringValue, numberValue, dateValue };
+        }
 
         // number
         if (type !== 'check' && validator.isFloat(value.toString())) {
@@ -340,13 +359,17 @@ export const loadFieldClass = () => {
       for (const customFieldData of customFieldsData || []) {
         const field = await Fields.findById(customFieldData.field);
 
-        await Fields.clean(customFieldData.field, customFieldData.value);
-
+        try {
+          await Fields.clean(customFieldData.field, customFieldData.value);
+        } catch (e) {
+          throw new Error(e.message);
+        }
         result.push(
           Fields.generateTypedItem(
             customFieldData.field,
             customFieldData.value,
-            field ? field.type || '' : ''
+            field ? field.type || '' : '',
+            field?.validation
           )
         );
       }
@@ -436,7 +459,54 @@ export const loadFieldClass = () => {
           }));
           await Fields.insertMany(deviceFields);
           break;
+        case FIELDS_GROUPS_CONTENT_TYPES.USER:
+          const userFields = USER_PROPERTIES_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(userFields);
+          break;
       }
+    }
+
+    public static async generateCustomFieldsData(
+      data: { [key: string]: any },
+      contentType: string
+    ) {
+      const keys = Object.keys(data || {});
+
+      let customFieldsData: any = [];
+
+      for (const key of keys) {
+        const customField = await Fields.findOne({
+          contentType,
+          text: key
+        });
+
+        let value = data[key];
+
+        if (customField) {
+          if (customField.validation === 'date') {
+            value = new Date(data[key]);
+          }
+
+          customFieldsData.push({
+            field: customField._id,
+            value
+          });
+
+          delete data[key];
+        }
+      }
+
+      const trackedData = await this.generateTypedListFromMap(data);
+
+      customFieldsData = await this.prepareCustomFieldsData(customFieldsData);
+
+      return { customFieldsData, trackedData };
     }
   }
 

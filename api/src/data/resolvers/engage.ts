@@ -1,4 +1,4 @@
-import { EngageMessages, Integrations, Segments, Tags } from '../../db/models';
+import { EngageMessages, Integrations } from '../../db/models';
 import { IEngageMessageDocument } from '../../db/models/definitions/engages';
 import { IContext } from '../types';
 import { getDocument, getDocumentList } from './mutations/cacheUtils';
@@ -13,16 +13,30 @@ export const deliveryReport = {
 };
 
 export const message = {
-  segments(engageMessage: IEngageMessageDocument) {
-    return Segments.find({ _id: { $in: engageMessage.segmentIds } });
+  async segments(
+    engageMessage: IEngageMessageDocument,
+    _,
+    { dataLoaders }: IContext
+  ) {
+    const segments = await dataLoaders.segment.loadMany(
+      engageMessage.segmentIds || []
+    );
+    return segments.filter(segment => segment);
   },
 
   brands(engageMessage: IEngageMessageDocument) {
     return getDocumentList('brands', { _id: { $in: engageMessage.brandIds } });
   },
 
-  customerTags(engageMessage: IEngageMessageDocument) {
-    return Tags.find({ _id: { $in: engageMessage.customerTagIds || [] } });
+  async customerTags(
+    engageMessage: IEngageMessageDocument,
+    _,
+    { dataLoaders }: IContext
+  ) {
+    const tags = await dataLoaders.tag.loadMany(
+      engageMessage.customerTagIds || []
+    );
+    return tags.filter(tag => tag);
   },
 
   fromUser(engageMessage: IEngageMessageDocument) {
@@ -30,8 +44,13 @@ export const message = {
   },
 
   // common tags
-  getTags(engageMessage: IEngageMessageDocument) {
-    return Tags.find({ _id: { $in: engageMessage.tagIds || [] } });
+  async getTags(
+    engageMessage: IEngageMessageDocument,
+    _,
+    { dataLoaders }: IContext
+  ) {
+    const tags = await dataLoaders.tag.loadMany(engageMessage.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
   brand(engageMessage: IEngageMessageDocument) {

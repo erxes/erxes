@@ -23,7 +23,7 @@ const MainActionBar = asyncComponent(() =>
 );
 
 const tickets = () => {
-  let link = '/inbox/ticket/board';
+  let link = '/ticket/board';
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
@@ -33,7 +33,7 @@ const tickets = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    link = `/inbox/ticket/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    link = `/ticket/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={link} />;
@@ -42,7 +42,7 @@ const tickets = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <TicketBoard queryParams={queryParams} />;
+  return <TicketBoard viewType="board" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {
@@ -59,28 +59,49 @@ const calendar = ({ location }) => {
   );
 };
 
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="list" queryParams={queryParams} />;
+};
+
+const activity = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="activity" queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <>
-      <Route
-        key="/inbox/ticket"
-        exact={true}
-        path="/inbox/ticket"
-        render={tickets}
-      />
+      <Route key="/ticket" exact={true} path="/ticket" render={tickets} />
 
       <Route
-        key="/inbox/ticket/board"
+        key="/ticket/board"
         exact={true}
-        path="/inbox/ticket/board"
+        path="/ticket/board"
         component={boards}
       />
 
       <Route
-        key="/inbox/ticket/calendar"
+        key="/ticket/calendar"
         exact={true}
-        path="/inbox/ticket/calendar"
+        path="/ticket/calendar"
         component={calendar}
+      />
+
+      <Route
+        key="ticket/list"
+        exact={true}
+        path="/ticket/list"
+        component={list}
+      />
+
+      <Route
+        key="ticket/activity"
+        exact={true}
+        path="/ticket/activity"
+        component={activity}
       />
     </>
   );

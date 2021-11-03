@@ -8,22 +8,25 @@ import { mutations, queries } from '../../graphql';
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoriesQueryResponse,
-  ProductCategoryRemoveMutationResponse
+  ProductCategoryRemoveMutationResponse,
+  ProductsQueryResponse
 } from '../../types';
 
-type Props = { history: any; queryParams: any };
+type Props = { history: any; queryParams: any; };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
+  productsQuery: ProductsQueryResponse;
+
 } & Props &
   ProductCategoryRemoveMutationResponse;
-
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       productCategoriesQuery,
       productCategoriesCountQuery,
+      productsQuery,
       productCategoryRemove
     } = this.props;
 
@@ -35,6 +38,7 @@ class ProductListContainer extends React.Component<FinalProps> {
           .then(() => {
             productCategoriesQuery.refetch();
             productCategoriesCountQuery.refetch();
+            productsQuery.refetch();
 
             Alert.success(
               `You successfully deleted a product & service category`
@@ -51,7 +55,6 @@ class ProductListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       remove,
-      refetch: productCategoriesQuery.refetch,
       productCategories,
       loading: productCategoriesQuery.loading,
       productCategoriesCount:
@@ -63,7 +66,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories', 'productCategoriesTotalCount'];
+  return ['productCategories', 'productCategoriesTotalCount', 'products'];
 };
 
 const options = () => ({
@@ -76,7 +79,12 @@ export default withProps<Props>(
       gql(queries.productCategories),
       {
         name: 'productCategoriesQuery',
-        options: () => ({
+        options: ({ queryParams }) => ({
+          variables: {
+            status: queryParams.status,
+            parentId: queryParams.parentId
+          },
+          refetchQueries: getRefetchQueries(),
           fetchPolicy: 'network-only'
         })
       }
@@ -92,6 +100,12 @@ export default withProps<Props>(
       {
         name: 'productCategoryRemove',
         options
+      }
+    ),
+    graphql<Props, ProductsQueryResponse>(
+      gql(queries.products),
+      {
+        name: 'productsQuery'
       }
     )
   )(ProductListContainer)

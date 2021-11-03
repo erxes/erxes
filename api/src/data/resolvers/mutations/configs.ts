@@ -41,9 +41,36 @@ const configMutations = {
 
       if (
         ['dealUOM', 'dealCurrency'].includes(code) &&
-        prevConfig.value.toString() !== updatedConfig.value.toString()
+        (prevConfig.value || '').toString() !==
+          (updatedConfig.value || '').toString()
       ) {
-        registerOnboardHistory({ type: `configure.${code}`, user });
+        registerOnboardHistory({ type: 'generalSettingsCreate', user });
+      }
+
+      if (
+        [
+          'UPLOAD_FILE_TYPES',
+          'WIDGETS_UPLOAD_FILE_TYPES',
+          'UPLOAD_SERVICE_TYPE',
+          'FILE_SYSTEM_PUBLIC'
+        ].includes(code) &&
+        (prevConfig.value || '').toString() !==
+          (updatedConfig.value || '').toString()
+      ) {
+        registerOnboardHistory({ type: 'generalSettingsUploadCreate', user });
+      }
+
+      if (
+        ['sex_choices', 'company_industry_types', 'social_links'].includes(
+          code
+        ) &&
+        (prevConfig.value || '').toString() !==
+          (updatedConfig.value || '').toString()
+      ) {
+        registerOnboardHistory({
+          type: 'generelSettingsConstantsCreate',
+          user
+        });
       }
     }
   },

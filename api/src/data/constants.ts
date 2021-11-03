@@ -57,7 +57,10 @@ export const EXTEND_FIELDS = {
     { name: 'ownerEmail', label: 'Owner email' },
     { name: 'companiesPrimaryNames', label: 'Companies' }
   ],
-  PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }]
+  PRODUCT: [
+    { name: 'categoryCode', label: 'Category Code' },
+    { name: 'vendorCode', label: 'Vendor Code' }
+  ]
 };
 
 export const COC_LEAD_STATUS_TYPES = [
@@ -262,8 +265,9 @@ export const MODULE_NAMES = {
   EMAIL_TEMPLATE: 'emailTemplate',
   IMPORT_HISTORY: 'importHistory',
   PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'product-category',
+  PRODUCT_CATEGORY: 'productCategory',
   RESPONSE_TEMPLATE: 'responseTemplate',
+  CONVERSATION: 'conversation',
   TAG: 'tag',
   TASK: 'task',
   TICKET: 'ticket',
@@ -282,16 +286,22 @@ export const MODULE_NAMES = {
   ENGAGE: 'engage',
   SCRIPT: 'script',
   FIELD: 'field',
-  WEBHOOK: 'webhook'
+  AUTOMATION: 'automation',
+  FIELD_GROUP: 'fieldGroup',
+  WEBHOOK: 'webhook',
+  DASHBOARD: 'dashboard',
+  DASHBOARD_ITEM: 'dashboardItem'
 };
 
 export const RABBITMQ_QUEUES = {
   PUT_LOG: 'putLog',
   RPC_API_TO_INTEGRATIONS: 'rpc_queue:api_to_integrations',
   RPC_API_TO_WORKERS: 'rpc_queue:api_to_workers',
+  RPC_API_TO_WEBHOOK_WORKERS: 'rpc_queue:api_to_webhook_workers',
   WORKERS: 'workers',
   VISITOR_LOG: 'visitorLog',
-  RPC_VISITOR_LOG: 'rpc_queue:visitorLog'
+  RPC_VISITOR_LOG: 'rpc_queue:visitorLog',
+  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger'
 };
 
 export const AUTO_BOT_MESSAGES = {
@@ -359,6 +369,12 @@ export const PROPERTY_GROUPS = [
       { value: 'deal', label: 'Sales pipeline' },
       { value: 'product', label: 'Products & services' }
     ]
+  },
+  {
+    label: 'Team member',
+    value: 'user',
+    description: 'description',
+    types: [{ value: 'user', label: 'Sales pipeline' }]
   }
 ];
 
@@ -378,6 +394,7 @@ export const CUSTOMER_BASIC_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   code: 'Code',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Avatar', canHide: false },
@@ -404,7 +421,8 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'owner', label: 'Owner', canHide: true },
     { field: 'pronoun', label: 'Pronoun', canHide: true },
     { field: 'birthDate', label: 'Birthday', canHide: true },
-    { field: 'code', label: 'Code', canHide: true }
+    { field: 'code', label: 'Code', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 
@@ -421,6 +439,7 @@ export const COMPANY_INFO = {
   description: 'Description',
   isSubscribed: 'Subscribed',
   location: 'Headquarters Country',
+  score: 'Score',
 
   ALL: [
     { field: 'avatar', label: 'Logo', canHide: false },
@@ -445,7 +464,8 @@ export const COMPANY_INFO = {
     { field: 'code', label: 'Code', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
     { field: 'isSubscribed', label: 'Subscribed', canHide: true },
-    { field: 'location', label: 'Headquarters Country', canHide: true }
+    { field: 'location', label: 'Headquarters Country', canHide: true },
+    { field: 'score', label: 'Score', canHide: true }
   ]
 };
 
@@ -500,5 +520,14 @@ export const DEVICE_PROPERTIES_INFO = {
     { field: 'hostName', label: 'Hostname' },
     { field: 'language', label: 'Language' },
     { field: 'agent', label: 'User Agent' }
+  ]
+};
+
+export const USER_PROPERTIES_INFO = {
+  email: 'Primary email',
+  username: 'User name',
+  ALL: [
+    { field: 'email', label: 'Primary email', canHide: false },
+    { field: 'username', label: 'User name' }
   ]
 };

@@ -11,6 +11,7 @@ import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
+import { IActivityLog } from 'modules/activityLogs/types';
 
 export interface IOptions {
   EditForm: any;
@@ -19,6 +20,7 @@ export interface IOptions {
   title: string;
   queriesName: {
     itemsQuery: string;
+    itemsTotalCountQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
@@ -34,6 +36,7 @@ export interface IOptions {
   };
   queries: {
     itemsQuery: string;
+    itemsTotalCountQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
@@ -46,7 +49,6 @@ export interface IOptions {
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
-    updateTimeTrackMutation?: string;
   };
   texts: {
     addText: string;
@@ -154,6 +156,7 @@ export interface IItem {
   customFieldsData?: {
     [key: string]: any;
   };
+  score?: number;
 }
 
 export interface IDraggableLocation {
@@ -322,6 +325,7 @@ export interface IFilterParams extends ISavedConformity {
   assignedToMe?: string;
   startDate?: string;
   endDate?: string;
+  pipelineId?: string;
 }
 
 export interface INonFilterParams {
@@ -362,3 +366,8 @@ export type StagesSortItemsMutationResponse = ({
     sortType: string;
   };
 }) => Promise<any>;
+
+export type ActivityLogsByActionQueryResponse = {
+  activityLogsByAction: { activityLogs: IActivityLog[]; totalCount: number };
+  totalCount: number;
+} & QueryResponse;

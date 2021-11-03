@@ -1,5 +1,5 @@
-import { ICallout } from './form/types';
-import { IAttachment, IWebsiteApp } from './messenger/types';
+import { ICallout } from "./form/types";
+import { IAttachment, IWebsiteApp } from "./messenger/types";
 
 export type ENV = {
   API_URL: string;
@@ -16,6 +16,7 @@ export interface IUserDetails {
 
 export interface IUser {
   _id: string;
+  isActive?: boolean;
   details?: IUserDetails;
 }
 
@@ -100,19 +101,19 @@ export interface IIntegrationMessengerDataMessagesItem {
 
 export interface IIntegrationMessengerData {
   skillData?: {
-    typeId: string,
+    typeId: string;
     options: Array<{
       response: string;
       label: string;
       skillId: string;
-    }>
+    }>;
   };
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
-  formCode: string;
+  formCodes: string[];
   websiteApps?: IWebsiteApp[];
   availabilityMethod: string;
   isOnline: boolean;

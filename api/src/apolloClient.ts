@@ -2,7 +2,12 @@ import { ApolloServer, gql, PlaygroundConfig } from 'apollo-server-express';
 import * as cookie from 'cookie';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
-import { EngagesAPI, HelpersApi, IntegrationsAPI } from './data/dataSources';
+import {
+  AutomationsAPI,
+  EngagesAPI,
+  HelpersApi,
+  IntegrationsAPI
+} from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { Conversations, Customers, Users } from './db/models';
@@ -15,6 +20,7 @@ import {
 } from './inmemoryStorage';
 import { extendViaPlugins } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
+import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 
 // load environment variables
 dotenv.config();
@@ -39,6 +45,7 @@ if (NODE_ENV !== 'production') {
 
 const generateDataSources = () => {
   return {
+    AutomationsAPI: new AutomationsAPI(),
     EngagesAPI: new EngagesAPI(),
     IntegrationsAPI: new IntegrationsAPI(),
     HelpersApi: new HelpersApi()
@@ -87,6 +94,8 @@ export const initApolloServer = async app => {
         };
       }
 
+      const dataLoaders: IDataLoaders = generateAllDataLoaders();
+
       const requestInfo = {
         secure: req.secure,
         cookies: req.cookies
@@ -101,7 +110,8 @@ export const initApolloServer = async app => {
           commonQuerySelector: {},
           user,
           res,
-          requestInfo
+          requestInfo,
+          dataLoaders
         };
       }
 
@@ -120,7 +130,7 @@ export const initApolloServer = async app => {
           scopeBrandIds = brandIds;
         }
 
-        if (!user.isOwner) {
+        if (!user.isOwner && scopeBrandIds.length > 0) {
           brandIdSelector = { _id: { $in: scopeBrandIds } };
           commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
           commonQuerySelectorElk = { terms: { scopeBrandIds } };
@@ -138,7 +148,8 @@ export const initApolloServer = async app => {
         userBrandIdsSelector,
         user,
         res,
-        requestInfo
+        requestInfo,
+        dataLoaders
       };
     },
     subscriptions: {

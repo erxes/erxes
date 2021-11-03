@@ -6,8 +6,8 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
+import { WEBHOOK_DOC_URL } from '../../constants';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 import { Description } from '../../styles';
@@ -18,32 +18,6 @@ type Props = {
   onChannelChange: () => void;
   channelIds: string[];
 };
-
-const examplePayload = `{
-  "customerPrimaryEmail": "example@gmail.com",
-  "customerPrimaryPhone": 99999999,
-  "customerCode": 99999,
-  "customerFirstName": "John",
-  "customerLastName": "Michael",
-  "customerMiddleName": "Doe",
-  "content": "Content"
-  "attachments": [{
-      "url": "/images/example.png",
-      "text": "Example",
-      "size": 1048576, // 1mb
-      "type": "image/png"
-  }],
-  "companyPrimaryEmail":"example@company.com",
-  "companyPrimaryPhone":"+123456789",
-  "companyPrimaryName":"example llc",
-  "companyWebsite":"https://company.com",
-  "companyIndustry":"Automobiles",
-  "companyBusinessType":"Investor",
-  "customFields": [{
-      "name": "custom field name",
-      "value": "custom field value"
-  }]
-}`;
 
 class Webhook extends React.Component<Props> {
   generateDoc = (values: {
@@ -84,14 +58,14 @@ class Webhook extends React.Component<Props> {
         <FormGroup>
           <ControlLabel required={false}>Token</ControlLabel>
           <Description>
-            {
+            {__(
               'This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.'
-            }
+            )}
           </Description>
           <FormControl
             {...formProps}
             name="Token (otional)"
-            placeholder="Will be generated automatically when left blank"
+            placeholder={__('Will be generated automatically when left blank')}
             required={false}
             autoFocus={false}
           />
@@ -118,13 +92,6 @@ class Webhook extends React.Component<Props> {
           <FormControl {...formProps} name="script" componentClass="textarea" />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Example payload</ControlLabel>
-          <MarkdownWrapper>
-            <pre>{examplePayload}</pre>
-          </MarkdownWrapper>
-        </FormGroup>
-
         <SelectBrand
           isRequired={true}
           formProps={formProps}
@@ -139,13 +106,21 @@ class Webhook extends React.Component<Props> {
           onChange={onChannelChange}
         />
 
+        <FormGroup>
+          <p>
+            {'For more information, please review the '}
+            <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
+              documentaion.
+            </a>
+          </p>
+        </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
             onClick={callback}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>

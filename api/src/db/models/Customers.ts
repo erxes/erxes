@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { validSearchText } from '../../data/utils';
+import { sendToWebhook, validSearchText } from '../../data/utils';
 import { validateSingle } from '../../data/verifierUtils';
 import {
   Conformities,
@@ -88,6 +88,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     customerFields: ICustomerFieldsInput,
     idsToExclude?: string[] | string
   ): never;
+  findActiveCustomers(selector, fields?): Promise<ICustomerDocument[]>;
   getCustomer(_id: string): Promise<ICustomerDocument>;
   getCustomerName(customer: ICustomer): string;
   createVisitor(): Promise<string>;
@@ -167,16 +168,6 @@ export const loadClass = () => {
         if (previousEntry.length > 0) {
           throw new Error('Duplicated email');
         }
-
-        // check duplication from emails
-        previousEntry = await Customers.find({
-          ...query,
-          emails: { $in: [customerFields.primaryEmail] }
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated email');
-        }
       }
 
       if (customerFields.primaryPhone) {
@@ -184,16 +175,6 @@ export const loadClass = () => {
         previousEntry = await Customers.find({
           ...query,
           primaryPhone: customerFields.primaryPhone
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated phone');
-        }
-
-        // Check duplication from phones
-        previousEntry = await Customers.find({
-          ...query,
-          phones: { $in: [customerFields.primaryPhone] }
         });
 
         if (previousEntry.length > 0) {
@@ -230,6 +211,13 @@ export const loadClass = () => {
       }
 
       return 'Unknown';
+    }
+
+    public static async findActiveCustomers(selector, fields) {
+      return Customers.find(
+        { ...selector, status: { $ne: 'deleted' } },
+        fields
+      );
     }
 
     /**
@@ -727,9 +715,15 @@ export const loadClass = () => {
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(customData, 'customer');
+
       return this.createCustomer({
         ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
+        trackedData,
+        customFieldsData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1
@@ -748,9 +742,15 @@ export const loadClass = () => {
 
       this.fixListFields(doc, customData, customer);
 
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(customData, 'customer');
+
       const modifier = {
         ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
+        trackedData,
+        customFieldsData,
         state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date()
       };
@@ -835,6 +835,13 @@ export const loadClass = () => {
     ) {
       const { customerId, type, value } = args;
 
+      const webhookData: any = {};
+
+      let customer = await Customers.getCustomer(customerId);
+
+      webhookData.type = 'customer';
+      webhookData.object = customer;
+
       if (type === 'email') {
         await Customers.updateOne(
           { _id: customerId },
@@ -843,6 +850,8 @@ export const loadClass = () => {
             $push: { emails: value }
           }
         );
+
+        webhookData.newData = { email: value };
       }
 
       if (type === 'phone') {
@@ -853,9 +862,15 @@ export const loadClass = () => {
             $push: { phones: value }
           }
         );
+
+        webhookData.newData = { phone: value };
       }
 
-      const customer = await Customers.getCustomer(customerId);
+      customer = await Customers.getCustomer(customerId);
+
+      webhookData.updatedDocument = customer;
+
+      await sendToWebhook('update', 'customer', webhookData);
 
       const pssDoc = await Customers.calcPSS(customer);
 

@@ -4,7 +4,6 @@ import {
   putUpdateLog as putUpdateLogC
 } from 'erxes-api-utils';
 import * as _ from 'underscore';
-import { IBrowserInfo } from '../db/models/Customers';
 
 import {
   IPipelineDocument,
@@ -89,12 +88,6 @@ interface IContentTypeParams {
   contentTypeId: string;
 }
 
-export interface IVisitorLogParams {
-  visitorId: string;
-  integrationId?: string;
-  location?: IBrowserInfo;
-}
-
 /**
  * @param object - Previous state of the object
  * @param newData - Requested update data
@@ -113,15 +106,18 @@ export interface ILogQueryParams {
   start?: string;
   end?: string;
   userId?: string;
-  action?: string;
+  action?: string | { $in: string[] };
   page?: number;
   perPage?: number;
-  type?: string;
+  type?: string | { $in: string[] };
+  objectId?: string | { $in: string[] };
+  $or: any[];
 }
 
 export interface IActivityLogQueryParams {
   contentId?: any;
   contentType?: string;
+  action?: any;
 }
 
 interface IDescriptions {
@@ -159,6 +155,7 @@ export const ACTIVITY_LOG_ACTIONS = {
   CREATE_COC_LOGS: 'createCocLogs',
   CREATE_SEGMENT_LOG: 'createSegmentLog',
   CREATE_CHECKLIST_LOG: 'createChecklistLog',
+  CREATE_TAG_LOG: 'createTagLog',
   REMOVE_ACTIVITY_LOG: 'removeActivityLog',
   REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
 };
@@ -928,7 +925,7 @@ const gatherPipelineTemplateFieldNames = async (
   }
 
   options = await gatherUsernames({
-    idFields: [doc.createdBy],
+    idFields: [doc.createdBy || ''],
     foreignKey: 'createdBy',
     prevList: options
   });
@@ -1485,7 +1482,12 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
+
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    type: `${params.type}`,
+    targets: [params.object]
+  });
 
   return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1501,7 +1503,12 @@ export const putUpdateLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
+
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    type: `${params.type}`,
+    targets: [params.updatedDocument]
+  });
 
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1517,7 +1524,12 @@ export const putDeleteLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
+
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    type: `${params.type}`,
+    targets: [params.object]
+  });
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1546,31 +1558,29 @@ export const fetchLogs = async (
   }
 };
 
-export const sendToVisitorLog = async (params: IVisitorLogParams, action) =>
-  messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-    action,
-    data: params
-  });
+export const sendToLog = (channel: string, data) =>
+  messageBroker().sendMessage(channel, data);
 
-export const getVisitorLog = async visitorId => {
-  try {
-    return messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
-      action: 'get',
-      data: { visitorId }
-    });
-  } catch (e) {
-    debugError(
-      `Error during getVisitorLog: ${e.message} visitorId: ${visitorId}`
-    );
-  }
-};
 interface IActivityLogParams {
   action: string;
   data: any;
 }
 
 export const putActivityLog = async (params: IActivityLogParams) => {
+  const { action, data } = params;
+
+  if ([ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG].includes(action)) {
+    await sendToWebhook(action, data.contentType, params);
+  }
+
   try {
+    if (data.target) {
+      messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+        type: `${data.contentType}`,
+        targets: [data.target]
+      });
+    }
+
     return messageBroker().sendMessage('putActivityLog', params);
   } catch (e) {
     return e.message;

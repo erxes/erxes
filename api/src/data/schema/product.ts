@@ -6,6 +6,8 @@ export const types = `
     parentId: String
     code: String!
     order: String!
+    attachment: Attachment
+    status: String
 
     isRoot: Boolean
     productCount: Int
@@ -25,10 +27,16 @@ export const types = `
     getTags: [Tag]
     tagIds: [String]
     attachment: Attachment
+    attachmentMore: [Attachment]
     vendorId: String
+    supply: String
+    productCount: Int
+    minimiumCount: Int
 
     category: ProductCategory
     vendor: Company
+    
+    customFieldsDataWithText: JSON
   }
 `;
 
@@ -42,6 +50,10 @@ const productParams = `
   code: String,
   customFieldsData: JSON,
   attachment: AttachmentInput,
+  attachmentMore: [AttachmentInput],
+  supply: String,
+  productCount: Int,
+  minimiumCount: Int
   vendorId: String,
 `;
 
@@ -50,14 +62,26 @@ const productCategoryParams = `
   code: String!,
   description: String,
   parentId: String,
+  attachment: AttachmentInput,
+  status: String
 `;
 
 export const queries = `
-  productCategories(parentId: String, searchValue: String): [ProductCategory]
+  productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
 
-  products(type: String, categoryId: String, searchValue: String, tag: String, page: Int, perPage: Int ids: [String], excludeIds: Boolean): [Product]
+  products(
+    type: String,
+    categoryId: String,
+    searchValue: String,
+    tag: String,
+    page: Int,
+    perPage: Int ids: [String],
+    excludeIds: Boolean,
+    pipelineId: String,
+    boardId: String
+  ): [Product]
   productsTotalCount(type: String): Int
   productDetail(_id: String): Product
   productCountByTags: JSON
@@ -70,5 +94,5 @@ export const mutations = `
   productsMerge(productIds: [String], productFields: JSON): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
-  productCategoriesRemove(_id: String!): JSON
+  productCategoriesRemove(_id: String!): JSON  
 `;

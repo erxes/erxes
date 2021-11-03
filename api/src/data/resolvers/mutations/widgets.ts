@@ -5,6 +5,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Fields,
   Forms,
   Integrations,
   KnowledgeBaseArticles,
@@ -27,18 +28,16 @@ import {
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
-import {
-  IKnowledgebaseCredentials,
-  ILeadCredentials
-} from '../../../db/models/definitions/messengerApps';
+import { IKnowledgebaseCredentials } from '../../../db/models/definitions/messengerApps';
 import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
+import { sendToLog } from '../../logUtils';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
-import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
+  findCompany,
   registerOnboardHistory,
   replaceEditorAttributes,
   sendEmail,
@@ -46,7 +45,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
+import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
@@ -86,12 +85,15 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
       : null;
 
   // lead app ==========
-  const leadApp = await getMessengerApps('lead', integration._id);
+  const leadApps = await getMessengerApps('lead', integration._id, false);
 
-  const formCode =
-    leadApp && leadApp.credentials
-      ? (leadApp.credentials as ILeadCredentials).formCode
-      : null;
+  const formCodes = [] as string[];
+
+  for (const app of leadApps) {
+    if (app && app.credentials) {
+      formCodes.push(app.credentials.formCode);
+    }
+  }
 
   // website app ============
   const websiteApps = await getMessengerApps('website', integration._id, false);
@@ -101,8 +103,19 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
     websiteApps,
-    formCode
+    formCodes
   };
+};
+
+const createVisitor = async (visitorId: string) => {
+  const customer = await Customers.createCustomer({
+    state: 'visitor',
+    visitorId
+  });
+
+  sendToLog('visitor:convertRequest', { visitorId });
+
+  return customer;
 };
 
 const widgetMutations = {
@@ -208,13 +221,15 @@ const widgetMutations = {
       conversationMessageInserted: message
     });
 
-    await sendToWebhook('create', 'popupSubmitted', {
+    const formData = {
       formId: args.formId,
       submissions: args.submissions,
       customer: cachedCustomer,
       cachedCustomerId: cachedCustomer._id,
       conversationId: conversation._id
-    });
+    };
+
+    await sendToWebhook('create', 'popupSubmitted', formData);
 
     return {
       status: 'ok',
@@ -261,6 +276,7 @@ const widgetMutations = {
       isUser,
       companyData,
       data,
+
       cachedCustomerId,
       deviceToken,
       visitorId
@@ -302,7 +318,8 @@ const widgetMutations = {
         phone,
         code,
         isUser,
-        deviceToken
+        deviceToken,
+        scopeBrandIds: [brand._id]
       };
 
       customer = customer
@@ -315,43 +332,51 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendToVisitorLog(
-        { visitorId, integrationId: integration._id },
-        'createOrUpdate'
-      );
+      sendToLog('visitor:createOrUpdate', {
+        visitorId,
+        integrationId: integration._id,
+        scopeBrandIds: [brand._id]
+      });
     }
 
     // get or create company
     if (companyData && companyData.name) {
-      let company = await Companies.findOne({
-        $or: [
-          { names: { $in: [companyData.name] } },
-          { primaryName: companyData.name }
-        ]
-      });
+      let company = await findCompany(companyData);
+
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(companyData, 'company');
+
+      companyData.customFieldsData = customFieldsData;
+      companyData.trackedData = trackedData;
 
       if (!company) {
         companyData.primaryName = companyData.name;
-        companyData.names = [companyData.name];
 
         try {
           company = await Companies.createCompany({
             ...companyData,
             scopeBrandIds: [brand._id]
           });
-
-          if (customer) {
-            // add company to customer's companyIds list
-            await Conformities.create({
-              mainType: 'customer',
-              mainTypeId: customer._id,
-              relType: 'company',
-              relTypeId: company._id
-            });
-          }
         } catch (e) {
           debugError(e.message);
         }
+      } else {
+        company = await Companies.updateCompany(company._id, {
+          ...companyData,
+          scopeBrandIds: [brand._id]
+        });
+      }
+
+      if (customer && company) {
+        // add company to customer's companyIds list
+        await Conformities.create({
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeId: company._id
+        });
       }
     }
 
@@ -402,6 +427,7 @@ const widgetMutations = {
         const messageTime = new Date(
           videoCallRequestMessage.createdAt
         ).getTime();
+
         const nowTime = new Date().getTime();
 
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
@@ -439,7 +465,7 @@ const widgetMutations = {
     let { customerId } = args;
 
     if (visitorId && !customerId) {
-      const customer = await convertVisitorToCustomer(visitorId);
+      const customer = await createVisitor(visitorId);
       customerId = customer._id;
     }
 
@@ -543,44 +569,48 @@ const widgetMutations = {
         }
       });
 
-      const botRequest = await sendRequest({
-        method: 'POST',
-        url: `${botEndpointUrl}/${conversation._id}`,
-        body: {
-          type: 'text',
-          text: message
-        }
-      });
+      try {
+        const botRequest = await sendRequest({
+          method: 'POST',
+          url: `${botEndpointUrl}/${conversation._id}`,
+          body: {
+            type: 'text',
+            text: message
+          }
+        });
 
-      const { responses } = botRequest;
+        const { responses } = botRequest;
 
-      const botData =
-        responses.length !== 0
-          ? responses
-          : [
-              {
-                type: 'text',
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE
-              }
-            ];
+        const botData =
+          responses.length !== 0
+            ? responses
+            : [
+                {
+                  type: 'text',
+                  text: AUTO_BOT_MESSAGES.NO_RESPONSE
+                }
+              ];
 
-      const botMessage = await Messages.createMessage({
-        conversationId: conversation._id,
-        customerId,
-        contentType,
-        botData
-      });
+        const botMessage = await Messages.createMessage({
+          conversationId: conversation._id,
+          customerId,
+          contentType,
+          botData
+        });
 
-      graphqlPubsub.publish('conversationBotTypingStatus', {
-        conversationBotTypingStatus: {
-          conversationId: msg.conversationId,
-          typing: false
-        }
-      });
+        graphqlPubsub.publish('conversationBotTypingStatus', {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: false
+          }
+        });
 
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: botMessage
-      });
+        graphqlPubsub.publish('conversationMessageInserted', {
+          conversationMessageInserted: botMessage
+        });
+      } catch (e) {
+        debugError(`Failed to connect to BOTPRESS: ${e.message}`);
+      }
     }
 
     const customerLastStatus = await get(
@@ -653,9 +683,19 @@ const widgetMutations = {
   },
 
   async widgetsSaveCustomerGetNotified(_root, args: IVisitorContactInfoParams) {
-    if (args.visitorId && !args.customerId) {
-      const customer = await convertVisitorToCustomer(args.visitorId);
+    const { visitorId, customerId } = args;
+
+    if (visitorId && !customerId) {
+      const customer = await createVisitor(visitorId);
       args.customerId = customer._id;
+
+      await Messages.updateVisitorEngageMessages(visitorId, customer._id);
+      await Conversations.updateMany(
+        {
+          visitorId
+        },
+        { $set: { customerId: customer._id, visitorId: '' } }
+      );
     }
 
     return Customers.saveVisitorContactInfo(args);
@@ -680,7 +720,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
+      sendToLog('visitor:updateEntry', { visitorId, location: browserInfo });
     }
 
     try {
@@ -784,8 +824,7 @@ const widgetMutations = {
     const { botEndpointUrl } = integration.messengerData;
 
     if (visitorId && !customerId) {
-      const customer = await convertVisitorToCustomer(visitorId);
-
+      const customer = await createVisitor(visitorId);
       customerId = customer._id;
     }
 

@@ -1,4 +1,5 @@
 import * as cookieParser from 'cookie-parser';
+
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
@@ -9,6 +10,7 @@ import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as request from 'request';
+import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
@@ -27,7 +29,7 @@ import {
   updateContactValidationStatus
 } from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
-import { Users } from './db/models';
+import { Segments, Users } from './db/models';
 import initWatchers from './db/watchers';
 import {
   debugBase,
@@ -47,6 +49,7 @@ import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
+
 import init from './startup';
 
 // load environment variables
@@ -81,17 +84,17 @@ const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
   name: 'INTEGRATIONS_API_DOMAIN'
 });
-const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_DOMAIN'
-});
+
 const DASHBOARD_DOMAIN = getSubServiceDomain({
   name: 'DASHBOARD_DOMAIN'
 });
+
 const ENGAGES_API_DOMAIN = getSubServiceDomain({
   name: 'ENGAGES_API_DOMAIN'
 });
-const CLIENT_PORTAL_MN_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_MN_DOMAIN'
+
+const CLIENT_PORTAL_DOMAINS = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_DOMAINS'
 });
 
 const handleTelnyxWebhook = (req, res, next, hookName: string) => {
@@ -110,6 +113,8 @@ const handleTelnyxWebhook = (req, res, next, hookName: string) => {
 export const app = express();
 
 app.disable('x-powered-by');
+
+app.use(serverTimingMiddleware({}));
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {
@@ -149,9 +154,8 @@ const corsOptions = {
   origin: [
     MAIN_APP_DOMAIN,
     WIDGETS_DOMAIN,
-    CLIENT_PORTAL_DOMAIN,
-    DASHBOARD_DOMAIN,
-    CLIENT_PORTAL_MN_DOMAIN
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    DASHBOARD_DOMAIN
   ]
 };
 
@@ -252,10 +256,19 @@ app.get(
   '/file-export',
   routeErrorHandling(async (req: any, res) => {
     const { query, user } = req;
+    const { segment } = query;
 
     const result = await buildFile(query, user);
 
     res.attachment(`${result.name}.xlsx`);
+
+    if (segment) {
+      try {
+        Segments.removeSegment(segment);
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
 
     return res.send(result.response);
   })
@@ -265,6 +278,8 @@ app.get(
   '/template-export',
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
+
+    registerOnboardHistory({ type: `importDownloadTemplate`, user: req.user });
 
     const { name, response } = await templateExport(req.query);
 

@@ -26,12 +26,21 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
   sendToBoard?: (item: any) => void;
+  updateTimeTrack: (
+    {
+      _id,
+      status,
+      timeSpent
+    }: { _id: string; status: string; timeSpent: number; startDate?: string },
+    callback?: () => void
+  ) => void;
 };
 
 export default function TicketEditForm(props: Props) {
   const item = props.item;
 
   const [source, setSource] = useState(item.source);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     setSource(item.source);
@@ -93,7 +102,7 @@ export default function TicketEditForm(props: Props) {
     saveItem,
     onChangeStage
   }: IEditFormContent) {
-    const { options, onUpdate, addItem, sendToBoard } = props;
+    const { options, onUpdate, addItem, sendToBoard, updateTimeTrack } = props;
 
     const renderSidebar = () => renderSidebarFields(saveItem);
 
@@ -118,6 +127,7 @@ export default function TicketEditForm(props: Props) {
             addItem={addItem}
             sendToBoard={sendToBoard}
             onChangeStage={onChangeStage}
+            onChangeRefresh={() => setRefresh(!refresh)}
           />
 
           <Sidebar
@@ -126,6 +136,7 @@ export default function TicketEditForm(props: Props) {
             sidebar={renderSidebar}
             saveItem={saveItem}
             renderItems={renderItems}
+            updateTimeTrack={updateTimeTrack}
           />
         </FlexContent>
       </>
@@ -135,7 +146,8 @@ export default function TicketEditForm(props: Props) {
   const extendedProps = {
     ...props,
     formContent: renderFormContent,
-    extraFields: { source }
+    extraFields: { source },
+    refresh
   };
 
   return <EditForm {...extendedProps} />;

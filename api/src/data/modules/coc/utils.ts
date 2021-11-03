@@ -8,7 +8,7 @@ import { debugError } from '../../../debuggers';
 import { fetchElk } from '../../../elasticsearch';
 import { COC_LEAD_STATUS_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
-import { fetchBySegments } from '../segments/queryBuilder';
+import { fetchSegment } from '../segments/queryBuilder';
 
 export interface ICountBy {
   [index: string]: number;
@@ -180,14 +180,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public async segmentFilter(segmentId: string, source?: string) {
     const segment = await Segments.getSegment(segmentId);
 
-    const { positiveList, negativeList } = await fetchBySegments(
+    const selector = await fetchSegment(
       segment,
-      'count',
-      source === 'engages' ? { associatedCustomers: true } : null
+      source === 'engages'
+        ? { associatedCustomers: true, returnSelector: true }
+        : { returnSelector: true }
     );
 
-    this.positiveList = [...this.positiveList, ...positiveList];
-    this.negativeList = [...this.negativeList, ...negativeList];
+    this.positiveList = [...this.positiveList, selector];
   }
 
   // filter by tagId
@@ -403,7 +403,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       const totalCountResponse = await fetchElk({
         action: 'count',
         index: this.contentType,
-        body: queryOptions
+        body: queryOptions,
+        defaultValue: 0
       });
 
       totalCount = totalCountResponse.count;

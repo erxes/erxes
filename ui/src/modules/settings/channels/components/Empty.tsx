@@ -19,7 +19,7 @@ class Empty extends React.Component<Props, {}> {
 
     const content = (
       <EmptyState
-        text="There is no channel."
+        text={__('There is no Channel') + '.'}
         size="full"
         image="/images/actions/18.svg"
       />

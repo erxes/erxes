@@ -146,9 +146,10 @@ const userMutations = {
     return login(args, res, requestInfo.secure);
   },
 
-  async logout(_root, _args, { res }) {
+  async logout(_root, _args, { res, user, requestInfo }: IContext ) {
+    const loggedout = await Users.logout(user, requestInfo.cookies['auth-token']);
     res.clearCookie('auth-token');
-    return 'loggedout';
+    return loggedout;
   },
 
   /*
@@ -205,25 +206,9 @@ const userMutations = {
    * Update user
    */
   async usersEdit(_root, args: IUsersEdit) {
-    const {
-      _id,
-      username,
-      email,
-      channelIds,
-      groupIds = [],
-      brandIds = [],
-      details,
-      links
-    } = args;
+    const { _id, channelIds, ...doc } = args;
 
-    const updatedUser = await Users.updateUser(_id, {
-      username,
-      email,
-      details,
-      links,
-      groupIds,
-      brandIds
-    });
+    const updatedUser = await Users.updateUser(_id, doc);
 
     // add new user to channels
     await Channels.updateUserChannels(channelIds || [], _id);

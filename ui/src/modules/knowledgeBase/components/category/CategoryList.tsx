@@ -22,14 +22,25 @@ class CategoryList extends React.Component<Props> {
     }, {});
   };
 
+  renderRow(category, isChild, isParent?) {
+    const { remove, currentCategoryId, topicId, articlesCount } = this.props;
+
+    return (
+      <CategoryRow
+        key={category._id}
+        isActive={currentCategoryId === category._id}
+        articlesCount={articlesCount}
+        topicId={topicId}
+        category={category}
+        remove={remove}
+        isChild={isChild}
+        isParent={isParent}
+      />
+    );
+  }
+
   render() {
-    const {
-      categories,
-      remove,
-      currentCategoryId,
-      topicId,
-      articlesCount
-    } = this.props;
+    const { categories } = this.props;
 
     const subFields = categories.filter(f => f.parentCategoryId);
     const parents = categories.filter(f => !f.parentCategoryId);
@@ -42,28 +53,10 @@ class CategoryList extends React.Component<Props> {
           const childrens = groupByParent[category._id] || [];
 
           return (
-            <>
-              <CategoryRow
-                isActive={currentCategoryId === category._id}
-                articlesCount={articlesCount}
-                topicId={topicId}
-                category={category}
-                remove={remove}
-                isParent={childrens.length > 0}
-              />
-              {childrens &&
-                childrens.map(child => (
-                  <CategoryRow
-                    key={child._id}
-                    isActive={currentCategoryId === child._id}
-                    articlesCount={articlesCount}
-                    topicId={topicId}
-                    category={child}
-                    remove={remove}
-                    isChild={true}
-                  />
-                ))}
-            </>
+            <React.Fragment key={category._id}>
+              {this.renderRow(category, false, childrens.length !== 0)}
+              {childrens.map(child => this.renderRow(child, true))}
+            </React.Fragment>
           );
         })}
       </Categories>

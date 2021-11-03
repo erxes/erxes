@@ -203,6 +203,8 @@ export const moduleObjects = {
           'dealPipelinesUpdateOrder',
           'dealPipelinesWatch',
           'dealPipelinesRemove',
+          'dealPipelinesArchive',
+          'dealPipelinesCopied',
           'dealStagesAdd',
           'dealStagesEdit',
           'dealStagesUpdateOrder',
@@ -213,7 +215,8 @@ export const moduleObjects = {
           'dealsWatch',
           'dealsArchive',
           'dealsSort',
-          'exportDeals'
+          'exportDeals',
+          'dealUpdateTimeTracking'
         ]
       },
       {
@@ -239,6 +242,14 @@ export const moduleObjects = {
       {
         name: 'dealPipelinesRemove',
         description: 'Remove deal pipeline'
+      },
+      {
+        name: 'dealPipelinesArchive',
+        description: 'Archive deal pipeline'
+      },
+      {
+        name: 'dealPipelinesCopied',
+        description: 'Duplicate deal pipeline'
       },
       {
         name: 'dealPipelinesUpdateOrder',
@@ -291,6 +302,10 @@ export const moduleObjects = {
       {
         name: 'exportDeals',
         description: 'Export deals'
+      },
+      {
+        name: 'dealUpdateTimeTracking',
+        description: 'Update time tracking'
       }
     ]
   },
@@ -311,6 +326,8 @@ export const moduleObjects = {
           'ticketPipelinesUpdateOrder',
           'ticketPipelinesWatch',
           'ticketPipelinesRemove',
+          'ticketPipelinesArchive',
+          'ticketPipelinesCopied',
           'ticketStagesAdd',
           'ticketStagesEdit',
           'ticketStagesUpdateOrder',
@@ -321,7 +338,8 @@ export const moduleObjects = {
           'ticketsWatch',
           'ticketsArchive',
           'ticketsSort',
-          'exportTickets'
+          'exportTickets',
+          'ticketUpdateTimeTracking'
         ]
       },
       {
@@ -351,6 +369,14 @@ export const moduleObjects = {
       {
         name: 'ticketPipelinesRemove',
         description: 'Remove ticket pipeline'
+      },
+      {
+        name: 'ticketPipelinesArchive',
+        description: 'Archive ticket pipeline'
+      },
+      {
+        name: 'ticketPipelinesCopied',
+        description: 'Duplicate ticket pipeline'
       },
       {
         name: 'ticketPipelinesWatch',
@@ -403,6 +429,10 @@ export const moduleObjects = {
       {
         name: 'exportTickets',
         description: 'Export tickets'
+      },
+      {
+        name: 'ticketUpdateTimeTracking',
+        description: 'Update time tracking'
       }
     ]
   },
@@ -423,6 +453,8 @@ export const moduleObjects = {
           'growthHackPipelinesUpdateOrder',
           'growthHackPipelinesWatch',
           'growthHackPipelinesRemove',
+          'growthHackPipelinesArchive',
+          'growthHackPipelinesCopied',
           'growthHackStagesAdd',
           'growthHackStagesEdit',
           'growthHackStagesUpdateOrder',
@@ -463,6 +495,14 @@ export const moduleObjects = {
       {
         name: 'growthHackPipelinesRemove',
         description: 'Remove growth hacking pipeline'
+      },
+      {
+        name: 'growthHackPipelinesArchive',
+        description: 'Archive growth hacking pipeline'
+      },
+      {
+        name: 'growthHackPipelinesCopied',
+        description: 'Copied growth hacking pipeline'
       },
       {
         name: 'growthHackPipelinesWatch',
@@ -551,6 +591,8 @@ export const moduleObjects = {
           'taskPipelinesUpdateOrder',
           'taskPipelinesWatch',
           'taskPipelinesRemove',
+          'taskPipelinesArchive',
+          'taskPipelinesCopied',
           'taskStagesAdd',
           'taskStagesEdit',
           'taskStagesUpdateOrder',
@@ -588,6 +630,14 @@ export const moduleObjects = {
       {
         name: 'taskPipelinesRemove',
         description: 'Remove task pipeline'
+      },
+      {
+        name: 'taskPipelinesArchive',
+        description: 'Archive task pipeline'
+      },
+      {
+        name: 'taskPipelinesCopied',
+        description: 'Duplicate task pipeline'
       },
       {
         name: 'taskPipelinesWatch',
@@ -639,7 +689,7 @@ export const moduleObjects = {
       },
       {
         name: 'taskUpdateTimeTracking',
-        description: 'Update time tracking for a task'
+        description: 'Update time tracking'
       },
       {
         name: 'exportTasks',
@@ -737,11 +787,11 @@ export const moduleObjects = {
         description: 'Show permissions'
       },
       {
-        name: 'showPermissionsModules',
+        name: 'showPermissionModules',
         description: 'Show permissions modules'
       },
       {
-        name: 'showPermissionsActions',
+        name: 'showPermissionActions',
         description: 'Show permissions actions'
       },
       {
@@ -1184,6 +1234,38 @@ export const moduleObjects = {
       }
     ]
   },
+  automations: {
+    name: 'automations',
+    description: 'Automations',
+    actions: [
+      {
+        name: 'automationAll',
+        description: 'All',
+        use: [
+          'showAutomations',
+          'automationsAdd',
+          'automationsEdit',
+          'automationsRemove'
+        ]
+      },
+      {
+        name: 'showAutomations',
+        description: 'Show automations'
+      },
+      {
+        name: 'automationsAdd',
+        description: 'Add automations'
+      },
+      {
+        name: 'automationsEdit',
+        description: 'Edit automations'
+      },
+      {
+        name: 'automationsRemove',
+        description: 'Remove automations'
+      }
+    ]
+  },
   calendars: {
     name: 'calendars',
     description: 'Calendars',
@@ -1233,6 +1315,16 @@ export const moduleObjects = {
       {
         name: 'calendarGroupsRemove',
         description: 'Remove calendar groups'
+      }
+    ]
+  },
+  clientPortal: {
+    name: 'clientPortal',
+    description: 'Client portal',
+    actions: [
+      {
+        name: 'manageClientPortal',
+        description: 'Manage client portal'
       }
     ]
   }
