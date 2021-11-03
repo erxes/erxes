@@ -49,7 +49,6 @@ export interface IOptions {
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
-    updateTimeTrackMutation?: string;
   };
   texts: {
     addText: string;

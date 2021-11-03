@@ -215,7 +215,8 @@ export const moduleObjects = {
           'dealsWatch',
           'dealsArchive',
           'dealsSort',
-          'exportDeals'
+          'exportDeals',
+          'dealUpdateTimeTracking'
         ]
       },
       {
@@ -301,6 +302,10 @@ export const moduleObjects = {
       {
         name: 'exportDeals',
         description: 'Export deals'
+      },
+      {
+        name: 'dealUpdateTimeTracking',
+        description: 'Update time tracking'
       }
     ]
   },
@@ -333,7 +338,8 @@ export const moduleObjects = {
           'ticketsWatch',
           'ticketsArchive',
           'ticketsSort',
-          'exportTickets'
+          'exportTickets',
+          'ticketUpdateTimeTracking'
         ]
       },
       {
@@ -423,6 +429,10 @@ export const moduleObjects = {
       {
         name: 'exportTickets',
         description: 'Export tickets'
+      },
+      {
+        name: 'ticketUpdateTimeTracking',
+        description: 'Update time tracking'
       }
     ]
   },
@@ -679,7 +689,7 @@ export const moduleObjects = {
       },
       {
         name: 'taskUpdateTimeTracking',
-        description: 'Update time tracking for a task'
+        description: 'Update time tracking'
       },
       {
         name: 'exportTasks',

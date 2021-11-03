@@ -39,8 +39,7 @@ const options = {
     changeMutation: mutations.tasksChange,
     watchMutation: mutations.tasksWatch,
     archiveMutation: mutations.tasksArchive,
-    copyMutation: mutations.tasksCopy,
-    updateTimeTrackMutation: mutations.taskUpdateTimeTracking
+    copyMutation: mutations.tasksCopy
   },
   texts: {
     addText: 'Add a task',
