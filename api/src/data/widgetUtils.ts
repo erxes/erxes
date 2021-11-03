@@ -362,12 +362,12 @@ export const solveSubmissions = async (args: {
 
   const customerSchemaLabels = await getDbSchemaLabels('customer');
   const companySchemaLabels = await getDbSchemaLabels('company');
-  const customerDoc: any = {};
-  const companyDoc: any = {};
 
   for (const groupId of Object.keys(submissionsGrouped)) {
     const customerLinks: ILink = {};
     const companyLinks: ILink = {};
+    const customerDoc: any = {};
+    const companyDoc: any = {};
 
     const customFieldsData: ICustomField[] = [];
     const companyCustomData: ICustomField[] = [];
@@ -385,6 +385,24 @@ export const solveSubmissions = async (args: {
         continue;
       }
 
+      if (submissionType === 'pronoun') {
+        switch (submission.value) {
+          case 'Male':
+            customerDoc.pronoun = 1;
+            break;
+          case 'Female':
+            customerDoc.pronoun = 2;
+            break;
+          case 'Not applicable':
+            customerDoc.pronoun = 9;
+            break;
+          default:
+            customerDoc.pronoun = 0;
+            break;
+        }
+        continue;
+      }
+
       if (
         customerSchemaLabels.findIndex(e => e.name === submissionType) !== -1
       ) {
@@ -397,46 +415,29 @@ export const solveSubmissions = async (args: {
           continue;
         }
 
-        if (submissionType === 'pronoun') {
-          switch (submission.value) {
-            case 'Male':
-              customerDoc.pronoun = 1;
-              break;
-            case 'Female':
-              customerDoc.pronoun = 2;
-              break;
-            case 'Not applicable':
-              customerDoc.pronoun = 9;
-              break;
-            default:
-              customerDoc.pronoun = 0;
-              break;
-          }
+        customerDoc[submissionType] = submission.value;
+        continue;
+      }
+
+      if (submissionType.includes('company_')) {
+        if (
+          submissionType === 'company_avatar' &&
+          submission.value &&
+          submission.value.length > 0
+        ) {
+          console.log(submission.value[0].url);
+          companyDoc.avatar = submission.value[0].url;
           continue;
         }
 
-        customerDoc[submissionType] = submission.value;
-
+        const key = submissionType.split('_')[1];
+        companyDoc[key] = submission.value;
         continue;
       }
 
       if (
         companySchemaLabels.findIndex(e => e.name === submissionType) !== -1
       ) {
-        if (
-          submissionType === 'company_avatar' &&
-          submission.value &&
-          submission.value.length > 0
-        ) {
-          companyDoc.avatar = submission.value[0].url;
-        }
-
-        if (submissionType.includes('company_')) {
-          const key = submissionType.split('_')[1];
-          companyDoc[key] = submission.value;
-          continue;
-        }
-
         companyDoc[submissionType] = submission.value;
         continue;
       }
@@ -554,7 +555,7 @@ export const solveSubmissions = async (args: {
     });
 
     companyDoc.scopeBrandIds = [integration.brandId || ''];
-
+    console.log('============================== ', companyDoc);
     if (!company) {
       company = await Companies.createCompany(companyDoc);
     }
