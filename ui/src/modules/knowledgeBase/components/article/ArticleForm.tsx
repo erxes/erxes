@@ -13,7 +13,6 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { IArticle, ITopic } from '../../types';
 import { ReactionItem } from './styles';
-import xss from 'xss';
 
 type Props = {
   article: IArticle;
@@ -37,7 +36,7 @@ class ArticleForm extends React.Component<Props, State> {
     const article = props.article || { content: '' };
 
     this.state = {
-      content: xss(article.content),
+      content: article.content,
       reactionChoices: article.reactionChoices || [],
       topicId: article.topicId,
       categoryId: article.categoryId
@@ -83,7 +82,7 @@ class ArticleForm extends React.Component<Props, State> {
   };
 
   onChange = e => {
-    this.setState({ content: xss(e.editor.getData()) });
+    this.setState({ content: e.editor.getData() });
   };
 
   onChangeReactions = (options: IOption[]) => {
@@ -249,7 +248,7 @@ class ArticleForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK
-            content={xss(content)}
+            content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}

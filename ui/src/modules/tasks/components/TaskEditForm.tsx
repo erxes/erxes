@@ -9,7 +9,6 @@ import {
   IItemParams,
   IOptions
 } from 'modules/boards/types';
-import TaskTimer, { STATUS_TYPES } from 'modules/common/components/Timer';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
@@ -54,22 +53,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
   };
 
   renderItems = () => {
-    const { item, updateTimeTrack } = this.props;
-
-    const timeTrack = item.timeTrack || {
-      timeSpent: 0,
-      status: STATUS_TYPES.STOPPED
-    };
-
     return (
       <>
-        <TaskTimer
-          taskId={item._id}
-          status={timeTrack.status}
-          timeSpent={timeTrack.timeSpent}
-          startDate={timeTrack.startDate}
-          update={updateTimeTrack}
-        />
         <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
         <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
       </>
@@ -83,7 +68,14 @@ export default class TaskEditForm extends React.Component<Props, State> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
+    const {
+      item,
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack
+    } = this.props;
 
     return (
       <>
@@ -113,6 +105,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
             options={options}
             item={item}
             saveItem={saveItem}
+            updateTimeTrack={updateTimeTrack}
             renderItems={this.renderItems}
           />
         </FlexContent>

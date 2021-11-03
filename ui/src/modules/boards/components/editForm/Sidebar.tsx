@@ -15,6 +15,14 @@ type Props = {
   ) => React.ReactNode;
   options: IOptions;
   renderItems: () => React.ReactNode;
+  updateTimeTrack: (
+    {
+      _id,
+      status,
+      timeSpent
+    }: { _id: string; status: string; timeSpent: number; startDate?: string },
+    callback?: () => void
+  ) => void;
 };
 
 class Sidebar extends React.Component<Props> {
