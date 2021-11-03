@@ -13,7 +13,8 @@ export default {
           username: 1,
           password: 1,
           isOwner: 1,
-          isActive: 1
+          isActive: 1,
+          details: 1
         };
 
         // collect admin users
@@ -39,7 +40,7 @@ export default {
           });
 
           const WIDGETS_DOMAIN = process.env.WIDGETS_DOMAIN;
-          
+
           const forms = [];
 
           for (const integration of leadIntegrations) {
@@ -93,7 +94,7 @@ export default {
 
             category.products = products;
 
-            const cat = {
+            categories.push({
               _id: category._id,
               name: category.name,
               description: category.description,
@@ -101,16 +102,16 @@ export default {
               parentId: category.parentId,
               order: category.order,
               products
-            };
-
-            categories.push(cat);
+            });
           }
 
           group.categories = categories;
           productGroups.push(group);
-        }
+        } // end product group for loop
 
         data.productGroups = productGroups;
+
+        data.customers = await models.Customers.find().lean();
 
         return data;
       }
