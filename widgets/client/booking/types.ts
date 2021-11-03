@@ -33,7 +33,7 @@ export interface IBookingData {
   userFilters?: string[];
   image?: any;
 
-  productCategoryId?: string;
+  productCategoryId: string;
   style: IStyle;
 
   categoryTree: ICategoryTree[];
