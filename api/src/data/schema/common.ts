@@ -30,6 +30,7 @@ export const commonTypes = `
   hasNotified: Boolean
   assignedUserIds: [String]
   labelIds: [String]
+  startDate: Date
   closeDate: Date
   description: String
   modifiedAt: Date
@@ -59,6 +60,7 @@ export const commonMutationParams = `
   stageId: String,
   assignedUserIds: [String],
   attachments: [AttachmentInput],
+  startDate: Date,
   closeDate: Date,
   description: String,
   order: Int,

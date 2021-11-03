@@ -23,6 +23,7 @@ export interface IItemCommonFields {
   // TODO migrate after remove 2row
   companyIds?: string[];
   customerIds?: string[];
+  startDate?: Date;
   closeDate?: Date;
   stageChangedDate?: Date;
   description?: string;
@@ -159,6 +160,7 @@ export const commonItemFieldsSchema = {
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
+  startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
   stageChangedDate: field({
     type: Date,

@@ -80,7 +80,9 @@ const config = {
   }
 };
 
-class GanttChart extends Component {
+class GanttChart extends Component<any, any> {
+  private data;
+
   constructor(props) {
     super(props);
     let result = Generator.generateData();
