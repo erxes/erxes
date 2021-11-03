@@ -138,7 +138,8 @@ const PERMISSION_MAP = {
     pipelinesWatch: 'dealPipelinesWatch',
     stagesEdit: 'dealStagesEdit',
     stagesRemove: 'dealStagesRemove',
-    itemsSort: 'dealsSort'
+    itemsSort: 'dealsSort',
+    updateTimeTracking: 'dealUpdateTimeTracking'
   },
   ticket: {
     boardsAdd: 'ticketBoardsAdd',
@@ -152,7 +153,8 @@ const PERMISSION_MAP = {
     pipelinesWatch: 'ticketPipelinesWatch',
     stagesEdit: 'ticketStagesEdit',
     stagesRemove: 'ticketStagesRemove',
-    itemsSort: 'ticketsSort'
+    itemsSort: 'ticketsSort',
+    updateTimeTracking: 'ticketUpdateTimeTracking'
   },
   task: {
     boardsAdd: 'taskBoardsAdd',
@@ -166,7 +168,8 @@ const PERMISSION_MAP = {
     pipelinesWatch: 'taskPipelinesWatch',
     stagesEdit: 'taskStagesEdit',
     stagesRemove: 'taskStagesRemove',
-    itemsSort: 'tasksSort'
+    itemsSort: 'tasksSort',
+    updateTimeTracking: 'taskUpdateTimeTracking'
   },
   growthHack: {
     boardsAdd: 'growthHackBoardsAdd',
