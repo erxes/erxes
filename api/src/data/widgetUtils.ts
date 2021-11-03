@@ -425,7 +425,6 @@ export const solveSubmissions = async (args: {
           submission.value &&
           submission.value.length > 0
         ) {
-          console.log(submission.value[0].url);
           companyDoc.avatar = submission.value[0].url;
           continue;
         }
@@ -555,7 +554,7 @@ export const solveSubmissions = async (args: {
     });
 
     companyDoc.scopeBrandIds = [integration.brandId || ''];
-    console.log('============================== ', companyDoc);
+
     if (!company) {
       company = await Companies.createCompany(companyDoc);
     }
