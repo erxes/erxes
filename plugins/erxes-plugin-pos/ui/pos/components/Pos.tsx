@@ -15,7 +15,7 @@ import {
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IIntegration, IPos, IProductGroup, IProductShema } from '../../types';
-import { LeftContent, Content, PreviewWrapper } from '../../styles';
+import { LeftContent, Content } from '../../styles';
 import ConfigStep from './step/ConfigStep';
 import GeneralStep from './step/GeneralStep';
 import { PLUGIN_URL } from '../../constants';
@@ -53,19 +53,11 @@ class Lead extends React.Component<Props, State> {
     const pos = props.pos || ({} as IPos);
 
     const uiOptions = pos.uiOptions || {
-      backgroundColors: {
+      colors: {
         bodyColor: '#FFFFFF',
         headerColor: '#6569DF',
         footerColor: '#3CCC38'
       },
-      tabColors: { defaultColor: '#FFFFFF', selectedColor: '#3CCC38' },
-      textColors: {
-        bodyTextColor: '#FFFFFF',
-        linkColor: '#0693e3',
-        linkHoverColor: '#6569DF',
-        linkPressedColor: '#002575'
-      },
-      buttonColors: { defaultColor: '#FFFFFF', pressedColor: '#3CCC38' },
       logo: '/images/erxes.png',
       bgImage: ''
     };
@@ -125,7 +117,7 @@ class Lead extends React.Component<Props, State> {
   };
 
   onChangeAppearance = (key: string, value: any) => {
-    let uiOptions = this.state.pos || {};
+    let uiOptions = this.state.uiOptions || {};
     let { pos } = this.state || {};
     uiOptions[key] = value;
 
@@ -162,7 +154,10 @@ class Lead extends React.Component<Props, State> {
       case 7:
         carousel = 'success';
         break;
+      default:
+        break;
     }
+
     return this.setState({ carousel });
   };
 
@@ -198,7 +193,6 @@ class Lead extends React.Component<Props, State> {
 
   render() {
     const { pos, groups, currentMode, uiOptions } = this.state;
-
     const { integration, formIntegrations } = this.props;
     const brand = integration && integration.brand;
     const breadcrumb = [

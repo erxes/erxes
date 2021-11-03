@@ -79,9 +79,12 @@ class Appearance extends React.Component<Props, State> {
   };
 
   renderUploadImage(id, title) {
+    const { uiOptions } = this.state;
+
     return (
       <SubItem>
         <ControlLabel>{title}</ControlLabel>
+        <img src={uiOptions[id]} alt={id} />
         <input id={id} type="file" onChange={this.handleLogoChange} />
       </SubItem>
     );
