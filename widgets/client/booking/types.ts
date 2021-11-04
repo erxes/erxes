@@ -4,12 +4,9 @@ export interface IStyle {
   itemShape?: string;
   widgetColor: string;
   productAvailable: string;
-  productUnavailable: string;
-  productSelected: string;
 
   textAvailable: string;
-  textUnavailable: string;
-  textSelected: string;
+  baseFont?: string;
 
   line?: string;
   columns?: string;
