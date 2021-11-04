@@ -124,6 +124,11 @@ export const commonFields = `
   order
   customFieldsData
   score
+  timeTrack {
+    status
+    timeSpent
+    startDate
+  }
 `;
 
 const stagesUpdateOrder = `
@@ -197,6 +202,12 @@ const conversationConvertToCard = `
   }
 `;
 
+const boardItemUpdateTimeTracking = `
+  mutation boardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int! $startDate: String) {
+    boardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
+  }
+`;
+
 export default {
   stagesUpdateOrder,
   pipelinesWatch,
@@ -207,5 +218,6 @@ export default {
   stagesEdit,
   stagesRemove,
   stagesSortItems,
-  conversationConvertToCard
+  conversationConvertToCard,
+  boardItemUpdateTimeTracking
 };

@@ -105,6 +105,7 @@ router.get(
 router.get(
   '/list',
   routeErrorHandling(async (req, res) => {
+    debugRequest(debugAutomations, req);
     const { page, perPage, status, searchValue } = req.query;
 
     const _limit = Number(perPage || '20');

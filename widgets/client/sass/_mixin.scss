@@ -43,9 +43,3 @@
   animation-iteration-count: $count;
   animation-timing-function: $timing;
 }
-@mixin rotate($angle) {
-  -moz-transform: rotate($angle);
-  -ms-transform: rotate($angle);
-  -webkit-transform: rotate($angle);
-  transform: rotate($angle);
-}

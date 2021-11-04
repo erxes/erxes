@@ -45,6 +45,12 @@ export interface IMessage {
   bookingWidgetData?: any;
 }
 
+export interface IResolveAllConversationParam {
+  status: string;
+  closedAt: Date;
+  closedUserId: string;
+}
+
 export interface IMessageDocument extends IMessage, Document {
   _id: string;
   engageData?: IEngageDataDocument;

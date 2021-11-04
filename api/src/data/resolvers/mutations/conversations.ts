@@ -24,12 +24,17 @@ import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../logUtils';
+import {
+  ACTIVITY_LOG_ACTIONS,
+  putActivityLog,
+  putUpdateLog
+} from '../../logUtils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils, { splitStr } from '../../utils';
 import QueryBuilder, { IListArgs } from '../queries/conversationQueryBuilder';
 import { itemsAdd } from './boardUtils';
+import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -76,11 +81,11 @@ const sendConversationToIntegrations = async (
       m.replace(regex, '$1')
     );
 
-    const attachments = doc.attachments as any[];
-
     images.forEach(img => {
-      attachments.push({ type: 'image', url: img });
+      doc.attachments.push({ type: 'image', url: img });
     });
+
+    const content = strip(doc.content);
 
     try {
       await messageBroker().sendRPCMessage(
@@ -91,7 +96,7 @@ const sendConversationToIntegrations = async (
           payload: JSON.stringify({
             integrationId,
             conversationId,
-            content: strip(doc.content),
+            content: content.replace(/&amp;/g, '&'),
             attachments: doc.attachments || [],
             tag: facebookMessageTag
           })
@@ -255,6 +260,15 @@ const sendNotifications = async ({
   }
 };
 
+const getConversationById = async selector => {
+  const oldConversations = await Conversations.find(selector).lean();
+  const oldConversationById = {};
+  for (const conversation of oldConversations) {
+    oldConversationById[conversation._id] = conversation;
+  }
+  return { oldConversationById, oldConversations };
+};
+
 // check booking convert
 const checkBookingConvert = async (productId: string) => {
   const product = await Products.getProduct({ _id: productId });
@@ -372,10 +386,14 @@ const conversationMutations = {
       customer.primaryPhone &&
       customer.phoneValidationStatus === 'valid'
     ) {
+      /**
+       * SMS part is limited to 160 characters, so we split long content by 160 characters.
+       * See below for details.
+       * https://developers.telnyx.com/docs/v2/messaging/configuration-and-limitations/character-and-rate-limits
+       */
       const chunks =
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
-      // tslint:disable-next-line:prefer-for-of
       for (let i = 0; i < chunks.length; i++) {
         await messageBroker().sendMessage(
           'erxes-api:integrations-notification',
@@ -507,6 +525,10 @@ const conversationMutations = {
     }: { conversationIds: string[]; assignedUserId: string },
     { user }: IContext
   ) {
+    const { oldConversationById } = await getConversationById({
+      _id: { $in: conversationIds }
+    });
+
     const conversations: IConversationDocument[] = await Conversations.assignUserConversation(
       conversationIds,
       assignedUserId
@@ -521,6 +543,19 @@ const conversationMutations = {
       type: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE
     });
 
+    for (const conversation of conversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'assignee Changed',
+          object: oldConversationById[conversation._id],
+          newData: { assignedUserId },
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
+
     return conversations;
   },
 
@@ -532,7 +567,10 @@ const conversationMutations = {
     { _ids }: { _ids: string[] },
     { user }: IContext
   ) {
-    const oldConversations = await Conversations.find({ _id: { $in: _ids } });
+    const {
+      oldConversations,
+      oldConversationById
+    } = await getConversationById({ _id: { $in: _ids } });
     const updatedConversations = await Conversations.unassignUserConversation(
       _ids
     );
@@ -546,6 +584,19 @@ const conversationMutations = {
     // notify graphl subscription
     publishConversationsChanged(_ids, 'assigneeChanged');
 
+    for (const conversation of updatedConversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'unassignee',
+          object: oldConversationById[conversation._id],
+          newData: { assignedUserId: '' },
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
+
     return updatedConversations;
   },
 
@@ -557,6 +608,10 @@ const conversationMutations = {
     { _ids, status }: { _ids: string[]; status: string },
     { user }: IContext
   ) {
+    const { oldConversationById } = await getConversationById({
+      _id: { $in: _ids }
+    });
+
     await Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
@@ -572,6 +627,19 @@ const conversationMutations = {
       type: NOTIFICATION_TYPES.CONVERSATION_STATE_CHANGE
     });
 
+    for (const conversation of updatedConversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'change status',
+          object: oldConversationById[conversation._id],
+          newData: { status },
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
+
     return updatedConversations;
   },
 
@@ -585,7 +653,31 @@ const conversationMutations = {
     await qb.buildAllQueries();
     const query = qb.mainQuery();
 
-    const updated = await Conversations.resolveAllConversation(query, user._id);
+    const { oldConversationById } = await getConversationById(query);
+    const param = {
+      status: CONVERSATION_STATUSES.CLOSED,
+      closedUserId: user._id,
+      closedAt: new Date()
+    };
+
+    const updated = await Conversations.resolveAllConversation(query, param);
+
+    const updatedConversations = await Conversations.find({
+      _id: { $in: Object.keys(oldConversationById) }
+    }).lean();
+
+    for (const conversation of updatedConversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'resolve all',
+          object: oldConversationById[conversation._id],
+          newData: param,
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
 
     return updated.nModified || 0;
   },
