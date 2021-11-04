@@ -8,12 +8,13 @@ import { TopHeader } from 'modules/common/styles/main';
 import { IRouterProps } from 'modules/common/types';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import { SidebarListItem } from 'modules/settings/styles';
+import { SidebarListItem, ActionButtons } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
 import { StyledUrl } from '../styles';
 import { ClientPortalConfig } from '../types';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   configs: ClientPortalConfig[];
@@ -47,11 +48,12 @@ function ClientPortalList({
               {config.name}
               <StyledUrl>{config.url}</StyledUrl>
             </FieldStyle>
-
-            <Tip text="Delete" placement="bottom">
+          </Link>
+          <ActionButtons>
+            <Tip text={__('Delete')} placement="bottom">
               <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
             </Tip>
-          </Link>
+          </ActionButtons>
         </SidebarListItem>
       );
     });
@@ -65,18 +67,22 @@ function ClientPortalList({
         uppercase={false}
         icon="plus-circle"
       >
-        New Client Portal
+        Add New Client Portal
       </Button>
     );
 
-    const content = _props => (
-      <ClientPortalDetailContainer queryParams="" history={history} />
+    const content = props => (
+      <ClientPortalDetailContainer
+        {...props}
+        queryParams=""
+        history={history}
+      />
     );
 
     return (
       <TopHeader>
         <ModalTrigger
-          size="lg"
+          size="xl"
           title="New Client Portal"
           trigger={addBrand}
           enforceFocus={false}
@@ -94,7 +100,10 @@ function ClientPortalList({
       </SidebarList>
       {loading && <Spinner />}
       {!loading && totalCount === 0 && (
-        <EmptyState image="/images/actions/18.svg" text="There is no brand" />
+        <EmptyState
+          image="/images/actions/18.svg"
+          text="There is no client portal"
+        />
       )}
     </LeftSidebar>
   );

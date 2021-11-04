@@ -50,7 +50,7 @@ export const PROPERTY_TYPES = {
   ],
 
   task: [
-    { label: 'task', value: 'task' },
+    { label: 'Task', value: 'task' },
     { label: 'Contact', value: 'customer' },
     { label: 'Company', value: 'company' },
     { label: 'Deal', value: 'deal' },
@@ -58,7 +58,7 @@ export const PROPERTY_TYPES = {
   ],
 
   ticket: [
-    { label: 'ticket', value: 'ticket' },
+    { label: 'Ticket', value: 'ticket' },
     { label: 'Contact', value: 'customer' },
     { label: 'Company', value: 'company' },
     { label: 'Deal', value: 'deal' },

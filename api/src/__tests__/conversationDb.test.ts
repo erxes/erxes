@@ -295,7 +295,14 @@ describe('Conversation db', () => {
 
   test('Resolve all conversation', async () => {
     // try closing ========================
-    const updated = await Conversations.resolveAllConversation({}, _user._id);
+    const updated = await Conversations.resolveAllConversation(
+      {},
+      {
+        status: CONVERSATION_STATUSES.CLOSED,
+        closedUserId: _user._id,
+        closedAt: new Date()
+      }
+    );
 
     const conversationObj = await Conversations.findOne({
       _id: _conversation._id

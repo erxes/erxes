@@ -18,6 +18,7 @@ import { IImportHistory } from '../types';
 import HistoryRow from './Row';
 import Sidebar from './Sidebar';
 import { Title } from 'modules/common/styles/main';
+import { Link } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -42,7 +43,9 @@ const DATA_IMPORT_TYPES = [
 const DYNAMICLY_TEMPLATE_TYPES = [
   'customer',
   'company',
-  'product',
+  'deal',
+  'task',
+  'ticket',
   'lead',
   'visitor'
 ];
@@ -218,7 +221,13 @@ class Histories extends React.Component<Props & IRouterProps> {
     };
 
     if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
-      return this.renderColumnChooser('export');
+      return (
+        <Link to={`/settings/export?type=${currentType}`}>
+          <Button icon="export" btnStyle="primary" size="small">
+            {__(`Export ${this.getButtonText()}`)}
+          </Button>
+        </Link>
+      );
     }
 
     return (

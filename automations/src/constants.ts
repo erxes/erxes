@@ -4,7 +4,8 @@ export const ACTIONS = {
   SET_PROPERTY: "setProperty",
   CREATE_TASK: "createTask",
   CREATE_TICKET: "createTicket",
-  CREATE_DEAL: "createDeal"
+  CREATE_DEAL: "createDeal",
+  CUSTOM_CODE: "customCode"
 };
 
 export const TRIGGER_TYPES = {

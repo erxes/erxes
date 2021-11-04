@@ -621,7 +621,7 @@ describe('User mutations', () => {
 
     const response = await graphqlRequest(mutation, 'logout', {}, { res });
 
-    expect(response).toBe('loggedout');
+    expect(response).toBe('token not found');
   });
 
   test('Reset member password', async () => {

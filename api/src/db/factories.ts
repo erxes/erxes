@@ -178,6 +178,7 @@ interface IUserFactoryInput {
   registrationTokenExpires?: Date;
   isSubscribed?: string;
   isShowNotification?: boolean;
+  validatedTokens?: string;
 }
 
 export const userFactory = async (
@@ -212,6 +213,7 @@ export const userFactory = async (
     deviceTokens: params.deviceTokens,
     isSubscribed: params.isSubscribed,
     isShowNotification: params.isShowNotification,
+    validatedTokens: params.validatedTokens,
     ...(params.code ? { code: params.code } : {})
   };
 
@@ -1260,7 +1262,7 @@ interface ITaskFactoryInput {
   customerIds?: string[];
 }
 
-const attachmentFactory = () => ({
+export const attachmentFactory = () => ({
   name: faker.random.word(),
   url: faker.image.imageUrl(),
   type: faker.system.mimeType(),
@@ -1436,6 +1438,7 @@ interface IProductFactoryInput {
   categoryId?: string;
   vendorId?: string;
   customFieldsData?: ICustomField[];
+  attachmentMore?: any[];
 }
 
 export const productFactory = async (params: IProductFactoryInput = {}) => {
@@ -1444,6 +1447,7 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     categoryId: params.categoryId || faker.random.word(),
     type: params.type || PRODUCT_TYPES.PRODUCT,
     customFieldsData: params.customFieldsData,
+    attachmentMore: params.attachmentMore,
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     code: await getUniqueValue(Products, 'code'),
@@ -1459,6 +1463,7 @@ interface IProductCategoryFactoryInput {
   name?: string;
   description?: string;
   parentId?: string;
+  status?: string;
   code?: string;
   order?: string;
 }
@@ -1470,6 +1475,7 @@ export const productCategoryFactory = async (
     name: params.name || faker.random.word(),
     description: params.description || faker.random.word(),
     parentId: params.parentId,
+    status: params.status,
     code: await getUniqueValue(ProductCategories, 'code', params.code),
     order: params.order || faker.random.word(),
     createdAt: new Date()

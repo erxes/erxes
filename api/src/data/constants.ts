@@ -267,6 +267,7 @@ export const MODULE_NAMES = {
   PRODUCT: 'product',
   PRODUCT_CATEGORY: 'productCategory',
   RESPONSE_TEMPLATE: 'responseTemplate',
+  CONVERSATION: 'conversation',
   TAG: 'tag',
   TASK: 'task',
   TICKET: 'ticket',

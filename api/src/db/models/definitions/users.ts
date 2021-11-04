@@ -50,6 +50,7 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  validatedTokens?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -107,7 +108,10 @@ export const userSchema = schemaHooksWrapper(
       type: String,
       unique: true,
       match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
+        /**
+         * RFC 5322 compliant regex. Taken from http://emailregex.com/
+         */
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         'Please fill a valid email address'
       ],
       label: 'Email'
@@ -133,6 +137,11 @@ export const userSchema = schemaHooksWrapper(
       type: [String],
       default: [],
       label: 'Device tokens'
+    }),
+    validatedTokens: field({
+      type: [String],
+      default: [],
+      label: 'Validated access tokens'
     }),
     code: field({ type: String }),
     doNotDisturb: field({

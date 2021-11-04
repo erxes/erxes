@@ -7,6 +7,7 @@ import {
   Fields,
   FormSubmissions,
   Permissions,
+  Segments,
   Tasks,
   Tickets,
   Users
@@ -24,13 +25,24 @@ import {
   Builder as CustomerBuildQuery,
   IListArgs as ICustomerListArgs
 } from '../coc/customers';
+import { fetchSegment } from '../segments/queryBuilder';
 import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
 const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
-  const { type, unlimited = false } = query;
+  const { type, unlimited = false, segment } = query;
 
   let data: any[] = [];
+
+  const boardItemsFilter: any = {};
+
+  const segmentObj = await Segments.findOne({ _id: segment }).lean();
+
+  if (segment) {
+    const itemIds = await fetchSegment(segmentObj);
+
+    boardItemsFilter._id = { $in: itemIds };
+  }
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
@@ -161,7 +173,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await Deals.find();
+      data = await Deals.find(boardItemsFilter);
 
       break;
     case MODULE_NAMES.TASK:
@@ -169,7 +181,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await Tasks.find();
+      data = await Tasks.find(boardItemsFilter);
 
       break;
     case MODULE_NAMES.TICKET:
@@ -177,7 +189,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await Tickets.find();
+      data = await Tickets.find(boardItemsFilter);
 
       break;
     case MODULE_NAMES.USER:

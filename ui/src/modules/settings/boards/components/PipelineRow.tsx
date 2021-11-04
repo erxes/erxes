@@ -129,7 +129,8 @@ class PipelineRow extends React.Component<Props, State> {
   render() {
     const { pipeline } = this.props;
     const { createdUser } = pipeline;
-    const labelStyle = pipeline.status === 'active' ? 'success' : 'warning';
+    const labelStyle =
+      !pipeline.status || pipeline.status === 'active' ? 'success' : 'warning';
 
     return (
       <tr>
@@ -138,8 +139,8 @@ class PipelineRow extends React.Component<Props, State> {
           <Label lblStyle={labelStyle}>{pipeline.status || 'active'}</Label>
         </td>
         <td>
-          <Icon icon="calender" />
           <DateWrapper>
+            <Icon icon="calender" />{' '}
             {dayjs(pipeline.createdAt.toString().split('T')[0]).format('ll')}
           </DateWrapper>
         </td>

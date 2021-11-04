@@ -334,9 +334,17 @@ export const fillCellValue = async (
       break;
 
     case 'tag':
-      const tag: ITagDocument | null = await Tags.findOne({ _id: item.tagId });
+      const tags: ITagDocument[] = await Tags.find({
+        _id: { $in: item.tagIds }
+      });
 
-      cellValue = tag ? tag.name : '';
+      let tagNames = '';
+
+      for (const tag of tags) {
+        tagNames = tagNames.concat(tag.name, ', ');
+      }
+
+      cellValue = tags ? tagNames : '';
 
       break;
 
