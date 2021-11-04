@@ -47,6 +47,10 @@ const TaskMainActionBar = (props: Props) => {
     viewType = 'list';
   }
 
+  if (window.location.href.includes('gantt')) {
+    viewType = 'gantt';
+  }
+
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
       const { currentBoard, currentPipeline } = props;
@@ -62,6 +66,7 @@ const TaskMainActionBar = (props: Props) => {
     const listLink = onFilterClick('list');
     const calendarLink = onFilterClick('calendar');
     const activityLink = onFilterClick('activity');
+    const ganttlink = onFilterClick('gantt');
 
     return (
       <ButtonGroup>
@@ -103,6 +108,14 @@ const TaskMainActionBar = (props: Props) => {
                 className={viewType === 'list' ? 'active' : ''}
               >
                 {__('List')}
+              </Link>
+            </li>
+            <li key="gantt">
+              <Link
+                to={ganttlink}
+                className={viewType === 'gantt' ? 'active' : ''}
+              >
+                {__('Gantt Timeline')}
               </Link>
             </li>
           </Dropdown.Menu>

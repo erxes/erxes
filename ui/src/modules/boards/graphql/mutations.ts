@@ -89,6 +89,7 @@ export const commonFields = `
     primaryPhone
     visitorContactInfo
   }
+  startDate
   closeDate
   description
   priority

@@ -9,28 +9,30 @@ import {
   ModeContainer,
   TimelineContainer
 } from 'modules/boards/styles/viewtype';
+import { withRouter } from 'react-router-dom';
+import Button from 'modules/common/components/Button';
 
 const config = {
   header: {
-    month: {
-      dateFormat: 'MMMM  YYYY',
+    top: {
       style: {
-        background: 'linear-gradient( grey, black)',
-        textShadow: '0.5px 0.5px black',
-        fontSize: 12
+        backgroundColor: '#63D2D6',
+        fontSize: 12,
+        color: '#393C40'
       }
     },
-    dayOfWeek: {
+    middle: {
       style: {
-        background: 'linear-gradient( orange, grey)',
-        fontSize: 9
-      }
-    },
-    dayTime: {
-      style: {
-        background: 'linear-gradient( grey, black)',
+        backgroundColor: 'lightgrey',
         fontSize: 9,
-        color: 'orange'
+        color: '#393C40'
+      }
+    },
+    bottom: {
+      style: {
+        background: 'white',
+        fontSize: 9,
+        color: '#393C40'
       },
       selectedStyle: {
         background: 'linear-gradient( #d011dd ,#d011dd)',
@@ -41,40 +43,40 @@ const config = {
   },
   taskList: {
     title: {
-      label: 'Task Todo',
+      label: 'Task Name',
       style: {
-        background: 'linear-gradient( grey, black)'
+        backgroundColor: '#63D2D6',
+        color: '#393C40'
       }
     },
     task: {
-      style: {
-        backgroundColor: 'grey',
-        color: 'white'
-      }
-    },
-    verticalSeparator: {
-      style: {
-        backgroundColor: '#fbf9f9'
-      },
-      grip: {
-        style: {
-          backgroundColor: 'red'
-        }
-      }
-    }
-  },
-  dataViewPort: {
-    rows: {
       style: {
         backgroundColor: 'white',
-        borderBottom: 'solid 0.5px silver'
+        color: 'black'
+      },
+      verticalSeparator: {
+        style: {
+          backgroundColor: '#fbf9f9'
+        },
+        grip: {
+          style: {
+            backgroundColor: 'red'
+          }
+        }
       }
     },
-    task: {
-      showLabel: true,
-      style: {
-        borderRadius: 1,
-        boxShadow: '2px 2px 8px #888888'
+    dataViewPort: {
+      rows: {
+        style: {
+          backgroundColor: 'white'
+        }
+      },
+      task: {
+        showLabel: true,
+        style: {
+          borderRadius: 5,
+          boxShadow: '2px 2px 8px #888888'
+        }
       }
     }
   }
@@ -86,10 +88,9 @@ class GanttChart extends Component<any, any> {
   constructor(props) {
     super(props);
     let result = Generator.generateData();
-    console.log(result);
     this.data = result.data;
     this.state = {
-      itemheight: 20,
+      itemheight: 30,
       data: [],
       selectedItem: null,
       timelineMode: 'month',
@@ -207,9 +208,9 @@ class GanttChart extends Component<any, any> {
     return (
       <GanttContainer>
         <NavContainer>
-          <ModeTitle>Full Demo</ModeTitle>
+          <ModeTitle>Gantt Timeline</ModeTitle>
           <OperationButtonContainer>
-            <div className="mode-button" onClick={this.addTask}>
+            <div onClick={this.addTask}>
               <svg height={30} width={30} viewBox="0 0 48 48">
                 <path
                   fill="silver"
@@ -217,7 +218,7 @@ class GanttChart extends Component<any, any> {
                 />
               </svg>
             </div>
-            <div className="mode-button" onClick={this.delete}>
+            <div onClick={this.delete}>
               <svg height={30} width={30} viewBox="0 0 48 48">
                 <path
                   fill="silver"
@@ -227,37 +228,36 @@ class GanttChart extends Component<any, any> {
             </div>
           </OperationButtonContainer>
           <ModeContainer>
-            <div
-              className="mode-container-item mode-container-item-left"
+            <Button
+              btnStyle="primary"
+              size="small"
               onClick={e => this.modeChange('day')}
-              style={this.getbuttonStyle('day')}
             >
               Day
-            </div>
-            <div
-              className="mode-container-item"
+            </Button>
+            <Button
+              btnStyle="primary"
+              size="small"
               onClick={e => this.modeChange('week')}
-              style={this.getbuttonStyle('week')}
             >
               Week
-            </div>
-            <div
-              className="mode-container-item"
+            </Button>
+            <Button
+              btnStyle="primary"
+              size="small"
               onClick={e => this.modeChange('month')}
-              style={this.getbuttonStyle('month')}
             >
               Month
-            </div>
-            <div
-              className="mode-container-item mode-container-item-right"
+            </Button>
+            <Button
+              btnStyle="primary"
+              size="small"
               onClick={e => this.modeChange('year')}
-              style={this.getbuttonStyle('year')}
             >
               Year
-            </div>
-            <div
-              className="mode-container-item mode-container-item-editable-toggle"
-              style={{ marginLeft: '20px' }}
+            </Button>
+            <Button
+              btnStyle="simple"
               onClick={() => {
                 this.setState({
                   nonEditableName: !this.state.nonEditableName
@@ -265,7 +265,7 @@ class GanttChart extends Component<any, any> {
               }}
             >
               {this.state.nonEditableName ? 'Enable' : 'Disable'} name edition
-            </div>
+            </Button>
           </ModeContainer>
         </NavContainer>
         <TimelineContainer>
@@ -288,4 +288,4 @@ class GanttChart extends Component<any, any> {
   }
 }
 
-export default GanttChart;
+export default withRouter(GanttChart);

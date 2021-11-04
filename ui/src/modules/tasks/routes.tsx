@@ -22,12 +22,6 @@ const MainActionBar = asyncComponent(() =>
   )
 );
 
-const GanttChart = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MainActionBar" */ '../boards/components/gantt/GanttChart'
-  )
-);
-
 const tasks = () => {
   let link = '/task/board';
 
@@ -57,6 +51,12 @@ const activity = ({ location }) => {
   return <TaskBoard viewType="activity" queryParams={queryParams} />;
 };
 
+const gantt = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="gantt" queryParams={queryParams} />;
+};
+
 const calendar = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -82,7 +82,7 @@ const routes = () => {
     <>
       <Route key="/task" exact={true} path="/task" render={tasks} />
 
-      <Route key="/gantt" exact={true} path="/gantt" component={GanttChart} />
+      <Route key="/gantt" exact={true} path="/gantt" component={gantt} />
 
       <Route
         key="/task/board"

@@ -44,7 +44,7 @@ export const GanttContainer = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  width: 100%;
+  margin: 20px;
   height: 100%;
 `;
 
@@ -54,21 +54,14 @@ export const TimelineContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  height: 500px;
-  margin: 10px;
+  height: 650px;
 `;
 
 export const NavContainer = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  background: -moz-linear-gradient(top, #eeeeee 0%, #cccccc 100%);
-  background: -webkit-linear-gradient(
-    top,
-    #eeeeee 0%,
-    #cccccc 100%
-  ); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #eeeeee 0%, #cccccc 100%);
+  background-color: ${colors.colorWhite};
   height: 50px;
   color: grey;
   align-items: center;
