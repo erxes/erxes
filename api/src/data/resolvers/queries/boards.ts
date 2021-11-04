@@ -415,18 +415,26 @@ const boardQueries = {
     const users = await Users.find({ _id: { $in: assignedUserIds } });
 
     const usersWithInfo: Array<{ name: string }> = [];
+    const countsByGroup = {};
+
+    for (const groupItem of groups) {
+      const countsByGroupItem = await collection.find({
+        status: BOARD_STATUSES.ACTIVE,
+        ...detailFilter(groupItem)
+      });
+
+      countsByGroup[groupItem.name || ''] = countsByGroupItem;
+    }
 
     for (const user of users) {
       const groupWithCount = {};
 
       for (const groupItem of groups) {
-        const count = await collection.countDocuments({
-          assignedUserIds: { $in: [user._id] },
-          status: BOARD_STATUSES.ACTIVE,
-          ...detailFilter(groupItem)
-        });
-
-        groupWithCount[groupItem.name || ''] = count;
+        groupWithCount[groupItem.name || ''] = countsByGroup[
+          groupItem.name || ''
+        ].filter(item =>
+          (item.assignedUserIds || []).includes(user._id)
+        ).length;
       }
 
       usersWithInfo.push({
