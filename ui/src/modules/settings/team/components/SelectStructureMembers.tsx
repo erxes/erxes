@@ -54,8 +54,8 @@ export default function SelectStructureMembers({
       onChange={onSelect}
       options={users.map(user => ({
         value: user._id,
-        label: (user.details && user.details.fullName) || user.email,
-        avatar: (user.details && user.details.avatar) || ''
+        label: user.details ? user.details.fullName || user.email : user.email,
+        avatar: user.details ? user.details.avatar : ''
       }))}
     />
   );
