@@ -21,6 +21,7 @@ export interface IUIOptions {
   colors: IColor;
   logo: string;
   bgImage: string;
+  favIcon: string;
 }
 
 type Props = {
@@ -130,6 +131,7 @@ class Appearance extends React.Component<Props, State> {
           <AppearanceRow>
             {this.renderUploadImage('logo', __('Logo'))}
             {this.renderUploadImage('bgImage', __('Background Image'))}
+            {this.renderUploadImage('favIcon', __('Favicon'))}
           </AppearanceRow>
           <FormGroup>
             <ControlLabel>{__('Colors')}</ControlLabel>
