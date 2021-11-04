@@ -92,7 +92,7 @@ class Appearance extends React.Component<Props, State> {
 
   renderPicker(group, key, title) {
     const { uiOptions } = this.props;
-    const color = uiOptions[group][key] || '';
+    const color = uiOptions[group] && uiOptions[group][key] ? uiOptions[group][key] : '';
 
     const onChangeColor = e => {
       uiOptions[group][key] = e.hex;
