@@ -3,19 +3,20 @@ name: Api CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "api/**"
-      - ".github/workflows/api.yaml"
+      - 'api/**'
+      - '.github/workflows/api.yaml'
   pull_request:
     branches:
       - master
       - develop
       - crons
       - workers
+      - property-booking
     paths:
-      - "api/**"
-      - ".github/workflows/api.yaml"
+      - 'api/**'
+      - '.github/workflows/api.yaml'
 
 jobs:
   api:
@@ -37,7 +38,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
         ports:
-        - 9200:9200
+          - 9200:9200
 
     steps:
       - uses: actions/checkout@v2
@@ -97,7 +98,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers' || github.ref == 'refs/heads/property-booking')
         env:
           BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
         run: |
