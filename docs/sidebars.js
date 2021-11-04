@@ -130,6 +130,7 @@ module.exports = {
         "components/Chip/chip",
         "components/EmptyState/emptystate",
         "components/ErrorMsg/errormsg",
+        "components/HelpPopOver/helppopover",
         "components/Icon/icon",
         "components/Info/info",
         "components/Label/label",
