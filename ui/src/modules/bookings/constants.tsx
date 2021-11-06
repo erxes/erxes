@@ -8,3 +8,12 @@ export const BOOKING_ITEM_SHAPE = {
     { label: 'Circle', value: 'circle' }
   ]
 };
+
+export const BOOKING_DISPLAY_BLOCK = {
+  HORIZONTALLY: 'horizontally',
+  VERTICALLY: 'vertically',
+  ALL_LIST: [
+    { label: 'Horizontally', value: 'horizontally' },
+    { label: 'Vertically', value: 'vertically' }
+  ]
+};

@@ -14,6 +14,7 @@ import { FlexItem as FlexItemContainer } from './style';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import Uploader from 'modules/common/components/Uploader';
 import { IField } from 'modules/settings/properties/types';
+import { BOOKING_DISPLAY_BLOCK } from 'modules/bookings/constants';
 
 type Name =
   | 'name'
@@ -146,13 +147,7 @@ function ContentStep({
             <FormGroup>
               <ControlLabel>Display blocks</ControlLabel>
               <Select
-                options={[
-                  { label: 'Horizontally', value: 'horizontally' },
-                  { label: 'Vertically', value: 'vertically' }
-                ].map(el => ({
-                  label: el.label,
-                  value: el.value
-                }))}
+                options={generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST)}
                 placeholder="Choose line"
                 value={line}
                 onChange={(e: any) => onChangeBooking('line', e ? e.value : '')}
