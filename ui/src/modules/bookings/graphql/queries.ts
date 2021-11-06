@@ -124,19 +124,9 @@ const integrationsTotalCount = `
   }
 `;
 
-const fields = `
-  query fields($contentType: String!) {
-    fields(contentType: $contentType) {
-      _id
-      text
-    }
-  }
-`;
-
 export default {
   productCategories,
   integrations,
   integrationDetail,
-  integrationsTotalCount,
-  fields
+  integrationsTotalCount
 };

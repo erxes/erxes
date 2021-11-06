@@ -18,8 +18,6 @@ import {
   EmailTemplatesTotalCountQueryResponse
 } from 'modules/settings/emailTemplates/containers/List';
 import { ILeadData } from 'modules/leads/types';
-import { queries } from '../graphql';
-import { FieldsQueryResponse } from 'modules/settings/properties/types';
 
 type Props = {
   history: any;
@@ -28,7 +26,6 @@ type Props = {
 type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
-  productFieldsQuery: FieldsQueryResponse;
 } & Props &
   IRouterProps &
   AddBookingIntegrationMutationResponse;
@@ -57,12 +54,7 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const {
-      addIntegrationMutation,
-      history,
-      emailTemplatesQuery,
-      productFieldsQuery
-    } = this.props;
+    const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
 
     const afterFormDbSave = (id: string) => {
       this.setState({ isReadyToSaveForm: false });
@@ -98,8 +90,7 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
       save,
       afterFormDbSave,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || [],
-      productFields: productFieldsQuery.fields || []
+      emailTemplates: emailTemplatesQuery.emailTemplates || []
     };
     return <Booking {...updatedProps} />;
   }
@@ -126,13 +117,5 @@ export default compose(
     AddBookingIntegrationMutationVariables
   >(gql(mutations.integrationsCreateBooking), {
     name: 'addIntegrationMutation'
-  }),
-  graphql<{}, FieldsQueryResponse>(gql(queries.fields), {
-    name: 'productFieldsQuery',
-    options: () => ({
-      variables: {
-        contentType: 'product'
-      }
-    })
   })
 )(withRouter<FinalProps>(CreateBookingContainer));

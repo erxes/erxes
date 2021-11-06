@@ -13,7 +13,6 @@ import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer } from './style';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import Uploader from 'modules/common/components/Uploader';
-import { IField } from 'modules/settings/properties/types';
 import { BOOKING_DISPLAY_BLOCK } from 'modules/bookings/constants';
 
 type Name =
@@ -44,8 +43,6 @@ type Props = {
   margin?: number;
   navigationText?: string;
   bookingFormText?: string;
-  productFields: IField[];
-  productFieldIds?: string[];
 };
 
 function ContentStep({
@@ -59,9 +56,7 @@ function ContentStep({
   rows,
   margin,
   navigationText,
-  bookingFormText,
-  productFields,
-  productFieldIds
+  bookingFormText
 }: Props) {
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
@@ -75,8 +70,8 @@ function ContentStep({
 
   const generateSelectOptions = options => {
     return options.map(option => ({
-      label: option.text || option.label,
-      value: option._id || option.value
+      label: option.label,
+      value: option.value
     }));
   };
 
@@ -243,30 +238,6 @@ function ContentStep({
     );
   };
 
-  const onChangeField = values => {
-    onChangeBooking('productFieldIds', values.map(item => item.value) || []);
-  };
-
-  const renderProductDetails = () => {
-    return (
-      <>
-        <FormGroup>
-          <SubHeading>{__('Product details')}</SubHeading>
-          <Description>
-            Select custom properties to display on the product detail page.
-          </Description>
-          <Select
-            options={generateSelectOptions(productFields)}
-            onChange={onChangeField}
-            placeholder="Select product details"
-            value={productFieldIds}
-            multi={true}
-          />
-        </FormGroup>
-      </>
-    );
-  };
-
   return (
     <FlexItemContainer>
       <LeftItem>
@@ -274,7 +245,6 @@ function ContentStep({
         {renderProductDetail()}
         {renderDisplayBlock()}
         {renderBookingFormText()}
-        {renderProductDetails()}
       </LeftItem>
     </FlexItemContainer>
   );
