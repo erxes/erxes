@@ -18,6 +18,7 @@ const bookingFields = `
 
   style
   displayBlock
+  productFieldIds
 
   
   mainProductCategory {

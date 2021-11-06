@@ -55,7 +55,7 @@ export const types = `
     mainProductCategory: ProductCategory
     navigationText: String
     bookingFormText: String
-    customFieldIds: [String]
+    productFieldIds: [String]
   }
 
   type integrationsTotalCount {
@@ -117,7 +117,7 @@ export const types = `
 
     navigationText: String
     bookingFormText: String
-    customFieldIds: [String]
+    productFieldIds: [String]
   }
 
   input MessengerOnlineHoursSchema {

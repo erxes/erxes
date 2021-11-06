@@ -190,6 +190,7 @@ function Booking(props: Props) {
         productCategoryId: booking.productCategoryId,
         navigationText: booking.navigationText,
         bookingFormText: booking.bookingFormText,
+        productFieldIds: booking.productFieldIds,
 
         style: {
           itemShape: booking.itemShape,
