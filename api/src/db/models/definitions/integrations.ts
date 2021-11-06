@@ -108,6 +108,7 @@ export interface IBookingData {
   viewCount?: number;
   navigationText?: string;
   bookingFormText?: string;
+  customFieldIds?: string[];
 }
 
 export interface IBookingDataDocument extends IBookingData, Document {
@@ -425,6 +426,11 @@ const bookingSchema = new Schema(
       type: String,
       optional: true,
       label: 'Booking form text'
+    }),
+    customFieldIds: field({
+      type: [String],
+      optional: true,
+      label: 'Custom fields'
     })
   },
   { _id: false }
