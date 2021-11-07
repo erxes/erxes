@@ -53,8 +53,6 @@ class CategoryDetail extends React.Component<Props, State> {
       );
     }
 
-    const sortedChilds = childs.sort((a, b) => a.name.localeCompare(b.name));
-
     const goNext = () => {
       const count: string = this.state.activeChild.count!;
       const status =
@@ -101,7 +99,7 @@ class CategoryDetail extends React.Component<Props, State> {
               />
             </div>
             <div className={`flex-cards right-sidebar`}>
-              {sortedChilds.map(el => {
+              {childs.map(el => {
                 return (
                   <React.Fragment key={el._id}>
                     <Card
