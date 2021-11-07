@@ -136,6 +136,7 @@ export interface ILeadData {
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
+  successImage?: string;
 }
 
 export interface IWebhookData {
@@ -356,6 +357,11 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Custom CSS'
+    }),
+    successImage: field({
+      type: String,
+      optional: true,
+      label: 'Success image'
     })
   },
   { _id: false }
