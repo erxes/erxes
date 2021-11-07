@@ -13,10 +13,14 @@ export default {
     }> = [];
 
     const generateTree = async (parentId: any) => {
-      const categories = await ProductCategories.find({ parentId });
+      const categories = await ProductCategories.find({ parentId }).sort({
+        name: 1
+      });
 
       if (categories.length === 0) {
-        const products = await Products.find({ categoryId: parentId });
+        const products = await Products.find({ categoryId: parentId }).sort({
+          name: 1
+        });
 
         for (const product of products) {
           tree.push({
