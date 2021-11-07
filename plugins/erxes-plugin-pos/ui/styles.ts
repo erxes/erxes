@@ -1,9 +1,6 @@
-import { dimensions, colors, ContentHeader } from 'erxes-ui';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-
-const coreSpace = `${dimensions.coreSpacing}px`;
-const unitSpace = `${dimensions.unitSpacing}px`;
+import { dimensions, colors, ContentHeader } from "erxes-ui";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 export const LoyaltyAmount = styled.div`
   font-weight: 800;
@@ -90,7 +87,7 @@ export const LeftContent = styled.div`
 `;
 
 const TabletPreview = styled.div`
-  background: url('/images/previews/tablet.png') no-repeat center center;
+  background: url("/images/previews/tablet.png") no-repeat center center;
   width: 768px;
   height: 1024px;
   margin: 0 auto;
@@ -127,7 +124,7 @@ export const PreviewWrapper = styled.div`
 export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${props => props.isActive && colors.bgActive};
+  background: ${(props) => props.isActive && colors.bgActive};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -161,7 +158,7 @@ export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 
   &:hover {
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: 35px;
@@ -229,8 +226,24 @@ export const ColorPicker = styled.div`
   border-radius: 2px;
 `;
 
+export const ColorPickerWrap = styled.div`
+  display: flex;
+  flex: 1;
+  margin-top: ${dimensions.unitSpacing}px;
+
+  > div {
+    padding-right: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+    margin-bottom: 0;
+  }
+`;
+
+export const ColorChooserTile = styled.div`
+  margin-bottom: ${dimensions.unitSpacing - 5}px;
+  font-size: 12px;
+`;
+
 export const SubItem = styled.div`
-  margin-bottom: ${coreSpace};
+  margin-bottom: ${dimensions.coreSpacing}px;
 
   img {
     background-color: ${colors.colorLightGray};
@@ -270,7 +283,7 @@ export const FullPreview = styled.div`
 `;
 
 export const DesktopPreview = styled.div`
-  background: url('/images/previews/desktop.png') no-repeat;
+  background: url("/images/previews/desktop.png") no-repeat;
   background-size: cover;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
@@ -278,4 +291,60 @@ export const DesktopPreview = styled.div`
   overflow: auto;
   padding-top: ${dimensions.headerSpacing - 20}px;
   margin-top: ${dimensions.coreSpacing}px;
+`;
+
+export const Block = styled.div`
+  border-bottom: 1px dashed ${colors.borderPrimary};
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  padding-bottom: ${dimensions.unitSpacing}px;
+
+  .Select {
+    min-width: 300px;
+  }
+
+  > h4 {
+    margin-bottom: ${dimensions.coreSpacing}px;
+    color: ${colors.colorPrimary};
+  }
+`;
+
+export const FlexRow = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  > div:first-child {
+    padding-right: ${dimensions.coreSpacing}px;
+  }
+`;
+
+export const LogoWrapper = styled.div`
+  width: ${dimensions.coreSpacing - 5}%;
+`;
+
+export const BlockRow = styled(FlexRow)`
+  align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  > label {
+    margin-right: 10px;
+  }
+
+  > div {
+    padding-right: ${dimensions.coreSpacing}px;
+    width: 33%;
+
+    &.description {
+      width: 50%;
+    }
+
+    .jJKBbS {
+      margin: 0;
+    }
+
+    @media (max-width: 1250px) {
+      flex: 1;
+    }
+  }
 `;

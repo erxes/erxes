@@ -2,26 +2,27 @@ import {
   FormGroup,
   ControlLabel,
   Button,
-  CollapseContent,
   Icon,
   Tip,
   ModalTrigger,
-  __
-} from 'erxes-ui';
-import { LeftItem } from 'erxes-ui/lib/components/step/styles';
-import React from 'react';
+  __,
+} from "erxes-ui";
+import { LeftItem } from "erxes-ui/lib/components/step/styles";
+import React from "react";
 import {
   ActionButtons,
   Description,
   FlexColumn,
-  FlexItem
-} from '../../../styles';
-import Select from 'react-select-plus';
-import { IPos, IProductGroup, IProductShema } from '../../../types';
-import GroupForm from '../../containers/productGroup/GroupForm';
+  FlexItem,
+  Block,
+  BlockRow,
+} from "../../../styles";
+import Select from "react-select-plus";
+import { IPos, IProductGroup, IProductShema } from "../../../types";
+import GroupForm from "../../containers/productGroup/GroupForm";
 
 type Props = {
-  onChange: (name: 'pos' | 'description' | 'groups', value: any) => void;
+  onChange: (name: "pos" | "description" | "groups", value: any) => void;
   pos?: IPos;
   groups: IProductGroup[];
   productSchemas: IProductShema[];
@@ -29,7 +30,7 @@ type Props = {
 
 type State = {
   groups: IProductGroup[];
-  currentMode: 'create' | 'update' | undefined;
+  currentMode: "create" | "update" | undefined;
 };
 
 class OptionsStep extends React.Component<Props, State> {
@@ -38,7 +39,7 @@ class OptionsStep extends React.Component<Props, State> {
 
     this.state = {
       groups: this.props.groups,
-      currentMode: undefined
+      currentMode: undefined,
     };
   }
 
@@ -49,7 +50,7 @@ class OptionsStep extends React.Component<Props, State> {
   onSubmitGroup = (group: IProductGroup) => {
     const { groups } = this.state;
 
-    const index = groups.findIndex(e => e._id === group._id);
+    const index = groups.findIndex((e) => e._id === group._id);
 
     if (index !== -1) {
       groups[index] = group;
@@ -57,23 +58,23 @@ class OptionsStep extends React.Component<Props, State> {
       groups.push(group);
     }
 
-    this.onChangeFunction('groups', groups);
+    this.onChangeFunction("groups", groups);
   };
 
   renderFormTrigger(trigger: React.ReactNode, group?: IProductGroup) {
-    const content = props => (
+    const content = (props) => (
       <GroupForm {...props} group={group} onSubmit={this.onSubmitGroup} />
     );
 
-    const title = group ? 'Edit group' : 'Add group';
+    const title = group ? "Edit group" : "Add group";
 
     return <ModalTrigger title={title} trigger={trigger} content={content} />;
   }
 
   renderEditAction(group: IProductGroup) {
     const trigger = (
-      <Button btnStyle="link" style={{ float: 'right' }}>
-        <Tip text={__('Edit')} placement="bottom">
+      <Button btnStyle="link" style={{ float: "right" }}>
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -86,14 +87,14 @@ class OptionsStep extends React.Component<Props, State> {
     const remove = () => {
       let { groups } = this.state;
 
-      groups = groups.filter(e => e._id !== group._id);
+      groups = groups.filter((e) => e._id !== group._id);
 
       this.setState({ groups });
-      this.onChangeFunction('groups', groups);
+      this.onChangeFunction("groups", groups);
     };
     return (
-      <Button btnStyle="link" onClick={remove} style={{ float: 'right' }}>
-        <Tip text={__('Remove')} placement="bottom">
+      <Button btnStyle="link" onClick={remove} style={{ float: "right" }}>
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -103,7 +104,7 @@ class OptionsStep extends React.Component<Props, State> {
   renderGroup(group) {
     return (
       <FormGroup key={group._id}>
-        <div style={{ display: 'flex' }}>
+        <BlockRow>
           <ControlLabel>
             {group.name}
             <Description>{group.description}</Description>
@@ -112,17 +113,17 @@ class OptionsStep extends React.Component<Props, State> {
             {this.renderEditAction(group)}
             {this.renderRemoveAction(group)}
           </ActionButtons>
-        </div>
+        </BlockRow>
       </FormGroup>
     );
   }
 
   render() {
-    const { pos } = this.props;
+    const { pos, productSchemas, groups } = this.props;
 
-    const onChangeDetail = options => {
-      pos.productDetails = options.map(e => e.value);
-      this.onChangeFunction('pos', pos);
+    const onChangeDetail = (options) => {
+      pos.productDetails = options.map((e) => e.value);
+      this.onChangeFunction("pos", pos);
     };
 
     const productDetails = pos ? pos.productDetails || [] : [];
@@ -137,33 +138,32 @@ class OptionsStep extends React.Component<Props, State> {
       <FlexItem>
         <FlexColumn>
           <LeftItem>
-            <CollapseContent title="Default Settings" open={true}>
+            <Block>
+              <h4>{__("Default Settings")}</h4>
               <FormGroup>
                 <ControlLabel>Product Details</ControlLabel>
                 <Description>
                   Select pos to display in the product card.
                 </Description>
                 <Select
-                  options={this.props.productSchemas.map(e => ({
+                  options={productSchemas.map((e) => ({
                     label: e.label,
-                    value: e.name
+                    value: e.name,
                   }))}
                   value={productDetails}
                   onChange={onChangeDetail}
                   multi={true}
                 />
               </FormGroup>
-            </CollapseContent>
-            <CollapseContent
-              title="Product Groups"
-              description="Select pos to display in the product category."
-            >
+            </Block>
+            <Block>
+              <h4>{__("Product Groups")}</h4>
               <FormGroup>
-                {this.props.groups.map(group => this.renderGroup(group))}
+                {groups.map((group) => this.renderGroup(group))}
               </FormGroup>
 
               {this.renderFormTrigger(trigger)}
-            </CollapseContent>
+            </Block>
           </LeftItem>
         </FlexColumn>
       </FlexItem>
