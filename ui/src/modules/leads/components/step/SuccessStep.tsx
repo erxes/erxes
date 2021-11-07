@@ -52,8 +52,6 @@ type Props = {
 type State = {
   successAction?: string;
   leadData?: ILeadData;
-  successImage?: string;
-  successPreviewStyle?: { opacity?: string };
 };
 
 class SuccessStep extends React.Component<Props, State> {
@@ -64,9 +62,7 @@ class SuccessStep extends React.Component<Props, State> {
 
     this.state = {
       successAction: leadData.successAction || FORM_SUCCESS_ACTIONS.ONPAGE,
-      leadData,
-      successImage: '',
-      successPreviewStyle: {}
+      leadData
     };
   }
 
@@ -331,7 +327,6 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   removeImage = () => {
-    this.setState({ successImage: '' });
     this.props.onChange('successImage', '');
   };
 
@@ -342,14 +337,11 @@ class SuccessStep extends React.Component<Props, State> {
       files: imageFile,
 
       beforeUpload: () => {
-        this.setState({ successPreviewStyle: { opacity: '0.9' } });
+        this.props.onChange('successPreviewStyle', { opacity: '0.9' });
       },
 
       afterUpload: ({ response }) => {
-        this.setState({
-          successImage: response,
-          successPreviewStyle: { opacity: '1' }
-        });
+        this.props.onChange('successPreviewStyle', { opacity: '1' });
 
         this.props.onChange('successImage', response);
       }
@@ -357,7 +349,7 @@ class SuccessStep extends React.Component<Props, State> {
   };
 
   renderImagePreview() {
-    const { successImage, successPreviewStyle } = this.state;
+    const { successImage, successPreviewStyle } = this.props;
 
     if (successPreviewStyle && successPreviewStyle.opacity === '0.9') {
       return <Spinner />;
