@@ -129,7 +129,7 @@ class PipelineRow extends React.Component<Props, State> {
   render() {
     const { pipeline } = this.props;
     const { createdUser } = pipeline;
-    const labelStyle = pipeline.status === 'active' ? 'success' : 'warning';
+    const labelStyle = pipeline.status === 'archived' ? 'warning' : 'success';
 
     return (
       <tr>

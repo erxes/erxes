@@ -100,3 +100,8 @@ export type IOption = {
   additionalButton?: string;
   additionalButtonText?: string;
 };
+
+export type IStaticLabel = {
+  name: string;
+  colorCode: string;
+};

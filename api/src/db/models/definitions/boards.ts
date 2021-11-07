@@ -80,6 +80,8 @@ export interface IPipeline extends ICommonFields {
   visibility?: string;
   condition?: string;
   memberIds?: string[];
+  labelStatus?: string;
+  staticLabels?: Array<{ name: string; colorCode: string }>;
   bgColor?: string;
   watchedUserIds?: string[];
   startDate?: Date;
@@ -114,6 +116,14 @@ export interface IOrderInput {
   _id: string;
   order: number;
 }
+
+export const staticLabelSchema = new Schema(
+  {
+    name: field({ type: String, label: 'name' }),
+    colorCode: field({ type: String, label: 'colorCode' })
+  },
+  { _id: false }
+);
 
 export const attachmentSchema = new Schema(
   {
@@ -250,6 +260,8 @@ export const pipelineSchema = new Schema({
     default: PIPELINE_CONDITION.INCLUDE,
     label: 'Condition'
   }),
+  labelStatus: field({ type: String, label: 'labelStatus' }),
+  staticLabels: field({ type: [staticLabelSchema], label: 'staticLabels' }),
   watchedUserIds: field({ type: [String], label: 'Watched users' }),
   memberIds: field({ type: [String], label: 'Members' }),
   bgColor: field({ type: String, label: 'Background color' }),

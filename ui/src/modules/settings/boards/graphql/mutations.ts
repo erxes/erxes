@@ -37,6 +37,8 @@ const commonPipelineParamsDef = `
   $type: String!,
   $visibility: String!,
   $condition: String!,
+  $labelStatus: String,
+  $staticLabels:[InputPipelineStaticLabel]
   $memberIds: [String],
   $bgColor: String,
   $startDate: Date,
@@ -55,6 +57,8 @@ const commonPipelineParams = `
   type: $type,
   visibility: $visibility,
   condition: $condition,
+  labelStatus: $labelStatus
+  staticLabels: $staticLabels
   memberIds: $memberIds,
   bgColor: $bgColor,
   hackScoringType: $hackScoringType,

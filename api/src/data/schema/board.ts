@@ -19,6 +19,8 @@ export const types = `
     boardId: String!
     visibility: String!
     condition: String
+    labelStatus: String
+    staticLabels  : [PipelineStaticLabel]
     memberIds: [String]
     members: [User]
     bgColor: String
@@ -76,6 +78,14 @@ export const types = `
     month: Int
     year: Int
   }
+  input InputPipelineStaticLabel{
+    name: String
+    colorCode: String
+  }
+  type PipelineStaticLabel{
+    name: String
+    colorCode: String
+  }
 `;
 
 const stageParams = `
@@ -122,7 +132,9 @@ const pipelineParams = `
   type: String!,
   stages: JSON,
   visibility: String!,
-  condition: String
+  condition: String,
+  labelStatus: String,
+  staticLabels:[InputPipelineStaticLabel]
   memberIds: [String],
   bgColor: String,
   startDate: Date,
@@ -130,7 +142,7 @@ const pipelineParams = `
   metric: String,
   hackScoringType: String,
   templateId: String,
-  isCheckUser: Boolean
+  isCheckUser: Boolean,
   excludeCheckUserIds: [String],
 `;
 

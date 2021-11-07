@@ -6,11 +6,13 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import { LinkButton, RemoveRow } from 'modules/settings/team/styles';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -18,7 +20,7 @@ import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
-import { IOption } from '../types';
+import { IOption, IStaticLabel } from '../types';
 import Stages from './Stages';
 
 type Props = {
@@ -39,8 +41,9 @@ type State = {
   stages: IStage[];
   visibility: string;
   condition: string;
-  label: string;
+  labelStatus: string;
   selectedMemberIds: string[];
+  staticLabels: IStaticLabel[];
   backgroundColor: string;
   isCheckUser: boolean;
   excludeCheckUserIds: string[];
@@ -57,8 +60,14 @@ class PipelineForm extends React.Component<Props, State> {
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       condition: pipeline ? pipeline.condition || 'include' : 'include',
-      label: pipeline ? pipeline.label || 'static' : 'static',
+      labelStatus: pipeline ? pipeline.labelStatus || 'dynamic' : 'dynamic',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
+      staticLabels: pipeline
+        ? (pipeline.staticLabels || []).map(e => ({
+            name: e.name,
+            colorCode: e.colorCode
+          }))
+        : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
@@ -77,9 +86,48 @@ class PipelineForm extends React.Component<Props, State> {
     });
   };
 
-  onChangeLabel = (e: React.FormEvent<HTMLElement>) => {
+  onChangeStaticLabelName = (i: number, e) => {
+    const labels = [...this.state.staticLabels];
+    labels[i].name = (e.target as HTMLInputElement).value;
+    this.setState({ staticLabels: labels });
+  };
+  onChangeStaticLabelColor = (i: number, e) => {
+    const labels = [...this.state.staticLabels];
+    labels[i].colorCode = (e.target as HTMLInputElement).value;
+    this.setState({ staticLabels: labels });
+  };
+
+  removeStaticLabel = (i: number) => {
+    const { staticLabels } = this.state;
+
     this.setState({
-      label: (e.currentTarget as HTMLInputElement).value
+      staticLabels: staticLabels.filter((item, index) => index !== i)
+    });
+  };
+
+  renderRemoveInput = (i: number) => {
+    const { staticLabels } = this.state;
+
+    if (staticLabels.length <= 0) {
+      return null;
+    }
+
+    return (
+      <RemoveRow onClick={this.removeStaticLabel.bind(this, i)}>
+        <Icon icon="times" />
+      </RemoveRow>
+    );
+  };
+
+  onAddMoreStaticLabel = () => {
+    this.setState({
+      staticLabels: [...this.state.staticLabels, { name: '', colorCode: '' }]
+    });
+  };
+
+  onChangeLabelStatus = (e: React.FormEvent<HTMLElement>) => {
+    this.setState({
+      labelStatus: (e.currentTarget as HTMLInputElement).value
     });
   };
 
@@ -119,7 +167,8 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds,
       boardId,
       condition,
-      label
+      labelStatus,
+      staticLabels
     } = this.state;
     const finalValues = values;
 
@@ -138,9 +187,53 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckUser,
       excludeCheckUserIds,
       condition,
-      label
+      labelStatus,
+      staticLabels
     };
   };
+
+  renderStaticLabels() {
+    const { labelStatus, staticLabels } = this.state;
+
+    if (labelStatus === 'dynamic') {
+      return;
+    }
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>Labels</ControlLabel>
+          {staticLabels.map((label, i) => {
+            return (
+              <FormGroup key={i}>
+                <FlexContent>
+                  <ControlLabel>Name</ControlLabel>
+                  <FormControl
+                    className="staticlabelpipeline"
+                    name="labelname"
+                    componentClass="input"
+                    value={label.name}
+                    onChange={this.onChangeStaticLabelName.bind(this, i)}
+                  />
+                  <ControlLabel>Color</ControlLabel>
+                  <FormControl
+                    name="labelcolor"
+                    componentClass="input"
+                    value={label.colorCode}
+                    onChange={this.onChangeStaticLabelColor.bind(this, i)}
+                  />
+                  {this.renderRemoveInput(i)}
+                </FlexContent>
+              </FormGroup>
+            );
+          })}
+          <LinkButton onClick={this.onAddMoreStaticLabel}>
+            <Icon icon="add" /> {__('Add label')}
+          </LinkButton>
+        </FormGroup>
+      </>
+    );
+  }
 
   renderSelectMembers() {
     const { visibility, selectedMemberIds } = this.state;
@@ -305,15 +398,16 @@ class PipelineForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexContent>
 
-          {/* <FormGroup>
+          <FormGroup>
             <ControlLabel required={true}>Label</ControlLabel>
 
             <FormGroup>
               <FormControl
-                name="Label"
+                name="labelStatus"
                 componentClass="radio"
                 value={'static'}
-                onChange={this.onChangeLabel}
+                onChange={this.onChangeLabelStatus}
+                checked={this.state.labelStatus === 'static'}
               >
                 {__('Static')}
                 <div>
@@ -322,18 +416,20 @@ class PipelineForm extends React.Component<Props, State> {
                 </div>
               </FormControl>
               <FormControl
-                name="Label"
+                name="labelStatus"
                 componentClass="radio"
                 value={'dynamic'}
-                onChange={this.onChangeLabel}
+                onChange={this.onChangeLabelStatus}
+                checked={this.state.labelStatus === 'dynamic'}
               >
                 {__('Dynamic')}
                 <div>
                   accepts any labels, users can manage labels from the card
                 </div>
               </FormControl>
+              {this.renderStaticLabels()}
             </FormGroup>
-          </FormGroup> */}
+          </FormGroup>
 
           <FormGroup>
             <ControlLabel required={true}>Visibility</ControlLabel>

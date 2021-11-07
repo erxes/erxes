@@ -26,6 +26,12 @@ const pipelines = `
       visibility
       memberIds
       condition
+      labelStatus
+      staticLabels{
+        name
+        colorCode
+      }
+      
       bgColor
       hackScoringType
       templateId
