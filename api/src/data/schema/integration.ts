@@ -79,6 +79,7 @@ export const types = `
     attachments: [AttachmentInput]
     css: String
     successImage: String
+    successImageSize: String
   }
 
   input BookingStyleInput {

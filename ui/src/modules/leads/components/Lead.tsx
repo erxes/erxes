@@ -147,6 +147,7 @@ class Lead extends React.Component<Props, State> {
       css: leadData.css || '',
 
       successImage: leadData.successImage || '',
+      successImageSize: leadData.successImageSize || '',
       successPreviewStyle: {}
     };
   }
@@ -206,7 +207,8 @@ class Lead extends React.Component<Props, State> {
         rules: (rules || []).filter(rule => rule.condition && rule.value),
         isRequireOnce: this.state.isRequireOnce,
         css: this.state.css,
-        successImage: this.state.successImage
+        successImage: this.state.successImage,
+        successImageSize: this.state.successImageSize
       }
     };
 
