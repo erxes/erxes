@@ -13,7 +13,7 @@ import {
   ticketFactory,
   userFactory
 } from '../db/factories';
-import { Boards, Deals, Pipelines, Stages } from '../db/models';
+import { Boards, Pipelines, Stages } from '../db/models';
 import * as elk from '../elasticsearch';
 
 import moment = require('moment');
