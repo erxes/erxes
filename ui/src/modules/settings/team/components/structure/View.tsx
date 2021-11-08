@@ -28,6 +28,9 @@ export default function View({ structure, showEdit }: Props) {
   };
 
   const { title, supervisor, description, code } = structure;
+  const supervisorName = supervisor.details
+    ? supervisor.details.fullName || supervisor.email
+    : supervisor.email;
 
   return (
     <Box
@@ -39,12 +42,7 @@ export default function View({ structure, showEdit }: Props) {
       <StructureList className="no-link">
         {renderRow('Name', title)}
         {renderRow('Description', description, true)}
-        {renderRow(
-          'Supervisor',
-          supervisor.details
-            ? supervisor.details.fullName || supervisor.email
-            : supervisor.email
-        )}
+        {renderRow('Supervisor', supervisorName)}
         {renderRow('Code', code)}
       </StructureList>
     </Box>
