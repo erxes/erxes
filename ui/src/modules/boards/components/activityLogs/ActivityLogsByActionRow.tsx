@@ -117,7 +117,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
         </AvatarSection>
         <InfoSection>{this.renderAllContent()}</InfoSection>
         <DateType>
-          {dayjs(activityLog.date).format('DD MMM YYYY, HH:mm')}
+          {dayjs(activityLog.createdAt).format('DD MMM YYYY, HH:mm')}
         </DateType>
       </ActivityList>
     );
