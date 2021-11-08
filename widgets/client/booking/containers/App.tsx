@@ -5,6 +5,7 @@ import { connection } from '../connection';
 import { saveBrowserInfo } from './utils';
 import { connection as formConnection } from '../../form/connection';
 import { IIntegration } from '../../types';
+import { setLocale } from '../../utils';
 
 type Props = {
   isPopupVisible: boolean;
@@ -15,12 +16,31 @@ type Props = {
   showPopup: () => void;
 };
 
-class AppContainer extends React.Component<Props> {
+class AppContainer extends React.Component<
+  Props,
+  { isTransationsLoaded: boolean }
+> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { isTransationsLoaded: false };
+  }
+
   componentDidMount() {
     saveBrowserInfo();
+
+    setLocale(connection.data.integration.languageCode, () => {
+      this.setState({ isTransationsLoaded: true });
+    });
   }
 
   render() {
+    const { isTransationsLoaded } = this.state;
+
+    if (!isTransationsLoaded) {
+      return null;
+    }
+
     const { isPopupVisible, integration } = this.props;
 
     const booking = integration.bookingData || {};

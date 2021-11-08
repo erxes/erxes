@@ -6,7 +6,6 @@ import { App } from './containers';
 
 import gql from 'graphql-tag';
 import { initStorage } from '../common';
-import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
 import { widgetsConnectMutation } from './graphql';
 import { IIntegration } from '../types';
@@ -45,9 +44,6 @@ widgetConnect({
 
     // save connection info
     connection.data.integration = response;
-
-    // set language
-    setLocale(response.languageCode || 'en');
   },
 
   AppContainer: App
