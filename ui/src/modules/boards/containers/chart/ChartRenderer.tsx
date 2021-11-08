@@ -43,7 +43,7 @@ export default function ChartRendererContainer({
   const assignees = data.itemsCountByAssignedUser.usersWithInfo || [];
 
   if (items.length === 0) {
-    return <EmptyState text="this data is empty" icon="piechart" />;
+    return <EmptyState text="No data" icon="piechart" />;
   }
 
   return (

@@ -355,17 +355,6 @@ const boardQueries = {
     };
 
     switch (stackBy) {
-      case 'stage': {
-        groups = stages.map(stage => ({
-          _id: stage._id,
-          name: stage.name
-        }));
-
-        detailFilter = (stage: IStageDocument) => ({ stageId: stage._id });
-
-        break;
-      }
-
       case 'priority': {
         groups = PRIORITIES.ALL;
 
@@ -381,10 +370,6 @@ const boardQueries = {
 
       case 'label': {
         const labels = await PipelineLabels.find({ pipelineId });
-
-        if (labels.length === 0) {
-          return {};
-        }
 
         groups = labels.map(label => ({
           _id: label._id,
@@ -409,6 +394,18 @@ const boardQueries = {
           closeDate: getCloseDateByType(value),
           stageId: { $in: stageIds }
         });
+
+        break;
+      }
+
+      // when stage
+      default: {
+        groups = stages.map(stage => ({
+          _id: stage._id,
+          name: stage.name
+        }));
+
+        detailFilter = (stage: IStageDocument) => ({ stageId: stage._id });
       }
     }
 
@@ -417,6 +414,10 @@ const boardQueries = {
     const assignedUserIds = await collection
       .find(filter)
       .distinct('assignedUserIds');
+
+    if (assignedUserIds.length === 0) {
+      return {};
+    }
 
     const users = await Users.find({ _id: { $in: assignedUserIds } });
 

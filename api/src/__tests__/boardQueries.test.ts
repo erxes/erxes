@@ -865,14 +865,13 @@ describe('boardQueries', () => {
       expect(response.groups).toHaveLength(1);
     });
 
-    test('When stackBy is label and there are no labels, then return empty object', async () => {
+    test('When no data, then return empty object', async () => {
       const pipelineNoLabels = await pipelineFactory({});
       await stageFactory({ pipelineId: pipelineNoLabels._id });
 
       const response = await graphqlRequest(qry, 'itemsCountByAssignedUser', {
         type: BOARD_TYPES.DEAL,
-        pipelineId: pipelineNoLabels._id,
-        stackBy: 'label'
+        pipelineId: pipelineNoLabels._id
       });
 
       expect(response).toStrictEqual({});
