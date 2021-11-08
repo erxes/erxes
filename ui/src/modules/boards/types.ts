@@ -374,6 +374,7 @@ export type ActivityLogsByActionQueryResponse = {
 
 export type Item = {
   name: string;
+  color: string;
 };
 
 export type Assignee = {

@@ -16,8 +16,12 @@ export default function ChartRenderer({ items, assignees, chartType }: Props) {
     case 'simpleBar': {
       return (
         <MainChart component={BarChart} data={assignees}>
-          {items.map((stage, index) => (
-            <Bar key={index} dataKey={stage.name} fill={getColors(index)} />
+          {items.map((item, index) => (
+            <Bar
+              key={index}
+              dataKey={item.name}
+              fill={item.color || getColors(index)}
+            />
           ))}
         </MainChart>
       );
@@ -31,9 +35,9 @@ export default function ChartRenderer({ items, assignees, chartType }: Props) {
               key={index}
               type="monotone"
               dataKey={item.name}
-              stroke={getColors(index)}
+              stroke={item.color || getColors(index)}
               stackId="1"
-              fill={getColors(index)}
+              fill={item.color || getColors(index)}
             />
           ))}
         </MainChart>
@@ -48,7 +52,7 @@ export default function ChartRenderer({ items, assignees, chartType }: Props) {
               key={index}
               type="monotone"
               dataKey={item.name}
-              stroke={getColors(index)}
+              stroke={item.color || getColors(index)}
               activeDot={{ r: 8 }}
             />
           ))}
@@ -59,12 +63,12 @@ export default function ChartRenderer({ items, assignees, chartType }: Props) {
     default: {
       return (
         <MainChart component={BarChart} data={assignees}>
-          {items.map((stage, index) => (
+          {items.map((item, index) => (
             <Bar
               key={index}
-              dataKey={stage.name}
+              dataKey={item.name}
               stackId="a"
-              fill={getColors(index)}
+              fill={item.color || getColors(index)}
             />
           ))}
         </MainChart>

@@ -367,9 +367,9 @@ const boardQueries = {
       }
 
       case 'priority': {
-        groups = PRIORITIES.ALL.map(p => ({ name: p }));
+        groups = PRIORITIES.ALL;
 
-        filter.priority = { $in: PRIORITIES.ALL };
+        filter.priority = { $in: PRIORITIES.ALL.map(p => p.name) };
 
         detailFilter = ({ name }: { name: string }) => ({
           priority: name,
@@ -380,13 +380,19 @@ const boardQueries = {
       }
 
       case 'label': {
-        groups = await PipelineLabels.find({ pipelineId });
+        const labels = await PipelineLabels.find({ pipelineId });
 
-        if (groups.length === 0) {
+        if (labels.length === 0) {
           return {};
         }
 
-        filter.labelIds = { $in: groups.map(g => g._id) };
+        groups = labels.map(label => ({
+          _id: label._id,
+          name: label.name,
+          color: label.colorCode
+        }));
+
+        filter.labelIds = { $in: labels.map(g => g._id) };
 
         detailFilter = (label: IPipelineLabelDocument) => ({
           labelIds: { $in: [label._id] },
@@ -419,6 +425,7 @@ const boardQueries = {
 
     for (const groupItem of groups) {
       const countsByGroupItem = await collection.find({
+        'assignedUserIds.0': { $exists: true },
         status: BOARD_STATUSES.ACTIVE,
         ...detailFilter(groupItem)
       });

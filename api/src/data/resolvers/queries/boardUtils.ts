@@ -17,6 +17,26 @@ import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
 
+export const getColors = (index: number) => {
+  const COLORS = [
+    '#EA475D',
+    '#3CCC38',
+    '#FDA50D',
+    '#63D2D6',
+    '#3B85F4',
+    '#0A1E41',
+    '#5629B6',
+    '#6569DF',
+    '#888888'
+  ];
+
+  if (index > 9) {
+    return COLORS[2];
+  }
+
+  return COLORS[index];
+};
+
 export interface IArchiveArgs {
   pipelineId: string;
   search: string;

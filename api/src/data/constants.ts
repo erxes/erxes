@@ -537,7 +537,15 @@ export const PRIORITIES = {
   HIGH: 'High',
   NORMAL: 'Normal',
   LOW: 'Low',
-  ALL: ['Critical', 'High', 'Normal', 'Low']
+  ALL: [
+    {
+      name: 'Critical',
+      color: '#EA475D'
+    },
+    { name: 'High', color: '#F7CE53' },
+    { name: 'Normal', color: '#3B85F4' },
+    { name: 'Low', color: '#AAAEB3' }
+  ]
 };
 
 export const CLOSE_DATE_TYPES = {
