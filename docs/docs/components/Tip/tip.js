@@ -24,18 +24,23 @@ export function TipComponent(props) {
         <div className={styles.styled}>
           {place.map((plc, index) => {
             return (
-              <Tip key={index} {...propDatas(placement, plc)}>
-                <Button> <p>{plc}</p><p>{plc}</p><p>{plc}</p> </Button>
+              <Tip key={index} {...propDatas(text, placement, plc)}>
+                <Button>
+                  {" "}
+                  <p>{plc}</p>
+                  <p>{plc}</p>
+                  <p>{plc}</p>{" "}
+                </Button>
               </Tip>
             );
           })}
         </div>
-        <br/>
+        <br />
         <CodeBlock className="language-jsx">
           {`<>${place.map((plc) => {
             return `\n\t<Tip ${stringify(
-              propDatas(placement, plc)
-            )} >${plc}</Tip>`;
+              propDatas(text, placement, plc)
+            )} >\n\t\t<Button><p>${plc}</p><p>${plc}</p><p>${plc}</p></Button>\n\t</Tip>`;
           })}\n</>`}
         </CodeBlock>
       </>

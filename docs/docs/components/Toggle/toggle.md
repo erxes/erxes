@@ -10,12 +10,18 @@ import { ToggleComponent } from "./toggle.js"
 <p>Simple toggle switch.</p>
 <ToggleComponent type="simple"></ToggleComponent>
 
+## Toggle switch icons
+
+<p>Define checked or unchecked icons by any type of <code>icons</code> prop.</p>
+<ToggleComponent type="icons"></ToggleComponent>
+
 ## Checked toggle switch
 
 <p>Not changeable toggle switch.</p>
 <ToggleComponent type="checked"></ToggleComponent>
 
-## Default checked switch
+
+## Default checked toggle switch
 
 <p>Changeable toggle switch with checked by default.</p>
 <ToggleComponent type="defaultChecked"></ToggleComponent>
@@ -29,11 +35,11 @@ import { ToggleComponent } from "./toggle.js"
 ## API
 
 <ToggleComponent type="ApiToggle" table={[
-  ['value', 'string', '', 'toggle value'],
-  ['name', 'string', '', 'toggle name'],
-  ['id', 'string', '', 'toggle id'],
-  ['checked', 'boolean', '', 'checked toggle'],
-  ['defaultChecked', 'boolean', '', 'default checked toggle'],
-  ['diabled', 'boolean', '', 'disabled toggle'],
-  ['icon', 'any', '', 'toggle icon'],  
+  ['value', 'string', '', 'Define toggle value'],
+  ['name', 'string', '', 'Define toggle name'],
+  ['id', 'string', '', 'Define toggle id'],
+  ['checked', 'boolean', '', 'Checked toggle'],
+  ['defaultChecked', 'boolean', '', 'Default checked toggle'],
+  ['disabled', 'boolean', '', 'Disabled toggle'],
+  ['icons', 'any', '', 'Toggle icon'], 
 ]}></ToggleComponent>
