@@ -5,6 +5,7 @@ import {
   Channels,
   Integrations,
   MessengerApps,
+  PipelineLabels,
   Products,
   Tags,
   Users
@@ -12,7 +13,7 @@ import {
 import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels',
+  type: 'users' | 'integrations' | 'brands' | 'channels' | 'pipelineLabels',
   selector: { [key: string]: any }
 ) => {
   const list = await getDocumentList(type, selector);
@@ -25,7 +26,14 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
+  type:
+    | 'users'
+    | 'integrations'
+    | 'brands'
+    | 'channels'
+    | 'tags'
+    | 'products'
+    | 'pipelineLabels',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);
@@ -63,6 +71,9 @@ export const getDocumentList = async (
       case 'tags': {
         list = await Tags.find().lean();
         break;
+      }
+      case 'pipelineLabels': {
+        list = await PipelineLabels.find().lean();
       }
     }
 

@@ -28,8 +28,12 @@ const pipelines = `
       condition
       labelStatus
       staticLabels{
+        _id
         name
         colorCode
+        pipelineId
+        createdBy
+        createdAt
       }
       
       bgColor
