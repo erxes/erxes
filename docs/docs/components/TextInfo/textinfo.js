@@ -16,7 +16,7 @@ export function TextInfoComponent(props) {
     return kind;
   };
 
-  const renderBlock = (propname, stl) => {
+  const renderBlock = (propname) => {
     return (
       <>
         {style.map((stl, index) => {
@@ -29,10 +29,9 @@ export function TextInfoComponent(props) {
           );
         })}
         <CodeBlock className="language-jsx">
-          {`<>${style.map((stl, index) => {
-            return `\n\t
-            <TextInfo ${stringify(
-              propDatas(propname, stl, index)
+          {`<>${style.map((stl) => {
+            return `\n\t<TextInfo ${stringify(
+              propDatas(propname, stl)
             )} >${stl}</TextInfo>`;
           })}\n</>`}
         </CodeBlock>
@@ -40,14 +39,15 @@ export function TextInfoComponent(props) {
     );
   };
 
-  if (type === "APItextinfo") {
-    return renderApiTable("TextInfo", table);
-  }
   if (type === "textStyle") {
     return renderBlock("textStyle");
   }
   if (type === "hugeness") {
     return renderBlock("hugeness");
   }
+  if (type === "APItextinfo") {
+    return renderApiTable("TextInfo", table);
+  }
+
   return null;
 }

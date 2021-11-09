@@ -13,28 +13,27 @@ import { TipComponent } from "./tip.js"
 
 ### Auto placement
 
-<TipComponent type="auto" txt="Text" place={['auto-start', 'auto', 'auto-end']}></TipComponent>
+<TipComponent type="auto" place={['auto-start', 'auto', 'auto-end']}></TipComponent>
 
 ### Top placement
 
-<TipComponent type="top" txt="Text" place={['top-start', 'top', 'top-end']}></TipComponent>
+<TipComponent type="top" place={['top-start', 'top', 'top-end']}></TipComponent>
 
 ### Right placement
 
-<TipComponent type="right" txt="Text" place={['right-start', 'right', 'right-end']}></TipComponent>
+<TipComponent type="right" place={['right-start', 'right', 'right-end']}></TipComponent>
 
 ### Bottom placement
 
-<TipComponent type="bottom" txt="Text" place={['bottom-end', 'bottom', 'bottom-start']}></TipComponent>
+<TipComponent type="bottom" place={['bottom-end', 'bottom', 'bottom-start']}></TipComponent>
 
 ### Left placement
 
-<TipComponent type="left" txt="Text" place={['left-end', 'left', 'left-start']}></TipComponent>
+<TipComponent type="left" place={['left-end', 'left', 'left-start']}></TipComponent>
 
 ## API
 
 <TipComponent type="APItip" table={[
-  ['text', 'string', '', 'tip text'],
-  ['children', 'node', '', 'container inside the tip'],
-  ['placement', 'auto-start | auto | auto-end | top-start | top | top-end | right-start | right | right-end | bottom-end | bottom | bottom-start | left-end | left | left-start', '', 'placement of tip']
+  ['text', 'string', '', 'Defines the tip text'],
+  ['placement', 'auto (auto | auto-start | auto-end) | top (top | top-start | top-end) | right (right | right-start | right-end) | bottom (bottom | bottom-start | bottom-end) | left (left | left-start | left-end)', 'auto', 'Set the placement of tip']
   ]}></TipComponent>

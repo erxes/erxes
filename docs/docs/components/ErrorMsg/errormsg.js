@@ -10,16 +10,16 @@ export function ErrorMsgComponent(props) {
   if (children) {
     return (
       <>
-        <ErrorMsg children={children} />
+        <ErrorMsg>{children}</ErrorMsg>
         <CodeBlock className="language-jsx">
-          {`<ErrorMsg children="${children}"/>`}
+          {`<ErrorMsg>${children}</ErrorMsg>`}
         </CodeBlock>
       </>
     );
   }
 
   if (table) {
-    return renderApiTable("ErrorMsg", table);
+    return renderApiTable("ErrorMsg");
   }
   
   return null;

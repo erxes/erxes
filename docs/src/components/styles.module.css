@@ -190,3 +190,7 @@ code {
 	border: none;
 	color: white;
 }
+
+.required {
+   color:red;
+}

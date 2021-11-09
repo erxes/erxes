@@ -57,14 +57,3 @@ export function ChipComponent(props) {
 
   return null;
 }
-// export function ChipComponent(props) {
-//   const handleClick = () => {
-//     document.getElementById("demo").innerHTML = "Hello World";
-//   };
-
-//   return (
-//     <>
-//       <Chip onClick={this.innerHTML = "Hello World"}>hhahah</Chip>
-//     </>
-//   );
-// };

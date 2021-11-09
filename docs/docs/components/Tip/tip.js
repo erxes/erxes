@@ -7,18 +7,18 @@ import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function TipComponent(props) {
-  const { txt, place = [], type, table = [] } = props;
+  const { place = [], type, table = [] } = props;
 
   const propDatas = (placement, plc) => {
     const kind = {
       [placement]: plc,
-      text: txt,
+      text: "Text",
     };
 
     return kind;
   };
 
-  const renderBlock = (placement, plc) => {
+  const renderBlock = (placement) => {
     return (
       <>
         <div className={styles.styled}>
@@ -32,7 +32,7 @@ export function TipComponent(props) {
         </div>
         <br/>
         <CodeBlock className="language-jsx">
-          {`<>${place.map((plc, index) => {
+          {`<>${place.map((plc) => {
             return `\n\t<Tip ${stringify(
               propDatas(placement, plc)
             )} >${plc}</Tip>`;

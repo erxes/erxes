@@ -4,26 +4,26 @@ import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../common.js";
 
 export function TimerComponent(props) {
-  const { id, taskstatus, time, startedAt, table = [], type } = props;
+  const { taskstatus, startedAt, table = [], type } = props;
 
-  const propDatas = (taskId, status, timeSpent, startDate) => {
+  const propDatas = () => {
     const datas = {
-      taskId: id,
+      taskId: "timerTask",
       status: taskstatus,
-      timeSpent: time,
+      timeSpent: "1000",
       startDate: startedAt,
     };
 
     return datas;
   };
 
-  const renderBlock = (taskId, status, timeSpent, startDate) => {
+  const renderBlock = () => {
     return (
       <>
-        <TaskTimer {...propDatas(taskId, status, timeSpent, startDate)} />
+        <TaskTimer {...propDatas()} />
         <CodeBlock className="language-jsx">
           {`<>\n\t<TaskTimer ${stringify(
-            propDatas(taskId, status, timeSpent, startDate)
+            propDatas()
           )} />\n</>`}
         </CodeBlock>
       </>
@@ -41,5 +41,5 @@ export function TimerComponent(props) {
     );
   }
 
-  return renderBlock("taskId", "status", "timeSpent", "startDate");
+  return renderBlock();
 }

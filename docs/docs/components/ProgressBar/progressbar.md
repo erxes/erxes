@@ -10,29 +10,28 @@ import { ProgressBarComponent } from "./progressbar.js"
 ## Percent
 
 <p>Add percentage by <code>percentage</code> prop. Add text by <code>children</code> prop. </p>
-<ProgressBarComponent percent={35} ></ProgressBarComponent>
+<ProgressBarComponent ></ProgressBarComponent>
 
 ## Color
 
-<p>Add color by <code>color</code> prop. </p>
-<ProgressBarComponent percent={35} colorOf="pink" ></ProgressBarComponent>
+<p>Set the custom color by <code>color</code> prop. </p>
+<ProgressBarComponent color="pink" ></ProgressBarComponent>
 
 ## Height
 
-<p>Add height by <code>height</code> prop. </p>
-<ProgressBarComponent percent={35} colorOf="pink" heights="20px"></ProgressBarComponent>
+<p>Set the custom height by <code>height</code> prop. </p>
+<ProgressBarComponent height="20px"></ProgressBarComponent>
 
-## Close text
+## Close
 
 <p>Add close text by <code>close</code> prop. </p>
-<ProgressBarComponent percent={35} colorOf="pink" closetext="Close text" heights="20px"></ProgressBarComponent>
+<ProgressBarComponent height="20px" close></ProgressBarComponent>
 
 ## API
 
 <ProgressBarComponent type="APIprogressbar" table={[
-  ['children', 'node', '', 'node that will come inside progress bar'],
-  ['close', 'node', '', 'close node outside of progress bar'],
-  ['percentage', 'number', '', 'percentage of progress bar'],
-  ['color', 'string', '#dddeff', 'color of progress'],
-  ['height', 'string', '36px', 'height of progress bar']
+  ['close', 'node', '', 'Displays the close element on bottom of the progress bar'],
+  ['* percentage', 'number', '', 'Sets percentage of the progress bar'],
+  ['color', 'string', '#dddeff', 'Sets color of the progress'],
+  ['height', 'string', '36px', 'Sets height of the progress bar']
 ]}></ProgressBarComponent>

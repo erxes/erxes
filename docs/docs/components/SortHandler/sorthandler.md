@@ -11,6 +11,6 @@ import { SortHandlerComponent } from "./sorthandler.js"
 ## API
 
 <SortHandlerComponent type="APIsorthandler" table={[
-  ['sortField', 'string', '', 'sort field'],
-  ['label', 'string', '', 'name of handler']
+  ['sortField', 'string', '', 'Sets the sort field'],
+  ['label', 'string', '', 'Defines the handler name']
 ]}></SortHandlerComponent>
