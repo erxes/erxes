@@ -9,6 +9,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IBranch } from '../../types';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
+import ContactInfoForm from '../common/ContactInfoForm';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -19,10 +20,19 @@ type Props = {
 
 export default function BranchForm(props: Props) {
   const { closeModal, renderButton, parentBranches } = props;
-  const object = props.branch || ({} as any);
+  const object = props.branch || ({} as IBranch);
 
   const [userIds, setUserIds] = useState(object.userIds || []);
-  const [parentId, setParentId] = useState(object.parentId);
+  const [parentId, setParentId] = useState(object.parentId || null);
+  const [links, setLinks] = useState(object.links || {});
+  const [image, setImage] = useState(object.image || null);
+
+  const coordinateObj = object.coordinate || {};
+
+  const [coordinate, setCoordinate] = useState({
+    longitude: coordinateObj.longitude || '',
+    latitude: coordinateObj.latitude || ''
+  });
 
   const generateDoc = values => {
     const finalValues = values;
@@ -34,6 +44,9 @@ export default function BranchForm(props: Props) {
     return {
       userIds,
       parentId,
+      links,
+      coordinate,
+      image,
       ...finalValues
     };
   };
@@ -96,6 +109,17 @@ export default function BranchForm(props: Props) {
             onSelect={setUserIds}
           />
         </FormGroup>
+
+        <ContactInfoForm
+          object={object}
+          formProps={formProps}
+          setLinks={setLinks}
+          links={links}
+          setCoordinate={setCoordinate}
+          coordinate={coordinate}
+          setImage={setImage}
+          image={image}
+        />
         <ModalFooter>
           <Button
             btnStyle="simple"

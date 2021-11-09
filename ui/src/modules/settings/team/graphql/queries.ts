@@ -18,6 +18,22 @@ const departmentField = `
   }
 `;
 
+const contactInfoFields = `
+  phoneNumber
+  email
+  links
+  coordinate {
+    longitude
+    latitude
+  }
+  image {
+    url
+    name
+    type
+    size
+  }
+`;
+
 const userDetail = `
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
@@ -111,19 +127,7 @@ const structureDetail = `
         }
       }
 
-      phoneNumber
-      email
-      links
-      coordinate {
-        longitude
-        latitude
-      }
-      image {
-        url
-        name
-        type
-        size
-      }
+      ${contactInfoFields}
     }
   }
 `;
@@ -205,6 +209,7 @@ const branchField = `
       fullName
     }
   }
+  ${contactInfoFields}
 `;
 
 const branches = `

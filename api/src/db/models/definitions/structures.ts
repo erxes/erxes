@@ -4,6 +4,7 @@ import { ILink } from './common';
 import { field, schemaWrapper } from './utils';
 
 const commonSchemaFields = {
+  code: field({ type: String, optional: true }),
   updatedBy: field({ type: String }),
   updatedAt: field({ type: Date }),
   createdBy: field({ type: String }),
@@ -46,7 +47,6 @@ export const structureSchema = schemaWrapper(
     title: field({ type: String }),
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
-    code: field({ type: String, optional: true }),
     ...contactInfoSchema,
     ...commonSchemaFields
   })
@@ -70,7 +70,6 @@ export const departmentSchema = schemaWrapper(
     title: field({ type: String }),
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
-    code: field({ type: String, optional: true }),
     parentId: field({ type: String }),
     userIds: field({ type: [String], label: 'Related users' }),
     ...commonSchemaFields
@@ -96,7 +95,6 @@ export const unitSchema = schemaWrapper(
     description: field({ type: String, optional: true }),
     departmentId: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
-    code: field({ type: String, optional: true }),
     userIds: field({ type: [String], label: 'Related users' }),
     ...commonSchemaFields
   })
@@ -118,10 +116,9 @@ export const branchSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     title: field({ type: String }),
-    address: field({ type: String }),
     parentId: field({ type: String, optional: true }),
-    code: field({ type: String, optional: true }),
     userIds: field({ type: [String], label: 'Related users' }),
+    ...contactInfoSchema,
     ...commonSchemaFields
   })
 );

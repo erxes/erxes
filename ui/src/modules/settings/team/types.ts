@@ -97,18 +97,21 @@ export interface IUnit extends IStructureCommon {
   users: IUser;
 }
 
-export interface IBranch extends IStructureCommon {
-  address: string;
-  parentId: string;
-  userIds: string[];
-  users: IUser;
-}
-
-export interface IStructure extends IStructureCommon {
-  description?: string;
+interface IContactInfo {
   phoneNumber?: string;
   email?: string;
   links?: any;
   coordinate?: any;
   image?: IAttachment;
+}
+
+export interface IBranch extends IStructureCommon, IContactInfo {
+  address: string;
+  parentId: string;
+  userIds: string[] | string;
+  users: IUser;
+}
+
+export interface IStructure extends IStructureCommon, IContactInfo {
+  description?: string;
 }

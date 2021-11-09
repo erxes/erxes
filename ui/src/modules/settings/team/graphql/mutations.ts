@@ -96,11 +96,7 @@ const userAddSkill = `
   }
 `;
 
-const commonStructureParamsDef = `
-  $title: String!
-  $description: String
-  $code: String
-  $supervisorId: String
+const commonContactInfoParamsDef = `
   $phoneNumber: String
   $email: String
   $links: JSON
@@ -108,16 +104,28 @@ const commonStructureParamsDef = `
   $image: AttachmentInput
 `;
 
-const commonStructureParams = `
-  title: $title
-  description: $description
-  code: $code
-  supervisorId: $supervisorId
+const commonContactInfoParams = `
   phoneNumber: $phoneNumber
   email: $email
   links: $links
   coordinate: $coordinate
   image: $image
+`;
+
+const commonStructureParamsDef = `
+  $title: String!
+  $description: String
+  $code: String
+  $supervisorId: String
+  ${commonContactInfoParamsDef}
+`;
+
+const commonStructureParams = `
+  title: $title
+  description: $description
+  code: $code
+  supervisorId: $supervisorId
+  ${commonContactInfoParams}
 `;
 
 const structuresAdd = `
@@ -223,6 +231,7 @@ const commonBranchParamsDef = `
   $code: String
   $parentId: String
   $userIds: [String]
+  ${commonContactInfoParamsDef}
 `;
 
 const commonBranchParams = `
@@ -232,6 +241,7 @@ const commonBranchParams = `
   code: $code
   supervisorId: $supervisorId
   userIds: $userIds
+  ${commonContactInfoParams}
 `;
 
 const branchesAdd = `

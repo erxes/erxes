@@ -1,3 +1,11 @@
+const commonContactInfoTypes = `
+    phoneNumber: String
+    email: String
+    links: JSON
+    coordinate: Coordinate
+    image: Attachment
+`;
+
 export const types = `
     type Structure {
         _id: String!
@@ -7,11 +15,7 @@ export const types = `
         supervisorId: String
         code: String
         
-        phoneNumber: String
-        email: String
-        links: JSON
-        coordinate: Coordinate
-        image: Attachment
+        ${commonContactInfoTypes}
     }
     
     type Department {
@@ -44,7 +48,6 @@ export const types = `
     type Branch {
         _id: String!
         title: String
-        address: String
         parentId: String
         supervisorId: String
         supervisor: User
@@ -53,6 +56,9 @@ export const types = `
         userIds: [String]
         parent: Branch
         children: [Branch]
+        
+        address: String
+        ${commonContactInfoTypes}
     }
 
     type Coordinate {
@@ -81,17 +87,22 @@ export const queries = `
     structureDetail: Structure
 `;
 
+const commonContactInfoParams = `
+    phoneNumber: String
+    email: String
+    links: JSON
+    coordinate: CoordinateInput
+    image: AttachmentInput
+`;
+
 const commonStructureParams = `
     title: String!
     description: String
     supervisorId: String
     code: String
     website: String
-    phoneNumber: String
-    email: String
-    links: JSON
-    coordinate: CoordinateInput
-    image: AttachmentInput
+    
+    ${commonContactInfoParams}
 `;
 
 const commonDepartmentParams = `
@@ -119,6 +130,8 @@ const commonBranchParams = `
     code: String
     parentId: String
     userIds: [String]
+
+    ${commonContactInfoParams}
 `;
 
 export const mutations = `
