@@ -146,6 +146,7 @@ export interface IIntegrationLeadData {
   isRequireOnce?: boolean;
   attachments?: IAttachment[];
   css?: string;
+  successImage?: string;
 }
 
 export interface IIntegrationUiOptions {
