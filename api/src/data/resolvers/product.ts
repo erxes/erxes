@@ -37,7 +37,7 @@ export default {
         { $project: { text: '$text' } }
       ]);
 
-      const { text } = field[0];
+      const { text = '' } = field[0];
 
       data.push({
         text,
