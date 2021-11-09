@@ -496,6 +496,7 @@ export const getItemList = async (
         stage: { $arrayElemAt: ['$stages_doc', 0] },
         name: 1,
         isComplete: 1,
+        startDate: 1,
         closeDate: 1,
         modifiedAt: 1,
         priority: 1,
