@@ -9,14 +9,31 @@ type Props = {
   type?: string;
   color: string;
   theme: string;
+  successImgSize?: string;
+  successImage?: string;
 };
 
 class SuccessPreview extends React.Component<Props, {}> {
   render() {
-    const { theme, color, thankTitle, thankContent, type } = this.props;
+    const {
+      theme,
+      color,
+      thankTitle,
+      thankContent,
+      type,
+      successImage,
+      successImgSize
+    } = this.props;
 
     return (
-      <CommonPreview title={thankTitle} theme={theme} color={color} type={type}>
+      <CommonPreview
+        title={thankTitle}
+        theme={theme}
+        color={color}
+        type={type}
+        image={successImage}
+        imgSize={successImgSize}
+      >
         <ThankContent>{thankContent}</ThankContent>
       </CommonPreview>
     );

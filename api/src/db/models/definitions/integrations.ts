@@ -104,6 +104,8 @@ export interface ILeadData {
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
+  successImage?: string;
+  successImageSize?: string;
 }
 
 export interface IWebhookData {
@@ -322,6 +324,16 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Custom CSS'
+    }),
+    successImage: field({
+      type: String,
+      optional: true,
+      label: 'Success image'
+    }),
+    successImageSize: field({
+      type: String,
+      optional: true,
+      label: 'Success image size'
     })
   },
   { _id: false }
@@ -380,7 +392,7 @@ export const integrationSchema = schemaHooksWrapper(
     // TODO: remove
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
-    uiOptions: field({ type: uiOptionsSchema }),
+    uiOptions: field({ type: uiOptionsSchema })
   }),
   'erxes_integrations'
 );
