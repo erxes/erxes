@@ -26,16 +26,6 @@ export default {
     return [];
   },
 
-  staticLabels(pipeline: IPipelineDocument, {}) {
-    if (pipeline.labelStatus === 'static') {
-      return getDocumentList('pipelineLabels', {
-        pipelineId: { $eq: pipeline._id }
-      });
-    }
-
-    return [];
-  },
-
   isWatched(pipeline: IPipelineDocument, _args, { user }: IContext) {
     const watchedUserIds = pipeline.watchedUserIds || [];
 
