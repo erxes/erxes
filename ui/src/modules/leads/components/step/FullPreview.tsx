@@ -36,6 +36,8 @@ type Props = {
   thankTitle?: string;
   thankContent?: string;
   skip?: boolean;
+  successImgSize?: string;
+  successImage?: string;
 };
 
 type State = {

@@ -5,7 +5,8 @@ import {
   __,
   checkLogicFulfilled,
   fixErrorMessage,
-  LogicParams
+  LogicParams,
+  readFile
 } from '../../utils';
 import { connection } from '../connection';
 import {
@@ -138,7 +139,7 @@ class Form extends React.Component<Props, State> {
 
     for (const field of requiredFields) {
       const value = this.state.doc[field._id].value;
-     
+
       if (this.state.doc[field._id].isHidden) {
         continue;
       }
@@ -413,13 +414,29 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSuccessForm(thankTitle?: string, thankContent?: string) {
+  renderSuccessForm(
+    thankTitle?: string,
+    thankContent?: string,
+    successImage?: string
+  ) {
     const { integration, form } = this.props;
+    if (!successImage) {
+      return null;
+    }
 
     return (
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
+          <div className="erxes-success-body">
+            <img
+              className="erxes-success-image"
+              onLoad={this.props.setHeight}
+              src={readFile(successImage)}
+              alt={thankTitle}
+            />
+          </div>
+
           <div className="erxes-result">
             <p>
               {thankContent ||
@@ -449,7 +466,8 @@ class Form extends React.Component<Props, State> {
         adminEmailContent,
         thankTitle,
         thankContent,
-        attachments
+        attachments,
+        successImage
       } = integration.leadData;
 
       // redirect to some url
@@ -492,7 +510,7 @@ class Form extends React.Component<Props, State> {
         }
       } // end successAction = "email"
 
-      return this.renderSuccessForm(thankTitle, thankContent);
+      return this.renderSuccessForm(thankTitle, thankContent, successImage);
     }
 
     return this.renderForm();

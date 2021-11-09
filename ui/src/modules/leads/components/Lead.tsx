@@ -84,6 +84,10 @@ type State = {
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
   css?: string;
+
+  successImage?: string;
+  successPreviewStyle?: { opacity?: string };
+  successImageSize?: string;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -140,7 +144,11 @@ class Lead extends React.Component<Props, State> {
 
       currentMode: undefined,
       currentField: undefined,
-      css: leadData.css || ''
+      css: leadData.css || '',
+
+      successImage: leadData.successImage || '',
+      successImageSize: leadData.successImageSize || '',
+      successPreviewStyle: {}
     };
   }
 
@@ -198,7 +206,9 @@ class Lead extends React.Component<Props, State> {
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),
         isRequireOnce: this.state.isRequireOnce,
-        css: this.state.css
+        css: this.state.css,
+        successImage: this.state.successImage,
+        successImageSize: this.state.successImageSize
       }
     };
 
@@ -291,7 +301,10 @@ class Lead extends React.Component<Props, State> {
       isRequireOnce,
       channelIds,
       css,
-      calloutImgSize
+      calloutImgSize,
+      successImage,
+      successImageSize,
+      successPreviewStyle
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
@@ -407,6 +420,9 @@ class Lead extends React.Component<Props, State> {
                   leadData={leadData}
                   formId={integration && integration.formId}
                   emailTemplates={emailTemplates ? emailTemplates : []}
+                  successImage={successImage}
+                  successPreviewStyle={successPreviewStyle}
+                  successImageSize={successImageSize}
                 />
               </Step>
             </Steps>
@@ -436,6 +452,8 @@ class Lead extends React.Component<Props, State> {
               carousel={carousel}
               formData={formData}
               calloutImgSize={calloutImgSize}
+              successImgSize={successImageSize}
+              successImage={successImage}
             />
           </PreviewWrapper>
         </Content>

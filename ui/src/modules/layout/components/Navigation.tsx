@@ -387,14 +387,6 @@ class Navigation extends React.Component<IProps> {
             [],
             lbl
           )}
-          {this.renderNavItem(
-            'showIntegrations',
-            __('Bookings'),
-            '/bookings',
-            'icon-home',
-            [],
-            lbl
-          )}
 
           {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
