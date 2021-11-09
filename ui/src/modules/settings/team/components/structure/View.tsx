@@ -27,7 +27,9 @@ export default function View({ structure, showEdit }: Props) {
     );
   };
 
-  const { title, supervisor, description, code } = structure;
+  const { title, description, code } = structure;
+  const supervisor = structure.supervisor || {};
+
   const supervisorName = supervisor.details
     ? supervisor.details.fullName || supervisor.email
     : supervisor.email;

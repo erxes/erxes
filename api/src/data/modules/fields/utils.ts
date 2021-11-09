@@ -793,8 +793,6 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  console.log('fields: ', fields);
-
   return fields.filter(field => !(excludedNames || []).includes(field.name));
 };
 
