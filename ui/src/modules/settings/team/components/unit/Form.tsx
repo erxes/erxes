@@ -100,7 +100,7 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('Department')}</ControlLabel>
+          <ControlLabel>{__('Department')}</ControlLabel>
           <Select
             placeholder={__('Choose department')}
             value={departmentId}
