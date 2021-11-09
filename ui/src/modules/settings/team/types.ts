@@ -1,4 +1,4 @@
-import { QueryResponse } from 'modules/common/types';
+import { QueryResponse, IAttachment } from 'modules/common/types';
 import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IUser, IUserDetails, IUserDoc, IUserLinks } from '../../auth/types';
 import { IConversation } from '../../inbox/types';
@@ -103,6 +103,12 @@ export interface IBranch extends IStructureCommon {
   userIds: string[];
   users: IUser;
 }
+
 export interface IStructure extends IStructureCommon {
   description?: string;
+  phoneNumber?: string;
+  email?: string;
+  links?: any;
+  coordinate?: any;
+  image?: IAttachment;
 }

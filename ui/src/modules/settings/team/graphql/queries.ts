@@ -110,6 +110,20 @@ const structureDetail = `
           ${detailFields}
         }
       }
+
+      phoneNumber
+      email
+      links
+      coordinate {
+        longitude
+        latitude
+      }
+      image {
+        url
+        name
+        type
+        size
+      }
     }
   }
 `;

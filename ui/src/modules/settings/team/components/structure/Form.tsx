@@ -9,6 +9,7 @@ import { IStructure } from '../../types';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
 import Box from 'modules/common/components/Box';
 import Button from 'modules/common/components/Button';
+import Uploader from 'modules/common/components/Uploader';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,6 +22,15 @@ export default function StructureForm(props: Props) {
   const object = structure || ({} as IStructure);
 
   const [supervisorId, setSupervisorId] = useState(object.supervisorId || '');
+  const [links, setLinks] = useState(object.links || {});
+  const [image, setImage] = useState(object.image || null);
+
+  const coordinateObj = object.coordinate || {};
+
+  const [coordinate, setCoordinate] = useState({
+    longitude: coordinateObj.longitude || '',
+    latitude: coordinateObj.latitude || ''
+  });
 
   const generateDoc = values => {
     const finalValues = values;
@@ -31,8 +41,31 @@ export default function StructureForm(props: Props) {
 
     return {
       supervisorId,
+      links,
+      coordinate,
+      image,
       ...finalValues
     };
+  };
+
+  const onChangeLink = e => {
+    const { name, value } = e.target;
+
+    setLinks({ ...links, [name]: value });
+  };
+
+  const onChangeCoordinate = e => {
+    const { name, value } = e.target;
+
+    setCoordinate({ ...coordinate, [name]: value });
+  };
+
+  const onChangeImage = images => {
+    if (images && images.length > 0) {
+      setImage(images[0]);
+    } else {
+      setImage(null);
+    }
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -72,6 +105,82 @@ export default function StructureForm(props: Props) {
             multi={false}
             initialValue={supervisorId}
             onSelect={value => setSupervisorId(value.toString())}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Phone number')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="phoneNumber"
+            defaultValue={object.phoneNumber}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Email')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="email"
+            defaultValue={object.email}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Longitude')}</ControlLabel>
+          <FormControl
+            name="longitude"
+            onChange={onChangeCoordinate}
+            defaultValue={coordinate.longitude}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Latitude')}</ControlLabel>
+          <FormControl
+            name="latitude"
+            onChange={onChangeCoordinate}
+            defaultValue={coordinate.latitude}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Website')}</ControlLabel>
+          <FormControl
+            name="website"
+            placeholder="https://example.com"
+            defaultValue={links.website}
+            onChange={onChangeLink}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Facebook')}</ControlLabel>
+          <FormControl
+            name="facebook"
+            placeholder="https://facebook.com"
+            defaultValue={links.facebook}
+            onChange={onChangeLink}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Twitter')}</ControlLabel>
+          <FormControl
+            name="twitter"
+            defaultValue={links.twitter}
+            placeholder="https://twitter.com"
+            onChange={onChangeLink}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Youtube')}</ControlLabel>
+          <FormControl
+            name="youtube"
+            defaultValue={links.youtube}
+            placeholder="https://youtube.com"
+            onChange={onChangeLink}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Image')}</ControlLabel>
+          <Uploader
+            defaultFileList={image ? [image] : []}
+            onChange={onChangeImage}
+            single={true}
           />
         </FormGroup>
         <ModalFooter>

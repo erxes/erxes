@@ -1,4 +1,6 @@
 import { Document, Schema } from 'mongoose';
+import { attachmentSchema } from './boards';
+import { ILink } from './common';
 import { field, schemaWrapper } from './utils';
 
 const commonSchemaFields = {
@@ -8,10 +10,30 @@ const commonSchemaFields = {
   createdAt: field({ type: Date, default: Date.now })
 };
 
+const CoordinateSchame = new Schema({
+  longitude: field({ type: String, optional: true }),
+  latitude: field({ type: String, optional: true })
+});
+
+const contactInfoSchema = {
+  website: field({ type: String, optional: true }),
+  phoneNumber: field({ type: String, optional: true }),
+  email: field({ type: String, optional: true }),
+  address: field({ type: String, optional: true }),
+  links: field({ type: Object, default: {}, label: 'Links' }),
+  coordinate: field({
+    type: CoordinateSchame,
+    optional: true,
+    label: 'Longitude and latitude'
+  }),
+  image: field({ type: attachmentSchema, optional: true })
+};
+
 export interface IStructure {
   title: string;
   description?: string;
   supervisorId?: string;
+  links?: ILink;
 }
 
 export interface IStructureDocument extends IStructure, Document {
@@ -25,6 +47,7 @@ export const structureSchema = schemaWrapper(
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
     code: field({ type: String, optional: true }),
+    ...contactInfoSchema,
     ...commonSchemaFields
   })
 );

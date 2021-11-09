@@ -101,6 +101,11 @@ const commonStructureParamsDef = `
   $description: String
   $code: String
   $supervisorId: String
+  $phoneNumber: String
+  $email: String
+  $links: JSON
+  $coordinate: CoordinateInput
+  $image: AttachmentInput
 `;
 
 const commonStructureParams = `
@@ -108,6 +113,11 @@ const commonStructureParams = `
   description: $description
   code: $code
   supervisorId: $supervisorId
+  phoneNumber: $phoneNumber
+  email: $email
+  links: $links
+  coordinate: $coordinate
+  image: $image
 `;
 
 const structuresAdd = `

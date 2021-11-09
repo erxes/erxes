@@ -6,6 +6,12 @@ export const types = `
         description: String
         supervisorId: String
         code: String
+        
+        phoneNumber: String
+        email: String
+        links: JSON
+        coordinate: Coordinate
+        image: Attachment
     }
     
     type Department {
@@ -48,6 +54,16 @@ export const types = `
         parent: Branch
         children: [Branch]
     }
+
+    type Coordinate {
+        longitude: String
+        latitude: String
+    }
+
+    input CoordinateInput {
+        longitude: String
+        latitude: String
+    }
 `;
 
 export const queries = `
@@ -70,6 +86,12 @@ const commonStructureParams = `
     description: String
     supervisorId: String
     code: String
+    website: String
+    phoneNumber: String
+    email: String
+    links: JSON
+    coordinate: CoordinateInput
+    image: AttachmentInput
 `;
 
 const commonDepartmentParams = `

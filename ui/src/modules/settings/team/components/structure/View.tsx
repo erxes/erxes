@@ -1,7 +1,7 @@
 import React from 'react';
 import { SidebarCounter } from 'modules/layout/styles';
 import { IStructure } from '../../types';
-import { __ } from 'modules/common/utils';
+import { __, readFile } from 'modules/common/utils';
 import Box from 'modules/common/components/Box';
 import Icon from 'modules/common/components/Icon';
 import { StructureList } from '../../styles';
@@ -27,8 +27,10 @@ export default function View({ structure, showEdit }: Props) {
     );
   };
 
-  const { title, description, code } = structure;
+  const { title, description, code, phoneNumber, email, image } = structure;
   const supervisor = structure.supervisor || {};
+  const links = structure.links || {};
+  const coordinate = structure.coordinate || {};
 
   const supervisorName = supervisor.details
     ? supervisor.details.fullName || supervisor.email
@@ -46,6 +48,19 @@ export default function View({ structure, showEdit }: Props) {
         {renderRow('Description', description, true)}
         {renderRow('Supervisor', supervisorName)}
         {renderRow('Code', code)}
+        {renderRow('Phone number', phoneNumber)}
+        {renderRow('Email', email)}
+        {renderRow('Longitude', coordinate.longitude)}
+        {renderRow('Latitude', coordinate.latitude)}
+        {renderRow('Website', links.website)}
+        {renderRow('Facebook', links.facebook)}
+        {renderRow('Twitter', links.twitter)}
+        {renderRow('Youtube', links.youtube)}
+        {image && (
+          <li>
+            <img src={readFile(image.url)} alt={image.name} width="100%" />
+          </li>
+        )}
       </StructureList>
     </Box>
   );
