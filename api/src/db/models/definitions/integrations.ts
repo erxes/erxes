@@ -392,7 +392,7 @@ export const integrationSchema = schemaHooksWrapper(
     // TODO: remove
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
-    uiOptions: field({ type: uiOptionsSchema }),
+    uiOptions: field({ type: uiOptionsSchema })
   }),
   'erxes_integrations'
 );

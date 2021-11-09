@@ -1151,6 +1151,7 @@ interface IDealFactoryInput {
   sourceConversationIds?: string[];
   companyIds?: string[];
   customerIds?: string[];
+  priority?: string;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1226,6 +1227,7 @@ export const dealFactory = async (
     probability: params.probability,
     searchText: params.searchText,
     sourceConversationIds: params.sourceConversationIds,
+    priority: params.priority,
     createdAt: new Date()
   };
 

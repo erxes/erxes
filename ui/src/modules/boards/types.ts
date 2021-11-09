@@ -371,3 +371,12 @@ export type ActivityLogsByActionQueryResponse = {
   activityLogsByAction: { activityLogs: IActivityLog[]; totalCount: number };
   totalCount: number;
 } & QueryResponse;
+
+export type Item = {
+  name: string;
+  color: string;
+};
+
+export type Assignee = {
+  [key: string]: number;
+};

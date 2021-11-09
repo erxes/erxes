@@ -69,6 +69,7 @@
     "react-to-print": "^2.13.0",
     "react-toggle": "^4.1.1",
     "react-transition-group": "^2.5.1",
+    "recharts": "^1.8.5",
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.20.1",
     "strip": "^3.0.0",
