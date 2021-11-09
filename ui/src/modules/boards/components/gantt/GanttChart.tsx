@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
 import TimeLine from 'react-gantt-timeline';
-import Generator from './Generator.js';
 import {
   GanttContainer,
   NavContainer,
@@ -11,6 +10,8 @@ import {
 } from 'modules/boards/styles/viewtype';
 import { withRouter } from 'react-router-dom';
 import Button from 'modules/common/components/Button';
+import { IOptions, IItem } from 'modules/boards/types';
+import { IRouterProps } from 'modules/common/types';
 
 const config = {
   header: {
@@ -82,26 +83,54 @@ const config = {
   }
 };
 
-class GanttChart extends Component<any, any> {
+type Props = {
+  length: number;
+  items: IItem[];
+  options: IOptions;
+  refetch: () => void;
+  groupType: string;
+} & IRouterProps;
+
+type State = {
+  itemheight: number;
+  data: any;
+  selectedItem: any;
+  timelineMode: string;
+  links: any;
+  nonEditableName: boolean;
+};
+
+class GanttChart extends React.Component<Props, State> {
   private data;
 
   constructor(props) {
     super(props);
-    let result = Generator.generateData();
-    this.data = result.data;
+
+    this.data = props.items.flatMap(item => {
+      if (item.startDate && item.closeDate) {
+        return {
+          id: item._id,
+          start: new Date(item.startDate),
+          end: new Date(item.closeDate),
+          name: item.name,
+          color: '#ccc'
+        };
+      }
+
+      return [];
+    });
+
+    console.log('this.data: ', this.data);
+
     this.state = {
       itemheight: 30,
       data: [],
       selectedItem: null,
       timelineMode: 'month',
-      links: result.links,
+      links: null,
       nonEditableName: false
     };
   }
-
-  handleDayWidth = e => {
-    this.setState({ daysWidth: parseInt(e.target.value) });
-  };
 
   handleItemHeight = e => {
     this.setState({ itemheight: parseInt(e.target.value) });
@@ -128,10 +157,10 @@ class GanttChart extends Component<any, any> {
     this.setState({ data: [...this.state.data] });
   };
 
-  onCreateLink = item => {
-    let newLink = Generator.createLink(item.start, item.end);
-    this.setState({ links: [...this.state.links, newLink] });
-  };
+  // onCreateLink = item => {
+  //   let newLink = Generator.createLink(item.start, item.end);
+  //   this.setState({ links: [...this.state.links, newLink] });
+  // };
 
   getbuttonStyle(value) {
     return this.state.timelineMode == value
@@ -276,7 +305,7 @@ class GanttChart extends Component<any, any> {
             onHorizonChange={this.onHorizonChange}
             onSelectItem={this.onSelectItem}
             onUpdateTask={this.onUpdateTask}
-            onCreateLink={this.onCreateLink}
+            // onCreateLink={this.onCreateLink}
             mode={this.state.timelineMode}
             itemheight={this.state.itemheight}
             selectedItem={this.state.selectedItem}

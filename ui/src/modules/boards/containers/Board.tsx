@@ -15,7 +15,7 @@ import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 import PipelineActivity from './PipelineActivity';
 import ListPipeline from './ListPipeline';
-import GanttChart from '../components/gantt/GanttChart';
+import GanttPipeline from './gantt/GanttPipeline';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -77,7 +77,14 @@ class Board extends React.Component<Props> {
     }
 
     if (viewType === 'gantt') {
-      return <GanttChart />;
+      return (
+        <GanttPipeline
+          key={pipeline._id}
+          options={options}
+          pipeline={pipeline}
+          queryParams={queryParams}
+        />
+      );
     }
 
     return (

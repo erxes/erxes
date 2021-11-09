@@ -58,6 +58,7 @@ export const commonListFields = `
   stage
   isComplete
   isWatched
+  startDate
   closeDate
   modifiedAt
   priority
@@ -89,7 +90,6 @@ export const commonFields = `
     primaryPhone
     visitorContactInfo
   }
-  startDate
   closeDate
   description
   priority
