@@ -261,6 +261,10 @@ export const extendViaPlugins = (
               );
             }
 
+            if (model.compoundIndexes) {
+              model.schema.index(model.compoundIndexes);
+            }
+
             allModels[model.name] = mongoose.model(
               model.name.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase(),
               model.schema
