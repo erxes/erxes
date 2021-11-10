@@ -416,6 +416,17 @@ describe('User mutations', () => {
     user = await graphqlRequest(
       mutation,
       'usersEdit',
+      { _id: _user._id, ...doc, channelIds: [] },
+      { user: _admin }
+    );
+    channel = await Channels.getChannel(_channel._id);
+
+    expect(channel.memberIds).not.toContain(user._id);
+
+    // if channelIds is undefined
+    user = await graphqlRequest(
+      mutation,
+      'usersEdit',
       { _id: _user._id, ...doc, channelIds: undefined },
       { user: _admin }
     );
