@@ -128,6 +128,7 @@ module.exports = {
         "components/BreadCrumb/breadcrumbs",
         "components/Button/buttons",
         "components/Chip/chip",
+        "components/CollapseContent/collapsecontent",
         "components/DatawithLoader/datawithloader",
         "components/EmptyState/emptystate",
         "components/ErrorMsg/errormsg",

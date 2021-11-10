@@ -6,12 +6,12 @@ import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function DatawithLoaderComponent(props) {
-  const { counter, text, image, sizes, type, table=[] } = props;
+  const { counter, text, image, sizes, type, table = [] } = props;
 
-  const propDatas = (loading, objective, propName, propImage, count, size ) => {
+  const propDatas = (loading, objective, propName, propImage, count, size) => {
     const kind = {
       data: "This is data",
-      loading: loading ? true: false,
+      loading: loading ? true : false,
       [objective]: objective && true,
       [propName]:
         propName === "emptyText" ||
@@ -29,7 +29,12 @@ export function DatawithLoaderComponent(props) {
   };
 
   const renderBlock = (
-    loading, objective, propName, propImage, count, size
+    loading,
+    objective,
+    propName,
+    propImage,
+    count,
+    size
   ) => {
     return (
       <>
@@ -48,18 +53,18 @@ export function DatawithLoaderComponent(props) {
   };
 
   if (type === "loadtrue") {
-    return renderBlock("loading", "objective" );
+    return renderBlock("loading", "objective");
   }
 
-  if (type === "loadingcontent"){
-    return renderBlock("loading", "objective", "loadingContent" );
+  if (type === "loadingcontent") {
+    return renderBlock("loading", "objective", "loadingContent");
   }
   if (type === "loadfalse") {
     return renderBlock("");
   }
 
   if (type === "count") {
-    return renderBlock("","", "emptyContent", "", "count");
+    return renderBlock("", "", "emptyContent", "", "count");
   }
 
   if (type === "emptystate") {
@@ -67,7 +72,7 @@ export function DatawithLoaderComponent(props) {
   }
 
   if (type === "APIdatewithloader") {
-    return renderApiTable("DataWithLoader",table);
+    return renderApiTable("DataWithLoader", table);
   }
 
   return null;

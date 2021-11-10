@@ -3,7 +3,9 @@ import SortableList from "erxes-ui/lib/components/SortableList";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../common.js";
 
-export function SortableListComponent() {
+export function SortableListComponent(props) {
+  const { type, table = [] } = props;
+
   const arrays = ["Name", "Age", "School"];
 
   const propDatas = () => {
@@ -28,10 +30,10 @@ export function SortableListComponent() {
   const onChangeFields = (array) => {
     let scr = source.name;
     let dest = destination.name;
-    let extra ;
-    src => extra; 
-    dest => src;
-    extra => dest;
+    let extra;
+    (src) => extra;
+    (dest) => src;
+    (extra) => dest;
   };
 
   const renderBlock = () => {
@@ -45,9 +47,23 @@ export function SortableListComponent() {
           onChangeFields={onChangeFields}
           droppableId="droppable"
         />
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<SortableList
+          fields={propDatas()}
+          child={child}
+          // isDragDisabled={true}
+          // showDragHandler={false}
+          onChangeFields={onChangeFields}
+          droppableId="droppable"
+        /> \n</>`}
+        </CodeBlock>
       </>
     );
   };
+
+  if (type === "APIsortablelist") {
+    return renderApiTable("Sortablelist", table);
+  }
 
   return renderBlock("");
 }
