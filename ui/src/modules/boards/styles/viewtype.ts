@@ -1,6 +1,17 @@
+import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
-import { dimensions } from 'modules/common/styles';
-import { colors } from 'modules/common/styles';
+
+export const EmptyWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+
+  .ant-empty-description {
+    margin-top: 20px;
+  }
+`;
 
 export const RowFill = styled.div`
   display: flex;

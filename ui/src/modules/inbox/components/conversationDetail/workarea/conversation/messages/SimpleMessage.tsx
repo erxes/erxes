@@ -50,9 +50,9 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       return null;
     }
 
-    return attachments.map((attachment, index) => (
-      <Attachment key={index} attachment={attachment} simple={true} />
-    ));
+    return attachments.map((attachment, index) => {
+      return <Attachment key={index} attachment={attachment} simple={true} />;
+    });
   }
 
   renderVideoCallRequest() {

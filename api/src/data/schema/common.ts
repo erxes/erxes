@@ -14,6 +14,12 @@ export const types = `
   input InputRule {
     ${ruleFields}
   }
+
+  type TimeTrack {
+    status: String,
+    timeSpent: Int,
+    startDate: String
+  }
 `;
 
 export const conformityQueryFields = `
@@ -52,6 +58,7 @@ export const commonTypes = `
   createdUser: User
   customFieldsData: JSON
   score: Float
+  timeTrack: TimeTrack
 `;
 
 export const commonMutationParams = `

@@ -12,6 +12,7 @@ import { getCollection } from '../../../db/models/boardUtils';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { CLOSE_DATE_TYPES } from '../../constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
@@ -25,6 +26,52 @@ export interface IArchiveArgs {
 
 const contains = (values: string[]) => {
   return { $in: values };
+};
+
+export const getCloseDateByType = (closeDateType: string) => {
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
+    const tommorrow = moment().add(1, 'days');
+
+    return {
+      $gte: new Date(tommorrow.startOf('day').toISOString()),
+      $lte: new Date(tommorrow.endOf('day').toISOString())
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_WEEK) {
+    const monday = moment()
+      .day(1 + 7)
+      .format('YYYY-MM-DD');
+    const nextSunday = moment()
+      .day(7 + 7)
+      .format('YYYY-MM-DD');
+
+    return {
+      $gte: new Date(monday),
+      $lte: new Date(nextSunday)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_MONTH) {
+    const now = new Date();
+    const { start, end } = getNextMonth(now);
+
+    return {
+      $gte: new Date(start),
+      $lte: new Date(end)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NO_CLOSE_DATE) {
+    return { $exists: false };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.OVERDUE) {
+    const now = new Date();
+    const today = getToday(now);
+
+    return { $lt: today };
+  }
 };
 
 export const generateCommonFilters = async (
@@ -122,49 +169,7 @@ export const generateCommonFilters = async (
   }
 
   if (closeDateType) {
-    if (closeDateType === 'nextDay') {
-      const tommorrow = moment().add(1, 'days');
-
-      filter.closeDate = {
-        $gte: new Date(tommorrow.startOf('day').toISOString()),
-        $lte: new Date(tommorrow.endOf('day').toISOString())
-      };
-    }
-
-    if (closeDateType === 'nextWeek') {
-      const monday = moment()
-        .day(1 + 7)
-        .format('YYYY-MM-DD');
-      const nextSunday = moment()
-        .day(7 + 7)
-        .format('YYYY-MM-DD');
-
-      filter.closeDate = {
-        $gte: new Date(monday),
-        $lte: new Date(nextSunday)
-      };
-    }
-
-    if (closeDateType === 'nextMonth') {
-      const now = new Date();
-      const { start, end } = getNextMonth(now);
-
-      filter.closeDate = {
-        $gte: new Date(start),
-        $lte: new Date(end)
-      };
-    }
-
-    if (closeDateType === 'noCloseDate') {
-      filter.closeDate = { $exists: false };
-    }
-
-    if (closeDateType === 'overdue') {
-      const now = new Date();
-      const today = getToday(now);
-
-      filter.closeDate = { $lt: today };
-    }
+    filter.closeDate = getCloseDateByType(closeDateType);
   }
 
   if (startDate) {

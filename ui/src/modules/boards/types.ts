@@ -49,7 +49,6 @@ export interface IOptions {
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
-    updateTimeTrackMutation?: string;
   };
   texts: {
     addText: string;
@@ -372,3 +371,12 @@ export type ActivityLogsByActionQueryResponse = {
   activityLogsByAction: { activityLogs: IActivityLog[]; totalCount: number };
   totalCount: number;
 } & QueryResponse;
+
+export type Item = {
+  name: string;
+  color: string;
+};
+
+export type Assignee = {
+  [key: string]: number;
+};

@@ -744,7 +744,7 @@ export const CUSTOMER_SELECT_OPTIONS = {
 
 export const DEFAULT_CONSTANT_VALUES = {
   sex_choices: DEFAULT_SEX_CHOICES,
-  company_industry_types: DEFAULT_COMPANY_INDUSTRY_TYPES.map((v) => ({
+  company_industry_types: DEFAULT_COMPANY_INDUSTRY_TYPES.map(v => ({
     label: v,
     value: v
   })),
