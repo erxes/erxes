@@ -11,17 +11,17 @@ import { UploaderComponent } from "./uploader.js"
 <UploaderComponent multi={true} />
 
 <p>Choose only one file</p>
-<UploaderComponent multi={false}></UploaderComponent>
+<UploaderComponent multi={false} />
 
 ## Limit
 
 <p>Set limit to files</p>
-<UploaderComponent lmt={2}></UploaderComponent>
+<UploaderComponent lmt={2} />
 
 ## Single
 
 <p></p>
-<UploaderComponent singl={true}></UploaderComponent>
+<UploaderComponent singl={true} />
 
 ## API
 
@@ -29,4 +29,4 @@ import { UploaderComponent } from "./uploader.js"
   ['single', 'boolean', '', 'single prop'],
   ['multiple', 'boolean', 'true', 'define choose one file or multiple file'],
   ['limit', 'number', '4', 'limit of how many file to choose']
-]}></UploaderComponent>
+]} />

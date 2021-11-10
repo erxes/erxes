@@ -10,13 +10,12 @@ import { TextInfoComponent } from "./textinfo.js"
 
 ## Size
 
-<p>Change size by <code>huganess</code> prop. </p>
+<p>Add <code>huganess</code> for additional sizes</p>
 <TextInfoComponent  type="hugeness" style={["big", "small"]}></TextInfoComponent>
 
 ## API
 
 <TextInfoComponent type="APItextinfo" table={[
-['children', 'node', '', 'text or text container'],
 ['textStyle', 'string', 'default', 'put style to text'],
 ['hugeness', 'string', 'small', 'choose hugeness of the text']
 ]}></TextInfoComponent>

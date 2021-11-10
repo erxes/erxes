@@ -76,6 +76,7 @@ export function CardComponent(props) {
     return (
     <>
       <CodeBlock className="language-javascript">{`import Namecard from "erxes-ui/lib/components/namecard/Namecard";`}</CodeBlock>
+      <p className={styles.required}>* required prop</p>
       <Table>
         <thead>
           <tr>
@@ -86,11 +87,16 @@ export function CardComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td rowSpan="2">user</td>
+            <td rowSpan="3">* user</td>
+            <td colSpan="2">* username</td>
+            <td>string</td>
+            <td>Defines the username</td>
+          </tr>
+          <tr>
             <td>details</td>
             <td>fullName</td>
             <td>string</td>
-            <td>Fullname object of user. If you have details and username, it will only show detail</td>
+            <td>Fullname object of user. If you have both "details" and "username", it will only show "details"</td>
           </tr>
           <tr>
             <td colSpan="2">email</td>

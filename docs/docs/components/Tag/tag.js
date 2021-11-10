@@ -1,7 +1,6 @@
 import React from "react";
 import Tags from "erxes-ui/lib/components/Tags";
 import CodeBlock from "@theme/CodeBlock";
-import { stringify } from "../common.js";
 import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../../src/components/styles.module.css";
 
@@ -65,6 +64,8 @@ function TagComponent(props) {
 function ApiTable() {
   return (
     <>
+      <CodeBlock className="language-javascript">{`import Tags from "erxes-ui/lib/components/Tags";`}</CodeBlock>
+      <p className={styles.required}>* required prop</p>
       <Table>
         <thead>
           <tr>
@@ -75,25 +76,25 @@ function ApiTable() {
         </thead>
         <tbody>
           <tr>
-            <td rowSpan="8">tag</td>
-            <td>_id</td>
+            <td rowSpan="8">* tags</td>
+            <td>* _id</td>
             <td>string</td>
-            <td>id</td>
+            <td>Defines the id</td>
           </tr>
           <tr>
-            <td>type</td>
+            <td>* type</td>
             <td>string</td>
-            <td>type</td>
+            <td>Defines the type</td>
           </tr>
           <tr>
-            <td>name</td>
+            <td>* name</td>
             <td>string</td>
-            <td>name</td>
+            <td>Defines the name</td>
           </tr>
           <tr>
-            <td>colorCode</td>
+            <td>* colorCode</td>
             <td>string</td>
-            <td>colorCode</td>
+            <td>Set the tag color</td>
           </tr>
           <tr>
             <td>objectCount</td>
@@ -118,12 +119,12 @@ function ApiTable() {
           <tr>
             <td colSpan="2">size</td>
             <td>string</td>
-            <td>size</td>
+            <td>Set the size</td>
           </tr>
           <tr>
             <td colSpan="2">limit</td>
             <td>number</td>
-            <td>limit number of tags to show</td>
+            <td>Limit number of tags to show</td>
           </tr>
         </tbody>
       </Table>

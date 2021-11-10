@@ -23,7 +23,6 @@ import { LabelComponent } from './label.js'
 ## API
 
 <LabelComponent type="APIlabel" table={[
-    ['lblStyle', 'default | primary | success | danger | warning | simple', 'default', 'label style'],
-    ['lblColor', 'string', '', 'your own color'],
-    ['children', 'string', '', 'declare value inside tag'],
+    ['lblStyle', 'default | primary | success | danger | warning | simple', 'default', 'Styles label'],
+    ['lblColor', 'string', '', 'Gives custom color'],
 ]} />

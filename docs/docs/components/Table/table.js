@@ -28,11 +28,11 @@ export function TableComponent(props) {
         <div className={styles.styled}>
           <Table {...propDatas(propName)}>
             <thead>
-              <tr>
-                <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Username</th>
+              <tr key="-1">
+                <th key="0">#</th>
+                <th key="1">First Name</th>
+                <th key="2">Last Name</th>
+                <th key="3">Username</th>
               </tr>
             </thead>
             <tbody>

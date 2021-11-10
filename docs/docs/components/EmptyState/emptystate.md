@@ -31,7 +31,7 @@ import { EmptyComponents } from './emptystate.js'
 ## API
 
 <EmptyComponents type="APIempty" table={[
-    ['text', 'string', "", 'Shows your text. If you want to show only text, use it with light prop'],
+    ['* text', 'string', "", 'Shows your text. If you want to show only text, use it with light prop'],
     ['icon', 'string', "", 'Shows icon'],
     ['image', 'string', "", 'Shows image'],
     ['size', 'string', "", 'Changes the size of icon'],

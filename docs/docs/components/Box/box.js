@@ -51,6 +51,7 @@ export function BoxComponent(props) {
             </div>
           </Box>
         </div>
+        
         <CodeBlock className="language-jsx">
           {`<>\n\t<Button ${stringify(
               propDatas(propName, extra)
