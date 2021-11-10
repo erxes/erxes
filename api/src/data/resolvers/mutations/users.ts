@@ -8,6 +8,7 @@ import {
   IUser
 } from '../../../db/models/definitions/users';
 import messageBroker from '../../../messageBroker';
+import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -76,7 +77,8 @@ const userMutations = {
       purpose: string;
       lastName?: string;
       subscribeEmail?: boolean;
-    }
+    },
+    { user }: IContext
   ) {
     const userCount = await Users.countDocuments();
 
@@ -93,7 +95,7 @@ const userMutations = {
       }
     };
 
-    const user = await Users.createUser(doc);
+    const newUser = await Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
@@ -133,9 +135,19 @@ const userMutations = {
     await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'addUserId',
       payload: {
-        _id: user._id
+        _id: newUser._id
       }
     });
+
+    await putCreateLog(
+      {
+        type: 'user',
+        description: 'create user',
+        object: newUser,
+        newData: doc
+      },
+      user
+    );
 
     return 'success';
   },
@@ -208,8 +220,9 @@ const userMutations = {
   /*
    * Update user
    */
-  async usersEdit(_root, args: IUsersEdit) {
+  async usersEdit(_root, args: IUsersEdit, { user }: IContext) {
     const { _id, channelIds, ...doc } = args;
+    const userOnDb = await Users.getUser(_id);
 
     const updatedUser = await Users.updateUser(_id, doc);
 
@@ -217,6 +230,17 @@ const userMutations = {
     await Channels.updateUserChannels(channelIds || [], _id);
 
     await resetPermissionsCache();
+
+    await putUpdateLog(
+      {
+        type: 'user',
+        description: 'edit profile',
+        object: userOnDb,
+        newData: doc,
+        updatedDocument: updatedUser
+      },
+      user
+    );
 
     return updatedUser;
   },
@@ -250,12 +274,26 @@ const userMutations = {
       throw new Error('Invalid password. Try again');
     }
 
-    return Users.editProfile(user._id, {
+    const doc = {
       username,
       email,
       details,
       links
-    });
+    };
+    const updatedUser = Users.editProfile(user._id, doc);
+
+    await putUpdateLog(
+      {
+        type: 'user',
+        description: 'edit profile',
+        object: userOnDb,
+        newData: doc,
+        updatedDocument: updatedUser
+      },
+      user
+    );
+
+    return updatedUser;
   },
 
   /*
@@ -270,7 +308,18 @@ const userMutations = {
       throw new Error('You can not delete yourself');
     }
 
-    return Users.setUserActiveOrInactive(_id);
+    const updatedUser = await Users.setUserActiveOrInactive(_id);
+    await putUpdateLog(
+      {
+        type: 'user',
+        description: 'changed status',
+        object: updatedUser,
+        updatedDocument: updatedUser
+      },
+      user
+    );
+
+    return updatedUser;
   },
 
   /*
@@ -287,7 +336,8 @@ const userMutations = {
         groupId: string;
         channelIds?: string[];
       }>;
-    }
+    },
+    { user }: IContext
   ) {
     for (const entry of entries) {
       await Users.checkDuplication({ email: entry.email });
@@ -302,6 +352,16 @@ const userMutations = {
       );
 
       sendInvitationEmail({ email: entry.email, token });
+
+      await putCreateLog(
+        {
+          type: 'user',
+          description: 'invited user',
+          object: createdUser,
+          newData: createdUser || {}
+        },
+        user
+      );
     }
 
     await resetPermissionsCache();
@@ -349,6 +409,15 @@ const userMutations = {
       }
     });
 
+    await putUpdateLog(
+      {
+        type: 'user',
+        description: 'confirm invitation',
+        object: user,
+        updatedDocument: user
+      },
+      user
+    );
     return user;
   },
 
