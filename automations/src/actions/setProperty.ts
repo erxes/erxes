@@ -114,7 +114,8 @@ export const setProperty = async ({ triggerType, actionConfig, target }) => {
     company: 'Companies',
     deal: 'Deals',
     task: 'Tasks',
-    ticket: 'Tickets'
+    ticket: 'Tickets',
+    user: 'Users'
   }
 
   try {

@@ -77,6 +77,12 @@ const list = ({ location }) => {
   return <DealBoard viewType="list" queryParams={queryParams} />;
 };
 
+const chart = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="chart" queryParams={queryParams} />;
+};
+
 const conversion = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -113,6 +119,12 @@ const routes = () => {
         component={activity}
       />
       <Route key="deals/list" exact={true} path="/deal/list" component={list} />
+      <Route
+        key="deals/chart"
+        exact={true}
+        path="/deal/chart"
+        component={chart}
+      />
     </React.Fragment>
   );
 };

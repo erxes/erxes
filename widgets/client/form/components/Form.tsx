@@ -428,6 +428,7 @@ class Form extends React.Component<Props, State> {
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
+<<<<<<< HEAD
           <div className="erxes-callout-body">
             <img
               onLoad={this.props.setHeight}
@@ -436,6 +437,24 @@ class Form extends React.Component<Props, State> {
             />
             {thankContent ||
               __('Thanks for your message. We will respond as soon as we can.')}
+=======
+          <div className="erxes-success-body">
+            <img
+              className="erxes-success-image"
+              onLoad={this.props.setHeight}
+              src={readFile(successImage)}
+              alt={thankTitle}
+            />
+          </div>
+
+          <div className="erxes-result">
+            <p>
+              {thankContent ||
+                __(
+                  'Thanks for your message. We will respond as soon as we can.'
+                )}
+            </p>
+>>>>>>> 17b8bd00150ff62a252b659b1393d4569ebaa451
           </div>
         </div>
       </div>

@@ -269,7 +269,7 @@ describe('Customers model tests', () => {
 
     const customerObj = await Customers.markCustomerAsNotActive(customer._id);
 
-    if (!customerObj || !customerObj) {
+    if (!customerObj) {
       throw new Error('Customer not found');
     }
 
@@ -444,7 +444,7 @@ describe('Customers model tests', () => {
 
     const deal1 = await dealFactory({});
 
-    customerIds.map(async customerId => {
+    customerIds.forEach(async customerId => {
       await conformityFactory({
         mainType: 'deal',
         mainTypeId: deal1._id,

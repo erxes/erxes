@@ -137,6 +137,17 @@
       color: lighten($black, 36%);
       margin-bottom: 5px;
     }
+
+    .erxes-success-body {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .erxes-success-image {
+      width: 300px;
+      height: 150px;
+    }
   }
 
   .erxes-result {
