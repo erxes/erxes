@@ -133,15 +133,7 @@ const widgetsConnectMutation = `
 
         productCategoryId
 
-        categoryTree {
-          _id
-          name
-          description
-          status
-          parentId
-          type
-          count
-        }
+        categoryTree
 
         style
 

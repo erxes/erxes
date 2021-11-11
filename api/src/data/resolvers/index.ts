@@ -53,7 +53,6 @@ import Automation from './automation';
 import AutomationNote from './automationNote';
 import Trigger from './trigger';
 import BookingData from './bookingData';
-import BookingTree from './bookingTree';
 
 const resolvers: any = {
   ...customScalars,
@@ -111,8 +110,7 @@ const resolvers: any = {
   Automation,
   AutomationNote,
   Trigger,
-  BookingData,
-  BookingTree
+  BookingData
 };
 
 export default resolvers;

@@ -27,18 +27,6 @@ export const types = `
     bookingData: BookingData
   }
 
-
-  type BookingTree {
-    _id: String
-    name: String
-    description: String
-    parentId: String
-    type: String
-    status: String
-    
-    count: Int
-  }
-
   type BookingData {
     name: String
     image: Attachment
@@ -51,7 +39,7 @@ export const types = `
     displayBlock: JSON
     viewCount: Int
 
-    categoryTree: [BookingTree]
+    categoryTree: JSON
     mainProductCategory: ProductCategory
     navigationText: String
     bookingFormText: String
