@@ -1,5 +1,5 @@
-import * as React from "react";
-import { ICategoryTree, IStyle } from "../../types";
+import * as React from 'react';
+import { ICategoryTree, IStyle } from '../../types';
 
 type Props = {
   items?: ICategoryTree[];
@@ -31,9 +31,9 @@ class FilterableList extends React.Component<Props, State> {
 
     this.state = {
       isOpen: false,
-      key: "",
+      key: '',
       items: props.items,
-      parentIds: {},
+      parentIds: {}
     };
   }
 
@@ -49,7 +49,7 @@ class FilterableList extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps: any) {
     if (JSON.stringify(this.props.items) !== JSON.stringify(nextProps.items)) {
       this.setState({
-        items: nextProps.items,
+        items: nextProps.items
       });
     }
   }
@@ -68,7 +68,7 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   groupByParent = (array: any[]) => {
-    const key = "parentId";
+    const key = 'parentId';
 
     return array.reduce((rv, x) => {
       (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -85,21 +85,21 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   renderIcons(isOpen: boolean, color: string) {
-    const arrowsize = "0.3em";
+    const arrowsize = '0.3em';
     const downTraingle = {
       borderColor: `${color} transparent transparent transparent`,
-      borderStyle: "solid",
+      borderStyle: 'solid',
       borderWidth: `${arrowsize} ${arrowsize} 0px ${arrowsize}`,
-      height: "0px",
-      width: "0px",
+      height: '0px',
+      width: '0px'
     };
 
     const rightTraingle = {
       borderColor: `transparent transparent transparent ${color}`,
-      borderStyle: "solid",
+      borderStyle: 'solid',
       borderWidth: `${arrowsize} 0px ${arrowsize} ${arrowsize}`,
-      height: "0px",
-      width: "0px",
+      height: '0px',
+      width: '0px'
     };
 
     return <div style={isOpen ? downTraingle : rightTraingle} />;
@@ -115,10 +115,12 @@ class FilterableList extends React.Component<Props, State> {
     }
 
     const isOpen = this.state.parentIds[item._id] || !!key;
-    const isDisabled = item.status === "disabled" || item.count === 0;
+
+    const isDisabled = item.status === 'disabled' || parseInt(item.count) === 0;
+
     const isSelected = item._id === this.props.selectedItem;
 
-    let color = stockCnt === 0 ? "#AAA" : widgetColor;
+    let color = stockCnt === 0 ? '#AAA' : widgetColor;
 
     if (stockCnt > 0 && stockCnt < 10) {
       color = productAvailable;
@@ -131,8 +133,8 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <li
         key={item._id}
-        className={`list flex-sb ${isDisabled ? "card-disabled" : ""} ${
-          isSelected ? "selected" : ""
+        className={`list flex-sb ${isDisabled ? 'card-disabled' : ''} ${
+          isSelected ? 'selected' : ''
         }`}
       >
         <div className="flex-items-center">
@@ -146,10 +148,10 @@ class FilterableList extends React.Component<Props, State> {
             className={`list-item`}
             onClick={() => handleClick(item)}
             style={{
-              color: !isDisabled ? color : "",
+              color: !isDisabled ? color : ''
             }}
           >
-            {item.name || "[undefined]"}
+            {item.name || '[undefined]'}
           </div>
         </div>
         <div className={`circle center `} style={{ backgroundColor: color }}>
@@ -163,7 +165,7 @@ class FilterableList extends React.Component<Props, State> {
     const groupByParent = this.groupByParent(subFields);
     const childrens = groupByParent[parent._id];
 
-    const stockCnt = parent.count;
+    const stockCnt = parseInt(parent.count);
 
     if (childrens) {
       const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
@@ -195,12 +197,10 @@ class FilterableList extends React.Component<Props, State> {
       return null;
     }
 
-    const parents = items.filter((item) => item.parentId === parentId);
-    const subFields = items.filter((item) => item.parentId);
+    const parents = items.filter(item => item.parentId === parentId);
+    const subFields = items.filter(item => item.parentId);
 
-    return (
-      <ul>{parents.map((parent) => this.renderTree(parent, subFields))}</ul>
-    );
+    return <ul>{parents.map(parent => this.renderTree(parent, subFields))}</ul>;
   }
 }
 
