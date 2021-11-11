@@ -10,37 +10,70 @@ export default {
       parentId?: string;
       type: 'category' | 'product';
       status?: string;
+      count?: number;
     }> = [];
 
+    const mainCategory = await ProductCategories.getProductCatogery({
+      _id: booking.productCategoryId
+    });
+
+    const allCategories = await ProductCategories.find({
+      order: { $regex: new RegExp(mainCategory.order) }
+    }).sort({ name: 1 });
+
+    const allProducts = await Products.find({
+      categoryId: { $in: allCategories.map(cat => cat._id) }
+    }).sort({ name: 1 });
+
     const generateTree = async (parentId: any) => {
-      const categories = await ProductCategories.find({ parentId }).sort({
-        name: 1
-      });
+      const categories = allCategories.filter(cat => cat.parentId === parentId);
 
       if (categories.length === 0) {
-        const products = await Products.find({ categoryId: parentId }).sort({
-          name: 1
-        });
+        const products = allProducts.filter(
+          product => product.categoryId === parentId
+        );
 
         for (const product of products) {
+          const count = product.productCount || 0;
+
           tree.push({
             _id: product._id,
             name: product.name,
             description: product.description,
             parentId,
-            type: 'product'
+            type: 'product',
+            count
           });
         }
       }
 
       for (const category of categories) {
+        const childrenCatIds = allCategories.flatMap(cat => {
+          if (cat.order.includes(category.order)) {
+            return cat._id;
+          }
+
+          return [];
+        });
+
+        const products = allProducts.flatMap(product => {
+          const count = product.productCount || 0;
+
+          if (count > 0 && childrenCatIds.includes(product.categoryId || '')) {
+            return product;
+          }
+
+          return [];
+        });
+
         tree.push({
           _id: category._id,
           name: category.name,
           description: category.description,
           parentId,
           type: 'category',
-          status: category.status
+          status: category.status,
+          count: products.length
         });
 
         await generateTree(category._id);
