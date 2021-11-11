@@ -428,22 +428,14 @@ class Form extends React.Component<Props, State> {
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
-          <div className="erxes-success-body">
+          <div className="erxes-callout-body">
             <img
-              className="erxes-success-image"
               onLoad={this.props.setHeight}
               src={readFile(successImage)}
-              alt={thankTitle}
+              alt={successImage}
             />
-          </div>
-
-          <div className="erxes-result">
-            <p>
-              {thankContent ||
-                __(
-                  'Thanks for your message. We will respond as soon as we can.'
-                )}
-            </p>
+            {thankContent ||
+              __('Thanks for your message. We will respond as soon as we can.')}
           </div>
         </div>
       </div>
