@@ -36,6 +36,7 @@ export interface IBookingData {
   bookingFormText?: string;
 
   viewCount?: number;
+  productFieldIds?: string[];
 }
 
 export type IBooking = {

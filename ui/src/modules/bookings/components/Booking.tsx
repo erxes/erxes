@@ -43,6 +43,7 @@ type Props = {
   afterFormDbSave: (formId: string) => void;
   isReadyToSaveForm: boolean;
   emailTemplates?: IEmailTemplate[];
+  productFields: IField[];
 };
 
 type State = {
@@ -74,7 +75,8 @@ function Booking(props: Props) {
     isActionLoading,
     afterFormDbSave,
     isReadyToSaveForm,
-    emailTemplates
+    emailTemplates,
+    productFields
   } = props;
 
   const integration = props.integration || ({} as IBookingIntegration);
@@ -132,7 +134,9 @@ function Booking(props: Props) {
     columns: bookingStyle.columns || 2,
     rows: bookingStyle.rows || 1,
     margin: bookingStyle.margin || 15,
-    baseFont: bookingStyle.baseFont || ''
+    baseFont: bookingStyle.baseFont || '',
+
+    productFieldIds: bookingData.productFieldIds || []
   });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
@@ -301,6 +305,8 @@ function Booking(props: Props) {
                 margin={booking.margin}
                 navigationText={booking.navigationText}
                 bookingFormText={booking.bookingFormText}
+                productFieldIds={booking.productFieldIds}
+                productFields={productFields}
               />
             </Step>
 

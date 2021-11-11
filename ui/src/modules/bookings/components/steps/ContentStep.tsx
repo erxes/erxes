@@ -14,6 +14,7 @@ import { FlexItem as FlexItemContainer } from './style';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
 import Uploader from 'modules/common/components/Uploader';
 import { BOOKING_DISPLAY_BLOCK } from 'modules/bookings/constants';
+import { IField } from 'modules/settings/properties/types';
 
 type Name =
   | 'name'
@@ -43,6 +44,8 @@ type Props = {
   margin?: number;
   navigationText?: string;
   bookingFormText?: string;
+  productFieldIds?: string[];
+  productFields: IField[];
 };
 
 function ContentStep({
@@ -56,7 +59,9 @@ function ContentStep({
   rows,
   margin,
   navigationText,
-  bookingFormText
+  bookingFormText,
+  productFields,
+  productFieldIds
 }: Props) {
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
@@ -70,8 +75,8 @@ function ContentStep({
 
   const generateSelectOptions = options => {
     return options.map(option => ({
-      label: option.label,
-      value: option.value
+      label: option.label || option.text,
+      value: option.value || option._id
     }));
   };
 
@@ -192,7 +197,7 @@ function ContentStep({
     );
   };
 
-  const renderProductDetail = () => {
+  const renderProductDetails = () => {
     return (
       <>
         <SubHeading>{__('Products')}</SubHeading>
@@ -213,13 +218,9 @@ function ContentStep({
             placeholder="Choose product category"
           />
         </FormGroup>
-      </>
-    );
-  };
 
-  const renderBookingFormText = () => {
-    return (
-      <>
+        {renderDisplayBlock()}
+
         <FormGroup>
           <SubHeading>{__('Booking Form Button Text')}</SubHeading>
           <Description>
@@ -234,6 +235,25 @@ function ContentStep({
             }
           />
         </FormGroup>
+
+        <FormGroup>
+          <SubHeading>{__('Product details')}</SubHeading>
+          <Description>
+            Select custom properties to display on the product detail page.
+          </Description>
+          <Select
+            options={generateSelectOptions(productFields)}
+            onChange={(e: any) =>
+              onChangeBooking(
+                'productFieldIds',
+                e.map(field => field.value)
+              )
+            }
+            value={productFieldIds}
+            multi={true}
+            placeholder="Choose custom properties"
+          />
+        </FormGroup>
       </>
     );
   };
@@ -242,9 +262,7 @@ function ContentStep({
     <FlexItemContainer>
       <LeftItem>
         {renderGeneralSettings()}
-        {renderProductDetail()}
-        {renderDisplayBlock()}
-        {renderBookingFormText()}
+        {renderProductDetails()}
       </LeftItem>
     </FlexItemContainer>
   );

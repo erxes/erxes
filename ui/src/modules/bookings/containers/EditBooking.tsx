@@ -19,6 +19,8 @@ import {
 } from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import { ILeadData } from 'modules/leads/types';
+import { FieldsQueryResponse } from 'modules/settings/properties/types';
+import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 
 type Props = {
   queryParams: any;
@@ -30,6 +32,7 @@ type FinalProps = {
   integrationDetailQuery: BookingIntegrationDetailQueryResponse;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  fieldsQuery: FieldsQueryResponse;
 } & IRouterProps &
   Props &
   EditBookingIntegrationMutationResponse;
@@ -62,7 +65,8 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
       integrationDetailQuery,
       editIntegrationMutation,
       history,
-      emailTemplatesQuery
+      emailTemplatesQuery,
+      fieldsQuery
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -107,7 +111,8 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
       save,
       afterFormDbSave,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || []
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      productFields: fieldsQuery.fields || []
     };
 
     return <Booking {...updatedProps} />;
@@ -152,6 +157,17 @@ export default compose(
         fetchPolicy: 'cache-and-network',
         variables: {
           _id: contentTypeId
+        }
+      })
+    }
+  ),
+  graphql<{}, FieldsQueryResponse, { contentType: string }>(
+    gql(queries.fields),
+    {
+      name: 'fieldsQuery',
+      options: () => ({
+        variables: {
+          contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT
         }
       })
     }
