@@ -33,7 +33,7 @@ class SuccessPreview extends React.Component<Props, {}> {
         image={successImage}
         imgSize={successImgSize}
         bodyValue={thankContent}
-      ></CommonPreview>
+      />
     );
   }
 }
