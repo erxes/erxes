@@ -49,12 +49,11 @@ import { CollapseContentComponent } from "./collapsecontent.js"
 
 <CollapseContentComponent type="APIcollapsecontent" table={[
   ['contendId', 'string', '', 'Jump to content'],
-  ['* title', 'string', '', 'Title of collapse content'],
-  ['description', 'node', '', 'Description of collapse content that will be placed under title'],
+  ['* title', 'string', '', 'Title'],
+  ['description', 'node', '', 'Description that will be displayed under title'],
   ['open', 'boolean', '', 'Activates open function of container and collapse tag'],
   ['compact', 'boolean', '20px', 'Height of title container'],
   ['image', 'string', '','Image that will be placed instead of arrows'],
   ['beforeTitle', 'node','','Node that will be placed left side of title'],
   ['imageBackground', 'string', '','Background color of image'],
-  ['id', 'string', '','Id of collapse content']
 ]} />

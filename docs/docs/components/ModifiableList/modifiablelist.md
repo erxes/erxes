@@ -19,5 +19,5 @@ import { ModifiableListComponent } from "./modifiablelist.js"
 
 <ModifiableListComponent type="APImodifiablelist" table={[
   ['* options', 'string[]', '', 'list of array'],
-  ['addButtonLabel', 'string', 'Add an option', 'label of 3rd button']
+  ['addButtonLabel', 'string', '"Add an option"', 'label of 3rd button']
 ]}/>

@@ -82,6 +82,7 @@ export function CardComponent(props) {
           <tr>
             <th colSpan="3">Name</th>
             <th>Type</th>
+            <th>Defualt</th>
             <th>Description</th>
           </tr>
         </thead>
@@ -90,27 +91,32 @@ export function CardComponent(props) {
             <td rowSpan="3">* user</td>
             <td colSpan="2">* username</td>
             <td>string</td>
+            <td/>
             <td>Defines the username</td>
           </tr>
           <tr>
             <td>details</td>
             <td>fullName</td>
             <td>string</td>
+            <td/>
             <td>Fullname object of user. If you have both "details" and "username", it will only show "details"</td>
           </tr>
           <tr>
             <td colSpan="2">email</td>
             <td>string</td>
+            <td/>
             <td>Email object of user</td>
           </tr>
           <tr>
             <td colSpan="3">secondLine</td>
             <td>string</td>
+            <td/>
             <td>Line below the username or full name. You can write anything in the second line</td>
           </tr>
           <tr>
             <td colSpan="3">avatarSize</td>
             <td>number</td>
+            <td>40</td>
             <td>Avatar size of your name card</td>
           </tr>
         </tbody>

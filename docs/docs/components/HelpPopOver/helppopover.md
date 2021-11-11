@@ -5,7 +5,7 @@ title: Help Pop Over
 
 import { HelpPopOverComponent } from "./helppopover.js"
 
-<p></p>
+<p>See pop over by hovering over it, click on it, and focus on it.</p>
 <HelpPopOverComponent triggerOf={[ 'hover', 'click', 'focus' ]}/>
 
 ## API

@@ -44,7 +44,7 @@ export function DatawithLoaderComponent(props) {
           />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState ${stringify(
+          {`<>\n\t<DataWithLoader ${stringify(
             propDatas(loading, objective, propName, propImage, count, size)
           )} />\n</>`}
         </CodeBlock>
