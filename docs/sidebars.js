@@ -124,6 +124,7 @@ module.exports = {
       type: "category",
       label: "Components",
       items: [
+        "components/Attachment/attachment",
         "components/Box/box",
         "components/BreadCrumb/breadcrumbs",
         "components/Button/buttons",
