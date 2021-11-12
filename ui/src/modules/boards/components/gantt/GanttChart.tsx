@@ -154,35 +154,35 @@ class GanttChart extends React.Component<Props, State> {
             <Button
               btnStyle="simple"
               size="small"
-              onClick={e => this.modeChange('day')}
+              onClick={() => this.modeChange('day')}
             >
               {__('Day')}
             </Button>
             <Button
               btnStyle="simple"
               size="small"
-              onClick={e => this.modeChange('week')}
+              onClick={() => this.modeChange('week')}
             >
               {__('Week')}
             </Button>
             <Button
               btnStyle="simple"
               size="small"
-              onClick={e => this.modeChange('month')}
+              onClick={() => this.modeChange('month')}
             >
               {__('Month')}
             </Button>
             <Button
               btnStyle="simple"
               size="small"
-              onClick={e => this.modeChange('year')}
+              onClick={() => this.modeChange('year')}
             >
               {__('Year')}
             </Button>
-            <Button btnStyle="danger" size="medium" onClick={this.delete}>
+            <Button btnStyle="danger" onClick={this.delete}>
               {__('Delete')}
             </Button>
-            <Button btnStyle="success" size="medium" onClick={this.save}>
+            <Button btnStyle="success" onClick={this.save}>
               {__('Save')}
             </Button>
           </ModeContainer>
@@ -197,7 +197,7 @@ class GanttChart extends React.Component<Props, State> {
             onUpdateTask={this.onUpdateTask}
             onCreateLink={this.onCreateLink}
             mode={this.state.timelineMode}
-            itemheight={30}
+            itemheight={40}
             selectedItem={this.state.selectedItem}
             nonEditableName={true}
           />
