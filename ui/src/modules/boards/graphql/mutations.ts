@@ -209,6 +209,12 @@ const boardItemUpdateTimeTracking = `
   }
 `;
 
+const boardItemsSave = `
+  mutation boardItemsSave($items: JSON, $type: String!) {
+    boardItemsSave(items: $items, type: $type)
+  }
+`;
+
 export default {
   stagesUpdateOrder,
   pipelinesWatch,
@@ -220,5 +226,6 @@ export default {
   stagesRemove,
   stagesSortItems,
   conversationConvertToCard,
-  boardItemUpdateTimeTracking
+  boardItemUpdateTimeTracking,
+  boardItemsSave
 };

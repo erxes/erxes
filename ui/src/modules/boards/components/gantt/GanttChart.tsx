@@ -20,6 +20,7 @@ type Props = {
   options: IOptions;
   refetch: () => void;
   groupType: string;
+  save: (items: any[]) => void;
 } & IRouterProps;
 
 type State = {
@@ -95,7 +96,7 @@ class GanttChart extends React.Component<Props, State> {
   };
 
   getbuttonStyle(value) {
-    return this.state.timelineMode == value
+    return this.state.timelineMode === value
       ? { backgroundColor: 'grey', boder: 'solid 1px #223344' }
       : {};
   }
@@ -142,7 +143,19 @@ class GanttChart extends React.Component<Props, State> {
   };
 
   save = () => {
-    console.log('...');
+    const { data } = this.state;
+
+    const items: Array<any> = [];
+
+    for (const item of data) {
+      items.push({
+        _id: item.id,
+        startDate: item.start,
+        closeDate: item.end
+      });
+    }
+
+    this.props.save(items);
   };
 
   render() {

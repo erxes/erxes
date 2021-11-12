@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import client from 'apolloClient';
 import GanttChart from '../../components/gantt/GanttChart';
 import {
   IFilterParams,
@@ -12,6 +13,7 @@ import {
   SaveItemMutation
 } from '../../types';
 import Spinner from 'modules/common/components/Spinner';
+import { mutations } from '../../graphql';
 
 type StageProps = {
   groupType: string;
@@ -73,9 +75,6 @@ class GanttGroupByContainer extends React.PureComponent<
   render() {
     const { length, groupType, itemsQuery, options } = this.props;
 
-    console.log('========================================');
-    console.log('itemsQuery loading: ', itemsQuery.loading);
-
     if (itemsQuery.loading) {
       return <Spinner />;
     }
@@ -90,6 +89,23 @@ class GanttGroupByContainer extends React.PureComponent<
 
     const { items } = this.state;
 
+    const save = (items: any[]) => {
+      client
+        .mutate({
+          mutation: gql(mutations.boardItemsSave),
+          variables: {
+            items,
+            type: options.type
+          }
+        })
+        .then(() => {
+          Alert.success('Successfully saved');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     return (
       <GanttChart
         options={options}
@@ -97,6 +113,7 @@ class GanttGroupByContainer extends React.PureComponent<
         length={length}
         items={items}
         refetch={refetch}
+        save={save}
       />
     );
   }
