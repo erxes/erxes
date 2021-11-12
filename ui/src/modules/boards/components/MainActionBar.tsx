@@ -328,6 +328,14 @@ class MainActionBar extends React.Component<Props> {
                 {__('Chart')}
               </Link>
             </li>
+            <li key="gantt">
+              <Link
+                to={onFilterClick('gantt')}
+                className={viewType === 'gantt' ? 'active' : ''}
+              >
+                {__('Gantt Timeline')}
+              </Link>
+            </li>
           </Dropdown.Menu>
         </Dropdown>
       </ButtonGroup>
