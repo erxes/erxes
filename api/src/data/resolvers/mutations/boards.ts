@@ -405,9 +405,13 @@ const boardMutations = {
     return Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
   },
 
-  async boardItemsSave(
+  async boardItemsSaveForGanttTimeline(
     _root,
-    { items, type }: { items: Array<any>; type: string }
+    {
+      items,
+      links,
+      type
+    }: { items: Array<any>; links: Array<any>; type: string }
   ) {
     const bulkOps: Array<any> = [];
 
@@ -424,7 +428,8 @@ const boardMutations = {
           update: {
             $set: {
               startDate: item.startDate,
-              closeDate: item.closeDate
+              closeDate: item.closeDate,
+              relations: links.filter(link => link.start === item._id)
             }
           }
         }

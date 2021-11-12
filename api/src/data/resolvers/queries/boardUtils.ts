@@ -503,6 +503,7 @@ export const getItemList = async (
         isComplete: 1,
         startDate: 1,
         closeDate: 1,
+        relations: 1,
         modifiedAt: 1,
         priority: 1,
         watchedUserIds: 1,

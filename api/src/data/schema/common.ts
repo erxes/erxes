@@ -99,6 +99,7 @@ export const commonListTypes = `
   labels: JSON
   isComplete: Boolean
   isWatched: Boolean
+  relations: JSON
   startDate: Date
   closeDate: Date
   modifiedAt: Date
