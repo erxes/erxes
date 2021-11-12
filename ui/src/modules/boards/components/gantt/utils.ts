@@ -48,6 +48,7 @@ export const config = {
     }
   },
   taskList: {
+    width: 300,
     title: {
       label: 'Name',
       style: {
@@ -80,8 +81,12 @@ export const config = {
       task: {
         showLabel: true,
         style: {
-          borderRadius: 2,
+          borderRadius: 3,
           boxShadow: '2px 2px 8px #888888'
+        },
+        selectedStyle: {
+          borderRadius: 3,
+          backgroundColor: '#393C40'
         }
       }
     }
