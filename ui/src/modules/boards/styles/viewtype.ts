@@ -55,7 +55,7 @@ export const GanttContainer = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  margin: 20px;
+  margin: 10px;
   height: 100%;
 `;
 
@@ -65,7 +65,7 @@ export const TimelineContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  height: 650px;
+  height: 700px;
 `;
 
 export const NavContainer = styled.div`
@@ -73,13 +73,13 @@ export const NavContainer = styled.div`
   flex-direction: row;
   width: 100%;
   background-color: ${colors.colorWhite};
-  height: 50px;
+  height: ${dimensions.headerSpacing}px;
   color: grey;
   align-items: center;
 `;
 
 export const List = styled.div`
-  width: 200px;
+  width: 300px;
   height: 50%;
   border: solid 1px silver;
   border-radius: 10px;
@@ -94,6 +94,7 @@ export const ModeContainer = styled.div`
   justify-self: flex-end;
   margin: 0px 20px;
 `;
+
 export const ModeTitle = styled.div`
   margin: 0px 20px;
   flex: 1 1 auto;
@@ -114,12 +115,4 @@ export const ModeItem = styled.div`
   font-size: 12px;
   text-align: center;
   cursor: pointer;
-`;
-
-export const OperationButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: baseline;
-  justify-self: flex-end;
 `;

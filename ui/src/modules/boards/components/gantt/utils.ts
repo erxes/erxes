@@ -48,7 +48,6 @@ export const config = {
     }
   },
   taskList: {
-    width: 300,
     title: {
       label: 'Name',
       style: {
@@ -59,12 +58,9 @@ export const config = {
     task: {
       style: {
         backgroundColor: 'white',
-        color: 'black'
+        color: '#393C40'
       },
       verticalSeparator: {
-        style: {
-          backgroundColor: '#fbf9f9'
-        },
         grip: {
           style: {
             backgroundColor: 'red'
@@ -75,7 +71,7 @@ export const config = {
     dataViewPort: {
       rows: {
         style: {
-          backgroundColor: 'white'
+          backgroundColor: '#fff'
         }
       },
       task: {
@@ -83,10 +79,6 @@ export const config = {
         style: {
           borderRadius: 3,
           boxShadow: '2px 2px 8px #888888'
-        },
-        selectedStyle: {
-          borderRadius: 3,
-          backgroundColor: '#393C40'
         }
       }
     }

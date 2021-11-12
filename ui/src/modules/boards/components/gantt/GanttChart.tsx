@@ -202,15 +202,15 @@ class GanttChart extends React.Component<Props, State> {
         </NavContainer>
         <TimelineContainer>
           <TimeLine
-            config={config}
             data={this.state.data}
             links={this.state.links}
             onHorizonChange={this.onHorizonChange}
+            config={config}
             onSelectItem={this.onSelectItem}
             onUpdateTask={this.onUpdateTask}
             onCreateLink={this.onCreateLink}
             mode={this.state.timelineMode}
-            itemheight={40}
+            itemheight={35}
             selectedItem={this.state.selectedItem}
             nonEditableName={true}
           />

@@ -169,7 +169,7 @@ class MainActionBar extends React.Component<Props> {
   renderGroupBy = () => {
     const { viewType, queryParams } = this.props;
 
-    if (viewType !== 'list') {
+    if (viewType !== 'list' && viewType !== 'gantt') {
       return null;
     }
 
@@ -178,7 +178,7 @@ class MainActionBar extends React.Component<Props> {
       const pipelineType = options.type;
 
       if (currentBoard && currentPipeline) {
-        return `/${pipelineType}/list?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&groupBy=${selectType}`;
+        return `/${pipelineType}/${viewType}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&groupBy=${selectType}`;
       }
 
       return `/${pipelineType}/${selectType}`;
