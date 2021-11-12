@@ -403,6 +403,39 @@ const boardMutations = {
     await checkPermission(type, user, 'updateTimeTracking');
 
     return Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
+  },
+
+  async boardItemsSave(
+    _root,
+    { items, type }: { items: Array<any>; type: string }
+  ) {
+    const bulkOps: Array<any> = [];
+
+    if (items.length === 0) {
+      throw new Error('No data to save');
+    }
+
+    for (const item of items) {
+      bulkOps.push({
+        updateOne: {
+          filter: {
+            _id: item._id
+          },
+          update: {
+            $set: {
+              startDate: item.startDate,
+              closeDate: item.closeDate
+            }
+          }
+        }
+      });
+    }
+
+    const { collection } = getCollection(type);
+
+    await collection.bulkWrite(bulkOps);
+
+    return 'Success';
   }
 };
 

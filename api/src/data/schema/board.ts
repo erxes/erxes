@@ -138,6 +138,7 @@ export const mutations = `
   boardsEdit(_id: String!, ${commonParams}): Board
   boardsRemove(_id: String!): JSON
   boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  boardItemsSave(items: JSON, type: String!): String
 
   pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
   pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
@@ -151,4 +152,5 @@ export const mutations = `
   stagesRemove(_id: String!): JSON
   stagesEdit(_id: String!, type: String, name: String, status: String): Stage
   stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
+
 `;
