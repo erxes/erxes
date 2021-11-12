@@ -4,7 +4,10 @@ import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
-import { AllUsersQueryResponse } from 'modules/settings/team/types';
+import {
+  AllUsersQueryResponse,
+  UsersQueryResponse
+} from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
@@ -43,6 +46,7 @@ type ContainerProps = {
 type FinalProps = {
   detailQuery: DetailQueryResponse;
   usersQuery: AllUsersQueryResponse;
+  currentUsersQuery: UsersQueryResponse;
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
@@ -198,7 +202,9 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { usersQuery, detailQuery, options } = this.props;
+    const { usersQuery, detailQuery, options, currentUsersQuery } = this.props;
+
+    console.log(usersQuery, currentUsersQuery, 'hh');
 
     if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
@@ -261,11 +267,14 @@ const withQuery = (props: ContainerProps) => {
         }
       ),
       graphql<ContainerProps, AllUsersQueryResponse>(
-        gql(userQueries.allUsers),
+        gql(userQueries.userDetail),
         {
           name: 'usersQuery'
         }
       ),
+      graphql<ContainerProps, UsersQueryResponse>(gql(userQueries.allUsers), {
+        name: 'currentUsersQuery'
+      }),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
