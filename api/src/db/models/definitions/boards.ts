@@ -154,6 +154,15 @@ const timeTrackSchema = new Schema(
   { _id: false }
 );
 
+const relationSchema = new Schema(
+  {
+    id: field({ type: String }),
+    start: field({ type: String }),
+    end: field({ type: String })
+  },
+  { _id: false }
+);
+
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   userId: field({ type: String, esType: 'keyword' }),
@@ -217,6 +226,11 @@ export const commonItemFieldsSchema = {
     optional: true,
     label: 'Score',
     esType: 'number'
+  }),
+  relations: field({
+    type: [relationSchema],
+    optional: true,
+    label: 'Related items used for gantt chart'
   })
 };
 

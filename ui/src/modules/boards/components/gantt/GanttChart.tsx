@@ -20,7 +20,7 @@ type Props = {
   options: IOptions;
   refetch: () => void;
   groupType: string;
-  save: (items: any[]) => void;
+  save: (items: any[], links: any[]) => void;
 } & IRouterProps;
 
 type State = {
@@ -31,35 +31,38 @@ type State = {
 };
 
 class GanttChart extends React.Component<Props, State> {
-  private data;
-
   constructor(props) {
     super(props);
 
-    this.data = props.items.flatMap(item => {
+    const data: Array<any> = [];
+    let links: Array<any> = [];
+
+    props.items.forEach(item => {
       if (item.startDate && item.closeDate) {
-        return {
+        data.push({
           id: item._id,
           start: new Date(item.startDate),
           end: new Date(item.closeDate),
           name: item.name,
           color: '#5629B6'
-        };
-      }
+        });
 
-      return [];
+        if (item.relations) {
+          links = links.concat(item.relations);
+        }
+      }
     });
 
     this.state = {
-      data: [],
+      data,
       selectedItem: null,
       timelineMode: 'month',
-      links: []
+      links
     };
   }
 
   onHorizonChange = (start, end) => {
-    let result = this.data.filter(item => {
+    let result = this.state.data.filter(item => {
       return (
         (item.start < start && item.end > end) ||
         (item.start > start && item.start < end) ||
@@ -124,26 +127,18 @@ class GanttChart extends React.Component<Props, State> {
 
   delete = () => {
     if (this.state.selectedItem) {
-      let index = this.state.links.indexOf(this.state.selectedItem);
+      const index = this.state.links.indexOf(this.state.selectedItem);
 
       if (index > -1) {
         this.state.links.splice(index, 1);
 
         this.setState({ links: [...this.state.links] });
       }
-
-      index = this.state.data.indexOf(this.state.selectedItem);
-
-      if (index > -1) {
-        this.state.data.splice(index, 1);
-
-        this.setState({ data: [...this.state.data] });
-      }
     }
   };
 
   save = () => {
-    const { data } = this.state;
+    const { data, links } = this.state;
 
     const items: Array<any> = [];
 
@@ -155,7 +150,7 @@ class GanttChart extends React.Component<Props, State> {
       });
     }
 
-    this.props.save(items);
+    this.props.save(items, links);
   };
 
   render() {

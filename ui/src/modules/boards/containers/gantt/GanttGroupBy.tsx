@@ -89,12 +89,13 @@ class GanttGroupByContainer extends React.PureComponent<
 
     const { items } = this.state;
 
-    const save = (items: any[]) => {
+    const save = (items: any[], links: any[]) => {
       client
         .mutate({
-          mutation: gql(mutations.boardItemsSave),
+          mutation: gql(mutations.boardItemsSaveForGanttTimeline),
           variables: {
             items,
+            links,
             type: options.type
           }
         })

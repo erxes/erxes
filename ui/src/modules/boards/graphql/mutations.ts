@@ -58,6 +58,7 @@ export const commonListFields = `
   stage
   isComplete
   isWatched
+  relations
   startDate
   closeDate
   modifiedAt
@@ -209,9 +210,9 @@ const boardItemUpdateTimeTracking = `
   }
 `;
 
-const boardItemsSave = `
-  mutation boardItemsSave($items: JSON, $type: String!) {
-    boardItemsSave(items: $items, type: $type)
+const boardItemsSaveForGanttTimeline = `
+  mutation boardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
+    boardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
   }
 `;
 
@@ -227,5 +228,5 @@ export default {
   stagesSortItems,
   conversationConvertToCard,
   boardItemUpdateTimeTracking,
-  boardItemsSave
+  boardItemsSaveForGanttTimeline
 };
