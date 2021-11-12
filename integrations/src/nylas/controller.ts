@@ -49,7 +49,7 @@ export const initNylas = async app => {
     '/nylas/webhook',
     routeErrorHandling(async (req, res) => {
       // Verify the request to make sure it's from Nylas
-      if (!verifyNylasSignature(req)) {
+      if (!(await verifyNylasSignature(req))) {
         debugNylas('Failed to verify nylas');
         return res.status(401).send('X-Nylas-Signature failed verification');
       }
