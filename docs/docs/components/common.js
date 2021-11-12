@@ -41,6 +41,7 @@ export function renderApiTable(Name, table) {
 
 export function stringify(datas) {
   let string = JSON.stringify(datas);
+  string = string.replace(/{}/g, "");
   string = string.replace(/{"/g, "");
   string = string.replace(/":/g, "=");
   string = string.replace(/,"/g, " ");

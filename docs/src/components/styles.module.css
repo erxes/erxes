@@ -194,3 +194,7 @@ code {
 .required {
    color:red;
 }
+
+.sortHandlerContainer {
+	margin: 20px;
+}

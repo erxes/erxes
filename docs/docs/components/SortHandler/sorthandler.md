@@ -5,10 +5,16 @@ title: Sort Handler
 
 import { SortHandlerComponent } from "./sorthandler.js"
 
-<SortHandlerComponent />
+<SortHandlerComponent type="default" />
+
+## Label
+<p>Add label by defining<code>label</code> prop.</p>
+<SortHandlerComponent type="label" label="Label" />
+
+## Field
 
 <p>Same <code>sortField</code> will be handled at the same time. </p>
-<SortHandlerComponent type="sorthandler" />
+<SortHandlerComponent type="sameField" />
 
 ## API
 
