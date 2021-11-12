@@ -134,7 +134,7 @@ module.exports = {
         "components/ErrorMsg/errormsg",
         "components/FilePreview/filepreview",
         "components/HeaderDescription/headerdescription",
-        "components/HelpPopOver/helppopover",
+        "components/HelpPopover/helppopover",
         "components/Icon/icon",
         "components/Info/info",
         "components/Label/label",

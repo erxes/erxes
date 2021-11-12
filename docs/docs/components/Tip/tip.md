@@ -13,23 +13,23 @@ import { TipComponent } from "./tip.js"
 
 ### Auto placement
 
-<TipComponent type="auto" place={['auto-start', 'auto', 'auto-end']}></TipComponent>
+<TipComponent type="auto" places={['auto-start', 'auto', 'auto-end']}></TipComponent>
 
 ### Top placement
 
-<TipComponent type="top" place={['top-start', 'top', 'top-end']}></TipComponent>
+<TipComponent type="top" places={['top-start', 'top', 'top-end']}></TipComponent>
 
 ### Right placement
 
-<TipComponent type="right" place={['right-start', 'right', 'right-end']}></TipComponent>
+<TipComponent type="right" places={['right-start', 'right', 'right-end']}></TipComponent>
 
 ### Bottom placement
 
-<TipComponent type="bottom" place={['bottom-end', 'bottom', 'bottom-start']}></TipComponent>
+<TipComponent type="bottom" places={['bottom-end', 'bottom', 'bottom-start']}></TipComponent>
 
 ### Left placement
 
-<TipComponent type="left" place={['left-end', 'left', 'left-start']}></TipComponent>
+<TipComponent type="left" places={['left-end', 'left', 'left-start']}></TipComponent>
 
 ## API
 

@@ -56,5 +56,5 @@ import { TableComponent } from './table.js'
     ['colSpan', 'number', '', 'Merges the number of row cells'],
     ['striped', 'boolean', 'false', 'Gives table strip color'],
     ['hover', 'boolean', 'false', 'Activates table hover'],
-    ['white-space', 'normal | nowrap | pre | pre-wrap | pre-line | break-spaces', '', 'Costumizes thee cells']
+    ['whiteSpace', 'normal | nowrap | pre | pre-wrap | pre-line | break-spaces', '', 'Costumizes thee cells']
 ]} />

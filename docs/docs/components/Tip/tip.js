@@ -7,12 +7,13 @@ import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function TipComponent(props) {
-  const { place = [], type, table = [] } = props;
+  const { places = [], type, table = [] } = props;
+  const text = "Text";
 
-  const propDatas = (placement, plc) => {
+  const propDatas = (plc) => {
     const kind = {
-      [placement]: plc,
-      text: "Text",
+      placement: plc,
+      text: text,
     };
 
     return kind;
@@ -22,9 +23,9 @@ export function TipComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          {place.map((plc, index) => {
+          {places.map((plc, index) => {
             return (
-              <Tip key={index} {...propDatas(text, placement, plc)}>
+              <Tip key={index} {...propDatas(plc)}>
                 <Button>
                   {" "}
                   <p>{plc}</p>
@@ -37,9 +38,9 @@ export function TipComponent(props) {
         </div>
         <br />
         <CodeBlock className="language-jsx">
-          {`<>${place.map((plc) => {
+          {`<>${places.map((plc) => {
             return `\n\t<Tip ${stringify(
-              propDatas(text, placement, plc)
+              propDatas(plc)
             )} >\n\t\t<Button><p>${plc}</p><p>${plc}</p><p>${plc}</p></Button>\n\t</Tip>`;
           })}\n</>`}
         </CodeBlock>
@@ -47,27 +48,9 @@ export function TipComponent(props) {
     );
   };
 
-  if (type === "auto") {
-    return renderBlock("placement");
-  }
-
-  if (type === "top") {
-    return renderBlock("placement");
-  }
-
-  if (type === "right") {
-    return renderBlock("placement");
-  }
-
-  if (type === "bottom") {
-    return renderBlock("placement");
-  }
-
-  if (type === "left") {
-    return renderBlock("placement");
-  }
-
   if (type === "APItip") {
     return renderApiTable("Tip", table);
   }
+
+  return renderBlock();
 }

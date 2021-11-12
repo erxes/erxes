@@ -5,6 +5,10 @@ title: Header Description
 
 import { HeaderDescriptionComponent } from "./headerdescription.js"
 
+<p>Expandable description, shows image and description when expanded but just title when it's not expanded.</p>
+
+## Example
+
 <HeaderDescriptionComponent/>
 
 ## API

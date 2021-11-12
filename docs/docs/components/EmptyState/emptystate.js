@@ -1,5 +1,6 @@
 import React from "react";
 import EmptyState from "erxes-ui/lib/components/EmptyState";
+import Button from "erxes-ui/lib/components/Button";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import { renderApiTable, stringify } from "../common.js";
@@ -18,7 +19,7 @@ export function EmptyComponents(props) {
     const datas = {
       ...kind,
       text: "Text",
-      extra: additional && "Extra text",
+      extra: additional && <Button>Extra button</Button>,
     };
 
     return datas;
