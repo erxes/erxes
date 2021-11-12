@@ -42,7 +42,7 @@ module.exports = {
           position: "left",
         },
         {
-          to: "/components/Box/box",
+          to: "/components/Attachment/attachment",
           label: "Components",
           position: "left",
         },
