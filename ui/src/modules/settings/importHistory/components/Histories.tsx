@@ -10,7 +10,7 @@ import { __, getEnv } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import { EMPTY_IMPORT_CONTENT } from 'modules/settings/constants';
-import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
+// import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
 import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import React from 'react';
 import ExportPopupsData from '../containers/ExportPopupsData';
@@ -193,15 +193,12 @@ class Histories extends React.Component<Props & IRouterProps> {
   renderDataImporter() {
     const { currentType } = this.props;
 
-    if (!DATA_IMPORT_TYPES.includes(currentType)) {
-      return null;
-    }
-
     return (
-      <DataImporter
-        type={currentType}
-        text={`${__('Import')} ${this.getButtonText()}`}
-      />
+      <Link to={`/settings/import?type=${currentType}`}>
+        <Button icon="import" btnStyle="success" size="small">
+          {__(`Import ${this.getButtonText()}`)}
+        </Button>
+      </Link>
     );
   }
 
@@ -253,7 +250,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   renderImportButton = () => {
     return (
       <BarItems>
-        {this.renderTemplateButton()}
+        {/* {this.renderTemplateButton()} */}
         {this.renderDataImporter()}
         {this.renderExportButton()}
         {this.renderExportPopupsData()}

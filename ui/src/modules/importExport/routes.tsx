@@ -7,9 +7,18 @@ const Export = asyncComponent(() =>
   import(/* webpackChunkName: "Export" */ './export/containers/Form')
 );
 
+const Import = asyncComponent(() =>
+  import(/* webpackChunkName: "Export" */ './import/components/Form')
+);
+
 const exportForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
   return <Export contentType={queryParams.type} />;
+};
+
+const importForm = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+  return <Import contentType={queryParams.type} />;
 };
 
 const routes = () => {
@@ -20,6 +29,12 @@ const routes = () => {
         exact={true}
         path="/settings/export"
         component={exportForm}
+      />
+      <Route
+        key="/settings/import"
+        exact={true}
+        path="/settings/import"
+        component={importForm}
       />
     </React.Fragment>
   );
