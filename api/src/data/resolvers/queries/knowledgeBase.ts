@@ -104,14 +104,15 @@ const knowledgeBaseQueries = {
    */
   knowledgeBaseTopics(
     _root,
-    args: { page: number; perPage: number },
+    args: { page: number; perPage: number; brandId: string },
     { commonQuerySelector }: IContext
   ) {
-    const topics = paginate(
-      KnowledgeBaseTopics.find(commonQuerySelector),
-      args
-    );
-    return topics.sort({ modifiedDate: -1 });
+    const topics = KnowledgeBaseTopics.find({
+      ...(args.brandId ? { brandId: args.brandId } : {}),
+      ...commonQuerySelector
+    }).sort({ modifiedDate: -1 });
+
+    return paginate(topics, args);
   },
 
   /**
