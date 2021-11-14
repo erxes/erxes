@@ -702,7 +702,7 @@ const associationPropertyFilter = async ({
 }) => {
   let associatedTypes: string[] = [];
 
-  if (mainType === 'customer') {
+  if (['customer', 'lead'].includes(mainType)) {
     associatedTypes = ['company', 'deal', 'ticket', 'task'];
   }
 
@@ -732,7 +732,7 @@ const associationPropertyFilter = async ({
     return Conformities.filterConformity({
       mainType: propertyType,
       mainTypeIds,
-      relType: mainType
+      relType: mainType === 'lead' ? 'customer' : mainType
     });
   }
 

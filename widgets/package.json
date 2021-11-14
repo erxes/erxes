@@ -29,7 +29,6 @@
     "@types/react": "^16.4.7",
     "@types/react-dom": "^16.0.6",
     "@types/react-i18next": "^7.8.0",
-    "@types/react-icons": "^3.0.0",
     "@types/react-modal": "^3.10.6",
     "@types/react-transition-group": "^2.0.14",
     "@types/ws": "^5.1.2",

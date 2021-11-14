@@ -140,6 +140,32 @@ export const executeActions = async (
   );
 };
 
+const isDiffValue = (latest, target, field) => {
+  const getValue = (obj, attr) => {
+    try {
+      return obj[attr]
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  const extractFields = field.split('.');
+  let latestValue = latest;
+  let targetValue = target;
+
+
+  for (const f of extractFields) {
+    latestValue = getValue(latestValue, f);
+    targetValue = getValue(targetValue, f);
+  }
+
+  if (targetValue !== latestValue) {
+    return true;
+  }
+
+  return false;
+}
+
 export const calculateExecution = async ({
   automationId,
   trigger,
@@ -185,7 +211,7 @@ export const calculateExecution = async ({
     let isChanged = false;
 
     for (const reEnrollmentRule of reEnrollmentRules) {
-      if (latestExecution.target[reEnrollmentRule] !== target[reEnrollmentRule]) {
+      if (isDiffValue(latestExecution.target, target, reEnrollmentRule)) {
         isChanged = true;
         break;
       }

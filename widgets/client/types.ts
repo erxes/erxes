@@ -2,7 +2,6 @@ import { ICallout } from './form/types';
 import { IAttachment, IWebsiteApp } from './messenger/types';
 
 export type ENV = {
-  ROOT_URL: string;
   API_URL: string;
   API_SUBSCRIPTIONS_URL: string;
 };
@@ -147,6 +146,7 @@ export interface IIntegrationLeadData {
   isRequireOnce?: boolean;
   attachments?: IAttachment[];
   css?: string;
+  successImage?: string;
 }
 
 export interface IIntegrationUiOptions {
@@ -177,41 +177,4 @@ export interface IRule {
   text: string;
   condition: string;
   value: string;
-}
-
-export interface IProductCategory {
-  _id: string;
-  name: string;
-  order: string;
-  code: string;
-  description?: string;
-  attachment?: any;
-  status: string;
-  parentId?: string;
-  createdAt: Date;
-  productCount: number;
-  isRoot: boolean;
-}
-
-export interface IProduct {
-  _id: string;
-  name?: string;
-  type: string;
-  categoryId: string;
-  description: string;
-  sku: string;
-  code: string;
-  unitPrice: number;
-  customFieldsData?: any;
-  createdAt: Date;
-  vendorId?: string;
-
-  attachment?: any;
-  attachmentMore?: any[];
-  supply: string;
-  productCount: number;
-  minimiumCount: number;
-  category: IProductCategory;
-
-  customFieldsDataWithText?: any;
 }

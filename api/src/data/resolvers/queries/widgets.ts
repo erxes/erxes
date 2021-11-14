@@ -5,8 +5,6 @@ import {
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
   KnowledgeBaseTopics,
-  ProductCategories,
-  Products,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -237,16 +235,5 @@ export default {
       visitorId,
       customerId
     );
-  },
-
-  async widgetsProductCategory(_root, { _id }: { _id: string }) {
-    return ProductCategories.findOne({ _id });
-  },
-
-  async widgetsProductDetail(_root, { _id }: { _id: string }) {
-    return Products.findOne({ _id });
-  },
-  widgetsIntegrationDetail(_root, { _id }: { _id: string }) {
-    return Integrations.getIntegration({ _id });
   }
 };

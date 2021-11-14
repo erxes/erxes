@@ -87,7 +87,6 @@ export const INTEGRATION_KINDS = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
-  BOOKING: 'booking',
   ALL: [
     { text: 'Messenger', value: 'messenger' },
     { text: 'Forms', value: 'lead' },
@@ -114,8 +113,7 @@ export const INTEGRATION_KINDS = {
     { text: 'Outlook by Nylas', value: 'nylas-outlook' },
     { text: 'Yahoo by Nylas', value: 'nylas-yahoo' },
 
-    { text: 'SMS by Telnyx', value: 'telnyx' },
-    { text: 'Booking', value: 'booking' }
+    { text: 'SMS by Telnyx', value: 'telnyx' }
   ]
 };
 
