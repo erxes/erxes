@@ -104,7 +104,13 @@ class FieldForm extends React.Component<Props, State> {
     if (group === 'company') {
       switch (field.type) {
         case 'avatar':
-          field.type = 'companyAvatar';
+          field.type = 'company_avatar';
+          break;
+        case 'description':
+          field.type = 'company_description';
+          break;
+        case 'isSubscribed':
+          field.type = 'company_isSubscribed';
           break;
         case 'size':
           field.validation = 'number';

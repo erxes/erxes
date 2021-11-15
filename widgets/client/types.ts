@@ -1,5 +1,5 @@
-import { ICallout } from "./form/types";
-import { IAttachment, IWebsiteApp } from "./messenger/types";
+import { ICallout } from './form/types';
+import { IAttachment, IWebsiteApp } from './messenger/types';
 
 export type ENV = {
   API_URL: string;

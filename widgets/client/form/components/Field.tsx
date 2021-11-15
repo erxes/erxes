@@ -426,7 +426,7 @@ export default class Field extends React.Component<Props, State> {
           String(value)
         );
 
-      case 'companyIsSubscribed':
+      case 'company_isSubscribed':
         return Field.renderRadioButtons(
           name,
           ['Yes', 'No'],
@@ -458,7 +458,7 @@ export default class Field extends React.Component<Props, State> {
           id: field._id
         });
 
-      case 'companyAvatar':
+      case 'company_avatar':
         return Field.renderInput({
           onChange: this.handleFileInput,
           type: 'file',
@@ -479,7 +479,7 @@ export default class Field extends React.Component<Props, State> {
           value
         });
 
-      case 'companyDescription':
+      case 'company_description':
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
