@@ -9,6 +9,8 @@ import {
   channelFactory,
   formFactory,
   integrationFactory,
+  productCategoryFactory,
+  productFactory,
   tagsFactory
 } from '../db/factories';
 import { Brands, Channels, Integrations, Tags } from '../db/models';
@@ -269,6 +271,33 @@ describe('integrationQueries', () => {
     expect(response.knowledgeBaseMessengerApps.length).toBe(0);
     expect(response.leadMessengerApps.length).toBe(0);
     expect(response.healthStatus).toBeDefined();
+
+    // booking integration detail
+    const rootCategory = await productCategoryFactory({ order: 'root' });
+
+    const childCategory = await productCategoryFactory({
+      parentId: rootCategory._id,
+      order: 'root/child'
+    });
+
+    await productFactory({ categoryId: childCategory._id, productCount: 2 });
+    await productFactory({ categoryId: childCategory._id, productCount: 0 });
+
+    const bookingIntegration = await integrationFactory({
+      kind: 'booking',
+      tagIds: [tag._id],
+      brandId: 'fakeId',
+      bookingData: {
+        name: 'booking',
+        productCategoryId: rootCategory._id
+      }
+    });
+
+    response = await graphqlRequest(qry, 'integrationDetail', {
+      _id: bookingIntegration._id
+    });
+
+    expect(response._id).toBe(bookingIntegration._id);
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
     spy.mockImplementation(() => Promise.resolve([]));
