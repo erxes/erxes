@@ -2,6 +2,7 @@ import * as momentTz from 'moment-timezone';
 import {
   ConversationMessages,
   Conversations,
+  Fields,
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
   KnowledgeBaseTopics,
@@ -18,6 +19,7 @@ import {
   getOrCreateEngageMessageElk
 } from '../../widgetUtils';
 import { getDocument, getDocumentList } from '../mutations/cacheUtils';
+import { IFieldsQuery } from './fields';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -248,5 +250,21 @@ export default {
   },
   widgetsIntegrationDetail(_root, { _id }: { _id: string }) {
     return Integrations.getIntegration({ _id });
+  },
+
+  widgetsFields(
+    _root,
+    {
+      contentType,
+      contentTypeId
+    }: { contentType: string; contentTypeId: string }
+  ) {
+    const query: IFieldsQuery = { contentType };
+
+    if (contentTypeId) {
+      query.contentTypeId = contentTypeId;
+    }
+
+    return Fields.find(query).sort({ order: 1 });
   }
 };

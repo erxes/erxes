@@ -70,6 +70,8 @@ export const queries = `
   widgetsProductCategory(_id: String!): ProductCategory
   widgetsProductDetail(_id: String!): Product
   widgetsIntegrationDetail(_id: String): Integration
+
+  widgetsFields(contentType: String! contentTypeId: String): [Field]
 `;
 
 export const mutations = `
