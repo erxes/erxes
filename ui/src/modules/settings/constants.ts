@@ -144,23 +144,21 @@ export const EMPTY_CONTENT_SCRIPT = {
 };
 
 export const EMPTY_CONTENT_POPUPS = {
-  title: __('Getting Started with erxes Popups'),
+  title: __('Getting Started with erxes forms'),
   description: __(
     'Never miss a potential lead by capturing them with a customizable Forms'
   ),
   steps: [
     {
-      title: __('Create Popup'),
-      description: __(
-        'Fill out the details and create your popup message or form'
-      ),
+      title: __('Create Form'),
+      description: __('Fill out the details and create your form'),
       url: '/forms/create',
-      urlText: 'Create Popup'
+      urlText: 'Create Form'
     },
     {
       title: 'Install the script',
       description: __(
-        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets'
+        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets'
       ),
       url: '/settings/scripts',
       urlText: __('Go to Script Manager')

@@ -89,19 +89,19 @@ function FieldChoices(props: Props) {
       />
       <FieldChoice
         {...props}
-        type="companyName"
+        type="company_primaryName"
         text={__('Company name')}
         icon="building"
       />
       <FieldChoice
         {...props}
-        type="companyEmail"
+        type="company_primaryEmail"
         text={__('Company Email')}
         icon="envelope-alt"
       />
       <FieldChoice
         {...props}
-        type="companyPhone"
+        type="company_primaryPhone"
         text={__('Company Phone')}
         icon="phone"
       />

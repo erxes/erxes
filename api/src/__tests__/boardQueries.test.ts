@@ -5,6 +5,7 @@ import {
   conversationFactory,
   dealFactory,
   pipelineFactory,
+  pipelineLabelFactory,
   productFactory,
   segmentFactory,
   stageFactory,
@@ -23,6 +24,7 @@ import {
   PROBABILITY
 } from '../db/models/definitions/constants';
 import './setup.ts';
+import { PRIORITIES } from '../data/constants';
 
 describe('boardQueries', () => {
   const commonBoardTypes = `
@@ -776,5 +778,113 @@ describe('boardQueries', () => {
     expect(response[segment._id]).toBe(1);
 
     mock.restore();
+  });
+
+  describe('itemsCountByAssignedUser query', async () => {
+    const qry = `
+      query itemsCountByAssignedUser($pipelineId: String!, $type: String!, $stackBy: String) {
+        itemsCountByAssignedUser(pipelineId: $pipelineId, type: $type, stackBy: $stackBy)
+      }
+    `;
+
+    let pipeline;
+
+    beforeEach(async () => {
+      pipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL });
+      const stage1 = await stageFactory({
+        pipelineId: pipeline._id,
+        name: 'Stage 1',
+        type: BOARD_TYPES.DEAL
+      });
+      const stage2 = await stageFactory({
+        pipelineId: pipeline._id,
+        name: 'Stage 2',
+        type: BOARD_TYPES.DEAL
+      });
+
+      const user1 = await userFactory({ fullName: 'User 1' });
+      const user2 = await userFactory({ fullName: 'User 2' });
+
+      const label = await pipelineLabelFactory({ pipelineId: pipeline._id });
+
+      await dealFactory({
+        stageId: stage1._id,
+        assignedUserIds: [user1._id, user2._id],
+        labelIds: [label._id],
+        priority: PRIORITIES.CRITICAL
+      });
+      await dealFactory({
+        stageId: stage1._id,
+        assignedUserIds: [user1._id],
+        priority: PRIORITIES.HIGH
+      });
+      await dealFactory({ stageId: stage2._id, assignedUserIds: [user2._id] });
+      await dealFactory({ stageId: stage2._id });
+    });
+
+    test('When there are no stages, then return empty object', async () => {
+      const pipelineNoStages = await pipelineFactory({
+        type: BOARD_TYPES.DEAL
+      });
+
+      const response = await graphqlRequest(qry, 'itemsCountByAssignedUser', {
+        type: BOARD_TYPES.DEAL,
+        pipelineId: pipelineNoStages._id
+      });
+
+      expect(response).toStrictEqual({});
+    });
+
+    test('When stackBy is stage', async () => {
+      const response = await graphqlRequest(qry, 'itemsCountByAssignedUser', {
+        type: BOARD_TYPES.DEAL,
+        pipelineId: pipeline._id,
+        stackBy: 'stage'
+      });
+
+      expect(response.groups).toHaveLength(2);
+    });
+
+    test('When stackBy is priority', async () => {
+      const response = await graphqlRequest(qry, 'itemsCountByAssignedUser', {
+        type: BOARD_TYPES.DEAL,
+        pipelineId: pipeline._id,
+        stackBy: 'priority'
+      });
+
+      expect(response.groups).toHaveLength(4);
+    });
+
+    test('When stackBy is label', async () => {
+      const response = await graphqlRequest(qry, 'itemsCountByAssignedUser', {
+        type: BOARD_TYPES.DEAL,
+        pipelineId: pipeline._id,
+        stackBy: 'label'
+      });
+
+      expect(response.groups).toHaveLength(1);
+    });
+
+    test('When no data, then return empty object', async () => {
+      const pipelineNoLabels = await pipelineFactory({});
+      await stageFactory({ pipelineId: pipelineNoLabels._id });
+
+      const response = await graphqlRequest(qry, 'itemsCountByAssignedUser', {
+        type: BOARD_TYPES.DEAL,
+        pipelineId: pipelineNoLabels._id
+      });
+
+      expect(response).toStrictEqual({});
+    });
+
+    test('When stackBy is dueDate', async () => {
+      const response = await graphqlRequest(qry, 'itemsCountByAssignedUser', {
+        type: BOARD_TYPES.DEAL,
+        pipelineId: pipeline._id,
+        stackBy: 'dueDate'
+      });
+
+      expect(response.groups).toHaveLength(5);
+    });
   });
 });

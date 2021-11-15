@@ -104,7 +104,7 @@ class List extends React.Component<Props, {}> {
     const actionBarRight = (
       <Link to="/forms/create">
         <Button btnStyle="success" size="small" icon="plus-circle">
-          Create Pop Ups
+          Create Form
         </Button>
       </Link>
     );
