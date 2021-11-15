@@ -3,7 +3,7 @@ import { getDocument } from './mutations/cacheUtils';
 
 export default {
   async fromUser(emailDelivery: IEmailDeliveriesDocument) {
-    return (await getDocument('users', { _id: emailDelivery.userId })) || {};
+    return getDocument('users', { _id: emailDelivery.userId });
   },
 
   async fromEmail(emailDelivery: IEmailDeliveriesDocument) {
