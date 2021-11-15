@@ -272,33 +272,6 @@ describe('integrationQueries', () => {
     expect(response.leadMessengerApps.length).toBe(0);
     expect(response.healthStatus).toBeDefined();
 
-    // booking integration detail
-    const rootCategory = await productCategoryFactory({ order: 'root' });
-
-    const childCategory = await productCategoryFactory({
-      parentId: rootCategory._id,
-      order: 'root/child'
-    });
-
-    await productFactory({ categoryId: childCategory._id, productCount: 2 });
-    await productFactory({ categoryId: childCategory._id, productCount: 0 });
-
-    const bookingIntegration = await integrationFactory({
-      kind: 'booking',
-      tagIds: [tag._id],
-      brandId: 'fakeId',
-      bookingData: {
-        name: 'booking',
-        productCategoryId: rootCategory._id
-      }
-    });
-
-    response = await graphqlRequest(qry, 'integrationDetail', {
-      _id: bookingIntegration._id
-    });
-
-    expect(response._id).toBe(bookingIntegration._id);
-
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
     spy.mockImplementation(() => Promise.resolve([]));
 
@@ -517,5 +490,63 @@ describe('integrationQueries', () => {
     expect(activeResponse.byStatus.archived).toBe(0);
     expect(archivedResponse.byStatus.active).toBe(0);
     expect(archivedResponse.byStatus.archived).toBe(1);
+  });
+
+  test('Booking integration detail', async () => {
+    const qry = `
+      query integrationDetail($_id: String!) {
+        integrationDetail(_id: $_id) {
+          _id
+          kind
+          name
+          brandId
+          languageCode
+          code
+          formId
+          leadData
+          messengerData
+          uiOptions
+          brand { _id }
+          form { _id }
+          channels { _id }
+          tags { _id }
+          bookingData {
+            name
+            mainProductCategory {
+              _id
+            }
+            categoryTree
+          }
+        }
+      }
+    `;
+
+    const tag = await tagsFactory();
+
+    const rootCategory = await productCategoryFactory({ order: 'root' });
+
+    const childCategory = await productCategoryFactory({
+      parentId: rootCategory._id,
+      order: 'root/child'
+    });
+
+    await productFactory({ categoryId: childCategory._id, productCount: 2 });
+    await productFactory({ categoryId: childCategory._id, productCount: 0 });
+
+    const bookingIntegration = await integrationFactory({
+      kind: 'booking',
+      tagIds: [tag._id],
+      brandId: 'fakeId',
+      bookingData: {
+        name: 'booking',
+        productCategoryId: rootCategory._id
+      }
+    });
+
+    const response = await graphqlRequest(qry, 'integrationDetail', {
+      _id: bookingIntegration._id
+    });
+
+    expect(response._id).toBe(bookingIntegration._id);
   });
 });
