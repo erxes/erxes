@@ -5,8 +5,10 @@ title: Text info
 
 import { TextInfoComponent } from "./textinfo.js"
 
+## Types
+
 <p>Change text style by <code>textStyle</code> prop.</p>
-<TextInfoComponent type="textStyle" style={['default', 'primary', 'success', 'danger', 'warning', 'simple']}></TextInfoComponent>
+<TextInfoComponent type="textStyle" style={['primary', 'success', 'danger', 'warning', 'simple']}></TextInfoComponent>
 
 ## Size
 
@@ -16,6 +18,6 @@ import { TextInfoComponent } from "./textinfo.js"
 ## API
 
 <TextInfoComponent type="APItextinfo" table={[
-['textStyle', 'string', 'default', 'put style to text'],
-['hugeness', 'string', 'small', 'choose hugeness of the text']
+['textStyle', 'primary | success | danger | warning | simple', 'default', 'Style the text'],
+['hugeness', 'string', 'small', 'Set the size of the text']
 ]}></TextInfoComponent>

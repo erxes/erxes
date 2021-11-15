@@ -20,13 +20,18 @@ import { UploaderComponent } from "./uploader.js"
 
 ## Single
 
-<p></p>
+<p>Make the uploader inactive to upload files with <code>single</code> prop.</p>
 <UploaderComponent singl={true} />
+
+## Default files
+
+<p>Show default files by giving the files array to <code>defaultFileList</code></p>
+<UploaderComponent defaultFiles />
 
 ## API
 
 <UploaderComponent type="APIuploader" table={[
-  ['single', 'boolean', '', 'single prop'],
-  ['multiple', 'boolean', 'true', 'define choose one file or multiple file'],
-  ['limit', 'number', '4', 'limit of how many file to choose']
+  ['single', 'boolean', '', 'Make the uploader inactive to upload'],
+  ['multiple', 'boolean', 'true', 'Make the uploader able to upload multiple files'],
+  ['limit', 'number', '4', 'Limit the number of files to upload']
 ]} />

@@ -28,11 +28,13 @@ function TagComponent(props) {
 
   const stringify = (datas) => {
     let string = JSON.stringify(datas);
-    string = string.replace(/{"tags":/g, "tags=");
+    string = string.replace(/{"tags":/g, "tags={");
     string = string.replace(/{"/g, "\n\t\t{");
     string = string.replace(/":/g, ":");
     string = string.replace(/,"/g, ", ");
-    string = string.replace(/]}/g, "\n\t]");
+    string = string.replace(/]/g, "\n\t]");
+    string = string.replace(/3}/g, "3");
+    string = string.replace(/], limit:/g, "]} limit=");
 
     return string;
   }

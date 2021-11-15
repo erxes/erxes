@@ -12,8 +12,9 @@ import { TagComponent, ApiTable } from "./tag.js"
 <p>Give any color to tag by <code>colorCode</code> prop.</p>
 <TagComponent type="color" colors={['red', 'yellow', 'blue', 'purple', 'green']} />
 
-## Limit the tags
+## Limit
 
+<p>Limit number of tags to show by <code>limit</code> prop.</p>
 <TagComponent type="limit" colors={['red', 'yellow', 'blue', 'purple', 'green']} />
 
 ## API

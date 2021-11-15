@@ -1,6 +1,6 @@
 import React from "react";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable} from "../common.js";
+import { renderApiTable } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 import Toggle from "erxes-ui/lib/components/Toggle";
 import styles from "../../../src/components/styles.module.css";
@@ -9,9 +9,9 @@ export function ToggleComponent(props) {
   const { type, table = [] } = props;
 
   let icon = {
-              checked: "Y",
-              unchecked: "N",
-            }
+    checked: "Y",
+    unchecked: "N",
+  };
 
   const propDatas = (propName, extra) => {
     const kind = {
@@ -22,31 +22,27 @@ export function ToggleComponent(props) {
     return kind;
   };
 
-  const stringify = (kind) => {
-    let string = JSON.stringify(kind);
-    string = string.replace(/}},"/g, "}} ");
-    string = string.replace(/},"/g, "}, ");
-    string = string.replace(/":/g, ":");
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/{}/g, "");
     string = string.replace(/{"/g, "{");
+    string = string.replace(/":/g, ":");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/:true/g, "");
     string = string.slice(1, string.length - 1);
     string = string.replace(/icons:/g, "icons=");
-    string = string.replace(/,"/g, ", ");
 
     return string;
-  }
+  };
 
   const renderBlock = (propName, extra) => {
     return (
       <>
         <div className={styles.styled}>
-          <Toggle
-            {...propDatas(propName, extra)}
-          />
+          <Toggle {...propDatas(propName, extra)} />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n<Toggle 
-    ${stringify(propDatas(propName, extra))}
-    />\n</>`}
+          {`<>\n\t<Toggle ${stringify(propDatas(propName, extra))}/>\n</>`}
         </CodeBlock>
       </>
     );

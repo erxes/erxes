@@ -5,7 +5,7 @@ import CodeBlock from "@theme/CodeBlock";
 import Table from "erxes-ui/lib/components/table/index";
 
 export function AttachmentComponent(props) {
-  const { type, additionalItem, simple, table=[] } = props;
+  const { type, additionalItem, simple } = props;
 
   const image = {
     name: "logo_dark.svg",
