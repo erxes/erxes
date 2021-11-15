@@ -10,6 +10,7 @@ import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
+  fieldFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
@@ -19,6 +20,7 @@ import {
   userFactory
 } from '../db/factories';
 import { Brands, Conversations, Customers, Integrations } from '../db/models';
+import { FIELD_CONTENT_TYPES } from '../data/constants';
 
 describe('widgetQueries', () => {
   const widgetsGetEngageMessageQuery = `query widgetsGetEngageMessage($integrationId: String, $customerId: String!, $browserInfo: JSON!) {
@@ -483,11 +485,7 @@ describe('widgetQueries', () => {
           _id
 
           bookingData {
-            categoryTree {
-              _id
-              name
-              count
-            }
+            categoryTree 
 
             mainProductCategory {
               _id
@@ -502,5 +500,30 @@ describe('widgetQueries', () => {
     });
 
     expect(integration._id).toBe(response._id);
+  });
+
+  test('widgetsFields', async () => {
+    // create product field
+    const field = await fieldFactory({
+      contentType: FIELD_CONTENT_TYPES.PRODUCT
+    });
+
+    const qry = `
+      query widgetsFields($contentType: String! $contentTypeId: String) {
+        widgetsFields(contentType: $contentType contentTypeId: $contentTypeId) {
+          _id
+          contentType
+          text
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsFields', {
+      contentType: field.contentType,
+      contentTypeId: field.contentTypeId
+    });
+
+    expect(response[0]._id).toBe(field._id);
+    expect(response[0].contentType).toBe(field.contentType);
   });
 });
