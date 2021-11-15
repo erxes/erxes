@@ -51,6 +51,7 @@ const productFields = `
   productCount
 
   customFieldsDataWithText
+  customFieldsData
 `;
 
 const productCategory = `
@@ -133,6 +134,8 @@ const widgetsConnectMutation = `
 
         productCategoryId
 
+        productFieldIds
+
         categoryTree
 
         style
@@ -157,9 +160,22 @@ export const saveBookingMutation = `
   }
 `;
 
+const fields = `
+  query widgetsFields($contentType: String! $contentTypeId: String) {
+    widgetsFields(contentType: $contentType contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      name
+      text
+    }
+  }
+`;
+
 export {
   productCategory,
   productDetail,
   formDetailQuery,
-  widgetsConnectMutation
+  widgetsConnectMutation,
+  fields
 };

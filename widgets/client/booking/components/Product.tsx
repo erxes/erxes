@@ -1,16 +1,16 @@
 import * as React from "react";
-import { useState } from "react";
-import { IBookingData, IFieldDataWithText } from "../types";
+import { IBookingData, IFieldData } from "../types";
 import { readFile, __ } from "../../utils";
 import { IProduct } from "../../types";
 import Button from "./common/Button";
-import { render } from "react-dom";
+import { IField } from "../../form/types";
 
 type Props = {
   product?: IProduct;
   booking: IBookingData;
   goToCategory: (categoryId: string) => void;
   showPopup: () => void;
+  fields?: IField[];
 };
 
 class Product extends React.Component<Props, { selectedImageUrl: string }> {
@@ -18,18 +18,21 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
     super(props);
 
     this.state = {
-      selectedImageUrl: "",
+      selectedImageUrl: ""
     };
   }
 
   render() {
-    const { product, booking, goToCategory, showPopup } = this.props;
+    const { product, booking, goToCategory, showPopup, fields } = this.props;
 
-    if (!product || !booking) {
+    if (!product || !booking || !fields) {
       return null;
     }
+
+    const { productFieldIds } = booking;
     const { widgetColor } = booking.style;
-    const customFieldsDataWithText = product.customFieldsDataWithText || [];
+
+    const customFieldsData = product.customFieldsData || [];
 
     const showFull = (img: any) => {
       const image = document.getElementById("img-active") as HTMLImageElement;
@@ -39,12 +42,25 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
       this.setState({ selectedImageUrl: img.url || "" });
     };
 
+    const data: any = {};
+
+    for (const customFieldData of customFieldsData || []) {
+      data[customFieldData.field] = customFieldData.value;
+    }
+
     const renderFieldData = () =>
-      customFieldsDataWithText.map((field: IFieldDataWithText, index: any) => (
-        <p key={index}>
-          <strong>{field.text}:</strong> {field.value}
-        </p>
-      ));
+      fields.map((field: IField, index: any) => {
+        if (!data[field._id] || productFieldIds.indexOf(field._id) === -1) {
+          return null;
+        }
+
+        return (
+          <p key={index}>
+            <strong>{field.text}: </strong>
+            {data[field._id] || ""}
+          </p>
+        );
+      });
 
     const scrollPerClick = 200;
     let scrollAmount = 0;
@@ -56,7 +72,7 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
         carousel.scrollTo({
           top: 0,
           left: scrollAmount -= scrollPerClick,
-          behavior: "smooth",
+          behavior: "smooth"
         });
 
         if (scrollAmount < 0) {
@@ -69,13 +85,13 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
           carousel.scrollTo({
             top: 0,
             left: scrollAmount += scrollPerClick,
-            behavior: "smooth",
+            behavior: "smooth"
           });
         } else {
           carousel.scrollTo({
             top: 0,
             left: scrollAmount = -scrollPerClick,
-            behavior: "smooth",
+            behavior: "smooth"
           });
         }
       }
@@ -123,7 +139,7 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
                           this.state.selectedImageUrl === img.url
                             ? widgetColor
                             : "transparent"
-                        }`,
+                        }`
                       }}
                     >
                       <img
