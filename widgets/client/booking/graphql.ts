@@ -167,6 +167,8 @@ const fields = `
       contentTypeId
       name
       text
+      type
+      isDefinedByErxes
     }
   }
 `;
