@@ -1,5 +1,5 @@
-import { IField } from '../form/types';
-import { IProduct, IProductCategory } from '../types';
+import { IField } from "../form/types";
+import { IProduct, IProductCategory } from "../types";
 
 export interface IStyle {
   itemShape?: string;
@@ -40,11 +40,6 @@ export interface IBookingData {
 
   mainProductCategory: IProductCategory;
   productFieldIds: string[];
-}
-
-export interface IFieldData {
-  field: string;
-  value: string;
 }
 
 export type FieldsQueryResponse = {

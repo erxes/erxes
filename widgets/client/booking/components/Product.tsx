@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IBookingData, IFieldData } from "../types";
+import { IBookingData } from "../types";
 import { readFile, __ } from "../../utils";
 import { IProduct } from "../../types";
 import Button from "./common/Button";
