@@ -1,14 +1,10 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-// import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
-import {
-  AllUsersQueryResponse,
-  UsersQueryResponse
-} from 'modules/settings/team/types';
+import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
@@ -47,8 +43,6 @@ type ContainerProps = {
 type FinalProps = {
   detailQuery: DetailQueryResponse;
   usersQuery: AllUsersQueryResponse;
-  currentUsersQuery: UsersQueryResponse;
-  // currentUser: IUser;
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
@@ -206,8 +200,6 @@ class EditFormContainer extends React.Component<FinalProps> {
   render() {
     const { usersQuery, detailQuery, options } = this.props;
 
-    // console.log(currentUser, 'hh');
-
     if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
     }
@@ -274,9 +266,6 @@ const withQuery = (props: ContainerProps) => {
           name: 'usersQuery'
         }
       ),
-      graphql<ContainerProps, UsersQueryResponse>(gql(userQueries.allUsers), {
-        name: 'currentUsersQuery'
-      }),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
