@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+// import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
@@ -47,6 +48,7 @@ type FinalProps = {
   detailQuery: DetailQueryResponse;
   usersQuery: AllUsersQueryResponse;
   currentUsersQuery: UsersQueryResponse;
+  // currentUser: IUser;
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
@@ -202,9 +204,9 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { usersQuery, detailQuery, options, currentUsersQuery } = this.props;
+    const { usersQuery, detailQuery, options } = this.props;
 
-    console.log(usersQuery, currentUsersQuery, 'hh');
+    // console.log(currentUser, 'hh');
 
     if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
