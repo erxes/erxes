@@ -50,7 +50,6 @@ const productFields = `
   }
   productCount
 
-  customFieldsDataWithText
   customFieldsData
 `;
 

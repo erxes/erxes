@@ -35,8 +35,6 @@ export const types = `
 
     category: ProductCategory
     vendor: Company
-    
-    customFieldsDataWithText: JSON
   }
 `;
 
