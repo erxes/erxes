@@ -48,8 +48,14 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
       data[customFieldData.field] = customFieldData.value;
     }
 
-    const renderFieldData = () =>
+    const renderFieldsData = () =>
       fields.map((field: IField, index: any) => {
+        if (field.isDefinedByErxes) {
+          if (productFieldIds.indexOf(field._id) !== -1) {
+            data[field._id] = product[field.type as keyof IProduct];
+          }
+        }
+
         if (!data[field._id] || productFieldIds.indexOf(field._id) === -1) {
           return null;
         }
@@ -163,7 +169,7 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
                 />
               </p>
             </div>
-            {renderFieldData()}
+            {renderFieldsData()}
           </div>
         </div>
 
