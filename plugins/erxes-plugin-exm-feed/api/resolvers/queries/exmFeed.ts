@@ -19,7 +19,7 @@ const exmFeedQueries = [
   {
     name: 'exmFeedDetail',
     handler: async (_root, params, { models, checkPermission, user }) => {
-      await checkPermission('showExm', user);
+      await checkPermission('showExmActivityFeed', user);
 
       return models.ExmFeed.findOne({ _id: params._id });
     }
@@ -31,7 +31,7 @@ const exmFeedQueries = [
       { contentType, filterType },
       { models, checkPermission, user }
     ) => {
-      await checkPermission('showExm', user);
+      await checkPermission('showExmActivityFeed', user);
 
       const filter: {
         'ceremonyData.willDate': any;
@@ -57,7 +57,7 @@ const exmFeedQueries = [
       { isPinned, title, contentTypes, limit, skip, recipientType, type },
       { models, checkPermission, user }
     ) => {
-      await checkPermission('showExm', user);
+      await checkPermission('showExmActivityFeed', user);
 
       const doc: any = {};
 

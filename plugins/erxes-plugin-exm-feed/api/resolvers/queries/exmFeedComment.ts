@@ -6,7 +6,7 @@ const exmFeedCommentQueries = [
       { limit, skip, feedId, parentId },
       { models, checkPermission, user }
     ) => {
-      await checkPermission('showExm', user);
+      await checkPermission('showExmActivityFeed', user);
 
       const filter: any = {
         feedId

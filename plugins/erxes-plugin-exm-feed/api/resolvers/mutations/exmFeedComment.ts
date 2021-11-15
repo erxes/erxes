@@ -13,7 +13,7 @@ const exmFeedCommentMutations = [
       doc,
       { checkPermission, user, docModifier, models }
     ) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const comment = await models.ExmFeedComments.createComment(
         models,
@@ -32,7 +32,7 @@ const exmFeedCommentMutations = [
       { _id, ...doc },
       { checkPermission, user, docModifier, models }
     ) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const updated = await models.ExmFeedComments.updateComment(
         models,
@@ -48,7 +48,7 @@ const exmFeedCommentMutations = [
   {
     name: 'exmFeedCommentRemove',
     handler: async (_root, { _id }, { models, checkPermission, user }) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const comment = await models.ExmFeedComments.removeComment(models, _id);
 

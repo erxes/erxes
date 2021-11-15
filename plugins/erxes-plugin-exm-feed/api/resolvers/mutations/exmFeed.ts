@@ -15,7 +15,7 @@ const exmFeedMutations = [
       doc,
       { checkPermission, user, docModifier, models, messageBroker }
     ) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const exmFeed = await models.ExmFeed.createExmFeed(
         models,
@@ -46,7 +46,7 @@ const exmFeedMutations = [
       { _id, ...doc },
       { checkPermission, user, docModifier, models, messageBroker }
     ) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const exmFeed = await models.ExmFeed.getExmFeed(models, _id);
 
@@ -81,7 +81,7 @@ const exmFeedMutations = [
       { _id },
       { models, checkPermission, user, messageBroker }
     ) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const exmFeed = await models.ExmFeed.removeExmFeed(models, _id);
 
@@ -103,7 +103,7 @@ const exmFeedMutations = [
   {
     name: 'exmFeedToggleIsPinned',
     handler: async (_root, { _id }, { models, checkPermission, user }) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const exmFeed = await models.ExmFeed.getExmFeed(models, _id);
 

@@ -18,7 +18,7 @@ export default () => ({
     label: 'Team Activity Feed',
     icon: 'icon-list-2',
     link: '/list',
-    permission: 'showExmFeed'
+    permission: 'showExmActivityFeed'
   },
   property: {
     label: 'Exm',

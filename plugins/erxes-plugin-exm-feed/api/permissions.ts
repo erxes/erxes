@@ -1,9 +1,9 @@
 export default [
-  { name: 'showExm', description: 'Show activity feed' },
-  { name: 'manageExm', description: 'Manage activity feed' },
+  { name: 'showExmActivityFeed', description: 'Show exm activity feed' },
+  { name: 'manageExmActivityFeed', description: 'Manage exm activity feed' },
   {
-    name: 'all',
+    name: 'exmActivityFeedAll',
     description: 'All',
-    use: ['showExm', 'manageExm']
+    use: ['showExmActivityFeed', 'manageExmActivityFeed']
   }
 ];

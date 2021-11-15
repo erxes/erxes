@@ -6,7 +6,7 @@ const exmThankQueries = [
       { limit, skip, type },
       { models, checkPermission, user }
     ) => {
-      await checkPermission('showExm', user);
+      await checkPermission('showExmActivityFeed', user);
 
       const doc: { createdBy?: string; recipientIds?: any } = {};
 

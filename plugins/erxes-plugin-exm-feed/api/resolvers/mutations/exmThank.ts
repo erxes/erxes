@@ -13,7 +13,7 @@ const exmThankMutations = [
       doc,
       { checkPermission, user, docModifier, models }
     ) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const exmThank = models.ExmThanks.createThank(
         models,
@@ -44,7 +44,7 @@ const exmThankMutations = [
       { _id, ...doc },
       { checkPermission, user, docModifier, models }
     ) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const updated = await models.ExmThanks.updateThank(
         models,
@@ -60,7 +60,7 @@ const exmThankMutations = [
   {
     name: 'exmThankRemove',
     handler: async (_root, { _id }, { models, checkPermission, user }) => {
-      await checkPermission('manageExm', user);
+      await checkPermission('manageExmActivityFeed', user);
 
       const exmThank = models.ExmThanks.removeThank(models, _id);
 
