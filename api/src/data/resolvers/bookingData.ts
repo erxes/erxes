@@ -1,4 +1,5 @@
 import { ProductCategories, Products } from '../../db/models';
+import { PRODUCT_STATUSES } from '../../db/models/definitions/constants';
 import { IBookingData } from '../../db/models/definitions/integrations';
 
 export default {
@@ -22,7 +23,8 @@ export default {
     }).sort({ name: 1 });
 
     const allProducts = await Products.find({
-      categoryId: { $in: allCategories.map(cat => cat._id) }
+      categoryId: { $in: allCategories.map(cat => cat._id) },
+      status: { $ne: PRODUCT_STATUSES.DELETED }
     }).sort({ name: 1 });
 
     const generateTree = async (parentId: any) => {
