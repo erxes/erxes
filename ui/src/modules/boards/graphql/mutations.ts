@@ -2,6 +2,7 @@ export const commonMutationVariables = `
   $proccessId: String,
   $aboveItemId: String,
   $stageId: String,
+  $startDate: Date,
   $closeDate: Date,
   $description: String,
   $assignedUserIds: [String],
@@ -19,6 +20,7 @@ export const commonMutationParams = `
   proccessId: $proccessId,
   aboveItemId: $aboveItemId,
   stageId: $stageId,
+  startDate: $startDate,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
@@ -91,6 +93,7 @@ export const commonFields = `
     primaryPhone
     visitorContactInfo
   }
+  startDate
   closeDate
   description
   priority

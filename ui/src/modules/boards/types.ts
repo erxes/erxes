@@ -127,7 +127,7 @@ export interface IItem {
   order: number;
   stageId: string;
   boardId?: string;
-  startDate?: Date;
+  startDate: Date;
   closeDate: Date;
   description: string;
   amount: number;

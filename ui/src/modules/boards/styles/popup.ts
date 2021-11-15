@@ -16,6 +16,14 @@ const buttonColor = name => {
     return lighten(colors.colorCoreYellow, 10);
   }
 
+  if (name === 'blue') {
+    return lighten(colors.colorCoreBlue, 10);
+  }
+
+  if (name === 'teal') {
+    return lighten(colors.colorCoreTeal, 10);
+  }
+
   return colors.colorCoreLightGray;
 };
 
