@@ -3,6 +3,7 @@ import TimeLine from 'react-gantt-timeline';
 import {
   GanttContainer,
   NavContainer,
+  ModeTitle,
   ModeContainer,
   TimelineContainer
 } from 'modules/boards/styles/viewtype';
@@ -119,6 +120,7 @@ const GanttChart = (props: Props) => {
   return (
     <GanttContainer>
       <NavContainer>
+        <ModeTitle></ModeTitle>
         <ModeContainer>
           <Button
             btnStyle="simple"
@@ -148,10 +150,10 @@ const GanttChart = (props: Props) => {
           >
             {__('Year')}
           </Button>
-          <Button btnStyle="danger" onClick={deleteItem}>
+          <Button btnStyle="danger" size="small" onClick={deleteItem}>
             {__('Delete')}
           </Button>
-          <Button btnStyle="success" onClick={save}>
+          <Button btnStyle="success" size="small" onClick={save}>
             {__('Save')}
           </Button>
         </ModeContainer>

@@ -58,7 +58,9 @@ export const config = {
     task: {
       style: {
         backgroundColor: 'white',
-        color: '#393C40'
+        color: '#393C40',
+        textAlign: 'left',
+        paddingLeft: 10
       },
       verticalSeparator: {
         grip: {
@@ -81,6 +83,11 @@ export const config = {
           boxShadow: '2px 2px 8px #888888'
         }
       }
+    },
+    links: {
+      //The link between two task
+      color: 'black',
+      selectedColor: '#ff00fa'
     }
   }
 };
