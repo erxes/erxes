@@ -10,7 +10,6 @@ import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
-  fieldFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
@@ -20,7 +19,6 @@ import {
   userFactory
 } from '../db/factories';
 import { Brands, Conversations, Customers, Integrations } from '../db/models';
-import { FIELD_CONTENT_TYPES } from '../data/constants';
 
 describe('widgetQueries', () => {
   const widgetsGetEngageMessageQuery = `query widgetsGetEngageMessage($integrationId: String, $customerId: String!, $browserInfo: JSON!) {
