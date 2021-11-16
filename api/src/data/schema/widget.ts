@@ -73,7 +73,7 @@ export const queries = `
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
   widgetsProductCategory(_id: String!): ProductCategory
-  bookingProductWithFields(_id: String!): BookingProduct
+  widgetsBookingProductWithFields(_id: String!): BookingProduct
 `;
 
 export const mutations = `

@@ -152,8 +152,8 @@ export const saveBookingMutation = `
 `;
 
 const bookingProductWithFields = `
-  query bookingProductWithFields($_id: String!) {
-    bookingProductWithFields(_id: $_id) {
+  query widgetsBookingProductWithFields($_id: String!) {
+    widgetsBookingProductWithFields(_id: $_id) {
       fields {
         _id
         contentType

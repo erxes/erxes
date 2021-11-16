@@ -14,7 +14,7 @@ type Props = {
 };
 
 type QueryResponse = {
-  bookingProductWithFields: IProductWithFields;
+  widgetsBookingProductWithFields: IProductWithFields;
 };
 
 function ProductContainer(props: ChildProps<Props, QueryResponse>) {
@@ -25,7 +25,7 @@ function ProductContainer(props: ChildProps<Props, QueryResponse>) {
   }
 
   const productWithFields =
-    data.bookingProductWithFields || ({} as IProductWithFields);
+    data.widgetsBookingProductWithFields || ({} as IProductWithFields);
 
   const extendedProps = {
     ...props,

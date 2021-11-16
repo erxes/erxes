@@ -244,7 +244,7 @@ export default {
     return ProductCategories.findOne({ _id });
   },
 
-  async bookingProductWithFields(_root, { _id }: { _id: string }) {
+  async widgetsBookingProductWithFields(_root, { _id }: { _id: string }) {
     const product = await Products.getProduct({ _id });
 
     const fields = await Fields.find({ contentType: 'product' }).sort({
