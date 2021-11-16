@@ -1699,6 +1699,7 @@ describe('lead', () => {
   });
 
   test('saveBooking: form not found', async () => {
+    const product = await productFactory({});
     try {
       await widgetMutations.widgetsSaveBooking(
         {},
@@ -1707,7 +1708,7 @@ describe('lead', () => {
           formId: '_id',
           submissions: [{ _id: 'id', value: null }],
           browserInfo: {},
-          productId: '_i'
+          productId: product._id
         }
       );
     } catch (e) {
