@@ -20,6 +20,7 @@ import ConfigStep from './step/ConfigStep';
 import GeneralStep from './step/GeneralStep';
 import { PLUGIN_URL } from '../../constants';
 import Appearance, { IUIOptions } from './step/Appearance';
+import EbarimtConfig from './step/EbarimtConfig';
 
 type Props = {
   integration?: IIntegration;
@@ -39,13 +40,17 @@ type State = {
   description?: string;
   pos?: IPos;
   groups: IProductGroup[];
-  currentMode: 'create' | 'update' | undefined;
-  logoPreviewStyle: any;
-  logoPreviewUrl: string;
+  currentMode?: 'create' | 'update' | undefined;
+  logoPreviewStyle?: any;
+  logoPreviewUrl?: string;
   uiOptions: IUIOptions;
+  carousel: string;
+  formData?: any;
+  isSkip: boolean;
+  ebarimtConfig: any;
 };
 
-class Lead extends React.Component<Props, State> {
+class Pos extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -66,16 +71,17 @@ class Lead extends React.Component<Props, State> {
       brand: integration.brandId,
       pos,
       carousel: 'pos',
-      currentMode: props.currentMode,
       groups: props.groups || [],
-      uiOptions
+      uiOptions,
+      isSkip: false,
+      ebarimtConfig: pos.ebarimtConfig,
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, pos, groups, uiOptions } = this.state;
+    const { brand, pos, groups, uiOptions, ebarimtConfig } = this.state;
 
     if (!pos.name) {
       return Alert.error('Enter a Pos name');
@@ -106,7 +112,8 @@ class Lead extends React.Component<Props, State> {
       kitchenScreen: pos.kitchenScreen,
       formSectionTitle: pos.formSectionTitle,
       formIntegrationIds: pos.formIntegrationIds,
-      uiOptions
+      uiOptions,
+      ebarimtConfig
     };
 
     this.props.save(doc);
@@ -129,8 +136,6 @@ class Lead extends React.Component<Props, State> {
 
     if (pos.uiOptions) {
       pos.uiOptions = uiOptions;
-    } else {
-      pos = { uiOptions };
     }
 
     this.setState({ pos });
@@ -248,6 +253,17 @@ class Lead extends React.Component<Props, State> {
                   logoPreviewUrl={logoPreviewUrl}
                 />
               </Step>
+              <Step
+                img="/images/icons/erxes-05.svg"
+                title={'ebarimt Config'}
+                onClick={this.onStepClick}
+                noButton={true}
+              >
+                <EbarimtConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                />
+              </Step>
             </Steps>
             <ControlWrapper>
               <Indicator>
@@ -263,4 +279,4 @@ class Lead extends React.Component<Props, State> {
   }
 }
 
-export default Lead;
+export default Pos;

@@ -1,10 +1,11 @@
-import { ControlLabel } from "modules/common/components/form";
+
 import { LeftItem } from "erxes-ui/lib/components/step/styles";
 import { __, uploadHandler, FormGroup, AvatarUpload } from "erxes-ui";
 import React from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Popover from "react-bootstrap/Popover";
 import TwitterPicker from "react-color/lib/Twitter";
+import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import {
   AppearanceRow,
   ColorPick,

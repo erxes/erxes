@@ -4,12 +4,12 @@ import {
   __,
   Box,
   DataWithLoader,
-  IBrand,
   router,
   FieldStyle,
   SidebarCounter,
   SidebarList
 } from 'erxes-ui';
+import { IBrand } from 'erxes-ui/lib/types'
 import { IRouterProps } from '../../../types';
 
 interface IProps extends IRouterProps {

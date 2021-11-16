@@ -56,16 +56,16 @@ export default {
                 form_id: "${form.code}"
               }],
             };
-          
+
           (function() {
             var script = document.createElement('script');
             script.src = "${WIDGETS_DOMAIN}/build/formWidget.bundle.js";
             script.async = true;
-          
+
             var entry = document.getElementsByTagName('script')[0];
             entry.parentNode.insertBefore(script, entry);
           })();
-          
+
           </script>`;
             forms.push({ installScript, name: integration.name });
           }

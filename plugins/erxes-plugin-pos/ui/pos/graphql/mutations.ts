@@ -21,6 +21,7 @@ const commonFields = `
   $uiOptions: JSON
   $formSectionTitle: String
   $formIntegrationIds: [String]
+  $ebarimtConfig: JSON
 `;
 
 const commonVariables = `
@@ -36,6 +37,7 @@ const commonVariables = `
   uiOptions: $uiOptions
   formSectionTitle: $formSectionTitle
   formIntegrationIds: $formIntegrationIds
+  ebarimtConfig: $ebarimtConfig
 `;
 
 const posAdd = `

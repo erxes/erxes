@@ -12,4 +12,5 @@ export interface IPOS {
   uiOptions: any;
   formSectionTitle: string;
   formIntegrationIds: string[];
+  ebarimtConfig: any;
 }

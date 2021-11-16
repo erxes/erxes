@@ -22,6 +22,7 @@ const posCommonFields = `
   formSectionTitle: String
   formIntegrationIds: [String]
   token: String
+  ebarimtConfig: JSON
 `;
 
 export const types = `
@@ -29,7 +30,7 @@ export const types = `
     _id: String
     createdAt: Date
     integrationId: String
-    userId: String 
+    userId: String
     integration: Integration
     user: User
     ${posCommonFields}

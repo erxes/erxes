@@ -26,7 +26,7 @@ const posCommonFields = `
   token
   adminIds
   cashierIds
-  
+
   integration {
     brandId
     brand {
@@ -56,6 +56,7 @@ const posCommonFields = `
   uiOptions
   formSectionTitle
   formIntegrationIds
+  ebarimtConfig
 `;
 
 const posList = `

@@ -20,7 +20,8 @@ export const posSChema = {
   uiOptions: { type: Object, label: 'UI Options' },
   formSectionTitle: { type: String, label: 'Form section title' },
   formIntegrationIds: { type: [String], label: 'Form integration ids' },
-  token: { type: String, label: 'Pos token' }
+  token: { type: String, label: 'Pos token' },
+  ebarimtConfig: { type: Object, label: 'Ebarimt Config' }
 };
 
 class Pos {

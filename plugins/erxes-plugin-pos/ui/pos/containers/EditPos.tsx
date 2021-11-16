@@ -1,10 +1,8 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps, Spinner } from 'erxes-ui';
+import gql from 'graphql-tag';
+import Pos from '../components/Pos';
 import React from 'react';
-import { graphql } from 'react-apollo';
-import { IRouterProps } from 'erxes-ui/lib/types';
-import { queries, mutations } from '../graphql';
+import { Alert, Spinner, withProps } from 'erxes-ui';
 import {
   EditPosMutationResponse,
   GroupsBulkInsertMutationResponse,
@@ -16,7 +14,10 @@ import {
   PosDetailQueryResponse,
   SchemaLabelsQueryResponse
 } from '../../types';
-import Pos from '../components/Pos';
+import { graphql } from 'react-apollo';
+import { IPos } from '../../types';
+import { IRouterProps } from 'erxes-ui/lib/types';
+import { mutations, queries } from '../graphql';
 import { PLUGIN_URL } from '../../constants';
 
 type Props = {
@@ -57,7 +58,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       schemaLabelsQuery
     } = this.props;
 
-    const pos = posDetailQuery.posDetail || {};
+    const pos = posDetailQuery.posDetail || {} as IPos;
     const groups = groupsQuery.productGroups || [];
     const integration = pos.integration || {};
     const formIntegrations = integrationsQuery.integrations || [];
@@ -160,7 +161,7 @@ export default withProps<FinalProps>(
       name: 'editPosMutation'
     }),
 
-    graphql<Props,GroupsBulkInsertMutationResponse,{ posId: string; groups: IProductGroup[] }>(gql(mutations.saveProductGroups), {
+    graphql<Props, GroupsBulkInsertMutationResponse, { posId: string; groups: IProductGroup[] }>(gql(mutations.saveProductGroups), {
       name: 'productGroupsBulkInsertMutation'
     }),
 

@@ -1,9 +1,6 @@
-import {
-  IProductCategory,
-  IProduct,
-  IBrand,
-  IUser
-} from 'erxes-ui/lib/products/types';
+import { IProductCategory, IProduct } from 'erxes-ui/lib/products/types';
+import { IUser } from 'erxes-ui/lib/auth/types'
+import { IBrand } from 'erxes-ui/lib/types'
 import { ITag } from 'erxes-ui/lib/tags/types';
 
 export type IConfigsMap = { [key: string]: any };
@@ -44,6 +41,7 @@ export type IPos = {
   uiOptions?: any;
   formSectionTitle?: string;
   formIntegrationIds: string[];
+  ebarimtConfig: any;
 };
 
 // query types
@@ -90,6 +88,7 @@ export interface IIntegration {
   isActive: boolean;
   tags: ITag[];
   brand: IBrand;
+  brandId: string;
 }
 
 export type IntegrationsQueryResponse = {
