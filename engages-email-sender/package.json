@@ -18,7 +18,7 @@
     "@types/mongoose": "^5.2.1",
     "@types/node": "^10.12.18",
     "amqplib": "^0.5.5",
-    "aws-sdk": "^2.493.0",
+    "aws-sdk": "^2.814.0",
     "body-parser": "^1.17.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
