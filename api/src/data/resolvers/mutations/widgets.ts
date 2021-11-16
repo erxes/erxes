@@ -49,6 +49,7 @@ import {
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
+import { IFormDocument } from '../../../db/models/definitions/forms';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -119,6 +120,87 @@ const createVisitor = async (visitorId: string) => {
   return customer;
 };
 
+const createFormConversation = async (
+  args: {
+    integrationId: string;
+    formId: string;
+    submissions: ISubmission[];
+    browserInfo: any;
+    cachedCustomerId?: string;
+  },
+  generateContent: (form: IFormDocument) => string,
+  generateConvData: () => {
+    conversation?: any;
+    message: any;
+  },
+  type?: string
+) => {
+  const { integrationId, formId, submissions } = args;
+
+  const form = await Forms.findOne({ _id: formId });
+
+  if (!form) {
+    throw new Error('Form not found');
+  }
+
+  const errors = await Forms.validate(formId, submissions);
+
+  if (errors.length > 0) {
+    return { status: 'error', errors };
+  }
+
+  const content = await generateContent(form);
+
+  const cachedCustomer = await solveSubmissions(args);
+
+  const conversationData = await generateConvData();
+
+  // create conversation
+  const conversation = await Conversations.createConversation({
+    integrationId,
+    customerId: cachedCustomer._id,
+    content,
+    ...conversationData.conversation
+  });
+
+  // create message
+  const message = await Messages.createMessage({
+    conversationId: conversation._id,
+    customerId: cachedCustomer._id,
+    content,
+    ...conversationData.message
+  });
+
+  graphqlPubsub.publish('conversationClientMessageInserted', {
+    conversationClientMessageInserted: message
+  });
+
+  graphqlPubsub.publish('conversationMessageInserted', {
+    conversationMessageInserted: message
+  });
+
+  if (type === 'lead') {
+    // increasing form submitted count
+    await Integrations.increaseContactsGathered(formId);
+
+    const formData = {
+      formId: args.formId,
+      submissions: args.submissions,
+      customer: cachedCustomer,
+      cachedCustomerId: cachedCustomer._id,
+      conversationId: conversation._id
+    };
+
+    await sendToWebhook('create', 'popupSubmitted', formData);
+  }
+
+  return {
+    status: 'ok',
+    messageId: message._id,
+    customerId: cachedCustomer._id
+  };
+};
+
 const widgetMutations = {
   // Find integrationId by brandCode
   async widgetsLeadConnect(
@@ -178,65 +260,22 @@ const widgetMutations = {
       cachedCustomerId?: string;
     }
   ) {
-    const { integrationId, formId, submissions } = args;
+    const { submissions } = args;
 
-    const form = await Forms.findOne({ _id: formId });
-
-    if (!form) {
-      throw new Error('Form not found');
-    }
-
-    const errors = await Forms.validate(formId, submissions);
-
-    if (errors.length > 0) {
-      return { status: 'error', errors };
-    }
-
-    const content = form.title;
-
-    const cachedCustomer = await solveSubmissions(args);
-
-    // create conversation
-    const conversation = await Conversations.createConversation({
-      integrationId,
-      customerId: cachedCustomer._id,
-      content
-    });
-
-    // create message
-    const message = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId: cachedCustomer._id,
-      content,
-      formWidgetData: submissions
-    });
-
-    // increasing form submitted count
-    await Integrations.increaseContactsGathered(formId);
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
-    });
-
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
-
-    const formData = {
-      formId: args.formId,
-      submissions: args.submissions,
-      customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id,
-      conversationId: conversation._id
-    };
-
-    await sendToWebhook('create', 'popupSubmitted', formData);
-
-    return {
-      status: 'ok',
-      messageId: message._id,
-      customerId: cachedCustomer._id
-    };
+    return createFormConversation(
+      args,
+      form => {
+        return form.title;
+      },
+      () => {
+        return {
+          message: {
+            formWidgetData: submissions
+          }
+        };
+      },
+      'lead'
+    );
   },
 
   widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {
@@ -957,7 +996,7 @@ const widgetMutations = {
     return integration;
   },
 
-  // create new conversation using form data
+  // create new booking conversation using form data
   async widgetsSaveBooking(
     _root,
     args: {
@@ -969,57 +1008,31 @@ const widgetMutations = {
       productId: string;
     }
   ) {
-    const { integrationId, formId, submissions, productId } = args;
-
-    const form = await Forms.findOne({ _id: formId });
-
-    if (!form) {
-      throw new Error('Form not found');
-    }
-
-    const errors = await Forms.validate(formId, submissions);
-
-    if (errors.length > 0) {
-      return { status: 'error', errors };
-    }
+    const { submissions, productId } = args;
 
     const product = await Products.getProduct({ _id: productId });
 
-    const content = `<p>submitted a new booking for <strong><a href="/settings/product-service/details/${productId}">${product?.name}</a> ${product?.code}</strong></p>`;
-
-    const cachedCustomer = await solveSubmissions(args);
-
-    // create conversation
-    const conversation = await Conversations.createConversation({
-      integrationId,
-      customerId: cachedCustomer._id,
-      content,
-      bookingProductId: product._id
-    });
-
-    const message = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId: cachedCustomer._id,
-      bookingWidgetData: {
-        formWidgetData: submissions,
-        productId,
-        content: product.name
+    return createFormConversation(
+      args,
+      () => {
+        return `<p>submitted a new booking for <strong><a href="/settings/product-service/details/${productId}">${product?.name}</a> ${product?.code}</strong></p>`;
       },
-      content
-    });
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
-    });
-
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
-
-    return {
-      status: 'ok',
-      customerId: cachedCustomer._id
-    };
+      () => {
+        return {
+          conversation: {
+            bookingProductId: product._id
+          },
+          message: {
+            bookingWidgetData: {
+              formWidgetData: submissions,
+              productId,
+              content: product.name
+            }
+          }
+        };
+      },
+      'booking'
+    );
   }
 };
 
