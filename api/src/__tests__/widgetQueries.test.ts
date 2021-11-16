@@ -443,12 +443,12 @@ describe('widgetQueries', () => {
     expect(productCategory._id).toBe(response._id);
   });
 
-  test('bookingProductWithFields', async () => {
+  test('widgetsBookingProductWithFields', async () => {
     const product = await productFactory({});
 
     const qry = `
-      query bookingProductWithFields($_id: String!) {
-        bookingProductWithFields(_id: $_id) {
+      query widgetsBookingProductWithFields($_id: String!) {
+        widgetsBookingProductWithFields(_id: $_id) {
           product {
             _id
           }
@@ -459,9 +459,13 @@ describe('widgetQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'bookingProductWithFields', {
-      _id: product._id
-    });
+    const response = await graphqlRequest(
+      qry,
+      'widgetsBookingProductWithFields',
+      {
+        _id: product._id
+      }
+    );
 
     expect(response.product._id).toBe(product._id);
     expect(response.fields).toBeDefined();
