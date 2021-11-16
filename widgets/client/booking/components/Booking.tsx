@@ -58,7 +58,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
         <div className="img-container">
           <img
             src={readFile(attachment && attachment.url)}
-            alt={attachment.url}
+            alt={booking.name}
           />
         </div>
         <div className="cards" style={gridStyle}>
