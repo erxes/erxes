@@ -11,7 +11,7 @@ import Button from 'modules/common/components/Button';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { genID } from './utils';
+import { genID, config } from './utils';
 
 type Props = {
   length: number;
@@ -160,6 +160,7 @@ const GanttChart = (props: Props) => {
         <TimeLine
           data={data}
           links={links}
+          config={config}
           onHorizonChange={onHorizonChange}
           onSelectItem={onSelectItem}
           onUpdateTask={onUpdateTask}

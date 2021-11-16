@@ -19,6 +19,34 @@ export function genID() {
 }
 
 export const config = {
+  header: {
+    top: {
+      style: {
+        backgroundColor: '#f7f9fa',
+        fontSize: 12,
+        color: '#393C40'
+      }
+    },
+    middle: {
+      style: {
+        backgroundColor: 'lightgrey',
+        fontSize: 9,
+        color: '#393C40'
+      }
+    },
+    bottom: {
+      style: {
+        background: 'white',
+        fontSize: 9,
+        color: '#393C40'
+      },
+      selectedStyle: {
+        background: 'linear-gradient( #d011dd ,#d011dd)',
+        fontWeight: 'bold',
+        color: 'white'
+      }
+    }
+  },
   taskList: {
     title: {
       label: 'Name',
@@ -37,6 +65,20 @@ export const config = {
           style: {
             backgroundColor: 'red'
           }
+        }
+      }
+    },
+    dataViewPort: {
+      rows: {
+        style: {
+          backgroundColor: '#fff'
+        }
+      },
+      task: {
+        showLabel: true,
+        style: {
+          borderRadius: 3,
+          boxShadow: '2px 2px 8px #888888'
         }
       }
     }
