@@ -96,7 +96,6 @@ export const saveBooking = (params: {
     })
 
     .catch(e => {
-      console.log(e);
       saveCallback({ status: 'error', errors: [{ text: e.message }] });
     });
 };

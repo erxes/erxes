@@ -51,7 +51,7 @@ const trackIframe = () => {
 if (!embedContainer) {
   console.log(
     'Please create a "div" element with an attribute named "data-erxes-booking"'
-  ); // eslint-disable-line
+  );
 } else {
   embedContainer.appendChild(erxesContainer);
   trackIframe();
