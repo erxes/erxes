@@ -70,7 +70,7 @@ const userQueries = {
    */
   async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
     const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
-    const sort = { username: 1 };
+    const sort = { isOwner: -1, username: 1 };
 
     return paginate(Users.find(selector).sort(sort), args);
   },
