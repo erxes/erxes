@@ -30,11 +30,11 @@ export function ChipComponent(props) {
           <Chip {...propDatas(propName)}>chip</Chip>
         </div>
 
-        <CodeBlock className="language-jsx">
+        {/* <CodeBlock className="language-jsx">
           {`<Chip ${stringify(
               propDatas(propName)
             )} >chip</Chip>`}
-        </CodeBlock>
+        </CodeBlock> */}
       </>
     );
   };

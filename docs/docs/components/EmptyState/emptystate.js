@@ -29,9 +29,9 @@ export function EmptyComponents(props) {
     return (
       <>
         <EmptyState {...propDatas(view, style, additional)} />
-        <CodeBlock className="language-jsx">
+        {/* <CodeBlock className="language-jsx">
           {`<>\n\t<EmptyState ${stringify(propDatas(view, style, additional))} />\n</>`}
-        </CodeBlock>
+        </CodeBlock> */}
       </>
     );
   };
