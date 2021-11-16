@@ -42,6 +42,11 @@ export const types = `
     serverTime: String
   }
 
+  type BookingProduct {
+    product: Product
+    fields: [Field]
+  }
+
   input FieldValueInput {
     _id: String!
     type: String
@@ -68,10 +73,7 @@ export const queries = `
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
   widgetsProductCategory(_id: String!): ProductCategory
-  widgetsProductDetail(_id: String!): Product
-  widgetsIntegrationDetail(_id: String): Integration
-
-  widgetsFields(contentType: String! contentTypeId: String): [Field]
+  bookingProductWithFields(_id: String!): BookingProduct
 `;
 
 export const mutations = `

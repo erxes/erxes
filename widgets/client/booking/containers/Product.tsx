@@ -2,13 +2,9 @@ import * as React from 'react';
 import { Product } from '../components';
 import { AppConsumer } from './AppContext';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { productDetail, fields } from '../graphql';
+import { bookingProductWithFields } from '../graphql';
 import gql from 'graphql-tag';
-import {
-  FieldsQueryResponse,
-  IBookingData,
-  ProductDetailQueryResponse
-} from '../types';
+import { IBookingData, IProductWithFields } from '../types';
 
 type Props = {
   productId: string;
@@ -17,41 +13,34 @@ type Props = {
   showPopup: () => void;
 };
 
-type FinalProps = {
-  productDetailQuery: ProductDetailQueryResponse;
-  fieldsQuery: FieldsQueryResponse;
-} & Props;
+type QueryResponse = {
+  bookingProductWithFields: IProductWithFields;
+};
 
-function ProductContainer(props: ChildProps<FinalProps>) {
-  const { productDetailQuery, fieldsQuery } = props;
+function ProductContainer(props: ChildProps<Props, QueryResponse>) {
+  const { data } = props;
 
-  if (productDetailQuery.loading || fieldsQuery.loading) {
+  if (!data || data.loading) {
     return null;
   }
 
+  const productWithFields =
+    data.bookingProductWithFields || ({} as IProductWithFields);
+
   const extendedProps = {
     ...props,
-    product: productDetailQuery.widgetsProductDetail,
-    fields: fieldsQuery.widgetsFields
+    product: productWithFields.product,
+    fields: productWithFields.fields
   };
 
   return <Product {...extendedProps} />;
 }
 
 const WithData = compose(
-  graphql<FinalProps, {}>(gql(productDetail), {
-    name: 'productDetailQuery',
+  graphql<Props, QueryResponse>(gql(bookingProductWithFields), {
     options: ({ productId }) => ({
       variables: {
         _id: productId
-      }
-    })
-  }),
-  graphql<{}, FieldsQueryResponse, { contentType: string }>(gql(fields), {
-    name: 'fieldsQuery',
-    options: () => ({
-      variables: {
-        contentType: 'product'
       }
     })
   })

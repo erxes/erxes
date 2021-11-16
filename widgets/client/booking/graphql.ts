@@ -61,14 +61,6 @@ const productCategory = `
   }
 `;
 
-const productDetail = `
-  query widgetsProductDetail($_id: String!) {
-    widgetsProductDetail(_id: $_id) {
-      ${productFields}
-    }
-  }
-`;
-
 const formDetailQuery = `
   query formDetail($_id: String!) {
     formDetail(_id: $_id) {
@@ -159,24 +151,29 @@ export const saveBookingMutation = `
   }
 `;
 
-const fields = `
-  query widgetsFields($contentType: String! $contentTypeId: String) {
-    widgetsFields(contentType: $contentType contentTypeId: $contentTypeId) {
-      _id
-      contentType
-      contentTypeId
-      name
-      text
-      type
-      isDefinedByErxes
+const bookingProductWithFields = `
+  query bookingProductWithFields($_id: String!) {
+    bookingProductWithFields(_id: $_id) {
+      fields {
+        _id
+        contentType
+        contentTypeId
+        name
+        text
+        type
+        isDefinedByErxes
+      }
+
+      product {
+        ${productFields}
+      }
     }
   }
 `;
 
 export {
   productCategory,
-  productDetail,
   formDetailQuery,
   widgetsConnectMutation,
-  fields
+  bookingProductWithFields
 };

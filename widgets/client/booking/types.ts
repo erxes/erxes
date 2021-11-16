@@ -1,5 +1,5 @@
-import { IField } from "../form/types";
-import { IProduct, IProductCategory } from "../types";
+import { IField } from '../form/types';
+import { IProduct, IProductCategory } from '../types';
 
 export interface IStyle {
   itemShape?: string;
@@ -41,15 +41,7 @@ export interface IBookingData {
   mainProductCategory: IProductCategory;
   productFieldIds: string[];
 }
-
-export type FieldsQueryResponse = {
-  widgetsFields: IField[];
-  loading: boolean;
-  refetch: () => Promise<any>;
-};
-
-export type ProductDetailQueryResponse = {
-  widgetsProductDetail: IProduct;
-  loading: boolean;
-  refetch: () => Promise<any>;
-};
+export interface IProductWithFields {
+  fields: IField[];
+  product: IProduct;
+}

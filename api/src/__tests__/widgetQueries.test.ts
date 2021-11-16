@@ -445,85 +445,27 @@ describe('widgetQueries', () => {
     expect(productCategory._id).toBe(response._id);
   });
 
-  test('widgetsProductDetail', async () => {
+  test('bookingProductWithFields', async () => {
     const product = await productFactory({});
 
     const qry = `
-      query widgetsProductDetail($_id: String!) {
-        widgetsProductDetail(_id: $_id) {
-          _id
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'widgetsProductDetail', {
-      _id: product._id
-    });
-
-    expect(product._id).toBe(response._id);
-  });
-
-  test('widgetsIntegrationDetail', async () => {
-    // to prepare bookingData data
-    const productCategory = await productCategoryFactory({});
-    const childCategory = await productCategoryFactory({
-      parentId: productCategory._id
-    });
-    await productFactory({ categoryId: childCategory._id });
-
-    const integration = await integrationFactory({
-      bookingData: {
-        name: 'booking data',
-        description: 'booking description',
-        productCategoryId: productCategory._id
-      }
-    });
-
-    const qry = `
-      query widgetsIntegrationDetail($_id: String!) {
-        widgetsIntegrationDetail(_id: $_id) {
-          _id
-
-          bookingData {
-            categoryTree 
-
-            mainProductCategory {
-              _id
-            }
+      query bookingProductWithFields($_id: String!) {
+        bookingProductWithFields(_id: $_id) {
+          product {
+            _id
+          }
+          fields {
+            _id
           }
         }
       }
     `;
 
-    const response = await graphqlRequest(qry, 'widgetsIntegrationDetail', {
-      _id: integration._id
+    const response = await graphqlRequest(qry, 'bookingProductWithFields', {
+      _id: product._id
     });
 
-    expect(integration._id).toBe(response._id);
-  });
-
-  test('widgetsFields', async () => {
-    // create product field
-    const field = await fieldFactory({
-      contentType: FIELD_CONTENT_TYPES.PRODUCT
-    });
-
-    const qry = `
-      query widgetsFields($contentType: String! $contentTypeId: String) {
-        widgetsFields(contentType: $contentType contentTypeId: $contentTypeId) {
-          _id
-          contentType
-          text
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'widgetsFields', {
-      contentType: field.contentType,
-      contentTypeId: field.contentTypeId
-    });
-
-    expect(response[0]._id).toBe(field._id);
-    expect(response[0].contentType).toBe(field.contentType);
+    expect(response.product._id).toBe(product._id);
+    expect(response.fields).toBeDefined();
   });
 });

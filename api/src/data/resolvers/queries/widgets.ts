@@ -19,7 +19,6 @@ import {
   getOrCreateEngageMessageElk
 } from '../../widgetUtils';
 import { getDocument, getDocumentList } from '../mutations/cacheUtils';
-import { IFieldsQuery } from './fields';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -245,26 +244,16 @@ export default {
     return ProductCategories.findOne({ _id });
   },
 
-  async widgetsProductDetail(_root, { _id }: { _id: string }) {
-    return Products.findOne({ _id });
-  },
-  widgetsIntegrationDetail(_root, { _id }: { _id: string }) {
-    return Integrations.getIntegration({ _id });
-  },
+  async bookingProductWithFields(_root, { _id }: { _id: string }) {
+    const product = await Products.getProduct({ _id });
 
-  widgetsFields(
-    _root,
-    {
-      contentType,
-      contentTypeId
-    }: { contentType: string; contentTypeId: string }
-  ) {
-    const query: IFieldsQuery = { contentType };
+    const fields = await Fields.find({ contentType: 'product' }).sort({
+      order: 1
+    });
 
-    if (contentTypeId) {
-      query.contentTypeId = contentTypeId;
-    }
-
-    return Fields.find(query).sort({ order: 1 });
+    return {
+      fields,
+      product
+    };
   }
 };
