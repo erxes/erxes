@@ -10,6 +10,7 @@ import {
   createAWS,
   deleteFile,
   getConfig,
+  getS3FileInfo,
   uploadsFolderPath
 } from '../data/utils';
 import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
@@ -57,56 +58,6 @@ export const generatePronoun = value => {
   );
 
   return pronoun ? pronoun.value : '';
-};
-
-const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    s3.selectObjectContent(
-      {
-        ...params,
-        ExpressionType: 'SQL',
-        Expression: query,
-        InputSerialization: {
-          CSV: {
-            FileHeaderInfo: 'NONE',
-            RecordDelimiter: '\n',
-            FieldDelimiter: ',',
-            AllowQuotedRecordDelimiter: true
-          }
-        },
-        OutputSerialization: {
-          CSV: {
-            RecordDelimiter: '\n',
-            FieldDelimiter: ','
-          }
-        }
-      },
-      (error, data) => {
-        if (error) {
-          return reject(error);
-        }
-
-        if (!data) {
-          return reject('Failed to get file info');
-        }
-
-        // data.Payload is a Readable Stream
-        const eventStream: any = data.Payload;
-
-        let result;
-
-        // Read events as they are available
-        eventStream.on('data', event => {
-          if (event.Records) {
-            result = event.Records.Payload.toString();
-          }
-        });
-        eventStream.on('end', () => {
-          resolve(result);
-        });
-      }
-    );
-  });
 };
 
 const getCsvInfo = (fileName: string, uploadType: string) => {

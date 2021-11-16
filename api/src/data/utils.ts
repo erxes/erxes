@@ -22,6 +22,7 @@ import {
 } from './modules/fields/utils';
 import { generateAmounts, generateProducts } from './resolvers/deals';
 import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
+import csvParser = require('csv-parser');
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -41,6 +42,87 @@ export const initFirebase = (code: string): void => {
       });
     }
   }
+};
+
+export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    s3.selectObjectContent(
+      {
+        ...params,
+        ExpressionType: 'SQL',
+        Expression: query,
+        InputSerialization: {
+          CSV: {
+            FileHeaderInfo: 'NONE',
+            RecordDelimiter: '\n',
+            FieldDelimiter: ',',
+            AllowQuotedRecordDelimiter: true
+          }
+        },
+        OutputSerialization: {
+          CSV: {
+            RecordDelimiter: '\n',
+            FieldDelimiter: ','
+          }
+        }
+      },
+      (error, data) => {
+        if (error) {
+          return reject(error);
+        }
+
+        if (!data) {
+          return reject('Failed to get file info');
+        }
+
+        // data.Payload is a Readable Stream
+        const eventStream: any = data.Payload;
+
+        let result;
+
+        // Read events as they are available
+        eventStream.on('data', event => {
+          console.log(event);
+          if (event.Records) {
+            result = event.Records.Payload.toString();
+          }
+        });
+        eventStream.on('end', () => {
+          resolve(result);
+        });
+      }
+    );
+  });
+};
+
+export const getS3FileInfo2 = async ({ s3, params }): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const request = s3.getObject(params);
+    const readStream = request.createReadStream();
+
+    const results = [] as any;
+    let i = 0;
+
+    new Promise(() => {
+      readStream
+        .pipe(csvParser())
+        .on('data', data => {
+          i++;
+          if (i <= 3) {
+            results.push(data);
+          }
+        })
+        .on('end', () => {
+          resolve(results);
+        })
+        .on('close', () => {
+          resolve(results);
+        })
+        .on('error', () => {
+          reject();
+        });
+    });
+  });
 };
 
 /*
@@ -437,7 +519,7 @@ export const uploadFile = async (
   let nameOrLink = '';
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    nameOrLink = await uploadFileAWS(file);
+    nameOrLink = await uploadFileAWS(file, true);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {

@@ -10,7 +10,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import FileUpload from './FileUpload';
-import MapColumn from './MapColumn';
+import MapColumn from '../containers/MapColumn';
 
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import { IAttachment } from 'modules/common/types';
@@ -37,6 +37,9 @@ class ExportForm extends React.Component<Props, State> {
   };
 
   render() {
+    const { contentType } = this.props;
+    const { attachments } = this.state;
+
     const title = __('Import');
 
     const breadcrumb = [
@@ -55,14 +58,17 @@ class ExportForm extends React.Component<Props, State> {
                 <FileUpload onChangeAttachment={this.onChangeAttachment} />
               </Step>
               <Step img="/images/icons/erxes-10.svg" title="Column">
-                <MapColumn />
+                <MapColumn
+                  contentType={contentType}
+                  attachments={attachments}
+                />
               </Step>
             </Steps>
 
             <ControlWrapper>
               <Indicator>
                 {__('You are importing')}
-                <strong> {this.props.contentType} </strong>
+                <strong> {contentType} </strong>
                 {__('data')}
               </Indicator>
               <Button.Group>

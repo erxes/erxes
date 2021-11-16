@@ -95,6 +95,7 @@
     "shelljs": "^0.8.3",
     "sift": "^13.5.0",
     "stream-array": "^1.1.2",
+    "stream-promise": "^3.2.0",
     "strip": "^3.0.0",
     "ts-node": "8.0.3",
     "underscore": "^1.8.3",

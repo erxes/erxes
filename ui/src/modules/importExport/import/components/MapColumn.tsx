@@ -2,11 +2,17 @@ import React from 'react';
 import { DataWithLoader, Table, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { Description, SubHeading } from 'modules/settings/styles';
+import Row from './Row';
 
-type Props = {};
+type Props = {
+  columns: any[];
+  fields: any[];
+};
 
 class MapColumn extends React.Component<Props, {}> {
   render() {
+    const { columns, fields } = this.props;
+
     const content = (
       <Table>
         <thead>
@@ -17,6 +23,16 @@ class MapColumn extends React.Component<Props, {}> {
             <th>{__('PROPERTY')}</th>
           </tr>
         </thead>
+        <tbody className={'expand'}>
+          {Object.keys(columns).map(column => (
+            <Row
+              key={Math.random()}
+              columns={columns}
+              column={column}
+              fields={fields}
+            />
+          ))}
+        </tbody>
       </Table>
     );
 

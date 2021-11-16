@@ -1,3 +1,4 @@
+import * as csvParser from 'csv-parser';
 import {
   Companies,
   Customers,
@@ -6,10 +7,17 @@ import {
   Segments,
   Tasks
 } from '../../../db/models';
+import { Writable } from 'stream';
 import { ISegment } from '../../../db/models/definitions/segments';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
-import { paginate } from '../../utils';
+import {
+  createAWS,
+  getConfig,
+  getS3FileInfo,
+  getS3FileInfo2,
+  paginate
+} from '../../utils';
 
 const importHistoryQueries = {
   /**
@@ -34,6 +42,30 @@ const importHistoryQueries = {
     importHistory.errorMsgs = (importHistory.errorMsgs || []).slice(0, 100);
 
     return importHistory;
+  },
+
+  async importHistoryGetColumns(
+    _root,
+    { attachmentName }: { attachmentName: string }
+  ) {
+    const AWS_BUCKET = await getConfig('AWS_BUCKET');
+    const s3 = await createAWS();
+
+    const params = { Bucket: AWS_BUCKET, Key: attachmentName };
+
+    const values = (await getS3FileInfo2({ s3, params })) as any;
+
+    const object = {} as any;
+
+    values.map(value => {
+      Object.keys(value).forEach(key => {
+        if (!object[key]) {
+          object[key] = [value[key]];
+        } else object[key].push(value[key]);
+      });
+    });
+
+    return object;
   },
 
   async importHistoryPreviewExportCount(
