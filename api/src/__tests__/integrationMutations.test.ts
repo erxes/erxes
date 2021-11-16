@@ -920,6 +920,133 @@ describe('mutations', () => {
 
     spy.mockRestore();
   });
+
+  test('Create booking integration', async () => {
+    const bookingIntegration = await integrationFactory({
+      formId: 'formId',
+      kind: 'booking'
+    });
+
+    const channel = await channelFactory({});
+
+    const args = {
+      name: bookingIntegration.name,
+      brandId: _brand._id,
+      formId: bookingIntegration.formId,
+      channelIds: [channel._id],
+      bookingData: {
+        name: 'booking name',
+        description: 'booking description',
+        productCategoryId: 'test'
+      },
+      ...commonLeadProperties
+    };
+
+    const mutation = `
+      mutation integrationsCreateBookingIntegration(
+        ${commonParamDefs}
+        $formId: String!
+        $channelIds: [String]
+        $leadData: IntegrationLeadData
+        $bookingData: IntegrationBookingData
+      ) {
+        integrationsCreateBookingIntegration(
+          ${commonParams}
+          formId: $formId
+          channelIds: $channelIds
+          leadData: $leadData
+          bookingData: $bookingData
+        ) {
+          name
+          brandId
+          languageCode
+          formId
+          leadData
+          bookingData {
+            name
+            description
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsCreateBookingIntegration',
+      args
+    );
+
+    expect(response.name).toBe(args.name);
+    expect(response.brandId).toBe(args.brandId);
+    expect(response.languageCode).toBe(args.languageCode);
+    expect(response.formId).toBe(args.formId);
+    expect(response.bookingData.name).toBe(args.bookingData.name);
+  });
+
+  test('Edit booking integration', async () => {
+    const bookingIntegration = await integrationFactory({
+      formId: 'formId',
+      kind: 'booking'
+    });
+
+    const channel = await channelFactory({});
+
+    const args = {
+      _id: bookingIntegration._id,
+      name: bookingIntegration.name,
+      brandId: _brand._id,
+      formId: bookingIntegration.formId,
+      channelIds: [channel._id],
+      bookingData: {
+        name: 'booking name',
+        description: 'booking description',
+        productCategoryId: 'test1'
+      },
+      ...commonLeadProperties
+    };
+
+    const mutation = `
+      mutation integrationsEditBookingIntegration(
+        $_id: String!
+        ${commonParamDefs}
+        $formId: String!
+        $channelIds: [String]
+        $leadData: IntegrationLeadData
+        $bookingData: IntegrationBookingData
+      ) {
+        integrationsEditBookingIntegration(
+          _id: $_id
+          ${commonParams}
+          formId: $formId
+          channelIds: $channelIds
+          leadData: $leadData
+          bookingData: $bookingData
+        ) {
+          name
+          brandId
+          languageCode
+          formId
+          leadData
+          bookingData {
+            name
+            description
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsEditBookingIntegration',
+      args
+    );
+
+    expect(response.name).toBe(args.name);
+    expect(response.brandId).toBe(args.brandId);
+    expect(response.languageCode).toBe(args.languageCode);
+    expect(response.formId).toBe(args.formId);
+    expect(response.bookingData.name).toBe(args.bookingData.name);
+  });
 });
 
 test('Repair integrations', async () => {
