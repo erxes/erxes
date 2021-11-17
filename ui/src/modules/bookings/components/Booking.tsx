@@ -67,6 +67,8 @@ type State = {
   attachments?: IAttachment[];
   redirectUrl?: string;
   loadType: string;
+  successImage?: string;
+  successImageSize?: string;
 };
 
 function Booking(props: Props) {
@@ -113,6 +115,8 @@ function Booking(props: Props) {
     thankContent: leadData.thankContent || 'Thank you.',
     attachments: leadData.attachments || [],
     redirectUrl: leadData.redirectUrl || '',
+    successImage: leadData.successImage || '',
+    successImageSize: leadData.successImageSize || '',
     loadType: 'popup',
 
     carousel: 'form'
@@ -181,7 +185,9 @@ function Booking(props: Props) {
         thankContent: state.thankContent,
         attachments: state.attachments,
         redirectUrl: state.redirectUrl,
-        loadType: 'popup'
+        loadType: 'popup',
+        successImage: state.successImage,
+        successImageSize: state.successImageSize
       },
 
       bookingData: {
@@ -353,6 +359,8 @@ function Booking(props: Props) {
                 leadData={leadData}
                 formId={integration.formId}
                 emailTemplates={emailTemplates ? emailTemplates : []}
+                successImage={state.successImage}
+                successImageSize={state.successImageSize}
               />
             </Step>
           </Steps>
@@ -377,6 +385,8 @@ function Booking(props: Props) {
             skip={true}
             carousel={state.carousel}
             formData={state.formData}
+            successImage={state.successImage}
+            successImgSize={state.successImageSize}
           />
         </PreviewWrapper>
       </Content>
