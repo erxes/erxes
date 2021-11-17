@@ -1,5 +1,6 @@
 import { IUserDocument } from '../../db/models/definitions/users';
 import { can } from './utils';
+import { IInfo } from '../../data/types';
 
 /**
  * Checks whether user is logged in or not
@@ -20,14 +21,14 @@ export const permissionWrapper = (
 ) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = (root, args, context) => {
+  cls[methodName] = (root, args, context, info) => {
     const { user } = context;
 
     for (const checker of checkers) {
       checker(user);
     }
 
-    return oldMethod(root, args, context);
+    return oldMethod(root, args, context, info);
   };
 };
 
@@ -77,7 +78,12 @@ export const checkPermission = async (
 ) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = async (root, args, context: { user: IUserDocument }) => {
+  cls[methodName] = async (
+    root,
+    args,
+    context: { user: IUserDocument },
+    info: IInfo
+  ) => {
     const { user } = context;
 
     checkLogin(user);
@@ -92,6 +98,6 @@ export const checkPermission = async (
       throw new Error('Permission required');
     }
 
-    return oldMethod(root, args, context);
+    return oldMethod(root, args, context, info);
   };
 };
