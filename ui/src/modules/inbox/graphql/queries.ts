@@ -238,6 +238,18 @@ const tagList = `
   }
 `;
 
+const segmentList = `
+    query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
+      segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
+        _id
+        contentType
+        name
+        parentId: subOf
+      }
+    }
+`;
+
+
 const conversationCounts = `
   query conversationCounts(${listParamsDef}, $only: String) {
     conversationCounts(${listParamsValue}, only: $only)
@@ -291,7 +303,8 @@ const generateCustomerDetailQuery = params => {
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
-    showTags = false
+    showTags = false,
+    showSegments = false
   } = params || {};
 
   let fields = `
@@ -355,6 +368,17 @@ const generateCustomerDetailQuery = params => {
     `;
   }
 
+  if (showSegments) {
+    fields = `
+      ${fields}
+      getSubSegments {
+        _id
+        contentType
+        name
+      }
+    `;
+  }
+
   return `
     query customerDetail($_id: String!) {
       customerDetail(_id: $_id) {
@@ -379,6 +403,7 @@ export default {
   brandList,
   allBrands,
   tagList,
+  segmentList,
   responseTemplateList,
   conversationCounts,
   totalConversationsCount,
