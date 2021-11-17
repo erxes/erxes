@@ -23,6 +23,27 @@ export const types = `
     knowledgeBaseMessengerApps: [MessengerApp]
     leadMessengerApps: [MessengerApp]
     healthStatus: JSON
+
+    bookingData: BookingData
+  }
+
+  type BookingData {
+    name: String
+    image: Attachment
+ 
+    description: String
+    userFilters: [String]
+    productCategoryId: String
+
+    style: JSON
+    displayBlock: JSON
+    viewCount: Int
+
+    categoryTree: JSON
+    mainProductCategory: ProductCategory
+    navigationText: String
+    bookingFormText: String
+    productFieldIds: [String]
   }
 
   type integrationsTotalCount {
@@ -60,6 +81,33 @@ export const types = `
     css: String
     successImage: String
     successImageSize: String
+  }
+
+  input BookingStyleInput {
+    itemShape: String
+    widgetColor: String
+
+    productAvailable: String
+    textAvailable: String
+    baseFont: String
+
+    line: String
+    rows: Int
+    columns: Int
+    margin: Int
+  }
+
+  input IntegrationBookingData {
+    name: String
+    description: String
+    image: AttachmentInput
+    style: BookingStyleInput
+   
+    productCategoryId: String
+
+    navigationText: String
+    bookingFormText: String
+    productFieldIds: [String]
   }
 
   input MessengerOnlineHoursSchema {
@@ -211,4 +259,25 @@ export const mutations = `
   integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 
   integrationsCopyLeadIntegration(_id: String!): Integration
+
+  integrationsCreateBookingIntegration(
+    name: String!
+    brandId: String!
+    channelIds: [String]
+    languageCode: String
+    formId: String
+    leadData: IntegrationLeadData
+    bookingData: IntegrationBookingData
+  ): Integration
+
+  integrationsEditBookingIntegration(
+    _id: String!
+    name: String!
+    brandId: String!
+    channelIds: [String]
+    languageCode: String
+    formId: String
+    leadData: IntegrationLeadData
+    bookingData: IntegrationBookingData
+  ): Integration
 `;

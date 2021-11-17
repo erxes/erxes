@@ -224,7 +224,10 @@ describe('Test deals mutations', () => {
   });
 
   test('Change deal if move to another stage', async () => {
-    const anotherStage = await stageFactory({ pipelineId: pipeline._id });
+    const anotherStage = await stageFactory({
+      pipelineId: pipeline._id,
+      probability: 'Won'
+    });
 
     const args = {
       proccessId: Math.random().toString(),
@@ -245,7 +248,15 @@ describe('Test deals mutations', () => {
       }
     `;
 
-    const updatedDeal = await graphqlRequest(mutation, 'dealsChange', args);
+    let updatedDeal = await graphqlRequest(mutation, 'dealsChange', args);
+
+    expect(updatedDeal._id).toEqual(args.itemId);
+
+    // deal moved from won stage
+    args.sourceStageId = anotherStage._id;
+    args.destinationStageId = deal.stageId;
+
+    updatedDeal = await graphqlRequest(mutation, 'dealsChange', args);
 
     expect(updatedDeal._id).toEqual(args.itemId);
   });

@@ -477,6 +477,7 @@ export const PRODUCT_INFO = {
   vendor: 'Vendor',
   description: 'Description',
   sku: 'Sku',
+  productCount: 'Product count',
 
   ALL: [
     { field: 'code', label: 'Code' },
@@ -485,7 +486,8 @@ export const PRODUCT_INFO = {
     { field: 'category', label: 'Category' },
     { field: 'vendor', label: 'Vendor' },
     { field: 'description', label: 'Description' },
-    { field: 'sku', label: 'Sku' }
+    { field: 'sku', label: 'Sku' },
+    { field: 'productCount', label: 'Product count' }
   ]
 };
 

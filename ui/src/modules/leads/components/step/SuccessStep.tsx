@@ -285,7 +285,14 @@ class SuccessStep extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const onChange = e => {
+    const onChangeTitle = e => {
+      this.onChangeFunction(
+        'thankTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    const onChangeContent = e => {
       this.onChangeFunction(
         'thankContent',
         (e.currentTarget as HTMLInputElement).value
@@ -305,7 +312,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             componentClass="textinput"
             defaultValue={thankTitle}
-            onChange={onChange}
+            onChange={onChangeTitle}
           />
         </FormGroup>
         <FormGroup>
@@ -315,7 +322,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             componentClass="textarea"
             defaultValue={thankContent}
-            onChange={onChange}
+            onChange={onChangeContent}
           />
         </FormGroup>
         <FormGroup>
@@ -424,13 +431,6 @@ class SuccessStep extends React.Component<Props, State> {
   render() {
     const leadData = this.state.leadData || {};
     const { successAction } = this.state;
-    const { successImageSize } = this.props;
-
-    const onChangeImageWidth = e =>
-      this.onChangeFunction(
-        'successImageSize',
-        (e.currentTarget as HTMLInputElement).value
-      );
 
     return (
       <FlexItem>
@@ -453,24 +453,6 @@ class SuccessStep extends React.Component<Props, State> {
           {this.renderEmailFields(leadData)}
           {this.renderRedirectUrl(leadData)}
           {this.renderThankContent()}
-          <FormGroup>
-            <ControlLabel>Featured image</ControlLabel>
-            <p>{__('You can upload only image file')}</p>
-            {this.renderUploadImage()}
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Confirm image size</ControlLabel>
-            <FormControl
-              id="validation"
-              componentClass="select"
-              value={successImageSize}
-              onChange={onChangeImageWidth}
-            >
-              <option value="100%">{__('Full width')}</option>
-              <option value="50%">{__('Half width')}</option>
-            </FormControl>
-          </FormGroup>
         </LeftItem>
       </FlexItem>
     );
