@@ -8,7 +8,7 @@ interface IIn {
   $in: string[];
 }
 
-interface OOR {
+interface IOR {
   $or: IDateFilter[];
 }
 
@@ -280,7 +280,7 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string): OOR {
+  public dateFilter(startDate: string, endDate: string): IOR {
     return {
       $or: [{
         createdAt: {
