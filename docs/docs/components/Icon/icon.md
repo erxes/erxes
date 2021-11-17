@@ -10,7 +10,7 @@ import { IconComponent } from "./icon.js"
 
 ## Color
 
-<p>Gives color to icon by <code>color</code> prop.</p>
+<p>Give color to icon by <code>color</code> prop.</p>
 <IconComponent type="color" iconName="envelope-alt" colors="red"/>
 
 ## Size
@@ -20,14 +20,14 @@ import { IconComponent } from "./icon.js"
 
 ## Active
 
-<p>When it's active it'll display black icon.</p>
+<p>When there's <code>active</code> prop, it displays black icon.</p>
 <IconComponent type="active" iconName="envelope-alt" colors="red" active={true}/>
 
 ## API
 
 <IconComponent type="APIicon" table={[
-  ['* icon', 'string', '', 'Icon name'],
+  ['* icon', 'string', '', 'Define icon'],
   ['size', 'number', '', 'Changes icon size'],
   ['color', 'string', 'black', 'Changes icon color'],
-  ['isActive', 'boolean', 'false', 'Change icon color to black']
+  ['isActive', 'boolean', 'false', 'Make the icon color black']
 ]}/>

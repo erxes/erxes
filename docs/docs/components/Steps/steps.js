@@ -83,7 +83,6 @@ export function StepComponent(props) {
                   propDatas(propName)
                 )}>\n\t\t<Step img="https://erxes.io/static/images/logo/logo_dark.svg">children1</Step>\n\t\t<Step img="https://erxes.io/static/images/logo/logo_dark.svg">children2</Step>\n\t\t<Step img="https://erxes.io/static/images/logo/logo_dark.svg">children3</Step>\n\t</Steps>`
           }\n</>`}
-          {/* {`<>\n\t<Step ${stringify(propDatas(propName))} />\n</>`} */}
         </CodeBlock>
       </>
     );

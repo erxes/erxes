@@ -37,7 +37,7 @@ import { CollapseContentComponent } from "./collapsecontent.js"
 
 ## Compact
 
-<p><code>compact</code> prop defines height of title container.</p>
+<p>Set the padding of the title conteiner to '10px 20px' by adding <code>compact</code> prop. Default padding: 20px</p>
 <CollapseContentComponent comp />
 
 ## Open
@@ -48,12 +48,12 @@ import { CollapseContentComponent } from "./collapsecontent.js"
 ## API
 
 <CollapseContentComponent type="APIcollapsecontent" table={[
-  ['contendId', 'string', '', 'Jump to content'],
-  ['* title', 'string', '', 'Title'],
-  ['description', 'node', '', 'Description that will be displayed under title'],
+  ['contendId', 'string', '', 'Make it able to jump to content'],
+  ['* title', 'string', '', 'Defines the title'],
+  ['description', 'node', '', 'Place a description under the title'],
   ['open', 'boolean', '', 'Activates open function of container and collapse tag'],
-  ['compact', 'boolean', '20px', 'Height of title container'],
-  ['image', 'string', '','Image that will be placed instead of arrows'],
-  ['beforeTitle', 'node','','Node that will be placed left side of title'],
-  ['imageBackground', 'string', '','Background color of image'],
+  ['compact', 'boolean', '', 'Set the padding of title container to 20px. Default padding: 20px'],
+  ['image', 'string', '','Place an image instead of arrows'],
+  ['beforeTitle', 'node','','Show content before the title'],
+  ['imageBackground', 'string', '','Change background color of the image'],
 ]} />

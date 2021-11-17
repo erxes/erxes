@@ -9,7 +9,7 @@ import { HeaderDescriptionComponent } from "./headerdescription.js"
 
 ## Example
 
-<HeaderDescriptionComponent/>
+<HeaderDescriptionComponent />
 
 ## API
 

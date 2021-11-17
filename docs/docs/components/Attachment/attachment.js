@@ -77,6 +77,7 @@ export function AttachmentComponent(props) {
     string = string.replace(/name=/g, "name:");
     string = string.replace(/:/g, "=");
     string = string.slice(1, string.length - 1);
+    string = string.replace(/=true/g, "");
 
     return string;
   };

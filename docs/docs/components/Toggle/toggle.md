@@ -5,40 +5,39 @@ title : Toggle
 
 import { ToggleComponent } from "./toggle.js"
 
-## Simple toggle switch
+## Example
 
-<p>Simple toggle switch.</p>
 <ToggleComponent type="simple" />
 
-## Toggle switch icons
+## Icons
 
 <p>Define checked or unchecked icons by any type of <code>icons</code> prop.</p>
 <ToggleComponent type="icons" />
 
-## Checked toggle switch
+## Checked
 
-<p>Not changeable toggle switch.</p>
-<ToggleComponent type="checked" />
-
-
-## Default checked toggle switch
-
-<p>Changeable toggle switch with checked by default.</p>
+<p>Make the toggle switch checked on start by adding <code>defaultChecked</code> prop.</p>
 <ToggleComponent type="defaultChecked" />
+
+## Always checked
+
+<p>Make the toggle switch checked but not switchable by adding <code>checked</code> prop.</p>
+<ToggleComponent type="checked" />
 
 ## Disabled toggle switch
 
-<p>Toggle switch that can be disabled when checked or unchecked.</p>
-<ToggleComponent type="disabled checked" />
+<p>Make the toggle disabled by <code>disabled</code> prop.</p>
 <ToggleComponent type="disabled" />
+<p>Make the toggle disabled by <code>disabled</code> prop when it's checked.</p>
+<ToggleComponent type="disabled checked" />
 
 ## API
 
 <ToggleComponent type="ApiToggle" table={[
   ['value', 'string', '', 'Defines the value'],
   ['name', 'string', '', 'Defines the name'],
-  ['checked', 'boolean', '', 'Set the toggle always checked'],
-  ['defaultChecked', 'boolean', '', 'Set the toggle checked on start'],
+  ['checked', 'boolean', 'false', 'Set the toggle always checked'],
+  ['defaultChecked', 'boolean', 'false', 'Set the toggle checked on start'],
   ['disabled', 'boolean', '', 'Make the toggle disabled'],
   ['icons', 'any', '', 'Add an icon'], 
 ]} />

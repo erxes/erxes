@@ -13,16 +13,15 @@ export function CollapseContentComponent(props) {
   const title = "This is title.";
 
   const propDatas = (propName, beforeTitle) => {
-    const kind = {
+    const datas = {
       compact: comp && comp,
       open: opens && opens,
       image: img && img,
       imageBackground: color && color,
-      beforeTitle: beforeTitle && <Icon icon="info-circle" />,
-      [propName]: text,
+      [propName]: propName === "beforeTitle" ? "" : text,
     };
 
-    return kind;
+    return datas;
   };
 
   const renderBlock = (propName, beforeTitle) => {
@@ -31,19 +30,19 @@ export function CollapseContentComponent(props) {
         <CollapseContent title={title} {...propDatas(propName, beforeTitle)}>
           {children}
         </CollapseContent>
-        {/* <CodeBlock className="language-jsx">
+        <CodeBlock className="language-jsx">
           {`<>\n\t<CollapseContent title="${title}" ${stringify(
             propDatas(propName, beforeTitle)
           )}>
           ${children}
         </CollapseContent>\n</>`}
-        </CodeBlock> */}
+        </CodeBlock>
       </>
     );
   };
 
   if (type === "icon") {
-    return renderBlock("", "beforeTitle");
+    return renderBlock("beforeTitle");
   }
 
   if (type === "desc") {

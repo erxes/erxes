@@ -7,25 +7,24 @@ import { BoxComponent } from "./box.js"
 
 <p>Build vertically collapsing boxs.</p>
 
-## Example
+## Title
 
 <p>Write your own title by using <code>title</code> prop.</p>
-
-### Type
-
 <BoxComponent type="example" />
 
-### State
+## State
 
 <p>Make the box expanded on start by adding <code>isOpen</code> prop.</p>
 <BoxComponent type="open" />
 
-### Collapsible
+## Collapsible
 
+<p>Make the box collapsible when the content is way too long by adding <code>collapsible</code> prop.</p>
 <BoxComponent type="collapsible" />
 
-### Extra buttons
+## Extra buttons
 
+<p>Add an extra button with <code>extraButtons</code> prop.</p>
 <BoxComponent type="extra" />
 
 ## API
@@ -34,6 +33,6 @@ import { BoxComponent } from "./box.js"
     ['* title', 'string', '', 'Shows title of the box'],
     ['name', 'string', '', 'Defines name'],
     ['isOpen', 'boolean', 'false', 'Makes the box expanded on start'],
-    ['collapsible', 'boolean', 'false', 'Make thee box collapsibe'],
+    ['collapsible', 'boolean', 'false', 'Make the box collapsible'],
     ['extraButtons', 'ReactNode', '', 'Display an extra button on the box'],
 ]} />

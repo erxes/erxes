@@ -24,7 +24,7 @@ import { ProgressBarComponent } from "./progressbar.js"
 
 ## Close
 
-<p>Add close text by <code>close</code> prop. </p>
+<p>Add close content by <code>close</code> prop. </p>
 <ProgressBarComponent height="20px" close></ProgressBarComponent>
 
 ## API

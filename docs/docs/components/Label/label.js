@@ -11,7 +11,7 @@ export function LabelComponent(props) {
     const kind = {
       [propName]:
         propName === "lblStyle" || propName === "lblColor"
-          ? stl.toLowerCase()
+          ? stl
           : "Label",
     };
 
@@ -26,7 +26,7 @@ export function LabelComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          {propName === "children" ? <Label children="Label"></Label> : style.map((stl, index) => {
+          {style.map((stl, index) => {
             return (
               <Label key={index} {...propDatas(propName, stl)}>
                 {stl}
@@ -53,10 +53,6 @@ export function LabelComponent(props) {
 
   if (type === "lblColor") {
     return renderBlock("lblColor");
-  }
-
-  if (type === "children") {
-    return renderBlock("children");
   }
 
   if (type === "APIlabel") {
