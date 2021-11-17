@@ -145,6 +145,7 @@ module.exports = {
         "components/SortableList/sortablelist",
         "components/SortHandler/sorthandler",
         "components/Spinner/spinners",
+        "components/Steps/steps",
         "components/Table/table",
         "components/Tag/tag",
         "components/TextInfo/textinfo",
