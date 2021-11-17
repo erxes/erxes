@@ -19,6 +19,8 @@ import { CLOSE_DATE_TYPES } from '../../constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
+import { existFieldInGraphQL } from '../../utils';
+import * as _ from 'underscore';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -517,11 +519,18 @@ export const getItemList = async (
   user: IUserDocument,
   type: string,
   extraFields?: { [key: string]: number },
-  getExtraFields?: (item: any) => { [key: string]: any }
+  getExtraFields?: (item: any) => { [key: string]: any },
+  infoFields?: { [key: string]: any }
 ) => {
   const { collection } = getCollection(type);
   const sort = generateSort(args);
   const limit = args.limit !== undefined ? args.limit : 10;
+
+  // join when api selected the field
+  const joinedRelation = joinConditionalAggregationPipelines(
+    infoFields,
+    'deals'
+  );
 
   const pipelines: any[] = [
     {
@@ -533,30 +542,7 @@ export const getItemList = async (
     {
       $skip: args.skip || 0
     },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'assignedUserIds',
-        foreignField: '_id',
-        as: 'users_doc'
-      }
-    },
-    {
-      $lookup: {
-        from: 'stages',
-        localField: 'stageId',
-        foreignField: '_id',
-        as: 'stages_doc'
-      }
-    },
-    {
-      $lookup: {
-        from: 'pipeline_labels',
-        localField: 'labelIds',
-        foreignField: '_id',
-        as: 'labels_doc'
-      }
-    },
+    ...(!_.isEmpty(joinedRelation) ? joinedRelation : []),
     {
       $project: {
         assignedUsers: '$users_doc',
@@ -709,4 +695,41 @@ export const getItemList = async (
   }
 
   return updatedList;
+};
+
+const joinConditionalAggregationPipelines = (nodes, queryName) => {
+  const relations = {
+    assignedUsers: {
+      $lookup: {
+        from: 'users',
+        localField: 'assignedUserIds',
+        foreignField: '_id',
+        as: 'users_doc'
+      }
+    },
+    labels: {
+      $lookup: {
+        from: 'pipeline_labels',
+        localField: 'labelIds',
+        foreignField: '_id',
+        as: 'labels_doc'
+      }
+    },
+    stage: {
+      $lookup: {
+        from: 'stages',
+        localField: 'stageId',
+        foreignField: '_id',
+        as: 'stages_doc'
+      }
+    }
+  };
+
+  const existingRelations = new Array();
+  for (const relation in relations) {
+    if (existFieldInGraphQL(nodes, [queryName, relation])) {
+      existingRelations.push(relations[relation]);
+    }
+  }
+  return existingRelations;
 };

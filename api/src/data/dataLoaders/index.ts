@@ -11,7 +11,6 @@ import segment from './segment';
 import customer from './customer';
 import conversationMessagesByConversationId from './conversationMessagesByConversationId';
 import conversationsByCustomerId from './conversationsByCustomerId';
-
 export interface IDataLoaders {
   productCategory: DataLoader<string, any>;
   tag: DataLoader<string, any>;
