@@ -42,7 +42,4 @@ export function AvatarComponent(props) {
   }
 
   return null;
-  // return (
-  //     <AvatarUpload defaultAvatar="https://erxes.io/static/images/logo/glyph_dark.png" onAvatarUpload={response: "https://erxes.io/static/images/logo/glyph_dark.png"}></AvatarUpload>
-  // );
 }

@@ -23,35 +23,3 @@ import { AvatarComponent } from "./avatarUpload.js"
     ['defaultAvatar', 'string', 'button', 'Set default avatar'],
     ['avatar', 'string', '', 'Set an avatar']
 ]} />
-
-<!-- ## Example
-
-<p>Add attachment with preview.</p>
-<AttachmentComponent />
-
-## Size
-
-<p>Add file size by adding <code>size</code> prop to attachment information array.</p>
-<AttachmentComponent type="fileSize"/>
-
-## Image
-
-<p>Click on picture to see preview.</p>
-<AttachmentComponent type="image"/>
-
-<p>Use <code>simple</code> to see only image preview.</p>
-<AttachmentComponent type="image" simple/>
-
-## Video
-
-<p>.</p>
-<AttachmentComponent type="video"/>
-
-## Additional item
-
-<p>Add additional item by <code>additionalItem</code> prop. </p>
-<AttachmentComponent additionalItem/>
-
-## API
-
-<AttachmentComponent type="APIattachment"/> -->
