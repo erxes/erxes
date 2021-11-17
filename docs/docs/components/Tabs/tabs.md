@@ -5,19 +5,15 @@ title: Tabs
 
 import { TabsComponent } from "./tabs.js"
 
-<p>Click on Tabs to see the context. Declare this code before return.</p>
-<TabsComponent type="before"/>
-
 ## Example
 
 <p>Simple example of tabs. </p>
-<TabsComponent />
+<TabsComponent type="id"/>
 
 ## Full
 
-<p>Display context full screen.</p>
+<p>Display tab title full length.</p>
 <TabsComponent type="full"/>
-
 
 ## Border
 
@@ -26,7 +22,13 @@ import { TabsComponent } from "./tabs.js"
 
 ## API
 
+### Tabs
+
 <TabsComponent type="APItabs" table={[
-  ['grayBorder', 'boolean', '', 'Make border darker'],
-  ['full', 'boolean', '', 'Display context full screen'],
+['grayBorder', 'boolean', '', 'Make border darker'],
+['full', 'boolean', '', 'Display context full screen'],
 ]} />
+
+### TabTitle
+
+<TabsComponent type="APItabtitle"  />

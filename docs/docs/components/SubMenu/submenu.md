@@ -18,6 +18,6 @@ import { SubMenuComponent } from "./submenu.js"
 ## API
 
 <SubMenuComponent type table={[
-['items', 'array[]', '', 'Info array of sub menu that will contain title and link'],
+['items', 'array', '', 'Info array of sub menu that will contain title and link'],
 ['additionalMenuItem', 'node', '', 'Additional sub menu item that will be displayed right side of sub menu ']
 ]} />

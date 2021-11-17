@@ -22,10 +22,11 @@ export function SubMenuComponent(props) {
 
   const stringify = (kind) => {
     let string = JSON.stringify(kind);
-    string = string.replace(/{"/g, "");
-    string = string.replace(/":/g, "=");
-    string = string.replace(/,"/g, " ");
-    string = string.replace(/}/g, "");
+    string = string.replace(/}],"additionalMenuItem":/g, "}]} additionalMenuItem=")
+    string = string.replace(/{"items":/g, "items={");
+    string = string.replace(/":/g, ":");
+    string = string.replace(/Additional item"}/g, 'Additional item"')
+    string = string.replace(/}}/g, "}");
     string = string.replace(/=true/g, "");
     return string;
   };
@@ -42,7 +43,12 @@ export function SubMenuComponent(props) {
   };
 
   if (type) {
-    return renderApiTable("Submenu", table);
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import Submenu from "erxes-ui/lib/components/subMenu/Submenu";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
+    );
   }
   return renderBlock();
 }
