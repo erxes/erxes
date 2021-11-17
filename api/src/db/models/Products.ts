@@ -96,7 +96,7 @@ export const loadProductClass = () => {
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await Products.getProduct({ _id });
 
-      if (product.code !== doc.code) {
+      if (doc.code && product.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
       }
 

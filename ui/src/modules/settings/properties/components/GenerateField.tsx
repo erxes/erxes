@@ -390,7 +390,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
         }
 
-      case 'companyIsSubscribed':
+      case 'company_isSubscribed':
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
@@ -404,7 +404,7 @@ export default class GenerateField extends React.Component<Props, State> {
       case 'description':
         return this.renderTextarea(attrs);
 
-      case 'companyDescription':
+      case 'company_description':
         return this.renderTextarea(attrs);
 
       case 'file': {
@@ -415,7 +415,7 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderFile(attrs);
       }
 
-      case 'companyAvatar': {
+      case 'company_avatar': {
         return this.renderFile(attrs);
       }
 

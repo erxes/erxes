@@ -16,7 +16,15 @@ import {
   stageFactory,
   userFactory
 } from '../db/factories';
-import { Boards, Deals, Pipelines, Stages } from '../db/models';
+import {
+  Boards,
+  Deals,
+  PipelineLabels,
+  Pipelines,
+  Products,
+  Stages,
+  Users
+} from '../db/models';
 import * as elk from '../elasticsearch';
 import './setup.ts';
 
@@ -817,27 +825,62 @@ describe('dealQueries', () => {
   test('Get archived deals', async () => {
     const pipeline = await pipelineFactory();
     const stage = await stageFactory({ pipelineId: pipeline._id });
+    const user = await userFactory();
+    const label = await pipelineLabelFactory();
+    const product = await productFactory();
+
     const args = {
       stageId: stage._id,
-      status: BOARD_STATUSES.ARCHIVED
+      status: BOARD_STATUSES.ARCHIVED,
+      userId: user._id,
+      priority: 'High',
+      assignedUserIds: [user._id],
+      labelIds: [label._id],
+      productsData: [{ productId: product._id }]
     };
 
-    await dealFactory({ ...args, name: 'james' });
-    await dealFactory({ ...args, name: 'jone' });
-    await dealFactory({ ...args, name: 'gerrad' });
+    await dealFactory({
+      ...args,
+      name: 'james',
+      closeDate: new Date('2000-01-02')
+    });
+    await dealFactory({
+      ...args,
+      name: 'jone',
+      closeDate: new Date('2000-01-03')
+    });
+    await dealFactory({
+      ...args,
+      name: 'gerrad',
+      closeDate: new Date('2000-01-04')
+    });
 
     const qry = `
       query archivedDeals(
         $pipelineId: String!,
         $search: String,
         $page: Int,
-        $perPage: Int
+        $perPage: Int,
+        $userIds: [String],
+        $priorities: [String],
+        $assignedUserIds: [String],
+        $labelIds: [String],
+        $productIds: [String],
+        $startDate: String,
+        $endDate: String
       ) {
         archivedDeals(
           pipelineId: $pipelineId
           search: $search
           page: $page
           perPage: $perPage
+          userIds: $userIds
+          priorities: $priorities
+          assignedUserIds: $assignedUserIds
+          labelIds: $labelIds
+          productIds: $productIds
+          startDate: $startDate
+          endDate: $endDate
         ) {
           _id
         }
@@ -845,7 +888,12 @@ describe('dealQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'archivedDeals', {
-      pipelineId: pipeline._id
+      pipelineId: pipeline._id,
+      userIds: [user._id],
+      priorities: ['High'],
+      assignedUserIds: [user._id],
+      labelIds: [label._id],
+      productIds: [product._id]
     });
 
     expect(response.length).toBe(3);
@@ -862,6 +910,25 @@ describe('dealQueries', () => {
     });
 
     expect(response.length).toBe(0);
+
+    response = await graphqlRequest(qry, 'archivedDeals', {
+      pipelineId: pipeline._id,
+      startDate: '2000-01-03',
+      endDate: '2000-01-03'
+    });
+
+    expect(response.length).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedDeals', {
+      pipelineId: pipeline._id,
+      endDate: '2000-01-03'
+    });
+
+    expect(response.length).toBe(2);
+
+    await Users.deleteMany({});
+    await PipelineLabels.deleteMany({});
+    await Products.deleteMany({});
   });
 
   test('Get archived deals count', async () => {

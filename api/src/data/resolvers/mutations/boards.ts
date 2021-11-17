@@ -381,6 +381,28 @@ const boardMutations = {
     });
 
     return 'ok';
+  },
+
+  async boardItemUpdateTimeTracking(
+    _root,
+    {
+      _id,
+      type,
+      status,
+      timeSpent,
+      startDate
+    }: {
+      _id: string;
+      type: string;
+      status: string;
+      timeSpent: number;
+      startDate: string;
+    },
+    { user }
+  ) {
+    await checkPermission(type, user, 'updateTimeTracking');
+
+    return Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
   }
 };
 

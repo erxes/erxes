@@ -26,6 +26,14 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
   sendToBoard?: (item: any) => void;
+  updateTimeTrack: (
+    {
+      _id,
+      status,
+      timeSpent
+    }: { _id: string; status: string; timeSpent: number; startDate?: string },
+    callback?: () => void
+  ) => void;
 };
 
 export default function TicketEditForm(props: Props) {
@@ -94,7 +102,7 @@ export default function TicketEditForm(props: Props) {
     saveItem,
     onChangeStage
   }: IEditFormContent) {
-    const { options, onUpdate, addItem, sendToBoard } = props;
+    const { options, onUpdate, addItem, sendToBoard, updateTimeTrack } = props;
 
     const renderSidebar = () => renderSidebarFields(saveItem);
 
@@ -128,6 +136,7 @@ export default function TicketEditForm(props: Props) {
             sidebar={renderSidebar}
             saveItem={saveItem}
             renderItems={renderItems}
+            updateTimeTrack={updateTimeTrack}
           />
         </FlexContent>
       </>

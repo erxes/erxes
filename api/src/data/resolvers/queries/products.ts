@@ -57,7 +57,7 @@ const productQueries = {
         status: { $nin: [null, 'active'] }
       });
 
-      filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
+      filter.categoryId = { $nin: notActiveCategories.map(e => e._id) };
     }
 
     if (ids && ids.length > 0) {

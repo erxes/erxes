@@ -64,7 +64,7 @@ const userMiddleware = async (req, _res, next) => {
 
       // invalid token access.
       const currentUser = await Users.getUser(user._id);
-      if(!currentUser.validatedTokens?.includes(token)){
+      if (!currentUser.validatedTokens?.includes(token)) {
         return next();
       }
 

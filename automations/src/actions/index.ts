@@ -1,7 +1,11 @@
-import { playWait } from "./wait";
-import { addBoardItem } from "./addBoardItem";
+import { addBoardItem } from './addBoardItem';
+import { customCode } from './customCode';
+import { playWait } from './wait';
+import { setProperty } from './setProperty';
 
 export {
+  addBoardItem,
+  customCode,
   playWait,
-  addBoardItem
+  setProperty,
 }

@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { attachmentSchema } from './boards';
 import { IRule, ruleSchema } from './common';
 import {
   KIND_CHOICES,
@@ -83,6 +84,37 @@ export interface IAttachment {
   type: string;
 }
 
+export interface IBookingStyle {
+  itemShape?: string;
+  widgetColor?: string;
+
+  productAvailable?: string;
+  textAvailable?: string;
+  baseFont?: string;
+
+  line?: string;
+  rows?: number;
+  columns?: number;
+  margin?: number;
+}
+
+export interface IBookingData {
+  name?: string;
+  description?: string;
+  image?: IAttachment;
+  style?: IBookingStyle;
+  userFilters?: string[];
+  productCategoryId?: string;
+  viewCount?: number;
+  navigationText?: string;
+  bookingFormText?: string;
+  productFieldIds?: string[];
+}
+
+export interface IBookingDataDocument extends IBookingData, Document {
+  viewCount?: number;
+}
+
 export interface ILeadData {
   loadType?: string;
   successAction?: string;
@@ -104,6 +136,8 @@ export interface ILeadData {
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
+  successImage?: string;
+  successImageSize?: string;
 }
 
 export interface IWebhookData {
@@ -139,6 +173,7 @@ export interface IIntegration {
   uiOptions?: IUiOptions;
   isActive?: boolean;
   channelIds?: string[];
+  bookingData?: IBookingData;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
@@ -150,6 +185,7 @@ export interface IIntegrationDocument extends IIntegration, Document {
   messengerData?: IMessengerDataDocument;
   webhookData?: IWebhookData;
   uiOptions?: IUiOptionsDocument;
+  bookingData?: IBookingDataDocument;
 }
 
 // subdocument schema for MessengerOnlineHours
@@ -322,6 +358,16 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Custom CSS'
+    }),
+    successImage: field({
+      type: String,
+      optional: true,
+      label: 'Success image'
+    }),
+    successImageSize: field({
+      type: String,
+      optional: true,
+      label: 'Success image size'
     })
   },
   { _id: false }
@@ -343,6 +389,61 @@ const webhookDataSchema = new Schema(
     script: field({ type: String, optional: true }),
     token: field({ type: String }),
     origin: field({ type: String, optional: true })
+  },
+  { _id: false }
+);
+
+export const bookingStyleSchema = new Schema(
+  {
+    itemShape: field({ type: String, optional: true, label: 'Shape' }),
+    widgetColor: field({ type: String, label: 'Widget color' }),
+
+    productAvailable: field({ type: String, label: 'Product available' }),
+    textAvailable: field({ type: String, label: 'Text available' }),
+    baseFont: field({ type: String, optional: true, label: 'Font' }),
+
+    line: field({ type: String, optional: true, label: 'Line' }),
+    columns: field({ type: Number, optional: true, label: 'Columns' }),
+    rows: field({ type: Number, optional: true, label: 'Rows' }),
+    margin: field({ type: Number, optional: true, label: 'Margin' })
+  },
+  { _id: false }
+);
+
+const bookingSchema = new Schema(
+  {
+    name: field({ type: String }),
+    description: field({ type: String }),
+    image: field({ type: attachmentSchema }),
+
+    style: field({ type: bookingStyleSchema }),
+    userFilters: field({ type: [String], optional: true, label: 'Filter' }),
+
+    productCategoryId: field({
+      type: String,
+      optional: true,
+      label: 'Product category'
+    }),
+    viewCount: field({
+      type: Number,
+      optional: true,
+      label: 'View count'
+    }),
+    navigationText: field({
+      type: String,
+      optional: true,
+      label: 'Navigation text'
+    }),
+    bookingFormText: field({
+      type: String,
+      optional: true,
+      label: 'Booking form text'
+    }),
+    productFieldIds: field({
+      type: [String],
+      optional: true,
+      label: 'Custom fields'
+    })
   },
   { _id: false }
 );
@@ -380,7 +481,9 @@ export const integrationSchema = schemaHooksWrapper(
     // TODO: remove
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
-    uiOptions: field({ type: uiOptionsSchema })
+    uiOptions: field({ type: uiOptionsSchema }),
+
+    bookingData: field({ type: bookingSchema })
   }),
   'erxes_integrations'
 );

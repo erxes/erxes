@@ -8,7 +8,7 @@ import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
-import { queries, subscriptions } from '../../graphql';
+import { mutations, queries, subscriptions } from '../../graphql';
 import {
   CopyMutation,
   DetailQueryResponse,
@@ -184,8 +184,8 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     client
       .mutate({
-        variables: doc,
-        mutation: gql(options.mutations.updateTimeTrackMutation)
+        variables: { ...doc, type: options.type },
+        mutation: gql(mutations.boardItemUpdateTimeTracking)
       })
       .then(() => {
         if (callback) {

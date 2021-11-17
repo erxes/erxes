@@ -65,6 +65,12 @@ const list = ({ location }) => {
   return <TicketBoard viewType="list" queryParams={queryParams} />;
 };
 
+const chart = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="chart" queryParams={queryParams} />;
+};
+
 const activity = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -102,6 +108,13 @@ const routes = () => {
         exact={true}
         path="/ticket/activity"
         component={activity}
+      />
+
+      <Route
+        key="ticket/chart"
+        exact={true}
+        path="/ticket/chart"
+        component={chart}
       />
     </>
   );

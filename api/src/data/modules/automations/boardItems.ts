@@ -1,13 +1,4 @@
-import {
-  Companies,
-  Conformities,
-  Conversations,
-  Customers,
-  Deals,
-  Stages,
-  Tasks,
-  Tickets
-} from '../../../db/models';
+import { Conformities, Stages } from '../../../db/models';
 import { getCollection, getItem } from '../../../db/models/boardUtils';
 import { graphqlPubsub } from '../../../pubsub';
 import { itemsAdd } from '../../resolvers/mutations/boardUtils';
@@ -18,18 +9,6 @@ export const receiveRpcMessageBoardItem = async (action, doc) => {
 
   if (action.includes('add')) {
     try {
-      if (doc.conversationId) {
-        doc.sourceConversationIds = [doc.conversationId];
-      }
-
-      if (doc.customerId) {
-        doc.customerIds = [doc.customerId];
-      }
-
-      if (doc.companyId) {
-        doc.companyIds = [doc.companyId];
-      }
-
       // 'dealStage change'
       const { create } = getCollection(type);
 
@@ -69,42 +48,6 @@ export const receiveRpcMessageBoardItem = async (action, doc) => {
       });
 
       return sendSuccess({ ...removed });
-    } catch (e) {
-      return sendSuccess({ error: e.message });
-    }
-  }
-
-  let collection;
-  const modules = {
-    deal: Deals,
-    customer: Customers,
-    task: Tasks,
-    ticket: Tickets,
-    company: Companies,
-    conversation: Conversations
-  };
-
-  if (action.includes('findConformities')) {
-    const conformities = await Conformities.savedConformity({
-      mainType: doc.mainType,
-      mainTypeId: doc.mainTypeId,
-      relTypes: [doc.relType]
-    });
-    collection = modules[doc.relType];
-
-    return sendSuccess(await collection.find({ _id: { $in: conformities } }));
-  }
-
-  if (action.includes('set-property')) {
-    try {
-      collection = modules[doc.module];
-
-      const result = await collection.update(
-        { _id: doc._id },
-        { $set: { ...(doc.setDoc || {}) } }
-      );
-
-      return sendSuccess(result);
     } catch (e) {
       return sendSuccess({ error: e.message });
     }

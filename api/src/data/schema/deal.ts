@@ -75,8 +75,34 @@ export const queries = `
   dealDetail(_id: String!): Deal
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
-  archivedDeals(pipelineId: String!, search: String, page: Int, perPage: Int): [Deal]
-  archivedDealsCount(pipelineId: String!, search: String): Int
+  archivedDeals(
+    page: Int, 
+    perPage: Int, 
+    pipelineId: String!, 
+    search: String, 
+    userIds: [String],
+    priorities: [String],
+    assignedUserIds: [String],
+    labelIds: [String],
+    productIds: [String],
+    companyIds: [String],
+    customerIds: [String],
+    startDate: String,
+    endDate: String
+  ): [Deal]
+  archivedDealsCount(
+    pipelineId: String!, 
+    search: String,
+    userIds: [String],
+    priorities: [String],
+    assignedUserIds: [String],
+    labelIds: [String],
+    productIds: [String],
+    companyIds: [String],
+    customerIds: [String],
+    startDate: String,
+    endDate: String
+  ): Int
   dealsTotalAmounts(
     ${commonQueryParams}
     ${conformityQueryFields}

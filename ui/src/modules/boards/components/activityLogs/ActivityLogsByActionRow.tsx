@@ -12,6 +12,7 @@ import {
   CreatedUser
 } from 'modules/notifications/components/styles';
 import RoundedBackgroundIcon from '../RoundedBackgroundIcon';
+import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
 
 type Props = {
   activityLog: any;
@@ -68,7 +69,10 @@ class ActivityLogsByActionRow extends React.Component<Props> {
       <CreatedUser>
         {this.renderCreatedUser()}
         <span>
-          {activityLog.action}&nbsp;&nbsp;
+          {SEARCH_ACTIVITY_CHECKBOX.map(({ action, value }) =>
+            activityLog.action === action ? value : ''
+          )}
+          &nbsp;&nbsp;
           {this.renderContentType()}&nbsp;&nbsp;
           {this.renderDescText()}
         </span>
@@ -117,7 +121,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
         </AvatarSection>
         <InfoSection>{this.renderAllContent()}</InfoSection>
         <DateType>
-          {dayjs(activityLog.date).format('DD MMM YYYY, HH:mm')}
+          {dayjs(activityLog.createdAt).format('DD MMM YYYY, HH:mm')}
         </DateType>
       </ActivityList>
     );
