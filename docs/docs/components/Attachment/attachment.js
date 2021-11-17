@@ -51,7 +51,7 @@ export function AttachmentComponent(props) {
   // ];
 
   const propDatas = (attachments) => {
-    const kind = {
+    const datas = {
       attachment:
         type === "image"
           ? image
@@ -64,7 +64,7 @@ export function AttachmentComponent(props) {
       simple: simple && true,
       // attachments: attachments && multi,
     };
-    return kind;
+    return datas;
   };
 
   const stringify = (kind) => {
@@ -86,7 +86,7 @@ export function AttachmentComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <Attachment {...propDatas(attachments)} index={5} />
+          <Attachment {...propDatas(attachments)} />
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<Attachment ${stringify(propDatas(attachments))} />\n</>`}
