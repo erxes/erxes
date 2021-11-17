@@ -54,8 +54,34 @@ export const queries = `
     closeDateType: String
   ): JSON
 
-  archivedGrowthHacks(pipelineId: String!, search: String, page: Int, perPage: Int): [GrowthHack]
-  archivedGrowthHacksCount(pipelineId: String!, search: String): Int
+  archivedGrowthHacks(
+    pipelineId: String!, 
+    search: String, 
+    page: Int, 
+    perPage: Int,
+    userIds: [String],
+    priorities: [String],
+    assignedUserIds: [String],
+    labelIds: [String],
+    productIds: [String],
+    companyIds: [String],
+    customerIds: [String],
+    startDate: String,
+    endDate: String
+  ): [GrowthHack]
+  archivedGrowthHacksCount(
+    pipelineId: String!, 
+    search: String,
+    userIds: [String],
+    priorities: [String],
+    assignedUserIds: [String],
+    labelIds: [String],
+    productIds: [String],
+    companyIds: [String],
+    customerIds: [String],
+    startDate: String,
+    endDate: String
+  ): Int
 `;
 
 const commonParams = `

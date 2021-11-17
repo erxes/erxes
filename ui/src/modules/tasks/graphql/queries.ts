@@ -97,12 +97,30 @@ const archivedTasks = `
     $search: String,
     $page: Int,
     $perPage: Int,
+    $userIds: [String],
+    $priorities: [String],
+    $assignedUserIds: [String],
+    $labelIds: [String],
+    $productIds: [String],
+    $companyIds: [String],
+    $customerIds: [String],
+    $startDate: String,
+    $endDate: String
   ) {
     archivedTasks(
       pipelineId: $pipelineId,
       search: $search,
       page: $page,
       perPage: $perPage,
+      userIds: $userIds,
+      priorities: $priorities,
+      assignedUserIds: $assignedUserIds,
+      labelIds: $labelIds,
+      productIds: $productIds,
+      companyIds: $companyIds,
+      customerIds: $customerIds,
+      startDate: $startDate,
+      endDate: $endDate
     ) {
       ${commonFields}
     }
@@ -110,8 +128,32 @@ const archivedTasks = `
 `;
 
 const archivedTasksCount = `
-  query archivedTasksCount($pipelineId: String!, $search: String) {
-    archivedTasksCount(pipelineId: $pipelineId, search: $search)
+  query archivedTasksCount(
+    $pipelineId: String!, 
+    $search: String,
+    $userIds: [String],
+    $priorities: [String],
+    $assignedUserIds: [String],
+    $labelIds: [String],
+    $productIds: [String],
+    $companyIds: [String],
+    $customerIds: [String],
+    $startDate: String,
+    $endDate: String,
+  ) {
+    archivedTasksCount(
+      pipelineId: $pipelineId, 
+      search: $search,
+      userIds: $userIds,
+      priorities: $priorities,
+      assignedUserIds: $assignedUserIds,
+      labelIds: $labelIds,
+      productIds: $productIds,
+      companyIds: $companyIds,
+      customerIds: $customerIds,
+      startDate: $startDate,
+      endDate: $endDate
+    )
   }
 `;
 
