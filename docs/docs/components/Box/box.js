@@ -52,7 +52,7 @@ export function BoxComponent(props) {
           </Box>
         </div>
         
-        <CodeBlock className="language-jsx">
+        {/* <CodeBlock className="language-jsx">
           {`<>\n\t<Button ${stringify(
               propDatas(propName, extra)
             )} >Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
@@ -71,7 +71,7 @@ export function BoxComponent(props) {
             Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
             is widely regarded as one of the greatest basketball players of
             all time.</Button>\n</>`}
-        </CodeBlock>
+        </CodeBlock> */}
       </>
     );
   };

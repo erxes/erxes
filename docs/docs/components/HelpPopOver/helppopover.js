@@ -5,7 +5,7 @@ import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
-export function HelpPopOverComponent(props) {
+export function PopoverComponent(props) {
   const { triggerOf = [], type, table=[] } = props;
   const title = "Help title";
   const child = "Help information";
@@ -41,7 +41,7 @@ export function HelpPopOverComponent(props) {
     );
   };
 
-  if (type === "APIhelppopover"){
+  if (type === "APIpopover"){
     return renderApiTable("HelpPopover", table)
   }
   return renderBlock("trigger");

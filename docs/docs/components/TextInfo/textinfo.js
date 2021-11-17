@@ -3,6 +3,7 @@ import TextInfo from "erxes-ui/lib/components/TextInfo";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import { renderApiTable, stringify } from "../common.js";
+import styles from "../../../src/components/styles.module.css";
 
 export function TextInfoComponent(props) {
   const { style = [], type, table = [] } = props;
@@ -16,20 +17,25 @@ export function TextInfoComponent(props) {
     return kind;
   };
 
-  const renderBlock = (propname) => {
+  const renderBlock = (propname, defaultText) => {
     return (
       <>
-        {style.map((stl, index) => {
-          return (
-            <>
-              <TextInfo key={index} {...propDatas(propname, stl)}>
-                {stl}
-              </TextInfo>{" "}
-            </>
-          );
-        })}
+        <div className={styles.styled}>
+          {defaultText && <TextInfo>{defaultText}</TextInfo>}{" "}
+          {style.map((stl, index) => {
+            return (
+              <>
+                <TextInfo key={index} {...propDatas(propname, stl)}>
+                  {stl}
+                </TextInfo>{" "}
+              </>
+            );
+          })}
+        </div>
         <CodeBlock className="language-jsx">
-          {`<>${style.map((stl) => {
+          {`<>${
+            defaultText ? `\n\t<TextInfo>${defaultText}</TextInfo>` : ``
+          }${style.map((stl) => {
             return `\n\t<TextInfo ${stringify(
               propDatas(propname, stl)
             )} >${stl}</TextInfo>`;
@@ -40,7 +46,7 @@ export function TextInfoComponent(props) {
   };
 
   if (type === "textStyle") {
-    return renderBlock("textStyle");
+    return renderBlock("textStyle", "default");
   }
   if (type === "hugeness") {
     return renderBlock("hugeness");

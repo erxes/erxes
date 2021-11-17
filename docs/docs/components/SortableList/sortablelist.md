@@ -5,6 +5,7 @@ title: Sortable list
 
 import { SortableListComponent } from "./sortablelist.js"
 
+<p>You can sort the list with drag and drop actions.</p>
 <SortableListComponent />
 
 ## API

@@ -1,16 +1,16 @@
 ---
 id: helppopover
-title: Help Pop Over
+title: Help Popover
 ---
 
-import { HelpPopOverComponent } from "./helppopover.js"
+import { PopoverComponent } from "./helppopover.js"
 
 <p>See pop over by hovering over it, click on it, and focus on it.</p>
-<HelpPopOverComponent triggerOf={[ 'hover', 'click', 'focus' ]}/>
+<PopoverComponent triggerOf={[ 'hover', 'click', 'focus' ]}/>
 
 ## API
 
-<HelpPopOverComponent type="APIhelppopover" table={[
+<PopoverComponent type="APIpopover" table={[
   ['* title', 'string', '', 'Title of help'],
   ['* trigger', 'hover | click | focus', 'click', 'Trigger of displaying help information']
  ]}/>

@@ -7,7 +7,7 @@ import { ProgressBarComponent } from "./progressbar.js"
 
 <p>Provide progress bar to check work progress</p>
 
-## Percent
+## Percentage
 
 <p>Add percentage by <code>percentage</code> prop. Add text by <code>children</code> prop. </p>
 <ProgressBarComponent ></ProgressBarComponent>
