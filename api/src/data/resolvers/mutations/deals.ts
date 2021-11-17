@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Deals } from '../../../db/models';
+import { Deals, Products, Stages } from '../../../db/models';
 import { IItemDragCommonFields } from '../../../db/models/definitions/boards';
 import { IDeal } from '../../../db/models/definitions/deals';
 import { checkPermission } from '../../permissions/wrappers';
@@ -99,6 +99,34 @@ const dealMutations = {
    * Change deal
    */
   async dealsChange(_root, doc: IItemDragCommonFields, { user }: IContext) {
+    const deal = await Deals.getDeal(doc.itemId);
+
+    if (deal.productsData) {
+      const productsData = deal.productsData;
+
+      const stage = await Stages.getStage(doc.destinationStageId);
+      const prevStage = await Stages.getStage(doc.sourceStageId);
+
+      const productIds = productsData.map(p => p.productId);
+
+      const products = await Products.find({
+        _id: { $in: productIds },
+        supply: { $ne: 'unlimited' }
+      });
+
+      if (stage.probability === 'Won') {
+        await Products.updateMany(
+          { _id: { $in: products.map(p => p._id) } },
+          { $inc: { productCount: -1 } }
+        );
+      } else if (prevStage.probability === 'Won') {
+        await Products.updateMany(
+          { _id: { $in: products.map(p => p._id) } },
+          { $inc: { productCount: 1 } }
+        );
+      }
+    }
+
     return itemsChange(doc, 'deal', user, Deals.updateDeal);
   },
 

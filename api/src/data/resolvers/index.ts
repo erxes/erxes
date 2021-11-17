@@ -56,6 +56,7 @@ import Structure from './structure';
 import Department from './departments';
 import Unit from './units';
 import Branch from './branches';
+import BookingData from './bookingData';
 
 const resolvers: any = {
   ...customScalars,
@@ -116,7 +117,8 @@ const resolvers: any = {
   Structure,
   Department,
   Unit,
-  Branch
+  Branch,
+  BookingData
 };
 
 export default resolvers;

@@ -414,26 +414,28 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderSuccessImage(image: string, title: string) {
+    if (!image) {
+      return null;
+    }
+
+    return (
+      <img onLoad={this.props.setHeight} src={readFile(image)} alt={title} />
+    );
+  }
   renderSuccessForm(
     thankTitle?: string,
     thankContent?: string,
     successImage?: string
   ) {
     const { integration, form } = this.props;
-    if (!successImage) {
-      return null;
-    }
 
     return (
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
-            <img
-              onLoad={this.props.setHeight}
-              src={readFile(successImage)}
-              alt={successImage}
-            />
+          {this.renderSuccessImage(successImage || "", form.title)}
             {thankContent ||
               __('Thanks for your message. We will respond as soon as we can.')}
           </div>

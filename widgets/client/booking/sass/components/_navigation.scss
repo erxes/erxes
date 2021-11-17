@@ -1,0 +1,97 @@
+.booking-navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 200px;
+  background-color: #fff;
+  border-radius: 2px;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  font-size: 14px;
+
+  .booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h4 {
+      margin: 0;
+      font-size: 15px;
+      padding-right: 10px;
+      max-width: 300px;
+      line-height: 16px;
+      cursor: pointer;
+    }
+
+    svg {
+      height: 18px;
+      cursor: pointer;
+    }
+  }
+
+  ul {
+    padding: 0;
+    margin: 0;
+
+    .list {
+      padding: 5px 0;
+      opacity: 1;
+      color: #888;
+
+      .list-item {
+        margin-right: 10px;
+        cursor: pointer;
+      }
+
+      .circle {
+        color: white;
+        font-size: 10px;
+        width: 20px;
+        height: 20px;
+        border-radius: 20px;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      &.selected {
+        font-weight: 500;
+
+        .list-item {
+          color: #1dc51d !important;
+        }
+        .circle {
+          background-color: #1dc51d !important;
+        }
+        .toggle-nav div {
+          border-color: #1dc51d transparent transparent !important;
+        }
+      }
+
+      &.card-disabled {
+        pointer-events: none;
+      }
+    }
+  }
+
+  span {
+    display: inline-block;
+  }
+
+  .child-list {
+    margin-left: 20px;
+  }
+  .toggle-nav {
+    width: 12px !important;
+    cursor: pointer;
+  }
+  ht {
+    width: 200;
+  }
+}
+
+.Popover-right {
+  position: fixed;
+  top: 0 !important;
+  left: 0 !important;
+}

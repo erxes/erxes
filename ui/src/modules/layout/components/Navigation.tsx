@@ -393,6 +393,15 @@ class Navigation extends React.Component<IProps> {
             [],
             lbl
           )}
+          {this.renderNavItem(
+            'showIntegrations',
+            __('Bookings'),
+            '/bookings',
+            'icon-paste',
+            [],
+            lbl
+          )}
+
           {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
       </LeftNavigation>
