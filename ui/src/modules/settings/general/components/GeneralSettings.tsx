@@ -24,7 +24,7 @@ import {
 import { IConfigsMap } from '../types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from './Header';
-import Sidebar from './Sidebar';
+import Sidebar from '../containers/Sidebar';
 
 type Props = {
   currentLanguage: string;

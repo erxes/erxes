@@ -932,7 +932,7 @@ export const getDashboardFile = async (dashboardId: string) => {
   return pdf;
 };
 
-export const getErxesSaasDomain = () => {
+export const getCoreDomain = () => {
   const NODE_ENV = process.env.NODE_ENV;
 
   return NODE_ENV === 'production'
@@ -1068,4 +1068,21 @@ export const findCompany = async doc => {
   }
 
   return company;
+};
+
+export const checkPremiumService = async type => {
+  try {
+    const domain = getEnv({ name: 'MAIN_APP_DOMAIN' })
+      .replace('https://', '')
+      .replace('http://', '');
+
+    const response = await sendRequest({
+      url: `${getCoreDomain()}/check-premium-service?domain=${domain}&type=${type}`,
+      method: 'GET'
+    });
+
+    return response === 'yes';
+  } catch (e) {
+    return false;
+  }
 };

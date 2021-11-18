@@ -4,7 +4,13 @@ import { Configs, Pipelines, Stages } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { getEnv, getErxesSaasDomain, readFile, sendRequest } from '../../utils';
+import {
+  checkPremiumService,
+  getCoreDomain,
+  getEnv,
+  readFile,
+  sendRequest
+} from '../../utils';
 
 const doSearch = async (index, value, fields) => {
   const highlightFields = {};
@@ -151,11 +157,15 @@ const configQueries = {
     };
   },
 
+  async configsCheckPremiumService(_root, args: { type: string }) {
+    return checkPremiumService(args.type);
+  },
+
   async configsCheckActivateInstallation(_root, args: { hostname: string }) {
     try {
       return await sendRequest({
         method: 'POST',
-        url: `${getErxesSaasDomain()}/check-activate-installation`,
+        url: `${getCoreDomain()}/check-activate-installation`,
         body: args
       });
     } catch (e) {

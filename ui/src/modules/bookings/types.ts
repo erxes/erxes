@@ -10,7 +10,6 @@ export interface IStyle {
   itemShape?: string;
   widgetColor: string;
   productAvailable: string;
-  textAvailable: string;
   line?: string;
   columns?: number;
   rows?: number;
@@ -48,7 +47,6 @@ export type IBooking = {
   itemShape: string;
   widgetColor: string;
   productAvailable: string;
-  textAvailable: string;
   line?: string;
   columns?: number;
   rows?: number;
