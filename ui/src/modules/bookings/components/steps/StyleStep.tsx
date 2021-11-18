@@ -98,7 +98,10 @@ function Style({
               <Select
                 placeholder="Please select a font"
                 value={baseFont}
-                options={FONTS.map(item => ({ label: item, value: item }))}
+                options={FONTS.map(item => ({
+                  label: item.label,
+                  value: item.value
+                }))}
                 onChange={(e: any) =>
                   onChangeBooking('baseFont', e ? e.value : null)
                 }
