@@ -1072,10 +1072,12 @@ export const findCompany = async doc => {
 
 export const checkPremiumService = async type => {
   try {
+    const domain = getEnv({ name: 'MAIN_APP_DOMAIN' })
+      .replace('https://', '')
+      .replace('http://', '');
+
     const response = await sendRequest({
-      url: `${getCoreDomain()}/check-premium-service?domain=${getEnv({
-        name: 'MAIN_APP_DOMAIN'
-      })}&type=${type}`,
+      url: `${getCoreDomain()}/check-premium-service?domain=${domain}&type=${type}`,
       method: 'GET'
     });
 
