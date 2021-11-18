@@ -14,5 +14,5 @@ import { ErrorMsgComponent } from "./errormsg.js"
 ## API
 
 <ErrorMsgComponent table={[
-  ['children', 'string', '', 'your error message' ]
+  ['* children', 'string', '', 'Declare error message' ]
 ]} />

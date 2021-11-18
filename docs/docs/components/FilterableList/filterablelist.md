@@ -17,7 +17,7 @@ import { FilterableListComponent } from "./filterablelist.js"
 
 ## Avatar
 
-<p>Add avatar by <code>avatar</code> prop inside items array.</p>
+<p>Add avatar by <code>avatar</code> prop to items array.</p>
 <FilterableListComponent type="avatar"/>
 
 ## Links
@@ -48,5 +48,8 @@ import { FilterableListComponent } from "./filterablelist.js"
   ['showCheckmark', 'boolean', 'true', 'Checkmark'],
   ['selectable', 'boolean', '30px', 'List spacing on the right'],
   ['loading', 'boolean', '', 'Loading spinner'],
-  ['treeView', 'boolean', '', 'Tree view of list']
+  ['className', 'string', '', 'Defines className'],
+  ['treeView', 'boolean', '', 'Tree view of list'],
+  ['onClick', 'void', '', 'Click handler'],
+  
 ]} />

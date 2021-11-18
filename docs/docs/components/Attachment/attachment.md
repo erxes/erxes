@@ -27,8 +27,13 @@ import { AttachmentComponent } from "./attachment.js"
 
 ## Video
 
-<p>.</p>
+<p>Click on video to preview audio.</p>
 <AttachmentComponent type="video"/>
+
+## Audio
+
+<p>Click on Audio to preview.</p>
+<AttachmentComponent type="audio"/>
 
 ## Additional item
 

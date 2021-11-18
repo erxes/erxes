@@ -5,7 +5,7 @@ title: Breadcrumb
 
 import { BreadCrumbComponent } from "./breadcrumbs.js"
 
-<p>Indicate the current page’s location within a navigational hierarchy that automatically adds separators via CSS. <code>active</code> prop will be automatically set when <code>link</code> is not set. <code>active</code> overrides href and span element is rendered instead of a. Do not set both <code>active</code> and <code>link</code> attributes. Add <code>active</code> prop to active breadcrumb item.</p>
+<p>Indicate the current page’s location within a navigational hierarchy that automatically adds separators via CSS. When <code>link</code> is not set, the breadcrumb item is active. Active item overrides href and span element is rendered instead of hyperlink tag.</p>
 
 ## Example
 

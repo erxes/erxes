@@ -16,20 +16,26 @@ export function AttachmentComponent(props) {
   const video = {
     name: "test.mp4",
     type: "video",
-    url: "/home/ariuka/Documents/test.mp4",
+    url: "/Documents/test.mp4",
   };
 
   const file = {
     name: "test.docx",
     type: "text",
-    url: "/home/ariuka/Documents/test.docx",
+    url: "/Documents/test.docx",
   };
 
   const fileSize = {
     name: "test.docx",
     type: "text",
-    url: "/home/ariuka/Documents/test.docx",
+    url: "/Documents/test.docx",
     size: 4179,
+  };
+
+  const audio = {
+    name: "test.mp3",
+    type: "mp3",
+    url: "/Documents/test.mp3",
   };
 
   // const multi = [
@@ -59,7 +65,9 @@ export function AttachmentComponent(props) {
           ? video
           : type === "fileSize"
           ? fileSize
-          : file,
+          : type === "audio"
+          ? audio
+          :file,
       additionalItem: additionalItem && "Additional text",
       simple: simple && true,
       // attachments: attachments && multi,
@@ -124,23 +132,29 @@ export function AttachmentComponent(props) {
               <td>* type</td>
               <td>string</td>
               <td/>
-              <td>File type</td>
+              <td>Define file type</td>
             </tr>
             <tr>
               <td >* url</td>
               <td>string</td>
               <td/>
-              <td>File url</td>
+              <td>Declare file path</td>
             </tr>
             <tr>
               <td>size</td>
               <td>number</td>
               <td/>
-              <td>File size</td>
+              <td>Shows file size</td>
+            </tr>
+            <tr>
+              <td colSpan="2">scrollBottom</td>
+              <td>void</td>
+              <td/>
+              <td></td>
             </tr>
             <tr>
               <td colSpan="2">additionalItem</td>
-              <td>node</td>
+              <td>ReactNode</td>
               <td/>
               <td>Additional item can be any node</td>
             </tr>
@@ -148,7 +162,38 @@ export function AttachmentComponent(props) {
               <td colSpan="2">simple</td>
               <td>boolean</td>
               <td></td>
-              <td>Show only image</td>
+              <td>Shows only image</td>
+            </tr>
+            <tr>
+              <td colSpan="2">index</td>
+              <td>number</td>
+              <td></td>
+              <td>Gives index to attachment</td>
+            </tr>
+            <tr>
+              <td rowSpan="4">attachments (array)</td>
+              <td>* name</td>
+              <td>string</td>
+              <td/>
+              <td>Gives a name to file</td>
+            </tr>
+            <tr>
+              <td>* type</td>
+              <td>string</td>
+              <td/>
+              <td>Define file type</td>
+            </tr>
+            <tr>
+              <td>* url</td>
+              <td>string</td>
+              <td/>
+              <td>Declare path to file</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>number</td>
+              <td/>
+              <td>Shows file size</td>
             </tr>
           </tbody>
         </Table>

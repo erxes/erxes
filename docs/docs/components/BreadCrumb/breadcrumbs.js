@@ -54,11 +54,6 @@ export function BreadCrumbComponent(props) {
               <td>string</td>
               <td>Defines a hyperlink</td>
             </tr>
-            <tr>
-              <td>active</td>
-              <td>boolean</td>
-              <td>Overrides href and span element is rendered instead of a. Automatically become true when <code>link</code> prop is not set. </td>
-            </tr>
           </tbody>
         </Table>
       </>
