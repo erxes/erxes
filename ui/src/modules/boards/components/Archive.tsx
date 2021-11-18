@@ -54,7 +54,7 @@ function Archive(props: Props) {
 
   useEffect(() => {
     debouncedSetSearchValue(searchInputValue);
-  }, [searchInputValue]);
+  }, [searchInputValue, debouncedSetSearchValue]);
 
   const isFiltered = (): boolean => {
     if (type === 'item') {
