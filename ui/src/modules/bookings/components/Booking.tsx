@@ -133,7 +133,6 @@ function Booking(props: Props) {
     itemShape: bookingStyle.itemShape || '',
     widgetColor: bookingStyle.widgetColor || colors.colorPrimary,
     productAvailable: bookingStyle.productAvailable || colors.colorPrimary,
-    textAvailable: bookingStyle.textAvailable || colors.colorPrimary,
     line: bookingStyle.line || '',
     columns: bookingStyle.columns || 2,
     rows: bookingStyle.rows || 1,
@@ -203,7 +202,6 @@ function Booking(props: Props) {
           itemShape: booking.itemShape,
           widgetColor: booking.widgetColor,
           productAvailable: booking.productAvailable,
-          textAvailable: booking.textAvailable,
           line: booking.line,
           rows: Number(booking.rows),
           columns: Number(booking.columns),
@@ -292,7 +290,6 @@ function Booking(props: Props) {
                 itemShape={booking.itemShape}
                 widgetColor={booking.widgetColor}
                 productAvailable={booking.productAvailable}
-                textAvailable={booking.textAvailable}
                 baseFont={booking.baseFont}
               />
             </Step>
