@@ -68,11 +68,24 @@ const userQueries = {
   /**
    * Users list
    */
-  async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
-    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
-    const sort = { isOwner: -1, username: 1 };
+  async users(
+    _root,
+    args: IListArgs,
+    { userBrandIdsSelector, user }: IContext
+  ) {
+    const selector = {
+      ...userBrandIdsSelector,
+      ...(await queryBuilder(args)),
+      _id: { $ne: user._id }
+    };
 
-    return paginate(Users.find(selector).sort(sort), args);
+    const sort = { username: 1 };
+
+    const users = await paginate(Users.find(selector).sort(sort), args);
+
+    users.unshift(Users.findOne({ _id: user._id }));
+
+    return users;
   },
 
   /**
