@@ -9,7 +9,10 @@ import {
   Stages
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
-import { IItemCommonFields } from '../../../db/models/definitions/boards';
+import {
+  IItemCommonFields,
+  IStageDocument
+} from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { CLOSE_DATE_TYPES } from '../../constants';
@@ -22,6 +25,15 @@ export interface IArchiveArgs {
   search: string;
   page?: number;
   perPage?: number;
+  userIds?: string[];
+  priorities?: string[];
+  assignedUserIds?: string[];
+  labelIds?: string[];
+  productIds?: string[];
+  companyIds?: string[];
+  customerIds?: string[];
+  startDate?: string;
+  endDate?: string;
 }
 
 const contains = (values: string[]) => {
@@ -398,19 +410,14 @@ export const checkItemPermByUser = async (
 };
 
 export const archivedItems = async (params: IArchiveArgs, collection: any) => {
-  const { pipelineId, search, ...listArgs } = params;
+  const { pipelineId, ...listArgs } = params;
 
-  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
   const { page = 0, perPage = 0 } = listArgs;
 
   const stages = await Stages.find({ pipelineId }).lean();
 
   if (stages.length > 0) {
-    filter.stageId = { $in: stages.map(stage => stage._id) };
-
-    if (search) {
-      Object.assign(filter, regexSearchText(search, 'name'));
-    }
+    const filter = generateArhivedItemsFilter(params, stages);
 
     return collection
       .find(filter)
@@ -429,23 +436,79 @@ export const archivedItemsCount = async (
   params: IArchiveArgs,
   collection: any
 ) => {
-  const { pipelineId, search } = params;
-
-  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+  const { pipelineId } = params;
 
   const stages = await Stages.find({ pipelineId });
 
   if (stages.length > 0) {
-    filter.stageId = { $in: stages.map(stage => stage._id) };
-
-    if (search) {
-      Object.assign(filter, regexSearchText(search, 'name'));
-    }
+    const filter = generateArhivedItemsFilter(params, stages);
 
     return collection.countDocuments(filter);
   }
 
   return 0;
+};
+
+const generateArhivedItemsFilter = (
+  params: IArchiveArgs,
+  stages: IStageDocument[]
+) => {
+  const {
+    search,
+    userIds,
+    priorities,
+    assignedUserIds,
+    labelIds,
+    productIds,
+    startDate,
+    endDate
+  } = params;
+
+  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+
+  filter.stageId = { $in: stages.map(stage => stage._id) };
+
+  if (search) {
+    Object.assign(filter, regexSearchText(search, 'name'));
+  }
+
+  if (userIds && userIds.length) {
+    filter.userId = { $in: userIds };
+  }
+
+  if (priorities && priorities.length) {
+    filter.priority = { $in: priorities };
+  }
+
+  if (assignedUserIds && assignedUserIds.length) {
+    filter.assignedUserIds = { $in: assignedUserIds };
+  }
+
+  if (labelIds && labelIds.length) {
+    filter.labelIds = { $in: labelIds };
+  }
+
+  if (productIds && productIds.length) {
+    filter['productsData.productId'] = { $in: productIds };
+  }
+
+  if (startDate) {
+    filter.closeDate = {
+      $gte: new Date(startDate)
+    };
+  }
+
+  if (endDate) {
+    if (filter.closeDate) {
+      filter.closeDate.$lte = new Date(endDate);
+    } else {
+      filter.closeDate = {
+        $lte: new Date(endDate)
+      };
+    }
+  }
+
+  return filter;
 };
 
 export const getItemList = async (

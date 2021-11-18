@@ -104,12 +104,30 @@ const archivedTickets = `
     $search: String,
     $page: Int,
     $perPage: Int,
+    $userIds: [String],
+    $priorities: [String],
+    $assignedUserIds: [String],
+    $labelIds: [String],
+    $productIds: [String],
+    $companyIds: [String],
+    $customerIds: [String],
+    $startDate: String,
+    $endDate: String
   ) {
     archivedTickets(
       pipelineId: $pipelineId,
       search: $search,
       page: $page,
       perPage: $perPage,
+      userIds: $userIds,
+      priorities: $priorities,
+      assignedUserIds: $assignedUserIds,
+      labelIds: $labelIds,
+      productIds: $productIds,
+      companyIds: $companyIds,
+      customerIds: $customerIds,
+      startDate: $startDate,
+      endDate: $endDate
     ) {
       source
       ${commonFields}
@@ -120,11 +138,29 @@ const archivedTickets = `
 const archivedTicketsCount = `
   query archivedTicketsCount(
     $pipelineId: String!,
-    $search: String
+    $search: String,
+    $userIds: [String],
+    $priorities: [String],
+    $assignedUserIds: [String],
+    $labelIds: [String],
+    $productIds: [String],
+    $companyIds: [String],
+    $customerIds: [String],
+    $startDate: String,
+    $endDate: String
   ) {
     archivedTicketsCount(
       pipelineId: $pipelineId,
       search: $search,
+      userIds: $userIds,
+      priorities: $priorities,
+      assignedUserIds: $assignedUserIds,
+      labelIds: $labelIds,
+      productIds: $productIds,
+      companyIds: $companyIds,
+      customerIds: $customerIds,
+      startDate: $startDate,
+      endDate: $endDate
     )
   }
 `;
