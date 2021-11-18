@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { withRouter } from 'react-router-dom';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ActionButtons } from 'modules/settings/styles';
@@ -7,6 +8,9 @@ import Tip from 'modules/common/components/Tip';
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import { SideList } from '../../styles';
+import routerUtils from 'modules/common/utils/router';
+import { IRouterProps } from 'modules/common/types';
+import queryString from 'query-string';
 
 type Props = {
   item: any;
@@ -16,17 +20,23 @@ type Props = {
   renderForm: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
   icon?: string;
   isChild?: boolean;
+  queryParamName: string;
 };
 
-export default function BlockItem({
+type FinalProps = Props & IRouterProps;
+
+function BlockItem({
   item,
   isChild,
   title,
   icon,
+  queryParamName,
   refetch,
   deleteItem,
-  renderForm
-}: Props) {
+  renderForm,
+  history,
+  location
+}: FinalProps) {
   const trigger = (
     <Button btnStyle="link">
       <Tip text={__('Edit')} placement="bottom">
@@ -43,9 +53,21 @@ export default function BlockItem({
     />
   );
 
+  const onClick = _id => {
+    routerUtils.removeParams(history, 'branchId', 'unitId', 'departmentId');
+
+    routerUtils.setParams(history, { [queryParamName]: _id });
+  };
+
+  const queryParams = queryString.parse(location.search);
+
   return (
-    <SideList key={item._id} isChild={isChild}>
-      <span>
+    <SideList
+      isActive={queryParams[queryParamName] === item._id}
+      key={item._id}
+      isChild={isChild}
+    >
+      <span onClick={() => onClick(item._id)}>
         {icon && <Icon icon={icon} />}
         {item.title}
       </span>
@@ -62,3 +84,5 @@ export default function BlockItem({
     </SideList>
   );
 }
+
+export default withRouter<FinalProps>(BlockItem);

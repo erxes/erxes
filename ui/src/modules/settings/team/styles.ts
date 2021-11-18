@@ -87,7 +87,9 @@ const FormTable = styled.table`
   }
 `;
 
-const SideList = styledTS<{ isChild?: boolean }>(styled(SidebarListItem))`
+const SideList = styledTS<{ isChild?: boolean; isActive?: boolean }>(
+  styled(SidebarListItem)
+)`
   white-space: normal !important;
   border: 0;
   padding-left: ${props => props.isChild && `30px`} !important;

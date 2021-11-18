@@ -1,4 +1,10 @@
-import { Conversations, Users } from '../../../db/models';
+import {
+  Branches,
+  Conversations,
+  Departments,
+  Units,
+  Users
+} from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -16,6 +22,9 @@ interface IListArgs {
   email?: string;
   status?: string;
   brandIds?: string[];
+  departmentId?: string;
+  branchId?: string;
+  unitId?: string;
 }
 
 const queryBuilder = async (params: IListArgs) => {
@@ -26,7 +35,10 @@ const queryBuilder = async (params: IListArgs) => {
     ids,
     status,
     excludeIds,
-    brandIds
+    brandIds,
+    departmentId,
+    unitId,
+    branchId
   } = params;
 
   const selector: any = {
@@ -61,6 +73,32 @@ const queryBuilder = async (params: IListArgs) => {
 
   if (brandIds && brandIds.length > 0) {
     selector.brandIds = { $in: brandIds };
+  }
+
+  const getUserIds = obj => {
+    const userIds = obj.supervisorId
+      ? (obj.userIds || []).concat(obj.supervisorId)
+      : obj.userIds || [];
+
+    return { $in: userIds };
+  };
+
+  if (departmentId) {
+    const department = await Departments.getDepartment({ _id: departmentId });
+
+    selector._id = getUserIds(department);
+  }
+
+  if (unitId) {
+    const unit = await Units.getUnit({ _id: unitId });
+
+    selector._id = getUserIds(unit);
+  }
+
+  if (branchId) {
+    const branch = await Branches.getBranch({ _id: branchId });
+
+    selector._id = getUserIds(branch);
   }
 
   return selector;

@@ -145,7 +145,13 @@ export default function Home(props: Props) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={'Team members'} submenu={menuContacts} />}
+      header={
+        <Wrapper.Header
+          queryParams={queryParams}
+          title={'Team members'}
+          submenu={menuContacts}
+        />
+      }
       leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}

@@ -22,6 +22,7 @@ export default function Item({ unit, refetch, deleteDepartment }: Props) {
       renderForm={renderForm}
       deleteItem={deleteDepartment}
       refetch={refetch}
+      queryParamName="unitId"
     />
   );
 }

@@ -30,6 +30,7 @@ export default function Item({
       renderForm={renderForm}
       deleteItem={deleteBranch}
       refetch={refetch}
+      queryParamName="branchId"
     />
   );
 }

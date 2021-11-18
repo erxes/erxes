@@ -73,7 +73,10 @@ export const options = ({ queryParams }: { queryParams: any }): any => {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
       isActive: queryParams.isActive === 'false' ? false : true,
-      brandIds: queryParams.brandIds
+      brandIds: queryParams.brandIds,
+      departmentId: queryParams.departmentId,
+      unitId: queryParams.unitId,
+      branchId: queryParams.branchId
     },
     fetchPolicy: 'network-only'
   };

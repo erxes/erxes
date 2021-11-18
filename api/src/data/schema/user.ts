@@ -86,6 +86,9 @@ const commonSelector = `
   requireUsername: Boolean,
   ids: [String],
   brandIds: [String]
+  departmentId: String
+  branchId: String
+  unitId: String
 `;
 
 export const queries = `
