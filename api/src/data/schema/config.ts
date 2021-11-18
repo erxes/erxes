@@ -52,6 +52,7 @@ export const queries = `
   configsGetEnv: ENV
   configsConstants: JSON
   configsCheckActivateInstallation(hostname: String!): JSON
+  configsCheckPremiumService(type: String!): Boolean
   configsGetEmailTemplate(name: String): String
 `;
 

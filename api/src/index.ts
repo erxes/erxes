@@ -29,7 +29,7 @@ import {
   updateContactValidationStatus
 } from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
-import { Segments, Users } from './db/models';
+import { Configs, Segments, Users } from './db/models';
 import initWatchers from './db/watchers';
 import {
   debugBase,
@@ -178,7 +178,11 @@ app.get(
       res.cookie(key, envMaps[key], authCookieOptions(req.secure));
     }
 
-    return res.send('success');
+    const configs = await Configs.find({
+      code: new RegExp(`.*THEME_.*`, 'i')
+    }).lean();
+
+    return res.json(configs);
   })
 );
 

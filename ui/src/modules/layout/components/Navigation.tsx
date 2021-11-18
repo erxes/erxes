@@ -1,6 +1,6 @@
 import Label from 'modules/common/components/Label';
 import WithPermission from 'modules/common/components/WithPermission';
-import { __, getEnv, setBadge } from 'modules/common/utils';
+import { __, getEnv, setBadge, readFile } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -19,6 +19,7 @@ import {
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
 import Icon from 'modules/common/components/Icon';
+import { getThemeItem } from 'utils';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
@@ -182,8 +183,8 @@ class Navigation extends React.Component<IProps> {
 
   render() {
     const { unreadConversationsCount, collapsed } = this.props;
-
     const logo = collapsed ? 'logo.png' : 'erxes.png';
+    const thLogo = getThemeItem('logo');
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
@@ -196,7 +197,10 @@ class Navigation extends React.Component<IProps> {
     return (
       <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
-          <img src={`/images/${logo}`} alt="erxes" />
+          <img
+            src={thLogo ? readFile(thLogo) : `/images/${logo}`}
+            alt="erxes"
+          />
         </NavLink>
         {this.renderCollapse()}
         <Nav id="navigation" collapsed={collapsed}>
