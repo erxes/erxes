@@ -5,7 +5,8 @@ import {
 } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import {
-  getErxesSaasDomain,
+  checkPremiumService,
+  getCoreDomain,
   initFirebase,
   registerOnboardHistory,
   resetConfigsCache,
@@ -19,8 +20,14 @@ const configMutations = {
   async configsUpdate(_root, { configsMap }, { user }: IContext) {
     const codes = Object.keys(configsMap);
 
+    const isThemeEnabled = await checkPremiumService('isThemeServiceEnabled');
+
     for (const code of codes) {
       if (!code) {
+        continue;
+      }
+
+      if (code.includes('THEME_') && !isThemeEnabled) {
         continue;
       }
 
@@ -82,7 +89,7 @@ const configMutations = {
     try {
       return await sendRequest({
         method: 'POST',
-        url: `${getErxesSaasDomain()}/activate-installation`,
+        url: `${getCoreDomain()}/activate-installation`,
         body: args
       });
     } catch (e) {
