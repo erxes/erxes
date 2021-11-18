@@ -89,7 +89,6 @@ export interface IBookingStyle {
   widgetColor?: string;
 
   productAvailable?: string;
-  textAvailable?: string;
   baseFont?: string;
 
   line?: string;
@@ -399,7 +398,6 @@ export const bookingStyleSchema = new Schema(
     widgetColor: field({ type: String, label: 'Widget color' }),
 
     productAvailable: field({ type: String, label: 'Product available' }),
-    textAvailable: field({ type: String, label: 'Text available' }),
     baseFont: field({ type: String, optional: true, label: 'Font' }),
 
     line: field({ type: String, optional: true, label: 'Line' }),
