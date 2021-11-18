@@ -105,7 +105,11 @@ const getFieldGroup = async (_id: string) => {
 };
 
 // Checking field names, all field names must be configured correctly
-export const checkFieldNames = async (type: string, fields: string[]) => {
+export const checkFieldNames = async (
+  type: string,
+  fields: string[],
+  columnsConfig?: object
+) => {
   const properties: any[] = [];
   let schema: any;
   let basicInfos: string[] = [];
@@ -158,7 +162,9 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       continue;
     }
 
-    fieldName = fieldName.trim();
+    if (columnsConfig) {
+      fieldName = columnsConfig[fieldName].value;
+    }
 
     const property: { [key: string]: any } = {};
 

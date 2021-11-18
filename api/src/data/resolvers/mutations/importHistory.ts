@@ -1,5 +1,6 @@
 import { ImportHistory } from '../../../db/models';
 import messageBroker from '../../../messageBroker';
+import { importer2 } from '../../../middlewares/fileMiddleware';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putDeleteLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -52,6 +53,37 @@ const importHistoryMutations = {
     });
 
     return true;
+  },
+
+  async importHistoriesCreate(
+    _root,
+    {
+      contentType,
+      file,
+      columnsConfig,
+      importName
+    }: {
+      contentType: string;
+      file: any;
+      columnsConfig: any;
+      importName: string;
+    },
+    { user }: IContext
+  ) {
+    const importHistory = await ImportHistory.create({});
+
+    const importHistoryId = importHistory._id;
+
+    importer2(
+      contentType,
+      file,
+      columnsConfig,
+      importName,
+      importHistoryId,
+      user
+    );
+
+    return importHistory;
   }
 };
 

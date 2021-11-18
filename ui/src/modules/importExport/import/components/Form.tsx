@@ -18,6 +18,7 @@ import Details from './Details';
 
 type Props = {
   contentType: string;
+  addImportHistory: (doc: any) => void;
 };
 
 type State = {
@@ -64,8 +65,26 @@ class ExportForm extends React.Component<Props, State> {
     this.setState({ disclaimer: value });
   };
 
+  onSubmit = () => {
+    const { importName, columnWithChosenField, attachments } = this.state;
+    const { contentType } = this.props;
+
+    const doc = {
+      contentType,
+      importName,
+      file: attachments[0],
+      columnsConfig: columnWithChosenField
+    };
+
+    return this.props.addImportHistory(doc);
+  };
+
   renderImportButton = () =>
-    this.state.disclaimer ? <Button btnStyle="success">Export</Button> : null;
+    this.state.disclaimer ? (
+      <Button btnStyle="success" onClick={this.onSubmit}>
+        Export
+      </Button>
+    ) : null;
 
   render() {
     const { contentType } = this.props;

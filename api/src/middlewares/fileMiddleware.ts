@@ -78,6 +78,51 @@ export const importer = async (req: any, res, next) => {
   }
 };
 
+export const importer2 = async (
+  contentType,
+  file,
+  columnsConfig,
+  importName,
+  importHistoryId,
+  user
+) => {
+  try {
+    const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+
+    let fileType = 'xlsx';
+
+    console.log('saaaaaaaaaaaaaaaaaa', columnsConfig);
+
+    try {
+      const fileName = file.url;
+
+      if (fileName.includes('.csv')) {
+        fileType = 'csv';
+      }
+
+      await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+        action: 'createImport',
+        type: contentType,
+        fileType,
+        fileName,
+        uploadType: UPLOAD_SERVICE_TYPE,
+        columnsConfig,
+        user: user,
+        importName,
+        importHistoryId
+      });
+
+      registerOnboardHistory({ type: `importCreate`, user });
+    } catch (e) {
+      console.log('2', e);
+      throw new Error();
+    }
+  } catch (e) {
+    console.log('3', e);
+    throw new Error();
+  }
+};
+
 export const uploader = async (req: any, res, next) => {
   const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
     name: 'INTEGRATIONS_API_DOMAIN'

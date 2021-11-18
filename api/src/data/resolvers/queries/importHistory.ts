@@ -1,4 +1,3 @@
-import * as csvParser from 'csv-parser';
 import {
   Companies,
   Customers,
@@ -7,17 +6,10 @@ import {
   Segments,
   Tasks
 } from '../../../db/models';
-import { Writable } from 'stream';
 import { ISegment } from '../../../db/models/definitions/segments';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
-import {
-  createAWS,
-  getConfig,
-  getS3FileInfo,
-  getS3FileInfo2,
-  paginate
-} from '../../utils';
+import { createAWS, getConfig, getS3FileInfo2, paginate } from '../../utils';
 
 const importHistoryQueries = {
   /**

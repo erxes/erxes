@@ -284,7 +284,16 @@ export const receiveImportCancel = () => {
 };
 
 export const receiveImportCreate = async (content: any) => {
-  const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
+  const {
+    fileName,
+    type,
+    scopeBrandIds,
+    user,
+    uploadType,
+    fileType,
+    columnsConfig,
+    importHistoryId
+  } = content;
 
   debugWorkers(`Import created called`);
 
@@ -304,22 +313,25 @@ export const receiveImportCreate = async (content: any) => {
 
   const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
-  const properties = await checkFieldNames(type, updatedColumns);
+  const properties = await checkFieldNames(type, updatedColumns, columnsConfig);
 
-  importHistory = await ImportHistory.create({
-    contentType: type,
-    userId: user._id,
-    date: Date.now(),
-    total
-  });
+  await ImportHistory.updateOne(
+    { _id: importHistoryId },
+    {
+      contentType: type,
+      userId: user._id,
+      date: Date.now(),
+      total
+    }
+  );
 
   const updateImportHistory = async doc => {
-    return ImportHistory.updateOne({ _id: importHistory.id }, doc);
+    return ImportHistory.updateOne({ _id: importHistoryId }, doc);
   };
 
   const handleOnEndBulkOperation = async () => {
     const updatedImportHistory = await ImportHistory.findOne({
-      _id: importHistory.id
+      _id: importHistoryId
     });
 
     if (!updatedImportHistory) {
@@ -358,7 +370,7 @@ export const receiveImportCreate = async (content: any) => {
       user,
       contentType: type,
       properties,
-      importHistoryId: importHistory._id,
+      importHistoryId,
       result,
       useElkSyncer,
       percentage: Number(((result.length / total) * 100).toFixed(3))

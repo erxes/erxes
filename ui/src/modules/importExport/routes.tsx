@@ -8,7 +8,7 @@ const Export = asyncComponent(() =>
 );
 
 const Import = asyncComponent(() =>
-  import(/* webpackChunkName: "Export" */ './import/components/Form')
+  import(/* webpackChunkName: "Export" */ './import/containers/Form')
 );
 
 const exportForm = ({ location }) => {
