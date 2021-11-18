@@ -292,6 +292,7 @@ app.get(
 app.get('/read-file', async (req: any, res, next) => {
   try {
     const key = req.query.key;
+    const name = req.query.name;
 
     if (!key) {
       return res.send('Invalid key');
@@ -299,7 +300,7 @@ app.get('/read-file', async (req: any, res, next) => {
 
     const response = await readFileRequest(key);
 
-    res.attachment(key);
+    res.attachment(name || key);
 
     return res.send(response);
   } catch (e) {

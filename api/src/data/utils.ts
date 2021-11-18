@@ -22,6 +22,7 @@ import {
 } from './modules/fields/utils';
 import { generateAmounts, generateProducts } from './resolvers/deals';
 import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
+import * as _ from 'underscore';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -519,10 +520,31 @@ export const replaceEditorAttributes = async (args: {
 
   const customFieldsData = customer.customFieldsData || [];
 
+  console.log('-----------------------item-----------------------');
+  console.log(item);
+  console.log('--------------------------------------------------');
+
+  /*
+      -----------------------item-----------------------
+      undefined
+      --------------------------------------------------
+      -----------------------item-----------------------
+      null
+      --------------------------------------------------
+  */
+
   if (!customerFields || customerFields.length === 0) {
     const possibleCustomerFields = await fieldsCombinedByContentType({
       contentType: 'customer'
     });
+
+    console.log(
+      '---------------------------possibleCustomerFields------------------------------'
+    );
+    console.log(possibleCustomerFields);
+    console.log(
+      '--------------------------------------------------------------------------------'
+    );
 
     customerFields = ['firstName', 'lastName', 'middleName'];
 
@@ -560,6 +582,11 @@ export const replaceEditorAttributes = async (args: {
       value: models.Customers.getCustomerName(customer)
     });
 
+    const fileFieldsById = _.indexBy(
+      await models.Fields.find({ type: 'file', contentType: 'customer' }),
+      '_id'
+    );
+
     for (const field of customerFields) {
       if (field.includes('trackedData') || field.includes('customFieldsData')) {
         const dbFieldName = field.includes('trackedData')
@@ -567,10 +594,58 @@ export const replaceEditorAttributes = async (args: {
           : 'customFieldsData';
 
         for (const subField of customer[dbFieldName] || []) {
-          replacers.push({
-            key: `{{ customer.${dbFieldName}.${subField.field} }}`,
-            value: subField.value || ''
-          });
+          console.log('-------------------field------------------------');
+          console.log(field);
+          console.log('-----------------------------------------------------');
+          /*
+          -------------------field------------------------
+          customFieldsData
+          -----------------------------------------------------
+          */
+
+          console.log('-------------------subField------------------------');
+          console.log(subField);
+          console.log('-----------------------------------------------------');
+
+          /**
+           {
+              field: 'zTb5GNurCtsWkvq5o',
+              value: [
+                {
+                  url: '0.18280649299385598scratchpad.txt',
+                  name: 'scratchpad.txt',
+                  size: 294,
+                  type: 'text/plain'
+                }
+              ],
+              stringValue: '[object Object]'
+            }
+           */
+
+          const replaceKey = `{{ customer.${dbFieldName}.${subField.field} }}`;
+
+          if (fileFieldsById[subField.field].type === 'file') {
+            const subFieldValue = Array.isArray(subField.value)
+              ? subField.value[0]
+              : subField.value;
+            const replaceValue =
+              (subFieldValue &&
+                `<a target="_blank" href="http://localhost:3300/read-file?key=${encodeURIComponent(
+                  subFieldValue.url
+                )}&name=${encodeURIComponent(subFieldValue.name)}">${
+                  subFieldValue.name
+                }</a>`) ||
+              '';
+            replacers.push({
+              key: replaceKey,
+              value: replaceValue
+            });
+          } else {
+            replacers.push({
+              key: replaceKey,
+              value: subField.stringValue || subField.value || ''
+            });
+          }
         }
 
         continue;
@@ -653,6 +728,14 @@ export const replaceEditorAttributes = async (args: {
       const cFieldsData = item.customFieldsData || [];
       const customFieldData = cFieldsData.find(
         c => c.field === customField._id
+      );
+
+      console.log(
+        '------------customField---------customFieldData---------------------------------------------'
+      );
+      console.log(customField, customFieldData);
+      console.log(
+        '------------------------------------------------------------------'
       );
 
       if (customFieldData) {
