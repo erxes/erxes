@@ -37,7 +37,7 @@ import { CollapseContentComponent } from "./collapsecontent.js"
 
 ## Compact
 
-<p><code>compact</code> prop defines height of title container.</p>
+<p>Set the padding of the title conteiner to '10px 20px' by adding <code>compact</code> prop. Default padding: 20px</p>
 <CollapseContentComponent comp />
 
 ## Open

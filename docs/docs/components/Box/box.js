@@ -10,16 +10,25 @@ export function BoxComponent(props) {
   const { type, table = [] } = props;
 
   const propDatas = (propName, extra) => {
-    const kind = {
-      [propName]: propName !== "extraButtons" && true,
-    };
-
-    const datas = {
-      ...kind,
-      title: "Title",
-      name: "name",
-      extraButtons: extra && <Button btnStyle="simple">Extra button</Button>,
-    };
+    let datas;
+    if(propName) {
+      const kind = {
+        [propName]: propName !== "extraButtons" && true,
+      };
+  
+      datas = {
+        ...kind,
+        title: "Title",
+        name: "name",
+        extraButtons: extra && <Button>button</Button>,
+      };
+    } else {
+      datas = {
+        title: "Title",
+        name: "name",
+        extraButtons: extra && <Button>button</Button>,
+      };
+    }
 
     return datas;
   };
@@ -53,7 +62,7 @@ export function BoxComponent(props) {
         </div>
         
         {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<Button ${stringify(
+          {`<>\n\t<Box ${stringify(
               propDatas(propName, extra)
             )} >Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
             American former professional basketball player, coach and
@@ -70,7 +79,7 @@ export function BoxComponent(props) {
             executive in the National Basketball Association (NBA).
             Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
             is widely regarded as one of the greatest basketball players of
-            all time.</Button>\n</>`}
+            all time.</Box>\n</>`}
         </CodeBlock> */}
       </>
     );

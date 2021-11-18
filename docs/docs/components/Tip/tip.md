@@ -25,11 +25,11 @@ import { TipComponent } from "./tip.js"
 
 ### Bottom placement
 
-<TipComponent type="bottom" places={['bottom-end', 'bottom', 'bottom-start']}></TipComponent>
+<TipComponent type="bottom" places={['bottom-start', 'bottom', 'bottom-end']}></TipComponent>
 
 ### Left placement
 
-<TipComponent type="left" places={['left-end', 'left', 'left-start']}></TipComponent>
+<TipComponent type="left" places={['left-start', 'left', 'left-end']}></TipComponent>
 
 ## API
 

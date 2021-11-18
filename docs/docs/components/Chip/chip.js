@@ -12,7 +12,7 @@ export function ChipComponent(props) {
   const propDatas = (propName) => {
     const kind = {
       [propName]:
-        propName === "frontContent" ? <Icon icon="check-circle" /> : true,
+        propName === "frontContent" ? <Icon icon="envelope-alt" /> : true,
     };
 
     const datas = {
@@ -31,9 +31,9 @@ export function ChipComponent(props) {
         </div>
 
         {/* <CodeBlock className="language-jsx">
-          {`<Chip ${stringify(
+          {`${propName ? `<Chip ${stringify(
               propDatas(propName)
-            )} >chip</Chip>`}
+            )} >chip</Chip>` : `<Chip>chip</Chip>`} `}
         </CodeBlock> */}
       </>
     );

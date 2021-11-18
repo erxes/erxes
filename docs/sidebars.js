@@ -125,6 +125,7 @@ module.exports = {
       label: "Components",
       items: [
         "components/Attachment/attachment",
+        "components/AvatarUpload/avatarUpload",
         "components/Box/box",
         "components/BreadCrumb/breadcrumbs",
         "components/Button/buttons",

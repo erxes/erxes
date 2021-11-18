@@ -7,7 +7,7 @@ import { ModifiableListComponent } from "./modifiablelist.js"
 
 ## Options
 
-<p>Insert list by <code>options</code> prop. </p>
+<p>Insert the list by <code>options</code> prop. </p>
 <ModifiableListComponent array={["Name", "Age"]} />
 
 ## Add button label

@@ -8,11 +8,10 @@ import "erxes-icon/css/erxes.min.css";
 export function DatawithLoaderComponent(props) {
   const { counter, text, image, sizes, type, table = [] } = props;
 
-  const propDatas = (loading, objective, propName, propImage, count, size) => {
+  const propDatas = (loading, propName, propImage, count, size) => {
     const kind = {
       data: "This is data",
       loading: loading ? true : false,
-      [objective]: objective && true,
       [propName]:
         propName === "emptyText" ||
         propName === "emptyContent" ||
@@ -30,7 +29,6 @@ export function DatawithLoaderComponent(props) {
 
   const renderBlock = (
     loading,
-    objective,
     propName,
     propImage,
     count,
@@ -40,12 +38,12 @@ export function DatawithLoaderComponent(props) {
       <>
         <div className={styles.styled}>
           <DataWithLoader
-            {...propDatas(loading, objective, propName, propImage, count, size)}
+            {...propDatas(loading, propName, propImage, count, size)}
           />
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<DataWithLoader ${stringify(
-            propDatas(loading, objective, propName, propImage, count, size)
+            propDatas(loading, propName, propImage, count, size)
           )} />\n</>`}
         </CodeBlock>
       </>
@@ -57,18 +55,18 @@ export function DatawithLoaderComponent(props) {
   }
 
   if (type === "loadingcontent") {
-    return renderBlock("loading", "objective", "loadingContent");
+    return renderBlock("loading", "loadingContent");
   }
   if (type === "loadfalse") {
     return renderBlock("");
   }
 
   if (type === "count") {
-    return renderBlock("", "", "emptyContent", "", "count");
+    return renderBlock("", "emptyContent", "", "count");
   }
 
   if (type === "emptystate") {
-    return renderBlock("", " ", "emptyText", "emptyIcon", "count", "size");
+    return renderBlock("", "emptyText", "emptyIcon", "count", "size");
   }
 
   if (type === "APIdatewithloader") {
