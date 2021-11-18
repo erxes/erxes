@@ -6,7 +6,6 @@ import { renderApiTable } from "../common.js";
 
 export function ErrorMsgComponent(props) {
   const { table = [], children } = props;
-
   if (children) {
     return (
       <>
@@ -21,6 +20,6 @@ export function ErrorMsgComponent(props) {
   if (table) {
     return renderApiTable("ErrorMsg", table);
   }
-  
+
   return null;
 }
