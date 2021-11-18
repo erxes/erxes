@@ -100,6 +100,25 @@ export const replacePlaceHolders = async (
           );
         }
 
+        if (actionData[actionDataKey].includes(`{{ now }}`)) {
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ now }}`, new Date())
+        }
+        if (actionData[actionDataKey].includes(`{{ tomorrow }}`)) {
+          const today = new Date()
+          const tomorrow = today.setDate(today.getDate() + 1)
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ tomorrow }}`, tomorrow)
+        }
+        if (actionData[actionDataKey].includes(`{{ nextWeek }}`)) {
+          const today = new Date()
+          const nextWeek = today.setDate(today.getDate() + 7)
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ nextWeek }}`, nextWeek)
+        }
+        if (actionData[actionDataKey].includes(`{{ nextMonth }}`)) {
+          const today = new Date()
+          const nextMonth = today.setDate(today.getDate() + 30)
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ nextMonth }}`, nextMonth)
+        }
+
         for (const complexFieldKey of ['customFieldsData', 'trackedData']) {
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
