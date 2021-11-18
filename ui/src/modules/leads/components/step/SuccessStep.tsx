@@ -285,7 +285,14 @@ class SuccessStep extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const onChange = e => {
+    const onChangeTitle = e => {
+      this.onChangeFunction(
+        'thankTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    const onChangeContent = e => {
       this.onChangeFunction(
         'thankContent',
         (e.currentTarget as HTMLInputElement).value
@@ -305,7 +312,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             componentClass="textinput"
             defaultValue={thankTitle}
-            onChange={onChange}
+            onChange={onChangeTitle}
           />
         </FormGroup>
         <FormGroup>
@@ -315,7 +322,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             componentClass="textarea"
             defaultValue={thankContent}
-            onChange={onChange}
+            onChange={onChangeContent}
           />
         </FormGroup>
         <FormGroup>

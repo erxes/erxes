@@ -88,7 +88,6 @@ export const types = `
     widgetColor: String
 
     productAvailable: String
-    textAvailable: String
     baseFont: String
 
     line: String

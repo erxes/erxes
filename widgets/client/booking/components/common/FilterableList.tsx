@@ -12,10 +12,6 @@ type Props = {
   selectedItem?: string;
 
   changeRoute: (item: ICategoryTree) => void;
-
-  // hooks
-  onClick?: (items: any[], id: string) => void;
-  onExit?: (items: any[]) => void;
 };
 
 type State = {
@@ -36,36 +32,6 @@ class FilterableList extends React.Component<Props, State> {
       parentIds: {}
     };
   }
-
-  componentWillUnmount() {
-    // onExit hook
-    const { onExit } = this.props;
-
-    if (onExit) {
-      onExit(this.state.items);
-    }
-  }
-
-  componentWillReceiveProps(nextProps: any) {
-    if (JSON.stringify(this.props.items) !== JSON.stringify(nextProps.items)) {
-      this.setState({
-        items: nextProps.items
-      });
-    }
-  }
-
-  toggleItem = (id: string) => {
-    const items = this.state.items;
-
-    this.setState({ items });
-
-    // onClick hook
-    const { onClick } = this.props;
-
-    if (onClick) {
-      onClick(items, id);
-    }
-  };
 
   groupByParent = (array: any[]) => {
     const key = 'parentId';
@@ -120,9 +86,9 @@ class FilterableList extends React.Component<Props, State> {
 
     const isSelected = item._id === this.props.selectedItem;
 
-    let color = stockCnt === 0 ? '#AAA' : widgetColor;
+    let color = isDisabled ? '#AAA' : widgetColor;
 
-    if (stockCnt > 0 && stockCnt < 10) {
+    if (stockCnt > 0 && stockCnt < 10 && !isDisabled) {
       color = productAvailable;
     }
 
@@ -142,7 +108,7 @@ class FilterableList extends React.Component<Props, State> {
             className="toggle-nav"
             onClick={() => this.onToggle(item._id, isOpen)}
           >
-            {hasChildren && this.renderIcons(isOpen, color)}
+            {hasChildren && !isDisabled && this.renderIcons(isOpen, color)}
           </div>
           <div
             className={`list-item`}

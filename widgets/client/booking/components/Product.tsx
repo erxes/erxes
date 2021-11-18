@@ -56,7 +56,11 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
           }
         }
 
-        if (!data[field._id] || productFieldIds.indexOf(field._id) === -1) {
+        if (
+          !data[field._id] ||
+          productFieldIds.indexOf(field._id) === -1 ||
+          field.text === "Description"
+        ) {
           return null;
         }
 

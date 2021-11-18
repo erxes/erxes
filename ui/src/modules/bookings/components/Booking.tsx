@@ -67,6 +67,8 @@ type State = {
   attachments?: IAttachment[];
   redirectUrl?: string;
   loadType: string;
+  successImage?: string;
+  successImageSize?: string;
 };
 
 function Booking(props: Props) {
@@ -113,6 +115,8 @@ function Booking(props: Props) {
     thankContent: leadData.thankContent || 'Thank you.',
     attachments: leadData.attachments || [],
     redirectUrl: leadData.redirectUrl || '',
+    successImage: leadData.successImage || '',
+    successImageSize: leadData.successImageSize || '',
     loadType: 'popup',
 
     carousel: 'form'
@@ -129,7 +133,6 @@ function Booking(props: Props) {
     itemShape: bookingStyle.itemShape || '',
     widgetColor: bookingStyle.widgetColor || colors.colorPrimary,
     productAvailable: bookingStyle.productAvailable || colors.colorPrimary,
-    textAvailable: bookingStyle.textAvailable || colors.colorPrimary,
     line: bookingStyle.line || '',
     columns: bookingStyle.columns || 2,
     rows: bookingStyle.rows || 1,
@@ -181,7 +184,9 @@ function Booking(props: Props) {
         thankContent: state.thankContent,
         attachments: state.attachments,
         redirectUrl: state.redirectUrl,
-        loadType: 'popup'
+        loadType: 'popup',
+        successImage: state.successImage,
+        successImageSize: state.successImageSize
       },
 
       bookingData: {
@@ -197,7 +202,6 @@ function Booking(props: Props) {
           itemShape: booking.itemShape,
           widgetColor: booking.widgetColor,
           productAvailable: booking.productAvailable,
-          textAvailable: booking.textAvailable,
           line: booking.line,
           rows: Number(booking.rows),
           columns: Number(booking.columns),
@@ -286,7 +290,6 @@ function Booking(props: Props) {
                 itemShape={booking.itemShape}
                 widgetColor={booking.widgetColor}
                 productAvailable={booking.productAvailable}
-                textAvailable={booking.textAvailable}
                 baseFont={booking.baseFont}
               />
             </Step>
@@ -353,6 +356,8 @@ function Booking(props: Props) {
                 leadData={leadData}
                 formId={integration.formId}
                 emailTemplates={emailTemplates ? emailTemplates : []}
+                successImage={state.successImage}
+                successImageSize={state.successImageSize}
               />
             </Step>
           </Steps>
@@ -377,6 +382,8 @@ function Booking(props: Props) {
             skip={true}
             carousel={state.carousel}
             formData={state.formData}
+            successImage={state.successImage}
+            successImgSize={state.successImageSize}
           />
         </PreviewWrapper>
       </Content>

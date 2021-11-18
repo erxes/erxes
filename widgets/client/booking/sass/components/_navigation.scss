@@ -55,17 +55,7 @@
       }
 
       &.selected {
-        font-weight: 500;
-
-        .list-item {
-          color: #1dc51d !important;
-        }
-        .circle {
-          background-color: #1dc51d !important;
-        }
-        .toggle-nav div {
-          border-color: #1dc51d transparent transparent !important;
-        }
+        font-weight: 700;
       }
 
       &.card-disabled {
