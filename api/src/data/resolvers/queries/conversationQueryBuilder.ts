@@ -8,6 +8,10 @@ interface IIn {
   $in: string[];
 }
 
+interface IOR {
+  $or: IDateFilter[];
+}
+
 interface IExists {
   $exists: boolean;
 }
@@ -44,10 +48,12 @@ interface IUnassignedFilter {
 }
 
 interface IDateFilter {
-  createdAt: {
-    $gte: Date;
-    $lte: Date;
-  };
+  [key:string]: IDate
+}
+
+interface IDate {
+  $gte: Date;
+  $lte: Date;
 }
 
 export default class Builder {
@@ -274,13 +280,22 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string): IDateFilter {
+  public dateFilter(startDate: string, endDate: string): IOR {
     return {
-      createdAt: {
-        $gte: fixDate(startDate),
-        $lte: fixDate(endDate)
-      }
-    };
+      $or: [{
+        createdAt: {
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate)
+          }
+        },
+        {
+          updatedAt: {
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate)
+          }
+        }
+      ]
+    }
   }
 
   public async extendedQueryFilter({ integrationType }: IListArgs) {
