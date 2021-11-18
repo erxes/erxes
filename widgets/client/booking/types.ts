@@ -5,8 +5,6 @@ export interface IStyle {
   itemShape?: string;
   widgetColor: string;
   productAvailable: string;
-
-  textAvailable: string;
   baseFont?: string;
 
   line?: string;

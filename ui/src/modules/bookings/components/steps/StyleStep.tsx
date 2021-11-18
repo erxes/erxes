@@ -20,19 +20,13 @@ import { BOOKING_ITEM_SHAPE } from 'modules/bookings/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 import { FONTS } from 'modules/settings/clientPortal/constants';
 
-type Name =
-  | 'itemShape'
-  | 'widgetColor'
-  | 'productSelected'
-  | 'textAvailable'
-  | 'baseFont';
+type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
 
 type Props = {
   onChangeBooking: (name: Name, value: any) => void;
   itemShape: string;
   widgetColor: string;
   productAvailable: string;
-  textAvailable: string;
   baseFont: string;
 };
 
@@ -41,7 +35,6 @@ function Style({
   itemShape,
   widgetColor,
   productAvailable,
-  textAvailable,
   baseFont
 }: Props) {
   const renderColorSelect = (item, color) => {
@@ -129,13 +122,6 @@ function Style({
             <ControlLabel>Available Product Color</ControlLabel>
             <WidgetBackgrounds>
               {renderColorSelect('productAvailable', productAvailable)}
-            </WidgetBackgrounds>
-          </FlexItem>
-
-          <FlexItem>
-            <ControlLabel>Available Text Color</ControlLabel>
-            <WidgetBackgrounds>
-              {renderColorSelect('textAvailable', textAvailable)}
             </WidgetBackgrounds>
           </FlexItem>
         </FlexContent>
