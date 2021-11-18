@@ -63,8 +63,7 @@ class Sidebar extends React.Component<FinalProps> {
         showChannels: true,
         showBrands: false,
         showIntegrations: false,
-        showTags: false,
-        showSegments: false, 
+        showTags: false
       });
     }
 

@@ -30,8 +30,7 @@ export default class FilterToggler extends React.PureComponent<Props, {}> {
         showChannels: true,
         showBrands: false,
         showIntegrations: false,
-        showTags: false,
-        showSegments: false
+        showTags: false
       });
     }
 
