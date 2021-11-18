@@ -131,7 +131,7 @@ export class AppProvider extends React.Component<{}, IState> {
     });
 
     if (currentStatus.status === 'SUCCESS') {
-      this.setState({ activeRoute: 'INTRO' });
+      this.setState({ activeRoute: 'INTRO', selectedItem: '' });
     }
   };
 
