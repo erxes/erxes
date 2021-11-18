@@ -14,6 +14,7 @@ export const paramsDef = `
   $starred: String
   $startDate: String
   $endDate: String
+  $segment: String
 `;
 const listParamsDef = `
   $limit: Int
@@ -33,6 +34,7 @@ export const paramsValue = `
   starred: $starred
   startDate: $startDate
   endDate: $endDate
+  segment: $segment
 `;
 
 const listParamsValue = `
@@ -238,6 +240,7 @@ const tagList = `
   }
 `;
 
+// subOf alais as parentId
 const segmentList = `
     query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
       segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
