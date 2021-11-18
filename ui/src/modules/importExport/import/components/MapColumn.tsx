@@ -1,8 +1,9 @@
 import React from 'react';
-import { DataWithLoader, Table, __ } from 'erxes-ui';
+import { DataWithLoader, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { Description, SubHeading } from 'modules/settings/styles';
 import Row from './Row';
+import { ColumnTable } from 'modules/importExport/styles';
 
 type Props = {
   columns: any[];
@@ -16,12 +17,33 @@ class MapColumn extends React.Component<Props, {}> {
     const { columns, fields, columnWithChosenField } = this.props;
 
     const content = (
-      <Table>
+      <ColumnTable>
         <thead>
           <tr>
-            <th>{__('COLUMN HEADER FROM FILE')}</th>
-            <th>{__('PREVIEW INFORMATION')}</th>
-            <th>{__('PROPERTY')}</th>
+            <th>
+              <SubHeading>{__('Column Header')}</SubHeading>
+              <Description>
+                {__(
+                  'This is the header title from the file you’ve uploaded. The order of these does not affect the importing process.'
+                )}
+              </Description>
+            </th>
+            <th>
+              <SubHeading>{__('Preview Data')}</SubHeading>
+              <Description>
+                {__(
+                  'This is a preview of the first 3 rows of data in each column.If empty, no data was found in that row.'
+                )}
+              </Description>
+            </th>
+            <th>
+              <SubHeading>{__('Property')}</SubHeading>
+              <Description>
+                {__(
+                  'Each column header should be mapped to a property in the system. Use the dropdown menu to map to an existing property or create a new custom property.'
+                )}
+              </Description>
+            </th>
           </tr>
         </thead>
         <tbody className={'expand'}>
@@ -36,21 +58,13 @@ class MapColumn extends React.Component<Props, {}> {
             />
           ))}
         </tbody>
-      </Table>
+      </ColumnTable>
     );
 
     return (
       <>
         <FlexItem>
           <FlexPad direction="column" overflow="auto">
-            <SubHeading>
-              {__('Map columns in your file to properties')}
-            </SubHeading>
-            <Description>
-              {__(
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam facilisis leo leo, ut porttitor lorem suscipit ac. Mauris commodo consectetur finibus. Nullam id facilisis ante.'
-              )}
-            </Description>
             <DataWithLoader
               data={content}
               loading={false}

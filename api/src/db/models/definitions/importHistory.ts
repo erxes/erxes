@@ -16,6 +16,7 @@ export interface IImportHistoryDocument extends IImportHistory, Document {
   userId: string;
   date: Date;
   errorMsgs: string[];
+  erros: object[];
 }
 
 export const importHistorySchema = new Schema({
@@ -29,5 +30,6 @@ export const importHistorySchema = new Schema({
   date: field({ type: Date, label: 'Date of import' }),
   errorMsgs: field({ type: [String], default: [], label: 'Error messages' }),
   status: field({ type: String, default: 'In Progress', label: 'Status' }),
-  percentage: field({ type: Number, default: 0, label: 'Percentage' })
+  percentage: field({ type: Number, default: 0, label: 'Percentage' }),
+  erros: field({ type: [Object] })
 });

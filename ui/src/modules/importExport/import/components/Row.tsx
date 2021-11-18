@@ -1,7 +1,8 @@
 import React from 'react';
-import { Icon, __ } from 'erxes-ui';
+import { Button, Icon, __ } from 'erxes-ui';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
+import { FlexRow, ImportColumnRow } from 'modules/importExport/styles';
 
 type Props = {
   columns: any[];
@@ -18,7 +19,7 @@ class Row extends React.Component<Props, {}> {
     const sampleDatas = columns[column];
 
     return sampleDatas.map(sample => {
-      return <li key={Math.random()}>{sample}</li>;
+      return <p key={Math.random()}>{`${sample}, `}</p>;
     });
   };
 
@@ -40,13 +41,9 @@ class Row extends React.Component<Props, {}> {
 
     const sampleDatas = columns[column];
 
-    console.log(sampleDatas);
-
     const chosenField = fields.find(
       field => field.value === chosenColumn.value
     );
-
-    console.log(chosenField);
 
     sampleDatas.map(sample => {
       if (chosenField.type === 'date') {
@@ -56,7 +53,6 @@ class Row extends React.Component<Props, {}> {
       }
 
       if (chosenField.label && chosenField.label.includes('Email')) {
-        console.log('asdakdj');
         const re = /\S+@\S+\.\S+/;
 
         if (!re.test(sample)) {
@@ -66,21 +62,23 @@ class Row extends React.Component<Props, {}> {
     });
 
     if (matched) {
-      return <Icon icon="checked" color="green" />;
+      return <Icon icon="checked-1" color="green" />;
     }
 
-    return <Icon icon="exclamation-triangle" color="yellow" />;
+    return <Icon icon="exclamation-triangle" color="orange" />;
   };
 
   render() {
     const { fields, columnWithChosenField, column } = this.props;
 
     return (
-      <tr>
+      <ImportColumnRow>
         <td>{this.props.column}</td>
-        <td>{this.renderSampleDatas()}</td>
         <td>
-          <div>
+          <FlexRow>{this.renderSampleDatas()}</FlexRow>
+        </td>
+        <td>
+          <FlexRow>
             <Select
               placeholder={__('Choose')}
               options={fields}
@@ -92,10 +90,11 @@ class Row extends React.Component<Props, {}> {
                   : ''
               }
             />
+            <Button size="small">Create Property</Button>
             {this.renderMatch()}
-          </div>
+          </FlexRow>
         </td>
-      </tr>
+      </ImportColumnRow>
     );
   }
 }

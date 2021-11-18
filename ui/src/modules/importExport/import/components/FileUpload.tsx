@@ -18,7 +18,7 @@ class FileUpload extends React.Component<Props, {}> {
           <SubHeading>{__('Upload your file')}</SubHeading>
           <Description>
             {__(
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam facilisis leo leo, ut porttitor lorem suscipit ac. Mauris commodo consectetur finibus. Nullam id facilisis ante.'
+              'Before you upload your files below, make sure your file is ready to be imported.'
             )}
           </Description>
 
