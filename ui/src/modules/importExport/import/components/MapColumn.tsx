@@ -7,17 +7,18 @@ import Row from './Row';
 type Props = {
   columns: any[];
   fields: any[];
+  columnWithChosenField: any;
+  onChangeColumn: (columnm, value) => void;
 };
 
 class MapColumn extends React.Component<Props, {}> {
   render() {
-    const { columns, fields } = this.props;
+    const { columns, fields, columnWithChosenField } = this.props;
 
     const content = (
       <Table>
         <thead>
           <tr>
-            <th>{__('MATCHED')}</th>
             <th>{__('COLUMN HEADER FROM FILE')}</th>
             <th>{__('PREVIEW INFORMATION')}</th>
             <th>{__('PROPERTY')}</th>
@@ -30,6 +31,8 @@ class MapColumn extends React.Component<Props, {}> {
               columns={columns}
               column={column}
               fields={fields}
+              columnWithChosenField={columnWithChosenField}
+              onChangeColumn={this.props.onChangeColumn}
             />
           ))}
         </tbody>

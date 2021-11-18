@@ -14,6 +14,7 @@ import MapColumn from '../containers/MapColumn';
 
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import { IAttachment } from 'modules/common/types';
+import Details from './Details';
 
 type Props = {
   contentType: string;
@@ -21,6 +22,9 @@ type Props = {
 
 type State = {
   attachments: IAttachment[];
+  columnWithChosenField: any;
+  importName: string;
+  disclaimer: boolean;
 };
 
 class ExportForm extends React.Component<Props, State> {
@@ -28,17 +32,49 @@ class ExportForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      attachments: []
+      attachments: [],
+      columnWithChosenField: {},
+      importName: '',
+      disclaimer: false
     };
   }
 
   onChangeAttachment = files => {
+    if (files[0]) {
+      this.setState({ importName: files[0].name });
+    }
+
     this.setState({ attachments: files });
   };
 
+  onChangeColumn = (column, value) => {
+    const { columnWithChosenField } = this.state;
+
+    columnWithChosenField[column] = {};
+    columnWithChosenField[column].value = value;
+
+    this.setState({ columnWithChosenField });
+  };
+
+  onChangeImportName = value => {
+    this.setState({ importName: value });
+  };
+
+  onChangeDisclaimer = value => {
+    this.setState({ disclaimer: value });
+  };
+
+  renderImportButton = () =>
+    this.state.disclaimer ? <Button btnStyle="success">Export</Button> : null;
+
   render() {
     const { contentType } = this.props;
-    const { attachments } = this.state;
+    const {
+      attachments,
+      columnWithChosenField,
+      importName,
+      disclaimer
+    } = this.state;
 
     const title = __('Import');
 
@@ -57,10 +93,25 @@ class ExportForm extends React.Component<Props, State> {
               <Step img="/images/icons/erxes-10.svg" title="Upload">
                 <FileUpload onChangeAttachment={this.onChangeAttachment} />
               </Step>
-              <Step img="/images/icons/erxes-10.svg" title="Column">
+              <Step img="/images/icons/erxes-10.svg" title="Map">
                 <MapColumn
                   contentType={contentType}
                   attachments={attachments}
+                  columnWithChosenField={columnWithChosenField}
+                  onChangeColumn={this.onChangeColumn}
+                />
+              </Step>
+
+              <Step
+                img="/images/icons/erxes-10.svg"
+                title="Detail"
+                noButton={true}
+              >
+                <Details
+                  disclaimer={disclaimer}
+                  importName={importName}
+                  onChangeImportName={this.onChangeImportName}
+                  onChangeDisclaimer={this.onChangeDisclaimer}
                 />
               </Step>
             </Steps>
@@ -78,7 +129,7 @@ class ExportForm extends React.Component<Props, State> {
                   </Button>
                 </Link>
 
-                <Button btnStyle="success">Export</Button>
+                {this.renderImportButton()}
               </Button.Group>
             </ControlWrapper>
           </LeftContent>

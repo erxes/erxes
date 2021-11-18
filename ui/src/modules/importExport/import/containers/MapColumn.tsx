@@ -15,6 +15,8 @@ import { queries } from '../graphql';
 type Props = {
   contentType: string;
   attachments: IAttachment[];
+  columnWithChosenField: any;
+  onChangeColumn: (columnm, value) => void;
 };
 
 type State = {};
@@ -26,7 +28,12 @@ type FinalProps = {
 
 class MapColumnContainer extends React.Component<FinalProps, State> {
   render() {
-    const { fieldsQuery, importHistoryGetColumns } = this.props;
+    const {
+      fieldsQuery,
+      importHistoryGetColumns,
+      onChangeColumn,
+      columnWithChosenField
+    } = this.props;
 
     if (!fieldsQuery || fieldsQuery.loading) {
       return <Spinner />;
@@ -47,13 +54,38 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
         group: item.group || '',
         selectOptions: item.selectOptions || [],
         // radio button options
-        choiceOptions: item.options || []
+        choiceOptions: item.options || [],
+        chosenColumn: ''
       };
     });
 
+    const fuzzyComparison = (str, mask) => {
+      var regex = '^' + mask.replace(/\*/, '.*') + '$';
+      var r = new RegExp(regex);
+
+      return r.test(str);
+    };
+
     const columns = importHistoryGetColumns.importHistoryGetColumns;
 
-    return <MapColumn fields={fields} columns={columns} />;
+    for (const keys of Object.keys(columns)) {
+      if (!columnWithChosenField[keys]) {
+        for (const field of fields) {
+          if (fuzzyComparison(field.label, keys)) {
+            onChangeColumn(keys, field.value);
+          }
+        }
+      }
+    }
+
+    return (
+      <MapColumn
+        fields={fields}
+        columns={columns}
+        columnWithChosenField={columnWithChosenField}
+        onChangeColumn={onChangeColumn}
+      />
+    );
   }
 }
 
