@@ -261,7 +261,7 @@ const withQuery = (props: ContainerProps) => {
         }
       ),
       graphql<ContainerProps, AllUsersQueryResponse>(
-        gql(userQueries.userDetail),
+        gql(userQueries.allUsers),
         {
           name: 'usersQuery'
         }
