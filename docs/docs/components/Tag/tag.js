@@ -80,19 +80,19 @@ function TagComponent(props) {
             <td>* _id</td>
             <td>string</td>
             <td/>
-            <td>Defines tag id</td>
+            <td>Define tag id</td>
           </tr>
           <tr>
             <td>* type</td>
             <td>string</td>
             <td/>
-            <td>Defines tag type</td>
+            <td>Define tag type</td>
           </tr>
           <tr>
             <td>* name</td>
             <td>string</td>
             <td/>
-            <td>Defines tag name</td>
+            <td>Define tag name</td>
           </tr>
           <tr>
             <td>* colorCode</td>
@@ -110,13 +110,13 @@ function TagComponent(props) {
             <td>parentId</td>
             <td>string</td>
             <td/>
-            <td>Defines tag parent id</td>
+            <td>Define tag parent id</td>
           </tr>
           <tr>
             <td>order</td>
             <td>string</td>
             <td/>
-            <td>Defines tag order</td>
+            <td>Define tag order</td>
           </tr>
           <tr>
             <td>totalObjectCount</td>

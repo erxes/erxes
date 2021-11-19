@@ -53,50 +53,50 @@ export function TimerComponent(props) {
             <td colSpan="2">* taskId</td>
             <td>string</td>
             <td/>
-            <td>Defines task id</td>
+            <td>Define task id</td>
           </tr>
           <tr>
             <td colSpan="2">* status</td>
             <td>started || paused || stopped || completed</td>
             <td/>
-            <td>Defines task status</td>
+            <td>Define task status</td>
           </tr>
           <tr>
             <td colSpan="2">* timeSpent</td>
             <td>number</td>
             <td></td>
-            <td>Defines time spent in task</td>
+            <td>Define time spent in task</td>
           </tr>
           <tr>
             <td colSpan="2">startDate</td>
             <td>string</td>
             <td/>
-            <td>Defines start date of task</td>
+            <td>Define start date of task</td>
           </tr>
           <tr>
             <td rowSpan="5">* update</td>
             <td >* _id</td>
             <td>string</td>
             <td/>
-            <td>Defines updated id</td>
+            <td>Define updated id</td>
           </tr>
           <tr>
             <td>* status</td>
             <td>started || paused || stopped || completed</td>
             <td/>
-            <td>Defines update status</td>
+            <td>Define update status</td>
           </tr>
           <tr>
             <td>* timeSpent</td>
             <td>number</td>
             <td/>
-            <td>Defines updated time spent</td>
+            <td>Define updated time spent</td>
           </tr>
           <tr>
             <td>startDate</td>
             <td>string</td>
             <td/>
-            <td>Defines update start date</td>
+            <td>Define update start date</td>
           </tr>
           <tr>
             <td>callback</td>

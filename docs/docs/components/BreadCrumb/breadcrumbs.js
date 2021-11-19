@@ -55,7 +55,7 @@ export function BreadCrumbComponent(props) {
               <td>link</td>
               <td>string</td>
               <td/>
-              <td>Defines a hyperlink</td>
+              <td>Define a hyperlink</td>
             </tr>
           </tbody>
         </Table>

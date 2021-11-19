@@ -18,7 +18,7 @@ import { LabelComponent } from './label.js'
 ## API
 
 <LabelComponent type="APIlabel" table={[
-    ['lblStyle', 'default | primary | success | danger | warning | simple', 'default', 'Styles label'],
+    ['lblStyle', 'default | primary | success | danger | warning | simple', 'default', 'Set styles of label'],
     ['lblColor', 'string', '', 'Gives custom color'],
     ['* children', 'React.ReactNode | string', '', 'Declare label text'],
     ['className', 'string', '', 'Defines className'],

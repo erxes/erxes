@@ -72,14 +72,14 @@ export function SubMenuComponent(props) {
               <td>link</td>
               <td>string</td>
               <td />
-              <td>Path of where to go when clicked</td>
+              <td>Define the path of where to go when clicked</td>
             </tr>
             <tr>
               <td colSpan="2">additionalMenuItem</td>
               <td>React.ReactNode</td>
               <td />
               <td>
-                Additional sub menu item that will be displayed right side of
+              Define additional sub menu item that will be displayed right side of
                 sub menu
               </td>
             </tr>

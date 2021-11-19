@@ -81,25 +81,25 @@ export function UploaderComponent(props) {
               <td>* name</td>
               <td>string</td>
               <td />
-              <td>Defines file name</td>
+              <td>Define file name</td>
             </tr>
             <tr>
               <td>* type</td>
               <td>string</td>
               <td />
-              <td>Defines file type</td>
+              <td>Define file type</td>
             </tr>
             <tr>
               <td>* url</td>
               <td>string</td>
               <td />
-              <td>Defines file path</td>
+              <td>Define file path</td>
             </tr>
             <tr>
               <td>size</td>
               <td>number</td>
               <td />
-              <td>Defines file size</td>
+              <td>Define file size</td>
             </tr>
             <tr>
               <td colSpan="2">onChange</td>
@@ -123,7 +123,7 @@ export function UploaderComponent(props) {
               <td colSpan="2">multiple</td>
               <td>boolean</td>
               <td />
-              <td>Defines it can upload multiple files or only one file</td>
+              <td>Define it can upload multiple files or only one file</td>
             </tr>
           </tbody>
         </Table>

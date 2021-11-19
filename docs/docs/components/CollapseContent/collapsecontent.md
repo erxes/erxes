@@ -49,14 +49,14 @@ import { CollapseContentComponent } from "./collapsecontent.js"
 
 <CollapseContentComponent type="APIcollapsecontent" table={[
   ['contendId', 'string', '', 'Jump to content'],
-  ['* title', 'string', '', 'Title'],
+  ['* title', 'string', '', 'Define title'],
   ['* children', 'React.ReactNode', '', 'Declare content'],
   ['description', 'React.ReactNode', '', 'Description that will be displayed under title'],
   ['open', 'boolean', '', 'Activates open function of container and collapse tag'],
-  ['compact', 'boolean', '20px', 'Height of title container'],
+  ['compact', 'boolean', '20px', 'Define height of title container'],
   ['image', 'string', '','Image that will be placed instead of arrows'],
-  ['beforeTitle', 'React.ReactNode','','Node that will be placed left side of title'],
-  ['onClick', 'function', '', 'Click handler'],
+  ['beforeTitle', 'React.ReactNode','','React node that will be placed left side of title'],
+  ['onClick', 'function', '', 'Define click handler function'],
   ['imageBackground', 'string', '','Background color of image'],
   ['id', 'string', '', 'Gives id to collapse content']
 ]} />

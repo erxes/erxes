@@ -46,7 +46,7 @@ import { TableComponent } from './table.js'
 <TableComponent type="APItable" table={[
     ['* children', 'React.ReactNode', '', 'Shows table content'],
     ['striped', 'boolean', 'false', 'Gives table strip color'],
-    ['bordered', 'boolean', 'false', 'Adds border color'],
+    ['bordered', 'boolean', 'false', 'Add border color'],
     ['condensed', 'boolean', 'false', ''],
     ['hover', 'boolean', 'false', 'Activates table hover'],
     ['responsive', 'boolean', 'false', 'Add horizontal scroll bar when needed'],

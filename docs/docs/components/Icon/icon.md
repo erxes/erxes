@@ -31,5 +31,5 @@ import { IconComponent } from "./icon.js"
   ['style','any', '', 'Gives custom style to icon'],
   ['color', 'string', 'black', 'Changes icon color'],
   ['isActive', 'boolean', 'false', 'Make the icon color black'],
-  ['onClick', 'function', '', 'Click handler']
+  ['onClick', 'function', '', 'Define click handler function']
 ]}/>

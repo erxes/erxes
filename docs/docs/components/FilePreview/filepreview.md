@@ -28,6 +28,6 @@ import {FilePreviewComponent} from "./filepreview.js"
 ## API
 
 <FilePreviewComponent type="APIfilepreview" table={[
-  ['* fileUrl', 'string', '', 'Url of file. Supported types: docx, pptx, xlsx, mp4, jpeg, jpg, gif, png, zip, csv, doc, ppt, psd, avi, txt, rar, mp3, pdf, xls'],
-  ['fileName', 'string', '', 'File name that will displayed instead of file url']
+  ['* fileUrl', 'string', '', 'Define url of file. Supported types: docx, pptx, xlsx, mp4, jpeg, jpg, gif, png, zip, csv, doc, ppt, psd, avi, txt, rar, mp3, pdf, xls'],
+  ['fileName', 'string', '', 'Replaces file url with file name']
 ]} />

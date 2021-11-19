@@ -11,6 +11,6 @@ import { PopoverComponent } from "./helppopover.js"
 ## API
 
 <PopoverComponent type="APIpopover" table={[
-  ['* title', 'string', '', 'Title of help'],
-  ['* trigger', 'hover | click | focus', 'click', 'Trigger of displaying help information']
+  ['* title', 'string', '', 'Define title of help'],
+  ['* trigger', 'hover | click | focus', 'click', 'Triggers the help information']
  ]}/>

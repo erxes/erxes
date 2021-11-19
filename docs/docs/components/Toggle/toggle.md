@@ -34,9 +34,9 @@ import { ToggleComponent } from "./toggle.js"
 ## API
 
 <ToggleComponent type="ApiToggle" table={[
-  ['value', 'string', '', 'Defines the value'],
-  ['name', 'string', '', 'Defines the name'],
-  ['id', 'string', '', 'Defines toggle id'],
+  ['value', 'string', '', 'Define the value'],
+  ['name', 'string', '', 'Define the name'],
+  ['id', 'string', '', 'Define toggle id'],
   ['checked', 'boolean', 'false', 'Set the toggle always checked'],
   ['defaultChecked', 'boolean', 'false', 'Set the toggle checked on start'],
   ["'aria-labelledby'", 'string', '', ''],

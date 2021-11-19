@@ -94,31 +94,31 @@ export function EmptyContentComponent(props) {
               <td>title</td>
               <td>string</td>
               <td/>
-              <td>Title of step</td>
+              <td>Define title of step</td>
             </tr>
             <tr>
               <td>description</td>
               <td>string</td>
               <td/>
-              <td>Description of step</td>
+              <td>Define description of step</td>
               </tr>
               <tr>
               <td>url</td>
               <td>string</td>
               <td/>
-              <td>Url of button</td>
+              <td>Define url of button</td>
               </tr>
               <tr>
               <td>urlText</td>
               <td>string</td>
               <td/>
-              <td>Url text of button</td>
+              <td>Define url text of button</td>
               </tr>
               <tr>
               <td>icon</td>
               <td>string</td>
               <td/>
-              <td>Icon replaces content number</td>
+              <td>Replaces step number with icon</td>
               </tr>
               <tr>
               <td>isOutside</td>
@@ -130,25 +130,25 @@ export function EmptyContentComponent(props) {
               <td colSpan="2">title</td>
               <td>string</td>
               <td/>
-              <td>Title of content</td>
+              <td>Define title of content</td>
             </tr>
             <tr>
               <td colSpan="2">description</td>
               <td>string</td>
               <td/>
-              <td>Description of content</td>
+              <td>Define description of content</td>
             </tr>
             <tr>
               <td colSpan="2">url</td>
               <td>string</td>
               <td/>
-              <td>Url link of content</td>
+              <td>Define url link of content</td>
             </tr>
             <tr>
               <td colSpan="2">urlText</td>
               <td>string</td>
               <td/>
-              <td>Url text of content</td>
+              <td>Define url text of content</td>
             </tr>
             <tr>
               <td colSpan="3">vertical</td>

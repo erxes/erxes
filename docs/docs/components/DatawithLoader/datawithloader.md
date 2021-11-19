@@ -31,11 +31,11 @@ import { DatawithLoaderComponent } from "./datawithloader.js"
 ['* data', 'any', '', 'Define data'],
 ['count', 'any', '', 'Define count'],
 ['* loading', 'boolean', '', 'Loading state'],
-['emptyText','string', 'There is no data', 'Text of emptyState'],
-['emptyIcon','string','','Icon of emptyState'],
-['emptyImage','string','','Image of emptyState'],
-['size','string','full','Size of icon in emptyState'],
+['emptyText','string', 'There is no data', 'Define text of emptyState'],
+['emptyIcon','string','','Define icon of emptyState'],
+['emptyImage','string','','Define image of emptyState'],
+['size','string','full','Define size of icon in emptyState'],
 ['objective','boolean','false','Make the spinner objective'],
-['emptyContent','React.ReactNode','','Content when count is "0"'],
-['loadingContent','React.ReactNode', '','Content when loading is "true"']
+['emptyContent','React.ReactNode','','Define content when count is "0"'],
+['loadingContent','React.ReactNode', '','Define content when loading is "true"']
 ]} />

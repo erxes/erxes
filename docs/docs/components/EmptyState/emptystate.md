@@ -35,6 +35,6 @@ import { EmptyComponents } from './emptystate.js'
     ['icon', 'string', "", 'Shows icon'],
     ['image', 'string', "", 'Shows image'],
     ['size', 'string', "", 'Changes the size of icon'],
-    ['extra', 'React.ReactNode', "", 'Adds other components or text'],
-    ['light', 'boolean', "", 'Show only first row']
+    ['extra', 'React.ReactNode', "", 'Add other components or text'],
+    ['light', 'boolean', "", 'Shows only first row']
 ]} />

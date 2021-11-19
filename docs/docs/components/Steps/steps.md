@@ -44,13 +44,13 @@ import { StepComponent } from "./steps.js"
 ### Step
 
 <StepComponent type = 'APIstep' table={[
-['stepNumber','number','','Step number'],
-['active','number','','Active number'],
-['img','string','','Show image'],
-['title','string','','Show title'],
+['stepNumber','number','','Define step number'],
+['active','number','','Define active number'],
+['img','string','','Shows image'],
+['title','string','','Shows title'],
 ['children','React.ReactNode', '', 'Shows content of step'],
-['next','function', '', 'Click function of next button'],
+['next','function', '', 'Define click function of next button'],
 ['noButton','boolen','','Hide the "Next" button'],
 ['message','any', '', ''],
-['onClick', 'function', '', 'Click handler']
+['onClick', 'function', '', 'Define click handler function']
 ]} />

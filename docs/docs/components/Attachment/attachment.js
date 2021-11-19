@@ -127,7 +127,7 @@ export function AttachmentComponent(props) {
               <td >* name</td>
               <td>string</td>
               <td/>
-              <td>File name</td>
+              <td>Define file name</td>
             </tr>
             <tr>
               <td>* type</td>
@@ -157,7 +157,7 @@ export function AttachmentComponent(props) {
               <td colSpan="2">additionalItem</td>
               <td>React.ReactNode</td>
               <td/>
-              <td>Additional item can be any node</td>
+              <td>Add additional item</td>
             </tr>
             <tr>
               <td colSpan="2">simple</td>
