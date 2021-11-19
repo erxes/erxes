@@ -605,14 +605,14 @@ export const replaceEditorAttributes = async (args: {
           ? 'trackedData'
           : 'customFieldsData';
 
-        for (const customFieldDataItem of customer[dbFieldName] || []) {
-          const replaceKey = `{{ customer.${dbFieldName}.${customFieldDataItem.field} }}`;
+        for (const customFieldsDataItem of customer[dbFieldName] || []) {
+          const replaceKey = `{{ customer.${dbFieldName}.${customFieldsDataItem.field} }}`;
 
           if (
-            customerFileFieldsById[customFieldDataItem.field].type === 'file'
+            customerFileFieldsById[customFieldsDataItem.field].type === 'file'
           ) {
             let replaceValue = await customFieldDataItemToFileLink(
-              customFieldDataItem
+              customFieldsDataItem
             );
 
             replacers.push({
@@ -623,8 +623,8 @@ export const replaceEditorAttributes = async (args: {
             replacers.push({
               key: replaceKey,
               value:
-                customFieldDataItem.stringValue ||
-                customFieldDataItem.value ||
+                customFieldsDataItem.stringValue ||
+                customFieldsDataItem.value ||
                 ''
             });
           }
@@ -708,16 +708,16 @@ export const replaceEditorAttributes = async (args: {
 
     for (const customField of customFields) {
       const customFieldsData = item.customFieldsData || [];
-      const customFieldDataItem = customFieldsData.find(
+      const customFieldsDataItem = customFieldsData.find(
         c => c.field === customField._id
       );
 
-      if (customFieldDataItem) {
+      if (customFieldsDataItem) {
         const replaceKey = `{{ itemCustomField.${customField._id} }}`;
 
         if (customField.type === 'file') {
           let replaceValue = await customFieldDataItemToFileLink(
-            customFieldDataItem
+            customFieldsDataItem
           );
 
           replacers.push({
@@ -727,7 +727,8 @@ export const replaceEditorAttributes = async (args: {
         } else {
           replacers.push({
             key: replaceKey,
-            value: customFieldDataItem.stringValue || customFieldDataItem.value
+            value:
+              customFieldsDataItem.stringValue || customFieldsDataItem.value
           });
         }
       }
