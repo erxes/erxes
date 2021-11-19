@@ -8,6 +8,9 @@ export type IInvitationEntry = {
   password: string;
   groupId: string;
   channelIds: string[];
+  departmentId: string;
+  unitId: string;
+  branchId: string;
 };
 
 export type UserMutationVariables = {
@@ -115,3 +118,15 @@ export interface IBranch extends IStructureCommon, IContactInfo {
 export interface IStructure extends IStructureCommon, IContactInfo {
   description?: string;
 }
+
+export type UnitsQueryResponse = {
+  units: IUnit[];
+} & QueryResponse;
+
+export type BranchesQueryResponse = {
+  branches: IBranch[];
+} & QueryResponse;
+
+export type DepartmentsQueryResponse = {
+  departments: IDepartment[];
+} & QueryResponse;

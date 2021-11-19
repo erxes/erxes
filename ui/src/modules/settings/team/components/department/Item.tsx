@@ -24,7 +24,7 @@ export default function Item({
   return (
     <BlockItem
       item={department}
-      title="Department"
+      title="department"
       icon={isChild ? 'arrows-up-right' : 'building'}
       isChild={isChild}
       renderForm={renderForm}

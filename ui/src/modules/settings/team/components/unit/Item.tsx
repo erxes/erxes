@@ -18,7 +18,7 @@ export default function Item({ unit, refetch, deleteDepartment }: Props) {
   return (
     <BlockItem
       item={unit}
-      title="Unit"
+      title="unit"
       renderForm={renderForm}
       deleteItem={deleteDepartment}
       refetch={refetch}

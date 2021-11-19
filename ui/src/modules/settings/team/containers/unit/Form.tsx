@@ -6,6 +6,7 @@ import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 import { IUnit } from '../../types';
+import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
   unit?: IUnit;
@@ -18,7 +19,7 @@ const FormContainer = (props: Props) => {
   });
 
   if (loading) {
-    return <div>...</div>;
+    return <Spinner />;
   }
 
   const renderButton = ({

@@ -15,12 +15,16 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { Description } from '../../styles';
 import { FormTable, InviteOption, LinkButton, RemoveRow } from '../styles';
-import { IInvitationEntry } from '../types';
+import { IBranch, IDepartment, IInvitationEntry, IUnit } from '../types';
+import { generateTree } from '../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
   channels: IChannel[];
+  units: IUnit[];
+  departments: IDepartment[];
+  branches: IBranch[];
 } & ICommonFormProps;
 
 type State = {
@@ -29,16 +33,22 @@ type State = {
   isSubmitted: boolean;
 };
 
+const generateEmptyEntry = () => ({
+  email: '',
+  password: '',
+  groupId: '',
+  channelIds: [],
+  departmentId: '',
+  unitId: '',
+  branchId: ''
+});
+
 class UserInvitationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      entries: [
-        { email: '', password: '', groupId: '', channelIds: [] },
-        { email: '', password: '', groupId: '', channelIds: [] },
-        { email: '', password: '', groupId: '', channelIds: [] }
-      ],
+      entries: Array(3).fill(generateEmptyEntry()),
       addMany: false,
       isSubmitted: false
     };
@@ -60,12 +70,17 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onChange = (
     i: number,
-    type: 'email' | 'password' | 'groupId' | 'channelIds',
+    type:
+      | 'email'
+      | 'password'
+      | 'groupId'
+      | 'channelIds'
+      | 'departmentId'
+      | 'unitId'
+      | 'branchId',
     e
   ) => {
-    const elm = e.target as HTMLInputElement;
-
-    let value: string | string[] = elm && elm.value;
+    let value: string | string[] = '';
 
     if (type === 'channelIds') {
       const selectedValues: string[] = [];
@@ -75,6 +90,16 @@ class UserInvitationForm extends React.Component<Props, State> {
       }
 
       value = selectedValues;
+    } else if (
+      type === 'departmentId' ||
+      type === 'unitId' ||
+      type === 'branchId'
+    ) {
+      value = e ? e.value : '';
+    } else {
+      const elm = e.target as HTMLInputElement;
+
+      value = elm && elm.value;
     }
 
     const entries = [...this.state.entries];
@@ -86,10 +111,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onAddMoreInput = () => {
     this.setState({
-      entries: [
-        ...this.state.entries,
-        { email: '', password: '', groupId: '', channelIds: [] }
-      ]
+      entries: [...this.state.entries, generateEmptyEntry()]
     });
   };
 
@@ -110,14 +132,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     const emails = values.split(',');
 
-    emails.map(e =>
-      entries.splice(0, 0, {
-        email: e,
-        password: '',
-        groupId: '',
-        channelIds: []
-      })
-    );
+    emails.map(e => entries.splice(0, 0, generateEmptyEntry()));
 
     this.setState({ addMany: false });
   };
@@ -178,13 +193,13 @@ class UserInvitationForm extends React.Component<Props, State> {
     );
   }
 
-  generateChannelOptions(array: IChannel[] = []): IOption[] {
+  generateChannelOptions(
+    array: Array<{ _id: string; name?: string; title?: string }>
+  ): IOption[] {
     return array.map(item => {
-      const channel = item || ({} as IChannel);
-
       return {
-        value: channel._id,
-        label: channel.name
+        value: item._id,
+        label: item.name || item.title || ''
       };
     });
   }
@@ -221,6 +236,15 @@ class UserInvitationForm extends React.Component<Props, State> {
               </th>
               <th>
                 <ControlLabel>Channels</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>Unit</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>Department</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>Branch</ControlLabel>
               </th>
               <th />
             </tr>
@@ -270,13 +294,56 @@ class UserInvitationForm extends React.Component<Props, State> {
                   />
                 </td>
 
-                <td className="">
+                <td>
                   <Select
                     value={entries[i].channelIds}
                     options={this.generateChannelOptions(this.props.channels)}
                     onChange={this.onChange.bind(this, i, 'channelIds')}
                     placeholder={__('Choose channels ...')}
                     multi={true}
+                  />
+                </td>
+
+                <td>
+                  <Select
+                    value={entries[i].unitId}
+                    options={this.generateChannelOptions(this.props.units)}
+                    onChange={this.onChange.bind(this, i, 'unitId')}
+                    placeholder={__('Choose unit ...')}
+                  />
+                </td>
+
+                <td>
+                  <Select
+                    value={entries[i].departmentId}
+                    options={generateTree(
+                      this.props.departments,
+                      null,
+                      node => ({
+                        value: node._id,
+                        label: `${node.parentId ? '---' : ''} ${node.title}`
+                      }),
+                      'parentId'
+                    )}
+                    onChange={this.onChange.bind(this, i, 'departmentId')}
+                    placeholder={__('Choose department ...')}
+                  />
+                </td>
+
+                <td>
+                  <Select
+                    value={entries[i].branchId}
+                    options={generateTree(
+                      this.props.branches,
+                      null,
+                      node => ({
+                        value: node._id,
+                        label: `${node.parentId ? '---' : ''} ${node.title}`
+                      }),
+                      'parentId'
+                    )}
+                    onChange={this.onChange.bind(this, i, 'branchId')}
+                    placeholder={__('Choose branch ...')}
                   />
                 </td>
 

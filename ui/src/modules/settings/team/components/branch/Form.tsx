@@ -22,7 +22,9 @@ export default function BranchForm(props: Props) {
   const { closeModal, renderButton, parentBranches } = props;
   const object = props.branch || ({} as IBranch);
 
-  const [userIds, setUserIds] = useState(object.users.map(user => user._id));
+  const [userIds, setUserIds] = useState(
+    (object.users || []).map(user => user._id)
+  );
   const [parentId, setParentId] = useState(object.parentId || null);
   const [links, setLinks] = useState(object.links || {});
   const [image, setImage] = useState(object.image || null);

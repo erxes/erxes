@@ -21,6 +21,9 @@ export const types = `
     password: String
     groupId: String
     channelIds: [String]
+    unitId: String
+    branchId: String
+    departmentId: String
   }
 
   type UserDetailsType {

@@ -76,12 +76,12 @@ const FormTable = styled.table`
 
   td {
     padding-right: ${dimensions.coreSpacing}px;
-    width: 25%;
+    width: 14%;
   }
 
   tr {
     td:last-child,
-    td:nth-child(4) {
+    td:nth-child(5) {
       padding: 0;
     }
   }

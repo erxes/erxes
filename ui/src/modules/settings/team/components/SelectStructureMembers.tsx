@@ -15,6 +15,7 @@ type Props = {
   objectId: string;
   name: string;
   isAllUsers?: boolean;
+  placeholder?: string;
 };
 
 export default function SelectStructureMembers({
@@ -24,7 +25,8 @@ export default function SelectStructureMembers({
   value,
   excludeUserIds,
   name,
-  isAllUsers
+  isAllUsers,
+  placeholder
 }: Props) {
   const queryName = isAllUsers ? 'allUsers' : 'noDepartmentUsers';
   const variables = isAllUsers ? { isActive: true } : { excludeId: objectId };
@@ -49,6 +51,7 @@ export default function SelectStructureMembers({
     <Select
       name={name}
       multi={multi}
+      placeholder={placeholder}
       label={__('Choose team members')}
       value={value}
       onChange={onSelect}
