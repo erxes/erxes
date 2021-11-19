@@ -575,6 +575,21 @@ export const replaceEditorAttributes = async (args: {
     customer.customFieldsData = customFieldsData;
   }
 
+  const generateEmailFileLink = (value: any): string => {
+    if (!value) return '';
+
+    return `<a 
+    target="_blank" 
+    download 
+    href="${getSubServiceDomain({
+      name: 'API_DOMAIN'
+    })}/read-file?key=${encodeURIComponent(
+      value.url
+    )}&name=${encodeURIComponent(value.name)}"
+    ref="noopener noreferrer"
+  >${value.name}</a>`;
+  };
+
   // replace customer fields
   if (args.customer) {
     replacers.push({
@@ -582,7 +597,7 @@ export const replaceEditorAttributes = async (args: {
       value: models.Customers.getCustomerName(customer)
     });
 
-    const fileFieldsById = _.indexBy(
+    const customerFileFieldsById = _.indexBy(
       await models.Fields.find({ type: 'file', contentType: 'customer' }),
       '_id'
     );
@@ -624,18 +639,10 @@ export const replaceEditorAttributes = async (args: {
 
           const replaceKey = `{{ customer.${dbFieldName}.${subField.field} }}`;
 
-          if (fileFieldsById[subField.field].type === 'file') {
-            const subFieldValue = Array.isArray(subField.value)
-              ? subField.value[0]
-              : subField.value;
-            const replaceValue =
-              (subFieldValue &&
-                `<a target="_blank" href="http://localhost:3300/read-file?key=${encodeURIComponent(
-                  subFieldValue.url
-                )}&name=${encodeURIComponent(subFieldValue.name)}">${
-                  subFieldValue.name
-                }</a>`) ||
-              '';
+          if (customerFileFieldsById[subField.field].type === 'file') {
+            const replaceValue = Array.isArray(subField.value)
+              ? subField.value.map(generateEmailFileLink).join('')
+              : generateEmailFileLink(subField.value);
             replacers.push({
               key: replaceKey,
               value: replaceValue
