@@ -151,6 +151,7 @@ module.exports = {
         "components/Steps/steps",
         "components/SubMenu/submenu",
         "components/Table/table",
+        "components/Tabs/tabs",
         "components/Tag/tag",
         "components/TextInfo/textinfo",
         "components/Timer/timer",
