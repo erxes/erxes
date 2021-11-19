@@ -36,6 +36,6 @@ import { DatawithLoaderComponent } from "./datawithloader.js"
 ['emptyImage','string','','Image of emptyState'],
 ['size','string','full','Size of icon in emptyState'],
 ['objective','boolean','false','Make the spinner objective'],
-['emptyContent','node','','Content when count is "0"'],
-['loadingContent','node', '','Content when loading is "true"']
+['emptyContent','React.ReactNode','','Content when count is "0"'],
+['loadingContent','React.ReactNode', '','Content when loading is "true"']
 ]} />

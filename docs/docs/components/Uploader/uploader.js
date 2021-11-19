@@ -1,12 +1,12 @@
 import React from "react";
 import Uploader from "erxes-ui/lib/components/Uploader";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../common.js";
 import styles from "../../../src/components/styles.module.css";
+import Table from "erxes-ui/lib/components/table/index";
 
 export function UploaderComponent(props) {
-  const { singl, multi, lmt, type, defaultFiles, table=[] } = props;
-    
+  const { singl, multi, lmt, type, defaultFiles, table = [] } = props;
+
   const stringify = (datas) => {
     let string = JSON.stringify(datas);
     string = string.replace(/{}/g, "");
@@ -39,32 +39,96 @@ export function UploaderComponent(props) {
 
   const propDatas = () => {
     const datas = {
-      single : singl,
+      single: singl,
       multiple: multi,
       limit: lmt,
       defaultFileList: defaultFiles && files,
     };
 
-      return datas;
-    };
+    return datas;
+  };
 
   const renderBlock = () => {
-    return(
+    return (
       <>
         <div className={styles.styled}>
           <Uploader {...propDatas()} />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<Uploader ${stringify(
-            propDatas()
-          )} />\n</>`}
+          {`<>\n\t<Uploader ${stringify(propDatas())} />\n</>`}
         </CodeBlock>
       </>
     );
   };
 
   if (type === "APIuploader") {
-    return renderApiTable("Uploader", table);
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import Uploader from "erxes-ui/lib/components/Uploader";`}</CodeBlock>
+        <p className={styles.required}>* required prop</p>
+        <Table>
+          <thead>
+            <tr>
+              <th colSpan="2">Name</th>
+              <th>Type</th>
+              <th>Defualt</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowSpan="4">* defaultFileList (array)</td>
+              <td>* name</td>
+              <td>string</td>
+              <td />
+              <td>Defines file name</td>
+            </tr>
+            <tr>
+              <td>* type</td>
+              <td>string</td>
+              <td />
+              <td>Defines file type</td>
+            </tr>
+            <tr>
+              <td>* url</td>
+              <td>string</td>
+              <td />
+              <td>Defines file path</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>number</td>
+              <td />
+              <td>Defines file size</td>
+            </tr>
+            <tr>
+              <td colSpan="2">onChange</td>
+              <td>function</td>
+              <td />
+              <td></td>
+            </tr>
+            <tr>
+              <td colSpan="2">single</td>
+              <td>boolean</td>
+              <td />
+              <td>Makes the uploader inactive to upload files</td>
+            </tr>
+            <tr>
+              <td colSpan="2">limit</td>
+              <td>number</td>
+              <td />
+              <td>Sets limit to files</td>
+            </tr>
+            <tr>
+              <td colSpan="2">multiple</td>
+              <td>boolean</td>
+              <td />
+              <td>Defines it can upload multiple files or only one file</td>
+            </tr>
+          </tbody>
+        </Table>
+      </>
+    );
   }
 
   return renderBlock();

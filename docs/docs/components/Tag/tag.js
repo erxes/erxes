@@ -59,13 +59,10 @@ function TagComponent(props) {
   if (type === "limit") {
     return renderBlock("limit");
   }
-
-  return null;
-}
-
-function ApiTable() {
-  return (
-    <>
+  
+  if(type === "APItags") {
+    return (
+      <>
       <CodeBlock className="language-javascript">{`import Tags from "erxes-ui/lib/components/Tags";`}</CodeBlock>
       <p className={styles.required}>* required prop</p>
       <Table>
@@ -73,6 +70,7 @@ function ApiTable() {
           <tr>
             <th colSpan="2">Name</th>
             <th>Type</th>
+            <th>Default</th>
             <th>Description</th>
           </tr>
         </thead>
@@ -81,57 +79,68 @@ function ApiTable() {
             <td rowSpan="8">* tags</td>
             <td>* _id</td>
             <td>string</td>
-            <td>Defines the id</td>
+            <td/>
+            <td>Defines tag id</td>
           </tr>
           <tr>
             <td>* type</td>
             <td>string</td>
-            <td>Defines the type</td>
+            <td/>
+            <td>Defines tag type</td>
           </tr>
           <tr>
             <td>* name</td>
             <td>string</td>
-            <td>Defines the name</td>
+            <td/>
+            <td>Defines tag name</td>
           </tr>
           <tr>
             <td>* colorCode</td>
             <td>string</td>
+            <td/>
             <td>Set the tag color</td>
           </tr>
           <tr>
             <td>objectCount</td>
             <td>number</td>
-            <td>object count</td>
+            <td/>
+            <td>Counts tag object</td>
           </tr>
           <tr>
             <td>parentId</td>
             <td>string</td>
-            <td>parent id</td>
+            <td/>
+            <td>Defines tag parent id</td>
           </tr>
           <tr>
             <td>order</td>
             <td>string</td>
-            <td>order</td>
+            <td/>
+            <td>Defines tag order</td>
           </tr>
           <tr>
             <td>totalObjectCount</td>
             <td>number</td>
-            <td>totalObjectCount</td>
+            <td/>
+            <td>Counts totalObject of tag</td>
           </tr>
           <tr>
             <td colSpan="2">size</td>
             <td>string</td>
-            <td>Set the size</td>
+            <td/>
+            <td>Sets the size</td>
           </tr>
           <tr>
             <td colSpan="2">limit</td>
             <td>number</td>
-            <td>Limit number of tags to show</td>
+            <td/>
+            <td>Limits number of tags to show</td>
           </tr>
         </tbody>
       </Table>
     </>
   );
 }
-
-export { TagComponent, ApiTable };
+return null;
+}
+export { TagComponent };

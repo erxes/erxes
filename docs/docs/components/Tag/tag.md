@@ -3,7 +3,7 @@ id: tag
 title: Tags
 ---
 
-import { TagComponent, ApiTable } from "./tag.js"
+import { TagComponent } from "./tag.js"
 
 <p>Use <code>_id</code> and <code>name</code> props for connecting with other function.</p>
 
@@ -19,4 +19,4 @@ import { TagComponent, ApiTable } from "./tag.js"
 
 ## API
 
-<ApiTable></ApiTable>
+<TagComponent type="APItags"/>

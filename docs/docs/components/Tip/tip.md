@@ -34,6 +34,7 @@ import { TipComponent } from "./tip.js"
 ## API
 
 <TipComponent type="APItip" table={[
-  ['text', 'string', '', 'Defines the tip text'],
-  ['placement', 'auto (auto | auto-start | auto-end) | top (top | top-start | top-end) | right (right | right-start | right-end) | bottom (bottom | bottom-start | bottom-end) | left (left | left-start | left-end)', 'auto', 'Set the placement of tip']
+  ['text', 'string | React.ReactNode', '', 'Defines the tip text'],
+  ['* children', 'React.ReactNode', '', 'Defines chip content'],
+  ['placement', 'auto | auto-start | auto-end | top | top-start | top-end | right | right-start | right-end | bottom | bottom-start | bottom-end | left | left-start | left-end', 'auto', 'Set the placement of tip']
   ]}></TipComponent>

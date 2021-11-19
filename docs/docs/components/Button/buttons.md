@@ -42,10 +42,10 @@ import { ButtonComponent } from "./buttons.js"
 ## API
 
 <ButtonComponent type="APIbutton" table={[
-    ['children', 'ReactNode', '', 'Shows button text'],
+    ['children', 'React.ReactNode', '', 'Shows button text'],
     ['className', 'string', '', 'Defines className'],
-    ['onClick', 'void', '', 'Click handler for button element'],
-    ['onMouseDown', 'void', '', ''],
+    ['onClick', 'function', '', 'Click handler for button element'],
+    ['onMouseDown', 'function', '', ''],
     ['href', 'string', '', 'Defines a hyperlink'],
     ['type', 'string', 'button', 'Defines HTML button type attribute'],
     ['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],
@@ -57,5 +57,5 @@ import { ButtonComponent } from "./buttons.js"
     ['style', 'any', '', 'Add custom style to button'],
     ['id', 'string', '', 'Gives id to button'],
     ['uppercase', 'boolean', 'false', 'Makes the button text uppercase'],
-    ['target', 'string', '', 'Destination path when clicked']
+    ['target', 'string', '', 'Defines the target']
 ]} />

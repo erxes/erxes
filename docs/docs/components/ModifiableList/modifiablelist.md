@@ -19,5 +19,6 @@ import { ModifiableListComponent } from "./modifiablelist.js"
 
 <ModifiableListComponent type="APImodifiablelist" table={[
   ['* options', 'string[]', '', 'Display options on start'],
-  ['addButtonLabel', 'string', '"Add an option"', 'Change 3rd button label']
+  ['addButtonLabel', 'string', '"Add an option"', 'Change 3rd button label'],
+  ['onChangeOption', 'function', '', 'Function that runs when delete icon clicked']
 ]}/>

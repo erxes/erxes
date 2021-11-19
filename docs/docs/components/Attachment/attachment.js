@@ -149,13 +149,13 @@ export function AttachmentComponent(props) {
             </tr>
             <tr>
               <td colSpan="2">scrollBottom</td>
-              <td>void</td>
+              <td>function</td>
               <td/>
               <td></td>
             </tr>
             <tr>
               <td colSpan="2">additionalItem</td>
-              <td>ReactNode</td>
+              <td>React.ReactNode</td>
               <td/>
               <td>Additional item can be any node</td>
             </tr>

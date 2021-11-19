@@ -25,6 +25,11 @@ import { CardComponent } from "./namecard.js"
 <p>Show user e-mail using <code>email</code> prop.</p>
 <CardComponent type="usermail" name="James Smith" mail="jamessmith@gmail.com" />
 
+## Single Line
+
+<p>Make the secondLine invisible with <code>singleLine</code> prop.</p>
+<CardComponent type="singleLine" name="James Smith" mail="jamessmith@gmail.com" info={true} />
+
 ## Second line
 
 <p>Show second line using <code>secondLine</code> prop. </p>

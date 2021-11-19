@@ -39,6 +39,7 @@ export function BreadCrumbComponent(props) {
             <tr>
               <th colSpan="2">Name</th>
               <th>Type</th>
+              <th>Default</th>
               <th>Description</th>
             </tr>
           </thead>
@@ -47,11 +48,13 @@ export function BreadCrumbComponent(props) {
               <td rowSpan="4">breadcrumbs</td>
               <td>* title</td>
               <td>string</td>
+              <td/>
               <td>Shows title of the breadcrumb item</td>
             </tr>
             <tr>
               <td>link</td>
               <td>string</td>
+              <td/>
               <td>Defines a hyperlink</td>
             </tr>
           </tbody>

@@ -7,64 +7,16 @@ import Table from "erxes-ui/lib/components/table/index";
 
 export function EmptyContentComponent(props) {
   const { type, value } = props;
-  // const step = [];
-
-  // if (type === "url") {
-  //   const st = {
-  //     title: "Title of step",
-  //     description: "Description of step",
-  //     url: "/url",
-  //   };
-  //   step.push(st);
-  // }
-
-  // if (type === "urltext") {
-  //   const st = {
-  //     title: "Title of step",
-  //     description: "Description of step",
-  //     url: "/url",
-  //     urlText: "url Text",
-  //   };
-  //   step.push(st);
-  // }
-
-  // if (type === "out") {
-  //   const st = {
-  //     title: "Title of step",
-  //     description: "Description of step",
-  //     url: "/settings/boards/deal",
-  //     urlText: "urlText",
-  //     isOutside: true,
-  //   };
-  //   step.push(st);
-  // }
-
-  // if (type === "icon") {
-  //   const st = {
-  //     title: "Title of step",
-  //     description: "Description of step",
-  //     icon: "lightbulb-alt"
-  //   };
-  //   step.push(st);
-  // }
-  // else if(type === "simple" || type === "contenturl" || type === "contentTitle" || type === "vertical" || type === "max"){
-  //   const st = {
-  //     title: "Title of step",
-  //     description: "Description of step. Description of step. Description of step. Description of step. Description of step",
-  //   };
-  //   step.push(st);
-  //   step.push(st);
-  // }
 
   const step = () => {
     const steped=[];
     const st = {
-      title: "Title of step 1",
-      description: "Description of step 1",
-      url: type === "url" || type === "urltext" ? "/": false,
-      urlText: type === "urltext" && "urlText", 
+      title: "Title of step",
+      description: "Description of step. Description of step. Description of step. Description of step. Description of step. ",
+      url: type === "url" || type === "urltext" || type === "out" ? "/": false,
+      urlText: type === "urltext" || type === "out" ? "urlText" : false, 
       icon: type === "icon" && "lightbulb-alt",
-      isOutside: type === "isOutside"
+      isOutside: type === "out" && true,
     }
     if(type === "vertical"){
       steped.push(st);   

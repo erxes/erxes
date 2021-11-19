@@ -149,6 +149,7 @@ module.exports = {
         "components/SortHandler/sorthandler",
         "components/Spinner/spinners",
         "components/Steps/steps",
+        "components/SubMenu/submenu",
         "components/Table/table",
         "components/Tag/tag",
         "components/TextInfo/textinfo",

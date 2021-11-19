@@ -110,7 +110,7 @@ export function StepComponent(props) {
   }
 
   if (type === "APIsteps") {
-    return renderApiTable("", table);
+    return renderApiTable("Steps", table);
   }
 
   if (type === "img") {
@@ -126,7 +126,7 @@ export function StepComponent(props) {
   }
 
   if (type === "APIstep") {
-    return renderApiTable("", table);
+    return renderApiTable("Step", table);
   }
 
   return null;

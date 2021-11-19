@@ -30,7 +30,8 @@ import { ProgressBarComponent } from "./progressbar.js"
 ## API
 
 <ProgressBarComponent type="APIprogressbar" table={[
-  ['close', 'node', '', 'Displays the close element on bottom of the progress bar'],
+  ['children', 'React.ReactNode', '', 'Shows content on progress bar'],
+  ['close', 'React.ReactNode', '', 'Displays the close element on bottom of the progress bar'],
   ['* percentage', 'number', '', 'Sets percentage of the progress bar'],
   ['color', 'string', '#dddeff', 'Sets color of the progress'],
   ['height', 'string', '36px', 'Sets height of the progress bar']

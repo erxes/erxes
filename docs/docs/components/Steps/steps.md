@@ -36,6 +36,7 @@ import { StepComponent } from "./steps.js"
 ### Steps
 
 <StepComponent type = 'APIsteps' table={[
+  ['children', 'any', '', 'Contain step components'],
 ['active','number','','Change the step that expands on start'],
 ['maxStep','number','6','Limit the number of steps (always 6)']
 ]} />
@@ -47,5 +48,9 @@ import { StepComponent } from "./steps.js"
 ['active','number','','Active number'],
 ['img','string','','Show image'],
 ['title','string','','Show title'],
-['noButton','boolen','','Hide the "Next" button']
+['children','React.ReactNode', '', 'Shows content of step'],
+['next','function', '', 'Click function of next button'],
+['noButton','boolen','','Hide the "Next" button'],
+['message','any', '', ''],
+['onClick', 'function', '', 'Click handler']
 ]} />

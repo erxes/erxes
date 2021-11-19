@@ -27,10 +27,12 @@ export function CardComponent(props) {
     let string = JSON.stringify(datas);
     string = string.replace(/}},"/g, "}} ");
     string = string.replace(/},"/g, "}, ");
+    string = string.replace(/},/g, "} ");
     string = string.replace(/":/g, ":");
     string = string.replace(/{"/g, "{");
     string = string.slice(1, string.length - 1);
     string = string.replace(/user:/g, "user=");
+    string = string.replace(/singleLine:/g, "singleLine=");
     string = string.replace(/avatarSize:/g, "avatarSize=");
     string = string.replace(/secondLine:/g, "secondLine=");
 
@@ -62,6 +64,10 @@ export function CardComponent(props) {
 
   if (type === "usermail") {
     return renderBlock("details", "fullName", "usermail", "email");
+  }
+
+  if (type === "singleLine") {
+    return renderBlock("details", "fullName", "singleLine", "email");
   }
 
   if (type === "fullName") {
@@ -106,6 +112,12 @@ export function CardComponent(props) {
             <td>string</td>
             <td/>
             <td>Email object of user</td>
+          </tr>
+          <tr>
+            <td colSpan="3">singleLine</td>
+            <td>string</td>
+            <td/>
+            <td>Make the second line invisible</td>
           </tr>
           <tr>
             <td colSpan="3">secondLine</td>

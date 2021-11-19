@@ -11,7 +11,10 @@ import { SortableListComponent } from "./sortablelist.js"
 ## API
 
 <SortableListComponent type="APIsortablelist" table={[
-  ['* field', 'array', '', 'List properties'],
+  ['* field', 'any[]', '', 'List properties'],
+  ['child', 'function', '', ''],
+  ['onChangeFields', 'function', '', ''],
+  ['isModal', 'boolean', '', ''],
   ['showDragHandler', 'boolean', 'true', 'Activates hand  cursor'],
   ['isDragDisabled', 'boolean', '', 'Activates drag'],
   ['droppableId', 'string', '', 'Droppable Id']

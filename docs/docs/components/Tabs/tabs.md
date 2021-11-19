@@ -25,10 +25,15 @@ import { TabsComponent } from "./tabs.js"
 ### Tabs
 
 <TabsComponent type="APItabs" table={[
-['grayBorder', 'boolean', '', 'Make border darker'],
+['* children', 'React.ReactNode', '', 'Contain TabTitle components'],
+['grayborder', 'boolean', '', 'make border darker'],
 ['full', 'boolean', '', 'Display context full screen'],
 ]} />
 
 ### TabTitle
 
-<TabsComponent type="APItabtitle"  />
+<TabsComponent type="APItabtitle" table={[
+['* children', 'React.ReactNode', '', 'Shows tab content'],
+['onClick', 'function', '', 'Click handler'],
+['className', 'string', '', 'Defines className']
+]} />

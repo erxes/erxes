@@ -18,6 +18,8 @@ import { TextInfoComponent } from "./textinfo.js"
 ## API
 
 <TextInfoComponent type="APItextinfo" table={[
+['* children', 'React.ReactNode | string', '', 'Defines the text to show'],
+['ignoreTrans', 'boolean', '', 'Ignores translation'],
 ['textStyle', 'primary | success | danger | warning | simple', 'default', 'Style the text'],
 ['hugeness', 'string', 'small', 'Set the size of the text']
 ]}></TextInfoComponent>

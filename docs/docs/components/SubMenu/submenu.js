@@ -1,7 +1,8 @@
 import React from "react";
 import Submenu from "erxes-ui/lib/components/subMenu/Submenu";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../common.js";
+import Table from "erxes-ui/lib/components/table/index";
+import styles from "../../../src/components/styles.module.css";
 
 export function SubMenuComponent(props) {
   const { add, table = [], type } = props;
@@ -22,10 +23,13 @@ export function SubMenuComponent(props) {
 
   const stringify = (kind) => {
     let string = JSON.stringify(kind);
-    string = string.replace(/}],"additionalMenuItem":/g, "}]} additionalMenuItem=")
+    string = string.replace(
+      /}],"additionalMenuItem":/g,
+      "}]} additionalMenuItem="
+    );
     string = string.replace(/{"items":/g, "items={");
     string = string.replace(/":/g, ":");
-    string = string.replace(/Additional item"}/g, 'Additional item"')
+    string = string.replace(/Additional item"}/g, 'Additional item"');
     string = string.replace(/}}/g, "}");
     string = string.replace(/=true/g, "");
     return string;
@@ -46,7 +50,41 @@ export function SubMenuComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Submenu from "erxes-ui/lib/components/subMenu/Submenu";`}</CodeBlock>
-        {renderApiTable("", table)}
+        <p className={styles.required}>* required prop</p>
+        <Table>
+          <thead>
+            <tr>
+              <th colSpan="2">Name</th>
+              <th>Type</th>
+              <th>Defualt</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowSpan="2">items (array)</td>
+              <td>* title</td>
+              <td>string</td>
+              <td />
+              <td>Defines submenu title</td>
+            </tr>
+            <tr>
+              <td>link</td>
+              <td>string</td>
+              <td />
+              <td>Path of where to go when clicked</td>
+            </tr>
+            <tr>
+              <td colSpan="2">additionalMenuItem</td>
+              <td>React.ReactNode</td>
+              <td />
+              <td>
+                Additional sub menu item that will be displayed right side of
+                sub menu
+              </td>
+            </tr>
+          </tbody>
+        </Table>
       </>
     );
   }

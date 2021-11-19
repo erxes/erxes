@@ -36,8 +36,14 @@ import { ToggleComponent } from "./toggle.js"
 <ToggleComponent type="ApiToggle" table={[
   ['value', 'string', '', 'Defines the value'],
   ['name', 'string', '', 'Defines the name'],
+  ['id', 'string', '', 'Defines toggle id'],
   ['checked', 'boolean', 'false', 'Set the toggle always checked'],
   ['defaultChecked', 'boolean', 'false', 'Set the toggle checked on start'],
+  ["'aria-labelledby'", 'string', '', ''],
+  ["'aria-label'", 'string', '', ''],
+  ['onFocus', 'function', '', ''],
+  ['onBlur', 'function', '', ''],
   ['disabled', 'boolean', '', 'Make the toggle disabled'],
+  ['onChange', 'function', '', ''],
   ['icons', 'any', '', 'Add an icon'], 
 ]} />

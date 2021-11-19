@@ -77,7 +77,10 @@ export function TabsComponent(props) {
 
   if (type === "APItabtitle") {
     return (
-      <CodeBlock className="language-javascript">{`import TabTitle from "erxes-ui/lib/components/tabs/index";`}</CodeBlock>
+      <>
+        <CodeBlock className="language-javascript">{`import TabTitle from "erxes-ui/lib/components/tabs/index";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
     );
   }
   return renderBlock();

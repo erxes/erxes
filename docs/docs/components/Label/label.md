@@ -20,4 +20,8 @@ import { LabelComponent } from './label.js'
 <LabelComponent type="APIlabel" table={[
     ['lblStyle', 'default | primary | success | danger | warning | simple', 'default', 'Styles label'],
     ['lblColor', 'string', '', 'Gives custom color'],
+    ['* children', 'React.ReactNode | string', '', 'Declare label text'],
+    ['className', 'string', '', 'Defines className'],
+    ['shake', 'boolean', '', ''],
+    ['ignoreTrans', 'boolean', '', 'Ignores translate']
 ]} />
