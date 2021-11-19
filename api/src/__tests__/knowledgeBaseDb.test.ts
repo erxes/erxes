@@ -52,11 +52,11 @@ describe('test knowledge base models', () => {
     });
 
     test(`check if Error('userId must be supplied')
-    is being called as intended on create method`, () => {
+    is being called as intended on create method`, async () => {
       expect.assertions(1);
 
       try {
-        KnowledgeBaseTopics.createDoc({});
+        await KnowledgeBaseTopics.createDoc({});
       } catch (e) {
         expect(e.message).toBe('userId must be supplied');
       }

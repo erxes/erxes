@@ -176,7 +176,7 @@ describe('dashboardQueries', () => {
       'ConversationProperties.customerFirstName'
     ];
 
-    types.map(async type => {
+    types.forEach(async type => {
       const response = await graphqlRequest(qry, 'dashboardFilters', {
         type
       });

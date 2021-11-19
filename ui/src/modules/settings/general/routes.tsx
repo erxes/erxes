@@ -20,6 +20,10 @@ const EngageConfigs = asyncComponent(() =>
   )
 );
 
+const Theme = asyncComponent(() =>
+  import(/* webpackChunkName: "Theme" */ './containers/Theme')
+);
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -28,7 +32,9 @@ const routes = () => {
         path="/settings/integration-configs/"
         component={IntegrationConfigs}
       />
+
       <Route path="/settings/campaign-configs/" component={EngageConfigs} />
+      <Route path="/settings/theme/" component={Theme} />
     </React.Fragment>
   );
 };
