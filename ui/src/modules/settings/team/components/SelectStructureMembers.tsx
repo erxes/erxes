@@ -27,7 +27,7 @@ export default function SelectStructureMembers({
   isAllUsers
 }: Props) {
   const queryName = isAllUsers ? 'allUsers' : 'noDepartmentUsers';
-  const variables = isAllUsers ? {} : { excludeId: objectId };
+  const variables = isAllUsers ? { isActive: true } : { excludeId: objectId };
 
   const { loading, data } = useQuery(gql(queries[queryName]), {
     variables,

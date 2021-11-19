@@ -117,7 +117,7 @@ const structureQueries = {
       }
     });
 
-    return Users.find({ _id: { $nin: userIds } });
+    return Users.find({ _id: { $nin: userIds }, isActive: true });
   },
 
   structureDetail() {

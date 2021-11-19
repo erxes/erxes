@@ -3,7 +3,10 @@ import { IDepartmentDocument } from '../../db/models/definitions/structures';
 
 export default {
   users(department: IDepartmentDocument) {
-    return Users.find({ _id: { $in: department.userIds || [] } });
+    return Users.find({
+      _id: { $in: department.userIds || [] },
+      isActive: true
+    });
   },
 
   parent(department: IDepartmentDocument) {
@@ -15,6 +18,6 @@ export default {
   },
 
   supervisor(department: IDepartmentDocument) {
-    return Users.findOne({ _id: department.supervisorId });
+    return Users.findOne({ _id: department.supervisorId, isActive: true });
   }
 };

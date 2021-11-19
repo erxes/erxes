@@ -22,7 +22,7 @@ export default function DepartmentForm(props: Props) {
   const { closeModal, renderButton, departments } = props;
   const object = props.unit || ({} as any);
 
-  const [userIds, setUserIds] = useState(object.userIds || []);
+  const [userIds, setUserIds] = useState(object.users.map(user => user._id));
   const [departmentId, setDepartmentId] = useState(object.departmentId);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 

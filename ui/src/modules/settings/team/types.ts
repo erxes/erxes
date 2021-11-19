@@ -109,7 +109,7 @@ export interface IBranch extends IStructureCommon, IContactInfo {
   address: string;
   parentId: string;
   userIds: string[] | string;
-  users: IUser;
+  users: IUser[];
 }
 
 export interface IStructure extends IStructureCommon, IContactInfo {

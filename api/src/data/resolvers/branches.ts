@@ -3,7 +3,7 @@ import { IBranchDocument } from '../../db/models/definitions/structures';
 
 export default {
   users(branch: IBranchDocument) {
-    return Users.find({ _id: { $in: branch.userIds || [] } });
+    return Users.find({ _id: { $in: branch.userIds || [] }, isActive: true });
   },
 
   parent(branch: IBranchDocument) {
@@ -15,6 +15,6 @@ export default {
   },
 
   supervisor(branch: IBranchDocument) {
-    return Users.findOne({ _id: branch.supervisorId });
+    return Users.findOne({ _id: branch.supervisorId, isActive: true });
   }
 };
