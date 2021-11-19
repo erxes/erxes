@@ -520,31 +520,10 @@ export const replaceEditorAttributes = async (args: {
 
   const customFieldsData = customer.customFieldsData || [];
 
-  console.log('-----------------------item-----------------------');
-  console.log(item);
-  console.log('--------------------------------------------------');
-
-  /*
-      -----------------------item-----------------------
-      undefined
-      --------------------------------------------------
-      -----------------------item-----------------------
-      null
-      --------------------------------------------------
-  */
-
   if (!customerFields || customerFields.length === 0) {
     const possibleCustomerFields = await fieldsCombinedByContentType({
       contentType: 'customer'
     });
-
-    console.log(
-      '---------------------------possibleCustomerFields------------------------------'
-    );
-    console.log(possibleCustomerFields);
-    console.log(
-      '--------------------------------------------------------------------------------'
-    );
 
     customerFields = ['firstName', 'lastName', 'middleName'];
 
@@ -575,20 +554,25 @@ export const replaceEditorAttributes = async (args: {
     customer.customFieldsData = customFieldsData;
   }
 
-  const generateEmailFileLink = (value: any): string => {
-    if (!value) return '';
+  const generateEmailFileLink = async (
+    isFileSystemPublic: boolean,
+    fieldValue: any
+  ): Promise<string> => {
+    if (!fieldValue) return '';
 
-    return `<a 
-    target="_blank" 
-    download 
-    href="${getSubServiceDomain({
-      name: 'API_DOMAIN'
-    })}/read-file?key=${encodeURIComponent(
-      value.url
-    )}&name=${encodeURIComponent(value.name)}"
-    ref="noopener noreferrer"
-  >${value.name}</a>`;
+    let href = fieldValue.url;
+
+    if (!isFileSystemPublic) {
+      const API_DOMAIN = getSubServiceDomain({ name: 'API_DOMAIN' });
+      const key = encodeURIComponent(fieldValue.url);
+      const name = encodeURIComponent(fieldValue.name) || key;
+      href = `${API_DOMAIN}/read-file?key=${key}&name=${name}`;
+    }
+
+    return `<a  target="_blank" download href="${href}" ref="noopener noreferrer">${fieldValue.name}</a>`;
   };
+
+  const isFileSystemPublic = (await getConfig('FILE_SYSTEM_PUBLIC')) === 'true';
 
   // replace customer fields
   if (args.customer) {
@@ -609,40 +593,25 @@ export const replaceEditorAttributes = async (args: {
           : 'customFieldsData';
 
         for (const subField of customer[dbFieldName] || []) {
-          console.log('-------------------field------------------------');
-          console.log(field);
-          console.log('-----------------------------------------------------');
-          /*
-          -------------------field------------------------
-          customFieldsData
-          -----------------------------------------------------
-          */
-
-          console.log('-------------------subField------------------------');
-          console.log(subField);
-          console.log('-----------------------------------------------------');
-
-          /**
-           {
-              field: 'zTb5GNurCtsWkvq5o',
-              value: [
-                {
-                  url: '0.18280649299385598scratchpad.txt',
-                  name: 'scratchpad.txt',
-                  size: 294,
-                  type: 'text/plain'
-                }
-              ],
-              stringValue: '[object Object]'
-            }
-           */
-
           const replaceKey = `{{ customer.${dbFieldName}.${subField.field} }}`;
 
           if (customerFileFieldsById[subField.field].type === 'file') {
-            const replaceValue = Array.isArray(subField.value)
-              ? subField.value.map(generateEmailFileLink).join('')
-              : generateEmailFileLink(subField.value);
+            let replaceValue = '';
+
+            if (Array.isArray(subField.value)) {
+              const links = await Promise.all(
+                subField.value.map(x =>
+                  generateEmailFileLink(isFileSystemPublic, x)
+                )
+              );
+              replaceValue = links.join(' | ');
+            } else {
+              replaceValue = await generateEmailFileLink(
+                isFileSystemPublic,
+                subField.value
+              );
+            }
+
             replacers.push({
               key: replaceKey,
               value: replaceValue
