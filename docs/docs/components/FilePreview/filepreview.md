@@ -29,5 +29,5 @@ import {FilePreviewComponent} from "./filepreview.js"
 
 <FilePreviewComponent type="APIfilepreview" table={[
   ['* fileUrl', 'string', '', 'Define url of file. Supported types: docx, pptx, xlsx, mp4, jpeg, jpg, gif, png, zip, csv, doc, ppt, psd, avi, txt, rar, mp3, pdf, xls'],
-  ['fileName', 'string', '', 'Replaces file url with file name']
+  ['fileName', 'string', '', 'Show file name instead of the url']
 ]} />

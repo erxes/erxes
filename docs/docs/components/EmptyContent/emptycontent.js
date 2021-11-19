@@ -11,8 +11,8 @@ export function EmptyContentComponent(props) {
   const step = () => {
     const steped=[];
     const st = {
-      title: "Title of step",
-      description: "Description of step. Description of step. Description of step. Description of step. Description of step. ",
+      title: "Larry the Bird.",
+      description: "Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird is widely regarded as one of the greatest basketball players of all time. ",
       url: type === "url" || type === "urltext" || type === "out" ? "/": false,
       urlText: type === "urltext" || type === "out" ? "urlText" : false, 
       icon: type === "icon" && "lightbulb-alt",
@@ -36,22 +36,51 @@ export function EmptyContentComponent(props) {
     return datas;
   };
 
-  const propDatas = (propName) => {
+  const propDatas = (propName,title, url) => {
+    let kind;
     if(propName){
-      const kind = {
+       kind = {
+      content: contentdata(title, url),
       [propName]: value,
-    };
+    }
+  }
+    else {
+       kind = {
+        content: contentdata(title, url),
+      }
+    }
     return kind;
-  }  
-  return {};
+  
   };
 
+  const stringify = (kind, datas) => {
+    let string = JSON.stringify(kind, datas);
+    string = string.replace(/"steps":/g, "steps:{");
+    string = string.replace(/,"url":false/g, "");
+    string = string.replace(/,"urlText":false/g, "");
+    string = string.replace(/,"icon":false/g, "");
+    string = string.replace(/,"isOutside":false/g, "");
+    string = string.replace(/{"/g, "{");
+    string = string.replace(/,"/g, ", ");
+    string = string.replace(/":/g, ":");
+    string = string.replace(/}},"/g, "}} ");
+    string = string.replace(/},"/g, "}, ");
+    string = string.replace(/},/g, "} ");
+    string = string.replace(/}]/g, "}]} ");
+    string = string.replace(/{}/g, "");
+    string = string.slice(1, string.length - 1);
+    string = string.replace(/content:/g, "content=");
+    string = string.replace(/maxItemWidth:/g, "maxItemWidth=");
+    
+    return string;
+  }
+  
   const renderBlock = (title, propName, url ) => {
     return (
       <>
-        <EmptyContent content={{ ...contentdata(title, url) }} {...propDatas(propName)} />
+        <EmptyContent {...propDatas(propName,title, url)} />
         <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyContent content=${JSON.stringify(contentdata(title, url)) } ${JSON.stringify(propDatas(propName))} />\n</>`}
+          {`<>\n\t<EmptyContent ${stringify(propDatas(propName,title, url))} />\n</>`}
         </CodeBlock>
       </>
     );

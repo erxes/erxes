@@ -12,7 +12,7 @@ import { FilterableListComponent } from "./filterablelist.js"
 
 ## Blank filterable list
 
-<p>No data list.</p>
+<p>When items have no list it'll show below.</p>
 <FilterableListComponent type="null"/>
 
 ## Avatar
@@ -37,7 +37,7 @@ import { FilterableListComponent } from "./filterablelist.js"
 
 ## Tree view
 
-<p>Show tree view list by <code>treeView</code> prop. Items should have parentId. </p>
+<p>Show tree view list by <code>treeView</code> prop. Items should have <code>_id</code> and <code>parentId</code>. </p>
 <FilterableListComponent type="tree" bo={true} />
 
 ## API
@@ -50,7 +50,7 @@ import { FilterableListComponent } from "./filterablelist.js"
   ['loading', 'boolean', '', 'Activates loading spinner'],
   ['className', 'string', '', 'Define className'],
   ['treeView', 'boolean', '', 'Activates tree view of list'],
-  ['onClick', 'function', '', 'Define click handler function'],
+  ['onClick', 'function', '', 'Define click handler function when list item is clicked'],
   ['onSearch', 'function', '', 'Define search function'],
   ['onExit', 'function', '','']
 ]} />
