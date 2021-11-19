@@ -176,7 +176,7 @@ export function AttachmentComponent(props) {
               <td>* name</td>
               <td>string</td>
               <td/>
-              <td>Gives a name to file</td>
+              <td>Define file name</td>
             </tr>
             <tr>
               <td>* type</td>
@@ -188,7 +188,7 @@ export function AttachmentComponent(props) {
               <td>* url</td>
               <td>string</td>
               <td/>
-              <td>Declare path to file</td>
+              <td>Declare file path</td>
             </tr>
             <tr>
               <td>size</td>

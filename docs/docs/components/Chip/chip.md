@@ -23,7 +23,7 @@ import { ChipComponent } from "./chip.js"
 
 <ChipComponent type="APIchip" table={[
     ['capitalize', 'boolean', 'false', 'Make the first letter of chip text capital'],
-    ['onClick', 'function', '', 'Click handler'],
+    ['onClick', 'function', '', 'Define click handler for cancel icon'],
     ['children', 'React.ReactNode', '', 'Shows chip text'],
     ['fronContent', 'string', '', 'Add an extra content in front of the chip'],
 ]} />

@@ -22,7 +22,7 @@ import { AttachmentComponent } from "./attachment.js"
 <p>Click on picture to see preview.</p>
 <AttachmentComponent type="image"/>
 
-<p>Use <code>simple</code> to see only image preview.</p>
+<p>Use <code>simple</code> to show only image preview.</p>
 <AttachmentComponent type="image" simple/>
 
 ## Video
@@ -37,7 +37,7 @@ import { AttachmentComponent } from "./attachment.js"
 
 ## Additional item
 
-<p>Add additional item by <code>additionalItem</code> prop. </p>
+<p>Add additional content under the title by <code>additionalItem</code> prop. </p>
 <AttachmentComponent additionalItem/>
 
 <!-- ## Multiple attachments
