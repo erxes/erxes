@@ -554,25 +554,38 @@ export const replaceEditorAttributes = async (args: {
     customer.customFieldsData = customFieldsData;
   }
 
-  const generateEmailFileLink = async (
-    isFileSystemPublic: boolean,
-    fieldValue: any
-  ): Promise<string> => {
-    if (!fieldValue) return '';
+  const isFileSystemPublic = (await getConfig('FILE_SYSTEM_PUBLIC')) === 'true';
 
-    let href = fieldValue.url;
+  const fileToFileLink = async (file: any): Promise<string> => {
+    if (!file) return '';
+
+    let href = file.url;
 
     if (!isFileSystemPublic) {
       const API_DOMAIN = getSubServiceDomain({ name: 'API_DOMAIN' });
-      const key = encodeURIComponent(fieldValue.url);
-      const name = encodeURIComponent(fieldValue.name) || key;
+      const key = encodeURIComponent(file.url);
+      const name = encodeURIComponent(file.name) || key;
       href = `${API_DOMAIN}/read-file?key=${key}&name=${name}`;
     }
 
-    return `<a  target="_blank" download href="${href}" ref="noopener noreferrer">${fieldValue.name}</a>`;
+    return `<a  target="_blank" download href="${href}" ref="noopener noreferrer">${file.name}</a>`;
   };
 
-  const isFileSystemPublic = (await getConfig('FILE_SYSTEM_PUBLIC')) === 'true';
+  const customFieldDataItemToFileLink = async (
+    customFieldDataItem: any
+  ): Promise<string> => {
+    let replaceValue = '';
+
+    if (Array.isArray(customFieldDataItem.value)) {
+      const links = await Promise.all(
+        customFieldDataItem.value.map(fileToFileLink)
+      );
+      replaceValue = links.join(' | ');
+    } else {
+      replaceValue = await fileToFileLink(customFieldDataItem.value);
+    }
+    return replaceValue;
+  };
 
   // replace customer fields
   if (args.customer) {
@@ -592,25 +605,15 @@ export const replaceEditorAttributes = async (args: {
           ? 'trackedData'
           : 'customFieldsData';
 
-        for (const subField of customer[dbFieldName] || []) {
-          const replaceKey = `{{ customer.${dbFieldName}.${subField.field} }}`;
+        for (const customFieldDataItem of customer[dbFieldName] || []) {
+          const replaceKey = `{{ customer.${dbFieldName}.${customFieldDataItem.field} }}`;
 
-          if (customerFileFieldsById[subField.field].type === 'file') {
-            let replaceValue = '';
-
-            if (Array.isArray(subField.value)) {
-              const links = await Promise.all(
-                subField.value.map(x =>
-                  generateEmailFileLink(isFileSystemPublic, x)
-                )
-              );
-              replaceValue = links.join(' | ');
-            } else {
-              replaceValue = await generateEmailFileLink(
-                isFileSystemPublic,
-                subField.value
-              );
-            }
+          if (
+            customerFileFieldsById[customFieldDataItem.field].type === 'file'
+          ) {
+            let replaceValue = await customFieldDataItemToFileLink(
+              customFieldDataItem
+            );
 
             replacers.push({
               key: replaceKey,
@@ -619,7 +622,10 @@ export const replaceEditorAttributes = async (args: {
           } else {
             replacers.push({
               key: replaceKey,
-              value: subField.stringValue || subField.value || ''
+              value:
+                customFieldDataItem.stringValue ||
+                customFieldDataItem.value ||
+                ''
             });
           }
         }
@@ -701,24 +707,29 @@ export const replaceEditorAttributes = async (args: {
     const customFields = await getCustomFields(item.contentType);
 
     for (const customField of customFields) {
-      const cFieldsData = item.customFieldsData || [];
-      const customFieldData = cFieldsData.find(
+      const customFieldsData = item.customFieldsData || [];
+      const customFieldDataItem = customFieldsData.find(
         c => c.field === customField._id
       );
 
-      console.log(
-        '------------customField---------customFieldData---------------------------------------------'
-      );
-      console.log(customField, customFieldData);
-      console.log(
-        '------------------------------------------------------------------'
-      );
+      if (customFieldDataItem) {
+        const replaceKey = `{{ itemCustomField.${customField._id} }}`;
 
-      if (customFieldData) {
-        replacers.push({
-          key: `{{ itemCustomField.${customField._id} }}`,
-          value: customFieldData.stringValue || customFieldData.value
-        });
+        if (customField.type === 'file') {
+          let replaceValue = await customFieldDataItemToFileLink(
+            customFieldDataItem
+          );
+
+          replacers.push({
+            key: replaceKey,
+            value: replaceValue
+          });
+        } else {
+          replacers.push({
+            key: replaceKey,
+            value: customFieldDataItem.stringValue || customFieldDataItem.value
+          });
+        }
       }
     }
   }
