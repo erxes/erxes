@@ -577,7 +577,8 @@ connect().then(async () => {
     properties,
     importHistoryId,
     useElkSyncer,
-    percentage
+    percentage,
+    tagId
   }: {
     user: IUserDocument;
     scopeBrandIds: string[];
@@ -587,6 +588,7 @@ connect().then(async () => {
     importHistoryId: string;
     percentage: number;
     useElkSyncer: boolean;
+    tagId: string;
   } = workerData;
 
   let model: any = null;
@@ -644,6 +646,10 @@ connect().then(async () => {
       }
       if (contentType === 'lead') {
         doc.state = 'lead';
+      }
+
+      if (tagId) {
+        doc.tagIds = [tagId];
       }
 
       switch (property.type) {
@@ -722,8 +728,9 @@ connect().then(async () => {
               tag = await Tags.createTag({ name: tagName, type });
             }
 
-            doc[property.name] = tag ? [tag._id] : [];
+            doc[property.name] = tag ? [tag._id, tagId] : [];
           }
+
           break;
 
         case 'basic':

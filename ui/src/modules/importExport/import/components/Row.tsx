@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Icon, __ } from 'erxes-ui';
+import { Button, Icon, Tip, __ } from 'erxes-ui';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import { FlexRow, ImportColumnRow } from 'modules/importExport/styles';
@@ -19,7 +19,7 @@ class Row extends React.Component<Props, {}> {
     const sampleDatas = columns[column];
 
     return sampleDatas.map(sample => {
-      return <p key={Math.random()}>{`${sample}, `}</p>;
+      return <p key={Math.random()}>{`${sample}, `} &nbsp;</p>;
     });
   };
 
@@ -45,7 +45,7 @@ class Row extends React.Component<Props, {}> {
       field => field.value === chosenColumn.value
     );
 
-    sampleDatas.map(sample => {
+    for (const sample of sampleDatas) {
       if (chosenField.type === 'date') {
         if (!dayjs(sample).isValid()) {
           matched = false;
@@ -59,13 +59,17 @@ class Row extends React.Component<Props, {}> {
           matched = false;
         }
       }
-    });
+    }
 
     if (matched) {
       return <Icon icon="checked-1" color="green" />;
     }
 
-    return <Icon icon="exclamation-triangle" color="orange" />;
+    return (
+      <Tip text="ALDAA GARCH MAGADGVI">
+        <Icon icon="exclamation-triangle" color="orange" />
+      </Tip>
+    );
   };
 
   render() {

@@ -292,7 +292,8 @@ export const receiveImportCreate = async (content: any) => {
     uploadType,
     fileType,
     columnsConfig,
-    importHistoryId
+    importHistoryId,
+    tagId
   } = content;
 
   debugWorkers(`Import created called`);
@@ -373,7 +374,8 @@ export const receiveImportCreate = async (content: any) => {
       importHistoryId,
       result,
       useElkSyncer,
-      percentage: Number(((result.length / total) * 100).toFixed(3))
+      percentage: Number(((result.length / total) * 100).toFixed(3)),
+      tagId
     });
   };
 

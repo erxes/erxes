@@ -84,14 +84,13 @@ export const importer2 = async (
   columnsConfig,
   importName,
   importHistoryId,
+  tagId,
   user
 ) => {
   try {
     const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
     let fileType = 'xlsx';
-
-    console.log('saaaaaaaaaaaaaaaaaa', columnsConfig);
 
     try {
       const fileName = file.url;
@@ -109,7 +108,8 @@ export const importer2 = async (
         columnsConfig,
         user: user,
         importName,
-        importHistoryId
+        importHistoryId,
+        tagId
       });
 
       registerOnboardHistory({ type: `importCreate`, user });

@@ -1,13 +1,18 @@
 import React from 'react';
 import { ControlLabel, FormControl, FormGroup, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import { SubHeading } from 'modules/settings/styles';
+import { ITag } from 'modules/tags/types';
 
 type Props = {
   disclaimer: boolean;
   importName: string;
+  tags: ITag[];
+  tagId: string;
 
   onChangeImportName: (value) => void;
   onChangeDisclaimer: (value) => void;
+  onChangeTag: (tagId) => void;
 };
 
 class Details extends React.Component<Props, {}> {
@@ -23,12 +28,17 @@ class Details extends React.Component<Props, {}> {
     this.props.onChangeDisclaimer(value);
   };
 
+  onChangeTag = e =>
+    this.props.onChangeTag((e.target as HTMLInputElement).value);
+
   render() {
     const { disclaimer, importName } = this.props;
 
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto" value={importName}>
+          <SubHeading>{__('Details')}</SubHeading>
+
           <FormGroup>
             <ControlLabel required={true}>{__('Import Name')}</ControlLabel>
             <p>
@@ -43,6 +53,23 @@ class Details extends React.Component<Props, {}> {
               value={importName}
               onChange={this.onChangeName}
             />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>{__('Tag this items')}</ControlLabel>
+            <p>{__('Tag these itemsLeave unselected if not necessary')}.</p>
+            <FormControl
+              componentClass="select"
+              onChange={this.onChangeTag}
+              value={this.props.tagId}
+            >
+              <option />
+              {this.props.tags.map(tag => (
+                <option key={tag._id} value={tag._id}>
+                  {tag.name}
+                </option>
+              ))}
+            </FormControl>
           </FormGroup>
 
           <FormGroup>

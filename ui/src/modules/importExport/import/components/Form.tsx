@@ -15,10 +15,12 @@ import MapColumn from '../containers/MapColumn';
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import { IAttachment } from 'modules/common/types';
 import Details from './Details';
+import { ITag } from 'modules/tags/types';
 
 type Props = {
   contentType: string;
   addImportHistory: (doc: any) => void;
+  tags: ITag[];
 };
 
 type State = {
@@ -26,6 +28,7 @@ type State = {
   columnWithChosenField: any;
   importName: string;
   disclaimer: boolean;
+  tagId: string;
 };
 
 class ExportForm extends React.Component<Props, State> {
@@ -36,7 +39,8 @@ class ExportForm extends React.Component<Props, State> {
       attachments: [],
       columnWithChosenField: {},
       importName: '',
-      disclaimer: false
+      disclaimer: false,
+      tagId: ''
     };
   }
 
@@ -65,15 +69,25 @@ class ExportForm extends React.Component<Props, State> {
     this.setState({ disclaimer: value });
   };
 
+  onChangeTag = value => {
+    this.setState({ tagId: value });
+  };
+
   onSubmit = () => {
-    const { importName, columnWithChosenField, attachments } = this.state;
+    const {
+      importName,
+      columnWithChosenField,
+      attachments,
+      tagId
+    } = this.state;
     const { contentType } = this.props;
 
     const doc = {
       contentType,
       importName,
       file: attachments[0],
-      columnsConfig: columnWithChosenField
+      columnsConfig: columnWithChosenField,
+      tagId
     };
 
     return this.props.addImportHistory(doc);
@@ -87,12 +101,13 @@ class ExportForm extends React.Component<Props, State> {
     ) : null;
 
   render() {
-    const { contentType } = this.props;
+    const { contentType, tags } = this.props;
     const {
       attachments,
       columnWithChosenField,
       importName,
-      disclaimer
+      disclaimer,
+      tagId
     } = this.state;
 
     const title = __('Import');
@@ -131,6 +146,9 @@ class ExportForm extends React.Component<Props, State> {
                   importName={importName}
                   onChangeImportName={this.onChangeImportName}
                   onChangeDisclaimer={this.onChangeDisclaimer}
+                  tags={tags}
+                  tagId={tagId}
+                  onChangeTag={this.onChangeTag}
                 />
               </Step>
             </Steps>

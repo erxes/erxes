@@ -1,4 +1,4 @@
-import { colors, dimensions } from 'erxes-ui';
+import { dimensions } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -37,7 +37,6 @@ const ColumnTable = styledTS<{
 
     th,
     td {
-      border-top: 1px solid ${colors.borderPrimary};
       padding: ${dimensions.unitSpacing - 2}px;
       display: table-cell;
       vertical-align: ${props.alignTop && 'top'};

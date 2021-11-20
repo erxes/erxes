@@ -61,12 +61,14 @@ const importHistoryMutations = {
       contentType,
       file,
       columnsConfig,
-      importName
+      importName,
+      tagId
     }: {
       contentType: string;
       file: any;
       columnsConfig: any;
       importName: string;
+      tagId: string;
     },
     { user }: IContext
   ) {
@@ -80,6 +82,7 @@ const importHistoryMutations = {
       columnsConfig,
       importName,
       importHistoryId,
+      tagId,
       user
     );
 
