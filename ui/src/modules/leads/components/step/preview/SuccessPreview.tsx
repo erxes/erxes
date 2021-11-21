@@ -1,6 +1,5 @@
 import React from 'react';
 import CommonPreview from './CommonPreview';
-import { ThankContent } from './styles';
 
 type Props = {
   thankTitle?: string;
@@ -33,9 +32,8 @@ class SuccessPreview extends React.Component<Props, {}> {
         type={type}
         image={successImage}
         imgSize={successImgSize}
-      >
-        <ThankContent>{thankContent}</ThankContent>
-      </CommonPreview>
+        bodyValue={thankContent}
+      />
     );
   }
 }

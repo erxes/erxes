@@ -144,23 +144,21 @@ export const EMPTY_CONTENT_SCRIPT = {
 };
 
 export const EMPTY_CONTENT_POPUPS = {
-  title: __('Getting Started with erxes Popups'),
+  title: __('Getting Started with erxes forms'),
   description: __(
     'Never miss a potential lead by capturing them with a customizable Forms'
   ),
   steps: [
     {
-      title: __('Create Popup'),
-      description: __(
-        'Fill out the details and create your popup message or form'
-      ),
+      title: __('Create Form'),
+      description: __('Fill out the details and create your form'),
       url: '/forms/create',
-      urlText: 'Create Popup'
+      urlText: 'Create Form'
     },
     {
       title: 'Install the script',
       description: __(
-        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets'
+        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets'
       ),
       url: '/settings/scripts',
       urlText: __('Go to Script Manager')
@@ -465,3 +463,28 @@ export const WEBHOOK_ACTIONS = [
     type: 'ticket'
   }
 ];
+
+export const EMPTY_CONTENT_BOOKINGS = {
+  title: __('Getting Started with erxes Booking'),
+  description: __(
+    'erxes Booking widget helps you create listings of your Products and Services and receive bookings with your erxes Form.'
+  ),
+  steps: [
+    {
+      title: __('Prepare Product Properties'),
+      description: __(
+        'This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters.'
+      ),
+      url: '/settings/properties?type=product',
+      urlText: 'Create Custom Properties'
+    },
+    {
+      title: __('Organize Your Products'),
+      description: __(
+        'The number of pages in this widget depends on how many sub-categories you’ll create for your products and services. If you haven’t created or organized them yet, please go to Products & Services first.'
+      ),
+      url: '/settings/product-service',
+      urlText: 'Manage Products & Services'
+    }
+  ]
+};
