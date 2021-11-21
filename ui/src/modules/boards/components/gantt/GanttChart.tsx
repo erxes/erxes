@@ -12,7 +12,6 @@ import Button from 'modules/common/components/Button';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { genID, config } from './utils';
 
 type Props = {
   length: number;
@@ -24,6 +23,80 @@ type Props = {
 } & IRouterProps;
 
 const GanttChart = (props: Props) => {
+  const config = {
+    header: {
+      top: {
+        style: {
+          backgroundColor: '#f7f9fa',
+          fontSize: 12,
+          color: '#393C40'
+        }
+      },
+      middle: {
+        style: {
+          backgroundColor: 'lightgrey',
+          fontSize: 9,
+          color: '#393C40'
+        }
+      },
+      bottom: {
+        style: {
+          background: 'white',
+          fontSize: 9,
+          color: '#393C40'
+        },
+        selectedStyle: {
+          background: 'linear-gradient( #d011dd ,#d011dd)',
+          fontWeight: 'bold',
+          color: 'white'
+        }
+      }
+    },
+    taskList: {
+      title: {
+        label: 'Name',
+        style: {
+          backgroundColor: '#f7f9fa',
+          color: '#393C40'
+        }
+      },
+      task: {
+        style: {
+          backgroundColor: 'white',
+          color: '#393C40',
+          textAlign: 'left',
+          paddingLeft: 10
+        },
+        verticalSeparator: {
+          grip: {
+            style: {
+              backgroundColor: 'red'
+            }
+          }
+        }
+      },
+      dataViewPort: {
+        rows: {
+          style: {
+            backgroundColor: '#fff'
+          }
+        },
+        task: {
+          showLabel: true,
+          style: {
+            borderRadius: 3,
+            boxShadow: '2px 2px 8px #888888'
+          }
+        }
+      },
+      links: {
+        //The link between two task
+        color: 'black',
+        selectedColor: '#ff00fa'
+      }
+    }
+  };
+
   const dbData: Array<any> = [];
   let dbLinks: Array<any> = [];
 
@@ -73,7 +146,7 @@ const GanttChart = (props: Props) => {
 
   const createLink = (start, end) => {
     return {
-      id: genID(),
+      id: Math.random().toString(),
       start: start.task.id,
       startPosition: start.position,
       end: end.task.id,
