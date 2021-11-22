@@ -518,9 +518,9 @@ export const replaceEditorAttributes = async (args: {
   let replacedContent = content || '';
   let customerFields = args.customerFields;
 
-  const customFieldsData = customer.customFieldsData || [];
-
   if (!customerFields || customerFields.length === 0) {
+    const customFieldsData = customer.customFieldsData || [];
+
     const possibleCustomerFields = await fieldsCombinedByContentType({
       contentType: 'customer'
     });
@@ -557,7 +557,9 @@ export const replaceEditorAttributes = async (args: {
   const isFileSystemPublic = (await getConfig('FILE_SYSTEM_PUBLIC')) === 'true';
 
   const fileToFileLink = async (file: any): Promise<string> => {
-    if (!file) return '';
+    if (!file) {
+      return '';
+    }
 
     let href = file.url;
 
@@ -620,7 +622,7 @@ export const replaceEditorAttributes = async (args: {
           if (
             customerFileFieldsById[customFieldsDataItem.field].type === 'file'
           ) {
-            let replaceValue = await customFieldDataItemToFileLink(
+            const replaceValue = await customFieldDataItemToFileLink(
               customFieldsDataItem
             );
 
@@ -725,7 +727,7 @@ export const replaceEditorAttributes = async (args: {
         const replaceKey = `{{ itemCustomField.${customField._id} }}`;
 
         if (customField.type === 'file') {
-          let replaceValue = await customFieldDataItemToFileLink(
+          const replaceValue = await customFieldDataItemToFileLink(
             customFieldsDataItem
           );
 
