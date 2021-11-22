@@ -18,7 +18,7 @@ export function CollapseContentComponent(props) {
       open: opens && opens,
       image: img && img,
       imageBackground: color && color,
-      [propName]: propName === "beforeTitle" ? "" : text,
+      [propName]: propName === "beforeTitle" ? <Icon icon="info-circle" /> : text,
     };
 
     return datas;
@@ -30,13 +30,13 @@ export function CollapseContentComponent(props) {
         <CollapseContent title={title} {...propDatas(propName, beforeTitle)}>
           {children}
         </CollapseContent>
-        <CodeBlock className="language-jsx">
+        {/* <CodeBlock className="language-jsx">
           {`<>\n\t<CollapseContent title="${title}" ${stringify(
             propDatas(propName, beforeTitle)
           )}>
           ${children}
         </CollapseContent>\n</>`}
-        </CodeBlock>
+        </CodeBlock> */}
       </>
     );
   };
