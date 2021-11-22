@@ -484,13 +484,6 @@ export const itemsChange = async (
     })
   };
 
-  if (extendedDoc.customFieldsData) {
-    // clean custom field values
-    extendedDoc.customFieldsData = await Fields.prepareCustomFieldsData(
-      extendedDoc.customFieldsData
-    );
-  }
-
   if (item.stageId !== destinationStageId) {
     extendedDoc.stageChangedDate = new Date();
   }

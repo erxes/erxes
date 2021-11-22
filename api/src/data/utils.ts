@@ -578,7 +578,7 @@ export const replaceEditorAttributes = async (args: {
   ): Promise<string> => {
     let replaceValue = '';
 
-    let value = customFieldDataItem.value;
+    const value = customFieldDataItem.value;
 
     if (Array.isArray(value)) {
       const links = await Promise.all(value.map(fileToFileLink));
