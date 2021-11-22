@@ -568,7 +568,7 @@ export const replaceEditorAttributes = async (args: {
       href = `${API_DOMAIN}/read-file?key=${key}&name=${name}`;
     }
 
-    return `<a  target="_blank" download href="${href}" ref="noopener noreferrer">${file.name}</a>`;
+    return `<a  target="_blank" download href="${href}">${file.name}</a>`;
   };
 
   const customFieldDataItemToFileLink = async (
@@ -576,13 +576,22 @@ export const replaceEditorAttributes = async (args: {
   ): Promise<string> => {
     let replaceValue = '';
 
-    if (Array.isArray(customFieldDataItem.value)) {
-      const links = await Promise.all(
-        customFieldDataItem.value.map(fileToFileLink)
-      );
+    let value = customFieldDataItem.value;
+
+    // data might have come from elastic search
+    if (!value || (Array.isArray(value) && value.length === 0)) {
+      try {
+        value = JSON.parse(customFieldDataItem.stringValue) || [];
+      } catch (e) {
+        value = [];
+      }
+    }
+
+    if (Array.isArray(value)) {
+      const links = await Promise.all(value.map(fileToFileLink));
       replaceValue = links.join(' | ');
     } else {
-      replaceValue = await fileToFileLink(customFieldDataItem.value);
+      replaceValue = await fileToFileLink(value);
     }
     return replaceValue;
   };
