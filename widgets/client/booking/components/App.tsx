@@ -20,14 +20,6 @@ function App({
   containerClass,
   closePopup
 }: Props) {
-  const renderCloseButton = () => {
-    return (
-      <a className="close" onClick={closePopup} title="Close">
-        {iconClose()}
-      </a>
-    );
-  };
-
   const renderContent = () => {
     if (activeRoute === 'INTRO') {
       return <Intro />;
@@ -48,9 +40,22 @@ function App({
     return null;
   };
 
+  const renderCloseButton = () => {
+    return (
+      <a className="close" onClick={closePopup} title="Close">
+        {iconClose()}
+      </a>
+    );
+  };
+
   const renderForm = () => {
     if (isFormVisible) {
-      return <Form />;
+      return (
+        <div className={containerClass} style={{ zIndex: 10000 }}>
+          <Form />
+          {renderCloseButton()}
+        </div>
+      );
     }
 
     return null;
@@ -58,12 +63,7 @@ function App({
 
   return (
     <div style={{ fontFamily: booking.style.baseFont }}>
-      <div className="erxes-content">
-        <div className={containerClass} style={{ zIndex: 10000 }}>
-          {renderForm()}
-          {renderCloseButton()}
-        </div>
-      </div>
+      <div className="erxes-content">{renderForm()}</div>
       <div className="booking-main-container">
         <Header
           items={booking.categoryTree}

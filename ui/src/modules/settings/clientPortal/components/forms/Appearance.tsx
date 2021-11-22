@@ -31,7 +31,8 @@ type Item = {
   value?: string;
 };
 
-const generateOptions = () => FONTS.map(item => ({ label: item, value: item }));
+const generateOptions = () =>
+  FONTS.map(item => ({ label: item.label, value: item.value }));
 
 function Appearance({
   styles = {},
