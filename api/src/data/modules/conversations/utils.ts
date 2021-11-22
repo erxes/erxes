@@ -100,7 +100,7 @@ export const countBySegment = async (
       await qb.buildAllQueries();
       await qb.segmentFilter(s._id);
       counts[s._id] = await qb.runQueries();
-    } catch (e:any) {
+    } catch (e) {
       debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
