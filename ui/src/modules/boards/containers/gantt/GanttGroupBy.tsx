@@ -107,6 +107,18 @@ class GanttGroupByContainer extends React.PureComponent<
         });
     };
 
+    items.sort((a, b) => {
+      if (a.stage.order < b.stage.order) {
+        return -1;
+      }
+
+      if (a.stage.order > b.stage.order) {
+        return 1;
+      }
+
+      return 0;
+    });
+
     return (
       <GanttChart
         options={options}

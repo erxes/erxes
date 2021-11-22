@@ -116,7 +116,7 @@ const GanttChart = (props: Props) => {
         id: item._id,
         start: new Date(item.startDate),
         end: new Date(item.closeDate),
-        name: item.name,
+        name: `${item.name} (${item.stage ? item.stage.name : ''})`,
         color: '#5629B6'
       });
 
