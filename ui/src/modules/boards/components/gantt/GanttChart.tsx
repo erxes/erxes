@@ -132,7 +132,7 @@ const GanttChart = (props: Props) => {
   const [timelineMode, setTimelineMode] = useState('month');
 
   const onHorizonChange = (start, end) => {
-    const result = data.filter(item => {
+    const result = dbData.filter(item => {
       return (
         (item.start < start && item.end > end) ||
         (item.start > start && item.start < end) ||
