@@ -341,15 +341,6 @@ export const loadFieldClass = () => {
           dateValue = value;
           stringValue = null;
         }
-        // value: array<object>
-        if (type === 'file') {
-          try {
-            stringValue = JSON.stringify(value);
-          } catch (e) {
-            stringValue = '[]';
-            debugError(`generateTypedItem: ${e.message}`);
-          }
-        }
       }
       return { field, value, stringValue, numberValue, dateValue };
     }

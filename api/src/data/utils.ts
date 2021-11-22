@@ -580,15 +580,6 @@ export const replaceEditorAttributes = async (args: {
 
     let value = customFieldDataItem.value;
 
-    // data might have come from elastic search
-    if (!value || (Array.isArray(value) && value.length === 0)) {
-      try {
-        value = JSON.parse(customFieldDataItem.stringValue) || [];
-      } catch (e) {
-        value = [];
-      }
-    }
-
     if (Array.isArray(value)) {
       const links = await Promise.all(value.map(fileToFileLink));
       replaceValue = links.join(' | ');
@@ -724,6 +715,14 @@ export const replaceEditorAttributes = async (args: {
       );
 
       if (customFieldsDataItem) {
+        console.log(
+          '------------------customFieldsDataItem----------------------------'
+        );
+        console.log(customFieldsDataItem);
+        console.log(
+          '------------------customFieldsDataItem----------------------------'
+        );
+
         const replaceKey = `{{ itemCustomField.${customField._id} }}`;
 
         if (customField.type === 'file') {
@@ -739,7 +738,9 @@ export const replaceEditorAttributes = async (args: {
           replacers.push({
             key: replaceKey,
             value:
-              customFieldsDataItem.stringValue || customFieldsDataItem.value
+              customFieldsDataItem.stringValue ||
+              customFieldsDataItem.value ||
+              ''
           });
         }
       }
