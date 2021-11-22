@@ -18,6 +18,8 @@ import {FilePreviewComponent} from "./filepreview.js"
 <FilePreviewComponent url="test.docx"/>
 <p>Add name instead of file url by <code>fileName</code> prop. </p>
 <FilePreviewComponent url="test.xlsx" name="test"/>
+<p>File extention name is displayed in front of blank page icon.</p>
+<FilePreviewComponent url="test.zip"/>
 
 ## Picture and Video preview
 
