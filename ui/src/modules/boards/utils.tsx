@@ -297,5 +297,9 @@ export const getBoardViewType = () => {
     viewType = 'chart';
   }
 
+  if (window.location.href.includes('gantt')) {
+    viewType = 'gantt';
+  }
+
   return viewType;
 };

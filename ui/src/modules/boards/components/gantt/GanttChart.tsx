@@ -62,38 +62,48 @@ const GanttChart = (props: Props) => {
       },
       task: {
         style: {
-          backgroundColor: 'white',
+          backgroundColor: '#ffffff',
           color: '#393C40',
           textAlign: 'left',
-          paddingLeft: 10
-        },
-        verticalSeparator: {
-          grip: {
-            style: {
-              backgroundColor: 'red'
-            }
-          }
+          paddingLeft: 20
         }
       },
-      dataViewPort: {
-        rows: {
-          style: {
-            backgroundColor: '#fff'
-          }
+      verticalSeparator: {
+        style: {
+          backgroundColor: '#fbf9f9'
         },
-        task: {
-          showLabel: true,
+        grip: {
           style: {
-            borderRadius: 3,
-            boxShadow: '2px 2px 8px #888888'
+            backgroundColor: 'red'
           }
         }
-      },
-      links: {
-        //The link between two task
-        color: 'black',
-        selectedColor: '#ff00fa'
       }
+    },
+    dataViewPort: {
+      rows: {
+        style: {
+          cursorPointer: true,
+          backgroundColor: '#fff',
+          line: false
+        }
+      },
+      task: {
+        showLabel: true,
+        style: {
+          borderRadius: 3,
+          boxShadow: '2px 2px 8px #888888'
+        },
+        selectedStyle: {
+          borderRadius: 3,
+          selectedColor: '#fff',
+          boxShadow: '3px 3px 10px #673FBD'
+        }
+      }
+    },
+    links: {
+      color: '#FDA50D',
+      selectedColor: '#EA475D',
+      lineShadow: '3px 3px 10px #FDA50D'
     }
   };
 
@@ -241,7 +251,7 @@ const GanttChart = (props: Props) => {
           onUpdateTask={onUpdateTask}
           onCreateLink={onCreateLink}
           mode={timelineMode}
-          itemheight={35}
+          itemheight={40}
           selectedItem={selectedItem}
           nonEditableName={true}
         />

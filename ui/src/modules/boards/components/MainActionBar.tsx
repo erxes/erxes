@@ -333,7 +333,7 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('gantt')}
                 className={viewType === 'gantt' ? 'active' : ''}
               >
-                {__('Gantt Timeline')}
+                {__('Gantt')}
               </Link>
             </li>
           </Dropdown.Menu>
