@@ -25,6 +25,7 @@ import {
   IFieldGroup,
   IFieldGroupDocument
 } from './definitions/fields';
+import { debugError } from '../../debuggers';
 
 export interface IOrderInput {
   _id: string;
@@ -339,6 +340,15 @@ export const loadFieldClass = () => {
         if (isValidDate(value)) {
           dateValue = value;
           stringValue = null;
+        }
+        // value: array<object>
+        if (type === 'file') {
+          try {
+            stringValue = JSON.stringify(value);
+          } catch (e) {
+            stringValue = '[]';
+            debugError(`generateTypedItem: ${e.message}`);
+          }
         }
       }
       return { field, value, stringValue, numberValue, dateValue };
