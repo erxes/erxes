@@ -169,7 +169,7 @@ class MainActionBar extends React.Component<Props> {
   renderGroupBy = () => {
     const { viewType, queryParams } = this.props;
 
-    if (viewType !== 'list' && viewType !== 'gantt') {
+    if (viewType !== 'list') {
       return null;
     }
 

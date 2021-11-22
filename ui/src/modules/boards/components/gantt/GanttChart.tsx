@@ -91,14 +91,13 @@ const GanttChart = (props: Props) => {
         showLabel: true,
         style: {
           borderRadius: 3,
-          boxShadow: '2px 2px 8px #888',
-          textAlign: 'center',
-          itemAlign: 'center'
+          boxShadow: '2px 2px 8px #888'
         },
         selectedStyle: {
           borderRadius: 3,
           selectedColor: `${colors.colorWhite}`,
-          boxShadow: '3px 3px 10px #673FBD'
+          boxShadow: '5px 5px 10px #673FBD',
+          border: '1px solid #5629B6'
         }
       }
     },
@@ -234,11 +233,11 @@ const GanttChart = (props: Props) => {
           >
             {__('Year')}
           </Button>
-          <Button btnStyle="success" size="small" onClick={save}>
-            {__('Save')}
-          </Button>
           <Button btnStyle="danger" size="small" onClick={deleteItem}>
             {__('Delete')}
+          </Button>
+          <Button btnStyle="success" size="small" onClick={save}>
+            {__('Save')}
           </Button>
         </ModeContainer>
       </NavContainer>
