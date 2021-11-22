@@ -12,6 +12,7 @@ import Button from 'modules/common/components/Button';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { colors, dimensions } from 'modules/common/styles';
 
 type Props = {
   length: number;
@@ -27,28 +28,28 @@ const GanttChart = (props: Props) => {
     header: {
       top: {
         style: {
-          backgroundColor: '#f7f9fa',
-          fontSize: 12,
-          color: '#393C40'
+          backgroundColor: `${colors.bgActive}`,
+          fontSize: `${dimensions.unitSpacing + 2}`,
+          color: `${colors.colorCoreBlack}`
         }
       },
       middle: {
         style: {
-          backgroundColor: 'lightgrey',
-          fontSize: 9,
-          color: '#393C40'
+          backgroundColor: `${colors.bgLight}`,
+          fontSize: `${dimensions.unitSpacing - 1}`,
+          color: `${colors.colorCoreBlack}`
         }
       },
       bottom: {
         style: {
-          background: 'white',
-          fontSize: 9,
-          color: '#393C40'
+          background: `${colors.bgUnread}`,
+          fontSize: `${dimensions.unitSpacing - 1}`,
+          color: `${colors.colorCoreBlack}`
         },
         selectedStyle: {
-          background: 'linear-gradient( #d011dd ,#d011dd)',
+          background: `${colors.colorCoreBlack}`,
           fontWeight: 'bold',
-          color: 'white'
+          color: `${colors.colorWhite}`
         }
       }
     },
@@ -56,25 +57,25 @@ const GanttChart = (props: Props) => {
       title: {
         label: 'Name',
         style: {
-          backgroundColor: '#f7f9fa',
-          color: '#393C40'
+          backgroundColor: `${colors.bgActive}`,
+          color: `${colors.colorCoreBlack}`
         }
       },
       task: {
         style: {
-          backgroundColor: '#ffffff',
-          color: '#393C40',
+          backgroundColor: `${colors.colorWhite}`,
+          color: `${colors.colorCoreBlack}`,
           textAlign: 'left',
           paddingLeft: 20
         }
       },
       verticalSeparator: {
         style: {
-          backgroundColor: '#fbf9f9'
+          backgroundColor: `${colors.bgActive}`
         },
         grip: {
           style: {
-            backgroundColor: 'red'
+            backgroundColor: `${colors.colorCoreRed}`
           }
         }
       }
@@ -83,27 +84,27 @@ const GanttChart = (props: Props) => {
       rows: {
         style: {
           cursorPointer: true,
-          backgroundColor: '#fff',
-          line: false
+          backgroundColor: `${colors.colorWhite}`
         }
       },
       task: {
         showLabel: true,
         style: {
           borderRadius: 3,
-          boxShadow: '2px 2px 8px #888888'
+          boxShadow: '2px 2px 8px #888',
+          textAlign: 'center',
+          itemAlign: 'center'
         },
         selectedStyle: {
           borderRadius: 3,
-          selectedColor: '#fff',
+          selectedColor: `${colors.colorWhite}`,
           boxShadow: '3px 3px 10px #673FBD'
         }
       }
     },
     links: {
-      color: '#FDA50D',
-      selectedColor: '#EA475D',
-      lineShadow: '3px 3px 10px #FDA50D'
+      color: `${colors.colorCoreOrange}`,
+      selectedColor: `${colors.colorCoreRed}`
     }
   };
 
@@ -233,11 +234,11 @@ const GanttChart = (props: Props) => {
           >
             {__('Year')}
           </Button>
-          <Button btnStyle="danger" size="small" onClick={deleteItem}>
-            {__('Delete')}
-          </Button>
           <Button btnStyle="success" size="small" onClick={save}>
             {__('Save')}
+          </Button>
+          <Button btnStyle="danger" size="small" onClick={deleteItem}>
+            {__('Delete')}
           </Button>
         </ModeContainer>
       </NavContainer>
