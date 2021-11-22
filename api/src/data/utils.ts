@@ -610,9 +610,7 @@ export const replaceEditorAttributes = async (args: {
         for (const customFieldsDataItem of customer[dbFieldName] || []) {
           const replaceKey = `{{ customer.${dbFieldName}.${customFieldsDataItem.field} }}`;
 
-          if (
-            customerFileFieldsById[customFieldsDataItem.field].type === 'file'
-          ) {
+          if (customerFileFieldsById[customFieldsDataItem.field]) {
             const replaceValue = await customFieldDataItemToFileLink(
               customFieldsDataItem
             );
@@ -715,14 +713,6 @@ export const replaceEditorAttributes = async (args: {
       );
 
       if (customFieldsDataItem) {
-        console.log(
-          '------------------customFieldsDataItem----------------------------'
-        );
-        console.log(customFieldsDataItem);
-        console.log(
-          '------------------customFieldsDataItem----------------------------'
-        );
-
         const replaceKey = `{{ itemCustomField.${customField._id} }}`;
 
         if (customField.type === 'file') {
