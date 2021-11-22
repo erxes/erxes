@@ -91,12 +91,12 @@ const GanttChart = (props: Props) => {
         showLabel: true,
         style: {
           borderRadius: 3,
-          boxShadow: '2px 2px 8px #888'
+          border: '2px solid #4205C4'
         },
         selectedStyle: {
           borderRadius: 3,
           selectedColor: `${colors.colorWhite}`,
-          boxShadow: '5px 5px 10px #673FBD',
+          boxShadow: '0px 0px 7px 1px #673FBD',
           border: '1px solid #5629B6'
         }
       }
