@@ -202,7 +202,7 @@ class LeftSidebar extends React.Component<Props, State> {
                   }
                 }}
                 queryParams={queryParams}
-                counts="byConversations"
+                counts="bySegment"
                 paramKey="segment"
                 icon="tag-alt"
                 refetchRequired={refetchRequired}
