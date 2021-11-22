@@ -17,6 +17,9 @@ import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
+import { FieldStyle, SidebarCounter } from 'modules/layout/styles';
+// import { colors } from 'modules/common/styles';
+import { Divider } from 'modules/settings/main/styles';
 
 type Props = {
   field: IField;
@@ -288,6 +291,35 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderObject(object) {
+    const entries = Object.entries(object);
+
+    return (
+      <>
+        {entries.map((e, index) => {
+          const key = e[0];
+          const value: any = e[1] || '';
+
+          return (
+            <>
+              <FieldStyle>{key}:</FieldStyle>
+              <SidebarCounter>{value}</SidebarCounter>
+            </>
+          );
+        })}
+        <Divider />
+      </>
+    );
+  }
+
+  renderObjectList(attrs) {
+    const values: any[] = attrs.value;
+
+    return values.map(object => {
+      return this.renderObject(object);
+    });
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -438,6 +470,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'list': {
         return this.renderList(attrs);
+      }
+
+      case 'objectList': {
+        return this.renderObjectList(attrs);
       }
 
       default:
