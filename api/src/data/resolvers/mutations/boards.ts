@@ -407,13 +407,9 @@ const boardMutations = {
 
   async boardItemsSaveForGanttTimeline(
     _root,
-    {
-      items,
-      links,
-      type
-    }: { items: Array<any>; links: Array<any>; type: string }
+    { items, links, type }: { items: any[]; links: any[]; type: string }
   ) {
-    const bulkOps: Array<any> = [];
+    const bulkOps: any[] = [];
 
     if (items.length === 0) {
       throw new Error('No data to save');

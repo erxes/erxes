@@ -1159,6 +1159,7 @@ interface IDealFactoryInput {
   companyIds?: string[];
   customerIds?: string[];
   priority?: string;
+  startDate?: Date;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1225,6 +1226,7 @@ export const dealFactory = async (
       ? { closeDate: params.closeDate || new Date() }
       : {}),
     description: faker.random.word(),
+    startDate: params.startDate,
     productsData: params.productsData,
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
     userId: params.userId || faker.random.word(),
