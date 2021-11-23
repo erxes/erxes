@@ -12,7 +12,7 @@ import Button from 'modules/common/components/Button';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { colors, dimensions } from 'modules/common/styles';
+import { colors } from 'modules/common/styles';
 
 type Props = {
   length: number;
@@ -29,21 +29,21 @@ const GanttChart = (props: Props) => {
       top: {
         style: {
           backgroundColor: `${colors.bgActive}`,
-          fontSize: `${dimensions.unitSpacing + 2}`,
+          fontSize: 12,
           color: `${colors.colorCoreBlack}`
         }
       },
       middle: {
         style: {
           backgroundColor: `${colors.bgLight}`,
-          fontSize: `${dimensions.unitSpacing - 1}`,
+          fontSize: 9,
           color: `${colors.colorCoreBlack}`
         }
       },
       bottom: {
         style: {
           background: `${colors.bgUnread}`,
-          fontSize: `${dimensions.unitSpacing - 1}`,
+          fontSize: 9,
           color: `${colors.colorCoreBlack}`
         },
         selectedStyle: {
@@ -90,11 +90,15 @@ const GanttChart = (props: Props) => {
       task: {
         showLabel: true,
         style: {
-          borderRadius: 3,
-          border: '2px solid #4205C4'
+          paddingTop: 5,
+          borderRadius: 5,
+          border: '2px solid #4205C4',
+          whiteSpace: 'nowrap',
+          cursor: 'pointer'
         },
         selectedStyle: {
-          borderRadius: 3,
+          borderRadius: 5,
+          fontSize: 11,
           selectedColor: `${colors.colorWhite}`,
           boxShadow: '0px 0px 7px 1px #673FBD',
           border: '1px solid #5629B6'
