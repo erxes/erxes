@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'develop'
-      - 'feat-exm'
     paths:
       - 'ui/nginx/**'
       - 'ui/docker-entrypoint.sh'

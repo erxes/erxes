@@ -51,6 +51,13 @@ export const checkFile = async (file, source?: string) => {
     throw new Error('Invalid file');
   }
 
+  const { size } = file;
+
+  // 20mb
+  if (size > 20 * 1024 * 1024) {
+    return 'Too large file';
+  }
+
   // read file
   const buffer = await fs.readFileSync(file.path);
 
