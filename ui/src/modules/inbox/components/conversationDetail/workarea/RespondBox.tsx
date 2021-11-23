@@ -6,7 +6,13 @@ import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
-import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
+import {
+  __,
+  Alert,
+  readFile,
+  uploadHandler,
+  getEnv
+} from 'modules/common/utils';
 import { deleteHandler } from 'modules/common/utils/uploadHandler';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {
@@ -214,7 +220,10 @@ class RespondBox extends React.Component<Props, State> {
 
     this.setState({ loading });
 
+    const { REACT_APP_API_URL } = getEnv();
+
     deleteHandler({
+      erxesApiUrl: REACT_APP_API_URL,
       fileName,
       afterUpload: ({ status }) => {
         if (status === 'ok') {
