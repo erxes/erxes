@@ -23,6 +23,9 @@ describe('Structure queries', () => {
               structureDetail {
                   _id
                   title
+                  supervisor {
+                    _id
+                  }
               }
           }
       `;
@@ -50,6 +53,9 @@ describe('Structure queries', () => {
                       _id
                     }
                     children {
+                      _id
+                    }
+                    supervisor {
                       _id
                     }
                 }
@@ -110,6 +116,9 @@ describe('Structure queries', () => {
                       _id
                   }
                   department {
+                    _id
+                  }
+                  supervisor {
                     _id
                   }
               }
@@ -209,6 +218,9 @@ describe('Structure queries', () => {
                     _id
                   }
                   children {
+                    _id
+                  }
+                  supervisor {
                     _id
                   }
               }

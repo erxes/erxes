@@ -49,14 +49,7 @@ const knowledgeBaseQueries = {
   /**
    * Article detail
    */
-  knowledgeBaseArticleDetail(
-    _root,
-    { _id, increaseView }: { _id: string; increaseView: boolean }
-  ) {
-    if (increaseView) {
-      KnowledgeBaseArticles.updateOne({ _id }, { $inc: {} });
-    }
-
+  knowledgeBaseArticleDetail(_root, { _id }: { _id: string }) {
     return KnowledgeBaseArticles.findOne({ _id });
   },
 

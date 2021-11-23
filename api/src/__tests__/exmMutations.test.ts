@@ -26,7 +26,7 @@ describe('Test exm mutations', () => {
   const commonDeparmentParamsDef = `
         $name: String,
         $description: String,
-        $features: JSON
+        $features: [ExmFeatureInput]
     `;
 
   const commonDeparmentParams = `
