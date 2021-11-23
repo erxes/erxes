@@ -40,10 +40,15 @@ import { AttachmentComponent } from "./attachment.js"
 <p>Add additional content under the title by <code>additionalItem</code> prop. </p>
 <AttachmentComponent additionalItem/>
 
-<!-- ## Multiple attachments
+## Multiple attachments
 
 <p>Add multiple attachments by <code>attachments</code> prop.</p>
-<AttachmentComponent type="multi"/> -->
+<AttachmentComponent type="multi"/>
+
+## Index
+
+<p>Set the file to start from attachments by <code>index</code>. (Index number starts with 0)</p>
+<AttachmentComponent type="multi" index/>
 
 ## API
 

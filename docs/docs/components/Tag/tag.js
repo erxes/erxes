@@ -10,7 +10,7 @@ function TagComponent(props) {
   const propDatas = (limit) => {
     const arr = [];
     colors.map((clr, i) => {
-      arr.push({ _id: i, type: "default", name: clr, colorCode: clr })
+      arr.push({ _id: i, type: "", name: clr, colorCode: clr })
 
     });
     console.log(arr);
