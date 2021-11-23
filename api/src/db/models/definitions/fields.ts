@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface ISubmission {
@@ -178,7 +177,6 @@ export const fieldGroupSchema = schemaWrapper(
     // customer, company
     contentType: field({
       type: String,
-      enum: FIELDS_GROUPS_CONTENT_TYPES.ALL,
       label: 'Content type'
     }),
     order: field({ type: Number, label: 'Order' }),

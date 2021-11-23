@@ -124,6 +124,12 @@ const knowledgeBaseArticles = `
           fullName
         }
       }
+      attachments {
+        name
+        url
+        type
+        size
+      }
       createdDate
       modifiedBy
       modifiedDate

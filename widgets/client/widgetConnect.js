@@ -4,11 +4,25 @@ import * as dayjs from 'dayjs';
 import * as localizedFormat from 'dayjs/plugin/localizedFormat';
 import * as relativeTime from 'dayjs/plugin/relativeTime';
 import * as ReactDOM from 'react-dom';
+import { datadogRum } from '@datadog/browser-rum';
 import { ApolloProvider } from 'react-apollo';
 import client from './apollo-client';
+import { getEnv } from './utils';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
+
+const { DD_APPLICATION_ID, DD_CLIENT_TOKEN, API_URL } = getEnv();
+
+datadogRum.init({
+  applicationId: DD_APPLICATION_ID,
+  clientToken: DD_CLIENT_TOKEN,
+  site: 'datadoghq.com',
+  service: 'office-widgets',
+  sampleRate: 100,
+  trackInteractions: true,
+  allowedTracingOrigins: [API_URL || '']
+});
 
 // base connect function for all widgets
 const widgetConnect = params => {

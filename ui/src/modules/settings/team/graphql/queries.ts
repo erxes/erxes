@@ -2,12 +2,45 @@ import * as teamQueries from 'erxes-ui/lib/team/graphql';
 
 const detailFields = teamQueries.detailFields;
 
+const departmentField = `
+  _id
+  title
+  description
+  parentId
+  code
+  supervisorId
+  userIds
+  users {
+    _id
+    details {
+      ${detailFields}
+    }
+  }
+`;
+
+const contactInfoFields = `
+  phoneNumber
+  email
+  links
+  coordinate {
+    longitude
+    latitude
+  }
+  image {
+    url
+    name
+    type
+    size
+  }
+`;
+
 const userDetail = `
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
       _id
       username
       email
+      isActive
       status
       groupIds
 
@@ -18,6 +51,9 @@ const userDetail = `
       emailSignatures
       getNotificationByEmail
       customFieldsData
+      department {
+        ${departmentField}
+      }
     }
   }
 `;
@@ -75,11 +111,136 @@ const userSkills = `
   }
 `;
 
+const structureDetail = `
+  query structureDetail {
+    structureDetail {
+      _id
+      title
+      description
+      code
+      supervisorId
+      supervisor {
+        _id
+        email
+        details {
+          ${detailFields}
+        }
+      }
+
+      ${contactInfoFields}
+    }
+  }
+`;
+
+const departments = `
+  query departments($depthType: String) {
+    departments(depthType: $depthType) {
+      ${departmentField}
+    }
+  }
+`;
+
+const departmentDetail = `
+  query departmentDetail($_id: String) {
+    departmentDetail(_id: $_id) {
+      ${departmentField}
+    }
+  }
+`;
+
+const unitField = `
+  _id
+  title
+  description
+  departmentId
+  supervisorId
+  code
+  userIds
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+`;
+
+const units = `
+  query units {
+    units {
+      ${unitField}
+    }
+  }
+`;
+
+const unitDetail = `
+  query unitDetail($_id: String) {
+    unitDetail(_id: $_id) {
+      ${unitField}
+    }
+  }
+`;
+
+const noDepartmentUsers = `
+  query noDepartmentUsers($excludeId: String) {
+    noDepartmentUsers(excludeId: $excludeId) {
+      _id
+      email
+
+      details {
+        ${detailFields}
+      }
+    }
+  }
+`;
+
+const branchField = `
+  _id
+  title
+  address
+  parentId
+  supervisorId
+  code
+  userIds
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+  ${contactInfoFields}
+`;
+
+const branches = `
+  query branches($depthType: String) {
+    branches(depthType: $depthType) {
+      ${branchField}
+    }
+  }
+`;
+
+const branchDetail = `
+  query branchDetail($_id: String) {
+    branchDetail(_id: $_id) {
+      ${branchField}
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
   userConversations,
   users,
   usersTotalCount,
-  allUsers
+  allUsers,
+  structureDetail,
+  departments,
+  departmentDetail,
+  units,
+  unitDetail,
+  noDepartmentUsers,
+  branches,
+  branchDetail
 };

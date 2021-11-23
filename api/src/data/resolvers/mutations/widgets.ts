@@ -258,6 +258,7 @@ const widgetMutations = {
       submissions: ISubmission[];
       browserInfo: any;
       cachedCustomerId?: string;
+      userId?: string;
     }
   ) {
     const { submissions } = args;
@@ -286,7 +287,22 @@ const widgetMutations = {
     _root,
     { articleId, reactionChoice }: { articleId: string; reactionChoice: string }
   ) {
-    return KnowledgeBaseArticles.incReactionCount(articleId, reactionChoice);
+    return KnowledgeBaseArticles.modifyReactionCount(
+      articleId,
+      reactionChoice,
+      'inc'
+    );
+  },
+
+  widgetsKnowledgebaseDecReactionCount(
+    _root,
+    { articleId, reactionChoice }: { articleId: string; reactionChoice: string }
+  ) {
+    return KnowledgeBaseArticles.modifyReactionCount(
+      articleId,
+      reactionChoice,
+      'dec'
+    );
   },
 
   /*
