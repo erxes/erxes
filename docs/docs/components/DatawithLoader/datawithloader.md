@@ -22,8 +22,15 @@ import { DatawithLoaderComponent } from "./datawithloader.js"
 
 ### Empty state
 
+#### Icon
+
 <p>You can costumize the empty state by giving text (with <code>emptyText</code>), icon (with <code>emptyIcon</code>). And also change the icon size with <code>size</code> prop.</p>
-<DatawithLoaderComponent type="emptystate" counter={0} image="info-circle" text="Empty state" sizes="small"/>
+<DatawithLoaderComponent type="emptystateicon" counter={0} image="info-circle" text="Empty state" sizes="small"/>
+
+#### Image
+
+<p>You can costumize the empty state by giving text (with <code>emptyText</code>), icon (with <code>emptyIcon</code>). And also change the icon size with <code>size</code> prop.</p>
+<DatawithLoaderComponent type="emptystateimage" counter={0} image="https://erxes.io/static/images/logo/logo_dark.svg" text="Empty state" sizes="small"/>
 
 ## API
 

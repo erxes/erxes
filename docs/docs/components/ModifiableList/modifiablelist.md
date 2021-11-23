@@ -13,7 +13,7 @@ import { ModifiableListComponent } from "./modifiablelist.js"
 ## Add button label
 
 <p>Click on the "cancel" button to see 3rd button. Change label of 3rd button by <code>addButtonLabel</code> prop. </p>
-<ModifiableListComponent array={["Name", "Age"]} buttonlabel="button" />
+<ModifiableListComponent array={["Name", "Age"]} buttonlabel="Custom button label" />
 
 ## API
 

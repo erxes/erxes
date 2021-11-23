@@ -65,8 +65,12 @@ export function DatawithLoaderComponent(props) {
     return renderBlock("", "emptyContent", "", "count");
   }
 
-  if (type === "emptystate") {
+  if (type === "emptystateicon") {
     return renderBlock("", "emptyText", "emptyIcon", "count", "size");
+  }
+
+  if (type === "emptystateimage") {
+    return renderBlock("", "emptyText", "emptyImage", "count", "size");
   }
 
   if (type === "APIdatewithloader") {

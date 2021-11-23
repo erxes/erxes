@@ -1,7 +1,7 @@
 import React from "react";
 import { Tabs, TabTitle } from "erxes-ui/lib/components/tabs/index";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../common.js";
+import { renderApiTable } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function TabsComponent(props) {
@@ -24,6 +24,19 @@ export function TabsComponent(props) {
       document.getElementById("border").innerHTML = string;
     } else document.getElementById("id").innerHTML = string;
   };
+
+  const stringify = (kind) => {
+    let string = JSON.stringify(kind);
+    string = string.replace(/{}/g, "");
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/}/g, "");
+    string = string.replace(/=true/g, "");
+    string = string.replace(/id=null/g, "");
+    
+    return string;
+  }
 
   const renderBlock = (propName) => {
     return (
