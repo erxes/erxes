@@ -6,6 +6,7 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import { fetchElk } from '../elasticsearch';
 import {
   Boards,
+  Branches,
   Brands,
   CalendarBoards,
   CalendarGroups,
@@ -23,9 +24,11 @@ import {
   DashboardItems,
   Dashboards,
   Deals,
+  Departments,
   EmailDeliveries,
   EmailTemplates,
   EngageMessages,
+  Exms,
   Fields,
   FieldsGroups,
   Forms,
@@ -52,9 +55,11 @@ import {
   Skills,
   SkillTypes,
   Stages,
+  Structures,
   Tags,
   Tasks,
   Tickets,
+  Units,
   Users,
   UsersGroups,
   Webhooks
@@ -1035,13 +1040,14 @@ interface IKnowledgeBaseArticleCategoryInput {
   modifiedBy?: string;
   topicId?: string;
   categoryId?: string;
+  title?: string;
 }
 
 export const knowledgeBaseArticleFactory = async (
   params: IKnowledgeBaseArticleCategoryInput = {}
 ) => {
   const doc = {
-    title: faker.random.word(),
+    title: params.title || faker.random.word(),
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),
@@ -1816,6 +1822,79 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+export const structureFactory = async (params: {
+  title?: string;
+  description?: string;
+  supervisorId?: string;
+}) => {
+  const structure = new Structures({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    supervisorId: params.supervisorId
+  });
+
+  return structure.save();
+};
+
+export const departmentFactory = async (params: {
+  title?: string;
+  parentId?: string;
+  description?: string;
+  userIds?: string[];
+  supervisorId?: string;
+}) => {
+  const department = new Departments({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    parentId: params.parentId,
+    userIds: params.userIds || [],
+    supervisorId: params.supervisorId
+  });
+
+  return department.save();
+};
+
+export const unitFactory = async (params: {
+  title?: string;
+  departmentId?: string;
+  description?: string;
+  userIds?: string[];
+}) => {
+  const unit = new Units({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    departmentId: params.departmentId,
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return unit.save();
+};
+
+export const branchFactory = async (params: {
+  title?: string;
+  parentId?: string;
+  address?: string;
+  userIds?: string[];
+}) => {
+  const unit = new Branches({
+    title: params.title || faker.random.word(),
+    parentId: params.parentId,
+    address: params.address || faker.random.word(),
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return unit.save();
+};
+
+export const exmFactory = async (params: any) => {
+  const exm = new Exms({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word()
+  });
+
+  return exm.save();
 };
 
 export const clientPortalFactory = async (params: { name?: string }) => {

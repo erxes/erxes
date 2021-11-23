@@ -15,9 +15,7 @@ const IntegrationConfigs = asyncComponent(() =>
 );
 
 const EngageConfigs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Integration configs" */ './components/EngageConfigs'
-  )
+  import(/* webpackChunkName: "Engage configs" */ './components/EngageConfigs')
 );
 
 const Theme = asyncComponent(() =>
