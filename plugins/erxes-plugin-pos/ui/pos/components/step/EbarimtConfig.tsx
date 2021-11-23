@@ -102,9 +102,9 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
             <Block>
               <h4>{__("Main")}</h4>
               <BlockRow>
-                {this.renderInput('companyName', 'company Name', '')}
-                {this.renderInput('ebarimtUrl', 'ebarimt Url', '')}
-                {this.renderInput('checkCompanyUrl', 'check Company Url', '')}
+                {this.renderInput('companyName', 'Company name', '')}
+                {this.renderInput('ebarimtUrl', 'E-barimt URL', '')}
+                {this.renderInput('checkCompanyUrl', 'Company check URL', '')}
               </BlockRow>
             </Block>
 
@@ -112,38 +112,36 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
               <h4>{__("Other")}</h4>
               <BlockRow>
                 <FormGroup>
-                  <ControlLabel>{__('DISTRICTS')}</ControlLabel>
+                  <ControlLabel>{__('Provice/District')}</ControlLabel>
                   <FormControl
                     componentClass='select'
-                    defaultValue={this.state.config.district}
+                    defaultValue={this.state.config.districtCode}
                     options={DISTRICTS}
                     onChange={this.onChangeInput.bind(this, 'districtCode')}
                     required={true}
                   />
                 </FormGroup>
-                {this.renderInput('companyRD', 'company RD', '')}
+                {this.renderInput('companyRD', 'Company register number', '')}
                 {this.renderInput('defaultGSCode', 'default GSCode', 'https://ebarimt.mn/img/buteegdehuun%20uilchilgeenii%20negdsen%20angilal.pdf')}
               </BlockRow>
             </Block>
 
             <Block>
-              <h4>{__("Vat option")}</h4>
+              <h4>{__("VAT")}</h4>
               <BlockRow>
-                {this.renderCheckbox('hasVat', 'has Vat', '')}
-                {this.renderInput('vatPercent', 'vat Percent', '', 'number')}
+                {this.renderCheckbox('hasVat', 'Has VAT', '')}
+                {this.renderInput('vatPercent', 'VAT Percent', '', 'number')}
               </BlockRow>
             </Block
             >
             <Block>
-              <h4>{__("cityTax option")}</h4>
+              <h4>{__("UB city tax")}</h4>
               <BlockRow>
-                {this.renderCheckbox('hasCitytax', 'has Citytax', '')}
-                {this.renderInput('cityTaxPercent', 'cityTax Percent', '', 'number')}
+                {this.renderCheckbox('hasCitytax', 'Has UB city tax', '')}
+                {this.renderInput('cityTaxPercent', 'UB city tax Percent', '', 'number')}
               </BlockRow>
             </Block>
-
-            <Block>
-            </Block>
+            <Block/>
           </LeftItem>
         </FlexColumn>
       </FlexItem>
