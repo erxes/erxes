@@ -11,15 +11,15 @@ import {
   COUNTRIES
 } from 'modules/companies/constants';
 import React from 'react';
-import { LogicIndicator, SelectInput } from '../styles';
+import { LogicIndicator, SelectInput, ObjectList } from '../styles';
 import { IField } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
-import { FieldStyle, SidebarCounter } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 // import { colors } from 'modules/common/styles';
-import { Divider } from 'modules/settings/main/styles';
+// import { Divider } from "modules/settings/main/styles";
 
 type Props = {
   field: IField;
@@ -291,33 +291,34 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObject(object) {
+  renderObject(object: any, index: number) {
     const entries = Object.entries(object);
 
     return (
-      <>
-        {entries.map((e, index) => {
+      <SidebarList className="no-hover" key={index}>
+        {entries.map(e => {
           const key = e[0];
           const value: any = e[1] || '';
 
           return (
-            <>
+            <li key={key}>
               <FieldStyle>{key}:</FieldStyle>
               <SidebarCounter>{value}</SidebarCounter>
-            </>
+            </li>
           );
         })}
-        <Divider />
-      </>
+      </SidebarList>
     );
   }
 
   renderObjectList(attrs) {
-    const values: any[] = attrs.value;
-
-    return values.map(object => {
-      return this.renderObject(object);
-    });
+    return (
+      <ObjectList>
+        {(attrs.value || []).map((object, index) =>
+          this.renderObject(object, index)
+        )}
+      </ObjectList>
+    );
   }
 
   /**
