@@ -81,7 +81,7 @@ export default class Builder {
 
     const selector = await fetchSegment(
       segment,
-      { returnFields: [ '_id' ] }
+      { returnFields: [ '_id' ], page: 1, perPage: this.params.limit ? this.params.limit+1 : 11, sortField: 'updatedAt', sortDirection: -1 }
     );
 
     const Ids = _.pluck(selector, '_id');
