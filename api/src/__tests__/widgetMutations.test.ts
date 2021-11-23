@@ -1111,6 +1111,30 @@ describe('knowledgebase', () => {
         updatedArticle.reactionCounts.wow
     ).toBe(1);
   });
+
+  test('widgetsKnowledgebaseDecReactionCount', async () => {
+    const article = await knowledgeBaseArticleFactory({
+      reactionChoices: ['wow']
+    });
+
+    await widgetMutations.widgetsKnowledgebaseDecReactionCount(
+      {},
+      {
+        articleId: article._id,
+        reactionChoice: 'wow'
+      }
+    );
+
+    const updatedArticle = await KnowledgeBaseArticles.findOne({
+      _id: article._id
+    });
+
+    expect(
+      updatedArticle &&
+        updatedArticle.reactionCounts &&
+        updatedArticle.reactionCounts.wow
+    ).toBe(-1);
+  });
 });
 
 describe('lead', () => {

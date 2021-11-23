@@ -1,6 +1,14 @@
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
-import { Channels, Configs, FieldsGroups, Users } from '../../../db/models';
+import {
+  Branches,
+  Channels,
+  Configs,
+  Departments,
+  FieldsGroups,
+  Units,
+  Users
+} from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import {
   IDetail,
@@ -337,6 +345,9 @@ const userMutations = {
         password: string;
         groupId: string;
         channelIds?: string[];
+        unitId?: string;
+        branchId?: string;
+        departmentId?: string;
       }>;
     },
     { user }: IContext
@@ -346,6 +357,27 @@ const userMutations = {
 
       const token = await Users.invite(entry);
       const createdUser = await Users.findOne({ email: entry.email });
+
+      if (entry.unitId) {
+        await Units.updateOne(
+          { _id: entry.unitId },
+          { $push: { userIds: createdUser?._id } }
+        );
+      }
+
+      if (entry.branchId) {
+        await Branches.updateOne(
+          { _id: entry.branchId },
+          { $push: { userIds: createdUser?._id } }
+        );
+      }
+
+      if (entry.departmentId) {
+        await Departments.updateOne(
+          { _id: entry.departmentId },
+          { $push: { userIds: createdUser?._id } }
+        );
+      }
 
       // add new user to channels
       await Channels.updateUserChannels(
