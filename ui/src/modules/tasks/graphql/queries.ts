@@ -21,6 +21,7 @@ const commonParams = `
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $hasStartAndCloseDate: Boolean
   ${conformityQueryFields}
 `;
 
@@ -38,6 +39,7 @@ const commonParamDefs = `
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
+  hasStartAndCloseDate: $hasStartAndCloseDate,
   ${conformityQueryFieldDefs}
 `;
 

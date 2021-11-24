@@ -14,11 +14,9 @@ import { __ } from 'modules/common/utils';
 import { colors } from 'modules/common/styles';
 
 type Props = {
-  length: number;
   items: IItem[];
   options: IOptions;
   refetch: () => void;
-  groupType: string;
   save: (items: any[], links: any[]) => void;
 } & IRouterProps;
 
@@ -110,22 +108,20 @@ const GanttChart = (props: Props) => {
     }
   };
 
-  const dbData: Array<any> = [];
-  let dbLinks: Array<any> = [];
+  const dbData: any[] = [];
+  let dbLinks: any[] = [];
 
   props.items.forEach(item => {
-    if (item.startDate && item.closeDate) {
-      dbData.push({
-        id: item._id,
-        start: new Date(item.startDate),
-        end: new Date(item.closeDate),
-        name: `${item.name} (${item.stage ? item.stage.name : ''})`,
-        color: '#5629B6'
-      });
+    dbData.push({
+      id: item._id,
+      start: new Date(item.startDate),
+      end: new Date(item.closeDate),
+      name: `${item.name} (${item.stage ? item.stage.name : ''})`,
+      color: '#5629B6'
+    });
 
-      if (item.relations) {
-        dbLinks = dbLinks.concat(item.relations);
-      }
+    if (item.relations) {
+      dbLinks = dbLinks.concat(item.relations);
     }
   });
 
@@ -150,9 +146,9 @@ const GanttChart = (props: Props) => {
     setSelectedItem(item);
   };
 
-  const onUpdateTask = (item, props) => {
-    item.start = props.start;
-    item.end = props.end;
+  const onUpdateTask = (item, prop) => {
+    item.start = prop.start;
+    item.end = prop.end;
 
     setData([...data]);
   };
@@ -168,7 +164,7 @@ const GanttChart = (props: Props) => {
   };
 
   const onCreateLink = item => {
-    let newLink = createLink(item.start, item.end);
+    const newLink = createLink(item.start, item.end);
 
     setLinks([...links, newLink]);
   };
@@ -190,7 +186,7 @@ const GanttChart = (props: Props) => {
   };
 
   const save = () => {
-    const items: Array<any> = [];
+    const items: any[] = [];
 
     for (const item of data) {
       items.push({

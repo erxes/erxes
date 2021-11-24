@@ -16,11 +16,8 @@ import Spinner from 'modules/common/components/Spinner';
 import { mutations } from '../../graphql';
 
 type StageProps = {
-  groupType: string;
   queryParams: IFilterParams;
   options: IOptions;
-  refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
-  length: number;
 };
 
 type FinalStageProps = {
@@ -33,10 +30,7 @@ type State = {
   items: any[];
 };
 
-class GanttGroupByContainer extends React.PureComponent<
-  FinalStageProps,
-  State
-> {
+class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
   constructor(props) {
     super(props);
 
@@ -73,7 +67,7 @@ class GanttGroupByContainer extends React.PureComponent<
   };
 
   render() {
-    const { length, groupType, itemsQuery, options } = this.props;
+    const { itemsQuery, options } = this.props;
 
     if (itemsQuery.loading) {
       return <Spinner />;
@@ -87,25 +81,27 @@ class GanttGroupByContainer extends React.PureComponent<
       });
     };
 
-    const { items } = this.state;
-
-    const save = (items: any[], links: any[]) => {
+    const save = (boardItems: any[], links: any[]) => {
       client
         .mutate({
           mutation: gql(mutations.boardItemsSaveForGanttTimeline),
           variables: {
-            items,
+            items: boardItems,
             links,
             type: options.type
           }
         })
         .then(() => {
+          refetch();
+
           Alert.success('Successfully saved');
         })
         .catch(e => {
           Alert.error(e.message);
         });
     };
+
+    const { items } = this.state;
 
     items.sort((a, b) => {
       if (a.stage.order < b.stage.order) {
@@ -122,8 +118,6 @@ class GanttGroupByContainer extends React.PureComponent<
     return (
       <GanttChart
         options={options}
-        groupType={groupType}
-        length={length}
         items={items}
         refetch={refetch}
         save={save}
@@ -145,7 +139,6 @@ const getFilterParams = (
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
-    closeDateType: queryParams.closeDateType,
     labelIds: queryParams.labelIds,
     userIds: queryParams.userIds,
     segment: queryParams.segment,
@@ -153,6 +146,7 @@ const getFilterParams = (
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
     pipelineId: queryParams.pipelineId,
+    hasStartAndCloseDate: true,
     limit: 100,
     ...getExtraParams(queryParams)
   };
@@ -170,7 +164,7 @@ const withQuery = ({ options }) => {
           fetchPolicy: 'network-only'
         })
       })
-    )(GanttGroupByContainer)
+    )(GanttChartContainer)
   );
 };
 

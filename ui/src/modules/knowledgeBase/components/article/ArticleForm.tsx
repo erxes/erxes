@@ -4,11 +4,18 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps,
+  IOption
+} from 'modules/common/types';
+import { extractAttachment, __ } from 'modules/common/utils';
 import { articleReactions } from 'modules/knowledgeBase/icons.constant';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
+import { FILE_MIME_TYPES } from 'modules/settings/general/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IArticle, ITopic } from '../../types';
@@ -27,6 +34,7 @@ type State = {
   reactionChoices: string[];
   topicId?: string;
   categoryId: string;
+  attachments: IAttachment[];
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -34,12 +42,15 @@ class ArticleForm extends React.Component<Props, State> {
     super(props);
 
     const article = props.article || { content: '' };
+    const attachments =
+      (article.attachments && extractAttachment(article.attachments)) || [];
 
     this.state = {
       content: article.content,
       reactionChoices: article.reactionChoices || [],
       topicId: article.topicId,
-      categoryId: article.categoryId
+      categoryId: article.categoryId,
+      attachments
     };
   }
 
@@ -51,6 +62,12 @@ class ArticleForm extends React.Component<Props, State> {
     }
   }
 
+  getFirstAttachment = () => {
+    const { attachments } = this.state;
+
+    return attachments.length > 0 ? attachments[0] : ({} as IAttachment);
+  };
+
   generateDoc = (values: {
     _id?: string;
     title: string;
@@ -58,7 +75,13 @@ class ArticleForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { article, currentCategoryId } = this.props;
-    const { content, reactionChoices, topicId, categoryId } = this.state;
+    const {
+      attachments,
+      content,
+      reactionChoices,
+      topicId,
+      categoryId
+    } = this.state;
 
     const finalValues = values;
 
@@ -76,6 +99,7 @@ class ArticleForm extends React.Component<Props, State> {
         status: finalValues.status,
         categoryIds: [currentCategoryId],
         topicId,
+        attachments,
         categoryId
       }
     };
@@ -87,6 +111,20 @@ class ArticleForm extends React.Component<Props, State> {
 
   onChangeReactions = (options: IOption[]) => {
     this.setState({ reactionChoices: options.map(option => option.value) });
+  };
+
+  onChangeAttachments = (attachments: IAttachment[]) =>
+    this.setState({ attachments });
+
+  onChangeAttachment = (key: string, value: string | number) => {
+    this.setState({
+      attachments: [
+        {
+          ...this.getFirstAttachment(),
+          [key]: value
+        }
+      ]
+    });
   };
 
   renderOption = option => {
@@ -174,7 +212,13 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
-    const { reactionChoices, content } = this.state;
+    const { attachments, reactionChoices, content } = this.state;
+    const attachment = this.getFirstAttachment();
+
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+      value: item.value,
+      label: `${item.label} (${item.extension})`
+    }));
 
     const { isSubmitted, values } = formProps;
 
@@ -242,6 +286,66 @@ class ArticleForm extends React.Component<Props, State> {
           <FlexItem count={3}>{this.renderTopics(formProps)}</FlexItem>
           <FlexItem count={3} hasSpace={true}>
             {this.renderCategories(formProps)}
+          </FlexItem>
+        </FlexContent>
+
+        <FormGroup>
+          <Uploader
+            defaultFileList={attachments}
+            onChange={this.onChangeAttachments}
+            single={true}
+          />
+        </FormGroup>
+
+        <FlexContent>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File url')}</ControlLabel>
+              <FormControl
+                placeholder="Url"
+                value={attachment.url || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('url', e.target.value)
+                }
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('File name')}</ControlLabel>
+              <FormControl
+                placeholder="Name"
+                value={attachment.name || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('name', e.target.value)
+                }
+              />
+            </FormGroup>
+          </FlexItem>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File size (byte)')}</ControlLabel>
+              <FormControl
+                placeholder="Size (byte)"
+                value={attachment.size || ''}
+                type="number"
+                onChange={(e: any) =>
+                  this.onChangeAttachment('size', parseInt(e.target.value, 10))
+                }
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('File type')}</ControlLabel>
+              <FormControl
+                componentClass="select"
+                value={attachment.type || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('type', e.target.value)
+                }
+                options={[
+                  { value: '', label: 'Select type' },
+                  ...mimeTypeOptions
+                ]}
+              />
+            </FormGroup>
           </FlexItem>
         </FlexContent>
 

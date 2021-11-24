@@ -42,6 +42,8 @@ import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
+import Exms from './Exms';
+import { Structures, Departments, Units, Branches } from './Structure';
 
 export {
   EmailDeliveries,
@@ -98,5 +100,10 @@ export {
   Webhooks,
   Calendars,
   CalendarGroups,
-  CalendarBoards
+  CalendarBoards,
+  Exms,
+  Structures,
+  Departments,
+  Units,
+  Branches
 };
