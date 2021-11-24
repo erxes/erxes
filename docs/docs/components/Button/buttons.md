@@ -45,7 +45,7 @@ import { ButtonComponent } from "./buttons.js"
     ['children', 'React.ReactNode', '', 'Shows button text'],
     ['className', 'string', '', 'Define className'],
     ['onClick', 'function', '', 'Define click handler for button element'],
-    ['onMouseDown', 'function', '', ''],
+    ['onMouseDown', 'function', '', 'Trigger fuction while mouse is clicked'],
     ['href', 'string', '', 'Define a hyperlink'],
     ['type', 'string', 'button', 'Define HTML button type attribute'],
     ['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],

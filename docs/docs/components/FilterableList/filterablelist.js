@@ -10,13 +10,23 @@ export function FilterableListComponent(props) {
   const link = [{ title: "Google", href: "https://www.google.com" }];
   const arr = [];
   const avatar = [];
+  const addicon = [];
 
-  names.map((name, index) => {
+if(type==="style") { names.map((name, index) => {
+    arr.push({
+      _id: index,
+      title: name,
+      style: {color: "red"},
+    });
+  });
+}
+ else names.map((name, index) => {
     arr.push({
       _id: index,
       title: name,
     });
   });
+  
 
   names.map((name, index) => {
     avatar.push({
@@ -26,12 +36,21 @@ export function FilterableListComponent(props) {
     });
   });
 
+  names.map((name, index) => {
+    addicon.push({
+      _id: index,
+      title: name,
+      avatar: "https://erxes.io/static/images/logo/logo_dark.svg",
+      additionalIconClass: "info-circle",
+    });
+  });
+
   const array = [
-    { _id: 1, title: "1 test", parentId: 0 },
-    { _id: 2, title: "2 test", parentId: 0 },
-    { _id: 3, title: "3 test", parentId: 1 },
-    { _id: 4, title: "4 test", parentId: 1 },
-    { _id: 5, title: "5 test", parentId: 2 },
+    { _id: "0", title: "1 test" },
+    { _id: "1", title: "2 test" },
+    { _id: "2", parentId:"1", title: "3 test" },
+    { _id: "3", parentId:"1", title: "4 test" },
+    { _id: "4", parentId:"2", title: "5 test" },
   ];
 
   const propDatas = (propName) => {
@@ -43,6 +62,8 @@ export function FilterableListComponent(props) {
           ? avatar
           : type === "null"
           ? ""
+          : type === "additionalIconClass"
+          ? addicon
           : arr,
       [propName]: propName && propName === "links" ? link : bo,
     };
@@ -75,6 +96,14 @@ export function FilterableListComponent(props) {
 
   if (type === "tree") {
     return renderBlock("treeView");
+  }
+
+  if (type === "style") {
+    return renderBlock("style");
+  }
+
+  if(type==="additionalIconClass"){
+    return renderBlock("additionalIconClass")
   }
 
   if (type === "APIfilterablelist") {

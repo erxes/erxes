@@ -6,14 +6,15 @@ import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../../src/components/styles.module.css";
 
 export function TimerComponent(props) {
-  const { taskstatus, startedAt, table = [], type } = props;
+  const { taskstatus, type } = props;
 
   const propDatas = () => {
     const datas = {
       taskId: "timerTask",
       status: taskstatus,
-      timeSpent: "1000",
-      startDate: startedAt,
+      timeSpent: taskstatus === "started" ? 0 : 180,
+      startDate: taskstatus === "started" && new Date(new Date().getTime() - 1*30*60*1000),
+      update: () => {},
     };
 
     return datas;
@@ -102,7 +103,7 @@ export function TimerComponent(props) {
             <td>callback</td>
             <td>function</td>
             <td/>
-            <td></td>
+            <td>Change task status  </td>
           </tr>
         </tbody>
       </Table>

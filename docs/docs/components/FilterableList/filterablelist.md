@@ -15,10 +15,25 @@ import { FilterableListComponent } from "./filterablelist.js"
 <p>When items have no list it'll show below.</p>
 <FilterableListComponent type="null"/>
 
+## Loading
+
+<p>Show loading spinner by <code>loading</code> prop. </p>
+<FilterableListComponent type="load" bo={true} />
+
+## Style
+
+<p>Add list style by <code>style</code> prop to items array.</p>
+<FilterableListComponent type="style"/>
+
 ## Avatar
 
 <p>Add avatar by <code>avatar</code> prop to items array.</p>
 <FilterableListComponent type="avatar"/>
+
+## Additional icon
+
+<p>Add additional icon by <code>additionalIconClass</code> prop to items array.</p>
+<FilterableListComponent type="additionalIconClass"/>
 
 ## Links
 
@@ -30,10 +45,6 @@ import { FilterableListComponent } from "./filterablelist.js"
 <p>Hide checkmark by <code>showCheckmark</code> prop. </p>
 <FilterableListComponent type="check" bo={false} />
 
-## Loading
-
-<p>Show loading spinner by <code>loading</code> prop. </p>
-<FilterableListComponent type="load" bo={true} />
 
 ## Tree view
 

@@ -34,7 +34,7 @@ import { BoxComponent } from "./box.js"
     ['name', 'string', '', 'Define name'],
     ['children', 'React.ReactNode', '', 'Gives content to box'],
     ['extraButtons', 'React.ReactNode', '', 'Display an extra button on the box'],
-    ['callback', 'function', '', ''],
+    ['callback', 'function', '', 'Define additional fuction when title is clicked'],
     ['collapsible', 'boolean', 'false', 'Make the box collapsible'],
     ['isOpen', 'boolean', 'false', 'Make the box expanded on start'],
 ]} />

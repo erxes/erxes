@@ -22,6 +22,6 @@ import { LabelComponent } from './label.js'
     ['lblColor', 'string', '', 'Gives custom color'],
     ['* children', 'React.ReactNode | string', '', 'Declare label text'],
     ['className', 'string', '', 'Defines className'],
-    ['shake', 'boolean', '', ''],
+    ['shake', 'boolean', '', 'Activate shake animation'],
     ['ignoreTrans', 'boolean', '', 'Ignores translate']
 ]} />

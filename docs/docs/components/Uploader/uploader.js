@@ -105,7 +105,7 @@ export function UploaderComponent(props) {
               <td colSpan="2">onChange</td>
               <td>function</td>
               <td />
-              <td></td>
+              <td>Adding attachments</td>
             </tr>
             <tr>
               <td colSpan="2">single</td>
