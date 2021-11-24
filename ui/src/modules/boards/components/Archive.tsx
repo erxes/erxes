@@ -64,11 +64,11 @@ function Archive(props: Props) {
     if (type === 'item') {
       return !!(
         searchInputValue ||
-        userIds.length ||
+        // userIds.length ||
         priorities.length ||
-        assignedUserIds.length ||
-        labelIds.length ||
-        productIds.length ||
+        // assignedUserIds.length ||
+        // labelIds.length ||
+        // productIds.length ||
         startDate ||
         endDate ||
         sources.length ||
@@ -81,11 +81,11 @@ function Archive(props: Props) {
 
   const clearFilters = () => {
     setSearchInputValue('');
-    setUserIds([]);
+    // setUserIds([]);
     setPriorities([]);
-    setAssignedUserIds([]);
-    setLabelIds([]);
-    setProductIds([]);
+    // setAssignedUserIds([]);
+    // setLabelIds([]);
+    // setProductIds([]);
     setStartDate('');
     setEndDate('');
     setSources([]);
