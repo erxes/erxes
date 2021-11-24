@@ -68,13 +68,10 @@ export const TimelineContainer = styled.div`
 `;
 
 export const NavContainer = styled.div`
-  display: flex;
   flex-direction: row;
   width: 100%;
   background-color: ${colors.colorWhite};
-  height: ${dimensions.headerSpacing}px;
   color: grey;
-  align-items: center;
 `;
 
 export const List = styled.div`
@@ -91,17 +88,8 @@ export const ModeContainer = styled.div`
   justify-content: flex-start;
   align-items: baseline;
   justify-self: flex-end;
-  margin: 0px 20px;
-`;
-
-export const ModeTitle = styled.div`
-  margin: 0px 20px;
-  flex: 1 1 auto;
-  margin: 0px 20px;
-  text-shadow: 0.5px 0.5px white;
-  font-family: Helvetica, sans-serif;
-  font-size: 22px;
-  font-weight: bolder;
+  margin: 5px 20px;
+  float: right;
 `;
 
 export const ModeItem = styled.div`
