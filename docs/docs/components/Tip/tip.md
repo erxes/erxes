@@ -5,31 +5,31 @@ title: Tip
 
 import { TipComponent } from "./tip.js"
 
-<p>See tip by hovering over buttons.</p>
+<p>Text tips for </p>
 
 ## Placement
 
-<p>Change tip placement by <code>placement</code> prop.</p>
+<p>Change tip placement by <code>placement</code> prop. Hover over the text paragraphs below to see tips.</p>
 
-### Auto placement
+### Auto placements
 
-<TipComponent type="auto" places={['auto-start', 'auto', 'auto-end']}></TipComponent>
+<TipComponent type="auto" places={['auto-start', 'auto', 'auto-end']} />
 
-### Top placement
+### Top placements
 
-<TipComponent type="top" places={['top-start', 'top', 'top-end']}></TipComponent>
+<TipComponent type="top" places={['top-start', 'top', 'top-end']} />
 
-### Right placement
+### Right placements
 
-<TipComponent type="right" places={['right-start', 'right', 'right-end']}></TipComponent>
+<TipComponent type="right" places={['right-start', 'right', 'right-end']} />
 
-### Bottom placement
+### Bottom placements
 
-<TipComponent type="bottom" places={['bottom-start', 'bottom', 'bottom-end']}></TipComponent>
+<TipComponent type="bottom" places={['bottom-start', 'bottom', 'bottom-end']} />
 
-### Left placement
+### Left placements
 
-<TipComponent type="left" places={['left-start', 'left', 'left-end']}></TipComponent>
+<TipComponent type="left" places={['left-start', 'left', 'left-end']} />
 
 ## API
 
@@ -37,4 +37,4 @@ import { TipComponent } from "./tip.js"
   ['text', 'string | React.ReactNode', '', 'Define the tip text'],
   ['* children', 'React.ReactNode', '', 'Define chip content'],
   ['placement', 'auto | auto-start | auto-end | top | top-start | top-end | right | right-start | right-end | bottom | bottom-start | bottom-end | left | left-start | left-end', 'auto', 'Set the placement of tip']
-  ]}></TipComponent>
+  ]} />

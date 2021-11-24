@@ -7,38 +7,6 @@ import Table from "erxes-ui/lib/components/table/index";
 export function AttachmentComponent(props) {
   const { type, additionalItem, simple, index } = props;
 
-  const image = {
-    name: "logo_dark.svg",
-    type: "image",
-    url: "https://erxes.io/static/images/logo/logo_dark.svg",
-  };
-
-  const video = { name: "test.mp4", type: "video", url: "/Documents/test.mp4" };
-
-  const file = { name: "test.docx", type: "text", url: "/Documents/test.docx" };
-
-  const fileSize = {
-    name: "test.docx",
-    type: "text",
-    url: "/Documents/test.docx",
-    size: 4179,
-  };
-
-  const audio = { name: "test.mp3", type: "mp3", url: "/Documents/test.mp3" };
-
-  const multi = [
-    {
-      name: "glyph_dark.svg",
-      type: "text",
-      url: "https://erxes.io/static/images/logo/glyph_dark.svg",
-    },
-    {
-      name: "glyph_dark.png",
-      type: "text",
-      url: "https://erxes.io/static/images/logo/glyph_dark.png",
-    },
-  ];
-
   const propDatas = (attachments) => {
     const datas = {
       attachment:
@@ -49,17 +17,17 @@ export function AttachmentComponent(props) {
               url: "https://erxes.io/static/images/logo/logo_dark.svg",
             }
           : type === "video"
-          ? { name: "test.mp4", type: "video", url: "/Documents/test.mp4" }
+          ? { name: "video.mp4", type: "video", url: "/Documents/video.mp4" }
           : type === "fileSize"
           ? {
-              name: "test.docx",
+              name: "text.docx",
               type: "text",
               url: "/Documents/test.docx",
               size: 4179,
             }
           : type === "audio"
-          ? { name: "test.mp3", type: "mp3", url: "/Documents/test.mp3" }
-          : { name: "test.docx", type: "text", url: "/Documents/test.docx" },
+          ? { name: "audio.mp3", type: "mp3", url: "/Documents/audio.mp3" }
+          : { name: "text.docx", type: "text", url: "/Documents/test.docx" },
       additionalItem: additionalItem && "Additional text",
       simple: simple && true,
       attachments: attachments && [
@@ -68,7 +36,7 @@ export function AttachmentComponent(props) {
           type: "image",
           url: "https://erxes.io/static/images/logo/glyph_dark.svg",
         },
-        { name: "test.mp4", type: "video", url: "/Documents/test.mp4" },
+        { name: "flag_right.svg", type: "image", url: "https://erxes.io/static/images/logo/flag_right.svg" },
       ],
       index: index && 1,
     };
@@ -82,16 +50,16 @@ export function AttachmentComponent(props) {
     string = string.replace(/":/g, ":");
     string = string.replace(/,"/g, ",");
     string = string.replace(/{"/g, "{");
-    string = string.replace(/attachment:/g, "attachment=");
-    string = string.replace(/attachments:/g, "attachments={");
-    string = string.replace(/additionalItem:/g, "additionalItem=");
     string = string.replace(/:true/g, "");
+    string = string.replace(/:/g, "=");
+    string = string.replace(/attachments=/g, "attachments={");
+    string = string.replace(/,index/g, " index");
     string = string.replace(/}]/g, "}]}");
     string = string.slice(1, string.length - 1);
     string = string.replace(/=true/g, "");
-    string = string.replace(/name/g, "\n\t\tname");
-    string = string.replace(/type/g, "\n\t\ttype");
-    string = string.replace(/url/g, "\n\t\turl");
+    string = string.replace(/name=/g, "\n\t\tname:");
+    string = string.replace(/type=/g, "\n\t\ttype:");
+    string = string.replace(/url=/g, "\n\t\turl:");
     string = string.replace(/}/g, "}\n\t");
     string = string.replace(/,index:/g, "index=");
 
