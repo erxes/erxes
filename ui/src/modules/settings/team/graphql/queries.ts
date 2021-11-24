@@ -82,14 +82,20 @@ const listParamsDef = `
   $searchValue: String,
   $isActive: Boolean,
   $ids: [String],
-  $brandIds: [String]
+  $brandIds: [String],
+  $departmentId: String
+  $unitId: String
+  $branchId: String
 `;
 
 const listParamsValue = `
   searchValue: $searchValue,
   isActive: $isActive,
   ids: $ids,
-  brandIds: $brandIds
+  brandIds: $brandIds,
+  departmentId: $departmentId,
+  unitId: $unitId,
+  branchId: $branchId
 `;
 
 const users = teamQueries.users;
