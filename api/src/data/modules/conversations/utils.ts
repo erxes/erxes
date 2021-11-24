@@ -1,9 +1,9 @@
 import * as _ from 'underscore';
 import {
   Channels,
-  Conversations,
   Integrations,
-  Tags
+  Tags,
+  Segments
 } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
@@ -11,6 +11,9 @@ import { fetchElk } from '../../../elasticsearch';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { IListArgs } from '../../resolvers/queries/conversationQueryBuilder';
 import { fixDate } from '../../utils';
+import { ISegmentDocument } from '../../../db/models/definitions/segments';
+import { fetchSegment } from '../segments/queryBuilder';
+import { debugError } from '../../../debuggers';
 
 export interface ICountBy {
   [index: string]: number;
@@ -82,6 +85,30 @@ const countByIntegrationTypes = async (
   return counts;
 };
 
+export const countBySegment = async (
+  qb: any,
+  counts: ICountBy
+): Promise<ICountBy> => {
+  // Count cocs by segments
+  let segments: ISegmentDocument[] = [];
+
+  segments = await Segments.find({ contentType: 'conversation' });
+
+  // Count cocs by segment
+  for (const s of segments) {
+    try {
+      await qb.buildAllQueries();
+      await qb.segmentFilter(s._id);
+      counts[s._id] = await qb.runQueries();
+    } catch (e) {
+      debugError(`Error during segment count ${e.message}`);
+      counts[s._id] = 0;
+    }
+  }
+
+  return counts;
+};
+
 export const countByConversations = async (
   params: IListArgs,
   integrationIds: string[],
@@ -108,6 +135,10 @@ export const countByConversations = async (
     case 'byTags':
       await countByTags(qb, counts);
       break;
+
+    case 'bySegment':
+      await countBySegment(qb, counts);
+      break;
   }
 
   return counts;
@@ -131,6 +162,18 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.resetPositiveList();
     this.defaultFilters();
+  }
+
+  // filter by segment
+  public async segmentFilter(segmentId: string) {
+    const segment = await Segments.getSegment(segmentId);
+
+    const selector = await fetchSegment(
+      segment,
+      { returnSelector: true }
+    );
+
+    this.positiveList = [...this.positiveList, selector];
   }
 
   public resetPositiveList() {
@@ -313,18 +356,20 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public async dateFilter(startDate: string, endDate: string) {
-    const conversations = await Conversations.find({
-      createdAt: {
-        $gte: fixDate(startDate),
-        $lte: fixDate(endDate)
+    this.positiveList.push({
+      range : {
+        createdAt : {
+            gte : fixDate(startDate),
+            lte : fixDate(endDate)
+        }
       }
-    }).select('_id');
-
-    this.filterList.push({
-      terms: {
-        _id: conversations.map(conv => {
-          return conv._id;
-        })
+    },
+    {
+      range : {
+        updatedAt : {
+            gte : fixDate(startDate),
+            lte : fixDate(endDate)
+        }
       }
     });
   }
@@ -350,9 +395,19 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     await this.defaultFilters();
 
+     // filter by segment
+    if (this.params.segment) {
+      await this.segmentFilter(this.params.segment);
+    }
+
     // filter by channel
     if (this.params.channelId) {
       await this.channelFilter(this.params.channelId);
+    }
+
+     // filter by brand
+    if (this.params.brandId) {
+      await this.brandFilter(this.params.brandId);
     }
 
     // unassigned
