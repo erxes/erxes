@@ -2,44 +2,59 @@ import React from "react";
 import AvatarUpload from "erxes-ui/lib/components/AvatarUpload";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../common.js";
-import { Upload } from "react-feather";
+import { renderApiTable } from "../common.js";
 
 export function AvatarComponent(props) {
   const { type, table = [] } = props;
 
-  const propDatas = (propName) => {
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/{}/g, "");
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/}/g, "");
+    string = string.replace(/=true/g, "");
+    string = string.replace(/ avatar=false/g, "");
+
+    return string;
+  };
+
+  const propDatas = () => {
     const datas = {
-        defaultAvatar: "https://erxes.io/static/images/logo/logo_dark_3x.png",
-      avatar: propName && "https://erxes.io/static/images/logo/glyph_dark.png"
+      defaultAvatar: "https://erxes.io/static/images/logo/logo_dark_3x.png",
+      avatar:
+        type === "avatar" &&
+        "https://erxes.io/static/images/logo/glyph_dark.png",
+        onAvatarUpload: (response) => {},
     };
     return datas;
   };
 
-  const renderBlock = (propName, ) => {
+  const renderBlock = () => {
     return (
       <>
         <div className={styles.styled}>
-          <AvatarUpload {...propDatas(propName)} />
+          <AvatarUpload {...propDatas()} />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<AvatarUpload ${stringify(propDatas(propName))} />\n</>`}
+          {`<>\n\t<AvatarUpload ${stringify(propDatas())} />\n</>`}
         </CodeBlock>
       </>
     );
   };
 
-  if (type === "defaultAvatar") {
-    return renderBlock();
-  }
+  // if (type === "defaultAvatar") {
+  //   return renderBlock();
+  // }
 
-  if (type === "avatar") {
-    return renderBlock("avatar");
-  }
+  // if (type === "avatar") {
+  //   return renderBlock("avatar");
+  // }
 
   if (type === "APIavatarUpload") {
     return renderApiTable("AvatarUpload", table);
   }
 
-  return null;
+  return renderBlock();
 }

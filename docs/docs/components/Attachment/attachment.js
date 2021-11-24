@@ -5,9 +5,9 @@ import CodeBlock from "@theme/CodeBlock";
 import Table from "erxes-ui/lib/components/table/index";
 
 export function AttachmentComponent(props) {
-  const { type, additionalItem, simple, index } = props;
+  const { type, additionalItem, simple, index, attachments } = props;
 
-  const propDatas = (attachments) => {
+  const propDatas = () => {
     const datas = {
       attachment:
         type === "image" || type === "multi"
@@ -39,12 +39,13 @@ export function AttachmentComponent(props) {
         { name: "flag_right.svg", type: "image", url: "https://erxes.io/static/images/logo/flag_right.svg" },
       ],
       index: index && 1,
+      scrollBottom: () => {},
     };
     return datas;
   };
 
-  const stringify = (kind) => {
-    let string = JSON.stringify(kind);
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
     string = string.replace(/}},"/g, "}} ");
     string = string.replace(/},"/g, "} ");
     string = string.replace(/":/g, ":");
@@ -66,24 +67,20 @@ export function AttachmentComponent(props) {
     return string;
   };
 
-  const renderBlock = (attachments) => {
+  const renderBlock = () => {
     return (
       <>
         <div className={styles.styled}>
-          <Attachment {...propDatas(attachments)} />
+          <Attachment {...propDatas()} />
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<Attachment ${stringify(
-            propDatas(attachments)
+            propDatas()
           )} />\n</>`}
         </CodeBlock>
       </>
     );
   };
-
-  if (type === "multi") {
-    return renderBlock("attachments");
-  }
 
   if (type === "APIattachment") {
     return (

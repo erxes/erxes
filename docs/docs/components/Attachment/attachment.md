@@ -43,7 +43,7 @@ import { AttachmentComponent } from "./attachment.js"
 ## Multiple attachments
 
 <p>Add multiple attachments by <code>attachments</code> prop.</p>
-<AttachmentComponent type="multi"/>
+<AttachmentComponent type="multi" attachments/>
 
 ## Index
 

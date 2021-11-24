@@ -10,7 +10,7 @@ import { AvatarComponent } from "./avatarUpload.js"
 ## Default avatar
 
 <p>Set default avatar with <code>defaultAvatar</code> prop.</p>
-<AvatarComponent type="defaultAvatar" />
+<AvatarComponent />
 
 ## Avatar
 
@@ -21,5 +21,6 @@ import { AvatarComponent } from "./avatarUpload.js"
 
 <AvatarComponent type="APIavatarUpload" table={[
     ['defaultAvatar', 'string', 'button', 'Set default avatar'],
-    ['avatar', 'string', '', 'Set an avatar']
+    ['avatar', 'string', '', 'Set an avatar'],
+    ['onAvatarUpload', 'function', '', 'Define function which changes the avatar when the image uploaded']
 ]} />
