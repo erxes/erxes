@@ -22,5 +22,5 @@ import { AvatarComponent } from "./avatarUpload.js"
 <AvatarComponent type="APIavatarUpload" table={[
     ['defaultAvatar', 'string', 'button', 'Set default avatar'],
     ['avatar', 'string', '', 'Set an avatar'],
-    ['onAvatarUpload*', 'function', '', 'Define function which changes the avatar when the image uploaded']
+    ['onAvatarUpload*', 'function', '', 'Define function that changes the avatar when the image uploaded']
 ]} />

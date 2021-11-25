@@ -127,7 +127,7 @@ export function AttachmentComponent(props) {
               <td colSpan="2">scrollBottom</td>
               <td>function</td>
               <td />
-              <td></td>
+              <td>Define function that runs after the image finished loading</td>
             </tr>
             <tr>
               <td colSpan="2">additionalItem</td>
