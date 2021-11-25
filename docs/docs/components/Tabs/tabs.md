@@ -5,6 +5,10 @@ title: Tabs
 
 import { TabsComponent } from "./tabs.js"
 
+<p>Dynamic tabbed interfaces.</p>
+<p><code>handleSelect</code> is triggered when tab is clicked.</p>
+<TabsComponent type="before" />
+
 ## Example
 
 <p>Simple example of tabs. </p>

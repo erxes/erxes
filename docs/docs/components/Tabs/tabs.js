@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tabs, TabTitle } from "erxes-ui/lib/components/tabs/index";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable } from "../common.js";
@@ -7,22 +7,18 @@ import "erxes-icon/css/erxes.min.css";
 export function TabsComponent(props) {
   const { type, table = [] } = props;
   let tabs = ["Tab 1", "Tab 2", "Tab 3"];
+  const [content, setContent] = useState();
 
   const propDatas = (propName) => {
     const kind = {
-      [propName]: propName === "id" ? null : true,
+      [propName]: true,
     };
 
     return kind;
   };
 
-  const handleSelect = (propName, index) => {
-    const string = "Context of tab " + (index + 1);
-    if (propName === "full") {
-      document.getElementById("full").innerHTML = string;
-    } else if (propName === "grayBorder") {
-      document.getElementById("border").innerHTML = string;
-    } else document.getElementById("id").innerHTML = string;
+  const handleSelect = (index) => {
+    setContent("Content of tab" + (index + 1));
   };
 
   const stringify = (kind) => {
@@ -34,9 +30,9 @@ export function TabsComponent(props) {
     string = string.replace(/}/g, "");
     string = string.replace(/=true/g, "");
     string = string.replace(/id=null/g, "");
-    
+
     return string;
-  }
+  };
 
   const renderBlock = (propName) => {
     return (
@@ -45,17 +41,14 @@ export function TabsComponent(props) {
           {tabs.map((tab, index) => {
             return (
               <>
-                <TabTitle
-                  onClick={() => handleSelect(propName, index)}
-                  key={index}
-                >
+                <TabTitle onClick={() => handleSelect(index)} key={index}>
                   {tab}
                 </TabTitle>
               </>
             );
           })}
         </Tabs>
-        <div id={propName} />
+        <div>{content}</div>
         <br />
         <CodeBlock className="language-jsx">
           {`<>\n\t<Tabs ${stringify(propDatas(propName))}>
@@ -86,6 +79,16 @@ export function TabsComponent(props) {
         {renderApiTable("", table)}
       </>
     );
+  }
+
+  if (type === "before") {
+    return (<>
+    <CodeBlock className="language-javascript">{`import React, {useState} from "react";`}</CodeBlock>
+      <CodeBlock className="language-javascript">{`const [content, setContent] = useState();
+const handleSelect = (index) => {
+      setContent("Content of tab" + (index + 1));
+    };`}</CodeBlock>
+    </>);
   }
 
   if (type === "APItabtitle") {

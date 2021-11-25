@@ -23,5 +23,4 @@ import { TimerComponent } from "./timer.js"
 
 ## API
 
-
 <TimerComponent type="APItimer"  />
