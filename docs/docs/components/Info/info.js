@@ -37,7 +37,7 @@ export function InfoComponent(props) {
             return `\n\t<Info ${stringify(
               propDatas(type, iconShow, index)
             )} >${type}</Info>`;
-          })}\n</>`}
+          }).join(' ')}\n</>`}
         </CodeBlock>
       </>
     );

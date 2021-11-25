@@ -32,7 +32,7 @@ export function SpinnerComponent(props) {
           {`<>${values.map(
             (value, index) =>
             `\n\t<Spinner ${stringify(propDatas(propName, value, index))}/>`
-          )}\n</>`}
+          ).join(' ')}\n</>`}
         </CodeBlock>
       </>
     );

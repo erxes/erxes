@@ -41,7 +41,7 @@ export function LabelComponent(props) {
             return `\n\t<Label ${stringify(
               propDatas(propName, stl)
             )}>${stl}</Label>`;
-          })}\n</>`}
+          }).join(' ')}\n</>`}
         </CodeBlock>
       </>
     );

@@ -36,9 +36,10 @@ import { TableComponent } from './table.js'
 ## White-space
 
 <p>Customize cell type with <code>white-space</code> prop.</p>
-<TableComponent type="whiteSpace" mergedCellText="Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird is widely regarded as one of the greatest basketball players of all time." table={[
+<TableComponent type="whiteSpace" table={[
     ['1', 'James', 'Smith', '@james'],
-    ['2', 'Robert', 'Rodriguez', '@robert']
+    ['2', 'Robert', 'Rodriguez', '@robert'],
+    ['3', 'Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed the Hick from French Lick and Larry Legend,Bird is widely regarded as one of the greatest basketball players of all time.', 'Bird', '@larry']
 ]} />
 
 ## API

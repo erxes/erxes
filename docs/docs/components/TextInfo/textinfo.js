@@ -39,7 +39,7 @@ export function TextInfoComponent(props) {
             return `\n\t<TextInfo ${stringify(
               propDatas(propname, stl)
             )} >${stl}</TextInfo>`;
-          })}\n</>`}
+          }).join('')}\n</>`}
         </CodeBlock>
       </>
     );

@@ -54,7 +54,7 @@ export function TabsComponent(props) {
           {`<>\n\t<Tabs ${stringify(propDatas(propName))}>
          ${tabs.map((tab) => {
            return ` <TabTitle onClick={() => handleSelect(index)}>${tab}</TabTitle>\n\t`;
-         })}</Tabs>\n</>`}
+         }).join('')}</Tabs>\n</>`}
         </CodeBlock>
       </>
     );
