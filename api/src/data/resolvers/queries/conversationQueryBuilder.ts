@@ -1,8 +1,9 @@
 import * as _ from 'underscore';
-import { Channels, Integrations, Tags } from '../../../db/models';
+import { Channels, Integrations, Tags, Segments } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
 import { getDocumentList } from '../mutations/cacheUtils';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 
 interface IIn {
   $in: string[];
@@ -31,6 +32,12 @@ export interface IListArgs {
   startDate?: string;
   endDate?: string;
   only?: string;
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
+  segment?: string;
+  searchValue?: string;
 }
 
 interface IUserArgs {
@@ -66,6 +73,21 @@ export default class Builder {
   constructor(params: IListArgs, user: IUserArgs) {
     this.params = params;
     this.user = user;
+  }
+
+  // filter by segment
+  public async segmentFilter(segmentId: string): Promise<{_id: IIn}> {
+    const segment = await Segments.getSegment(segmentId);
+
+    const selector = await fetchSegment(
+      segment,
+      { returnFields: [ '_id' ], page: 1, perPage: this.params.limit ? this.params.limit+1 : 11, sortField: 'updatedAt', sortDirection: -1 }
+    );
+
+    const Ids = _.pluck(selector, '_id');
+    return {
+      _id: { $in: Ids }
+    };
   }
 
   public userRelevanceQuery() {
@@ -326,7 +348,8 @@ export default class Builder {
       integrations: {},
 
       participating: {},
-      createdAt: {}
+      createdAt: {}, 
+      segments: {}
     };
 
     // filter by channel
@@ -374,6 +397,11 @@ export default class Builder {
       );
     }
 
+    // filter by segment
+    if(this.params.segment){
+      this.queries.segments = await this.segmentFilter(this.params.segment);
+    }
+
     this.queries.extended = await this.extendedQueryFilter(this.params);
   }
 
@@ -388,7 +416,8 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
-      ...this.queries.awaitingResponse
+      ...this.queries.awaitingResponse,
+      ...this.queries.segments
     };
   }
 }

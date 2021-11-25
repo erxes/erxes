@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { attachmentSchema } from './boards';
 import { PUBLISH_STATUSES } from './constants';
 import { field, schemaWrapper } from './utils';
 
@@ -77,6 +78,12 @@ export const articleSchema = new Schema({
     default: [],
     label: 'Reaction choices'
   }),
+  viewCount: field({
+    type: Number,
+    default: 0,
+    label: 'Count how many times visitor viewed'
+  }),
+  attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
   reactionCounts: field({ type: Object, label: 'Reaction counts' }),
   topicId: field({ type: String, optional: true, label: 'Topic' }),
   categoryId: field({ type: String, optional: true, label: 'Category' }),

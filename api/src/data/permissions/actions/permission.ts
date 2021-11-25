@@ -1328,6 +1328,25 @@ export const moduleObjects = {
       }
     ]
   },
+  exms: {
+    name: 'exms',
+    description: 'Exm',
+    actions: [
+      {
+        name: 'exmsAll',
+        description: 'All',
+        use: ['showExms', 'manageExms']
+      },
+      {
+        name: 'showExms',
+        description: 'Show exm'
+      },
+      {
+        name: 'manageExms',
+        description: 'Manage exm'
+      }
+    ]
+  },
   clientPortal: {
     name: 'clientPortal',
     description: 'Client portal',

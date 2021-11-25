@@ -1,8 +1,11 @@
 import { graphqlRequest } from '../db/connection';
 import {
+  branchFactory,
   brandFactory,
   conversationFactory,
+  departmentFactory,
   onboardHistoryFactory,
+  unitFactory,
   userFactory
 } from '../db/factories';
 import { Conversations, OnboardingHistories, Users } from '../db/models';
@@ -36,7 +39,10 @@ describe('userQueries', () => {
       $isActive: Boolean,
       $ids: [String],
       $status: String,
-      $brandIds: [String]
+      $brandIds: [String],
+      $departmentId: String,
+      $unitId: String,
+      $branchId: String,
     `;
 
     const paramValues = `
@@ -47,7 +53,10 @@ describe('userQueries', () => {
       isActive: $isActive,
       ids: $ids,
       status: $status,
-      brandIds: $brandIds
+      brandIds: $brandIds,
+      departmentId: $departmentId,
+      unitId: $unitId,
+      branchId: $branchId
     `;
 
     const qry = `
@@ -92,6 +101,33 @@ describe('userQueries', () => {
     response = await graphqlRequest(qry, 'users', { brandIds: [brand._id] });
 
     expect(response.length).toBe(1);
+
+    // filter by deparment
+    const department = await departmentFactory({ userIds: [user1._id] });
+
+    response = await graphqlRequest(qry, 'users', {
+      departmentId: department._id
+    });
+
+    expect(response[0]._id).toBe(user1._id);
+
+    // filter by unit
+    const unit = await unitFactory({ userIds: [user1._id] });
+
+    response = await graphqlRequest(qry, 'users', {
+      unitId: unit._id
+    });
+
+    expect(response[0]._id).toBe(user1._id);
+
+    // filter by branch
+    const branch = await branchFactory({ userIds: [user1._id] });
+
+    response = await graphqlRequest(qry, 'users', {
+      branchId: branch._id
+    });
+
+    expect(response[0]._id).toBe(user1._id);
   });
 
   test('All users', async () => {
@@ -196,6 +232,12 @@ describe('userQueries', () => {
       query currentUser {
         currentUser {
           _id
+          exm {
+            _id
+          }
+          department {
+            _id
+          }
           onboardingHistory {
             _id
           }

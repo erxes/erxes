@@ -1,5 +1,8 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { SidebarListItem } from '../styles';
+import { SidebarList } from 'modules/layout/styles';
 
 const FilterContainer = styled.div`
   position: relative;
@@ -73,14 +76,39 @@ const FormTable = styled.table`
 
   td {
     padding-right: ${dimensions.coreSpacing}px;
-    width: 25%;
+    width: 14%;
   }
 
   tr {
     td:last-child,
-    td:nth-child(4) {
+    td:nth-child(5) {
       padding: 0;
     }
+  }
+`;
+
+const SideList = styledTS<{ isChild?: boolean; isActive?: boolean }>(
+  styled(SidebarListItem)
+)`
+  white-space: normal !important;
+  border: 0;
+  padding-left: ${props => props.isChild && `30px`} !important;
+
+  > span {
+    width: 90%;
+    display: flex;
+
+    > i {
+      margin-right: 5px;
+      color: ${props =>
+        props.isChild ? colors.colorCoreBlue : colors.colorCoreGreen};
+    }
+  }
+`;
+
+const StructureList = styled(SidebarList)`
+  > li {
+    justify-content: space-between;
   }
 `;
 
@@ -92,5 +120,7 @@ export {
   LinkButton,
   RemoveRow,
   InviteOption,
-  FormTable
+  FormTable,
+  SideList,
+  StructureList
 };
