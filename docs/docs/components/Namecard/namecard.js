@@ -94,8 +94,8 @@ export function CardComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td rowSpan="3">* user</td>
-            <td colSpan="2">* username</td>
+            <td rowSpan="3">user*</td>
+            <td colSpan="2">username*</td>
             <td>string</td>
             <td/>
             <td>Defines the username</td>

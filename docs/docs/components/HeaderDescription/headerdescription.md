@@ -14,7 +14,7 @@ import { HeaderDescriptionComponent } from "./headerdescription.js"
 ## API
 
 <HeaderDescriptionComponent type="APIheaderdescription" table={[
-  ['* icon', 'string', '', 'Shows image before title'],
-  ['* title', 'string', '', 'Define title of description'],
-  ['* description', 'string', '', 'Define description']
+  ['icon*', 'string', '', 'Shows image before title'],
+  ['title*', 'string', '', 'Define title of description'],
+  ['description*', 'string', '', 'Define description']
 ]}/>

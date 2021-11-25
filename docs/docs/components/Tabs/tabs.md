@@ -29,7 +29,7 @@ import { TabsComponent } from "./tabs.js"
 ### Tabs
 
 <TabsComponent type="APItabs" table={[
-['* children', 'React.ReactNode', '', 'Contain TabTitle components'],
+['children*', 'React.ReactNode', '', 'Contain TabTitle components'],
 ['grayborder', 'boolean', '', 'Make border darker'],
 ['full', 'boolean', '', 'Display context full screen'],
 ]} />
@@ -37,7 +37,7 @@ import { TabsComponent } from "./tabs.js"
 ### TabTitle
 
 <TabsComponent type="APItabtitle" table={[
-['* children', 'React.ReactNode', '', 'Shows tab content'],
+['children*', 'React.ReactNode', '', 'Shows tab content'],
 ['onClick', 'function', '', 'Define click handler function'],
 ['className', 'string', '', 'Defines className']
 ]} />

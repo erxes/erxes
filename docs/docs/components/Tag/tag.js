@@ -76,26 +76,26 @@ function TagComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td rowSpan="8">* tags</td>
-            <td>* _id</td>
+            <td rowSpan="8">tags*</td>
+            <td>_id*</td>
             <td>string</td>
             <td/>
             <td>Define tag id</td>
           </tr>
           <tr>
-            <td>* type</td>
+            <td>type*</td>
             <td>string</td>
             <td/>
             <td>Define tag type</td>
           </tr>
           <tr>
-            <td>* name</td>
+            <td>name*</td>
             <td>string</td>
             <td/>
             <td>Define tag name</td>
           </tr>
           <tr>
-            <td>* colorCode</td>
+            <td>colorCode*</td>
             <td>string</td>
             <td/>
             <td>Set the tag color</td>

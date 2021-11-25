@@ -118,7 +118,7 @@ export function EmptyContentComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="10">* content</td>
+              <td rowSpan="10">content*</td>
               <td rowSpan="6">steps</td>
               <td>title</td>
               <td>string</td>

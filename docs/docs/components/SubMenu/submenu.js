@@ -63,7 +63,7 @@ export function SubMenuComponent(props) {
           <tbody>
             <tr>
               <td rowSpan="2">items (array)</td>
-              <td>* title</td>
+              <td>title*</td>
               <td>string</td>
               <td />
               <td>Defines submenu title</td>
