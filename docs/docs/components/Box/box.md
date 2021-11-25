@@ -30,9 +30,9 @@ import { BoxComponent } from "./box.js"
 ## API
 
 <BoxComponent type="APIbox" table={[
-    ['* title', 'string', '', 'Shows title of the box'],
+    ['title*', 'string', '', 'Shows title of the box'],
     ['name', 'string', '', 'Define name'],
-    ['children', 'React.ReactNode', '', 'Gives content to box'],
+    ['children*', 'React.ReactNode', '', 'Gives content to box'],
     ['extraButtons', 'React.ReactNode', '', 'Display an extra button on the box'],
     ['callback', 'function', '', 'Define additional fuction when title is clicked'],
     ['collapsible', 'boolean', 'false', 'Make the box collapsible'],

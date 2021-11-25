@@ -35,7 +35,7 @@ export function PopoverComponent(props) {
         <CodeBlock className="language-jsx">
           {`<>${triggerOf.map((trgger) => {
             return `\n\t<HelpPopover title="${title}" ${stringify(propDatas(propName, trgger))}>${child}</HelpPopover>`;
-          })}\n</>`}
+          }).join(' ')}\n</>`}
         </CodeBlock>
       </>
     );

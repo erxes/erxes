@@ -5,7 +5,7 @@ import { renderApiTable, stringify } from "../common.js";
 import Table from "erxes-ui/lib/components/table/index";
 
 export function TableComponent(props) {
-  const { type, table = [], mergedCellText } = props;
+  const { type, table = [] } = props;
 
   const propDatas = (propName) => {
     const datas = {
@@ -15,14 +15,7 @@ export function TableComponent(props) {
     return datas;
   };
 
-  const renderBlock = (propName, merge) => {
-    const additional = merge && (
-      <tr>
-        <td>3</td>
-        <td colSpan="2">{mergedCellText}</td>
-        <td>@twitter</td>
-      </tr>
-    );
+  const renderBlock = (propName) => {
     return (
       <>
         <div className={styles.styled}>
@@ -45,7 +38,6 @@ export function TableComponent(props) {
                   </tr>
                 );
               })}
-              {additional}
             </tbody>
           </Table>
         </div>
@@ -65,12 +57,8 @@ export function TableComponent(props) {
             (row) =>
               `\n    <tr>${row.map(
                 (cell) => `\n      <td>${cell}</td>`
-              )}\n    <tr>`
-          )}`}
-          {`${
-            additional &&
-            `\n    <tr>\n      <td>3</td>\n      <td colSpan="2">${mergedCellText}</td>\n      <td>@twitter</td>\n    <tr>`
-          }`}
+              ).join(' ')}\n    <tr>`
+          ).join(' ')}`}
           {`\n  </tbody>`}
           {`\n</Table>`}
         </CodeBlock>

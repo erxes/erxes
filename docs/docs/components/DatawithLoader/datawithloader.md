@@ -35,9 +35,9 @@ import { DatawithLoaderComponent } from "./datawithloader.js"
 ## API
 
 <DatawithLoaderComponent type="APIdatewithloader" table={[
-['* data', 'any', '', 'Define data'],
+['data*', 'any', '', 'Define data'],
 ['count', 'any', '', 'Define count'],
-['* loading', 'boolean', '', 'Loading state'],
+['loading*', 'boolean', '', 'Loading state'],
 ['emptyText','string', 'There is no data', 'Define text of emptyState'],
 ['emptyIcon','string','','Define icon of emptyState'],
 ['emptyImage','string','','Define image of emptyState'],

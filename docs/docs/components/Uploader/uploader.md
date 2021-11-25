@@ -34,5 +34,6 @@ import { UploaderComponent } from "./uploader.js"
   ['single', 'boolean', '', 'Make the uploader inactive to upload'],
   ['multiple', 'boolean', 'true', 'Make the uploader able to upload multiple files'],
   ['limit', 'number', '4', 'Limit the number of files to upload'],
-  ['defaultFileList', 'array', '', 'Show default files'],
+  ['defaultFileList*', 'array', '', 'Show default files'],
+  ['onChange*', 'function', '','Function of handling uploaded attachments']
 ]} />

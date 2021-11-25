@@ -45,7 +45,7 @@ export function TipComponent(props) {
             return `\n\t<Tip ${stringify(
               propDatas(plc)
             )} >\n\t\t<p>Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird is widely regarded as one of the greatest basketball players of all time.</p>\n\t</Tip>`;
-          })}\n</>`}
+          }).join('')}\n</>`}
         </CodeBlock>
       </>
     );

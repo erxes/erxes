@@ -46,7 +46,7 @@ export function BreadCrumbComponent(props) {
           <tbody>
             <tr>
               <td rowSpan="4">breadcrumbs</td>
-              <td>* title</td>
+              <td>title*</td>
               <td>string</td>
               <td/>
               <td>Shows title of the breadcrumb item</td>

@@ -26,7 +26,7 @@ import { IconComponent } from "./icon.js"
 ## API
 
 <IconComponent type="APIicon" table={[
-  ['* icon', 'string', '', 'Define icon'],
+  ['icon*', 'string', '', 'Define icon'],
   ['size', 'number', '', 'Changes icon size'],
   ['style','any', '', 'Gives custom style to icon'],
   ['color', 'string', 'black', 'Changes icon color'],
