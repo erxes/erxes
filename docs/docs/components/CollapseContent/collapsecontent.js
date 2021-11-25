@@ -9,7 +9,6 @@ import Icon from "erxes-ui/lib/components/Icon";
 export function CollapseContentComponent(props) {
   const { comp, opens, color, img, type, text, table = [] } = props;
 
-  const children = "This is children.";
   const title = "This is title.";
 
   const propDatas = (propName, beforeTitle) => {
@@ -28,7 +27,7 @@ export function CollapseContentComponent(props) {
     return (
       <>
         <CollapseContent title={title} {...propDatas(propName, beforeTitle)}>
-          {children}
+          <div>This is children.</div>
         </CollapseContent>
         {/* <CodeBlock className="language-jsx">
           {`<>\n\t<CollapseContent title="${title}" ${stringify(

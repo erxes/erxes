@@ -3,6 +3,7 @@ import Attachment from "erxes-ui/lib/components/Attachment";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import Table from "erxes-ui/lib/components/table/index";
+import { renderApiTable } from "../common.js";
 
 export function AttachmentComponent(props) {
   const { type, additionalItem, simple, index, attachments } = props;
@@ -85,7 +86,7 @@ export function AttachmentComponent(props) {
   if (type === "APIattachment") {
     return (
       <>
-        <CodeBlock className="language-javascript">{`import Attachment from "erxes-ui/lib/components/Attachment";`}</CodeBlock>
+        {renderApiTable("Attachment")}
         <p className={styles.required}>* required prop</p>
         <Table>
           <thead>

@@ -206,3 +206,8 @@ code {
 .bluePContainer {
 	margin: 20px;
 }
+
+.bigContainer {
+	display: flex;
+	flex-direction: column;
+}

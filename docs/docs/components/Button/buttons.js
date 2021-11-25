@@ -46,7 +46,7 @@ export function ButtonComponent(props) {
             return `\n\t<Button ${stringify(
               propDatas(propName, btn, icon, index)
             )} >${btn}</Button>`;
-          })}\n</>`}
+          }).join(' ')}\n</>`}
         </CodeBlock>
       </>
     );

@@ -112,6 +112,14 @@ html[data-theme='dark'] .react-toggle-track {
   background: rgba(180,180,180, 0.08);
 }
 
+.collapse {
+  display: none;
+}
+
+.collapse.show {
+  display: block;
+}
+
 @media (min-width: 600px) {
 	.center-desktop {
 		text-align: center;
