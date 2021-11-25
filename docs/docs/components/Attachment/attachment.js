@@ -99,20 +99,20 @@ export function AttachmentComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="4">* attachment</td>
-              <td>* name</td>
+              <td rowSpan="4">attachment*</td>
+              <td>name*</td>
               <td>string</td>
               <td />
               <td>Define file name</td>
             </tr>
             <tr>
-              <td>* type</td>
+              <td>type*</td>
               <td>string</td>
               <td />
               <td>Define file type</td>
             </tr>
             <tr>
-              <td>* url</td>
+              <td>url*</td>
               <td>string</td>
               <td />
               <td>Declare file path</td>
@@ -149,19 +149,19 @@ export function AttachmentComponent(props) {
             </tr>
             <tr>
               <td rowSpan="4">attachments (array)</td>
-              <td>* name</td>
+              <td>name*</td>
               <td>string</td>
               <td />
               <td>Define file name</td>
             </tr>
             <tr>
-              <td>* type</td>
+              <td>type*</td>
               <td>string</td>
               <td />
               <td>Define file type</td>
             </tr>
             <tr>
-              <td>* url</td>
+              <td>url*</td>
               <td>string</td>
               <td />
               <td>Declare file path</td>
