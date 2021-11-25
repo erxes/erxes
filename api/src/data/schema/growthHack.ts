@@ -35,6 +35,21 @@ const commonQueryFields = `
   assignedToMe: String
 `;
 
+const archivedGrowthHacksParams = `
+  pipelineId: String! 
+  search: String 
+  userIds: [String]
+  priorities: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  productIds: [String]
+  companyIds: [String]
+  customerIds: [String]
+  startDate: String
+  endDate: String
+  hackStages: [String]
+`;
+
 export const queries = `
   growthHackDetail(_id: String!): GrowthHack
   growthHacks(
@@ -55,32 +70,12 @@ export const queries = `
   ): JSON
 
   archivedGrowthHacks(
-    pipelineId: String!, 
-    search: String, 
-    page: Int, 
-    perPage: Int,
-    userIds: [String],
-    priorities: [String],
-    assignedUserIds: [String],
-    labelIds: [String],
-    productIds: [String],
-    companyIds: [String],
-    customerIds: [String],
-    startDate: String,
-    endDate: String
+    page: Int 
+    perPage: Int
+    ${archivedGrowthHacksParams}
   ): [GrowthHack]
   archivedGrowthHacksCount(
-    pipelineId: String!, 
-    search: String,
-    userIds: [String],
-    priorities: [String],
-    assignedUserIds: [String],
-    labelIds: [String],
-    productIds: [String],
-    companyIds: [String],
-    customerIds: [String],
-    startDate: String,
-    endDate: String
+    ${archivedGrowthHacksParams}
   ): Int
 `;
 
