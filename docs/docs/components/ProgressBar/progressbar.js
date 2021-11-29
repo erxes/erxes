@@ -12,8 +12,7 @@ export function ProgressBarComponent(props) {
     const datas = {
       percentage,
       color: color,
-      close:
-        close && isComponent && extra ? <Button>Close button</Button> : extra,
+      close: close && extra,
       height: height,
     };
 
@@ -33,11 +32,11 @@ export function ProgressBarComponent(props) {
     return string;
   };
 
-  const renderBlock = (extra) => {
+  const renderBlock = (extraString, extra) => {
     return (
       <>
         <div className={styles.styled}>
-          <ProgressBar {...propDatas(extra, true)}>35%</ProgressBar>
+          <ProgressBar {...propDatas(extra)}>35%</ProgressBar>
           {close && (
             <>
               <br />
@@ -46,14 +45,17 @@ export function ProgressBarComponent(props) {
           )}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<ProgressBar ${stringify(propDatas(extra))} />\n</>`}
+          {`<>\n\t<ProgressBar ${stringify(propDatas(extraString))} />\n</>`}
         </CodeBlock>
       </>
     );
   };
 
   if (close) {
-    return renderBlock("<Button>Close button</Button>");
+    return renderBlock(
+      "<Button>Close button</Button>",
+      <Button>Close button</Button>
+    );
   }
 
   if (type === "APIprogressbar") {

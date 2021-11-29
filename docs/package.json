@@ -25,7 +25,6 @@
     "erxes-ui": "0.0.68-beta",
     "graphql": "^15.7.1",
     "graphql-tag": "^2.12.5",
-    "html-react-parser": "^1.3.0",
     "i18n-react": "^0.7.0",
     "query-string": "^7.0.1",
     "raw-loader": "^4.0.2",

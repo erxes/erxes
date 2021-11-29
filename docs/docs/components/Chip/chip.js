@@ -11,16 +11,7 @@ export function ChipComponent(props) {
 
   const propDatas = (propName, front, isComponent) => {
     const kind = {
-      [propName]:
-        propName === "frontContent" ? (
-          isComponent && front ? (
-            <Icon icon="envelope-alt" />
-          ) : (
-            front
-          )
-        ) : (
-          true
-        ),
+      [propName]: propName === "frontContent" ? front : true,
     };
 
     const datas = {
@@ -30,7 +21,7 @@ export function ChipComponent(props) {
     return datas;
   };
 
-  const renderBlock = (propName, front) => {
+  const renderBlock = (propName, frontString, front) => {
     return (
       <>
         <div className={styles.styled}>
@@ -38,9 +29,11 @@ export function ChipComponent(props) {
         </div>
 
         <CodeBlock className="language-jsx">
-          {`${propName ? `<Chip ${stringify(
-              propDatas(propName, front)
-            )} >chip</Chip>` : `<Chip>chip</Chip>`} `}
+          {`${
+            propName
+              ? `<Chip ${stringify(propDatas(propName, frontString))} >chip</Chip>`
+              : `<Chip>chip</Chip>`
+          } `}
         </CodeBlock>
       </>
     );
@@ -55,7 +48,11 @@ export function ChipComponent(props) {
   }
 
   if (type === "frontContent") {
-    return renderBlock("frontContent", `<Icon icon='envelope-alt' />`);
+    return renderBlock(
+      "frontContent",
+      `<Icon icon='envelope-alt' />`,
+      <Icon icon="envelope-alt" />
+    );
   }
 
   if (type === "APIchip") {
