@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import client from 'apolloClient';
+import client from 'erxes-ui/lib/apolloClient';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 
-import { queries as leadQueries } from 'modules/leads/graphql';
-import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
-import ErrorMsg from 'modules/common/components/ErrorMsg';
-import Spinner from 'modules/common/components/Spinner';
+import { queries } from '../graphql';
+import ErrorMsg from 'erxes-ui/lib/components/ErrorMsg';
+import Spinner from 'erxes-ui/lib/components/Spinner';
 
 import General from '../components/General';
 import { IExm } from '../types';
@@ -17,10 +16,10 @@ type Props = {
 };
 
 export default function GeneralContainer(props: Props) {
-  const integrationQuery = useQuery(gql(leadQueries.integrations), {
+  const integrationQuery = useQuery(gql(queries.integrations), {
     variables: { kind: 'lead' }
   });
-  const kbQuery = useQuery(gql(kbQueries.knowledgeBaseTopics));
+  const kbQuery = useQuery(gql(queries.knowledgeBaseTopics));
   const [kbCategories, setKbCategories] = useState({});
 
   if (integrationQuery.loading || kbQuery.loading) {
@@ -38,7 +37,7 @@ export default function GeneralContainer(props: Props) {
   const getKbCategories = (topicId: string) => {
     client
       .query({
-        query: gql(kbQueries.knowledgeBaseCategories),
+        query: gql(queries.knowledgeBaseCategories),
         fetchPolicy: 'network-only',
         variables: { topicIds: [topicId] }
       })

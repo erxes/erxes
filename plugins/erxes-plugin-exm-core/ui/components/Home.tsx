@@ -1,8 +1,8 @@
 import React from 'react';
 
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import { __ } from '../../../common/utils';
-import Wrapper from '../../../layout/components/Wrapper';
+import HeaderDescription from 'erxes-ui/lib/components/HeaderDescription';
+import { __ } from 'erxes-ui/lib/utils';
+import Wrapper from 'erxes-ui/lib/layout/components/Wrapper';
 import EditForm from '../containers/EditForm';
 import AddForm from '../containers/AddForm';
 import { IExm } from '../types';
@@ -34,7 +34,7 @@ function Home(props: Props) {
       header={<Wrapper.Header title={'Exm'} breadcrumb={breadcrumb} />}
       mainHead={
         <HeaderDescription
-          icon="/images/actions/32.svg"
+          icon='/images/actions/32.svg'
           title={'EXM'}
           description={__('')}
         />

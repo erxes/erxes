@@ -2,7 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 
-import { Alert } from 'modules/common/utils';
+import { Alert } from 'erxes-ui/lib/utils';
 
 import EditForm from '../components/EditForm';
 import { mutations } from '../graphql';

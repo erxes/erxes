@@ -2,7 +2,7 @@ export const types = `
   type ExmWelcomeContent {
     _id: String
     title: String
-    image: Attachment
+    image: JSON
     content: String
   }
 
@@ -25,7 +25,7 @@ export const types = `
     _id: String
     name: String
     description: String
-    logo: Attachment
+    logo: JSON
     features: [ExmFeature]
     welcomeContent: [ExmWelcomeContent]
     appearance: ExmAppearance
@@ -63,8 +63,7 @@ export const types = `
 
 export const queries = `
   exms(name: String, page: Int, perPage: Int): ExmList
-  exmDetail(_id: String!): Exm
-  exmGetLast: Exm
+  exmGet: Exm
 `;
 
 const commonParams = `

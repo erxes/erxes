@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import { __ } from '../../../common/utils';
+import { Tabs, TabTitle } from 'erxes-ui/lib/components/tabs';
+import { __ } from 'erxes-ui/lib/utils';
 import General from '../containers/General';
 import Appearance from './Appearance';
 import { IExm } from '../types';

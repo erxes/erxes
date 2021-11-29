@@ -61,9 +61,9 @@ export const types = `
     configs: JSON
     configsConstants: [JSON]
     onboardingHistory: OnboardingHistory
-    exm: Exm
     department: Department
     score: Float
+    exm: JSON
   }
 
   type UserConversationListResponse {

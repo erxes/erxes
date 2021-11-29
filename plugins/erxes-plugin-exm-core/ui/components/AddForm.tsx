@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import { FormControl } from 'modules/common/components/form';
-import Button from 'modules/common/components/Button';
+import { FormControl } from 'erxes-ui/lib/components/form';
+import Button from 'erxes-ui/lib/components/Button';
 
 type Props = {
   add: (variables: { name: string }) => void;
@@ -20,12 +20,12 @@ export default function AddForm({ add }: Props) {
     <form style={{ padding: 50 }} onSubmit={onSubmit}>
       <FormControl
         value={name}
-        placeholder="Name"
+        placeholder='Name'
         onChange={(e: any) => setName(e.target.value)}
       />
       <br />
 
-      <Button style={{ float: 'right' }} type="submit">
+      <Button style={{ float: 'right' }} type='submit'>
         Add
       </Button>
     </form>

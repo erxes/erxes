@@ -1,9 +1,4 @@
-import {
-  Configs,
-  Departments,
-  Exms,
-  OnboardingHistories
-} from '../../db/models';
+import * as allModels from '../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
@@ -38,7 +33,7 @@ export default {
   async configsConstants() {
     const results: any[] = [];
     const configs = await getConfigs();
-    const constants = Configs.constants();
+    const constants = allModels.Configs.constants();
 
     for (const key of Object.keys(constants)) {
       const configValues = configs[key] || [];
@@ -60,7 +55,9 @@ export default {
   },
 
   async onboardingHistory(user: IUserDocument) {
-    const entries = await OnboardingHistories.find({ userId: user._id });
+    const entries = await allModels.OnboardingHistories.find({
+      userId: user._id
+    });
     const completed = entries.find(item => item.isCompleted);
 
     /**
@@ -75,10 +72,10 @@ export default {
   },
 
   exm() {
-    return Exms.findOne();
+    return allModels['Exms'] ? allModels['Exms'].findOne() : null;
   },
 
   department(user: IUserDocument) {
-    return Departments.findOne({ userIds: { $in: user._id } });
+    return allModels.Departments.findOne({ userIds: { $in: user._id } });
   }
 };
