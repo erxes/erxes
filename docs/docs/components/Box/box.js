@@ -9,24 +9,28 @@ import "erxes-icon/css/erxes.min.css";
 export function BoxComponent(props) {
   const { type, table = [] } = props;
 
-  const propDatas = (propName, extra) => {
+  const propDatas = (propName, extra, isComponent) => {
     let datas;
-    if(propName) {
+    if (propName) {
       const kind = {
         [propName]: propName !== "extraButtons" && true,
       };
-  
+
       datas = {
         ...kind,
         title: "Title",
         name: "name",
-        extraButtons: extra && <Button>button</Button>,
+        extraButtons:
+          isComponent && extra ? (
+            <Button btnStyle="simple" >button</Button>
+          ) : (
+            extra
+          ),
       };
     } else {
       datas = {
         title: "Title",
         name: "name",
-        extraButtons: extra && <Button>button</Button>,
       };
     }
 
@@ -37,50 +41,66 @@ export function BoxComponent(props) {
     return (
       <>
         <div className={styles.styled}>
-          <Box {...propDatas(propName, extra )}>
-            <div className={styles.styled}>
-              <p>
-                Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
-                American former professional basketball player, coach and
-                executive in the National Basketball Association (NBA).
-                Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
-                is widely regarded as one of the greatest basketball players of
-                all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
-                is an American former professional basketball player, coach and
-                executive in the National Basketball Association (NBA).
-                Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
-                is widely regarded as one of the greatest basketball players of
-                all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
-                is an American former professional basketball player, coach and
-                executive in the National Basketball Association (NBA).
-                Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
-                is widely regarded as one of the greatest basketball players of
-                all time.
-              </p>
-            </div>
-          </Box>
+          {propName === "collapsible" ? (
+            <Box {...propDatas(propName, extra, true)}>
+              <div className={styles.styled}>
+                <p>
+                  Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+                  American former professional basketball player, coach and
+                  executive in the National Basketball Association (NBA).
+                  Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
+                  is widely regarded as one of the greatest basketball players
+                  of all time.Larry the Bird. Larry Joe Bird (born December 7,
+                  1956) is an American former professional basketball player,
+                  coach and executive in the National Basketball Association
+                  (NBA). Nicknamed 'the Hick from French Lick' and 'Larry
+                  Legend,' Bird is widely regarded as one of the greatest
+                  basketball players of all time.Larry the Bird. Larry Joe Bird
+                  (born December 7, 1956) is an American former professional
+                  basketball player, coach and executive in the National
+                  Basketball Association (NBA). Nicknamed 'the Hick from French
+                  Lick' and 'Larry Legend,' Bird is widely regarded as one of
+                  the greatest basketball players of all time.
+                </p>
+              </div>
+            </Box>
+          ) : (
+            <Box {...propDatas(propName, extra, true)}>
+              <div className={styles.styled}>
+                <p>
+                  Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+                  American former professional basketball player, coach and
+                  executive in the National Basketball Association (NBA).
+                </p>
+              </div>
+            </Box>
+          )}
         </div>
-        
-        {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<Box ${stringify(
-              propDatas(propName, extra)
-            )} >Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
-            American former professional basketball player, coach and
-            executive in the National Basketball Association (NBA).
-            Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
-            is widely regarded as one of the greatest basketball players of
-            all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
-            is an American former professional basketball player, coach and
-            executive in the National Basketball Association (NBA).
-            Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
-            is widely regarded as one of the greatest basketball players of
-            all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
-            is an American former professional basketball player, coach and
-            executive in the National Basketball Association (NBA).
-            Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
-            is widely regarded as one of the greatest basketball players of
-            all time.</Box>\n</>`}
-        </CodeBlock> */}
+
+        <CodeBlock className="language-jsx">
+          {`<>\n\t${
+            propName === "collapsible"
+              ? `<Box ${stringify(propDatas(propName, extra))} >\n\t\t<p>Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+              American former professional basketball player, coach and
+              executive in the National Basketball Association (NBA).
+              Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
+              is widely regarded as one of the greatest basketball players of
+              all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
+              is an American former professional basketball player, coach and
+              executive in the National Basketball Association (NBA).
+              Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
+              is widely regarded as one of the greatest basketball players of
+              all time.Larry the Bird. Larry Joe Bird (born December 7, 1956)
+              is an American former professional basketball player, coach and
+              executive in the National Basketball Association (NBA).
+              Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
+              is widely regarded as one of the greatest basketball players of
+              all time.</p>\n\t</Box>`
+              : `<Box ${stringify(propDatas(propName, extra))} >\n\t\t<p>Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+              American former professional basketball player, coach and
+              executive in the National Basketball Association (NBA).</p>\n\t</Box>`
+          }\n</>`}
+        </CodeBlock>
       </>
     );
   };
@@ -98,7 +118,7 @@ export function BoxComponent(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("collapsible", "extraButtons");
+    return renderBlock("extraButtons", `<Button btnStyle='link'>button</Button>`);
   }
 
   if (type === "APIbox") {

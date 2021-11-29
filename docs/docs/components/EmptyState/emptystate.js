@@ -8,7 +8,7 @@ import { renderApiTable, stringify } from "../common.js";
 export function EmptyComponents(props) {
   const { type, table = [], item } = props;
 
-  const propDatas = (view, style, additional) => {
+  const propDatas = (view, style, additional, isComponent) => {
     const styling = style === "size" ? "30" : true;
 
     const kind = {
@@ -19,7 +19,12 @@ export function EmptyComponents(props) {
     const datas = {
       ...kind,
       text: "Text",
-      extra: additional && <Button>Extra button</Button>,
+      extra:
+        isComponent && additional ? (
+          <Button>Extra button</Button>
+        ) : (
+          additional
+        ),
     };
 
     return datas;
@@ -28,10 +33,12 @@ export function EmptyComponents(props) {
   const renderBlock = (view, style, additional) => {
     return (
       <>
-        <EmptyState {...propDatas(view, style, additional)} />
-        {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<EmptyState ${stringify(propDatas(view, style, additional))} />\n</>`}
-        </CodeBlock> */}
+        <EmptyState {...propDatas(view, style, additional, true)} />
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<EmptyState ${stringify(
+            propDatas(view, style, additional)
+          )} />\n</>`}
+        </CodeBlock>
       </>
     );
   };
@@ -53,7 +60,7 @@ export function EmptyComponents(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("icon", "size", "extra");
+    return renderBlock("icon", "size", `<Button>Extra button</Button>`);
   }
 
   if (type === "APIempty") {

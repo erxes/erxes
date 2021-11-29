@@ -24,7 +24,7 @@ import { BoxComponent } from "./box.js"
 
 ## Extra buttons
 
-<p>Add an extra button with <code>extraButtons</code> prop.</p>
+<p>Add an extra button that shows when the box is expanded by <code>extraButtons</code> prop.</p>
 <BoxComponent type="extra" />
 
 ## API
