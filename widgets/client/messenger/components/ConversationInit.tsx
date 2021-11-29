@@ -55,14 +55,14 @@ function ConversationInit(props: Props) {
 
   return (
     <>
-      <ul className="erxes-conversation-list">
+      <ul className="erxes-conversation-init">
         {conversations.length > 0 &&
           <ConversationItem
             key={conversations[0]._id}
             conversation={conversations[0]}
             goToConversation={goToConversation}
           />}
-        {seeAllConversationBtn()}
+        {conversations.length > 1 && seeAllConversationBtn()}
         {createButton()}
       </ul>
     </>
