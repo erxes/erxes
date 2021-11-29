@@ -129,6 +129,39 @@ export const checkFile = async (file, source?: string) => {
   return 'ok';
 };
 
+const fileToFileLink = async (url?: string, name?: string): Promise<string> => {
+  if (!url) {
+    return '';
+  }
+
+  let href: string;
+  if (isValidURL(url) || url.includes('/')) {
+    href = url;
+  } else {
+    const API_DOMAIN = getSubServiceDomain({ name: 'API_DOMAIN' });
+    const key = url;
+    const uriName = name ? encodeURIComponent(name) : url;
+    href = `${API_DOMAIN}/read-file?key=${key}&name=${uriName}`;
+  }
+
+  return `<a target="_blank" download href="${href}">${name || url}</a>`;
+};
+
+export const customFieldsDataItemToFileLink = async (
+  customFieldDataItem: any
+): Promise<string> => {
+  const value = customFieldDataItem.value;
+
+  if (Array.isArray(value)) {
+    const links = await Promise.all(
+      value.map(v => fileToFileLink(v.url, v.name))
+    );
+    return links.join(' | ');
+  }
+
+  return fileToFileLink(value.url, value.name);
+};
+
 /**
  * Create AWS instance
  */
@@ -562,37 +595,6 @@ export const replaceEditorAttributes = async (args: {
 
     customer.customFieldsData = customFieldsData;
   }
-
-  const fileToFileLink = async (file: any): Promise<string> => {
-    if (!file?.url) {
-      return '';
-    }
-
-    let href: string;
-    if (isValidURL(file.url) || file.url.includes('/')) {
-      href = file.url;
-    } else {
-      const API_DOMAIN = getSubServiceDomain({ name: 'API_DOMAIN' });
-      const key = file.url;
-      const name = file.name ? encodeURIComponent(file.name) : key;
-      href = `${API_DOMAIN}/read-file?key=${key}&name=${name}`;
-    }
-
-    return `<a target="_blank" download href="${href}">${file.name}</a>`;
-  };
-
-  const customFieldsDataItemToFileLink = async (
-    customFieldDataItem: any
-  ): Promise<string> => {
-    const value = customFieldDataItem.value;
-
-    if (Array.isArray(value)) {
-      const links = await Promise.all(value.map(fileToFileLink));
-      return links.join(' | ');
-    }
-
-    return fileToFileLink(value);
-  };
 
   // replace customer fields
   if (args.customer) {
