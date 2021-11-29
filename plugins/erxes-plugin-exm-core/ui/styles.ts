@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import colors from 'erxes-ui/lib/styles/colors';
 
 export const GeneralWrapper = styled.div`
   padding: 40px;
@@ -108,4 +109,18 @@ export const UploadItems = styled.div`
   justify-content: center;
   align-items: center;
   padding-left: 10px;
+`;
+
+export const ColorPick = styled.div`
+  border-radius: 4px;
+  display: inline-block;
+  padding: 3px;
+  border: 1px solid ${colors.borderDarker};
+  cursor: pointer;
+`;
+
+export const ColorPicker = styled.div`
+  width: 80px;
+  height: 27px;
+  border-radius: 2px;
 `;

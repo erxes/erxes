@@ -2,7 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 
-import { Alert } from 'modules/common/utils';
+import { Alert } from 'erxes-ui/lib/utils';
 
 import AddForm from '../components/AddForm';
 import { mutations } from '../graphql';
@@ -12,10 +12,10 @@ function AddFormContainer() {
 
   const add = (variables: { name: string }) => {
     addMutation({ variables })
-      .then(({ data }) => {
+      .then(() => {
         Alert.success('Successfully added');
 
-        window.location.href = `/settings/exm?_id=${data.exmsAdd._id}`;
+        window.location.reload();
       })
       .catch(e => {
         Alert.error(e.message);

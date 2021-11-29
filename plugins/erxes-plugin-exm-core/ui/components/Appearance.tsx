@@ -1,9 +1,8 @@
-import Button from 'modules/common/components/Button';
-import { FormControl } from 'modules/common/components/form';
-import ControlLabel from 'modules/common/components/form/Label';
-import Uploader from 'modules/common/components/Uploader';
-import { __ } from 'modules/common/utils';
-import { MobilePreview } from 'modules/leads/components/step/style';
+import Button from 'erxes-ui/lib/components/Button';
+import { FormControl } from 'erxes-ui/lib/components/form';
+import ControlLabel from 'erxes-ui/lib/components/form/Label';
+import Uploader from 'erxes-ui/lib/components/Uploader';
+import { __ } from 'erxes-ui/lib/utils';
 import React, { useState } from 'react';
 import {
   GeneralWrapper,
@@ -13,7 +12,7 @@ import {
   WelcomeContent
 } from '../styles';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import { ColorPick, ColorPicker } from '../styles';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { IExm, IWelcomeContent } from '../types';
@@ -109,10 +108,10 @@ export default function Appearance(props: Props) {
 
   const renderColorSelect = (item, color) => {
     const popoverBottom = (
-      <Popover id="color-picker">
+      <Popover id='color-picker'>
         <TwitterPicker
-          width="266px"
-          triangle="hide"
+          width='266px'
+          triangle='hide'
           color={color}
           onChange={e => onChangeColor(item, e.hex)}
         />
@@ -121,9 +120,9 @@ export default function Appearance(props: Props) {
 
     return (
       <OverlayTrigger
-        trigger="click"
+        trigger='click'
         rootClose={true}
-        placement="bottom-start"
+        placement='bottom-start'
         overlay={popoverBottom}
       >
         <ColorPick>
@@ -157,17 +156,17 @@ export default function Appearance(props: Props) {
           single={true}
         />
         <FormControl
-          name="title"
-          placeholder="Title"
+          name='title'
+          placeholder='Title'
           value={page.title}
           onChange={(e: any) => {
             return onChangePageItem(page._id, 'title', e.target.value);
           }}
         />
         <FormControl
-          name="description"
-          placeholder="Description"
-          componentClass="textarea"
+          name='description'
+          placeholder='Description'
+          componentClass='textarea'
           value={page.content}
           onChange={(e: any) => {
             return onChangePageItem(page._id, 'content', e.target.value);
@@ -207,13 +206,10 @@ export default function Appearance(props: Props) {
             renderWelcomeContent(page, index)
           )}
         </WelcomeContent>
-        <Button btnStyle="success" onClick={onSave}>
+        <Button btnStyle='success' onClick={onSave}>
           Save
         </Button>
       </GeneralWrapper>
-      <div>
-        <MobilePreview />
-      </div>
     </AppearanceWrapper>
   );
 }

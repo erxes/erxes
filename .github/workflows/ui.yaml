@@ -7,6 +7,7 @@ on:
     paths:
       - 'ui/**'
       - 'plugins/erxes-plugin-exm-feed/ui/**'
+      - 'plugins/erxes-plugin-exm-core/ui/**'
       - '.github/workflows/ui.yaml'
       - '!ui/nginx/**'
       - '!ui/docker-entrypoint.sh'

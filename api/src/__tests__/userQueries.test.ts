@@ -232,9 +232,6 @@ describe('userQueries', () => {
       query currentUser {
         currentUser {
           _id
-          exm {
-            _id
-          }
           department {
             _id
           }
