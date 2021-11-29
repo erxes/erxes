@@ -47,6 +47,10 @@ export function stringify(datas) {
   string = string.replace(/,"/g, " ");
   string = string.replace(/}/g, "");
   string = string.replace(/=true/g, "");
+  string = string.replace(/"</g, "{<");
+  string = string.replace(/>"/g, ">}");
+  string = string.replace(/true/g, "{true}");
+  string = string.replace(/false/g, "{false}");
   
   return string;
 }

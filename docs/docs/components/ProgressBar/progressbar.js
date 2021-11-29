@@ -8,30 +8,35 @@ import { renderApiTable, stringify } from "../common.js";
 export function ProgressBarComponent(props) {
   const { percentage = 35, color, close, height, type, table = [] } = props;
 
-  const propDatas = () => {
+  const propDatas = (extra, isComponent) => {
     const datas = {
       percentage,
       color: color,
-      close: close && <Button>Close button</Button>,
+      close:
+        close && isComponent && extra ? <Button>Close button</Button> : extra,
       height: height,
     };
 
     return datas;
   };
 
-  const renderBlock = () => {
+  const renderBlock = (extra) => {
     return (
       <>
         <div className={styles.styled}>
-          <ProgressBar {...propDatas()}>35%</ProgressBar>
+          <ProgressBar {...propDatas(extra, true)}>35%</ProgressBar>
+          {close && <><br /><br /></>}
         </div>
-        <br />
-        {/* <CodeBlock className="language-jsx">
-          {`<>\n\t<ProgressBar ${stringify(propDatas())} />\n</>`}
-        </CodeBlock> */}
+        <CodeBlock className="language-jsx">
+          {`<>\n\t<ProgressBar ${stringify(propDatas(extra))} />\n</>`}
+        </CodeBlock>
       </>
     );
   };
+
+  if (close) {
+    return renderBlock("<Button>Close button</Button>");
+  }
 
   if (type === "APIprogressbar") {
     return renderApiTable("ProgressBar", table);

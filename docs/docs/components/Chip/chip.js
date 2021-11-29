@@ -9,10 +9,18 @@ import "erxes-icon/css/erxes.min.css";
 export function ChipComponent(props) {
   const { type, table = [] } = props;
 
-  const propDatas = (propName) => {
+  const propDatas = (propName, front, isComponent) => {
     const kind = {
       [propName]:
-        propName === "frontContent" ? <Icon icon="envelope-alt" /> : true,
+        propName === "frontContent" ? (
+          isComponent && front ? (
+            <Icon icon="envelope-alt" />
+          ) : (
+            front
+          )
+        ) : (
+          true
+        ),
     };
 
     const datas = {
@@ -22,19 +30,18 @@ export function ChipComponent(props) {
     return datas;
   };
 
-  const renderBlock = (propName) => {
-    const id = "demo";
+  const renderBlock = (propName, front) => {
     return (
       <>
         <div className={styles.styled}>
-          <Chip {...propDatas(propName)}>chip</Chip>
+          <Chip {...propDatas(propName, front, true)}>chip</Chip>
         </div>
 
-        {/* <CodeBlock className="language-jsx">
+        <CodeBlock className="language-jsx">
           {`${propName ? `<Chip ${stringify(
-              propDatas(propName)
+              propDatas(propName, front)
             )} >chip</Chip>` : `<Chip>chip</Chip>`} `}
-        </CodeBlock> */}
+        </CodeBlock>
       </>
     );
   };
@@ -48,7 +55,7 @@ export function ChipComponent(props) {
   }
 
   if (type === "frontContent") {
-    return renderBlock("frontContent");
+    return renderBlock("frontContent", `<Icon icon='envelope-alt' />`);
   }
 
   if (type === "APIchip") {
