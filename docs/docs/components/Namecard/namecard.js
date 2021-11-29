@@ -9,11 +9,11 @@ export function CardComponent(props) {
 
   const propDatas = (propName, fullName, additional, email) => {
     const kind = {
+      [additional]: info,
       user: {
         [propName]: propName === "username" ? name : { [fullName]: name },
         email: email && mail,
       },
-      [additional]: info,
     };
 
     const datas = {
@@ -25,16 +25,15 @@ export function CardComponent(props) {
 
   const stringify = (datas) => {
     let string = JSON.stringify(datas);
-    string = string.replace(/}},"/g, "}} ");
-    string = string.replace(/},"/g, "}, ");
-    string = string.replace(/},/g, "} ");
     string = string.replace(/":/g, ":");
     string = string.replace(/{"/g, "{");
-    string = string.slice(1, string.length - 1);
-    string = string.replace(/user:/g, "user=");
-    string = string.replace(/singleLine:/g, "singleLine=");
-    string = string.replace(/avatarSize:/g, "avatarSize=");
-    string = string.replace(/secondLine:/g, "secondLine=");
+    string = string.slice(1, string.length);
+    string = string.replace(/,"user:/g, " user={");
+    string = string.replace(/singleLine:true/g, ' singleLine={true}');
+    string = string.replace(/"email/g, 'email');
+    string = string.replace(/avatarSize:50/g, ' avatarSize={50}');
+    string = string.replace(/secondLine:/g, " secondLine=");
+    string = string.replace(/user:/g, " user={");
 
     return string;
   }

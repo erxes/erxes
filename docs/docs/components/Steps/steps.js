@@ -3,9 +3,8 @@ import Steps from "erxes-ui/lib/components/step/Steps";
 import Step from "erxes-ui/lib/components/step/Step";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../common.js";
+import { renderApiTable } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
-import { DataStore } from "apollo-client/data/store";
 
 export function StepComponent(props) {
   const { type, table = [] } = props;
@@ -33,6 +32,19 @@ export function StepComponent(props) {
       return data;
     }
   };
+
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/{}/g, "");
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/}/g, "");
+    string = string.replace(/=true/g, "");
+    string = string.replace(/2/g, "{2}");
+    
+    return string;
+  }
 
   const renderBlockSteps = (propName) => {
     return (

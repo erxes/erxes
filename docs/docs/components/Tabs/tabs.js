@@ -29,7 +29,7 @@ export function TabsComponent(props) {
     string = string.replace(/,"/g, " ");
     string = string.replace(/}/g, "");
     string = string.replace(/=true/g, "");
-    string = string.replace(/id=null/g, "");
+    string = string.replace(/id/g, "");
 
     return string;
   };
@@ -52,9 +52,9 @@ export function TabsComponent(props) {
         <br />
         <CodeBlock className="language-jsx">
           {`<>\n\t<Tabs ${stringify(propDatas(propName))}>
-         ${tabs.map((tab) => {
-           return ` <TabTitle onClick={() => handleSelect(index)}>${tab}</TabTitle>\n\t`;
-         }).join('')}</Tabs>\n</>`}
+         ${tabs.map((tab, index) => {
+           return ` <TabTitle onClick={() => handleSelect(${index})}>${tab}</TabTitle>\n\t`;
+         }).join('')}</Tabs>\n\t<div>{content}</div>\n</>`}
         </CodeBlock>
       </>
     );

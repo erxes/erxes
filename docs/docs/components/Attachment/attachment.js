@@ -47,23 +47,18 @@ export function AttachmentComponent(props) {
 
   const stringify = (datas) => {
     let string = JSON.stringify(datas);
-    string = string.replace(/}},"/g, "}} ");
-    string = string.replace(/},"/g, "} ");
     string = string.replace(/":/g, ":");
-    string = string.replace(/,"/g, ",");
+    string = string.replace(/,"/g, ", ");
     string = string.replace(/{"/g, "{");
-    string = string.replace(/:true/g, "");
-    string = string.replace(/:/g, "=");
-    string = string.replace(/attachments=/g, "attachments={");
-    string = string.replace(/,index/g, " index");
-    string = string.replace(/}]/g, "}]}");
-    string = string.slice(1, string.length - 1);
-    string = string.replace(/=true/g, "");
-    string = string.replace(/name=/g, "\n\t\tname:");
-    string = string.replace(/type=/g, "\n\t\ttype:");
-    string = string.replace(/url=/g, "\n\t\turl:");
-    string = string.replace(/}/g, "}\n\t");
-    string = string.replace(/,index:/g, "index=");
+    string = string.replace(/}, attachments:/g, "}} attachments={");
+    string = string.replace(/}, simple:true}/g, "}} simple={true}");
+    string = string.replace(/attachment:/g, "attachment={");
+    string = string.replace(/}, additionalItem:"Additional text"}/g, '}} additionalItem="Additional text"');
+    string = string.slice(1, string.length);
+    string = string.replace(/name:/g, "\n\t\tname:");
+    string = string.replace(/type:/g, "\n\t\ttype:");
+    string = string.replace(/url:/g, "\n\t\turl:");
+    string = string.replace(/}, index:1}/g, "}} index={1}");
 
     return string;
   };

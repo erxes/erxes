@@ -10,7 +10,7 @@ export function ToggleComponent(props) {
 
   let icon = {
     checked: "Y",
-    unchecked: "N",
+    unchecked: "N"
   };
 
   const propDatas = (propName, extra) => {
@@ -24,13 +24,16 @@ export function ToggleComponent(props) {
 
   const stringify = (datas) => {
     let string = JSON.stringify(datas);
+    string = string.replace(/}/g, "");
     string = string.replace(/{}/g, "");
-    string = string.replace(/{"/g, "{");
+    string = string.replace(/{"/g, "{{");
     string = string.replace(/":/g, ":");
     string = string.replace(/,"/g, " ");
     string = string.replace(/:true/g, "");
-    string = string.slice(1, string.length - 1);
+    string = string.slice(2, string.length);
     string = string.replace(/icons:/g, "icons=");
+    string = string.replace(/Y"/g, 'Y",');
+    string = string.replace(/N"/g, 'N"}}');
 
     return string;
   };

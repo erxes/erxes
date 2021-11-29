@@ -12,10 +12,10 @@ export function UploaderComponent(props) {
     string = string.replace(/{}/g, "");
     string = string.replace(/{"/g, "{");
     string = string.replace(/":/g, ":");
-    string = string.replace(/,"/g, " ");
+    string = string.replace(/,"/g, ", ");
     string = string.replace(/:true/g, "");
-    string = string.replace(/:false/g, "=false");
-    string = string.replace(/:2/g, "=2");
+    string = string.replace(/:false/g, "={false}");
+    string = string.replace(/:2/g, "={2}");
     string = string.replace(/]/g, "\n\t]}");
     string = string.slice(1, string.length - 1);
     string = string.replace(/defaultFileList:/g, "defaultFileList={");

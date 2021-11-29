@@ -1,7 +1,6 @@
 import React from "react";
 import TaskTimer from "erxes-ui/lib/components/Timer";
 import CodeBlock from "@theme/CodeBlock";
-import { stringify } from "../common.js";
 import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../../src/components/styles.module.css";
 
@@ -19,6 +18,19 @@ export function TimerComponent(props) {
 
     return datas;
   };
+
+  function stringify(datas) {
+    let string = JSON.stringify(datas);
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/}/g, "");
+    string = string.replace(/startDate=false/g, "");
+    string = string.replace(/180/g, "{180}");
+    string = string.replace(/timeSpent=0/g, "timeSpent={0}");
+    
+    return string;
+  }
 
   const renderBlock = () => {
     return (

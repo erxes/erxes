@@ -33,7 +33,7 @@ function TagComponent(props) {
     string = string.replace(/":/g, ":");
     string = string.replace(/,"/g, ", ");
     string = string.replace(/]/g, "\n\t]");
-    string = string.replace(/3}/g, "3");
+    string = string.replace(/3}/g, "{3}");
     string = string.replace(/], limit:/g, "]} limit=");
 
     return string;
@@ -76,7 +76,7 @@ function TagComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td rowSpan="8">tags*</td>
+            <td rowSpan="4">tags*</td>
             <td>_id*</td>
             <td>string</td>
             <td/>
@@ -99,36 +99,6 @@ function TagComponent(props) {
             <td>string</td>
             <td/>
             <td>Set the tag color</td>
-          </tr>
-          <tr>
-            <td>objectCount</td>
-            <td>number</td>
-            <td/>
-            <td>Counts tag object</td>
-          </tr>
-          <tr>
-            <td>parentId</td>
-            <td>string</td>
-            <td/>
-            <td>Define tag parent id</td>
-          </tr>
-          <tr>
-            <td>order</td>
-            <td>string</td>
-            <td/>
-            <td>Define tag order</td>
-          </tr>
-          <tr>
-            <td>totalObjectCount</td>
-            <td>number</td>
-            <td/>
-            <td>Counts totalObject of tag</td>
-          </tr>
-          <tr>
-            <td colSpan="2">size</td>
-            <td>string</td>
-            <td/>
-            <td>Sets the size</td>
           </tr>
           <tr>
             <td colSpan="2">limit</td>

@@ -5,7 +5,7 @@ import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../../src/components/styles.module.css";
 
 export function SubMenuComponent(props) {
-  const { add, table = [], type } = props;
+  const { add, type } = props;
   const array = [
     { title: "Submenu 1", link: "" },
     { title: "Submenu 2", link: "" },
@@ -31,7 +31,9 @@ export function SubMenuComponent(props) {
     string = string.replace(/":/g, ":");
     string = string.replace(/Additional item"}/g, 'Additional item"');
     string = string.replace(/}}/g, "}");
-    string = string.replace(/=true/g, "");
+    string = string.replace(/"title/g, 'title');
+    string = string.replace(/"link/g, " link");
+
     return string;
   };
 
