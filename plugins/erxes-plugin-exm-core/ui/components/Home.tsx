@@ -1,6 +1,5 @@
 import React from 'react';
 
-import HeaderDescription from 'erxes-ui/lib/components/HeaderDescription';
 import { __ } from 'erxes-ui/lib/utils';
 import Wrapper from 'erxes-ui/lib/layout/components/Wrapper';
 import EditForm from '../containers/EditForm';
@@ -14,11 +13,6 @@ type Props = {
 function Home(props: Props) {
   const { exm } = props;
 
-  const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Exm'), link: '/settings/exm' }
-  ];
-
   const leftActionBar = <div>{exm ? exm.name : ''}</div>;
 
   const content = () => {
@@ -31,12 +25,10 @@ function Home(props: Props) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={'Exm'} breadcrumb={breadcrumb} />}
-      mainHead={
-        <HeaderDescription
-          icon='/images/actions/32.svg'
-          title={'EXM'}
-          description={__('')}
+      header={
+        <Wrapper.Header
+          title={'Exm core'}
+          breadcrumb={[{ title: 'Exm core' }]}
         />
       }
       actionBar={<Wrapper.ActionBar left={leftActionBar} />}
