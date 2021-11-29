@@ -1,12 +1,11 @@
 import React from "react";
 import Icon from "erxes-ui/lib/components/Icon";
-import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function IconComponent(props) {
-  const { iconName, colors, sizes, active, type, table = [] } = props;
+  const { iconName, colors, sizes, type, table = [] } = props;
 
   const propDatas = (icon, propName, extra) => {
     const datas = {
@@ -17,6 +16,18 @@ export function IconComponent(props) {
 
     return datas;
   };
+
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/30/g, "{30}");
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.slice(0, string.length - 1);
+    string = string.replace(/=true/g, "");
+    
+    return string;
+  }
 
   const renderBlock = (icon, propName, extra) => {
     return (

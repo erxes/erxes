@@ -27,6 +27,19 @@ export function DatawithLoaderComponent(props) {
     return kind;
   };
 
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/0/g, "{0}");
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/=true/g, "");
+    string = string.replace(/false/g, "{false}");
+    string = string.slice(0, string.length - 1);
+
+    return string;
+  }
+
   const renderBlock = (
     loading,
     propName,

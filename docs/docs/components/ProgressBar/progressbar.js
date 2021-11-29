@@ -20,12 +20,30 @@ export function ProgressBarComponent(props) {
     return datas;
   };
 
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/35/g, "{35}");
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.slice(0, string.length - 1);
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/"</g, "{<");
+    string = string.replace(/>"/g, ">}");
+
+    return string;
+  };
+
   const renderBlock = (extra) => {
     return (
       <>
         <div className={styles.styled}>
           <ProgressBar {...propDatas(extra, true)}>35%</ProgressBar>
-          {close && <><br /><br /></>}
+          {close && (
+            <>
+              <br />
+              <br />
+            </>
+          )}
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<ProgressBar ${stringify(propDatas(extra))} />\n</>`}
