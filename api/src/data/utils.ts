@@ -23,6 +23,15 @@ import {
 import { generateAmounts, generateProducts } from './resolvers/deals';
 import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 import * as _ from 'underscore';
+import { URL } from 'url';
+
+export const isValidURL = (url: string) => {
+  try {
+    return Boolean(new URL(url));
+  } catch (e) {
+    return false;
+  }
+};
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -554,28 +563,25 @@ export const replaceEditorAttributes = async (args: {
     customer.customFieldsData = customFieldsData;
   }
 
-  const isFileSystemPublic = (await getConfig('FILE_SYSTEM_PUBLIC')) === 'true';
-
   const fileToFileLink = async (file: any): Promise<string> => {
-    if (!file || !file.url) {
+    if (!file?.url) {
       return '';
     }
 
     let href: string;
-
-    if (!isFileSystemPublic) {
-      const API_DOMAIN = getSubServiceDomain({ name: 'API_DOMAIN' });
-      const key = encodeURIComponent(file.url);
-      const name = encodeURIComponent(file.name) || key;
-      href = `${API_DOMAIN}/read-file?key=${key}&name=${name}`;
-    } else {
+    if (isValidURL(file.url) || file.url.includes('/')) {
       href = file.url;
+    } else {
+      const API_DOMAIN = getSubServiceDomain({ name: 'API_DOMAIN' });
+      const key = file.url;
+      const name = file.name ? encodeURIComponent(file.name) : key;
+      href = `${API_DOMAIN}/read-file?key=${key}&name=${name}`;
     }
 
-    return `<a  target="_blank" download href="${href}">${file.name}</a>`;
+    return `<a target="_blank" download href="${href}">${file.name}</a>`;
   };
 
-  const customFieldDataItemToFileLink = async (
+  const customFieldsDataItemToFileLink = async (
     customFieldDataItem: any
   ): Promise<string> => {
     const value = customFieldDataItem.value;
@@ -610,7 +616,7 @@ export const replaceEditorAttributes = async (args: {
           const replaceValue = customerFileFieldsById[
             customFieldsDataItem.field
           ]
-            ? await customFieldDataItemToFileLink(customFieldsDataItem)
+            ? await customFieldsDataItemToFileLink(customFieldsDataItem)
             : customFieldsDataItem.stringValue ||
               customFieldsDataItem.value ||
               '';
@@ -707,7 +713,7 @@ export const replaceEditorAttributes = async (args: {
 
       const replaceValue =
         customField.type === 'file'
-          ? await customFieldDataItemToFileLink(customFieldsDataItem)
+          ? await customFieldsDataItemToFileLink(customFieldsDataItem)
           : customFieldsDataItem.stringValue ||
             customFieldsDataItem.value ||
             '';
