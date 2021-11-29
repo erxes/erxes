@@ -1,20 +1,3 @@
-const attachmentSchema = {
-  name: { type: String },
-  url: { type: String },
-  type: { type: String },
-  size: { type: Number, optional: true }
-};
-
-export interface IExm {
-  name: string;
-}
-
-export interface IExmDocument extends IExm, Document {
-  _id: string;
-  createdBy: string;
-  createdAt: Date;
-}
-
 const featureSchema = {
   _id: { type: String },
   icon: { type: String },
