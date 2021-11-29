@@ -5,17 +5,23 @@ title: Tip
 
 import { TipComponent } from "./tip.js"
 
-<p>Text tips for </p>
+## Tip text
+
+<p>Define the tip text with <code>text</code> prop.</p>
+<TipComponent type="auto" text="Tip text"/>
 
 ## Placement
 
 <p>Change tip placement by <code>placement</code> prop. Hover over the text paragraphs below to see tips.</p>
 
-### Auto placements
+<p>Auto placement will place the tip automatically depending on the content placement.</p>
+<TipComponent type="auto" />
 
-<TipComponent type="auto" places={['auto-start', 'auto', 'auto-end']} />
+<p>Top, right, left and bottom placements. You can also add 'start' and 'end' on them. Example: 'top-start', 'top-end', 'right-start', etc.</p>
+<TipComponent />
 
-### Top placements
+
+<!-- ### Top placements
 
 <TipComponent type="top" places={['top-start', 'top', 'top-end']} />
 
@@ -29,7 +35,7 @@ import { TipComponent } from "./tip.js"
 
 ### Left placements
 
-<TipComponent type="left" places={['left-start', 'left', 'left-end']} />
+<TipComponent type="left" places={['left-start', 'left', 'left-end']} /> -->
 
 ## API
 
