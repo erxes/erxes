@@ -527,29 +527,27 @@ export const replaceEditorAttributes = async (args: {
     customerFields = ['firstName', 'lastName', 'middleName'];
 
     for (const field of possibleCustomerFields) {
-      if (!content.includes(`{{ customer.${field.name} }}`)) {
-        continue;
-      }
+      if (content.includes(`{{ customer.${field.name} }}`)) {
+        if (field.name.includes('trackedData')) {
+          customerFields.push('trackedData');
 
-      if (field.name.includes('trackedData')) {
-        customerFields.push('trackedData');
-
-        continue;
-      }
-
-      if (field.name.includes('customFieldsData')) {
-        const fieldId = field.name.split('.').pop();
-
-        if (!customFieldsData.find(e => e.field === fieldId)) {
-          customFieldsData.push({ field: fieldId || '', value: '' });
+          continue;
         }
 
-        customerFields.push('customFieldsData');
+        if (field.name.includes('customFieldsData')) {
+          const fieldId = field.name.split('.').pop();
 
-        continue;
+          if (!customFieldsData.find(e => e.field === fieldId)) {
+            customFieldsData.push({ field: fieldId || '', value: '' });
+          }
+
+          customerFields.push('customFieldsData');
+
+          continue;
+        }
+
+        customerFields.push(field.name);
       }
-
-      customerFields.push(field.name);
     }
 
     customer.customFieldsData = customFieldsData;
