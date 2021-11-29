@@ -29,6 +29,8 @@ type IProps = {
     customerIds: string[];
     startDate: string;
     endDate: string;
+    sources: string[];
+    hackStages: string[];
   };
 };
 

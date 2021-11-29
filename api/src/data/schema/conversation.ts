@@ -198,6 +198,7 @@ const mutationFilterParams = `
   starred: String
   startDate: String
   endDate: String
+  segment: String
 `;
 
 const filterParams = `
