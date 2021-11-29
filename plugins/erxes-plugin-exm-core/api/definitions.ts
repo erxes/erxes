@@ -1,3 +1,7 @@
+export interface IExm {
+  name: string;
+}
+
 const featureSchema = {
   _id: { type: String },
   icon: { type: String },
