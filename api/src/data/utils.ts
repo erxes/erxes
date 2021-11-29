@@ -557,17 +557,19 @@ export const replaceEditorAttributes = async (args: {
   const isFileSystemPublic = (await getConfig('FILE_SYSTEM_PUBLIC')) === 'true';
 
   const fileToFileLink = async (file: any): Promise<string> => {
-    if (!file) {
+    if (!file || !file.url) {
       return '';
     }
 
-    let href = file.url;
+    let href: string;
 
     if (!isFileSystemPublic) {
       const API_DOMAIN = getSubServiceDomain({ name: 'API_DOMAIN' });
       const key = encodeURIComponent(file.url);
       const name = encodeURIComponent(file.name) || key;
       href = `${API_DOMAIN}/read-file?key=${key}&name=${name}`;
+    } else {
+      href = file.url;
     }
 
     return `<a  target="_blank" download href="${href}">${file.name}</a>`;
@@ -576,17 +578,14 @@ export const replaceEditorAttributes = async (args: {
   const customFieldDataItemToFileLink = async (
     customFieldDataItem: any
   ): Promise<string> => {
-    let replaceValue = '';
-
     const value = customFieldDataItem.value;
 
     if (Array.isArray(value)) {
       const links = await Promise.all(value.map(fileToFileLink));
-      replaceValue = links.join(' | ');
-    } else {
-      replaceValue = await fileToFileLink(value);
+      return links.join(' | ');
     }
-    return replaceValue;
+
+    return fileToFileLink(value);
   };
 
   // replace customer fields
