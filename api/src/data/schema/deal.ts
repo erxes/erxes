@@ -71,37 +71,31 @@ const listQueryParams = `
     ${conformityQueryFields}
  `;
 
+const archivedDealsParams = `
+  pipelineId: String! 
+  search: String 
+  userIds: [String]
+  priorities: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  productIds: [String]
+  companyIds: [String]
+  customerIds: [String]
+  startDate: String
+  endDate: String
+ `;
+
 export const queries = `
   dealDetail(_id: String!): Deal
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(
-    page: Int, 
-    perPage: Int, 
-    pipelineId: String!, 
-    search: String, 
-    userIds: [String],
-    priorities: [String],
-    assignedUserIds: [String],
-    labelIds: [String],
-    productIds: [String],
-    companyIds: [String],
-    customerIds: [String],
-    startDate: String,
-    endDate: String
+    page: Int 
+    perPage: Int 
+    ${archivedDealsParams}
   ): [Deal]
   archivedDealsCount(
-    pipelineId: String!, 
-    search: String,
-    userIds: [String],
-    priorities: [String],
-    assignedUserIds: [String],
-    labelIds: [String],
-    productIds: [String],
-    companyIds: [String],
-    customerIds: [String],
-    startDate: String,
-    endDate: String
+    ${archivedDealsParams}
   ): Int
   dealsTotalAmounts(
     ${commonQueryParams}
