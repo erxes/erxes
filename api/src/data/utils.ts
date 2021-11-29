@@ -608,26 +608,18 @@ export const replaceEditorAttributes = async (args: {
           : 'customFieldsData';
 
         for (const customFieldsDataItem of customer[dbFieldName] || []) {
-          const replaceKey = `{{ customer.${dbFieldName}.${customFieldsDataItem.field} }}`;
+          const replaceValue = customerFileFieldsById[
+            customFieldsDataItem.field
+          ]
+            ? await customFieldDataItemToFileLink(customFieldsDataItem)
+            : customFieldsDataItem.stringValue ||
+              customFieldsDataItem.value ||
+              '';
 
-          if (customerFileFieldsById[customFieldsDataItem.field]) {
-            const replaceValue = await customFieldDataItemToFileLink(
-              customFieldsDataItem
-            );
-
-            replacers.push({
-              key: replaceKey,
-              value: replaceValue
-            });
-          } else {
-            replacers.push({
-              key: replaceKey,
-              value:
-                customFieldsDataItem.stringValue ||
-                customFieldsDataItem.value ||
-                ''
-            });
-          }
+          replacers.push({
+            key: `{{ customer.${dbFieldName}.${customFieldsDataItem.field} }}`,
+            value: replaceValue
+          });
         }
 
         continue;
@@ -712,28 +704,19 @@ export const replaceEditorAttributes = async (args: {
         c => c.field === customField._id
       );
 
-      if (customFieldsDataItem) {
-        const replaceKey = `{{ itemCustomField.${customField._id} }}`;
+      if (!customFieldsDataItem) continue;
 
-        if (customField.type === 'file') {
-          const replaceValue = await customFieldDataItemToFileLink(
-            customFieldsDataItem
-          );
+      const replaceValue =
+        customField.type === 'file'
+          ? await customFieldDataItemToFileLink(customFieldsDataItem)
+          : customFieldsDataItem.stringValue ||
+            customFieldsDataItem.value ||
+            '';
 
-          replacers.push({
-            key: replaceKey,
-            value: replaceValue
-          });
-        } else {
-          replacers.push({
-            key: replaceKey,
-            value:
-              customFieldsDataItem.stringValue ||
-              customFieldsDataItem.value ||
-              ''
-          });
-        }
-      }
+      replacers.push({
+        key: `{{ itemCustomField.${customField._id} }}`,
+        value: replaceValue
+      });
     }
   }
 
