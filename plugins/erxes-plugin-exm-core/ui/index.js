@@ -11,6 +11,6 @@ export default () => ({
     label: 'Exm core',
     icon: 'icon-cog',
     link: '/home',
-    permission: 'showExmCore'
+    permission: 'showExms'
   }
 });
