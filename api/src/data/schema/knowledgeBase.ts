@@ -16,6 +16,7 @@ export const types = `
     categoryId: String
     viewCount: Int
     attachments: [Attachment]
+    image: Attachment
   }
 
   input KnowledgeBaseArticleDoc {
@@ -27,6 +28,7 @@ export const types = `
     categoryIds: [String]
     topicId: String
     categoryId: String
+    image: AttachmentInput
     attachments: [AttachmentInput]
   }
 
