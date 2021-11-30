@@ -25,6 +25,7 @@ import { IConfigsMap } from '../types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from './Header';
 import Sidebar from '../containers/Sidebar';
+import BoardNumberConfigs from './boardNumber/BoardNumberConfigs';
 
 type Props = {
   currentLanguage: string;
@@ -171,6 +172,13 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
+        <CollapseContent title={__('Card number settings')}>
+          <BoardNumberConfigs
+            onChangeConfig={this.onChangeConfig}
+            configsMap={configsMap}
+          />
+        </CollapseContent>
+
         <CollapseContent title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>

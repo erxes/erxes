@@ -49,6 +49,7 @@ export interface IItemCommonFields {
   };
   customFieldsData?: ICustomField[];
   score?: number;
+  number?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -215,7 +216,8 @@ export const commonItemFieldsSchema = {
     optional: true,
     label: 'Score',
     esType: 'number'
-  })
+  }),
+  number: field({ type: String, label: 'Item number' })
 };
 
 export const boardSchema = schemaWrapper(

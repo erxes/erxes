@@ -1086,3 +1086,26 @@ export const checkPremiumService = async type => {
     return false;
   }
 };
+
+export const pad = (num, size) => {
+  num = num.toString();
+
+  while (num.length < size) {
+    num = '0' + num;
+  }
+
+  return num;
+};
+
+export const generateNumber = (config: string, length: number, value?) => {
+  // value = 10
+  if (value) {
+    return pad(parseInt(value, 10) + 1, value.length);
+  }
+
+  let numberAttributeCount: any = config.slice(length);
+
+  numberAttributeCount = numberAttributeCount.split('}{');
+
+  return pad(1, numberAttributeCount.length);
+};
