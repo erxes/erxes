@@ -40,7 +40,6 @@ import { IContext } from '../../types';
 import {
   findCompany,
   registerOnboardHistory,
-  replaceEditorAttributes,
   sendEmail,
   sendMobileNotification,
   sendRequest,
@@ -50,6 +49,7 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 import { IFormDocument } from '../../../db/models/definitions/forms';
+import { EditorAttributeUtil } from '../../editorAttributeUtils';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -802,13 +802,9 @@ const widgetMutations = {
     let finalContent = content;
 
     if (customer && form) {
-      const { customerFields } = await replaceEditorAttributes({
-        content
-      });
-
-      const { replacedContent } = await replaceEditorAttributes({
+      const editorAttributeUtil = await EditorAttributeUtil.createInstance();
+      const replacedContent = await editorAttributeUtil.replaceContent({
         content,
-        customerFields,
         customer,
         user: await Users.getUser(form.createdUserId)
       });

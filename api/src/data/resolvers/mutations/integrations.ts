@@ -33,7 +33,8 @@ import {
 } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
+import { registerOnboardHistory } from '../../utils';
+import { EditorAttributeUtil } from '../../editorAttributeUtils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -421,7 +422,8 @@ const integrationMutations = {
       });
     }
 
-    const { replacedContent } = await replaceEditorAttributes({
+    const editorAttributeUtil = await EditorAttributeUtil.createInstance();
+    const replacedContent = await editorAttributeUtil.replaceContent({
       content: body,
       user,
       customer: customer || undefined
