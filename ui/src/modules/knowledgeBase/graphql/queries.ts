@@ -129,6 +129,13 @@ const knowledgeBaseArticles = `
         url
         type
         size
+        duration
+      }
+      image {
+        name
+        url
+        type
+        size
       }
       createdDate
       modifiedBy
