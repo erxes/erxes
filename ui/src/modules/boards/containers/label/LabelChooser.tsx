@@ -82,6 +82,7 @@ class LabelChooserContainer extends React.Component<
     };
 
     const updatedProps = {
+      labelStatus: item.pipeline.labelStatus || 'dynamic',
       pipelineId: item.pipeline._id,
       selectedLabelIds: item.labelIds || [],
       labels,

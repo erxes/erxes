@@ -66,6 +66,7 @@ const boardDetail = `
         visibility
         memberIds
         isWatched
+        labelStatus
         startDate
         endDate
         state

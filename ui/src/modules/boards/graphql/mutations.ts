@@ -72,6 +72,7 @@ export const commonFields = `
   hasNotified
   pipeline {
     _id
+    labelStatus
     name
   }
   boardId

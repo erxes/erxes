@@ -8,6 +8,7 @@ import { IPipelineLabel } from '../../types';
 import Overlay from './Overlay';
 
 type Props = {
+  labelStatus: string;
   pipelineId: string;
   selectedLabelIds: string[];
   labels: IPipelineLabel[];
@@ -49,10 +50,17 @@ class ChooseLabel extends React.Component<
   };
 
   renderOverlay() {
-    const { labels, toggleConfirm, pipelineId, onChangeRefresh } = this.props;
+    const {
+      labels,
+      toggleConfirm,
+      pipelineId,
+      onChangeRefresh,
+      labelStatus
+    } = this.props;
     const { selectedLabelIds } = this.state;
 
     const props = {
+      labelStatus,
       pipelineId,
       selectedLabelIds,
       labels,

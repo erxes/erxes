@@ -14,6 +14,7 @@ import {
 import { IPipelineLabel } from '../../types';
 
 type IOverlayProps = {
+  labelStatus: string;
   selectedLabelIds: string[];
   labels: IPipelineLabel[];
   pipelineId: string;
@@ -57,19 +58,24 @@ export default class Overlay extends React.Component<
   };
 
   generateLabelsParams() {
-    const { labels = [], selectedLabelIds } = this.props;
-
+    const { labels = [], selectedLabelIds, labelStatus } = this.props;
     return labels.map(({ _id, name, colorCode }) => {
       const count = (selectedLabelIds || []).includes(_id || '') ? 1 : 0;
-
-      return {
+      const values = {
         _id,
         title: name,
         style: { backgroundColor: colorCode },
-        selectedBy: count === 1 ? 'all' : 'none',
-        additionalIconOnClick: this.onEdit,
-        additionalIconClass: 'pen-1'
+        selectedBy: count === 1 ? 'all' : 'none'
       };
+      if (labelStatus === 'dynamic') {
+        return {
+          ...values,
+          additionalIconOnClick: this.onEdit,
+          additionalIconClass: 'pen-1'
+        };
+      }
+
+      return values;
     });
   }
 
@@ -108,6 +114,7 @@ export default class Overlay extends React.Component<
   renderPopover() {
     const { showForm, labelId } = this.state;
     const {
+      labelStatus,
       pipelineId,
       toggleConfirm,
       selectedLabelIds,
@@ -130,6 +137,10 @@ export default class Overlay extends React.Component<
           />
         </LabelWrapper>
       );
+    }
+
+    if (labelStatus === 'static') {
+      return <>{this.renderList()}</>;
     }
 
     return (
