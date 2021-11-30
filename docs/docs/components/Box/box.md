@@ -5,7 +5,7 @@ title: Box
 
 import { BoxComponent } from "./box.js"
 
-<p>Build vertically collapsing boxs.</p>
+<p>Build vertically collapsing boxes.</p>
 
 ## Title
 
