@@ -241,7 +241,7 @@ services:
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
       # RabbitMQ
-      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"
+      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"  
       ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
       - "127.0.0.1:3600:3600"
@@ -249,7 +249,7 @@ services:
       - erxes-net
 
   erxes-workers:
-    image: erxes/erxes-api:master
+    image: erxes/erxes-api:master 
     container_name: erxes-workers
     entrypoint: ["node", "--max_old_space_size=8192", "--experimental-worker", "dist/workers"]
     restart: unless-stopped
