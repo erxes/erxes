@@ -17,6 +17,11 @@ import { AttachmentComponent } from "./attachment.js"
 <p>Add file size by adding <code>size</code> prop to attachment information array.</p>
 <AttachmentComponent type="fileSize"/>
 
+## Additional item
+
+<p>Add additional content under the title by <code>additionalItem</code> prop. </p>
+<AttachmentComponent additionalItem/>
+
 ## Image
 
 <p>Click on picture to see preview.</p>
@@ -34,11 +39,6 @@ import { AttachmentComponent } from "./attachment.js"
 
 <p>Click on Audio to preview.</p>
 <AttachmentComponent type="audio"/>
-
-## Additional item
-
-<p>Add additional content under the title by <code>additionalItem</code> prop. </p>
-<AttachmentComponent additionalItem/>
 
 ## Multiple attachments
 

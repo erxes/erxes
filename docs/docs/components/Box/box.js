@@ -113,7 +113,7 @@ export function BoxComponent(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("extraButtons", `<Button btnStyle='simple'>button</Button>`, <Button btnStyle='simple'>button</Button>);
+    return renderBlock("extraButtons", `<Button btnStyle='simple'>Extra button</Button>`, <Button btnStyle='simple'>Extra button</Button>);
   }
 
   if (type === "APIbox") {
