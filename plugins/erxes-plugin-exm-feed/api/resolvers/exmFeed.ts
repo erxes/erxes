@@ -42,40 +42,49 @@ const exmFeedResolvers = [
     type: 'ExmFeed',
     field: 'commentCount',
     handler: (exmFeed, {}, { models }) => {
-      return models.ExmFeedComments.find({
-        feedId: exmFeed._id
-      }).countDocuments();
+      return models.Comments
+        ? models.Comments.find({
+            contentId: exmFeed._id,
+            contentType: 'exmFeed'
+          }).countDocuments()
+        : 0;
     }
   },
   {
     type: 'ExmFeed',
     field: 'likeCount',
     handler: (exmFeed, {}, { models }) => {
-      return models.ExmFeedEmojis.find({
-        feedId: exmFeed._id,
-        type: 'like'
-      }).countDocuments();
+      return models.Emojis
+        ? models.Emojis.find({
+            feedId: exmFeed._id,
+            type: 'like'
+          }).countDocuments()
+        : 0;
     }
   },
   {
     type: 'ExmFeed',
     field: 'heartCount',
     handler: (exmFeed, {}, { models }) => {
-      return models.ExmFeedEmojis.find({
-        feedId: exmFeed._id,
-        type: 'heart'
-      }).countDocuments();
+      return models.Emojis
+        ? models.Emojis.find({
+            feedId: exmFeed._id,
+            type: 'heart'
+          }).countDocuments()
+        : 0;
     }
   },
   {
     type: 'ExmFeed',
     field: 'isHearted',
     handler: async (exmFeed, {}, { models, user }) => {
-      const emoji = await models.ExmFeedEmojis.findOne({
-        feedId: exmFeed._id,
-        type: 'heart',
-        userId: user._id
-      });
+      const emoji = models.Emojis
+        ? await models.Emojis.findOne({
+            feedId: exmFeed._id,
+            type: 'heart',
+            userId: user._id
+          })
+        : null;
 
       return Boolean(emoji);
     }
@@ -84,11 +93,13 @@ const exmFeedResolvers = [
     type: 'ExmFeed',
     field: 'isLiked',
     handler: async (exmFeed, {}, { models, user }) => {
-      const emoji = await models.ExmFeedEmojis.findOne({
-        feedId: exmFeed._id,
-        type: 'like',
-        userId: user._id
-      });
+      const emoji = models.Emojis
+        ? await models.Emojis.findOne({
+            feedId: exmFeed._id,
+            type: 'like',
+            userId: user._id
+          })
+        : null;
 
       return Boolean(emoji);
     }
