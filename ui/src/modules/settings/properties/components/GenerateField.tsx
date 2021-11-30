@@ -312,11 +312,15 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderObjectList(attrs) {
+    let { value } = attrs;
+
+    if (typeof value === 'string') {
+      value = JSON.parse(value);
+    }
+
     return (
       <ObjectList>
-        {(attrs.value || []).map((object, index) =>
-          this.renderObject(object, index)
-        )}
+        {(value || []).map((object, index) => this.renderObject(object, index))}
       </ObjectList>
     );
   }
