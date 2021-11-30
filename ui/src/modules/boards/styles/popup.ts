@@ -56,7 +56,7 @@ export const CloseDateLabel = styled(Button)`
 `;
 
 export const CheckBoxWrapper = styled.span`
-  margin-right: 10px;
+  margin-left: 10px;
 `;
 
 export const CalenderWrapper = styled.div`

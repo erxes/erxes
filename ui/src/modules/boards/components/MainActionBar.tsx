@@ -169,7 +169,7 @@ class MainActionBar extends React.Component<Props> {
   renderGroupBy = () => {
     const { viewType, queryParams } = this.props;
 
-    if (viewType !== 'list') {
+    if (viewType !== 'list' && viewType !== 'gantt') {
       return null;
     }
 
@@ -212,15 +212,19 @@ class MainActionBar extends React.Component<Props> {
             <li>
               <Link to={labelLink}>{__('Label')}</Link>
             </li>
-            <li>
-              <Link to={priorityLink}>{__('Priority')}</Link>
-            </li>
+            {viewType === 'list' && (
+              <li>
+                <Link to={priorityLink}>{__('Priority')}</Link>
+              </li>
+            )}
             <li>
               <Link to={assignLink}>{__('Assignee')}</Link>
             </li>
-            <li>
-              <Link to={dueDateLink}>{__('Due Date')}</Link>
-            </li>
+            {viewType === 'list' && (
+              <li>
+                <Link to={dueDateLink}>{__('Due Date')}</Link>
+              </li>
+            )}
           </Dropdown.Menu>
         </Dropdown>
       </GroupByContent>

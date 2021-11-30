@@ -249,8 +249,8 @@ const GanttChart = (props: Props) => {
           onUpdateTask={onUpdateTask}
           onCreateLink={onCreateLink}
           mode={timelineMode}
-          itemheight={40}
           selectedItem={selectedItem}
+          itemheight={40}
           nonEditableName={true}
         />
       </TimelineContainer>
