@@ -72,7 +72,7 @@ class Sidebar extends React.Component<Props, State> {
     const { isChecked } = this.props;
     const activityValues = SEARCH_ACTIVITY_CHECKBOX.map(p => ({
       label: p,
-      value: p
+      title: p
     }));
 
     const actionQP: string = (this.props.queryParams || {}).action || '';
@@ -101,7 +101,7 @@ class Sidebar extends React.Component<Props, State> {
               </RowFill>
             </label>
           </li>
-          {SEARCH_ACTIVITY_CHECKBOX.map(({ action, value }, index) => (
+          {SEARCH_ACTIVITY_CHECKBOX.map(({ action, title }, index) => (
             <li key={index}>
               <label>
                 <RowFill>
@@ -114,7 +114,7 @@ class Sidebar extends React.Component<Props, State> {
                     checked={actionQP.includes(action)}
                     defaultChecked={isChecked}
                   />
-                  <FieldStyle>{value}</FieldStyle>
+                  <FieldStyle>{title}</FieldStyle>
                 </RowFill>
               </label>
             </li>

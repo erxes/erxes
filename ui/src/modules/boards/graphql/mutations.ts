@@ -197,8 +197,8 @@ const stagesSortItems = `
 `;
 
 const conversationConvertToCard = `
-  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String){
-    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName )
+  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String $bookingProductId: String){
+    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName bookingProductId: $bookingProductId)
   }
 `;
 

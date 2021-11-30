@@ -3,7 +3,7 @@ import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PROPERTY_GROUPS } from '../constants';
+import { getPropertiesGroups } from '../constants';
 import { SidebarList } from 'modules/settings/styles';
 import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
@@ -25,7 +25,7 @@ class Sidebar extends React.Component<Props> {
   }
 
   renderSideBar() {
-    return PROPERTY_GROUPS.map(group => (
+    return getPropertiesGroups().map(group => (
       <SidebarList key={group.value}>
         <LeftSidebar.Header uppercase={true}>{group.value}</LeftSidebar.Header>
         <List key={`list_${group.value}`}>

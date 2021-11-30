@@ -28,6 +28,7 @@ export const types = `
     errors: [Error]
     messageId: String
     customerId: String
+    userId: String
   }
 
   type Error {
@@ -40,6 +41,11 @@ export const types = `
     supporters: [User]
     isOnline: Boolean
     serverTime: String
+  }
+
+  type BookingProduct {
+    product: Product
+    fields: [Field]
   }
 
   input FieldValueInput {
@@ -66,6 +72,9 @@ export const queries = `
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
+
+  widgetsProductCategory(_id: String!): ProductCategory
+  widgetsBookingProductWithFields(_id: String!): BookingProduct
 `;
 
 export const mutations = `
@@ -126,6 +135,7 @@ export const mutations = `
     submissions: [FieldValueInput]
     browserInfo: JSON!
     cachedCustomerId: String
+    userId: String
   ): SaveFormResponse
 
   widgetsSendEmail(
@@ -141,6 +151,18 @@ export const mutations = `
   widgetGetBotInitialMessage(integrationId: String): JSON
 
   widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
+  widgetsKnowledgebaseDecReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
+
+  widgetsBookingConnect(_id: String): Integration
+
+  widgetsSaveBooking(
+    integrationId: String!
+    formId: String!
+    submissions: [FieldValueInput]
+    browserInfo: JSON!
+    cachedCustomerId: String
+    productId: String
+  ): SaveFormResponse
 `;

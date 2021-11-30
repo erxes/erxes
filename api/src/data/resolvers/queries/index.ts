@@ -47,6 +47,7 @@ import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
 import smsDeliveries from './smsDeliveries';
+import structures from './structures';
 
 export default {
   ...users,
@@ -94,5 +95,6 @@ export default {
   ...clientPortal,
   ...messengerAppsQueries,
   ...smsDeliveries,
+  ...structures,
   ...automations
 };

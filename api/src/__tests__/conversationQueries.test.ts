@@ -9,8 +9,10 @@ import {
   conversationMessageFactory,
   integrationFactory,
   tagsFactory,
-  userFactory
+  userFactory,
+  segmentFactory
 } from '../db/factories';
+import * as queryBuilder from '../data/modules/segments/queryBuilder';
 import {
   Brands,
   Channels,
@@ -47,6 +49,7 @@ describe('conversationQueries', () => {
     $startDate: String
     $endDate: String
     $awaitingResponse: String
+    $segment: String
   `;
 
   const commonParams = `
@@ -63,6 +66,7 @@ describe('conversationQueries', () => {
     startDate: $startDate
     endDate: $endDate
     awaitingResponse: $awaitingResponse
+    segment: $segment
   `;
 
   const qryConversations = `
@@ -463,6 +467,24 @@ describe('conversationQueries', () => {
     });
 
     expect(responses.length).toBe(3);
+  });
+
+  test('Conversations filtered by segment', async () => {
+    const segment = await segmentFactory();
+
+    const fetchSegmentSpy = jest.spyOn(queryBuilder, 'fetchSegment');
+
+    fetchSegmentSpy.mockImplementation(async () => {
+      return 0;
+    });
+
+    const responses = await graphqlRequest(qryConversations, 'conversations', {
+      segment: segment._id
+    });
+
+    expect(responses.length).toBe(0);
+    
+    fetchSegmentSpy.mockRestore();
   });
 
   test('Conversations by skill based routing', async () => {

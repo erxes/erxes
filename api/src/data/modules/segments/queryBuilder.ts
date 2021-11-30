@@ -22,6 +22,10 @@ type IOptions = {
   returnCount?: boolean;
   defaultMustSelector?: any[];
   pipelineId?: string;
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
 };
 
 export const isInSegment = async (
@@ -116,12 +120,33 @@ export const fetchSegment = async (
     return countResponse.count;
   }
 
+  const { sortField, sortDirection, page, perPage, } = options;
+  let pagination = {};
+  
+  if( page && perPage){
+    pagination = {
+      from: (page - 1) * perPage,
+      size: perPage,
+    };
+  }
+  if(sortField && sortDirection){
+    pagination = {
+        ...pagination, 
+        sort: {
+        [sortField]: {
+          order: sortDirection ? sortDirection === -1 ? 'desc' : 'asc' : 'desc'
+        }
+      }
+    }
+  }
+
   const response = await fetchElk({
     action: 'search',
     index,
     body: {
       _source: options.returnFields || options.returnFullDoc || false,
-      query: selector
+      query: selector,
+      ...pagination
     },
     defaultValue: { hits: { hits: [] } }
   });
@@ -702,7 +727,7 @@ const associationPropertyFilter = async ({
 }) => {
   let associatedTypes: string[] = [];
 
-  if (mainType === 'customer') {
+  if (['customer', 'lead'].includes(mainType)) {
     associatedTypes = ['company', 'deal', 'ticket', 'task'];
   }
 
@@ -732,7 +757,7 @@ const associationPropertyFilter = async ({
     return Conformities.filterConformity({
       mainType: propertyType,
       mainTypeIds,
-      relType: mainType
+      relType: mainType === 'lead' ? 'customer' : mainType
     });
   }
 

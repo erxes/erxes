@@ -6,11 +6,13 @@ import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
   channelFactory,
+  configFactory,
   conversationFactory,
   customerFactory,
   dealFactory,
   fieldFactory,
   integrationFactory,
+  productFactory,
   stageFactory,
   userFactory
 } from '../db/factories';
@@ -91,8 +93,8 @@ describe('Conversation message mutations', () => {
   `;
 
   const conversationConvertToCardMutation = `
-    mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
-    conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
+    mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String $bookingProductId: String) {
+    conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId bookingProductId: $bookingProductId)
   }
 `;
 
@@ -1017,5 +1019,136 @@ describe('Conversation message mutations', () => {
     expect(response).toBeDefined();
     expect(customFieldsData.length).toEqual(1);
     expect(customFieldsData[0].value).toBe(123);
+  });
+
+  test('Convert booking conversation to card Error(`UNIT OF MEASUREMENT error`)', async () => {
+    const conversation = await conversationFactory({
+      assignedUserId: user._id
+    });
+    const stage = await stageFactory({ type: 'deal' });
+    const product = await productFactory({});
+    const deal = await dealFactory({});
+
+    try {
+      await graphqlRequest(
+        conversationConvertToCardMutation,
+        'conversationConvertToCard',
+        {
+          _id: conversation._id,
+          type: 'deal',
+          itemName: 'test deal',
+          itemId: deal._id,
+          stageId: stage._id,
+          bookingProductId: product._id
+        },
+        { dataSources }
+      );
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Please choose UNIT OF MEASUREMENT from general settings!'
+      );
+    }
+  });
+
+  test('Convert booking conversation to card Error(`Currency error`)', async () => {
+    const conversation = await conversationFactory({
+      assignedUserId: user._id
+    });
+    const stage = await stageFactory({ type: 'deal' });
+    const product = await productFactory({});
+    const deal = await dealFactory({});
+
+    // create dealUOM config
+    await configFactory({ code: 'dealUOM' });
+
+    try {
+      await graphqlRequest(
+        conversationConvertToCardMutation,
+        'conversationConvertToCard',
+        {
+          _id: conversation._id,
+          type: 'deal',
+          itemId: deal._id,
+          itemName: 'test deal',
+          stageId: stage._id,
+          bookingProductId: product._id
+        },
+        { dataSources }
+      );
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Please choose currency from general settings!'
+      );
+    }
+  });
+
+  test('Convert booking conversation to card successfully', async () => {
+    const conversation = await conversationFactory({
+      assignedUserId: user._id
+    });
+
+    const stage = await stageFactory({ type: 'deal' });
+    const product = await productFactory({});
+    const deal = await dealFactory({});
+
+    // create dealUOM config
+    await configFactory({ code: 'dealUOM' });
+
+    // create currency config
+    await configFactory({ code: 'dealCurrency' });
+
+    const itemId = await graphqlRequest(
+      conversationConvertToCardMutation,
+      'conversationConvertToCard',
+      {
+        _id: conversation._id,
+        type: 'deal',
+        itemId: deal._id,
+        itemName: 'test deal',
+        stageId: stage._id,
+        bookingProductId: product._id
+      },
+      { dataSources }
+    );
+
+    const updatedDeal = await Deals.getDeal(itemId);
+    const productsData = updatedDeal.productsData || [];
+
+    expect(updatedDeal._id).toBe(deal._id);
+    expect(updatedDeal.stageId).toBe(deal.stageId);
+    expect(productsData[0]).toBeDefined();
+  });
+
+  test('Convert booking conversation to card successfully. Without itemId', async () => {
+    const conversation = await conversationFactory({
+      assignedUserId: user._id
+    });
+
+    const stage = await stageFactory({ type: 'deal' });
+    const product = await productFactory({});
+
+    // create dealUOM config
+    await configFactory({ code: 'dealUOM' });
+
+    // create currency config
+    await configFactory({ code: 'dealCurrency' });
+
+    const itemId = await graphqlRequest(
+      conversationConvertToCardMutation,
+      'conversationConvertToCard',
+      {
+        _id: conversation._id,
+        type: 'deal',
+        itemName: 'test deal',
+        stageId: stage._id,
+        bookingProductId: product._id
+      },
+      { dataSources }
+    );
+
+    const deal = await Deals.getDeal(itemId);
+    const productsData = deal.productsData || [];
+
+    expect(productsData[0]).toBeDefined();
   });
 });

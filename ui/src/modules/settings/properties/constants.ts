@@ -8,7 +8,7 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   ALL: ['customer', 'company', 'product', 'conversation', 'device', 'user']
 };
 
-export const PROPERTY_GROUPS = [
+const PROPERTY_GROUPS = [
   {
     label: 'Contacts',
     value: 'contact',
@@ -39,6 +39,14 @@ export const PROPERTY_GROUPS = [
     types: [{ value: 'user', label: 'Team member' }]
   }
 ];
+
+export const getPropertiesGroups = () => {
+  const pluginProperties = JSON.parse(
+    localStorage.getItem('plugins_properties') || '[]'
+  );
+
+  return PROPERTY_GROUPS.concat(pluginProperties);
+};
 
 export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
   LIST: [

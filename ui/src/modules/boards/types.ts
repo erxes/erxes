@@ -348,6 +348,7 @@ export type ConvertToMutationVariables = {
   itemId?: string;
   itemName?: string;
   stageId?: string;
+  bookingProductId?: string;
 };
 
 export type ConvertToMutationResponse = {
@@ -371,3 +372,12 @@ export type ActivityLogsByActionQueryResponse = {
   activityLogsByAction: { activityLogs: IActivityLog[]; totalCount: number };
   totalCount: number;
 } & QueryResponse;
+
+export type Item = {
+  name: string;
+  color: string;
+};
+
+export type Assignee = {
+  [key: string]: number;
+};

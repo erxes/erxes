@@ -1,6 +1,7 @@
 import {
   Boards,
   Deals,
+  PipelineLabels,
   Pipelines,
   Segments,
   Stages,
@@ -15,6 +16,10 @@ import { IContext } from '../../types';
 import { paginate, regexSearchText } from '../../utils';
 import { IConformityQueryParams } from './types';
 import { getCollection } from '../../../db/models/boardUtils';
+import { IStageDocument } from '../../../db/models/definitions/boards';
+import { CLOSE_DATE_TYPES, PRIORITIES } from '../../constants';
+import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
+import { getCloseDateByType } from './boardUtils';
 
 export interface IDate {
   month: number;
@@ -280,7 +285,7 @@ const boardQueries = {
   },
 
   /**
-   *  Pipeline detail
+   *  Pipeline related assigned users
    */
   async pipelineAssignedUsers(_root, { _id }: { _id: string }) {
     const pipeline = await Pipelines.getPipeline(_id);
@@ -323,6 +328,135 @@ const boardQueries = {
     return Stages.find(filter)
       .sort({ order: 1, createdAt: -1 })
       .lean();
+  },
+
+  async itemsCountByAssignedUser(
+    _root,
+    {
+      pipelineId,
+      type,
+      stackBy
+    }: { pipelineId: string; type: string; stackBy: string }
+  ) {
+    let groups;
+    let detailFilter;
+
+    const stages = await Stages.find({ pipelineId });
+
+    if (stages.length === 0) {
+      return {};
+    }
+
+    const stageIds = stages.map(stage => stage._id);
+
+    const filter: any = {
+      stageId: { $in: stageIds },
+      status: BOARD_STATUSES.ACTIVE
+    };
+
+    switch (stackBy) {
+      case 'priority': {
+        groups = PRIORITIES.ALL;
+
+        filter.priority = { $in: PRIORITIES.ALL.map(p => p.name) };
+
+        detailFilter = ({ name }: { name: string }) => ({
+          priority: name,
+          stageId: { $in: stageIds }
+        });
+
+        break;
+      }
+
+      case 'label': {
+        const labels = await PipelineLabels.find({ pipelineId });
+
+        groups = labels.map(label => ({
+          _id: label._id,
+          name: label.name,
+          color: label.colorCode
+        }));
+
+        filter.labelIds = { $in: labels.map(g => g._id) };
+
+        detailFilter = (label: IPipelineLabelDocument) => ({
+          labelIds: { $in: [label._id] },
+          stageId: { $in: stageIds }
+        });
+
+        break;
+      }
+
+      case 'dueDate': {
+        groups = CLOSE_DATE_TYPES.ALL;
+
+        detailFilter = ({ value }: { value: string }) => ({
+          closeDate: getCloseDateByType(value),
+          stageId: { $in: stageIds }
+        });
+
+        break;
+      }
+
+      // when stage
+      default: {
+        groups = stages.map(stage => ({
+          _id: stage._id,
+          name: stage.name
+        }));
+
+        detailFilter = (stage: IStageDocument) => ({ stageId: stage._id });
+      }
+    }
+
+    const { collection } = getCollection(type);
+
+    const assignedUserIds = await collection
+      .find(filter)
+      .distinct('assignedUserIds');
+
+    if (assignedUserIds.length === 0) {
+      return {};
+    }
+
+    const users = await Users.find({ _id: { $in: assignedUserIds } });
+
+    const usersWithInfo: Array<{ name: string }> = [];
+    const countsByGroup = {};
+
+    for (const groupItem of groups) {
+      const countsByGroupItem = await collection.find({
+        'assignedUserIds.0': { $exists: true },
+        status: BOARD_STATUSES.ACTIVE,
+        ...detailFilter(groupItem)
+      });
+
+      countsByGroup[groupItem.name || ''] = countsByGroupItem;
+    }
+
+    for (const user of users) {
+      const groupWithCount = {};
+
+      for (const groupItem of groups) {
+        groupWithCount[groupItem.name || ''] = countsByGroup[
+          groupItem.name || ''
+        ].filter(item =>
+          (item.assignedUserIds || []).includes(user._id)
+        ).length;
+      }
+
+      usersWithInfo.push({
+        name: user.details
+          ? user.details.fullName || user.email || 'No name'
+          : 'No name',
+        ...groupWithCount
+      });
+    }
+
+    return {
+      usersWithInfo,
+      groups
+    };
   },
 
   /**
