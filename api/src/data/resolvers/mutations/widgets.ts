@@ -49,7 +49,8 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 import { IFormDocument } from '../../../db/models/definitions/forms';
-import { EditorAttributeUtil } from '../../editorAttributeUtils';
+import * as EditorAttributeUtils from '../../editorAttributeUtils';
+import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -802,11 +803,13 @@ const widgetMutations = {
     let finalContent = content;
 
     if (customer && form) {
-      const editorAttributeUtil = await EditorAttributeUtil.createInstance();
-      const replacedContent = await editorAttributeUtil.replaceContent({
+      const replacedContent = await EditorAttributeUtils.replaceContent({
         content,
         customer,
-        user: await Users.getUser(form.createdUserId)
+        user: await Users.getUser(form.createdUserId),
+        possibleCustomerFields: await fieldsCombinedByContentType({
+          contentType: 'customer'
+        })
       });
 
       finalContent = replacedContent || '';

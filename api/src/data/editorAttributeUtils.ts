@@ -2,10 +2,7 @@ import { Customers, Fields } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser } from '../db/models/definitions/users';
-import {
-  fieldsCombinedByContentType,
-  getCustomFields
-} from './modules/fields/utils';
+import { getCustomFields } from './modules/fields/utils';
 import { generateAmounts, generateProducts } from './resolvers/deals';
 import * as _ from 'underscore';
 import { URL } from 'url';
@@ -19,6 +16,7 @@ export interface IReplacer {
 
 export interface IArgs {
   content: string;
+  possibleCustomerFields: ICustomerField[];
   customer?: ICustomer | null;
   user?: IUser | null;
   customerFields?: string[];
@@ -93,228 +91,210 @@ export function runReplacersOn(
   return replacedContent;
 }
 
-export class EditorAttributeUtil {
-  possibleCustomerFields: ICustomerField[];
+export function getCustomerFields(
+  content: string,
+  possibleCustomerFields: ICustomerField[]
+): string[] {
+  const customerFields = ['firstName', 'lastName', 'middleName'];
 
-  private constructor(possibleCustomerFields: ICustomerField[]) {
-    this.possibleCustomerFields = possibleCustomerFields;
+  for (const field of possibleCustomerFields) {
+    if (!content.includes(`{{ customer.${field.name} }}`)) {
+      continue;
+    }
+
+    if (field.name.includes('trackedData')) {
+      customerFields.push('trackedData');
+      continue;
+    }
+
+    if (field.name.includes('customFieldsData')) {
+      customerFields.push('customFieldsData');
+      continue;
+    }
+
+    customerFields.push(field.name);
   }
 
-  public static async createInstance(): Promise<EditorAttributeUtil> {
-    const possibleCustomerFields = await fieldsCombinedByContentType({
-      contentType: 'customer'
+  return customerFields;
+}
+
+export function fillMissingCustomFieldsDataItem(
+  content: string,
+  customFieldsData: ICustomField[] = [],
+  possibleCustomerFields: ICustomerField[]
+): ICustomField[] {
+  const filledResult = [...customFieldsData];
+
+  for (const field of possibleCustomerFields) {
+    if (!content.includes(`{{ customer.${field.name} }}`)) {
+      continue;
+    }
+
+    if (field.name.includes('customFieldsData')) {
+      const fieldId = field.name.split('.').pop();
+
+      // if content has field attribute that doesn't exist on the customer, fill with dummy customFieldsData item
+      if (!filledResult.find(e => e.field === fieldId)) {
+        filledResult.push({
+          field: fieldId || '',
+          stringValue: '',
+          value: ''
+        });
+      }
+      continue;
+    }
+  }
+
+  return filledResult;
+}
+
+export async function generateReplacers(args: IArgs): Promise<IReplacer[]> {
+  const { content, user, brand, item, possibleCustomerFields } = args;
+  const customer = args.customer || {};
+  const replacers: IReplacer[] = [];
+
+  let customerFields = args.customerFields;
+
+  if (!customerFields || customerFields.length === 0) {
+    customerFields = getCustomerFields(content, possibleCustomerFields);
+  }
+
+  customer.customFieldsData = fillMissingCustomFieldsDataItem(
+    content,
+    customer.customFieldsData,
+    possibleCustomerFields
+  );
+
+  // replace customer fields
+  if (args.customer) {
+    replacers.push({
+      key: '{{ customer.name }}',
+      value: Customers.getCustomerName(customer)
     });
-    const editorAttributeUtil = new EditorAttributeUtil(possibleCustomerFields);
-    return editorAttributeUtil;
-  }
 
-  getCustomerFields(content: string): string[] {
-    const customerFields = ['firstName', 'lastName', 'middleName'];
-
-    for (const field of this.possibleCustomerFields) {
-      if (!content.includes(`{{ customer.${field.name} }}`)) {
-        continue;
-      }
-
-      if (field.name.includes('trackedData')) {
-        customerFields.push('trackedData');
-        continue;
-      }
-
-      if (field.name.includes('customFieldsData')) {
-        customerFields.push('customFieldsData');
-        continue;
-      }
-
-      customerFields.push(field.name);
-    }
-
-    return customerFields;
-  }
-
-  fillMissingCustomFieldsDataItem(
-    content: string,
-    customFieldsData: ICustomField[] = []
-  ): ICustomField[] {
-    const filledResult = [...customFieldsData];
-
-    for (const field of this.possibleCustomerFields) {
-      if (!content.includes(`{{ customer.${field.name} }}`)) {
-        continue;
-      }
-
-      if (field.name.includes('customFieldsData')) {
-        const fieldId = field.name.split('.').pop();
-
-        // if content has field attribute that doesn't exist on the customer, fill with dummy customFieldsData item
-        if (!filledResult.find(e => e.field === fieldId)) {
-          filledResult.push({
-            field: fieldId || '',
-            stringValue: '',
-            value: ''
-          });
-        }
-        continue;
-      }
-    }
-
-    return filledResult;
-  }
-
-  async generateReplacers(args: IArgs): Promise<IReplacer[]> {
-    const { content, user, brand, item } = args;
-    const customer = args.customer || {};
-    const replacers: IReplacer[] = [];
-
-    let customerFields = args.customerFields;
-
-    if (!customerFields || customerFields.length === 0) {
-      customerFields = this.getCustomerFields(content);
-    }
-
-    customer.customFieldsData = this.fillMissingCustomFieldsDataItem(
-      content,
-      customer.customFieldsData
+    const customerFileFieldsById = _.indexBy(
+      await Fields.find({ type: 'file', contentType: 'customer' }),
+      '_id'
     );
 
-    // replace customer fields
-    if (args.customer) {
-      replacers.push({
-        key: '{{ customer.name }}',
-        value: Customers.getCustomerName(customer)
-      });
+    for (const field of customerFields) {
+      if (field.includes('trackedData') || field.includes('customFieldsData')) {
+        const dbFieldName = field.includes('trackedData')
+          ? 'trackedData'
+          : 'customFieldsData';
 
-      const customerFileFieldsById = _.indexBy(
-        await Fields.find({ type: 'file', contentType: 'customer' }),
-        '_id'
-      );
-
-      for (const field of customerFields) {
-        if (
-          field.includes('trackedData') ||
-          field.includes('customFieldsData')
-        ) {
-          const dbFieldName = field.includes('trackedData')
-            ? 'trackedData'
-            : 'customFieldsData';
-
-          for (const customFieldsDataItem of customer[dbFieldName] || []) {
-            const replaceValue = customerFileFieldsById[
-              customFieldsDataItem.field
-            ]
-              ? await customFieldsDataItemToFileLink(customFieldsDataItem)
-              : customFieldsDataItem.stringValue ||
-                customFieldsDataItem.value ||
-                '';
-
-            replacers.push({
-              key: `{{ customer.${dbFieldName}.${customFieldsDataItem.field} }}`,
-              value: replaceValue
-            });
-          }
-
-          continue;
-        }
-
-        replacers.push({
-          key: `{{ customer.${field} }}`,
-          value: customer[field] || ''
-        });
-      }
-    }
-
-    // replace user fields
-    if (user) {
-      replacers.push({ key: '{{ user.email }}', value: user.email || '' });
-
-      if (user.details) {
-        replacers.push({
-          key: '{{ user.fullName }}',
-          value: user.details.fullName || ''
-        });
-        replacers.push({
-          key: '{{ user.position }}',
-          value: user.details.position || ''
-        });
-      }
-    }
-
-    // replace brand fields
-    if (brand) {
-      replacers.push({ key: '{{ brandName }}', value: brand.name || '' });
-    }
-
-    // deal, ticket, task mapping
-    if (item) {
-      replacers.push({ key: '{{ itemName }}', value: item.name || '' });
-      replacers.push({
-        key: '{{ itemDescription }}',
-        value: item.description || ''
-      });
-
-      replacers.push({
-        key: '{{ itemCloseDate }}',
-        value: item.closeDate
-          ? new Date(item.closeDate).toLocaleDateString()
-          : ''
-      });
-      replacers.push({
-        key: '{{ itemCreatedAt }}',
-        value: item.createdAt
-          ? new Date(item.createdAt).toLocaleDateString()
-          : ''
-      });
-      replacers.push({
-        key: '{{ itemModifiedAt }}',
-        value: item.modifiedAt
-          ? new Date(item.modifiedAt).toLocaleDateString()
-          : ''
-      });
-
-      const products = await generateProducts(item.productsData);
-      const amounts = generateAmounts(item.productsData);
-
-      replacers.push({
-        key: '{{ dealProducts }}',
-        value: products.map(p => p.product.name).join(',')
-      });
-      replacers.push({
-        key: '{{ dealAmounts }}',
-        value: Object.keys(amounts)
-          .map(key => `${amounts[key]}${key}`)
-          .join(',')
-      });
-
-      const customFields = await getCustomFields(item.contentType);
-
-      for (const customField of customFields) {
-        const customFieldsData = item.customFieldsData || [];
-        const customFieldsDataItem = customFieldsData.find(
-          c => c.field === customField._id
-        );
-
-        if (!customFieldsDataItem) continue;
-
-        const replaceValue =
-          customField.type === 'file'
+        for (const customFieldsDataItem of customer[dbFieldName] || []) {
+          const replaceValue = customerFileFieldsById[
+            customFieldsDataItem.field
+          ]
             ? await customFieldsDataItemToFileLink(customFieldsDataItem)
             : customFieldsDataItem.stringValue ||
               customFieldsDataItem.value ||
               '';
 
-        replacers.push({
-          key: `{{ itemCustomField.${customField._id} }}`,
-          value: replaceValue
-        });
+          replacers.push({
+            key: `{{ customer.${dbFieldName}.${customFieldsDataItem.field} }}`,
+            value: replaceValue
+          });
+        }
+
+        continue;
       }
+
+      replacers.push({
+        key: `{{ customer.${field} }}`,
+        value: customer[field] || ''
+      });
     }
-
-    return replacers;
   }
 
-  async replaceContent(args: IArgs): Promise<string> {
-    const replacers: IReplacer[] = await this.generateReplacers(args);
-    const replacedContent = runReplacersOn(args.content, replacers);
-    return replacedContent;
+  // replace user fields
+  if (user) {
+    replacers.push({ key: '{{ user.email }}', value: user.email || '' });
+
+    if (user.details) {
+      replacers.push({
+        key: '{{ user.fullName }}',
+        value: user.details.fullName || ''
+      });
+      replacers.push({
+        key: '{{ user.position }}',
+        value: user.details.position || ''
+      });
+    }
   }
+
+  // replace brand fields
+  if (brand) {
+    replacers.push({ key: '{{ brandName }}', value: brand.name || '' });
+  }
+
+  // deal, ticket, task mapping
+  if (item) {
+    replacers.push({ key: '{{ itemName }}', value: item.name || '' });
+    replacers.push({
+      key: '{{ itemDescription }}',
+      value: item.description || ''
+    });
+
+    replacers.push({
+      key: '{{ itemCloseDate }}',
+      value: item.closeDate ? new Date(item.closeDate).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemCreatedAt }}',
+      value: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemModifiedAt }}',
+      value: item.modifiedAt
+        ? new Date(item.modifiedAt).toLocaleDateString()
+        : ''
+    });
+
+    const products = await generateProducts(item.productsData);
+    const amounts = generateAmounts(item.productsData);
+
+    replacers.push({
+      key: '{{ dealProducts }}',
+      value: products.map(p => p.product.name).join(',')
+    });
+    replacers.push({
+      key: '{{ dealAmounts }}',
+      value: Object.keys(amounts)
+        .map(key => `${amounts[key]}${key}`)
+        .join(',')
+    });
+
+    const customFields = await getCustomFields(item.contentType);
+
+    for (const customField of customFields) {
+      const customFieldsData = item.customFieldsData || [];
+      const customFieldsDataItem = customFieldsData.find(
+        c => c.field === customField._id
+      );
+
+      if (!customFieldsDataItem) continue;
+
+      const replaceValue =
+        customField.type === 'file'
+          ? await customFieldsDataItemToFileLink(customFieldsDataItem)
+          : customFieldsDataItem.stringValue ||
+            customFieldsDataItem.value ||
+            '';
+
+      replacers.push({
+        key: `{{ itemCustomField.${customField._id} }}`,
+        value: replaceValue
+      });
+    }
+  }
+
+  return replacers;
+}
+
+export async function replaceContent(args: IArgs): Promise<string> {
+  const replacers: IReplacer[] = await generateReplacers(args);
+  const replacedContent = runReplacersOn(args.content, replacers);
+  return replacedContent;
 }

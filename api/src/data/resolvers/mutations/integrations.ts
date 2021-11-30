@@ -34,7 +34,8 @@ import {
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory } from '../../utils';
-import { EditorAttributeUtil } from '../../editorAttributeUtils';
+import * as EditorAttributeUtils from '../../editorAttributeUtils';
+import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -422,11 +423,13 @@ const integrationMutations = {
       });
     }
 
-    const editorAttributeUtil = await EditorAttributeUtil.createInstance();
-    const replacedContent = await editorAttributeUtil.replaceContent({
+    const replacedContent = await EditorAttributeUtils.replaceContent({
       content: body,
       user,
-      customer: customer || undefined
+      customer: customer || undefined,
+      possibleCustomerFields: await fieldsCombinedByContentType({
+        contentType: 'customer'
+      })
     });
 
     doc.body = replacedContent || '';

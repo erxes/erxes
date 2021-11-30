@@ -8,7 +8,8 @@ import { IContext } from '../../types';
 import { registerOnboardHistory, sendToWebhook } from '../../utils';
 import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from './engageUtils';
-import { EditorAttributeUtil } from '../../editorAttributeUtils';
+import * as EditorAttributeUtils from '../../editorAttributeUtils';
+import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -231,11 +232,13 @@ const engageMutations = {
     const customer = await Customers.findOne({ primaryEmail: to });
     const targetUser = await getDocument('users', { email: to });
 
-    const editorAttributeUtil = await EditorAttributeUtil.createInstance();
-    const replacedContent = await editorAttributeUtil.replaceContent({
+    const replacedContent = await EditorAttributeUtils.replaceContent({
       content,
       customer,
-      user: targetUser
+      user: targetUser,
+      possibleCustomerFields: await fieldsCombinedByContentType({
+        contentType: 'customer'
+      })
     });
 
     return dataSources.EngagesAPI.engagesSendTestEmail({
