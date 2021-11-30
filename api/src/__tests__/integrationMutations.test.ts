@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import { IntegrationsAPI } from '../data/dataSources';
-import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -20,7 +19,7 @@ import {
   Users
 } from '../db/models';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-
+import * as EditorAttributeUtils from '../data/editorAttributeUtils';
 import messageBroker from '../messageBroker';
 import './setup.ts';
 
@@ -577,15 +576,12 @@ describe('mutations', () => {
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
     const mockReplaceEditorAttribute = jest.spyOn(
-      utils,
-      'replaceEditorAttributes'
+      EditorAttributeUtils,
+      'replaceAttributes'
     );
 
     mockReplaceEditorAttribute.mockImplementation(() =>
-      Promise.resolve({
-        replacedContent: 'replacedContent',
-        replacers: [{ key: 'key', value: 'value' }]
-      })
+      Promise.resolve('replacedContent')
     );
 
     spy.mockImplementation(() => Promise.resolve());

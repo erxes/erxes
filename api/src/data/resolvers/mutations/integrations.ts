@@ -423,7 +423,7 @@ const integrationMutations = {
       });
     }
 
-    const replacedContent = await EditorAttributeUtils.replaceContent({
+    const replacedContent = await EditorAttributeUtils.replaceAttributes({
       content: body,
       user,
       customer: customer || undefined,

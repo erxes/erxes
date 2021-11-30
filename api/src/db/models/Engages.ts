@@ -22,7 +22,8 @@ import {
 } from './definitions/engages';
 import { CONTENT_TYPES } from './definitions/segments';
 import { IUserDocument } from './definitions/users';
-import { EditorAttributeUtil } from '../../data/editorAttributeUtils';
+import * as EditorAttributeUtil from '../../data/editorAttributeUtils';
+import { fieldsCombinedByContentType } from '../../data/modules/fields/utils';
 interface ICheckRulesParams {
   rules: IRule[];
   browserInfo: IBrowserInfo;
@@ -334,11 +335,13 @@ export const loadClass = () => {
         // conversations
         if (hasPassedAllRules) {
           // replace keys in content
-          const editorAttributeUtil = await EditorAttributeUtil.createInstance();
-          const replacedContent = await editorAttributeUtil.replaceContent({
+          const replacedContent = await EditorAttributeUtil.replaceAttributes({
             content: messenger.content,
             customer,
-            user
+            user,
+            possibleCustomerFields: await fieldsCombinedByContentType({
+              contentType: 'customer'
+            })
           });
 
           if (messenger.rules) {

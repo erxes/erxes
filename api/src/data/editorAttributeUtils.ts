@@ -293,7 +293,7 @@ export async function generateReplacers(args: IArgs): Promise<IReplacer[]> {
   return replacers;
 }
 
-export async function replaceContent(args: IArgs): Promise<string> {
+export async function replaceAttributes(args: IArgs): Promise<string> {
   const replacers: IReplacer[] = await generateReplacers(args);
   const replacedContent = runReplacersOn(args.content, replacers);
   return replacedContent;

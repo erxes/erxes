@@ -294,7 +294,7 @@ const sendEmailOrSms = async (
       };
 
       if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
-        const replacedContent = await EditorAttributeUtils.replaceContent({
+        const replacedContent = await EditorAttributeUtils.replaceAttributes({
           customerFields,
           content: emailContent,
           user,

@@ -232,7 +232,7 @@ const engageMutations = {
     const customer = await Customers.findOne({ primaryEmail: to });
     const targetUser = await getDocument('users', { email: to });
 
-    const replacedContent = await EditorAttributeUtils.replaceContent({
+    const replacedContent = await EditorAttributeUtils.replaceAttributes({
       content,
       customer,
       user: targetUser,

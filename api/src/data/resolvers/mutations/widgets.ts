@@ -803,7 +803,7 @@ const widgetMutations = {
     let finalContent = content;
 
     if (customer && form) {
-      const replacedContent = await EditorAttributeUtils.replaceContent({
+      const replacedContent = await EditorAttributeUtils.replaceAttributes({
         content,
         customer,
         user: await Users.getUser(form.createdUserId),
