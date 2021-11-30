@@ -56,9 +56,13 @@ export function AttachmentComponent(props) {
     string = string.replace(/}, additionalItem:"Additional text"}/g, '}} additionalItem="Additional text"');
     string = string.slice(1, string.length);
     string = string.replace(/name:/g, "\n\t\tname:");
+    // string = string.replace(/index:/g, "\n\tindex=");
+    string = string.replace(/size:/g, "\n\t\tsize:");
     string = string.replace(/type:/g, "\n\t\ttype:");
     string = string.replace(/url:/g, "\n\t\turl:");
-    string = string.replace(/}, index:1}/g, "}} index={1}");
+    string = string.replace(/}], index:1}/g, "}} index={1}");
+    string = string.replace(/}}/g, "}}\n\t");
+    string = string.replace(/},/g, "},\n\t\t");
 
     return string;
   };

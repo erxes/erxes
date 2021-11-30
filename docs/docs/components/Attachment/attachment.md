@@ -48,7 +48,7 @@ import { AttachmentComponent } from "./attachment.js"
 ## Index
 
 <p>Set the file to start from attachments by <code>index</code>. (Index number starts with 0)</p>
-<AttachmentComponent type="multi" index/>
+<AttachmentComponent type="multi" attachments index/>
 
 ## API
 
