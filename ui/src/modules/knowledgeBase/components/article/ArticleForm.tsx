@@ -35,6 +35,7 @@ type State = {
   topicId?: string;
   categoryId: string;
   attachments: IAttachment[];
+  image: IAttachment | null;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -44,12 +45,14 @@ class ArticleForm extends React.Component<Props, State> {
     const article = props.article || { content: '' };
     const attachments =
       (article.attachments && extractAttachment(article.attachments)) || [];
+    const image = article.image ? extractAttachment([article.image])[0] : null;
 
     this.state = {
       content: article.content,
       reactionChoices: article.reactionChoices || [],
       topicId: article.topicId,
       categoryId: article.categoryId,
+      image,
       attachments
     };
   }
@@ -80,7 +83,8 @@ class ArticleForm extends React.Component<Props, State> {
       content,
       reactionChoices,
       topicId,
-      categoryId
+      categoryId,
+      image
     } = this.state;
 
     const finalValues = values;
@@ -100,7 +104,8 @@ class ArticleForm extends React.Component<Props, State> {
         categoryIds: [currentCategoryId],
         topicId,
         attachments,
-        categoryId
+        categoryId,
+        image
       }
     };
   };
@@ -115,6 +120,14 @@ class ArticleForm extends React.Component<Props, State> {
 
   onChangeAttachments = (attachments: IAttachment[]) =>
     this.setState({ attachments });
+
+  onChangeImage = (images: IAttachment[]) => {
+    if (images && images.length > 0) {
+      this.setState({ image: images[0] });
+    } else {
+      this.setState({ image: null });
+    }
+  };
 
   onChangeAttachment = (key: string, value: string | number) => {
     this.setState({
@@ -212,7 +225,7 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
-    const { attachments, reactionChoices, content } = this.state;
+    const { attachments, reactionChoices, content, image } = this.state;
     const attachment = this.getFirstAttachment();
 
     const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
@@ -290,6 +303,16 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
+          <ControlLabel>{__('Image')}</ControlLabel>
+          <Uploader
+            defaultFileList={image ? [image] : []}
+            onChange={this.onChangeImage}
+            single={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Attachment')}</ControlLabel>
           <Uploader
             defaultFileList={attachments}
             onChange={this.onChangeAttachments}
@@ -344,6 +367,21 @@ class ArticleForm extends React.Component<Props, State> {
                   { value: '', label: 'Select type' },
                   ...mimeTypeOptions
                 ]}
+              />
+            </FormGroup>
+          </FlexItem>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File duration (sec)')}</ControlLabel>
+              <FormControl
+                placeholder="Duration"
+                value={attachment.duration || 0}
+                onChange={(e: any) =>
+                  this.onChangeAttachment(
+                    'duration',
+                    parseInt(e.target.value, 10)
+                  )
+                }
               />
             </FormGroup>
           </FlexItem>
