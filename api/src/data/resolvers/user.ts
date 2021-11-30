@@ -1,9 +1,4 @@
-import {
-  Configs,
-  Departments,
-  Exms,
-  OnboardingHistories
-} from '../../db/models';
+import { Configs, Departments, OnboardingHistories } from '../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
@@ -72,10 +67,6 @@ export default {
     }
 
     return entries[0];
-  },
-
-  exm() {
-    return Exms.findOne();
   },
 
   department(user: IUserDocument) {

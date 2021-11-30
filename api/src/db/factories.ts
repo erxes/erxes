@@ -28,7 +28,6 @@ import {
   EmailDeliveries,
   EmailTemplates,
   EngageMessages,
-  Exms,
   Fields,
   FieldsGroups,
   Forms,
@@ -1888,15 +1887,6 @@ export const branchFactory = async (params: {
   });
 
   return unit.save();
-};
-
-export const exmFactory = async (params: any) => {
-  const exm = new Exms({
-    title: params.title || faker.random.word(),
-    description: params.description || faker.random.word()
-  });
-
-  return exm.save();
 };
 
 export const clientPortalFactory = async (params: { name?: string }) => {
