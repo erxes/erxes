@@ -50,11 +50,23 @@ const options = {
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {
-    const { priority } = queryParams;
+    const { priority, userIds, startDate, endDate } = queryParams;
     const extraParams: any = {};
 
     if (priority) {
       extraParams.priority = toArray(priority);
+    }
+
+    if (userIds) {
+      extraParams.userIds = toArray(userIds);
+    }
+
+    if (startDate) {
+      extraParams.startDate = startDate;
+    }
+
+    if (endDate) {
+      extraParams.endDate = endDate;
     }
 
     return extraParams;
