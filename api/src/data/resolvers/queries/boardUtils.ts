@@ -259,7 +259,6 @@ export const generateCommonFilters = async (
 
   if (hasStartAndCloseDate) {
     filter.startDate = { $exists: true };
-
     filter.closeDate = { $exists: true };
   }
 

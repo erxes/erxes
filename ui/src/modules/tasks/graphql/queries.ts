@@ -26,20 +26,20 @@ const commonParams = `
 `;
 
 const commonParamDefs = `
-  companyIds: $companyIds,
-  customerIds: $customerIds,
-  assignedUserIds: $assignedUserIds,
-  closeDateType: $closeDateType,
-  priority: $priority,
-  labelIds: $labelIds,
-  sortField: $sortField,
-  sortDirection: $sortDirection,
-  userIds: $userIds,
-  segment: $segment,
-  assignedToMe: $assignedToMe,
-  startDate: $startDate,
-  endDate: $endDate,
-  hasStartAndCloseDate: $hasStartAndCloseDate,
+  companyIds: $companyIds
+  customerIds: $customerIds
+  assignedUserIds: $assignedUserIds
+  closeDateType: $closeDateType
+  priority: $priority
+  labelIds: $labelIds
+  sortField: $sortField
+  sortDirection: $sortDirection
+  userIds: $userIds
+  segment: $segment
+  assignedToMe: $assignedToMe
+  startDate: $startDate
+  endDate: $endDate
+  hasStartAndCloseDate: $hasStartAndCloseDate
   ${conformityQueryFieldDefs}
 `;
 
