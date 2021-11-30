@@ -273,7 +273,9 @@ export async function generateReplacers(args: IArgs): Promise<IReplacer[]> {
         c => c.field === customField._id
       );
 
-      if (!customFieldsDataItem) continue;
+      if (!customFieldsDataItem) {
+        continue;
+      }
 
       const replaceValue =
         customField.type === 'file'
