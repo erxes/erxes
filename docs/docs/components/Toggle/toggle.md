@@ -7,6 +7,7 @@ import { ToggleComponent } from "./toggle.js"
 
 ## Example
 
+<p>Default toggle.</p>
 <ToggleComponent type="simple" />
 
 ## Icons

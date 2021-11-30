@@ -12,7 +12,7 @@ import { LabelComponent } from './label.js'
 
 ## Color
 
-<p>Wants your own color? Just give color to <code>lblColor</code> prop.</p>
+<p>Want your own color? Just give color to <code>lblColor</code> prop.</p>
 <LabelComponent type="lblColor" style={['red']} />
 
 ## API

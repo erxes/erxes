@@ -5,7 +5,7 @@ title: Progress Bar
 
 import { ProgressBarComponent } from "./progressbar.js"
 
-<p>Provide progress bar to check work progress</p>
+<p>Provide progress bar to check work progress.</p>
 
 ## Percentage
 
