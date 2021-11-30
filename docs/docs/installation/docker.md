@@ -215,7 +215,7 @@ services:
       REDIS_PORT: "6379"
       REDIS_PASSWORD: "erxes"
       # RabbitMQ
-      RABBITMQ_URL: "amqp://rabbitmq:5672/erxes"
+      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"
       JWT_TOKEN_SECRET: "erxes"
       # Email verifier
       EMAIL_VERIFIER_ENDPOINT: "https://email-verifier.erxes.io"
@@ -241,7 +241,7 @@ services:
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
       # RabbitMQ
-      RABBITMQ_URL: "amqp://rabbitmq:5672/erxes"
+      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"
       ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
       - "127.0.0.1:3600:3600"
@@ -266,7 +266,7 @@ services:
       REDIS_PASSWORD: "erxes"
       JWT_TOKEN_SECRET: "erxes"
       # RabbitMQ
-      RABBITMQ_URL: "amqp://rabbitmq:5672/erxes"
+      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"
       # Elasticsearch
       ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
@@ -304,7 +304,7 @@ services:
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
       # RabbitMQ
-      RABBITMQ_URL: "amqp://rabbitmq:5672/erxes"
+      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"
       # Redis
       REDIS_HOST: "redis"
       REDIS_PORT: "6379"
@@ -326,7 +326,7 @@ services:
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
       # RabbitMQ
-      RABBITMQ_URL: "amqp://rabbitmq:5672/erxes"
+      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"
     networks:
       - erxes-net
 
@@ -347,7 +347,7 @@ services:
       REDIS_PORT: "6379"
       REDIS_PASSWORD: "erxes"
       # RabbitMQ
-      RABBITMQ_URL: "amqp://rabbitmq:5672/erxes"
+      RABBITMQ_HOST: "amqp://rabbitmq:5672/erxes"
     networks:
       - erxes-net
 
