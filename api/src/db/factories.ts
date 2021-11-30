@@ -1072,6 +1072,8 @@ interface IPipelineFactoryInput {
   hackScoringType?: string;
   visibility?: string;
   condition?: string;
+  labelStatus?: string;
+  staticLabels?: Array<{ name: string; colorCode: string }>;
   memberIds?: string[];
   watchedUserIds?: string[];
   startDate?: Date;
@@ -1097,6 +1099,7 @@ export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
     visibility: params.visibility || 'public',
     condition: params.condition || 'include',
     bgColor: params.bgColor || 'fff',
+    labelStatus: params.labelStatus || 'dynamic',
     hackScoringType: params.hackScoringType,
     memberIds: params.memberIds,
     watchedUserIds: params.watchedUserIds,

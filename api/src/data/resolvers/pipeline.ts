@@ -1,4 +1,10 @@
-import { Deals, GrowthHacks, Tasks, Tickets } from '../../db/models';
+import {
+  Deals,
+  GrowthHacks,
+  PipelineLabels,
+  Tasks,
+  Tickets
+} from '../../db/models';
 import { IPipelineDocument } from '../../db/models/definitions/boards';
 import {
   BOARD_TYPES,
@@ -24,6 +30,9 @@ export default {
     }
 
     return [];
+  },
+  staticLabels(pipeline: IPipelineDocument, {}) {
+    return PipelineLabels.find({ pipelineId: pipeline._id }).lean();
   },
 
   isWatched(pipeline: IPipelineDocument, _args, { user }: IContext) {

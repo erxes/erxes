@@ -2,6 +2,7 @@ import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { Checklists, Conformities, Forms, InternalNotes } from './';
 import { getCollection, updateOrder, watchItem } from './boardUtils';
+import Deals from './Deals';
 import {
   boardSchema,
   IBoard,
@@ -14,12 +15,21 @@ import {
   stageSchema
 } from './definitions/boards';
 import { BOARD_STATUSES } from './definitions/constants';
+import PipelineLabels from './PipelineLabels';
 import { getDuplicatedStages } from './PipelineTemplates';
 
 export interface IOrderInput {
   _id: string;
   order: number;
 }
+
+type IPipelineDoc = IPipeline & {
+  staticLabels?: Array<{
+    _id?: string;
+    name: string;
+    colorCode: string;
+  }>;
+};
 
 // Not mongoose document, just stage shaped plain object
 type IPipelineStage = IStage & { _id: string };
@@ -76,6 +86,49 @@ const removePipelineStagesWithItems = async (
 
 const removeStageItems = async (type: string, stageId: string) => {
   await removeItems(type, [stageId]);
+};
+
+const checkPipelineLabels = async (
+  pipelineId: string,
+  type: string,
+  labelId: string
+) => {
+  const stageIds = (await Stages.find({ pipelineId })).map(e => e._id);
+  if (type === 'deal') {
+    for (const stageId of stageIds) {
+      const deals = await Deals.find({ stageId: stageId });
+      const staticLabelIds = deals.map(e => e.labelIds);
+      for (const staticLabelId of staticLabelIds) {
+        if (staticLabelId?.includes(labelId)) {
+          throw new Error('Have a used static label!');
+        }
+      }
+    }
+    return await PipelineLabels.findByIdAndRemove({ _id: labelId });
+  }
+};
+
+const createOrUpdatePipelineStaticLabels = async (
+  pipelineId: string,
+  userId,
+  docLabels?: Array<{ _id?: string; name: string; colorCode: string }>
+) => {
+  for (const docLabel of docLabels || []) {
+    if (!docLabel._id) {
+      await PipelineLabels.create({
+        name: docLabel.name,
+        colorCode: docLabel.colorCode,
+        createdAt: new Date(),
+        createdBy: userId,
+        pipelineId: pipelineId
+      });
+    } else {
+      await PipelineLabels.updateOne(
+        { _id: docLabel._id },
+        { $set: { name: docLabel.name, colorCode: docLabel.colorCode } }
+      );
+    }
+  }
 };
 
 const createOrUpdatePipelineStages = async (
@@ -240,11 +293,20 @@ export const loadPipelineClass = () => {
      * Create a pipeline
      */
     public static async createPipeline(
-      doc: IPipeline,
+      doc: IPipelineDoc,
       stages?: IPipelineStage[]
     ) {
       const pipeline = await Pipelines.create(doc);
 
+      for (const label of doc.staticLabels || []) {
+        await PipelineLabels.create({
+          name: label.name,
+          colorCode: label.colorCode,
+          createdAt: new Date(),
+          createdBy: doc.userId,
+          pipelineId: pipeline._id
+        });
+      }
       if (doc.templateId) {
         const duplicatedStages = await getDuplicatedStages({
           templateId: doc.templateId,
@@ -269,7 +331,7 @@ export const loadPipelineClass = () => {
      */
     public static async updatePipeline(
       _id: string,
-      doc: IPipeline,
+      doc: IPipelineDoc,
       stages?: IPipelineStage[]
     ) {
       if (doc.templateId) {
@@ -286,6 +348,38 @@ export const loadPipelineClass = () => {
         }
       } else if (stages) {
         await createOrUpdatePipelineStages(stages, _id, doc.type);
+      }
+      const pipeline = await Pipelines.findOne({ _id });
+      if (doc.labelStatus === 'static') {
+        const staticlabelsCol = await PipelineLabels.find({
+          pipelineId: _id
+        });
+        if (staticlabelsCol.length > 0) {
+          const colLabelIds = staticlabelsCol.map(e => e._id);
+          const docLabelIds = doc.staticLabels?.map(e => e._id);
+          for (const labelId of colLabelIds)
+            if (!docLabelIds?.includes(labelId)) {
+              await checkPipelineLabels(_id, doc.type, labelId);
+            }
+        }
+
+        await createOrUpdatePipelineStaticLabels(
+          _id,
+          doc.userId,
+          doc.staticLabels
+        );
+      } else if (
+        doc.labelStatus === 'dynamic' &&
+        pipeline?.labelStatus == 'static'
+      ) {
+        const staticlabelsCol = await PipelineLabels.find({
+          pipelineId: _id
+        });
+        if (staticlabelsCol.length > 0) {
+          const colLabelIds = staticlabelsCol.map(e => e._id);
+          for (const labelId of colLabelIds)
+            await checkPipelineLabels(_id, doc.type, labelId);
+        }
       }
 
       await Pipelines.updateOne({ _id }, { $set: doc });
