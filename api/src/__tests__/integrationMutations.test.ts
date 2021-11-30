@@ -21,6 +21,7 @@ import {
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import * as EditorAttributeUtils from '../data/editorAttributeUtils';
 import messageBroker from '../messageBroker';
+import * as fieldUtils from '../data/modules/fields/utils';
 import './setup.ts';
 
 describe('mutations', () => {
@@ -575,14 +576,28 @@ describe('mutations', () => {
     };
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
+
     const mockReplaceEditorAttribute = jest.spyOn(
       EditorAttributeUtils,
       'replaceAttributes'
     );
-
     mockReplaceEditorAttribute.mockImplementation(() =>
-      Promise.resolve('replacedContent')
+      Promise.resolve('body')
     );
+
+    const mockedFieldUtils = jest.spyOn(
+      fieldUtils,
+      'fieldsCombinedByContentType'
+    );
+    mockedFieldUtils.mockReturnValue(Promise.resolve([]));
+
+    try {
+      await graphqlRequest(mutation, 'integrationSendMail', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
 
     spy.mockImplementation(() => Promise.resolve());
 
@@ -616,15 +631,7 @@ describe('mutations', () => {
     }
 
     spy.mockRestore();
-
-    try {
-      await graphqlRequest(mutation, 'integrationSendMail', args, {
-        dataSources
-      });
-    } catch (e) {
-      expect(e[0].message).toBeDefined();
-    }
-
+    mockedFieldUtils.mockRestore();
     mockReplaceEditorAttribute.mockRestore();
   });
 

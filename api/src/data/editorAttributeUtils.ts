@@ -133,7 +133,7 @@ export function fillMissingCustomFieldsDataItem(
     if (field.name.includes('customFieldsData')) {
       const fieldId = field.name.split('.').pop();
 
-      // if content has field attribute that doesn't exist on the customer, fill with dummy customFieldsData item
+      // if content has field attribute that doesn't exist on the customer.customFieldsData, fill with dummy item
       if (!filledResult.find(e => e.field === fieldId)) {
         filledResult.push({
           field: fieldId || '',
@@ -141,7 +141,6 @@ export function fillMissingCustomFieldsDataItem(
           value: ''
         });
       }
-      continue;
     }
   }
 
