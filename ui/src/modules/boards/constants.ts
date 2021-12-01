@@ -151,3 +151,11 @@ export const SEARCH_ACTIVITY_CHECKBOX = [
   },
   { action: 'addNote', value: 'added notes on', title: 'Added notes' }
 ];
+
+export const TYPES = {
+  DAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
+  all: ['day', 'week', 'month', 'year']
+};

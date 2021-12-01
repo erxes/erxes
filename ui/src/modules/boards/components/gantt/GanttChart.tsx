@@ -7,11 +7,13 @@ import {
   TimelineContainer
 } from 'modules/boards/styles/viewtype';
 import { withRouter } from 'react-router-dom';
-import Button from 'modules/common/components/Button';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { colors } from 'modules/common/styles';
+import { ButtonGroup } from 'modules/boards/styles/header';
+import { TYPES } from 'modules/boards/constants';
+import { capitalize } from 'modules/activityLogs/utils';
 
 type Props = {
   items: IItem[];
@@ -146,11 +148,27 @@ const GanttChart = (props: Props) => {
     setSelectedItem(item);
   };
 
+  const save = () => {
+    const items: any[] = [];
+
+    for (const item of data) {
+      items.push({
+        _id: item.id,
+        startDate: item.start,
+        closeDate: item.end
+      });
+    }
+
+    props.save(items, links);
+  };
+
   const onUpdateTask = (item, prop) => {
     item.start = prop.start;
     item.end = prop.end;
 
     setData([...data]);
+
+    save();
   };
 
   const createLink = (start, end) => {
@@ -167,76 +185,46 @@ const GanttChart = (props: Props) => {
     const newLink = createLink(item.start, item.end);
 
     setLinks([...links, newLink]);
+
+    save();
   };
 
   const modeChange = value => {
     setTimelineMode(value);
   };
 
-  const deleteItem = () => {
-    if (selectedItem) {
-      const index = links.indexOf(selectedItem);
+  // const deleteItem = () => {
+  //   if (selectedItem) {
+  //     const index = links.indexOf(selectedItem);
 
-      if (index > -1) {
-        links.splice(index, 1);
+  //     if (index > -1) {
+  //       links.splice(index, 1);
 
-        setLinks([...links]);
-      }
-    }
-  };
-
-  const save = () => {
-    const items: any[] = [];
-
-    for (const item of data) {
-      items.push({
-        _id: item.id,
-        startDate: item.start,
-        closeDate: item.end
-      });
-    }
-
-    props.save(items, links);
-  };
+  //       setLinks([...links]);
+  //     }
+  //   }
+  // };
 
   return (
     <GanttContainer>
       <NavContainer>
         <ModeContainer>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={e => modeChange('day')}
-          >
-            {__('Day')}
-          </Button>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={e => modeChange('week')}
-          >
-            {__('Week')}
-          </Button>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={e => modeChange('month')}
-          >
-            {__('Month')}
-          </Button>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={e => modeChange('year')}
-          >
-            {__('Year')}
-          </Button>
-          <Button btnStyle="danger" size="small" onClick={deleteItem}>
-            {__('Delete')}
-          </Button>
-          <Button btnStyle="success" size="small" onClick={save}>
-            {__('Save')}
-          </Button>
+          <ButtonGroup>
+            {TYPES.all.map(item => {
+              const onClick = () => modeChange(item);
+
+              return (
+                <a
+                  key={item}
+                  href={`#`}
+                  onClick={onClick}
+                  className={timelineMode === item ? 'active' : ''}
+                >
+                  {capitalize(item)}
+                </a>
+              );
+            })}
+          </ButtonGroup>
         </ModeContainer>
       </NavContainer>
       <TimelineContainer>

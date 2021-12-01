@@ -84,12 +84,8 @@ export const List = styled.div`
 
 export const ModeContainer = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: baseline;
-  justify-self: flex-end;
+  justify-content: right;
   margin: 5px 20px;
-  float: right;
 `;
 
 export const ModeItem = styled.div`
