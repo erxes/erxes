@@ -108,19 +108,21 @@ const generateBoardNumber = async (value: any, numberType: string) => {
 
   let number;
 
-  if (lastGeneratedNum) {
-    console.log('---------', 'iishee orj irehgui');
+  const lastNumWithoutNum = lastGeneratedNum.slice(0, replacedConfig.length);
+
+  if (lastGeneratedNum && lastNumWithoutNum === replacedConfig) {
+    console.log('=================== last number exist ===================');
     // last generated number value
-    const lastNumWithoutNum = lastGeneratedNum.slice(0, replacedConfig.length);
 
     // last generated number {number} length
-    const lastNumNumber = lastGeneratedNum.slice(replacedConfig.length).length;
+    const lastNumNumberLength = lastGeneratedNum.slice(replacedConfig.length)
+      .length;
 
     // config number {number} length
-    let configNum = value[numberType].replace(configWithoutNum, '');
-    configNum = configNum.replace(/\{number}/g, '0').length;
+    let configNumLength = value[numberType].replace(configWithoutNum, '');
+    configNumLength = configNumLength.replace(/\{number}/g, '0').length;
 
-    if (lastGeneratedNum.substr(-1) === '9') {
+    if (lastNumNumberLength === configNumLength + 1) {
       const updatedConfig = config + '{number}';
 
       await Configs.updateOne(
@@ -133,22 +135,26 @@ const generateBoardNumber = async (value: any, numberType: string) => {
       );
     }
 
-    // check config value changed or not
-    if (lastNumWithoutNum === replacedConfig && lastNumNumber === configNum) {
-      console.log('--------------- config oorchlogdoogui -----------------');
-      number = lastGeneratedNum.slice(replacedConfig.length);
+    number = lastGeneratedNum.slice(replacedConfig.length);
 
-      number = await generateNumber(config, number.length, number);
-    } else {
-      // config uurchlugdsun uyd
-      console.log('--------------- config oorchlogdson -----------------');
-      number = await generateNumber(value[numberType], configWithoutNum.length);
-    }
+    number = await generateNumber(config, number.length, number);
+    // // check config value changed or not
+    // if (lastNumWithoutNum === replacedConfig && lastNumNumber === configNum) {
+    //   console.log('--------------- config oorchlogdoogui -----------------');
+    //   number = lastGeneratedNum.slice(replacedConfig.length);
+
+    //   number = await generateNumber(config, number.length, number);
+    // } else {
+    //   // config uurchlugdsun uyd
+    //   console.log('--------------- config oorchlogdson -----------------');
+    //   number = await generateNumber(value[numberType], configWithoutNum.length);
+    // }
 
     return replacedConfig + number;
   }
 
   // generate first value
+  console.log('=================== hamgiin ehnii value ===================');
   return (
     replacedConfig + generateNumber(value[numberType], configWithoutNum.length)
   );
