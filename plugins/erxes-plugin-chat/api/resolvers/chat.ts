@@ -7,6 +7,13 @@ const chatResolvers = [
         createdBy: -1
       });
     }
+  },
+  {
+    type: 'Chat',
+    field: 'createdUser',
+    handler: (chat, {}, { models }) => {
+      return models.Users.findOne({ _id: chat.createdBy });
+    }
   }
 ];
 

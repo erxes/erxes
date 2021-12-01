@@ -12,7 +12,7 @@ export const chatMessageSchema = {
   chatId: { type: String, label: 'Connected chat' },
   content: { type: String, label: 'Content' },
   createdAt: { type: Date, label: 'Created at' },
-  createdBy: { type: Date, label: 'Created by' }
+  createdBy: { type: String, label: 'Created by' }
 };
 
 export const chatSchema = {

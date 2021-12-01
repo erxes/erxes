@@ -1,36 +1,18 @@
 import React from 'react';
 import { Wrapper } from 'erxes-ui';
-import Sidebar from 'erxes-ui/lib/layout/components/Sidebar';
+import Sidebar from '../containers/Sidebar';
+import ChatDetail from '../containers/ChatDetail';
 
 type Props = {
   queryParams: any;
-  chats: any[];
 };
 
 export default function Home(props: Props) {
-  const { chats } = props;
+  const { _id } = props.queryParams || {};
 
-  const renderChats = () => {
-    if (chats.length === 0) {
-      return <div>No chats</div>;
-    }
-
-    return (
-      <ol>
-        {chats.map(chat => (
-          <li key={chat._id}>
-            {chat.lastChatMessage ? chat.lastChatMessage.content : ''}
-          </li>
-        ))}
-      </ol>
-    );
+  const renderContent = () => {
+    return <>{_id && <ChatDetail chatId={_id} />}</>;
   };
-
-  const renderContent = (
-    <Sidebar wide={true} full={true}>
-      {renderChats()}
-    </Sidebar>
-  );
 
   return (
     <Wrapper
@@ -38,7 +20,8 @@ export default function Home(props: Props) {
       header={
         <Wrapper.Header title={'Chat'} breadcrumb={[{ title: 'Chat' }]} />
       }
-      content={renderContent}
+      leftSidebar={<Sidebar />}
+      content={renderContent()}
     />
   );
 }
