@@ -487,7 +487,11 @@ describe('boardQueries', () => {
     expect(response._id).toBe(dealStage._id);
 
     const taskStage = await stageFactory({ type: BOARD_TYPES.TASK });
-    response = await graphqlRequest(qry, 'stageDetail', { _id: taskStage._id });
+
+    response = await graphqlRequest(qry, 'stageDetail', {
+      _id: taskStage._id,
+      extraParams
+    });
 
     expect(response._id).toBe(taskStage._id);
 
