@@ -1,4 +1,4 @@
-import { paginate } from 'erxes-api-utils';
+// import { paginate } from 'erxes-api-utils';
 import {  
   getQpayInvoice,  
   qpayToken,
@@ -49,10 +49,11 @@ const Queries = [
     name: 'socialPayInvoices',
     handler: async (_root, params, { models }) => {                  
 
-      return paginate(models.SocialPayInvoice.find().sort({createdAt: -1}), {
-        page: params.page,
-        perPage: params.perPage
-      });
+      return await models.SocialPayInvoice.find().sort({createdAt: -1})
+      // return paginate(, {
+      //   page: params.page,
+      //   perPage: params.perPage
+      // });
     }
   },
 
@@ -154,10 +155,11 @@ const Queries = [
     name: 'qpayInvoices',
     handler: async (_root, params, { models }) => {      
 
-      return paginate(models.QpayInvoice.find().sort({createdAt: -1}), {
-        page: params.page,
-        perPage: params.perPage
-      });
+      return await models.QpayInvoice.find().sort({createdAt: -1});
+      // return paginate(models.QpayInvoice.find().sort({createdAt: -1}), {
+      //   page: params.page,
+      //   perPage: params.perPage
+      // });
 
     }  
   },
