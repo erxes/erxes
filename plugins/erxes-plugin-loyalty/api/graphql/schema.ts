@@ -1,4 +1,10 @@
 export const types = `
+  type LoyaltyConfig {
+    _id: String!
+    code: String!
+    value: JSON
+  }
+
   type CustomerLoyalty {
     customerId: String
     loyalty: Float
@@ -18,6 +24,8 @@ export const types = `
 `;
 
 export const queries = `
+  loyaltyConfigs: [LoyaltyConfig]
+
   customerLoyalties(
     customerId: String!
     page: Int
@@ -27,4 +35,8 @@ export const queries = `
   customerLoyalty(
     customerId: String!
   ): CustomerLoyalty
+`;
+
+export const mutations = `
+  loyaltyConfigsUpdate(configsMap: JSON!): JSON
 `;

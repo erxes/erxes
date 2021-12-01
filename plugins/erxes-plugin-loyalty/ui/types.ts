@@ -124,7 +124,7 @@ export type IConfig = {
 
 // query types
 export type ConfigsQueryResponse = {
-  configs: IConfig[];
+  loyaltyConfigs: IConfig[];
   loading: boolean;
   refetch: () => void;
 };

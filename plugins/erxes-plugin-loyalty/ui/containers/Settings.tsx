@@ -35,7 +35,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         });
     };
 
-    const configs = configsQuery.configs || [];
+    const configs = configsQuery.loyaltyConfigs || [];
 
     const configsMap = {};
 
@@ -55,10 +55,10 @@ class SettingsContainer extends React.Component<FinalProps> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
+    graphql<{}, ConfigsQueryResponse>(gql(queries.loyaltyConfigs), {
       name: 'configsQuery'
     }),
-    graphql<{}>(gql(mutations.updateConfigs), {
+    graphql<{}>(gql(mutations.updateLoyaltyConfigs), {
       name: 'updateConfigs'
     })
   )(SettingsContainer)

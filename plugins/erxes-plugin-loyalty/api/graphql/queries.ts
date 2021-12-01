@@ -1,6 +1,12 @@
 import { paginate } from 'erxes-api-utils'
 
 const loyaltyQueries = [
+  {
+    name: 'loyaltyConfigs',
+    handler: async(_root, _params, {models}) => {
+      return models.LoyaltyConfigs.find({});
+    }
+  },
   /**
    * Loyalties list for customer
    */
