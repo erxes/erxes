@@ -3,6 +3,7 @@ import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
+  generateBoardNumber,
   watchItem
 } from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
@@ -44,6 +45,8 @@ export const loadTicketClass = () => {
           throw new Error('Already converted a ticket');
         }
       }
+
+      doc = await generateBoardNumber(doc, 'ticketNumber', 'ticket');
 
       const ticket = await Tickets.create({
         ...doc,

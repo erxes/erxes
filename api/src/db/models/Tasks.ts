@@ -3,6 +3,7 @@ import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
+  generateBoardNumber,
   watchItem
 } from './boardUtils';
 import { IItemCommonFields as ITask } from './definitions/boards';
@@ -45,6 +46,8 @@ export const loadTaskClass = () => {
           throw new Error('Already converted a task');
         }
       }
+
+      doc = await generateBoardNumber(doc, 'taskNumber', 'task');
 
       const task = await Tasks.create({
         ...doc,

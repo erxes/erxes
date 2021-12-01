@@ -3,6 +3,7 @@ import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
+  generateBoardNumber,
   watchItem
 } from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
@@ -41,6 +42,8 @@ export const loadDealClass = () => {
           throw new Error('Already converted a deal');
         }
       }
+
+      doc = await generateBoardNumber(doc, 'dealNumber', 'deal');
 
       const deal = await Deals.create({
         ...doc,
