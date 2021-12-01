@@ -9,7 +9,6 @@ import {
 import { withRouter } from 'react-router-dom';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { colors } from 'modules/common/styles';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { TYPES } from 'modules/boards/constants';
@@ -163,12 +162,17 @@ const GanttChart = (props: Props) => {
   };
 
   const onUpdateTask = (item, prop) => {
-    item.start = prop.start;
-    item.end = prop.end;
+    if (
+      item.start.getTime() !== prop.start.getTime() ||
+      item.end.getTime() !== prop.end.getTime()
+    ) {
+      item.start = prop.start;
+      item.end = prop.end;
 
-    setData([...data]);
+      setData([...data]);
 
-    save();
+      save();
+    }
   };
 
   const createLink = (start, end) => {
@@ -216,7 +220,7 @@ const GanttChart = (props: Props) => {
               return (
                 <a
                   key={item}
-                  href={`#`}
+                  href={`#${item}`}
                   onClick={onClick}
                   className={timelineMode === item ? 'active' : ''}
                 >
