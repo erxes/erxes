@@ -13,6 +13,8 @@ import { colors } from 'modules/common/styles';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
+import useContextMenu from './useContextMenu';
+import './style.css';
 
 type Props = {
   items: IItem[];
@@ -20,6 +22,19 @@ type Props = {
   refetch: () => void;
   save: (items: any[], links: any[]) => void;
 } & IRouterProps;
+
+const Menu = ({ onDelete }) => {
+  const { anchorPoint, show } = useContextMenu();
+
+  if (show) {
+    return (
+      <ul className="menu" style={{ top: anchorPoint.y, left: anchorPoint.x }}>
+        <li onClick={onDelete}>Delete</li>
+      </ul>
+    );
+  }
+  return <></>;
+};
 
 const GanttChart = (props: Props) => {
   const config = {
@@ -197,17 +212,19 @@ const GanttChart = (props: Props) => {
     setTimelineMode(value);
   };
 
-  // const deleteItem = () => {
-  //   if (selectedItem) {
-  //     const index = links.indexOf(selectedItem);
+  const deleteItem = () => {
+    if (selectedItem) {
+      const index = links.indexOf(selectedItem);
 
-  //     if (index > -1) {
-  //       links.splice(index, 1);
+      if (index > -1) {
+        links.splice(index, 1);
 
-  //       setLinks([...links]);
-  //     }
-  //   }
-  // };
+        setLinks([...links]);
+
+        save();
+      }
+    }
+  };
 
   return (
     <GanttContainer>
@@ -246,6 +263,7 @@ const GanttChart = (props: Props) => {
           nonEditableName={true}
         />
       </TimelineContainer>
+      <Menu onDelete={deleteItem} />
     </GanttContainer>
   );
 };
