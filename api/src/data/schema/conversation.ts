@@ -58,6 +58,7 @@ export const types = `
     name: String
     type: String!
     size: Float
+    duration: Float
   }
 
   type ConversationMessage {
@@ -183,6 +184,7 @@ export const types = `
     name: String!
     type: String
     size: Float
+    duration: Float
   }
 `;
 
@@ -198,6 +200,7 @@ const mutationFilterParams = `
   starred: String
   startDate: String
   endDate: String
+  segment: String
 `;
 
 const filterParams = `

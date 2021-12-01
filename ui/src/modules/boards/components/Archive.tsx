@@ -19,6 +19,8 @@ import { PRIORITIES } from '../constants';
 import SelectProducts from 'modules/settings/productService/containers/product/SelectProducts';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
+import { HACKSTAGES } from 'modules/growthHacks/constants';
 
 type Props = {
   options: IOptions;
@@ -38,8 +40,10 @@ function Archive(props: Props) {
   const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [labelIds, setLabelIds] = useState<string[]>([]);
   const [productIds, setProductIds] = useState<string[]>([]);
+  const [sources, setSources] = useState<string[]>([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [hackStages, setHackStages] = useState<string[]>([]);
 
   const onChangeRangeFilter = (setterFn, date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
@@ -58,38 +62,34 @@ function Archive(props: Props) {
 
   const isFiltered = (): boolean => {
     if (type === 'item') {
-      if (
+      return !!(
         searchInputValue ||
-        userIds.length ||
+        // userIds.length ||
         priorities.length ||
-        assignedUserIds.length ||
-        labelIds.length ||
-        productIds.length ||
+        // assignedUserIds.length ||
+        // labelIds.length ||
+        // productIds.length ||
         startDate ||
-        endDate
-      ) {
-        return true;
-      } else {
-        return false;
-      }
+        endDate ||
+        sources.length ||
+        hackStages.length
+      );
     } else {
-      if (searchInputValue) {
-        return true;
-      } else {
-        return false;
-      }
+      return !!searchInputValue;
     }
   };
 
   const clearFilters = () => {
     setSearchInputValue('');
-    setUserIds([]);
+    // setUserIds([]);
     setPriorities([]);
-    setAssignedUserIds([]);
-    setLabelIds([]);
-    setProductIds([]);
+    // setAssignedUserIds([]);
+    // setLabelIds([]);
+    // setProductIds([]);
     setStartDate('');
     setEndDate('');
+    setSources([]);
+    setHackStages([]);
   };
 
   const renderItemFilters = () => {
@@ -153,21 +153,50 @@ function Archive(props: Props) {
           multi={true}
         />
 
-        <SelectProducts
-          label={__('Filter by products')}
-          name="productIds"
-          onSelect={v => {
-            if (typeof v === 'string') {
-              if (!v) {
-                setProductIds([]);
+        {options.type === 'deal' && (
+          <SelectProducts
+            label={__('Filter by products')}
+            name="productIds"
+            onSelect={v => {
+              if (typeof v === 'string') {
+                if (!v) {
+                  setProductIds([]);
+                } else {
+                  setProductIds([v]);
+                }
               } else {
-                setProductIds([v]);
+                setProductIds(v);
               }
-            } else {
-              setProductIds(v);
-            }
-          }}
-        />
+            }}
+          />
+        )}
+
+        {options.type === 'ticket' && (
+          <Select
+            placeholder={__('Choose a source')}
+            value={sources}
+            options={INTEGRATION_KINDS.ALL.map(kind => ({
+              label: kind.text,
+              value: kind.value
+            }))}
+            name="source"
+            onChange={xs => setSources(xs.map(x => x.value))}
+            multi={true}
+            loadingPlaceholder={__('Loading...')}
+          />
+        )}
+
+        {options.type === 'growthHack' && (
+          <Select
+            placeholder="Choose a growth funnel"
+            value={hackStages}
+            options={HACKSTAGES.map(hs => ({ value: hs, label: hs }))}
+            name="hackStage"
+            onChange={xs => setHackStages(xs.map(x => x.value))}
+            multi={true}
+            loadingPlaceholder={__('Loading...')}
+          />
+        )}
 
         <ControlLabel>Close Date range:</ControlLabel>
 
@@ -239,7 +268,9 @@ function Archive(props: Props) {
           companyIds: [],
           customerIds: [],
           startDate,
-          endDate
+          endDate,
+          sources,
+          hackStages
         }}
         type={type}
       />

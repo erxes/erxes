@@ -275,6 +275,12 @@ class Navigation extends React.Component<IProps> {
                 icon: 'icon-building'
               },
               {
+                permission: 'showUsers',
+                link: '/settings/team',
+                value: 'Team Members',
+                icon: 'icon-puzzle-piece'
+              },
+              {
                 permission: 'showSegments',
                 link: '/segments/customer',
                 value: 'Segments',

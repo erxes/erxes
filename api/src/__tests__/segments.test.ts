@@ -916,6 +916,62 @@ describe('Segments mutations', () => {
     expect(result[0]).toBe(deal2._id);
   });
 
+  test('fetchBySegment: pagination & sort', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+
+    const customer = await customerFactory({}, false, true);
+    const customer2 = await customerFactory({}, false, true);
+
+    const pipeline = await pipelineFactory({});
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const board1 = await boardFactory({});
+    const board2 = await boardFactory({});
+    const b1p1 = await pipelineFactory({ boardId: board1._id });
+    const b2p1 = await pipelineFactory({ boardId: board2._id });
+    const p1s1 = await stageFactory({ pipelineId: b1p1._id });
+    const p2s1 = await stageFactory({ pipelineId: b2p1._id });
+
+    await dealFactory({}, true);
+    await dealFactory({}, true);
+    const deal2 = await dealFactory(
+      { name: 'p1test', customerIds: [customer2._id], stageId: stage._id },
+      true
+    );
+    await dealFactory({ stageId: p1s1._id }, true);
+    await dealFactory(
+      { stageId: p2s1._id, name: 'p2test', customerIds: [customer._id] },
+      true
+    );
+    await dealFactory({ stageId: p2s1._id }, true);
+
+    await sleep(2000);
+
+    // pagination & sort in options
+    const segment = await segmentFactory({
+      contentType: 'deal',
+      conditionsConjunction: 'and',
+      boardId: board1._id,
+      pipelineId: b1p1._id,
+
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'test'
+        }
+      ]
+    });
+
+    const result = await fetchSegment(segment, { pipelineId: pipeline._id, page: 1,  perPage: 11, sortField: 'createdAt', sortDirection: -1 });
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(deal2._id);
+  });
+
   test('fetchBySegment: parent segment', async () => {
     await customerFactory({}, false, true);
     await customerFactory({}, false, true);
