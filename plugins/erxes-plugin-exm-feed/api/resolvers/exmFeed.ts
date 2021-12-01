@@ -57,7 +57,7 @@ const exmFeedResolvers = [
       return models.Emojis
         ? models.Emojis.find({
             contentId: exmFeed._id,
-            contenType: 'exmFeed',
+            contentType: 'exmFeed',
             type: 'like'
           }).countDocuments()
         : 0;
@@ -70,7 +70,7 @@ const exmFeedResolvers = [
       return models.Emojis
         ? models.Emojis.find({
             contentId: exmFeed._id,
-            contenType: 'exmFeed',
+            contentType: 'exmFeed',
             type: 'heart'
           }).countDocuments()
         : 0;
@@ -80,32 +80,28 @@ const exmFeedResolvers = [
     type: 'ExmFeed',
     field: 'isHearted',
     handler: async (exmFeed, {}, { models, user }) => {
-      const emoji = models.Emojis
-        ? await models.Emojis.findOne({
+      return models.Emojis
+        ? await models.Emojis.exists({
             contentId: exmFeed._id,
-            contenType: 'exmFeed',
+            contentType: 'exmFeed',
             type: 'heart',
             userId: user._id
           })
-        : null;
-
-      return Boolean(emoji);
+        : false;
     }
   },
   {
     type: 'ExmFeed',
     field: 'isLiked',
     handler: async (exmFeed, {}, { models, user }) => {
-      const emoji = models.Emojis
-        ? await models.Emojis.findOne({
+      return models.Emojis
+        ? await models.Emojis.exists({
             contentId: exmFeed._id,
-            contenType: 'exmFeed',
+            contentType: 'exmFeed',
             type: 'like',
             userId: user._id
           })
-        : null;
-
-      return Boolean(emoji);
+        : false;
     }
   }
 ];
