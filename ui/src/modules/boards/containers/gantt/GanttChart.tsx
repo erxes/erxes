@@ -91,11 +91,6 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
             type: options.type
           }
         })
-        .then(() => {
-          refetch();
-
-          Alert.success('Successfully saved');
-        })
         .catch(e => {
           Alert.error(e.message);
         });
