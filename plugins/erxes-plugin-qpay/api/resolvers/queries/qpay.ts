@@ -48,7 +48,7 @@ const Queries = [
   {
     name: 'socialPayInvoices',
     handler: async (_root, params, { models }) => {                  
-
+      console.log(params);
       return await models.SocialPayInvoice.find().sort({createdAt: -1})
       // return paginate(, {
       //   page: params.page,
@@ -154,7 +154,7 @@ const Queries = [
   {
     name: 'qpayInvoices',
     handler: async (_root, params, { models }) => {      
-
+      console.log(params);
       return await models.QpayInvoice.find().sort({createdAt: -1});
       // return paginate(models.QpayInvoice.find().sort({createdAt: -1}), {
       //   page: params.page,
