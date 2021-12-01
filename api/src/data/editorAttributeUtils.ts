@@ -125,6 +125,8 @@ export function fillMissingCustomFieldsDataItem(
 ): ICustomField[] {
   const filledResult = [...customFieldsData];
 
+  const existingItemsByFieldId = _.indexBy(customFieldsData, 'field');
+
   for (const field of possibleCustomerFields) {
     if (!content.includes(`{{ customer.${field.name} }}`)) {
       continue;
@@ -133,8 +135,9 @@ export function fillMissingCustomFieldsDataItem(
     if (field.name.includes('customFieldsData')) {
       const fieldId = field.name.split('.').pop();
 
+      // if content has attribute that doesn't have fieldId, fill with dummy item
       // if content has field attribute that doesn't exist on the customer.customFieldsData, fill with dummy item
-      if (!filledResult.find(e => e.field === fieldId)) {
+      if (!fieldId || !existingItemsByFieldId[fieldId]) {
         filledResult.push({
           field: fieldId || '',
           stringValue: '',
