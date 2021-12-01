@@ -85,28 +85,9 @@ const configMutations = {
           code
         )
       ) {
-        const prevValue = prevConfig.value || {};
-        let updated = false;
-        let lastNum = '';
-
-        if (prevValue.lastNum) {
-          lastNum = prevValue.lastNum;
+        if (!configsMap[code][code]) {
+          await Configs.deleteOne({ code });
         }
-
-        if (configsMap[code][code] !== prevValue[code]) {
-          updated = true;
-          lastNum = '';
-        }
-
-        await Configs.updateOne(
-          { code },
-          {
-            $set: {
-              'value.updated': updated,
-              'value.lastNum': lastNum
-            }
-          }
-        );
       }
     }
   },
