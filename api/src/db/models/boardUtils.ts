@@ -1,6 +1,7 @@
 import {
   Boards,
   Checklists,
+  Configs,
   Conformities,
   Deals,
   GrowthHacks,
@@ -11,7 +12,7 @@ import {
   Tickets
 } from '.';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { validSearchText } from '../../data/utils';
+import { generateNumber, validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 
@@ -293,4 +294,129 @@ export const getBoardItemLink = async (stageId: string, itemId: string) => {
   const board = await Boards.getBoard(pipeline.boardId);
 
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
+};
+
+export const boardNumberGenerator = async (
+  value: any,
+  numberType: string,
+  type: string
+) => {
+  const config = value[numberType];
+
+  const { collection } = getCollection(type);
+
+  // remove number attributes in value
+  const configWithoutOrder = config.replace(/\{number}/g, '');
+
+  const lastBoard = await collection
+    .findOne({ numberFormat: configWithoutOrder })
+    .sort({
+      createdAt: -1
+    });
+
+  let replacedConfig = configWithoutOrder.replace(
+    /\{year}/g,
+    new Date().getFullYear()
+  );
+
+  replacedConfig = replacedConfig.replace(
+    /\{month}/g,
+    new Date().getMonth() + 1
+  );
+
+  replacedConfig = replacedConfig.replace(/\{day}/g, new Date().getDate());
+
+  let newNumber: string;
+
+  if (lastBoard) {
+    const lastGeneratedNum = lastBoard.number;
+
+    const lastNumWithoutOrder = lastGeneratedNum.slice(
+      0,
+      replacedConfig.length
+    );
+
+    if (lastGeneratedNum && lastNumWithoutOrder === replacedConfig) {
+      const order = lastGeneratedNum.slice(replacedConfig.length);
+
+      let numberAttributes = config.replace(configWithoutOrder, '');
+      numberAttributes = numberAttributes.replace(/\{number}/g, '0');
+
+      newNumber = await generateNumber(config, numberAttributes.length, order);
+
+      return {
+        number: replacedConfig + newNumber,
+        numberFormat: configWithoutOrder
+      };
+    }
+  }
+
+  newNumber = await generateNumber(
+    value[numberType],
+    configWithoutOrder.length
+  );
+
+  // generate first value
+  return {
+    number: replacedConfig + newNumber,
+    numberFormat: configWithoutOrder
+  };
+
+  /* 
+
+  1. get
+  isCalc === true {
+    timeout(30)
+  }
+  2. get
+
+  isCalc === true {
+    timeout(30)
+  }
+  recursive
+
+  3. check get
+  isCalc === false
+  isCalc true set
+
+  get lastNum
+
+  
+  redist hadgalah
+  "lastNum: ""
+  "isCalc": ""
+  */
+  // checkNumber bgaa bol 1
+
+  // duusahdaa
+  // set hiiine
+  // isCalc false
+  // lasNum ugnu
+
+  /**
+   * config
+   *  save darah uyd redisee reset hiine
+   *
+   */
+};
+
+export const generateBoardNumber = async (
+  doc: any,
+  numberType: string,
+  type: string
+) => {
+  const config = await Configs.findOne({ code: numberType });
+
+  if (config) {
+    const { number, numberFormat } = await boardNumberGenerator(
+      config.value,
+      numberType,
+      type
+    );
+
+    doc.number = number;
+    doc.numberFormat = numberFormat;
+  }
+
+  return doc;
 };
