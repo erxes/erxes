@@ -11,7 +11,6 @@ import Attribution from './Attribution';
 
 type Props = {
   onChange: (config: any) => void;
-  triggerType: string;
   inputName: string;
   label: string;
   config?: any;
@@ -68,22 +67,10 @@ class PlaceHolderInput extends React.Component<Props, State> {
         inputName={inputName}
         config={this.state.config}
         setConfig={conf => this.onSelect(conf)}
-        triggerType={this.props.triggerType}
         attributions={this.props.attributions}
       />
     );
   }
-
-  onChange = e => {
-    const { inputName } = this.props;
-
-    const { config } = this.state;
-    const value = (e.target as HTMLInputElement).value;
-    config[inputName] = value;
-
-    this.setState({ config });
-    this.props.onChange(config);
-  };
 
   onKeyPress = (e: React.KeyboardEvent) => {
     if (['Backspace', 'Delete'].includes(e.key)) {
@@ -156,9 +143,9 @@ class PlaceHolderInput extends React.Component<Props, State> {
           <FormControl
             name={inputName}
             value={converted}
-            onChange={this.onChange}
             onKeyPress={this.onKeyPress}
             onKeyDown={this.onKeyPress}
+            placeholder="Please select an attribute"
           />
         </FormGroup>
       </BoardHeader>

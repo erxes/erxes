@@ -23,9 +23,8 @@ function BoardNumber(props: Props) {
         inputName={inputName}
         label={label}
         onChange={option => onChange(inputName, option)}
-        triggerType={'skip query'}
         attributions={BOARD_NUMBERS}
-        config={configsMap[inputName]}
+        config={configsMap[inputName] || {}}
       />
     );
   };

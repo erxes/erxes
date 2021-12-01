@@ -7,7 +7,6 @@ import { Alert, __ } from 'modules/common/utils';
 
 type Props = {
   config: any;
-  triggerType: string;
   setConfig: (config: any) => void;
   inputName: string;
   attributions: any[];
@@ -33,7 +32,7 @@ export default class Attribution extends React.Component<Props> {
       item.value !== 'number'
     ) {
       return Alert.error(
-        'You cannot add a attribute after the {number} attribute!'
+        'You cannot add an attribute after the number attribute!'
       );
     }
 

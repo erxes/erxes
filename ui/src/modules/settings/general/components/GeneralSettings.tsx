@@ -75,7 +75,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     if (!isBoardConfigReady) {
       return Alert.error(
-        'Please add at least one number attribute in board config'
+        'Please add at least one number attribute in a board config'
       );
     }
 
@@ -194,7 +194,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title={__('Card number settings')}>
+        <CollapseContent title={__('Board number settings')}>
           <BoardNumberConfigs
             onChangeConfig={this.onChangeConfig}
             configsMap={configsMap}
