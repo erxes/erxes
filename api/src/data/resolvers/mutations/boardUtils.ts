@@ -1,11 +1,5 @@
 import resolvers from '..';
-import {
-  Boards,
-  Configs,
-  Notifications,
-  Pipelines,
-  Stages
-} from '../../../db/models';
+import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -42,7 +36,7 @@ import {
   putDeleteLog,
   putUpdateLog
 } from '../../logUtils';
-import { checkUserIds, generateNumber } from '../../utils';
+import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -87,79 +81,6 @@ export const itemResolver = async (type: string, item: IItemCommonFields) => {
   return additionInfo;
 };
 
-const generateBoardNumber = async (value: any, numberType: string) => {
-  const config = value[numberType];
-  const lastGeneratedNum = value.lastNum;
-
-  // remove number attributes in value
-  const configWithoutNum = config.replace(/\{number}/g, '');
-
-  let replacedConfig = configWithoutNum.replace(
-    /\{year}/g,
-    new Date().getFullYear()
-  );
-
-  replacedConfig = replacedConfig.replace(
-    /\{month}/g,
-    new Date().getMonth() + 1
-  );
-
-  replacedConfig = replacedConfig.replace(/\{day}/g, new Date().getDate());
-
-  let number;
-
-  const lastNumWithoutNum = lastGeneratedNum.slice(0, replacedConfig.length);
-
-  if (lastGeneratedNum && lastNumWithoutNum === replacedConfig) {
-    console.log('=================== last number exist ===================');
-    // last generated number value
-
-    // last generated number {number} length
-    const lastNumNumberLength = lastGeneratedNum.slice(replacedConfig.length)
-      .length;
-
-    // config number {number} length
-    let configNumLength = value[numberType].replace(configWithoutNum, '');
-    configNumLength = configNumLength.replace(/\{number}/g, '0').length;
-
-    if (lastNumNumberLength === configNumLength + 1) {
-      const updatedConfig = config + '{number}';
-
-      await Configs.updateOne(
-        { code: numberType },
-        {
-          $set: {
-            value: { [numberType]: updatedConfig }
-          }
-        }
-      );
-    }
-
-    number = lastGeneratedNum.slice(replacedConfig.length);
-
-    number = await generateNumber(config, number.length, number);
-    // // check config value changed or not
-    // if (lastNumWithoutNum === replacedConfig && lastNumNumber === configNum) {
-    //   console.log('--------------- config oorchlogdoogui -----------------');
-    //   number = lastGeneratedNum.slice(replacedConfig.length);
-
-    //   number = await generateNumber(config, number.length, number);
-    // } else {
-    //   // config uurchlugdsun uyd
-    //   console.log('--------------- config oorchlogdson -----------------');
-    //   number = await generateNumber(value[numberType], configWithoutNum.length);
-    // }
-
-    return replacedConfig + number;
-  }
-
-  // generate first value
-  console.log('=================== hamgiin ehnii value ===================');
-  return (
-    replacedConfig + generateNumber(value[numberType], configWithoutNum.length)
-  );
-};
-
 export const itemsAdd = async (
   doc: (IDeal | IItemCommonFields | ITicket | IGrowthHack) & {
     proccessId: string;
@@ -171,37 +92,8 @@ export const itemsAdd = async (
   docModifier?: any
 ) => {
   const { collection } = getCollection(type);
-  const numberType = `${type}Number`;
-
-  const config = await Configs.getConfig(numberType);
-
-  // if (!config.value) {
-  //   await Configs.updateOne(
-  //     { code: numberType },
-  //     {
-  //       $set: {
-  //         value: { [numberType]: '{number}' }
-  //       }
-  //     }
-  //   );
-
-  //   config = await Configs.getConfig(numberType);
-  // }
-
-  const number = await generateBoardNumber(config.value, numberType);
-
-  await Configs.updateOne(
-    { code: numberType },
-    {
-      $set: {
-        'value.lastNum': number
-      }
-    }
-  );
-
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = user && [user._id];
-  doc.number = number;
 
   const modifiedDoc = docModifier ? docModifier(doc) : doc;
 
