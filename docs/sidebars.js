@@ -137,7 +137,7 @@ module.exports = {
         "components/EmptyState/emptystate",
         "components/ErrorMsg/errormsg",
         "components/FilePreview/filepreview",
-        // "components/FilterableList/filterablelist",
+        "components/FilterableList/filterablelist",
         "components/HeaderDescription/headerdescription",
         "components/HelpPopOver/helppopover",
         "components/Icon/icon",
