@@ -1,0 +1,80 @@
+-----------------------------Invoice-----------------------------------
+-----------------------------Invoice-----------------------------------
+-----------------------------Invoice-----------------------------------
+
+mutation {
+  createQpaySimpleInvoice(sender_invoice_no_auto: true,
+    invoice_receiver_code: "terminal", 
+    invoice_description: "test from mutation", amount:"10")
+}
+
+mutation {
+  createQpayInvoice(sender_invoice_no_auto:true, invoice_receiver_code:"terminal", 
+    invoice_description:"test description", amount:"10")
+}
+
+query {
+  getQpayInvoiceDetails(invoiceId:"8f123e9d-692b-4184-bc83-4362dddeaea6")
+}
+
+query {
+  qpayInvoices {
+    _id
+    createdAt
+    amount
+    senderInvoiceNo
+    qpayInvoiceId
+    qrText
+    qpayPaymentId
+    paymentDate
+  }
+}
+
+mutation {
+  cancelQpayInvoice(invoiceId:"8f123e9d-692b-4184-bc83-4362dddeaea6")
+}
+
+
+-----------------------------Lavlah-----------------------------------
+-----------------------------Lavlah-----------------------------------
+-----------------------------Lavlah-----------------------------------
+
+mutation {
+  setQpayLines(sender_product_code:"1010", line_description: "test", line_quantity:"11", line_unit_price:"1100")
+}
+query {
+  getQpayLines
+}
+mutation {
+  delQpayLines(_id:"0.6830506843158684")
+}
+
+  Addresses  
+  SenderBranchDatas
+  SenderStaffDatas
+  InvoiceReceiverDatas
+  Discounts
+  Surcharges
+  Taxes
+  Lines
+  Transaction
+
+---------------------------Payment----------------------
+---------------------------Payment----------------------
+---------------------------Payment----------------------
+
+query {
+  checkQpayPayments(objectType:"INVOICE", objectId:"ee3bfe40-7c77-4090-9fe0-ae09b36239f5")
+}
+
+query {
+  listQpayPayments(objectType:"MERCHANT", objectId:"ee3bfe40-7c77-4090-9fe0-ae09b36239f5")
+}
+
+mutation {
+  deleteQpayPayment(paymentId:"759222121311423") 
+}
+
+query {
+  getQpayNuat(paymentId:"759222121311423", receiverType:"CITIZEN")
+}
