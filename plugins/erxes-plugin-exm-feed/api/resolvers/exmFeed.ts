@@ -56,7 +56,8 @@ const exmFeedResolvers = [
     handler: (exmFeed, {}, { models }) => {
       return models.Emojis
         ? models.Emojis.find({
-            feedId: exmFeed._id,
+            contentId: exmFeed._id,
+            contenType: 'exmFeed',
             type: 'like'
           }).countDocuments()
         : 0;
@@ -68,7 +69,8 @@ const exmFeedResolvers = [
     handler: (exmFeed, {}, { models }) => {
       return models.Emojis
         ? models.Emojis.find({
-            feedId: exmFeed._id,
+            contentId: exmFeed._id,
+            contenType: 'exmFeed',
             type: 'heart'
           }).countDocuments()
         : 0;
@@ -80,7 +82,8 @@ const exmFeedResolvers = [
     handler: async (exmFeed, {}, { models, user }) => {
       const emoji = models.Emojis
         ? await models.Emojis.findOne({
-            feedId: exmFeed._id,
+            contentId: exmFeed._id,
+            contenType: 'exmFeed',
             type: 'heart',
             userId: user._id
           })
@@ -95,7 +98,8 @@ const exmFeedResolvers = [
     handler: async (exmFeed, {}, { models, user }) => {
       const emoji = models.Emojis
         ? await models.Emojis.findOne({
-            feedId: exmFeed._id,
+            contentId: exmFeed._id,
+            contenType: 'exmFeed',
             type: 'like',
             userId: user._id
           })

@@ -2,22 +2,35 @@ export const types = `
   type ChatMessage {
     _id: String!
     content: String
-    createdDate: Date
+    createdUser: User
+    createdAt: Date
   }
 
   type Chat {
     _id: String!
+    name: String
     lastChatMessage: ChatMessage
-    createdDate: Date
+    createdUser: User
+    createdAt: Date
   }
 `;
 
+const paginationParams = `
+  limit: Int
+  skip: Int
+`;
+
 export const queries = `
-  chats: [Chat]
+  chats(${paginationParams}): [Chat]
   chatDetail(_id: String!): Chat
+  chatMessages(chatId: String! ${paginationParams}): [ChatMessage]
 `;
 
 export const mutations = `
-  chatsAdd(content: String!): Chat
-  chatMessagesRemove(_id: String!): JSON
+  chatAdd(name: String!): Chat
+  chatEdit(_id: String!, name: String!): Chat
+  chatRemove(_id: String!): Chat
+  
+  chatMessageAdd(chatId: String, content: String!): ChatMessage
+  chatMessageRemove(_id: String!): JSON
 `;

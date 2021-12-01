@@ -19,11 +19,11 @@ class Chat {
     return chat;
   }
 
-  public static createChat(models, doc: IChat, createdId: string) {
+  public static createChat(models, doc: IChat, createdBy: string) {
     return models.Chats.create({
       ...doc,
       createdAt: new Date(),
-      createdId
+      createdBy
     });
   }
 
@@ -51,11 +51,15 @@ class ChatMessage {
     return chatMessage;
   }
 
-  public static createChatMessage(models, doc: IChat, createdId: string) {
+  public static createChatMessage(
+    models,
+    doc: IChatMessage,
+    createdBy: string
+  ) {
     return models.ChatMessages.create({
       ...doc,
       createdAt: new Date(),
-      createdId
+      createdBy
     });
   }
 

@@ -15,7 +15,7 @@ export default () => ({
   ],
   menu: {
     label: 'Chat',
-    icon: 'icon-cog',
+    icon: 'icon-chat',
     link: '/home',
     permission: 'showChats'
   }
