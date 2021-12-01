@@ -17,6 +17,7 @@ export interface IArticle {
   modifiedDate: Date;
   topicId: string;
   categoryId: string;
+  image: IAttachment;
   attachments: [IAttachment];
 }
 

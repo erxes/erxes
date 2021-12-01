@@ -21,18 +21,6 @@ const exmThankMutations = [
         user
       );
 
-      // const notifDoc = {
-      //   createdUser: user,
-      //   link: `/erxes-plugin-exm-feed`,
-      //   title: 'Recieved a thank you',
-      //   content: doc.description,
-      //   notifType: 'plugin',
-      //   receivers: doc.recipientIds,
-      //   action: 'updated conversation'
-      // };
-
-      // sendNotification(models, memoryStorage, graphqlPubsub, notifDoc);
-
       return exmThank;
     }
   },
