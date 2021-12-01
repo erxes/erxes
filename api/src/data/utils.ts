@@ -1098,9 +1098,8 @@ export const pad = (num, size) => {
 };
 
 export const generateNumber = (config: string, length: number, value?) => {
-  // value = 10
   if (value) {
-    return pad(parseInt(value, 10) + 1, value.length);
+    return pad(parseInt(value, 10) + 1, length);
   }
 
   let numberAttributeCount: any = config.slice(length);
