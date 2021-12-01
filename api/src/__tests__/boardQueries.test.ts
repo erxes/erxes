@@ -461,16 +461,27 @@ describe('boardQueries', () => {
 
   test('Stage detail itemsTotalCount by type', async () => {
     const qry = `
-      query stageDetail($_id: String!) {
-        stageDetail(_id: $_id) {
+      query stageDetail($_id: String!, $extraParams: JSON) {
+        stageDetail(_id: $_id, extraParams: $extraParams) {
           ${commonStageTypes}
         }
       }
     `;
 
+    const user = await userFactory({});
+
+    const extraParams = {
+      source: ['messenger'],
+      priority: [PRIORITIES.CRITICAL],
+      endDate: new Date().setDate(new Date().getDate() + 7),
+      userIds: [user._id]
+    } as any;
+
     const dealStage = await stageFactory({ type: BOARD_TYPES.DEAL });
+
     let response = await graphqlRequest(qry, 'stageDetail', {
-      _id: dealStage._id
+      _id: dealStage._id,
+      extraParams
     });
 
     expect(response._id).toBe(dealStage._id);
@@ -481,8 +492,12 @@ describe('boardQueries', () => {
     expect(response._id).toBe(taskStage._id);
 
     const ticketStage = await stageFactory({ type: BOARD_TYPES.TICKET });
+
+    extraParams.startDate = new Date();
+
     response = await graphqlRequest(qry, 'stageDetail', {
-      _id: ticketStage._id
+      _id: ticketStage._id,
+      extraParams
     });
 
     expect(response._id).toBe(ticketStage._id);
@@ -490,8 +505,10 @@ describe('boardQueries', () => {
     const growthHackStage = await stageFactory({
       type: BOARD_TYPES.GROWTH_HACK
     });
+
     response = await graphqlRequest(qry, 'stageDetail', {
-      _id: growthHackStage._id
+      _id: growthHackStage._id,
+      extraParams
     });
 
     expect(response._id).toBe(growthHackStage._id);
