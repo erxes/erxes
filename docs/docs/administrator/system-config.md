@@ -3,7 +3,7 @@ id: system-config
 title: System config
 ---
 
-In this tutorials enable you to set up administration system configurations, which allows you work on sysadmin without require coding skills.
+These tutorials enable you to set up administration system configurations, which allows you to work on sysadmin without requiring coding skills.
 
 ---
 
@@ -11,7 +11,7 @@ In this tutorials enable you to set up administration system configurations, whi
 
 ### General settings
 
-In the general setting, you can configure the system language, currency and the unit of measurement. Select the variables relied upon your requirement.
+In the general setting, you can configure the system language, currency, and unit of measurement. Select the variables that relied upon your requirement.
 
 **Configuration:**
 
@@ -78,14 +78,14 @@ Following steps explain the Google Cloud Project. Which allows us to use Google 
 - export GOOGLE_APPLICATION_CREDENTIALS="/Path/to/your/[google_cred].json"
 
 - One last touch, we need to configure erxes, Go to Settings => System Config => General System config
-  And configure **GOOGLE PROJECT ID**, **GOOGLE APPLICATION CREDENTIALS** fields as in the sceenshot
+  And configure **GOOGLE PROJECT ID**, **GOOGLE APPLICATION CREDENTIALS** fields as in the screenshot
 
   - **GOOGLE APPLICATION CREDENTIALS** is google_cred file's path by default it's ./google_cred.json no need to change
   - **GOOGLE APPLICATION CREDENTIALS JSON** is google_cred (service account) file's content for **Firebase** configuration
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-12.png)
 
-That's it, now you are good use Google Cloud Platform Services which you can find them [here](https://console.cloud.google.com/apis/library)
+That's it, now you are good to use Google Cloud Platform Services which you can find them [here](https://console.cloud.google.com/apis/library)
 
 ### File upload
 
@@ -102,7 +102,7 @@ UPLOAD_SERVICE_TYPE='Amazon Web Services'
 BUCKET_FILE_SYSTEM_TYPE='Public'
 ```
 
-See the following figure which approves the **png**, **pdf** files and other type of media do not allowed to upload the server. If there is nothing configured media type, it accepts all media types.
+See the following figure which approves the **png**, **pdf** files, and other types of media do not allow to upload the server. If there is nothing configured media type, it accepts all media types.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/system-config/1+fileupload.png)
 
@@ -214,7 +214,7 @@ AWS_SES_CONFIG_SET=''
 
 #### Determine whether your account is in the sandbox or not.
 
-Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
+Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon has applied the following restrictions to your account:
 
 - You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
 
@@ -250,7 +250,7 @@ DEFAULT_EMAIL_SERVICE='your configured email service name'
 
 ### Custom mail service
 
-Mail service enables you to delivering your transactional and marketing emails through the cloud-based email delivery platform. You can set any custom mail service in this fields. For example, Sendgrid custom mail service. Create your account in Sendgrid and fill it into the fields.
+Mail service enables you to deliver your transactional and marketing emails through the cloud-based email delivery platform. You can set any custom mail service in these fields. For example, Sendgrid custom mail service. Create your account in Sendgrid and fill it into the fields.
 
 **Configuration:**
 
@@ -270,9 +270,9 @@ Erxes app enables you to integrate with developer API and that means we can rece
 
 ### Gmail
 
-Read and send messages, manage drafts and attachments, search threads and messages, work with labels, setup push notifications, and manage Gmail settings.
+Read and send messages, manage drafts and attachments, search threads and messages, work with labels, set up push notifications, and manage Gmail settings.
 
-Setting up the Gmail is easy with the script we made. You will see gmail-script.sh file in your integrations repo.
+Setting up Gmail is easy with the script we made. You will see gmail-script.sh file in your integrations repo.
 
 First, you need to have [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) on your computer.
 Now let's make it executable. In your terminal run the following command <br/>
@@ -283,11 +283,11 @@ Run script as follows <br/>
 
 `./gmail-setup.sh`
 
-This script basically will do most of the things for you. However there are a few steps you will have to make manually. When you successfully run the script it will show the rest of the steps.
+This script basically will do most of the things for you. However, there are a few steps you will have to make manually. When you successfully run the script it will show the rest of the steps.
 
 ### Facebook
 
-Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages and posts directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
+Erxes app can be integrated with Facebook developer API and that means we can receive our Facebook pages' inbox messages and posts directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed, etc. There is an active development process going on this subject.
 
 <!-- #### Requirements:
 
@@ -342,20 +342,20 @@ In order to integrate your Facebook application with your erxes there are three 
 
 **1. _Facebook login:_**
 
-In order to adjust this product in a section called Valid OAuth Redirect URLs, the url of your Facebook login has to be copied following your erxes login. For examplem, it should look like this
+In order to adjust this product in a section called Valid OAuth Redirect URLs, the url of your Facebook login has to be copied following your erxes login. For example, it should look like this
 
 ```
 Valid OAuth Redirect URLs="yourerxesintegrationsdomain/fblogin"
 ```
 
-Moreover, in detail it should look like this : https://exampledomain/integration/fblogin
+Moreover, in detail it should look like this: https://exampledomain/integration/fblogin
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-7.png)
 
 **2. _Messenger:_**
 
 The Messenger used for receiving messages and responding to messages as well.
-In order to activate the Messenger the callback url has to be adjusted.
+In order to activate the Messenger, the callback url has to be adjusted.
 In the CallBack URL section : /facebook/receive has to be added following your integration URL.
 In the token section, the facebook token you’ve generated has to be added which will be found on the System Configuration section of your erxes.
 
@@ -404,19 +404,19 @@ The second permission is used for receiving posts which is called Facebook Post 
 
 - pages_read_engagement
 
-The pages_read_engagement permission allows your app the ability to read content (posts, photos, videos, events) posted by the Page, read followers data including name, PSID, and profile picture, and read metadata about the Page. You can use this permission if you need it to help the Page Admin administer and manage the Page.
+The pages_read_engagement permission allows your app the ability to read content (posts, photos, videos, events) posted by the Page, read followers' data including name, PSID, and profile picture, and read metadata about the Page. You can use this permission if you need it to help the Page Admin administer and manage the Page.
 
 - pages_manage_metadata
 
-The pages_manage_metadata permission allows your app the ability to subscribe and receive web hooks about activity on the Page, and to update settings on the Page. You can use this permission if you need it to help the Page Admin administer and manage the Page.
+The pages_manage_metadata permission allows your app the ability to subscribe and receive webhooks about activity on the Page and to update settings on the Page. You can use this permission if you need it to help the Page Admin administer and manage the Page.
 
 - pages_read_user_content
 
-The pages_read_user_content permission allows your app the ability to read user generated content on the Page, such as posts, comments and ratings by users or other Pages. It also allows your app to read posts that the Page is tagged in. You can use this permission to read users and other Page's content posted on the Page if you need it to help manage the Page. You can also use pages_read_user_content to delete comments posted by users on the Page.
+The pages_read_user_content permission allows your app the ability to read user generated content on the Page, such as posts, comments, and ratings by users or other Pages. It also allows your app to read posts that the Page is tagged in. You can use this permission to read users and other Page's content posted on the Page if you need it to help manage the Page. You can also use pages_read_user_content to delete comments posted by users on the Page.
 
 - pages_manage_engagement
 
-The pages_manage_engagement permission allows your app the ability to create, edit and delete comments posted by the Page. If you have access to pages_read_user_content, you can also use pages_manage_engagement to delete comments posted other Pages. It also allows your app the ability to create, edit, and delete your own Page's likes to Page content. You can use this permission if you need it to help manage and moderate content on the Page.
+The pages_manage_engagement permission allows your app the ability to create, edit and delete comments posted by the Page. If you have access to pages_read_user_content, you can also use pages_manage_engagement to delete comments posted on other Pages. It also allows your app the ability to create, edit, and delete your own Page's likes to Page content. You can use this permission if you need it to help manage and moderate content on the Page.
 
 - pages_show_list
 
@@ -496,7 +496,7 @@ DAILY_END_POINT="your daily application's end point"
 - `DAILY_END_POINT ='https://example.daily.co'` is your subdomain name.
   - **Note:** You must have `https://` before the url endpoint, and there is **no trailing slash**.
 
-Integrated video chat is used on the Erxes messenger widget. It is assumed that the one conversation can be activated one video call.
+Integrated video chat is used on the Erxes messenger widget. It is assumed that one conversation can be activated one video call.
 
 ## Nylas Integrations
 
@@ -518,7 +518,7 @@ cd /path/to/erxes-integrations
 ngrok http 3400
 ```
 
-When you start erxes-integration repo webhook will automatically created according to your configuration and you can find in your Nylas app [dashboard](https://dashboard.nylas.com/)
+When you start erxes-integration repo webhook will automatically be created according to your configuration and you can find in your Nylas app [dashboard](https://dashboard.nylas.com/)
 
 #### Now we are ready to config our Nylas provider
 
@@ -552,13 +552,13 @@ ENCRYPTION_KEY=''
 
 ### Gmail
 
-Erxes app can be integrated with Gmail API by Nylas and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of Gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc.
+Erxes app can be integrated with Gmail API by Nylas and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of Gmail API we have many more possibilities, like real-time email synchronization, send & reply email, etc.
 
 **Configuration**
 
 - Create a Google Cloud Project and config gmail for Nylas [click here](https://docs.nylas.com/docs/creating-a-google-project-for-dev)
 
-- In order to have Google OAuth token, add authorized callback (redirect URIs) to your google credentials.
+- In order to have Google OAuth token, add authorized callback (redirect URIs) to your Google credentials.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-nylasgmail-1.png)
 
@@ -612,7 +612,7 @@ SMTP PORT: 465
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_3.png)
 
 - In the Settings section click on the Forwarding and POP/IMAP.
-- Enable IMAP and click on the Save changes button on the bottom of the page.
+- Enable IMAP and click on the Save changes button at the bottom of the page.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_4.png)
 
@@ -627,7 +627,7 @@ SMTP PORT: 465
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-imap.png)
 
 > Please make sure that you selected the correct account in the right sidebar of your browser.
-> if you have a multiple accounts https://accounts.google.com/b/0/DisplayUnlockCaptcha - in this URL **/0/** is your first account
+> if you have multiple accounts https://accounts.google.com/b/0/DisplayUnlockCaptcha - in this URL **/0/** is your first account
 > **/1/** is second account and so on.
 
 ### Yahoo
@@ -694,7 +694,7 @@ In order to integrate the Yahoo you will need to generate app password for the E
 - Put your webhook url into CHAT-API WEBHOOK CALLBACK URL field.
 - For example 'https://erxes-integrations/whatsapp/webhook'
 
-When you start erxes-integration repo webhook will automatically created according to your configuration
+When you start erxes-integration repo webhook will automatically be created according to your configuration
 
 ### Erxes WhatsApp integration settings.
 
@@ -724,7 +724,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 1. Create your Sunshine Conversations API account [here](https://smooch.io/signup/).
 
-2. After you create a account. Sign in to [smooch.io](https://app.smooch.io/login).
+2. After you create an account. Sign in to [smooch.io](https://app.smooch.io/login).
 
 3. Create new Sunshine Conversations app
 
@@ -892,7 +892,7 @@ AWS SES configuration is similar with Integration AWS SES. [Go to settings here]
 
 ### Verify email
 
-Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
+Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon has applied the following restrictions to your account:
 
 - You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
 

@@ -27,7 +27,7 @@ If your domain name is **example.com**, and the **ip address** assigned to your 
 
 You first need to create a subdomain. For example, "erxes.example.com". Then you need to edit the **DNS**.
 
-If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
+If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
 
 | Type | Name                  | Value                  |
 | ---- | --------------------- | ---------------------- |
@@ -78,7 +78,7 @@ systemctl reload nginx
 
 ## Install Let's Encrypt using Certbot
 
-Execute Certbot. You will asked several questions, you can answer as follows:
+Execute Certbot. You will be asked several questions, you can answer as follows:
 
 - Enter your email address
 - Agree with the **Terms of Service**
