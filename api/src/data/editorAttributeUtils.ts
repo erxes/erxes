@@ -151,23 +151,23 @@ export function fillMissingCustomFieldsDataItemOfCustomer(
 
 export async function generateReplacers(args: IArgs): Promise<IReplacer[]> {
   const { content, user, brand, item, possibleCustomerFields } = args;
-  const customer = args.customer || {};
   const replacers: IReplacer[] = [];
-
-  let customerFields = args.customerFields;
-
-  if (!customerFields || customerFields.length === 0) {
-    customerFields = getCustomerFields(content, possibleCustomerFields);
-  }
-
-  fillMissingCustomFieldsDataItemOfCustomer(
-    content,
-    customer,
-    possibleCustomerFields
-  );
 
   // replace customer fields
   if (args.customer) {
+    const customer = args.customer || {};
+    let customerFields = args.customerFields;
+
+    if (!customerFields || customerFields.length === 0) {
+      customerFields = getCustomerFields(content, possibleCustomerFields);
+    }
+
+    fillMissingCustomFieldsDataItemOfCustomer(
+      content,
+      customer,
+      possibleCustomerFields
+    );
+
     replacers.push({
       key: '{{ customer.name }}',
       value: Customers.getCustomerName(customer)
