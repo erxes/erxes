@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import { IntegrationsAPI } from '../data/dataSources';
-import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -20,7 +19,7 @@ import {
   Users
 } from '../db/models';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-
+import EditorAttributeUtil from '../data/editorAttributeUtils';
 import messageBroker from '../messageBroker';
 import './setup.ts';
 
@@ -577,20 +576,22 @@ describe('mutations', () => {
       customerId: customer._id
     };
 
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
-    const mockReplaceEditorAttribute = jest.spyOn(
-      utils,
-      'replaceEditorAttributes'
-    );
+    const mockReplaceEditorAttribute = jest
+      .spyOn(EditorAttributeUtil.prototype, 'replaceAttributes')
+      .mockReturnValue(Promise.resolve('body'));
 
-    mockReplaceEditorAttribute.mockImplementation(() =>
-      Promise.resolve({
-        replacedContent: 'replacedContent',
-        replacers: [{ key: 'key', value: 'value' }]
-      })
-    );
+    try {
+      await graphqlRequest(mutation, 'integrationSendMail', args, {
+        dataSources
+      });
+    } catch (e) {
+      console.log(e);
+      // Should be something like "Integration API not running"
+      expect(e[0].message).toBeDefined();
+    }
 
-    spy.mockImplementation(() => Promise.resolve());
+    const mockSendEmail = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
+    mockSendEmail.mockImplementation(() => Promise.resolve());
 
     try {
       await graphqlRequest(mutation, 'integrationSendMail', args, {
@@ -621,16 +622,7 @@ describe('mutations', () => {
       expect(e[0].message).toBe('Duplicated email');
     }
 
-    spy.mockRestore();
-
-    try {
-      await graphqlRequest(mutation, 'integrationSendMail', args, {
-        dataSources
-      });
-    } catch (e) {
-      expect(e[0].message).toBeDefined();
-    }
-
+    mockSendEmail.mockRestore();
     mockReplaceEditorAttribute.mockRestore();
   });
 
