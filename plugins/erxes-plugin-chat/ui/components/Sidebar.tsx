@@ -3,39 +3,62 @@ import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 import CommonSidebar from 'erxes-ui/lib/layout/components/Sidebar';
+import Box from 'erxes-ui/lib/components/Box';
+import { ChatListStyle } from '../styles';
+import SelectTeamMembers from 'erxes-ui/lib/team/containers/SelectTeamMembers';
+import { __, router } from 'erxes-ui/lib/utils';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from 'erxes-ui/lib/types';
 
 type Props = {
-  chats: any[];
+  directChats: any[];
 };
 
-export default function Sidebar(props: Props) {
-  const { chats } = props;
+function Sidebar(props: Props & IRouterProps) {
+  const { directChats, history } = props;
 
-  const renderChats = () => {
-    if (chats.length === 0) {
+  const renderDirectChats = () => {
+    if (directChats.length === 0) {
       return <div>No chats</div>;
     }
 
+    const onAssignedUserSelect = userId => {
+      router.setParams(history, { userIds: userId, _id: '' });
+    };
+
     return (
-      <ol>
-        {chats.map(chat => (
-          <li key={chat._id}>
-            <Link to={`/erxes-plugin-chat/home?_id=${chat._id}`}>
-              {chat.name}
-            </Link>
-            <br />
-            {chat.createdUser.email}
-            <br />
-            <span>{dayjs(chat.createdAt).format('lll')}</span>
-          </li>
-        ))}
-      </ol>
+      <Box title={'Direct chats'} isOpen={true} name='showDirectChats'>
+        <div style={{ padding: '20px' }}>
+          <SelectTeamMembers
+            label={__('Choose team member')}
+            name='assignedUserIds'
+            initialValue={''}
+            onSelect={onAssignedUserSelect}
+            multi={false}
+          />
+        </div>
+        <ChatListStyle>
+          {directChats.map(chat => (
+            <li key={chat._id}>
+              {chat.participantUsers.map(user => (
+                <Link to={`/erxes-plugin-chat/home?_id=${chat._id}`}>
+                  {user.details.fullName || user.email}
+                </Link>
+              ))}
+              <br />
+              <span>{dayjs(chat.createdAt).format('lll')}</span>
+            </li>
+          ))}
+        </ChatListStyle>
+      </Box>
     );
   };
 
   return (
     <CommonSidebar wide={true} full={true}>
-      {renderChats()}
+      {renderDirectChats()}
     </CommonSidebar>
   );
 }
+
+export default withRouter(Sidebar);

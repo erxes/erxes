@@ -1,5 +1,6 @@
 export interface IChat {
-  content: string;
+  name: string;
+  participantIds: string[];
 }
 
 export interface IChatMessage {
@@ -18,6 +19,7 @@ export const chatMessageSchema = {
 export const chatSchema = {
   _id: { pkey: true },
   name: { type: String },
+  participantIds: { type: [String], label: 'User ids' },
   createdAt: { type: Date, label: 'Created at' },
   createdBy: { type: String, label: 'Created by' }
 };

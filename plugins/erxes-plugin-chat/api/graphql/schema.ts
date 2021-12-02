@@ -9,7 +9,7 @@ export const types = `
   type Chat {
     _id: String!
     name: String
-    lastChatMessage: ChatMessage
+    participantUsers: [User]
     createdUser: User
     createdAt: Date
   }
@@ -23,6 +23,10 @@ export const types = `
     list: [ChatMessage]
     totalCount: Int
   }
+
+  enum ChatType {
+    direct
+  }
 `;
 
 const paginationParams = `
@@ -31,10 +35,10 @@ const paginationParams = `
 `;
 
 export const queries = `
-  chats(${paginationParams}): ChatResponse
+  chats(type: ChatType!, ${paginationParams}): ChatResponse
   chatDetail(_id: String!): Chat
   
-  chatMessages(chatId: String! ${paginationParams}): ChatMessageResponse
+  chatMessages(chatId: String, userIds: [String], ${paginationParams}): ChatMessageResponse
 `;
 
 export const mutations = `
@@ -42,6 +46,6 @@ export const mutations = `
   chatEdit(_id: String!, name: String!): Chat
   chatRemove(_id: String!): Chat
   
-  chatMessageAdd(chatId: String, content: String!): ChatMessage
+  chatMessageAdd(chatId: String, participantIds: [String], content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON
 `;
