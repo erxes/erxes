@@ -74,7 +74,8 @@ func main() {
 				"type": "keyword"
 			},
 			"value" : {
-				"type": "text"
+				"type": "object",
+				"enabled" : false
 			},
 			"stringValue": {
 				"type" : "text"

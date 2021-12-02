@@ -20,8 +20,8 @@ import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
-import { chunkArray, isUsingElk, replaceEditorAttributes } from '../../utils';
-
+import { chunkArray, isUsingElk } from '../../utils';
+import EditorAttributeUtil from '../../editorAttributeUtils';
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -238,10 +238,10 @@ const sendEmailOrSms = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
-  // TODO: refactor customerFields. try removing this paramter in replaceEditorAttributes.
-  const { customerFields } = await replaceEditorAttributes({
-    content: emailContent
-  });
+  const editorAttributeUtil = new EditorAttributeUtil();
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent
+  );
 
   const onFinishPiping = async () => {
     if (
@@ -290,7 +290,7 @@ const sendEmailOrSms = async (
       };
 
       if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
-        const { replacedContent } = await replaceEditorAttributes({
+        const replacedContent = await editorAttributeUtil.replaceAttributes({
           customerFields,
           content: emailContent,
           user
@@ -324,7 +324,7 @@ const sendEmailOrSms = async (
       const itemsMapping = customersItemsMapping[customer._id] || [null];
 
       for (const item of itemsMapping) {
-        const { replacers } = await replaceEditorAttributes({
+        const replacers = await editorAttributeUtil.generateReplacers({
           content: emailContent,
           customer,
           item,
