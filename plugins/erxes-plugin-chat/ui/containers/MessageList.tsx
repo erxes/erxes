@@ -21,5 +21,7 @@ export default function MessageListContainer({ chatId }) {
     return <div>{chatMessagesQuery.error.message}</div>;
   }
 
-  return <MessageList messages={chatMessagesQuery.data.chatMessages || []} />;
+  return (
+    <MessageList messages={chatMessagesQuery.data.chatMessages.list || []} />
+  );
 }

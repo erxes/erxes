@@ -16,5 +16,5 @@ export default function SidebarContainer() {
     return <div>{chatsResponse.error.message}</div>;
   }
 
-  return <Sidebar chats={chatsResponse.data.chats} />;
+  return <Sidebar chats={chatsResponse.data.chats.list} />;
 }

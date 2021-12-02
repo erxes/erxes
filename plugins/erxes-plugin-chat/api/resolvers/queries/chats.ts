@@ -2,10 +2,13 @@ const chatQueries = [
   {
     name: 'chats',
     handler: async (_root, { limit, skip }, { models }) => {
-      return models.Chats.find()
-        .sort({ createdAt: -1 })
-        .skip(skip || 0)
-        .limit(limit || 10);
+      return {
+        list: await models.Chats.find()
+          .sort({ createdAt: -1 })
+          .skip(skip || 0)
+          .limit(limit || 10),
+        totalCount: await models.Chats.find().countDocuments()
+      };
     }
   },
   {
@@ -17,10 +20,13 @@ const chatQueries = [
   {
     name: 'chatMessages',
     handler: async (_root, { chatId, limit, skip }, { models }) => {
-      return models.ChatMessages.find({ chatId })
-        .sort({ createdAt: -1 })
-        .skip(skip || 0)
-        .limit(limit || 10);
+      return {
+        list: models.ChatMessages.find({ chatId })
+          .sort({ createdAt: -1 })
+          .skip(skip || 0)
+          .limit(limit || 10),
+        totalCount: await models.ChatMessages.find({ chatId }).countDocuments()
+      };
     }
   }
 ];

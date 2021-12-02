@@ -1,17 +1,20 @@
 const chats = `
   query chats($limit: Int, $skip: Int) {
     chats(limit: $limit, skip: $skip) {
-      _id
-      name
-      lastChatMessage {
+      list {
         _id
-        content
+        name
+        lastChatMessage {
+          _id
+          content
+        }
+        createdUser {
+          _id
+          email
+        }
+        createdAt
       }
-      createdUser {
-        _id
-        email
-      }
-      createdAt
+      totalCount
     }
   }
 `;
@@ -19,13 +22,16 @@ const chats = `
 const chatMessages = `
   query chatMessages($chatId: String!, $limit: Int, $skip: Int) {
     chatMessages(chatId: $chatId, limit: $limit, skip: $skip) {
-      _id
-      content
-      createdUser {
+      list {
         _id
-        email
+        content
+        createdUser {
+          _id
+          email
+        }
+        createdAt
       }
-      createdAt
+      totalCount
     }
   }
 `;
