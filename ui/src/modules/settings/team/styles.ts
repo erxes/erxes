@@ -112,6 +112,10 @@ const StructureList = styled(SidebarList)`
   }
 `;
 
+const ErrorContainer = styled.div`
+  padding: 10px 20px;
+`;
+
 export {
   FilterContainer,
   FlexRow,
@@ -122,5 +126,6 @@ export {
   InviteOption,
   FormTable,
   SideList,
-  StructureList
+  StructureList,
+  ErrorContainer
 };
