@@ -13,6 +13,16 @@ export const types = `
     createdUser: User
     createdAt: Date
   }
+
+  type ChatResponse {
+    list: [Chat]
+    totalCount: Int
+  }
+
+  type ChatMessageResponse {
+    list: [ChatMessage]
+    totalCount: Int
+  }
 `;
 
 const paginationParams = `
@@ -21,9 +31,10 @@ const paginationParams = `
 `;
 
 export const queries = `
-  chats(${paginationParams}): [Chat]
+  chats(${paginationParams}): ChatResponse
   chatDetail(_id: String!): Chat
-  chatMessages(chatId: String! ${paginationParams}): [ChatMessage]
+  
+  chatMessages(chatId: String! ${paginationParams}): ChatMessageResponse
 `;
 
 export const mutations = `
