@@ -15,6 +15,27 @@ import {
   configCodes as configCodesSP
 } from '../../utilsGolomtSP'
 
+export const paginate = (
+  collection,
+  params: {
+    ids?: string[];
+    page?: number;
+    perPage?: number;
+    excludeIds?: boolean;
+  }
+) => {
+  const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
+
+  const _page = Number(page || "1");
+  const _limit = Number(perPage || "20");
+
+  if (ids && ids.length > 0) {
+    return excludeIds ? collection.limit(_limit) : collection;
+  }
+
+  return collection.limit(_limit).skip((_page - 1) * _limit);
+};
+
 const Queries = [
   /**
    * check socialPay invoice    
@@ -48,12 +69,9 @@ const Queries = [
   {
     name: 'socialPayInvoices',
     handler: async (_root, params, { models }) => {                  
-      console.log(params);
-      return await models.SocialPayInvoice.find().sort({createdAt: -1})
-      // return paginate(, {
-      //   page: params.page,
-      //   perPage: params.perPage
-      // });
+      
+      return paginate(models.SocialPayInvoice.find().sort({createdAt: -1}), params);
+      
     }
   },
 
@@ -138,9 +156,7 @@ const Queries = [
       const detail = await getQpayInvoice(params.invoiceId,token, configs);
 
       if( invoice && !invoice.qpayPaymentId && detail.invoice_status === "CLOSED") {                
-        const payments = detail.payments;
-        console.log( detail.payments);
-
+        const payments = detail.payments;        
         payments.map( async e => {
           const paymentId = e.payment_id;
 
@@ -153,14 +169,8 @@ const Queries = [
   },
   {
     name: 'qpayInvoices',
-    handler: async (_root, params, { models }) => {      
-      console.log(params);
-      return await models.QpayInvoice.find().sort({createdAt: -1});
-      // return paginate(models.QpayInvoice.find().sort({createdAt: -1}), {
-      //   page: params.page,
-      //   perPage: params.perPage
-      // });
-
+    handler: async (_root, params, { models }) => {
+      return paginate(models.QpayInvoice.find().sort({createdAt: -1}), params);
     }  
   },
   {
