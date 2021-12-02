@@ -22,6 +22,10 @@ const chatMutations = [
   {
     name: 'chatMessageAdd',
     handler: async (_root, args, { models, user }) => {
+      if (!args.content) {
+        throw new Error('Content is required');
+      }
+
       const doc = { ...args };
 
       if (!doc.chatId) {

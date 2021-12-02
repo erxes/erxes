@@ -1,5 +1,6 @@
 import { Departments, Units, Users } from '../../../db/models';
 import { Branches, Structures } from '../../../db/models/Structure';
+import { checkPermission } from '../../permissions/wrappers';
 
 const structureQueries = {
   departments(
@@ -124,5 +125,16 @@ const structureQueries = {
     return Structures.findOne();
   }
 };
+
+checkPermission(structureQueries, 'structureDetail', 'showStructure');
+
+checkPermission(structureQueries, 'departments', 'showDepartment');
+checkPermission(structureQueries, 'departmentDetail', 'showDepartment');
+
+checkPermission(structureQueries, 'units', 'showUnit');
+checkPermission(structureQueries, 'unitDetail', 'showUnit');
+
+checkPermission(structureQueries, 'branches', 'showBranch');
+checkPermission(structureQueries, 'branchDetail', 'showBranch');
 
 export default structureQueries;

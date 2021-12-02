@@ -28,11 +28,7 @@ const chatQueries = [
   },
   {
     name: 'chatMessages',
-    handler: async (
-      _root,
-      { userIds, chatId, limit, skip },
-      { models, user }
-    ) => {
+    handler: async (_root, { userIds, chatId }, { models, user }) => {
       if (!chatId) {
         if (!userIds || (userIds && userIds.length === 0)) {
           return {
@@ -58,10 +54,7 @@ const chatQueries = [
       }
 
       return {
-        list: models.ChatMessages.find({ chatId })
-          .sort({ createdAt: -1 })
-          .skip(skip || 0)
-          .limit(limit || 10),
+        list: await models.ChatMessages.find({ chatId }).sort({ createdAt: 1 }),
         totalCount: await models.ChatMessages.find({ chatId }).countDocuments()
       };
     }

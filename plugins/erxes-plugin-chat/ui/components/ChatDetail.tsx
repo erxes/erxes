@@ -41,6 +41,7 @@ export default function ChatDetailContainer({
           type='text'
           name='description'
           max={250}
+          value={message}
           componentClass='textarea'
           onChange={(e: any) => setMessage(e.target.value)}
           placeholder='Type here'
