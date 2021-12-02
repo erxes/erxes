@@ -21,8 +21,7 @@ import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { chunkArray, isUsingElk } from '../../utils';
-import * as EditorAttributeUtils from '../../editorAttributeUtils';
-import { fieldsCombinedByContentType } from '../../modules/fields/utils';
+import EditorAttributeUtil from '../../editorAttributeUtils';
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -239,12 +238,9 @@ const sendEmailOrSms = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
-  const possibleCustomerFields = await fieldsCombinedByContentType({
-    contentType: 'customer'
-  });
-  const customerFields = EditorAttributeUtils.getCustomerFields(
-    emailContent,
-    possibleCustomerFields
+  const editorAttributeUtil = new EditorAttributeUtil();
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent
   );
 
   const onFinishPiping = async () => {
@@ -294,11 +290,10 @@ const sendEmailOrSms = async (
       };
 
       if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
-        const replacedContent = await EditorAttributeUtils.replaceAttributes({
+        const replacedContent = await editorAttributeUtil.replaceAttributes({
           customerFields,
           content: emailContent,
-          user,
-          possibleCustomerFields
+          user
         });
 
         engageMessage.email.content = replacedContent;
@@ -329,12 +324,11 @@ const sendEmailOrSms = async (
       const itemsMapping = customersItemsMapping[customer._id] || [null];
 
       for (const item of itemsMapping) {
-        const replacers = await EditorAttributeUtils.generateReplacers({
+        const replacers = await editorAttributeUtil.generateReplacers({
           content: emailContent,
           customer,
           item,
-          customerFields,
-          possibleCustomerFields
+          customerFields
         });
 
         customerInfos.push({
