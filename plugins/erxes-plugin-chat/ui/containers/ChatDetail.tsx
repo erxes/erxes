@@ -17,6 +17,10 @@ export default function ChatDetailContainer(props: Props) {
   const sendMessage = (content: string) => {
     const { chatId, userIds } = props;
 
+    if (!content) {
+      return Alert.error('Content is required');
+    }
+
     addMutation({
       variables: { content, chatId, participantIds: userIds || [] },
       refetchQueries: [
