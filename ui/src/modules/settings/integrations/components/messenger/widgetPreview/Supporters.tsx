@@ -7,12 +7,15 @@ import {
   StateSpan,
   Supporters as SupporterStyled
 } from './styles';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   showChatPreview?: boolean;
   supporterIds?: string[];
   teamMembers: IUser[];
   isOnline: boolean;
+  showTimezone?: boolean;
+  timezone?: string;
 };
 
 class Supporters extends React.Component<Props> {
@@ -37,6 +40,21 @@ class Supporters extends React.Component<Props> {
     });
   }
 
+  renderTimezone() {
+    const { showTimezone, timezone } = this.props;
+    
+    if(!showTimezone){
+      return null;
+    }
+
+
+    return (
+      <span>
+        {timezone ? timezone : __('Asia/Ulaanbaatar')}
+      </span>
+    )
+  }
+
   render() {
     const { supporterIds, showChatPreview } = this.props;
 
@@ -48,7 +66,7 @@ class Supporters extends React.Component<Props> {
       return <SupporterStyled>{this.renderContent()}</SupporterStyled>;
     }
 
-    return <ErxesSupporters>{this.renderContent()}</ErxesSupporters>;
+    return <ErxesSupporters>{this.renderContent()}{this.renderTimezone()}</ErxesSupporters>;
   }
 }
 
