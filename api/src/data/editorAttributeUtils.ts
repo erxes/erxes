@@ -7,7 +7,6 @@ import { generateAmounts, generateProducts } from './resolvers/deals';
 import * as _ from 'underscore';
 import { URL } from 'url';
 import { getSubServiceDomain } from './utils';
-import { ICustomField } from '../db/models/definitions/common';
 
 export interface IReplacer {
   key: string;
@@ -118,14 +117,16 @@ export function getCustomerFields(
   return customerFields;
 }
 
-export function fillMissingCustomFieldsDataItem(
+export function fillMissingCustomFieldsDataItemOfCustomer(
   content: string,
-  customFieldsData: ICustomField[] = [],
+  customer: ICustomer,
   possibleCustomerFields: ICustomerField[]
-): ICustomField[] {
-  const filledResult = [...customFieldsData];
+): void {
+  if (!customer.customFieldsData) {
+    customer.customFieldsData = [];
+  }
 
-  const existingItemsByFieldId = _.indexBy(customFieldsData, 'field');
+  const existingItemsByFieldId = _.indexBy(customer.customFieldsData, 'field');
 
   for (const field of possibleCustomerFields) {
     if (!content.includes(`{{ customer.${field.name} }}`)) {
@@ -138,7 +139,7 @@ export function fillMissingCustomFieldsDataItem(
       // if content has attribute that doesn't have fieldId, fill with dummy item
       // if content has field attribute that doesn't exist on the customer.customFieldsData, fill with dummy item
       if (!fieldId || !existingItemsByFieldId[fieldId]) {
-        filledResult.push({
+        customer.customFieldsData.push({
           field: fieldId || '',
           stringValue: '',
           value: ''
@@ -146,8 +147,6 @@ export function fillMissingCustomFieldsDataItem(
       }
     }
   }
-
-  return filledResult;
 }
 
 export async function generateReplacers(args: IArgs): Promise<IReplacer[]> {
@@ -161,9 +160,9 @@ export async function generateReplacers(args: IArgs): Promise<IReplacer[]> {
     customerFields = getCustomerFields(content, possibleCustomerFields);
   }
 
-  customer.customFieldsData = fillMissingCustomFieldsDataItem(
+  fillMissingCustomFieldsDataItemOfCustomer(
     content,
-    customer.customFieldsData,
+    customer,
     possibleCustomerFields
   );
 
@@ -277,6 +276,12 @@ export async function generateReplacers(args: IArgs): Promise<IReplacer[]> {
       );
 
       if (!customFieldsDataItem) {
+        if (content.includes(`{{ itemCustomField.${customField._id} }}`)) {
+          replacers.push({
+            key: `{{ itemCustomField.${customField._id} }}`,
+            value: ''
+          });
+        }
         continue;
       }
 
