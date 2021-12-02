@@ -58,6 +58,8 @@ export interface IMessengerData {
   isOnline?: boolean;
   onlineHours?: IMessengerOnlineHours[];
   timezone?: string;
+  responseRate?: string;
+  showTimezone?: boolean;
   messages?: IMessageDataMessages;
   links?: ILink;
   showChat?: boolean;
@@ -215,6 +217,14 @@ const messengerDataSchema = new Schema(
     onlineHours: field({ type: [messengerOnlineHoursSchema] }),
     timezone: field({
       type: String,
+      optional: true
+    }),
+    responseRate: field({
+      type: String,
+      optional: true
+    }),
+    showTimezone: field({
+      type: Boolean,
       optional: true
     }),
     messages: field({ type: Object, optional: true }),

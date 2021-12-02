@@ -211,6 +211,8 @@ describe('mutations', () => {
         }
       ],
       timezone: faker.random.word(),
+      responseRate: faker.random.word(),
+      showTimezone: false,
       messages: {
         en: {
           welcome: faker.random.word(),

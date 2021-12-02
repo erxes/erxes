@@ -3,22 +3,25 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
-import timezones from 'modules/common/constants/timezones';
+import respondrates from 'modules/common/constants/respondrates';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '../../../types';
 import { ToggleWrapper } from '../widgetPreview/styles';
 import OnlineHours from './OnlineHours';
+import { Description } from '../../../styles';
 
 type Props = {
   onChange: (
-    name: 'onlineHours' | 'isOnline' | 'availabilityMethod' | 'timezone',
+    name: 'onlineHours' | 'isOnline' | 'availabilityMethod' | 'responseRate' | 'showTimezone',
     value: string
   ) => void;
   isOnline: boolean;
   availabilityMethod?: string;
   timezone?: string;
+  responseRate?: string;
+  showTimezone?: boolean;
   onlineHours?: IOnlineHour[];
 };
 
@@ -81,6 +84,27 @@ class Availability extends React.Component<Props> {
     );
   }
 
+  renderShowTimezone() {
+    const onChange = e => this.onChangeFunction('showTimezone', e.target.checked);
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>{__('Display Operator Timezone')}</ControlLabel>
+        <Description> {__('Display chat operator timezone set in their location in team member profiles')}</Description>
+        <ToggleWrapper>
+          <Toggle
+            checked={this.props.showTimezone}
+            onChange={onChange}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
+        </ToggleWrapper>
+      </FormGroup>
+    );
+  }
+
   render() {
     const onChange = e =>
       this.onChangeFunction(
@@ -88,7 +112,7 @@ class Availability extends React.Component<Props> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const timezoneOnChange = e => this.onSelectChange(e, 'timezone');
+    const respondTypeOnChange = e => this.onSelectChange(e, 'responseRate');
 
     return (
       <FlexItem>
@@ -119,15 +143,34 @@ class Availability extends React.Component<Props> {
           {this.renderOnlineHours()}
 
           <FormGroup>
-            <ControlLabel>Time zone</ControlLabel>
-
-            <Select
-              value={this.props.timezone}
-              options={timezones}
-              onChange={timezoneOnChange}
-              clearable={false}
-            />
+            <ControlLabel required={true}>Response rate</ControlLabel>
+              <FormControl
+                value="auto"
+                componentClass="radio"
+                checked={false}
+                inline={true}
+                disabled={true}
+              >
+                {__('Automatically calculated depending on your First Response Rate in Reports')}
+              </FormControl>
+              <FormControl
+                value="manual"
+                componentClass="radio"
+                checked={true}
+                inline={true}
+              >
+                {__('Set to display your pre defined response rate')}
+              </FormControl>
+              <Select
+                required={true}
+                value={this.props.responseRate}
+                options={respondrates}
+                onChange={respondTypeOnChange}
+                clearable={false}
+              />
           </FormGroup>
+
+          {this.renderShowTimezone()}
         </LeftItem>
       </FlexItem>
     );

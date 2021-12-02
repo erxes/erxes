@@ -507,6 +507,8 @@ describe('save integration messenger configurations test', () => {
         }
       ],
       timezone: momentTz.tz.guess(true),
+      responseRate: 'A few minutes',
+      showTimezone: true,
       messages: {
         en: {
           welcome: 'Welcome user',
@@ -556,6 +558,8 @@ describe('save integration messenger configurations test', () => {
       messengerData.onlineHours[1].to
     );
     expect(integration.messengerData.timezone).toEqual(messengerData.timezone);
+    expect(integration.messengerData.responseRate).toEqual(messengerData.responseRate);
+    expect(integration.messengerData.showTimezone).toEqual(messengerData.showTimezone);
     expect(integration.messengerData.messages.en.welcome).toEqual(
       messengerData.messages.en.welcome
     );
@@ -583,6 +587,8 @@ describe('save integration messenger configurations test', () => {
         }
       ],
       timezone: 'EET',
+      responseRate: 'A few minutes',
+      showTimezone: true,
       messages: {
         en: {
           welcome: 'Welcome user',
@@ -634,6 +640,12 @@ describe('save integration messenger configurations test', () => {
     );
     expect(updatedIntegration.messengerData.timezone).toEqual(
       newMessengerData.timezone
+    );
+    expect(updatedIntegration.messengerData.responseRate).toEqual(
+      newMessengerData.responseRate
+    );
+    expect(updatedIntegration.messengerData.showTimezone).toEqual(
+      newMessengerData.showTimezone
     );
     expect(integration.messengerData.messages.en.welcome).toEqual(
       messengerData.messages.en.welcome
