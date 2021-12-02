@@ -132,6 +132,8 @@ export const types = `
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]
     timezone: String
+    responseRate: String
+    showTimezone: Boolean
     messages: JSON
     knowledgeBaseTopicId: String
     links: IntegrationLinks
