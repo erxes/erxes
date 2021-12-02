@@ -9,6 +9,7 @@ import { TextDividerComponent } from "./textdivider.js"
 
 ## Example
 
+<p>Hover over the time to see date.</p>
 <TextDividerComponent />
 
 ## API

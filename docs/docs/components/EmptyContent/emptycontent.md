@@ -5,6 +5,8 @@ title: Empty content
 
 import { EmptyContentComponent } from "./emptycontent.js"
 
+<p>Give different contents with empty content component.</p>
+
 ## Steps
 
 ### Example

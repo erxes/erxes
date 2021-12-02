@@ -46,7 +46,7 @@ import { StepComponent } from "./steps.js"
 
 <StepComponent type = 'APIstep' table={[
 ['stepNumber','number','','Define step number'],
-['active','number','','Define active number'],
+['active','number','','Define which step that expands on start'],
 ['img','string','','Shows image'],
 ['title','string','','Shows title'],
 ['children','React.ReactNode', '', 'Shows content of step'],

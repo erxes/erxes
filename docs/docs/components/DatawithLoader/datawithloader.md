@@ -29,8 +29,8 @@ import { DatawithLoaderComponent } from "./datawithloader.js"
 
 #### Image
 
-<p>You can costumize the empty state by giving text (with <code>emptyText</code>), icon (with <code>emptyIcon</code>). And also change the icon size with <code>size</code> prop.</p>
-<DatawithLoaderComponent type="emptystateimage" counter={0} image="https://erxes.io/static/images/logo/logo_dark.svg" text="Empty state" sizes="small"/>
+<p>You can costumize the empty state by giving text (with <code>emptyText</code>), image (with <code>emptyImage</code>).  </p>
+<DatawithLoaderComponent type="emptystateimage" counter={0} image="https://erxes.io/static/images/logo/logo_dark.svg" text="Empty state"/>
 
 ## API
 

@@ -9,7 +9,7 @@ import { SortHandlerComponent } from "./sorthandler.js"
 <SortHandlerComponent type="default" />
 
 ## Label
-<p>Add label by defining<code>label</code> prop.</p>
+<p>Add label by defining <code>label</code> prop.</p>
 <SortHandlerComponent type="label" label="Label" />
 
 ## Field
@@ -20,6 +20,6 @@ import { SortHandlerComponent } from "./sorthandler.js"
 ## API
 
 <SortHandlerComponent type="APIsorthandler" table={[
-  ['sortField', 'string', '', 'Sets the sort field'],
-  ['label', 'string', '', 'Defines the handler name']
+  ['sortField', 'string', '', 'Set the sort field'],
+  ['label', 'string', '', 'Define the handler name']
 ]} />

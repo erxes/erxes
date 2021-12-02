@@ -144,7 +144,7 @@ export function EmptyContentComponent(props) {
               <td>icon</td>
               <td>string</td>
               <td />
-              <td>Replaces step number with icon</td>
+              <td>Replace step number with icon</td>
             </tr>
             <tr>
               <td>isOutside</td>

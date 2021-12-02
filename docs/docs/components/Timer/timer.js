@@ -70,7 +70,7 @@ export function TimerComponent(props) {
           </tr>
           <tr>
             <td colSpan="2">status*</td>
-            <td>started || paused || stopped || completed</td>
+            <td>started | paused | stopped | completed</td>
             <td/>
             <td>Define task status</td>
           </tr>
@@ -95,7 +95,7 @@ export function TimerComponent(props) {
           </tr>
           <tr>
             <td>status*</td>
-            <td>started || paused || stopped || completed</td>
+            <td>started | paused | stopped | completed</td>
             <td/>
             <td>Define update status</td>
           </tr>
