@@ -69,6 +69,32 @@ describe('widgetQueries', () => {
     expect(response.length).toBe(2);
   });
 
+  test('Conversation export messages', async () => {
+    // Creating test data
+    const user = await userFactory({});
+
+    const integration = await integrationFactory({
+      kind: 'messenger',
+      messengerData: { supporterIds: [user._id] }
+    });
+
+    const conversation = await conversationFactory({
+      integrationId: integration._id
+    });
+
+    const qry = `
+      query widgetExportMessengerData($_id: String, $integrationId: String!) {
+        widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetExportMessengerData', {
+      _id: conversation._id,
+      integrationId: '_id '
+    });
+    expect(response).toBe(null);
+  });
+
   test('Conversation detail', async () => {
     // Creating test data
     const user = await userFactory({});
