@@ -1,18 +1,22 @@
 const chatResolvers = [
   {
     type: 'Chat',
-    field: 'lastChatMessage',
+    field: 'createdUser',
     handler: (chat, {}, { models }) => {
-      return models.ChatMessages.findOne({ chatId: chat._id }).sort({
-        createdBy: -1
-      });
+      return models.Users.findOne({ _id: chat.createdBy });
     }
   },
   {
     type: 'Chat',
-    field: 'createdUser',
-    handler: (chat, {}, { models }) => {
-      return models.Users.findOne({ _id: chat.createdBy });
+    field: 'participantUsers',
+    handler: async (chat, {}, { models, user }) => {
+      const participantIdsExceptMe = (chat.participantIds || []).filter(
+        id => id !== user._id
+      );
+
+      return models.Users.find({
+        _id: { $in: participantIdsExceptMe }
+      });
     }
   }
 ];

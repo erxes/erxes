@@ -6,15 +6,17 @@ import Sidebar from '../components/Sidebar';
 import { queries } from '../graphql';
 
 export default function SidebarContainer() {
-  const chatsResponse = useQuery(gql(queries.chats));
+  const directChatsResponse = useQuery(gql(queries.chats), {
+    variables: { type: 'direct' }
+  });
 
-  if (chatsResponse.loading) {
+  if (directChatsResponse.loading) {
     return <div>...</div>;
   }
 
-  if (chatsResponse.error) {
-    return <div>{chatsResponse.error.message}</div>;
+  if (directChatsResponse.error) {
+    return <div>{directChatsResponse.error.message}</div>;
   }
 
-  return <Sidebar chats={chatsResponse.data.chats.list} />;
+  return <Sidebar directChats={directChatsResponse.data.chats.list} />;
 }

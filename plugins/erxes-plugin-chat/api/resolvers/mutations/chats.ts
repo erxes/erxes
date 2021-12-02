@@ -25,13 +25,30 @@ const chatMutations = [
       const doc = { ...args };
 
       if (!doc.chatId) {
-        const chat = await models.Chats.createChat(
-          models,
-          { name: doc.content },
-          user._id
-        );
+        if (
+          !doc.participantIds ||
+          (doc.participantIds && doc.participantIds.length === 0)
+        ) {
+          throw new Error('Please choose at least one participant');
+        }
 
-        doc.chatId = chat._id;
+        const participantIds = (doc.participantIds || []).concat(user._id);
+
+        const chat = await models.Chats.findOne({
+          participantIds: { $all: participantIds, $size: participantIds.length }
+        });
+
+        if (chat) {
+          doc.chatId = chat._id;
+        } else {
+          const createdChat = await models.Chats.createChat(
+            models,
+            { name: doc.content, participantIds },
+            user._id
+          );
+
+          doc.chatId = createdChat._id;
+        }
       }
 
       return models.ChatMessages.createChatMessage(models, doc, user._id);

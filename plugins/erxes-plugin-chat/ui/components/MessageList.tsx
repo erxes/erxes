@@ -1,23 +1,31 @@
 import React from 'react';
 import dayjs from 'dayjs';
+import withCurrentUser from 'erxes-ui/lib/auth/containers/withCurrentUser';
+import { IUser } from 'erxes-ui/lib/auth/types';
+import { MessageList, MessageListItem } from '../styles';
 
 type Props = {
   messages: any;
+  currentUser: IUser;
 };
 
-export default function MessageList(props: Props) {
-  const { messages } = props;
+function ChatMessageList(props: Props) {
+  const { messages, currentUser } = props;
 
   const renderRow = (message: any) => {
     return (
-      <li key={message._id}>
+      <MessageListItem me={message.createdUser._id === currentUser._id}>
         {message.content} <br />
-        {message.createdUser && message.createdUser.email}
+        <b>{message.createdUser && message.createdUser.email}</b>
         <br />
         <span>{dayjs(message.createdAt).format('lll')}</span>
-      </li>
+      </MessageListItem>
     );
   };
 
-  return <ul>{messages.map(message => renderRow(message))}</ul>;
+  return (
+    <MessageList>{messages.map(message => renderRow(message))}</MessageList>
+  );
 }
+
+export default withCurrentUser(ChatMessageList);

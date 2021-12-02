@@ -7,25 +7,30 @@ import ChatDetail from '../components/ChatDetail';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  chatId: string;
+  chatId?: string;
+  userIds?: string[];
 };
 
 export default function ChatDetailContainer(props: Props) {
   const [addMutation] = useMutation(gql(mutations.addChatMessage));
 
   const sendMessage = (content: string) => {
-    const { chatId } = props;
+    const { chatId, userIds } = props;
 
     addMutation({
-      variables: { content, chatId },
+      variables: { content, chatId, participantIds: userIds || [] },
       refetchQueries: [
         {
           query: gql(queries.chatMessages),
-          variables: { chatId }
+          variables: { chatId, userIds }
+        },
+        {
+          query: gql(queries.chats),
+          variables: { type: 'direct' }
         }
       ]
-    }).then(() => {
-      Alert.success('Successfully added');
+    }).catch(error => {
+      Alert.error(error.message);
     });
   };
 

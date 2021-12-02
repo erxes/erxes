@@ -1,6 +1,6 @@
 const addChatMessage = `
-  mutation chatMessageAdd($chatId: String, $content: String!) {
-    chatMessageAdd(chatId: $chatId, content: $content) {
+  mutation chatMessageAdd($chatId: String, $participantIds: [String], $content: String!) {
+    chatMessageAdd(chatId: $chatId, participantIds: $participantIds, content: $content) {
       _id
     }
   }

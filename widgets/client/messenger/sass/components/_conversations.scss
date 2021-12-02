@@ -76,6 +76,40 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  margin-bottom: 70px;
+}
+
+.erxes-conversation-init{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.erxes-last-section {
+  list-style: none;
+  position: fixed;
+  bottom: 76px;
+  background: #fff;
+  border-top: 1px solid #eaebed;
+  width: 76.7%;
+  margin: 0px;
+  padding: 12px;
+  left: 42px;
+
+  > .erxes-create-btn { 
+    background: rgb(101, 105, 223);
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 20% 80%;
+    justify-items: center;
+    align-items: center;
+    color: #fff;
+    border-radius: 5px;
+
+    > .erxes-start-text{
+      padding-bottom: 5px;
+    }
+  }
 }
 
 .erxes-list-item {
@@ -138,6 +172,16 @@
 
     > span {
       color: $text-color-light;
+    }
+
+    > input {
+      padding:10px 10px;
+      line-height: 1.4;
+      border-radius: 5px;
+      display: block;
+      width: -webkit-fill-available;
+      outline: none;
+      border: 1px solid #ccc;
     }
   }
 
