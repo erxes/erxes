@@ -19,9 +19,8 @@ import {
   Users
 } from '../db/models';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-import * as EditorAttributeUtils from '../data/editorAttributeUtils';
+import EditorAttributeUtil from '../data/editorAttributeUtils';
 import messageBroker from '../messageBroker';
-import * as fieldUtils from '../data/modules/fields/utils';
 import './setup.ts';
 
 describe('mutations', () => {
@@ -575,31 +574,22 @@ describe('mutations', () => {
       customerId: customer._id
     };
 
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
-
-    const mockReplaceEditorAttribute = jest.spyOn(
-      EditorAttributeUtils,
-      'replaceAttributes'
-    );
-    mockReplaceEditorAttribute.mockImplementation(() =>
-      Promise.resolve('body')
-    );
-
-    const mockedFieldUtils = jest.spyOn(
-      fieldUtils,
-      'fieldsCombinedByContentType'
-    );
-    mockedFieldUtils.mockReturnValue(Promise.resolve([]));
+    const mockReplaceEditorAttribute = jest
+      .spyOn(EditorAttributeUtil.prototype, 'replaceAttributes')
+      .mockReturnValue(Promise.resolve('body'));
 
     try {
       await graphqlRequest(mutation, 'integrationSendMail', args, {
         dataSources
       });
     } catch (e) {
+      console.log(e);
+      // Should be something like "Integration API not running"
       expect(e[0].message).toBeDefined();
     }
 
-    spy.mockImplementation(() => Promise.resolve());
+    const mockSendEmail = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
+    mockSendEmail.mockImplementation(() => Promise.resolve());
 
     try {
       await graphqlRequest(mutation, 'integrationSendMail', args, {
@@ -630,8 +620,7 @@ describe('mutations', () => {
       expect(e[0].message).toBe('Duplicated email');
     }
 
-    spy.mockRestore();
-    mockedFieldUtils.mockRestore();
+    mockSendEmail.mockRestore();
     mockReplaceEditorAttribute.mockRestore();
   });
 

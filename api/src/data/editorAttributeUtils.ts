@@ -171,7 +171,7 @@ export default class EditorAttributeUtil {
 
     // replace customer fields
     if (args.customer) {
-      const customer = args.customer || {};
+      const customer = args.customer;
       let customerFields = args.customerFields;
 
       if (!customerFields || customerFields.length === 0) {
@@ -286,18 +286,20 @@ export default class EditorAttributeUtil {
           .join(',')
       });
 
-      const customFields = await getCustomFields(item.contentType);
+      const fieldMetaDatas = await getCustomFields(item.contentType);
 
-      for (const customField of customFields) {
+      for (const fieldMetaData of fieldMetaDatas) {
         const customFieldsData = item.customFieldsData || [];
         const customFieldsDataItem = customFieldsData.find(
-          c => c.field === customField._id
+          c => c.field === fieldMetaData._id
         );
 
+        const key = `{{ itemCustomField.${fieldMetaData._id} }}`;
+
         if (!customFieldsDataItem) {
-          if (content.includes(`{{ itemCustomField.${customField._id} }}`)) {
+          if (content.includes(key)) {
             replacers.push({
-              key: `{{ itemCustomField.${customField._id} }}`,
+              key,
               value: ''
             });
           }
@@ -305,14 +307,14 @@ export default class EditorAttributeUtil {
         }
 
         const replaceValue =
-          customField.type === 'file'
+          fieldMetaData.type === 'file'
             ? await customFieldsDataItemToFileLink(customFieldsDataItem)
             : customFieldsDataItem.stringValue ||
               customFieldsDataItem.value ||
               '';
 
         replacers.push({
-          key: `{{ itemCustomField.${customField._id} }}`,
+          key,
           value: replaceValue
         });
       }
