@@ -53,16 +53,4 @@ import { FilterableListComponent } from "./filterablelist.js"
 
 ## API
 
-<FilterableListComponent type="APIfilterablelist" table={[
-['items', 'any[]', '', 'Define list items'],
-['links', 'any[]', '', 'Define links below list'],
-['showCheckmark', 'boolean', 'true', 'Define checkmark'],
-['selectable', 'boolean', '30px', 'Takes spacing on the right'],
-['loading', 'boolean', '', 'Activates loading spinner'],
-['className', 'string', '', 'Define className'],
-['treeView', 'boolean', '', 'Activates tree view of list'],
-['isIndented', 'boolean', '', 'Take space between arrow and title'],
-['onClick', 'function', '', 'Define click handler function when list item is clicked'],
-['onSearch', 'function', '', 'Define search function'],
-['onExit', 'function', '','']
-]} />
+<FilterableListComponent type="APIfilterablelist" />

@@ -1,11 +1,12 @@
 import React from "react";
 import FilterableList from "erxes-ui/lib/components/filterableList/FilterableList";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable} from "../common.js";
 import "erxes-icon/css/erxes.min.css";
+import Table from "erxes-ui/lib/components/table/index";
+import styles from "../../../src/components/styles.module.css";
 
 export function FilterableListComponent(props) {
-  const { type, boolean, table = [] } = props;
+  const { type, boolean } = props;
   const names = ["First test", "Second test", "Third test"];
   const link = [{ title: "Google", href: "https://www.google.com" }];
   const arr = [];
@@ -130,8 +131,113 @@ export function FilterableListComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import FilterableList from "erxes-ui/lib/components/filterableList/FilterableList";`}</CodeBlock>
-        {renderApiTable("", table)}
-      </>
+      <p className={styles.required}>* required prop</p>
+      <Table>
+          <thead>
+            <tr>
+              <th colSpan="2">Name</th>
+              <th>Type</th>
+              <th>Defualt</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowSpan="7">items* (array)</td>
+              <td>_id</td>
+              <td>string</td>
+              <td />
+              <td>Define id of item array</td>
+            </tr>
+            <tr>
+              <td>title</td>
+              <td>string</td>
+              <td />
+              <td>Define list item name</td>
+            </tr>
+            <tr>
+              <td>avatar</td>
+              <td>string</td>
+              <td />
+              <td>Show image before item title</td>
+            </tr>
+            <tr>
+              <td>additionalIconClass</td>
+              <td>string</td>
+              <td />
+              <td>Show additional icon on the right side of item title</td>
+            </tr>
+            <tr>
+              <td>style</td>
+              <td>object</td>
+              <td />
+              <td>Add style to item title</td>
+            </tr>
+            <tr>
+              <td>parentId</td>
+              <td>string</td>
+              <td />
+              <td>Define parent by id</td>
+            </tr>
+            <tr>
+              <td>iconClass</td>
+              <td>string</td>
+              <td />
+              <td>Show icon before item title to hide or show children item</td>
+            </tr>
+            <tr>
+              <td colSpan="2">links</td>
+              <td>any[]</td>
+              <td />
+              <td>Define links below list</td>
+            </tr>
+            <tr>
+              <td colSpan="2">showCheckmark</td>
+              <td>boolean</td>
+              <td>true</td>
+              <td>Show checkmart when item list is clicked</td>
+            </tr>
+            <tr>
+              <td colSpan="2">selectable</td>
+              <td>boolean</td>
+              <td>30px</td>
+              <td>Takes spacing on the right</td>
+            </tr>
+            <tr>
+              <td colSpan="2">loading</td>
+              <td>boolean</td>
+              <td />
+              <td>Activates loading spinner</td>
+            </tr>
+            <tr>
+              <td colSpan="2">className</td>
+              <td>string</td>
+              <td />
+              <td>Define className</td>
+            </tr><tr>
+              <td colSpan="2">treeView</td>
+              <td>boolean</td>
+              <td />
+              <td>Activates tree view of list</td>
+            </tr><tr>
+              <td colSpan="2">isIndented</td>
+              <td>boolean</td>
+              <td />
+              <td>Take space between arrow and title</td>
+            </tr><tr>
+              <td colSpan="2">onClick</td>
+              <td>function</td>
+              <td />
+              <td>Define click handler function when list item is clicked</td>
+            </tr><tr>
+              <td colSpan="2">onSearch</td>
+              <td>function</td>
+              <td />
+              <td>Define search function</td>
+            </tr>
+          </tbody>
+        </Table>
+    </>
     );
   }
   return renderBlock();
