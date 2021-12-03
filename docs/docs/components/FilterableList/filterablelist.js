@@ -14,24 +14,32 @@ export function FilterableListComponent(props) {
   const addicon = [];
 
   if (type === "style") {
-    names.map((name, index) => {
       arr.push({
-        _id: index,
-        title: name,
+        _id: 0,
+        title: names[0],
         style: { color: "purple" },
       });
-    });
+      arr.push({
+        _id: 1,
+        title: names[1],
+        style: { color: "red" },
+      });
+      arr.push({
+        _id: 2,
+        title: names[2],
+        style: { color: "green" },
+      });
   } else
     names.map((name, index) => {
       arr.push({
-        _id: index,
+        _id: index.toString(),
         title: name,
       });
     });
 
   names.map((name, index) => {
     avatar.push({
-      _id: index,
+      _id: index.toString(),
       title: name,
       avatar: "https://erxes.io/static/images/logo/logo_dark.svg",
     });
@@ -39,7 +47,7 @@ export function FilterableListComponent(props) {
 
   names.map((name, index) => {
     addicon.push({
-      _id: index,
+      _id: index.toString(),
       title: name,
       avatar: "https://erxes.io/static/images/logo/logo_dark.svg",
       additionalIconClass: "info-circle",
@@ -85,9 +93,11 @@ export function FilterableListComponent(props) {
     string = string.replace(/, loading:true}/g, "} loading={true}");
     string = string.replace(/, treeView:true}/g, "} treeView={true}");
     string = string.replace(/com"}],/g, 'com"}]}');
-    string = string.replace(/},/g, "},\n\t\t\t\t");
+    string = string.replace(/},/g, "},");
     string = string.replace(/, links:/g, "} links={");
     string = string.replace(/, showCheckmark:false}/g, "} showCheckmark={false}");
+    string = string.replace(/{_/g, "\n\t\t{_");
+    string = string.replace(/]}/g, "]}\n\t");
     
     return string;
   }

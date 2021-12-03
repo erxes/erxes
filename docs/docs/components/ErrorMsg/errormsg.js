@@ -1,8 +1,10 @@
 import React from "react";
 import ErrorMsg from "erxes-ui/lib/components/ErrorMsg";
+import FilterByParams from "erxes-ui/lib/components/FilterByParams";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import { renderApiTable } from "../common.js";
+import { Tag } from "react-feather";
 
 export function ErrorMsgComponent(props) {
   const { table = [], children } = props;
