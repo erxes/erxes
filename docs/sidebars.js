@@ -138,11 +138,7 @@ module.exports = {
         "components/ErrorMsg/errormsg",
         "components/FilePreview/filepreview",
         "components/FilterableList/filterablelist",
-<<<<<<< HEAD
         "components/FilterByParams/filterbyparams",
-=======
-        // "components/Form/form",
->>>>>>> 7e61f5bb3032a88cad8d80a1f8b7f9c758ff27a1
         "components/HeaderDescription/headerdescription",
         "components/HelpPopOver/helppopover",
         "components/Icon/icon",
@@ -151,7 +147,6 @@ module.exports = {
         "components/ModifiableList/modifiablelist",
         "components/Namecard/namecard",
         "components/ProgressBar/progressbar",
-        // "components/SortableList/sortablelist",
         "components/SortHandler/sorthandler",
         "components/Spinner/spinners",
         "components/Steps/steps",
