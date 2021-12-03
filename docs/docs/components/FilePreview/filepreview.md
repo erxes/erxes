@@ -5,7 +5,7 @@ title: File Preview
 
 import {FilePreviewComponent} from "./filepreview.js"
 
-<p>Preview of different kind of files.</p>
+<p>Preview different type of files.</p>
 
 ## Default file preview
 

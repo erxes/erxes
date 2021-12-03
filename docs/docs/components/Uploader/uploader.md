@@ -7,15 +7,15 @@ import { UploaderComponent } from "./uploader.js"
 
 ## Multiple
 
-<p>Choose multiple file</p>
+<p>Choose multiple file.</p>
 <UploaderComponent multi={true} />
 
-<p>Choose only one file</p>
+<p>Choose only one file.</p>
 <UploaderComponent multi={false} />
 
 ## Limit
 
-<p>Set limit to files</p>
+<p>Set limit to files.</p>
 <UploaderComponent lmt={2} />
 
 ## Single
@@ -25,7 +25,7 @@ import { UploaderComponent } from "./uploader.js"
 
 ## Default files
 
-<p>Show default files by giving the files array to <code>defaultFileList</code></p>
+<p>Show default files by giving the files array to <code>defaultFileList</code>.</p>
 <UploaderComponent defaultFiles />
 
 ## API

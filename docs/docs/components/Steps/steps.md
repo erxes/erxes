@@ -7,6 +7,7 @@ import { StepComponent } from "./steps.js"
 
 ## Example
 
+<p>Simple step component with image and content.</p>
 <StepComponent type = 'example' />
 
 ## Active

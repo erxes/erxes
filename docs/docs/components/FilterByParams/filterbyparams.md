@@ -5,33 +5,65 @@ title: Filter by Params
 
 import {FilterByParamsComponent} from "./filterbyparams.js"
 
+## Example
+
+<p>Simple list that can become searchable by parameters.</p>
 <FilterByParamsComponent />
 
-<!-- <p>Preview of different kind of files.</p>
+## Empty
 
-## Default file preview
+<p>When fields have no list it shows emptyState.</p>
+<FilterByParamsComponent type="empty" />
 
-<p>When there is no extension or not supported extension file then it'll go as default.</p>
-<FilePreviewComponent url="/fileUrl"/>
+## Loading
 
-## File preview
+<p>Show loading spinner by <code>loading</code> prop.</p>
+<FilterByParamsComponent type="load" />
 
-<p>Declare file url by <code>fileUrl</code> prop. </p>
-<FilePreviewComponent url="docxFile.docx"/>
-<p>Add name instead of file url by <code>fileName</code> prop. </p>
-<FilePreviewComponent url="xlsxFile.xlsx" name="xlsxFile"/>
-<p>File extention name is displayed in front of blank page icon.</p>
-<FilePreviewComponent url="zipFile.zip"/>
+## Count
 
-## Picture and Video preview
+<p>Show count numbers by giving them to <code>counts</code> prop.</p>
+<FilterByParamsComponent type="count" />
 
-<p>Preview jpeg, jpg, gif, png of extension picures and mp4 video.</p>
-<FilePreviewComponent url="https://erxes.io/static/images/logo/logo_dark_3x.png" />
-<FilePreviewComponent url="video.mp4" />
+## Multiple
+
+<p>Make it possible to select multiple items by <code>multiple</code> prop.</p>
+<FilterByParamsComponent type="multiple" />
+
+## Searchable
+
+<p>Add search bar on top of the list and make it searchable with <code>searchable</code> prop.</p>
+<FilterByParamsComponent type="search" />
+
+## Icon
+
+<p>Add avatar by <code>icon</code> prop.</p>
+<FilterByParamsComponent type="icon" />
+
+## Color
+
+<p>Add custom color to icon by <code>colorCode</code> prop.</p>
+<FilterByParamsComponent type="icon" color/>
+
+## Tree view
+
+<p>Show tree view list by <code>treeView</code> prop. Fields should have <code>_id</code> and <code>parentId</code>.</p>
+<FilterByParamsComponent type="tree" />
+
+## Related
+
+<p>Find sum of all the related items by id with <code>relatedIds</code> prop. It shows on the item, defined the <code>relatedId</code> prop.</p>
+<FilterByParamsComponent type="tree" related />
 
 ## API
 
-<FilePreviewComponent type="APIfilepreview" table={[
-  ['fileUrl*', 'string', '', 'Define url of file. Supported types: docx, pptx, xlsx, mp4, jpeg, jpg, gif, png, zip, csv, doc, ppt, psd, avi, txt, rar, mp3, pdf, xls'],
-  ['fileName', 'string', '', 'Show file name instead of the url']
-]} /> -->
+<FilterByParamsComponent type="APIfilterbyparams" table={[
+['fields', 'any[]', '', 'Define list items'],
+['loading', 'boolean', '', 'Activates loading spinner'],
+['className', 'string', '', 'Define className'],
+['treeView', 'boolean', '', 'Activates tree view of list'],
+['isIndented', 'boolean', '', 'Take space between arrow and title'],
+['onClick', 'function', '', 'Define click handler function when list item is clicked'],
+['onSearch', 'function', '', 'Define search function'],
+['onExit', 'function', '','']
+]} />

@@ -191,10 +191,6 @@ code {
 	color: white;
 }
 
-.required {
-   color:red;
-}
-
 .sortHandlerContainer {
 	margin: 20px;
 }
@@ -210,4 +206,8 @@ code {
 .bigContainer {
 	display: flex;
 	flex-direction: column;
+}
+
+required {
+	color: red;
 }

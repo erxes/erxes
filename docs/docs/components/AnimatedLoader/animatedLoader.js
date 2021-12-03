@@ -88,7 +88,7 @@ export function AnimatedLoaderComponent(props) {
               <td>round</td>
               <td>boolean</td>
               <td />
-              <td>set "border-redius: 50%</td>
+              <td>Set border-radius: 50%</td>
             </tr>
             <tr>
               <td>margin</td>

@@ -12,7 +12,7 @@ export function TimerComponent(props) {
       taskId: "timerTask",
       status: taskstatus,
       timeSpent: taskstatus === "started" ? 0 : 180,
-      startDate: taskstatus === "started" && new Date(new Date().getTime() - 1*30*60*1000),
+      startDate: taskstatus === "started" && new Date(new Date().getTime()),
       update: () => {},
     };
 

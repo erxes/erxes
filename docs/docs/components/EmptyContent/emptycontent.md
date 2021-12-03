@@ -9,17 +9,17 @@ import { EmptyContentComponent } from "./emptycontent.js"
 
 ### Example
 
-<p>Simple empty content with title and description. Content cannot be</p>
+<p>Simple empty content with title and description. <code>content</code> prop cannot be empty.</p>
 <EmptyContentComponent type="simple"/>
 
 ### Button
 
-<p>Add button with link by adding <code>url</code> prop to step array. Hover the button text to see link. </p>
+<p>Add button with link by adding <code>url</code> prop to steps array. Hover the button text to see link. </p>
 <EmptyContentComponent type="url"/>
 
 ### Button text
 
-<p>Add button text by adding <code>urlText</code> prop to step array.</p>
+<p>Add button text by adding <code>urlText</code> prop to steps array.</p>
 <EmptyContentComponent type="urltext"/>
 
 ### isOutside
@@ -29,7 +29,7 @@ import { EmptyContentComponent } from "./emptycontent.js"
 
 ### Icon
 
-<p>Add icon instead of content number by adding <code>icon</code> prop to step array.</p>
+<p>Add icon instead of content number by adding <code>icon</code> prop to steps array.</p>
 <EmptyContentComponent type="icon"/>
 
 ## Title

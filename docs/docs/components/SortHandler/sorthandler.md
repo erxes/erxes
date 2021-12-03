@@ -5,6 +5,7 @@ title: Sort Handler
 
 import { SortHandlerComponent } from "./sorthandler.js"
 
+<p>Simple sort handler.</p>
 <SortHandlerComponent type="default" />
 
 ## Label
