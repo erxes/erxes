@@ -18,10 +18,6 @@ function Sidebar(props: Props & IRouterProps) {
   const { directChats, history } = props;
 
   const renderDirectChats = () => {
-    if (directChats.length === 0) {
-      return <div>No chats</div>;
-    }
-
     const onAssignedUserSelect = userId => {
       router.setParams(history, { userIds: userId, _id: '' });
     };
