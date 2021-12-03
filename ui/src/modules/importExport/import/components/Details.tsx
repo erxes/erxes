@@ -56,23 +56,6 @@ class Details extends React.Component<Props, {}> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__('Tag this items')}</ControlLabel>
-            <p>{__('Tag these itemsLeave unselected if not necessary')}.</p>
-            <FormControl
-              componentClass="select"
-              onChange={this.onChangeTag}
-              value={this.props.tagId}
-            >
-              <option />
-              {this.props.tags.map(tag => (
-                <option key={tag._id} value={tag._id}>
-                  {tag.name}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-
-          <FormGroup>
             <FormControl
               componentClass="checkbox"
               required={true}

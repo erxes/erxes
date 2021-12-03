@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Icon, Tip, __ } from 'erxes-ui';
+import { Icon, Tip, __ } from 'erxes-ui';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import { FlexRow, ImportColumnRow } from 'modules/importExport/styles';
@@ -9,7 +9,8 @@ type Props = {
   column: string;
   fields: any[];
   columnWithChosenField: any;
-  onChangeColumn: (columnm, value) => void;
+  onChangeColumn: (column, value, contentType) => void;
+  contentType: string;
 };
 
 class Row extends React.Component<Props, {}> {
@@ -24,56 +25,85 @@ class Row extends React.Component<Props, {}> {
   };
 
   onChange = ({ value }) => {
-    const { column } = this.props;
+    const { column, contentType } = this.props;
 
-    this.props.onChangeColumn(column, value);
+    this.props.onChangeColumn(column, value, contentType);
   };
 
   renderMatch = () => {
-    const { column, columns, columnWithChosenField, fields } = this.props;
-    const chosenColumn = columnWithChosenField[column];
+    const {
+      column,
+      columns,
+      columnWithChosenField,
+      fields,
+      contentType
+    } = this.props;
 
-    let matched = true;
+    if (columnWithChosenField[contentType]) {
+      const chosenColumn = columnWithChosenField[contentType][column];
 
-    if (!chosenColumn) {
-      return <Icon icon="checked" color="green" />;
-    }
+      let matched = true;
 
-    const sampleDatas = columns[column];
+      if (!chosenColumn) {
+        return <Icon icon="checked-1" color="green" />;
+      }
 
-    const chosenField = fields.find(
-      field => field.value === chosenColumn.value
-    );
+      const sampleDatas = columns[column];
 
-    for (const sample of sampleDatas) {
-      if (chosenField.type === 'date') {
-        if (!dayjs(sample).isValid()) {
-          matched = false;
+      const chosenField = fields.find(
+        field => field.value === chosenColumn.value
+      );
+
+      for (const sample of sampleDatas) {
+        if (chosenField.type === 'date') {
+          if (!dayjs(sample).isValid()) {
+            matched = false;
+          }
+        }
+
+        if (chosenField.label && chosenField.label.includes('Email')) {
+          const re = /\S+@\S+\.\S+/;
+
+          if (!re.test(sample)) {
+            matched = false;
+          }
         }
       }
 
-      if (chosenField.label && chosenField.label.includes('Email')) {
-        const re = /\S+@\S+\.\S+/;
-
-        if (!re.test(sample)) {
-          matched = false;
-        }
+      if (matched) {
+        return <Icon icon="checked-1" color="green" />;
       }
+
+      return (
+        <Tip text="Not matched">
+          <Icon icon="exclamation-triangle" color="orange" />
+        </Tip>
+      );
     }
 
-    if (matched) {
-      return <Icon icon="checked-1" color="green" />;
-    }
-
-    return (
-      <Tip text="ALDAA GARCH MAGADGVI">
-        <Icon icon="exclamation-triangle" color="orange" />
-      </Tip>
-    );
+    return <Icon icon="checked-1" color="green" />;
   };
 
   render() {
-    const { fields, columnWithChosenField, column } = this.props;
+    const { fields, columnWithChosenField, column, contentType } = this.props;
+
+    if (contentType === 'company' && column === 'CustomerEmail') {
+      return null;
+    }
+
+    const renderValue = () => {
+      const value = columnWithChosenField[contentType];
+
+      if (!value) {
+        return '';
+      }
+
+      if (value) {
+        return value[column] ? value[column].value : '';
+      }
+
+      return '';
+    };
 
     return (
       <ImportColumnRow>
@@ -88,13 +118,8 @@ class Row extends React.Component<Props, {}> {
               options={fields}
               onChange={this.onChange}
               clearable={false}
-              value={
-                columnWithChosenField[column]
-                  ? columnWithChosenField[column].value
-                  : ''
-              }
+              value={renderValue()}
             />
-            <Button size="small">Create Property</Button>
             {this.renderMatch()}
           </FlexRow>
         </td>

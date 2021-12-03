@@ -16,7 +16,7 @@ type Props = {
   contentType: string;
   attachments: IAttachment[];
   columnWithChosenField: any;
-  onChangeColumn: (columnm, value) => void;
+  onChangeColumn: (column, value, contentType) => void;
 };
 
 type State = {};
@@ -32,7 +32,8 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
       fieldsQuery,
       importHistoryGetColumns,
       onChangeColumn,
-      columnWithChosenField
+      columnWithChosenField,
+      contentType
     } = this.props;
 
     if (!fieldsQuery || fieldsQuery.loading) {
@@ -59,27 +60,28 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
       };
     });
 
-    const fuzzyComparison = (str, mask) => {
-      var regex = '^' + mask.replace(/\*/, '.*') + '$';
-      var r = new RegExp(regex);
+    // const fuzzyComparison = (str, mask) => {
+    //   var regex = '^' + mask.replace(/\*/, '.*') + '$';
+    //   var r = new RegExp(regex);
 
-      return r.test(str);
-    };
+    //   return r.test(str);
+    // };
 
     const columns = importHistoryGetColumns.importHistoryGetColumns;
 
-    for (const keys of Object.keys(columns)) {
-      if (!columnWithChosenField[keys]) {
-        for (const field of fields) {
-          if (fuzzyComparison(field.label, keys)) {
-            onChangeColumn(keys, field.value);
-          }
-        }
-      }
-    }
+    // for (const keys of Object.keys(columns)) {
+    //   if (!columnWithChosenField[keys]) {
+    //     for (const field of fields) {
+    //       if (fuzzyComparison(field.label, keys)) {
+    //         onChangeColumn(keys, field.value, contentType);
+    //       }
+    //     }
+    //   }
+    // }
 
     return (
       <MapColumn
+        contentType={contentType}
         fields={fields}
         columns={columns}
         columnWithChosenField={columnWithChosenField}

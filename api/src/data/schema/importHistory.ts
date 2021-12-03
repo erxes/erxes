@@ -30,5 +30,5 @@ export const queries = `
 export const mutations = `
   importHistoriesRemove(_id: String!): JSON
   importHistoriesCancel(_id: String!): Boolean
-  importHistoriesCreate(contentType: String, file: JSON, columnsConfig: JSON, importName: String, tagId: String): JSON
+  importHistoriesCreate(contentTypes: [String], files: JSON, columnsConfig: JSON, importName: String, tagId: String): JSON
 `;

@@ -57,6 +57,8 @@ export const generatePronoun = value => {
     sex => sex.label.toUpperCase() === value.toUpperCase()
   );
 
+  console.log('sdadasds');
+
   return pronoun ? pronoun.value : '';
 };
 

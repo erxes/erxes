@@ -235,6 +235,11 @@ export const checkFieldNames = async (
       property.type = 'vendorCode';
     }
 
+    if (type === 'Company' && fieldName === 'CustomerEmail') {
+      property.name = 'aaaa';
+      property.type = 'aaaa';
+    }
+
     if (!property.type) {
       throw new Error(`Bad column name ${fieldName}`);
     }

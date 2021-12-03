@@ -653,6 +653,11 @@ connect().then(async () => {
       }
 
       switch (property.type) {
+        case 'aaaa':
+          doc.website = value;
+
+          break;
+
         case 'customProperty':
           {
             doc.customFieldsData.push({

@@ -92,33 +92,30 @@ export const importer2 = async (
 
     let fileType = 'xlsx';
 
-    try {
-      const fileName = file.url;
+    const fileName = file.url;
 
-      if (fileName.includes('.csv')) {
-        fileType = 'csv';
-      }
-
-      await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
-        action: 'createImport',
-        type: contentType,
-        fileType,
-        fileName,
-        uploadType: UPLOAD_SERVICE_TYPE,
-        columnsConfig,
-        user: user,
-        importName,
-        importHistoryId,
-        tagId
-      });
-
-      registerOnboardHistory({ type: `importCreate`, user });
-    } catch (e) {
-      console.log('2', e);
-      throw new Error();
+    if (fileName.includes('.csv')) {
+      fileType = 'csv';
     }
+
+    console.log('23112321', file, contentType);
+
+    await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+      action: 'createImport',
+      type: contentType,
+      fileType,
+      fileName,
+      uploadType: UPLOAD_SERVICE_TYPE,
+      columnsConfig,
+      user: user,
+      importName,
+      importHistoryId,
+      tagId
+    });
+
+    registerOnboardHistory({ type: `importCreate`, user });
   } catch (e) {
-    console.log('3', e);
+    console.log(e.message);
     throw new Error();
   }
 };

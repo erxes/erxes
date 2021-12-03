@@ -9,12 +9,13 @@ type Props = {
   columns: any[];
   fields: any[];
   columnWithChosenField: any;
-  onChangeColumn: (columnm, value) => void;
+  onChangeColumn: (column, value, contentType) => void;
+  contentType: string;
 };
 
 class MapColumn extends React.Component<Props, {}> {
   render() {
-    const { columns, fields, columnWithChosenField } = this.props;
+    const { columns, fields, columnWithChosenField, contentType } = this.props;
 
     const content = (
       <ColumnTable>
@@ -49,6 +50,7 @@ class MapColumn extends React.Component<Props, {}> {
         <tbody className={'expand'}>
           {Object.keys(columns).map(column => (
             <Row
+              contentType={contentType}
               key={Math.random()}
               columns={columns}
               column={column}

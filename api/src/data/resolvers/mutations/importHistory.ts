@@ -58,35 +58,40 @@ const importHistoryMutations = {
   async importHistoriesCreate(
     _root,
     {
-      contentType,
-      file,
+      contentTypes,
+      files,
       columnsConfig,
       importName,
       tagId
     }: {
-      contentType: string;
-      file: any;
+      contentTypes: string[];
+      files: any[];
       columnsConfig: any;
       importName: string;
       tagId: string;
     },
     { user }: IContext
   ) {
-    const importHistory = await ImportHistory.create({});
+    for (const contentType of contentTypes) {
+      const importHistory = await ImportHistory.create({});
 
-    const importHistoryId = importHistory._id;
+      const importHistoryId = importHistory._id;
+      const file = files[contentType];
 
-    importer2(
-      contentType,
-      file,
-      columnsConfig,
-      importName,
-      importHistoryId,
-      tagId,
-      user
-    );
+      console.log(importHistoryId, file, contentType);
 
-    return importHistory;
+      importer2(
+        contentType,
+        file[0],
+        columnsConfig[contentType],
+        importName,
+        importHistoryId,
+        tagId,
+        user
+      );
+    }
+
+    return 'success';
   }
 };
 
