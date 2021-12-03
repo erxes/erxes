@@ -8,7 +8,7 @@ import { colors } from "../../../../dashboard-ui/src/modules/common/styles/index
 import { renderApiTable } from "../common.js";
 
 export function AnimatedLoaderComponent(props) {
-  const { type, propName, table = [] } = props;
+  const { type, propName } = props;
 
   const stringify = (datas) => {
     let string = JSON.stringify(datas);

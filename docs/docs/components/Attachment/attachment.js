@@ -143,7 +143,7 @@ export function AttachmentComponent(props) {
               <td colSpan="2">index</td>
               <td>number</td>
               <td></td>
-              <td>When reviewing attachments, define which file to start from</td>
+              <td>When previewing attachments, define which file to start from</td>
             </tr>
             <tr>
               <td rowSpan="4">attachments (array)</td>

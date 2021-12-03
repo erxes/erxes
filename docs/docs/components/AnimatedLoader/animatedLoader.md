@@ -19,7 +19,7 @@ import { AnimatedLoaderComponent } from "./animatedLoader.js"
 
 ## Round
 
-<p>Use <code>round</code> prop to set "border-redius: 50%". </p>
+<p>Use <code>round</code> prop to set "border-radius: 50%". </p>
 <AnimatedLoaderComponent propName="round" />
 
 ## Box
@@ -34,10 +34,4 @@ import { AnimatedLoaderComponent } from "./animatedLoader.js"
 
 ## API
 
-<AnimatedLoaderComponent type="APIanimatedLoader" table={[
-  ['children', 'React.ReactNode', '', 'Shows content on progress bar'],
-  ['close', 'React.ReactNode', '', 'Displays the close element on bottom of the progress bar'],
-  ['* percentage', 'number', '', 'Sets percentage of the progress bar'],
-  ['color', 'string', '#dddeff', 'Sets color of the progress'],
-  ['height', 'string', '36px', 'Sets height of the progress bar']
-]} />
+<AnimatedLoaderComponent type="APIanimatedLoader" />

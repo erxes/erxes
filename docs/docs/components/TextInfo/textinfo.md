@@ -12,7 +12,7 @@ import { TextInfoComponent } from "./textinfo.js"
 
 ## Size
 
-<p>Add <code>huganess</code> for additional sizes.</p>
+<p>Add <code>hugeness</code> for additional sizes.</p>
 <TextInfoComponent  type="hugeness" style={["big", "small"]}></TextInfoComponent>
 
 ## API

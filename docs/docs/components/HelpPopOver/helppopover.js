@@ -10,22 +10,22 @@ export function PopoverComponent(props) {
   const title = "Help title";
   const child = "Help information";
 
-  const propDatas = (propName, trgger) => {
+  const propDatas = (trgger) => {
     const kind = {
-      [propName]: trgger,
+      trigger: trgger,
     };
 
     return kind;
   };
 
-  const renderBlock = (propName) => {
+  const renderBlock = () => {
     return (
       <>
         <div className={styles.styleSpinner}>
           {triggerOf.map((trgger) => {
             return (
               <div className={styles.spinner}>
-                <HelpPopover title={title} {...propDatas(propName, trgger)}>
+                <HelpPopover title={title} {...propDatas(trgger)}>
                   {child}
                 </HelpPopover>
               </div>
@@ -34,7 +34,7 @@ export function PopoverComponent(props) {
         </div>
         <CodeBlock className="language-jsx">
           {`<>${triggerOf.map((trgger) => {
-            return `\n\t<HelpPopover title="${title}" ${stringify(propDatas(propName, trgger))}>${child}</HelpPopover>`;
+            return `\n\t<HelpPopover title="${title}" ${stringify(propDatas(trgger))}>${child}</HelpPopover>`;
           }).join(' ')}\n</>`}
         </CodeBlock>
       </>
@@ -44,5 +44,5 @@ export function PopoverComponent(props) {
   if (type === "APIpopover"){
     return renderApiTable("HelpPopover", table)
   }
-  return renderBlock("trigger");
+  return renderBlock();
 }

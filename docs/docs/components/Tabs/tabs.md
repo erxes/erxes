@@ -39,5 +39,5 @@ import { TabsComponent } from "./tabs.js"
 <TabsComponent type="APItabtitle" table={[
 ['children*', 'React.ReactNode', '', 'Shows tab content'],
 ['onClick', 'function', '', 'Define click handler function'],
-['className', 'string', '', 'Defines className']
+['className', 'string', '', 'Define className']
 ]} />

@@ -5,7 +5,7 @@ title: Avatar Upload
 
 import { AvatarComponent } from "./avatarUpload.js"
 
-<p>Upload an avatar by clicking on the them.</p>
+<p>Upload an avatar by clicking on them.</p>
 
 ## Default avatar
 

@@ -45,7 +45,7 @@ export function ProgressBarComponent(props) {
           )}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<ProgressBar ${stringify(propDatas(extraString))} />\n</>`}
+          {`<>\n\t<ProgressBar ${stringify(propDatas(extraString))}>35%</ProgressBar>\n</>`}
         </CodeBlock>
       </>
     );
