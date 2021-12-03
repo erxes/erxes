@@ -8,7 +8,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDepartment } from '../../types';
-import SelectStructureMembers from '../SelectStructureMembers';
+import SelectTeamMembers from '../../containers/SelectTeamMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -50,16 +50,12 @@ export default function DepartmentForm(props: Props) {
     }
   };
 
-  const onSelectUsers = options => {
-    setUserIds(options.map(option => option.value));
+  const onSelectUsers = values => {
+    setUserIds(values);
   };
 
-  const onSelectSupervisor = option => {
-    if (option) {
-      setSupervisorId(option.value);
-    } else {
-      setSupervisorId('');
-    }
+  const onSelectSupervisor = value => {
+    setSupervisorId(value);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -93,13 +89,12 @@ export default function DepartmentForm(props: Props) {
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
 
-          <SelectStructureMembers
+          <SelectTeamMembers
+            label="Choose supervisor"
             name="supervisorId"
-            objectId={object._id}
-            value={supervisorId}
+            initialValue={supervisorId}
             onSelect={onSelectSupervisor}
             multi={false}
-            excludeUserIds={userIds}
           />
         </FormGroup>
         {(!object._id || (object._id && object.parentId)) && (
@@ -120,13 +115,11 @@ export default function DepartmentForm(props: Props) {
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
 
-          <SelectStructureMembers
-            objectId={object._id}
-            value={userIds}
-            onSelect={onSelectUsers}
-            multi={true}
-            excludeUserIds={[supervisorId]}
+          <SelectTeamMembers
+            label="Choose team members"
             name="userIds"
+            initialValue={userIds}
+            onSelect={onSelectUsers}
           />
         </FormGroup>
         <ModalFooter>
