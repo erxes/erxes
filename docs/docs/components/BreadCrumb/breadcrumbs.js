@@ -33,7 +33,7 @@ export function BreadCrumbComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import BreadCrumb from "erxes-ui/lib/components/breadcrumb/BreadCrumb";`}</CodeBlock>
-        <p className={styles.required}>* required prop</p>
+        <p><required>* required prop</required></p>
         <Table>
           <thead>
             <tr>
@@ -46,7 +46,7 @@ export function BreadCrumbComponent(props) {
           <tbody>
             <tr>
               <td rowSpan="4">breadcrumbs</td>
-              <td>title*</td>
+              <td>title<required>*</required></td>
               <td>string</td>
               <td/>
               <td>Shows title of the breadcrumb item</td>

@@ -81,7 +81,7 @@ export function CardComponent(props) {
     return (
     <>
       <CodeBlock className="language-javascript">{`import Namecard from "erxes-ui/lib/components/namecard/Namecard";`}</CodeBlock>
-      <p className={styles.required}>* required prop</p>
+      <p><required>* required prop</required></p>
       <Table>
         <thead>
           <tr>
@@ -93,8 +93,8 @@ export function CardComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td rowSpan="3">user*</td>
-            <td colSpan="2">username*</td>
+            <td rowSpan="3">user<required>*</required></td>
+            <td colSpan="2">username<required>*</required></td>
             <td>string</td>
             <td/>
             <td>Defines the username</td>

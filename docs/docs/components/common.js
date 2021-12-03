@@ -12,7 +12,7 @@ export function renderApiTable(Name, table) {
 
       {table && (
         <>
-          <p className={styles.required}>* required prop</p>
+          <p><required>* required prop</required></p>
           <Table>
             <thead>
               <tr>
@@ -26,7 +26,9 @@ export function renderApiTable(Name, table) {
               {table.map((row, index) => (
                 <tr key={index}>
                   {row.map((cell, i) => (
-                    <td key={i}>{cell}</td>
+                    <td key={i}>
+                      {cell[cell.length - 1] === '*' ? <>{cell.slice(0, -1)}<required>*</required></> : <>{cell}</>}
+                    </td>
                   ))}
                 </tr>
               ))}

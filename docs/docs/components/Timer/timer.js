@@ -51,7 +51,7 @@ export function TimerComponent(props) {
         <CodeBlock className="language-jsx">
           import TaskTimer from "erxes-ui/lib/components/Timer";
         </CodeBlock>
-        <p className={styles.required}>* required prop</p>
+        <p><required>* required prop</required></p>
       <Table>
         <thead>
           <tr>
@@ -63,19 +63,19 @@ export function TimerComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td colSpan="2">taskId*</td>
+            <td colSpan="2">taskId<required>*</required></td>
             <td>string</td>
             <td/>
             <td>Define task id</td>
           </tr>
           <tr>
-            <td colSpan="2">status*</td>
+            <td colSpan="2">status<required>*</required></td>
             <td>started | paused | stopped | completed</td>
             <td/>
             <td>Define task status</td>
           </tr>
           <tr>
-            <td colSpan="2">timeSpent*</td>
+            <td colSpan="2">timeSpent<required>*</required></td>
             <td>number</td>
             <td></td>
             <td>Define time spent in task</td>
@@ -87,20 +87,20 @@ export function TimerComponent(props) {
             <td>Define start date of task</td>
           </tr>
           <tr>
-            <td rowSpan="5">update*</td>
-            <td >_id*</td>
+            <td rowSpan="5">update<required>*</required></td>
+            <td >_id<required>*</required></td>
             <td>string</td>
             <td/>
             <td>Define updated id</td>
           </tr>
           <tr>
-            <td>status*</td>
+            <td>status<required>*</required></td>
             <td>started | paused | stopped | completed</td>
             <td/>
             <td>Define update status</td>
           </tr>
           <tr>
-            <td>timeSpent*</td>
+            <td>timeSpent<required>*</required></td>
             <td>number</td>
             <td/>
             <td>Define updated time spent</td>

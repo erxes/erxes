@@ -54,7 +54,7 @@ export function AnimatedLoaderComponent(props) {
     return (
       <>
         {renderApiTable("AnimatedLoader")}
-        <p className={styles.required}>* required prop</p>
+        <p><required>* required prop</required></p>
         <Table>
           <thead>
             <tr>

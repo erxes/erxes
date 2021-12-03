@@ -52,7 +52,7 @@ export function SubMenuComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Submenu from "erxes-ui/lib/components/subMenu/Submenu";`}</CodeBlock>
-        <p className={styles.required}>* required prop</p>
+        <p><required>* required prop</required></p>
         <Table>
           <thead>
             <tr>
@@ -65,7 +65,7 @@ export function SubMenuComponent(props) {
           <tbody>
             <tr>
               <td rowSpan="2">items (array)</td>
-              <td>title*</td>
+              <td>title<required>*</required></td>
               <td>string</td>
               <td />
               <td>Defines submenu title</td>

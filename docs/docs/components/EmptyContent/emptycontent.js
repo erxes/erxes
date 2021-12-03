@@ -103,7 +103,7 @@ export function EmptyContentComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Namecard from "erxes-ui/lib/components/namecard/Namecard";`}</CodeBlock>
-        <p className={styles.required}>* required prop</p>
+        <p><required>* required prop</required></p>
         <Table>
           <thead>
             <tr>
@@ -115,7 +115,7 @@ export function EmptyContentComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="10">content*</td>
+              <td rowSpan="10">content<required>*</required></td>
               <td rowSpan="6">steps</td>
               <td>title</td>
               <td>string</td>

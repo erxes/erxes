@@ -64,7 +64,7 @@ function TagComponent(props) {
     return (
       <>
       <CodeBlock className="language-javascript">{`import Tags from "erxes-ui/lib/components/Tags";`}</CodeBlock>
-      <p className={styles.required}>* required prop</p>
+      <p><required>* required prop</required></p>
       <Table>
         <thead>
           <tr>
@@ -76,26 +76,26 @@ function TagComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td rowSpan="4">tags*</td>
-            <td>_id*</td>
+            <td rowSpan="4">tags<required>*</required></td>
+            <td>_id<required>*</required></td>
             <td>string</td>
             <td/>
             <td>Define tag id</td>
           </tr>
           <tr>
-            <td>type*</td>
+            <td>type<required>*</required></td>
             <td>string</td>
             <td/>
             <td>Define tag type</td>
           </tr>
           <tr>
-            <td>name*</td>
+            <td>name<required>*</required></td>
             <td>string</td>
             <td/>
             <td>Define tag name</td>
           </tr>
           <tr>
-            <td>colorCode*</td>
+            <td>colorCode<required>*</required></td>
             <td>string</td>
             <td/>
             <td>Set the tag color</td>
