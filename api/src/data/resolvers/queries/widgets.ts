@@ -65,7 +65,7 @@ const getWidgetMessages = (conversationId: string) => {
   });
 };
 
-const getExportData = (conversationId: string) => {
+const getExportMessages = (conversationId: string) => {
   return ConversationMessages.aggregate([
     { $match: {
       conversationId,
@@ -137,7 +137,7 @@ export default {
     }
 
     // aggregating conversation message with user, customer collections.
-    const messages = await getExportData(conversation._id);
+    const messages = await getExportMessages(conversation._id);
   
     const fileName = `EXPORTED_CONVERSATIONS.txt`;
     const newPath = `${fileName}`;
@@ -160,6 +160,9 @@ export default {
         file,
         false
       );
+
+      // removing temporary written file.
+      await fs.unlinkSync(fileName);
 
       return result;
     } catch (e) {
