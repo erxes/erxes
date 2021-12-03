@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { FormControl, FormGroup } from 'modules/common/components/form';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from 'modules/common/types';
 import Form from 'modules/common/components/form/Form';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -21,9 +25,20 @@ export default function StructureForm(props: Props) {
   const { structure, renderButton, showView } = props;
   const object = structure || ({} as IStructure);
 
+  const dbImage = object.image || null;
+
   const [supervisorId, setSupervisorId] = useState(object.supervisorId || '');
   const [links, setLinks] = useState(object.links || {});
-  const [image, setImage] = useState(object.image || null);
+  const [image, setImage] = useState(
+    dbImage
+      ? ({
+          name: dbImage.name,
+          type: dbImage.type,
+          url: dbImage.url,
+          size: dbImage.size
+        } as IAttachment)
+      : null
+  );
 
   const coordinateObj = object.coordinate || {};
 
