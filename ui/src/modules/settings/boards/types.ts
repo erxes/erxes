@@ -102,6 +102,7 @@ export type IOption = {
 };
 
 export type IStaticLabel = {
+  _id?: string;
   name: string;
   colorCode: string;
 };

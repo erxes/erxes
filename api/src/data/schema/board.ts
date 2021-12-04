@@ -79,10 +79,12 @@ export const types = `
     year: Int
   }
   input InputPipelineStaticLabel{
+    _id: String
     name: String
     colorCode: String
   }
   type PipelineStaticLabel{
+    _id: String
     name: String
     colorCode: String
   }

@@ -10,7 +10,11 @@ import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import {
+  ColorPick,
+  ColorPicker,
+  LabelColorPicker
+} from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import { LinkButton, RemoveRow } from 'modules/settings/team/styles';
 import React from 'react';
@@ -64,6 +68,7 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       staticLabels: pipeline
         ? (pipeline.staticLabels || []).map(e => ({
+            _id: e._id,
             name: e.name,
             colorCode: e.colorCode
           }))
@@ -93,7 +98,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
   onChangeStaticLabelColor = (i: number, e) => {
     const labels = [...this.state.staticLabels];
-    labels[i].colorCode = (e.target as HTMLInputElement).value;
+    labels[i].colorCode = e.hex;
     this.setState({ staticLabels: labels });
   };
 
@@ -207,21 +212,36 @@ class PipelineForm extends React.Component<Props, State> {
             return (
               <FormGroup key={i}>
                 <FlexContent>
-                  <ControlLabel>Name</ControlLabel>
                   <FormControl
                     className="staticlabelpipeline"
                     name="labelname"
                     componentClass="input"
+                    placeholder="Name"
                     value={label.name}
                     onChange={this.onChangeStaticLabelName.bind(this, i)}
                   />
-                  <ControlLabel>Color</ControlLabel>
-                  <FormControl
-                    name="labelcolor"
-                    componentClass="input"
-                    value={label.colorCode}
-                    onChange={this.onChangeStaticLabelColor.bind(this, i)}
-                  />
+                  <OverlayTrigger
+                    trigger="click"
+                    rootClose={true}
+                    placement="bottom"
+                    overlay={
+                      <Popover id="color-picker">
+                        <TwitterPicker
+                          width="250px"
+                          triangle="hide"
+                          color={label.colorCode || '#ffffff'}
+                          onChange={this.onChangeStaticLabelColor.bind(this, i)}
+                          colors={COLORS}
+                        />
+                      </Popover>
+                    }
+                  >
+                    <ColorPick>
+                      <LabelColorPicker
+                        style={{ backgroundColor: label.colorCode }}
+                      />
+                    </ColorPick>
+                  </OverlayTrigger>
                   {this.renderRemoveInput(i)}
                 </FlexContent>
               </FormGroup>

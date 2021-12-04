@@ -17,6 +17,8 @@ import {
 import { BOARD_STATUSES } from './definitions/constants';
 import PipelineLabels from './PipelineLabels';
 import { getDuplicatedStages } from './PipelineTemplates';
+import Tasks from './Tasks';
+import Tickets from './Tickets';
 
 export interface IOrderInput {
   _id: string;
@@ -88,24 +90,34 @@ const removeStageItems = async (type: string, stageId: string) => {
   await removeItems(type, [stageId]);
 };
 
+const getCardLabelIds = async (stageId: string, type: string) => {
+  if (type === 'deal') {
+    return (await Deals.find({ stageId })).map(e => e.labelIds);
+  }
+  if (type === 'task') {
+    return (await Tasks.find({ stageId })).map(e => e.labelIds);
+  }
+  if (type === 'ticket') {
+    return (await Tickets.find({ stageId })).map(e => e.labelIds);
+  }
+};
+
 const checkPipelineLabels = async (
   pipelineId: string,
   type: string,
   labelId: string
 ) => {
   const stageIds = (await Stages.find({ pipelineId })).map(e => e._id);
-  if (type === 'deal') {
-    for (const stageId of stageIds) {
-      const deals = await Deals.find({ stageId: stageId });
-      const staticLabelIds = deals.map(e => e.labelIds);
-      for (const staticLabelId of staticLabelIds) {
-        if (staticLabelId?.includes(labelId)) {
-          throw new Error('Have a used static label!');
-        }
+
+  for (const stageId of stageIds) {
+    const cardLabelIds = await getCardLabelIds(stageId, type);
+    for (const cardLabelId of cardLabelIds || []) {
+      if (cardLabelId?.includes(labelId)) {
+        throw new Error('Have a used static label!');
       }
     }
-    return await PipelineLabels.findByIdAndRemove({ _id: labelId });
   }
+  return await PipelineLabels.findByIdAndRemove({ _id: labelId });
 };
 
 const createOrUpdatePipelineStaticLabels = async (
@@ -349,20 +361,23 @@ export const loadPipelineClass = () => {
       } else if (stages) {
         await createOrUpdatePipelineStages(stages, _id, doc.type);
       }
+      console.log('000000000000000000', doc, '0000000000000000000000');
       const pipeline = await Pipelines.findOne({ _id });
       if (doc.labelStatus === 'static') {
-        const staticlabelsCol = await PipelineLabels.find({
+        const colStaticlabels = await PipelineLabels.find({
           pipelineId: _id
         });
-        if (staticlabelsCol.length > 0) {
-          const colLabelIds = staticlabelsCol.map(e => e._id);
-          const docLabelIds = doc.staticLabels?.map(e => e._id);
-          for (const labelId of colLabelIds)
-            if (!docLabelIds?.includes(labelId)) {
-              await checkPipelineLabels(_id, doc.type, labelId);
-            }
-        }
 
+        if (colStaticlabels) {
+          const colLabelIds = colStaticlabels.map(e => e._id);
+          const docLabelIds = doc.staticLabels?.map(e => e._id);
+          for (const collabelId of colLabelIds) {
+            if (!docLabelIds?.includes(collabelId)) {
+              console.log('+++++++++++++', docLabelIds, '=====', collabelId);
+              await checkPipelineLabels(_id, doc.type, collabelId);
+            }
+          }
+        }
         await createOrUpdatePipelineStaticLabels(
           _id,
           doc.userId,
@@ -372,13 +387,14 @@ export const loadPipelineClass = () => {
         doc.labelStatus === 'dynamic' &&
         pipeline?.labelStatus == 'static'
       ) {
-        const staticlabelsCol = await PipelineLabels.find({
+        const colStaticlabels = await PipelineLabels.find({
           pipelineId: _id
         });
-        if (staticlabelsCol.length > 0) {
-          const colLabelIds = staticlabelsCol.map(e => e._id);
-          for (const labelId of colLabelIds)
-            await checkPipelineLabels(_id, doc.type, labelId);
+        if (colStaticlabels) {
+          const colLabelIds = colStaticlabels.map(e => e._id);
+          for (const colLabelId of colLabelIds) {
+            await checkPipelineLabels(_id, doc.type, colLabelId);
+          }
         }
       }
 

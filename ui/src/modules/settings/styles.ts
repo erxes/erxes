@@ -93,6 +93,12 @@ const ColorPick = styled.div`
   cursor: pointer;
 `;
 
+const LabelColorPicker = styled.div`
+  width: 27px;
+  height: 27px;
+  border-radius: 2px;
+`;
+
 const ColorPicker = styled.div`
   width: 80px;
   height: 27px;
@@ -331,6 +337,7 @@ export {
   BackgroundSelector,
   ColorPick,
   ColorPicker,
+  LabelColorPicker,
   LogoContainer,
   SidebarList,
   SidebarListItem,

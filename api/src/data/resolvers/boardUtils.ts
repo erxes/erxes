@@ -271,6 +271,17 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
   const oldLabels = await PipelineLabels.find({
     _id: { $in: item.labelIds }
   }).lean();
+
+  // Decide copy or not copy of labels, check Pipeline label status
+  const oldPipeline = await Pipelines.findOne({ _id: oldStage.pipelineId });
+  const oldLabelStatus = oldPipeline?.labelStatus || 'dynamic';
+  const newPipeline = await Pipelines.findOne({ _id: newStage.pipelineId });
+  const newLabelStatus = newPipeline?.labelStatus || 'dynamic';
+  if (oldLabelStatus === 'dynamic' && newLabelStatus === 'static') {
+    return;
+  }
+  // end of decide
+
   const updatedLabelIds: string[] = [];
 
   const existingLabels = await PipelineLabels.find({

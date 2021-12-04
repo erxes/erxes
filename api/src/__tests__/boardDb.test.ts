@@ -9,7 +9,6 @@ import {
   formFactory,
   internalNoteFactory,
   pipelineFactory,
-  pipelineLabelFactory,
   pipelineTemplateFactory,
   stageFactory,
   userFactory
