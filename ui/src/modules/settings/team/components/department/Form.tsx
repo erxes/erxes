@@ -9,16 +9,17 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDepartment } from '../../types';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
+import { generateTree } from '../../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   department?: IDepartment;
   closeModal: () => void;
-  parentDepartments: IDepartment[];
+  departments: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, parentDepartments } = props;
+  const { closeModal, renderButton, departments } = props;
   const object = props.department || ({} as any);
 
   const [userIds, setUserIds] = useState(
@@ -97,21 +98,19 @@ export default function DepartmentForm(props: Props) {
             multi={false}
           />
         </FormGroup>
-        {(!object._id || (object._id && object.parentId)) && (
-          <FormGroup>
-            <ControlLabel>{__('Parent')}</ControlLabel>
-            <Select
-              placeholder={__('Choose parent')}
-              value={parentId}
-              clearable={true}
-              onChange={onChangeParent}
-              options={parentDepartments.map(d => ({
-                value: d._id,
-                label: d.title
-              }))}
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel>{__('Parent')}</ControlLabel>
+          <Select
+            placeholder={__('Choose parent')}
+            value={parentId}
+            clearable={true}
+            onChange={onChangeParent}
+            options={generateTree(departments, null, (node, level) => ({
+              value: node._id,
+              label: `${'---'.repeat(level)} ${node.title}`
+            }))}
+          />
+        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
 
