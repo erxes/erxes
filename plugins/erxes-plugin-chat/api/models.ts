@@ -33,7 +33,9 @@ class Chat {
     return models.Chats.findOne({ _id });
   }
 
-  public static removeChat(models, _id: string) {
+  public static async removeChat(models, _id: string) {
+    await models.ChatMessages.deleteMany({ chatId: _id });
+
     return models.Chats.deleteOne({ _id });
   }
 }
