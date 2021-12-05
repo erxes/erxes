@@ -7,6 +7,7 @@ import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 import { IDepartment } from '../../types';
 import Spinner from 'modules/common/components/Spinner';
+import ErrorMsg from 'modules/common/components/ErrorMsg';
 
 type Props = {
   department?: IDepartment;
@@ -14,13 +15,16 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { data, loading } = useQuery(gql(queries.departments), {
-    variables: { depthType: 'parent' },
+  const { data, loading, error } = useQuery(gql(queries.departments), {
     fetchPolicy: 'network-only'
   });
 
   if (loading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    return <ErrorMsg>{error.message}</ErrorMsg>;
   }
 
   const renderButton = ({
@@ -51,12 +55,14 @@ const FormContainer = (props: Props) => {
     );
   };
 
+  const department = props.department;
+
+  const departments = department
+    ? data.departments.filter(d => d._id !== department._id)
+    : data.departments;
+
   return (
-    <Form
-      parentDepartments={data.departments}
-      {...props}
-      renderButton={renderButton}
-    />
+    <Form departments={departments} {...props} renderButton={renderButton} />
   );
 };
 

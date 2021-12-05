@@ -139,8 +139,8 @@ const structureDetail = `
 `;
 
 const departments = `
-  query departments($depthType: String) {
-    departments(depthType: $depthType) {
+  query departments {
+    departments {
       ${departmentField}
     }
   }
@@ -219,8 +219,8 @@ const branchField = `
 `;
 
 const branches = `
-  query branches($depthType: String) {
-    branches(depthType: $depthType) {
+  query branches {
+    branches {
       ${branchField}
     }
   }
