@@ -13,9 +13,7 @@ const chatMutations = [
   },
   {
     name: 'chatRemove',
-    handler: async (_root, { _id }, { models }) => {
-      await models.ChatMessages.deleteMany({ chatId: _id });
-
+    handler: (_root, { _id }, { models }) => {
       return models.Chats.removeChat(models, _id);
     }
   },

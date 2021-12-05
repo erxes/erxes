@@ -7,6 +7,7 @@ import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 import { IBranch } from '../../types';
 import Spinner from 'modules/common/components/Spinner';
+import ErrorMsg from 'modules/common/components/ErrorMsg';
 
 type Props = {
   branch?: IBranch;
@@ -14,13 +15,16 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { data, loading } = useQuery(gql(queries.branches), {
-    variables: { depthType: 'parent' },
+  const { data, error, loading } = useQuery(gql(queries.branches), {
     fetchPolicy: 'network-only'
   });
 
   if (loading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    return <ErrorMsg>{error.message}</ErrorMsg>;
   }
 
   const renderButton = ({
@@ -49,13 +53,13 @@ const FormContainer = (props: Props) => {
     );
   };
 
-  return (
-    <Form
-      parentBranches={data.branches}
-      {...props}
-      renderButton={renderButton}
-    />
-  );
+  const branch = props.branch;
+
+  const branches = branch
+    ? data.branches.filter(d => d._id !== branch._id)
+    : data.branches;
+
+  return <Form branches={branches} {...props} renderButton={renderButton} />;
 };
 
 export default FormContainer;

@@ -319,11 +319,10 @@ class UserInvitationForm extends React.Component<Props, State> {
                     options={generateTree(
                       this.props.departments,
                       null,
-                      node => ({
+                      (node, level) => ({
                         value: node._id,
-                        label: `${node.parentId ? '---' : ''} ${node.title}`
-                      }),
-                      'parentId'
+                        label: `${'---'.repeat(level)} ${node.title}`
+                      })
                     )}
                     onChange={this.onChange.bind(this, i, 'departmentId')}
                     placeholder={__('Choose department ...')}
@@ -336,11 +335,10 @@ class UserInvitationForm extends React.Component<Props, State> {
                     options={generateTree(
                       this.props.branches,
                       null,
-                      node => ({
+                      (node, level) => ({
                         value: node._id,
-                        label: `${node.parentId ? '---' : ''} ${node.title}`
-                      }),
-                      'parentId'
+                        label: `${'---'.repeat(level)} ${node.title}`
+                      })
                     )}
                     onChange={this.onChange.bind(this, i, 'branchId')}
                     placeholder={__('Choose branch ...')}

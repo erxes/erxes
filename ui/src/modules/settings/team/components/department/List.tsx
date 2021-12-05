@@ -17,14 +17,21 @@ export default function List({ listQuery }: Props) {
   };
 
   const renderChildren = (parentId?) => {
-    return generateTree(allDepartments, parentId, node => (
-      <Item
-        key={node._id}
-        isChild={node.parentId ? true : false}
-        department={node}
-        refetch={listQuery.refetch}
-      />
-    ));
+    return generateTree(
+      allDepartments,
+      parentId,
+      (node, level) => {
+        return (
+          <Item
+            key={node._id}
+            level={level}
+            department={node}
+            refetch={listQuery.refetch}
+          />
+        );
+      },
+      -1
+    );
   };
 
   return (
