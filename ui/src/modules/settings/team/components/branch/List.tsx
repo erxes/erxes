@@ -13,11 +13,11 @@ export default function List({ listQuery }: Props) {
   const allBranches = listQuery.data.branches || [];
 
   const renderChildren = parentId => {
-    return generateTree(allBranches, parentId, node => (
+    return generateTree(allBranches, parentId, (node, level) => (
       <Item
         key={node._id}
-        isChild={node.parentId ? true : false}
         branch={node}
+        level={level}
         refetch={listQuery.refetch}
       />
     ));

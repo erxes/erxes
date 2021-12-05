@@ -10,16 +10,17 @@ import { __ } from 'modules/common/utils';
 import { IBranch } from '../../types';
 import SelectTeamMembers from '../../containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
+import { generateTree } from '../../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   branch?: IBranch;
   closeModal: () => void;
-  parentBranches: IBranch[];
+  branches: IBranch[];
 };
 
 export default function BranchForm(props: Props) {
-  const { closeModal, renderButton, parentBranches } = props;
+  const { closeModal, renderButton, branches } = props;
   const object = props.branch || ({} as IBranch);
 
   const [userIds, setUserIds] = useState(
@@ -90,21 +91,19 @@ export default function BranchForm(props: Props) {
             componentClass="textarea"
           />
         </FormGroup>
-        {(!object._id || (object._id && object.parentId)) && (
-          <FormGroup>
-            <ControlLabel>{__('Parent')}</ControlLabel>
-            <Select
-              placeholder={__('Choose parent')}
-              value={parentId}
-              clearable={true}
-              onChange={onChangeParent}
-              options={parentBranches.map(d => ({
-                value: d._id,
-                label: d.title
-              }))}
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel>{__('Parent')}</ControlLabel>
+          <Select
+            placeholder={__('Choose parent')}
+            value={parentId}
+            clearable={true}
+            onChange={onChangeParent}
+            options={generateTree(branches, null, (node, level) => ({
+              value: node._id,
+              label: `${'---'.repeat(level)} ${node.title}`
+            }))}
+          />
+        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
 

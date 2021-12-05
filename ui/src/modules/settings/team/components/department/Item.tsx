@@ -8,14 +8,14 @@ type Props = {
   department: IDepartment;
   deleteDepartment: (_id: string, callback: () => void) => void;
   refetch: () => void;
-  isChild?: boolean;
+  level?: number;
 };
 
 export default function Item({
   department,
-  isChild,
   refetch,
-  deleteDepartment
+  deleteDepartment,
+  level
 }: Props) {
   const renderForm = ({ closeModal }) => {
     return <Form department={department} closeModal={closeModal} />;
@@ -25,8 +25,8 @@ export default function Item({
     <BlockItem
       item={department}
       title="department"
-      icon={isChild ? 'arrows-up-right' : 'building'}
-      isChild={isChild}
+      icon={level && level > 0 ? 'arrows-up-right' : 'building'}
+      level={level}
       renderForm={renderForm}
       deleteItem={deleteDepartment}
       refetch={refetch}
