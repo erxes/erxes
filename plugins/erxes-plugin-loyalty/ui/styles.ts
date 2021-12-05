@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import dimensions from 'erxes-ui/lib/styles/dimensions';
 
 export const LoyaltyAmount = styled.div`
   font-weight: 800;
@@ -12,4 +13,10 @@ export const LoyaltyAmount = styled.div`
 
 export const SettingsContent = styled.div`
   padding: 30px;
+`;
+
+export const ContentBox = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  max-width: 640px;
+  margin: 0 auto;
 `;

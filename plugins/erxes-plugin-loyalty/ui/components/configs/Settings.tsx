@@ -1,11 +1,12 @@
 import {
-  __, ContentBox, Button, ControlLabel, FormControl, FormGroup, HeaderDescription, Info,
-  MainStyleTitle as Title, Wrapper
+  __, Button, ControlLabel, FormControl, FormGroup, HeaderDescription, Info,
+  MainStyleTitle as Title, Wrapper, CollapseContent
 } from 'erxes-ui';
 import React from 'react';
-import { SettingsContent } from '../styles';
+import { ContentBox } from '../../styles';
 
-import { IConfigsMap } from '../types';
+import { IConfigsMap } from '../../types';
+import Sidebar from './Sidebar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -70,12 +71,13 @@ class GeneralSettings extends React.Component<Props, State> {
       <HeaderDescription
         icon="/images/actions/25.svg"
         title="Loyalty configs"
+        description=''
       />
     );
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.save}
         icon="check-circle"
         uppercase={false}
@@ -85,18 +87,18 @@ class GeneralSettings extends React.Component<Props, State> {
     );
 
     const content = (
-      <ContentBox>
-        <SettingsContent title={__('General settings')}>
-          <Info>
-            <p>
-              {__(
-                'Хөнгөлөлт бодоходод шаардлагатай тохиргоог тохируулна.'
-              ) + '.'}
-            </p>
-          </Info>
+      <ContentBox id={'GeneralSettingsMenu'}>
+        <CollapseContent title={__('General settings')}>
           {this.renderItem('LOYALTY_RATIO_CURRENCY', 'Loyalty ratio currency')}
-          {this.renderItem('LOYALTY_PERCENT_OF_DEAL', 'Loyalty percent of deal amount')}
-        </SettingsContent>
+        </CollapseContent>
+
+        <CollapseContent title={__('Share settings')}>
+          {this.renderItem('ShareMinScore', 'Minimium score for score sharing')}
+          {this.renderItem('ShareMaxScore', 'Maximium score for score sharing')}
+        </CollapseContent>
+
+        <CollapseContent title={__('Invite settings')}>
+        </CollapseContent>
       </ContentBox>
     );
 
@@ -116,6 +118,7 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         content={content}
+        leftSidebar={<Sidebar />}
         center={true}
       />
     );

@@ -3,9 +3,9 @@ import * as compose from 'lodash.flowright';
 import { Spinner, Alert, withProps } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import Settings from '../components/Settings';
-import { mutations, queries } from '../graphql';
-import { ConfigsQueryResponse, IConfigsMap } from '../types';
+import Settings from '../../components/configs/Settings';
+import { mutations, queries } from '../../graphql';
+import { ConfigsQueryResponse, IConfigsMap } from '../../types';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;

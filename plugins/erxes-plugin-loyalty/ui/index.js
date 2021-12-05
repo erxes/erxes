@@ -1,7 +1,7 @@
 import React from 'react';
 import LoyaltySectionContainer from './containers/LoyaltySection';
 import CustomerLoyalties from './containers/CustomerLoyalties';
-import Settings from './containers/Settings';
+import Settings from './containers/configs/Settings';
 
 const customerLoyalties = ({ match }) => {
   const customerId = match.params.customerId;
@@ -16,7 +16,15 @@ export default () => ({
       component: customerLoyalties
     },
     {
-      path: '/settings',
+      path: '/settings/general',
+      component: Settings
+    },
+    {
+      path: '/settings/voucher',
+      component: Settings
+    },
+    {
+      path: '/settings/donate',
       component: Settings
     }
   ],
@@ -27,7 +35,7 @@ export default () => ({
     {
       name: 'Loyalty config',
       image: '/images/icons/erxes-16.svg',
-      to: '/erxes-plugin-loyalty/settings/',
+      to: '/erxes-plugin-loyalty/settings/general',
       action: 'loyaltyConfig',
       permissions: [],
     }

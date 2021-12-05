@@ -9,6 +9,11 @@ export default [
     klass: LoyaltyConfig
   },
   {
+    name: 'VoucherRules',
+    schema: loyaltyConfigSchema,
+    klass: LoyaltyConfig
+  },
+  {
     name: 'Loyalties',
     schema: loyaltySchema,
     klass: Loyalty

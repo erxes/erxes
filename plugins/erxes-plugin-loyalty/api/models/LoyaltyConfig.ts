@@ -1,3 +1,5 @@
+import { Schema } from 'mongoose';
+
 export const loyaltyConfigSchema = {
   _id: { pkey: true },
   code: { type: String, unique: true },
@@ -40,3 +42,13 @@ export class LoyaltyConfig {
     return models.LoyaltyConfigs.create({ code, value });
   }
 }
+
+export const attachmentSchema = new Schema(
+  {
+    name: String,
+    url: String,
+    type: String,
+    size: Number
+  },
+  { _id: false }
+);
