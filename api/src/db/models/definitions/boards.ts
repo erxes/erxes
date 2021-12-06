@@ -49,8 +49,7 @@ export interface IItemCommonFields {
   };
   customFieldsData?: ICustomField[];
   score?: number;
-  number?: string; // add index //
-  numberFormat?: string; // {year}    {number}{number} numberFormat filter, number sort // index
+  number?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -220,8 +219,7 @@ export const commonItemFieldsSchema = {
     label: 'Score',
     esType: 'number'
   }),
-  number: field({ type: String, label: 'Item number' }),
-  numberFormat: field({ type: String, label: 'Number format' })
+  number: field({ type: String, index: true, label: 'Item number' })
 };
 
 export const boardSchema = schemaWrapper(
