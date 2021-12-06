@@ -9,6 +9,7 @@ export const types = `
   type Chat {
     _id: String!
     name: String
+    lastMessage: ChatMessage
     participantUsers: [User]
     createdUser: User
     createdAt: Date
