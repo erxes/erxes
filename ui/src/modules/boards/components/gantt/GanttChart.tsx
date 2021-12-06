@@ -13,6 +13,7 @@ import { colors } from 'modules/common/styles';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
 import useContextMenu from './useContextMenu';
 import './style.css';
 
@@ -21,20 +22,8 @@ type Props = {
   options: IOptions;
   refetch: () => void;
   save: (items: any[], links: any[]) => void;
+  stageId?: string;
 } & IRouterProps;
-
-const Menu = ({ onDelete }) => {
-  const { anchorPoint, show } = useContextMenu();
-
-  if (show) {
-    return (
-      <ul className="menu" style={{ top: anchorPoint.y, left: anchorPoint.x }}>
-        <li onClick={onDelete}>Delete</li>
-      </ul>
-    );
-  }
-  return <></>;
-};
 
 const GanttChart = (props: Props) => {
   const config = {
@@ -105,7 +94,7 @@ const GanttChart = (props: Props) => {
         style: {
           paddingTop: 5,
           borderRadius: 5,
-          border: '2px solid #4205C4',
+          border: '1px solid #6569DF',
           whiteSpace: 'nowrap',
           cursor: 'pointer'
         },
@@ -113,8 +102,8 @@ const GanttChart = (props: Props) => {
           borderRadius: 5,
           fontSize: 11,
           selectedColor: `${colors.colorWhite}`,
-          boxShadow: '0px 0px 7px 1px #673FBD',
-          border: '1px solid #5629B6'
+          boxShadow: '0px 0px 7px 1px #6569DF',
+          border: '1px solid #6569DF'
         }
       }
     },
@@ -133,7 +122,7 @@ const GanttChart = (props: Props) => {
       start: new Date(item.startDate),
       end: new Date(item.closeDate),
       name: `${item.name} (${item.stage ? item.stage.name : ''})`,
-      color: '#5629B6'
+      color: '#6569DF'
     });
 
     if (item.relations) {
@@ -143,8 +132,24 @@ const GanttChart = (props: Props) => {
 
   const [data, setData] = useState(dbData);
   const [links, setLinks] = useState(dbLinks);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null as any);
   const [timelineMode, setTimelineMode] = useState('month');
+
+  const Menu = ({ onDelete }) => {
+    const { anchorPoint, show } = useContextMenu();
+
+    if (show) {
+      return (
+        <ul
+          className="menu"
+          style={{ top: anchorPoint.y, left: anchorPoint.x }}
+        >
+          <li onClick={onDelete}>Delete</li>
+        </ul>
+      );
+    }
+    return <></>;
+  };
 
   const onHorizonChange = (start, end) => {
     const result = dbData.filter(item => {
@@ -160,6 +165,30 @@ const GanttChart = (props: Props) => {
 
   const onSelectItem = item => {
     setSelectedItem(item);
+  };
+
+  const renderForm = () => {
+    if (!selectedItem) {
+      return null;
+    }
+
+    const { items, options } = props;
+
+    const dbData = items.find(row => row._id === selectedItem.id);
+
+    if (!dbData || !dbData.stage) {
+      return null;
+    }
+
+    return (
+      <EditForm
+        stageId={dbData.stage._id}
+        itemId={dbData._id}
+        hideHeader={true}
+        isPopupVisible={true}
+        options={options}
+      />
+    );
   };
 
   const save = () => {
@@ -264,6 +293,7 @@ const GanttChart = (props: Props) => {
         />
       </TimelineContainer>
       <Menu onDelete={deleteItem} />
+      {renderForm()}
     </GanttContainer>
   );
 };
