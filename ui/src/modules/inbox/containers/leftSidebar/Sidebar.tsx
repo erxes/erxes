@@ -64,7 +64,7 @@ class Sidebar extends React.Component<FinalProps> {
         showBrands: false,
         showIntegrations: false,
         showTags: false,
-        showSegments: false, 
+        showSegments: false
       });
     }
 
