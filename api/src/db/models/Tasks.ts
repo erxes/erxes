@@ -47,7 +47,7 @@ export const loadTaskClass = () => {
         }
       }
 
-      doc = await generateBoardNumber(doc, 'taskNumber', 'task');
+      doc = await generateBoardNumber(doc, 'task');
 
       const task = await Tasks.create({
         ...doc,

@@ -46,7 +46,7 @@ export const loadTicketClass = () => {
         }
       }
 
-      doc = await generateBoardNumber(doc, 'ticketNumber', 'ticket');
+      doc = await generateBoardNumber(doc, 'ticket');
 
       const ticket = await Tickets.create({
         ...doc,

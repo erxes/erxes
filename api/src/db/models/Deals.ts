@@ -43,7 +43,7 @@ export const loadDealClass = () => {
         }
       }
 
-      doc = await generateBoardNumber(doc, 'dealNumber', 'deal');
+      doc = await generateBoardNumber(doc, 'deal');
 
       const deal = await Deals.create({
         ...doc,

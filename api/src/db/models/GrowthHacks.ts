@@ -39,7 +39,7 @@ export const loadGrowthHackClass = () => {
      * Create a growth hack
      */
     public static async createGrowthHack(doc: IGrowthHack) {
-      doc = await generateBoardNumber(doc, 'growthNumber', 'growthHack');
+      doc = await generateBoardNumber(doc, 'growthHack');
 
       const growthHack = await GrowthHacks.create({
         ...doc,
