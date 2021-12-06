@@ -62,7 +62,7 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
       boardId: props.boardId || '',
-      numberConfig: (pipeline && pipeline.name) || ''
+      numberConfig: (pipeline && pipeline.numberConfig) || ''
     };
   }
 
@@ -108,7 +108,8 @@ class PipelineForm extends React.Component<Props, State> {
       backgroundColor,
       isCheckUser,
       excludeCheckUserIds,
-      boardId
+      boardId,
+      numberConfig
     } = this.state;
     const finalValues = values;
 
@@ -125,7 +126,8 @@ class PipelineForm extends React.Component<Props, State> {
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       isCheckUser,
-      excludeCheckUserIds
+      excludeCheckUserIds,
+      numberConfig
     };
   };
 

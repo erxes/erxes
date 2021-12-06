@@ -123,13 +123,12 @@ class PlaceHolderInput extends React.Component<Props, State> {
             <ControlLabel>{label}</ControlLabel>
             <div>{this.renderAttribution()}</div>
           </div>
-
+          <p>Please add at least one number attribute</p>
           <FormControl
             value={converted}
             onKeyPress={this.onKeyPress}
             onKeyDown={this.onKeyPress}
             onChange={(e: any) => this.onChange(e.target.value)}
-            placeholder="Please select an attribute"
           />
         </FormGroup>
       </BoardHeader>
