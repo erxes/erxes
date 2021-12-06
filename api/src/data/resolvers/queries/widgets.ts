@@ -19,6 +19,10 @@ import {
   getOrCreateEngageMessageElk
 } from '../../widgetUtils';
 import { getDocument, getDocumentList } from '../mutations/cacheUtils';
+import * as fs from 'fs';
+import * as moment from 'moment';
+import { uploadFile, frontendEnv, getSubServiceDomain } from '../../../data/utils'
+import { IContext } from '../../types';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -61,7 +65,111 @@ const getWidgetMessages = (conversationId: string) => {
   });
 };
 
+const getExportMessages = (conversationId: string) => {
+  return ConversationMessages.aggregate([
+    { $match: {
+      conversationId,
+      internal: false,
+      fromBot: { $exists: false }
+      }  
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+          from: "customers", 
+          localField: "customerId", 
+          foreignField: "_id",
+          as: "customer"
+      }
+    },
+    { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        createdAt: 1,
+        'user.details.fullName': 1,
+        content: 1,
+        'customer.emails': 1
+      }
+    },
+    { $sort: { createdAt: 1 } }
+  ]);
+}
+
+const writeMessagesToFile = async (createdAt:any, messages:any, fileName:string) => {
+  return await new Promise<void>(resolve => {
+    const stream = fs.createWriteStream(fileName);
+    stream.once('open', () => {
+      stream.write(`Conversation with Erxes\nStarted on ${createdAt}\n---\n`);
+      for (const mg of messages) {
+        stream.write(`${moment(mg.createdAt).format('LT')} | ${mg.user ? mg.user?.details?.fullName : mg.customer?.emails?.[0]} | ${mg.content}\n`);
+      }
+      stream.write(`---\nExported from Erxes on ${new Date()}`);
+      stream.end();
+    });
+
+    stream.on('finish', resolve);
+  });
+}
+
 export default {
+
+  async widgetExportMessengerData(
+    _root,
+    args: { _id: string; integrationId: string },
+    { requestInfo }: IContext
+  ) {
+
+    const { _id, integrationId } = args;
+
+    const conversation = await Conversations.findOne({ _id, integrationId }).lean();
+    const integration = await Integrations.findOne({ _id: integrationId }).lean();
+
+    if (!conversation || !integration) {
+      return null;
+    }
+
+    // aggregating conversation message with user, customer collections.
+    const messages = await getExportMessages(conversation._id);
+  
+    const fileName = `EXPORTED_CONVERSATIONS.txt`;
+    const newPath = `${fileName}`;
+
+    // writing data to text file.
+    await writeMessagesToFile(conversation.createdAt, messages, fileName);
+
+    const API_URL = frontendEnv({ name: 'API_URL', requestInfo });
+    const API_DOMAIN = API_URL || getSubServiceDomain({name: 'API_DOMAIN'});
+    
+    // uploading a file to the server (aws, gcs, local).
+    try {
+      const file = {
+        name: fileName,
+        path: newPath,
+        type: 'text/plain'
+      }
+      const result = await uploadFile(
+        API_DOMAIN,
+        file,
+        false
+      );
+
+      // removing temporary written file.
+      await fs.unlinkSync(fileName);
+
+      return result;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  },
+
   /*
    * Search published articles that contain searchString (case insensitive)
    * in a topic found by topicId
