@@ -106,7 +106,6 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div className="assist-bar">
-        <time>{dayjs(new Date()).format("lll")}</time>
         <div className="socials">
           <SocialLink url={links.facebook} icon={facebook} />
           <SocialLink url={links.twitter} icon={twitter} />
@@ -131,9 +130,7 @@ class Home extends React.Component<Props, State> {
       supporters,
       loading,
       messengerData,
-      serverTime,
     } = this.props;
-
     return (
       <div
         className={classNames("erxes-welcome", {
@@ -151,7 +148,6 @@ class Home extends React.Component<Props, State> {
           loading={loading}
           isOnline={isOnline}
         />
-        {this.renderServerInfo(messengerData.timezone, serverTime)}
         {this.renderTab()}
       </div>
     );
