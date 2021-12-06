@@ -87,12 +87,13 @@ const FormTable = styled.table`
   }
 `;
 
-const SideList = styledTS<{ isChild?: boolean; isActive?: boolean }>(
-  styled(SidebarListItem)
-)`
+const SideList = styledTS<{
+  isActive?: boolean;
+  level?: number;
+}>(styled(SidebarListItem))`
   white-space: normal !important;
   border: 0;
-  padding-left: ${props => props.isChild && `30px`} !important;
+  padding-left: ${props => `${(props.level || 0) * 30 + 20}px !important`};
 
   > span {
     width: 90%;
@@ -101,7 +102,9 @@ const SideList = styledTS<{ isChild?: boolean; isActive?: boolean }>(
     > i {
       margin-right: 5px;
       color: ${props =>
-        props.isChild ? colors.colorCoreBlue : colors.colorCoreGreen};
+        !props.level || props.level === 0
+          ? colors.colorCoreBlue
+          : colors.colorCoreGreen};
     }
   }
 `;
@@ -110,6 +113,10 @@ const StructureList = styled(SidebarList)`
   > li {
     justify-content: space-between;
   }
+`;
+
+const ErrorContainer = styled.div`
+  padding: 10px 20px;
 `;
 
 export {
@@ -122,5 +129,6 @@ export {
   InviteOption,
   FormTable,
   SideList,
-  StructureList
+  StructureList,
+  ErrorContainer
 };

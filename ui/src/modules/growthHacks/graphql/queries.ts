@@ -181,36 +181,44 @@ const pipelineStateCount = `
   }
 `;
 
+const archivedGrowthHacksParams = `
+  $pipelineId: String!
+  $search: String
+  $userIds: [String]
+  $priorities: [String]
+  $assignedUserIds: [String]
+  $labelIds: [String]
+  $companyIds: [String]
+  $customerIds: [String]
+  $startDate: String
+  $endDate: String
+  $hackStages: [String]
+`;
+
+const archivedGrowthHacksArgs = `
+  pipelineId: $pipelineId
+  search: $search
+  userIds: $userIds
+  priorities: $priorities
+  assignedUserIds: $assignedUserIds
+  labelIds: $labelIds
+  companyIds: $companyIds
+  customerIds: $customerIds
+  startDate: $startDate
+  endDate: $endDate
+  hackStages: $hackStages
+`;
+
 const archivedGrowthHacks = `
   query archivedGrowthHacks(
-    $pipelineId: String!,
-    $search: String,
-    $page: Int,
-    $perPage: Int,
-    $userIds: [String],
-    $priorities: [String],
-    $assignedUserIds: [String],
-    $labelIds: [String],
-    $productIds: [String],
-    $companyIds: [String],
-    $customerIds: [String],
-    $startDate: String,
-    $endDate: String
+    $page: Int
+    $perPage: Int
+    ${archivedGrowthHacksParams}
   ) {
     archivedGrowthHacks(
-      pipelineId: $pipelineId,
-      search: $search,
       page: $page,
       perPage: $perPage,
-      userIds: $userIds,
-      priorities: $priorities,
-      assignedUserIds: $assignedUserIds,
-      labelIds: $labelIds,
-      productIds: $productIds,
-      companyIds: $companyIds,
-      customerIds: $customerIds,
-      startDate: $startDate,
-      endDate: $endDate
+      ${archivedGrowthHacksArgs}
     ) {
       ${growthHackFields}
     }
@@ -219,30 +227,10 @@ const archivedGrowthHacks = `
 
 const archivedGrowthHacksCount = `
   query archivedGrowthHacksCount(
-    $pipelineId: String!,
-    $search: String,
-    $userIds: [String],
-    $priorities: [String],
-    $assignedUserIds: [String],
-    $labelIds: [String],
-    $productIds: [String],
-    $companyIds: [String],
-    $customerIds: [String],
-    $startDate: String,
-    $endDate: String
+    ${archivedGrowthHacksParams}
   ) {
     archivedGrowthHacksCount(
-      pipelineId: $pipelineId,
-      search: $search,
-      userIds: $userIds,
-      priorities: $priorities,
-      assignedUserIds: $assignedUserIds,
-      labelIds: $labelIds,
-      productIds: $productIds,
-      companyIds: $companyIds,
-      customerIds: $customerIds,
-      startDate: $startDate,
-      endDate: $endDate
+      ${archivedGrowthHacksArgs}
     )
   }
 `;

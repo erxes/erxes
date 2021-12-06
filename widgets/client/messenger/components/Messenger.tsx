@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IUser } from "../../types";
-import { AccquireInformation, ConversationDetail, Home } from "../containers";
+import { AccquireInformation, ConversationDetail, Home, ConversationList} from "../containers";
 import { ArticleDetail, CategoryDetail } from "../containers/faq";
 import WebsiteAppDetail from "../containers/websiteApp/WebsiteAppDetail";
 
@@ -30,6 +30,8 @@ function Messenger({
   };
 
   switch (activeRoute) {
+    case "allConversations":
+      return <ConversationList />;
     case "conversationDetail":
     case "conversationCreate":
       return WithSupporters(ConversationDetail);

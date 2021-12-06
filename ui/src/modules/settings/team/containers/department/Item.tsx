@@ -10,7 +10,7 @@ import { IDepartment } from '../../types';
 type Props = {
   department: IDepartment;
   refetch: () => void;
-  isChild?: boolean;
+  level?: number;
 };
 
 export default function ItemContainer(props: Props) {

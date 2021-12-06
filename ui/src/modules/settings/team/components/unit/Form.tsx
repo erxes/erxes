@@ -107,9 +107,9 @@ export default function DepartmentForm(props: Props) {
             placeholder={__('Choose department')}
             value={departmentId}
             onChange={onChangeDepartment}
-            options={generateTree(departments, null, node => ({
+            options={generateTree(departments, null, (node, level) => ({
               value: node._id,
-              label: `${node.parentId ? '--- ' : ''}${node.title}`
+              label: `${'---'.repeat(level)} ${node.title}`
             }))}
           />
         </FormGroup>

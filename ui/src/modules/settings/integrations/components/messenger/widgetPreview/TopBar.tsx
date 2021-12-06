@@ -36,6 +36,7 @@ type Props = {
   activeStep?: string;
   messengerApps?: IMessengerApps;
   timezone?: string;
+  showTimezone?: boolean;
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -80,7 +81,7 @@ class TopBar extends React.Component<Props> {
   }
 
   renderSupporters() {
-    const { supporterIds, isOnline, teamMembers, showChatPreview } = this.props;
+    const { supporterIds, isOnline, teamMembers, showChatPreview, showTimezone, timezone } = this.props;
 
     return (
       <SupporterComponent
@@ -88,6 +89,8 @@ class TopBar extends React.Component<Props> {
         isOnline={isOnline}
         teamMembers={teamMembers}
         showChatPreview={showChatPreview}
+        showTimezone={showTimezone}
+        timezone={timezone}
       />
     );
   }
@@ -176,7 +179,6 @@ class TopBar extends React.Component<Props> {
       <>
         <ErxesGreeting>
           <Links>
-            <span>{dayjs(new Date()).format('lll')}</span>
             <Socials>
               {this.renderLink(facebook, 'facebook-official')}
               {this.renderLink(twitter, 'twitter')}
@@ -186,7 +188,6 @@ class TopBar extends React.Component<Props> {
 
           {this.renderGreetings()}
           {this.renderSupporters()}
-          {this.renderServerInfo()}
           {this.renderTabs()}
         </ErxesGreeting>
         {this.renderIcons('cancel', false, 11)}

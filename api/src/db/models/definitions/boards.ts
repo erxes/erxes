@@ -120,7 +120,8 @@ export const attachmentSchema = new Schema(
     name: field({ type: String }),
     url: field({ type: String }),
     type: field({ type: String }),
-    size: field({ type: Number, optional: true })
+    size: field({ type: Number, optional: true }),
+    duration: field({ type: Number, optional: true })
   },
   { _id: false }
 );

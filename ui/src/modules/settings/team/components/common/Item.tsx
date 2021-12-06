@@ -19,7 +19,7 @@ type Props = {
   title: string;
   renderForm: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
   icon?: string;
-  isChild?: boolean;
+  level?: number;
   queryParamName: string;
 };
 
@@ -27,13 +27,13 @@ type FinalProps = Props & IRouterProps;
 
 function BlockItem({
   item,
-  isChild,
   title,
   icon,
   queryParamName,
   refetch,
   deleteItem,
   renderForm,
+  level,
   history,
   location
 }: FinalProps) {
@@ -65,7 +65,7 @@ function BlockItem({
     <SideList
       isActive={queryParams[queryParamName] === item._id}
       key={item._id}
-      isChild={isChild}
+      level={level}
     >
       <span onClick={() => onClick(item._id)}>
         {icon && <Icon icon={icon} />}
