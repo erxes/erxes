@@ -19,6 +19,7 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
 import { IOption } from '../types';
+import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
 import Stages from './Stages';
 
 type Props = {
@@ -43,6 +44,7 @@ type State = {
   isCheckUser: boolean;
   excludeCheckUserIds: string[];
   boardId: string;
+  number?: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -59,7 +61,8 @@ class PipelineForm extends React.Component<Props, State> {
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
-      boardId: props.boardId || ''
+      boardId: props.boardId || '',
+      number: (pipeline && pipeline.name) || ''
     };
   }
 
@@ -87,6 +90,10 @@ class PipelineForm extends React.Component<Props, State> {
 
   onColorChange = e => {
     this.setState({ backgroundColor: e.hex });
+  };
+
+  onChangeNumber = (value: string) => {
+    this.setState({ number: value });
   };
 
   generateDoc = (values: {
@@ -121,6 +128,17 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds
     };
   };
+
+  renderNumberInput() {
+    return (
+      <FormGroup>
+        <BoardNumberConfigs
+          onChangeNumber={(conf: string) => this.onChangeNumber(conf)}
+          config={this.state.number || ''}
+        />
+      </FormGroup>
+    );
+  }
 
   renderSelectMembers() {
     const { visibility, selectedMemberIds } = this.state;
@@ -286,6 +304,8 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderBoards()}
 
           {this.renderSelectMembers()}
+
+          {this.renderNumberInput()}
 
           <FormGroup>
             <ControlLabel>

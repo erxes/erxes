@@ -42,3 +42,38 @@ export const PROBABILITY = {
 export const getWarningMessage = (type: string): string => {
   return `This will permanently delete the current ${type}. Are you absolutely sure?`;
 };
+
+export const BOARD_NUMBERS = [
+  {
+    label: 'Year',
+    value: 'year'
+  },
+  {
+    label: 'Month',
+    value: 'month'
+  },
+  {
+    label: 'Day',
+    value: 'day'
+  },
+  {
+    label: 'Number',
+    value: 'number'
+  },
+  {
+    label: 'Dash',
+    value: '-'
+  },
+  {
+    label: 'Underscore',
+    value: '_'
+  },
+  {
+    label: 'Slash',
+    value: '/'
+  },
+  {
+    label: 'Space',
+    value: ' '
+  }
+];
