@@ -44,7 +44,7 @@ type State = {
   isCheckUser: boolean;
   excludeCheckUserIds: string[];
   boardId: string;
-  number?: string;
+  numberConfig?: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -62,7 +62,7 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
       boardId: props.boardId || '',
-      number: (pipeline && pipeline.name) || ''
+      numberConfig: (pipeline && pipeline.name) || ''
     };
   }
 
@@ -93,7 +93,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   onChangeNumber = (value: string) => {
-    this.setState({ number: value });
+    this.setState({ numberConfig: value });
   };
 
   generateDoc = (values: {
@@ -134,7 +134,7 @@ class PipelineForm extends React.Component<Props, State> {
       <FormGroup>
         <BoardNumberConfigs
           onChangeNumber={(conf: string) => this.onChangeNumber(conf)}
-          config={this.state.number || ''}
+          config={this.state.numberConfig || ''}
         />
       </FormGroup>
     );

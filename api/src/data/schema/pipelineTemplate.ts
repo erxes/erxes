@@ -21,6 +21,7 @@ export const types = `
     stages: [PipelineTemplateStage]
     createdBy: String
     createdAt: Date
+    numberConfig: String
   }
 `;
 
@@ -29,6 +30,7 @@ const commonParams = `
   description: String
   type: String!
   stages: [PipelineTemplateStageInput]
+  numberConfig: String
 `;
 
 export const queries = `

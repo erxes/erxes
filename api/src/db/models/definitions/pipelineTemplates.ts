@@ -15,6 +15,7 @@ export interface IPipelineTemplate {
   stages: IPipelineTemplateStage[];
   createdBy?: string;
   createdDate: Date;
+  numberConfig?: string;
 }
 
 export interface IPipelineTemplateDocument extends IPipelineTemplate, Document {
@@ -47,5 +48,6 @@ export const pipelineTemplateSchema = new Schema({
     type: Date,
     default: new Date(),
     label: 'Created at'
-  })
+  }),
+  numberConfig: field({ type: String, unique: true, label: 'Number' })
 });
