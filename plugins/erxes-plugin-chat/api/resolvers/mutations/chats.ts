@@ -1,3 +1,5 @@
+import { graphqlPubsub } from '../subscriptions/pubsub';
+
 const chatMutations = [
   {
     name: 'chatAdd',
@@ -53,7 +55,17 @@ const chatMutations = [
         }
       }
 
-      return models.ChatMessages.createChatMessage(models, doc, user._id);
+      const created = await models.ChatMessages.createChatMessage(
+        models,
+        doc,
+        user._id
+      );
+
+      graphqlPubsub.publish('chatMessageInserted', {
+        chatMessageInserted: created
+      });
+
+      return created;
     }
   },
   {

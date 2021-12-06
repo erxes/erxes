@@ -50,3 +50,7 @@ export const mutations = `
   chatMessageAdd(chatId: String, participantIds: [String], content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON
 `;
+
+export const subscriptions = `
+  chatMessageInserted(chatId: String!): ChatMessage
+`;
