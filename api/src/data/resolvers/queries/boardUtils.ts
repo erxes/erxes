@@ -209,7 +209,10 @@ export const generateCommonFilters = async (
   if (stageId) {
     filter.stageId = stageId;
   } else if (pipelineId) {
-    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+    const stageIds = await Stages.find({
+      pipelineId,
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    }).distinct('_id');
 
     filter.stageId = { $in: stageIds };
   }

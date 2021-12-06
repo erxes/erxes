@@ -558,8 +558,12 @@ describe('save integration messenger configurations test', () => {
       messengerData.onlineHours[1].to
     );
     expect(integration.messengerData.timezone).toEqual(messengerData.timezone);
-    expect(integration.messengerData.responseRate).toEqual(messengerData.responseRate);
-    expect(integration.messengerData.showTimezone).toEqual(messengerData.showTimezone);
+    expect(integration.messengerData.responseRate).toEqual(
+      messengerData.responseRate
+    );
+    expect(integration.messengerData.showTimezone).toEqual(
+      messengerData.showTimezone
+    );
     expect(integration.messengerData.messages.en.welcome).toEqual(
       messengerData.messages.en.welcome
     );
