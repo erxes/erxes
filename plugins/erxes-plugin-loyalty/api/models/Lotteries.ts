@@ -22,7 +22,7 @@ export const lotteryCompaignSchema = {
 
 export class LotteryCompaign {
   public static async getLottery(models, _id: string) {
-    const lotteryRule = await models.LotteryCompaign.findOne({ _id });
+    const lotteryRule = await models.LotteryCompaigns.findOne({ _id });
 
     if (!lotteryRule) {
       throw new Error('not found lottery rule')

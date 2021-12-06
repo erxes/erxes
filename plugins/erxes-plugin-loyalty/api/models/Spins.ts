@@ -21,7 +21,7 @@ export const spinSchema = {
 
 export class Spin {
   public static async getSpin(models, _id: string) {
-    const spinRule = await models.SpinCompaign.findOne({ _id });
+    const spinRule = await models.SpinCompaigns.findOne({ _id });
 
     if (!spinRule) {
       throw new Error('not found spin rule')

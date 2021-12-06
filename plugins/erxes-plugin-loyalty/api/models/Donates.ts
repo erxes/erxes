@@ -15,7 +15,7 @@ export const donateCompaignSchema = {
 
 export class DonateCompaign {
   public static async getDonate(models, _id: string) {
-    const donateRule = await models.DonateCompaign.findOne({ _id });
+    const donateRule = await models.DonateCompaigns.findOne({ _id });
 
     if (!donateRule) {
       throw new Error('not found donate rule')
