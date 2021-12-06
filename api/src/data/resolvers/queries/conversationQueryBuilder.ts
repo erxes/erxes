@@ -55,7 +55,7 @@ interface IUnassignedFilter {
 }
 
 interface IDateFilter {
-  [key:string]: IDate
+  [key: string]: IDate;
 }
 
 interface IDate {
@@ -76,13 +76,16 @@ export default class Builder {
   }
 
   // filter by segment
-  public async segmentFilter(segmentId: string): Promise<{_id: IIn}> {
+  public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
     const segment = await Segments.getSegment(segmentId);
 
-    const selector = await fetchSegment(
-      segment,
-      { returnFields: [ '_id' ], page: 1, perPage: this.params.limit ? this.params.limit+1 : 11, sortField: 'updatedAt', sortDirection: -1 }
-    );
+    const selector = await fetchSegment(segment, {
+      returnFields: ['_id'],
+      page: 1,
+      perPage: this.params.limit ? this.params.limit + 1 : 11,
+      sortField: 'updatedAt',
+      sortDirection: -1
+    });
 
     const Ids = _.pluck(selector, '_id');
     return {
@@ -304,8 +307,9 @@ export default class Builder {
 
   public dateFilter(startDate: string, endDate: string): IOR {
     return {
-      $or: [{
-        createdAt: {
+      $or: [
+        {
+          createdAt: {
             $gte: fixDate(startDate),
             $lte: fixDate(endDate)
           }
@@ -317,7 +321,7 @@ export default class Builder {
           }
         }
       ]
-    }
+    };
   }
 
   public async extendedQueryFilter({ integrationType }: IListArgs) {
@@ -348,7 +352,7 @@ export default class Builder {
       integrations: {},
 
       participating: {},
-      createdAt: {}, 
+      createdAt: {},
       segments: {}
     };
 
@@ -398,7 +402,7 @@ export default class Builder {
     }
 
     // filter by segment
-    if(this.params.segment){
+    if (this.params.segment) {
       this.queries.segments = await this.segmentFilter(this.params.segment);
     }
 

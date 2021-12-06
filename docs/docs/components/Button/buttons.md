@@ -21,17 +21,17 @@ import { ButtonComponent } from "./buttons.js"
 
 ## Disabled state
 
-<p>Make buttons look inactive by adding the <code>disabled</code> prop to.</p>
+<p>Make buttons look inactive by adding <code>disabled</code> prop.</p>
 <ButtonComponent type="disabled" buttons={['Disabled']} />
 
 ## Uppercase
 
-<p>Make button text uppercase by adding the <code>uppercase</code> prop to.</p>
+<p>Make button text uppercase by adding <code>uppercase</code> prop.</p>
 <ButtonComponent type="uppercase" buttons={['Uppercase']} />
 
 ## Block
 
-<p>Make button full-width by adding the <code>block</code> prop to.</p>
+<p>Make button full-width by adding <code>block</code> prop.</p>
 <ButtonComponent type="block" buttons={['Block']} />
 
 ## Icon
@@ -42,12 +42,20 @@ import { ButtonComponent } from "./buttons.js"
 ## API
 
 <ButtonComponent type="APIbutton" table={[
-    ['href', 'string', '', 'Defines a hyperlink'],
-    ['type', 'string', 'button', 'Defines HTML button type attribute'],
-    ['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],
-    ['size', 'large | medium | small', 'medium', 'Specifies a large or small button'],
-    ['disabled', 'boolean', 'false', 'Disables the Button'],
-    ['block', 'boolean', 'false', 'Makes the button full-width'],
-    ['icon', 'string', '', 'Shows icon'],
-    ['uppercase', 'boolean', 'false', 'Makes the button text uppercase']
+['children', 'React.ReactNode', '', 'Shows button text'],
+['className', 'string', '', 'Define className'],
+['onClick', 'function', '', 'Define click handler for button element'],
+['onMouseDown', 'function', '', 'Trigger fuction while mouse is clicked'],
+['href', 'string', '', 'Define a hyperlink'],
+['type', 'string', 'button', 'Define HTML button type attribute'],
+['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],
+['size', 'large | medium | small', 'medium', 'Specifies a large or small button'],
+['disabled', 'boolean', 'false', 'Disables the Button'],
+['ignoreTrans', 'boolean', '', 'Ignore translations'],
+['block', 'boolean', 'false', 'Make the button full-width'],
+['icon', 'string', '', 'Shows icon'],
+['style', 'any', '', 'Add custom style to button'],
+['id', 'string', '', 'Gives id to button'],
+['uppercase', 'boolean', 'false', 'Make the button text uppercase'],
+['target', 'string', '', 'Define the target']
 ]} />
