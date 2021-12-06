@@ -252,7 +252,6 @@ const segmentList = `
     }
 `;
 
-
 const conversationCounts = `
   query conversationCounts(${listParamsDef}, $only: String) {
     conversationCounts(${listParamsValue}, only: $only)

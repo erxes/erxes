@@ -42,17 +42,12 @@ class Supporters extends React.Component<Props> {
 
   renderTimezone() {
     const { showTimezone, timezone } = this.props;
-    
-    if(!showTimezone){
+
+    if (!showTimezone) {
       return null;
     }
 
-
-    return (
-      <span>
-        {timezone ? timezone : __('Asia/Ulaanbaatar')}
-      </span>
-    )
+    return <span>{timezone ? timezone : __('Asia/Ulaanbaatar')}</span>;
   }
 
   render() {
@@ -66,7 +61,12 @@ class Supporters extends React.Component<Props> {
       return <SupporterStyled>{this.renderContent()}</SupporterStyled>;
     }
 
-    return <ErxesSupporters>{this.renderContent()}{this.renderTimezone()}</ErxesSupporters>;
+    return (
+      <ErxesSupporters>
+        {this.renderContent()}
+        {this.renderTimezone()}
+      </ErxesSupporters>
+    );
   }
 }
 
