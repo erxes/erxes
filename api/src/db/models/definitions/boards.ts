@@ -222,6 +222,7 @@ export const commonItemFieldsSchema = {
   number: field({
     type: String,
     unique: true,
+    sparse: true,
     label: 'Item number'
   })
 };
