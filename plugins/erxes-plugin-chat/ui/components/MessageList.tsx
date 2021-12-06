@@ -5,7 +5,7 @@ import { IUser } from 'erxes-ui/lib/auth/types';
 import { MessageList, MessageListItem } from '../styles';
 
 type Props = {
-  messages: any;
+  messages: any[];
   currentUser: IUser;
 };
 

@@ -1,0 +1,11 @@
+{
+  "name": "erxes-plugin-chat-api",
+  "version": "0.0.1",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "erxes-inmemory-storage": "^1.0.20",
+    "ioredis": "^3.2.2",
+    "graphql-redis-subscriptions": "^1.4.0",
+    "graphql-subscriptions": "^1.1.0"
+  }
+}

@@ -9,6 +9,7 @@ export const types = `
   type Chat {
     _id: String!
     name: String
+    lastMessage: ChatMessage
     participantUsers: [User]
     createdUser: User
     createdAt: Date
@@ -48,4 +49,8 @@ export const mutations = `
   
   chatMessageAdd(chatId: String, participantIds: [String], content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON
+`;
+
+export const subscriptions = `
+  chatMessageInserted(chatId: String!): ChatMessage
 `;
