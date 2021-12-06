@@ -89,6 +89,7 @@ export interface IPipeline extends ICommonFields {
   templateId?: string;
   isCheckUser?: boolean;
   excludeCheckUserIds?: string[];
+  numberConfig?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -270,6 +271,7 @@ export const pipelineSchema = new Schema({
     optional: true,
     label: 'Users elligible to see all cards'
   }),
+  numberConfig: field({ type: String, optional: true, label: 'Number config' }),
   ...commonFieldsSchema
 });
 
