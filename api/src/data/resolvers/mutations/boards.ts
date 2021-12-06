@@ -29,6 +29,16 @@ interface IStageEdit extends IStage {
   _id: string;
 }
 
+const checkNumberConfig = (numberConfig: string) => {
+  if (!numberConfig.includes('{number}')) {
+    throw new Error(
+      'Please add at least one number attribute in number config'
+    );
+  }
+
+  return;
+};
+
 const boardMutations = {
   /**
    * Create new board
@@ -110,6 +120,10 @@ const boardMutations = {
   ) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
+    if (doc.numberConfig) {
+      await checkNumberConfig(doc.numberConfig);
+    }
+
     const pipeline = await Pipelines.createPipeline(
       { userId: user._id, ...doc },
       stages
@@ -136,6 +150,10 @@ const boardMutations = {
     { user }: IContext
   ) {
     await checkPermission(doc.type, user, 'pipelinesEdit');
+
+    if (doc.numberConfig) {
+      await checkNumberConfig(doc.numberConfig);
+    }
 
     const pipeline = await Pipelines.getPipeline(_id);
 
