@@ -12,6 +12,7 @@ describe('ProductSection component', () => {
     name: 'categoryName',
     productCount: 1,
     isRoot: true,
+    status: 'status',
     createdAt: new Date()
   };
 
@@ -26,6 +27,9 @@ describe('ProductSection component', () => {
       category,
       code: '123',
       unitPrice: 123,
+      supply: '',
+      productCount: 0,
+      minimiumCount: 0,
       createdAt: new Date()
     },
     {
@@ -38,6 +42,9 @@ describe('ProductSection component', () => {
       category,
       code: '321',
       unitPrice: 123,
+      supply: '',
+      productCount: 0,
+      minimiumCount: 0,
       createdAt: new Date()
     }
   ];

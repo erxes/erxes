@@ -43,13 +43,21 @@ const productQueries = {
 
     if (categoryId) {
       const category = await ProductCategories.getProductCatogery({
-        _id: categoryId
+        _id: categoryId,
+        status: { $in: [null, 'active'] }
       });
+
       const product_category_ids = await ProductCategories.find(
         { order: { $regex: new RegExp(category.order) } },
         { _id: 1 }
       );
       filter.categoryId = { $in: product_category_ids };
+    } else {
+      const notActiveCategories = await ProductCategories.find({
+        status: { $nin: [null, 'active'] }
+      });
+
+      filter.categoryId = { $nin: notActiveCategories.map(e => e._id) };
     }
 
     if (ids && ids.length > 0) {
@@ -72,7 +80,12 @@ const productQueries = {
       filter.$or = fields;
     }
 
-    return paginate(Products.find(filter).sort('code'), pagintationArgs);
+    return paginate(
+      Products.find(filter)
+        .sort('code')
+        .lean(),
+      pagintationArgs
+    );
   },
 
   /**
@@ -96,10 +109,20 @@ const productQueries = {
 
   productCategories(
     _root,
-    { parentId, searchValue }: { parentId: string; searchValue: string },
+    {
+      parentId,
+      searchValue,
+      status
+    }: { parentId: string; searchValue: string; status: string },
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
+
+    filter.status = { $nin: ['disabled', 'archived'] };
+
+    if (status && status !== 'active') {
+      filter.status = status;
+    }
 
     if (parentId) {
       filter.parentId = parentId;
@@ -109,7 +132,9 @@ const productQueries = {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    return ProductCategories.find(filter).sort({ order: 1 });
+    return ProductCategories.find(filter)
+      .sort({ order: 1 })
+      .lean();
   },
 
   productCategoriesTotalCount(_root) {
@@ -117,18 +142,18 @@ const productQueries = {
   },
 
   productDetail(_root, { _id }: { _id: string }) {
-    return Products.findOne({ _id });
+    return Products.findOne({ _id }).lean();
   },
 
   productCategoryDetail(_root, { _id }: { _id: string }) {
-    return ProductCategories.findOne({ _id });
+    return ProductCategories.findOne({ _id }).lean();
   },
 
   async productCountByTags() {
     const counts = {};
 
     // Count products by tag =========
-    const tags = await Tags.find({ type: TAG_TYPES.PRODUCT });
+    const tags = await Tags.find({ type: TAG_TYPES.PRODUCT }).lean();
 
     for (const tag of tags) {
       counts[tag._id] = await Products.find({

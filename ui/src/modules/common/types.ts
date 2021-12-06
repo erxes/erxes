@@ -1,16 +1,14 @@
-import { IFormProps as IFormPropsC } from 'erxes-ui/lib/types';
+import {
+  IFormProps as IFormPropsC,
+  IAttachment as IAttachmentC
+} from 'erxes-ui/lib/types';
 export interface IRouterProps {
   history: any;
   location: any;
   match: any;
 }
 
-export interface IAttachment {
-  name: string;
-  type: string;
-  url: string;
-  size?: number;
-}
+export type IAttachment = IAttachmentC;
 
 export type IAttachmentPreview = {
   name: string;
@@ -113,6 +111,6 @@ export type IEditorProps = {
 
 export type QueryResponse = {
   loading: boolean;
-  refetch: () => void;
+  refetch: () => Promise<any>;
   error?: string;
 };

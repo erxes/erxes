@@ -1,4 +1,5 @@
 import * as cookieParser from 'cookie-parser';
+
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
@@ -28,7 +29,7 @@ import {
   updateContactValidationStatus
 } from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
-import { Users } from './db/models';
+import { Configs, Segments, Users } from './db/models';
 import initWatchers from './db/watchers';
 import {
   debugBase,
@@ -48,6 +49,7 @@ import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
+
 import init from './startup';
 
 // load environment variables
@@ -82,17 +84,17 @@ const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
   name: 'INTEGRATIONS_API_DOMAIN'
 });
-const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_DOMAIN'
-});
+
 const DASHBOARD_DOMAIN = getSubServiceDomain({
   name: 'DASHBOARD_DOMAIN'
 });
+
 const ENGAGES_API_DOMAIN = getSubServiceDomain({
   name: 'ENGAGES_API_DOMAIN'
 });
-const CLIENT_PORTAL_MN_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_MN_DOMAIN'
+
+const CLIENT_PORTAL_DOMAINS = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_DOMAINS'
 });
 
 const handleTelnyxWebhook = (req, res, next, hookName: string) => {
@@ -152,9 +154,8 @@ const corsOptions = {
   origin: [
     MAIN_APP_DOMAIN,
     WIDGETS_DOMAIN,
-    CLIENT_PORTAL_DOMAIN,
-    DASHBOARD_DOMAIN,
-    CLIENT_PORTAL_MN_DOMAIN
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    DASHBOARD_DOMAIN
   ]
 };
 
@@ -177,7 +178,11 @@ app.get(
       res.cookie(key, envMaps[key], authCookieOptions(req.secure));
     }
 
-    return res.send('success');
+    const configs = await Configs.find({
+      code: new RegExp(`.*THEME_.*`, 'i')
+    }).lean();
+
+    return res.json(configs);
   })
 );
 
@@ -255,10 +260,19 @@ app.get(
   '/file-export',
   routeErrorHandling(async (req: any, res) => {
     const { query, user } = req;
+    const { segment } = query;
 
     const result = await buildFile(query, user);
 
     res.attachment(`${result.name}.xlsx`);
+
+    if (segment) {
+      try {
+        Segments.removeSegment(segment);
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
 
     return res.send(result.response);
   })
@@ -282,6 +296,7 @@ app.get(
 app.get('/read-file', async (req: any, res, next) => {
   try {
     const key = req.query.key;
+    const name = req.query.name;
 
     if (!key) {
       return res.send('Invalid key');
@@ -289,7 +304,7 @@ app.get('/read-file', async (req: any, res, next) => {
 
     const response = await readFileRequest(key);
 
-    res.attachment(key);
+    res.attachment(name || key);
 
     return res.send(response);
   } catch (e) {

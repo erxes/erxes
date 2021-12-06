@@ -203,6 +203,8 @@ export const moduleObjects = {
           'dealPipelinesUpdateOrder',
           'dealPipelinesWatch',
           'dealPipelinesRemove',
+          'dealPipelinesArchive',
+          'dealPipelinesCopied',
           'dealStagesAdd',
           'dealStagesEdit',
           'dealStagesUpdateOrder',
@@ -213,7 +215,8 @@ export const moduleObjects = {
           'dealsWatch',
           'dealsArchive',
           'dealsSort',
-          'exportDeals'
+          'exportDeals',
+          'dealUpdateTimeTracking'
         ]
       },
       {
@@ -239,6 +242,14 @@ export const moduleObjects = {
       {
         name: 'dealPipelinesRemove',
         description: 'Remove deal pipeline'
+      },
+      {
+        name: 'dealPipelinesArchive',
+        description: 'Archive deal pipeline'
+      },
+      {
+        name: 'dealPipelinesCopied',
+        description: 'Duplicate deal pipeline'
       },
       {
         name: 'dealPipelinesUpdateOrder',
@@ -291,6 +302,10 @@ export const moduleObjects = {
       {
         name: 'exportDeals',
         description: 'Export deals'
+      },
+      {
+        name: 'dealUpdateTimeTracking',
+        description: 'Update time tracking'
       }
     ]
   },
@@ -311,6 +326,8 @@ export const moduleObjects = {
           'ticketPipelinesUpdateOrder',
           'ticketPipelinesWatch',
           'ticketPipelinesRemove',
+          'ticketPipelinesArchive',
+          'ticketPipelinesCopied',
           'ticketStagesAdd',
           'ticketStagesEdit',
           'ticketStagesUpdateOrder',
@@ -321,7 +338,8 @@ export const moduleObjects = {
           'ticketsWatch',
           'ticketsArchive',
           'ticketsSort',
-          'exportTickets'
+          'exportTickets',
+          'ticketUpdateTimeTracking'
         ]
       },
       {
@@ -351,6 +369,14 @@ export const moduleObjects = {
       {
         name: 'ticketPipelinesRemove',
         description: 'Remove ticket pipeline'
+      },
+      {
+        name: 'ticketPipelinesArchive',
+        description: 'Archive ticket pipeline'
+      },
+      {
+        name: 'ticketPipelinesCopied',
+        description: 'Duplicate ticket pipeline'
       },
       {
         name: 'ticketPipelinesWatch',
@@ -403,6 +429,10 @@ export const moduleObjects = {
       {
         name: 'exportTickets',
         description: 'Export tickets'
+      },
+      {
+        name: 'ticketUpdateTimeTracking',
+        description: 'Update time tracking'
       }
     ]
   },
@@ -423,6 +453,8 @@ export const moduleObjects = {
           'growthHackPipelinesUpdateOrder',
           'growthHackPipelinesWatch',
           'growthHackPipelinesRemove',
+          'growthHackPipelinesArchive',
+          'growthHackPipelinesCopied',
           'growthHackStagesAdd',
           'growthHackStagesEdit',
           'growthHackStagesUpdateOrder',
@@ -463,6 +495,14 @@ export const moduleObjects = {
       {
         name: 'growthHackPipelinesRemove',
         description: 'Remove growth hacking pipeline'
+      },
+      {
+        name: 'growthHackPipelinesArchive',
+        description: 'Archive growth hacking pipeline'
+      },
+      {
+        name: 'growthHackPipelinesCopied',
+        description: 'Copied growth hacking pipeline'
       },
       {
         name: 'growthHackPipelinesWatch',
@@ -551,6 +591,8 @@ export const moduleObjects = {
           'taskPipelinesUpdateOrder',
           'taskPipelinesWatch',
           'taskPipelinesRemove',
+          'taskPipelinesArchive',
+          'taskPipelinesCopied',
           'taskStagesAdd',
           'taskStagesEdit',
           'taskStagesUpdateOrder',
@@ -588,6 +630,14 @@ export const moduleObjects = {
       {
         name: 'taskPipelinesRemove',
         description: 'Remove task pipeline'
+      },
+      {
+        name: 'taskPipelinesArchive',
+        description: 'Archive task pipeline'
+      },
+      {
+        name: 'taskPipelinesCopied',
+        description: 'Duplicate task pipeline'
       },
       {
         name: 'taskPipelinesWatch',
@@ -639,7 +689,7 @@ export const moduleObjects = {
       },
       {
         name: 'taskUpdateTimeTracking',
-        description: 'Update time tracking for a task'
+        description: 'Update time tracking'
       },
       {
         name: 'exportTasks',
@@ -984,7 +1034,9 @@ export const moduleObjects = {
           'integrationsEditLeadIntegration',
           'integrationsRemove',
           'integrationsArchive',
-          'integrationsEdit'
+          'integrationsEdit',
+          'integrationsCreateBookingIntegration',
+          'integrationsEditBookingIntegration'
         ]
       },
       {
@@ -1026,6 +1078,14 @@ export const moduleObjects = {
       {
         name: 'integrationsEdit',
         description: 'Edit common integration fields'
+      },
+      {
+        name: 'integrationsCreateBookingIntegration',
+        description: 'Create booking integration'
+      },
+      {
+        name: 'integrationsEditBookingIntegration',
+        description: 'Edit booking integration'
       }
     ]
   },
@@ -1184,6 +1244,38 @@ export const moduleObjects = {
       }
     ]
   },
+  automations: {
+    name: 'automations',
+    description: 'Automations',
+    actions: [
+      {
+        name: 'automationAll',
+        description: 'All',
+        use: [
+          'showAutomations',
+          'automationsAdd',
+          'automationsEdit',
+          'automationsRemove'
+        ]
+      },
+      {
+        name: 'showAutomations',
+        description: 'Show automations'
+      },
+      {
+        name: 'automationsAdd',
+        description: 'Add automations'
+      },
+      {
+        name: 'automationsEdit',
+        description: 'Edit automations'
+      },
+      {
+        name: 'automationsRemove',
+        description: 'Remove automations'
+      }
+    ]
+  },
   calendars: {
     name: 'calendars',
     description: 'Calendars',
@@ -1233,6 +1325,134 @@ export const moduleObjects = {
       {
         name: 'calendarGroupsRemove',
         description: 'Remove calendar groups'
+      }
+    ]
+  },
+  clientPortal: {
+    name: 'clientPortal',
+    description: 'Client portal',
+    actions: [
+      {
+        name: 'manageClientPortal',
+        description: 'Manage client portal'
+      }
+    ]
+  },
+  structures: {
+    name: 'structures',
+    description: 'Structure',
+    actions: [
+      {
+        name: 'structuresAll',
+        description: 'All',
+        use: [
+          'showStructure',
+          'addStructure',
+          'editStructure',
+          'removeStructure'
+        ]
+      },
+      {
+        name: 'showStructure',
+        description: 'Show a structure'
+      },
+      {
+        name: 'addStructure',
+        description: 'Create a structure'
+      },
+      {
+        name: 'editStructure',
+        description: 'Edit a structure'
+      },
+      {
+        name: 'removeStructure',
+        description: 'Remove a structure'
+      }
+    ]
+  },
+  departments: {
+    name: 'departments',
+    description: 'Department',
+    actions: [
+      {
+        name: 'departmentsAll',
+        description: 'All',
+        use: [
+          'addDepartment',
+          'showDepartment',
+          'editDepartment',
+          'removeDepartment'
+        ]
+      },
+      {
+        name: 'showDepartment',
+        description: 'Show a department'
+      },
+      {
+        name: 'addDepartment',
+        description: 'Create a department'
+      },
+      {
+        name: 'editDepartment',
+        description: 'Edit a department'
+      },
+      {
+        name: 'removeDepartment',
+        description: 'Remove a department'
+      }
+    ]
+  },
+  units: {
+    name: 'units',
+    description: 'Unit',
+    actions: [
+      {
+        name: 'unitsAll',
+        description: 'All',
+        use: ['showUnit', 'addUnit', 'editUnit', 'removeUnit']
+      },
+      {
+        name: 'showUnit',
+        description: 'Show a unit'
+      },
+      {
+        name: 'addUnit',
+        description: 'Create a unit'
+      },
+      {
+        name: 'editUnit',
+        description: 'Edit a unit'
+      },
+      {
+        name: 'removeUnit',
+        description: 'Remove a unit'
+      }
+    ]
+  },
+  branches: {
+    name: 'branches',
+    description: 'Branch',
+    actions: [
+      {
+        name: 'branchesAll',
+        description: 'All',
+        use: ['showBranch', 'addBranch', 'editBranch', 'removeBranch']
+      },
+      {
+        name: 'showBranch',
+        description: 'Show a branch'
+      },
+      {
+        name: 'addBranch',
+        description: 'Create a branch'
+      },
+      {
+        name: 'editBranch',
+        description: 'Edit a branch'
+      },
+      {
+        name: 'removeBranch',
+        description: 'Remove a branch'
       }
     ]
   }

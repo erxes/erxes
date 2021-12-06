@@ -2,7 +2,12 @@ import { ApolloServer, gql, PlaygroundConfig } from 'apollo-server-express';
 import * as cookie from 'cookie';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
-import { EngagesAPI, HelpersApi, IntegrationsAPI } from './data/dataSources';
+import {
+  AutomationsAPI,
+  EngagesAPI,
+  HelpersApi,
+  IntegrationsAPI
+} from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { Conversations, Customers, Users } from './db/models';
@@ -15,6 +20,7 @@ import {
 } from './inmemoryStorage';
 import { extendViaPlugins } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
+import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 
 // load environment variables
 dotenv.config();
@@ -39,6 +45,7 @@ if (NODE_ENV !== 'production') {
 
 const generateDataSources = () => {
   return {
+    AutomationsAPI: new AutomationsAPI(),
     EngagesAPI: new EngagesAPI(),
     IntegrationsAPI: new IntegrationsAPI(),
     HelpersApi: new HelpersApi()
@@ -76,6 +83,8 @@ export const initApolloServer = async app => {
     context: ({ req, res, connection }) => {
       let user = req && req.user ? req.user : null;
 
+      const dataLoaders: IDataLoaders = generateAllDataLoaders();
+
       if (!req) {
         if (connection && connection.context && connection.context.user) {
           user = connection.context.user;
@@ -83,6 +92,7 @@ export const initApolloServer = async app => {
 
         return {
           dataSources: generateDataSources(),
+          dataLoaders,
           user
         };
       }
@@ -101,7 +111,8 @@ export const initApolloServer = async app => {
           commonQuerySelector: {},
           user,
           res,
-          requestInfo
+          requestInfo,
+          dataLoaders
         };
       }
 
@@ -138,7 +149,8 @@ export const initApolloServer = async app => {
         userBrandIdsSelector,
         user,
         res,
-        requestInfo
+        requestInfo,
+        dataLoaders
       };
     },
     subscriptions: {

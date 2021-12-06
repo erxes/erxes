@@ -2,9 +2,12 @@ import * as momentTz from 'moment-timezone';
 import {
   ConversationMessages,
   Conversations,
+  Fields,
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
   KnowledgeBaseTopics,
+  ProductCategories,
+  Products,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -209,15 +212,48 @@ export default {
   async widgetsGetEngageMessage(
     _root,
     {
+      integrationId,
       customerId,
       visitorId,
       browserInfo
-    }: { customerId?: string; visitorId?: string; browserInfo: IBrowserInfo }
+    }: {
+      integrationId: string;
+      customerId?: string;
+      visitorId?: string;
+      browserInfo: IBrowserInfo;
+    }
   ) {
     if (isUsingElk()) {
-      return getOrCreateEngageMessageElk(browserInfo, visitorId, customerId);
+      return getOrCreateEngageMessageElk(
+        integrationId,
+        browserInfo,
+        visitorId,
+        customerId
+      );
     }
 
-    return getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    return getOrCreateEngageMessage(
+      integrationId,
+      browserInfo,
+      visitorId,
+      customerId
+    );
+  },
+
+  async widgetsProductCategory(_root, { _id }: { _id: string }) {
+    return ProductCategories.findOne({ _id });
+  },
+
+  async widgetsBookingProductWithFields(_root, { _id }: { _id: string }) {
+    const product = await Products.getProduct({ _id });
+
+    const fields = await Fields.find({ contentType: 'product' }).sort({
+      order: 1
+    });
+
+    return {
+      fields,
+      product
+    };
   }
 };

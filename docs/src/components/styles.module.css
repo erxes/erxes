@@ -208,6 +208,6 @@ code {
 	flex-direction: column;
 }
 
-required {
+.required {
 	color: red;
 }

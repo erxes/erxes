@@ -39,10 +39,22 @@ const tasks = () => {
   return <Redirect to={link} />;
 };
 
+const charts = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="chart" queryParams={queryParams} />;
+};
+
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard queryParams={queryParams} />;
+  return <TaskBoard viewType="board" queryParams={queryParams} />;
+};
+
+const activity = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="activity" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {
@@ -57,6 +69,12 @@ const calendar = ({ location }) => {
       MainActionBarComponent={MainActionBar}
     />
   );
+};
+
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="list" queryParams={queryParams} />;
 };
 
 const routes = () => {
@@ -77,6 +95,22 @@ const routes = () => {
         path="/task/calendar"
         component={calendar}
       />
+
+      <Route
+        key="task/chart"
+        exact={true}
+        path="/task/chart"
+        component={charts}
+      />
+
+      <Route
+        key="task/activity"
+        exact={true}
+        path="/task/activity"
+        component={activity}
+      />
+
+      <Route key="task/list" exact={true} path="/task/list" component={list} />
     </>
   );
 };

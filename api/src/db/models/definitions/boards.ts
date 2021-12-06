@@ -48,6 +48,7 @@ export interface IItemCommonFields {
     startDate?: string;
   };
   customFieldsData?: ICustomField[];
+  score?: number;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -74,11 +75,11 @@ export interface IBoardDocument extends IBoard, Document {
 export interface IPipeline extends ICommonFields {
   name?: string;
   boardId: string;
+  status?: string;
   visibility?: string;
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
-
   startDate?: Date;
   endDate?: Date;
   metric?: string;
@@ -117,7 +118,8 @@ export const attachmentSchema = new Schema(
     name: field({ type: String }),
     url: field({ type: String }),
     type: field({ type: String }),
-    size: field({ type: Number, optional: true })
+    size: field({ type: Number, optional: true }),
+    duration: field({ type: Number, optional: true })
   },
   { _id: false }
 );
@@ -208,6 +210,12 @@ export const commonItemFieldsSchema = {
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
+  }),
+  score: field({
+    type: Number,
+    optional: true,
+    label: 'Score',
+    esType: 'number'
   })
 };
 
@@ -223,6 +231,12 @@ export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   boardId: field({ type: String, label: 'Board' }),
+  status: field({
+    type: String,
+    enum: BOARD_STATUSES.ALL,
+    default: BOARD_STATUSES.ACTIVE,
+    label: 'Status'
+  }),
   visibility: field({
     type: String,
     enum: PIPELINE_VISIBLITIES.ALL,

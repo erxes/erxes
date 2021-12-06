@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IUser } from "../../types";
-import { AccquireInformation, ConversationDetail, Home } from "../containers";
+import { AccquireInformation, ConversationDetail, Home, ConversationList} from "../containers";
 import { ArticleDetail, CategoryDetail } from "../containers/faq";
 import WebsiteAppDetail from "../containers/websiteApp/WebsiteAppDetail";
 
@@ -17,6 +17,7 @@ function Messenger({
   isOnline = false,
   supporters,
   loading,
+  serverTime,
 }: Props) {
   const WithSupporters = (Component: any) => {
     return (
@@ -29,6 +30,8 @@ function Messenger({
   };
 
   switch (activeRoute) {
+    case "allConversations":
+      return <ConversationList />;
     case "conversationDetail":
     case "conversationCreate":
       return WithSupporters(ConversationDetail);
@@ -45,6 +48,16 @@ function Messenger({
 
     case "websiteApp":
       return <WebsiteAppDetail />;
+
+    case "faqCategories":
+      return (
+        <Home
+          supporters={supporters}
+          isOnline={isOnline}
+          serverTime={serverTime}
+          activeSupport={true}
+        />
+      );
 
     default:
       return WithSupporters(Home);

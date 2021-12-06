@@ -7,6 +7,7 @@ import {
   IStage,
   IStageDocument
 } from '../../../db/models/definitions/boards';
+import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../types';
@@ -203,6 +204,74 @@ const boardMutations = {
   },
 
   /**
+   * Archive pipeline
+   */
+  async pipelinesArchive(
+    _root,
+    { _id, status }: { _id; status: string },
+    { user }: IContext
+  ) {
+    const pipeline = await Pipelines.getPipeline(_id);
+
+    await checkPermission(pipeline.type, user, 'pipelinesArchive');
+
+    const archived = await Pipelines.archivePipeline(_id, status);
+
+    const updated = await Pipelines.findOne({ _id });
+
+    await putUpdateLog(
+      {
+        type: `${pipeline.type}Pipelines`,
+        object: pipeline,
+        newData: { isActive: !status },
+        description: `"${pipeline.name}" has been ${
+          status === BOARD_STATUSES.ACTIVE ? 'archived' : 'unarchived'
+        }"`,
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return archived;
+  },
+
+  /**
+   * Duplicate pipeline
+   */
+  async pipelinesCopied(_root, { _id }: { _id: string }, { user }: IContext) {
+    const sourcePipeline = await Pipelines.getPipeline(_id);
+    const sourceStages = await Stages.find({ pipelineId: _id }).lean();
+
+    await checkPermission(sourcePipeline.type, user, 'pipelinesCopied');
+
+    const pipelineDoc = {
+      ...sourcePipeline,
+      _id: undefined,
+      status: sourcePipeline.status || 'active',
+      name: `${sourcePipeline.name}-copied`
+    };
+
+    const copied = await Pipelines.createPipeline(pipelineDoc);
+
+    for (const stage of sourceStages) {
+      await Stages.createStage({
+        ...stage,
+        _id: undefined,
+        probability: stage.probability || '10%',
+        type: copied.type,
+        pipelineId: copied._id
+      });
+    }
+
+    await putUpdateLog(
+      { type: `${sourcePipeline.type}Pipelines`, object: copied },
+      user
+    );
+
+    return copied;
+  },
+
+  /**
    * Update stage orders
    */
   stagesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
@@ -312,6 +381,28 @@ const boardMutations = {
     });
 
     return 'ok';
+  },
+
+  async boardItemUpdateTimeTracking(
+    _root,
+    {
+      _id,
+      type,
+      status,
+      timeSpent,
+      startDate
+    }: {
+      _id: string;
+      type: string;
+      status: string;
+      timeSpent: number;
+      startDate: string;
+    },
+    { user }
+  ) {
+    await checkPermission(type, user, 'updateTimeTracking');
+
+    return Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
   }
 };
 

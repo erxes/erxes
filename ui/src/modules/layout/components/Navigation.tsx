@@ -1,6 +1,6 @@
 import Label from 'modules/common/components/Label';
 import WithPermission from 'modules/common/components/WithPermission';
-import { __, getEnv, setBadge } from 'modules/common/utils';
+import { __, getEnv, setBadge, readFile } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -14,10 +14,12 @@ import {
   SubNavItem,
   DropSubNav,
   DropSubNavItem,
-  ExpandIcon
+  ExpandIcon,
+  SmallLabel
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
 import Icon from 'modules/common/components/Icon';
+import { getThemeItem } from 'utils';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
@@ -135,30 +137,32 @@ class Navigation extends React.Component<IProps> {
   ) => {
     const { collapsed } = this.props;
 
+    const item = (
+      <NavItem>
+        <NavLink to={this.getLink(url)}>
+          <NavIcon className={icon} />
+          {collapsed && <label>{__(text)}</label>}
+          {label}
+        </NavLink>
+        {this.renderChildren(collapsed, url, text, childrens)}
+      </NavItem>
+    );
+
     if (!childrens || childrens.length === 0) {
       if (!collapsed) {
         return (
-          <Tip placement="right" key={Math.random()} text={__(text)}>
-            <NavItem>
-              <NavLink to={url}>
-                <NavIcon className={icon} />
-              </NavLink>
-            </NavItem>
-          </Tip>
+          <WithPermission key={url} action={permission}>
+            <Tip placement="right" key={Math.random()} text={__(text)}>
+              {item}
+            </Tip>
+          </WithPermission>
         );
       }
     }
 
     return (
       <WithPermission key={url} action={permission}>
-        <NavItem>
-          <NavLink to={this.getLink(url)}>
-            <NavIcon className={icon} />
-            {collapsed && <label>{__(text)}</label>}
-            {label}
-          </NavLink>
-          {this.renderChildren(collapsed, url, text, childrens)}
-        </NavItem>
+        {item}
       </WithPermission>
     );
   };
@@ -179,8 +183,8 @@ class Navigation extends React.Component<IProps> {
 
   render() {
     const { unreadConversationsCount, collapsed } = this.props;
-
     const logo = collapsed ? 'logo.png' : 'erxes.png';
+    const thLogo = getThemeItem('logo');
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
@@ -188,10 +192,15 @@ class Navigation extends React.Component<IProps> {
       </Label>
     );
 
+    const lbl = <SmallLabel>Beta</SmallLabel>;
+
     return (
       <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
-          <img src={`/images/${logo}`} alt="erxes" />
+          <img
+            src={thLogo ? readFile(thLogo) : `/images/${logo}`}
+            alt="erxes"
+          />
         </NavLink>
         {this.renderCollapse()}
         <Nav id="navigation" collapsed={collapsed}>
@@ -266,6 +275,12 @@ class Navigation extends React.Component<IProps> {
                 icon: 'icon-building'
               },
               {
+                permission: 'showUsers',
+                link: '/settings/team',
+                value: 'Team Members',
+                icon: 'icon-puzzle-piece'
+              },
+              {
                 permission: 'showSegments',
                 link: '/segments/customer',
                 value: 'Segments',
@@ -330,7 +345,7 @@ class Navigation extends React.Component<IProps> {
             'showKnowledgeBase',
             __('Support'),
             '/knowledgeBase',
-            'icon-circular',
+            'icon-leaf',
             [
               {
                 permission: 'showTickets',
@@ -373,6 +388,22 @@ class Navigation extends React.Component<IProps> {
                 icon: 'icon-calendar-alt'
               }
             ]
+          )}
+          {this.renderNavItem(
+            'showAutomations',
+            __('Automations'),
+            '/automations',
+            'icon-circular',
+            [],
+            lbl
+          )}
+          {this.renderNavItem(
+            'showIntegrations',
+            __('Bookings'),
+            '/bookings',
+            'icon-paste',
+            [],
+            lbl
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}

@@ -48,7 +48,13 @@ const deals = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <DealBoard queryParams={queryParams} />;
+  return <DealBoard viewType="board" queryParams={queryParams} />;
+};
+
+const activity = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="activity" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {
@@ -63,6 +69,18 @@ const calendar = ({ location }) => {
       MainActionBarComponent={DealMainActionBar}
     />
   );
+};
+
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="list" queryParams={queryParams} />;
+};
+
+const chart = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="chart" queryParams={queryParams} />;
 };
 
 const conversion = ({ location }) => {
@@ -93,6 +111,19 @@ const routes = () => {
         exact={true}
         path="/deal/conversion"
         component={conversion}
+      />
+      <Route
+        key="deals/activity"
+        exact={true}
+        path="/deal/activity"
+        component={activity}
+      />
+      <Route key="deals/list" exact={true} path="/deal/list" component={list} />
+      <Route
+        key="deals/chart"
+        exact={true}
+        path="/deal/chart"
+        component={chart}
       />
     </React.Fragment>
   );
