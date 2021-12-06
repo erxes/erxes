@@ -79,11 +79,12 @@ const userQueries = {
       _id: { $ne: user._id }
     };
 
-    const sort = { username: 1 };
+    const users = await paginate(
+      Users.find(selector).sort({ username: 1 }),
+      args
+    );
 
-    const users = await paginate(Users.find(selector).sort(sort), args);
-
-    users.unshift(Users.findOne({ _id: user._id }));
+    users.unshift(user);
 
     return users;
   },
