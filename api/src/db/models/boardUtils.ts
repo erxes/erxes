@@ -1,7 +1,6 @@
 import {
   Boards,
   Checklists,
-  Configs,
   Conformities,
   Deals,
   GrowthHacks,
@@ -296,126 +295,60 @@ export const getBoardItemLink = async (stageId: string, itemId: string) => {
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };
 
-export const boardNumberGenerator = async (
-  value: any,
-  numberType: string,
-  type: string
-) => {
-  const config = value[numberType];
-
-  const { collection } = getCollection(type);
-
+export const boardNumberGenerator = async (config: string, type: string) => {
   // remove number attributes in value
-  const configWithoutOrder = config.replace(/\{number}/g, '');
+  const configWithoutNumber: any = config.replace(/\{number}/g, '');
+  const { collection } = await getCollection(type);
 
-  const lastBoard = await collection
-    .findOne({ numberFormat: configWithoutOrder })
-    .sort({
-      createdAt: -1
-    });
-
-  let replacedConfig = configWithoutOrder.replace(
+  // replace year
+  let replacedConfig = configWithoutNumber.replace(
     /\{year}/g,
     new Date().getFullYear()
   );
 
+  // replace month
   replacedConfig = replacedConfig.replace(
     /\{month}/g,
     new Date().getMonth() + 1
   );
 
+  // replace day
   replacedConfig = replacedConfig.replace(/\{day}/g, new Date().getDate());
 
+  // find last board with this config
+  const lastBoard = await collection
+    .findOne({ number: new RegExp(replacedConfig) })
+    .sort({
+      createdAt: -1
+    });
+
   let newNumber: string;
+
+  let numberAttributes = config.replace(configWithoutNumber, '');
+  numberAttributes = numberAttributes.replace(/\{number}/g, '0');
 
   if (lastBoard) {
     const lastGeneratedNum = lastBoard.number;
 
-    const lastNumWithoutOrder = lastGeneratedNum.slice(
-      0,
-      replacedConfig.length
-    );
+    const number = lastGeneratedNum.slice(replacedConfig.length);
 
-    if (lastGeneratedNum && lastNumWithoutOrder === replacedConfig) {
-      const order = lastGeneratedNum.slice(replacedConfig.length);
+    newNumber = await generateNumber(numberAttributes, number);
 
-      let numberAttributes = config.replace(configWithoutOrder, '');
-      numberAttributes = numberAttributes.replace(/\{number}/g, '0');
-
-      newNumber = await generateNumber(config, numberAttributes.length, order);
-
-      return {
-        number: replacedConfig + newNumber,
-        numberFormat: configWithoutOrder
-      };
-    }
+    return replacedConfig + newNumber;
   }
 
-  newNumber = await generateNumber(
-    value[numberType],
-    configWithoutOrder.length
-  );
+  newNumber = await generateNumber(numberAttributes);
 
-  // generate first value
-  return {
-    number: replacedConfig + newNumber,
-    numberFormat: configWithoutOrder
-  };
-
-  /* 
-
-  1. get
-  isCalc === true {
-    timeout(30)
-  }
-  2. get
-
-  isCalc === true {
-    timeout(30)
-  }
-  recursive
-
-  3. check get
-  isCalc === false
-  isCalc true set
-
-  get lastNum
-
-  
-  redist hadgalah
-  "lastNum: ""
-  "isCalc": ""
-  */
-  // checkNumber bgaa bol 1
-
-  // duusahdaa
-  // set hiiine
-  // isCalc false
-  // lasNum ugnu
-
-  /**
-   * config
-   *  save darah uyd redisee reset hiine
-   *
-   */
+  // return first generated number
+  return replacedConfig + newNumber;
 };
 
-export const generateBoardNumber = async (
-  doc: any,
-  numberType: string,
-  type: string
-) => {
-  const config = await Configs.findOne({ code: numberType });
+export const generateBoardNumber = async (doc, type: string) => {
+  const stage = await Stages.getStage(doc.stageId);
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-  if (config) {
-    const { number, numberFormat } = await boardNumberGenerator(
-      config.value,
-      numberType,
-      type
-    );
-
-    doc.number = number;
-    doc.numberFormat = numberFormat;
+  if (pipeline.numberConfig) {
+    doc.number = await boardNumberGenerator(pipeline.numberConfig, type);
   }
 
   return doc;
