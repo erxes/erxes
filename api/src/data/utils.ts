@@ -905,7 +905,7 @@ export const checkPremiumService = async type => {
   }
 };
 
-export const pad = (num, size) => {
+export const pad = (num: any, size: number) => {
   num = num.toString();
 
   while (num.length < size) {
@@ -915,14 +915,10 @@ export const pad = (num, size) => {
   return num;
 };
 
-export const generateNumber = (config: string, length: number, value?) => {
-  if (value) {
-    return pad(parseInt(value, 10) + 1, length);
+export const generateNumber = (numberAttributes: string, number?: string) => {
+  if (number) {
+    return pad(parseInt(number, 10) + 1, numberAttributes.length);
   }
 
-  let numberAttributeCount: any = config.slice(length);
-
-  numberAttributeCount = numberAttributeCount.split('}{');
-
-  return pad(1, numberAttributeCount.length);
+  return pad(1, numberAttributes.length);
 };
