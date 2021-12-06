@@ -7,7 +7,7 @@ import { __ } from 'modules/common/utils';
 
 type Props = {
   config: string;
-  setConfig: (config: string) => void;
+  setConfig: (config: string, value: string) => void;
   attributions: any[];
 };
 
@@ -21,7 +21,6 @@ export default class Attribution extends React.Component<Props> {
   onClickAttribute = item => {
     this.overlay.hide();
     const { setConfig } = this.props;
-
     let { config } = this.props;
 
     const characters = ['_', '-', '/', ' '];
@@ -34,7 +33,7 @@ export default class Attribution extends React.Component<Props> {
       config = `${config}{${value}}`;
     }
 
-    setConfig(config);
+    setConfig(config, value);
   };
 
   renderContent() {

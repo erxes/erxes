@@ -37,10 +37,10 @@ class PlaceHolderInput extends React.Component<Props, State> {
     }
   }
 
-  onChange = conf => {
+  onChange = (conf, value) => {
     const { config } = this.props;
 
-    if (config && config.includes('number') && conf !== 'number') {
+    if (config && config.includes('{number}') && value !== 'number') {
       return Alert.error(
         'You cannot add an attribute after the number attribute!'
       );
@@ -53,7 +53,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     return (
       <Attribution
         config={this.state.config}
-        setConfig={conf => this.onChange(conf)}
+        setConfig={(conf, value) => this.onChange(conf, value)}
         attributions={this.props.attributions}
       />
     );
@@ -128,7 +128,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             value={converted}
             onKeyPress={this.onKeyPress}
             onKeyDown={this.onKeyPress}
-            onChange={(e: any) => this.onChange(e.target.value)}
+            onChange={(e: any) => this.onChange(e.target.value, '')}
           />
         </FormGroup>
       </BoardHeader>
