@@ -10,6 +10,7 @@ type Props = {
   createConversation: (e: React.FormEvent<HTMLLIElement>) => void;
   loading: boolean;
   goToAllConversations: (e: React.FormEvent<HTMLLIElement>) => void;
+  responseRate?: string;
 };
 
 function ConversationInit(props: Props) {
@@ -18,7 +19,8 @@ function ConversationInit(props: Props) {
     goToConversation,
     loading,
     createConversation,
-    goToAllConversations
+    goToAllConversations,
+    responseRate
   } = props;
 
   if (loading) {
@@ -31,10 +33,11 @@ function ConversationInit(props: Props) {
         <div className="erxes-left-side">
           <span>{iconPlus}</span>
         </div>
-        <div className="erxes-right-side">
+        <div className="erxes-right-plus">
           <div className="erxes-name">{__("Start new conversation")}</div>
           <div className="erxes-last-message">
-            {__("Talk with support staff")}
+            {__("Our usual response time")}<br /> 
+            <strong>{responseRate}</strong>
           </div>
         </div>
       </li>

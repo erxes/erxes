@@ -14,6 +14,7 @@ export interface IUserDetails {
   shortName: string;
   position: string;
   description: string;
+  location: string;
 }
 
 export interface IUser {
@@ -126,6 +127,8 @@ export interface IIntegrationMessengerData {
   showVideoCallRequest: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
+  responseRate?: string;
+  showTimezone?: boolean;
   messages?: IIntegrationMessengerDataMessagesItem;
   links?: IIntegrationLink;
 }
