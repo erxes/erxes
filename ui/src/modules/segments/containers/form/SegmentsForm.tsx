@@ -29,8 +29,10 @@ type Props = {
   closeModal: () => void;
   activeTrigger?: ITrigger;
   addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
+  addFilter?: (segmentId: string) => void;
   afterSave?: () => void;
-  isAutomation?: boolean;
+  hideDetailForm?: boolean;
+  usageType?: string;
 };
 
 type FinalProps = {
@@ -62,14 +64,16 @@ class SegmentsFormContainer extends React.Component<
     values,
     isSubmitted,
     callback,
-    object
+    object,
+    text
   }: IButtonMutateProps) => {
     const {
       contentType,
       history,
       addConfig,
       activeTrigger,
-      closeModal
+      closeModal,
+      addFilter
     } = this.props;
 
     const callBackResponse = data => {
@@ -91,6 +95,12 @@ class SegmentsFormContainer extends React.Component<
 
         closeModal();
       }
+
+      if (addFilter) {
+        const result = values._id ? data.segmentsEdit : data.segmentsAdd;
+
+        addFilter(result._id);
+      }
     };
 
     return (
@@ -101,10 +111,10 @@ class SegmentsFormContainer extends React.Component<
         isSubmitted={isSubmitted}
         icon="check-circle"
         type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${name}`}
-      />
+        successMessage={`Success`}
+      >
+        {text || 'save'}
+      </ButtonMutate>
     );
   };
 

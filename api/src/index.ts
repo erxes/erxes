@@ -29,7 +29,7 @@ import {
   updateContactValidationStatus
 } from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
-import { Users } from './db/models';
+import { Configs, Segments, Users } from './db/models';
 import initWatchers from './db/watchers';
 import {
   debugBase,
@@ -178,7 +178,11 @@ app.get(
       res.cookie(key, envMaps[key], authCookieOptions(req.secure));
     }
 
-    return res.send('success');
+    const configs = await Configs.find({
+      code: new RegExp(`.*THEME_.*`, 'i')
+    }).lean();
+
+    return res.json(configs);
   })
 );
 
@@ -256,10 +260,19 @@ app.get(
   '/file-export',
   routeErrorHandling(async (req: any, res) => {
     const { query, user } = req;
+    const { segment } = query;
 
     const result = await buildFile(query, user);
 
     res.attachment(`${result.name}.xlsx`);
+
+    if (segment) {
+      try {
+        Segments.removeSegment(segment);
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
 
     return res.send(result.response);
   })
@@ -283,6 +296,7 @@ app.get(
 app.get('/read-file', async (req: any, res, next) => {
   try {
     const key = req.query.key;
+    const name = req.query.name;
 
     if (!key) {
       return res.send('Invalid key');
@@ -290,7 +304,7 @@ app.get('/read-file', async (req: any, res, next) => {
 
     const response = await readFileRequest(key);
 
-    res.attachment(key);
+    res.attachment(name || key);
 
     return res.send(response);
   } catch (e) {

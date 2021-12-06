@@ -16,14 +16,7 @@ export const types = `
     _id: String!
     companies: [Company]
     customers: [Customer]
-    timeTrack: TimeTrack
     ${commonTypes}
-  }
-
-  type TimeTrack {
-    status: String,
-    timeSpent: Int,
-    startDate: String
   }
 `;
 
@@ -50,12 +43,31 @@ const listQueryParams = `
     ${conformityQueryFields}
 `;
 
+const archivedTasksParams = `
+  pipelineId: String! 
+  search: String 
+  userIds: [String]
+  priorities: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  companyIds: [String]
+  customerIds: [String]
+  startDate: String
+  endDate: String 
+`;
+
 export const queries = `
   taskDetail(_id: String!): Task
   tasks(${listQueryParams}): [TaskListItem]
   tasksTotalCount(${listQueryParams}): Int
-  archivedTasks(pipelineId: String!, search: String, page: Int, perPage: Int): [Task]
-  archivedTasksCount(pipelineId: String!, search: String): Int
+  archivedTasks(
+    page: Int
+    perPage: Int
+    ${archivedTasksParams}
+  ): [Task]
+  archivedTasksCount(
+    ${archivedTasksParams}
+  ): Int
 `;
 
 export const mutations = `
@@ -66,5 +78,4 @@ export const mutations = `
   tasksWatch(_id: String, isAdd: Boolean): Task
   tasksCopy(_id: String!, proccessId: String): Task
   tasksArchive(stageId: String!, proccessId: String): String
-  taskUpdateTimeTracking(_id: String!, status: String!, timeSpent: Int!, startDate: String): JSON
 `;

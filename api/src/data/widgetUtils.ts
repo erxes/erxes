@@ -18,7 +18,7 @@ import { ICustomerDocument } from '../db/models/definitions/customers';
 import { ISubmission } from '../db/models/definitions/fields';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
-import { sendToLog } from './logUtils';
+import { getDbSchemaLabels, sendToLog } from './logUtils';
 import { getDocument } from './resolvers/mutations/cacheUtils';
 import { findCompany, findCustomer } from './utils';
 
@@ -224,6 +224,23 @@ const getSocialLinkKey = (type: string) => {
   return type.substring(type.indexOf('_') + 1);
 };
 
+const createCustomer = async (
+  integrationId: string,
+  customerDoc: any,
+  brandId?: string
+) => {
+  return Customers.createCustomer({
+    integrationId,
+    primaryEmail: customerDoc.email || '',
+    emails: [customerDoc.email || ''],
+    firstName: customerDoc.firstName || '',
+    lastName: customerDoc.lastName || '',
+    middleName: customerDoc.middleName || '',
+    primaryPhone: customerDoc.phone || '',
+    scopeBrandIds: [brandId || '']
+  });
+};
+
 const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
@@ -253,6 +270,7 @@ export const updateCustomerFromForm = async (
   customer: ICustomerDocument
 ) => {
   const customerDoc: any = {
+    ...doc,
     location: browserInfo,
     firstName: customer.firstName || doc.firstName,
     lastName: customer.lastName || doc.lastName,
@@ -273,30 +291,6 @@ export const updateCustomerFromForm = async (
           primaryPhone: doc.phone
         })
   };
-
-  if (doc.avatar.length > 0) {
-    customerDoc.avatar = doc.avatar;
-  }
-
-  if (doc.department.length > 0) {
-    customerDoc.department = doc.department;
-  }
-
-  if (doc.position.length > 0) {
-    customerDoc.position = doc.position;
-  }
-
-  if (doc.description.length > 0) {
-    customerDoc.description = doc.description;
-  }
-
-  if (doc.hasAuthority.length > 0) {
-    customerDoc.hasAuthority = doc.hasAuthority;
-  }
-
-  if (doc.isSubscribed.length > 0) {
-    customerDoc.isSubscribed = doc.isSubscribed;
-  }
 
   if (!customer.customFieldsData) {
     customerDoc.customFieldsData = doc.customFieldsData;
@@ -366,34 +360,14 @@ export const solveSubmissions = async (args: {
 
   let cachedCustomer;
 
+  const customerSchemaLabels = await getDbSchemaLabels('customer');
+  const companySchemaLabels = await getDbSchemaLabels('company');
+
   for (const groupId of Object.keys(submissionsGrouped)) {
-    let email;
-    let phone;
-    let firstName = '';
-    let lastName = '';
-    let middleName = '';
-    let pronoun = 0;
-    let avatar = '';
-    let birthDate;
-    let hasAuthority = '';
-    let isSubscribed = '';
-    let description = '';
-    let department = '';
-    let position = '';
     const customerLinks: ILink = {};
-
-    let companyName = '';
-    let companyEmail = '';
-    let companyPhone = '';
-    let companyDescription = '';
-    let companyIsSubscribed = '';
-    let logo = '';
-    let size = 0;
-    let industries = '';
-    let businessType = '';
-    let location = '';
-
     const companyLinks: ILink = {};
+    const customerDoc: any = {};
+    const companyDoc: any = {};
 
     const customFieldsData: ICustomField[] = [];
     const companyCustomData: ICustomField[] = [];
@@ -411,93 +385,60 @@ export const solveSubmissions = async (args: {
         continue;
       }
 
-      switch (submissionType) {
-        case 'email':
-          email = submission.value;
-          break;
-        case 'phone':
-          phone = submission.value;
-          break;
-        case 'firstName':
-          firstName = submission.value;
-          break;
-        case 'lastName':
-          lastName = submission.value;
-          break;
-        case 'middleName':
-          middleName = submission.value;
-          break;
-        case 'companyName':
-          companyName = submission.value;
-          break;
-        case 'companyEmail':
-          companyEmail = submission.value;
-          break;
-        case 'companyPhone':
-          companyPhone = submission.value;
-          break;
-        case 'avatar':
-          if (submission.value && submission.value.length > 0) {
-            avatar = submission.value[0].url;
-          }
-          break;
-        case 'companyAvatar':
-          if (submission.value && submission.value.length > 0) {
-            logo = submission.value[0].url;
-          }
-          break;
-        case 'industry':
-          industries = submission.value;
-          break;
-        case 'size':
-          size = submission.value;
-          break;
-        case 'businessType':
-          businessType = submission.value;
-          break;
-        case 'pronoun':
-          switch (submission.value) {
-            case 'Male':
-              pronoun = 1;
-              break;
-            case 'Female':
-              pronoun = 2;
-              break;
-            case 'Not applicable':
-              pronoun = 9;
-              break;
-            default:
-              pronoun = 0;
-              break;
-          }
-          break;
-        case 'isSubscribed':
-          isSubscribed = submission.value;
-          break;
-        case 'hasAuthority':
-          hasAuthority = submission.value;
-          break;
-        case 'birthDate':
-          birthDate = new Date(submission.value);
-          break;
-        case 'description':
-          description = submission.value;
-          break;
-        case 'department':
-          department = submission.value;
-          break;
-        case 'position':
-          position = submission.value;
-          break;
-        case 'companyDescription':
-          companyDescription = submission.value;
-          break;
-        case 'companyIsSubscribed':
-          companyIsSubscribed = submission.value;
-          break;
-        case 'location':
-          location = submission.value;
-          break;
+      if (submissionType === 'pronoun') {
+        switch (submission.value) {
+          case 'Male':
+            customerDoc.pronoun = 1;
+            break;
+          case 'Female':
+            customerDoc.pronoun = 2;
+            break;
+          case 'Not applicable':
+            customerDoc.pronoun = 9;
+            break;
+          default:
+            customerDoc.pronoun = 0;
+            break;
+        }
+        continue;
+      }
+
+      if (
+        customerSchemaLabels.findIndex(e => e.name === submissionType) !== -1
+      ) {
+        if (
+          submissionType === 'avatar' &&
+          submission.value &&
+          submission.value.length > 0
+        ) {
+          customerDoc.avatar = submission.value[0].url;
+          continue;
+        }
+
+        customerDoc[submissionType] = submission.value;
+        continue;
+      }
+
+      if (submissionType.includes('company_')) {
+        if (
+          submissionType === 'company_avatar' &&
+          submission.value &&
+          submission.value.length > 0
+        ) {
+          companyDoc.avatar = submission.value[0].url;
+          continue;
+        }
+
+        const key = submissionType.split('_')[1];
+        companyDoc[key] = submission.value;
+        continue;
+      }
+
+      if (
+        companySchemaLabels.findIndex(e => e.name === submissionType) !== -1
+      ) {
+        companyDoc[submissionType] = submission.value;
+        continue;
       }
 
       if (
@@ -539,40 +480,23 @@ export const solveSubmissions = async (args: {
       cachedCustomer = await Customers.getWidgetCustomer({
         integrationId,
         cachedCustomerId,
-        email,
-        phone
+        email: customerDoc.email || '',
+        phone: customerDoc.phone || ''
       });
 
       if (!cachedCustomer) {
-        cachedCustomer = await Customers.createCustomer({
+        cachedCustomer = await createCustomer(
           integrationId,
-          primaryEmail: email,
-          emails: [email],
-          firstName,
-          lastName,
-          middleName,
-          primaryPhone: phone,
-          scopeBrandIds: [integration.brandId || '']
-        });
+          customerDoc,
+          integration.brandId || ''
+        );
       }
 
       await updateCustomerFromForm(
         browserInfo,
         {
-          firstName,
-          lastName,
-          middleName,
-          pronoun,
-          birthDate,
+          ...customerDoc,
           customFieldsData,
-          avatar,
-          department,
-          position,
-          description,
-          hasAuthority,
-          isSubscribed,
-          email,
-          phone,
           links: customerLinks,
           scopeBrandIds: [integration.brandId || '']
         },
@@ -587,40 +511,23 @@ export const solveSubmissions = async (args: {
       };
     } else {
       let customer = await findCustomer({
-        customerPrimaryEmail: email,
-        customerPrimaryPhone: phone
+        customerPrimaryEmail: customerDoc.email || '',
+        customerPrimaryPhone: customerDoc.phone || ''
       });
 
       if (!customer) {
-        customer = await Customers.createCustomer({
+        customer = await createCustomer(
           integrationId,
-          primaryEmail: email,
-          emails: [email],
-          firstName,
-          lastName,
-          middleName,
-          primaryPhone: phone,
-          scopeBrandIds: [integration.brandId || '']
-        });
+          customerDoc,
+          integration.brandId || ''
+        );
       }
 
       await updateCustomerFromForm(
         browserInfo,
         {
-          firstName,
-          lastName,
-          middleName,
-          pronoun,
-          birthDate,
+          ...customerDoc,
           customFieldsData,
-          avatar,
-          department,
-          position,
-          description,
-          hasAuthority,
-          isSubscribed,
-          email,
-          phone,
           links: customerLinks,
           scopeBrandIds: [integration.brandId || '']
         },
@@ -630,40 +537,23 @@ export const solveSubmissions = async (args: {
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
     }
 
-    if (!(companyEmail || companyPhone || companyName)) {
+    if (
+      !(
+        companyDoc.primaryEmail ||
+        companyDoc.primaryPhone ||
+        companyDoc.primaryName
+      )
+    ) {
       continue;
     }
 
     let company = await findCompany({
-      companyPrimaryName: companyName,
-      companyPrimaryEmail: companyEmail,
-      companyPrimaryPhone: companyPhone
+      companyPrimaryName: companyDoc.primaryName || '',
+      companyPrimaryEmail: companyDoc.primaryEmail || '',
+      companyPrimaryPhone: companyDoc.primaryPhone || ''
     });
 
-    const companyDoc: any = {
-      primaryName: companyName,
-      primaryEmail: companyEmail,
-      primaryPhone: companyPhone,
-      emails: [companyEmail],
-      phones: [companyPhone],
-      size,
-      isSubscribed: companyIsSubscribed,
-      description: companyDescription,
-      businessType,
-      scopeBrandIds: [integration.brandId || '']
-    };
-
-    if (logo.length > 0) {
-      companyDoc.avatar = logo;
-    }
-
-    if (industries.length > 0) {
-      companyDoc.industry = industries;
-    }
-
-    if (location.length > 0) {
-      companyDoc.location = location;
-    }
+    companyDoc.scopeBrandIds = [integration.brandId || ''];
 
     if (!company) {
       company = await Companies.createCompany(companyDoc);
@@ -697,7 +587,9 @@ export const solveSubmissions = async (args: {
     company = await Companies.updateCompany(company._id, companyDoc);
 
     // if company scopeBrandIds does not contain brandId
-    if (company.scopeBrandIds.indexOf(integration.brandId) === -1) {
+    if (
+      company.scopeBrandIds.findIndex(e => e === integration.brandId) === -1
+    ) {
       await Companies.update(
         { _id: company._id },
         { $push: { scopeBrandIds: integration.brandId } }

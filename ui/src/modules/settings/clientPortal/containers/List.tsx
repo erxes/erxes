@@ -43,8 +43,6 @@ class List extends React.Component<Props & ListProps> {
           variables: { _id }
         })
           .then(() => {
-            configsQuery.refetch();
-            totalCountQuery.refetch();
             Alert.success('You successfully deleted a client portal.');
 
             history.push('/settings/client-portal');
@@ -71,6 +69,17 @@ class List extends React.Component<Props & ListProps> {
   }
 }
 
+const options = () => ({
+  refetchQueries: [
+    {
+      query: gql(queries.getConfigs)
+    },
+    'clientPortalGetLast',
+    'clientPortalGetConfig',
+    'clientPortalConfigsTotalCount'
+  ]
+});
+
 const ListContainer = withProps<ListProps & IRouterProps>(
   compose(
     graphql(gql(queries.getConfigs), {
@@ -87,13 +96,7 @@ const ListContainer = withProps<ListProps & IRouterProps>(
     }),
     graphql<Props, any, any>(gql(mutations.remove), {
       name: 'removeMutation',
-      options: () => ({
-        refetchQueries: [
-          'configsQuery',
-          'totalCountQuery',
-          'configGetLastQuery'
-        ]
-      })
+      options
     })
   )(List)
 );

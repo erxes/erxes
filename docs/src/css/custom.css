@@ -49,6 +49,8 @@ html[data-theme="dark"] {
   --ifm-footer-background-color: #0a141c;
   --ifm-navbar-background-color: #21243d;
   --ifm-menu-color-background-active: #21243d;
+  --ifm-table-border-color: #dee0f2;
+  --ifm-table-font-color: #dee0f2;
 }
 
 #hero {
@@ -85,6 +87,10 @@ html[data-theme="dark"] .react-toggle-track {
   padding: 0 var(--ifm-pre-padding);
 }
 
+.codeBlockContainer_node_modules-\@docusaurus-theme-classic-lib-next-theme-CodeBlock- {
+  margin-top: 20px;
+}
+
 .navbar__items > span {
   margin-top: 7px;
   display: none;
@@ -117,6 +123,14 @@ html[data-theme="dark"] .react-toggle-track {
 
 .even-column {
   background: rgba(180, 180, 180, 0.08);
+}
+
+.collapse {
+  display: none;
+}
+
+.collapse.show {
+  display: block;
 }
 
 @media (min-width: 600px) {

@@ -6,6 +6,7 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import { fetchElk } from '../elasticsearch';
 import {
   Boards,
+  Branches,
   Brands,
   CalendarBoards,
   CalendarGroups,
@@ -23,6 +24,7 @@ import {
   DashboardItems,
   Dashboards,
   Deals,
+  Departments,
   EmailDeliveries,
   EmailTemplates,
   EngageMessages,
@@ -52,9 +54,11 @@ import {
   Skills,
   SkillTypes,
   Stages,
+  Structures,
   Tags,
   Tasks,
   Tickets,
+  Units,
   Users,
   UsersGroups,
   Webhooks
@@ -178,6 +182,7 @@ interface IUserFactoryInput {
   registrationTokenExpires?: Date;
   isSubscribed?: string;
   isShowNotification?: boolean;
+  validatedTokens?: string;
 }
 
 export const userFactory = async (
@@ -212,6 +217,7 @@ export const userFactory = async (
     deviceTokens: params.deviceTokens,
     isSubscribed: params.isSubscribed,
     isShowNotification: params.isShowNotification,
+    validatedTokens: params.validatedTokens,
     ...(params.code ? { code: params.code } : {})
   };
 
@@ -803,6 +809,7 @@ interface IIntegrationFactoryInput {
   isActive?: boolean;
   messengerData?: any;
   languageCode?: string;
+  bookingData?: any;
 }
 
 export const integrationFactory = async (
@@ -824,7 +831,13 @@ export const integrationFactory = async (
     isActive:
       params.isActive === undefined || params.isActive === null
         ? true
-        : params.isActive
+        : params.isActive,
+    bookingData: params.bookingData
+      ? params.bookingData
+      : {
+          name: 'Booking Data',
+          description: 'Booking description'
+        }
   };
 
   if (params.messengerData && !params.messengerData.timezone) {
@@ -1026,13 +1039,14 @@ interface IKnowledgeBaseArticleCategoryInput {
   modifiedBy?: string;
   topicId?: string;
   categoryId?: string;
+  title?: string;
 }
 
 export const knowledgeBaseArticleFactory = async (
   params: IKnowledgeBaseArticleCategoryInput = {}
 ) => {
   const doc = {
-    title: faker.random.word(),
+    title: params.title || faker.random.word(),
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),
@@ -1149,6 +1163,7 @@ interface IDealFactoryInput {
   sourceConversationIds?: string[];
   companyIds?: string[];
   customerIds?: string[];
+  priority?: string;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1224,6 +1239,7 @@ export const dealFactory = async (
     probability: params.probability,
     searchText: params.searchText,
     sourceConversationIds: params.sourceConversationIds,
+    priority: params.priority,
     createdAt: new Date()
   };
 
@@ -1260,7 +1276,7 @@ interface ITaskFactoryInput {
   customerIds?: string[];
 }
 
-const attachmentFactory = () => ({
+export const attachmentFactory = () => ({
   name: faker.random.word(),
   url: faker.image.imageUrl(),
   type: faker.system.mimeType(),
@@ -1436,6 +1452,10 @@ interface IProductFactoryInput {
   categoryId?: string;
   vendorId?: string;
   customFieldsData?: ICustomField[];
+  attachmentMore?: any[];
+  unitPrice?: number;
+  productCount?: number;
+  supply?: string;
 }
 
 export const productFactory = async (params: IProductFactoryInput = {}) => {
@@ -1444,12 +1464,16 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     categoryId: params.categoryId || faker.random.word(),
     type: params.type || PRODUCT_TYPES.PRODUCT,
     customFieldsData: params.customFieldsData,
+    attachmentMore: params.attachmentMore,
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     code: await getUniqueValue(Products, 'code'),
     vendorId: params.vendorId,
     createdAt: new Date(),
-    tagIds: params.tagIds || []
+    tagIds: params.tagIds || [],
+    unitPrice: params.unitPrice || 10,
+    productCount: params.productCount || 0,
+    supply: params.supply || 'unique'
   });
 
   return product.save();
@@ -1459,6 +1483,7 @@ interface IProductCategoryFactoryInput {
   name?: string;
   description?: string;
   parentId?: string;
+  status?: string;
   code?: string;
   order?: string;
 }
@@ -1470,6 +1495,7 @@ export const productCategoryFactory = async (
     name: params.name || faker.random.word(),
     description: params.description || faker.random.word(),
     parentId: params.parentId,
+    status: params.status,
     code: await getUniqueValue(ProductCategories, 'code', params.code),
     order: params.order || faker.random.word(),
     createdAt: new Date()
@@ -1795,6 +1821,70 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+export const structureFactory = async (params: {
+  title?: string;
+  description?: string;
+  supervisorId?: string;
+}) => {
+  const structure = new Structures({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    supervisorId: params.supervisorId
+  });
+
+  return structure.save();
+};
+
+export const departmentFactory = async (params: {
+  title?: string;
+  parentId?: string;
+  description?: string;
+  userIds?: string[];
+  supervisorId?: string;
+}) => {
+  const department = new Departments({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    parentId: params.parentId,
+    userIds: params.userIds || [],
+    supervisorId: params.supervisorId
+  });
+
+  return department.save();
+};
+
+export const unitFactory = async (params: {
+  title?: string;
+  departmentId?: string;
+  description?: string;
+  userIds?: string[];
+}) => {
+  const unit = new Units({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    departmentId: params.departmentId,
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return unit.save();
+};
+
+export const branchFactory = async (params: {
+  title?: string;
+  parentId?: string;
+  address?: string;
+  userIds?: string[];
+}) => {
+  const unit = new Branches({
+    title: params.title || faker.random.word(),
+    parentId: params.parentId,
+    address: params.address || faker.random.word(),
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return unit.save();
 };
 
 export const clientPortalFactory = async (params: { name?: string }) => {

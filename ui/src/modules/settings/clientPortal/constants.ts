@@ -1,15 +1,15 @@
 export const CONFIG_TYPES = {
   GENERAL: {
-    LABEL: 'General',
+    LABEL: 'General Settings',
     VALUE: 'general'
   },
-  COLOR_FONTS: {
-    LABEL: 'Colors and Fonts',
-    VALUE: 'colorFonts'
+  APPEARANCE: {
+    LABEL: 'Appearance',
+    VALUE: 'appearance'
   },
-  CONFIG: {
-    LABEL: 'System Configuration',
-    VALUE: 'System Configuration'
+  CUSTOM: {
+    LABEL: 'System configuration',
+    VALUE: 'custom'
   }
 };
 
@@ -29,9 +29,24 @@ export const COLORS = [
 ];
 
 export const FONTS = [
-  'Roboto Mono',
-  'Ubuntu',
-  'Isovka',
-  'Menlo',
-  'Operator Mono'
+  {
+    label: 'Ubuntu',
+    value: `'Ubuntu', sans-serif`
+  },
+  {
+    label: 'Lobster',
+    value: `'Lobster', cursive`
+  },
+  {
+    label: 'Roboto',
+    value: `'Roboto', sans-serif`
+  },
+  {
+    label: 'Roboto Condensed',
+    value: `'Roboto Condensed', sans-serif`
+  },
+  {
+    label: 'Open Sans',
+    value: `'Open Sans', sans-serif`
+  }
 ];

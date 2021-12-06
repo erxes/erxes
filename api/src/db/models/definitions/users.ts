@@ -50,6 +50,7 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  validatedTokens?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -94,7 +95,8 @@ export const userSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: field({
       type: Date,
-      default: Date.now
+      default: Date.now,
+      label: 'Created at'
     }),
     username: field({ type: String, label: 'Username' }),
     password: field({ type: String }),
@@ -137,6 +139,11 @@ export const userSchema = schemaHooksWrapper(
       default: [],
       label: 'Device tokens'
     }),
+    validatedTokens: field({
+      type: [String],
+      default: [],
+      label: 'Validated access tokens'
+    }),
     code: field({ type: String }),
     doNotDisturb: field({
       type: String,
@@ -160,7 +167,8 @@ export const userSchema = schemaHooksWrapper(
       type: Number,
       optional: true,
       label: 'Score',
-      esType: 'number'
+      esType: 'number',
+      default: 0
     }),
     customFieldsData: field({
       type: [customFieldSchema],

@@ -16,6 +16,8 @@ import memoryStorage from './inmemoryStorage';
 import messageBroker from './messageBroker';
 import { graphqlPubsub } from './pubsub';
 
+export { allModels };
+
 interface ISubAfterMutations {
   [action: string]: {
     callBack: void;
@@ -257,6 +259,10 @@ export const extendViaPlugins = (
               model.schema = new mongoose.Schema(model.schema).loadClass(
                 model.klass
               );
+            }
+
+            if (model.compoundIndexes) {
+              model.schema.index(model.compoundIndexes);
             }
 
             allModels[model.name] = mongoose.model(

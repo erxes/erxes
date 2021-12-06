@@ -104,6 +104,7 @@ export const KIND_CHOICES = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
+  BOOKING: 'booking',
   ALL: [
     'messenger',
     'lead',
@@ -125,7 +126,8 @@ export const KIND_CHOICES = {
     'smooch-twilio',
     'whatsapp',
     'telnyx',
-    'webhook'
+    'webhook',
+    'booking'
   ]
 };
 
@@ -250,6 +252,20 @@ export const PRODUCT_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',
   ALL: ['active', 'deleted']
+};
+
+export const PRODUCT_CATEGORY_STATUSES = {
+  ACTIVE: 'active',
+  DISABLED: 'disabled',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'disabled', 'archived']
+};
+
+export const PRODUCT_SUPPLY = {
+  UNIQUE: 'unique',
+  LIMITED: 'limited',
+  UNLIMITED: 'unlimited',
+  ALL: ['unique', 'limited', 'unlimited']
 };
 
 export const PIPELINE_VISIBLITIES = {
@@ -555,7 +571,8 @@ export const NOTIFICATION_TYPES = {
 export const FORM_TYPES = {
   LEAD: 'lead',
   GROWTH_HACK: 'growthHack',
-  ALL: ['lead', 'growthHack']
+  BOOKING: 'booking',
+  ALL: ['lead', 'growthHack', 'booking']
 };
 
 export const NOTIFICATION_CONTENT_TYPES = {

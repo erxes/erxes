@@ -5,6 +5,7 @@ import {
   fieldGroupFactory,
   pipelineFactory,
   stageFactory,
+  taskFactory,
   userFactory
 } from '../db/factories';
 import {
@@ -13,6 +14,7 @@ import {
   FieldsGroups,
   Pipelines,
   Stages,
+  Tasks,
   Users
 } from '../db/models';
 import {
@@ -21,7 +23,10 @@ import {
   IStageDocument
 } from '../db/models/definitions/boards';
 
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import {
+  BOARD_TYPES,
+  TIME_TRACK_TYPES
+} from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('Test boards mutations', () => {
@@ -519,5 +524,44 @@ describe('Test boards mutations', () => {
     expect(deals[0]._id).toEqual(deal2._id);
     expect(deals[1]._id).toEqual(deal1._id);
     expect(deals[2]._id).toEqual(deal._id);
+  });
+
+  test('Board item update time track', async () => {
+    const mutation = `
+      mutation boardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int!, $startDate: String) {
+        boardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
+      }
+    `;
+
+    const task = await taskFactory();
+
+    await graphqlRequest(mutation, 'boardItemUpdateTimeTracking', {
+      _id: task._id,
+      type: 'task',
+      status: TIME_TRACK_TYPES.STARTED,
+      timeSpent: 10,
+      startDate: new Date().toISOString()
+    });
+
+    let updatedTask = await Tasks.findOne({ _id: task._id });
+
+    if (updatedTask && updatedTask.timeTrack) {
+      expect(updatedTask.timeTrack.status).toBe(TIME_TRACK_TYPES.STARTED);
+      expect(updatedTask.timeTrack.timeSpent).toBe(10);
+    }
+
+    await graphqlRequest(mutation, 'boardItemUpdateTimeTracking', {
+      _id: task._id,
+      type: 'task',
+      status: TIME_TRACK_TYPES.STOPPED,
+      timeSpent: 20
+    });
+
+    updatedTask = await Tasks.findOne({ _id: task._id });
+
+    if (updatedTask && updatedTask.timeTrack) {
+      expect(updatedTask.timeTrack.status).toBe(TIME_TRACK_TYPES.STOPPED);
+      expect(updatedTask.timeTrack.timeSpent).toBe(20);
+    }
   });
 });
