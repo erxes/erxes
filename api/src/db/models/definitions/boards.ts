@@ -219,7 +219,11 @@ export const commonItemFieldsSchema = {
     label: 'Score',
     esType: 'number'
   }),
-  number: field({ type: String, index: true, label: 'Item number' })
+  number: field({
+    type: String,
+    unique: true,
+    label: 'Item number'
+  })
 };
 
 export const boardSchema = schemaWrapper(
