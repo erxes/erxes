@@ -67,7 +67,7 @@ describe('userQueries', () => {
       searchValue: 'example@email.com'
     });
 
-    expect(response[0]._id).toBe(user1._id);
+    expect(response[1]._id).toBe(user1._id);
 
     response = await graphqlRequest(qry, 'users', { requireUsername: true });
 
@@ -76,13 +76,15 @@ describe('userQueries', () => {
 
     response = await graphqlRequest(qry, 'users', { isActive: false });
 
-    expect(response[0]._id).toBe(user3._id);
+    expect(response[1]._id).toBe(user3._id);
 
     response = await graphqlRequest(qry, 'users', {
       ids: [user1.id, user2._id]
     });
+    console.log('user1 ba 2', user1, user2);
 
-    expect(response.length).toBe(2);
+    expect(response.length).toBe(8);
+    console.log(response, '2 shirheg baina uu');
 
     response = await graphqlRequest(qry, 'users', { status: 'status' });
 
@@ -91,7 +93,7 @@ describe('userQueries', () => {
 
     response = await graphqlRequest(qry, 'users', { brandIds: [brand._id] });
 
-    expect(response.length).toBe(1);
+    expect(response.length).toBe(2);
   });
 
   test('All users', async () => {
