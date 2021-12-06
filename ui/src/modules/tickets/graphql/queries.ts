@@ -53,6 +53,7 @@ const tickets = `
     $stageId: String,
     $date: ItemDate,
     $skip: Int,
+    $limit: Int,
     $search: String,
     ${commonParams}
   ) {
@@ -61,6 +62,7 @@ const tickets = `
       stageId: $stageId,
       date: $date,
       skip: $skip,
+      limit: $limit,
       search: $search,
       ${commonParamDefs}
     ) {

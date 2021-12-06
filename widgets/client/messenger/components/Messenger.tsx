@@ -25,6 +25,7 @@ function Messenger({
         supporters={supporters}
         loading={loading}
         isOnline={isOnline}
+        serverTime={serverTime}
       />
     );
   };

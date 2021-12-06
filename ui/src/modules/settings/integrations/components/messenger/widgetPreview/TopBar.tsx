@@ -81,7 +81,14 @@ class TopBar extends React.Component<Props> {
   }
 
   renderSupporters() {
-    const { supporterIds, isOnline, teamMembers, showChatPreview, showTimezone, timezone } = this.props;
+    const {
+      supporterIds,
+      isOnline,
+      teamMembers,
+      showChatPreview,
+      showTimezone,
+      timezone
+    } = this.props;
 
     return (
       <SupporterComponent

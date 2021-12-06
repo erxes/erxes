@@ -14,8 +14,7 @@ import { ButtonGroup } from 'modules/boards/styles/header';
 import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import useContextMenu from './useContextMenu';
-import './style.css';
+import ContextMenu from 'modules/common/components/ContextMenu';
 
 type Props = {
   items: IItem[];
@@ -135,22 +134,6 @@ const GanttChart = (props: Props) => {
   const [selectedItem, setSelectedItem] = useState(null as any);
   const [timelineMode, setTimelineMode] = useState('month');
 
-  const Menu = ({ onDelete }) => {
-    const { anchorPoint, show } = useContextMenu();
-
-    if (show) {
-      return (
-        <ul
-          className="menu"
-          style={{ top: anchorPoint.y, left: anchorPoint.x }}
-        >
-          <li onClick={onDelete}>Delete</li>
-        </ul>
-      );
-    }
-    return <></>;
-  };
-
   const onHorizonChange = (start, end) => {
     const result = dbData.filter(item => {
       return (
@@ -250,6 +233,8 @@ const GanttChart = (props: Props) => {
 
         setLinks([...links]);
 
+        setSelectedItem(null);
+
         save();
       }
     }
@@ -277,7 +262,7 @@ const GanttChart = (props: Props) => {
           </ButtonGroup>
         </ModeContainer>
       </NavContainer>
-      <TimelineContainer>
+      <TimelineContainer id="timeline-container">
         <TimeLine
           data={data}
           links={links}
@@ -292,8 +277,10 @@ const GanttChart = (props: Props) => {
           nonEditableName={true}
         />
       </TimelineContainer>
-      <Menu onDelete={deleteItem} />
       {renderForm()}
+      <ContextMenu elementId="timeline-container" show={Boolean(selectedItem)}>
+        <li onClick={deleteItem}>Delete</li>
+      </ContextMenu>
     </GanttContainer>
   );
 };
