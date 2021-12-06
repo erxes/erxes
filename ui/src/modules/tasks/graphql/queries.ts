@@ -49,6 +49,7 @@ const tasks = `
     $stageId: String,
     $date: ItemDate,
     $skip: Int,
+    $limit: Int,
     $search: String,
     ${commonParams}
   ) {
@@ -57,6 +58,7 @@ const tasks = `
       stageId: $stageId,
       date: $date,
       skip: $skip,
+      limit: $limit,
       search: $search,
       ${commonParamDefs}
     ) {
