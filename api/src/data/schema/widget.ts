@@ -28,6 +28,7 @@ export const types = `
     errors: [Error]
     messageId: String
     customerId: String
+    userId: String
   }
 
   type Error {
@@ -63,6 +64,7 @@ export const types = `
 export const queries = `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
+  widgetExportMessengerData(_id: String, integrationId: String!): String
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
@@ -134,6 +136,7 @@ export const mutations = `
     submissions: [FieldValueInput]
     browserInfo: JSON!
     cachedCustomerId: String
+    userId: String
   ): SaveFormResponse
 
   widgetsSendEmail(
@@ -149,6 +152,7 @@ export const mutations = `
   widgetGetBotInitialMessage(integrationId: String): JSON
 
   widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
+  widgetsKnowledgebaseDecReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
 

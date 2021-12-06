@@ -14,6 +14,9 @@ export const types = `
     modifiedDate: Date
     topicId: String
     categoryId: String
+    viewCount: Int
+    attachments: [Attachment]
+    image: Attachment
   }
 
   input KnowledgeBaseArticleDoc {
@@ -25,6 +28,8 @@ export const types = `
     categoryIds: [String]
     topicId: String
     categoryId: String
+    image: AttachmentInput
+    attachments: [AttachmentInput]
   }
 
   type KnowledgeBaseCategory {
@@ -115,8 +120,9 @@ export const queries = `
   knowledgeBaseCategoriesTotalCount(topicIds: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
+  knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount(categoryIds: [String]): Int
 `;
 

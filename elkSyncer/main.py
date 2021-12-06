@@ -18,7 +18,10 @@ nestedType = {
     "type" : "nested",
     "properties" : {
         "field" : { "type" : "keyword"},
-        "value" : { "type" : "text" },
+        "value" : { 
+            "type" : "object", 
+            "enabled" : "false" 
+        },
         "stringValue" : { "type" : "text" },
         "numberValue" : { "type" : "float" },
         "dateValue" : { "type" : "date" }

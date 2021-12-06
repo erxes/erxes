@@ -7,6 +7,7 @@ import {
   conformityFactory,
   customerFactory,
   dealFactory,
+  fieldFactory,
   pipelineFactory,
   pipelineLabelFactory,
   productFactory,
@@ -19,6 +20,8 @@ import {
   Checklists,
   Conformities,
   Deals,
+  Fields,
+  FieldsGroups,
   PipelineLabels,
   Pipelines,
   Products,
@@ -111,19 +114,36 @@ describe('Test deals mutations', () => {
     await Deals.deleteMany({});
     await PipelineLabels.deleteMany({});
     await Products.deleteMany({});
+    await FieldsGroups.deleteMany({});
+    await Fields.deleteMany({});
   });
 
   test('Create deal', async () => {
+    const fieldDesc = await fieldFactory({ type: 'file' });
+
     const args = {
       name: deal.name,
       stageId: stage._id,
       customerIds: ['fakeCustomerId'],
-      companyIds: ['fakeCompanyId']
+      companyIds: ['fakeCompanyId'],
+      customFieldsData: [
+        {
+          field: fieldDesc._id,
+          value: [
+            {
+              url: 'file.txt',
+              name: 'file.txt',
+              size: 294,
+              type: 'text/plain'
+            }
+          ]
+        }
+      ]
     };
 
     const mutation = `
-      mutation dealsAdd(${commonDealParamDefs} $customerIds: [String] $companyIds: [String]) {
-        dealsAdd(${commonDealParams} customerIds: $customerIds companyIds: $companyIds) {
+      mutation dealsAdd(${commonDealParamDefs} $customerIds: [String] $companyIds: [String] $customFieldsData: JSON) {
+        dealsAdd(${commonDealParams} customerIds: $customerIds companyIds: $companyIds customFieldsData: $customFieldsData) {
           _id
           name
           stageId
@@ -138,8 +158,8 @@ describe('Test deals mutations', () => {
 
   test('Update deal', async () => {
     const mutation = `
-      mutation dealsEdit($_id: String!, ${commonDealParamDefs}) {
-        dealsEdit(_id: $_id, ${commonDealParams}) {
+      mutation dealsEdit($_id: String!, ${commonDealParamDefs}, $customFieldsData: JSON) {
+        dealsEdit(_id: $_id, ${commonDealParams}, customFieldsData: $customFieldsData) {
           _id
           name
           stageId
@@ -149,12 +169,26 @@ describe('Test deals mutations', () => {
     `;
 
     const product2 = await productFactory();
+    const fieldDesc = await fieldFactory({ type: 'file' });
 
     const args: any = {
       _id: deal._id,
       name: deal.name,
       stageId: stage._id,
-      productsData: [{ productId: product2._id }, { productId: product._id }]
+      productsData: [{ productId: product2._id }, { productId: product._id }],
+      customFieldsData: [
+        {
+          field: fieldDesc._id,
+          value: [
+            {
+              url: 'file.txt',
+              name: 'file.txt',
+              size: 294,
+              type: 'text/plain'
+            }
+          ]
+        }
+      ]
     };
 
     let response = await graphqlRequest(mutation, 'dealsEdit', args);

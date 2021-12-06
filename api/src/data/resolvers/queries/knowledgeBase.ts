@@ -14,15 +14,36 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticles(
     _root,
-    args: { page: number; perPage: number; categoryIds: string[] }
+    {
+      categoryIds,
+      searchValue,
+      ...pageArgs
+    }: {
+      page: number;
+      perPage: number;
+      searchValue?: string;
+      categoryIds: string[];
+    }
   ) {
-    const articles = KnowledgeBaseArticles.find({
-      categoryId: { $in: args.categoryIds }
-    }).sort({
+    const selector: any = {};
+
+    if (searchValue && searchValue.trim()) {
+      selector.$or = [
+        { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
+      ];
+    }
+
+    if (categoryIds && categoryIds.length > 0) {
+      selector.categoryId = { $in: categoryIds };
+    }
+
+    const articles = KnowledgeBaseArticles.find(selector).sort({
       createdDate: -1
     });
 
-    return paginate(articles, args);
+    return paginate(articles, pageArgs);
   },
 
   /**
@@ -30,6 +51,17 @@ const knowledgeBaseQueries = {
    */
   knowledgeBaseArticleDetail(_root, { _id }: { _id: string }) {
     return KnowledgeBaseArticles.findOne({ _id });
+  },
+
+  /**
+   * Article detail anc increase a view count
+   */
+  knowledgeBaseArticleDetailAndIncViewCount(_root, { _id }: { _id: string }) {
+    return KnowledgeBaseArticles.findOneAndUpdate(
+      { _id },
+      { $inc: { viewCount: 1 } },
+      { new: true }
+    );
   },
 
   /**

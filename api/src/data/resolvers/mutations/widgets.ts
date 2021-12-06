@@ -40,7 +40,6 @@ import { IContext } from '../../types';
 import {
   findCompany,
   registerOnboardHistory,
-  replaceEditorAttributes,
   sendEmail,
   sendMobileNotification,
   sendRequest,
@@ -50,6 +49,7 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 import { IFormDocument } from '../../../db/models/definitions/forms';
+import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -258,6 +258,7 @@ const widgetMutations = {
       submissions: ISubmission[];
       browserInfo: any;
       cachedCustomerId?: string;
+      userId?: string;
     }
   ) {
     const { submissions } = args;
@@ -286,7 +287,22 @@ const widgetMutations = {
     _root,
     { articleId, reactionChoice }: { articleId: string; reactionChoice: string }
   ) {
-    return KnowledgeBaseArticles.incReactionCount(articleId, reactionChoice);
+    return KnowledgeBaseArticles.modifyReactionCount(
+      articleId,
+      reactionChoice,
+      'inc'
+    );
+  },
+
+  widgetsKnowledgebaseDecReactionCount(
+    _root,
+    { articleId, reactionChoice }: { articleId: string; reactionChoice: string }
+  ) {
+    return KnowledgeBaseArticles.modifyReactionCount(
+      articleId,
+      reactionChoice,
+      'dec'
+    );
   },
 
   /*
@@ -802,16 +818,13 @@ const widgetMutations = {
     let finalContent = content;
 
     if (customer && form) {
-      const { customerFields } = await replaceEditorAttributes({
-        content
-      });
-
-      const { replacedContent } = await replaceEditorAttributes({
-        content,
-        customerFields,
-        customer,
-        user: await Users.getUser(form.createdUserId)
-      });
+      const replacedContent = await new EditorAttributeUtil().replaceAttributes(
+        {
+          content,
+          customer,
+          user: await Users.getUser(form.createdUserId)
+        }
+      );
 
       finalContent = replacedContent || '';
     }

@@ -83,6 +83,8 @@ export interface IMessengerData {
   availabilityMethod?: string;
   isOnline?: boolean;
   timezone?: string;
+  responseRate?: string;
+  showTimezone?: boolean;
   requireAuth?: boolean;
   showChat?: boolean;
   showLauncher?: boolean;

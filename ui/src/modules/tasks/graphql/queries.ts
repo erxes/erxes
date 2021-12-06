@@ -91,36 +91,42 @@ const taskDetail = `
   }
 `;
 
+const archivedTasksParams = `
+  $pipelineId: String!
+  $search: String
+  $userIds: [String]
+  $priorities: [String]
+  $assignedUserIds: [String]
+  $labelIds: [String]
+  $companyIds: [String]
+  $customerIds: [String]
+  $startDate: String
+  $endDate: String
+`;
+
+const archivedTasksArgs = `
+  pipelineId: $pipelineId
+  search: $search
+  userIds: $userIds
+  priorities: $priorities
+  assignedUserIds: $assignedUserIds
+  labelIds: $labelIds
+  companyIds: $companyIds
+  customerIds: $customerIds
+  startDate: $startDate
+  endDate: $endDate
+`;
+
 const archivedTasks = `
   query archivedTasks(
-    $pipelineId: String!,
-    $search: String,
-    $page: Int,
-    $perPage: Int,
-    $userIds: [String],
-    $priorities: [String],
-    $assignedUserIds: [String],
-    $labelIds: [String],
-    $productIds: [String],
-    $companyIds: [String],
-    $customerIds: [String],
-    $startDate: String,
-    $endDate: String
+    $page: Int
+    $perPage: Int
+    ${archivedTasksParams}
   ) {
     archivedTasks(
-      pipelineId: $pipelineId,
-      search: $search,
-      page: $page,
-      perPage: $perPage,
-      userIds: $userIds,
-      priorities: $priorities,
-      assignedUserIds: $assignedUserIds,
-      labelIds: $labelIds,
-      productIds: $productIds,
-      companyIds: $companyIds,
-      customerIds: $customerIds,
-      startDate: $startDate,
-      endDate: $endDate
+      page: $page
+      perPage: $perPage
+     ${archivedTasksArgs}
     ) {
       ${commonFields}
     }
@@ -129,30 +135,10 @@ const archivedTasks = `
 
 const archivedTasksCount = `
   query archivedTasksCount(
-    $pipelineId: String!, 
-    $search: String,
-    $userIds: [String],
-    $priorities: [String],
-    $assignedUserIds: [String],
-    $labelIds: [String],
-    $productIds: [String],
-    $companyIds: [String],
-    $customerIds: [String],
-    $startDate: String,
-    $endDate: String,
+    ${archivedTasksParams}
   ) {
     archivedTasksCount(
-      pipelineId: $pipelineId, 
-      search: $search,
-      userIds: $userIds,
-      priorities: $priorities,
-      assignedUserIds: $assignedUserIds,
-      labelIds: $labelIds,
-      productIds: $productIds,
-      companyIds: $companyIds,
-      customerIds: $customerIds,
-      startDate: $startDate,
-      endDate: $endDate
+      ${archivedTasksArgs}
     )
   }
 `;

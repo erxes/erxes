@@ -120,7 +120,6 @@ const calendarActions = [
   'calendarGroupsEdit',
   'calendarGroupsRemove'
 ];
-
 class Settings extends React.PureComponent {
   renderBox(
     name: string,
