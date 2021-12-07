@@ -295,25 +295,28 @@ export const getBoardItemLink = async (stageId: string, itemId: string) => {
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };
 
-export const boardNumberGenerator = async (config: string, type: string) => {
+export const boardNumberGenerator = async (config: string, collection: any) => {
   // remove number attributes in value
-  const configWithoutNumber: any = config.replace(/\{number}/g, '');
-  const { collection } = await getCollection(type);
+  const configWithoutNumber: string = config.replace(/\{number}/g, '');
+  const configWithOnlyNumber = config.replace(configWithoutNumber, '');
 
   // replace year
   let replacedConfig = configWithoutNumber.replace(
     /\{year}/g,
-    new Date().getFullYear()
+    new Date().getFullYear().toString()
   );
 
   // replace month
   replacedConfig = replacedConfig.replace(
     /\{month}/g,
-    new Date().getMonth() + 1
+    (new Date().getMonth() + 1).toString()
   );
 
   // replace day
-  replacedConfig = replacedConfig.replace(/\{day}/g, new Date().getDate());
+  replacedConfig = replacedConfig.replace(
+    /\{day}/g,
+    new Date().getDate().toString()
+  );
 
   // find last board with this config
   const lastBoard = await collection
@@ -322,34 +325,60 @@ export const boardNumberGenerator = async (config: string, type: string) => {
       createdAt: -1
     });
 
-  let newNumber: string;
-
-  let numberAttributes = config.replace(configWithoutNumber, '');
-  numberAttributes = numberAttributes.replace(/\{number}/g, '0');
+  // replace number attribute in just number
+  const numberAttributes = configWithOnlyNumber.replace(/\{number}/g, '0');
 
   if (lastBoard) {
     const lastGeneratedNum = lastBoard.number;
 
-    const number = lastGeneratedNum.slice(replacedConfig.length);
+    const lastNumber = lastGeneratedNum.slice(replacedConfig.length);
 
-    newNumber = await generateNumber(numberAttributes, number);
-
-    return replacedConfig + newNumber;
+    return (
+      replacedConfig + (await generateNumber(numberAttributes, lastNumber))
+    );
   }
 
-  newNumber = await generateNumber(numberAttributes);
-
   // return first generated number
-  return replacedConfig + newNumber;
+  return replacedConfig + (await generateNumber(numberAttributes));
 };
 
-export const generateBoardNumber = async (doc, type: string) => {
+export const generateBoardNumber = async (collection: any, doc: any) => {
   const stage = await Stages.getStage(doc.stageId);
   const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
   if (pipeline.numberConfig) {
-    doc.number = await boardNumberGenerator(pipeline.numberConfig, type);
+    doc.number = await boardNumberGenerator(pipeline.numberConfig, collection);
   }
 
   return doc;
+};
+
+export const createItem = async (doc: any, type: string) => {
+  const { collection } = await getCollection(type);
+
+  doc = await generateBoardNumber(collection, doc);
+
+  let item;
+
+  try {
+    item = await collection.create({
+      ...doc,
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      stageChangedDate: new Date(),
+      searchText: fillSearchTextItem(doc)
+    });
+  } catch (e) {
+    if (e.message.includes('number_1 dup key')) {
+      await createItem(doc, type);
+    }
+  }
+
+  // create log
+  await putActivityLog({
+    action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+    data: { item, contentType: type }
+  });
+
+  return item;
 };
