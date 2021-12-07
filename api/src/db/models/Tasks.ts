@@ -1,9 +1,8 @@
 import { Model, model } from 'mongoose';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
+  createItem,
   destroyBoardItemRelations,
   fillSearchTextItem,
-  generateBoardNumber,
   watchItem
 } from './boardUtils';
 import { IItemCommonFields as ITask } from './definitions/boards';
@@ -47,22 +46,7 @@ export const loadTaskClass = () => {
         }
       }
 
-      doc = await generateBoardNumber(doc, 'task');
-
-      const task = await Tasks.create({
-        ...doc,
-        createdAt: new Date(),
-        modifiedAt: new Date(),
-        stageChangedDate: new Date(),
-        searchText: fillSearchTextItem(doc)
-      });
-
-      await putActivityLog({
-        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-        data: { item: task, contentType: 'task' }
-      });
-
-      return task;
+      return createItem(doc, 'task');
     }
 
     /**

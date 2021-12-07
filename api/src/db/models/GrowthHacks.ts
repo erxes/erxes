@@ -1,10 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import {
-  fillSearchTextItem,
-  generateBoardNumber,
-  watchItem
-} from './boardUtils';
+import { fillSearchTextItem, createItem, watchItem } from './boardUtils';
 import {
   growthHackSchema,
   IGrowthHack,
@@ -39,22 +34,7 @@ export const loadGrowthHackClass = () => {
      * Create a growth hack
      */
     public static async createGrowthHack(doc: IGrowthHack) {
-      doc = await generateBoardNumber(doc, 'growthHack');
-
-      const growthHack = await GrowthHacks.create({
-        ...doc,
-        createdAt: new Date(),
-        modifiedAt: new Date(),
-        stageChangedDate: new Date(),
-        searchText: fillSearchTextItem(doc)
-      });
-
-      await putActivityLog({
-        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-        data: { item: growthHack, contentType: 'growtHack' }
-      });
-
-      return growthHack;
+      return createItem(doc, 'growthHack');
     }
 
     /**

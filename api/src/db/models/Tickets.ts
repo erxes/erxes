@@ -1,9 +1,8 @@
 import { Model, model } from 'mongoose';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
-  generateBoardNumber,
+  createItem,
   watchItem
 } from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
@@ -46,23 +45,7 @@ export const loadTicketClass = () => {
         }
       }
 
-      doc = await generateBoardNumber(doc, 'ticket');
-
-      const ticket = await Tickets.create({
-        ...doc,
-        createdAt: new Date(),
-        modifiedAt: new Date(),
-        stageChangedDate: new Date(),
-        searchText: fillSearchTextItem(doc)
-      });
-
-      // create log
-      await putActivityLog({
-        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-        data: { item: ticket, contentType: 'ticket' }
-      });
-
-      return ticket;
+      return createItem(doc, 'ticket');
     }
 
     /**
