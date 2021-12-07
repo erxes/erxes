@@ -6,7 +6,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import CURRENCIES from 'modules/common/constants/currencies';
 import { Title } from 'modules/common/styles/main';
-import { Alert, __ } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import EmailConfigForm from 'modules/settings/general/components/EmailConfigForm';
 import React from 'react';
@@ -25,7 +25,6 @@ import { IConfigsMap } from '../types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from './Header';
 import Sidebar from '../containers/Sidebar';
-import BoardNumberConfigs from './boardNumber/BoardNumberConfigs';
 
 type Props = {
   currentLanguage: string;
@@ -56,28 +55,6 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
-
-    let isBoardConfigReady = true;
-
-    ['ticketNumber', 'taskNumber', 'dealNumber', 'growthNumber'].forEach(
-      numberType => {
-        const config = configsMap[numberType];
-
-        if (
-          config &&
-          config[numberType] !== '' &&
-          !config[numberType].includes('{number}')
-        ) {
-          isBoardConfigReady = false;
-        }
-      }
-    );
-
-    if (!isBoardConfigReady) {
-      return Alert.error(
-        'Please add at least one number attribute in a board config'
-      );
-    }
 
     this.setState({ isSaved: true });
 
@@ -194,13 +171,6 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title={__('Board number settings')}>
-          <BoardNumberConfigs
-            onChangeConfig={this.onChangeConfig}
-            configsMap={configsMap}
-          />
-        </CollapseContent>
-
         <CollapseContent title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>

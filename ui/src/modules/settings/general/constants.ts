@@ -359,38 +359,3 @@ export const FILE_MIME_TYPES = [
     extension: '.gz'
   }
 ];
-
-export const BOARD_NUMBERS = [
-  {
-    label: 'Year',
-    value: 'year'
-  },
-  {
-    label: 'Month',
-    value: 'month'
-  },
-  {
-    label: 'Day',
-    value: 'day'
-  },
-  {
-    label: 'Number',
-    value: 'number'
-  },
-  {
-    label: 'Dash',
-    value: '-'
-  },
-  {
-    label: 'Underscore',
-    value: '_'
-  },
-  {
-    label: 'Slash',
-    value: '/'
-  },
-  {
-    label: 'Space',
-    value: ' '
-  }
-];

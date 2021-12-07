@@ -79,16 +79,6 @@ const configMutations = {
           user
         });
       }
-
-      if (
-        ['taskNumber', 'ticketNumber', 'dealNumber', 'growthNumber'].includes(
-          code
-        )
-      ) {
-        if (!configsMap[code][code]) {
-          await Configs.deleteOne({ code });
-        }
-      }
     }
   },
 
