@@ -75,6 +75,27 @@ class Sidebar extends React.Component<Props> {
             'Deal',
             false
           )}
+
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=leads`,
+            'Leads',
+            false
+          )}
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=visitors`,
+            'Visitors',
+            false
+          )}
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=tasks`,
+            'Tasks',
+            false
+          )}
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=tickets`,
+            'Tickets',
+            false
+          )}
         </List>
       </LeftSidebar>
     );
