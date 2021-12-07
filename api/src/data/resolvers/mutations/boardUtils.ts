@@ -98,6 +98,7 @@ export const itemsAdd = async (
   docModifier?: any
 ) => {
   const { collection } = getCollection(type);
+
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = user && [user._id];
 
