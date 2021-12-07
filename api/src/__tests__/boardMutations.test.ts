@@ -43,7 +43,8 @@ describe('Test boards mutations', () => {
     $visibility: String!
     $bgColor: String,
     $excludeCheckUserIds: [String],
-    $memberIds: [String]
+    $memberIds: [String],
+    $numberConfig: String
   `;
 
   const commonPipelineParams = `
@@ -55,6 +56,7 @@ describe('Test boards mutations', () => {
     bgColor: $bgColor,
     excludeCheckUserIds: $excludeCheckUserIds,
     memberIds: $memberIds
+    numberConfig: $numberConfig
   `;
 
   beforeEach(async () => {
@@ -172,7 +174,8 @@ describe('Test boards mutations', () => {
       visibility: 'public',
       bgColor: 'aaa',
       excludeCheckUserIds: [user1._id],
-      memberIds: [user2._id]
+      memberIds: [user2._id],
+      numberConfig: '{number}'
     };
 
     const mutation = `
@@ -186,6 +189,7 @@ describe('Test boards mutations', () => {
           visibility
           excludeCheckUserIds
           memberIds
+          numberConfig
         }
       }
     `;
@@ -214,6 +218,49 @@ describe('Test boards mutations', () => {
     expect(createdPipeline.memberIds.length).toBe(1);
   });
 
+  test('Create pipeline with error(Please add at least one number attribute in number config)', async () => {
+    expect.assertions(1);
+
+    const user1 = await userFactory();
+    const user2 = await userFactory();
+
+    const args = {
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'aaa',
+      excludeCheckUserIds: [user1._id],
+      memberIds: [user2._id],
+      numberConfig: '{error}'
+    };
+
+    const mutation = `
+      mutation pipelinesAdd(${commonPipelineParamDefs}) {
+        pipelinesAdd(${commonPipelineParams}) {
+          _id
+          name
+          type
+          boardId
+          bgColor
+          visibility
+          excludeCheckUserIds
+          memberIds
+          numberConfig
+        }
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Please add at least one number attribute in number config'
+      );
+    }
+  });
+
   test('Update pipeline', async () => {
     const args = {
       _id: pipeline._id,
@@ -222,7 +269,8 @@ describe('Test boards mutations', () => {
       boardId: board._id,
       stages: [stage.toJSON()],
       visibility: 'public',
-      bgColor: 'bbb'
+      bgColor: 'bbb',
+      numberConfig: '{number}'
     };
 
     const mutation = `
@@ -234,6 +282,7 @@ describe('Test boards mutations', () => {
           boardId
           visibility
           bgColor
+          numberConfig
         }
       }
     `;
