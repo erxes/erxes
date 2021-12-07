@@ -65,18 +65,6 @@ describe('Test growthHacks model', () => {
     expect(createdGrowthHack.userId).toEqual(user._id);
   });
 
-  test('Create growthHacks and check generated number not equal', async () => {
-    const args = {
-      stageId: growthHack.stageId,
-      userId: user._id
-    };
-
-    const growthHack1 = await GrowthHacks.createGrowthHack(args);
-    const growthHack2 = await GrowthHacks.createGrowthHack(args);
-
-    expect(growthHack1.number).not.toEqual(growthHack2.number);
-  });
-
   test('Update growthHack', async () => {
     const growthHackStageId = 'fakeId';
     const updatedGrowthHack = await GrowthHacks.updateGrowthHack(
