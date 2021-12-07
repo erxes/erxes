@@ -13,7 +13,6 @@ import { colors } from 'modules/common/styles';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
-import EditForm from 'modules/boards/containers/editForm/EditForm';
 import ContextMenu from 'modules/common/components/ContextMenu';
 
 type Props = {
@@ -163,13 +162,14 @@ const GanttChart = (props: Props) => {
       return null;
     }
 
+    const Item = options.Item;
+
     return (
-      <EditForm
-        stageId={dbData.stage._id}
-        itemId={dbData._id}
-        hideHeader={true}
-        isPopupVisible={true}
+      <Item
         options={options}
+        beforePopupClose={() => setSelectedItem(null)}
+        item={dbData}
+        isFormVisible={true}
       />
     );
   };
