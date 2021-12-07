@@ -2,7 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { Attributes } from '../../../general/components/styles';
+import { Attributes } from '../../styles';
 import { __ } from 'modules/common/utils';
 
 type Props = {
