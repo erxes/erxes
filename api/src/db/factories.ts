@@ -1089,6 +1089,7 @@ interface IPipelineFactoryInput {
   startDate?: Date;
   endDate?: Date;
   templateId?: string;
+  numberConfig?: string;
 }
 
 export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
@@ -1112,7 +1113,8 @@ export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
     watchedUserIds: params.watchedUserIds,
     startDate: params.startDate,
     endDate: params.endDate,
-    templateId: params.templateId
+    templateId: params.templateId,
+    numberConfig: params.numberConfig || '{number}'
   });
 };
 
