@@ -64,6 +64,18 @@ describe('Test Tickets model', () => {
     expect(createdTicket.userId).toEqual(user._id);
   });
 
+  test('Create tickets and check number not equal', async () => {
+    const args = {
+      stageId: ticket.stageId,
+      userId: user._id
+    };
+
+    const ticket1 = await Tickets.createTicket(args);
+    const ticket2 = await Tickets.createTicket(args);
+
+    expect(ticket1.number).not.toEqual(ticket2.number);
+  });
+
   test('Create ticket Error(`Already converted a ticket`)', async () => {
     const conversation = await conversationFactory();
 

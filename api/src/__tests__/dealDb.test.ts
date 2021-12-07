@@ -93,6 +93,18 @@ describe('Test deals model', () => {
     expect(createdDeal.userId).toEqual(user._id);
   });
 
+  test('Create deals and check generated number not equal', async () => {
+    const args = {
+      stageId: deal.stageId,
+      userId: user._id
+    };
+
+    const deal1 = await Deals.createDeal(args);
+    const deal2 = await Deals.createDeal(args);
+
+    expect(deal1.number).not.toEqual(deal2.number);
+  });
+
   test('Create deal Error(`Already converted a deal`)', async () => {
     const conversation = await conversationFactory();
 

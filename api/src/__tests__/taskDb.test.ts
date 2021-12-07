@@ -65,6 +65,18 @@ describe('Test tasks model', () => {
     expect(createdTask.userId).toEqual(user._id);
   });
 
+  test('Create tasks and check number not equal', async () => {
+    const args = {
+      stageId: task.stageId,
+      userId: user._id
+    };
+
+    const task1 = await Tasks.createTask(args);
+    const task2 = await Tasks.createTask(args);
+
+    expect(task1.number).not.toEqual(task2.number);
+  });
+
   test('Create task Error(`Already converted a task`)', async () => {
     const conversation = await conversationFactory();
 
