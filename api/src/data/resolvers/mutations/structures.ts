@@ -1,5 +1,6 @@
 import { Structures, Departments, Units, Branches } from '../../../db/models';
 import { IContext } from '../../types';
+import { checkPermission } from '../../permissions/wrappers';
 
 const structuresMutations = {
   async structuresAdd(_root, doc, { user }: IContext) {
@@ -74,5 +75,21 @@ const structuresMutations = {
     return deleteResponse;
   }
 };
+
+checkPermission(structuresMutations, 'structuresAdd', 'addStructure');
+checkPermission(structuresMutations, 'structuresEdit', 'editStructure');
+checkPermission(structuresMutations, 'structuresRemove', 'removeStructure');
+
+checkPermission(structuresMutations, 'departmentsAdd', 'addDepartment');
+checkPermission(structuresMutations, 'departmentsEdit', 'editDepartment');
+checkPermission(structuresMutations, 'departmentsRemove', 'removeDepartment');
+
+checkPermission(structuresMutations, 'unitsAdd', 'addUnit');
+checkPermission(structuresMutations, 'unitsEdit', 'editUnit');
+checkPermission(structuresMutations, 'unitsRemove', 'removeUnit');
+
+checkPermission(structuresMutations, 'branchesAdd', 'addBranch');
+checkPermission(structuresMutations, 'branchesEdit', 'editBranch');
+checkPermission(structuresMutations, 'branchesRemove', 'removeBranch');
 
 export default structuresMutations;

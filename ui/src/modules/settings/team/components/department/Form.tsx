@@ -8,17 +8,18 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDepartment } from '../../types';
-import SelectStructureMembers from '../SelectStructureMembers';
+import SelectTeamMembers from '../../containers/SelectTeamMembers';
+import { generateTree } from '../../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   department?: IDepartment;
   closeModal: () => void;
-  parentDepartments: IDepartment[];
+  departments: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, parentDepartments } = props;
+  const { closeModal, renderButton, departments } = props;
   const object = props.department || ({} as any);
 
   const [userIds, setUserIds] = useState(
@@ -50,16 +51,12 @@ export default function DepartmentForm(props: Props) {
     }
   };
 
-  const onSelectUsers = options => {
-    setUserIds(options.map(option => option.value));
+  const onSelectUsers = values => {
+    setUserIds(values);
   };
 
-  const onSelectSupervisor = option => {
-    if (option) {
-      setSupervisorId(option.value);
-    } else {
-      setSupervisorId('');
-    }
+  const onSelectSupervisor = value => {
+    setSupervisorId(value);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -93,40 +90,35 @@ export default function DepartmentForm(props: Props) {
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
 
-          <SelectStructureMembers
+          <SelectTeamMembers
+            label="Choose supervisor"
             name="supervisorId"
-            objectId={object._id}
-            value={supervisorId}
+            initialValue={supervisorId}
             onSelect={onSelectSupervisor}
             multi={false}
-            excludeUserIds={userIds}
           />
         </FormGroup>
-        {(!object._id || (object._id && object.parentId)) && (
-          <FormGroup>
-            <ControlLabel>{__('Parent')}</ControlLabel>
-            <Select
-              placeholder={__('Choose parent')}
-              value={parentId}
-              clearable={true}
-              onChange={onChangeParent}
-              options={parentDepartments.map(d => ({
-                value: d._id,
-                label: d.title
-              }))}
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel>{__('Parent')}</ControlLabel>
+          <Select
+            placeholder={__('Choose parent')}
+            value={parentId}
+            clearable={true}
+            onChange={onChangeParent}
+            options={generateTree(departments, null, (node, level) => ({
+              value: node._id,
+              label: `${'---'.repeat(level)} ${node.title}`
+            }))}
+          />
+        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
 
-          <SelectStructureMembers
-            objectId={object._id}
-            value={userIds}
-            onSelect={onSelectUsers}
-            multi={true}
-            excludeUserIds={[supervisorId]}
+          <SelectTeamMembers
+            label="Choose team members"
             name="userIds"
+            initialValue={userIds}
+            onSelect={onSelectUsers}
           />
         </FormGroup>
         <ModalFooter>

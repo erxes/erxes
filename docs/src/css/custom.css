@@ -29,8 +29,8 @@
   --ifm-footer-background-color: var(--moon-grey);
   --ifm-menu-color-background-active: var(--ifm-color-emphasis-200);
   --ifm-color-primary: var(--nebula-blue);
-  --ifm-heading-color:  var(--cosmos-black);
-  --ifm-menu-color-active: #5629B6;
+  --ifm-heading-color: var(--cosmos-black);
+  --ifm-menu-color-active: #5629b6;
   --ifm-color-primary-dark: #4d25a4;
   --ifm-color-primary-darker: #49239b;
   --ifm-color-primary-darkest: #3c1d7f;
@@ -39,7 +39,7 @@
   --ifm-color-primary-lightest: #784bd7;
 }
 
-html[data-theme='dark'] {
+html[data-theme="dark"] {
   --ifm-font-base-color: #dee0f2;
   --ifm-navbar-link-hover-color: #8b9dff;
   --ifm-link-color: #8b9dff;
@@ -49,6 +49,8 @@ html[data-theme='dark'] {
   --ifm-footer-background-color: #0a141c;
   --ifm-navbar-background-color: #21243d;
   --ifm-menu-color-background-active: #21243d;
+  --ifm-table-border-color: #dee0f2;
+  --ifm-table-font-color: #dee0f2;
 }
 
 #hero {
@@ -58,7 +60,7 @@ html[data-theme='dark'] {
   );
 }
 
-html[data-theme='dark'] .react-toggle-track {
+html[data-theme="dark"] .react-toggle-track {
   background-color: var(--ifm-footer-background-color);
 }
 
@@ -85,6 +87,10 @@ html[data-theme='dark'] .react-toggle-track {
   padding: 0 var(--ifm-pre-padding);
 }
 
+.codeBlockContainer_node_modules-\@docusaurus-theme-classic-lib-next-theme-CodeBlock- {
+  margin-top: 20px;
+}
+
 .navbar__items > span {
   margin-top: 7px;
   display: none;
@@ -107,14 +113,22 @@ html[data-theme='dark'] .react-toggle-track {
 }
 
 .even-column {
-  background: rgba(180,180,180, 0.08);
+  background: rgba(180, 180, 180, 0.08);
+}
+
+.collapse {
+  display: none;
+}
+
+.collapse.show {
+  display: block;
 }
 
 @media (min-width: 600px) {
-	.center-desktop {
-		text-align: center;
+  .center-desktop {
+    text-align: center;
   }
-  
+
   .navbar__items > span {
     display: block;
   }

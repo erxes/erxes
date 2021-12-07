@@ -83,6 +83,7 @@ export const articleSchema = new Schema({
     default: 0,
     label: 'Count how many times visitor viewed'
   }),
+  image: field({ type: attachmentSchema, label: 'Thumbnail image' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
   reactionCounts: field({ type: Object, label: 'Reaction counts' }),
   topicId: field({ type: String, optional: true, label: 'Topic' }),

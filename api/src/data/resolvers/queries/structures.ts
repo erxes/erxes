@@ -1,18 +1,10 @@
 import { Departments, Units, Users } from '../../../db/models';
 import { Branches, Structures } from '../../../db/models/Structure';
+import { checkPermission } from '../../permissions/wrappers';
 
 const structureQueries = {
-  departments(
-    _root,
-    { depthType, searchValue }: { depthType?: string; searchValue?: string }
-  ) {
-    const filter: { parentId?: any; $or?: any[] } = {};
-
-    if (depthType === 'parent') {
-      filter.parentId = null;
-    } else if (depthType === 'children') {
-      filter.parentId = { $ne: null };
-    }
+  departments(_root, { searchValue }: { searchValue?: string }) {
+    const filter: { $or?: any[] } = {};
 
     if (searchValue) {
       const regexOption = {
@@ -63,15 +55,8 @@ const structureQueries = {
     return Units.getUnit({ _id });
   },
 
-  branches(
-    _root,
-    { depthType, searchValue }: { depthType?: string; searchValue?: string }
-  ) {
+  branches(_root, { searchValue }: { searchValue?: string }) {
     const filter: { parentId?: any; $or?: any[] } = {};
-
-    if (depthType === 'parent') {
-      filter.parentId = null;
-    }
 
     if (searchValue) {
       const regexOption = {
@@ -124,5 +109,16 @@ const structureQueries = {
     return Structures.findOne();
   }
 };
+
+checkPermission(structureQueries, 'structureDetail', 'showStructure');
+
+checkPermission(structureQueries, 'departments', 'showDepartment');
+checkPermission(structureQueries, 'departmentDetail', 'showDepartment');
+
+checkPermission(structureQueries, 'units', 'showUnit');
+checkPermission(structureQueries, 'unitDetail', 'showUnit');
+
+checkPermission(structureQueries, 'branches', 'showBranch');
+checkPermission(structureQueries, 'branchDetail', 'showBranch');
 
 export default structureQueries;

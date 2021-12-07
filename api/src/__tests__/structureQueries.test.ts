@@ -43,8 +43,8 @@ describe('Structure queries', () => {
     });
 
     const query = `
-            query departments($depthType: String, $searchValue: String) {
-                departments(depthType: $depthType, searchValue: $searchValue) {
+            query departments($searchValue: String) {
+                departments(searchValue: $searchValue) {
                     _id
                     users {
                         _id
@@ -65,18 +65,6 @@ describe('Structure queries', () => {
     let response = await graphqlRequest(query, 'departments');
 
     expect(response.length).toBe(2);
-
-    response = await graphqlRequest(query, 'departments', {
-      depthType: 'children'
-    });
-
-    expect(response.length).toBe(1);
-
-    response = await graphqlRequest(query, 'departments', {
-      depthType: 'parent'
-    });
-
-    expect(response.length).toBe(1);
 
     response = await graphqlRequest(query, 'departments', {
       searchValue: 'example'
@@ -208,8 +196,8 @@ describe('Structure queries', () => {
     });
 
     const query = `
-          query branches($depthType: String, $searchValue: String) {
-              branches(depthType: $depthType, searchValue: $searchValue) {
+          query branches($searchValue: String) {
+              branches(searchValue: $searchValue) {
                   _id
                   users {
                       _id
@@ -230,12 +218,6 @@ describe('Structure queries', () => {
     const response = await graphqlRequest(query, 'branches');
 
     expect(response.length).toBe(3);
-
-    const onlyParentResponse = await graphqlRequest(query, 'branches', {
-      depthType: 'parent'
-    });
-
-    expect(onlyParentResponse.length).toBe(1);
 
     const searchValueResponse = await graphqlRequest(query, 'branches', {
       searchValue: 'example'

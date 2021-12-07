@@ -120,24 +120,28 @@ export const fetchSegment = async (
     return countResponse.count;
   }
 
-  const { sortField, sortDirection, page, perPage, } = options;
+  const { sortField, sortDirection, page, perPage } = options;
   let pagination = {};
-  
-  if( page && perPage){
+
+  if (page && perPage) {
     pagination = {
       from: (page - 1) * perPage,
-      size: perPage,
+      size: perPage
     };
   }
-  if(sortField && sortDirection){
+  if (sortField && sortDirection) {
     pagination = {
-        ...pagination, 
-        sort: {
+      ...pagination,
+      sort: {
         [sortField]: {
-          order: sortDirection ? sortDirection === -1 ? 'desc' : 'asc' : 'desc'
+          order: sortDirection
+            ? sortDirection === -1
+              ? 'desc'
+              : 'asc'
+            : 'desc'
         }
       }
-    }
+    };
   }
 
   const response = await fetchElk({
