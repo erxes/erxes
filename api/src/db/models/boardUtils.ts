@@ -353,7 +353,7 @@ export const generateBoardNumber = async (collection: any, doc: any) => {
   return doc;
 };
 
-export const createItem = async (doc: any, type: string) => {
+export const createBoardItem = async (doc: any, type: string) => {
   const { collection } = await getCollection(type);
 
   doc = await generateBoardNumber(collection, doc);
@@ -369,8 +369,8 @@ export const createItem = async (doc: any, type: string) => {
       searchText: fillSearchTextItem(doc)
     });
   } catch (e) {
-    if (e.message.includes('number_1 dup key')) {
-      await createItem(doc, type);
+    if (e.message.includes(`index: number_1 dup key`)) {
+      await createBoardItem(doc, type);
     }
   }
 

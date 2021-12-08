@@ -2,7 +2,7 @@ import { Model, model } from 'mongoose';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
-  createItem,
+  createBoardItem,
   watchItem
 } from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
@@ -42,7 +42,7 @@ export const loadDealClass = () => {
         }
       }
 
-      return createItem(doc, 'deal');
+      return createBoardItem(doc, 'deal');
     }
 
     /**

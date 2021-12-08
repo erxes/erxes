@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import {
-  createItem,
+  createBoardItem,
   destroyBoardItemRelations,
   fillSearchTextItem,
   watchItem
@@ -46,7 +46,7 @@ export const loadTaskClass = () => {
         }
       }
 
-      return createItem(doc, 'task');
+      return createBoardItem(doc, 'task');
     }
 
     /**

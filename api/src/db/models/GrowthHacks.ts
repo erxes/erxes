@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { fillSearchTextItem, createItem, watchItem } from './boardUtils';
+import { fillSearchTextItem, createBoardItem, watchItem } from './boardUtils';
 import {
   growthHackSchema,
   IGrowthHack,
@@ -34,7 +34,7 @@ export const loadGrowthHackClass = () => {
      * Create a growth hack
      */
     public static async createGrowthHack(doc: IGrowthHack) {
-      return createItem(doc, 'growthHack');
+      return createBoardItem(doc, 'growthHack');
     }
 
     /**
