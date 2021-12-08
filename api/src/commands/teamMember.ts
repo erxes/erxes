@@ -90,8 +90,7 @@ const command = async () => {
 
       let user;
 
-      if (email) {
-      } else {
+      if (!email) {
         email = `empty${index}@apu.mn`;
       }
 
