@@ -64,7 +64,6 @@ class Sidebar extends React.Component<Props> {
             'Customers',
             false
           )}
-
           {this.renderListItem(
             `/dashboard/reports/${dashboardId}?type=conversations`,
             'Conversation',
@@ -94,6 +93,11 @@ class Sidebar extends React.Component<Props> {
           {this.renderListItem(
             `/dashboard/reports/${dashboardId}?type=tickets`,
             'Tickets',
+            false
+          )}
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=companies`,
+            'Companies',
             false
           )}
         </List>
