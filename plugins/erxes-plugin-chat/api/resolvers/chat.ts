@@ -3,7 +3,9 @@ const chatResolvers = [
     type: 'Chat',
     field: 'lastMessage',
     handler: (chat, {}, { models }) => {
-      return models.ChatMessages.findOne({ chatId: chat._id });
+      return models.ChatMessages.findOne({ chatId: chat._id }).sort({
+        createdAt: -1
+      });
     }
   },
   {
