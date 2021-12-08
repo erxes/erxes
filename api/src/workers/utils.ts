@@ -14,10 +14,7 @@ import {
   uploadsFolderPath
 } from '../data/utils';
 import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
-import {
-  default as ImportHistories,
-  default as ImportHistory
-} from '../db/models/ImportHistory';
+import { default as ImportHistory } from '../db/models/ImportHistory';
 import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
 import * as streamify from 'stream-array';
@@ -240,11 +237,7 @@ export const receiveImportRemove = async (content: any) => {
 
     myWorker.setHandleEnd(handleOnEndWorker);
 
-    const importHistory = await ImportHistories.getImportHistory(
-      importHistoryId
-    );
-
-    const ids = importHistory.ids || [];
+    const ids = [];
 
     if (ids.length === 0) {
       await ImportHistory.deleteOne({ _id: importHistoryId });

@@ -87,10 +87,6 @@ class Row extends React.Component<Props, {}> {
   render() {
     const { fields, columnWithChosenField, column, contentType } = this.props;
 
-    if (contentType === 'company' && column === 'CustomerEmail') {
-      return null;
-    }
-
     const renderValue = () => {
       const value = columnWithChosenField[contentType];
 

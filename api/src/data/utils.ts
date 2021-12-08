@@ -95,7 +95,7 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
   });
 };
 
-export const getS3FileInfo2 = async ({ s3, params }): Promise<string> => {
+export const getS3ImportFileInfo = async ({ s3, params }): Promise<string> => {
   return new Promise((resolve, reject) => {
     const request = s3.getObject(params);
     const readStream = request.createReadStream();
@@ -122,6 +122,60 @@ export const getS3FileInfo2 = async ({ s3, params }): Promise<string> => {
           reject();
         });
     });
+  });
+};
+
+const getCsvInfo = (fileName: string, uploadType: string) => {
+  return new Promise(async resolve => {
+    if (uploadType === 'local') {
+      const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+
+      let columns;
+      let total = 0;
+
+      const rl = readline.createInterface({
+        input: readSteam,
+        terminal: false
+      });
+
+      rl.on('line', input => {
+        if (total === 0) {
+          columns = input;
+        }
+
+        total++;
+      });
+      rl.on('close', () => {
+        // exclude column
+        total--;
+
+        resolve({ total, columns });
+      });
+    } else {
+      const AWS_BUCKET = await getConfig('AWS_BUCKET');
+      const s3 = await createAWS();
+
+      const params = { Bucket: AWS_BUCKET, Key: fileName };
+
+      const rowCountString = await getS3FileInfo({
+        s3,
+        params,
+        query: 'SELECT COUNT(*) FROM S3Object'
+      });
+
+      // exclude column
+      let total = Number(rowCountString);
+
+      total--;
+
+      const columns = await getS3FileInfo({
+        s3,
+        params,
+        query: 'SELECT * FROM S3Object LIMIT 1'
+      });
+
+      return resolve({ total, columns });
+    }
   });
 };
 

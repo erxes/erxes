@@ -6,7 +6,7 @@ const histories = `
         success
         failed
         total
-        contentType
+        contentTypes
         date
         user {
           details {
@@ -36,7 +36,7 @@ const historyDetail = `
       success
       failed
       total
-      contentType
+      contentTypes
       date
       errorMsgs
       percentage
@@ -52,7 +52,7 @@ const historyDetailForLoad = `
       errorMsgs
       percentage
       status
-      contentType
+      contentTypes
     }
   }
 `;

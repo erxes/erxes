@@ -4,8 +4,7 @@ export const types = `
     success: String!
     failed: String
     total: String
-    ids: [String]
-    contentType: String
+    contentTypes: [String]
     errorMsgs: [String]
     status: String
     percentage: Float

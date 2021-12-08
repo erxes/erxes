@@ -78,8 +78,6 @@ const importHistoryMutations = {
       const importHistoryId = importHistory._id;
       const file = files[contentType];
 
-      console.log(importHistoryId, file, contentType);
-
       importer2(
         contentType,
         file[0],
