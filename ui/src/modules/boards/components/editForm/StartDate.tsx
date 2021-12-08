@@ -119,8 +119,6 @@ class StartDate extends React.Component<Props, State> {
     const { startDate } = this.props;
     const time = dayjs(startDate).format('HH:mm');
 
-    console.log(generateButtonStart);
-
     const trigger = (
       <Button colorName={generateButtonStart(startDate)}>
         {startDate

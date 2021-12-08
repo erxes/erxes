@@ -154,21 +154,27 @@ const GanttChart = (props: Props) => {
       return null;
     }
 
-    const { items, options } = props;
+    const { items, options, refetch } = props;
 
-    const dbData = items.find(row => row._id === selectedItem.id);
+    const dbDataRow = items.find(row => row._id === selectedItem.id);
 
-    if (!dbData || !dbData.stage) {
+    if (!dbDataRow || !dbDataRow.stage) {
       return null;
     }
+
+    const beforePopupClose = () => {
+      refetch();
+
+      setSelectedItem(null);
+    };
 
     const Item = options.Item;
 
     return (
       <Item
         options={options}
-        beforePopupClose={() => setSelectedItem(null)}
-        item={dbData}
+        item={dbDataRow}
+        beforePopupClose={beforePopupClose}
         isFormVisible={true}
       />
     );
@@ -240,6 +246,8 @@ const GanttChart = (props: Props) => {
     }
   };
 
+  const { refetch } = props;
+
   return (
     <GanttContainer>
       <NavContainer>
@@ -265,6 +273,7 @@ const GanttChart = (props: Props) => {
       <TimelineContainer id="timeline-container">
         <TimeLine
           data={data}
+          refetch={refetch}
           links={links}
           config={config}
           onHorizonChange={onHorizonChange}

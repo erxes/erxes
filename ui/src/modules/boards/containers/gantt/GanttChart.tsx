@@ -73,14 +73,6 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
       return <Spinner />;
     }
 
-    const refetch = () => {
-      itemsQuery.refetch().then(({ data }) => {
-        this.setState({
-          items: data[options.queriesName.itemsQuery] || []
-        });
-      });
-    };
-
     const save = (boardItems: any[], links: any[]) => {
       client
         .mutate({
@@ -94,6 +86,14 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
         .catch(e => {
           Alert.error(e.message);
         });
+    };
+
+    const refetch = () => {
+      itemsQuery.refetch().then(({ data }) => {
+        this.setState({
+          items: data[options.queriesName.itemsQuery] || []
+        });
+      });
     };
 
     const { items } = this.state;
