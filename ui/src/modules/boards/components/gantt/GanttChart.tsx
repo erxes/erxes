@@ -154,7 +154,7 @@ const GanttChart = (props: Props) => {
       return null;
     }
 
-    const { items, options, refetch } = props;
+    const { items, options } = props;
 
     const dbDataRow = items.find(row => row._id === selectedItem.id);
 
@@ -163,7 +163,7 @@ const GanttChart = (props: Props) => {
     }
 
     const beforePopupClose = () => {
-      refetch();
+      props.refetch();
 
       setSelectedItem(null);
     };
