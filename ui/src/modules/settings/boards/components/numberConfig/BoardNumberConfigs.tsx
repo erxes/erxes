@@ -12,7 +12,7 @@ function BoardNumber(props: Props) {
 
   return (
     <Input
-      label={'Number generate'}
+      label={'Number configuration'}
       onChange={onChangeNumber}
       attributions={BOARD_NUMBERS}
       config={config}
