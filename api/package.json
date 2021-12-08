@@ -26,7 +26,8 @@
     "migrateKnowledgeBase": "node_modules/.bin/ts-node src/commands/migrateKnowledgeBase.ts",
     "migrateSegment": "node_modules/.bin/ts-node src/commands/segmentMigration.ts",
     "changeToSubscribed": "node_modules/.bin/ts-node src/commands/changeToSubscribed.ts",
-    "fixCompanyScopeBrandIds": "node_modules/.bin/ts-node src/commands/fixCompanyScopeBrandIds.ts"
+    "fixCompanyScopeBrandIds": "node_modules/.bin/ts-node src/commands/fixCompanyScopeBrandIds.ts",
+    "insertTeamMember": "node_modules/.bin/ts-node src/commands/teamMember.ts"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
