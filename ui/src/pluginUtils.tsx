@@ -260,3 +260,17 @@ export const pluginsOfWebhooks = () => {
 
   return { webhookActions };
 };
+
+export const pluginsOfAutomationActions = () => {
+  let automationActions: any = [];
+
+  for (const pluginName of Object.keys(pluginModules)) {
+    const plugin = pluginModules[pluginName]();
+
+    if (plugin.automationActions) {
+      automationActions = automationActions.concat(plugin.automationActions);
+    }
+  }
+
+  return automationActions;
+};

@@ -4,6 +4,8 @@ import LoyaltySectionContainer from './loyalties/containers/LoyaltySection';
 import CustomerLoyalties from './loyalties/containers/CustomerLoyalties';
 import Settings from './configs/general/containers/Settings';
 import VoucherCompaigns from './configs/voucherCompaign/containers/List';
+import { __ } from 'erxes-ui'
+import SetVoucher from './automations/containers/SetVoucher';
 
 const customerLoyalties = ({ match }) => {
   const customerId = match.params.customerId;
@@ -55,6 +57,16 @@ export default () => ({
     {
       name: 'loyalty',
       title: 'Used Loyalty'
+    }
+  ],
+  automationActions: [
+    {
+      type: 'voucher',
+      icon: 'fast-mail',
+      label: __('add voucher'),
+      description: __('assign voucher'),
+      isAvailable: true,
+      component: SetVoucher
     }
   ]
 });
