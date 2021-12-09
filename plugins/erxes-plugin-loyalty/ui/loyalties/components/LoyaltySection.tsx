@@ -2,7 +2,7 @@ import { __, Box, Icon, SectionBodyItem } from 'erxes-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { LoyaltyAmount } from '../styles';
+import { LoyaltyAmount } from '../../styles';
 import { ICustomerLoyalty } from '../types';
 
 type IProps = {

@@ -3,9 +3,9 @@ import {
   MainStyleTitle as Title, Wrapper, CollapseContent
 } from 'erxes-ui';
 import React from 'react';
-import { ContentBox } from '../../styles';
+import { ContentBox } from '../../../styles';
 
-import { IConfigsMap } from '../../types';
+import { IConfigsMap } from '../types';
 import Sidebar from './Sidebar';
 
 type Props = {

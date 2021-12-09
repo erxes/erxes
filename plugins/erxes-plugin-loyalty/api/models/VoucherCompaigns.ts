@@ -7,7 +7,8 @@ export const voucherCompaignSchema = {
   score: { type: Number },
   scoreAction: { type: String },
 
-  productId: { type: String },
+  productCategoryIds: { type: [String] },
+  productIds: { type: [String] },
   productDiscountPercent: { type: Number },
   productLimit: { type: Boolean, default: false },
   productCount: { type: Number, optional: true },
@@ -33,7 +34,7 @@ export class VoucherCompaign {
   public static async validVoucherCompaign(doc) {
     validCompaign(doc)
 
-    if (!doc.score || !doc.productId || !doc.spinId || !doc.lotteryId) {
+    if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.spinId && !doc.lotteryId) {
       throw new Error('Could not create null Voucher compaign');
     }
 
@@ -83,9 +84,10 @@ export class VoucherCompaign {
   }
 
   public static async removeVoucherCompaigns(models, ids: [String], dataSources) {
-    const atVoucherIds = await models.Vouchers.find({
-      voucherCompaignId: { $in: ids }
-    }).distinct('voucherCompaignId');
+    // const atVoucherIds = await models.Vouchers.find({
+    //   voucherCompaignId: { $in: ids }
+    // }).distinct('voucherCompaignId');
+    const atVoucherIds = [];
 
     const atDonateIds = await models.DonateCompaigns.find({
       'awards.voucherCompaignId': { $in: ids }
@@ -99,9 +101,13 @@ export class VoucherCompaign {
       'awards.voucherCompaignId': { $in: ids }
     }).distinct('awards.voucherCompaignId');
 
-    const atAssignmentAutomations = await dataSources.AutomationsAPI.getAutomations({
+    let atAssignmentAutomations = await dataSources.AutomationsAPI.getAutomations({
       'actions.config.voucherCompaignId': { $in: ids }
-    })
+    }) || []
+
+    if (atAssignmentAutomations.error) {
+      atAssignmentAutomations = []
+    }
 
     const usedCompaignIds = [...atVoucherIds, ...atDonateIds, ...atLotteryIds, ...atSpinIds];
 
@@ -123,7 +129,7 @@ export class VoucherCompaign {
     // automation actions check
 
 
-    const deleteCompaignIds = ids.map(id => !usedCompaignIds.includes(id));
+    const deleteCompaignIds = ids.filter(id => (!usedCompaignIds.includes(id)));
     const now = new Date();
 
     await models.VoucherCompaigns.updateMany(

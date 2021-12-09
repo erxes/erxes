@@ -60,18 +60,6 @@ export const customerLoyalty = `
   }
 `;
 
-// Settings
-
-const loyaltyConfigs = `
-  query loyaltyConfigs {
-    loyaltyConfigs {
-      _id
-      code
-      value
-    }
-  }
-`;
-
 const customerDetail = `
   query customerDetail($_id: String!) {
     customerDetail(_id: $_id) {
@@ -84,5 +72,4 @@ export default {
   customerLoyalty,
   customerLoyalties,
   customerDetail,
-  loyaltyConfigs
 };

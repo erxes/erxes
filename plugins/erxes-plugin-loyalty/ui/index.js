@@ -1,12 +1,23 @@
+import queryString from 'query-string';
 import React from 'react';
-import LoyaltySectionContainer from './containers/LoyaltySection';
-import CustomerLoyalties from './containers/CustomerLoyalties';
-import Settings from './containers/configs/Settings';
+import LoyaltySectionContainer from './loyalties/containers/LoyaltySection';
+import CustomerLoyalties from './loyalties/containers/CustomerLoyalties';
+import Settings from './configs/general/containers/Settings';
+import VoucherCompaigns from './configs/voucherCompaign/containers/List';
 
 const customerLoyalties = ({ match }) => {
   const customerId = match.params.customerId;
 
   return <CustomerLoyalties customerId={customerId} />;
+};
+
+const voucherCompaignList = ({ location, history }) => {
+  return (
+    <VoucherCompaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 export default () => ({
@@ -21,7 +32,7 @@ export default () => ({
     },
     {
       path: '/settings/voucher',
-      component: Settings
+      component: voucherCompaignList
     },
     {
       path: '/settings/donate',

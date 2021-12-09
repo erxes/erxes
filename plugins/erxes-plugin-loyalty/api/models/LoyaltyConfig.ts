@@ -29,7 +29,6 @@ export class LoyaltyConfig {
     value: any;
   }) {
     const obj = await models.LoyaltyConfigs.findOne({ code });
-    console.log(obj)
 
     if (obj) {
       await models.LoyaltyConfigs.updateOne({ _id: obj._id }, { $set: { value } });

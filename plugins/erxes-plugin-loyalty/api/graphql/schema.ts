@@ -1,42 +1,20 @@
+import { mutations as configMutations, queries as configQueries, types as configTypes } from './schema/config';
+import { mutations as voucherCompaignMutations, queries as voucherCompaignQueries, types as voucherCompaignTypes } from './schema/voucherCompaign';
+import { queries as loyaltyQueries, types as loyaltyTypes } from './schema/loyalty';
+
 export const types = `
-  type LoyaltyConfig {
-    _id: String!
-    code: String!
-    value: JSON
-  }
-
-  type CustomerLoyalty {
-    customerId: String
-    loyalty: Float
-  }
-
-  type Loyalty {
-    modifiedAt: Date,
-    customerId: String,
-    value: Float,
-    dealId: String,
-    userId: String,
-
-    user: User
-    customer: Customer
-    deal: Deal
-  }
+  ${configTypes}
+  ${voucherCompaignTypes}
+  ${loyaltyTypes}
 `;
 
 export const queries = `
-  loyaltyConfigs: [LoyaltyConfig]
-
-  customerLoyalties(
-    customerId: String!
-    page: Int
-    perPage: Int
-  ): [Loyalty]
-
-  customerLoyalty(
-    customerId: String!
-  ): CustomerLoyalty
+  ${configQueries}
+  ${voucherCompaignQueries}
+  ${loyaltyQueries}
 `;
 
 export const mutations = `
-  loyaltyConfigsUpdate(configsMap: JSON!): JSON
+  ${configMutations}
+  ${voucherCompaignMutations}
 `;
