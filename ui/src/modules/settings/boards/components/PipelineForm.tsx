@@ -161,7 +161,7 @@ class PipelineForm extends React.Component<Props, State> {
       <FormGroup>
         <SelectMemberStyled>
           <ControlLabel>
-            Users eligible to see all {this.props.type}s
+            Users eligible to see all {this.props.type}
           </ControlLabel>
 
           <SelectTeamMembers
