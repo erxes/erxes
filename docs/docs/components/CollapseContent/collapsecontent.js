@@ -5,7 +5,6 @@ import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 import Icon from "erxes-ui/lib/components/Icon";
-import { updateExportDeclaration } from "typescript";
 
 export function CollapseContentComponent(props) {
   const { comp, opens, color, img, type, text, table = [] } = props;
@@ -35,15 +34,11 @@ export function CollapseContentComponent(props) {
   const renderBlock = (propName, extra) => {
     return (
       <>
-        <CollapseContent
-          {...propDatas(propName, extra, true)}
-        >
+        <CollapseContent {...propDatas(propName, extra, true)}>
           <div>This is children.</div>
         </CollapseContent>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<CollapseContent ${stringify(
-            propDatas(propName, extra)
-          )} >
+          {`<>\n\t<CollapseContent ${stringify(propDatas(propName, extra))} >
           <div>This is children.</div>
         </CollapseContent>\n</>`}
         </CodeBlock>
@@ -52,7 +47,10 @@ export function CollapseContentComponent(props) {
   };
 
   if (type === "icon") {
-    return renderBlock("beforeTitle", `<img src='https://erxes.io/static/images/logo/glyph_dark.png' height='40px' />`);
+    return renderBlock(
+      "beforeTitle",
+      `<img src='https://erxes.io/static/images/logo/glyph_dark.png' height='40px' />`
+    );
   }
 
   if (type === "desc") {
