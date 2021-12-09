@@ -10,7 +10,11 @@ export default function SidebarContainer() {
     variables: { type: 'direct' }
   });
 
-  if (directChatsResponse.loading) {
+  const groupChatResponse = useQuery(gql(queries.chats), {
+    variables: { type: 'group' }
+  });
+
+  if (groupChatResponse.loading || directChatsResponse.loading) {
     return <div>...</div>;
   }
 
@@ -18,5 +22,14 @@ export default function SidebarContainer() {
     return <div>{directChatsResponse.error.message}</div>;
   }
 
-  return <Sidebar directChats={directChatsResponse.data.chats.list} />;
+  if (groupChatResponse.error) {
+    return <div>{groupChatResponse.error.message}</div>;
+  }
+
+  return (
+    <Sidebar
+      groupChats={groupChatResponse.data.chats.list}
+      directChats={directChatsResponse.data.chats.list}
+    />
+  );
 }

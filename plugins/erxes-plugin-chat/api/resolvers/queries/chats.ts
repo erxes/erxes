@@ -7,6 +7,14 @@ const chatQueries = [
       switch (type) {
         case 'direct': {
           filter.participantIds = { $size: 2, $in: user._id };
+
+          break;
+        }
+        case 'group': {
+          filter.participantIds = { $in: user._id };
+          filter.$expr = { $gt: [{ $size: '$participantIds' }, 2] };
+
+          break;
         }
         default:
       }
@@ -37,7 +45,11 @@ const chatQueries = [
           };
         }
 
-        const participantIds = [user._id, ...userIds];
+        const participantIds = [...userIds];
+
+        if (!userIds.includes(user._id)) {
+          participantIds.push(user._id);
+        }
 
         const chat = await models.Chats.findOne({
           participantIds: { $all: participantIds, $size: participantIds.length }

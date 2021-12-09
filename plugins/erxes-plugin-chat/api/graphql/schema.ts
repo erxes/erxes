@@ -27,6 +27,7 @@ export const types = `
 
   enum ChatType {
     direct
+    group
   }
 `;
 
