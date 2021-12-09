@@ -3,46 +3,43 @@ module.exports = {
     {
       type: "category",
       label: "Getting Started",
-      items:[
+      items: [
         {
           "Deploying on server": [
-              "overview/deployment-overview",
+            "overview/deployment-overview",
             {
               "Installation Guide": [
                 {
-                  "Ubuntu": [
-                              "installation/ubuntu",
-                              {
-                                Installation: [
-                                  "installation/ubuntu-quickstart",
-                                  "installation/ubuntu-step-by-step",
-                                  "installation/ubuntu-troubleshooting",
-                                ],
-                              },
-                            ],
-                  },
+                  Ubuntu: [
+                    "installation/ubuntu",
+                    {
+                      Installation: [
+                        "installation/ubuntu-quickstart",
+                        "installation/ubuntu-step-by-step",
+                        "installation/ubuntu-troubleshooting",
+                      ],
+                    },
+                  ],
+                },
                 "installation/docker",
                 "installation/upgrade",
-              ]
+              ],
             },
-          ]
+          ],
         },
         {
           "Contributing on open source": [
             "getting-started/contributing-guide",
             "getting-started/submitting",
-            "getting-started/commit"
-          ]
-        }
-      ]
+            "getting-started/commit",
+          ],
+        },
+      ],
     },
     {
       type: "category",
       label: "Overview",
-      items: [
-        "overview/overview",
-        "overview/architecture-overview",
-      ],
+      items: ["overview/overview", "overview/architecture-overview"],
     },
     {
       type: "category",
@@ -52,48 +49,48 @@ module.exports = {
         "developer/documentation_guide",
         {
           "Administrator's Guide": [
-              "administrator/creating-first-user",
-              "administrator/environment-variables",
-              "administrator/system-config",
-              "administrator/migration",
-            ] 
-          },
+            "administrator/creating-first-user",
+            "administrator/environment-variables",
+            "administrator/system-config",
+            "administrator/migration",
+          ],
+        },
         {
           Tutorials: [
-           "developer/graphql-api",
-           "developer/android-sdk",
-           "developer/ios-sdk",
-           "developer/push-notifications",
-           "user/script-install",
-          ]
+            "developer/graphql-api",
+            "developer/android-sdk",
+            "developer/ios-sdk",
+            "developer/push-notifications",
+            "user/script-install",
+          ],
         },
         {
           Integrations: [
-          "developer/integrations-overview/facebook",
-          "developer/integrations-overview/twitter",
-          "developer/integrations-overview/gmail",
-          "developer/integrations-overview/google-cloud-storage",
-          "developer/integrations-overview/aws-s3",
-          "developer/integrations-overview/aws-ses",
-          "developer/integrations-overview/nylas-integrations",
-          "developer/integrations-overview/whatsApp-integration",
-          "developer/integrations-overview/sunshine-conversations"
-          ]
+            "developer/integrations-overview/facebook",
+            "developer/integrations-overview/twitter",
+            "developer/integrations-overview/gmail",
+            "developer/integrations-overview/google-cloud-storage",
+            "developer/integrations-overview/aws-s3",
+            "developer/integrations-overview/aws-ses",
+            "developer/integrations-overview/nylas-integrations",
+            "developer/integrations-overview/whatsApp-integration",
+            "developer/integrations-overview/sunshine-conversations",
+          ],
         },
-        "developer/troubleshooting" 
+        "developer/troubleshooting",
       ],
     },
     {
       type: "category",
       label: "Changelog",
-      items:[
-        {  
-        type: 'link',
-        label: 'Release Notes', // The link label
-        href: 'https://github.com/erxes/erxes/releases', // The external URL
+      items: [
+        {
+          type: "link",
+          label: "Release Notes", // The link label
+          href: "https://github.com/erxes/erxes/releases", // The external URL
         },
       ],
-    }
+    },
   ],
   tutorials: [
     {
@@ -127,7 +124,6 @@ module.exports = {
         "components/AnimatedLoader/animatedLoader",
         "components/Attachment/attachment",
         "components/AvatarUpload/avatarUpload",
-        "components/Box/box",
         "components/BreadCrumb/breadcrumbs",
         "components/Button/buttons",
         "components/Chip/chip",
@@ -139,7 +135,6 @@ module.exports = {
         "components/FilePreview/filepreview",
         "components/FilterableList/filterablelist",
         "components/FilterByParams/filterbyparams",
-        "components/HeaderDescription/headerdescription",
         "components/HelpPopOver/helppopover",
         "components/Icon/icon",
         "components/Info/info",
@@ -150,16 +145,14 @@ module.exports = {
         "components/SortHandler/sorthandler",
         "components/Spinner/spinners",
         "components/Steps/steps",
-        "components/SubMenu/submenu",
         "components/Table/table",
         "components/Tabs/tabs",
         "components/Tag/tag",
         "components/TextDivider/textdivider",
         "components/TextInfo/textinfo",
-        "components/Timer/timer",
         "components/Tip/tip",
         "components/Toggle/toggle",
-        "components/Uploader/uploader"
+        "components/Uploader/uploader",
       ],
     },
   ],
