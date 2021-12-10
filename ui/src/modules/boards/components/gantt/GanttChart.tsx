@@ -14,6 +14,7 @@ import { ButtonGroup } from 'modules/boards/styles/header';
 import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
 import ContextMenu from 'modules/common/components/ContextMenu';
+import { EditForm } from 'modules/boards/containers/editForm';
 
 type Props = {
   items: IItem[];
@@ -168,14 +169,14 @@ const GanttChart = (props: Props) => {
       setSelectedItem(null);
     };
 
-    const Item = options.Item;
-
     return (
-      <Item
+      <EditForm
         options={options}
-        item={dbDataRow}
+        stageId={dbDataRow.stageId}
+        itemId={dbDataRow._id}
         beforePopupClose={beforePopupClose}
-        isFormVisible={true}
+        hideHeader={true}
+        isPopupVisible={true}
       />
     );
   };
