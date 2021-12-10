@@ -98,17 +98,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
 
     const { items } = this.state;
 
-    items.sort((a, b) => {
-      if (a.stage.order < b.stage.order) {
-        return -1;
-      }
-
-      if (a.stage.order > b.stage.order) {
-        return 1;
-      }
-
-      return 0;
-    });
+    items.sort((a, b) => a.stage.order - b.stage.order);
 
     return (
       <GanttChart
