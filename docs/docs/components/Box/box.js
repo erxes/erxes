@@ -1,5 +1,6 @@
 import React from "react";
 import Box from "erxes-ui/lib/components/Box";
+import Icon from "erxes-ui/lib/components/Icon";
 import Button from "erxes-ui/lib/components/Button";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
@@ -113,7 +114,7 @@ export function BoxComponent(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("extraButtons", `<Button btnStyle='simple'>Extra button</Button>`, <Button btnStyle='simple'>Extra button</Button>);
+    return renderBlock("extraButtons", `<a><Icon icon='cog' /></a>`, <a><Icon icon='cog' href="/" /></a>);
   }
 
   if (type === "APIbox") {

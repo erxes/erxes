@@ -53,6 +53,7 @@ export function stringify(datas) {
   string = string.replace(/>"/g, ">}");
   string = string.replace(/true/g, "{true}");
   string = string.replace(/false/g, "{false}");
+  string = string.replace(/null/g, "");
   
   return string;
 }
