@@ -12,7 +12,6 @@
       homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link rel="shortcut icon" id="favicon" href="%PUBLIC_URL%/favicon.png" />
 
     <!-- for blank page -->
     <link rel="stylesheet" href="/style.min.css" />
@@ -39,10 +38,10 @@
         }
 
         if (defaultValue.includes('REACT_APP')) {
-          return;
+          return '';
         }
 
-        return defaultValue;
+        return defaultValue || '';
       };
 
       window.envMaps = [
@@ -55,6 +54,10 @@
         {
           name: 'REACT_APP_DASHBOARD_URL',
           processValue: '%REACT_APP_DASHBOARD_URL%'
+        },
+        {
+          name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
+          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%'
         }
       ];
 

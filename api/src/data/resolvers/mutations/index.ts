@@ -1,8 +1,10 @@
+import automationsMutations from './automations';
 import boards from './boards';
 import brands from './brands';
 import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
+import clientPortal from './clientPortal';
 import companies from './companies';
 import configs from './configs';
 import conformity from './conformities';
@@ -42,6 +44,7 @@ import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
+import structures from './structures';
 
 export default {
   ...users,
@@ -84,5 +87,8 @@ export default {
   ...calendars,
   ...dashboards,
   ...skillTypesMutations,
-  ...skillsMutations
+  ...skillsMutations,
+  ...structures,
+  ...clientPortal,
+  ...automationsMutations
 };

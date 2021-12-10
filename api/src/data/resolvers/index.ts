@@ -1,5 +1,6 @@
 import * as permissionActions from '../permissions/actions';
 import ActivityLog from './activityLog';
+import ActivityLogByAction from './activityLogByAction';
 import Board from './boards';
 import Brand from './brand';
 import {
@@ -48,6 +49,14 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import Automation from './automation';
+import AutomationNote from './automationNote';
+import Trigger from './trigger';
+import Structure from './structure';
+import Department from './departments';
+import Unit from './units';
+import Branch from './branches';
+import BookingData from './bookingData';
 
 const resolvers: any = {
   ...customScalars,
@@ -87,6 +96,7 @@ const resolvers: any = {
   ProductCategory,
 
   ActivityLog,
+  ActivityLogByAction,
   Form,
   FieldsGroup: fieldsGroup,
   Field: field,
@@ -100,7 +110,15 @@ const resolvers: any = {
   GrowthHack,
   CalendarGroup,
   CalendarBoard,
-  Tag
+  Tag,
+  Automation,
+  AutomationNote,
+  Trigger,
+  Structure,
+  Department,
+  Unit,
+  Branch,
+  BookingData
 };
 
 export default resolvers;

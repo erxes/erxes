@@ -8,8 +8,10 @@ import {
   Integrations,
   Products
 } from '.';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { escapeRegExp } from '../../data/utils';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
+import { IUserDocument } from './definitions/users';
 
 interface ITagObjectParams {
   type: string;
@@ -104,7 +106,7 @@ export interface ITagModel extends Model<ITagDocument> {
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(_id: string): void;
-  tagObject(params: ITagObjectParams): void;
+  tagObject(params: ITagObjectParams, user?: IUserDocument): void;
   validateUniqueness(
     selector: any,
     name: string,
@@ -166,11 +168,10 @@ export const loadClass = () => {
     /*
      * Common helper for taggable objects like conversation, engage, customer etc ...
      */
-    public static async tagObject({
-      type,
-      tagIds,
-      targetIds
-    }: ITagObjectParams) {
+    public static async tagObject(
+      { type, tagIds, targetIds }: ITagObjectParams,
+      user?: IUserDocument
+    ) {
       const collection = getCollection(type);
 
       const prevTagsCount = await Tags.find({
@@ -187,6 +188,21 @@ export const loadClass = () => {
         { $set: { tagIds } },
         { multi: true }
       );
+
+      const targets = await collection.find({ _id: { $in: targetIds } }).lean();
+
+      for (const target of targets) {
+        await putActivityLog({
+          action: ACTIVITY_LOG_ACTIONS.CREATE_TAG_LOG,
+          data: {
+            contentId: target._id,
+            userId: user ? user._id : '',
+            contentType: type,
+            target,
+            content: { tagIds: tagIds || [] }
+          }
+        });
+      }
     }
 
     /*

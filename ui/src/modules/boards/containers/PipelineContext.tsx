@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps, router as routerUtils } from 'modules/common/utils';
 import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -19,9 +19,16 @@ import {
   IPipeline,
   PipelineDetailQueryResponse
 } from '../types';
-import { invalidateCache, updateItemInfo } from '../utils';
-import { reorder, reorderItemMap } from '../utils';
+import {
+  invalidateCache,
+  updateItemInfo,
+  isRefresh,
+  reorder,
+  reorderItemMap
+} from '../utils';
 import InvisibleItemInUrl from './InvisibleItemInUrl';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from 'modules/common/types';
 
 type WrapperProps = {
   pipeline: IPipeline;
@@ -37,7 +44,7 @@ type WrapperProps = {
 type Props = WrapperProps & {
   currentUserQuery: UserDetailQueryResponse;
   pipelineDetailQuery: any;
-};
+} & IRouterProps;
 
 type StageLoadMap = {
   [key: string]: 'readyToLoad' | 'loaded';
@@ -184,7 +191,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
             });
           }
 
-          if (action === 'itemOfConformitiesUpdate') {
+          if (action === 'itemOfConformitiesUpdate' && item._id) {
             setTimeout(() => {
               client
                 .query({
@@ -208,7 +215,9 @@ class PipelineProviderInner extends React.Component<Props, State> {
             this.refetchStage(destinationStageId);
           } else {
             // refetch stages info ===
-            const changedStageIds: string[] = [item.stageId];
+            const changedStageIds: string[] = item.stageId
+              ? [item.stageId]
+              : [];
 
             if (
               destinationStageId &&
@@ -513,11 +522,15 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemMap, itemIds } = this.state;
     const items = itemMap[stageId] || [];
 
+    const { queryParams, history } = this.props;
+
     if (!aboveItemId) {
       this.setState({
         itemMap: { ...itemMap, [stageId]: [item, ...items] },
         itemIds: [...itemIds, item._id]
       });
+
+      isRefresh(queryParams, routerUtils, history);
 
       return;
     }
@@ -535,6 +548,8 @@ class PipelineProviderInner extends React.Component<Props, State> {
         itemIds: [...itemIds, item._id]
       });
     }
+
+    isRefresh(queryParams, routerUtils, history);
   };
 
   onRemoveItem = (itemId: string, stageId: string) => {
@@ -674,5 +689,5 @@ export const PipelineProvider = withProps<WrapperProps>(
         variables: { _id: pipeline._id }
       })
     })
-  )(PipelineProviderInner)
+  )(withRouter(PipelineProviderInner))
 );

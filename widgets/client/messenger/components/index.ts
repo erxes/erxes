@@ -3,6 +3,7 @@ import App from "./App";
 import ConversationDetail from "./ConversationDetail";
 import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
+import ConversationInit from "./ConversationInit";
 import EngageMessage from "./EngageMessage";
 import Home from "./Home";
 import IntegrationItem from "./IntegrationItem";
@@ -21,6 +22,7 @@ export {
   App,
   TopBar,
   Messenger,
+  ConversationInit,
   ConversationList,
   ConversationItem,
   ConversationDetail,

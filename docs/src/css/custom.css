@@ -87,6 +87,10 @@ html[data-theme="dark"] .react-toggle-track {
   padding: 0 var(--ifm-pre-padding);
 }
 
+.codeBlockContainer_node_modules-\@docusaurus-theme-classic-lib-next-theme-CodeBlock- {
+  margin-top: 20px;
+}
+
 .navbar__items > span {
   margin-top: 7px;
   display: none;

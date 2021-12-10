@@ -1,5 +1,5 @@
 import { PopoverList } from 'modules/common/components/filterableList/styles';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, stageWidth } from './common';
@@ -23,7 +23,6 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   transition: box-shadow 0.3s ease;
   background: ${stageGray};
   overflow: hidden;
-
   ${props => css`
     box-shadow: ${props.isDragging
       ? 'rgba(0, 0, 0, 0.2) 0px 5px 20px 0px'
@@ -32,7 +31,6 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
 `;
 
 const Content = styledTS<{ type?: string }>(styled.div)`
-
   h5 {
     ${props => css`
       margin: ${props.type === 'growthHack' ? '0 20px 10px 0' : '0 20px 8px 0'};
@@ -44,10 +42,8 @@ const Content = styledTS<{ type?: string }>(styled.div)`
 
 const Indicator = styled.div`
   display: flex;
-
   > div {
     margin-right: 4px;
-
     &:last-of-type {
       margin: 0;
     }
@@ -72,17 +68,25 @@ const Header = styled.div`
   padding: 12px 16px;
   position: relative;
   border-radius: 3px 3px 0 0;
-
   h4 {
     margin: 0;
     font-size: 14px;
     font-weight: bold;
-
     span {
       color: ${secondaryText};
       margin-left: 5px;
       font-size: 85%;
     }
+  }
+`;
+
+const Body = styled.div`
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  margin: 0 4px;
+  &:hover {
+    overflow-y: auto;
   }
 `;
 
@@ -98,37 +102,52 @@ const Amount = styled.ul`
   max-width: 230px;
   font-size: 12px;
   display: inline-block;
-
   li {
     float: left;
     padding-right: 5px;
     line-height: 22px;
-
     span {
       font-weight: bold;
       font-size: 10px;
     }
-
     &:after {
       content: '/';
       margin-left: 5px;
     }
-
     &:last-child:after {
       content: '';
     }
   }
 `;
+const ListContainer = styled.div`
+  border: 1px solid rgb(238, 238, 238);
+  border-radius: ${dimensions.unitSpacing - 4}px;
+  margin: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0px 0px 20px 2px rgb(0 0 0 / 10%);
+`;
 
-const Body = styled.div`
-  max-height: 100%;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  margin: 0 4px;
+export const ListBody = styled.div`
+  overflow: auto;
+  position: relative;
+  overflow-y: overlay;
+  max-height: 300px;
+`;
 
-  &:hover {
-    overflow-y: auto;
-  }
+export const Footer = styled.div`
+  background: rgb(250, 250, 250);
+  border-top: 1px solid rgb(238, 238, 238);
+  display: flex;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+`;
+
+export const ListStageFooter = styled.div`
+  border-radius: 0 0 3px 3px;
+  background: rgba(101, 105, 223, 0.15);
+  align-self: center;
+  margin-left: auto;
+  width: 200px;
 `;
 
 const AddNew = styled.a`
@@ -139,12 +158,10 @@ const AddNew = styled.a`
   user-select: none;
   border-radius: 0 0 3px 3px;
   font-weight: 500;
-
   &:hover {
     background: ${hoverColor};
     cursor: pointer;
   }
-
   i {
     margin-right: 8px;
   }
@@ -163,7 +180,6 @@ const LoadingContent = styled.div`
   padding: 2px 0;
   border-radius: ${borderRadius};
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
-
   img {
     width: 100%;
   }
@@ -173,6 +189,22 @@ export const StageTitle = styled.h4`
   position: relative;
   display: flex;
   justify-content: space-between;
+`;
+
+export const GroupTitle = styled.div`
+  display: flex;
+
+  span {
+    border-radius: 14px;
+    padding: ${dimensions.unitSpacing - 8}px ${dimensions.unitSpacing - 1}px;
+    background: rgba(101, 105, 223, 0.15);
+  }
+`;
+
+export const ColumnLastChild = styled.th`
+  &:last-child {
+    text-align: left !important;
+  }
 `;
 
 export const ActionList = styled(PopoverList)`
@@ -208,5 +240,6 @@ export {
   IndicatorItem,
   StageFooter,
   LoadingContent,
-  StageRoot
+  StageRoot,
+  ListContainer
 };

@@ -1,7 +1,6 @@
 import React from "react";
 import AnimatedLoader from "erxes-ui/lib/components/AnimatedLoader";
 import styles from "../../../src/components/styles.module.css";
-import Button from "erxes-ui/lib/components/Button";
 import CodeBlock from "@theme/CodeBlock";
 import Table from "erxes-ui/lib/components/table/index";
 import { colors } from "../../../../dashboard-ui/src/modules/common/styles/index";
@@ -30,7 +29,8 @@ export function AnimatedLoaderComponent(props) {
             : propName === "width"
             ? "500px"
             : true,
-        height: "30px",
+        height: propName === "round" ? "100px" : "20px",
+        width: propName === "round" ? "100px" : "100%",
       },
     };
 
@@ -54,7 +54,9 @@ export function AnimatedLoaderComponent(props) {
     return (
       <>
         {renderApiTable("AnimatedLoader")}
-        <p><required>* required prop</required></p>
+        <p>
+          <required>* required prop</required>
+        </p>
         <Table>
           <thead>
             <tr>

@@ -37,7 +37,10 @@ class UserForm extends React.Component<Props, State> {
     const defaultAvatar = '/images/avatar-colored.svg';
 
     this.state = {
-      avatar: user.details.avatar || defaultAvatar,
+      avatar:
+        user.details && user.details.avatar
+          ? user.details.avatar
+          : defaultAvatar,
       selectedChannels: this.generateParams(props.selectedChannels),
       selectedGroups: this.generateParams(props.selectedGroups),
       selectedBrands: user.brandIds || []
@@ -158,7 +161,9 @@ class UserForm extends React.Component<Props, State> {
         avatar: this.state.avatar,
         shortName: finalValues.shortName,
         fullName: finalValues.fullName,
+        birthDate: finalValues.birthDate,
         position: finalValues.position,
+        workStartedDate: finalValues.workStartedDate,
         location: finalValues.location,
         description: finalValues.description,
         operatorPhone: finalValues.operatorPhone

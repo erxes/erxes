@@ -20,6 +20,5 @@ export function ErrorMsgComponent(props) {
   if (table) {
     return renderApiTable("ErrorMsg", table);
   }
-
   return null;
 }

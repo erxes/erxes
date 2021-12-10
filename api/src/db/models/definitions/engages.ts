@@ -170,7 +170,12 @@ export const engageMessageSchema = schemaWrapper(
       label: 'Created at',
       index: true
     }),
-    tagIds: field({ type: [String], optional: true, label: 'Tags' }),
+    tagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Tags',
+      index: true
+    }),
     customerTagIds: field({
       type: [String],
       optional: true,

@@ -6,7 +6,7 @@ import {
   findElk,
   findUser
 } from '../../data/resolvers/mutations/engageUtils';
-import { isUsingElk, replaceEditorAttributes } from '../../data/utils';
+import { isUsingElk } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { METHODS } from './definitions/constants';
@@ -22,7 +22,7 @@ import {
 } from './definitions/engages';
 import { CONTENT_TYPES } from './definitions/segments';
 import { IUserDocument } from './definitions/users';
-
+import EditorAttributeUtil from '../../data/editorAttributeUtils';
 interface ICheckRulesParams {
   rules: IRule[];
   browserInfo: IBrowserInfo;
@@ -83,7 +83,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     brandId: string;
     integrationId: string;
     customer?: ICustomerDocument;
-    visitor?: any;
+    visitorId?: string;
     browserInfo: any;
   }): Promise<IMessageDocument[]>;
 }
@@ -234,17 +234,20 @@ export const loadClass = () => {
       brandId: string;
       integrationId: string;
       customer?: ICustomerDocument;
-      visitor?: any;
+      visitorId?: string;
       browserInfo: any;
     }) {
-      const { brandId, integrationId, customer, visitor, browserInfo } = params;
+      const {
+        brandId,
+        integrationId,
+        customer,
+        visitorId,
+        browserInfo
+      } = params;
 
-      if (visitor) {
-        delete visitor._id;
-        visitor.state = CONTENT_TYPES.VISITOR;
-      }
-
-      const customerObj = customer ? customer : visitor;
+      const customerObj = customer
+        ? customer
+        : { _id: '', state: CONTENT_TYPES.VISITOR };
 
       let messages: IEngageMessageDocument[];
 
@@ -317,7 +320,7 @@ export const loadClass = () => {
         // check for rules ===
         const numberOfVisits = await getNumberOfVisits({
           url: browserInfo.url,
-          visitorId: visitor ? visitor.visitorId : undefined,
+          visitorId,
           customerId: customer ? customer._id : undefined
         });
 
@@ -331,11 +334,13 @@ export const loadClass = () => {
         // conversations
         if (hasPassedAllRules) {
           // replace keys in content
-          const { replacedContent } = await replaceEditorAttributes({
-            content: messenger.content,
-            customer,
-            user
-          });
+          const replacedContent = await new EditorAttributeUtil().replaceAttributes(
+            {
+              content: messenger.content,
+              customer,
+              user
+            }
+          );
 
           if (messenger.rules) {
             messenger.rules = messenger.rules.map(r => ({
@@ -349,7 +354,7 @@ export const loadClass = () => {
           const conversationMessage = await this.createOrUpdateConversationAndMessages(
             {
               customerId: customer && customer._id,
-              visitorId: visitor && visitor.visitorId,
+              visitorId,
               integrationId,
               user,
               replacedContent: replacedContent || '',

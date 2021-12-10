@@ -7,7 +7,6 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import xss from 'xss';
 import { INotification } from '../types';
-import NotificationIcon from './NotificationIcon';
 import {
   AvatarSection,
   Content,
@@ -15,6 +14,7 @@ import {
   CreatedUser,
   InfoSection
 } from './styles';
+import RoundedBackgroundIcon from 'modules/boards/components/RoundedBackgroundIcon';
 
 interface IProps extends IRouterProps {
   notification: INotification;
@@ -88,6 +88,29 @@ class NotificationRow extends React.Component<IProps> {
     );
   }
 
+  getIcon() {
+    const { notifType } = this.props.notification;
+    let icon = 'user-check';
+
+    if (notifType.includes('conversation')) {
+      icon = 'comment-1';
+    }
+
+    if (notifType.includes('deal')) {
+      icon = 'dollar-alt';
+    }
+
+    if (notifType.includes('ticket')) {
+      icon = 'postcard';
+    }
+
+    if (notifType.includes('task')) {
+      icon = 'file-check';
+    }
+
+    return icon;
+  }
+
   render() {
     const { notification, isList } = this.props;
     const { isRead, createdUser } = notification;
@@ -99,7 +122,7 @@ class NotificationRow extends React.Component<IProps> {
           <NameCard.Avatar
             user={createdUser}
             size={30}
-            icon={<NotificationIcon notification={notification} />}
+            icon={<RoundedBackgroundIcon icon={this.getIcon()} />}
           />
         </AvatarSection>
         <InfoSection>

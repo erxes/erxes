@@ -167,7 +167,13 @@ export const KEY_LABELS = {
   company_industry_types: 'Company industry types',
   social_links: 'Social links',
 
-  NOTIFICATION_DATA_RETENTION: 'Notification data retention'
+  NOTIFICATION_DATA_RETENTION: 'Notification data retention',
+
+  THEME_LOGO: 'Logo',
+  THEME_LOGIN_PAGE_DESCRIPTION: 'Login page description',
+  THEME_FAVICON: 'Favicon',
+  THEME_TEXT_COLOR: 'Text color',
+  THEME_BACKGROUND: 'Background'
 };
 
 export const FILE_MIME_TYPES = [

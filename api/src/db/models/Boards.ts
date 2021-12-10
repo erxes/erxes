@@ -13,6 +13,7 @@ import {
   pipelineSchema,
   stageSchema
 } from './definitions/boards';
+import { BOARD_STATUSES } from './definitions/constants';
 import { getDuplicatedStages } from './PipelineTemplates';
 
 export interface IOrderInput {
@@ -141,6 +142,13 @@ export interface IBoardModel extends Model<IBoardDocument> {
   createBoard(doc: IBoard): Promise<IBoardDocument>;
   updateBoard(_id: string, doc: IBoard): Promise<IBoardDocument>;
   removeBoard(_id: string): object;
+  updateTimeTracking(
+    _id: string,
+    type: string,
+    status: string,
+    timeSpent: number,
+    startDate: string
+  ): Promise<any>;
 }
 
 export const loadBoardClass = () => {
@@ -196,6 +204,29 @@ export const loadBoardClass = () => {
 
       return Boards.deleteOne({ _id });
     }
+
+    public static async updateTimeTracking(
+      _id: string,
+      type: string,
+      status: string,
+      timeSpent: number,
+      startDate?: string
+    ) {
+      const doc: { status: string; timeSpent: number; startDate?: string } = {
+        status,
+        timeSpent
+      };
+
+      if (startDate) {
+        doc.startDate = startDate;
+      }
+
+      const { collection } = getCollection(type);
+
+      await collection.updateOne({ _id }, { $set: { timeTrack: doc } });
+
+      return collection.findOne({ _id }).lean();
+    }
   }
 
   boardSchema.loadClass(Board);
@@ -217,6 +248,7 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
   removePipeline(_id: string, checked?: boolean): object;
+  archivePipeline(_id: string, status?: string): object;
 }
 
 export const loadPipelineClass = () => {
@@ -225,7 +257,7 @@ export const loadPipelineClass = () => {
      * Get a pipeline
      */
     public static async getPipeline(_id: string) {
-      const pipeline = await Pipelines.findOne({ _id });
+      const pipeline = await Pipelines.findOne({ _id }).lean();
 
       if (!pipeline) {
         throw new Error('Pipeline not found');
@@ -315,6 +347,19 @@ export const loadPipelineClass = () => {
       }
 
       return Pipelines.deleteOne({ _id });
+    }
+
+    /**
+     * Archive a pipeline
+     */
+    public static async archivePipeline(_id: string) {
+      const pipeline = await Pipelines.getPipeline(_id);
+      const status =
+        pipeline.status === BOARD_STATUSES.ACTIVE
+          ? BOARD_STATUSES.ARCHIVED
+          : BOARD_STATUSES.ACTIVE;
+
+      await Pipelines.updateOne({ _id }, { $set: { status } });
     }
 
     public static watchPipeline(_id: string, isAdd: boolean, userId: string) {

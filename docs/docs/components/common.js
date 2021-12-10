@@ -1,7 +1,6 @@
 import React from "react";
 import Table from "../../../ui/src/modules/common/components/table";
 import CodeBlock from "@theme/CodeBlock";
-import styles from "../../src/components/styles.module.css";
 
 export function renderApiTable(Name, table) {
   return (
@@ -12,7 +11,9 @@ export function renderApiTable(Name, table) {
 
       {table && (
         <>
-          <p><required>* required prop</required></p>
+          <p>
+            <required>* required prop</required>
+          </p>
           <Table>
             <thead>
               <tr>
@@ -27,7 +28,14 @@ export function renderApiTable(Name, table) {
                 <tr key={index}>
                   {row.map((cell, i) => (
                     <td key={i}>
-                      {cell[cell.length - 1] === '*' ? <>{cell.slice(0, -1)}<required>*</required></> : <>{cell}</>}
+                      {cell[cell.length - 1] === "*" ? (
+                        <>
+                          {cell.slice(0, -1)}
+                          <required>*</required>
+                        </>
+                      ) : (
+                        <>{cell}</>
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -36,7 +44,6 @@ export function renderApiTable(Name, table) {
           </Table>
         </>
       )}
-
     </>
   );
 }

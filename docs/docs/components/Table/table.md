@@ -5,7 +5,6 @@ title: Table
 
 import { TableComponent } from './table.js'
 
-
 ## Bordered
 
 <p>Add border color with <code>bordered</code> prop.</p>
@@ -45,11 +44,11 @@ import { TableComponent } from './table.js'
 ## API
 
 <TableComponent type="APItable" table={[
-    ['children*', 'React.ReactNode', '', 'Shows table content'],
-    ['striped', 'boolean', 'false', 'Gives table strip color'],
-    ['bordered', 'boolean', 'false', 'Add border color'],
-    ['hover', 'boolean', 'false', 'Activates table hover'],
-    ['responsive', 'boolean', 'false', 'Add horizontal scroll bar when needed'],
-    ['whiteSpace', 'normal | nowrap | pre | pre-wrap | pre-line | break-spaces', '', 'Costumizes the cells'],
-    ['alignTop', 'boolean', 'false', 'Writes content vertically top']
+['children*', 'React.ReactNode', '', 'Shows table content'],
+['striped', 'boolean', 'false', 'Gives table strip color'],
+['bordered', 'boolean', 'false', 'Add border color'],
+['hover', 'boolean', 'false', 'Activates table hover'],
+['responsive', 'boolean', 'false', 'Add horizontal scroll bar when needed'],
+['whiteSpace', 'normal | nowrap | pre | pre-wrap | pre-line | break-spaces', '', 'Costumizes the cells'],
+['alignTop', 'boolean', 'false', 'Writes content vertically top']
 ]} />

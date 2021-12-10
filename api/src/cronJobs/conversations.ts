@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import * as _ from 'underscore';
+import { RABBITMQ_QUEUES } from '../data/constants';
 import utils, { IEmailParams } from '../data/utils';
 import {
   Brands,
@@ -13,6 +14,7 @@ import {
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { IMessageDocument } from '../db/models/definitions/conversationMessages';
 import { debugCrons } from '../debuggers';
+import messageBroker from '../messageBroker';
 
 /**
  * Send conversation messages to customer
@@ -144,6 +146,11 @@ export const sendMessageEmail = async () => {
     // mark sent messages as read
     await ConversationMessages.markSentAsReadMessages(conversation._id);
   }
+
+  await messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    type: `conversation`,
+    targets: [conversations]
+  });
 };
 
 export default {

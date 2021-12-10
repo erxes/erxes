@@ -42,6 +42,13 @@ export interface IMessage {
   messengerAppData?: any;
   engageData?: IEngageData;
   contentType?: string;
+  bookingWidgetData?: any;
+}
+
+export interface IResolveAllConversationParam {
+  status: string;
+  closedAt: Date;
+  closedUserId: string;
 }
 
 export interface IMessageDocument extends IMessage, Document {
@@ -109,5 +116,6 @@ export const messageSchema = new Schema({
     type: String,
     enum: MESSAGE_TYPES.ALL,
     default: MESSAGE_TYPES.TEXT
-  })
+  }),
+  bookingWidgetData: field({ type: Object })
 });

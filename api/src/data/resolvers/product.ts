@@ -1,16 +1,23 @@
-import { Companies, ProductCategories, Tags } from '../../db/models';
 import { IProductDocument } from '../../db/models/definitions/deals';
+import { IContext } from '../types';
 
 export default {
-  category(product: IProductDocument) {
-    return ProductCategories.findOne({ _id: product.categoryId });
+  category(product: IProductDocument, _, { dataLoaders }: IContext) {
+    return (
+      (product.categoryId &&
+        dataLoaders.productCategory.load(product.categoryId)) ||
+      null
+    );
   },
 
-  getTags(product: IProductDocument) {
-    return Tags.find({ _id: { $in: product.tagIds || [] } });
+  async getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(product.tagIds || []);
+    return tags.filter(tag => tag);
   },
 
-  vendor(product: IProductDocument) {
-    return Companies.findOne({ _id: product.vendorId || '' });
+  vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
+    return (
+      (product.vendorId && dataLoaders.company.load(product.vendorId)) || null
+    );
   }
 };

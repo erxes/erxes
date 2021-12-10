@@ -5,7 +5,8 @@ import {
 } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import {
-  getErxesSaasDomain,
+  checkPremiumService,
+  getCoreDomain,
   initFirebase,
   registerOnboardHistory,
   resetConfigsCache,
@@ -19,8 +20,14 @@ const configMutations = {
   async configsUpdate(_root, { configsMap }, { user }: IContext) {
     const codes = Object.keys(configsMap);
 
+    const isThemeEnabled = await checkPremiumService('isThemeServiceEnabled');
+
     for (const code of codes) {
       if (!code) {
+        continue;
+      }
+
+      if (code.includes('THEME_') && !isThemeEnabled) {
         continue;
       }
 
@@ -41,7 +48,8 @@ const configMutations = {
 
       if (
         ['dealUOM', 'dealCurrency'].includes(code) &&
-        prevConfig.value.toString() !== updatedConfig.value.toString()
+        (prevConfig.value || '').toString() !==
+          (updatedConfig.value || '').toString()
       ) {
         registerOnboardHistory({ type: 'generalSettingsCreate', user });
       }
@@ -53,7 +61,8 @@ const configMutations = {
           'UPLOAD_SERVICE_TYPE',
           'FILE_SYSTEM_PUBLIC'
         ].includes(code) &&
-        prevConfig.value.toString() !== updatedConfig.value.toString()
+        (prevConfig.value || '').toString() !==
+          (updatedConfig.value || '').toString()
       ) {
         registerOnboardHistory({ type: 'generalSettingsUploadCreate', user });
       }
@@ -62,7 +71,8 @@ const configMutations = {
         ['sex_choices', 'company_industry_types', 'social_links'].includes(
           code
         ) &&
-        prevConfig.value.toString() !== updatedConfig.value.toString()
+        (prevConfig.value || '').toString() !==
+          (updatedConfig.value || '').toString()
       ) {
         registerOnboardHistory({
           type: 'generelSettingsConstantsCreate',
@@ -79,7 +89,7 @@ const configMutations = {
     try {
       return await sendRequest({
         method: 'POST',
-        url: `${getErxesSaasDomain()}/activate-installation`,
+        url: `${getCoreDomain()}/activate-installation`,
         body: args
       });
     } catch (e) {

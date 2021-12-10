@@ -28,7 +28,7 @@ const taskMutations = {
     doc: ITask & { proccessId: string; aboveItemId: string },
     { user, docModifier }: IContext
   ) {
-    return itemsAdd(doc, 'task', user, docModifier, Tasks.createTask);
+    return itemsAdd(doc, 'task', Tasks.createTask, user, docModifier);
   },
 
   /**
@@ -97,18 +97,6 @@ const taskMutations = {
     { user }: IContext
   ) {
     return itemsArchive(stageId, 'task', proccessId, user);
-  },
-
-  async taskUpdateTimeTracking(
-    _root,
-    {
-      _id,
-      status,
-      timeSpent,
-      startDate
-    }: { _id: string; status: string; timeSpent: number; startDate: string }
-  ) {
-    return Tasks.updateTimeTracking(_id, status, timeSpent, startDate);
   }
 };
 
@@ -117,10 +105,5 @@ checkPermission(taskMutations, 'tasksEdit', 'tasksEdit');
 checkPermission(taskMutations, 'tasksRemove', 'tasksRemove');
 checkPermission(taskMutations, 'tasksWatch', 'tasksWatch');
 checkPermission(taskMutations, 'tasksArchive', 'tasksArchive');
-checkPermission(
-  taskMutations,
-  'taskUpdateTimeTracking',
-  'taskUpdateTimeTracking'
-);
 
 export default taskMutations;

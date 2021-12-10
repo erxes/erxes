@@ -1,9 +1,11 @@
 import activityLogs from './activityLogs';
+import automations from './automations';
 import boards from './boards';
 import brands from './brands';
 import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
+import clientPortal from './clientPortal';
 import companies from './companies';
 import configs from './configs';
 import conversations from './conversations';
@@ -45,6 +47,7 @@ import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
 import smsDeliveries from './smsDeliveries';
+import structures from './structures';
 
 export default {
   ...users,
@@ -89,6 +92,9 @@ export default {
   ...dashboards,
   ...skillTypesQueries,
   ...skillQueries,
+  ...clientPortal,
   ...messengerAppsQueries,
-  ...smsDeliveries
+  ...smsDeliveries,
+  ...structures,
+  ...automations
 };

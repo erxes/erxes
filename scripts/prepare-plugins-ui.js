@@ -31,7 +31,9 @@ var main = async () => {
   const pluginsPath = path.resolve(__dirname, '../plugins');
 
   if (!fs.existsSync(pluginsPath)) {
-    execCommand(`rm -f ${__dirname}/../ui/src/plugins.ts`)
+    fs.writeFileSync(path.resolve(__dirname, '../ui/src/plugins.ts'), `
+      export default {}
+    `)
     return;
   }
 

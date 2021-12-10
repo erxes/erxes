@@ -21,6 +21,7 @@ type Props = {
   messengerData: IIntegrationMessengerData;
   isOnline?: boolean;
   serverTime?: string;
+  activeSupport?: boolean;
 };
 
 type State = {
@@ -34,13 +35,20 @@ class Home extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: 120, activeSupport: true };
+    this.state = {
+      headHeight: 120,
+      activeSupport: true,
+    };
     this.toggleTab = this.toggleTab.bind(this);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.node && prevState.headHeight !== this.node.offsetHeight) {
       this.setState({ headHeight: this.node.offsetHeight });
+    }
+
+    if (prevProps.activeSupport === prevState.activeSupport) {
+      this.setState({ activeSupport: false });
     }
   }
 
@@ -98,7 +106,6 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div className="assist-bar">
-        <time>{dayjs(new Date()).format("lll")}</time>
         <div className="socials">
           <SocialLink url={links.facebook} icon={facebook} />
           <SocialLink url={links.twitter} icon={twitter} />
@@ -123,9 +130,7 @@ class Home extends React.Component<Props, State> {
       supporters,
       loading,
       messengerData,
-      serverTime,
     } = this.props;
-
     return (
       <div
         className={classNames("erxes-welcome", {
@@ -143,7 +148,6 @@ class Home extends React.Component<Props, State> {
           loading={loading}
           isOnline={isOnline}
         />
-        {this.renderServerInfo(messengerData.timezone, serverTime)}
         {this.renderTab()}
       </div>
     );
