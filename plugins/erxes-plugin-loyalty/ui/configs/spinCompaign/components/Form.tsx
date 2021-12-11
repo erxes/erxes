@@ -16,20 +16,20 @@ import {
   MainStyleDateContainer as DateContainer
 } from 'erxes-ui';
 import { IAttachment, IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
-import { IDonateCompaign, IDonateCompaignAward } from '../types';
+import { ISpinCompaign, ISpinCompaignAward } from '../types';
 import Select from 'react-select-plus';
 import { __ } from 'erxes-ui';
 import { IVoucherCompaign } from '../../voucherCompaign/types';
 
 type Props = {
-  donateCompaign?: IDonateCompaign;
+  spinCompaign?: ISpinCompaign;
   voucherCompaigns: IVoucherCompaign[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
-  donateCompaign: IDonateCompaign
+  spinCompaign: ISpinCompaign
 };
 
 class Form extends React.Component<Props, State> {
@@ -37,7 +37,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      donateCompaign: this.props.donateCompaign || {},
+      spinCompaign: this.props.spinCompaign || {},
     };
   }
 
@@ -48,28 +48,28 @@ class Form extends React.Component<Props, State> {
   }) => {
     const finalValues = values;
     const {
-      donateCompaign
+      spinCompaign
     } = this.state;
 
-    if (donateCompaign._id) {
-      finalValues._id = donateCompaign._id;
+    if (spinCompaign._id) {
+      finalValues._id = spinCompaign._id;
     }
 
-    donateCompaign.maxScore = Number(donateCompaign.maxScore || 0);
-    donateCompaign.awards = donateCompaign.awards && donateCompaign.awards.sort((a, b) => (a.minScore - b.minScore)) || []
+    spinCompaign.byScore = Number(spinCompaign.byScore || 0);
+    spinCompaign.awards = spinCompaign.awards && spinCompaign.awards.sort((a, b) => (a.count - b.count)) || []
 
     return {
       ...finalValues,
-      ...donateCompaign
+      ...spinCompaign
     };
   };
 
   onChangeDescription = (e) => {
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, description: e.editor.getData() } });
+    this.setState({ spinCompaign: { ...this.state.spinCompaign, description: e.editor.getData() } });
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, attachment: files.length ? files[0] : undefined } });
+    this.setState({ spinCompaign: { ...this.state.spinCompaign, attachment: files.length ? files[0] : undefined } });
   };
 
   onChangeMultiCombo = (name: string, values) => {
@@ -79,11 +79,11 @@ class Form extends React.Component<Props, State> {
       value = values.map(el => el.value);
     }
 
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, [name]: value } });
+    this.setState({ spinCompaign: { ...this.state.spinCompaign, [name]: value } });
   };
 
   onDateInputChange = (type: string, date) => {
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, [type]: date } });
+    this.setState({ spinCompaign: { ...this.state.spinCompaign, [type]: date } });
   };
 
   onInputChange = e => {
@@ -91,39 +91,39 @@ class Form extends React.Component<Props, State> {
     const value = e.target.value
     const name = e.target.name
 
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, [name]: value } });
+    this.setState({ spinCompaign: { ...this.state.spinCompaign, [name]: value } });
   };
 
   onAddAward = () => {
-    const { donateCompaign } = this.state;
-    const { awards = [] } = donateCompaign;
+    const { spinCompaign } = this.state;
+    const { awards = [] } = spinCompaign;
     awards.push({
       _id: Math.random().toString(),
-      minScore: 0,
+      probability: 0,
       voucherCompaignId: ''
     })
-    donateCompaign.awards = awards;
-    this.setState({ donateCompaign })
+    spinCompaign.awards = awards;
+    this.setState({ spinCompaign })
   }
 
   onRemoveAward = (awardId) => {
-    const { donateCompaign } = this.state;
-    const { awards = [] } = donateCompaign;
-    donateCompaign.awards = awards.filter(a => (a._id !== awardId))
-    this.setState({ donateCompaign })
+    const { spinCompaign } = this.state;
+    const { awards = [] } = spinCompaign;
+    spinCompaign.awards = awards.filter(a => (a._id !== awardId))
+    this.setState({ spinCompaign })
   }
 
-  renderAward = (award: IDonateCompaignAward, formProps) => {
+  renderAward = (award: ISpinCompaignAward, formProps) => {
     const changeAward = (key, value) => {
-      const { donateCompaign } = this.state;
+      const { spinCompaign } = this.state;
       award[key] = value;
-      donateCompaign.awards = (donateCompaign.awards || []).map(a => a._id === award._id && award || a)
-      this.setState({ donateCompaign });
+      spinCompaign.awards = (spinCompaign.awards || []).map(a => a._id === award._id && award || a)
+      this.setState({ spinCompaign });
     }
-    const onChangeMinScore = e => {
+    const onChangeProbability = e => {
       e.preventDefault();
       const value = e.target.value
-      changeAward('minScore', value)
+      changeAward('probability', value)
     };
 
     const onChangeVoucherCompaign = selected => {
@@ -133,18 +133,6 @@ class Form extends React.Component<Props, State> {
 
     return (
       <FormWrapper key={award._id}>
-        <FormColumn>
-          <FormControl
-            {...formProps}
-            name="minScore"
-            type="number"
-            min={0}
-            defaultValue={award.minScore}
-            required={true}
-            onChange={onChangeMinScore}
-          />
-        </FormColumn>
-
         <FormColumn>
           <Select
             placeholder={__('Choose voucher')}
@@ -156,6 +144,18 @@ class Form extends React.Component<Props, State> {
             name="voucherCompaignId"
             onChange={onChangeVoucherCompaign}
             loadingPlaceholder={__('Loading...')}
+          />
+        </FormColumn>
+        <FormColumn>
+          <FormControl
+            {...formProps}
+            name="probability"
+            type="number"
+            min={0}
+            max={100}
+            defaultValue={award.probability}
+            required={true}
+            onChange={onChangeProbability}
           />
         </FormColumn>
         <Button
@@ -170,7 +170,7 @@ class Form extends React.Component<Props, State> {
 
   renderAwards = formProps => {
     return (
-      (this.state.donateCompaign.awards || []).map(award => (
+      (this.state.spinCompaign.awards || []).map(award => (
         this.renderAward(award, formProps)
       ))
     )
@@ -187,11 +187,11 @@ class Form extends React.Component<Props, State> {
     );
 
     const {
-      donateCompaign
+      spinCompaign
     } = this.state;
 
     const attachments =
-      (donateCompaign.attachment && extractAttachment([donateCompaign.attachment])) || [];
+      (spinCompaign.attachment && extractAttachment([spinCompaign.attachment])) || [];
 
     return (
       <>
@@ -201,7 +201,7 @@ class Form extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="title"
-              defaultValue={donateCompaign.title}
+              defaultValue={spinCompaign.title}
               autoFocus={true}
               required={true}
               onChange={this.onInputChange}
@@ -218,7 +218,7 @@ class Form extends React.Component<Props, State> {
                     required={true}
                     name="startDate"
                     placeholder={__('Start date')}
-                    value={donateCompaign.startDate}
+                    value={spinCompaign.startDate}
                     onChange={this.onDateInputChange.bind(this, 'startDate')}
                   />
                 </DateContainer>
@@ -234,7 +234,7 @@ class Form extends React.Component<Props, State> {
                     required={true}
                     name="endDate"
                     placeholder={__('End date')}
-                    value={donateCompaign.endDate}
+                    value={spinCompaign.endDate}
                     onChange={this.onDateInputChange.bind(this, 'endDate')}
                   />
                 </DateContainer>
@@ -245,11 +245,11 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK
-              content={donateCompaign.description}
+              content={spinCompaign.description}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
-              name={`donateCompaign_description_${donateCompaign.description}`}
+              name={`spinCompaign_description_${spinCompaign.description}`}
               toolbar={[
                 {
                   name: "basicstyles",
@@ -279,23 +279,30 @@ class Form extends React.Component<Props, State> {
               single={true}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>max Score</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="maxScore"
-              type="number"
-              min={0}
-              defaultValue={donateCompaign.maxScore}
-              onChange={this.onInputChange}
-            />
-          </FormGroup>
+
+
           <FormWrapper>
             <FormColumn>
-              <ControlLabel required={true}>Min Score</ControlLabel>
+              <FormGroup>
+                <ControlLabel required={true}>buy Score</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="byScore"
+                  type="number"
+                  min={0}
+                  defaultValue={spinCompaign.byScore}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+
+          <FormWrapper>
+            <FormColumn>
+              <ControlLabel required={true}>voucher Compaign</ControlLabel>
             </FormColumn>
             <FormColumn>
-              <ControlLabel required={true}>Voucher</ControlLabel>
+              <ControlLabel required={true}>Probability</ControlLabel>
             </FormColumn>
             <Button
               btnStyle='simple'
@@ -318,11 +325,11 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "donate Compaign",
+            name: "spin Compaign",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: donateCompaign,
+            object: spinCompaign,
           })}
         </ModalFooter>
       </>

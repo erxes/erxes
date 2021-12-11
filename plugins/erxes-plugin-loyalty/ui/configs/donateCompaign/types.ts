@@ -1,7 +1,7 @@
 import { ICommonTypes } from "../commonTypes";
 import { IVoucherCompaign } from "../voucherCompaign/types";
 
-export type IDonateCompaingAward = {
+export type IDonateCompaignAward = {
   _id: string,
   minScore?: number,
   voucherCompaignId?: string
@@ -9,7 +9,7 @@ export type IDonateCompaingAward = {
 
 export type IDonateCompaign = ICommonTypes & {
   maxScore?: number,
-  awards?: IDonateCompaingAward[]
+  awards?: IDonateCompaignAward[]
 };
 
 // query types

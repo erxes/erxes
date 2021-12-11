@@ -5,6 +5,8 @@ import CustomerLoyalties from './loyalties/containers/CustomerLoyalties';
 import Settings from './configs/general/containers/Settings';
 import VoucherCompaigns from './configs/voucherCompaign/containers/List';
 import DonateCompaigns from './configs/donateCompaign/containers/List';
+import LotteryCompaigns from './configs/lotteryCompaign/containers/List';
+import SpinCompaigns from './configs/spinCompaign/containers/List';
 
 const customerLoyalties = ({ match }) => {
   const customerId = match.params.customerId;
@@ -15,6 +17,23 @@ const customerLoyalties = ({ match }) => {
 const voucherCompaignList = ({ location, history }) => {
   return (
     <VoucherCompaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+const lotteryCompaignList = ({ location, history }) => {
+  return (
+    <LotteryCompaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const spinCompaignList = ({ location, history }) => {
+  return (
+    <SpinCompaigns
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -43,6 +62,14 @@ export default () => ({
     {
       path: '/settings/voucher',
       component: voucherCompaignList
+    },
+    {
+      path: '/settings/lottery',
+      component: lotteryCompaignList
+    },
+    {
+      path: '/settings/spin',
+      component: spinCompaignList
     },
     {
       path: '/settings/donate',

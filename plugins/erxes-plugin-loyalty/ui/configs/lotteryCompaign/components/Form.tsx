@@ -1,35 +1,35 @@
 import React from 'react';
+import Select from 'react-select-plus';
+import { __ } from 'erxes-ui';
 import {
   Button,
   ControlLabel,
+  DateControl,
   EditorCK,
   extractAttachment,
   Form as CommonForm,
   FormControl,
   FormGroup,
-  DateControl,
+  MainStyleDateContainer as DateContainer,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  Uploader,
   MainStyleScrollWrapper as ScrollWrapper,
-  MainStyleDateContainer as DateContainer
-} from 'erxes-ui';
+  Uploader
+  } from 'erxes-ui';
 import { IAttachment, IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
-import { IDonateCompaign, IDonateCompaignAward } from '../types';
-import Select from 'react-select-plus';
-import { __ } from 'erxes-ui';
+import { ILotteryCompaign, ILotteryCompaignAward } from '../types';
 import { IVoucherCompaign } from '../../voucherCompaign/types';
 
 type Props = {
-  donateCompaign?: IDonateCompaign;
+  lotteryCompaign?: ILotteryCompaign;
   voucherCompaigns: IVoucherCompaign[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
-  donateCompaign: IDonateCompaign
+  lotteryCompaign: ILotteryCompaign
 };
 
 class Form extends React.Component<Props, State> {
@@ -37,7 +37,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      donateCompaign: this.props.donateCompaign || {},
+      lotteryCompaign: this.props.lotteryCompaign || {},
     };
   }
 
@@ -48,28 +48,28 @@ class Form extends React.Component<Props, State> {
   }) => {
     const finalValues = values;
     const {
-      donateCompaign
+      lotteryCompaign
     } = this.state;
 
-    if (donateCompaign._id) {
-      finalValues._id = donateCompaign._id;
+    if (lotteryCompaign._id) {
+      finalValues._id = lotteryCompaign._id;
     }
 
-    donateCompaign.maxScore = Number(donateCompaign.maxScore || 0);
-    donateCompaign.awards = donateCompaign.awards && donateCompaign.awards.sort((a, b) => (a.minScore - b.minScore)) || []
+    lotteryCompaign.byScore = Number(lotteryCompaign.byScore || 0);
+    lotteryCompaign.awards = lotteryCompaign.awards && lotteryCompaign.awards.sort((a, b) => (a.count - b.count)) || []
 
     return {
       ...finalValues,
-      ...donateCompaign
+      ...lotteryCompaign
     };
   };
 
   onChangeDescription = (e) => {
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, description: e.editor.getData() } });
+    this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, description: e.editor.getData() } });
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, attachment: files.length ? files[0] : undefined } });
+    this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, attachment: files.length ? files[0] : undefined } });
   };
 
   onChangeMultiCombo = (name: string, values) => {
@@ -79,11 +79,11 @@ class Form extends React.Component<Props, State> {
       value = values.map(el => el.value);
     }
 
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, [name]: value } });
+    this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, [name]: value } });
   };
 
   onDateInputChange = (type: string, date) => {
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, [type]: date } });
+    this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, [type]: date } });
   };
 
   onInputChange = e => {
@@ -91,39 +91,39 @@ class Form extends React.Component<Props, State> {
     const value = e.target.value
     const name = e.target.name
 
-    this.setState({ donateCompaign: { ...this.state.donateCompaign, [name]: value } });
+    this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, [name]: value } });
   };
 
   onAddAward = () => {
-    const { donateCompaign } = this.state;
-    const { awards = [] } = donateCompaign;
+    const { lotteryCompaign } = this.state;
+    const { awards = [] } = lotteryCompaign;
     awards.push({
       _id: Math.random().toString(),
-      minScore: 0,
+      count: 0,
       voucherCompaignId: ''
     })
-    donateCompaign.awards = awards;
-    this.setState({ donateCompaign })
+    lotteryCompaign.awards = awards;
+    this.setState({ lotteryCompaign })
   }
 
   onRemoveAward = (awardId) => {
-    const { donateCompaign } = this.state;
-    const { awards = [] } = donateCompaign;
-    donateCompaign.awards = awards.filter(a => (a._id !== awardId))
-    this.setState({ donateCompaign })
+    const { lotteryCompaign } = this.state;
+    const { awards = [] } = lotteryCompaign;
+    lotteryCompaign.awards = awards.filter(a => (a._id !== awardId))
+    this.setState({ lotteryCompaign })
   }
 
-  renderAward = (award: IDonateCompaignAward, formProps) => {
+  renderAward = (award: ILotteryCompaignAward, formProps) => {
     const changeAward = (key, value) => {
-      const { donateCompaign } = this.state;
+      const { lotteryCompaign } = this.state;
       award[key] = value;
-      donateCompaign.awards = (donateCompaign.awards || []).map(a => a._id === award._id && award || a)
-      this.setState({ donateCompaign });
+      lotteryCompaign.awards = (lotteryCompaign.awards || []).map(a => a._id === award._id && award || a)
+      this.setState({ lotteryCompaign });
     }
-    const onChangeMinScore = e => {
+    const onChangeCount = e => {
       e.preventDefault();
       const value = e.target.value
-      changeAward('minScore', value)
+      changeAward('count', value)
     };
 
     const onChangeVoucherCompaign = selected => {
@@ -133,18 +133,6 @@ class Form extends React.Component<Props, State> {
 
     return (
       <FormWrapper key={award._id}>
-        <FormColumn>
-          <FormControl
-            {...formProps}
-            name="minScore"
-            type="number"
-            min={0}
-            defaultValue={award.minScore}
-            required={true}
-            onChange={onChangeMinScore}
-          />
-        </FormColumn>
-
         <FormColumn>
           <Select
             placeholder={__('Choose voucher')}
@@ -156,6 +144,17 @@ class Form extends React.Component<Props, State> {
             name="voucherCompaignId"
             onChange={onChangeVoucherCompaign}
             loadingPlaceholder={__('Loading...')}
+          />
+        </FormColumn>
+        <FormColumn>
+          <FormControl
+            {...formProps}
+            name="count"
+            type="number"
+            min={0}
+            defaultValue={award.count}
+            required={true}
+            onChange={onChangeCount}
           />
         </FormColumn>
         <Button
@@ -170,7 +169,7 @@ class Form extends React.Component<Props, State> {
 
   renderAwards = formProps => {
     return (
-      (this.state.donateCompaign.awards || []).map(award => (
+      (this.state.lotteryCompaign.awards || []).map(award => (
         this.renderAward(award, formProps)
       ))
     )
@@ -187,11 +186,11 @@ class Form extends React.Component<Props, State> {
     );
 
     const {
-      donateCompaign
+      lotteryCompaign
     } = this.state;
 
     const attachments =
-      (donateCompaign.attachment && extractAttachment([donateCompaign.attachment])) || [];
+      (lotteryCompaign.attachment && extractAttachment([lotteryCompaign.attachment])) || [];
 
     return (
       <>
@@ -201,7 +200,7 @@ class Form extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="title"
-              defaultValue={donateCompaign.title}
+              defaultValue={lotteryCompaign.title}
               autoFocus={true}
               required={true}
               onChange={this.onInputChange}
@@ -218,7 +217,7 @@ class Form extends React.Component<Props, State> {
                     required={true}
                     name="startDate"
                     placeholder={__('Start date')}
-                    value={donateCompaign.startDate}
+                    value={lotteryCompaign.startDate}
                     onChange={this.onDateInputChange.bind(this, 'startDate')}
                   />
                 </DateContainer>
@@ -234,7 +233,7 @@ class Form extends React.Component<Props, State> {
                     required={true}
                     name="endDate"
                     placeholder={__('End date')}
-                    value={donateCompaign.endDate}
+                    value={lotteryCompaign.endDate}
                     onChange={this.onDateInputChange.bind(this, 'endDate')}
                   />
                 </DateContainer>
@@ -245,11 +244,11 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK
-              content={donateCompaign.description}
+              content={lotteryCompaign.description}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
-              name={`donateCompaign_description_${donateCompaign.description}`}
+              name={`lotteryCompaign_description_${lotteryCompaign.description}`}
               toolbar={[
                 {
                   name: "basicstyles",
@@ -279,23 +278,55 @@ class Form extends React.Component<Props, State> {
               single={true}
             />
           </FormGroup>
+
+
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>buy Score</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="byScore"
+                  type="number"
+                  min={0}
+                  defaultValue={lotteryCompaign.byScore}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Lottery Date</ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    {...formProps}
+                    required={true}
+                    name="lotteryDate"
+                    placeholder={__('Lottery date')}
+                    value={lotteryCompaign.lotteryDate}
+                    onChange={this.onDateInputChange.bind(this, 'lotteryDate')}
+                  />
+                </DateContainer>
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+
           <FormGroup>
-            <ControlLabel required={true}>max Score</ControlLabel>
+            <ControlLabel required={true}>Number Format</ControlLabel>
             <FormControl
               {...formProps}
-              name="maxScore"
-              type="number"
-              min={0}
-              defaultValue={donateCompaign.maxScore}
+              name="numberFormat"
+              defaultValue={lotteryCompaign.numberFormat}
               onChange={this.onInputChange}
             />
           </FormGroup>
+
           <FormWrapper>
             <FormColumn>
-              <ControlLabel required={true}>Min Score</ControlLabel>
+              <ControlLabel required={true}>voucher Compaign</ControlLabel>
             </FormColumn>
             <FormColumn>
-              <ControlLabel required={true}>Voucher</ControlLabel>
+              <ControlLabel required={true}>Count</ControlLabel>
             </FormColumn>
             <Button
               btnStyle='simple'
@@ -318,11 +349,11 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "donate Compaign",
+            name: "lottery Compaign",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: donateCompaign,
+            object: lotteryCompaign,
           })}
         </ModalFooter>
       </>

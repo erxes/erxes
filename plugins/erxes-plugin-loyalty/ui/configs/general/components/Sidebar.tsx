@@ -48,6 +48,14 @@ class Sidebar extends React.Component {
             'Voucher'
           )}
           {this.renderListItem(
+            '/erxes-plugin-loyalty/settings/lottery',
+            'Lottery'
+          )}
+          {this.renderListItem(
+            '/erxes-plugin-loyalty/settings/spin',
+            'Spin'
+          )}
+          {this.renderListItem(
             '/erxes-plugin-loyalty/settings/donate',
             'Donate'
           )}

@@ -8,11 +8,9 @@ import {
   FormControl,
   FormGroup,
   DateControl,
-  generateCategoryOptions,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  ModalTrigger,
   Uploader,
   MainStyleScrollWrapper as ScrollWrapper,
   MainStyleDateContainer as DateContainer
@@ -164,7 +162,7 @@ class Form extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>Product Category</ControlLabel>
+                <ControlLabel required={true}>Product Categorz</ControlLabel>
                 <Select
                   placeholder={__('Filter by product category')}
                   value={voucherCompaign.productCategoryIds}
