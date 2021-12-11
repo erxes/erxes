@@ -17,15 +17,18 @@ import {
 } from 'erxes-ui';
 import { IAttachment, IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
 import { IProduct, IProductCategory } from 'erxes-ui/lib/products/types';
-import { Row } from 'erxes-ui/lib/products/styles';
 import { IVoucherCompaign } from '../types';
 import Select from 'react-select-plus';
 import { __ } from 'erxes-ui';
+import { ISpinCompaign } from '../../spinCompaign/types';
+import { ILotteryCompaign } from '../../lotteryCompaign/types';
 
 type Props = {
   voucherCompaign?: IVoucherCompaign;
   productCategories: IProductCategory[];
   products: IProduct[];
+  spinCompaigns: ISpinCompaign[];
+  lotteryCompaigns: ILotteryCompaign[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -56,6 +59,11 @@ class Form extends React.Component<Props, State> {
     if (voucherCompaign._id) {
       finalValues._id = voucherCompaign._id;
     }
+
+    voucherCompaign.discountPercent = Number(voucherCompaign.discountPercent || 0);
+    voucherCompaign.spinCount = Number(voucherCompaign.spinCount || 0);
+    voucherCompaign.lotteryCount = Number(voucherCompaign.lotteryCount || 0);
+    voucherCompaign.bonusCount = Number(voucherCompaign.bonusCount || 0);
 
     return {
       ...finalValues,
@@ -94,7 +102,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, productCategories, products } = this.props;
+    const { renderButton, closeModal, productCategories, products, spinCompaigns, lotteryCompaigns } = this.props;
     const { values, isSubmitted } = formProps;
 
     const trigger = (
@@ -162,7 +170,7 @@ class Form extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>Product Categorz</ControlLabel>
+                <ControlLabel required={true}>Product Category</ControlLabel>
                 <Select
                   placeholder={__('Filter by product category')}
                   value={voucherCompaign.productCategoryIds}
@@ -184,13 +192,125 @@ class Form extends React.Component<Props, State> {
                   placeholder={__('Filter by product')}
                   value={voucherCompaign.productIds}
                   options={products.map(prod => ({
-                    label: `${prod.name}`,
+                    label: prod.name,
                     value: prod._id
                   }))}
                   name="productIds"
                   onChange={this.onChangeMultiCombo.bind(this, 'productIds')}
                   multi={true}
                   loadingPlaceholder={__('Loading...')}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>discount percent</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="discountPercent"
+                  type="number"
+                  min={0}
+                  max={100}
+                  defaultValue={voucherCompaign.discountPercent}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Bonus Product</ControlLabel>
+                <Select
+                  placeholder={__('Filter by product')}
+                  value={voucherCompaign.bonusProductId}
+                  options={products.map(prod => ({
+                    label: prod.name,
+                    value: prod._id
+                  }))}
+                  name="bonusProductId"
+                  onChange={this.onChangeMultiCombo.bind(this, 'bonusProductId')}
+                  loadingPlaceholder={__('Loading...')}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>bonus Count</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="bonusCount"
+                  type="number"
+                  min={0}
+                  defaultValue={voucherCompaign.bonusCount}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Spin</ControlLabel>
+                <Select
+                  placeholder={__('Filter by spin')}
+                  value={voucherCompaign.spinCompaignId}
+                  options={spinCompaigns.map(spin => ({
+                    label: spin.title,
+                    value: spin._id
+                  }))}
+                  name="spinCompaignId"
+                  onChange={this.onChangeMultiCombo.bind(this, 'spinCompaignId')}
+                  loadingPlaceholder={__('Loading...')}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>spin Count</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="spinCount"
+                  type="number"
+                  min={0}
+                  max={100}
+                  defaultValue={voucherCompaign.spinCount}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Lottery</ControlLabel>
+                <Select
+                  placeholder={__('Filter by lottery')}
+                  value={voucherCompaign.lotteryCompaignId}
+                  options={lotteryCompaigns.map(lottery => ({
+                    label: lottery.title,
+                    value: lottery._id
+                  }))}
+                  name="lotteryCompaignId"
+                  onChange={this.onChangeMultiCombo.bind(this, 'lotteryCompaignId')}
+                  loadingPlaceholder={__('Loading...')}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>lottery Count</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="lotteryCount"
+                  type="number"
+                  min={0}
+                  max={100}
+                  defaultValue={voucherCompaign.lotteryCount}
+                  onChange={this.onInputChange}
                 />
               </FormGroup>
             </FormColumn>

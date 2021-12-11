@@ -9,9 +9,10 @@ export const types = `
 
     productCategoryIds: [String],
     productIds: [String],
-    productDiscountPercent: Float,
-    productLimit: Boolean,
-    productCount: Float,
+    discountPercent: Float,
+
+    bonusProductId: String,
+    bonusCount: Float,
 
     spinCompaignId: String,
     spinCount: Float,
@@ -28,9 +29,9 @@ const VoucherCompaignDoc = `
 
   productCategoryIds: [String],
   productIds: [String],
-  productDiscountPercent: Float,
-  productLimit: Boolean,
-  productCount: Float,
+  discountPercent: Float,
+  bonusProductId: String,
+  bonusCount: Float,
 
   spinCompaignId: String,
   spinCount: Float,

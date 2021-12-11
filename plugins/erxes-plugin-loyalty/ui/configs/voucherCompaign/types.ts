@@ -6,9 +6,10 @@ export type IVoucherCompaign = ICommonTypes & {
 
   productCategoryIds?: string[],
   productIds?: string[],
-  productDiscountPercent?: number,
-  productLimit?: boolean,
-  productCount?: number,
+  discountPercent?: number,
+
+  bonusProductId?: string,
+  bonusCount?: number,
 
   spinCompaignId?: string,
   spinCount?: number,

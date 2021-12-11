@@ -7,9 +7,9 @@ const paramDefs = `
   $scoreAction: String,
   $productCategoryIds: [String],
   $productIds: [String],
-  $productDiscountPercent: Float,
-  $productLimit: Boolean,
-  $productCount: Float,
+  $discountPercent: Float,
+  $bonusProductId: String,
+  $bonusCount: Float,
   $spinCompaignId: String,
   $spinCount: Float,
   $lotteryCompaignId: String,
@@ -22,9 +22,9 @@ const params = `
   scoreAction: $scoreAction
   productCategoryIds: $productCategoryIds
   productIds: $productIds
-  productDiscountPercent: $productDiscountPercent
-  productLimit: $productLimit
-  productCount: $productCount
+  discountPercent: $discountPercent
+  bonusProductId: $bonusProductId
+  bonusCount: $bonusCount
   spinCompaignId: $spinCompaignId
   spinCount: $spinCount
   lotteryCompaignId: $lotteryCompaignId

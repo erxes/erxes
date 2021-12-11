@@ -7,9 +7,9 @@ export const voucherCompaignFields = `
   scoreAction
   productCategoryIds
   productIds
-  productDiscountPercent
-  productLimit
-  productCount
+  discountPercent
+  bonusProductId
+  bonusCount
   spinCompaignId
   spinCount
   lotteryCompaignId

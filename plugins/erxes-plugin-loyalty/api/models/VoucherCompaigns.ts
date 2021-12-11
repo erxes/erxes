@@ -9,9 +9,10 @@ export const voucherCompaignSchema = {
 
   productCategoryIds: { type: [String] },
   productIds: { type: [String] },
-  productDiscountPercent: { type: Number },
-  productLimit: { type: Boolean, default: false },
-  productCount: { type: Number, optional: true },
+  discountPercent: { type: Number },
+
+  bonusProductId: {type: String},
+  bonusCount: { type: Number, optional: true },
 
   spinCompaignId: { type: String },
   spinCount: { type: Number },
@@ -34,11 +35,11 @@ export class VoucherCompaign {
   public static async validVoucherCompaign(doc) {
     validCompaign(doc)
 
-    if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.spinId && !doc.lotteryId) {
+    if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.productId && !doc.spinId && !doc.lotteryId) {
       throw new Error('Could not create null Voucher compaign');
     }
 
-    if (doc.productLimit && !doc.productCount) {
+    if (doc.bonusProductId && !doc.bonusCount) {
       throw new Error('Must fill product count or product limit to false');
     }
 

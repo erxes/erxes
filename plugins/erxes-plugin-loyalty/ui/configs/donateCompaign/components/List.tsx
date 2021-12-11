@@ -163,7 +163,6 @@ class DonateCompaigns extends React.Component<Props, State> {
 
     const content = (
       <>
-        {/* {this.renderCount(currentCategory.productCount || productsCount)} */}
         <Table hover={true}>
           <thead>
             <tr>
