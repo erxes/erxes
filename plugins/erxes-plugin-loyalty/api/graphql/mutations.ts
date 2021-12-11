@@ -1,9 +1,11 @@
-import loyaltyConfigsMutations from "./resolvers/mutations/configs";
-import voucherCompaignMutations from "./resolvers/mutations/voucherCompaigns";
+import donateCompaignMutations from './resolvers/mutations/donateCompaigns';
+import loyaltyConfigsMutations from './resolvers/mutations/configs';
+import voucherCompaignMutations from './resolvers/mutations/voucherCompaigns';
 
 const loyaltyMutations = [
+  ...donateCompaignMutations,
   ...loyaltyConfigsMutations,
-  ...voucherCompaignMutations
+  ...voucherCompaignMutations,
 ];
 
 export default loyaltyMutations;

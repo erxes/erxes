@@ -4,6 +4,7 @@ import LoyaltySectionContainer from './loyalties/containers/LoyaltySection';
 import CustomerLoyalties from './loyalties/containers/CustomerLoyalties';
 import Settings from './configs/general/containers/Settings';
 import VoucherCompaigns from './configs/voucherCompaign/containers/List';
+import DonateCompaigns from './configs/donateCompaign/containers/List';
 
 const customerLoyalties = ({ match }) => {
   const customerId = match.params.customerId;
@@ -14,6 +15,15 @@ const customerLoyalties = ({ match }) => {
 const voucherCompaignList = ({ location, history }) => {
   return (
     <VoucherCompaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const donateCompaignList = ({ location, history }) => {
+  return (
+    <DonateCompaigns
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -36,7 +46,7 @@ export default () => ({
     },
     {
       path: '/settings/donate',
-      component: Settings
+      component: donateCompaignList
     }
   ],
   customerRightSidebarSection: {

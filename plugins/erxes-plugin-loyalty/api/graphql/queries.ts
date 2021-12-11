@@ -1,11 +1,13 @@
-import loyaltyConfigQueries from './resolvers/queries/configs'
-import loyaltQueries from './resolvers/queries/loyalties'
-import voucherCompaignQueries from './resolvers/queries/voucherCompaigns'
+import donateCompaignQueries from './resolvers/queries/donateCompaigns';
+import loyaltQueries from './resolvers/queries/loyalties';
+import loyaltyConfigQueries from './resolvers/queries/configs';
+import voucherCompaignQueries from './resolvers/queries/voucherCompaigns';
 
 const loyaltyQueries = [
-  ...loyaltyConfigQueries,
+  ...donateCompaignQueries,
   ...loyaltQueries,
-  ...voucherCompaignQueries
+  ...loyaltyConfigQueries,
+  ...voucherCompaignQueries,
 ]
 
 export default loyaltyQueries;
