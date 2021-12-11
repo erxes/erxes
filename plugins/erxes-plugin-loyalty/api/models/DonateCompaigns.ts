@@ -27,6 +27,16 @@ export class DonateCompaign {
 
   public static async validDonateCompaign(doc) {
     validCompaign(doc)
+
+    const awards = doc.awards || [];
+    if (doc.maxScore && awards.length && (awards[awards.length - 1].minScore || 0) > doc.maxScore) {
+      throw new Error('Max score must be greather than level scores')
+    }
+
+    const levels = awards.map(a => a.minScore)
+    if (levels.length > [...new Set(levels)].length ) {
+      throw new Error('Levels scores must be unique')
+    }
   }
 
   public static async createDonateCompaign(models, doc) {
