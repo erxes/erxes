@@ -6,7 +6,7 @@ const VOUCHER_STATUS = {
 
 export const voucherSchema = {
   _id: { pkey: true },
-  VoucherCompaignId: { type: String, label: 'Voucher Compaign' },
+  voucherCompaignId: { type: String, label: 'Voucher Compaign' },
   customerId: { type: String, label: 'Customer' },
   companyId: { type: String, label: 'Company' },
   userId: { type: String, label: 'Team member' },

@@ -1,4 +1,3 @@
-
 export const donateCompaignSchema = {
   _id: { pkey: true },
   donateCompaignId: { type: String },

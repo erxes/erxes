@@ -1,5 +1,3 @@
-import { attachmentSchema } from './LoyaltyConfig';
-
 const LOTTERY_STATUS = {
   NEW: 'new',
   WON: 'won',
