@@ -2,8 +2,9 @@ export default [
   {
     type: 'voucher',
     handler: async ({action, execution}, {models, sendRPCMessage}) => {
-      // console.log('111111111111111', action, '22222222222222222222222222', execution, 'sssssssssssssss')
-      console.log('111111111111111', models, '22222222222222222222222222', sendRPCMessage, 'sssssssssssssss')
+      const response = await sendRPCMessage('erxes-plugin-test', {test: 'testt'})
+      console.log(response, '9999999999999999999')
+      return response
     }
   }
 ]

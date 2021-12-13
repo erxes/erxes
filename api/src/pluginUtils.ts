@@ -40,6 +40,7 @@ interface IActivityContents {
 const callAfterMutations: IAfterMutations[] | {} = {};
 const callActivityContents: IActivityContents | {} = {};
 const pluginsConsumers = {};
+const callAutomationConsumers = {};
 const cronJobs: any[] = [];
 
 const tryRequire = requirPath => {
@@ -74,6 +75,7 @@ export const execInEveryPlugin = callback => {
         let activityContents = [];
         let constants = {};
         let crons = [];
+        let automationConsumers = [];
 
         const graphqlSchema = {
           types: '',
@@ -97,6 +99,7 @@ export const execInEveryPlugin = callback => {
         const modelsPath = `${pluginsPath}/${plugin}/api/models.${ext}`;
         const constantsPath = `${pluginsPath}/${plugin}/api/constants.${ext}`;
         const cronsPath = `${pluginsPath}/${plugin}/api/cronJobs.${ext}`;
+        const automationConsumersPath = `${pluginsPath}/${plugin}/api/automations.${ext}`;
 
         if (fs.existsSync(permissionsPath)) {
           registerModule({
@@ -174,6 +177,10 @@ export const execInEveryPlugin = callback => {
           crons = tryRequire(cronsPath).default;
         }
 
+        if (fs.existsSync(automationConsumersPath)) {
+          automationConsumers = tryRequire(automationConsumersPath).default;
+        }
+
         callback({
           isLastIteration: pluginsCount === index + 1,
           routes,
@@ -187,7 +194,8 @@ export const execInEveryPlugin = callback => {
           activityContents,
           models,
           constants,
-          crons
+          crons,
+          automationConsumers
         });
       });
     });
@@ -205,7 +213,8 @@ export const execInEveryPlugin = callback => {
       routes: [],
       models: [],
       msgBrokers: [],
-      crons: []
+      crons: [],
+      automationConsumers: []
     });
   }
 };
@@ -241,7 +250,8 @@ export const extendViaPlugins = (
         routes,
         models,
         msgBrokers,
-        crons
+        crons,
+        automationConsumers
       }) => {
         routes.forEach(route => {
           app[route.method.toLowerCase()](route.path, (req, res) => {
@@ -407,6 +417,16 @@ export const extendViaPlugins = (
           });
         }
 
+        if (automationConsumers && automationConsumers.length) {
+          automationConsumers.forEach(async aconsume => {
+            const key = aconsume.action;
+            if (!Object.keys(callAutomationConsumers).includes(key)) {
+              callAutomationConsumers[key] = {};
+            }
+            callAutomationConsumers[key] = aconsume.handler;
+          });
+        }
+
         if (isLastIteration) {
           return resolve({ types, queries, mutations, subscriptions });
         }
@@ -431,6 +451,25 @@ export const pluginsConsume = client => {
       consumeQueue(channel, async msg => await mbroker.handler(msg, context));
     }
   }
+};
+
+export const pluginsAutomationConsume = async (
+  action: string,
+  doc: any
+): Promise<object> => {
+  const context = {
+    models: allModels,
+    memoryStorage,
+    graphqlPubsub
+  };
+
+  const handler = callAutomationConsumers[action];
+
+  if (!handler) {
+    return { error: `not found action ${action}` };
+  }
+
+  return await handler(action, doc, context);
 };
 
 interface IFinalLogParams extends ILogDataParams {
