@@ -33,12 +33,13 @@ function DashbaordFormContent(props: FinalProps) {
   const dashboard = props.dashboard || ({} as IDashboard);
 
   const [state, setState] = useState<State>({
-    visibility: dashboard.visibility || 'public',
-    selectedMemberIds: dashboard.selectedMemberIds || ''
+    visibility: dashboard ? dashboard.visibility || 'public' : 'public',
+    selectedMemberIds: dashboard ? dashboard.selectedMemberIds || [] : []
   });
 
   const generateDoc = (values: { _id?: string; name: string }) => {
     const { dashboard } = props;
+    const { selectedMemberIds, visibility } = state;
     const finalValues = values;
 
     if (dashboard) {
@@ -47,7 +48,9 @@ function DashbaordFormContent(props: FinalProps) {
 
     return {
       _id: finalValues._id,
-      name: finalValues.name
+      name: finalValues.name,
+      visibility,
+      selectedMemberIds
     };
   };
 
@@ -63,7 +66,7 @@ function DashbaordFormContent(props: FinalProps) {
   };
 
   const renderSelectMembers = () => {
-    const { visibility } = state;
+    const { visibility, selectedMemberIds } = state;
     if (visibility === 'public') {
       return;
     }
@@ -76,7 +79,7 @@ function DashbaordFormContent(props: FinalProps) {
           <SelectTeamMembers
             label="Choose members"
             name="selectedMemberIds"
-            initialValue={dashboard.selectedMemberIds}
+            initialValue={selectedMemberIds}
             onSelect={onChangeMembers}
           />
         </SelectMemberStyled>
