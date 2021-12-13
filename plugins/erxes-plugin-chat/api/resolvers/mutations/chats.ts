@@ -3,8 +3,12 @@ import { graphqlPubsub } from '../subscriptions/pubsub';
 const chatMutations = [
   {
     name: 'chatAdd',
-    handler: async (_root, doc, { user, models }) => {
-      return models.Chats.createChat(models, doc, user._id);
+    handler: async (_root, { name, participantIds }, { user, models }) => {
+      return models.Chats.createChat(
+        models,
+        { name, participantIds: (participantIds || []).concat(user._id) },
+        user._id
+      );
     }
   },
   {
@@ -28,6 +32,7 @@ const chatMutations = [
 
       const doc = { ...args };
 
+      // When it is a direct chat
       if (!doc.chatId) {
         if (
           !doc.participantIds ||
