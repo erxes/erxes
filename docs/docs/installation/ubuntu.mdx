@@ -1,20 +1,22 @@
 ---
 id: ubuntu
-title: Ubuntu 18.04
+title: Ubuntu 20.04
 ---
 
 ## Server Installation
 
-erxes gives you several guides and options for installing the erxes platform.
+erxes gives you several guides and options for installing the erxes platform. But in this guide we chose ubuntu 20.04 to install Erxes but you can choose from any linux based distro like RHEL, Centos etc by adapting certain commands work on certain OS.
 
-The first guide is the [Quick Start](ubuntu-quickstart.mdx) installation guide where we provide a script that automates most of the installation process. The second guide is a comprehensive, [Step by Step](ubuntu-step-by-step.mdx) installation guide where developers can see exactly what is being installed and how. The **Step by Step** installation guide is also used where heavy resources are needed when using erxes. Additional components are installed during the **Step by Step** installation.
+- The first guide is the [Quick Start](ubuntu-quickstart.mdx) installation guide where we provide a script that automates most of the installation process. 
+- The second guide is a comprehensive, [Step by Step](ubuntu-step-by-step.mdx) installation guide where developers can see exactly what is being installed and how. The **Step by Step** installation guide is also used where heavy resources are needed when using erxes. Additional components are installed during the **Step by Step** installation.
+- The third guide is the [docker-compose](docker.md) using erxes images locate in dockerhub.
 
 Most users will find the **Quick start** installation to be more than sufficient. You can always upgrade at any time.
 
-:::info Ubuntu 18.04
-The two installation guides are for installing erxes on **Ubuntu 18.04**. They should work on any hosting provider that allows you to install Ubuntu 18.04.
+:::info Ubuntu 20.04
+The two installation guides are for installing erxes on **Ubuntu 20.04**. They should work on any hosting provider that allows you to install Ubuntu 20.04.
 
-**Ubuntu 18.04** is currently the only officially supported **Linux distro**. Other distros such as _Centos and Debian are not specifically supported_, but some users are able to adapt the below commands to make **erxes** work on them.
+**Ubuntu 20.04** why ubuntu ? it is currently the only officially supported **Linux distro**. Other distros such as _Centos and Debian are not specifically supported_, but some users are able to adapt the below commands to make **erxes** work on them.
 
 :::
 
@@ -24,22 +26,20 @@ Each hosting company has slightly different server configurations and set-ups. H
 
 To install and properly run your **erxes** installation, you must meet these minimum requirements:
 
-#### Minimum requirements for the [Quick Start](ubuntu-quickstart.mdx) guide
+#### Minimum requirements 
 
-- Ubuntu 18.04 installed and running
-- 1 CPU
-- 1GB RAM
-- ability to to SSH into the server
-
-#### Minimum requirements for the [Step by Step](ubuntu-step-by-step.mdx) guide
-
-- Ubuntu 18.04 installed and running
-- 2 CPUs
+- Ubuntu 20.04 installed and running
+- 4 CPU
 - 4GB RAM
-- ability to to SSH into the server
+- ability to connect into the server
 
-:::tip Use one-click installs
-You can use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com/apps/erxes) and [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B086MZ9FVS?qid=1594055516154&sr=0-1&ref_=srh_res_product_title) for an even easier set-up experience.
-:::
+#### recommended requirements for the erxes
+
+- Ubuntu 20.04 installed and running
+- 8 CPUs
+- 8 GB RAM or more
+- ability to to connect into the server
+
+
 
 Please install **erxes** with either the [Quick Start](ubuntu-quickstart.mdx) or [Step by Step](ubuntu-step-by-step.mdx) instruction guides.

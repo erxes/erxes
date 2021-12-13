@@ -11,7 +11,7 @@ module.exports = {
               "Installation Guide": [
                 {
                   "Ubuntu": [
-                              "installation/ubuntu",
+                    "installation/ubuntu",
                               {
                                 Installation: [
                                   "installation/ubuntu-quickstart",

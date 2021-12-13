@@ -1,6 +1,6 @@
 ---
 id: docker
-title: Docker
+title: Docker based installation
 ---
 
 This steps explain how to install Erxes on Docker Hub, to do it, follow the instructions.
@@ -166,7 +166,11 @@ _If these ports aren't available for you, you can always change it. But don't fo
 
 <aside class="notice">
 
-**Note:** Following ENVs are configured for localhost only, if you want to use erxes for certain domain please replace it with the domain.
+**Note:** Following ENVs are configured for localhost only, if you want to use erxes for certain domain please use following script to generate docker-compose that works for your domain.
+```
+bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/docker-compose.sh)"
+```
+
 All erxes version have to changed the latest version.
 The latest version [**release**](https://github.com/erxes/erxes/releases) source code.
 
