@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { Description, SubHeading } from 'modules/settings/styles';
 
 const Box = styled(BoxRoot)`
+  height: 180px;
   width: 200px;
   padding: 40px;
   background: ${colors.bgLight};
