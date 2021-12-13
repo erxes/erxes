@@ -31,7 +31,7 @@ export function SubMenuComponent(props) {
     string = string.replace(/":/g, ":");
     string = string.replace(/Additional item"}/g, 'Additional item"');
     string = string.replace(/}}/g, "}");
-    string = string.replace(/"title/g, 'title');
+    string = string.replace(/"title/g, "title");
     string = string.replace(/"link/g, " link");
 
     return string;
@@ -52,7 +52,9 @@ export function SubMenuComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Submenu from "erxes-ui/lib/components/subMenu/Submenu";`}</CodeBlock>
-        <p><required>* required prop</required></p>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
         <Table>
           <thead>
             <tr>
@@ -65,7 +67,9 @@ export function SubMenuComponent(props) {
           <tbody>
             <tr>
               <td rowSpan="2">items (array)</td>
-              <td>title<required>*</required></td>
+              <td>
+                title<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Defines submenu title</td>
@@ -81,8 +85,8 @@ export function SubMenuComponent(props) {
               <td>React.ReactNode</td>
               <td />
               <td>
-              Define additional sub menu item that will be displayed right side of
-                sub menu
+                Define additional sub menu item that will be displayed right
+                side of sub menu
               </td>
             </tr>
           </tbody>

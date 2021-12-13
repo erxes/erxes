@@ -23,6 +23,7 @@
     "apollo-link-http": "1.5.16",
     "apollo-link-ws": "1.0.8",
     "apollo-utilities": "1.0.5",
+    "babel": "^6.23.0",
     "ckeditor4-react": "1.0.0",
     "classnames": "^2.2.6",
     "dayjs": "^1.10.7",

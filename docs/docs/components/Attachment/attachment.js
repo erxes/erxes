@@ -37,7 +37,11 @@ export function AttachmentComponent(props) {
           type: "image",
           url: "https://erxes.io/static/images/logo/glyph_dark.svg",
         },
-        { name: "flag_right.svg", type: "image", url: "https://erxes.io/static/images/logo/flag_right.svg" },
+        {
+          name: "flag_right.svg",
+          type: "image",
+          url: "https://erxes.io/static/images/logo/flag_right.svg",
+        },
       ],
       index: index && 1,
       scrollBottom: () => {},
@@ -53,7 +57,10 @@ export function AttachmentComponent(props) {
     string = string.replace(/}, attachments:/g, "}} attachments={");
     string = string.replace(/}, simple:true}/g, "}} simple={true}");
     string = string.replace(/attachment:/g, "attachment={");
-    string = string.replace(/}, additionalItem:"Additional text"}/g, '}} additionalItem="Additional text"');
+    string = string.replace(
+      /}, additionalItem:"Additional text"}/g,
+      '}} additionalItem="Additional text"'
+    );
     string = string.slice(1, string.length);
     string = string.replace(/name:/g, "\n\t\tname:");
     string = string.replace(/size:/g, "\n\t\tsize:");
@@ -73,9 +80,7 @@ export function AttachmentComponent(props) {
           <Attachment {...propDatas()} />
         </div>
         <CodeBlock className="language-jsx">
-          {`<>\n\t<Attachment ${stringify(
-            propDatas()
-          )} />\n</>`}
+          {`<>\n\t<Attachment ${stringify(propDatas())} />\n</>`}
         </CodeBlock>
       </>
     );
@@ -85,7 +90,9 @@ export function AttachmentComponent(props) {
     return (
       <>
         {renderApiTable("Attachment")}
-        <p><required>* required prop</required></p>
+        <p>
+          required prop - <span className={styles.required}>* </span>
+        </p>
         <Table>
           <thead>
             <tr>
@@ -97,20 +104,28 @@ export function AttachmentComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="4">attachment<required>*</required></td>
-              <td>name<required>*</required></td>
+              <td rowSpan="4">
+                attachment<span className={styles.required}>*</span>
+              </td>
+              <td>
+                name<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define file name</td>
             </tr>
             <tr>
-              <td>type<required>*</required></td>
+              <td>
+                type<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define file type</td>
             </tr>
             <tr>
-              <td>url<required>*</required></td>
+              <td>
+                url<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Declare file path</td>
@@ -125,7 +140,9 @@ export function AttachmentComponent(props) {
               <td colSpan="2">scrollBottom</td>
               <td>function</td>
               <td />
-              <td>Define function that runs after the image finished loading</td>
+              <td>
+                Define function that runs after the image finished loading
+              </td>
             </tr>
             <tr>
               <td colSpan="2">additionalItem</td>
@@ -143,23 +160,31 @@ export function AttachmentComponent(props) {
               <td colSpan="2">index</td>
               <td>number</td>
               <td></td>
-              <td>When previewing attachments, define which file to start from</td>
+              <td>
+                When previewing attachments, define which file to start from
+              </td>
             </tr>
             <tr>
               <td rowSpan="4">attachments (array)</td>
-              <td>name<required>*</required></td>
+              <td>
+                name<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define file name</td>
             </tr>
             <tr>
-              <td>type<required>*</required></td>
+              <td>
+                type<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define file type</td>
             </tr>
             <tr>
-              <td>url<required>*</required></td>
+              <td>
+                url<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Declare file path</td>

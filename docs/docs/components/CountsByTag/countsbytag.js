@@ -100,7 +100,7 @@ export function CountsByTagComponent(props) {
       <>
         {renderApiTable("CountsByTag")}
         <p>
-          <required>* required prop</required>
+          required prop - <span className={styles.required}>*</span>
         </p>
         <Table>
           <thead>
@@ -114,7 +114,7 @@ export function CountsByTagComponent(props) {
           <tbody>
             <tr>
               <td rowSpan="5">
-                tags<required>*</required> (array)
+                tags<span className={styles.required}>*</span> (array)
               </td>
               <td>_id</td>
               <td>string</td>
@@ -147,7 +147,7 @@ export function CountsByTagComponent(props) {
             </tr>
             <tr>
               <td colSpan="2">
-                counts<required>*</required>
+                counts<span className={styles.required}>*</span>
               </td>
               <td>any</td>
               <td />
@@ -155,7 +155,7 @@ export function CountsByTagComponent(props) {
             </tr>
             <tr>
               <td colSpan="2">
-                loading<required>*</required>
+                loading<span className={styles.required}>*</span>
               </td>
               <td>boolean</td>
               <td />
@@ -163,7 +163,7 @@ export function CountsByTagComponent(props) {
             </tr>
             <tr>
               <td colSpan="2">
-                manageUrl<required>*</required>
+                manageUrl<span className={styles.required}>*</span>
               </td>
               <td>string</td>
               <td></td>

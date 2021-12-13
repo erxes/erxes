@@ -65,7 +65,9 @@ export function UploaderComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Uploader from "erxes-ui/lib/components/Uploader";`}</CodeBlock>
-        <p><required>* required prop</required></p>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
         <Table>
           <thead>
             <tr>
@@ -77,20 +79,29 @@ export function UploaderComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="4">defaultFileList<required>*</required> (array)</td>
-              <td>name<required>*</required></td>
+              <td rowSpan="4">
+                defaultFileList<span className={styles.required}>*</span>{" "}
+                (array)
+              </td>
+              <td>
+                name<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define file name</td>
             </tr>
             <tr>
-              <td>type<required>*</required></td>
+              <td>
+                type<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define file type</td>
             </tr>
             <tr>
-              <td>url<required>*</required></td>
+              <td>
+                url<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define file path</td>

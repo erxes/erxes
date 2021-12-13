@@ -28,7 +28,7 @@ export function TimerComponent(props) {
     string = string.replace(/startDate=false/g, "");
     string = string.replace(/180/g, "{180}");
     string = string.replace(/timeSpent=0/g, "timeSpent={0}");
-    
+
     return string;
   }
 
@@ -37,9 +37,7 @@ export function TimerComponent(props) {
       <>
         <TaskTimer {...propDatas()} />
         <CodeBlock className="language-jsx">
-          {`<>\n\t<TaskTimer ${stringify(
-            propDatas()
-          )} />\n</>`}
+          {`<>\n\t<TaskTimer ${stringify(propDatas())} />\n</>`}
         </CodeBlock>
       </>
     );
@@ -51,74 +49,90 @@ export function TimerComponent(props) {
         <CodeBlock className="language-jsx">
           import TaskTimer from "erxes-ui/lib/components/Timer";
         </CodeBlock>
-        <p><required>* required prop</required></p>
-      <Table>
-        <thead>
-          <tr>
-            <th colSpan="2">Name</th>
-            <th>Type</th>
-            <th>Defualt</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colSpan="2">taskId<required>*</required></td>
-            <td>string</td>
-            <td/>
-            <td>Define task id</td>
-          </tr>
-          <tr>
-            <td colSpan="2">status<required>*</required></td>
-            <td>started | paused | stopped | completed</td>
-            <td/>
-            <td>Define task status</td>
-          </tr>
-          <tr>
-            <td colSpan="2">timeSpent<required>*</required></td>
-            <td>number</td>
-            <td></td>
-            <td>Define time spent in task</td>
-          </tr>
-          <tr>
-            <td colSpan="2">startDate</td>
-            <td>string</td>
-            <td/>
-            <td>Define start date of task</td>
-          </tr>
-          <tr>
-            <td rowSpan="5">update<required>*</required></td>
-            <td >_id<required>*</required></td>
-            <td>string</td>
-            <td/>
-            <td>Define updated id</td>
-          </tr>
-          <tr>
-            <td>status<required>*</required></td>
-            <td>started | paused | stopped | completed</td>
-            <td/>
-            <td>Define update status</td>
-          </tr>
-          <tr>
-            <td>timeSpent<required>*</required></td>
-            <td>number</td>
-            <td/>
-            <td>Define updated time spent</td>
-          </tr>
-          <tr>
-            <td>startDate</td>
-            <td>string</td>
-            <td/>
-            <td>Define update start date</td>
-          </tr>
-          <tr>
-            <td>callback</td>
-            <td>function</td>
-            <td/>
-            <td>Change task status  </td>
-          </tr>
-        </tbody>
-      </Table>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
+        <Table>
+          <thead>
+            <tr>
+              <th colSpan="2">Name</th>
+              <th>Type</th>
+              <th>Defualt</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colSpan="2">
+                taskId<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Define task id</td>
+            </tr>
+            <tr>
+              <td colSpan="2">
+                status<span className={styles.required}>*</span>
+              </td>
+              <td>started | paused | stopped | completed</td>
+              <td />
+              <td>Define task status</td>
+            </tr>
+            <tr>
+              <td colSpan="2">
+                timeSpent<span className={styles.required}>*</span>
+              </td>
+              <td>number</td>
+              <td></td>
+              <td>Define time spent in task</td>
+            </tr>
+            <tr>
+              <td colSpan="2">startDate</td>
+              <td>string</td>
+              <td />
+              <td>Define start date of task</td>
+            </tr>
+            <tr>
+              <td rowSpan="5">
+                update<span className={styles.required}>*</span>
+              </td>
+              <td>
+                _id<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Define updated id</td>
+            </tr>
+            <tr>
+              <td>
+                status<span className={styles.required}>*</span>
+              </td>
+              <td>started | paused | stopped | completed</td>
+              <td />
+              <td>Define update status</td>
+            </tr>
+            <tr>
+              <td>
+                timeSpent<span className={styles.required}>*</span>
+              </td>
+              <td>number</td>
+              <td />
+              <td>Define updated time spent</td>
+            </tr>
+            <tr>
+              <td>startDate</td>
+              <td>string</td>
+              <td />
+              <td>Define update start date</td>
+            </tr>
+            <tr>
+              <td>callback</td>
+              <td>function</td>
+              <td />
+              <td>Change task status </td>
+            </tr>
+          </tbody>
+        </Table>
       </>
     );
   }

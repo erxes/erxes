@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "../../src/components/styles.module.css";
 import Table from "../../../ui/src/modules/common/components/table";
 import CodeBlock from "@theme/CodeBlock";
 
@@ -12,7 +13,7 @@ export function renderApiTable(Name, table) {
       {table && (
         <>
           <p>
-            <required>* required prop</required>
+             required prop - <span className={styles.required}>*</span>
           </p>
           <Table>
             <thead>
@@ -31,7 +32,7 @@ export function renderApiTable(Name, table) {
                       {cell[cell.length - 1] === "*" ? (
                         <>
                           {cell.slice(0, -1)}
-                          <required>*</required>
+                          <span className={styles.required}>*</span>
                         </>
                       ) : (
                         <>{cell}</>

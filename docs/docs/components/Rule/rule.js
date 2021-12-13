@@ -43,7 +43,7 @@ export function RuleComponent(props) {
       <>
         <CodeBlock className="language-javascript">{`import ConditionsRule from "erxes-ui/lib/components/rule/ConditionsRule";`}</CodeBlock>
         <p>
-          <required>* required prop</required>
+          required prop - <span className={styles.required}>*</span>
         </p>
         <Table>
           <thead>
@@ -56,9 +56,11 @@ export function RuleComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="5">rules<required>*</required></td>
+              <td rowSpan="5">
+                rules<span className={styles.required}>*</span>
+              </td>
               <td>
-                _id<required>*</required>
+                _id<span className={styles.required}>*</span>
               </td>
               <td>string</td>
               <td />
@@ -71,25 +73,33 @@ export function RuleComponent(props) {
               <td>Declare kind of the rule</td>
             </tr>
             <tr>
-              <td>text<required>*</required></td>
+              <td>
+                text<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define title of the rule</td>
             </tr>
             <tr>
-              <td>condition<required>*</required></td>
+              <td>
+                condition<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define condition of the rule</td>
             </tr>
             <tr>
-              <td>value<required>*</required></td>
+              <td>
+                value<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Define value of the rule</td>
             </tr>
             <tr>
-              <td colSpan="2">onChange<required>*</required></td>
+              <td colSpan="2">
+                onChange<span className={styles.required}>*</span>
+              </td>
               <td>function</td>
               <td></td>
               <td>Callback fired after the delete button clicked</td>
