@@ -88,8 +88,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     let state = 'propertyForm';
     let showAddGroup = true;
 
-    console.log(props.segment);
-
     const segment: ISegment = props.segment || {
       name: '',
       description: '',
