@@ -45,7 +45,7 @@ type State = {
   excludeCheckUserIds: string[];
   boardId: string;
   numberConfig?: string;
-  numberCount?: string;
+  numberSize?: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -64,7 +64,7 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
       boardId: props.boardId || '',
       numberConfig: (pipeline && pipeline.numberConfig) || '',
-      numberCount: (pipeline && pipeline.numberCount) || ''
+      numberSize: (pipeline && pipeline.numberSize) || ''
     };
   }
 
@@ -112,7 +112,7 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds,
       boardId,
       numberConfig,
-      numberCount
+      numberSize
     } = this.state;
     const finalValues = values;
 
@@ -131,7 +131,7 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckUser,
       excludeCheckUserIds,
       numberConfig,
-      numberCount
+      numberSize
     };
   };
 
@@ -143,7 +143,7 @@ class PipelineForm extends React.Component<Props, State> {
             this.onChangeNumber(key, conf)
           }
           config={this.state.numberConfig || ''}
-          count={this.state.numberCount || ''}
+          size={this.state.numberSize || ''}
         />
       </FormGroup>
     );

@@ -12,16 +12,16 @@ import Attribution from './Attribution';
 type Props = {
   onChange: (key: string, config: string) => void;
   config: string;
-  count: string;
+  size: string;
   attributions: any[];
 };
 
 function PlaceHolderInput(props: Props) {
   let { config } = props;
-  const { count, onChange, attributions } = props;
+  const { size, onChange, attributions } = props;
 
   const onChangeNumber = (conf: string) => {
-    onChange('numberCount', conf);
+    onChange('numberSize', conf);
   };
 
   const onChangeConfig = (conf: string) => {
@@ -109,12 +109,12 @@ function PlaceHolderInput(props: Props) {
       </FlexItem>
       <FlexItem count={1} hasSpace={true}>
         <FormGroup>
-          <ControlLabel>Number count</ControlLabel>
+          <ControlLabel>Number size</ControlLabel>
           <FormControl
             type="number"
             onChange={(e: any) => onChangeNumber(e.target.value)}
             min={1}
-            value={count}
+            value={size}
             placeholder="Number count"
           />
         </FormGroup>

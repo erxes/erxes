@@ -34,7 +34,7 @@ const pipelines = `
       isCheckUser
       excludeCheckUserIds
       numberConfig
-      numberCount
+      numberSize
       createdAt
       createdUser{
         details {

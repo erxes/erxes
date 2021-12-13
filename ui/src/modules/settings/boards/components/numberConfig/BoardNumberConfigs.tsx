@@ -5,18 +5,18 @@ import Input from './Input';
 type Props = {
   onChange: (key: string, config: string) => void;
   config: string;
-  count: string;
+  size: string;
 };
 
 function BoardNumber(props: Props) {
-  const { config, count, onChange } = props;
+  const { config, size, onChange } = props;
 
   return (
     <Input
       onChange={onChange}
       attributions={BOARD_NUMBERS}
       config={config}
-      count={count}
+      size={size}
     />
   );
 }
