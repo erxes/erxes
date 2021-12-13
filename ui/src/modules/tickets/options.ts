@@ -49,7 +49,7 @@ const options = {
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {
-    const { priority, source } = queryParams;
+    const { priority, source, userIds, startDate, endDate } = queryParams;
     const extraParams: any = {};
 
     if (priority) {
@@ -58,6 +58,18 @@ const options = {
 
     if (source) {
       extraParams.source = toArray(source);
+    }
+
+    if (userIds) {
+      extraParams.userIds = toArray(userIds);
+    }
+
+    if (startDate) {
+      extraParams.startDate = startDate;
+    }
+
+    if (endDate) {
+      extraParams.endDate = endDate;
     }
 
     return extraParams;
