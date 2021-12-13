@@ -1,10 +1,19 @@
+import { CHAT_TYPE } from '../../definitions';
 import { graphqlPubsub } from '../subscriptions/pubsub';
 
 const chatMutations = [
   {
     name: 'chatAdd',
-    handler: async (_root, doc, { user, models }) => {
-      return models.Chats.createChat(models, doc, user._id);
+    handler: async (
+      _root,
+      { name, type, participantIds },
+      { user, models }
+    ) => {
+      return models.Chats.createChat(
+        models,
+        { name, type, participantIds: (participantIds || []).concat(user._id) },
+        user._id
+      );
     }
   },
   {
@@ -28,6 +37,7 @@ const chatMutations = [
 
       const doc = { ...args };
 
+      // When it is a direct chat
       if (!doc.chatId) {
         if (
           !doc.participantIds ||
@@ -47,7 +57,7 @@ const chatMutations = [
         } else {
           const createdChat = await models.Chats.createChat(
             models,
-            { name: doc.content, participantIds },
+            { name: doc.content, participantIds, type: CHAT_TYPE.DIRECT },
             user._id
           );
 

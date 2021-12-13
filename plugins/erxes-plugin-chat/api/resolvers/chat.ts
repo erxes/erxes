@@ -18,13 +18,9 @@ const chatResolvers = [
   {
     type: 'Chat',
     field: 'participantUsers',
-    handler: async (chat, {}, { models, user }) => {
-      const participantIdsExceptMe = (chat.participantIds || []).filter(
-        id => id !== user._id
-      );
-
+    handler: async (chat, {}, { models }) => {
       return models.Users.find({
-        _id: { $in: participantIdsExceptMe }
+        _id: { $in: chat.participantIds || [] }
       });
     }
   }

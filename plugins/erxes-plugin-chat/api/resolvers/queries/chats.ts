@@ -1,15 +1,8 @@
 const chatQueries = [
   {
     name: 'chats',
-    handler: async (_root, { type, limit, skip }, { models, user }) => {
-      const filter: any = {};
-
-      switch (type) {
-        case 'direct': {
-          filter.participantIds = { $size: 2, $in: user._id };
-        }
-        default:
-      }
+    handler: async (_root, { type, limit, skip }, { models }) => {
+      const filter: any = { type };
 
       return {
         list: await models.Chats.find(filter)
@@ -37,7 +30,11 @@ const chatQueries = [
           };
         }
 
-        const participantIds = [user._id, ...userIds];
+        const participantIds = [...userIds];
+
+        if (!userIds.includes(user._id)) {
+          participantIds.push(user._id);
+        }
 
         const chat = await models.Chats.findOne({
           participantIds: { $all: participantIds, $size: participantIds.length }

@@ -8,6 +8,7 @@ on:
       - 'api/**'
       - 'plugins/erxes-plugin-exm-feed/api/**'
       - 'plugins/erxes-plugin-exm-core/api/**'
+      - 'plugins/erxes-plugin-exm-chat/api/**'
       - 'plugins/erxes-plugin-reactions/api/**'
       - '.github/workflows/api.yaml'
   pull_request:
