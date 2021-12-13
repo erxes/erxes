@@ -8,7 +8,6 @@ import { Writable } from 'stream';
 import { checkFieldNames } from '../data/modules/fields/utils';
 import {
   createAWS,
-  deleteFile,
   getConfig,
   getS3FileInfo,
   uploadsFolderPath
@@ -85,7 +84,7 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 
         debugWorkers(`Get CSV Info type: local, totalRow: ${total}`);
 
-        resolve({ total, columns });
+        resolve({ rows: total, columns });
       });
     } else {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -112,21 +111,23 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 
       debugWorkers(`Get CSV Info type: AWS, totalRow: ${total}`);
 
-      return resolve({ total, columns });
+      return resolve({ rows: total, columns });
     }
   });
 };
 
 const importBulkStream = ({
+  contentType,
   fileName,
   bulkLimit,
   uploadType,
   handleBulkOperation
 }: {
+  contentType: string;
   fileName: string;
   bulkLimit: number;
   uploadType: 'AWS' | 'local';
-  handleBulkOperation: (rows: any) => Promise<void>;
+  handleBulkOperation: (rows: any, contentType: string) => Promise<void>;
 }) => {
   return new Promise(async (resolve, reject) => {
     let rows: any = [];
@@ -153,7 +154,7 @@ const importBulkStream = ({
       rows.push(row);
 
       if (rows.length === bulkLimit) {
-        return handleBulkOperation(rows)
+        return handleBulkOperation(rows, contentType)
           .then(() => {
             rows = [];
             next();
@@ -171,7 +172,7 @@ const importBulkStream = ({
       .pipe(csvParser())
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
-        handleBulkOperation(rows).then(() => {
+        handleBulkOperation(rows, contentType).then(() => {
           resolve('success');
         });
       })
@@ -280,41 +281,63 @@ export const receiveImportCancel = () => {
 
 export const receiveImportCreate = async (content: any) => {
   const {
-    fileName,
-    type,
+    contentTypes,
+    files,
     scopeBrandIds,
     user,
     uploadType,
-    fileType,
     columnsConfig,
     importHistoryId,
-    tagId
+    associatedContentType,
+    associatedField
   } = content;
 
-  debugWorkers(`Import created called`);
-
-  let importHistory;
+  debugWorkers(associatedField);
 
   const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
-  if (fileType !== 'csv') {
-    throw new Error('Invalid file type');
+  const config: any = {};
+
+  let total = 0;
+
+  let mainType = contentTypes[0];
+
+  if (associatedContentType) {
+    mainType = associatedContentType;
   }
 
-  const { total, columns }: any = await getCsvInfo(fileName, uploadType);
+  for (const contentType of contentTypes) {
+    const file = files[contentType];
+    const columnConfig = columnsConfig[contentType];
+    const fileName = file[0].url;
 
-  if (total === 0) {
-    throw new Error('Please import at least one row of data');
+    const { rows, columns }: any = await getCsvInfo(fileName, uploadType);
+
+    if (rows === 0) {
+      throw new Error('Please import at least one row of data');
+    }
+
+    debugWorkers('rows', rows);
+
+    total = total + rows;
+
+    const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
+
+    const properties = await checkFieldNames(
+      contentType,
+      updatedColumns,
+      columnConfig
+    );
+
+    config[contentType] = { total: rows, properties, fileName };
   }
 
-  const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
-
-  const properties = await checkFieldNames(type, updatedColumns, columnsConfig);
+  debugWorkers('total', total);
 
   await ImportHistory.updateOne(
     { _id: importHistoryId },
     {
-      contentType: type,
+      contentTypes,
       userId: user._id,
       date: Date.now(),
       total
@@ -330,6 +353,8 @@ export const receiveImportCreate = async (content: any) => {
       _id: importHistoryId
     });
 
+    let status = 'inProgress';
+
     if (!updatedImportHistory) {
       throw new Error('Import history not found');
     }
@@ -338,17 +363,28 @@ export const receiveImportCreate = async (content: any) => {
       updatedImportHistory.failed + updatedImportHistory.success ===
       updatedImportHistory.total
     ) {
+      status = 'Done';
       await updateImportHistory({
-        $set: { status: 'Done', percentage: 100 }
+        $set: { status, percentage: 100 }
       });
     }
 
-    await deleteFile(fileName);
+    if (status !== 'Done') {
+      const contentType = contentTypes.find(value => value !== mainType);
+
+      importBulkStream({
+        contentType,
+        fileName: config[contentType].fileName,
+        uploadType,
+        bulkLimit: WORKER_BULK_LIMIT,
+        handleBulkOperation
+      });
+    }
 
     debugWorkers(`Import create ended`);
   };
 
-  const handleBulkOperation = async (rows: any) => {
+  const handleBulkOperation = async (rows: any, contentType: string) => {
     if (rows.length === 0) {
       return debugWorkers('Please import at least one row of data');
     }
@@ -364,26 +400,26 @@ export const receiveImportCreate = async (content: any) => {
     await myWorker.createWorker(workerPath, {
       scopeBrandIds,
       user,
-      contentType: type,
-      properties,
+      contentType,
+      properties: config[contentType].properties,
       importHistoryId,
       result,
       useElkSyncer,
-      percentage: Number(((result.length / total) * 100).toFixed(3)),
-      tagId
+      percentage: Number(((result.length / total) * 100).toFixed(3))
     });
   };
 
   myWorker.setHandleEnd(handleOnEndBulkOperation);
 
   importBulkStream({
-    fileName,
+    contentType: mainType,
+    fileName: config[mainType].fileName,
     uploadType,
     bulkLimit: WORKER_BULK_LIMIT,
     handleBulkOperation
   });
 
-  return { id: importHistory.id };
+  return { id: importHistoryId };
 };
 
 const importWebhookStream = ({

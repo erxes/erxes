@@ -31,7 +31,6 @@ type State = {
   columnWithChosenField: any;
   importName: string;
   disclaimer: boolean;
-  tagId: string;
   type: string;
   contentTypes: string[];
 
@@ -48,7 +47,6 @@ class ExportForm extends React.Component<Props, State> {
       columnWithChosenField: {},
       importName: '',
       disclaimer: false,
-      tagId: '',
       type: 'single',
       contentTypes: [],
       associateHeader: '',
@@ -89,10 +87,6 @@ class ExportForm extends React.Component<Props, State> {
 
   onChangeDisclaimer = value => {
     this.setState({ disclaimer: value });
-  };
-
-  onChangeTag = value => {
-    this.setState({ tagId: value });
   };
 
   onChangeType = value => {
@@ -138,8 +132,9 @@ class ExportForm extends React.Component<Props, State> {
       importName,
       columnWithChosenField,
       attachments,
-      tagId,
-      contentTypes
+      contentTypes,
+      associateHeader,
+      associateContentType
     } = this.state;
 
     const files = [] as any;
@@ -157,7 +152,8 @@ class ExportForm extends React.Component<Props, State> {
       importName,
       files: attachments,
       columnsConfig: columnWithChosenField,
-      tagId
+      associateHeader,
+      associateContentType
     };
 
     return this.props.addImportHistory(doc);
@@ -228,7 +224,7 @@ class ExportForm extends React.Component<Props, State> {
 
   render() {
     const { tags } = this.props;
-    const { importName, disclaimer, tagId, type, contentTypes } = this.state;
+    const { importName, disclaimer, type, contentTypes } = this.state;
 
     const title = __('Import');
 
@@ -275,8 +271,6 @@ class ExportForm extends React.Component<Props, State> {
                   onChangeImportName={this.onChangeImportName}
                   onChangeDisclaimer={this.onChangeDisclaimer}
                   tags={tags}
-                  tagId={tagId}
-                  onChangeTag={this.onChangeTag}
                 />
               </Step>
             </Steps>

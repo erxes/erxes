@@ -1,6 +1,6 @@
 import { ImportHistory } from '../../../db/models';
 import messageBroker from '../../../messageBroker';
-import { importer2 } from '../../../middlewares/fileMiddleware';
+import { importer } from '../../../middlewares/fileMiddleware';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putDeleteLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -27,7 +27,6 @@ const importHistoryMutations = {
       RABBITMQ_QUEUES.RPC_API_TO_WORKERS,
       {
         action: 'removeImport',
-        contentType: importHistory.contentType,
         importHistoryId: importHistory._id
       }
     );
@@ -62,32 +61,29 @@ const importHistoryMutations = {
       files,
       columnsConfig,
       importName,
-      tagId
+      associatedContentType,
+      associatedField
     }: {
       contentTypes: string[];
       files: any[];
       columnsConfig: any;
       importName: string;
-      tagId: string;
+      associatedContentType: string;
+      associatedField: string;
     },
     { user }: IContext
   ) {
-    for (const contentType of contentTypes) {
-      const importHistory = await ImportHistory.create({});
+    const importHistory = await ImportHistory.create({ name: importName });
 
-      const importHistoryId = importHistory._id;
-      const file = files[contentType];
-
-      importer2(
-        contentType,
-        file[0],
-        columnsConfig[contentType],
-        importName,
-        importHistoryId,
-        tagId,
-        user
-      );
-    }
+    importer(
+      contentTypes,
+      files,
+      columnsConfig,
+      importHistory._id,
+      associatedContentType,
+      associatedField,
+      user
+    );
 
     return 'success';
   }

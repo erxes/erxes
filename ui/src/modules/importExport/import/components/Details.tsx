@@ -8,11 +8,9 @@ type Props = {
   disclaimer: boolean;
   importName: string;
   tags: ITag[];
-  tagId: string;
 
   onChangeImportName: (value) => void;
   onChangeDisclaimer: (value) => void;
-  onChangeTag: (tagId) => void;
 };
 
 class Details extends React.Component<Props, {}> {
@@ -27,9 +25,6 @@ class Details extends React.Component<Props, {}> {
 
     this.props.onChangeDisclaimer(value);
   };
-
-  onChangeTag = e =>
-    this.props.onChangeTag((e.target as HTMLInputElement).value);
 
   render() {
     const { disclaimer, importName } = this.props;
