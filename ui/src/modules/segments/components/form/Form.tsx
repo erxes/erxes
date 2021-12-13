@@ -69,6 +69,7 @@ type State = {
   conditionsConjunction: string;
   boardId: string;
   pipelineId: string;
+  shouldWriteActivityLog: boolean;
 
   segments: ISegmentMap[];
   state: string;
@@ -87,6 +88,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     let state = 'propertyForm';
     let showAddGroup = true;
 
+    console.log(props.segment);
+
     const segment: ISegment = props.segment || {
       name: '',
       description: '',
@@ -95,6 +98,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionsConjunction: 'and',
       boardId: '',
       pipelineId: '',
+      shouldWriteActivityLog: false,
       subSegmentConditions: [
         {
           contentType: props.contentType || 'customer',
@@ -208,7 +212,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
   renderDetailForm = (formProps: IFormProps) => {
     const { hideDetailForm, contentType, boards = [] } = this.props;
-    const { name, description, color, boardId, pipelineId } = this.state;
+    const {
+      name,
+      description,
+      color,
+      boardId,
+      pipelineId,
+      shouldWriteActivityLog
+    } = this.state;
 
     if (hideDetailForm) {
       return;
@@ -230,6 +241,13 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       );
 
     const colorOnChange = e => this.handleChange('color', e.hex);
+
+    const onShouldWriteActivityLogChange = (e: React.FormEvent) => {
+      this.handleChange(
+        'shouldWriteActivityLog',
+        (e.currentTarget as HTMLInputElement).checked
+      );
+    };
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -285,6 +303,18 @@ class SegmentFormAutomations extends React.Component<Props, State> {
                 </OverlayTrigger>
               </div>
             </FormGroup>
+          </FlexItem>
+        </FlexContent>
+        <FlexContent>
+          <FlexItem>
+            <FormControl
+              name="shouldWriteActivityLogChange"
+              componentClass="checkbox"
+              onChange={onShouldWriteActivityLogChange}
+              checked={shouldWriteActivityLog}
+            >
+              Write activity log when items enter this segment
+            </FormControl>
           </FlexItem>
         </FlexContent>
         {isBoardKind(contentType) ? (
@@ -613,7 +643,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionsConjunction,
       color,
       boardId,
-      pipelineId
+      pipelineId,
+      shouldWriteActivityLog
     } = this.state;
     const finalValues = values;
 
@@ -636,7 +667,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       contentType,
       conditionSegments,
       boardId,
-      pipelineId
+      pipelineId,
+      shouldWriteActivityLog
     };
   };
 

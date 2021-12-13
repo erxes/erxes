@@ -49,7 +49,9 @@ const segmentQueries = {
    * Get one segment
    */
   async segmentDetail(_root, { _id }: { _id: string }) {
-    return Segments.findOne({ _id });
+    const r = await Segments.findOne({ _id });
+    console.log(r);
+    return r;
   },
 
   /**
