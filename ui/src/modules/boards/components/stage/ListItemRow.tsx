@@ -13,17 +13,18 @@ import {
   LabelColumn,
   StageColumn
 } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
+import { IOptions } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import PriorityIndicator from '../editForm/PriorityIndicator';
+import { IDeal } from 'modules/deals/types';
 
 type Props = {
   stageId?: string;
   onClick?: () => void;
-  item: IItem;
+  item: IDeal;
   isFormVisible?: boolean;
-  options?: IOptions;
+  options: IOptions;
   groupType?: string;
 };
 
@@ -105,7 +106,7 @@ class ListItemRow extends React.PureComponent<Props> {
   };
 
   render() {
-    const { item, onClick, groupType } = this.props;
+    const { item, onClick, groupType, options } = this.props;
 
     const {
       customers,
@@ -113,7 +114,8 @@ class ListItemRow extends React.PureComponent<Props> {
       closeDate,
       isComplete,
       labels,
-      assignedUsers
+      assignedUsers,
+      products
     } = item;
 
     return (
@@ -147,6 +149,14 @@ class ListItemRow extends React.PureComponent<Props> {
                     <Assignees users={assignedUsers} />
                   </Left>
                 </PriceContainer>
+              )}
+            </td>
+          )}
+          {options.type === 'deal' && (
+            <td>
+              {this.checkNull(
+                products > 0,
+                <Details color="#63D2D6" items={products || []} />
               )}
             </td>
           )}
