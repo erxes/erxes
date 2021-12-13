@@ -48,6 +48,7 @@ type State = {
   startDate?: Date;
   endDate?: Date;
   numberConfig?: string;
+  numberCount?: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -68,7 +69,8 @@ class PipelineForm extends React.Component<Props, State> {
       startDate: pipeline ? pipeline.startDate : undefined,
       endDate: pipeline ? pipeline.endDate : undefined,
       boardId: props.boardId || '',
-      numberConfig: (pipeline && pipeline.numberConfig) || ''
+      numberConfig: (pipeline && pipeline.numberConfig) || '',
+      numberCount: (pipeline && pipeline.numberCount) || ''
     };
   }
 
@@ -118,8 +120,8 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ backgroundColor: e.hex });
   };
 
-  onChangeNumber = (value: string) => {
-    this.setState({ numberConfig: value });
+  onChangeNumber = (key: string, value: string) => {
+    this.setState({ [key]: value } as any);
   };
 
   generateDoc = (values: {
@@ -137,7 +139,8 @@ class PipelineForm extends React.Component<Props, State> {
       endDate,
       metric,
       boardId,
-      numberConfig
+      numberConfig,
+      numberCount
     } = this.state;
     const finalValues = values;
 
@@ -156,7 +159,8 @@ class PipelineForm extends React.Component<Props, State> {
       startDate,
       endDate,
       metric,
-      numberConfig
+      numberConfig,
+      numberCount
     };
   };
 
@@ -254,8 +258,11 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <BoardNumberConfigs
-          onChangeNumber={(conf: string) => this.onChangeNumber(conf)}
+          onChange={(key: string, conf: string) =>
+            this.onChangeNumber(key, conf)
+          }
           config={this.state.numberConfig || ''}
+          count={this.state.numberCount || ''}
         />
       </FormGroup>
     );

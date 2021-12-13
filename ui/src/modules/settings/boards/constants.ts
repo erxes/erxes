@@ -57,10 +57,6 @@ export const BOARD_NUMBERS = [
     value: 'day'
   },
   {
-    label: 'Number',
-    value: 'number'
-  },
-  {
     label: 'Dash',
     value: '-'
   },
@@ -71,9 +67,5 @@ export const BOARD_NUMBERS = [
   {
     label: 'Slash',
     value: '/'
-  },
-  {
-    label: 'Space',
-    value: ' '
   }
 ];

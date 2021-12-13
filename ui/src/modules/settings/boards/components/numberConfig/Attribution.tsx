@@ -7,7 +7,7 @@ import { __ } from 'modules/common/utils';
 
 type Props = {
   config: string;
-  setConfig: (config: string, value: string) => void;
+  setConfig: (config: string) => void;
   attributions: any[];
 };
 
@@ -33,7 +33,7 @@ export default class Attribution extends React.Component<Props> {
       config = `${config}{${value}}`;
     }
 
-    setConfig(config, value);
+    setConfig(config);
   };
 
   renderContent() {

@@ -29,11 +29,9 @@ interface IStageEdit extends IStage {
   _id: string;
 }
 
-const checkNumberConfig = (numberConfig: string) => {
-  if (!numberConfig.includes('{number}')) {
-    throw new Error(
-      'Please add at least one number attribute in number config'
-    );
+const checkNumberConfig = (numberConfig: string, numberCount: string) => {
+  if (numberConfig && !numberCount) {
+    throw new Error('Cannot add number config without number count');
   }
 
   return;
@@ -121,7 +119,7 @@ const boardMutations = {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
     if (doc.numberConfig) {
-      await checkNumberConfig(doc.numberConfig);
+      await checkNumberConfig(doc.numberConfig, doc.numberCount || '');
     }
 
     const pipeline = await Pipelines.createPipeline(
@@ -152,7 +150,7 @@ const boardMutations = {
     await checkPermission(doc.type, user, 'pipelinesEdit');
 
     if (doc.numberConfig) {
-      await checkNumberConfig(doc.numberConfig);
+      await checkNumberConfig(doc.numberConfig, doc.numberCount || '');
     }
 
     const pipeline = await Pipelines.getPipeline(_id);

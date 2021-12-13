@@ -1,69 +1,46 @@
 import { BoardHeader } from 'modules/automations/styles';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from 'modules/common/components/form';
-import { Alert } from 'modules/common/utils';
 import React from 'react';
 
 import Attribution from './Attribution';
 
 type Props = {
-  onChange: (config: string) => void;
-  label: string;
+  onChange: (key: string, config: string) => void;
   config: string;
+  count: string;
   attributions: any[];
 };
 
-type State = {
-  config: string;
-};
+function PlaceHolderInput(props: Props) {
+  let { config } = props;
+  const { count, onChange, attributions } = props;
 
-class PlaceHolderInput extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { config } = this.props;
-
-    this.state = {
-      config
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.config !== this.props.config) {
-      this.setState({ config: nextProps.config });
-    }
-  }
-
-  onChange = (conf, value) => {
-    const { config } = this.props;
-
-    if (config && config.includes('{number}') && value !== 'number') {
-      return Alert.error(
-        'You cannot add an attribute after the number attribute!'
-      );
-    }
-
-    this.props.onChange(conf);
+  const onChangeNumber = (conf: string) => {
+    onChange('numberCount', conf);
   };
 
-  renderAttribution() {
+  const onChangeConfig = (conf: string) => {
+    onChange('numberConfig', conf);
+  };
+
+  const renderAttribution = () => {
     return (
       <Attribution
-        config={this.state.config}
-        setConfig={(conf, value) => this.onChange(conf, value)}
-        attributions={this.props.attributions}
+        config={config}
+        setConfig={conf => onChangeConfig(conf)}
+        attributions={attributions}
       />
     );
-  }
+  };
 
-  onKeyPress = (e: React.KeyboardEvent) => {
+  const onKeyPress = (e: React.KeyboardEvent) => {
     if (['Backspace', 'Delete'].includes(e.key)) {
       e.preventDefault();
-
-      let { config } = this.props;
 
       const target = e.target as HTMLInputElement;
       const start = target.selectionStart || 0;
@@ -106,33 +83,44 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
       config = matches.filter((_m, i) => !deletes.includes(String(i))).join('');
 
-      this.props.onChange(config);
+      onChangeConfig(config);
     }
   };
 
-  render() {
-    const { config } = this.state;
-    const { label } = this.props;
+  const converted: string = config;
 
-    const converted: string = config;
-
-    return (
-      <BoardHeader>
+  return (
+    <FlexContent>
+      <FlexItem count={3}>
+        <BoardHeader>
+          <FormGroup>
+            <div className="header-row">
+              <ControlLabel>Number configuration</ControlLabel>
+              <div>{renderAttribution()}</div>
+            </div>
+            <FormControl
+              value={converted}
+              onKeyPress={onKeyPress}
+              onKeyDown={onKeyPress}
+              onChange={(e: any) => onChangeConfig(e.target.value)}
+            />
+          </FormGroup>
+        </BoardHeader>
+      </FlexItem>
+      <FlexItem count={1} hasSpace={true}>
         <FormGroup>
-          <div className="header-row">
-            <ControlLabel>{label}</ControlLabel>
-            <div>{this.renderAttribution()}</div>
-          </div>
+          <ControlLabel>Number count</ControlLabel>
           <FormControl
-            value={converted}
-            onKeyPress={this.onKeyPress}
-            onKeyDown={this.onKeyPress}
-            onChange={(e: any) => this.onChange(e.target.value, '')}
+            type="number"
+            onChange={(e: any) => onChangeNumber(e.target.value)}
+            min={1}
+            value={count}
+            placeholder="Number count"
           />
         </FormGroup>
-      </BoardHeader>
-    );
-  }
+      </FlexItem>
+    </FlexContent>
+  );
 }
 
 export default PlaceHolderInput;
