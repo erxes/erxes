@@ -1,3 +1,5 @@
+//importing the file//
+
 import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -30,7 +32,7 @@ app.post('/verify-single', async (req, res, next) => {
     } catch (e) {
       return next(new Error(e));
     }
-  }
+  }//cheeking smtp signal
 
   try {
     const result = await validateSinglePhone(phone, hostname);
