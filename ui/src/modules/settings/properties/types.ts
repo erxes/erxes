@@ -113,8 +113,11 @@ export type FieldsCombinedByType = {
   _id: string;
   name: string;
   label: string;
-  brandName: string;
-  brandId: string;
+  brandName?: string;
+  brandId?: string;
+  type: string;
+  selectOptions?: any[];
+  order?: number;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {

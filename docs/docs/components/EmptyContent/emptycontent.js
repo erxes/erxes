@@ -62,7 +62,7 @@ export function EmptyContentComponent(props) {
     string = string.replace(/{"/g, "{");
     string = string.slice(1, string.length);
     string = string.replace(/content:/g, " content={");
-    string = string.replace(/,"/g, ', ');
+    string = string.replace(/,"/g, ", ");
     string = string.replace(/, vertical:/g, "} vertical={");
     string = string.replace(/, maxItemWidth:/g, "} maxItemWidth=");
     string = string.replace(/300px"}/g, '300px"');
@@ -103,7 +103,9 @@ export function EmptyContentComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Namecard from "erxes-ui/lib/components/namecard/Namecard";`}</CodeBlock>
-        <p className={styles.required}>* required prop</p>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
         <Table>
           <thead>
             <tr>
@@ -115,7 +117,9 @@ export function EmptyContentComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="10">content*</td>
+              <td rowSpan="10">
+                content<span className={styles.required}>*</span>
+              </td>
               <td rowSpan="6">steps</td>
               <td>title</td>
               <td>string</td>

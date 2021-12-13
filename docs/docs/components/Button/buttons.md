@@ -42,20 +42,20 @@ import { ButtonComponent } from "./buttons.js"
 ## API
 
 <ButtonComponent type="APIbutton" table={[
-    ['children', 'React.ReactNode', '', 'Shows button text'],
-    ['className', 'string', '', 'Define className'],
-    ['onClick', 'function', '', 'Define click handler for button element'],
-    ['onMouseDown', 'function', '', 'Trigger fuction while mouse is clicked'],
-    ['href', 'string', '', 'Define a hyperlink'],
-    ['type', 'string', 'button', 'Define HTML button type attribute'],
-    ['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],
-    ['size', 'large | medium | small', 'medium', 'Specifies a large or small button'],
-    ['disabled', 'boolean', 'false', 'Disables the Button'],
-    ['ignoreTrans', 'boolean', '', 'Ignore translations'],
-    ['block', 'boolean', 'false', 'Make the button full-width'],
-    ['icon', 'string', '', 'Shows icon'],
-    ['style', 'any', '', 'Add custom style to button'],
-    ['id', 'string', '', 'Gives id to button'],
-    ['uppercase', 'boolean', 'false', 'Make the button text uppercase'],
-    ['target', 'string', '', 'Define the target']
+['children', 'React.ReactNode', '', 'Shows button text'],
+['className', 'string', '', 'Define className'],
+['onClick', 'function', '', 'Define click handler for button element'],
+['onMouseDown', 'function', '', 'Trigger fuction while mouse is clicked'],
+['href', 'string', '', 'Define a hyperlink'],
+['type', 'string', 'button', 'Define HTML button type attribute'],
+['btnStyle', 'primary | success | danger | warning | simple | link', 'default', 'One or more button style combinations'],
+['size', 'large | medium | small', 'medium', 'Specifies a large or small button'],
+['disabled', 'boolean', 'false', 'Disables the Button'],
+['ignoreTrans', 'boolean', '', 'Ignore translations'],
+['block', 'boolean', 'false', 'Make the button full-width'],
+['icon', 'string', '', 'Shows icon'],
+['style', 'any', '', 'Add custom style to button'],
+['id', 'string', '', 'Gives id to button'],
+['uppercase', 'boolean', 'false', 'Make the button text uppercase'],
+['target', 'string', '', 'Define the target']
 ]} />

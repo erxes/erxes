@@ -72,10 +72,17 @@ const conversationDetailQuery = `
           shortName
           description
           position
+          location
         }
         links
       }
     }
+  }
+`;
+
+const widgetExportMessengerDataQuery = `
+  query widgetExportMessengerData($_id: String, $integrationId: String!) {
+    widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
   }
 `;
 
@@ -150,8 +157,8 @@ const allConversations = `
 `;
 
 const getEngageMessage = `
-  query widgetsGetEngageMessage($customerId: String $visitorId: String $browserInfo: JSON!) {
-    widgetsGetEngageMessage(customerId: $customerId visitorId: $visitorId browserInfo: $browserInfo) {
+  query widgetsGetEngageMessage($integrationId: String $customerId: String $visitorId: String $browserInfo: JSON!) {
+    widgetsGetEngageMessage(integrationId: $integrationId customerId: $customerId visitorId: $visitorId browserInfo: $browserInfo) {
       ${messageFields}
     }
   }
@@ -262,6 +269,7 @@ const integrationsFetchApi = `
 export default {
   messageFields,
   conversationDetailQuery,
+  widgetExportMessengerDataQuery,
   unreadCountQuery,
   totalUnreadCountQuery,
   conversationMessageInserted,

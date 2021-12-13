@@ -10,9 +10,7 @@ export function LabelComponent(props) {
   const propDatas = (propName, stl) => {
     const kind = {
       [propName]:
-        propName === "lblStyle" || propName === "lblColor"
-          ? stl
-          : "Label",
+        propName === "lblStyle" || propName === "lblColor" ? stl : "Label",
     };
 
     const datas = {
@@ -36,12 +34,16 @@ export function LabelComponent(props) {
         </div>
         <CodeBlock className="language-jsx">
           {`<>${
-            propName === "children" ? `\n\t<Label children="Label"></Label>` : ``
-          }${style.map((stl, index) => {
-            return `\n\t<Label ${stringify(
-              propDatas(propName, stl)
-            )}>${stl}</Label>`;
-          }).join(' ')}\n</>`}
+            propName === "children"
+              ? `\n\t<Label children="Label"></Label>`
+              : ``
+          }${style
+            .map((stl, index) => {
+              return `\n\t<Label ${stringify(
+                propDatas(propName, stl)
+              )}>${stl}</Label>`;
+            })
+            .join(" ")}\n</>`}
         </CodeBlock>
       </>
     );

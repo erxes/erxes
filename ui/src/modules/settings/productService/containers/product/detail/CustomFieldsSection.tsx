@@ -53,7 +53,7 @@ const CustomFieldsSection = (props: FinalProps) => {
   const updatedProps = {
     save,
     loading,
-    customFieldsData: product.customFieldsData || {},
+    customFieldsData: product.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
     isDetail: true
   };

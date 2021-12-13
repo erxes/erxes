@@ -10,8 +10,7 @@ function TagComponent(props) {
   const propDatas = (limit) => {
     const arr = [];
     colors.map((clr, i) => {
-      arr.push({ _id: i, type: "", name: clr, colorCode: clr })
-
+      arr.push({ _id: i, type: "", name: clr, colorCode: clr });
     });
     console.log(arr);
     const kind = {
@@ -37,7 +36,7 @@ function TagComponent(props) {
     string = string.replace(/], limit:/g, "]} limit=");
 
     return string;
-  }
+  };
 
   const renderBlock = (limit) => {
     return (
@@ -59,58 +58,70 @@ function TagComponent(props) {
   if (type === "limit") {
     return renderBlock("limit");
   }
-  
-  if(type === "APItags") {
+
+  if (type === "APItags") {
     return (
       <>
-      <CodeBlock className="language-javascript">{`import Tags from "erxes-ui/lib/components/Tags";`}</CodeBlock>
-      <p className={styles.required}>* required prop</p>
-      <Table>
-        <thead>
-          <tr>
-            <th colSpan="2">Name</th>
-            <th>Type</th>
-            <th>Default</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td rowSpan="4">tags*</td>
-            <td>_id*</td>
-            <td>string</td>
-            <td/>
-            <td>Define tag id</td>
-          </tr>
-          <tr>
-            <td>type*</td>
-            <td>string</td>
-            <td/>
-            <td>Define tag type</td>
-          </tr>
-          <tr>
-            <td>name*</td>
-            <td>string</td>
-            <td/>
-            <td>Define tag name</td>
-          </tr>
-          <tr>
-            <td>colorCode*</td>
-            <td>string</td>
-            <td/>
-            <td>Set the tag color</td>
-          </tr>
-          <tr>
-            <td colSpan="2">limit</td>
-            <td>number</td>
-            <td/>
-            <td>Limits number of tags to show</td>
-          </tr>
-        </tbody>
-      </Table>
-    </>
-  );
-}
-return null;
+        <CodeBlock className="language-javascript">{`import Tags from "erxes-ui/lib/components/Tags";`}</CodeBlock>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
+        <Table>
+          <thead>
+            <tr>
+              <th colSpan="2">Name</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowSpan="4">
+                tags<span className={styles.required}>*</span>
+              </td>
+              <td>
+                _id<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Define tag id</td>
+            </tr>
+            <tr>
+              <td>
+                type<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Define tag type</td>
+            </tr>
+            <tr>
+              <td>
+                name<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Define tag name</td>
+            </tr>
+            <tr>
+              <td>
+                colorCode<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Set the tag color</td>
+            </tr>
+            <tr>
+              <td colSpan="2">limit</td>
+              <td>number</td>
+              <td />
+              <td>Limits number of tags to show</td>
+            </tr>
+          </tbody>
+        </Table>
+      </>
+    );
+  }
+  return null;
 }
 export { TagComponent };

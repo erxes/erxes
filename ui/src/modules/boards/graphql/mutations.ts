@@ -62,6 +62,7 @@ export const commonListFields = `
   modifiedAt
   priority
   hasNotified
+  score
 `;
 
 export const commonFields = `
@@ -122,6 +123,12 @@ export const commonFields = `
   }
   order
   customFieldsData
+  score
+  timeTrack {
+    status
+    timeSpent
+    startDate
+  }
 `;
 
 const stagesUpdateOrder = `
@@ -190,8 +197,14 @@ const stagesSortItems = `
 `;
 
 const conversationConvertToCard = `
-  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String){
-    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName )
+  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String $bookingProductId: String){
+    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName bookingProductId: $bookingProductId)
+  }
+`;
+
+const boardItemUpdateTimeTracking = `
+  mutation boardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int! $startDate: String) {
+    boardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
   }
 `;
 
@@ -205,5 +218,6 @@ export default {
   stagesEdit,
   stagesRemove,
   stagesSortItems,
-  conversationConvertToCard
+  conversationConvertToCard,
+  boardItemUpdateTimeTracking
 };

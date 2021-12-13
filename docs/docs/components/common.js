@@ -1,7 +1,7 @@
 import React from "react";
+import styles from "../../src/components/styles.module.css";
 import Table from "../../../ui/src/modules/common/components/table";
 import CodeBlock from "@theme/CodeBlock";
-import styles from "../../src/components/styles.module.css";
 
 export function renderApiTable(Name, table) {
   return (
@@ -12,7 +12,9 @@ export function renderApiTable(Name, table) {
 
       {table && (
         <>
-          <p className={styles.required}>* required prop</p>
+          <p>
+             required prop - <span className={styles.required}>*</span>
+          </p>
           <Table>
             <thead>
               <tr>
@@ -26,7 +28,16 @@ export function renderApiTable(Name, table) {
               {table.map((row, index) => (
                 <tr key={index}>
                   {row.map((cell, i) => (
-                    <td key={i}>{cell}</td>
+                    <td key={i}>
+                      {cell[cell.length - 1] === "*" ? (
+                        <>
+                          {cell.slice(0, -1)}
+                          <span className={styles.required}>*</span>
+                        </>
+                      ) : (
+                        <>{cell}</>
+                      )}
+                    </td>
                   ))}
                 </tr>
               ))}
@@ -34,7 +45,6 @@ export function renderApiTable(Name, table) {
           </Table>
         </>
       )}
-
     </>
   );
 }
@@ -51,6 +61,7 @@ export function stringify(datas) {
   string = string.replace(/>"/g, ">}");
   string = string.replace(/true/g, "{true}");
   string = string.replace(/false/g, "{false}");
+  string = string.replace(/null/g, "");
   
   return string;
 }

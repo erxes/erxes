@@ -1,6 +1,6 @@
 import { graphqlRequest } from '../db/connection';
-import { importHistoryFactory } from '../db/factories';
-import { ImportHistory } from '../db/models';
+import { importHistoryFactory, segmentFactory } from '../db/factories';
+import { ImportHistory, Segments } from '../db/models';
 
 import './setup.ts';
 
@@ -8,6 +8,8 @@ describe('Import history queries', () => {
   afterEach(async () => {
     // Clearing test data
     await ImportHistory.deleteMany({});
+
+    await Segments.deleteMany({});
   });
 
   test('Import histories', async () => {
@@ -80,5 +82,42 @@ describe('Import history queries', () => {
     });
 
     expect(response._id).toBe(importHistoryNoError._id);
+  });
+
+  test('Import history preview count', async () => {
+    const qry = `
+      query importHistoryPreviewExportCount($segmentId: String, $contentType: String!) {
+        importHistoryPreviewExportCount(segmentId: $segmentId, contentType: $contentType)
+      }
+    `;
+
+    const segment = await segmentFactory({});
+
+    const contentTypes = [
+      'customer',
+      'lead',
+      'visitor',
+      'deal',
+      'ticket',
+      'task',
+      'company'
+    ];
+
+    for (const contentType of contentTypes) {
+      const response = await graphqlRequest(
+        qry,
+        'importHistoryPreviewExportCount',
+        {
+          contentType
+        }
+      );
+
+      expect(response).toBe(0);
+    }
+
+    await graphqlRequest(qry, 'importHistoryPreviewExportCount', {
+      segmentId: segment._id,
+      contentType: 'customer'
+    });
   });
 });

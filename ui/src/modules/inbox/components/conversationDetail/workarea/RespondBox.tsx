@@ -6,7 +6,13 @@ import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
-import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
+import {
+  __,
+  Alert,
+  readFile,
+  uploadHandler,
+  getEnv
+} from 'modules/common/utils';
 import { deleteHandler } from 'modules/common/utils/uploadHandler';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {
@@ -69,7 +75,6 @@ type State = {
   loading: object;
   facebookMessageTag: string;
 };
-
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -88,7 +93,6 @@ class RespondBox extends React.Component<Props, State> {
       facebookMessageTag: ''
     };
   }
-
   isContentWritten() {
     const { content } = this.state;
 
@@ -138,6 +142,14 @@ class RespondBox extends React.Component<Props, State> {
 
     if (this.isContentWritten()) {
       localStorage.setItem(this.props.conversation._id, content);
+    }
+
+    if (this.props.conversation.integration.kind === 'telnyx') {
+      const characterCount = this.calcCharacterCount(160);
+
+      if (characterCount < 1) {
+        Alert.warning(__('You have reached maximum number of characters'));
+      }
     }
   };
 
@@ -208,7 +220,10 @@ class RespondBox extends React.Component<Props, State> {
 
     this.setState({ loading });
 
+    const { REACT_APP_API_URL } = getEnv();
+
     deleteHandler({
+      erxesApiUrl: REACT_APP_API_URL,
       fileName,
       afterUpload: ({ status }) => {
         if (status === 'ok') {
@@ -266,6 +281,19 @@ class RespondBox extends React.Component<Props, State> {
   cleanText(text: string) {
     return text.replace(/&nbsp;/g, ' ');
   }
+
+  calcCharacterCount = (maxlength: number) => {
+    const { content } = this.state;
+    const cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
+
+    if (!cleanContent) {
+      return maxlength;
+    }
+
+    const ret = maxlength - cleanContent.length;
+
+    return ret > 0 ? ret : 0;
+  };
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
@@ -412,6 +440,7 @@ class RespondBox extends React.Component<Props, State> {
       <Editor
         currentConversation={conversation._id}
         defaultContent={this.getUnsendMessage(conversation._id)}
+        integrationKind={conversation.integration.kind}
         key={this.state.editorKey}
         onChange={this.onEditorContentChange}
         onAddMention={this.onAddMention}
@@ -475,7 +504,6 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
-
         {this.renderVideoRoom()}
 
         <Tip text={__('Attach file')}>
@@ -507,7 +535,6 @@ class RespondBox extends React.Component<Props, State> {
       </EditorActions>
     );
   }
-
   renderBody() {
     return (
       <>

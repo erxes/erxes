@@ -9,9 +9,13 @@ import {
   Stages
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
-import { IItemCommonFields } from '../../../db/models/definitions/boards';
+import {
+  IItemCommonFields,
+  IStageDocument
+} from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { CLOSE_DATE_TYPES } from '../../constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
@@ -21,10 +25,67 @@ export interface IArchiveArgs {
   search: string;
   page?: number;
   perPage?: number;
+  userIds?: string[];
+  priorities?: string[];
+  assignedUserIds?: string[];
+  labelIds?: string[];
+  productIds?: string[];
+  companyIds?: string[];
+  customerIds?: string[];
+  startDate?: string;
+  endDate?: string;
+  sources?: string[];
+  hackStages?: string[];
 }
 
 const contains = (values: string[]) => {
   return { $in: values };
+};
+
+export const getCloseDateByType = (closeDateType: string) => {
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
+    const tommorrow = moment().add(1, 'days');
+
+    return {
+      $gte: new Date(tommorrow.startOf('day').toISOString()),
+      $lte: new Date(tommorrow.endOf('day').toISOString())
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_WEEK) {
+    const monday = moment()
+      .day(1 + 7)
+      .format('YYYY-MM-DD');
+    const nextSunday = moment()
+      .day(7 + 7)
+      .format('YYYY-MM-DD');
+
+    return {
+      $gte: new Date(monday),
+      $lte: new Date(nextSunday)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_MONTH) {
+    const now = new Date();
+    const { start, end } = getNextMonth(now);
+
+    return {
+      $gte: new Date(start),
+      $lte: new Date(end)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NO_CLOSE_DATE) {
+    return { $exists: false };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.OVERDUE) {
+    const now = new Date();
+    const today = getToday(now);
+
+    return { $lt: today };
+  }
 };
 
 export const generateCommonFilters = async (
@@ -122,49 +183,7 @@ export const generateCommonFilters = async (
   }
 
   if (closeDateType) {
-    if (closeDateType === 'nextDay') {
-      const tommorrow = moment().add(1, 'days');
-
-      filter.closeDate = {
-        $gte: new Date(tommorrow.startOf('day').toISOString()),
-        $lte: new Date(tommorrow.endOf('day').toISOString())
-      };
-    }
-
-    if (closeDateType === 'nextWeek') {
-      const monday = moment()
-        .day(1 + 7)
-        .format('YYYY-MM-DD');
-      const nextSunday = moment()
-        .day(7 + 7)
-        .format('YYYY-MM-DD');
-
-      filter.closeDate = {
-        $gte: new Date(monday),
-        $lte: new Date(nextSunday)
-      };
-    }
-
-    if (closeDateType === 'nextMonth') {
-      const now = new Date();
-      const { start, end } = getNextMonth(now);
-
-      filter.closeDate = {
-        $gte: new Date(start),
-        $lte: new Date(end)
-      };
-    }
-
-    if (closeDateType === 'noCloseDate') {
-      filter.closeDate = { $exists: false };
-    }
-
-    if (closeDateType === 'overdue') {
-      const now = new Date();
-      const today = getToday(now);
-
-      filter.closeDate = { $lt: today };
-    }
+    filter.closeDate = getCloseDateByType(closeDateType);
   }
 
   if (startDate) {
@@ -189,6 +208,10 @@ export const generateCommonFilters = async (
 
   if (stageId) {
     filter.stageId = stageId;
+  } else if (pipelineId) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    filter.stageId = { $in: stageIds };
   }
 
   if (labelIds) {
@@ -228,7 +251,7 @@ export const generateCommonFilters = async (
 
   if (segment) {
     const segmentObj = await Segments.findOne({ _id: segment }).lean();
-    const itemIds = await fetchSegment('search', segmentObj);
+    const itemIds = await fetchSegment(segmentObj);
 
     filter._id = { $in: itemIds };
   }
@@ -389,19 +412,14 @@ export const checkItemPermByUser = async (
 };
 
 export const archivedItems = async (params: IArchiveArgs, collection: any) => {
-  const { pipelineId, search, ...listArgs } = params;
+  const { pipelineId, ...listArgs } = params;
 
-  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
   const { page = 0, perPage = 0 } = listArgs;
 
-  const stages = await Stages.find({ pipelineId });
+  const stages = await Stages.find({ pipelineId }).lean();
 
   if (stages.length > 0) {
-    filter.stageId = { $in: stages.map(stage => stage._id) };
-
-    if (search) {
-      Object.assign(filter, regexSearchText(search, 'name'));
-    }
+    const filter = generateArhivedItemsFilter(params, stages);
 
     return collection
       .find(filter)
@@ -409,7 +427,8 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
         modifiedAt: -1
       })
       .skip(page || 0)
-      .limit(perPage || 20);
+      .limit(perPage || 20)
+      .lean();
   }
 
   return [];
@@ -419,23 +438,89 @@ export const archivedItemsCount = async (
   params: IArchiveArgs,
   collection: any
 ) => {
-  const { pipelineId, search } = params;
-
-  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+  const { pipelineId } = params;
 
   const stages = await Stages.find({ pipelineId });
 
   if (stages.length > 0) {
-    filter.stageId = { $in: stages.map(stage => stage._id) };
-
-    if (search) {
-      Object.assign(filter, regexSearchText(search, 'name'));
-    }
+    const filter = generateArhivedItemsFilter(params, stages);
 
     return collection.countDocuments(filter);
   }
 
   return 0;
+};
+
+const generateArhivedItemsFilter = (
+  params: IArchiveArgs,
+  stages: IStageDocument[]
+) => {
+  const {
+    search,
+    userIds,
+    priorities,
+    assignedUserIds,
+    labelIds,
+    productIds,
+    startDate,
+    endDate,
+    sources,
+    hackStages
+  } = params;
+
+  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+
+  filter.stageId = { $in: stages.map(stage => stage._id) };
+
+  if (search) {
+    Object.assign(filter, regexSearchText(search, 'name'));
+  }
+
+  if (userIds && userIds.length) {
+    filter.userId = { $in: userIds };
+  }
+
+  if (priorities && priorities.length) {
+    filter.priority = { $in: priorities };
+  }
+
+  if (assignedUserIds && assignedUserIds.length) {
+    filter.assignedUserIds = { $in: assignedUserIds };
+  }
+
+  if (labelIds && labelIds.length) {
+    filter.labelIds = { $in: labelIds };
+  }
+
+  if (productIds && productIds.length) {
+    filter['productsData.productId'] = { $in: productIds };
+  }
+
+  if (startDate) {
+    filter.closeDate = {
+      $gte: new Date(startDate)
+    };
+  }
+
+  if (endDate) {
+    if (filter.closeDate) {
+      filter.closeDate.$lte = new Date(endDate);
+    } else {
+      filter.closeDate = {
+        $lte: new Date(endDate)
+      };
+    }
+  }
+
+  if (sources && sources.length) {
+    filter.source = { $in: sources };
+  }
+
+  if (hackStages && hackStages.length) {
+    filter.hackStages = { $in: hackStages };
+  }
+
+  return filter;
 };
 
 export const getItemList = async (

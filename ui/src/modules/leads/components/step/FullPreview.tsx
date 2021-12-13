@@ -29,12 +29,15 @@ type Props = {
   color: string;
   theme: string;
   image?: string;
+  calloutImgSize?: string;
   onChange: (name: 'carousel', value: string) => void;
   onDocChange?: (doc: IFormData) => void;
   carousel: string;
   thankTitle?: string;
   thankContent?: string;
   skip?: boolean;
+  successImgSize?: string;
+  successImage?: string;
 };
 
 type State = {

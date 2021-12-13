@@ -98,18 +98,44 @@ const ticketDetail = `
   }
 `;
 
+const archivedTicketsParams = `
+  $pipelineId: String!
+  $search: String
+  $userIds: [String]
+  $priorities: [String]
+  $assignedUserIds: [String]
+  $labelIds: [String]
+  $companyIds: [String]
+  $customerIds: [String]
+  $startDate: String
+  $endDate: String
+  $sources: [String]
+`;
+
+const archivedTicketsArgs = `
+  pipelineId: $pipelineId
+  search: $search
+  userIds: $userIds
+  priorities: $priorities
+  assignedUserIds: $assignedUserIds
+  labelIds: $labelIds
+  companyIds: $companyIds
+  customerIds: $customerIds
+  startDate: $startDate
+  endDate: $endDate
+  sources: $sources
+`;
+
 const archivedTickets = `
   query archivedTickets(
-    $pipelineId: String!,
-    $search: String,
-    $page: Int,
-    $perPage: Int,
+    $page: Int
+    $perPage: Int
+    ${archivedTicketsParams}
   ) {
     archivedTickets(
-      pipelineId: $pipelineId,
-      search: $search,
       page: $page,
       perPage: $perPage,
+      ${archivedTicketsArgs}
     ) {
       source
       ${commonFields}
@@ -119,12 +145,10 @@ const archivedTickets = `
 
 const archivedTicketsCount = `
   query archivedTicketsCount(
-    $pipelineId: String!,
-    $search: String
+    ${archivedTicketsParams}
   ) {
     archivedTicketsCount(
-      pipelineId: $pipelineId,
-      search: $search,
+      ${archivedTicketsArgs}
     )
   }
 `;

@@ -29,14 +29,14 @@ export function CardComponent(props) {
     string = string.replace(/{"/g, "{");
     string = string.slice(1, string.length);
     string = string.replace(/,"user:/g, " user={");
-    string = string.replace(/singleLine:true/g, ' singleLine={true}');
-    string = string.replace(/"email/g, 'email');
-    string = string.replace(/avatarSize:50/g, ' avatarSize={50}');
+    string = string.replace(/singleLine:true/g, " singleLine={true}");
+    string = string.replace(/"email/g, "email");
+    string = string.replace(/avatarSize:50/g, " avatarSize={50}");
     string = string.replace(/secondLine:/g, " secondLine=");
     string = string.replace(/user:/g, " user={");
 
     return string;
-  }
+  };
 
   const renderBlock = (propName, fullName, additional, email) => {
     return (
@@ -79,61 +79,73 @@ export function CardComponent(props) {
 
   if (type === "APIcard") {
     return (
-    <>
-      <CodeBlock className="language-javascript">{`import Namecard from "erxes-ui/lib/components/namecard/Namecard";`}</CodeBlock>
-      <p className={styles.required}>* required prop</p>
-      <Table>
-        <thead>
-          <tr>
-            <th colSpan="3">Name</th>
-            <th>Type</th>
-            <th>Defualt</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td rowSpan="3">user*</td>
-            <td colSpan="2">username*</td>
-            <td>string</td>
-            <td/>
-            <td>Defines the username</td>
-          </tr>
-          <tr>
-            <td>details</td>
-            <td>fullName</td>
-            <td>string</td>
-            <td/>
-            <td>Define fullname object of user. If you have both "details" and "username", it will only show "details"</td>
-          </tr>
-          <tr>
-            <td colSpan="2">email</td>
-            <td>string</td>
-            <td/>
-            <td>Define email object of user</td>
-          </tr>
-          <tr>
-            <td colSpan="3">singleLine</td>
-            <td>string</td>
-            <td/>
-            <td>Make the second line invisible</td>
-          </tr>
-          <tr>
-            <td colSpan="3">secondLine</td>
-            <td>string</td>
-            <td/>
-            <td>Define line below the username or full name. You can write anything in the second line</td>
-          </tr>
-          <tr>
-            <td colSpan="3">avatarSize</td>
-            <td>number</td>
-            <td>40</td>
-            <td>Set avatar size to your name card</td>
-          </tr>
-        </tbody>
-      </Table>
-    </>
-    )
+      <>
+        <CodeBlock className="language-javascript">{`import Namecard from "erxes-ui/lib/components/namecard/Namecard";`}</CodeBlock>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
+        <Table>
+          <thead>
+            <tr>
+              <th colSpan="3">Name</th>
+              <th>Type</th>
+              <th>Defualt</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowSpan="3">
+                user<span className={styles.required}>*</span>
+              </td>
+              <td colSpan="2">
+                username<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Defines the username</td>
+            </tr>
+            <tr>
+              <td>details</td>
+              <td>fullName</td>
+              <td>string</td>
+              <td />
+              <td>
+                Define fullname object of user. If you have both "details" and
+                "username", it will only show "details"
+              </td>
+            </tr>
+            <tr>
+              <td colSpan="2">email</td>
+              <td>string</td>
+              <td />
+              <td>Define email object of user</td>
+            </tr>
+            <tr>
+              <td colSpan="3">singleLine</td>
+              <td>string</td>
+              <td />
+              <td>Make the second line invisible</td>
+            </tr>
+            <tr>
+              <td colSpan="3">secondLine</td>
+              <td>string</td>
+              <td />
+              <td>
+                Define line below the username or full name. You can write
+                anything in the second line
+              </td>
+            </tr>
+            <tr>
+              <td colSpan="3">avatarSize</td>
+              <td>number</td>
+              <td>40</td>
+              <td>Set avatar size to your name card</td>
+            </tr>
+          </tbody>
+        </Table>
+      </>
+    );
   }
 
   return null;

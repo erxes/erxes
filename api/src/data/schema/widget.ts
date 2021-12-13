@@ -28,6 +28,7 @@ export const types = `
     errors: [Error]
     messageId: String
     customerId: String
+    userId: String
   }
 
   type Error {
@@ -40,6 +41,11 @@ export const types = `
     supporters: [User]
     isOnline: Boolean
     serverTime: String
+  }
+
+  type BookingProduct {
+    product: Product
+    fields: [Field]
   }
 
   input FieldValueInput {
@@ -58,6 +64,7 @@ export const types = `
 export const queries = `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
+  widgetExportMessengerData(_id: String, integrationId: String!): String
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
@@ -65,7 +72,10 @@ export const queries = `
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-  widgetsGetEngageMessage(customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
+  widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
+
+  widgetsProductCategory(_id: String!): ProductCategory
+  widgetsBookingProductWithFields(_id: String!): BookingProduct
 `;
 
 export const mutations = `
@@ -126,6 +136,7 @@ export const mutations = `
     submissions: [FieldValueInput]
     browserInfo: JSON!
     cachedCustomerId: String
+    userId: String
   ): SaveFormResponse
 
   widgetsSendEmail(
@@ -141,6 +152,18 @@ export const mutations = `
   widgetGetBotInitialMessage(integrationId: String): JSON
 
   widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
+  widgetsKnowledgebaseDecReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
+
+  widgetsBookingConnect(_id: String): Integration
+
+  widgetsSaveBooking(
+    integrationId: String!
+    formId: String!
+    submissions: [FieldValueInput]
+    browserInfo: JSON!
+    cachedCustomerId: String
+    productId: String
+  ): SaveFormResponse
 `;

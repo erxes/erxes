@@ -50,11 +50,13 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderRow = (label, value) => {
+  renderView = (name, variable) => {
+    const defaultName = name.includes('count') ? 0 : '-';
+
     return (
       <li>
-        <FieldStyle>{__(`${label}`)}</FieldStyle>
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{variable || defaultName}</SidebarCounter>
       </li>
     );
   };
@@ -90,9 +92,9 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
-  renderImage = (item?: IAttachment) => {
+  renderImage = (item: IAttachment) => {
     if (!item) {
-      return <></>;
+      return null;
     }
 
     return <Attachment attachment={item} />;
@@ -102,11 +104,25 @@ class BasicInfo extends React.Component<Props> {
     const { product } = this.props;
 
     const content = props => <ProductForm {...props} product={product} />;
+    const {
+      code,
+      name,
+      type,
+      category,
+      supply,
+      productCount,
+      minimiumCount,
+      unitPrice,
+      sku,
+      attachment,
+      vendor,
+      description
+    } = product;
 
     return (
       <Sidebar.Section>
         <InfoWrapper>
-          <Name>{product.name}</Name>
+          <Name>{name}</Name>
           <ModalTrigger
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
@@ -117,26 +133,22 @@ class BasicInfo extends React.Component<Props> {
 
         {this.renderAction()}
 
-        {this.renderImage(product.attachment)}
-
+        {this.renderImage(attachment)}
         <SidebarList className="no-link">
-          {this.renderRow('Code', product.code)}
-          {this.renderRow('Type', product.type)}
-          {this.renderRow(
-            'Category',
-            product.category ? product.category.name : ''
-          )}
-          {this.renderRow(
-            'Unit price',
-            (product.unitPrice || 0).toLocaleString()
-          )}
-          {this.renderRow('Sku', product.sku)}
-          {this.renderVendor(product.vendor)}
+          {this.renderView('Code', code)}
+          {this.renderView('Type', type)}
+          {this.renderView('Category', category ? category.name : '')}
+          {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
+          {this.renderView('Sku', sku)}
+          {this.renderVendor(vendor)}
+          {this.renderView('Supply', supply)}
+          {this.renderView('Product count', productCount)}
+          {this.renderView('Minimium product count', minimiumCount)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <Content
           dangerouslySetInnerHTML={{
-            __html: xss(product.description)
+            __html: xss(description)
           }}
         />
       </Sidebar.Section>

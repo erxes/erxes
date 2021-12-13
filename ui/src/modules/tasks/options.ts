@@ -10,6 +10,7 @@ const options = {
   title: 'Task',
   queriesName: {
     itemsQuery: 'tasks',
+    itemsTotalCountQuery: 'tasksTotalCount',
     detailQuery: 'taskDetail',
     archivedItemsQuery: 'archivedTasks',
     archivedItemsCountQuery: 'archivedTasksCount'
@@ -26,6 +27,7 @@ const options = {
   },
   queries: {
     itemsQuery: queries.tasks,
+    itemsTotalCountQuery: queries.tasksTotalCount,
     detailQuery: queries.taskDetail,
     archivedItemsQuery: queries.archivedTasks,
     archivedItemsCountQuery: queries.archivedTasksCount
@@ -37,8 +39,7 @@ const options = {
     changeMutation: mutations.tasksChange,
     watchMutation: mutations.tasksWatch,
     archiveMutation: mutations.tasksArchive,
-    copyMutation: mutations.tasksCopy,
-    updateTimeTrackMutation: mutations.taskUpdateTimeTracking
+    copyMutation: mutations.tasksCopy
   },
   texts: {
     addText: 'Add a task',

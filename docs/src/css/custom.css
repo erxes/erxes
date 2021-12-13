@@ -29,8 +29,8 @@
   --ifm-footer-background-color: var(--moon-grey);
   --ifm-menu-color-background-active: var(--ifm-color-emphasis-200);
   --ifm-color-primary: var(--nebula-blue);
-  --ifm-heading-color:  var(--cosmos-black);
-  --ifm-menu-color-active: #5629B6;
+  --ifm-heading-color: var(--cosmos-black);
+  --ifm-menu-color-active: #5629b6;
   --ifm-color-primary-dark: #4d25a4;
   --ifm-color-primary-darker: #49239b;
   --ifm-color-primary-darkest: #3c1d7f;
@@ -39,7 +39,7 @@
   --ifm-color-primary-lightest: #784bd7;
 }
 
-html[data-theme='dark'] {
+html[data-theme="dark"] {
   --ifm-font-base-color: #dee0f2;
   --ifm-navbar-link-hover-color: #8b9dff;
   --ifm-link-color: #8b9dff;
@@ -60,7 +60,7 @@ html[data-theme='dark'] {
   );
 }
 
-html[data-theme='dark'] .react-toggle-track {
+html[data-theme="dark"] .react-toggle-track {
   background-color: var(--ifm-footer-background-color);
 }
 
@@ -87,6 +87,10 @@ html[data-theme='dark'] .react-toggle-track {
   padding: 0 var(--ifm-pre-padding);
 }
 
+.codeBlockContainer_node_modules-\@docusaurus-theme-classic-lib-next-theme-CodeBlock- {
+  margin-top: 20px;
+}
+
 .navbar__items > span {
   margin-top: 7px;
   display: none;
@@ -109,7 +113,7 @@ html[data-theme='dark'] .react-toggle-track {
 }
 
 .even-column {
-  background: rgba(180,180,180, 0.08);
+  background: rgba(180, 180, 180, 0.08);
 }
 
 .collapse {
@@ -120,11 +124,195 @@ html[data-theme='dark'] .react-toggle-track {
   display: block;
 }
 
-@media (min-width: 600px) {
-	.center-desktop {
-		text-align: center;
+.modal-backdrop {
+  background-color: #30435c;
+}
+
+.modal-backdrop.in {
+  opacity: 0.8;
+}
+
+.modal.in .modal-dialog {
+  transform: none;
+}
+.modal.in .modal-dialog.transform {
+  transform: translate(0, 0);
+}
+
+.modal-dialog {
+  padding: 0;
+  margin: 50px auto;
+  position: relative;
+  width: auto;
+  pointer-events: none;
+}
+.modal-dialog.modal-dialog-centered {
+  margin: 0 auto;
+}
+
+.modal-dialog.middle {
+  width: 65%;
+}
+
+.modal-dialog.full {
+  width: 85%;
+}
+
+.modal-1000w {
+  width: 100%;
+  max-width: 1000px;
+}
+
+@media screen and (min-width: 992px) {
+  .modal-dialog {
+    width: 1000px;
+    max-width: 1000px;
   }
-  
+}
+
+.modal-content {
+  border-radius: 2px;
+  border: 0;
+  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+  background: rgb(250, 250, 250);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  outline: 0;
+}
+
+.modal-header {
+  padding: 15px 40px;
+  border: 0;
+  border-radius: 2px;
+  background: #673FBD;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-header.less-padding {
+  padding: 15px 20px;
+}
+
+.modal-header .close {
+  outline: 0;
+  font-weight: 200;
+  padding-top: 14px;
+  padding: 1rem 1rem;
+  margin: -1rem -1rem -1rem auto;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: normal;
+  color: rgb(255, 255, 255);
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+.modal-body {
+  padding: 30px 40px;
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.modal-body.md-padding {
+  padding: 20px;
+}
+
+.modal-body.less-padding {
+  padding: 0px;
+}
+
+.modal-footer {
+  padding: 0;
+  margin-top: 30px;
+  border: none;
+}
+
+.wide-modal {
+  width: 90%;
+}
+
+.close {
+  font-weight: 300;
+  text-shadow: none;
+  color: rgb(255, 255, 255);
+  opacity: 0.8;
+  font-size: 34px;
+  line-height: 25px;
+}
+
+.close:hover {
+  opacity: 1;
+  color: #fff;
+}
+
+.modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100%;
+  height: 100%;
+  outline: 0;
+}
+@media (min-width: 992px) {
+  .modal-lg,
+  .modal-xl {
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 576px) {
+  .modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+  }
+}
+
+button.close {
+  cursor: pointer;
+  background: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+.fade {
+  transition: opacity .15s linear;
+}
+
+.modal.fade.modal-dialog {
+  transition: transform .3s ease-out;
+}
+
+.modal.show.modal-dialog {
+  transform: none;
+}
+
+@media (min-width: 600px) {
+  .center-desktop {
+    text-align: center;
+  }
+
   .navbar__items > span {
     display: block;
   }

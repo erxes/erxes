@@ -21,6 +21,9 @@ describe('Test products mutations', () => {
     $sku: String
     $code: String
     $attachment: AttachmentInput
+    $attachmentMore: [AttachmentInput]
+    $productCount: Int
+    $minimiumCount: Int
   `;
 
   const commonParams = `
@@ -31,6 +34,9 @@ describe('Test products mutations', () => {
     sku: $sku
     code: $code
     attachment: $attachment
+    attachmentMore: $attachmentMore
+    productCount: $productCount
+    minimiumCount: $minimiumCount
   `;
 
   const commonCategoryParamDefs = `
@@ -38,6 +44,8 @@ describe('Test products mutations', () => {
     $code: String!,
     $description: String,
     $parentId: String,
+    $attachment: AttachmentInput,    
+    $status: String
   `;
 
   const commonCategoryParams = `
@@ -45,6 +53,8 @@ describe('Test products mutations', () => {
     code: $code,
     description: $description,
     parentId: $parentId,
+    attachment: $attachment,
+    status: $status
   `;
 
   beforeEach(async () => {

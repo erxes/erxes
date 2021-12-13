@@ -74,6 +74,8 @@ describe('segmentQueries', () => {
           subOf
           color
           conditions
+          count
+          subSegmentConditions { _id }
 
           getSubSegments { _id }
         }
@@ -161,17 +163,6 @@ describe('segmentQueries', () => {
         segmentsPreviewCount(contentType: $contentType, conditions: $conditions)
       }
     `;
-
-    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.reject('error');
-    });
-
-    await graphqlRequest(qry, 'segmentsPreviewCount', {
-      contentType: 'customer',
-      conditions: []
-    });
-
-    mock.restore();
 
     await graphqlRequest(qry, 'segmentsPreviewCount', {
       contentType: 'customer',

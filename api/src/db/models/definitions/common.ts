@@ -29,7 +29,7 @@ const ruleSchema = new Schema(
     // is, isNot, startsWith
     condition: field({ type: String, label: 'Condition' }),
 
-    value: field({ type: String, label: 'Value' })
+    value: field({ type: String, label: 'Value', optional: true })
   },
   { _id: false }
 );

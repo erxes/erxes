@@ -104,6 +104,7 @@ export const KIND_CHOICES = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
+  BOOKING: 'booking',
   ALL: [
     'messenger',
     'lead',
@@ -125,7 +126,8 @@ export const KIND_CHOICES = {
     'smooch-twilio',
     'whatsapp',
     'telnyx',
-    'webhook'
+    'webhook',
+    'booking'
   ]
 };
 
@@ -216,6 +218,7 @@ export const ACTIVITY_ACTIONS = {
   MOVED: 'moved',
   CONVERT: 'convert',
   ASSIGNEE: 'assignee',
+  TAGGED: 'tagged',
 
   ALL: [
     'create',
@@ -225,7 +228,8 @@ export const ACTIVITY_ACTIONS = {
     'send',
     'moved',
     'convert',
-    'assignee'
+    'assignee',
+    'tagged'
   ]
 };
 
@@ -248,6 +252,20 @@ export const PRODUCT_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',
   ALL: ['active', 'deleted']
+};
+
+export const PRODUCT_CATEGORY_STATUSES = {
+  ACTIVE: 'active',
+  DISABLED: 'disabled',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'disabled', 'archived']
+};
+
+export const PRODUCT_SUPPLY = {
+  UNIQUE: 'unique',
+  LIMITED: 'limited',
+  UNLIMITED: 'unlimited',
+  ALL: ['unique', 'limited', 'unlimited']
 };
 
 export const PIPELINE_VISIBLITIES = {
@@ -545,14 +563,16 @@ export const NOTIFICATION_TYPES = {
     'taskDueDate',
     'taskDelete',
     'customerMention',
-    'companyMention'
+    'companyMention',
+    'plugin'
   ]
 };
 
 export const FORM_TYPES = {
   LEAD: 'lead',
   GROWTH_HACK: 'growthHack',
-  ALL: ['lead', 'growthHack']
+  BOOKING: 'booking',
+  ALL: ['lead', 'growthHack', 'booking']
 };
 
 export const NOTIFICATION_CONTENT_TYPES = {
@@ -596,6 +616,18 @@ export const COMPANY_SELECT_OPTIONS = {
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
     { label: 'Unknown', value: '' }
+  ]
+};
+
+export const CONVERSATION_SELECT_OPTIONS = {
+  OPERATOR_STATUS: [
+    { label: 'Operator', value: 'operator' },
+    { label: 'Bot', value: 'bot' }
+  ],
+  STATUS: [
+    { label: 'New', value: 'new' },
+    { label: 'Open', value: 'open' },
+    { label: 'Resolved', value: 'closed' }
   ]
 };
 
@@ -829,4 +861,10 @@ export const WEBHOOK_STATUS = {
   AVAILABLE: 'available',
   UNAVAILABLE: 'unavailable',
   ALL: ['available', 'unavailable']
+};
+
+export const REACTION_CHOICES = {
+  LIKE: 'like',
+  DISLIKE: 'disLike',
+  ALL: ['like', 'dislike']
 };

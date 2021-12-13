@@ -49,7 +49,7 @@ export default class FormMessage extends React.Component<Props, {}> {
       );
     }
 
-    if (['file', 'avatar', 'companyAvatar'].includes(data.type)) {
+    if (['file', 'avatar', 'company_avatar'].includes(data.type)) {
       let fileUrl = data.value || '';
 
       if (Array.isArray(data.value) && data.value.length > 0) {

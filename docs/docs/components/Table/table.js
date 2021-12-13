@@ -53,12 +53,14 @@ export function TableComponent(props) {
           {`\n    <tr>`}
           {`\n  </thead>`}
           {`\n  <tbody>`}
-          {`${table.map(
-            (row) =>
-              `\n    <tr>${row.map(
-                (cell) => `\n      <td>${cell}</td>`
-              ).join(' ')}\n    <tr>`
-          ).join(' ')}`}
+          {`${table
+            .map(
+              (row) =>
+                `\n    <tr>${row
+                  .map((cell) => `\n      <td>${cell}</td>`)
+                  .join(" ")}\n    <tr>`
+            )
+            .join(" ")}`}
           {`\n  </tbody>`}
           {`\n</Table>`}
         </CodeBlock>

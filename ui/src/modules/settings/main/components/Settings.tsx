@@ -35,6 +35,8 @@ const taskPermissions = [
   'taskPipelinesEdit',
   'taskPipelinesUpdateOrder',
   'taskPipelinesRemove',
+  'taskPipelinesArchive',
+  'taskPipelinesCopied',
   'taskStagesAdd',
   'taskStagesEdit',
   'taskStagesUpdateOrder',
@@ -49,6 +51,8 @@ const ticketPermissions = [
   'ticketPipelinesEdit',
   'ticketPipelinesUpdateOrder',
   'ticketPipelinesRemove',
+  'ticketPipelinesArchive',
+  'ticketPipelinesCopied',
   'ticketStagesAdd',
   'ticketStagesEdit',
   'ticketStagesUpdateOrder',
@@ -62,6 +66,8 @@ const dealPermissions = [
   'dealPipelinesEdit',
   'dealPipelinesUpdateOrder',
   'dealPipelinesRemove',
+  'dealPipelinesArchive',
+  'dealPipelinesArchive',
   'dealStagesAdd',
   'dealStagesEdit',
   'dealStagesUpdateOrder',
@@ -76,6 +82,8 @@ const growthHackPermissions = [
   'growthHackPipelinesEdit',
   'growthHackPipelinesUpdateOrder',
   'growthHackPipelinesRemove',
+  'growthHackPipelinesArchive',
+  'growthHackPipelinesCopied',
   'growthHackStagesAdd',
   'growthHackStagesEdit',
   'growthHackStagesUpdateOrder',
@@ -112,7 +120,6 @@ const calendarActions = [
   'calendarGroupsEdit',
   'calendarGroupsRemove'
 ];
-
 class Settings extends React.PureComponent {
   renderBox(
     name: string,
@@ -348,6 +355,14 @@ class Settings extends React.PureComponent {
               '/settings/boards/growthHack',
               'growthHacksAll',
               growthHackPermissions
+            )}
+            {this.renderBox(
+              'Client Portal',
+              '/images/icons/erxes-32.png',
+              '/settings/client-portal',
+              'manageClientPortal',
+              [],
+              'New'
             )}
           </div>
         </Row>

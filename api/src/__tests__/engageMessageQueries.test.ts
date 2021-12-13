@@ -4,6 +4,7 @@ import {
   brandFactory,
   customerFactory,
   engageMessageFactory,
+  segmentFactory,
   tagsFactory,
   userFactory
 } from '../db/factories';
@@ -12,6 +13,7 @@ import { Brands, EngageMessages, Segments, Tags, Users } from '../db/models';
 import { EngagesAPI } from '../data/dataSources';
 import './setup.ts';
 import { set } from '../inmemoryStorage';
+import { TAG_TYPES } from '../db/models/definitions/constants';
 
 describe('engageQueries', () => {
   const qryEngageMessages = `
@@ -210,7 +212,15 @@ describe('engageQueries', () => {
 
   test('Engage message detail', async () => {
     const user = await userFactory();
-    const engageMessage = await engageMessageFactory({ createdBy: user._id });
+    const segment = await segmentFactory();
+    const tag = await tagsFactory({ type: TAG_TYPES.ENGAGE_MESSAGE });
+    const customerTag = await tagsFactory({ type: TAG_TYPES.CUSTOMER });
+    const engageMessage = await engageMessageFactory({
+      createdBy: user._id,
+      segmentIds: [segment._id],
+      tagIds: [tag._id],
+      customerTagIds: [customerTag._id]
+    });
 
     const qry = `
       query engageMessageDetail($_id: String) {
@@ -276,8 +286,6 @@ describe('engageQueries', () => {
       { _id: engageMessageWithBrand._id },
       { dataSources }
     );
-
-    console.log('responseFromCache: ', responseFromCache);
 
     expect(responseFromCache._id).toBe(engageMessageWithBrand._id);
     expect(responseFromCache.brand._id).toBe(brand._id);

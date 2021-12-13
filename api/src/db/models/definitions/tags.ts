@@ -35,3 +35,6 @@ export const tagSchema = schemaHooksWrapper(
   }),
   'erxes_tags'
 );
+
+// for tags query. increases search speed, avoids in-memory sorting
+tagSchema.index({ type: 1, order: 1, name: 1 });

@@ -21,9 +21,9 @@ import { InfoComponent } from './info.js'
 ## API
 
 <InfoComponent func="APIinfo" table={[
-    ['children*', 'React.ReactNode', '', 'Shows info content'],
-    ['type', 'primary | info | danger | warning | success', 'primary', 'Set type of info'],
-    ['color', 'string', '', 'Gives custom color to info'],
-    ['title', 'string', '', 'Shows title on top of the info'],
-    ['iconShow', 'boolean', '', 'Shows icon depending on the info type'],
+['children*', 'React.ReactNode', '', 'Shows info content'],
+['type', 'primary | info | danger | warning | success', 'primary', 'Set type of info'],
+['color', 'string', '', 'Gives custom color to info'],
+['title', 'string', '', 'Shows title on top of the info'],
+['iconShow', 'boolean', '', 'Shows icon depending on the info type'],
 ]} />

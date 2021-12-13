@@ -32,7 +32,7 @@ bash -c "$(wget -O - https://github.com/erxes/erxes/blob/develop/scripts/install
 cd ~/erxes-api
 export MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
 yarn migrate
-```
+
 
 6. Lastly, update `/home/erxes/erxes/ui/build/js/env.js`, `ecosystem.json` and start pm2 by `pm2 start ecosystem.json`, and update nginx config using your backup and reload nginx by `systemctl reload nginx`.
 

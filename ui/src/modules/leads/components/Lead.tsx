@@ -62,6 +62,7 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   logo?: string;
+  calloutImgSize?: string;
   rules?: IConditionsRule[];
   isStepActive: boolean;
   formData: IFormData;
@@ -83,6 +84,10 @@ type State = {
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
   css?: string;
+
+  successImage?: string;
+  successPreviewStyle?: { opacity?: string };
+  successImageSize?: string;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -133,12 +138,17 @@ class Lead extends React.Component<Props, State> {
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
       logo: callout.featuredImage,
+      calloutImgSize: callout.imgSize || '50%',
       isSkip: callout.skip && true,
       carousel: callout.skip ? 'form' : 'callout',
 
       currentMode: undefined,
       currentField: undefined,
-      css: leadData.css || ''
+      css: leadData.css || '',
+
+      successImage: leadData.successImage || '',
+      successImageSize: leadData.successImageSize || '',
+      successPreviewStyle: {}
     };
   }
 
@@ -191,11 +201,14 @@ class Lead extends React.Component<Props, State> {
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logo,
+          calloutImgSize: this.state.calloutImgSize,
           skip: this.state.isSkip
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),
         isRequireOnce: this.state.isRequireOnce,
-        css: this.state.css
+        css: this.state.css,
+        successImage: this.state.successImage,
+        successImageSize: this.state.successImageSize
       }
     };
 
@@ -287,7 +300,11 @@ class Lead extends React.Component<Props, State> {
       formData,
       isRequireOnce,
       channelIds,
-      css
+      css,
+      calloutImgSize,
+      successImage,
+      successImageSize,
+      successPreviewStyle
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
@@ -325,6 +342,7 @@ class Lead extends React.Component<Props, State> {
                   type={type}
                   calloutTitle={calloutTitle}
                   calloutBtnText={calloutBtnText}
+                  calloutImgSize={calloutImgSize}
                   bodyValue={bodyValue}
                   color={color}
                   theme={theme}
@@ -402,6 +420,9 @@ class Lead extends React.Component<Props, State> {
                   leadData={leadData}
                   formId={integration && integration.formId}
                   emailTemplates={emailTemplates ? emailTemplates : []}
+                  successImage={successImage}
+                  successPreviewStyle={successPreviewStyle}
+                  successImageSize={successImageSize}
                 />
               </Step>
             </Steps>
@@ -430,6 +451,9 @@ class Lead extends React.Component<Props, State> {
               skip={isSkip}
               carousel={carousel}
               formData={formData}
+              calloutImgSize={calloutImgSize}
+              successImgSize={successImageSize}
+              successImage={successImage}
             />
           </PreviewWrapper>
         </Content>

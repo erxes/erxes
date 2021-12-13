@@ -126,6 +126,7 @@ const SubHeading = styled.h4`
     font-weight: normal;
     margin-top: ${dimensions.unitSpacing}px;
     color: ${colors.colorCoreGray};
+    font-size: 12px;
   }
 `;
 
@@ -294,6 +295,7 @@ const ExpandWrapper = styled.div`
 
 const FlexRow = styled.div`
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   align-items: center;
 `;

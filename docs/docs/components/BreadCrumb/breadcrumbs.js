@@ -21,7 +21,7 @@ export function BreadCrumbComponent(props) {
             ]}
           />
         </div>
-        
+
         <CodeBlock className="language-jsx">
           {`<BreadCrumb breadcrumbs={[\n\t{title:"title1", link:"../.."},\n\t{title:"title2", link:"../.."},\n\t{title:"title3"}\n]}/>`}
         </CodeBlock>
@@ -33,7 +33,9 @@ export function BreadCrumbComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import BreadCrumb from "erxes-ui/lib/components/breadcrumb/BreadCrumb";`}</CodeBlock>
-        <p className={styles.required}>* required prop</p>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
         <Table>
           <thead>
             <tr>
@@ -46,15 +48,17 @@ export function BreadCrumbComponent(props) {
           <tbody>
             <tr>
               <td rowSpan="4">breadcrumbs</td>
-              <td>title*</td>
+              <td>
+                title<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
-              <td/>
+              <td />
               <td>Shows title of the breadcrumb item</td>
             </tr>
             <tr>
               <td>link</td>
               <td>string</td>
-              <td/>
+              <td />
               <td>Define a hyperlink</td>
             </tr>
           </tbody>

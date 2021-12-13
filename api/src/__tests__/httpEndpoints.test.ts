@@ -33,7 +33,7 @@ describe('HTTP endpoint tests', () => {
 
     const response = await request(app).get('/initial-setup');
 
-    expect(response.text).toBe('success');
+    expect(response.text).toBe('[]');
   });
 
   test('Test /health', async () => {

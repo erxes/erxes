@@ -43,15 +43,7 @@ export function AvatarComponent(props) {
       </>
     );
   };
-
-  // if (type === "defaultAvatar") {
-  //   return renderBlock();
-  // }
-
-  // if (type === "avatar") {
-  //   return renderBlock("avatar");
-  // }
-
+  
   if (type === "APIavatarUpload") {
     return renderApiTable("AvatarUpload", table);
   }

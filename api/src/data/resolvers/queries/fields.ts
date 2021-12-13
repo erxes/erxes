@@ -66,7 +66,8 @@ const fieldQueries = {
         { name: 'industry', label: 'Industries', order: 4 },
         { name: 'plan', label: 'Plan', order: 5 },
         { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
-        { name: 'sessionCount', label: 'Session count', order: 7 }
+        { name: 'sessionCount', label: 'Session count', order: 7 },
+        { name: 'score', label: 'Score', order: 8 }
       ];
     }
 
@@ -87,7 +88,8 @@ const fieldQueries = {
       { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
       { name: 'sessionCount', label: 'Session count', order: 5 },
       { name: 'profileScore', label: 'Profile score', order: 6 },
-      { name: 'middleName', label: 'Middle name', order: 7 }
+      { name: 'middleName', label: 'Middle name', order: 7 },
+      { name: 'score', label: 'Score', order: 8 }
     ];
   },
 
@@ -246,12 +248,8 @@ const fieldsGroupQueries = {
       });
   },
 
-  getSystemFieldsGroup(
-    _root,
-    { contentType }: { contentType: string },
-    { commonQuerySelector }: IContext
-  ) {
-    const query: any = commonQuerySelector;
+  getSystemFieldsGroup(_root, { contentType }: { contentType: string }) {
+    const query: any = {};
 
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;

@@ -14,21 +14,21 @@ export function FilterableListComponent(props) {
   const addicon = [];
 
   if (type === "style") {
-      arr.push({
-        _id: 0,
-        title: names[0],
-        style: { color: "purple" },
-      });
-      arr.push({
-        _id: 1,
-        title: names[1],
-        style: { color: "red" },
-      });
-      arr.push({
-        _id: 2,
-        title: names[2],
-        style: { color: "green" },
-      });
+    arr.push({
+      _id: 0,
+      title: names[0],
+      style: { color: "purple" },
+    });
+    arr.push({
+      _id: 1,
+      title: names[1],
+      style: { color: "red" },
+    });
+    arr.push({
+      _id: 2,
+      title: names[2],
+      style: { color: "green" },
+    });
   } else
     names.map((name, index) => {
       arr.push({
@@ -65,15 +65,15 @@ export function FilterableListComponent(props) {
   const propDatas = (propName) => {
     const kind = {
       items:
-      type === "tree"
-      ? array
-      : type === "avatar"
-      ? avatar
-      : type === "null"
-      ? ""
-      : type === "additionalIconClass"
-      ? addicon
-      : arr,
+        type === "tree"
+          ? array
+          : type === "avatar"
+          ? avatar
+          : type === "null"
+          ? ""
+          : type === "additionalIconClass"
+          ? addicon
+          : arr,
       [propName]: propName && propName === "links" ? link : boolean,
       isIndented: propName === "treeView" ? true : false,
     };
@@ -95,12 +95,15 @@ export function FilterableListComponent(props) {
     string = string.replace(/com"}],/g, 'com"}]}');
     string = string.replace(/},/g, "},");
     string = string.replace(/, links:/g, "} links={");
-    string = string.replace(/, showCheckmark:false}/g, "} showCheckmark={false}");
+    string = string.replace(
+      /, showCheckmark:false}/g,
+      "} showCheckmark={false}"
+    );
     string = string.replace(/{_/g, "\n\t\t{_");
     string = string.replace(/]}/g, "]}\n\t");
-    
+
     return string;
-  }
+  };
 
   const renderBlock = (propName) => {
     return (
@@ -141,8 +144,10 @@ export function FilterableListComponent(props) {
     return (
       <>
         <CodeBlock className="language-javascript">{`import FilterableList from "erxes-ui/lib/components/filterableList/FilterableList";`}</CodeBlock>
-      <p className={styles.required}>* required prop</p>
-      <Table>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
+        <Table>
           <thead>
             <tr>
               <th colSpan="2">Name</th>
@@ -153,7 +158,9 @@ export function FilterableListComponent(props) {
           </thead>
           <tbody>
             <tr>
-              <td rowSpan="7">items* (array)</td>
+              <td rowSpan="7">
+                items<span className={styles.required}>*</span> (array)
+              </td>
               <td>_id</td>
               <td>string</td>
               <td />
@@ -224,22 +231,26 @@ export function FilterableListComponent(props) {
               <td>string</td>
               <td />
               <td>Define className</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <td colSpan="2">treeView</td>
               <td>boolean</td>
               <td />
               <td>Activates tree view of list</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <td colSpan="2">isIndented</td>
               <td>boolean</td>
               <td />
               <td>Take space between arrow and title</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <td colSpan="2">onClick</td>
               <td>function</td>
               <td />
               <td>Define click handler function when list item is clicked</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <td colSpan="2">onSearch</td>
               <td>function</td>
               <td />
@@ -247,7 +258,7 @@ export function FilterableListComponent(props) {
             </tr>
           </tbody>
         </Table>
-    </>
+      </>
     );
   }
   return renderBlock();
