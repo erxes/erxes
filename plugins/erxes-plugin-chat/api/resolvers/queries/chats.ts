@@ -1,23 +1,8 @@
 const chatQueries = [
   {
     name: 'chats',
-    handler: async (_root, { type, limit, skip }, { models, user }) => {
-      const filter: any = {};
-
-      switch (type) {
-        case 'direct': {
-          filter.participantIds = { $size: 2, $in: user._id };
-
-          break;
-        }
-        case 'group': {
-          filter.participantIds = { $in: user._id };
-          filter.$expr = { $gt: [{ $size: '$participantIds' }, 2] };
-
-          break;
-        }
-        default:
-      }
+    handler: async (_root, { type, limit, skip }, { models }) => {
+      const filter: any = { type };
 
       return {
         list: await models.Chats.find(filter)

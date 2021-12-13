@@ -14,7 +14,10 @@ function ChatMessageList(props: Props) {
 
   const renderRow = (message: any) => {
     return (
-      <MessageListItem me={message.createdUser._id === currentUser._id}>
+      <MessageListItem
+        key={message._id}
+        me={message.createdUser._id === currentUser._id}
+      >
         {message.content} <br />
         <b>{message.createdUser && message.createdUser.email}</b>
         <br />

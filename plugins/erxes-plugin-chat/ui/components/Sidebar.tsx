@@ -14,10 +14,12 @@ import { IRouterProps } from 'erxes-ui/lib/types';
 import withCurrentUser from 'erxes-ui/lib/auth/containers/withCurrentUser';
 import { IUser } from 'erxes-ui/lib/auth/types';
 import queryString from 'query-string';
+import FormControl from 'erxes-ui/lib/components/form/Control';
 
 type Props = {
   directChats: any[];
   groupChats: any[];
+  startGroupChat: (name: string, userIds: string[]) => void;
 };
 
 function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
@@ -25,8 +27,9 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
   const queryParams = queryString.parse(location.search);
 
   const [userIds, setUserIds] = useState(queryParams.userIds || []);
+  const [name, setName] = useState('');
 
-  const renderDirectChats = () => {
+  const renderChats = () => {
     const onAssignedUserSelect = userId => {
       router.setParams(history, { userIds: userId, _id: '' });
     };
@@ -36,7 +39,12 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
     };
 
     const onStartGroupChat = () => {
-      router.setParams(history, { userIds, _id: '' });
+      props.startGroupChat(name, userIds);
+
+      router.removeParams(history, 'userIds');
+
+      setUserIds([]);
+      setName('');
     };
 
     return (
@@ -48,6 +56,12 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
               name='assignedUserIds'
               initialValue={userIds}
               onSelect={onChangeUsers}
+            />
+            <br />
+            <FormControl
+              placeholder='Name'
+              value={name}
+              onChange={(e: any) => setName(e.target.value)}
             />
             <br />
             <Button style={{ float: 'right' }} onClick={onStartGroupChat}>
@@ -64,7 +78,10 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
                 <br />
                 <div style={{ overflow: 'hidden' }}>
                   {chat.participantUsers.map(user => (
-                    <div style={{ float: 'left', margin: '0 5px' }}>
+                    <div
+                      key={user._id}
+                      style={{ float: 'left', margin: '0 5px' }}
+                    >
                       <Avatar user={user} size={30} />
                     </div>
                   ))}
@@ -92,7 +109,10 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
                 {chat.participantUsers
                   .filter(u => u._id !== currentUser._id)
                   .map(user => (
-                    <Link to={`/erxes-plugin-chat/home?_id=${chat._id}`}>
+                    <Link
+                      key={user._id}
+                      to={`/erxes-plugin-chat/home?_id=${chat._id}`}
+                    >
                       {user.details.fullName || user.email}
                     </Link>
                   ))}
@@ -108,7 +128,7 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
 
   return (
     <CommonSidebar wide={true} full={true}>
-      {renderDirectChats()}
+      {renderChats()}
     </CommonSidebar>
   );
 }

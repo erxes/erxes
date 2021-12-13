@@ -44,7 +44,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  chatAdd(name: String!, participantIds: [String]): Chat
+  chatAdd(name: String!, type: ChatType!, participantIds: [String]): Chat
   chatEdit(_id: String!, name: String!): Chat
   chatRemove(_id: String!): JSON
   
