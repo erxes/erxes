@@ -36,7 +36,6 @@ function DashbaordFormContent(props: FinalProps) {
   });
 
   const generateDoc = (values: { _id?: string; name: string }) => {
-    const { dashboard } = props;
     const { selectedMemberIds, visibility } = state;
     const finalValues = values;
 
@@ -86,7 +85,7 @@ function DashbaordFormContent(props: FinalProps) {
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { dashboard, renderButton } = props;
+    const { renderButton } = props;
     const { visibility } = state;
     const { values, isSubmitted } = formProps;
     const object = dashboard || { name: '' };
