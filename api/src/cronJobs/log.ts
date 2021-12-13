@@ -20,15 +20,13 @@ const removeOldLogs = async () => {
       url: `${LOGS_DOMAIN}/logs`,
       method: 'delete',
       body: {
-        query: JSON.stringify({
+        query: {
           createdAt: { $lte: new Date(year, month - value, date) }
-        })
+        }
       }
     });
   } catch (e) {
-    debugError(
-      `Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running: ${e.message}`
-    );
+    debugError(e.message);
   }
 };
 
@@ -43,6 +41,7 @@ const removeOldLogs = async () => {
  * │    └──────────────────── minute (0 - 59)
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
+
 schedule.scheduleJob('0 45 23 * * *', async () => {
   debugCrons('Remove old logs ....');
 

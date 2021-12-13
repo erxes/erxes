@@ -137,8 +137,7 @@ app.delete(
   '/logs',
   routeErrorHandling(
     async (req, res) => {
-      const query = JSON.parse(req.body.query);
-      const { deletedCount } = await Logs.deleteMany(query);
+      const { deletedCount } = await Logs.deleteMany(req.body.query);
       return res.json({
         success: true,
         deletedCount,
