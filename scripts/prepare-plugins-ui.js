@@ -54,10 +54,18 @@ var main = async () => {
 
       try {
         var json = await fs.readJSON(filePath(`plugins/${pluginName}/ui/packages.json`))
+        var uiJson = await fs.readJSON(filePath(`api/package.json`));
 
-        for (const name of Object.keys(json)) {
+        var dependencies = json.dependencies;
+        var uiDependencies = Object.keys(uiJson.dependencies);
+
+        for (const name of Object.keys(dependencies || {})) {
+          if (uiDependencies.includes(name)) {
+            continue
+          }
+
           process.chdir(filePath('ui'));
-          await execCommand(`yarn add ${name}@${json[name]}`);
+          await execCommand(`yarn add ${name}@${dependencies[name]}`);
         }
       } catch (e) {
         if (!(e.message.includes("no such file") || e.message.includes('not a directory'))) {
