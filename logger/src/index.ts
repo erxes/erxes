@@ -133,6 +133,22 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
+app.delete(
+  '/logs',
+  routeErrorHandling(
+    async (req, res) => {
+      const query = JSON.parse(req.body.query);
+      const { deletedCount } = await Logs.deleteMany(query);
+      return res.json({
+        success: true,
+        deletedCount,
+        message: `Successfully deleted ${deletedCount} logs`
+      });
+    },
+    (res, e) => res.status(500).send(e.message)
+  )
+);
+
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   console.error(error.stack);
