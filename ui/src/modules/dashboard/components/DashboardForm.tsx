@@ -1,4 +1,3 @@
-// import { FlexContent } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -10,7 +9,6 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-// import { ExpandWrapper } from 'modules/settings/styles';
 import React, { useState } from 'react';
 import { IDashboard } from '../types';
 
