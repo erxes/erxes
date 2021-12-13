@@ -4,6 +4,13 @@ const importHistoryGetColumns = `
   }
 `;
 
+const importHistoryGetDuplicatedHeaders = `
+  query importHistoryGetDuplicatedHeaders($attachmentNames: [String]) {
+    importHistoryGetDuplicatedHeaders(attachmentNames: $attachmentNames)
+  }
+`;
+
 export default {
-  importHistoryGetColumns
+  importHistoryGetColumns,
+  importHistoryGetDuplicatedHeaders
 };

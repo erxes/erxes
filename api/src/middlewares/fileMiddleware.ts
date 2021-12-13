@@ -107,7 +107,7 @@ export const importer2 = async (
       fileName,
       uploadType: UPLOAD_SERVICE_TYPE,
       columnsConfig,
-      user: user,
+      user,
       importName,
       importHistoryId,
       tagId

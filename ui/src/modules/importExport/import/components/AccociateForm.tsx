@@ -3,10 +3,23 @@ import { ControlLabel, FormControl, FormGroup, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { SubHeading } from 'modules/settings/styles';
 
-type Props = {};
+type Props = {
+  duplicatedHeaders: string[];
+  contentTypes: string[];
+  onChangeAssociateHeader: (value: string) => void;
+  onChangeAssociateContentType: (value: string) => void;
+};
 
 class AccociateForm extends React.Component<Props, {}> {
   render() {
+    const onChangeHeader = e =>
+      this.props.onChangeAssociateHeader((e.target as HTMLInputElement).value);
+
+    const onChangeContentType = e =>
+      this.props.onChangeAssociateContentType(
+        (e.target as HTMLInputElement).value
+      );
+
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
@@ -22,9 +35,12 @@ class AccociateForm extends React.Component<Props, {}> {
               )}
               .
             </p>
-            <FormControl componentClass="select">
-              <option />
-              <option>CustomerEmail</option>
+            <FormControl componentClass="select" onChange={onChangeHeader}>
+              {this.props.duplicatedHeaders.map(header => (
+                <option key={header} value={header}>
+                  {header}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 
@@ -38,14 +54,12 @@ class AccociateForm extends React.Component<Props, {}> {
               )}
               .
             </p>
-            <FormControl componentClass="select">
-              <option />
-              <option key={Math.random()} value={'Customer'}>
-                Customer
-              </option>
-              <option key={Math.random()} value={'Company'}>
-                Company
-              </option>
+            <FormControl componentClass="select" onChange={onChangeContentType}>
+              {this.props.contentTypes.map(contentType => (
+                <option key={contentType} value={contentType}>
+                  {contentType}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
         </FlexPad>

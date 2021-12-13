@@ -23,6 +23,7 @@ import {
 import { generateAmounts, generateProducts } from './resolvers/deals';
 import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 import csvParser = require('csv-parser');
+import * as readline from 'readline';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -95,15 +96,18 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
   });
 };
 
-export const getS3ImportFileInfo = async ({ s3, params }): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const request = s3.getObject(params);
-    const readStream = request.createReadStream();
+export const getImportCsvInfo = async (fileName: string) => {
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
-    const results = [] as any;
-    let i = 0;
+  return new Promise(async (resolve, reject) => {
+    if (UPLOAD_SERVICE_TYPE === 'local') {
+      const results = [] as any;
+      let i = 0;
 
-    new Promise(() => {
+      const readStream = fs.createReadStream(
+        `${uploadsFolderPath}/${fileName}`
+      );
+
       readStream
         .pipe(csvParser())
         .on('data', data => {
@@ -111,9 +115,9 @@ export const getS3ImportFileInfo = async ({ s3, params }): Promise<string> => {
           if (i <= 3) {
             results.push(data);
           }
-        })
-        .on('end', () => {
-          resolve(results);
+          if (i >= 3) {
+            resolve(results);
+          }
         })
         .on('close', () => {
           resolve(results);
@@ -121,13 +125,45 @@ export const getS3ImportFileInfo = async ({ s3, params }): Promise<string> => {
         .on('error', () => {
           reject();
         });
-    });
+    } else {
+      const AWS_BUCKET = await getConfig('AWS_BUCKET');
+      const s3 = await createAWS();
+
+      const params = { Bucket: AWS_BUCKET, Key: fileName };
+
+      const request = s3.getObject(params);
+      const readStream = request.createReadStream();
+
+      const results = [] as any;
+      let i = 0;
+
+      readStream
+        .pipe(csvParser())
+        .on('data', data => {
+          i++;
+          if (i <= 3) {
+            results.push(data);
+          }
+          if (i >= 3) {
+            resolve(results);
+          }
+        })
+
+        .on('close', () => {
+          resolve(results);
+        })
+        .on('error', () => {
+          reject();
+        });
+    }
   });
 };
 
-const getCsvInfo = (fileName: string, uploadType: string) => {
+export const getCsvHeadersInfo = async (fileName: string) => {
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+
   return new Promise(async resolve => {
-    if (uploadType === 'local') {
+    if (UPLOAD_SERVICE_TYPE === 'local') {
       const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
 
       let columns;
@@ -143,13 +179,15 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
           columns = input;
         }
 
+        if (total > 0) {
+          resolve(columns);
+        }
+
         total++;
       });
-      rl.on('close', () => {
-        // exclude column
-        total--;
 
-        resolve({ total, columns });
+      rl.on('close', () => {
+        resolve(columns);
       });
     } else {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -157,16 +195,7 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 
       const params = { Bucket: AWS_BUCKET, Key: fileName };
 
-      const rowCountString = await getS3FileInfo({
-        s3,
-        params,
-        query: 'SELECT COUNT(*) FROM S3Object'
-      });
-
       // exclude column
-      let total = Number(rowCountString);
-
-      total--;
 
       const columns = await getS3FileInfo({
         s3,
@@ -174,7 +203,7 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
         query: 'SELECT * FROM S3Object LIMIT 1'
       });
 
-      return resolve({ total, columns });
+      return resolve(columns);
     }
   });
 };
@@ -1088,7 +1117,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugError(e.message);
+      debugError(e);
 
       if (callback) {
         return callback(res, e, next);

@@ -10,9 +10,11 @@ import { ISegment } from '../../../db/models/definitions/segments';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
 import {
-  createAWS,
-  getConfig,
-  getS3ImportFileInfo,
+  getCsvHeadersInfo,
+  // createAWS,
+  // getConfig,
+  getImportCsvInfo,
+  // getS3ImportFileInfo,
   paginate
 } from '../../utils';
 
@@ -45,12 +47,7 @@ const importHistoryQueries = {
     _root,
     { attachmentName }: { attachmentName: string }
   ) {
-    const AWS_BUCKET = await getConfig('AWS_BUCKET');
-    const s3 = await createAWS();
-
-    const params = { Bucket: AWS_BUCKET, Key: attachmentName };
-
-    const values = (await getS3ImportFileInfo({ s3, params })) as any;
+    const values = (await getImportCsvInfo(attachmentName)) as any;
 
     const object = {} as any;
 
@@ -58,11 +55,31 @@ const importHistoryQueries = {
       Object.keys(value).forEach(key => {
         if (!object[key]) {
           object[key] = [value[key]];
-        } else object[key].push(value[key]);
+        }
+        object[key].push(value[key]);
       });
     });
 
     return object;
+  },
+
+  async importHistoryGetDuplicatedHeaders(
+    _root,
+    { attachmentNames }: { attachmentNames: string[] }
+  ) {
+    const headers = [] as any;
+
+    for (const attachmentName of attachmentNames) {
+      const results: any = await getCsvHeadersInfo(attachmentName);
+
+      headers.push(...results.split(','));
+    }
+
+    const duplicates = headers.filter(
+      (item, index) => index !== headers.indexOf(item)
+    );
+
+    return duplicates;
   },
 
   async importHistoryPreviewExportCount(

@@ -24,6 +24,7 @@ export const queries = `
   importHistoryDetail(_id: String!): ImportHistory
   importHistoryPreviewExportCount(segmentId: String, contentType: String!): Int
   importHistoryGetColumns(attachmentName: String): JSON
+  importHistoryGetDuplicatedHeaders(attachmentNames: [String]): JSON
 `;
 
 export const mutations = `

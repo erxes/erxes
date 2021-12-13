@@ -16,7 +16,7 @@ import Details from './Details';
 import { ITag } from 'modules/tags/types';
 import SettingsForm from './SettingsForm';
 import TypeForm from './TypeForm';
-import AccociateForm from './AccociateForm';
+import AccociateForm from '../containers/AccociateForm';
 import MapColumn from '../containers/MapColumn';
 
 type Props = {
@@ -34,6 +34,9 @@ type State = {
   tagId: string;
   type: string;
   contentTypes: string[];
+
+  associateHeader: string;
+  associateContentType: string;
 };
 
 class ExportForm extends React.Component<Props, State> {
@@ -47,7 +50,9 @@ class ExportForm extends React.Component<Props, State> {
       disclaimer: false,
       tagId: '',
       type: 'single',
-      contentTypes: []
+      contentTypes: [],
+      associateHeader: '',
+      associateContentType: ''
     };
   }
 
@@ -66,7 +71,7 @@ class ExportForm extends React.Component<Props, State> {
   onChangeColumn = (column, value, contentType) => {
     const { columnWithChosenField } = this.state;
 
-    let temp = columnWithChosenField[contentType] || {};
+    const temp = columnWithChosenField[contentType] || {};
 
     temp[column] = {};
     temp[column].value = value;
@@ -94,6 +99,14 @@ class ExportForm extends React.Component<Props, State> {
     this.setState({ type: value, contentTypes: [] });
   };
 
+  onChangeAssociateHeader = value => {
+    this.setState({ associateHeader: value });
+  };
+
+  onChangeAssociateContentType = value => {
+    this.setState({ associateContentType: value });
+  };
+
   onChangeContentType = value => {
     const { type, contentTypes } = this.state;
 
@@ -101,8 +114,10 @@ class ExportForm extends React.Component<Props, State> {
       return this.setState({ contentTypes: [value] });
     }
 
+    let temp: string[] = [];
+
     if (contentTypes.length === 2) {
-      const temp = [...contentTypes];
+      temp = [...contentTypes];
 
       temp[0] = contentTypes[1];
 
@@ -111,7 +126,7 @@ class ExportForm extends React.Component<Props, State> {
       return this.setState({ contentTypes: temp });
     }
 
-    const temp = [...contentTypes];
+    temp = [...contentTypes];
 
     temp.push(value);
 
@@ -138,7 +153,7 @@ class ExportForm extends React.Component<Props, State> {
     }
 
     const doc = {
-      contentTypes: contentTypes,
+      contentTypes,
       importName,
       files: attachments,
       columnsConfig: columnWithChosenField,
@@ -151,15 +166,31 @@ class ExportForm extends React.Component<Props, State> {
   renderImportButton = () =>
     this.state.disclaimer ? (
       <Button btnStyle="success" onClick={this.onSubmit}>
-        Export
+        Import
       </Button>
     ) : null;
 
   renderAssociateForm = () => {
     if (this.state.type === 'multi') {
+      const { attachments, contentTypes } = this.state;
+      const attachmentNames: string[] = [];
+
+      for (const contentType of contentTypes) {
+        if (attachments[contentType]) {
+          const attachment = attachments[contentType];
+
+          attachmentNames.push(attachment[0].url);
+        }
+      }
+
       return (
         <Step img="/images/icons/erxes-10.svg" title="Upload">
-          <AccociateForm />
+          <AccociateForm
+            attachmentNames={attachmentNames}
+            contentTypes={contentTypes}
+            onChangeAssociateHeader={this.onChangeAssociateHeader}
+            onChangeAssociateContentType={this.onChangeAssociateContentType}
+          />
         </Step>
       );
     }
