@@ -638,12 +638,5 @@ export const solveSubmissions = async (args: {
     }
   }
 
-  // Inserting customer id into submitted customer ids
-  await FormSubmissions.createFormSubmission({
-    formId,
-    customerId: cachedCustomerId,
-    submittedAt: new Date()
-  });
-
   return cachedCustomer;
 };

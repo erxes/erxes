@@ -7,6 +7,7 @@ import {
   Customers,
   Fields,
   Forms,
+  FormSubmissions,
   Integrations,
   KnowledgeBaseArticles,
   Products,
@@ -192,6 +193,19 @@ const createFormConversation = async (
     };
 
     await sendToWebhook('create', 'popupSubmitted', formData);
+  }
+
+  for (const submission of submissions) {
+    const doc = {
+      contentTypeId: conversation._id,
+      contentType: type,
+      formFieldId: submission._id,
+      formId,
+      value: submission.value,
+      customerId: cachedCustomer._id
+    };
+
+    FormSubmissions.createFormSubmission(doc);
   }
 
   return {

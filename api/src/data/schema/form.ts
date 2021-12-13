@@ -21,6 +21,16 @@ export const types = `
 
     fields: [Field]
   }
+
+  type FormSubmission {
+    _id: String!
+    customerId: String
+    formId: String
+    formFieldId: String
+    text: String
+    value: JSON
+    submittedAt: Date
+  }
 `;
 
 const commonFields = `
@@ -41,6 +51,7 @@ const commonFormSubmissionFields = `
 export const queries = `
   formDetail(_id: String!): Form
   forms: [Form]
+  formSubmissions(formId: String!): [FormSubmission]
 `;
 
 export const mutations = `
