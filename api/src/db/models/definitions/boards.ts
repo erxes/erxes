@@ -89,6 +89,8 @@ export interface IPipeline extends ICommonFields {
   isCheckUser?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
+  numberCount?: string;
+  lastNum?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -275,6 +277,12 @@ export const pipelineSchema = new Schema({
     label: 'Users elligible to see all cards'
   }),
   numberConfig: field({ type: String, optional: true, label: 'Number config' }),
+  numberCount: field({ type: String, optional: true, label: 'Number count' }),
+  lastNum: field({
+    type: String,
+    optional: true,
+    label: 'Last generated number'
+  }),
   ...commonFieldsSchema
 });
 

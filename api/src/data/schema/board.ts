@@ -34,6 +34,7 @@ export const types = `
     isCheckUser: Boolean
     excludeCheckUserIds: [String]
     numberConfig: String
+    numberCount: String
     ${commonTypes}
   }
 
@@ -133,6 +134,7 @@ const pipelineParams = `
   isCheckUser: Boolean
   excludeCheckUserIds: [String],
   numberConfig: String
+  numberCount: String
 `;
 
 export const mutations = `

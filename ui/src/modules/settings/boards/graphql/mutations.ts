@@ -46,6 +46,7 @@ const commonPipelineParamsDef = `
   $isCheckUser: Boolean
   $excludeCheckUserIds: [String],
   $numberConfig: String
+  $numberCount: String
 `;
 
 const commonPipelineParams = `
@@ -64,6 +65,7 @@ const commonPipelineParams = `
   isCheckUser: $isCheckUser,
   excludeCheckUserIds: $excludeCheckUserIds,
   numberConfig: $numberConfig
+  numberCount: $numberCount
 `;
 
 const pipelineAdd = `
