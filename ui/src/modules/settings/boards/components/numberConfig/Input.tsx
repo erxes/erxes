@@ -8,6 +8,7 @@ import {
 import React from 'react';
 
 import Attribution from './Attribution';
+import { Alert } from 'modules/common/utils';
 
 type Props = {
   onChange: (key: string, config: string) => void;
@@ -25,6 +26,10 @@ function PlaceHolderInput(props: Props) {
   };
 
   const onChangeConfig = (conf: string) => {
+    if (conf.startsWith(' ')) {
+      return Alert.error('Sorry config should not start with an empty space');
+    }
+
     onChange('numberConfig', conf);
   };
 
