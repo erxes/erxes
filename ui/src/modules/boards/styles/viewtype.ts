@@ -67,6 +67,28 @@ export const TimelineContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+
+  .timeLine-side-main {
+    width: 400px !important;
+  }
+
+  .verticalResizer {
+    cursor: none !important;
+    border-right: 1px solid rgb(238, 238, 238) !important;
+  }
+
+  .timeLine-side {
+    border: none !important;
+  }
+
+  .timeLine {
+    box-shadow: rgb(0 0 0 / 8%) 0px 0px 6px 1px;
+    border: 1px solid rgb(238, 238, 238) !important;
+  }
+
+  .header-middle {
+    border-left: 1px solid rgb(217, 226, 236) !important;
+  }
 `;
 
 export const NavContainer = styled.div`
@@ -74,14 +96,6 @@ export const NavContainer = styled.div`
   width: 100%;
   background-color: ${colors.colorWhite};
   color: grey;
-`;
-
-export const List = styled.div`
-  width: 300px;
-  height: 50%;
-  border: solid 1px silver;
-  border-radius: 10px;
-  box-shadow: 2px 2px silver;
 `;
 
 export const ModeContainer = styled.div`

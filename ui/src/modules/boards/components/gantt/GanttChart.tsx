@@ -29,23 +29,26 @@ const GanttChart = (props: Props) => {
     header: {
       top: {
         style: {
-          backgroundColor: `${colors.bgActive}`,
+          backgroundColor: `${colors.bgUnread}`,
           fontSize: 12,
-          color: `${colors.colorCoreBlack}`
+          color: `${colors.colorCoreBlack}`,
+          borderBottom: '1px solid rgb(238, 238, 238)'
         }
       },
       middle: {
         style: {
-          backgroundColor: `${colors.bgLight}`,
-          fontSize: 9,
-          color: `${colors.colorCoreBlack}`
+          backgroundColor: `${colors.bgActive}`,
+          fontSize: 10,
+          color: `${colors.colorCoreBlack}`,
+          borderBottom: '1px solid rgb(238, 238, 238)'
         }
       },
       bottom: {
         style: {
-          background: `${colors.bgUnread}`,
-          fontSize: 9,
-          color: `${colors.colorCoreBlack}`
+          background: `${colors.bgLight}`,
+          fontSize: 10,
+          color: `${colors.colorCoreBlack}`,
+          borderBottom: '1px solid rgb(238, 238, 238)'
         },
         selectedStyle: {
           background: `${colors.colorCoreBlack}`,
@@ -58,8 +61,9 @@ const GanttChart = (props: Props) => {
       title: {
         label: 'Name',
         style: {
-          backgroundColor: `${colors.bgActive}`,
-          color: `${colors.colorCoreBlack}`
+          backgroundColor: `${colors.bgLight}`,
+          color: `${colors.colorCoreBlack}`,
+          borderBottom: '1px solid rgb(238, 238, 238)'
         }
       },
       task: {
@@ -67,16 +71,17 @@ const GanttChart = (props: Props) => {
           backgroundColor: `${colors.colorWhite}`,
           color: `${colors.colorCoreBlack}`,
           textAlign: 'left',
-          paddingLeft: 20
+          paddingLeft: 20,
+          borderBottom: '0.5px solid #fff'
         }
       },
       verticalSeparator: {
         style: {
-          backgroundColor: `${colors.bgActive}`
+          backgroundColor: `${colors.bgLight}`
         },
         grip: {
           style: {
-            backgroundColor: `${colors.colorCoreRed}`
+            backgroundColor: `${colors.bgLight}`
           }
         }
       }
@@ -85,17 +90,19 @@ const GanttChart = (props: Props) => {
       rows: {
         style: {
           cursorPointer: true,
-          backgroundColor: `${colors.colorWhite}`
+          backgroundColor: `${colors.colorWhite}`,
+          borderBottom: '0.5px solid #fff'
         }
       },
       task: {
         showLabel: true,
         style: {
-          paddingTop: 5,
+          paddingTop: 8,
           borderRadius: 5,
           border: '1px solid #6569DF',
           whiteSpace: 'nowrap',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          itemheight: 35
         },
         selectedStyle: {
           borderRadius: 5,
@@ -283,7 +290,7 @@ const GanttChart = (props: Props) => {
           onCreateLink={onCreateLink}
           mode={timelineMode}
           selectedItem={selectedItem}
-          itemheight={40}
+          itemheight={45}
           nonEditableName={true}
         />
       </TimelineContainer>
