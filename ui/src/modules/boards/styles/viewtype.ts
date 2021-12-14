@@ -57,7 +57,7 @@ export const GanttContainer = styled.div`
   align-items: center;
   flex-direction: column;
   overflow: hidden;
-  height: 94%;
+  height: 98%;
 `;
 
 export const TimelineContainer = styled.div`
@@ -69,12 +69,12 @@ export const TimelineContainer = styled.div`
   height: 100%;
 
   .timeLine-side-main {
-    width: 400px !important;
+    min-width: 380px !important;
   }
 
   .verticalResizer {
-    cursor: none !important;
-    border-right: 1px solid rgb(238, 238, 238) !important;
+    border-right: 1px solid ${colors.borderPrimary} !important;
+    border-left: 1px solid ${colors.borderPrimary} !important;
   }
 
   .timeLine-side {
@@ -82,12 +82,40 @@ export const TimelineContainer = styled.div`
   }
 
   .timeLine {
+    height: 99% !important;
     box-shadow: rgb(0 0 0 / 8%) 0px 0px 6px 1px;
-    border: 1px solid rgb(238, 238, 238) !important;
+    border: 1px solid ${colors.borderPrimary} !important;
   }
 
-  .header-middle {
-    border-left: 1px solid rgb(217, 226, 236) !important;
+  .header-top > div {
+    border-left: 1px solid #d9e2ec !important;
+    border-bottom: 1px solid ${colors.borderPrimary} !important;
+    font-weight: 500;
+  }
+
+  .header-middle > div {
+    border-left: 1px solid #d9e2ec !important;
+    border-bottom: 1px solid ${colors.borderPrimary} !important;
+  }
+
+  .header-bottom > div {
+    border-left: 1px solid ${colors.borderDarker} !important;
+    border-bottom: 1px solid ${colors.borderPrimary} !important;
+  }
+
+  .timeLine-main-data-row > div {
+    height: 30px !important;
+    top: 7px !important;
+    padding: 5px 10px !important;
+    border-radius: 15px !important;
+    color: #486581 !important;
+  }
+
+  .timeLine-side-task-row {
+    font-weight: 400;
+    color: ${colors.textPrimary} !important;
+    padding: 10px 20px !important;
+    line-height: initial !important;
   }
 `;
 
@@ -102,6 +130,10 @@ export const ModeContainer = styled.div`
   display: flex;
   justify-content: right;
   margin: 5px 20px;
+
+  > div a {
+    padding: 3px 20px;
+  }
 `;
 
 export const ModeItem = styled.div`

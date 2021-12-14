@@ -29,30 +29,26 @@ const GanttChart = (props: Props) => {
     header: {
       top: {
         style: {
-          backgroundColor: `${colors.bgUnread}`,
+          backgroundColor: `${colors.bgLight}`,
           fontSize: 12,
-          color: `${colors.colorCoreBlack}`,
-          borderBottom: '1px solid rgb(238, 238, 238)'
+          color: `${colors.textPrimary}`
         }
       },
       middle: {
         style: {
           backgroundColor: `${colors.bgActive}`,
           fontSize: 10,
-          color: `${colors.colorCoreBlack}`,
-          borderBottom: '1px solid rgb(238, 238, 238)'
+          color: `#486581`
         }
       },
       bottom: {
         style: {
           background: `${colors.bgLight}`,
           fontSize: 10,
-          color: `${colors.colorCoreBlack}`,
-          borderBottom: '1px solid rgb(238, 238, 238)'
+          color: `${colors.textPrimary}`
         },
         selectedStyle: {
           background: `${colors.colorCoreBlack}`,
-          fontWeight: 'bold',
           color: `${colors.colorWhite}`
         }
       }
@@ -62,8 +58,8 @@ const GanttChart = (props: Props) => {
         label: 'Name',
         style: {
           backgroundColor: `${colors.bgLight}`,
-          color: `${colors.colorCoreBlack}`,
-          borderBottom: '1px solid rgb(238, 238, 238)'
+          color: `${colors.textPrimary}`,
+          borderBottom: `1px solid ${colors.borderPrimary}`
         }
       },
       task: {
@@ -71,8 +67,7 @@ const GanttChart = (props: Props) => {
           backgroundColor: `${colors.colorWhite}`,
           color: `${colors.colorCoreBlack}`,
           textAlign: 'left',
-          paddingLeft: 20,
-          borderBottom: '0.5px solid #fff'
+          borderBottom: `1px solid ${colors.borderPrimary}`
         }
       },
       verticalSeparator: {
@@ -81,7 +76,7 @@ const GanttChart = (props: Props) => {
         },
         grip: {
           style: {
-            backgroundColor: `${colors.bgLight}`
+            backgroundColor: `${colors.colorCoreRed}`
           }
         }
       }
@@ -91,25 +86,21 @@ const GanttChart = (props: Props) => {
         style: {
           cursorPointer: true,
           backgroundColor: `${colors.colorWhite}`,
-          borderBottom: '0.5px solid #fff'
+          borderBottom: `1px solid ${colors.borderPrimary}`
         }
       },
       task: {
         showLabel: true,
         style: {
-          paddingTop: 8,
-          borderRadius: 5,
-          border: '1px solid #6569DF',
+          border: `1px solid ${colors.borderPrimary}`,
           whiteSpace: 'nowrap',
-          cursor: 'pointer',
-          itemheight: 35
+          cursor: 'pointer'
         },
         selectedStyle: {
-          borderRadius: 5,
+          borderRadius: 15,
           fontSize: 11,
-          selectedColor: `${colors.colorWhite}`,
-          boxShadow: '0px 0px 7px 1px #6569DF',
-          border: '1px solid #6569DF'
+          border: `1px solid ${colors.borderPrimary}`,
+          boxShadow: '0px 0px 5px 1px #e6e6e6'
         }
       }
     },
@@ -128,7 +119,7 @@ const GanttChart = (props: Props) => {
       start: new Date(item.startDate),
       end: new Date(item.closeDate),
       name: `${item.name} (${item.stage ? item.stage.name : ''})`,
-      color: '#6569DF'
+      color: `${colors.bgUnread}`
     });
 
     if (item.relations) {
@@ -255,6 +246,10 @@ const GanttChart = (props: Props) => {
   };
 
   const { refetch } = props;
+
+  if (!data) {
+    return null;
+  }
 
   return (
     <GanttContainer>
