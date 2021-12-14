@@ -130,7 +130,7 @@ class EditForm extends React.Component<Props, State> {
   renderHeader() {
     if (this.props.hideHeader) {
       return (
-        <CloseModal onClick={this.onHideModal}>
+        <CloseModal onClick={this.onHideModal} style={{ zIndex: 3 }} >
           <Icon icon="times" />
         </CloseModal>
       );
