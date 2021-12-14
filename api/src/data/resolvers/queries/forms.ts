@@ -1,4 +1,9 @@
-import { Forms } from '../../../db/models';
+import {
+  Conversations,
+  Forms,
+  FormSubmissions,
+  Integrations
+} from '../../../db/models';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -15,6 +20,41 @@ const formQueries = {
    */
   formDetail(_root, { _id }: { _id: string }) {
     return Forms.findOne({ _id });
+  },
+
+  async formSubmissions(_root, { tagId }: { tagId: string }) {
+    const integrations = await Integrations.find({
+      tagIds: tagId,
+      kind: 'lead',
+      isActive: true
+    });
+
+    const submissions: any[] = [];
+
+    for (const integration of integrations) {
+      // const form = await Forms.findOne({_id: integration.formId});
+      const convs = await Conversations.find({
+        integrationId: integration._id
+      }).lean();
+
+      for (const conversation of convs) {
+        const submissionsGrouped = await FormSubmissions.find({
+          contentType: 'lead',
+          contentTypeId: conversation._id
+        });
+
+        if (submissionsGrouped) {
+          const submission = {
+            ...conversation,
+            submissions: submissionsGrouped
+          };
+
+          submissions.push(submission);
+        }
+      }
+    }
+
+    return submissions;
   }
 };
 

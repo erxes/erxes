@@ -5,6 +5,7 @@ export interface ISubmission {
   _id: string;
   value: any;
   type?: string;
+  text?: string;
   validation?: string;
   associatedFieldId?: string;
   stageId?: string;
