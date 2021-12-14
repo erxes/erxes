@@ -209,7 +209,7 @@ describe('Test board model', () => {
       { name: 'lab1', colorCode: '#123bb' },
       { name: 'lab2', colorCode: '#123cc' }
     ];
-    let updateArg = { ...args, staticLabels };
+    const updateArg = { ...args, staticLabels };
 
     await Pipelines.updatePipeline(pipelineObj._id, updateArg, [
       stageObj.toJSON()
