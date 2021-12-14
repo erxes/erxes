@@ -346,9 +346,8 @@ export const loadPipelineClass = () => {
       doc: IPipelineDoc,
       stages?: IPipelineStage[]
     ) {
+      const pipeline = await Pipelines.getPipeline(_id);
       if (doc.templateId) {
-        const pipeline = await Pipelines.getPipeline(_id);
-
         if (doc.templateId !== pipeline.templateId) {
           const duplicatedStages = await getDuplicatedStages({
             templateId: doc.templateId,
@@ -362,7 +361,6 @@ export const loadPipelineClass = () => {
         await createOrUpdatePipelineStages(stages, _id, doc.type);
       }
 
-      const pipeline = await Pipelines.findOne({ _id });
       const colStaticlabels = await PipelineLabels.find({
         pipelineId: _id
       });
