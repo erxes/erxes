@@ -28,7 +28,7 @@ type FinalProps = {
 } & Props;
 
 function DashbaordFormContent(props: FinalProps) {
-  const dashboard = props.dashboard || ({} as IDashboard);
+  const dashboard = props.dashboard;
 
   const [state, setState] = useState<State>({
     visibility: dashboard ? dashboard.visibility || 'public' : 'public',
