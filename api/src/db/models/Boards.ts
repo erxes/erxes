@@ -346,9 +346,10 @@ export const loadPipelineClass = () => {
       doc: IPipelineDoc,
       stages?: IPipelineStage[]
     ) {
-      const pipeline = await Pipelines.getPipeline(_id);
+      const pipelineObj = await Pipelines.getPipeline(_id);
+
       if (doc.templateId) {
-        if (doc.templateId !== pipeline.templateId) {
+        if (doc.templateId !== pipelineObj.templateId) {
           const duplicatedStages = await getDuplicatedStages({
             templateId: doc.templateId,
             pipelineId: _id,
@@ -380,7 +381,7 @@ export const loadPipelineClass = () => {
         );
       } else if (
         doc.labelStatus === 'dynamic' &&
-        pipeline?.labelStatus === 'static'
+        pipelineObj?.labelStatus === 'static'
       ) {
         const colLabelIds = colStaticlabels.map(e => e._id);
         for (const colLabelId of colLabelIds) {
