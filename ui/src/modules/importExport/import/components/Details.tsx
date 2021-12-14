@@ -2,12 +2,10 @@ import React from 'react';
 import { ControlLabel, FormControl, FormGroup, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { SubHeading } from 'modules/settings/styles';
-import { ITag } from 'modules/tags/types';
 
 type Props = {
   disclaimer: boolean;
   importName: string;
-  tags: ITag[];
 
   onChangeImportName: (value) => void;
   onChangeDisclaimer: (value) => void;

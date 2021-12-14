@@ -53,8 +53,6 @@ export const generatePronoun = value => {
     sex => sex.label.toUpperCase() === value.toUpperCase()
   );
 
-  console.log('sdadasds');
-
   return pronoun ? pronoun.value : '';
 };
 
@@ -121,13 +119,25 @@ const importBulkStream = ({
   fileName,
   bulkLimit,
   uploadType,
-  handleBulkOperation
+  handleBulkOperation,
+  associateContentType,
+  associateField,
+  mainAssociateField
 }: {
   contentType: string;
   fileName: string;
   bulkLimit: number;
   uploadType: 'AWS' | 'local';
-  handleBulkOperation: (rows: any, contentType: string) => Promise<void>;
+  handleBulkOperation: (
+    rows: any,
+    contentType: string,
+    associatedContentType?: string,
+    associatedField?: string,
+    mainAssociateField?: string
+  ) => Promise<void>;
+  associateContentType?: string;
+  associateField?: string;
+  mainAssociateField?: string;
 }) => {
   return new Promise(async (resolve, reject) => {
     let rows: any = [];
@@ -154,7 +164,13 @@ const importBulkStream = ({
       rows.push(row);
 
       if (rows.length === bulkLimit) {
-        return handleBulkOperation(rows, contentType)
+        return handleBulkOperation(
+          rows,
+          contentType,
+          associateContentType,
+          associateField,
+          mainAssociateField
+        )
           .then(() => {
             rows = [];
             next();
@@ -172,7 +188,13 @@ const importBulkStream = ({
       .pipe(csvParser())
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
-        handleBulkOperation(rows, contentType).then(() => {
+        handleBulkOperation(
+          rows,
+          contentType,
+          associateContentType,
+          associateField,
+          mainAssociateField
+        ).then(() => {
           resolve('success');
         });
       })
@@ -292,8 +314,6 @@ export const receiveImportCreate = async (content: any) => {
     associatedField
   } = content;
 
-  debugWorkers(associatedField);
-
   const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
   const config: any = {};
@@ -317,8 +337,6 @@ export const receiveImportCreate = async (content: any) => {
       throw new Error('Please import at least one row of data');
     }
 
-    debugWorkers('rows', rows);
-
     total = total + rows;
 
     const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
@@ -332,8 +350,6 @@ export const receiveImportCreate = async (content: any) => {
     config[contentType] = { total: rows, properties, fileName };
   }
 
-  debugWorkers('total', total);
-
   await ImportHistory.updateOne(
     { _id: importHistoryId },
     {
@@ -343,6 +359,16 @@ export const receiveImportCreate = async (content: any) => {
       total
     }
   );
+
+  const getAssociatedField = contentType => {
+    const properties = config[contentType].properties;
+
+    const property = properties.find(
+      value => value.fieldName === associatedField
+    );
+
+    return property.name;
+  };
 
   const updateImportHistory = async doc => {
     return ImportHistory.updateOne({ _id: importHistoryId }, doc);
@@ -369,22 +395,35 @@ export const receiveImportCreate = async (content: any) => {
       });
     }
 
-    if (status !== 'Done') {
+    if (associatedContentType && associatedField && status !== 'Done') {
       const contentType = contentTypes.find(value => value !== mainType);
+
+      const mainAssociateField = getAssociatedField(mainType);
+
+      const associateField = getAssociatedField(contentType);
 
       importBulkStream({
         contentType,
         fileName: config[contentType].fileName,
         uploadType,
         bulkLimit: WORKER_BULK_LIMIT,
-        handleBulkOperation
+        handleBulkOperation,
+        associateContentType: associatedContentType,
+        associateField,
+        mainAssociateField
       });
     }
 
     debugWorkers(`Import create ended`);
   };
 
-  const handleBulkOperation = async (rows: any, contentType: string) => {
+  const handleBulkOperation = async (
+    rows: any,
+    contentType: string,
+    associateContentType?: string,
+    associateField?: string,
+    mainAssociateField?: string
+  ) => {
     if (rows.length === 0) {
       return debugWorkers('Please import at least one row of data');
     }
@@ -405,7 +444,10 @@ export const receiveImportCreate = async (content: any) => {
       importHistoryId,
       result,
       useElkSyncer,
-      percentage: Number(((result.length / total) * 100).toFixed(3))
+      percentage: Number(((result.length / total) * 100).toFixed(3)),
+      associateContentType,
+      associateField,
+      mainAssociateField
     });
   };
 

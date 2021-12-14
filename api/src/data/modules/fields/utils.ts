@@ -108,7 +108,7 @@ const getFieldGroup = async (_id: string) => {
 export const checkFieldNames = async (
   type: string,
   fields: string[],
-  columnsConfig?: object
+  columnConfig?: object
 ) => {
   const properties: any[] = [];
   let schema: any;
@@ -162,11 +162,13 @@ export const checkFieldNames = async (
       continue;
     }
 
-    if (columnsConfig) {
-      fieldName = columnsConfig[fieldName].value;
-    }
-
     const property: { [key: string]: any } = {};
+
+    property.fieldName = fieldName;
+
+    if (columnConfig) {
+      fieldName = columnConfig[fieldName].value;
+    }
 
     const fieldObj = await Fields.findOne({
       text: fieldName,

@@ -46,13 +46,19 @@ const create = async ({
   user,
   contentType,
   model,
-  useElkSyncer
+  useElkSyncer,
+  associateContentType,
+  associateField,
+  mainAssociateField
 }: {
   docs: any;
   user: IUserDocument;
   contentType: string;
   model: any;
   useElkSyncer: boolean;
+  associateContentType?: string;
+  associateField?: string;
+  mainAssociateField?: string;
 }) => {
   const {
     PRODUCT,
@@ -68,6 +74,8 @@ const create = async ({
 
   const conformityCompanyMapping = {};
   const conformityCustomerMapping = {};
+  const associateMapping = {};
+
   const updateDocs: any = [];
 
   let insertDocs: any = [];
@@ -93,6 +101,32 @@ const create = async ({
   const customFieldsByPrimaryPhone = {};
   const customFieldsByPrimaryName = {};
   const customFieldsByCode = {};
+
+  let associatedModel: any = null;
+
+  if (associateContentType && associateField && mainAssociateField) {
+    switch (associateContentType) {
+      case 'customer':
+        associatedModel = Customers;
+      case 'lead':
+        associatedModel = Customers;
+        break;
+      case 'company':
+        associatedModel = Companies;
+        break;
+      case 'deal':
+        associatedModel = Deals;
+        break;
+      case 'task':
+        associatedModel = Tasks;
+        break;
+      case 'ticket':
+        associatedModel = Tickets;
+        break;
+      default:
+        break;
+    }
+  }
 
   const generateUpdateDocs = async (
     _id,
@@ -229,25 +263,36 @@ const create = async ({
     field,
     values,
     conformityTypeModel,
-    relType
+    relType,
+    isAssosciated
   }: {
     index: number;
     field: string;
     values: string[];
     conformityTypeModel: any;
     relType: string;
+    isAssosciated?: boolean;
   }) => {
     if (values.length === 0 && contentType !== relType) {
       return;
     }
 
-    const mapping =
+    const conformityModel = isAssosciated
+      ? associatedModel
+      : conformityTypeModel;
+    const conformityField: string = isAssosciated
+      ? mainAssociateField || ''
+      : field;
+
+    let mapping =
       relType === 'customer'
         ? conformityCustomerMapping
         : conformityCompanyMapping;
 
-    const ids = await conformityTypeModel
-      .find({ [field]: { $in: values } })
+    mapping = isAssosciated ? associateMapping : mapping;
+
+    const ids = await conformityModel
+      .find({ [conformityField]: { $in: values } })
       .distinct('_id');
 
     if (ids.length === 0) {
@@ -343,6 +388,17 @@ const create = async ({
         conformityTypeModel: Companies,
         relType: 'company'
       });
+
+      if (associateContentType && associateField && mainAssociateField) {
+        await createConformityMapping({
+          index: docIndex,
+          field: 'primaryName',
+          values: doc[associateField] || [],
+          conformityTypeModel: Companies,
+          relType: associateContentType,
+          isAssosciated: true
+        });
+      }
     });
 
     debugWorkers(`Update doc length: ${updateDocs.length}`);
@@ -414,6 +470,17 @@ const create = async ({
         conformityTypeModel: Customers,
         relType: 'customer'
       });
+
+      if (associateContentType && associateField && mainAssociateField) {
+        await createConformityMapping({
+          index: docIndex,
+          field: 'primaryName',
+          values: doc[associateField] || [],
+          conformityTypeModel: Companies,
+          relType: associateContentType,
+          isAssosciated: true
+        });
+      }
     });
 
     if (updateDocs.length > 0) {
@@ -524,6 +591,17 @@ const create = async ({
         conformityTypeModel: Companies,
         relType: 'company'
       });
+
+      if (associateContentType && associateField && mainAssociateField) {
+        await createConformityMapping({
+          index: docIndex,
+          field: 'primaryName',
+          values: doc[associateField] || [],
+          conformityTypeModel: Companies,
+          relType: associateContentType,
+          isAssosciated: true
+        });
+      }
     });
 
     objects = await model.insertMany(docs);
@@ -557,6 +635,7 @@ const create = async ({
 
     await createConformity(conformityCompanyMapping);
     await createConformity(conformityCustomerMapping);
+    await createConformity(associateMapping);
   }
 
   return objects;
@@ -578,7 +657,9 @@ connect().then(async () => {
     importHistoryId,
     useElkSyncer,
     percentage,
-    tagId
+    associateContentType,
+    associateField,
+    mainAssociateField
   }: {
     user: IUserDocument;
     scopeBrandIds: string[];
@@ -588,7 +669,9 @@ connect().then(async () => {
     importHistoryId: string;
     percentage: number;
     useElkSyncer: boolean;
-    tagId: string;
+    associateContentType?: string;
+    associateField?: string;
+    mainAssociateField?: string;
   } = workerData;
 
   let model: any = null;
@@ -598,7 +681,7 @@ connect().then(async () => {
     contentType === 'task' ||
     contentType === 'ticket';
 
-  switch (contentType) {
+  switch (contentType || associateContentType) {
     case 'customer':
     case 'lead':
       model = Customers;
@@ -646,10 +729,6 @@ connect().then(async () => {
       }
       if (contentType === 'lead') {
         doc.state = 'lead';
-      }
-
-      if (tagId) {
-        doc.tagIds = [tagId];
       }
 
       switch (property.type) {
@@ -728,7 +807,7 @@ connect().then(async () => {
               tag = await Tags.createTag({ name: tagName, type });
             }
 
-            doc[property.name] = tag ? [tag._id, tagId] : [];
+            doc[property.name] = tag ? [tag._id] : [];
           }
 
           break;
@@ -820,7 +899,10 @@ connect().then(async () => {
       user,
       contentType,
       model,
-      useElkSyncer
+      useElkSyncer,
+      associateContentType,
+      associateField,
+      mainAssociateField
     });
 
     const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);

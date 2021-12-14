@@ -13,7 +13,6 @@ import FileUpload from './FileUpload';
 
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Details from './Details';
-import { ITag } from 'modules/tags/types';
 import SettingsForm from './SettingsForm';
 import TypeForm from './TypeForm';
 import AccociateForm from '../containers/AccociateForm';
@@ -22,7 +21,6 @@ import MapColumn from '../containers/MapColumn';
 type Props = {
   contentType: string;
   addImportHistory: (doc: any) => void;
-  tags: ITag[];
 };
 
 type State = {
@@ -34,8 +32,8 @@ type State = {
   type: string;
   contentTypes: string[];
 
-  associateHeader: string;
-  associateContentType: string;
+  associatedField: string;
+  associatedContentType: string;
 };
 
 class ExportForm extends React.Component<Props, State> {
@@ -49,8 +47,8 @@ class ExportForm extends React.Component<Props, State> {
       disclaimer: false,
       type: 'single',
       contentTypes: [],
-      associateHeader: '',
-      associateContentType: ''
+      associatedField: '',
+      associatedContentType: ''
     };
   }
 
@@ -94,11 +92,11 @@ class ExportForm extends React.Component<Props, State> {
   };
 
   onChangeAssociateHeader = value => {
-    this.setState({ associateHeader: value });
+    this.setState({ associatedField: value });
   };
 
   onChangeAssociateContentType = value => {
-    this.setState({ associateContentType: value });
+    this.setState({ associatedContentType: value });
   };
 
   onChangeContentType = value => {
@@ -133,8 +131,8 @@ class ExportForm extends React.Component<Props, State> {
       columnWithChosenField,
       attachments,
       contentTypes,
-      associateHeader,
-      associateContentType
+      associatedField,
+      associatedContentType
     } = this.state;
 
     const files = [] as any;
@@ -152,8 +150,8 @@ class ExportForm extends React.Component<Props, State> {
       importName,
       files: attachments,
       columnsConfig: columnWithChosenField,
-      associateHeader,
-      associateContentType
+      associatedField,
+      associatedContentType
     };
 
     return this.props.addImportHistory(doc);
@@ -223,7 +221,6 @@ class ExportForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { tags } = this.props;
     const { importName, disclaimer, type, contentTypes } = this.state;
 
     const title = __('Import');
@@ -270,7 +267,6 @@ class ExportForm extends React.Component<Props, State> {
                   importName={importName}
                   onChangeImportName={this.onChangeImportName}
                   onChangeDisclaimer={this.onChangeDisclaimer}
-                  tags={tags}
                 />
               </Step>
             </Steps>
