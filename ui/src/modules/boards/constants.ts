@@ -98,6 +98,29 @@ export const EMPTY_CONTENT_TASK = {
   ]
 };
 
+export const groupByList = [
+  {
+    name: 'stage',
+    title: 'Stage'
+  },
+  {
+    name: 'label',
+    title: 'Label'
+  },
+  {
+    name: 'priority',
+    title: 'Priority'
+  },
+  {
+    name: 'assignee',
+    title: 'Assignee'
+  },
+  {
+    name: 'dueDate',
+    title: 'Due Date'
+  }
+];
+
 export const stackByChart = [
   {
     name: 'stage',
