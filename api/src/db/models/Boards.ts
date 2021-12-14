@@ -132,7 +132,7 @@ const createOrUpdatePipelineStaticLabels = async (
         colorCode: docLabel.colorCode,
         createdAt: new Date(),
         createdBy: userId,
-        pipelineId: pipelineId
+        pipelineId
       });
     } else {
       await PipelineLabels.updateOne(
