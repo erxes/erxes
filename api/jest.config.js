@@ -14,7 +14,7 @@ module.exports = {
     'coverage/'
   ],
   coverageDirectory: 'src/__tests__/coverage/',
-  //collectCoverage: true,
+  collectCoverage: true,
   collectCoverageFrom: [
     'src/db/models/**',
     '!src/db/models/Robot.ts',
