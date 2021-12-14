@@ -361,23 +361,20 @@ export const loadPipelineClass = () => {
       } else if (stages) {
         await createOrUpdatePipelineStages(stages, _id, doc.type);
       }
-      console.log('000000000000000000', doc, '0000000000000000000000');
-      const pipeline = await Pipelines.findOne({ _id });
-      if (doc.labelStatus === 'static') {
-        const colStaticlabels = await PipelineLabels.find({
-          pipelineId: _id
-        });
 
-        if (colStaticlabels) {
-          const colLabelIds = colStaticlabels.map(e => e._id);
-          const docLabelIds = doc.staticLabels?.map(e => e._id);
-          for (const collabelId of colLabelIds) {
-            if (!docLabelIds?.includes(collabelId)) {
-              console.log('+++++++++++++', docLabelIds, '=====', collabelId);
-              await checkPipelineLabels(_id, doc.type, collabelId);
-            }
+      const pipeline = await Pipelines.findOne({ _id });
+      const colStaticlabels = await PipelineLabels.find({
+        pipelineId: _id
+      });
+      if (doc.labelStatus === 'static') {
+        const colLabelIds = colStaticlabels.map(e => e._id);
+        const docLabelIds = doc.staticLabels?.map(e => e._id);
+        for (const collabelId of colLabelIds) {
+          if (!docLabelIds?.includes(collabelId)) {
+            await checkPipelineLabels(_id, doc.type, collabelId);
           }
         }
+
         await createOrUpdatePipelineStaticLabels(
           _id,
           doc.userId,
@@ -385,16 +382,11 @@ export const loadPipelineClass = () => {
         );
       } else if (
         doc.labelStatus === 'dynamic' &&
-        pipeline?.labelStatus == 'static'
+        pipeline?.labelStatus === 'static'
       ) {
-        const colStaticlabels = await PipelineLabels.find({
-          pipelineId: _id
-        });
-        if (colStaticlabels) {
-          const colLabelIds = colStaticlabels.map(e => e._id);
-          for (const colLabelId of colLabelIds) {
-            await checkPipelineLabels(_id, doc.type, colLabelId);
-          }
+        const colLabelIds = colStaticlabels.map(e => e._id);
+        for (const colLabelId of colLabelIds) {
+          await checkPipelineLabels(_id, doc.type, colLabelId);
         }
       }
 

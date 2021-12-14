@@ -9,6 +9,7 @@ import {
   formFactory,
   internalNoteFactory,
   pipelineFactory,
+  pipelineLabelFactory,
   pipelineTemplateFactory,
   stageFactory,
   userFactory
@@ -269,7 +270,7 @@ describe('Test board model', () => {
     expect(labels2[0].name).toBe(staticLabels[0].name);
     expect(labels2[0].colorCode).toBe(staticLabels[0].colorCode);
 
-    // Remove static label is used and catch errors
+    // Remove static label used and catch errors
     await dealFactory({
       stageId: stageObj._id,
       labelIds: [labels2[0]._id]
@@ -286,6 +287,57 @@ describe('Test board model', () => {
       pipelineId: pipelineObj._id
     });
     expect(labels3.length).toBe(1);
+  });
+
+  test('Update pipeline labelstatus', async () => {
+    expect.assertions(2);
+    const args = {
+      name: 'deal pipeline',
+      type: 'deal',
+      labelStatus: 'static',
+      boardId: board._id,
+      stages: [stage.toJSON()]
+    };
+
+    const pipelineObj = await pipelineFactory(args);
+    const labelObj = await pipelineLabelFactory({
+      pipelineId: pipelineObj._id
+    });
+
+    const stageObj = await stageFactory({
+      name: 'stage1',
+      pipelineId: pipelineObj._id
+    });
+
+    const dealObj = await dealFactory({
+      stageId: stageObj._id,
+      labelIds: [labelObj._id]
+    });
+    const updateArg = {
+      ...args,
+      labelStatus: 'dynamic'
+    };
+
+    try {
+      await Pipelines.updatePipeline(pipelineObj._id, updateArg, [
+        stageObj.toJSON()
+      ]);
+    } catch (e) {
+      expect(e.message).toEqual('Have a used static label!');
+    }
+
+    await Deals.updateDeal(dealObj._id, {
+      stageId: stageObj._id,
+      labelIds: []
+    });
+
+    await Pipelines.updatePipeline(pipelineObj._id, updateArg, [
+      stageObj.toJSON()
+    ]);
+
+    const labels = await PipelineLabels.find({ pipelineId: pipelineObj._id });
+
+    expect(labels.length).toBe(0);
   });
 
   test('Update pipeline', async () => {

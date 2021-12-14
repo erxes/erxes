@@ -1073,7 +1073,7 @@ interface IPipelineFactoryInput {
   visibility?: string;
   condition?: string;
   labelStatus?: string;
-  staticLabels?: Array<{ name: string; colorCode: string }>;
+  staticLabels?: Array<{ _id?: string; name: string; colorCode: string }>;
   memberIds?: string[];
   watchedUserIds?: string[];
   startDate?: Date;
