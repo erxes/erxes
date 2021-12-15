@@ -57,7 +57,7 @@ export const GanttContainer = styled.div`
   align-items: center;
   flex-direction: column;
   overflow: hidden;
-  height: 98%;
+  height: 100%;
 `;
 
 export const TimelineContainer = styled.div`
@@ -82,9 +82,10 @@ export const TimelineContainer = styled.div`
   }
 
   .timeLine {
-    height: 99% !important;
+    height: 95% !important;
     box-shadow: rgb(0 0 0 / 8%) 0px 0px 6px 1px;
     border: 1px solid ${colors.borderPrimary} !important;
+    box-shadow: none;
   }
 
   .header-top > div {
@@ -116,6 +117,18 @@ export const TimelineContainer = styled.div`
     color: ${colors.textPrimary} !important;
     padding: 10px 20px !important;
     line-height: initial !important;
+  }
+
+  .timeLine-main-data-task-side {
+    height: 30px !important;
+  }
+
+  .timeLine-main-data-viewPort {
+    background-color: ${colors.bgMain} !important;
+  }
+
+  .timeLine-side-task-viewPort {
+    background-color: ${colors.bgMain} !important;
   }
 `;
 
