@@ -79,10 +79,11 @@ export const TimelineContainer = styled.div`
 
   .timeLine-side {
     border: none !important;
+    height: 95% !important;
   }
 
   .timeLine {
-    height: 95% !important;
+    height: 100% !important;
     box-shadow: rgb(0 0 0 / 8%) 0px 0px 6px 1px;
     border: 1px solid ${colors.borderPrimary} !important;
     box-shadow: none;
@@ -104,12 +105,15 @@ export const TimelineContainer = styled.div`
     border-bottom: 1px solid ${colors.borderPrimary} !important;
   }
 
+  .timeLine-main {
+    height: 95% !important;
+  }
+
   .timeLine-main-data-row > div {
     height: 30px !important;
     top: 7px !important;
     padding: 5px 10px !important;
     border-radius: 15px !important;
-    color: #486581 !important;
   }
 
   .timeLine-side-task-row {
@@ -124,11 +128,11 @@ export const TimelineContainer = styled.div`
   }
 
   .timeLine-main-data-viewPort {
-    background-color: ${colors.bgMain} !important;
+    background-color: ${colors.colorWhite} !important;
   }
 
   .timeLine-side-task-viewPort {
-    background-color: ${colors.bgMain} !important;
+    background-color: ${colors.colorWhite} !important;
   }
 `;
 
@@ -142,7 +146,7 @@ export const NavContainer = styled.div`
 export const ModeContainer = styled.div`
   display: flex;
   justify-content: right;
-  margin: 5px 20px;
+  margin: 10px 20px;
 
   > div a {
     padding: 3px 20px;

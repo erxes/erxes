@@ -16,6 +16,10 @@ import { capitalize } from 'modules/activityLogs/utils';
 import ContextMenu from 'modules/common/components/ContextMenu';
 import { EditForm } from 'modules/boards/containers/editForm';
 
+export const stageName = {
+  fontWeight: 600
+};
+
 type Props = {
   items: IItem[];
   options: IOptions;
@@ -118,8 +122,14 @@ const GanttChart = (props: Props) => {
       id: item._id,
       start: new Date(item.startDate),
       end: new Date(item.closeDate),
-      name: `${item.name} (${item.stage ? item.stage.name : ''})`,
-      color: `${colors.bgUnread}`
+      name: (
+        <>
+          <span style={stageName}>{item.stage ? item.stage.name : ''}</span>
+          &nbsp;&nbsp;-&nbsp;&nbsp;
+          {item.name}
+        </>
+      ),
+      color: `${colors.colorCoreBlue}`
     });
 
     if (item.relations) {
@@ -246,10 +256,6 @@ const GanttChart = (props: Props) => {
   };
 
   const { refetch } = props;
-
-  if (!data) {
-    return null;
-  }
 
   return (
     <GanttContainer>
