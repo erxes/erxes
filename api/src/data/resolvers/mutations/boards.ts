@@ -1,5 +1,9 @@
 import { Boards, FieldsGroups, Pipelines, Stages } from '../../../db/models';
-import { bulkUpdateOrders, getCollection } from '../../../db/models/boardUtils';
+import {
+  bulkUpdateOrders,
+  configReplacer,
+  getCollection
+} from '../../../db/models/boardUtils';
 import {
   IBoard,
   IOrderInput,
@@ -29,9 +33,20 @@ interface IStageEdit extends IStage {
   _id: string;
 }
 
-const checkNumberConfig = (numberConfig: string, numberSize: string) => {
-  if (numberConfig && !numberSize) {
-    throw new Error('Cannot add number config without number count');
+const checkNumberConfig = async (numberConfig: string, numberSize: string) => {
+  if (!numberConfig) {
+    throw new Error('Add number config');
+  }
+
+  if (!numberSize) {
+    throw new Error('Add number size');
+  }
+
+  const replaced = await configReplacer(numberConfig);
+  const re = /[0-9\s]$/;
+
+  if (re.test(replaced)) {
+    throw new Error('Add at least one letter at the end of number config');
   }
 
   return;
@@ -118,8 +133,8 @@ const boardMutations = {
   ) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
-    if (doc.numberConfig) {
-      await checkNumberConfig(doc.numberConfig, doc.numberSize || '');
+    if (doc.numberConfig || doc.numberSize) {
+      await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
     }
 
     const pipeline = await Pipelines.createPipeline(
@@ -149,8 +164,8 @@ const boardMutations = {
   ) {
     await checkPermission(doc.type, user, 'pipelinesEdit');
 
-    if (doc.numberConfig) {
-      await checkNumberConfig(doc.numberConfig, doc.numberSize || '');
+    if (doc.numberConfig || doc.numberSize) {
+      await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
     }
 
     const pipeline = await Pipelines.getPipeline(_id);
