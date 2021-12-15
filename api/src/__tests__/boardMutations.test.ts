@@ -45,6 +45,7 @@ describe('Test boards mutations', () => {
     $excludeCheckUserIds: [String],
     $memberIds: [String],
     $numberConfig: String
+    $numberSize: String
   `;
 
   const commonPipelineParams = `
@@ -57,6 +58,7 @@ describe('Test boards mutations', () => {
     excludeCheckUserIds: $excludeCheckUserIds,
     memberIds: $memberIds
     numberConfig: $numberConfig
+    numberSize: $numberSize
   `;
 
   beforeEach(async () => {
@@ -175,7 +177,8 @@ describe('Test boards mutations', () => {
       bgColor: 'aaa',
       excludeCheckUserIds: [user1._id],
       memberIds: [user2._id],
-      numberConfig: '{number}'
+      numberConfig: '{year}_',
+      numberSize: '1'
     };
 
     const mutation = `
@@ -218,49 +221,6 @@ describe('Test boards mutations', () => {
     expect(createdPipeline.memberIds.length).toBe(1);
   });
 
-  test('Create pipeline with error(Please add at least one number attribute in number config)', async () => {
-    expect.assertions(1);
-
-    const user1 = await userFactory();
-    const user2 = await userFactory();
-
-    const args = {
-      name: 'deal pipeline',
-      type: 'deal',
-      boardId: board._id,
-      stages: [stage.toJSON()],
-      visibility: 'public',
-      bgColor: 'aaa',
-      excludeCheckUserIds: [user1._id],
-      memberIds: [user2._id],
-      numberConfig: '{error}'
-    };
-
-    const mutation = `
-      mutation pipelinesAdd(${commonPipelineParamDefs}) {
-        pipelinesAdd(${commonPipelineParams}) {
-          _id
-          name
-          type
-          boardId
-          bgColor
-          visibility
-          excludeCheckUserIds
-          memberIds
-          numberConfig
-        }
-      }
-    `;
-
-    try {
-      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
-    } catch (e) {
-      expect(e[0].message).toBe(
-        'Please add at least one number attribute in number config'
-      );
-    }
-  });
-
   test('Update pipeline', async () => {
     const args = {
       _id: pipeline._id,
@@ -270,7 +230,8 @@ describe('Test boards mutations', () => {
       stages: [stage.toJSON()],
       visibility: 'public',
       bgColor: 'bbb',
-      numberConfig: '{number}'
+      numberConfig: '{year}_',
+      numberSize: '1'
     };
 
     const mutation = `
@@ -611,6 +572,97 @@ describe('Test boards mutations', () => {
     if (updatedTask && updatedTask.timeTrack) {
       expect(updatedTask.timeTrack.status).toBe(TIME_TRACK_TYPES.STOPPED);
       expect(updatedTask.timeTrack.timeSpent).toBe(20);
+    }
+  });
+
+  test('Create pipeline error(add numberConfig)', async () => {
+    expect.assertions(1);
+
+    const args = {
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'aaa',
+      numberSize: '1'
+    };
+
+    const mutation = `
+      mutation pipelinesAdd(${commonPipelineParamDefs}) {
+        pipelinesAdd(${commonPipelineParams}) {
+          _id
+          name
+        }
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
+    } catch (e) {
+      expect(e[0].message).toBe('Add number config');
+    }
+  });
+
+  test('Create pipeline error(add numberSize)', async () => {
+    expect.assertions(1);
+
+    const args = {
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'aaa',
+      numberConfig: '{year}_'
+    };
+
+    const mutation = `
+      mutation pipelinesAdd(${commonPipelineParamDefs}) {
+        pipelinesAdd(${commonPipelineParams}) {
+          _id
+          name
+        }
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
+    } catch (e) {
+      expect(e[0].message).toBe('Add number size');
+    }
+  });
+
+  test('Update pipeline error(Add at least one letter at the end of number config)', async () => {
+    expect.assertions(1);
+
+    const args = {
+      _id: pipeline._id,
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'aaa',
+      numberConfig: '{year}',
+      numberSize: '1'
+    };
+
+    const mutation = `
+      mutation pipelinesEdit($_id: String! ${commonPipelineParamDefs}) {
+        pipelinesEdit(_id: $_id ${commonPipelineParams}) {
+          _id
+          name
+        }
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'pipelinesEdit', args, context);
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Add at least one letter at the end of number config'
+      );
     }
   });
 });
