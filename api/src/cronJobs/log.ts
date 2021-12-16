@@ -1,33 +1,16 @@
 import * as schedule from 'node-schedule';
-import { getSubServiceDomain, sendRequest } from '../data/utils';
+import { RABBITMQ_QUEUES } from '../data/constants';
 import { Configs } from '../db/models';
-import { debugCrons, debugError } from '../debuggers';
+import { debugCrons } from '../debuggers';
+import messageBroker from '../messageBroker';
 
 const removeOldLogs = async () => {
   const config = await Configs.findOne({ code: 'LOG_DATA_RETENTION' }).lean();
-  const value = config ? config.value : 1;
+  const months = config ? config.value : 1;
 
-  const now = new Date();
-
-  const month = now.getMonth();
-  const year = now.getFullYear();
-  const date = now.getDate();
-
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
-
-  try {
-    await sendRequest({
-      url: `${LOGS_DOMAIN}/logs`,
-      method: 'delete',
-      body: {
-        query: {
-          createdAt: { $lte: new Date(year, month - value, date) }
-        }
-      }
-    });
-  } catch (e) {
-    debugError(e.message);
-  }
+  return messageBroker().sendMessage(RABBITMQ_QUEUES.LOG_DELETE_OLD, {
+    months
+  });
 };
 
 /**
