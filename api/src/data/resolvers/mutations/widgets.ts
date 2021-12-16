@@ -200,13 +200,12 @@ const createFormConversation = async (
       contentTypeId: conversation._id,
       contentType: type,
       formFieldId: submission._id,
-      formFieldText: submission.text,
       formId,
       value: submission.value,
       customerId: cachedCustomer._id
     };
 
-    FormSubmissions.createFormSubmission(doc);
+    await FormSubmissions.createFormSubmission(doc);
   }
 
   return {

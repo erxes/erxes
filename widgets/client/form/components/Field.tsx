@@ -65,7 +65,7 @@ export default class Field extends React.Component<Props, State> {
     if (value) {
       values = value.split(',,');
     }
-    
+
     return (
       <div className="check-control">
         {options.map((option, index) => {
@@ -205,31 +205,34 @@ export default class Field extends React.Component<Props, State> {
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
+
     const self = this;
-
+    const attachments: any[] = [];
     if (files && files.length > 0) {
-      uploadHandler({
-        file: files[0],
+      for (const file of Array.from(files)) {
+        uploadHandler({
+          file,
 
-        beforeUpload() {
-          self.setState({ isAttachingFile: true });
-        },
+          beforeUpload() {
+            self.setState({ isAttachingFile: true });
+          },
 
-        // upload to server
-        afterUpload({ response, fileInfo }: any) {
-          const attachment = { url: response, ...fileInfo };
+          // upload to server
+          afterUpload({ response, fileInfo }: any) {
+            const attachment = { url: response, ...fileInfo };
+            attachments.push(attachment);
+            self.setState({ isAttachingFile: false });
+          },
 
-          self.setState({ isAttachingFile: false });
-
-          self.onChange([attachment]);
-        },
-
-        onError: message => {
-          alert(message);
-          self.setState({ isAttachingFile: false });
-        }
-      });
+          onError: message => {
+            alert(message);
+            self.setState({ isAttachingFile: false });
+          }
+        });
+      }
     }
+
+    self.onChange(attachments);
   };
 
   onDateChange = (date?: Date | string) => {
@@ -448,7 +451,8 @@ export default class Field extends React.Component<Props, State> {
         return Field.renderInput({
           onChange: this.handleFileInput,
           type: 'file',
-          id: field._id
+          id: field._id,
+          multiple: true
         });
 
       case 'avatar':

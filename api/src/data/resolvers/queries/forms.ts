@@ -22,7 +22,21 @@ const formQueries = {
     return Forms.findOne({ _id });
   },
 
-  async formSubmissions(_root, { tagId }: { tagId: string }) {
+  async formSubmissions(
+    _root,
+    { formId, tagId }: { formId: string; tagId: string }
+  ) {
+    if (formId) {
+      const form = await Forms.getForm(formId);
+
+      const formSubmissions = await FormSubmissions.find({
+        contentType: 'lead',
+        formId
+      });
+
+      return { formId: form._id, submissions: formSubmissions };
+    }
+
     const integrations = await Integrations.find({
       tagIds: tagId,
       kind: 'lead',
@@ -46,6 +60,7 @@ const formQueries = {
         if (submissionsGrouped) {
           const submission = {
             ...conversation,
+            contentTypeId: conversation._id,
             submissions: submissionsGrouped
           };
 
