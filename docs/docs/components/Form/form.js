@@ -12,35 +12,41 @@ import { renderApiTable } from "../common.js";
 import Button from "erxes-ui/lib/components/Button";
 
 export function FormComponent() {
-  var [isSubmitted, setisSubmitted] = useState(false);
-  var [mail, setMail] = useState("mm");
-  var [pass, setPass] = useState("");
-
-  console.log("mail before", mail);
-  console.log("isSubmitted", isSubmitted);
-
-  const submit = () => {
-    setisSubmitted((isSubmitted = true));
-  };
-  const reset = () => {
-    setisSubmitted((isSubmitted = false));
-  };
+  // var [submitted, setsubmitted] = useState(false);
+  var [mail, setMail] = useState();
+  var [pass, setPass] = useState();
 
   const onMailChange = (email) => {
     setMail((mail = email.value));
-    console.log("mail", mail);
   };
 
   const passchange = (password) => {
     setPass((pass = password.value));
   };
 
-  const content = () => {
+  const renderButton = (isSubmitted) => {
+    return (
+      <Button
+        onClick={() => {
+          isSubmitted = true;
+          console.log(isSubmitted);
+        }}
+      >
+        Submit
+      </Button>
+    );
+  };
+
+  const content = (formProps) => {
+    console.log("hi");
+    var { isSubmitted } = formProps;
+    console.log("isSubmitted", isSubmitted);
     return (
       <>
         <FormGroup>
           <ControlLabel required={true}>Email</ControlLabel>
           <FormControl
+            {...formProps}
             required={true}
             type="email"
             name="email"
@@ -52,6 +58,7 @@ export function FormComponent() {
         <FormGroup>
           <ControlLabel required={true}>Password</ControlLabel>
           <FormControl
+            {...formProps}
             type="password"
             name="password"
             placeholder="Password"
@@ -60,16 +67,32 @@ export function FormComponent() {
             required={true}
           />
         </FormGroup>
-        <Button onClick={submit}>Submit</Button>
-        <Button onClick={reset}>Reset</Button>
+        {/* <Button
+          onClick={() => {
+            isSubmitted = true;
+            console.log("set", isSubmitted);
+          }}
+        >
+          Submit
+        </Button>
+        <Button
+          onClick={() => {
+            isSubmitted = false;
+            // console.log("res", submitted);
+          }}
+        >
+          Reset
+        </Button> */}
+        {renderButton({
+          isSubmitted,
+        })}
       </>
     );
   };
 
   return (
     <>
-      <Form renderContent={content}  />
-      
+      <Form renderContent={content} />
     </>
   );
 }

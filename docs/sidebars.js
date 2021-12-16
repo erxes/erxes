@@ -138,6 +138,7 @@ module.exports = {
         "components/EmptyState/emptystate",
         "components/ErrorMsg/errormsg",
         "components/FilePreview/filepreview",
+        "components/Filter/filter",
         "components/FilterableList/filterablelist",
         "components/FilterByParams/filterbyparams",
         "components/Form/form",
