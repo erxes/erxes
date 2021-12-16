@@ -150,7 +150,6 @@ describe('Test board model', () => {
     expect(createdPipeline.createdAt).toEqual(pipeline.createdAt);
     expect(createdPipeline.userId).toEqual(user._id);
     expect(createdPipeline.numberConfig).toBe(pipeline.numberConfig);
-    expect(createdPipeline.lastNum).toBe(pipeline.lastNum);
   });
 
   test('Create pipeline by templateId', async () => {
@@ -187,6 +186,36 @@ describe('Test board model', () => {
     expect(createdPipeline).toBeDefined();
     expect(createdPipeline.name).toEqual(pipeline.name);
     expect(createdPipeline.type).toEqual(pipeline.type);
+  });
+
+  test('Create pipeline with numberConfig and deal', async () => {
+    const dealPipeline = await pipelineFactory({
+      type: 'deal',
+      numberConfig: 'deal_config_',
+      numberSize: '1'
+    });
+    const dealStage = await stageFactory({ pipelineId: dealPipeline._id });
+    const testDeal = await Deals.createDeal({ stageId: dealStage._id });
+
+    await Pipelines.updateOne(
+      { _id: dealPipeline._id },
+      { $set: { numberConfig: 'updatedDeal_' } }
+    );
+
+    const createdPipeline = await Pipelines.createPipeline(
+      {
+        name: dealPipeline.name,
+        boardId: dealPipeline.boardId,
+        userId: user._id,
+        type: dealPipeline.type,
+        bgColor: dealPipeline.bgColor,
+        numberConfig: dealPipeline.numberConfig,
+        numberSize: dealPipeline.numberSize
+      },
+      [stage.toJSON()]
+    );
+
+    expect(createdPipeline.lastNum).toBe(testDeal.number);
   });
 
   test('Update pipeline', async () => {
@@ -288,6 +317,32 @@ describe('Test board model', () => {
 
     expect(updatedPipeline.order).toBe(4);
     expect(updatedPipelineToOrder.order).toBe(5);
+  });
+
+  test('Update pipeline with new numberConfig', async () => {
+    const dealPipeline = await pipelineFactory({
+      type: 'deal',
+      numberConfig: 'config_',
+      numberSize: '1'
+    });
+
+    const config = 'updatedConfig_';
+
+    const updatedPipeline = await Pipelines.updatePipeline(
+      dealPipeline._id,
+      {
+        name: dealPipeline.name,
+        boardId: dealPipeline.boardId,
+        userId: user._id,
+        type: dealPipeline.type,
+        bgColor: dealPipeline.bgColor,
+        numberConfig: config,
+        numberSize: '2'
+      },
+      [stage.toJSON()]
+    );
+
+    expect(updatedPipeline.lastNum).toBe(config + '00');
   });
 
   test('Remove pipeline', async () => {
@@ -559,61 +614,5 @@ describe('Test board model', () => {
     expect(url).toBeDefined();
     expect(url).toContain(`itemId=${deal._id}`);
     expect(url).toContain(`deal`);
-  });
-
-  test('Create pipeline with numberConfig and deal', async () => {
-    const dealPipeline = await pipelineFactory({
-      type: 'deal',
-      numberConfig: 'deal_config_',
-      numberSize: '1'
-    });
-    const dealStage = await stageFactory({ pipelineId: dealPipeline._id });
-    const testDeal = await Deals.createDeal({ stageId: dealStage._id });
-
-    await Pipelines.updateOne(
-      { _id: dealPipeline._id },
-      { $set: { numberConfig: 'updatedDeal_' } }
-    );
-
-    const createdPipeline = await Pipelines.createPipeline(
-      {
-        name: dealPipeline.name,
-        boardId: dealPipeline.boardId,
-        userId: user._id,
-        type: dealPipeline.type,
-        bgColor: dealPipeline.bgColor,
-        numberConfig: dealPipeline.numberConfig,
-        numberSize: dealPipeline.numberSize
-      },
-      [stage.toJSON()]
-    );
-
-    expect(createdPipeline.lastNum).toBe(testDeal.number);
-  });
-
-  test('Update pipeline with new numberConfig', async () => {
-    const dealPipeline = await pipelineFactory({
-      type: 'deal',
-      numberConfig: 'config_',
-      numberSize: '1'
-    });
-
-    const config = 'updatedConfig_';
-
-    const createdPipeline = await Pipelines.updatePipeline(
-      dealPipeline._id,
-      {
-        name: dealPipeline.name,
-        boardId: dealPipeline.boardId,
-        userId: user._id,
-        type: dealPipeline.type,
-        bgColor: dealPipeline.bgColor,
-        numberConfig: config,
-        numberSize: '2'
-      },
-      [stage.toJSON()]
-    );
-
-    expect(createdPipeline.lastNum).toBe(config + '01');
   });
 });
