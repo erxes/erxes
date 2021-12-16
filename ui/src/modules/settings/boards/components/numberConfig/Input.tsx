@@ -22,6 +22,10 @@ function PlaceHolderInput(props: Props) {
   const { size, onChange, attributions } = props;
 
   const onChangeNumber = (conf: string) => {
+    if (8 < parseInt(conf, 10) || parseInt(conf, 10) < 1) {
+      return Alert.error('Choose a number size between 1 to 8');
+    }
+
     onChange('numberSize', conf);
   };
 
@@ -108,6 +112,7 @@ function PlaceHolderInput(props: Props) {
               onKeyPress={onKeyPress}
               onKeyDown={onKeyPress}
               onChange={(e: any) => onChangeConfig(e.target.value)}
+              placeholder="Choose an attribute or "
             />
           </FormGroup>
         </BoardHeader>
@@ -119,8 +124,9 @@ function PlaceHolderInput(props: Props) {
             type="number"
             onChange={(e: any) => onChangeNumber(e.target.value)}
             min={1}
+            max={8}
             value={size}
-            placeholder="Number count"
+            placeholder="Number size"
           />
         </FormGroup>
       </FlexItem>

@@ -661,7 +661,7 @@ describe('Test boards mutations', () => {
       await graphqlRequest(mutation, 'pipelinesEdit', args, context);
     } catch (e) {
       expect(e[0].message).toBe(
-        'Add at least one letter at the end of number config'
+        'Add at least one letter or space at the end of number config'
       );
     }
   });
