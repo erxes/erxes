@@ -35,11 +35,11 @@ interface IStageEdit extends IStage {
 
 const checkNumberConfig = async (numberConfig: string, numberSize: string) => {
   if (!numberConfig) {
-    throw new Error('Add number config');
+    throw new Error('Please input number configuration.');
   }
 
   if (!numberSize) {
-    throw new Error('Add number size');
+    throw new Error('Please input fractional part.');
   }
 
   const replaced = await configReplacer(numberConfig);
@@ -47,7 +47,7 @@ const checkNumberConfig = async (numberConfig: string, numberSize: string) => {
 
   if (re.test(replaced)) {
     throw new Error(
-      'Add at least one letter or space at the end of number config'
+      `Please make sure that the number configuration itself doesn't end with any number.`
     );
   }
 

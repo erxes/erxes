@@ -600,7 +600,7 @@ describe('Test boards mutations', () => {
     try {
       await graphqlRequest(mutation, 'pipelinesAdd', args, context);
     } catch (e) {
-      expect(e[0].message).toBe('Add number config');
+      expect(e[0].message).toBe('Please input number configuration.');
     }
   });
 
@@ -629,11 +629,11 @@ describe('Test boards mutations', () => {
     try {
       await graphqlRequest(mutation, 'pipelinesAdd', args, context);
     } catch (e) {
-      expect(e[0].message).toBe('Add number size');
+      expect(e[0].message).toBe('Please input fractional part.');
     }
   });
 
-  test('Update pipeline error(Add at least one letter at the end of number config)', async () => {
+  test('Update pipeline error(Number configuration itself doesnt end with any number)', async () => {
     expect.assertions(1);
 
     const args = {
@@ -661,7 +661,7 @@ describe('Test boards mutations', () => {
       await graphqlRequest(mutation, 'pipelinesEdit', args, context);
     } catch (e) {
       expect(e[0].message).toBe(
-        'Add at least one letter or space at the end of number config'
+        `Please make sure that the number configuration itself doesn't end with any number.`
       );
     }
   });

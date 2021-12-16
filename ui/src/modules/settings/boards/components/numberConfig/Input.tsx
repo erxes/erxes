@@ -23,7 +23,7 @@ function PlaceHolderInput(props: Props) {
 
   const onChangeNumber = (conf: string) => {
     if (8 < parseInt(conf, 10) || parseInt(conf, 10) < 1) {
-      return Alert.error('Choose a number size between 1 to 8');
+      return Alert.error('Fractional part number must be from 1 to 8');
     }
 
     onChange('numberSize', conf);
@@ -31,7 +31,9 @@ function PlaceHolderInput(props: Props) {
 
   const onChangeConfig = (conf: string) => {
     if (conf.startsWith(' ')) {
-      return Alert.error('Sorry config should not start with an empty space');
+      return Alert.error(
+        `Please make sure the number configuration doesn't start with a space`
+      );
     }
 
     onChange('numberConfig', conf);
@@ -112,21 +114,21 @@ function PlaceHolderInput(props: Props) {
               onKeyPress={onKeyPress}
               onKeyDown={onKeyPress}
               onChange={(e: any) => onChangeConfig(e.target.value)}
-              placeholder="Choose an attribute or "
+              placeholder="Choose an attribute or any number you prefer"
             />
           </FormGroup>
         </BoardHeader>
       </FlexItem>
       <FlexItem count={1} hasSpace={true}>
         <FormGroup>
-          <ControlLabel>Number size</ControlLabel>
+          <ControlLabel>Fractional part</ControlLabel>
           <FormControl
             type="number"
             onChange={(e: any) => onChangeNumber(e.target.value)}
             min={1}
             max={8}
             value={size}
-            placeholder="Number size"
+            placeholder="1-8"
           />
         </FormGroup>
       </FlexItem>
