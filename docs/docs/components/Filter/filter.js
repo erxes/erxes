@@ -13,7 +13,7 @@ export function FilterComponent() {
     // console.log("stts",stts);
 return (<>
     {/* <Filter queryParams={{startDate:"2021/12/01", endDate:"2021/12/12", awaitingResponse:"bh"}} /> */}
-    {/* <Filter queryParams={{tag: {id: "1", name:"tag1name", tagDetail: "tag1"}}} /> */}
+    {/* <Filter queryParams={{tag: {type: "tag", id: "1", name:"tag1name", tagDetail: "tag1"}}} /> */}
     {/* <div><Button onClick={()=>{stts="Choise 1"}}>Choise 1</Button><Button>Choise 2</Button><Button>Choise 3</Button></div> */}
     {/* <div> <Header title={"Test"}  additionalMenuItem={<Button>additionalMenuItem</Button>} /></div> */}
         
