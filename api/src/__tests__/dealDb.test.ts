@@ -32,7 +32,9 @@ describe('Test deals model', () => {
   beforeEach(async () => {
     // Creating test data
     board = await boardFactory();
-    pipeline = await pipelineFactory({ boardId: board._id });
+    pipeline = await pipelineFactory({
+      boardId: board._id
+    });
     stage = await stageFactory({ pipelineId: pipeline._id });
     user = await userFactory({});
     secondUser = await userFactory({});
@@ -93,16 +95,21 @@ describe('Test deals model', () => {
     expect(createdDeal.userId).toEqual(user._id);
   });
 
-  test('Create deals and check generated number not equal', async () => {
-    const args = {
-      stageId: deal.stageId,
-      userId: user._id
-    };
+  test('Create deals and check number is not duplicated', async () => {
+    await Deals.deleteMany({});
 
-    const deal1 = await Deals.createDeal(args);
-    const deal2 = await Deals.createDeal(args);
+    const requests = [
+      Deals.createDeal({ stageId: stage._id }),
+      Deals.createDeal({ stageId: stage._id })
+    ];
 
-    expect(deal1.number).not.toEqual(deal2.number);
+    await Promise.all(requests.map(req => req));
+
+    const deals = await Deals.find({});
+
+    expect(deals.length).toEqual(2);
+    expect(deals[0].number).toBe('2021_1');
+    expect(deals[1].number).toBe('2021_2');
   });
 
   test('Create deal Error(`Already converted a deal`)', async () => {
