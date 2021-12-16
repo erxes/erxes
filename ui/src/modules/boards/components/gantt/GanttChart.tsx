@@ -16,7 +16,7 @@ import { capitalize } from 'modules/activityLogs/utils';
 import ContextMenu from 'modules/common/components/ContextMenu';
 import { EditForm } from 'modules/boards/containers/editForm';
 
-export const stageName = {
+const stageName = {
   fontWeight: 600
 };
 
