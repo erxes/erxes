@@ -1,8 +1,8 @@
 const chatQueries = [
   {
     name: 'chats',
-    handler: async (_root, { type, limit, skip }, { models }) => {
-      const filter: any = { type };
+    handler: async (_root, { type, limit, skip }, { models, user }) => {
+      const filter: any = { type, participantIds: { $in: [user._id] } };
 
       return {
         list: await models.Chats.find(filter)
