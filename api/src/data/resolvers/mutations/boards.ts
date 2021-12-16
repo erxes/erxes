@@ -43,10 +43,12 @@ const checkNumberConfig = async (numberConfig: string, numberSize: string) => {
   }
 
   const replaced = await configReplacer(numberConfig);
-  const re = /[0-9\s]$/;
+  const re = /[0-9]$/;
 
   if (re.test(replaced)) {
-    throw new Error('Add at least one letter at the end of number config');
+    throw new Error(
+      'Add at least one letter or space at the end of number config'
+    );
   }
 
   return;
