@@ -75,8 +75,6 @@ const importHistoryMutations = {
   ) {
     const importHistory = await ImportHistory.create({ name: importName });
 
-    console.log(associatedField, associatedContentType);
-
     importer(
       contentTypes,
       files,

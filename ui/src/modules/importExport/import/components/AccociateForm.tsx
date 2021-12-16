@@ -36,6 +36,7 @@ class AccociateForm extends React.Component<Props, {}> {
               .
             </p>
             <FormControl componentClass="select" onChange={onChangeHeader}>
+              <option />
               {this.props.duplicatedHeaders.map(header => (
                 <option key={header} value={header}>
                   {header}
@@ -55,6 +56,7 @@ class AccociateForm extends React.Component<Props, {}> {
               .
             </p>
             <FormControl componentClass="select" onChange={onChangeContentType}>
+              <option />
               {this.props.contentTypes.map(contentType => (
                 <option key={contentType} value={contentType}>
                   {contentType}

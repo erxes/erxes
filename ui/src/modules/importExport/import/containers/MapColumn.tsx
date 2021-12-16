@@ -51,12 +51,7 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
       return {
         value: item.name || item._id,
         label: item.label || item.title,
-        type: (item.type || '').toLowerCase(),
-        group: item.group || '',
-        selectOptions: item.selectOptions || [],
-        // radio button options
-        choiceOptions: item.options || [],
-        chosenColumn: ''
+        type: (item.type || '').toLowerCase()
       };
     });
 

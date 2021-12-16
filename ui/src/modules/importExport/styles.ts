@@ -1,6 +1,8 @@
-import { dimensions } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+
+const tableHoverColor = '#f5f5f5';
 
 const ImportColumnRow = styled.tr`
   i {
@@ -37,27 +39,51 @@ const ColumnTable = styledTS<{
 
     th,
     td {
+      border-top: 1px solid ${colors.borderPrimary};
+      color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing - 2}px;
       display: table-cell;
       vertical-align: ${props.alignTop && 'top'};
     }
 
     thead {
+      th,
+      td {
+        text-transform: uppercase;
+        color: ${colors.colorCoreGray};
+        font-size: ${typography.fontSizeUppercase}px;
+      }
+
       th {
+        background-color: ${colors.bgLight};
         position: sticky;
         z-index: 1;
         top: 0;
       }
     }
 
-    th {
-      font-weight: normal
+    ${props.bordered
+      ? `th, td { border-bottom: 1px solid ${colors.borderPrimary}; }`
+      : null} ${props.striped
+      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgLightPurple}; }`
+      : null} th {
       border-top: none;
+    }
+
+    tr:hover td {
+      background-color: ${tableHoverColor};
     }
 
     th:first-child,
     td:first-child {
+      width: 50px;
+      text-align: center;
       border-left: none;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: none;
     }
   `};
 `;

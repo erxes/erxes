@@ -88,21 +88,42 @@ class Row extends React.Component<Props, {}> {
     const { fields, columnWithChosenField, column, contentType } = this.props;
 
     const renderValue = () => {
-      const value = columnWithChosenField[contentType];
+      const chosenField = columnWithChosenField[contentType];
 
-      if (!value) {
+      if (!chosenField) {
         return '';
       }
 
-      if (value) {
-        return value[column] ? value[column].value : '';
+      if (chosenField) {
+        return chosenField[column] ? chosenField[column].value : '';
       }
 
       return '';
     };
 
+    const renderOptions = () => {
+      const options = [...fields];
+
+      const chosenField = columnWithChosenField[contentType];
+
+      if (!chosenField) {
+        return options;
+      }
+
+      options.forEach(option => {
+        Object.keys(chosenField).forEach(key => {
+          if (chosenField[key].value === option.value) {
+            option.disabled = true;
+          }
+        });
+      });
+
+      return options;
+    };
+
     return (
       <ImportColumnRow>
+        <td>{this.renderMatch()}</td>
         <td>{this.props.column}</td>
         <td>
           <FlexRow>{this.renderSampleDatas()}</FlexRow>
@@ -111,12 +132,11 @@ class Row extends React.Component<Props, {}> {
           <FlexRow>
             <Select
               placeholder={__('Choose')}
-              options={fields}
+              options={renderOptions()}
               onChange={this.onChange}
               clearable={false}
               value={renderValue()}
             />
-            {this.renderMatch()}
           </FlexRow>
         </td>
       </ImportColumnRow>

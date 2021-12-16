@@ -19,7 +19,7 @@ class FileUpload extends React.Component<Props, {}> {
         onChangeAttachment(attachmentsAtt, contentType);
 
       return (
-        <div style={{ marginTop: '20px' }}>
+        <div key={contentType} style={{ marginTop: '20px' }}>
           <ControlLabel>{contentType}</ControlLabel>
 
           <Uploader single={true} defaultFileList={[]} onChange={onChange} />

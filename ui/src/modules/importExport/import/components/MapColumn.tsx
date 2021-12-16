@@ -1,8 +1,8 @@
 import React from 'react';
 import { DataWithLoader, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { Description, SubHeading } from 'modules/settings/styles';
 import Row from './Row';
+import { SubHeading } from 'modules/settings/styles';
 import { ColumnTable } from 'modules/importExport/styles';
 
 type Props = {
@@ -21,30 +21,10 @@ class MapColumn extends React.Component<Props, {}> {
       <ColumnTable>
         <thead>
           <tr>
-            <th>
-              <SubHeading>{__('Column Header')}</SubHeading>
-              <Description>
-                {__(
-                  'This is the header title from the file you’ve uploaded. The order of these does not affect the importing process.'
-                )}
-              </Description>
-            </th>
-            <th>
-              <SubHeading>{__('Preview Data')}</SubHeading>
-              <Description>
-                {__(
-                  'This is a preview of the first 3 rows of data in each column.If empty, no data was found in that row.'
-                )}
-              </Description>
-            </th>
-            <th>
-              <SubHeading>{__('Property')}</SubHeading>
-              <Description>
-                {__(
-                  'Each column header should be mapped to a property in the system. Use the dropdown menu to map to an existing property or create a new custom property.'
-                )}
-              </Description>
-            </th>
+            <th>Match</th>
+            <th>Column header</th>
+            <th>Preview data</th>
+            <th>Property</th>
           </tr>
         </thead>
         <tbody className={'expand'}>
@@ -67,6 +47,8 @@ class MapColumn extends React.Component<Props, {}> {
       <>
         <FlexItem>
           <FlexPad direction="column" overflow="auto">
+            <SubHeading>{__(`${contentType}'s mapping`)}</SubHeading>
+
             <DataWithLoader
               data={content}
               loading={false}

@@ -26,7 +26,7 @@ export const connect = () =>
 
 dotenv.config();
 
-const WORKER_BULK_LIMIT = 1000;
+const WORKER_BULK_LIMIT = 1;
 
 const myWorker = new CustomWorker();
 
@@ -129,6 +129,8 @@ const importBulkStream = ({
   bulkLimit: number;
   uploadType: 'AWS' | 'local';
   handleBulkOperation: (
+    rowIndex: number,
+    bulkLimit: number,
     rows: any,
     contentType: string,
     associatedContentType?: string,
@@ -142,6 +144,7 @@ const importBulkStream = ({
   return new Promise(async (resolve, reject) => {
     let rows: any = [];
     let readSteam;
+    let rowIndex = 0;
 
     if (uploadType === 'AWS') {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -161,10 +164,13 @@ const importBulkStream = ({
     }
 
     const write = (row, _, next) => {
+      rowIndex++;
       rows.push(row);
 
       if (rows.length === bulkLimit) {
         return handleBulkOperation(
+          rowIndex,
+          bulkLimit,
           rows,
           contentType,
           associateContentType,
@@ -188,7 +194,10 @@ const importBulkStream = ({
       .pipe(csvParser())
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
+        rowIndex++;
         handleBulkOperation(
+          rowIndex,
+          bulkLimit,
           rows,
           contentType,
           associateContentType,
@@ -418,6 +427,8 @@ export const receiveImportCreate = async (content: any) => {
   };
 
   const handleBulkOperation = async (
+    rowIndex: number,
+    bulkLimit: number,
     rows: any,
     contentType: string,
     associateContentType?: string,
@@ -437,6 +448,8 @@ export const receiveImportCreate = async (content: any) => {
     const workerPath = path.resolve(getWorkerFile('bulkInsert'));
 
     await myWorker.createWorker(workerPath, {
+      rowIndex,
+      bulkLimit,
       scopeBrandIds,
       user,
       contentType,
