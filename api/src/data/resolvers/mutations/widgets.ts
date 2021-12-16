@@ -201,7 +201,10 @@ const createFormConversation = async (
       contentType: type,
       formFieldId: submission._id,
       formId,
-      value: submission.value,
+      value:
+        submission.validation === 'number'
+          ? Number(submission.value)
+          : submission.value,
       customerId: cachedCustomer._id
     };
 

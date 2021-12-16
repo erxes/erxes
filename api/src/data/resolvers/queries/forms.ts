@@ -4,6 +4,7 @@ import {
   FormSubmissions,
   Integrations
 } from '../../../db/models';
+import { IFormSubmissionFilter } from '../../../db/models/definitions/forms';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -24,32 +25,89 @@ const formQueries = {
 
   async formSubmissions(
     _root,
-    { formId, tagId }: { formId: string; tagId: string }
+    {
+      formId,
+      tagId,
+      contentTypeIds,
+      filters
+    }: {
+      formId: string;
+      tagId: string;
+      contentTypeIds: string[];
+      filters: IFormSubmissionFilter[];
+    }
   ) {
+    const integrationsSelector: any = { kind: 'lead', isActive: true };
+    let conversationIds: string[] = [];
+
     if (formId) {
-      const form = await Forms.getForm(formId);
-
-      const formSubmissions = await FormSubmissions.find({
-        contentType: 'lead',
-        formId
-      });
-
-      return { formId: form._id, submissions: formSubmissions };
+      integrationsSelector.formId = formId;
     }
 
-    const integrations = await Integrations.find({
-      tagIds: tagId,
-      kind: 'lead',
-      isActive: true
-    });
+    if (tagId) {
+      integrationsSelector.tagIds = tagId;
+    }
+
+    if (contentTypeIds && contentTypeIds.length > 0) {
+      conversationIds = contentTypeIds;
+    }
+
+    const submissionFilters: any[] = [];
+
+    if (filters && filters.length > 0) {
+      for (const filter of filters) {
+        const { formFieldId, value } = filter;
+
+        switch (filter.operator) {
+          case 'eq':
+            submissionFilters.push({ formFieldId, value: { $eq: value } });
+            break;
+
+          case 'c':
+            submissionFilters.push({
+              formFieldId,
+              value: { $regex: new RegExp(value) }
+            });
+            break;
+
+          case 'gte':
+            submissionFilters.push({
+              formFieldId,
+              value: { $gte: value }
+            });
+            break;
+
+          case 'lte':
+            submissionFilters.push({
+              formFieldId,
+              value: { $lte: value }
+            });
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      const subs = await FormSubmissions.find({
+        $and: submissionFilters
+      }).lean();
+
+      conversationIds = subs.map(e => e.contentTypeId);
+    }
+
+    const integrations = await Integrations.find(integrationsSelector);
 
     const submissions: any[] = [];
 
     for (const integration of integrations) {
-      // const form = await Forms.findOne({_id: integration.formId});
-      const convs = await Conversations.find({
-        integrationId: integration._id
-      }).lean();
+      const convsSelector: any = { integrationId: integration._id };
+
+      if (conversationIds) {
+        convsSelector._id = { $in: conversationIds };
+      }
+
+      const convs = await Conversations.find(convsSelector).lean();
 
       for (const conversation of convs) {
         const submissionsGrouped = await FormSubmissions.find({

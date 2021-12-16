@@ -11,6 +11,12 @@ export interface IForm {
   buttonText?: string;
 }
 
+export interface IFormSubmissionFilter {
+  operator: string;
+  value: any;
+  formFieldId: string;
+}
+
 export interface IFormDocument extends IForm, Document {
   _id: string;
   createdUserId: string;
