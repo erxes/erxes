@@ -20,7 +20,7 @@ import { EditForm } from 'modules/boards/containers/editForm';
 import Assignees from '../Assignees';
 import { getColors } from 'modules/boards/utils';
 
-export const stageName = {
+const stageName = {
   fontWeight: 600
 };
 
