@@ -360,7 +360,7 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
       searchText: fillSearchTextItem(doc)
     });
   } catch (e) {
-    if (e.message.includes(`index: number_1 dup key`)) {
+    if (e.message.includes('E11000 duplicate key')) {
       await createBoardItem(doc, type);
     }
   }
