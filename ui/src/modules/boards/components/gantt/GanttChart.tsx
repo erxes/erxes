@@ -4,7 +4,9 @@ import {
   GanttContainer,
   NavContainer,
   ModeContainer,
-  TimelineContainer
+  TimelineContainer,
+  AssingStyle,
+  TextStyle
 } from 'modules/boards/styles/viewtype';
 import { withRouter } from 'react-router-dom';
 import { IOptions, IItem } from 'modules/boards/types';
@@ -15,6 +17,8 @@ import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
 import ContextMenu from 'modules/common/components/ContextMenu';
 import { EditForm } from 'modules/boards/containers/editForm';
+import Assignees from '../Assignees';
+import { getColors } from 'modules/boards/utils';
 
 export const stageName = {
   fontWeight: 600
@@ -96,14 +100,14 @@ const GanttChart = (props: Props) => {
       task: {
         showLabel: true,
         style: {
-          border: `1px solid ${colors.borderPrimary}`,
+          border: `none`,
           whiteSpace: 'nowrap',
           cursor: 'pointer'
         },
         selectedStyle: {
           borderRadius: 15,
           fontSize: 11,
-          border: `1px solid ${colors.borderPrimary}`,
+          border: `1px solid ${colors.colorCoreBlue}`,
           boxShadow: '0px 0px 5px 1px #e6e6e6'
         }
       }
@@ -117,24 +121,50 @@ const GanttChart = (props: Props) => {
   const dbData: any[] = [];
   let dbLinks: any[] = [];
 
-  props.items.forEach(item => {
-    dbData.push({
-      id: item._id,
-      start: new Date(item.startDate),
-      end: new Date(item.closeDate),
-      name: (
-        <>
-          <span style={stageName}>{item.stage ? item.stage.name : ''}</span>
-          &nbsp;&nbsp;-&nbsp;&nbsp;
-          {item.name}
-        </>
-      ),
-      color: `${colors.colorCoreBlue}`
-    });
+  const { items, refetch } = props;
+  const groupBy = item => {
+    return item.reduce((acc, curr) => {
+      if (curr.stage._id) {
+        const { _id } = curr.stage;
+        const currentItems = acc[_id];
 
-    if (item.relations) {
-      dbLinks = dbLinks.concat(item.relations);
-    }
+        return {
+          ...acc,
+          [_id]: currentItems ? [...currentItems, curr] : [curr]
+        };
+      }
+      return acc;
+    }, {});
+  };
+
+  const grouped = groupBy(items);
+
+  Object.keys(grouped).forEach((key, index) => {
+    const _items = grouped[key];
+    _items.forEach(item => {
+      dbData.push({
+        id: item._id,
+        start: new Date(item.startDate),
+        end: new Date(item.closeDate),
+        name: (
+          <>
+            <AssingStyle>
+              <Assignees users={item.assignedUsers} />
+            </AssingStyle>
+            <TextStyle>
+              <span style={stageName}>{item.stage ? item.stage.name : ''}</span>
+              &nbsp;-&nbsp;
+              {item.name}
+            </TextStyle>
+          </>
+        ),
+        color: `${getColors(index)}`
+      });
+
+      if (item.relations) {
+        dbLinks = dbLinks.concat(item.relations);
+      }
+    });
   });
 
   const [data, setData] = useState(dbData);
@@ -254,8 +284,6 @@ const GanttChart = (props: Props) => {
       }
     }
   };
-
-  const { refetch } = props;
 
   return (
     <GanttContainer>

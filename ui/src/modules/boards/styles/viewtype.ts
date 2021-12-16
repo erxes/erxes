@@ -110,10 +110,13 @@ export const TimelineContainer = styled.div`
   }
 
   .timeLine-main-data-row > div {
-    height: 30px !important;
-    top: 7px !important;
+    height: 35px !important;
+    top: 5px !important;
     padding: 5px 10px !important;
-    border-radius: 15px !important;
+    border-radius: 10px !important;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   .timeLine-side-task-row {
@@ -124,7 +127,7 @@ export const TimelineContainer = styled.div`
   }
 
   .timeLine-main-data-task-side {
-    height: 30px !important;
+    height: 35px !important;
   }
 
   .timeLine-main-data-viewPort {
@@ -187,4 +190,19 @@ export const GanttContextMenu = styledTS<{ top: number; left: number }>(
   li {
     padding-left: 10px;
   }
+`;
+
+export const AssingStyle = styled.div`
+  float: left;
+  margin-right: 5px;
+
+  > div img {
+    width: 23px !important;
+    height: 23px !important;
+  }
+`;
+
+export const TextStyle = styled.div`
+  padding-top: 3px;
+  text-align: left !important;
 `;
