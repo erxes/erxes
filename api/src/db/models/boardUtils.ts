@@ -308,7 +308,7 @@ export const boardNumberGenerator = async (
   if (!skip) {
     const pipeline = await Pipelines.findOne({
       lastNum: new RegExp(re)
-    }).sort({ createdAt: -1 });
+    });
 
     if (pipeline?.lastNum) {
       const lastNum = pipeline.lastNum;
