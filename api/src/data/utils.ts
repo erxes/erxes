@@ -915,10 +915,14 @@ export const pad = (size: number, num: any) => {
   return num;
 };
 
-export const generateNumber = (size: string, number?: string) => {
+export const generateNumber = (
+  size: string,
+  number: string,
+  skip?: boolean
+) => {
   if (number) {
     return pad(parseInt(size, 10), parseInt(number, 10) + 1);
   }
 
-  return pad(parseInt(size, 10), 1);
+  return pad(parseInt(size, 10), skip ? 0 : 1);
 };

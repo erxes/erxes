@@ -145,7 +145,10 @@ const createOrUpdatePipelineStages = async (
 
 // pipeline lastNum generater
 const generateLastNum = async (doc: IPipeline) => {
-  const pipeline = await Pipelines.findOne({ numberConfig: doc.numberConfig });
+  const replacedConfig = await configReplacer(doc.numberConfig);
+  const re = replacedConfig + '[0-9]+$';
+
+  const pipeline = await Pipelines.findOne({ lastNum: new RegExp(re) });
 
   if (pipeline) {
     return pipeline.lastNum;
@@ -153,11 +156,9 @@ const generateLastNum = async (doc: IPipeline) => {
 
   const { collection } = await getCollection(doc.type);
 
-  const replacedConfig = await configReplacer(doc.numberConfig);
-
   const item = await collection
     .findOne({
-      number: new RegExp(replacedConfig + '[0-9]+$')
+      number: new RegExp(re)
     })
     .sort({ createdAt: -1 });
 

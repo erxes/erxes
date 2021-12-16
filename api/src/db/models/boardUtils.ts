@@ -301,13 +301,14 @@ export const boardNumberGenerator = async (
   skip: boolean
 ) => {
   const replacedConfig = await configReplacer(config);
+  const re = replacedConfig + '[0-9]+$';
 
   let number;
 
   if (!skip) {
     const pipeline = await Pipelines.findOne({
-      numberConfig: config
-    });
+      lastNum: new RegExp(re)
+    }).sort({ createdAt: -1 });
 
     if (pipeline?.lastNum) {
       const lastNum = pipeline.lastNum;
@@ -321,7 +322,7 @@ export const boardNumberGenerator = async (
     }
   }
 
-  number = replacedConfig + (await generateNumber(size));
+  number = replacedConfig + (await generateNumber(size, '', skip));
 
   return number;
 };
