@@ -7,7 +7,6 @@ import {
   EngageMessages,
   Fields,
   FieldsGroups,
-  FormSubmissions,
   Integrations
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
@@ -349,7 +348,7 @@ export const solveSubmissions = async (args: {
   cachedCustomerId?: string;
 }) => {
   let { cachedCustomerId } = args;
-  const { integrationId, browserInfo, formId } = args;
+  const { integrationId, browserInfo } = args;
   const integration = await getDocument('integrations', { _id: integrationId });
 
   const submissionsGrouped = groupSubmissions(args.submissions);
