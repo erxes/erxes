@@ -7,7 +7,9 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import React from 'react';
+import { SelectMemberStyled } from 'modules/settings/boards/styles';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React, { useState } from 'react';
 import { IDashboard } from '../types';
 
 type Props = {
@@ -16,13 +18,25 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
+type State = {
+  visibility: string;
+  selectedMemberIds: string[];
+};
+
 type FinalProps = {
   closeModal: () => void;
 } & Props;
 
-const DashbaordFormContent = (props: FinalProps) => {
+function DashbaordFormContent(props: FinalProps) {
+  const dashboard = props.dashboard;
+
+  const [state, setState] = useState<State>({
+    visibility: dashboard ? dashboard.visibility || 'public' : 'public',
+    selectedMemberIds: dashboard ? dashboard.selectedMemberIds || [] : []
+  });
+
   const generateDoc = (values: { _id?: string; name: string }) => {
-    const { dashboard } = props;
+    const { selectedMemberIds, visibility } = state;
     const finalValues = values;
 
     if (dashboard) {
@@ -31,12 +45,48 @@ const DashbaordFormContent = (props: FinalProps) => {
 
     return {
       _id: finalValues._id,
-      name: finalValues.name
+      name: finalValues.name,
+      visibility,
+      selectedMemberIds
     };
   };
 
+  const onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
+    setState({
+      ...state,
+      visibility: (e.currentTarget as HTMLInputElement).value
+    });
+  };
+
+  const onChangeMembers = selectedMemberIds => {
+    setState({ ...state, selectedMemberIds });
+  };
+
+  const renderSelectMembers = () => {
+    const { visibility, selectedMemberIds } = state;
+    if (visibility === 'public') {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <SelectMemberStyled zIndex={2002}>
+          <ControlLabel>Members</ControlLabel>
+
+          <SelectTeamMembers
+            label="Choose members"
+            name="selectedMemberIds"
+            initialValue={selectedMemberIds}
+            onSelect={onChangeMembers}
+          />
+        </SelectMemberStyled>
+      </FormGroup>
+    );
+  };
+
   const renderContent = (formProps: IFormProps) => {
-    const { dashboard, renderButton } = props;
+    const { renderButton } = props;
+    const { visibility } = state;
     const { values, isSubmitted } = formProps;
     const object = dashboard || { name: '' };
 
@@ -53,6 +103,22 @@ const DashbaordFormContent = (props: FinalProps) => {
             autoFocus={true}
           />
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Visibility</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="visibility"
+            componentClass="select"
+            value={visibility}
+            onChange={onChangeVisibility}
+          >
+            <option value="public">{__('Public')}</option>
+            <option value="private">{__('Private')}</option>
+          </FormControl>
+        </FormGroup>
+
+        {renderSelectMembers()}
 
         <ModalFooter>
           <Button
@@ -77,7 +143,7 @@ const DashbaordFormContent = (props: FinalProps) => {
   };
 
   return <Form {...props} renderContent={renderContent} />;
-};
+}
 
 const DashbaordForm = (props: Props) => {
   const defatulTrigger = (
