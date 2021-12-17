@@ -9,21 +9,13 @@ module.exports = {
               "overview/deployment-overview",
             {
               "Installation Guide": [
-                {
-                  "Ubuntu": [
-                    "installation/ubuntu",
-                              {
-                                Installation: [
+                                  "installation/ubuntu",
                                   "installation/ubuntu-quickstart",
                                   "installation/ubuntu-step-by-step",
+                                  "installation/docker",
                                   "installation/ubuntu-troubleshooting",
+                                  "installation/upgrade",
                                 ],
-                              },
-                            ],
-                  },
-                "installation/docker",
-                "installation/upgrade",
-              ]
             },
           ]
         },

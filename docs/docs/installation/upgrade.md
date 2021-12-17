@@ -4,9 +4,30 @@ title: Upgrade
 sidebar_label: Upgrade
 ---
 
-Following the steps in this document you can upgrade the system version.
+Following the steps in this document you can upgrade the system version depending on what method did you use to install Erxes.
 
-## Upgrade erxes 0.13.0 to 0.14.1
+## Upgrade docker based installation
+
+It is pretty simple task compared to other two .
+
+1. First, locate docker-compose.yml file which contains all erxes related images then
+
+```
+docker-compose pull && docker-compose up -d
+```
+
+Above commands will download latest images and start downloaded images.
+
+## Upgrade Script based installation
+
+We have made cli tool to make Erxes upgrade and start process simple. To upgrade Erxes simply type following command in terminal.
+
+```
+yarn update
+```
+This will remove old erxes build and save all data as .tar file and download newest image of erxes then restore all dumped data. If you want to see more information about our cli it locates in erxes/create-erxes-app/create-erxes-app.js
+
+## Upgrade erxes to certain versions 
 
 They can be used to upgrade erxes v0.13.0 to v 0.14.1 if you are hosting erxes on Ubuntu.
 

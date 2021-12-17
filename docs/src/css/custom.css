@@ -69,7 +69,9 @@ html[data-theme='dark'] .react-toggle-track {
 .pd-large {
   padding: 20px 0 40px 0;
 }
-
+.navbar__search {
+  margin-left: 1rem;
+}
 .blogPostTitle_node_modules-\@docusaurus-theme-classic-src-theme-BlogPostItem- {
   font-size: 2.5rem !important;
 }

@@ -15,7 +15,7 @@ We recommend to start with the [docker based](installation/docker.md) installati
 
 ### Choose an installation method
 
-- [Script based installation on linux based operation systems](installation/ubuntu.mdx)
+- [Script based installation on linux based operation systems](installation/ubuntu-quickstart.mdx)
 - [Step by step installation on linux based operation systems](installation/ubuntu-step-by-step.mdx)
 - [Docker based installation on linux based operation systems ](installation/docker.md)
 

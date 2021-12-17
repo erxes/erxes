@@ -3,9 +3,8 @@ id: docker
 title: Docker based installation
 ---
 
-This steps explain how to install Erxes on Docker Hub, to do it, follow the instructions.
-
-[erxes on docker hub](https://hub.docker.com/u/erxes/)
+This steps explain how to install Erxes using docker-compose, to achieve it, follow below instructions. You can see 
+Erxes images on docker hub [here](https://hub.docker.com/u/erxes/).
 
 ## Prerequisites
 
