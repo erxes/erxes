@@ -121,7 +121,7 @@ const GanttChart = (props: Props) => {
   const dbData: any[] = [];
   let dbLinks: any[] = [];
 
-  const { items, refetch } = props;
+  const { items, refetch, options } = props;
 
   const groupBy = item => {
     return item.reduce((acc, curr) => {
@@ -193,8 +193,6 @@ const GanttChart = (props: Props) => {
     if (!selectedItem) {
       return null;
     }
-
-    const { items, options } = props;
 
     const dbDataRow = items.find(row => row._id === selectedItem.id);
 
