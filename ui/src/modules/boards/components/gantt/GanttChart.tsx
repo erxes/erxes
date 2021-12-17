@@ -122,6 +122,7 @@ const GanttChart = (props: Props) => {
   let dbLinks: any[] = [];
 
   const { items, refetch } = props;
+
   const groupBy = item => {
     return item.reduce((acc, curr) => {
       if (curr.stage._id) {
@@ -220,17 +221,17 @@ const GanttChart = (props: Props) => {
   };
 
   const save = () => {
-    const items: any[] = [];
+    const pushItems: any[] = [];
 
     for (const item of data) {
-      items.push({
+      pushItems.push({
         _id: item.id,
         startDate: item.start,
         closeDate: item.end
       });
     }
 
-    props.save(items, links);
+    props.save(pushItems, links);
   };
 
   const onUpdateTask = (item, prop) => {
