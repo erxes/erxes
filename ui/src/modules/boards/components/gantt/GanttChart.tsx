@@ -107,7 +107,7 @@ const GanttChart = (props: Props) => {
         selectedStyle: {
           borderRadius: 15,
           fontSize: 11,
-          border: `1px solid ${colors.colorCoreBlue}`,
+          border: `none`,
           boxShadow: '0px 0px 5px 1px #e6e6e6'
         }
       }

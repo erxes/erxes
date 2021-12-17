@@ -124,6 +124,10 @@ export const TimelineContainer = styled.div`
     color: ${colors.textPrimary} !important;
     padding: 10px 20px !important;
     line-height: initial !important;
+
+    > div > div > div img {
+      display: none;
+    }
   }
 
   .timeLine-main-data-task-side {
@@ -195,6 +199,10 @@ export const GanttContextMenu = styledTS<{ top: number; left: number }>(
 export const AssingStyle = styled.div`
   float: left;
   margin-right: 5px;
+
+  > div {
+    display: flex;
+  }
 
   > div img {
     width: 23px !important;
