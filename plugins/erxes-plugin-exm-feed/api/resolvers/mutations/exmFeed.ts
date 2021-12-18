@@ -1,4 +1,10 @@
-import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
+import {
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog,
+  sendNotification,
+  sendMobileNotification
+} from 'erxes-api-utils';
 
 export const gatherDescriptions = async () => {
   let extraDesc = [];
@@ -13,7 +19,15 @@ const exmFeedMutations = [
     handler: async (
       _root,
       doc,
-      { checkPermission, user, docModifier, models, messageBroker }
+      {
+        checkPermission,
+        user,
+        docModifier,
+        models,
+        messageBroker,
+        memoryStorage,
+        graphqlPubsub
+      }
     ) => {
       await checkPermission('manageExmActivityFeed', user);
 
@@ -34,6 +48,29 @@ const exmFeedMutations = [
         },
         user
       );
+
+      let receivers = await models.Users.find().distinct('_id');
+
+      receivers = receivers.filter(r => r._id !== user._id);
+
+      sendNotification(models, memoryStorage, graphqlPubsub, {
+        notifType: 'plugin',
+        title: doc.title,
+        content: doc.description,
+        action: `${doc.contentType} created`,
+        link: `/erxes-plugin-exm-feed/list`,
+        createdUser: user,
+        // exclude current user
+        contentType: 'exmFeed',
+        contentTypeId: exmFeed._id,
+        receivers
+      });
+
+      await sendMobileNotification({
+        title: doc.title,
+        body: doc.description,
+        receivers
+      });
 
       return exmFeed;
     }

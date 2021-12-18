@@ -10,6 +10,7 @@ export const description = (formProps: IFormProps, item: any) => {
       placeholder='Description'
       componentClass='textarea'
       name='description'
+      required={true}
       defaultValue={item.description}
     />
   );
@@ -23,6 +24,7 @@ export const title = (formProps: IFormProps, item: any) => {
         placeholder='Title'
         type='text'
         name='title'
+        required={true}
         defaultValue={item.title}
       />
     </>

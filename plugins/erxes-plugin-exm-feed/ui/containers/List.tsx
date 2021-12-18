@@ -1,9 +1,9 @@
-import React from "react";
-import { useQuery, useMutation } from "react-apollo";
-import gql from "graphql-tag";
-import { Alert, confirm, Spinner } from "erxes-ui";
-import List from "../components/List";
-import { mutations, queries } from "../graphql";
+import React from 'react';
+import { useQuery, useMutation } from 'react-apollo';
+import gql from 'graphql-tag';
+import { Alert, confirm, Spinner } from 'erxes-ui';
+import List from '../components/List';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -13,13 +13,14 @@ type Props = {
 export default function ListContainer(props: Props) {
   const { queryParams, contentType } = props;
 
-  const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : 20;
+  const limit =
+    queryParams && queryParams.limit ? parseInt(queryParams.limit, 10) : 20;
 
   const feedResponse = useQuery(gql(queries.feed), {
     variables: {
       limit,
-      contentTypes: [contentType || "post"],
-    },
+      contentTypes: [contentType || 'post']
+    }
   });
 
   const [deleteMutation] = useMutation(gql(mutations.deleteFeed));
@@ -32,11 +33,11 @@ export default function ListContainer(props: Props) {
   const pinItem = (_id: string) => {
     pinMutation({ variables: { _id } })
       .then(() => {
-        Alert.success("Success!");
+        Alert.success('Success!');
 
         feedResponse.refetch();
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -45,11 +46,11 @@ export default function ListContainer(props: Props) {
     confirm().then(() => {
       deleteMutation({ variables: { _id } })
         .then(() => {
-          Alert.success("You successfully deleted.");
+          Alert.success('You successfully deleted.');
 
           feedResponse.refetch();
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     });
