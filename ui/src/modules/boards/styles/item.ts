@@ -191,6 +191,12 @@ export const HeaderContentSmall = styled.div`
   }
 `;
 
+export const ItemNumber = styled.div`
+  p {
+    font-size: 12px;
+  }
+`;
+
 export const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
