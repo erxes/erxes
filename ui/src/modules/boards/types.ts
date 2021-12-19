@@ -157,7 +157,6 @@ export interface IItem {
     [key: string]: any;
   };
   score?: number;
-  number?: string;
 }
 
 export interface IDraggableLocation {
