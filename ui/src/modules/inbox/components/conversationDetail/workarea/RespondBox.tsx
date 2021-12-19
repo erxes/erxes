@@ -223,7 +223,7 @@ class RespondBox extends React.Component<Props, State> {
     const { REACT_APP_API_URL } = getEnv();
 
     deleteHandler({
-      erxesApiUrl: REACT_APP_API_URL,
+      url: REACT_APP_API_URL,
       fileName,
       afterUpload: ({ status }) => {
         if (status === 'ok') {
