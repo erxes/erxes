@@ -129,6 +129,7 @@ export const commonFields = `
     timeSpent
     startDate
   }
+  number
 `;
 
 const stagesUpdateOrder = `

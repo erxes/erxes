@@ -58,6 +58,7 @@ export const commonTypes = `
   customFieldsData: JSON
   score: Float
   timeTrack: TimeTrack
+  number: String
 `;
 
 export const commonMutationParams = `
