@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 import { debugBase } from './debuggers';
 import ActivityLogs from './models/ActivityLogs';
+import Logs from './models/Logs';
 import Visitors from './models/Visitors';
 import { receivePutLogCommand, sendToApi } from './utils';
 
@@ -109,6 +110,19 @@ export const initBroker = async server => {
       default:
         break;
     }
+  });
+
+  consumeQueue('log:delete:old', async ({ months = 1 }) => {
+    const now = new Date();
+    await Logs.deleteMany({
+      createdAt: {
+        $lte: new Date(
+          now.getFullYear(),
+          now.getMonth() - months,
+          now.getDate()
+        )
+      }
+    });
   });
 };
 
