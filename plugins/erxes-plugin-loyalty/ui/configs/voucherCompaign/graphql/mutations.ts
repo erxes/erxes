@@ -5,6 +5,7 @@ const paramDefs = `
   ${commonParamDefs}
   $score: Float,
   $scoreAction: String,
+  $voucherType: String,
   $productCategoryIds: [String],
   $productIds: [String],
   $discountPercent: Float,
@@ -20,6 +21,7 @@ const params = `
   ${commonParams}
   score: $score
   scoreAction: $scoreAction
+  voucherType: $voucherType
   productCategoryIds: $productCategoryIds
   productIds: $productIds
   discountPercent: $discountPercent

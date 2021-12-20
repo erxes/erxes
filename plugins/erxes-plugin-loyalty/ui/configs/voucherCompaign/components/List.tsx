@@ -176,6 +176,7 @@ class VoucherCompaigns extends React.Component<Props, State> {
               <th>{__('Title')}</th>
               <th>{__('Start Date')}</th>
               <th>{__('End Date')}</th>
+              <th>{__('Type')}</th>
               <th>{__('Status')}</th>
             </tr>
           </thead>

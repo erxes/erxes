@@ -1,5 +1,6 @@
 import { FormControl, TextInfo, ModalTrigger } from 'erxes-ui';
 import React from 'react';
+import { VOUCHER_TYPES } from '../../../constants';
 import Form from '../containers/Form';
 import { IVoucherCompaign } from '../types';
 
@@ -40,10 +41,10 @@ class Row extends React.Component<Props> {
     const {
       _id,
       title,
+      voucherType,
       startDate,
       endDate,
       status,
-
     } = voucherCompaign;
 
     const trigger = (
@@ -58,6 +59,7 @@ class Row extends React.Component<Props> {
         <td>{title}</td>
         <td>{new Date(startDate).toLocaleDateString()}</td>
         <td>{new Date(endDate).toLocaleDateString()}</td>
+        <td>{VOUCHER_TYPES[voucherType].label}</td>
         <td>
           <TextInfo>{status}</TextInfo>
         </td>

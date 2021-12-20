@@ -5,6 +5,7 @@ export const voucherCompaignFields = `
   ${commonFields}
   score
   scoreAction
+  voucherType
   productCategoryIds
   productIds
   discountPercent

@@ -22,6 +22,7 @@ import Select from 'react-select-plus';
 import { __ } from 'erxes-ui';
 import { ISpinCompaign } from '../../spinCompaign/types';
 import { ILotteryCompaign } from '../../lotteryCompaign/types';
+import { VOUCHER_TYPES } from '../../../constants';
 
 type Props = {
   voucherCompaign?: IVoucherCompaign;
@@ -79,6 +80,11 @@ class Form extends React.Component<Props, State> {
     this.setState({ voucherCompaign: { ...this.state.voucherCompaign, attachment: files.length ? files[0] : undefined } });
   };
 
+  onChangeCombo = (name: string, selected) => {
+    const value = selected.value
+    this.setState({ voucherCompaign: { ...this.state.voucherCompaign, [name]: value } });
+  };
+
   onChangeMultiCombo = (name: string, values) => {
     let value = values;
 
@@ -101,15 +107,178 @@ class Form extends React.Component<Props, State> {
     this.setState({ voucherCompaign: { ...this.state.voucherCompaign, [name]: value } });
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, productCategories, products, spinCompaigns, lotteryCompaigns } = this.props;
-    const { values, isSubmitted } = formProps;
+  renderVoucherType = (formProps) => {
+    const { productCategories, products, lotteryCompaigns, spinCompaigns } = this.props;
+    const { voucherCompaign } = this.state;
+    const voucherType = voucherCompaign.voucherType || 'discount';
 
-    const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add category
-      </Button>
+    if (voucherType === 'bonus') {
+      return (
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Bonus Product</ControlLabel>
+              <Select
+                placeholder={__('Filter by product')}
+                value={voucherCompaign.bonusProductId}
+                options={products.map(prod => ({
+                  label: prod.name,
+                  value: prod._id
+                }))}
+                name="bonusProductId"
+                onChange={this.onChangeCombo.bind(this, 'bonusProductId')}
+                loadingPlaceholder={__('Loading...')}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>bonus Count</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="bonusCount"
+                type="number"
+                min={0}
+                defaultValue={voucherCompaign.bonusCount}
+                onChange={this.onInputChange}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      );
+    }
+
+    if (voucherType === 'lottery') {
+      return (
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Lottery</ControlLabel>
+              <Select
+                placeholder={__('Filter by lottery')}
+                value={voucherCompaign.lotteryCompaignId}
+                options={lotteryCompaigns.map(lottery => ({
+                  label: lottery.title,
+                  value: lottery._id
+                }))}
+                name="lotteryCompaignId"
+                onChange={this.onChangeCombo.bind(this, 'lotteryCompaignId')}
+                loadingPlaceholder={__('Loading...')}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>lottery Count</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="lotteryCount"
+                type="number"
+                min={0}
+                max={100}
+                defaultValue={voucherCompaign.lotteryCount}
+                onChange={this.onInputChange}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      );
+    }
+
+    if (voucherType === 'spin') {
+      return (
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Spin</ControlLabel>
+              <Select
+                placeholder={__('Filter by spin')}
+                value={voucherCompaign.spinCompaignId}
+                options={spinCompaigns.map(spin => ({
+                  label: spin.title,
+                  value: spin._id
+                }))}
+                name="spinCompaignId"
+                onChange={this.onChangeCombo.bind(this, 'spinCompaignId')}
+                loadingPlaceholder={__('Loading...')}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>spin Count</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="spinCount"
+                type="number"
+                min={0}
+                max={100}
+                defaultValue={voucherCompaign.spinCount}
+                onChange={this.onInputChange}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      );
+    }
+
+    return (
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>Product Category</ControlLabel>
+            <Select
+              placeholder={__('Filter by product category')}
+              value={voucherCompaign.productCategoryIds}
+              options={productCategories.map(cat => ({
+                label: `${'\u00A0 '.repeat(((cat.order || '').match(/[/]/gi) || []).length)}${cat.name}`,
+                value: cat._id
+              }))}
+              name="productCategoryIds"
+              onChange={this.onChangeMultiCombo.bind(this, 'productCategoryIds')}
+              multi={true}
+              loadingPlaceholder={__('Loading...')}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>Or Product</ControlLabel>
+            <Select
+              placeholder={__('Filter by product')}
+              value={voucherCompaign.productIds}
+              options={products.map(prod => ({
+                label: prod.name,
+                value: prod._id
+              }))}
+              name="productIds"
+              onChange={this.onChangeMultiCombo.bind(this, 'productIds')}
+              multi={true}
+              loadingPlaceholder={__('Loading...')}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>discount percent</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="discountPercent"
+              type="number"
+              min={0}
+              max={100}
+              defaultValue={voucherCompaign.discountPercent}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
     );
+  }
+
+  renderContent = (formProps: IFormProps) => {
+    const { renderButton, closeModal } = this.props;
+    const { values, isSubmitted } = formProps;
 
     const {
       voucherCompaign
@@ -121,17 +290,32 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <ScrollWrapper>
-          <FormGroup>
-            <ControlLabel required={true}>title</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="title"
-              defaultValue={voucherCompaign.title}
-              autoFocus={true}
-              required={true}
-              onChange={this.onInputChange}
-            />
-          </FormGroup>
+          <FormWrapper>
+            <FormColumn >
+              <FormGroup>
+                <ControlLabel required={true}>title</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="title"
+                  defaultValue={voucherCompaign.title}
+                  autoFocus={true}
+                  required={true}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Type</ControlLabel>
+                <Select
+                  value={voucherCompaign.voucherType || 'discount'}
+                  options={Object.values(VOUCHER_TYPES)}
+                  name="voucherType"
+                  onChange={this.onChangeCombo.bind(this, 'voucherType')}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
 
           <FormWrapper>
             <FormColumn>
@@ -167,154 +351,7 @@ class Form extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
 
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Product Category</ControlLabel>
-                <Select
-                  placeholder={__('Filter by product category')}
-                  value={voucherCompaign.productCategoryIds}
-                  options={productCategories.map(cat => ({
-                    label: `${'\u00A0 '.repeat(((cat.order || '').match(/[/]/gi) || []).length)}${cat.name}`,
-                    value: cat._id
-                  }))}
-                  name="productCategoryIds"
-                  onChange={this.onChangeMultiCombo.bind(this, 'productCategoryIds')}
-                  multi={true}
-                  loadingPlaceholder={__('Loading...')}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Or Product</ControlLabel>
-                <Select
-                  placeholder={__('Filter by product')}
-                  value={voucherCompaign.productIds}
-                  options={products.map(prod => ({
-                    label: prod.name,
-                    value: prod._id
-                  }))}
-                  name="productIds"
-                  onChange={this.onChangeMultiCombo.bind(this, 'productIds')}
-                  multi={true}
-                  loadingPlaceholder={__('Loading...')}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>discount percent</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="discountPercent"
-                  type="number"
-                  min={0}
-                  max={100}
-                  defaultValue={voucherCompaign.discountPercent}
-                  onChange={this.onInputChange}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Bonus Product</ControlLabel>
-                <Select
-                  placeholder={__('Filter by product')}
-                  value={voucherCompaign.bonusProductId}
-                  options={products.map(prod => ({
-                    label: prod.name,
-                    value: prod._id
-                  }))}
-                  name="bonusProductId"
-                  onChange={this.onChangeMultiCombo.bind(this, 'bonusProductId')}
-                  loadingPlaceholder={__('Loading...')}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>bonus Count</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="bonusCount"
-                  type="number"
-                  min={0}
-                  defaultValue={voucherCompaign.bonusCount}
-                  onChange={this.onInputChange}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Spin</ControlLabel>
-                <Select
-                  placeholder={__('Filter by spin')}
-                  value={voucherCompaign.spinCompaignId}
-                  options={spinCompaigns.map(spin => ({
-                    label: spin.title,
-                    value: spin._id
-                  }))}
-                  name="spinCompaignId"
-                  onChange={this.onChangeMultiCombo.bind(this, 'spinCompaignId')}
-                  loadingPlaceholder={__('Loading...')}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>spin Count</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="spinCount"
-                  type="number"
-                  min={0}
-                  max={100}
-                  defaultValue={voucherCompaign.spinCount}
-                  onChange={this.onInputChange}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Lottery</ControlLabel>
-                <Select
-                  placeholder={__('Filter by lottery')}
-                  value={voucherCompaign.lotteryCompaignId}
-                  options={lotteryCompaigns.map(lottery => ({
-                    label: lottery.title,
-                    value: lottery._id
-                  }))}
-                  name="lotteryCompaignId"
-                  onChange={this.onChangeMultiCombo.bind(this, 'lotteryCompaignId')}
-                  loadingPlaceholder={__('Loading...')}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>lottery Count</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="lotteryCount"
-                  type="number"
-                  min={0}
-                  max={100}
-                  defaultValue={voucherCompaign.lotteryCount}
-                  onChange={this.onInputChange}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
+          {this.renderVoucherType(formProps)}
 
           <FormGroup>
             <ControlLabel>Description</ControlLabel>

@@ -7,6 +7,8 @@ export const types = `
     score: Float,
     scoreAction: String,
 
+    voucherType: String,
+
     productCategoryIds: [String],
     productIds: [String],
     discountPercent: Float,
@@ -27,9 +29,12 @@ const VoucherCompaignDoc = `
   score: Float,
   scoreAction: String,
 
+  voucherType: String,
+
   productCategoryIds: [String],
   productIds: [String],
   discountPercent: Float,
+
   bonusProductId: String,
   bonusCount: Float,
 

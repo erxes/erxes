@@ -1,3 +1,4 @@
+import { OWNER_TYPES } from './Constants';
 const VOUCHER_STATUS = {
   NEW: 'new',
   LOSS: 'used',
@@ -7,9 +8,8 @@ const VOUCHER_STATUS = {
 export const voucherSchema = {
   _id: { pkey: true },
   voucherCompaignId: { type: String, label: 'Voucher Compaign' },
-  customerId: { type: String, label: 'Customer' },
-  companyId: { type: String, label: 'Company' },
-  userId: { type: String, label: 'Team member' },
+  ownerType: { type: String, label: 'Owner Type', enum: OWNER_TYPES.ALL },
+  ownerId: {type: String},
 
   createdAt: { type: Date, label: 'Created at' },
 
@@ -30,5 +30,23 @@ export class Voucher {
     }
 
     return voucherRule;
+  }
+
+  public static async createVoucher(models, voucherCompaignId, ownerType, ownerId) {
+    const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, voucherCompaignId);
+
+    switch (voucherCompaign.voucherType) {
+      case 'discount':
+        models.Vouchers.create({ voucherCompaignId, ownerType, ownerId })
+        break;
+      case 'bonus':
+        break;
+      case 'spin':
+        break;
+      case 'lottery':
+        break;
+      default:
+        break
+    }
   }
 }

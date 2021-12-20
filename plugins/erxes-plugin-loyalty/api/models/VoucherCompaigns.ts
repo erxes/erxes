@@ -7,11 +7,13 @@ export const voucherCompaignSchema = {
   score: { type: Number },
   scoreAction: { type: String },
 
+  voucherType: { type: String },
+
   productCategoryIds: { type: [String] },
   productIds: { type: [String] },
   discountPercent: { type: Number },
 
-  bonusProductId: {type: String},
+  bonusProductId: { type: String },
   bonusCount: { type: Number, optional: true },
 
   spinCompaignId: { type: String },

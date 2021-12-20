@@ -4,6 +4,8 @@ export type IVoucherCompaign = ICommonTypes & {
   score?: number,
   scoreAction?: string,
 
+  voucherType?: string,
+
   productCategoryIds?: string[],
   productIds?: string[],
   discountPercent?: number,
