@@ -96,20 +96,30 @@ describe('Test deals model', () => {
   });
 
   test('Create deals and check number is not duplicated', async () => {
-    await Deals.deleteMany({});
+    const args = {
+      type: 'deal',
+      boardId: board._id,
+      numberConfig: '{year}__',
+      numberSize: '1'
+    };
+
+    const createdPipeline = await Pipelines.createPipeline(args);
+    const createdStage = await stageFactory({
+      pipelineId: createdPipeline._id
+    });
 
     const requests = [
-      Deals.createDeal({ stageId: stage._id }),
-      Deals.createDeal({ stageId: stage._id })
+      Deals.createDeal({ stageId: createdStage._id }),
+      Deals.createDeal({ stageId: createdStage._id })
     ];
 
     await Promise.all(requests.map(req => req));
 
-    const deals = await Deals.find({});
+    const deals = await Deals.find({ stageId: createdStage._id });
 
     expect(deals.length).toEqual(2);
-    expect(deals[0].number).toBe('2021_1');
-    expect(deals[1].number).toBe('2021_2');
+    expect(deals[0].number).toBe('2021__1');
+    expect(deals[1].number).toBe('2021__2');
   });
 
   test('Create deal Error(`Already converted a deal`)', async () => {
