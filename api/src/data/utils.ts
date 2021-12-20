@@ -905,7 +905,16 @@ export const checkPremiumService = async type => {
   }
 };
 
-export const pad = (size: number, num: any) => {
+// board item number calculator
+export const numberCalculator = (size: number, num?: any, skip?: boolean) => {
+  if (num && !skip) {
+    num = parseInt(num, 10) + 1;
+  }
+
+  if (skip) {
+    num = 0;
+  }
+
   num = num.toString();
 
   while (num.length < size) {
@@ -915,14 +924,24 @@ export const pad = (size: number, num: any) => {
   return num;
 };
 
-export const generateNumber = (
-  size: string,
-  number: string,
-  skip?: boolean
-) => {
-  if (number) {
-    return pad(parseInt(size, 10), parseInt(number, 10) + 1);
-  }
+export const configReplacer = config => {
+  // replace year
+  let replacedConfig = config.replace(
+    /\{year}/g,
+    new Date().getFullYear().toString()
+  );
 
-  return pad(parseInt(size, 10), skip ? 0 : 1);
+  // replace month
+  replacedConfig = replacedConfig.replace(
+    /\{month}/g,
+    (new Date().getMonth() + 1).toString()
+  );
+
+  // replace day
+  replacedConfig = replacedConfig.replace(
+    /\{day}/g,
+    new Date().getDate().toString()
+  );
+
+  return replacedConfig;
 };

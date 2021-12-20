@@ -1,11 +1,11 @@
 import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+import { configReplacer } from '../../data/utils';
 import { Checklists, Conformities, Forms, InternalNotes } from './';
 import {
   getCollection,
   updateOrder,
   watchItem,
-  configReplacer,
   boardNumberGenerator
 } from './boardUtils';
 import {
@@ -148,7 +148,10 @@ const generateLastNum = async (doc: IPipeline) => {
   const replacedConfig = await configReplacer(doc.numberConfig);
   const re = replacedConfig + '[0-9]+$';
 
-  const pipeline = await Pipelines.findOne({ lastNum: new RegExp(re) });
+  const pipeline = await Pipelines.findOne({
+    lastNum: new RegExp(re),
+    type: doc.type
+  });
 
   if (pipeline) {
     return pipeline.lastNum;

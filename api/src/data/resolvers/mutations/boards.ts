@@ -1,9 +1,5 @@
 import { Boards, FieldsGroups, Pipelines, Stages } from '../../../db/models';
-import {
-  bulkUpdateOrders,
-  configReplacer,
-  getCollection
-} from '../../../db/models/boardUtils';
+import { bulkUpdateOrders, getCollection } from '../../../db/models/boardUtils';
 import {
   IBoard,
   IOrderInput,
@@ -15,6 +11,7 @@ import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../types';
+import { configReplacer } from '../../utils';
 import { checkPermission } from '../boardUtils';
 
 interface IBoardsEdit extends IBoard {

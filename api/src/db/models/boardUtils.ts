@@ -11,7 +11,11 @@ import {
   Tickets
 } from '.';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { generateNumber, validSearchText } from '../../data/utils';
+import {
+  configReplacer,
+  numberCalculator,
+  validSearchText
+} from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 
@@ -298,7 +302,8 @@ export const getBoardItemLink = async (stageId: string, itemId: string) => {
 export const boardNumberGenerator = async (
   config: string,
   size: string,
-  skip: boolean
+  skip: boolean,
+  type?: string
 ) => {
   const replacedConfig = await configReplacer(config);
   const re = replacedConfig + '[0-9]+$';
@@ -307,7 +312,8 @@ export const boardNumberGenerator = async (
 
   if (!skip) {
     const pipeline = await Pipelines.findOne({
-      lastNum: new RegExp(re)
+      lastNum: new RegExp(re),
+      type
     });
 
     if (pipeline?.lastNum) {
@@ -316,13 +322,15 @@ export const boardNumberGenerator = async (
       const lastGeneratedNumber = lastNum.slice(replacedConfig.length);
 
       number =
-        replacedConfig + (await generateNumber(size, lastGeneratedNumber));
+        replacedConfig +
+        (await numberCalculator(parseInt(size, 10), lastGeneratedNumber));
 
       return number;
     }
   }
 
-  number = replacedConfig + (await generateNumber(size, '', skip));
+  number =
+    replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
 
   return number;
 };
@@ -334,7 +342,12 @@ export const generateBoardNumber = async (doc: IItemCommonFields) => {
   if (pipeline.numberSize) {
     const { numberSize, numberConfig = '' } = pipeline;
 
-    const number = await boardNumberGenerator(numberConfig, numberSize, false);
+    const number = await boardNumberGenerator(
+      numberConfig,
+      numberSize,
+      false,
+      pipeline.type
+    );
 
     doc.number = number;
   }
@@ -371,7 +384,8 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
   if (doc.number) {
     await Pipelines.updateMany(
       {
-        numberConfig: pipeline.numberConfig
+        numberConfig: pipeline.numberConfig,
+        type: pipeline.type
       },
       { $set: { lastNum: doc.number } }
     );
@@ -384,26 +398,4 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
   });
 
   return item;
-};
-
-export const configReplacer = config => {
-  // replace year
-  let replacedConfig = config.replace(
-    /\{year}/g,
-    new Date().getFullYear().toString()
-  );
-
-  // replace month
-  replacedConfig = replacedConfig.replace(
-    /\{month}/g,
-    (new Date().getMonth() + 1).toString()
-  );
-
-  // replace day
-  replacedConfig = replacedConfig.replace(
-    /\{day}/g,
-    new Date().getDate().toString()
-  );
-
-  return replacedConfig;
 };
