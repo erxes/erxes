@@ -2,7 +2,7 @@ export interface IDashboard {
   _id: string;
   name: string;
   visibility: string;
-  selectedMemberIds: string[];
+  selectedMemberIds?: string[];
 }
 
 export type DashboardsQueryResponse = {
