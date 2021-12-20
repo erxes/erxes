@@ -221,6 +221,64 @@ describe('Test boards mutations', () => {
     expect(createdPipeline.memberIds.length).toBe(1);
   });
 
+  test('Create pipeline error(Please input number configuration.)', async () => {
+    expect.assertions(1);
+
+    const args = {
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'aaa',
+      numberSize: '1'
+    };
+
+    const mutation = `
+      mutation pipelinesAdd(${commonPipelineParamDefs}) {
+        pipelinesAdd(${commonPipelineParams}) {
+          _id
+          name
+        }
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
+    } catch (e) {
+      expect(e[0].message).toBe('Please input number configuration.');
+    }
+  });
+
+  test('Create pipeline error(Please input fractional part.)', async () => {
+    expect.assertions(1);
+
+    const args = {
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'aaa',
+      numberConfig: '{year}_'
+    };
+
+    const mutation = `
+      mutation pipelinesAdd(${commonPipelineParamDefs}) {
+        pipelinesAdd(${commonPipelineParams}) {
+          _id
+          name
+        }
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
+    } catch (e) {
+      expect(e[0].message).toBe('Please input fractional part.');
+    }
+  });
+
   test('Update pipeline', async () => {
     const args = {
       _id: pipeline._id,
@@ -298,6 +356,39 @@ describe('Test boards mutations', () => {
 
     expect(updatedPipeline.order).toBe(3);
     expect(updatedPipelineToOrder.order).toBe(9);
+  });
+
+  test('Update pipeline error(Number configuration itself doesnt end with any number)', async () => {
+    expect.assertions(1);
+
+    const args = {
+      _id: pipeline._id,
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'aaa',
+      numberConfig: '{year}',
+      numberSize: '1'
+    };
+
+    const mutation = `
+      mutation pipelinesEdit($_id: String! ${commonPipelineParamDefs}) {
+        pipelinesEdit(_id: $_id ${commonPipelineParams}) {
+          _id
+          name
+        }
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'pipelinesEdit', args, context);
+    } catch (e) {
+      expect(e[0].message).toBe(
+        `Please make sure that the number configuration itself doesn't end with any number.`
+      );
+    }
   });
 
   test('Watch pipeline', async () => {
@@ -572,97 +663,6 @@ describe('Test boards mutations', () => {
     if (updatedTask && updatedTask.timeTrack) {
       expect(updatedTask.timeTrack.status).toBe(TIME_TRACK_TYPES.STOPPED);
       expect(updatedTask.timeTrack.timeSpent).toBe(20);
-    }
-  });
-
-  test('Create pipeline error(add numberConfig)', async () => {
-    expect.assertions(1);
-
-    const args = {
-      name: 'deal pipeline',
-      type: 'deal',
-      boardId: board._id,
-      stages: [stage.toJSON()],
-      visibility: 'public',
-      bgColor: 'aaa',
-      numberSize: '1'
-    };
-
-    const mutation = `
-      mutation pipelinesAdd(${commonPipelineParamDefs}) {
-        pipelinesAdd(${commonPipelineParams}) {
-          _id
-          name
-        }
-      }
-    `;
-
-    try {
-      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
-    } catch (e) {
-      expect(e[0].message).toBe('Please input number configuration.');
-    }
-  });
-
-  test('Create pipeline error(add numberSize)', async () => {
-    expect.assertions(1);
-
-    const args = {
-      name: 'deal pipeline',
-      type: 'deal',
-      boardId: board._id,
-      stages: [stage.toJSON()],
-      visibility: 'public',
-      bgColor: 'aaa',
-      numberConfig: '{year}_'
-    };
-
-    const mutation = `
-      mutation pipelinesAdd(${commonPipelineParamDefs}) {
-        pipelinesAdd(${commonPipelineParams}) {
-          _id
-          name
-        }
-      }
-    `;
-
-    try {
-      await graphqlRequest(mutation, 'pipelinesAdd', args, context);
-    } catch (e) {
-      expect(e[0].message).toBe('Please input fractional part.');
-    }
-  });
-
-  test('Update pipeline error(Number configuration itself doesnt end with any number)', async () => {
-    expect.assertions(1);
-
-    const args = {
-      _id: pipeline._id,
-      name: 'deal pipeline',
-      type: 'deal',
-      boardId: board._id,
-      stages: [stage.toJSON()],
-      visibility: 'public',
-      bgColor: 'aaa',
-      numberConfig: '{year}',
-      numberSize: '1'
-    };
-
-    const mutation = `
-      mutation pipelinesEdit($_id: String! ${commonPipelineParamDefs}) {
-        pipelinesEdit(_id: $_id ${commonPipelineParams}) {
-          _id
-          name
-        }
-      }
-    `;
-
-    try {
-      await graphqlRequest(mutation, 'pipelinesEdit', args, context);
-    } catch (e) {
-      expect(e[0].message).toBe(
-        `Please make sure that the number configuration itself doesn't end with any number.`
-      );
     }
   });
 });
