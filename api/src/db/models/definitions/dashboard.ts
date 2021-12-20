@@ -4,7 +4,7 @@ import { field, schemaWrapper } from './utils';
 export interface IDashboard {
   name: string;
   visibility: string;
-  selectedMemberIds: string[];
+  selectedMemberIds?: string[];
 }
 
 export interface IDashboardItemInput {
