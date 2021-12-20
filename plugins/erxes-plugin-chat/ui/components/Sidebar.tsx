@@ -51,6 +51,27 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
       setName('');
     };
 
+    const renderChat = chat => {
+      const users = chat.participantUsers || [];
+
+      const filteredUsers =
+        chat.participantUsers.length > 1
+          ? chat.participantUsers.filter(u => u._id !== currentUser._id)
+          : chat.participantUsers;
+
+      return (
+        <li key={chat._id}>
+          {filteredUsers.map(user => (
+            <Link key={user._id} to={`/erxes-plugin-chat/home?_id=${chat._id}`}>
+              {user.details.fullName || user.email}
+            </Link>
+          ))}
+          <br />
+          <span>{dayjs(chat.createdAt).format('lll')}</span>
+        </li>
+      );
+    };
+
     return (
       <>
         <Box title={'Group chats'} isOpen={true} name='showGroupChats'>
@@ -108,22 +129,7 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
             />
           </div>
           <ChatListStyle>
-            {directChats.map(chat => (
-              <li key={chat._id}>
-                {chat.participantUsers
-                  .filter(u => u._id !== currentUser._id)
-                  .map(user => (
-                    <Link
-                      key={user._id}
-                      to={`/erxes-plugin-chat/home?_id=${chat._id}`}
-                    >
-                      {user.details.fullName || user.email}
-                    </Link>
-                  ))}
-                <br />
-                <span>{dayjs(chat.createdAt).format('lll')}</span>
-              </li>
-            ))}
+            {directChats.map(chat => renderChat(chat))}
           </ChatListStyle>
         </Box>
       </>
