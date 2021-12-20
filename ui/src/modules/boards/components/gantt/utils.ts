@@ -9,11 +9,6 @@ export const callback = (groupType: string) => {
         item.labels.some(l => l._id === groupObj._id);
     }
 
-    case 'label': {
-      return (item, groupObj: any) =>
-        item.labels.some(l => l._id === groupObj._id);
-    }
-
     case 'assignee': {
       return (item, groupObj: any) =>
         item.assignedUsers.some(l => l._id === groupObj._id);
@@ -24,6 +19,6 @@ export const callback = (groupType: string) => {
     }
 
     default:
-      return () => {};
+      return () => true;
   }
 };
