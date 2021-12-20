@@ -32,9 +32,7 @@ describe('Test deals model', () => {
   beforeEach(async () => {
     // Creating test data
     board = await boardFactory();
-    pipeline = await pipelineFactory({
-      boardId: board._id
-    });
+    pipeline = await pipelineFactory({ boardId: board._id });
     stage = await stageFactory({ pipelineId: pipeline._id });
     user = await userFactory({});
     secondUser = await userFactory({});
