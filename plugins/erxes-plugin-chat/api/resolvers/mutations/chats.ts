@@ -1,4 +1,3 @@
-import { CHAT_TYPE } from '../../definitions';
 import { graphqlPubsub } from '../subscriptions/pubsub';
 
 const chatMutations = [
