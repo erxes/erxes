@@ -39,7 +39,14 @@ const chatMessages = `
   }
 `;
 
+const getChatIdByUserIds = `
+  query getChatIdByUserIds($userIds: [String]) {
+    getChatIdByUserIds(userIds: $userIds)
+  }
+`;
+
 export default {
   chats,
-  chatMessages
+  chatMessages,
+  getChatIdByUserIds
 };

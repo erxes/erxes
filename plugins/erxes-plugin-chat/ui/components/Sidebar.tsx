@@ -27,11 +27,15 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
   const queryParams = queryString.parse(location.search);
 
   const [userIds, setUserIds] = useState(queryParams.userIds || []);
+  const [userId, setUserId] = useState(queryParams.userId || '');
   const [name, setName] = useState('');
 
   const renderChats = () => {
     const onAssignedUserSelect = userId => {
-      router.setParams(history, { userIds: userId, _id: '' });
+      router.removeParams(history, '_id', 'userIds');
+
+      setUserId(userId);
+      router.setParams(history, { userId });
     };
 
     const onChangeUsers = _userIds => {
@@ -45,6 +49,27 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
 
       setUserIds([]);
       setName('');
+    };
+
+    const renderChat = chat => {
+      const users = chat.participantUsers || [];
+
+      const filteredUsers =
+        chat.participantUsers.length > 1
+          ? chat.participantUsers.filter(u => u._id !== currentUser._id)
+          : chat.participantUsers;
+
+      return (
+        <li key={chat._id}>
+          {filteredUsers.map(user => (
+            <Link key={user._id} to={`/erxes-plugin-chat/home?_id=${chat._id}`}>
+              {user.details.fullName || user.email}
+            </Link>
+          ))}
+          <br />
+          <span>{dayjs(chat.createdAt).format('lll')}</span>
+        </li>
+      );
     };
 
     return (
@@ -97,29 +122,14 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
           <div style={{ padding: '20px' }}>
             <SelectTeamMembers
               label={__('Choose team member')}
-              name='assignedUserIds'
-              initialValue={''}
+              name='assignedUserId'
+              initialValue={userId}
               onSelect={onAssignedUserSelect}
               multi={false}
             />
           </div>
           <ChatListStyle>
-            {directChats.map(chat => (
-              <li key={chat._id}>
-                {chat.participantUsers
-                  .filter(u => u._id !== currentUser._id)
-                  .map(user => (
-                    <Link
-                      key={user._id}
-                      to={`/erxes-plugin-chat/home?_id=${chat._id}`}
-                    >
-                      {user.details.fullName || user.email}
-                    </Link>
-                  ))}
-                <br />
-                <span>{dayjs(chat.createdAt).format('lll')}</span>
-              </li>
-            ))}
+            {directChats.map(chat => renderChat(chat))}
           </ChatListStyle>
         </Box>
       </>

@@ -1,7 +1,8 @@
 import React from 'react';
-import { useMutation } from 'react-apollo';
+import { useQuery, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'erxes-ui/lib/utils';
+import Spinner from 'erxes-ui/lib/components/Spinner';
 
 import ChatDetail from '../components/ChatDetail';
 import { mutations, queries } from '../graphql';
@@ -11,18 +12,18 @@ type Props = {
   userIds?: string[];
 };
 
-export default function ChatDetailContainer(props: Props) {
+function ChatDetailContainer(props: Props) {
   const [addMutation] = useMutation(gql(mutations.addChatMessage));
 
   const sendMessage = (content: string) => {
-    const { chatId, userIds } = props;
+    const { userIds, chatId } = props;
 
     if (!content) {
       return Alert.error('Content is required');
     }
 
     addMutation({
-      variables: { content, chatId, participantIds: userIds || [] },
+      variables: { content, chatId },
       refetchQueries: [
         {
           query: gql(queries.chatMessages),
@@ -40,3 +41,27 @@ export default function ChatDetailContainer(props: Props) {
 
   return <ChatDetail {...props} sendMessage={sendMessage} />;
 }
+
+function GetChatId({ userIds }) {
+  const { loading, data, error } = useQuery(gql(queries.getChatIdByUserIds), {
+    variables: { userIds }
+  });
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <div>{error.message}</div>;
+  }
+
+  return <ChatDetailContainer chatId={data.getChatIdByUserIds} />;
+}
+
+export default ({ userIds, chatId }) => {
+  if (!chatId) {
+    return <GetChatId userIds={userIds} />;
+  }
+
+  return <ChatDetailContainer chatId={chatId} />;
+};

@@ -21,39 +21,36 @@ const chatQueries = [
   },
   {
     name: 'chatMessages',
-    handler: async (_root, { userIds, chatId }, { models, user }) => {
-      if (!chatId) {
-        if (!userIds || (userIds && userIds.length === 0)) {
-          return {
-            list: [],
-            totalCount: 0
-          };
-        }
-
-        const participantIds = [...userIds];
-
-        if (!userIds.includes(user._id)) {
-          participantIds.push(user._id);
-        }
-
-        const chat = await models.Chats.findOne({
-          participantIds: { $all: participantIds, $size: participantIds.length }
-        });
-
-        if (!chat) {
-          return {
-            list: [],
-            totalCount: 0
-          };
-        }
-
-        chatId = chat._id;
-      }
-
+    handler: async (_root, { chatId }, { models }) => {
       return {
         list: await models.ChatMessages.find({ chatId }).sort({ createdAt: 1 }),
         totalCount: await models.ChatMessages.find({ chatId }).countDocuments()
       };
+    }
+  },
+  {
+    name: 'getChatIdByUserIds',
+    handler: async (_root, { userIds }, { models, user }) => {
+      const participantIds = [...(userIds || [])];
+
+      if (!participantIds.includes(user._id)) {
+        participantIds.push(user._id);
+      }
+
+      let chat = await models.Chats.findOne({
+        type: 'direct',
+        participantIds: { $all: participantIds, $size: participantIds.length }
+      });
+
+      if (!chat) {
+        chat = await models.Chats.createChat(models, {
+          name: 'Direct chat',
+          participantIds,
+          type: 'direct'
+        });
+      }
+
+      return chat._id;
     }
   }
 ];

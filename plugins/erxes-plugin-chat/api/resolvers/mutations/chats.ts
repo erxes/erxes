@@ -35,39 +35,9 @@ const chatMutations = [
         throw new Error('Content is required');
       }
 
-      const doc = { ...args };
-
-      // When it is a direct chat
-      if (!doc.chatId) {
-        if (
-          !doc.participantIds ||
-          (doc.participantIds && doc.participantIds.length === 0)
-        ) {
-          throw new Error('Please choose at least one participant');
-        }
-
-        const participantIds = (doc.participantIds || []).concat(user._id);
-
-        const chat = await models.Chats.findOne({
-          participantIds: { $all: participantIds, $size: participantIds.length }
-        });
-
-        if (chat) {
-          doc.chatId = chat._id;
-        } else {
-          const createdChat = await models.Chats.createChat(
-            models,
-            { name: doc.content, participantIds, type: CHAT_TYPE.DIRECT },
-            user._id
-          );
-
-          doc.chatId = createdChat._id;
-        }
-      }
-
       const created = await models.ChatMessages.createChatMessage(
         models,
-        doc,
+        args,
         user._id
       );
 

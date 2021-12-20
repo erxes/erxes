@@ -8,10 +8,10 @@ type Props = {
 };
 
 export default function Home(props: Props) {
-  const { _id, userIds } = props.queryParams || {};
+  const { _id, userIds, userId } = props.queryParams || {};
 
   const renderContent = () => {
-    return <ChatDetail chatId={_id} userIds={userIds} />;
+    return <ChatDetail chatId={_id} userIds={userId ? [userId] : userIds} />;
   };
 
   return (

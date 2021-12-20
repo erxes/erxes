@@ -41,6 +41,8 @@ export const queries = `
   chatDetail(_id: String!): Chat
   
   chatMessages(chatId: String, userIds: [String], ${paginationParams}): ChatMessageResponse
+
+  getChatIdByUserIds(userIds: [String]): String
 `;
 
 export const mutations = `
@@ -48,7 +50,7 @@ export const mutations = `
   chatEdit(_id: String!, name: String!): Chat
   chatRemove(_id: String!): JSON
   
-  chatMessageAdd(chatId: String, participantIds: [String], content: String!): ChatMessage
+  chatMessageAdd(chatId: String!, content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON
 `;
 

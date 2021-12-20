@@ -6,11 +6,10 @@ import Spinner from 'erxes-ui/lib/components/Spinner';
 import MessageList from '../components/MessageList';
 import { queries, subscriptions } from '../graphql';
 
-export default function MessageListContainer({ chatId, userIds }) {
+export default function MessageListContainer({ chatId }) {
   const chatMessagesQuery = useQuery(gql(queries.chatMessages), {
     variables: {
-      chatId,
-      userIds
+      chatId
     }
   });
 
@@ -24,7 +23,7 @@ export default function MessageListContainer({ chatId, userIds }) {
   );
 
   if (chatMessageSubscription.data) {
-    chatMessagesQuery.refetch({ chatId, userIds });
+    chatMessagesQuery.refetch({ chatId });
   }
 
   if (chatMessagesQuery.loading) {
