@@ -41,6 +41,8 @@ export const queries = `
   chatDetail(_id: String!): Chat
   
   chatMessages(chatId: String, userIds: [String], ${paginationParams}): ChatMessageResponse
+
+  getChatIdByUserIds(userIds: [String]): String
 `;
 
 export const mutations = `

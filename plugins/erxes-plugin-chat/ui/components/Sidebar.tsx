@@ -27,11 +27,15 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
   const queryParams = queryString.parse(location.search);
 
   const [userIds, setUserIds] = useState(queryParams.userIds || []);
+  const [userId, setUserId] = useState(queryParams.userId || '');
   const [name, setName] = useState('');
 
   const renderChats = () => {
     const onAssignedUserSelect = userId => {
-      router.setParams(history, { userIds: userId, _id: '' });
+      router.removeParams(history, '_id', 'userIds');
+
+      setUserId(userId);
+      router.setParams(history, { userId });
     };
 
     const onChangeUsers = _userIds => {
@@ -97,8 +101,8 @@ function Sidebar(props: Props & IRouterProps & { currentUser: IUser }) {
           <div style={{ padding: '20px' }}>
             <SelectTeamMembers
               label={__('Choose team member')}
-              name='assignedUserIds'
-              initialValue={''}
+              name='assignedUserId'
+              initialValue={userId}
               onSelect={onAssignedUserSelect}
               multi={false}
             />
