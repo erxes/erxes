@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Tabs, TabTitle } from "erxes-ui/lib/components/tabs/index";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../common.js";
+import { renderApiTable } from "../../components/common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function TabsComponent(props) {

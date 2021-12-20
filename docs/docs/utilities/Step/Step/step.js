@@ -1,9 +1,9 @@
 import React from "react";
 import Steps from "erxes-ui/lib/components/step/Steps";
 import Step from "erxes-ui/lib/components/step/Step";
-import styles from "../../../src/components/styles.module.css";
+import styles from "../../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../common.js";
+import { renderApiTable } from "../../../components/common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function StepComponent(props) {
