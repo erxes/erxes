@@ -14,8 +14,7 @@ import { RootBack, ScrolledContent, ChartBack } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 import PipelineActivity from './PipelineActivity';
-import ListPipeline from './ListPipeline';
-import GanttChart from './gantt/GanttChart';
+import ViewGroupBy from './ViewGroupBy';
 import ChartStack from './chart/ChartRenderer';
 
 type Props = {
@@ -68,21 +67,24 @@ class Board extends React.Component<Props> {
 
     if (viewType === 'list') {
       return (
-        <ListPipeline
+        <ViewGroupBy
           key={pipeline._id}
           options={options}
           pipeline={pipeline}
           queryParams={queryParams}
+          viewType={viewType}
         />
       );
     }
 
     if (viewType === 'gantt') {
       return (
-        <GanttChart
+        <ViewGroupBy
           key={pipeline._id}
           options={options}
+          pipeline={pipeline}
           queryParams={queryParams}
+          viewType={viewType}
         />
       );
     }

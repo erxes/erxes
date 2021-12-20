@@ -18,6 +18,8 @@ import { mutations } from '../../graphql';
 type StageProps = {
   queryParams: IFilterParams;
   options: IOptions;
+  groups: any;
+  groupType: string;
 };
 
 type FinalStageProps = {
@@ -67,7 +69,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
   };
 
   render() {
-    const { itemsQuery, options } = this.props;
+    const { itemsQuery, options, groups, groupType } = this.props;
 
     if (itemsQuery.loading) {
       return <Spinner />;
@@ -102,6 +104,8 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
 
     return (
       <GanttChart
+        groups={groups}
+        groupType={groupType}
         options={options}
         items={items}
         refetch={refetch}

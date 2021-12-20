@@ -19,6 +19,7 @@ import ContextMenu from 'modules/common/components/ContextMenu';
 import { EditForm } from 'modules/boards/containers/editForm';
 import Assignees from '../Assignees';
 import { getColors } from 'modules/boards/utils';
+import { callback } from './utils';
 
 const stageName = {
   fontWeight: 600
@@ -30,6 +31,8 @@ type Props = {
   refetch: () => void;
   save: (items: any[], links: any[]) => void;
   stageId?: string;
+  groups: any;
+  groupType: string;
 } & IRouterProps;
 
 const GanttChart = (props: Props) => {
@@ -121,28 +124,12 @@ const GanttChart = (props: Props) => {
   const dbData: any[] = [];
   let dbLinks: any[] = [];
 
-  const { items, refetch, options } = props;
+  const { items, refetch, options, groupType, groups } = props;
 
-  const groupBy = item => {
-    return item.reduce((acc, curr) => {
-      if (curr.stage._id) {
-        const { _id } = curr.stage;
-        const currentItems = acc[_id];
+  groups.forEach((groupObj, index) => {
+    const filtered = items.filter(item => callback(groupType)(item, groupObj));
 
-        return {
-          ...acc,
-          [_id]: currentItems ? [...currentItems, curr] : [curr]
-        };
-      }
-      return acc;
-    }, {});
-  };
-
-  const grouped = groupBy(items);
-
-  Object.keys(grouped).forEach((key, index) => {
-    const _items = grouped[key];
-    _items.forEach(item => {
+    filtered.forEach(item => {
       dbData.push({
         id: item._id,
         start: new Date(item.startDate),
@@ -153,7 +140,9 @@ const GanttChart = (props: Props) => {
               <Assignees users={item.assignedUsers} />
             </AssingStyle>
             <TextStyle>
-              <span style={stageName}>{item.stage ? item.stage.name : ''}</span>
+              <span style={stageName}>
+                {groupObj.name || (groupObj.details || {}).fullName}
+              </span>
               &nbsp;-&nbsp;
               {item.name}
             </TextStyle>
