@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TimeLine from 'react-gantt-timeline';
 import {
   GanttContainer,
   NavContainer,
   ModeContainer,
-  TimelineContainer,
-  AssingStyle,
-  TextStyle
+  TimelineContainer
 } from 'modules/boards/styles/viewtype';
 import { withRouter } from 'react-router-dom';
 import { IOptions, IItem } from 'modules/boards/types';
@@ -17,13 +15,7 @@ import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
 import ContextMenu from 'modules/common/components/ContextMenu';
 import { EditForm } from 'modules/boards/containers/editForm';
-import Assignees from '../Assignees';
-import { getColors } from 'modules/boards/utils';
-import { callback } from './utils';
-
-const stageName = {
-  fontWeight: 600
-};
+import { getTaskId } from './utils';
 
 type Props = {
   items: IItem[];
@@ -31,8 +23,8 @@ type Props = {
   refetch: () => void;
   save: (items: any[], links: any[]) => void;
   stageId?: string;
-  groups: any;
-  groupType: string;
+  data: any[];
+  links: any[];
 } & IRouterProps;
 
 const GanttChart = (props: Props) => {
@@ -121,49 +113,19 @@ const GanttChart = (props: Props) => {
     }
   };
 
-  const dbData: any[] = [];
-  let dbLinks: any[] = [];
+  const { items, refetch, options } = props;
 
-  const { items, refetch, options, groupType, groups } = props;
-
-  groups.forEach((groupObj, index) => {
-    const filtered = items.filter(item => callback(groupType)(item, groupObj));
-
-    filtered.forEach(item => {
-      dbData.push({
-        id: item._id,
-        start: new Date(item.startDate),
-        end: new Date(item.closeDate),
-        name: (
-          <>
-            <AssingStyle>
-              <Assignees users={item.assignedUsers} />
-            </AssingStyle>
-            <TextStyle>
-              <span style={stageName}>
-                {groupObj.name || (groupObj.details || {}).fullName}
-              </span>
-              &nbsp;-&nbsp;
-              {item.name}
-            </TextStyle>
-          </>
-        ),
-        color: `${getColors(index)}`
-      });
-
-      if (item.relations) {
-        dbLinks = dbLinks.concat(item.relations);
-      }
-    });
-  });
-
-  const [data, setData] = useState(dbData);
-  const [links, setLinks] = useState(dbLinks);
+  const [data, setData] = useState(props.data);
+  const [links, setLinks] = useState(props.links);
   const [selectedItem, setSelectedItem] = useState(null as any);
   const [timelineMode, setTimelineMode] = useState('month');
 
+  useEffect(() => {
+    setData(props.data);
+  }, [props.data]);
+
   const onHorizonChange = (start, end) => {
-    const result = dbData.filter(item => {
+    const result = props.data.filter(item => {
       return (
         (item.start < start && item.end > end) ||
         (item.start > start && item.start < end) ||
@@ -183,7 +145,7 @@ const GanttChart = (props: Props) => {
       return null;
     }
 
-    const dbDataRow = items.find(row => row._id === selectedItem.id);
+    const dbDataRow = items.find(row => row._id === getTaskId(selectedItem.id));
 
     if (!dbDataRow || !dbDataRow.stage) {
       return null;
@@ -212,7 +174,7 @@ const GanttChart = (props: Props) => {
 
     for (const item of data) {
       pushItems.push({
-        _id: item.id,
+        _id: getTaskId(item.id),
         startDate: item.start,
         closeDate: item.end
       });
@@ -238,9 +200,9 @@ const GanttChart = (props: Props) => {
   const createLink = (start, end) => {
     return {
       id: Math.random().toString(),
-      start: start.task.id,
+      start: getTaskId(start.task.id),
       startPosition: start.position,
-      end: end.task.id,
+      end: getTaskId(end.task.id),
       endPosition: end.position
     };
   };

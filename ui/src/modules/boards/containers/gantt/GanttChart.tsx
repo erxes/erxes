@@ -14,6 +14,10 @@ import {
 } from '../../types';
 import Spinner from 'modules/common/components/Spinner';
 import { mutations } from '../../graphql';
+import { callback } from 'modules/boards/components/gantt/utils';
+import { AssingStyle, TextStyle } from 'modules/boards/styles/viewtype';
+import Assignees from 'modules/boards/components/Assignees';
+import { getColors } from 'modules/boards/utils';
 
 type StageProps = {
   queryParams: IFilterParams;
@@ -100,13 +104,47 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
 
     const { items } = this.state;
 
-    items.sort((a, b) => a.stage.order - b.stage.order);
+    const dbData: any[] = [];
+    const dbLinks: any[] = [];
+
+    groups.forEach((groupObj, index) => {
+      const filtered = items.filter(item =>
+        callback(groupType)(item, groupObj)
+      );
+
+      filtered.forEach(item => {
+        dbData.push({
+          id: `${item._id}__${groupObj._id}`,
+          start: new Date(item.startDate),
+          end: new Date(item.closeDate),
+          name: (
+            <>
+              <AssingStyle>
+                <Assignees users={item.assignedUsers} />
+              </AssingStyle>
+              <TextStyle>
+                <span style={{ fontWeight: 600 }}>
+                  {groupObj.name || (groupObj.details || {}).fullName}
+                </span>
+                &nbsp;-&nbsp;
+                {item.name}
+              </TextStyle>
+            </>
+          ),
+          color: `${getColors(index)}`
+        });
+
+        if (item.relations) {
+          dbLinks.concat(item.relations);
+        }
+      });
+    });
 
     return (
       <GanttChart
-        groups={groups}
-        groupType={groupType}
         options={options}
+        data={dbData}
+        links={dbLinks}
         items={items}
         refetch={refetch}
         save={save}
