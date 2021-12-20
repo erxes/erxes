@@ -8,14 +8,9 @@ import Button from 'erxes-ui/lib/components/Button';
 type Props = {
   sendMessage: (message: string) => void;
   chatId?: string;
-  userIds?: string[];
 };
 
-export default function ChatDetailContainer({
-  chatId,
-  userIds,
-  sendMessage
-}: Props) {
+export default function ChatDetailContainer({ chatId, sendMessage }: Props) {
   const [message, setMessage] = useState('');
 
   const onSendMessage = () => {
@@ -25,8 +20,8 @@ export default function ChatDetailContainer({
   };
 
   const renderMessageList = () => {
-    if (chatId || userIds) {
-      return <MessageList chatId={chatId} userIds={userIds} />;
+    if (chatId) {
+      return <MessageList chatId={chatId} />;
     }
 
     return <></>;
