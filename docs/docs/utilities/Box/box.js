@@ -4,7 +4,7 @@ import Icon from "erxes-ui/lib/components/Icon";
 import Button from "erxes-ui/lib/components/Button";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../common.js";
+import { renderApiTable, stringify } from "../../components/common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function BoxComponent(props) {

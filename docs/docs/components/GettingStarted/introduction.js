@@ -19,6 +19,14 @@ export function Examples(props) {
     content = `import "erxes-icon/css/erxes.min.css";`
   ]
 
+  if(type === "clone") [
+    content = `https://github.com/erxes/erxes-ui`
+  ]
+
+  if(type === "erxes-ui") [
+    content = `rm -rf lib && yarn build && rm -rf ../my-project/node_modules/erxes-ui/lib && cp -r lib ../my-project/ui/node_modules/erxes-ui/`
+  ]
+
   const renderBlock = () => {
     // if (type === "import") {
       return (

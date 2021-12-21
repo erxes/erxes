@@ -1,9 +1,9 @@
 import React from "react";
 import Steps from "erxes-ui/lib/components/step/Steps";
 import Step from "erxes-ui/lib/components/step/Step";
-import styles from "../../../src/components/styles.module.css";
+import styles from "../../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable } from "../../components/common.js";
+import { renderApiTable } from "../../../components/common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function StepComponent(props) {
@@ -112,18 +112,6 @@ export function StepComponent(props) {
       </>
     );
   };
-
-  if (type === "example") {
-    return renderBlockSteps();
-  }
-
-  if (type === "activeSteps") {
-    return renderBlockSteps("active");
-  }
-
-  if (type === "APIsteps") {
-    return renderApiTable("Steps", table);
-  }
 
   if (type === "img") {
     return renderBlockStep();

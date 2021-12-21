@@ -5,12 +5,22 @@ title: Introduction
 
 import { Examples } from './introduction.js'
 
-<p>We transfered the common ui that we use with our enterprize companies, plugins and our own erxes into common components.</p>
+<p>We transfered the common ui that we use with our enterprize companies, plugins and erxes into common components.</p>
 
 ## Installation
 
 <p>If you wish to use our common components in your project, we have npm package named "erxes-ui" which you can install with: </p>
 <Examples type="install" />
+
+## Work on erxes-ui
+
+<p>First and foremost, If you're planning to work on erxes-ui and try it on your own project, you have to clone erxes-ui from the following repository on github. (It has to be cloned in the same folder with your project!)</p>
+<Examples type="clone" />
+
+<p>The changes wouldn't automatically run on your project after you made it. You have to delete the <code>lib</code> folder and add it again. In short:</p>
+<Examples type="erxes-ui" />
+
+<p>If you want more details in Mongolian, click <a href="https://culture.erxes.mn/knowledge-base/article/detail?catId=Boi5KHCnjdncLSJxc&_id=rRFqeG5czQwNR7uoC">here</a>.</p>
 
 
 ## Importing a Component
@@ -20,10 +30,10 @@ import { Examples } from './introduction.js'
 
 <Examples type="import" />
 
-## CSS
+<!-- ## CSS
 
 <p></p>
-<Examples type="css" />
+<Examples type="css" /> -->
 
 
 <!-- ## Passing a prop
@@ -31,52 +41,3 @@ import { Examples } from './introduction.js'
 <p>You can pass props that play a role to the component. For inctance, we change the button style by passing <code>btnStyle</code> prop. You can see the difference below.</p> -->
 
 <!-- <Examples /> -->
-
-<!-- ### Overview
-
-- [Overview](/overview/overview)
-- [Architecture Overview](/overview/architecture-overview)
-- [Deployment Overview](/overview/deployment-overview)
-- [Integrations Overview](/overview/integrations-overview)
-
-### User's Guide
-
-- [Subscription getting started](/user/subscription-getting-started)
-- [Initial setup](/user/initial-setup)
-- [General settings](/user/general-settings)
-- [Import](/user/import)
-- [Team Inbox](/user/team-inbox)
-- [Knowledge Base](/user/knowledge-base)
-- [Popups](/user/popups)
-- [Script installation](/user/script-install)
-- [Contacts](/user/contacts)
-- [Segments](/user/segments)
-- [Sales pipeline](/user/sales-pipeline)
-- [Engage](/user/engage)
-- [Insights](/user/insights)
-- [Profile settings](/user/profile-settings)
-- [Notifications](/user/notification)
-- [Mobile Apps](/user/mobile-apps)
-
-### Installation Guide
-
-- [Ubuntu 18.04](/installation/ubuntu)
-- [Docker](/installation/docker)
-- [Upgrade](/installation/upgrade)
-
-### Administrator's guide
-
-- [Creating first user](/administrator/creating-first-user)
-- [Environment Variables](/administrator/environment-variables)
-- [System configs](/administrator/system-config)
-- [Migration](/administrator/migration)
-
-### Developer's guide
-
-- [Developer](/developer/developer)
-- [Contributing](/developer/contributing)
-- [GraphQL API](/developer/graphql-api)
-- [Push Notifications](/developer/push-notifications)
-- [Android SDK](/developer/android-sdk)
-- [iOS SDK](/developer/ios-sdk)
-- [Troubleshooting](/developer/troubleshooting) -->

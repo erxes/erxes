@@ -3,7 +3,7 @@ import CountsByTag from "erxes-ui/lib/components/CountsByTag";
 import CodeBlock from "@theme/CodeBlock";
 import styles from "../../../src/components/styles.module.css";
 import Table from "erxes-ui/lib/components/table/index";
-import { renderApiTable } from "../common.js";
+import { renderApiTable } from "../../components/common.js";
 
 export function CountsByTagComponent(props) {
   const { type, related } = props;

@@ -3,7 +3,7 @@ import Button from "erxes-ui/lib/components/Button";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import ConditionsRule from "erxes-ui/lib/components/rule/ConditionsRule";
-import { stringify } from "../common.js";
+import { stringify } from "../../components/common.js";
 import Table from "erxes-ui/lib/components/table/index";
 import ModalTrigger from "erxes-ui/lib/components/ModalTrigger";
 import "erxes-icon/css/erxes.min.css";
