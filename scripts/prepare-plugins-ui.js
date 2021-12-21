@@ -53,7 +53,7 @@ var main = async () => {
         `;
 
       try {
-        var json = await fs.readJSON(filePath(`plugins/${pluginName}/ui/packages.json`))
+        var json = await fs.readJSON(filePath(`plugins/${pluginName}/ui/package.json`))
         var uiJson = await fs.readJSON(filePath(`api/package.json`));
 
         var dependencies = json.dependencies;

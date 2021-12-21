@@ -24,7 +24,8 @@ describe('Segments mutations', () => {
     $conditionSegments: [SubSegment]
     $boardId: String,
     $pipelineId: String,
-    $conditionsConjunction: String
+    $conditionsConjunction: String,
+    $shouldWriteActivityLog: Boolean!
   `;
 
   const commonParams = `
@@ -37,6 +38,7 @@ describe('Segments mutations', () => {
     pipelineId: $pipelineId,
     conditionsConjunction: $conditionsConjunction
     conditionSegments: $conditionSegments
+    shouldWriteActivityLog: $shouldWriteActivityLog
   `;
 
   beforeEach(async () => {
@@ -63,6 +65,7 @@ describe('Segments mutations', () => {
       description,
       subOf,
       color,
+      shouldWriteActivityLog: false,
       conditionSegments: [
         {
           contentType: 'customer',
@@ -120,6 +123,7 @@ describe('Segments mutations', () => {
       description,
       subOf: secondParent._id,
       color,
+      shouldWriteActivityLog: false,
       conditionSegments: [
         {
           _id: 'GaZdaX5msmZNekge6',

@@ -45,6 +45,7 @@ export const types = `
     color: String
     conditions: JSON
     conditionsConjunction: String
+    shouldWriteActivityLog: Boolean!
 
     getSubSegments: [Segment]
     subSegmentConditions: [Segment]
@@ -74,6 +75,7 @@ const commonFields = `
   pipelineId: String,
   conditionsConjunction: String
   conditionSegments: [SubSegment]
+  shouldWriteActivityLog: Boolean!
 `;
 
 export const mutations = `
