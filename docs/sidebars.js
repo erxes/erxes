@@ -173,5 +173,10 @@ module.exports = {
       label: "Utilities",
       items: ["utilities/Step/step"],
     },
+    {
+      type: "category",
+      label: "Icons",
+      items: ["icons/icons"],
+    },
   ],
 };
