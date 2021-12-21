@@ -66,7 +66,7 @@ const exmFeedMutations = [
         receivers
       });
 
-      await sendMobileNotification({
+      await sendMobileNotification(models, {
         title: doc.title,
         body: doc.description,
         receivers

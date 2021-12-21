@@ -161,7 +161,7 @@ class PipelineForm extends React.Component<Props, State> {
       <FormGroup>
         <SelectMemberStyled>
           <ControlLabel>
-            Users eligible to see all {this.props.type}s
+            Users eligible to see all {this.props.type}
           </ControlLabel>
 
           <SelectTeamMembers
@@ -289,7 +289,7 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>
-              {__(`Show only the user's assigned(created)`)} {this.props.type}s
+              {__(`Show only the user's assigned(created)`)} {this.props.type}
             </ControlLabel>
             <FormControl
               componentClass="checkbox"
