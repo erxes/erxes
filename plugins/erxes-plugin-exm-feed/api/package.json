@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "ui/index.js",
   "dependencies": {
-    "erxes-api-utils": "^0.0.28",
+    "erxes-api-utils": "^0.0.32",
     "moment": "^2.18.1"
   }
 }
