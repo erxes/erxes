@@ -9,7 +9,7 @@ import { PaginationComponent } from "./pagination.js"
 
 ## Example
 
-<p>Default pagination.</p>
+<p>Default pagination have 100 lists. Change "20 per page" to see more lists per page.</p>
 <PaginationComponent />
 
 ## Count

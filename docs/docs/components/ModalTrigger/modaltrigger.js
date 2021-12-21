@@ -42,7 +42,7 @@ export function ModalComponent(props) {
         </div>
 
         <CodeBlock className="language-jsx">
-          {`<ModalTrigger\n\ttrigger={<a>Click me to show modal</a>}\n\tcontent={() => <p>Show your content here</p>}${type ? `\n\t` : ``}${stringify(
+          {`<ModalTrigger\n\ttrigger={<Button>Click me to show modal</Button>}\n\tcontent={() => <p>Show your content here</p>}${type ? `\n\t` : ``}${stringify(
             propDatas()
           )}\n/>`}
         </CodeBlock>
