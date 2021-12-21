@@ -1,9 +1,9 @@
 ---
-id: steps
-title: Steps
+id: step
+title: Step
 ---
 
-import { StepComponent } from "./steps.js"
+import { StepComponent } from "./step.js"
 
 ## Example
 

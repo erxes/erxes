@@ -119,8 +119,8 @@ module.exports = {
   components: [
     {
       type: "category",
-      label: "Overview",
-      items: ["components/Overview/overview"],
+      label: "Getting Started",
+      items: ["components/GettingStarted/introduction"],
     },
     {
       type: "category",
@@ -158,6 +158,7 @@ module.exports = {
         "components/Spinner/spinners",
         "components/SubMenu/submenu",
         "components/Table/table",
+        "components/Tabs/tabs",
         "components/Tag/tag",
         "components/TextDivider/textdivider",
         "components/TextInfo/textinfo",
@@ -170,20 +171,7 @@ module.exports = {
     {
       type: "category",
       label: "Utilities",
-      items: [
-        {
-          "Step": [
-            "utilities/Step/Step/step",
-            "utilities/Step/Steps/steps",
-          ],
-        },
-        {
-          "Tab": [
-            "utilities/Tab/Tabs/tabs",
-            "utilities/Tab/TabTitle/tabtitle",
-          ],
-        },
-      ],
+      items: ["utilities/Step/step"],
     },
   ],
 };

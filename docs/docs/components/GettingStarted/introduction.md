@@ -1,14 +1,17 @@
 ---
-id: overview
-title: Components and props
+id: introduction
+title: Introduction
 ---
 
-import { Examples } from './overview.js'
+import { Examples } from './introduction.js'
 
+<p>We transfered the common ui that we use with our enterprize companies, plugins and our own erxes into common components.</p>
 
-<p>This tab provides the common components of erxes-ui package.</p>
+## Installation
 
-<p>Components let you split the UI into independent, reusable pieces, and think about each piece in isolation. Conceptually, components are like JavaScript functions. They accept arbitrary inputs (called “props”) and return React elements describing what should appear on the screen.</p>
+<p>If you wish to use our common components in your project, we have npm package named "erxes-ui" which you can install with: </p>
+<Examples type="install" />
+
 
 ## Importing a Component
 
@@ -17,11 +20,17 @@ import { Examples } from './overview.js'
 
 <Examples type="import" />
 
-## Passing a prop
+## CSS
 
-<p>You can pass props that play a role to the component. For inctance, we change the button style by passing <code>btnStyle</code> prop. You can see the difference below.</p>
+<p></p>
+<Examples type="css" />
 
-<Examples />
+
+<!-- ## Passing a prop
+
+<p>You can pass props that play a role to the component. For inctance, we change the button style by passing <code>btnStyle</code> prop. You can see the difference below.</p> -->
+
+<!-- <Examples /> -->
 
 <!-- ### Overview
 
