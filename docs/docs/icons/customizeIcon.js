@@ -1,7 +1,7 @@
 import React from "react";
 import Icon from "erxes-ui/lib/components/Icon";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../common.js";
+import { renderApiTable, stringify } from "../components/common.js";
 import "erxes-icon/css/erxes.min.css";
 
 export function IconComponent(props) {

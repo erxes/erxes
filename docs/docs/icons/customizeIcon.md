@@ -1,9 +1,9 @@
 ---
-id: icon
-title: Icon
+id: customizeIcon
+title: Customize icon
 ---
 
-import { IconComponent } from "./icon.js"
+import { IconComponent } from "./customizeIcon.js"
 
 <p>To display desired icon write it's name to <code>icon</code> prop.</p> 
 <IconComponent type="icon" iconName="envelope-alt" />

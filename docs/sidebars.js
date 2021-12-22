@@ -137,9 +137,9 @@ module.exports = {
         "components/EmptyState/emptystate",
         "components/ErrorMsg/errormsg",
         "components/FilePreview/filepreview",
+        "components/Filter/filter",
         "components/FilterByParams/filterbyparams",
         "components/HelpPopOver/helppopover",
-        "components/Icon/icon",
         "components/Info/info",
         "components/Label/label",
         "components/ModalTrigger/modaltrigger",
@@ -181,7 +181,10 @@ module.exports = {
     {
       type: "category",
       label: "Icons",
-      items: ["icons/icons"],
+      items: [
+        "icons/icons",
+        "icons/customizeIcon"
+      ],
     },
     {
       type: "category",
