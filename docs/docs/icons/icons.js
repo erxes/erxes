@@ -31,6 +31,10 @@ export function IconsComponent(props) {
     return <CodeBlock className="language-javascript">{`import "erxes-icon/css/erxes.min.css";`}</CodeBlock>
   }
 
+  if (type === "install"){
+    return <CodeBlock className="language-javascript">{`npm i erxes-icon`}</CodeBlock>
+  }
+
   const items = icons.filter((data) => {
       if (search == null) return data;
       else if (data.toLowerCase().includes(search.toLowerCase())) {
@@ -46,8 +50,8 @@ export function IconsComponent(props) {
           <div className={styles.iconWidth}>
             <Icon icon={data} size={25} />
             <br />
-            {data}
           </div>
+            {data}
         </div>
       );
     });

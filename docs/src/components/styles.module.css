@@ -213,13 +213,19 @@ code {
 }
 
 .iconWidth {
-  width: 90px;
-  height: 50px;
+  /* width: 90px;	 */
+  /* height: 50px; */
+	padding : 2px;
+	padding-bottom: 8px;
+	/* padding-left: 35px; */
+	align-items: center;
 }
 
 .iconButton {
+	text-align:center;
   margin: 5px;
-  justify-content: space-around;
+	width: 125px;
+	height: 80px;
   background-color: #edf1f5;
   border: 1px solid rgba(27, 31, 35, 0.15);
   border-radius: 6px;
@@ -231,9 +237,10 @@ code {
   font-size: 14px;
   font-weight: 500;
   line-height: 16px;
+	padding-bottom: 10px;
   padding: 6px 16px;
   position: relative;
-  transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+  transition: all 0.3s ease;
   touch-action: manipulation;
   vertical-align: middle;
   white-space: wrap;
