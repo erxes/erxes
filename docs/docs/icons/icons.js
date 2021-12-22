@@ -37,8 +37,7 @@ export function IconsComponent(props) {
         return data;
       }}).map((data) => {
       return (
-        <Button
-          btnStyle="simple"
+        <div
           onClick={() => {
             copyToClipBoard(data);
           }}
@@ -49,7 +48,7 @@ export function IconsComponent(props) {
             <br />
             {data}
           </div>
-        </Button>
+        </div>
       );
     });
 

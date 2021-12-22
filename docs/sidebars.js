@@ -182,8 +182,9 @@ module.exports = {
       type: "category",
       label: "Icons",
       items: [
+        "icons/installation",
         "icons/icons",
-        "icons/customizeIcon"
+        "icons/customizeIcon",
       ],
     },
     {

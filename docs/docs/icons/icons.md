@@ -1,6 +1,6 @@
 ---
 id: icons
-title: Erxes icons
+title: Erxes-icon
 ---
 
 import { IconsComponent } from "./icons.js"
@@ -12,7 +12,8 @@ import { IconsComponent } from "./icons.js"
 
 ## Icons
 
-<p>Icons are an amazing tool for building layouts, webs and apps that are quicker to interact with. It allows us to use a little less text than we normally would needed and helps people to navigate through our designs quicker. Erxes icons is a set of open-source neutral-style system symbols elaborately crafted for designers and developers. Search and choose icon for your purpose. Click to copy icon name. Refer <a href="http://erxes.org/components/Icon/icon">Customize icon</a> to see how to customize icon.</p>
+<p>Icons are an amazing tool for building layouts, webs and apps that are quicker to interact with. It allows us to use a little less text than we normally would needed and helps people to navigate through our designs quicker. Erxes-icon is a set of open-source neutral-style system symbols elaborately crafted for designers and developers. Search and choose icon for your purpose. Click to copy icon name. Refer <a href="http://erxes.org/components/Icon/icon">Customize icon</a> to see how to customize icon with erxes-ui's "Icon" component.</p>
+
 <IconsComponent icons={[
 "add",
 "airplay",
