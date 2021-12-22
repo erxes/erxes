@@ -255,7 +255,7 @@ html[data-theme="dark"] .react-toggle-track {
 .modal-open .modal {
   overflow-x: hidden;
   overflow-y: auto;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal {

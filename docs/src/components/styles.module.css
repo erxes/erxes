@@ -221,3 +221,11 @@ code {
 	margin: 5px;
 	justify-content: space-around;
 }
+
+.test {
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	gap: 10px 20px;
+}

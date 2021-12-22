@@ -183,5 +183,10 @@ module.exports = {
       label: "Icons",
       items: ["icons/icons"],
     },
+    {
+      type: "category",
+      label: "Colors",
+      items: ["colors/colors"],
+    },
   ],
 };
