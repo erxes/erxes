@@ -211,3 +211,13 @@ code {
 .required {
 	color: red;
 }
+
+.iconWidth {
+	width: 90px;
+	height: 50px;
+}
+
+.iconButton {
+	margin: 5px;
+	justify-content: space-around;
+}
