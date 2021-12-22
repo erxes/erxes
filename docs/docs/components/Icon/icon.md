@@ -1,9 +1,9 @@
 ---
-id: IconComponent
-title: Icon Component
+id: icon
+title: Icon
 ---
 
-import { IconComponent } from "./iconcomponent.js"
+import { IconComponent } from "./icon.js"
 
 ## Example
 

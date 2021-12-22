@@ -140,6 +140,7 @@ module.exports = {
         "components/Filter/filter",
         "components/FilterByParams/filterbyparams",
         "components/HelpPopOver/helppopover",
+        "components/Icon/icon",
         "components/Info/info",
         "components/Label/label",
         "components/ModalTrigger/modaltrigger",
@@ -182,8 +183,8 @@ module.exports = {
       type: "category",
       label: "Icons",
       items: [
+        "icons/usage",
         "icons/icons",
-        "icons/IconComponent",
       ],
     },
     {

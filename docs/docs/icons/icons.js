@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Button from "erxes-ui/lib/components/Button";
 import styles from "../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
@@ -16,7 +15,7 @@ export function IconsComponent(props) {
     try {
       await navigator.clipboard.writeText(copyMe);
       setCopySuccess("Copied!");
-      alert("Copied!");
+      alert("Copied" +" ("+ copyMe +")!" );
     } catch (err) {
       setCopySuccess("Failed to copy!");
     }
@@ -27,39 +26,38 @@ export function IconsComponent(props) {
     setSearch((search = keyword));
   };
 
-  if (type ==="code"){
-    return <CodeBlock className="language-javascript">{`import "erxes-icon/css/erxes.min.css";`}</CodeBlock>
-  }
-
-  if (type === "install"){
-    return <CodeBlock className="language-javascript">{`npm i erxes-icon`}</CodeBlock>
-  }
-
-  const items = icons.filter((data) => {
+  const items = icons
+    .filter((data) => {
       if (search == null) return data;
       else if (data.toLowerCase().includes(search.toLowerCase())) {
         return data;
-      }}).map((data) => {
+      }
+    })
+    .map((data) => {
       return (
         <div
           onClick={() => {
             copyToClipBoard(data);
           }}
-          className={styles.iconButton}
+          className={styles.iconWrapper}
         >
-          <div className={styles.iconWidth}>
-            <Icon icon={data} size={25} />
-            <br />
+          <div className={styles.iconButton}>
+            <div className={styles.iconWidth}>
+              <Icon icon={data} size={25} />
+              <br />
+            </div>
           </div>
-            {data}
+          <br />
+          {data}
         </div>
       );
     });
 
-    return (
+  return (
     <>
       <Filter onChange={(e) => searchHandler(e)} />
-      {items}
+      <div className={styles.test}>
+      {items}</div>
     </>
   );
 }

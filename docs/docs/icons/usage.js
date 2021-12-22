@@ -1,7 +1,7 @@
 import React from "react";
 import Icon from "erxes-ui/lib/components/Icon";
 import CodeBlock from "@theme/CodeBlock";
-import { renderApiTable, stringify } from "../components/common.js";
+import { renderApiTable } from "../components/common";
 import "erxes-icon/css/erxes.min.css";
 
 export function IconComponent(props) {
@@ -39,6 +39,14 @@ export function IconComponent(props) {
       </>
     );
   };
+
+  if (type ==="code"){
+    return <CodeBlock className="language-javascript">{`import "erxes-icon/css/erxes.min.css";`}</CodeBlock>
+  }
+
+  if (type === "install"){
+    return <CodeBlock className="language-javascript">{`npm i erxes-icon`}</CodeBlock>
+  }
 
   if (type === "icon") {
     return renderBlock("icon");

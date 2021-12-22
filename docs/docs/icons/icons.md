@@ -5,15 +5,7 @@ title: Erxes-icon
 
 import { IconsComponent } from "./icons.js"
 
-## Istallation
 
-<p>If you wish to use our icons in your project, we have npm package named "erxes-icon" which you can install with:</p>
-<IconsComponent type="install" />
-
-## Import
-
-<p>Include popular icons in your projects easily with erxes-icon. Import icons by following code.</p>
-<IconsComponent type="code" />
 
 ## Icons
 
