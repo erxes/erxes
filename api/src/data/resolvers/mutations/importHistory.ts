@@ -73,7 +73,18 @@ const importHistoryMutations = {
     },
     { user }: IContext
   ) {
-    const importHistory = await ImportHistory.create({ name: importName });
+    const importHistory = await ImportHistory.createHistory(
+      {
+        success: 0,
+        updated: 0,
+        total: 0,
+        failed: 0,
+        contentTypes,
+        name: importName,
+        attachments: files
+      },
+      user
+    );
 
     importer(
       contentTypes,

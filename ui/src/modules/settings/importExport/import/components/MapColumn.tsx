@@ -3,7 +3,7 @@ import { DataWithLoader, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Row from './Row';
 import { SubHeading } from 'modules/settings/styles';
-import { ColumnTable } from 'modules/importExport/styles';
+import { ColumnTable } from 'modules/settings/importExport/styles';
 
 type Props = {
   columns: any[];

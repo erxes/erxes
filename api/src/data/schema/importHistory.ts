@@ -8,7 +8,10 @@ export const types = `
     errorMsgs: [String]
     status: String
     percentage: Float
-
+    updated: String
+    name: String
+    attachments: JSON
+    
     date: Date
     user: User
   }
@@ -20,7 +23,7 @@ export const types = `
 `;
 
 export const queries = `
-  importHistories(perPage: Int, page: Int, type: String!): ImportHistoryList
+  importHistories(perPage: Int, page: Int, type: String): ImportHistoryList
   importHistoryDetail(_id: String!): ImportHistory
   importHistoryPreviewExportCount(segmentId: String, contentType: String!): Int
   importHistoryGetColumns(attachmentName: String): JSON

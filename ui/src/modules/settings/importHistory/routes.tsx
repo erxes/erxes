@@ -27,8 +27,11 @@ const importHistoryDetail = ({ match }) => {
 
 const routes = () => (
   <React.Fragment>
-    <Route path="/settings/importHistories/" component={importHistories} />
-    <Route path="/settings/importHistory/:id" component={importHistoryDetail} />
+    <Route path="/settings/importHiaastories/" component={importHistories} />
+    <Route
+      path="/settings/importHiaastory/:id"
+      component={importHistoryDetail}
+    />
   </React.Fragment>
 );
 

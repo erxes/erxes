@@ -11,6 +11,12 @@ const Import = asyncComponent(() =>
   import(/* webpackChunkName: "Export" */ './import/containers/Form')
 );
 
+const Histories = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings Histories" */ './import/containers/list/Histories'
+  )
+);
+
 const exportForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
   return <Export contentType={queryParams.type} />;
@@ -19,6 +25,12 @@ const exportForm = ({ location }) => {
 const importForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
   return <Import contentType={queryParams.type} />;
+};
+
+const importHistories = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Histories queryParams={queryParams} />;
 };
 
 const routes = () => {
@@ -36,6 +48,8 @@ const routes = () => {
         path="/settings/import"
         component={importForm}
       />
+
+      <Route path="/settings/importHistories/" component={importHistories} />
     </React.Fragment>
   );
 };

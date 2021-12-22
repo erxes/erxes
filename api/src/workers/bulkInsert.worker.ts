@@ -72,6 +72,7 @@ const create = async ({
 
   let objects;
 
+  let updated: number = 0;
   const conformityCompanyMapping = {};
   const conformityCustomerMapping = {};
   const associateMapping = {};
@@ -134,6 +135,8 @@ const create = async ({
     prevCustomFieldsData: any = []
   ) => {
     let customFieldsData: Array<{ field: string; value: string }> = [];
+
+    updated++;
 
     if (
       doc.customFieldsData &&
@@ -260,19 +263,34 @@ const create = async ({
 
   const createConformityMapping = async ({
     index,
+    field,
     values,
-    relType
+    conformityTypeModel,
+    relType,
+    isAssociated
   }: {
     index: number;
+    field: string;
     values: string[];
+    conformityTypeModel: any;
     relType: string;
+    isAssociated: boolean;
   }) => {
     if (values.length === 0 && contentType !== relType) {
       return;
     }
 
-    const ids = await associatedModel
-      .find({ [mainAssociateField || '']: { $in: values } })
+    let mapping =
+      relType === 'customer'
+        ? conformityCustomerMapping
+        : conformityCompanyMapping;
+
+    if (isAssociated) {
+      mapping = associateMapping;
+    }
+
+    const ids = await conformityTypeModel
+      .find({ [field]: { $in: values } })
       .distinct('_id');
 
     if (ids.length === 0) {
@@ -280,11 +298,11 @@ const create = async ({
     }
 
     for (const id of ids) {
-      if (!associateMapping[index]) {
-        associateMapping[index] = [];
+      if (!mapping[index]) {
+        mapping[index] = [];
       }
 
-      associateMapping[index].push({
+      mapping[index].push({
         relType,
         mainType: contentType === 'lead' ? 'customer' : contentType,
         relTypeId: id
@@ -361,11 +379,23 @@ const create = async ({
     debugWorkers(`Insert doc length: ${insertDocs.length}`);
 
     insertDocs.map(async (doc, docIndex) => {
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryName',
+        values: doc.companiesPrimaryNames || [],
+        conformityTypeModel: Companies,
+        relType: 'company',
+        isAssociated: false
+      });
+
       if (associateContentType && associateField && mainAssociateField) {
         await createConformityMapping({
           index: docIndex,
+          field: mainAssociateField,
           values: doc[associateField] || [],
-          relType: associateContentType
+          conformityTypeModel: associatedModel,
+          relType: associateContentType,
+          isAssociated: true
         });
       }
     });
@@ -432,11 +462,23 @@ const create = async ({
     }
 
     insertDocs.map(async (doc, docIndex) => {
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryEmail',
+        values: doc.customersPrimaryEmails || [],
+        conformityTypeModel: Customers,
+        relType: 'customer',
+        isAssociated: false
+      });
+
       if (associateContentType && associateField && mainAssociateField) {
         await createConformityMapping({
           index: docIndex,
+          field: mainAssociateField,
           values: doc[associateField] || [],
-          relType: associateContentType
+          conformityTypeModel: associatedModel,
+          relType: associateContentType,
+          isAssociated: true
         });
       }
     });
@@ -534,11 +576,32 @@ const create = async ({
       doc.modifiedAt = new Date();
       doc.searchText = fillSearchTextItem(doc);
 
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryEmail',
+        values: doc.customersPrimaryEmails || [],
+        conformityTypeModel: Customers,
+        relType: 'customer',
+        isAssociated: false
+      });
+
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryName',
+        values: doc.companiesPrimaryNames || [],
+        conformityTypeModel: Companies,
+        relType: 'company',
+        isAssociated: false
+      });
+
       if (associateContentType && associateField && mainAssociateField) {
         await createConformityMapping({
           index: docIndex,
+          field: mainAssociateField,
           values: doc[associateField] || [],
-          relType: associateContentType
+          conformityTypeModel: associatedModel,
+          relType: associateContentType,
+          isAssociated: true
         });
       }
     });
@@ -575,7 +638,7 @@ const create = async ({
     await createConformity(associateMapping);
   }
 
-  return objects;
+  return updated;
 };
 
 connect().then(async () => {
@@ -597,8 +660,7 @@ connect().then(async () => {
     associateContentType,
     associateField,
     mainAssociateField,
-    rowIndex,
-    bulkLimit
+    rowIndex
   }: {
     user: IUserDocument;
     scopeBrandIds: string[];
@@ -612,7 +674,6 @@ connect().then(async () => {
     associateField?: string;
     mainAssociateField?: string;
     rowIndex?: number;
-    bulkLimit?: number;
   } = workerData;
 
   let model: any = null;
@@ -835,7 +896,7 @@ connect().then(async () => {
   };
 
   try {
-    const cocObjs = await create({
+    const updated = await create({
       docs: bulkDoc,
       user,
       contentType,
@@ -846,9 +907,7 @@ connect().then(async () => {
       mainAssociateField
     });
 
-    const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
-
-    modifier.$push = { ids: cocIds };
+    modifier.$inc.updated = updated;
     modifier.$inc.success = bulkDoc.length;
   } catch (e) {
     let startRow = 1;

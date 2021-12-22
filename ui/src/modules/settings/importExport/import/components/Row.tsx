@@ -2,7 +2,7 @@ import React from 'react';
 import { Icon, Tip, __ } from 'erxes-ui';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
-import { FlexRow, ImportColumnRow } from 'modules/importExport/styles';
+import { FlexRow, ImportColumnRow } from 'modules/settings/importExport/styles';
 
 type Props = {
   columns: any[];

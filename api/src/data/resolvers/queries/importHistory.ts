@@ -26,11 +26,15 @@ const importHistoryQueries = {
     _root,
     { type, ...args }: { page: number; perPage: number; type: string }
   ) {
-    const list = paginate(
-      ImportHistory.find({ contentType: type }),
-      args
-    ).sort({ date: -1 });
-    const count = ImportHistory.find({ contentType: type }).countDocuments();
+    const filter: { [key: string]: any } = {};
+
+    if (type) {
+      filter.contentTypes = type;
+    }
+
+    const list = paginate(ImportHistory.find(filter), args).sort({ date: -1 });
+
+    const count = ImportHistory.find(filter).countDocuments();
 
     return { list, count };
   },

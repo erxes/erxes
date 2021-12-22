@@ -4,8 +4,9 @@ import { field } from './utils';
 export interface IImportHistory {
   success: number;
   failed: number;
+  updated: number;
   total: number;
-  contentTypes: string;
+  contentTypes: string[];
   status?: string;
   percentage?: number;
   attachments: any;
@@ -23,6 +24,7 @@ export interface IImportHistoryDocument extends IImportHistory, Document {
 export const importHistorySchema = new Schema({
   _id: field({ pkey: true }),
   success: field({ type: Number, default: 0, label: 'Successful attempts' }),
+  updated: field({ type: Number, default: 0, label: 'Updated attempts' }),
   failed: field({ type: Number, default: 0, label: 'Failed attempts' }),
   total: field({ type: Number, label: 'Total attempts' }),
   contentTypes: field({ type: [String], label: 'Content type' }),

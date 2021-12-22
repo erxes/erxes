@@ -18,6 +18,7 @@ import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
 import * as streamify from 'stream-array';
 import * as os from 'os';
+import { graphqlPubsub } from '../pubsub';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
@@ -130,7 +131,6 @@ const importBulkStream = ({
   uploadType: 'AWS' | 'local';
   handleBulkOperation: (
     rowIndex: number,
-    bulkLimit: number,
     rows: any,
     contentType: string,
     associatedContentType?: string,
@@ -170,7 +170,6 @@ const importBulkStream = ({
       if (rows.length === bulkLimit) {
         return handleBulkOperation(
           rowIndex,
-          bulkLimit,
           rows,
           contentType,
           associateContentType,
@@ -197,7 +196,6 @@ const importBulkStream = ({
         rowIndex++;
         handleBulkOperation(
           rowIndex,
-          bulkLimit,
           rows,
           contentType,
           associateContentType,
@@ -402,6 +400,8 @@ export const receiveImportCreate = async (content: any) => {
       await updateImportHistory({
         $set: { status, percentage: 100 }
       });
+
+      graphqlPubsub.publish('importHistoryChanged', {});
     }
 
     if (associatedContentType && associatedField && status !== 'Done') {
@@ -428,7 +428,6 @@ export const receiveImportCreate = async (content: any) => {
 
   const handleBulkOperation = async (
     rowIndex: number,
-    bulkLimit: number,
     rows: any,
     contentType: string,
     associateContentType?: string,
@@ -449,7 +448,6 @@ export const receiveImportCreate = async (content: any) => {
 
     await myWorker.createWorker(workerPath, {
       rowIndex,
-      bulkLimit,
       scopeBrandIds,
       user,
       contentType,

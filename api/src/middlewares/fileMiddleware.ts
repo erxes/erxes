@@ -18,7 +18,6 @@ export const importer = async (
   contentTypes,
   files,
   columnsConfig,
-
   importHistoryId,
   associatedContentType,
   associatedField,
@@ -27,7 +26,7 @@ export const importer = async (
   try {
     const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
-    await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+    await messageBroker().sendMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
       action: 'createImport',
       contentTypes,
       files,

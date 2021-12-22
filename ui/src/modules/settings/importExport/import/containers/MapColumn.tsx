@@ -56,8 +56,10 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
     });
 
     // const fuzzyComparison = (str, mask) => {
-    //   var regex = '^' + mask.replace(/\*/, '.*') + '$';
-    //   var r = new RegExp(regex);
+    //   console.log(str, mask);
+    //   const regex = '^' + mask.replace(/\*/, '.*') + '$';
+
+    //   const r = new RegExp(regex);
 
     //   return r.test(str);
     // };
@@ -67,7 +69,8 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
     // for (const keys of Object.keys(columns)) {
     //   if (!columnWithChosenField[keys]) {
     //     for (const field of fields) {
-    //       if (fuzzyComparison(field.label, keys)) {
+    //       if (fuzzyComparison(keys, field.label)) {
+    //         console.log('aa');
     //         onChangeColumn(keys, field.value, contentType);
     //       }
     //     }
