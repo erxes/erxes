@@ -14,6 +14,7 @@ const dashboards = `
     dashboards(page: $page, perPage: $perPage) {
 	    _id
 	    name
+      description
       visibility
       selectedMemberIds
 	  }
@@ -25,6 +26,7 @@ const dashboardDetails = `
     dashboardDetails(_id: $_id) {
 	    _id
 	    name
+      description
       visibility
       selectedMemberIds
     }

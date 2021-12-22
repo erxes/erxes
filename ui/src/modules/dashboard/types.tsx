@@ -3,6 +3,7 @@ export interface IDashboard {
   name: string;
   visibility: string;
   selectedMemberIds?: string[];
+  description: string;
 }
 
 export type DashboardsQueryResponse = {

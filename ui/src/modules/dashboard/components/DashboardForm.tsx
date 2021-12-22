@@ -11,11 +11,20 @@ import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import { IDashboard } from '../types';
+// import { Link } from 'react-router-dom';
+// import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
+// import DataWithLoader from 'modules/common/components/DataWithLoader';
 
 type Props = {
   dashboard?: IDashboard;
   trigger?: React.ReactNode;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  // history: any;
+  // queryParams: any;
+  // remove: (productCategoryId: string) => void;
+  // productCategories: any;
+  // productCategoriesCount: number;
+  // loading: boolean;
 };
 
 type State = {
@@ -35,7 +44,11 @@ function DashbaordFormContent(props: FinalProps) {
     selectedMemberIds: dashboard ? dashboard.selectedMemberIds || [] : []
   });
 
-  const generateDoc = (values: { _id?: string; name: string }) => {
+  const generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+  }) => {
     const { selectedMemberIds, visibility } = state;
     const finalValues = values;
 
@@ -47,7 +60,8 @@ function DashbaordFormContent(props: FinalProps) {
       _id: finalValues._id,
       name: finalValues.name,
       visibility,
-      selectedMemberIds
+      selectedMemberIds,
+      description: finalValues.description
     };
   };
 
@@ -84,11 +98,74 @@ function DashbaordFormContent(props: FinalProps) {
     );
   };
 
+  // const isActive = (id: string) => {
+  //   const { queryParams } = props;
+  //   const currentGroup = queryParams.categoryId || '';
+
+  //   return currentGroup === id;
+  // };
+
+  // const renderDashboardContent = () => {
+  //   const { productCategories } = props;
+
+  //   const result: React.ReactNode[] = [];
+
+  //   for (const category of productCategories) {
+  //     const order = category.order;
+
+  //     const m = order.match(/[/]/gi);
+
+  //     let space = '';
+
+  //     if (m) {
+  //       space = '\u00a0\u00a0'.repeat(m.length);
+  //     }
+
+  //     const name = category.isRoot ? (
+  //       `${category.name} (${category.productCount})`
+  //     ) : (
+  //       <span>
+  //         {category.name} ({category.productCount})
+  //       </span>
+  //     );
+
+  //     result.push(
+  //       <SidebarListItem key={category._id} isActive={isActive(category._id)}>
+  //         <Link to={`?categoryId=${category._id}`}>
+  //           {space}
+  //           {name}
+  //         </Link>
+  //         <ActionButtons>
+  //           {/* {this.renderEditAction(category)}
+  //           {this.renderRemoveAction(category)} */}
+  //         </ActionButtons>
+  //       </SidebarListItem>
+  //     );
+  //   }
+
+  //   return result;
+  // };
+
+  // const renderCategoryList = () => {
+  //   const { productCategoriesCount, loading } = props;
+
+  //   return (
+  //     <DataWithLoader
+  //       data={renderDashboardContent()}
+  //       loading={loading}
+  //       count={productCategoriesCount}
+  //       emptyText="There is no product & service category"
+  //       emptyIcon="folder-2"
+  //       size="small"
+  //     />
+  //   );
+  // };
+
   const renderContent = (formProps: IFormProps) => {
     const { renderButton } = props;
     const { visibility } = state;
     const { values, isSubmitted } = formProps;
-    const object = dashboard || { name: '' };
+    const object = dashboard || ({} as IDashboard);
 
     return (
       <>
@@ -101,6 +178,15 @@ function DashbaordFormContent(props: FinalProps) {
             defaultValue={object.name}
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="description"
+            defaultValue={object.description}
           />
         </FormGroup>
 
@@ -119,6 +205,8 @@ function DashbaordFormContent(props: FinalProps) {
         </FormGroup>
 
         {renderSelectMembers()}
+
+        {/* {renderCategoryList()} */}
 
         <ModalFooter>
           <Button

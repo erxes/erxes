@@ -5,6 +5,7 @@ export interface IDashboard {
   name: string;
   visibility: string;
   selectedMemberIds?: string[];
+  description: string;
 }
 
 export interface IDashboardItemInput {
@@ -44,6 +45,7 @@ export const dashboardSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String }),
+    description: field({ type: String, optional: true }),
     visibility: field({ type: String }),
     selectedMemberIds: field({ type: [String] })
   })

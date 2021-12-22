@@ -39,6 +39,7 @@ class PipelineRow extends React.Component<Props, {}> {
             <Button btnStyle="link" icon="times-circle" onClick={remove} />
           </Tip>
         </ActionButtons>
+        <Icon icon="angle-down" />
       </SidebarListItem>
     );
   }

@@ -1,11 +1,13 @@
 const commonParamsDef = `
   $name: String!,
+  $description: String,
   $visibility: String,
   $selectedMemberIds: [String]
 `;
 
 const commonParams = `
   name: $name,
+  description: $description,
   visibility: $visibility,
   selectedMemberIds: $selectedMemberIds
 `;
