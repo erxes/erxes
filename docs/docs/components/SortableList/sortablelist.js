@@ -5,15 +5,17 @@ import { renderApiTable, stringify } from "../common.js";
 import styles from "../../../src/components/styles.module.css";
 
 export function SortableListComponent(props) {
-  const { type, table = [] } = props;
-
-  // const arrays = ["Name", "Age", "School"];
-
   const array = [
     { _id: 0, field: "Name" },
     { _id: 1, field: "Age" },
     { _id: 2, field: "School" },
   ];
+
+  const [fields, setFields] = React.useState(array);
+  const { type, table = [] } = props;
+
+  // const arrays = ["Name", "Age", "School"];
+
 
   const propDatas = () => {
     // let array = [];
@@ -34,21 +36,23 @@ export function SortableListComponent(props) {
   // props.updateOrderItems(updatedItems[destinationIndex], destinationIndex);
   // }
 
-  const onChangeFields = (reorderedArray) => {
-    return array = reorderedArray;
+  const onChangeFields = (fields) => {
+    console.log(fields, 'hereee onchange');
+    setFields(fields);
   };
 
   const renderBlock = () => {
     return (
       <>
-        <div className={styles.styled}>
+        {/* <div className={styles.styled}> */}
           <SortableList
-            fields={propDatas()}
+            fields={fields}
             child={child}
             onChangeFields={onChangeFields}
             droppableId="droppable"
+            isModal={true}
           />
-        </div>
+        {/* </div> */}
         {/* <CodeBlock className="language-jsx">
           {`<>\n\t<SortableList
             fields={propDatas()}

@@ -6,7 +6,14 @@ import "erxes-icon/css/erxes.min.css";
 
 export function IconComponent(props) {
   const { iconName, colors, sizes, type, table = [] } = props;
-
+  
+  if (type ==="code"){
+    return <CodeBlock className="language-javascript">{`import "erxes-icon/css/erxes.min.css";`}</CodeBlock>
+  }
+  
+  if (type === "install"){
+    return <CodeBlock className="language-javascript">{`npm i erxes-icon`}</CodeBlock>
+  }
   const propDatas = (icon, propName, extra) => {
     const datas = {
       icon: iconName,
@@ -40,13 +47,6 @@ export function IconComponent(props) {
     );
   };
 
-  if (type ==="code"){
-    return <CodeBlock className="language-javascript">{`import "erxes-icon/css/erxes.min.css";`}</CodeBlock>
-  }
-
-  if (type === "install"){
-    return <CodeBlock className="language-javascript">{`npm i erxes-icon`}</CodeBlock>
-  }
 
   if (type === "icon") {
     return renderBlock("icon");

@@ -3,7 +3,7 @@ import styles from "../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Icon from "erxes-ui/lib/components/Icon";
-import Filter from "erxes-ui/lib/components/filterableList/Filter";
+import Alert from "erxes-ui/lib/utils/Alert/index";
 
 export function IconsComponent(props) {
   const { icons, type } = props;
@@ -15,7 +15,7 @@ export function IconsComponent(props) {
     try {
       await navigator.clipboard.writeText(copyMe);
       setCopySuccess("Copied!");
-      alert("Copied" +" ("+ copyMe +")!" );
+      Alert.success("Copied!", 1000);
     } catch (err) {
       setCopySuccess("Failed to copy!");
     }
@@ -42,10 +42,8 @@ export function IconsComponent(props) {
           className={styles.iconWrapper}
         >
           <div className={styles.iconButton}>
-            <div className={styles.iconWidth}>
-              <Icon icon={data} size={25} />
+              <Icon icon={data} size={30} />
               <br />
-            </div>
           </div>
           <br />
           {data}
@@ -55,9 +53,8 @@ export function IconsComponent(props) {
 
   return (
     <>
-      <Filter onChange={(e) => searchHandler(e)} />
-      <div className={styles.test}>
-      {items}</div>
+      <input type="search" placeholder="Search..." onChange={(e) => searchHandler(e)} className={styles.searchBar} />
+      <div className={styles.test}>{items}</div>
     </>
   );
 }
