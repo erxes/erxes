@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import TimeLine from 'react-gantt-timeline';
 import {
   GanttContainer,
@@ -15,7 +15,6 @@ import { TYPES } from 'modules/boards/constants';
 import { capitalize } from 'modules/activityLogs/utils';
 import ContextMenu from 'modules/common/components/ContextMenu';
 import { EditForm } from 'modules/boards/containers/editForm';
-import { getTaskId } from './utils';
 
 type Props = {
   items: IItem[];
@@ -113,31 +112,84 @@ const GanttChart = (props: Props) => {
     }
   };
 
-  const { items, refetch, options } = props;
+  const { items, refetch, options, save } = props;
 
   const [data, setData] = useState(props.data);
   const [links, setLinks] = useState(props.links);
   const [selectedItem, setSelectedItem] = useState(null as any);
   const [timelineMode, setTimelineMode] = useState('month');
 
+  const saveCallback = useCallback(() => {
+    const pushItems: any[] = [];
+
+    for (const item of data) {
+      pushItems.push({
+        _id: item.id,
+        startDate: item.start,
+        closeDate: item.end
+      });
+    }
+
+    save(pushItems, links);
+  }, [links, data, save]);
+
   useEffect(() => {
     setData(props.data);
-  }, [props.data]);
+    setLinks(props.links);
+  }, [props.data, props.links]);
 
-  const onHorizonChange = (start, end) => {
-    const result = props.data.filter(item => {
-      return (
-        (item.start < start && item.end > end) ||
-        (item.start > start && item.start < end) ||
-        (item.end > start && item.end < end)
-      );
-    });
-
-    setData(result);
-  };
+  useEffect(() => {
+    saveCallback();
+  }, [links, data, props.links, props.data, saveCallback]);
 
   const onSelectItem = item => {
     setSelectedItem(item);
+  };
+
+  const onUpdateTask = (item, prop) => {
+    if (
+      item.start.getTime() !== prop.start.getTime() ||
+      item.end.getTime() !== prop.end.getTime()
+    ) {
+      item.start = prop.start;
+      item.end = prop.end;
+
+      setData([...data]);
+    }
+  };
+
+  const createLink = (start, end) => {
+    return {
+      id: Math.random().toString(),
+      start: start.task.id,
+      startPosition: start.position,
+      end: end.task.id,
+      endPosition: end.position
+    };
+  };
+
+  const onCreateLink = item => {
+    const newLink = createLink(item.start, item.end);
+
+    setLinks(links.concat(newLink));
+  };
+
+  const modeChange = value => {
+    setTimelineMode(value);
+  };
+
+  const deleteItem = () => {
+    if (selectedItem) {
+      const index = links.indexOf(selectedItem);
+
+      if (index > -1) {
+        links.splice(index, 1);
+
+        setLinks([...links]);
+
+        setSelectedItem(null);
+      }
+    }
   };
 
   const renderForm = () => {
@@ -145,7 +197,7 @@ const GanttChart = (props: Props) => {
       return null;
     }
 
-    const dbDataRow = items.find(row => row._id === getTaskId(selectedItem.id));
+    const dbDataRow = items.find(row => row._id === selectedItem.id);
 
     if (!dbDataRow || !dbDataRow.stage) {
       return null;
@@ -167,72 +219,6 @@ const GanttChart = (props: Props) => {
         isPopupVisible={true}
       />
     );
-  };
-
-  const save = () => {
-    const pushItems: any[] = [];
-
-    for (const item of data) {
-      pushItems.push({
-        _id: getTaskId(item.id),
-        startDate: item.start,
-        closeDate: item.end
-      });
-    }
-
-    props.save(pushItems, links);
-  };
-
-  const onUpdateTask = (item, prop) => {
-    if (
-      item.start.getTime() !== prop.start.getTime() ||
-      item.end.getTime() !== prop.end.getTime()
-    ) {
-      item.start = prop.start;
-      item.end = prop.end;
-
-      setData([...data]);
-
-      save();
-    }
-  };
-
-  const createLink = (start, end) => {
-    return {
-      id: Math.random().toString(),
-      start: getTaskId(start.task.id),
-      startPosition: start.position,
-      end: getTaskId(end.task.id),
-      endPosition: end.position
-    };
-  };
-
-  const onCreateLink = item => {
-    const newLink = createLink(item.start, item.end);
-
-    setLinks([...links, newLink]);
-
-    save();
-  };
-
-  const modeChange = value => {
-    setTimelineMode(value);
-  };
-
-  const deleteItem = () => {
-    if (selectedItem) {
-      const index = links.indexOf(selectedItem);
-
-      if (index > -1) {
-        links.splice(index, 1);
-
-        setLinks([...links]);
-
-        setSelectedItem(null);
-
-        save();
-      }
-    }
   };
 
   return (
@@ -263,7 +249,6 @@ const GanttChart = (props: Props) => {
           refetch={refetch}
           links={links}
           config={config}
-          onHorizonChange={onHorizonChange}
           onSelectItem={onSelectItem}
           onUpdateTask={onUpdateTask}
           onCreateLink={onCreateLink}

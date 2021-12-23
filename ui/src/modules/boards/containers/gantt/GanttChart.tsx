@@ -56,6 +56,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
 
     if (!itemsQuery.loading) {
       const items = itemsQuery[options.queriesName.itemsQuery] || [];
+
       this.setState({ items });
     }
   }
@@ -112,9 +113,24 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
         callback(groupType)(item, groupObj)
       );
 
+      if (filtered.length > 0) {
+        dbData.push({
+          id: groupObj._id,
+          start: new Date('1970-01-01'),
+          end: new Date('1970-01-01'),
+          name: (
+            <TextStyle>
+              <span style={{ fontWeight: 600 }}>
+                {groupObj.name || (groupObj.details || {}).fullName}
+              </span>
+            </TextStyle>
+          )
+        });
+      }
+
       filtered.forEach(item => {
         dbData.push({
-          id: `${item._id}__${groupObj._id}`,
+          id: item._id,
           start: new Date(item.startDate),
           end: new Date(item.closeDate),
           name: (
@@ -123,11 +139,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
                 <Assignees users={item.assignedUsers} />
               </AssingStyle>
               <TextStyle>
-                <span style={{ fontWeight: 600 }}>
-                  {groupObj.name || (groupObj.details || {}).fullName}
-                </span>
-                &nbsp;-&nbsp;
-                {item.name}
+                <span style={{ paddingLeft: 20 }}>{item.name}</span>
               </TextStyle>
             </>
           ),
@@ -135,7 +147,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
         });
 
         if (item.relations) {
-          dbLinks.concat(item.relations);
+          dbLinks.push(...item.relations);
         }
       });
     });

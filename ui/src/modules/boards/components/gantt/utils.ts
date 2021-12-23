@@ -22,7 +22,3 @@ export const callback = (groupType: string) => {
       return () => true;
   }
 };
-
-export const getTaskId = (id: string) => {
-  return id.split('__')[0];
-};
