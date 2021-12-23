@@ -22,3 +22,11 @@ export const callback = (groupType: string) => {
       return () => true;
   }
 };
+
+export const generateName = groupObj => {
+  if (groupObj.name) return groupObj.name;
+
+  const details = groupObj.details || {};
+
+  return details.fullName || details.email;
+};

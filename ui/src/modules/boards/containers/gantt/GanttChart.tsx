@@ -14,7 +14,7 @@ import {
 } from '../../types';
 import Spinner from 'modules/common/components/Spinner';
 import { mutations } from '../../graphql';
-import { callback } from 'modules/boards/components/gantt/utils';
+import { callback, generateName } from 'modules/boards/components/gantt/utils';
 import { AssingStyle, TextStyle } from 'modules/boards/styles/viewtype';
 import Assignees from 'modules/boards/components/Assignees';
 import { getColors } from 'modules/boards/utils';
@@ -108,6 +108,8 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
     const dbData: any[] = [];
     const dbLinks: any[] = [];
 
+    console.log('groups: ', groups);
+
     groups.forEach((groupObj, index) => {
       const filtered = items.filter(item =>
         callback(groupType)(item, groupObj)
@@ -120,9 +122,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
           end: new Date('1970-01-01'),
           name: (
             <TextStyle>
-              <span style={{ fontWeight: 600 }}>
-                {groupObj.name || (groupObj.details || {}).fullName}
-              </span>
+              <span style={{ fontWeight: 600 }}>{generateName(groupObj)}</span>
             </TextStyle>
           )
         });
@@ -143,7 +143,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
               </TextStyle>
             </>
           ),
-          color: `${getColors(index)}`
+          color: `${groupObj.colorCode || getColors(index)}`
         });
 
         if (item.relations) {
