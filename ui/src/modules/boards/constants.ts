@@ -121,6 +121,25 @@ export const groupByList = [
   }
 ];
 
+export const groupByGantt = [
+  {
+    name: 'stage',
+    title: 'Stage'
+  },
+  {
+    name: 'label',
+    title: 'Label'
+  },
+  {
+    name: 'priority',
+    title: 'Priority'
+  },
+  {
+    name: 'assignee',
+    title: 'Assignee'
+  }
+];
+
 export const stackByChart = [
   {
     name: 'stage',

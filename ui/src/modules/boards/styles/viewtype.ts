@@ -79,7 +79,7 @@ export const TimelineContainer = styled.div`
 
   .timeLine-side {
     border: none !important;
-    height: 95% !important;
+    height: 100% !important;
   }
 
   .timeLine {
@@ -106,7 +106,7 @@ export const TimelineContainer = styled.div`
   }
 
   .timeLine-main {
-    height: 95% !important;
+    height: 100% !important;
   }
 
   .timeLine-main-data-row > div {

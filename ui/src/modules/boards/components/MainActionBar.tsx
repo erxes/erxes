@@ -23,7 +23,8 @@ import Button from 'modules/common/components/Button';
 import {
   chartTypes,
   stackByChart,
-  groupByList
+  groupByList,
+  groupByGantt
 } from 'modules/boards/constants';
 import SelectType from './SelectType';
 
@@ -173,7 +174,7 @@ class MainActionBar extends React.Component<Props> {
   renderGroupBy = () => {
     const { viewType, queryParams } = this.props;
 
-    if (viewType !== 'list') {
+    if (viewType !== 'list' && viewType !== 'gantt') {
       return null;
     }
 
@@ -182,7 +183,7 @@ class MainActionBar extends React.Component<Props> {
         <SelectType
           title={__('Group by:')}
           icon="list-2"
-          list={groupByList}
+          list={viewType === 'list' ? groupByList : groupByGantt}
           text={__('Stage')}
           queryParamName="groupBy"
           queryParams={queryParams}
