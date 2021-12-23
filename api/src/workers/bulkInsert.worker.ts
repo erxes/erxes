@@ -918,14 +918,21 @@ connect().then(async () => {
       endRow = rowIndex * bulkDoc.length;
     }
 
-    modifier.$push = { errorMsgs: e.message };
+    const distance = endRow - startRow;
+
+    if (distance === 1) {
+      endRow = startRow;
+    }
+
+    debugWorkers(startRow, endRow, e.message, contentType);
+
+    // modifier.$push = { errorMsgs: e.message };
     modifier.$inc.failed = bulkDoc.length;
     modifier.$push = {
-      errors: {
+      errorMsgs: {
         startRow,
         endRow,
         errorMsgs: e.message,
-        data: bulkDoc,
         contentType
       }
     };

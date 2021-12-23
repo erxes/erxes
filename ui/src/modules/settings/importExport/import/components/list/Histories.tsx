@@ -27,8 +27,6 @@ class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
     const { histories } = this.props;
 
-    console.log(histories);
-
     return (
       <Table hover={true}>
         <thead>

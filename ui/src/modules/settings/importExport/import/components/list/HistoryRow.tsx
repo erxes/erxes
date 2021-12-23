@@ -2,16 +2,22 @@ import dayjs from 'dayjs';
 import { Icon } from 'erxes-ui';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
-import TextInfo from 'modules/common/components/TextInfo';
 import { DateWrapper } from 'modules/common/styles/main';
-import { readFile, __ } from 'modules/common/utils';
+import { getEnv, readFile, __ } from 'modules/common/utils';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import queryString from 'query-string';
+import {
+  ImportTitle,
+  ImportHistoryActions
+} from 'modules/settings/importExport/styles';
 
 type Props = {
   history?: any;
 };
+
+const { REACT_APP_API_URL } = getEnv();
 
 class HistoryRow extends React.Component<Props> {
   renderText = value => {
@@ -30,6 +36,7 @@ class HistoryRow extends React.Component<Props> {
         return value;
     }
   };
+
   renderView = () => {
     const { history } = this.props;
 
@@ -87,6 +94,44 @@ class HistoryRow extends React.Component<Props> {
       });
     };
 
+    const renderDownloadErrorFile = () => {
+      return contentTypes.map(contentType => {
+        const stringified = queryString.stringify({
+          importHistoryId: history._id,
+          contentType
+        });
+
+        const reqUrl = `${REACT_APP_API_URL}/download-import-error?${stringified}`;
+
+        return (
+          <li key={Math.random()}>
+            <a rel="noopener noreferrer" href={reqUrl} target="_blank">
+              {__(`Download ${this.renderText(contentType)} errors`)}
+            </a>
+          </li>
+        );
+      });
+    };
+
+    const renderDelete = () => {
+      return contentTypes.map(contentType => {
+        const stringified = queryString.stringify({
+          importHistoryId: history._id,
+          contentType
+        });
+
+        const reqUrl = `${REACT_APP_API_URL}/download-import-error?${stringified}`;
+
+        return (
+          <li key={Math.random()}>
+            <a rel="noopener noreferrer" href={reqUrl} target="_blank">
+              {__(`Delete ${this.renderText(contentType)}`)}
+            </a>
+          </li>
+        );
+      });
+    };
+
     return (
       <Dropdown className="dropdown-btn" alignRight={true}>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
@@ -94,9 +139,23 @@ class HistoryRow extends React.Component<Props> {
             {__('More')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
-        <Dropdown.Menu>{renderDownloadFile()}</Dropdown.Menu>
+        <Dropdown.Menu>
+          {renderDownloadFile()}
+          {renderDownloadErrorFile()}
+          {renderDelete()}
+        </Dropdown.Menu>
       </Dropdown>
     );
+  };
+
+  renderStatus = history => {
+    if (history.status === 'Done') {
+      return history.contentTypes.map(contentType => {
+        return <span key={Math.random()}>{contentType}</span>;
+      });
+    }
+
+    return <p>{history.status}</p>;
   };
 
   render() {
@@ -116,25 +175,21 @@ class HistoryRow extends React.Component<Props> {
     return (
       <tr>
         <td>
-          <div>
-            {history.name || '-'}
-            <p>{history.status}</p>
-          </div>
+          <ImportTitle>
+            <h6>{history.name || '-'}</h6>
+            {this.renderStatus(history)}
+          </ImportTitle>
         </td>
         <td>
-          <TextInfo textStyle="success">
-            {renderValue(history.success)}
-          </TextInfo>
+          <span>{renderValue(history.success)}</span>
         </td>
 
         <td>
-          <TextInfo textStyle="success">
-            {renderValue(history.updated)}
-          </TextInfo>
+          <span>{renderValue(history.updated)}</span>
         </td>
 
         <td>
-          <TextInfo textStyle="danger">{renderValue(history.failed)}</TextInfo>
+          <span>{renderValue(history.failed)}</span>
         </td>
 
         <td>{details.fullName || '-'}</td>
@@ -144,8 +199,10 @@ class HistoryRow extends React.Component<Props> {
         </td>
 
         <td>
-          {this.renderView()}
-          {this.renderAction()}
+          <ImportHistoryActions>
+            {this.renderView()}
+            {this.renderAction()}
+          </ImportHistoryActions>
         </td>
       </tr>
     );

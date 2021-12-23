@@ -1,39 +1,11 @@
 import Icon from 'modules/common/components/Icon';
-import { colors } from 'modules/common/styles';
-import { BoxRoot, FullContent } from 'modules/common/styles/main';
+
 import { __ } from 'modules/common/utils';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
-import styled from 'styled-components';
+
 import { Description, SubHeading } from 'modules/settings/styles';
-
-const Box = styled(BoxRoot)`
-  height: 180px;
-  width: 200px;
-  padding: 40px;
-  background: ${colors.bgLight};
-
-  i {
-    font-size: 38px;
-    color: ${colors.colorSecondary};
-  }
-
-  span {
-    font-weight: 500;
-    text-transform: capitalize;
-  }
-
-  p {
-    margin: 10px 0 0;
-    font-size: 12px;
-    color: ${colors.colorCoreLightGray};
-    min-height: 36px;
-  }
-
-  &:last-of-type {
-    margin-right: 0;
-  }
-`;
+import { Box, FullContent } from '../../styles';
 
 type Props = {
   onChangeType: (value: string) => void;
@@ -62,7 +34,8 @@ class SettingsForm extends React.Component<Props> {
           <SubHeading>{__('Select type')}</SubHeading>
           <Description>
             You can upload one file or multiple files at a time. You'll be able
-            to choose how many objects you're importing later.
+            to choose how many objects you're importing later. You can upload
+            one file or multiple files at a time.
           </Description>
 
           <FullContent center={true}>

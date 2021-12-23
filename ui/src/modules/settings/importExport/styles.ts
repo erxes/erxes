@@ -1,4 +1,5 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { BoxRoot } from 'modules/common/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -8,6 +9,57 @@ const ImportColumnRow = styled.tr`
   i {
     font-size: 15px;
   }
+`;
+
+const Box = styled(BoxRoot)`
+  height: 180px;
+  width: 200px;
+  padding: 40px;
+  background: ${colors.bgLight};
+  margin-bottom: 100px;
+  i {
+    font-size: 38px;
+    color: ${colors.colorSecondary};
+  }
+
+  span {
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.colorCoreLightGray};
+    min-height: 36px;
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+`;
+
+const ImportTitle = styled.div`
+  h6 {
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  p {
+    font-size: 12px;
+  }
+`;
+
+const ImportHistoryActions = styled.div`
+  button {
+    margin-left: 0.5rem;
+  }
+`;
+
+const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
+  flex: 1;
+  display: flex;
+  justify-content: ${props => props.center && 'center'};
+  align-items: ${props => (props.align ? 'flex-start' : 'center')};
 `;
 
 const FlexRow = styled.div`
@@ -20,6 +72,23 @@ const FlexRow = styled.div`
 
   .Select {
     flex: 1;
+  }
+`;
+
+const UploadText = styled.div`
+  display: flex;
+  align-items: center;
+
+  p {
+    margin: 0;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  span {
+    cursor: pointer;
+    color: #1785fc;
+    margin-left: 10px;
   }
 `;
 
@@ -88,4 +157,13 @@ const ColumnTable = styledTS<{
   `};
 `;
 
-export { ImportColumnRow, ColumnTable, FlexRow };
+export {
+  ImportColumnRow,
+  ColumnTable,
+  FlexRow,
+  ImportTitle,
+  ImportHistoryActions,
+  Box,
+  FullContent,
+  UploadText
+};

@@ -14,6 +14,7 @@ import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
+import { generateErrors } from './data/modules/import/generateErrors';
 import {
   authCookieOptions,
   deleteFile,
@@ -284,6 +285,18 @@ app.get(
     const { name, response } = await templateExport(req.query);
 
     res.attachment(`${name}.${importType}`);
+    return res.send(response);
+  })
+);
+
+app.get(
+  '/download-import-error',
+  routeErrorHandling(async (req: any, res) => {
+    const { query } = req;
+
+    const { name, response } = await generateErrors(query);
+
+    res.attachment(`${name}.csv`);
     return res.send(response);
   })
 );

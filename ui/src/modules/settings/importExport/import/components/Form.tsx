@@ -242,6 +242,7 @@ class ExportForm extends React.Component<Props, State> {
               </Step>
               <Step img="/images/icons/erxes-10.svg" title="Type">
                 <TypeForm
+                  type={type}
                   onChangeContentType={this.onChangeContentType}
                   contentTypes={contentTypes}
                 />

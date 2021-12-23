@@ -17,8 +17,7 @@ export interface IImportHistoryDocument extends IImportHistory, Document {
   _id: string;
   userId: string;
   date: Date;
-  errorMsgs: string[];
-  erros: object[];
+  errorMsgs: object[];
 }
 
 export const importHistorySchema = new Schema({
@@ -30,11 +29,10 @@ export const importHistorySchema = new Schema({
   contentTypes: field({ type: [String], label: 'Content type' }),
   userId: field({ type: String, label: 'Created by' }),
   date: field({ type: Date, label: 'Date of import' }),
-  errorMsgs: field({ type: [String], default: [], label: 'Error messages' }),
   status: field({ type: String, default: 'In Progress', label: 'Status' }),
   name: field({ type: String, label: 'Name' }),
   percentage: field({ type: Number, default: 0, label: 'Percentage' }),
-  erros: field({ type: [Object] }),
+  errorMsgs: field({ type: [Object] }),
 
   attachments: field({ type: Object, label: 'Attachments' })
 });

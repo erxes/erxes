@@ -1,8 +1,10 @@
 import React from 'react';
-import { ControlLabel, Uploader, __ } from 'erxes-ui';
+import { ModalTrigger, Uploader, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { IAttachment } from 'modules/common/types';
 import { Description, SubHeading } from 'modules/settings/styles';
+import { FullContent, UploadText } from '../../styles';
+import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;
@@ -11,6 +13,47 @@ type Props = {
 };
 
 class FileUpload extends React.Component<Props, {}> {
+  renderText = value => {
+    switch (value) {
+      case 'customer':
+        return 'Customers';
+      case 'company':
+        return 'Companies';
+      case 'deal':
+        return 'Deals';
+      case 'ticket':
+        return 'Tickets';
+      case 'task':
+        return 'Tasks';
+      default:
+        return value;
+    }
+  };
+
+  renderColumnChooser = (currentType: string) => {
+    const manageColumns = props => {
+      return (
+        <ManageColumns
+          {...props}
+          contentType={currentType}
+          type={'import'}
+          isImport={true}
+        />
+      );
+    };
+
+    const editColumns = <span>{__(`download template`)}</span>;
+
+    return (
+      <ModalTrigger
+        title="Select Columns"
+        trigger={editColumns}
+        content={manageColumns}
+        autoOpenKey="showManageColumnsModal"
+      />
+    );
+  };
+
   rendertContent = () => {
     const { contentTypes, onChangeAttachment } = this.props;
 
@@ -20,9 +63,22 @@ class FileUpload extends React.Component<Props, {}> {
 
       return (
         <div key={contentType} style={{ marginTop: '20px' }}>
-          <ControlLabel>{contentType}</ControlLabel>
+          <UploadText>
+            <p>{this.renderText(contentType)}</p>
+            {this.renderColumnChooser(contentType)}
+          </UploadText>
 
-          <Uploader single={true} defaultFileList={[]} onChange={onChange} />
+          <Uploader
+            text={`Choose a file to upload your ${this.renderText(
+              contentType
+            )}.`}
+            warningText={'Only .csv file is supported.'}
+            icon="users-alt"
+            accept=".csv"
+            single={true}
+            defaultFileList={[]}
+            onChange={onChange}
+          />
         </div>
       );
     });
@@ -38,8 +94,9 @@ class FileUpload extends React.Component<Props, {}> {
               'Before you upload your files below, make sure your file is ready to be imported.'
             )}
           </Description>
-
-          {this.rendertContent()}
+          <FullContent center={true}>
+            <div style={{ marginBottom: '100px' }}>{this.rendertContent()}</div>
+          </FullContent>
         </FlexPad>
       </FlexItem>
     );
