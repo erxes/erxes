@@ -7,7 +7,6 @@ import colors from 'erxes-ui/lib/styles/colors';
 import { ISelectedOption } from 'erxes-ui/lib/types';
 import { __ } from 'erxes-ui/lib/utils';
 import React from 'react';
-import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import {
@@ -192,13 +191,6 @@ class MessengerForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
-            <Select
-              placeholder={__('Choose phone number')}
-              value={fromIntegrationId}
-              onChange={onChangeFrom}
-              options={this.fromSelectOptions()}
-              optionRenderer={this.fromOptionRenderer}
-            />
           </FormGroup>
           <FormGroup>
             <SMSInfo>

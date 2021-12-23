@@ -4,12 +4,10 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem } from 'modules/common/components/step/styles';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { readFile, uploadHandler, __ } from 'modules/common/utils';
-import { generateEmailTemplateParams } from 'modules/engage/utils';
 import { ILeadData } from 'modules/leads/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
-import Select from 'react-select-plus';
 import { FlexItem, ImagePreview, ImageUpload } from './style';
 import Uploader from 'modules/common/components/Uploader';
 import Button from 'modules/common/components/Button';
@@ -183,13 +181,6 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Email templates:</label>
           <p>{__('Insert email template to content')}</p>
-
-          <Select
-            value={leadData.templateId}
-            onChange={this.templateChange}
-            options={generateEmailTemplateParams(this.props.emailTemplates)}
-            clearable={false}
-          />
         </FormGroup>
 
         <FormGroup>

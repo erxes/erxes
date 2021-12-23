@@ -5,7 +5,6 @@ import { FlexItem, FlexPad } from 'erxes-ui/lib/components/step/styles';
 import { __, Alert } from 'erxes-ui/lib/utils';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import React from 'react';
-import EditorCK from '../containers/EditorCK';
 import MessengerPreview from '../containers/MessengerPreview';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
@@ -128,14 +127,6 @@ class MessengerForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>{__('Message:')}</ControlLabel>
-
-            <EditorCK
-              content={this.props.content}
-              onChange={this.onEditorChange}
-              height={300}
-              name={`engage_${messageKind}_${messenger.brandId}`}
-              isSubmitted={this.props.isSaved}
-            />
           </FormGroup>
 
           <FormGroup>

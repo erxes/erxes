@@ -18,10 +18,7 @@ import {
   VerifyStatus
 } from '../styles';
 import React from 'react';
-import Select from 'react-select-plus';
-import EditorCK from '../containers/EditorCK';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
-import { generateEmailTemplateParams } from '../utils';
 import Scheduler from './Scheduler';
 
 type EmailParams = {
@@ -60,7 +57,7 @@ class EmailForm extends React.Component<Props, State> {
       content: props.content,
       email: props.email,
       scheduleDate: props.scheduleDate,
-      testEmail: getEmail(props.users, props.fromUserId)
+      testEmail: getEmail(props.users || [], props.fromUserId)
     };
   }
 
@@ -164,13 +161,7 @@ class EmailForm extends React.Component<Props, State> {
     );
 
     return (
-      <Select
-        placeholder={__('Choose users')}
-        value={this.state.fromUserId}
-        onChange={onChangeUser}
-        optionRenderer={optionRenderer}
-        options={selectOptions()}
-      />
+      <div>select</div>
     );
   }
 
@@ -293,13 +284,6 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
-
-            <Select
-              onChange={onChangeTemplate}
-              value={this.state.email.templateId}
-              options={generateEmailTemplateParams(this.props.templates)}
-              clearable={false}
-            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Attachments: </ControlLabel>
@@ -316,13 +300,6 @@ class EmailForm extends React.Component<Props, State> {
         <FlexItem overflow="auto" count="2">
           <EditorContainer>
             <ControlLabel>Content:</ControlLabel>
-            <EditorCK
-              content={this.state.content}
-              isSubmitted={this.props.isSaved}
-              onChange={this.onEditorChange}
-              height={500}
-              name={`engage_email_${this.props.kind}_${this.props.fromUserId}`}
-            />
           </EditorContainer>
         </FlexItem>
       </FlexItem>

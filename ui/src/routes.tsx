@@ -11,7 +11,7 @@ import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
 import DashboardRoutes from './modules/dashboard/routes';
 import DealsRoutes from './modules/deals/routes';
-import EngageRoutes from './modules/engage/routes';
+import EngageRoutes from 'engages/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
@@ -96,12 +96,12 @@ const renderRoutes = currentUser => {
           <SegmentsRoutes />
           <CustomersRoutes />
           <CompaniesRoutes />
-          <EngageRoutes />
           <KnowledgeBaseRoutes />
           <LeadRoutes />
           <SettingsRoutes />
           <TagsRoutes />
           <DealsRoutes />
+          <EngageRoutes />
           <TicketRoutes />
           <TaskRoutes />
           <GrowthHackRoutes />

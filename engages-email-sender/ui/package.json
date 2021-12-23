@@ -45,7 +45,7 @@
     "apollo-link-http": "1.5.16",
     "apollo-link-ws": "1.0.10",
     "apollo-utilities": "1.3.2",
-    "ckeditor4-react": "^2.1.0",
+    "ckeditor4-react": "1.1.0",
     "color": "^4.1.0",
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",

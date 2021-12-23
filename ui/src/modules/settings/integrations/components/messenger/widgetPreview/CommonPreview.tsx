@@ -1,5 +1,4 @@
 import { IUser } from 'modules/auth/types';
-import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import {
   IMessagesItem,
@@ -82,7 +81,7 @@ class CommonPreview extends React.Component<Props> {
     const { logoPreviewStyle, logoPreviewUrl, color } = this.props;
 
     return (
-      <WebPreview>
+      <div>
         <WidgetPreviewStyled>
           <TopBar {...this.props} />
           {this.renderContent()}
@@ -97,7 +96,7 @@ class CommonPreview extends React.Component<Props> {
             logoPreviewStyle
           )}
         />
-      </WebPreview>
+      </div>
     );
   }
 }

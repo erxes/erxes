@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { SMS_DELIVERY_STATUSES } from 'modules/engage/constants';
 import Label from 'modules/common/components/Label';
 import TextInfo from 'modules/common/components/TextInfo';
 import React from 'react';
@@ -19,9 +18,7 @@ const DIRECTIONS = {
 export default class Row extends React.PureComponent<Props> {
   renderStatus() {
     const { log } = this.props;
-    const status = SMS_DELIVERY_STATUSES.OPTIONS.find(
-      opt => opt.value === log.status
-    );
+    const status: any = {};
 
     return (
       <td>

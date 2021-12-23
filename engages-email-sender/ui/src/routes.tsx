@@ -3,17 +3,21 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const MessageForm = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm'
-  )
-);
+const MessageForm = asyncComponent(() => {
+  const comp = import(
+    /* webpackChunkName: "MessageForm - Engage" */ "./containers/MessageForm"
+  );
 
-const MessageList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MessageList - Engage" */ './containers/MessageList'
-  )
-);
+  return comp;
+});
+
+const MessageList = asyncComponent(() => {
+  const comp = import(
+    /* webpackChunkName: "MessageList - Engage" */ "./containers/MessageList"
+  );
+
+  return comp;
+});
 
 const engageList = history => {
   return <MessageList history={history} />;
@@ -21,6 +25,7 @@ const engageList = history => {
 
 const createForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
+
   return <MessageForm kind={queryParams.kind} />;
 };
 

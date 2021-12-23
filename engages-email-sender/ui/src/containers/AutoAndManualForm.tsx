@@ -8,7 +8,6 @@ import {
   IEngageScheduleDate,
   IIntegrationWithPhone
 } from '../types';
-import withFormMutations from './withFormMutations';
 
 type Props = {
   kind?: string;
@@ -30,38 +29,13 @@ type FinalProps = {
 } & Props;
 
 const AutoAndManualFormContainer = (props: FinalProps) => {
-  const {
-    emailTemplatesQuery,
-    integrationConfigsQuery,
-    externalIntegrationsQuery,
-    integrationsQuery
-  } = props;
-
-  const configs = integrationConfigsQuery.integrationsFetchApi || [];
-  const externalIntegrations =
-    externalIntegrationsQuery.integrationsFetchApi || [];
-  const integrations = integrationsQuery.integrations || [];
+  const configs: any = [];
 
   const mappedIntegrations: IIntegrationWithPhone[] = [];
 
-  for (const ext of externalIntegrations) {
-    const locals = integrations.filter(
-      i => i._id === ext.erxesApiId && i.isActive
-    );
-
-    for (const local of locals) {
-      mappedIntegrations.push({
-        _id: local._id,
-        name: local.name,
-        phoneNumber: ext.telnyxPhoneNumber,
-        isActive: local.isActive
-      });
-    }
-  }
-
   const updatedProps = {
     ...props,
-    templates: emailTemplatesQuery.emailTemplates || [],
+    templates: [],
     smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
     integrations: mappedIntegrations
   };

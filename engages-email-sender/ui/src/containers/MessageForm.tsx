@@ -20,10 +20,6 @@ type FinalProps = {
 const MessageFormContainer = (props: FinalProps) => {
   const { engageMessageDetailQuery, brandsQuery, kind } = props;
 
-  if (engageMessageDetailQuery.loading || brandsQuery.loading) {
-    return null;
-  }
-
   const message = engageMessageDetailQuery.engageMessageDetail;
   const brands = brandsQuery.brands || [];
 

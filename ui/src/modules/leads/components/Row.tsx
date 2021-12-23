@@ -11,7 +11,6 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { DateWrapper } from 'modules/common/styles/main';
 import { __, getEnv } from 'modules/common/utils';
-import { RowTitle } from 'modules/engage/styles';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -184,13 +183,7 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>
-          <RowTitle>
-            <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
-              {integration.name}
-            </Link>
-          </RowTitle>
-        </td>
+        <td>{integration.name}</td>
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>

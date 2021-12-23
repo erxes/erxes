@@ -25,7 +25,6 @@ import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import { __, Alert, confirm, router } from '../../../common/utils';
-import Widget from '../../../engage/containers/Widget';
 import Wrapper from '../../../layout/components/Wrapper';
 import { BarItems } from '../../../layout/styles';
 import ManageColumns from '../../../settings/properties/containers/ManageColumns';
@@ -437,8 +436,6 @@ class CustomersList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
-          <Widget customers={bulk} emptyBulk={emptyBulk} />
-
           <TaggerPopover
             type="customer"
             successCallback={this.afterTag}
