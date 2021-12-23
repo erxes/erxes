@@ -212,45 +212,39 @@ code {
   color: red;
 }
 
-
-.iconWrapper{
-  display: flex; 
+.iconWrapper {
+  text-align: center;
+  display: flex;
   flex-direction: column;
-  justify-content: space-around;
   align-items: center;
-  width: 130px;
+  width: 115px;
   font-size: 14px;
-  font-weight: 500;
-  line-height: 10px;
-  color: #000;
-}
-
-.iconWidth {
-  padding : 2px;
-  padding-bottom: 8px;
-  align-items: center;
+  font-weight: 400;
+  line-height: 17px;
+  color: #444;
 }
 
 .iconButton {
-	text-align:center;
-  margin: 5px;
-	width: 125px;
-  background-color: #edf1f5;
-  border: 1px solid rgba(27, 31, 35, 0.15);
+  text-align: center;
+  margin-top: 10px;
+  width: 115px;
+  background-color: #fafafa;
+  border: #eee;
   border-radius: 6px;
   box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0,
     rgba(255, 255, 255, 0.25) 0 1px 0 inset;
-  color: #24292e;
+  color: #444;
   cursor: pointer;
   display: inline-block;
-  line-height: 16px;
-  padding: 6px 16px;
+  line-height: 30px;
+  padding: 20px 16px;
   position: relative;
   transition: all 0.3s ease;
   touch-action: manipulation;
-  vertical-align: middle;
-  white-space: wrap;
-  word-wrap: break-word;
+}
+
+.iconButton:hover {
+  background-color: #e5e8eb71;
 }
 
 .iconButton:hover{
@@ -258,9 +252,32 @@ code {
 }
 
 .iconButton:active {
-  background-color: #edeff2;
+  background-color: #d5d9dd8c;
   box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
   transition: none 0s;
+}
+
+.searchBar {
+  height: 45px;
+  font-size: 16px;
+  border-color: #eee;
+  border-style: solid;
+  border-radius: 6px;
+  padding-left: 15px;
+  margin-bottom: 15px;
+  width: 98%;
+}
+
+.searchBar:focus {
+  border-color: #dee4e7;
+  border-style: solid;
+  outline: 0;
+}
+
+.searchBar:hover {
+  border-color: #dee4e7;
+  border-style: solid;
+  background-color: rgba(203, 204, 206, 0.13);
 }
 
 .test {
@@ -269,4 +286,34 @@ code {
   flex-wrap: wrap;
   align-content: flex-start;
   gap: 10px 20px;
+}
+
+.smBox {
+  height: 100%;
+  width: 100%;
+  background-color: #63d2d6;
+  border-radius: 5px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.sizeBox {
+  height: 100%;
+  width: 100%;
+  background-color: #edf1f5;
+  border-radius: 5px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px;
+}
+
+.buttonBox :active {
+  box-shadow: rgba(0, 0, 0, 0.08);
+  cursor: pointer;
 }

@@ -120,11 +120,13 @@ module.exports = {
     {
       type: "category",
       label: "Getting Started",
+      collapsed: false,
       items: ["components/GettingStarted/introduction"],
     },
     {
       type: "category",
       label: "Components",
+      collapsed: false,
       items: [
         "components/AnimatedLoader/animatedLoader",
         "components/Attachment/attachment",
@@ -139,6 +141,7 @@ module.exports = {
         "components/FilePreview/filepreview",
         "components/Filter/filter",
         "components/FilterByParams/filterbyparams",
+        "components/Form/form",
         "components/HelpPopOver/helppopover",
         "components/Icon/icon",
         "components/Info/info",
@@ -164,7 +167,9 @@ module.exports = {
     {
       type: "category",
       label: "Utilities",
+      collapsed: false,
       items: [
+        "utilities/Alert/alert",
         "utilities/Box/box",
         "utilities/CollapseContent/collapsecontent",
         "utilities/CountsByTag/countsbytag",
@@ -182,6 +187,7 @@ module.exports = {
     {
       type: "category",
       label: "Icons",
+      collapsed: false,
       items: [
         "icons/usage",
         "icons/icons",
@@ -189,8 +195,13 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Colors",
-      items: ["colors/colors"],
+      label: "Styles",
+      collapsed: false,
+      items: [
+        "styles/Colors/colors",
+        "styles/Dimensions/dimensions",
+        "styles/Typography/typography",
+      ],
     },
   ],
 };
