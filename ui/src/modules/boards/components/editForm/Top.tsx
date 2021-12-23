@@ -2,7 +2,6 @@ import {
   HeaderContent,
   HeaderContentSmall,
   HeaderRow,
-  ItemNumber,
   TitleRow
 } from 'modules/boards/styles/item';
 import { ControlLabel } from 'modules/common/components/form';
@@ -86,15 +85,15 @@ function Top(props: Props) {
     }
 
     return (
-      <ItemNumber>
+      <HeaderContentSmall>
+        <ControlLabel>Number</ControlLabel>
         <p>{number}</p>
-      </ItemNumber>
+      </HeaderContentSmall>
     );
   };
 
   return (
     <React.Fragment>
-      {renderNumber()}
       <HeaderRow>
         <HeaderContent>
           <TitleRow>
@@ -108,7 +107,7 @@ function Top(props: Props) {
             />
           </TitleRow>
         </HeaderContent>
-
+        {renderNumber()}
         {renderScore()}
         {amount && amount()}
       </HeaderRow>

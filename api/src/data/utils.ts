@@ -925,23 +925,11 @@ export const numberCalculator = (size: number, num?: any, skip?: boolean) => {
 };
 
 export const configReplacer = config => {
-  // replace year
-  let replacedConfig = config.replace(
-    /\{year}/g,
-    new Date().getFullYear().toString()
-  );
+  const now = new Date();
 
-  // replace month
-  replacedConfig = replacedConfig.replace(
-    /\{month}/g,
-    (new Date().getMonth() + 1).toString()
-  );
-
-  // replace day
-  replacedConfig = replacedConfig.replace(
-    /\{day}/g,
-    new Date().getDate().toString()
-  );
-
-  return replacedConfig;
+  // replace type of date
+  return config
+    .replace(/\{year}/g, now.getFullYear().toString())
+    .replace(/\{month}/g, (now.getMonth() + 1).toString())
+    .replace(/\{day}/g, now.getDate().toString());
 };

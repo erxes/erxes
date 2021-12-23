@@ -579,6 +579,7 @@ export const getItemList = async (
         closeDate: 1,
         modifiedAt: 1,
         priority: 1,
+        number: 1,
         watchedUserIds: 1,
         ...(extraFields || {})
       }

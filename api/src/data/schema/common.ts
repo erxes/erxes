@@ -103,4 +103,5 @@ export const commonListTypes = `
   priority: String
   hasNotified: Boolean
   score: Float
+  number: String
 `;

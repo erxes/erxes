@@ -63,6 +63,7 @@ export const commonListFields = `
   priority
   hasNotified
   score
+  number
 `;
 
 export const commonFields = `
