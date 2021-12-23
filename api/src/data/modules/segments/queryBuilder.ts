@@ -49,7 +49,7 @@ export const isInSegment = async (
 };
 
 export const fetchSegment = async (
-  segment: ISegment,
+  segment,
   options: IOptions = {}
 ): Promise<any> => {
   const { contentType } = segment;

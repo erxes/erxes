@@ -13,8 +13,6 @@ import {
   Divider
 } from '../styles';
 
-const MessageList = React.lazy(() => import('engages/MessageList'));
-
 const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
 const integrationSettingsActions = [
@@ -155,10 +153,6 @@ class Settings extends React.PureComponent {
   render() {
     const content = (
       <MenusContainer id={'SettingsMain'}>
-        <React.Suspense fallback={<p>Loading</p>}>
-          <MessageList />
-        </React.Suspense>
-
         <Row>
           <RowTitle>
             {__('General Settings')}
