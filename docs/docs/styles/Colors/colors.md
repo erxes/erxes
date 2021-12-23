@@ -53,21 +53,21 @@ import { ColorComponent } from "./colors.js"
 
 ### Hex into RGB
 
-<p>Convert a hex value into RGB with <code>rgb</code> function.</p>
+<p>Convert a hex value into RGB with <code>rgb</code> function. Click on the color box to copy the function name.</p>
 <ColorComponent type="rgb" />
 
 ### Hex into RGBA
 
-<p>Convert hex to rgb with opacity with <code>rgba</code> function..</p>
+<p>Convert hex to rgb with opacity with <code>rgba</code> function. Click on the color box to copy the function name.</p>
 <ColorComponent type="rgba" />
 
 ### Darken
 
-<p>Darken the color by <code>darken</code> function.</p>
+<p>Darken the color by <code>darken</code> function. Click on the color box to copy the function name.</p>
 <ColorComponent type="darken" />
 
 ### Lighten
 
-<p>Lighten the color by <code>lighten</code> function.</p>
+<p>Lighten the color by <code>lighten</code> function. Click on the color box to copy the function name.</p>
 <ColorComponent type="lighten" />
 

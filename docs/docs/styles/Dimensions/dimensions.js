@@ -4,6 +4,7 @@ import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import dimension from "erxes-ui/lib/styles/dimensions";
+import Alert from "erxes-ui/lib/utils/Alert/index";
 
 export function DimensionComponent(props) {
   const [copySuccess, setCopySuccess] = useState("");
@@ -13,7 +14,7 @@ export function DimensionComponent(props) {
     try {
       await navigator.clipboard.writeText(copyMe);
       setCopySuccess(`Copied! (${copyMe})`);
-      alert(`Copied! (${copyMe})`);
+      Alert.success(`Copied! (${copyMe})`);
     } catch (err) {
       setCopySuccess("Failed to copy!");
     }

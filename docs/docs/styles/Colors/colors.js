@@ -5,6 +5,7 @@ import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import { rgb, rgba, darken, lighten } from "erxes-ui/lib/styles/ecolor";
 import color from "erxes-ui/lib/styles/colors";
+import Alert from "erxes-ui/lib/utils/Alert/index";
 
 export function ColorComponent(props) {
   const [copySuccess, setCopySuccess] = useState("");
@@ -14,7 +15,7 @@ export function ColorComponent(props) {
     try {
       await navigator.clipboard.writeText(copyMe);
       setCopySuccess(`Copied! (${copyMe})`);
-      alert(`Copied! (${copyMe})`);
+      Alert.success(`Copied! (${copyMe})`);
     } catch (err) {
       setCopySuccess("Failed to copy!");
     }
@@ -23,15 +24,10 @@ export function ColorComponent(props) {
   const items = colors.map((clr, i) => {
     return (
       <div
-        onClick={() => {
-          copyToClipBoard(clr);
-        }}
-        key={i}
         style={{
           background: color[clr],
           height: "80px",
           width: "240px",
-          padding: "10px",
           color:
             clr.includes("colorLightBlue") ||
             clr.includes("colorShadowGray") ||
@@ -51,8 +47,16 @@ export function ColorComponent(props) {
           justifyContent: "center",
         }}
       >
-        <span>{clr}</span>
-        <span>{color[clr]}</span>
+        <div
+          onClick={() => {
+            copyToClipBoard(clr);
+          }}
+          className={styles.buttonBox}
+          key={i}
+        >
+          <span>{clr}</span>
+          <span>{color[clr]}</span>
+        </div>
       </div>
     );
   });
@@ -63,79 +67,78 @@ export function ColorComponent(props) {
     );
   }
 
-    if (type === "rgb") {
-      return (
-        <>
-          <div
-            onClick={() => {
-              copyToClipBoard(type);
-            }}
-            style={{
-              background: rgb("#673FBD"),
-              height: "40px",
-              width: "150px",
-              borderRadius: "15px",
-            }}
-          ></div>
-          <CodeBlock className="language-jsx">{`background: rgb('#673FBD')`}</CodeBlock>
-        </>
-      );
-    }
-    if (type === "rgba") {
-      return (
-        <>
-          <div
-            onClick={() => {
-              copyToClipBoard(type);
-            }}
-            style={{
-              background: rgba("#673FBD", 0.2),
-              height: "40px",
-              width: "150px",
-              borderRadius: "15px",
-            }}
-          ></div>
-          <CodeBlock className="language-jsx">{`background: rgba('#673FBD', 0.2)`}</CodeBlock>
-        </>
-      );
-    }
-    if (type === "darken") {
-      return (
-        <>
-          <div
-            onClick={() => {
-              copyToClipBoard(type);
-            }}
-            style={{
-              background: darken("#673FBD", 30),
-              height: "40px",
-              width: "150px",
-              borderRadius: "15px",
-            }}
-          ></div>
-          <CodeBlock className="language-jsx">{`background: darken('#673FBD')`}</CodeBlock>
-        </>
-      );
-    }
-    if (type === "lighten") {
-      return (
-        <>
-          <div
-            onClick={() => {
-              copyToClipBoard(type);
-            }}
-            style={{
-              background: lighten("#673FBD", 30),
-              height: "40px",
-              width: "150px",
-              borderRadius: "15px",
-            }}
-          ></div>
-          <CodeBlock className="language-jsx">{`background: lighten('#673FBD')`}</CodeBlock>
-        </>
-      );
-    }
-    
+  if (type === "rgb") {
+    return (
+      <>
+        <div
+          onClick={() => {
+            copyToClipBoard(type);
+          }}
+          style={{
+            background: rgb("#673FBD"),
+            height: "40px",
+            width: "150px",
+            borderRadius: "15px",
+          }}
+        ></div>
+        <CodeBlock className="language-jsx">{`background: rgb('#673FBD')`}</CodeBlock>
+      </>
+    );
+  }
+  if (type === "rgba") {
+    return (
+      <>
+        <div
+          onClick={() => {
+            copyToClipBoard(type);
+          }}
+          style={{
+            background: rgba("#673FBD", 0.2),
+            height: "40px",
+            width: "150px",
+            borderRadius: "15px",
+          }}
+        ></div>
+        <CodeBlock className="language-jsx">{`background: rgba('#673FBD', 0.2)`}</CodeBlock>
+      </>
+    );
+  }
+  if (type === "darken") {
+    return (
+      <>
+        <div
+          onClick={() => {
+            copyToClipBoard(type);
+          }}
+          style={{
+            background: darken("#673FBD", 30),
+            height: "40px",
+            width: "150px",
+            borderRadius: "15px",
+          }}
+        ></div>
+        <CodeBlock className="language-jsx">{`background: darken("#673FBD", 30)`}</CodeBlock>
+      </>
+    );
+  }
+  if (type === "lighten") {
+    return (
+      <>
+        <div
+          onClick={() => {
+            copyToClipBoard(type);
+          }}
+          style={{
+            background: lighten("#673FBD", 30),
+            height: "40px",
+            width: "150px",
+            borderRadius: "15px",
+          }}
+        ></div>
+        <CodeBlock className="language-jsx">{`background: lighten("#673FBD", 30)`}</CodeBlock>
+      </>
+    );
+  }
 
   return <div className={styles.test}>{items}</div>;
 }

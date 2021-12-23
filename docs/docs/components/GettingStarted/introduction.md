@@ -5,7 +5,7 @@ title: Introduction
 
 import { Examples } from './introduction.js'
 
-<p>We transfered the common ui that we use with our enterprize companies, plugins and erxes into common components.</p>
+<p>We transfered the common ui into common components. We use them on erxes, erxes plugins and our enterprize companies. You can learn everything about erxes-ui common components, utilities, erxes-icon, and so on.</p>
 
 ## Installation
 

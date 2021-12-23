@@ -4,6 +4,7 @@ import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import typography from "erxes-ui/lib/styles/typography";
+import Alert from "erxes-ui/lib/utils/Alert/index";
 
 export function TypoComponent(props) {
   const [copySuccess, setCopySuccess] = useState("");
@@ -13,7 +14,7 @@ export function TypoComponent(props) {
     try {
       await navigator.clipboard.writeText(copyMe);
       setCopySuccess(`Copied! (${copyMe})`);
-      alert(`Copied! (${copyMe})`);
+      Alert.success(`Copied! (${copyMe})`);
     } catch (err) {
       setCopySuccess("Failed to copy!");
     }

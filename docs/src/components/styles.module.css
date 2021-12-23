@@ -313,7 +313,17 @@ code {
   padding: 10px;
 }
 
-.buttonBox :active {
-  box-shadow: rgba(0, 0, 0, 0.08);
+.buttonBox {
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.buttonBox :hover {
+  box-shadow: rgb(0, 0, 0);
   cursor: pointer;
 }
