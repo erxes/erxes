@@ -139,7 +139,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
                 <Assignees users={item.assignedUsers} />
               </AssingStyle>
               <TextStyle>
-                <span style={{ paddingLeft: 20 }}>{item.name}</span>
+                <div style={{ paddingLeft: 20 }}>{item.name}</div>
               </TextStyle>
             </>
           ),
