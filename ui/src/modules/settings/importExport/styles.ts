@@ -78,6 +78,7 @@ const FlexRow = styled.div`
 const UploadText = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   p {
     margin: 0;

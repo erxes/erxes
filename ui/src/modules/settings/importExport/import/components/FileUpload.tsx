@@ -42,7 +42,7 @@ class FileUpload extends React.Component<Props, {}> {
       );
     };
 
-    const editColumns = <span>{__(`download template`)}</span>;
+    const editColumns = <span>{__(`Download template`)}</span>;
 
     return (
       <ModalTrigger
@@ -52,6 +52,24 @@ class FileUpload extends React.Component<Props, {}> {
         autoOpenKey="showManageColumnsModal"
       />
     );
+  };
+
+  renderIcon = contentType => {
+    switch (contentType) {
+      case 'customer':
+        return 'users-alt';
+      case 'company':
+        return 'building';
+      case 'deal':
+        return 'signal-alt-3';
+      case 'task':
+        return 'laptop';
+      case 'ticket':
+        return 'ticket';
+
+      default:
+        return 'users-alt';
+    }
   };
 
   rendertContent = () => {
@@ -73,7 +91,7 @@ class FileUpload extends React.Component<Props, {}> {
               contentType
             )}.`}
             warningText={'Only .csv file is supported.'}
-            icon="users-alt"
+            icon={this.renderIcon(contentType)}
             accept=".csv"
             single={true}
             defaultFileList={[]}

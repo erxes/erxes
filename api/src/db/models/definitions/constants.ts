@@ -531,6 +531,7 @@ export const NOTIFICATION_TYPES = {
   TASK_DELETE: 'taskDelete',
   CUSTOMER_MENTION: 'customerMention',
   COMPANY_MENTION: 'companyMention',
+  IMPORT_DONE: 'importDone',
   ALL: [
     'channelMembersChange',
     'conversationAddMessage',
@@ -562,7 +563,8 @@ export const NOTIFICATION_TYPES = {
     'taskDelete',
     'customerMention',
     'companyMention',
-    'plugin'
+    'plugin',
+    'importDone'
   ]
 };
 

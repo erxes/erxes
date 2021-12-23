@@ -10,6 +10,7 @@ import { withRouter } from 'react-router-dom';
 import Histories from '../../components/list/Histories';
 import { queries } from '../../graphql';
 import { ImportHistoriesQueryResponse } from '../../../types';
+import { Spinner } from 'erxes-ui';
 
 type Props = {
   queryParams: any;
@@ -41,6 +42,10 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
 
     const histories = historiesQuery.importHistories || {};
     const list = histories.list || [];
+
+    if (historiesQuery.loading) {
+      return <Spinner />;
+    }
 
     if (list.length === 0) {
       historiesQuery.stopPolling();

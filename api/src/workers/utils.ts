@@ -6,13 +6,17 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import { checkFieldNames } from '../data/modules/fields/utils';
-import {
+import utils, {
   createAWS,
   getConfig,
   getS3FileInfo,
+  ISendNotification,
   uploadsFolderPath
 } from '../data/utils';
-import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
+import {
+  CUSTOMER_SELECT_OPTIONS,
+  NOTIFICATION_TYPES
+} from '../db/models/definitions/constants';
 import { default as ImportHistory } from '../db/models/ImportHistory';
 import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
@@ -400,6 +404,20 @@ export const receiveImportCreate = async (content: any) => {
       await updateImportHistory({
         $set: { status, percentage: 100 }
       });
+
+      const notifDoc: ISendNotification = {
+        title: `your ${updatedImportHistory.name} is done`,
+        action: ``,
+        createdUser: ``,
+        receivers: [user._id],
+        content: `your ${updatedImportHistory.name} import is done`,
+        link: `/settings/importHistories`,
+        notifType: NOTIFICATION_TYPES.IMPORT_DONE,
+        contentType: 'import',
+        contentTypeId: importHistoryId
+      };
+
+      await utils.sendNotification(notifDoc);
 
       graphqlPubsub.publish('importHistoryChanged', {});
     }

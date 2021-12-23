@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Icon } from 'erxes-ui';
+import { Icon, TextInfo } from 'erxes-ui';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { DateWrapper } from 'modules/common/styles/main';
@@ -54,7 +54,7 @@ class HistoryRow extends React.Component<Props> {
             {contentTypes.map(contentType => {
               return (
                 <li key={Math.random()}>
-                  <Link to="/settings/properties?type=company">
+                  <Link to={`/contacts/${contentType}`}>
                     {__(`View ${this.renderText(contentType)}`)}
                   </Link>
                 </li>
@@ -67,7 +67,9 @@ class HistoryRow extends React.Component<Props> {
 
     return (
       <Button btnStyle="simple" size="small">
-        {__(`View ${this.renderText(contentTypes[0])}`)}
+        <Link to={`/contacts/${contentTypes[0]}`} style={{ color: '#888' }}>
+          {__(`View ${this.renderText(contentTypes[0])}`)}
+        </Link>
       </Button>
     );
   };
@@ -155,7 +157,7 @@ class HistoryRow extends React.Component<Props> {
       });
     }
 
-    return <p>{history.status}</p>;
+    return <TextInfo textStyle="warning">{history.status}</TextInfo>;
   };
 
   render() {
