@@ -1,18 +1,23 @@
 ---
-id: colors
-title: Color
+id: dimensions
+title: Dimensions
 ---
 
-import { ColorComponent } from "./colors.js"
+import { DimensionComponent } from "./dimensions.js"
 
-<p>Convey meaning through color with a handful of color utility classes. Includes support for styling links with hover states, too.</p>
+<p>We included a few main spacings that you can use to modify the margin, padding and so on.</p>
 
 ## Import
 
-<p>Import <code>colors</code> form erxes-ui to use our mainly used colors in your project.</p>
-<ColorComponent type="import" />
+<p>Import <code>dimensions</code> from erxes-ui to use our main spacings in your project.</p>
+<DimensionComponent type="import" />
 
-## Core colors
+## Dimensions
+
+<p>You can choose from the following spacings. They return string values such as '10px', '20px', '50px'. '70px'.</p>
+<DimensionComponent dimensions={['unitSpacing', 'coreSpacing', 'headerSpacing', 'headerSpacingWide']} />
+
+<!-- ## Core colors
 
 <p>Main colors that we use. Click to copy the color name.</p>
 <ColorComponent colors={['colorPrimaryDark', 'colorPrimary', 'colorSecondary', 'colorCoreDarkBlue', 'colorCoreBlue', 'colorCoreTeal', 'colorCoreOrange', 'colorCoreSunYellow', 'colorCoreYellow', 'colorBlack', 'colorCoreDarkGray', 'colorCoreBlack', 'colorCoreGray', 'colorLightGray', 'colorCoreLightGray', 'colorShadowGray', 'colorLightBlue', 'colorWhite', 'colorCoreRed', 'colorCoreGreen']} />
@@ -45,4 +50,4 @@ import { ColorComponent } from "./colors.js"
 ## Social colors
 
 <p>You can choose from the social media main colors. Click on the color to copy the name.</p>
-<ColorComponent colors={['socialFacebook', 'socialFacebookMessenger', 'socialTwitter', 'socialGoogleMeet', 'socialLine', 'socialWhatsApp', 'socialGmail', 'socialTelegram', 'socialViber', 'socialTwilio']} />
+<ColorComponent colors={['socialFacebook', 'socialFacebookMessenger', 'socialTwitter', 'socialGoogleMeet', 'socialLine', 'socialWhatsApp', 'socialGmail', 'socialTelegram', 'socialViber', 'socialTwilio']} /> -->
