@@ -2,9 +2,48 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
 // replace accordingly './.env' with the path of your .env file
 const envs = require("dotenv").config({ path: "./.env" });
+
+const depNames = [
+  '@apollo/react-hooks',
+  'apollo-cache-inmemory',
+  'apollo-client',
+  'apollo-link',
+  'apollo-link-context',
+  'apollo-link-error',
+  'apollo-link-http',
+  'apollo-link-ws',
+  'apollo-utilities',
+  'color',
+  // 'dayjs',
+  'dotenv',
+  'erxes-ui',
+  'graphql',
+  'graphql-tag',
+  'i18n-react',
+  'lodash',
+  'lodash.flowright',
+  'query-string',
+  'react',
+  'react-apollo',
+  'react-bootstrap',
+  'react-dom',
+  'react-router-dom',
+  'react-transition-group',
+  'styled-components',
+  'styled-components-ts',
+  'subscriptions-transport-ws',
+  'validator'
+]
+
+const shared = {};
+
+for (const name of depNames) {
+  shared[name] = { eager: true };
+}
 
 module.exports = {
   resolve: {
@@ -64,6 +103,17 @@ module.exports = {
       template: path.resolve( __dirname, 'public/index.html' ),
       filename: 'index.html',
       inject: true,
+    }),
+    new ModuleFederationPlugin({
+      name: "main",
+      filename: "remoteEntry.js",
+      remotes: {
+        engages: 'engages@http://localhost:3001/remoteEntry.js'
+      },
+      exposes: {
+        QuickNavigation: './src/modules/layout/components/QuickNavigation.tsx'
+      },
+      shared
     }),
   ],
 };

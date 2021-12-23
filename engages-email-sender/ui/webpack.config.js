@@ -9,10 +9,22 @@ const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 require('dotenv').config({ path: './.env' }); 
 
 const deps = require("./package.json").dependencies;
+const depNames = Object.keys(deps);
+
+const shared = {};
+
+for (const name of depNames) {
+  shared[name] = {
+    eager: true
+  }
+}
+
 module.exports = {
   output: {
     publicPath: "http://localhost:3001/",
   },
+
+  optimization: { runtimeChunk: false, splitChunks: false },
 
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
@@ -60,23 +72,13 @@ module.exports = {
       PUBLIC_URL: 'public' // can modify `static` to another name or get it from `process`
     }),
     new ModuleFederationPlugin({
-      name: "ui",
+      name: "engages",
       filename: "remoteEntry.js",
       remotes: {},
       exposes: {
-        engages: './src/modules/engages/containers/MessageList.tsx'
+        "./MessageList": './src/modules/engages/containers/MessageList.tsx'
       },
-      shared: {
-        ...deps,
-        react: {
-          singleton: true,
-          requiredVersion: deps.react,
-        },
-        "react-dom": {
-          singleton: true,
-          requiredVersion: deps["react-dom"],
-        },
-      },
+      shared
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",

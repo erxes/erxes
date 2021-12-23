@@ -50,6 +50,7 @@ export default class ConversationList extends React.Component<Props> {
             />
           ))}
         </ConversationItems>
+
         {!loading && conversations.length === 0 && (
           <EmptyState
             text="Let's get you messaging away!"
