@@ -12,7 +12,7 @@
       "esnext.asynciterable"
     ],
     "sourceMap": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
