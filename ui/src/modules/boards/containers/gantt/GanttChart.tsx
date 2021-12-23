@@ -108,8 +108,6 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
     const dbData: any[] = [];
     const dbLinks: any[] = [];
 
-    console.log('groups: ', groups);
-
     groups.forEach((groupObj, index) => {
       const filtered = items.filter(item =>
         callback(groupType)(item, groupObj)

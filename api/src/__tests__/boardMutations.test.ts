@@ -564,4 +564,34 @@ describe('Test boards mutations', () => {
       expect(updatedTask.timeTrack.timeSpent).toBe(20);
     }
   });
+
+  test('boardItemsSaveForGanttTimeline', async () => {
+    const mutation = `
+      mutation boardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
+        boardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
+      }
+    `;
+
+    try {
+      await graphqlRequest(mutation, 'boardItemsSaveForGanttTimeline', {
+        items: [],
+        type: 'task',
+        links: []
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('No data to save');
+    }
+
+    const response = await graphqlRequest(
+      mutation,
+      'boardItemsSaveForGanttTimeline',
+      {
+        items: [{ _id: '_id', startDate: new Date(), endDate: new Date() }],
+        type: 'task',
+        links: []
+      }
+    );
+
+    expect(response).toBe('Success');
+  });
 });
