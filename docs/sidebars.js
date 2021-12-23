@@ -141,6 +141,7 @@ module.exports = {
         "components/FilePreview/filepreview",
         "components/Filter/filter",
         "components/FilterByParams/filterbyparams",
+        "components/Form/form",
         "components/HelpPopOver/helppopover",
         "components/Info/info",
         "components/Label/label",
@@ -167,6 +168,7 @@ module.exports = {
       label: "Utilities",
       collapsed: false,
       items: [
+        "utilities/Alert/alert",
         "utilities/Box/box",
         "utilities/CollapseContent/collapsecontent",
         "utilities/CountsByTag/countsbytag",
