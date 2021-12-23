@@ -37,7 +37,7 @@ export function FormComponent() {
   };
 
   const content = (formProps) => {
-    var { values, isSubmitted } = formProps;
+    var { isSubmitted } = formProps;
     return (
       <>
         <FormGroup>

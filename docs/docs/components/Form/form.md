@@ -5,6 +5,12 @@ title: Form
 
 import { FormComponent } from "./forms.js"
 
+<p>Examples and usage guidelines for form, form control and so on.</p>
+
+## Example
+
+<FormComponent />
+
 <!-- ## Form group
 
 <FormComponent type="group" />

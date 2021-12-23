@@ -10,13 +10,18 @@ export function AlertComponent(props) {
   if(type==="time"){
     return (<>
     <Button onClick={() => {Alert.info("Default")}}>Default time</Button>
-    <Button >Custom time</Button>
+    <Button onClick={() => {Alert.info("Custom", 700)}}>Custom time</Button>
     <CodeBlock className="language-jsx">
-    {`const infoAlert = () => {
-    Alert.info("Info alert", 1000);
-  }`}
+    {`<>
+    <Button onClick={() => {Alert.info("Default")}}>Default time</Button>
+    <Button onClick={() => {Alert.info("Custom", 700)}}>Custom time</Button>\n</>
+  `}
   </CodeBlock>
   </>)
+  }
+
+  if(type==="import"){
+    return <CodeBlock className="language-javascript">{`import Alert from "erxes-ui/lib/utils/Alert/index";`}</CodeBlock>
   }
 
   return(<>
