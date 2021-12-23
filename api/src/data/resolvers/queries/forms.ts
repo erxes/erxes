@@ -92,7 +92,6 @@ const formQueries = {
       const subs = await FormSubmissions.find({
         $and: submissionFilters
       }).lean();
-
       conversationIds = subs.map(e => e.contentTypeId);
     }
 
@@ -103,7 +102,7 @@ const formQueries = {
     for (const integration of integrations) {
       const convsSelector: any = { integrationId: integration._id };
 
-      if (conversationIds) {
+      if (conversationIds.length > 0) {
         convsSelector._id = { $in: conversationIds };
       }
 
@@ -128,6 +127,13 @@ const formQueries = {
     }
 
     return submissions;
+  },
+
+  formSubmissionsTotalCount(
+    _root,
+    { integrationId }: { integrationId: string }
+  ) {
+    return Conversations.countDocuments({ integrationId });
   }
 };
 

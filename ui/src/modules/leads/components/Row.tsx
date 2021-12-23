@@ -10,7 +10,7 @@ import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { DateWrapper } from 'modules/common/styles/main';
-import { __, getEnv } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { RowTitle } from 'modules/engage/styles';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';
@@ -84,21 +84,32 @@ class Row extends React.Component<Props> {
     );
   }
 
-  renderExportAction() {
-    const { integration } = this.props;
-    const { REACT_APP_API_URL } = getEnv();
+  renderExportAction(integration) {
+    // const { integration } = this.props;
+    // const { REACT_APP_API_URL } = getEnv();
 
-    const onClick = () => {
-      window.open(
-        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
-        '_blank'
-      );
-    };
+    // const onClick = () => {
+    //   window.open(
+    //     `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
+    //     '_blank'
+    //   );
+    // };
+
+    // return (
+    //   <Tip text={__('Download responses')} placement="top">
+    //     <Button btnStyle="link" onClick={onClick} icon="down-arrow" />
+    //   </Tip>
+    // );
+    const { formId } = integration;
 
     return (
-      <Tip text={__('Download responses')} placement="top">
-        <Button btnStyle="link" onClick={onClick} icon="down-arrow" />
-      </Tip>
+      <Link to={`/forms/responses/${integration._id}/${formId}`}>
+        <Button btnStyle="link">
+          <Tip text={__('Manage')} placement="top">
+            <Icon icon="down-arrow" />
+          </Tip>
+        </Button>
+      </Link>
     );
   }
 
@@ -231,7 +242,7 @@ class Row extends React.Component<Props> {
             {this.renderEditAction(integration)}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
-            {this.renderExportAction()}
+            {this.renderExportAction(integration)}
             {this.renderCopyAction()}
             {this.renderRemoveAction()}
           </ActionButtons>

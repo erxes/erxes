@@ -64,6 +64,7 @@ export const queries = `
   formDetail(_id: String!): Form
   forms: [Form]
   formSubmissions(tagId: String, formId: String, contentTypeIds: [String], filters: [SubmissionFilter]): [Submission]
+  formSubmissionsTotalCount(integrationId: String): Int
 `;
 
 export const mutations = `
