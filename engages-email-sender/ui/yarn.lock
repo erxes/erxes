@@ -1048,6 +1048,15 @@
     gud "^1.0.0"
     warning "^4.0.3"
 
+"@nateradebaugh/react-datetime@4.0.0-rc.10":
+  version "4.0.0-rc.10"
+  resolved "https://registry.yarnpkg.com/@nateradebaugh/react-datetime/-/react-datetime-4.0.0-rc.10.tgz#410d6a44efc187ab49827dda1b6f74630da05303"
+  integrity sha512-GcoLOdw4Il2iT8RmxKRh3UAioL1Nc1G0enc1rDIwzOLCf9GWW5qrU5sG4mvHVpANTGUbvtDLGJehgN4rvCm7yQ==
+  dependencies:
+    classcat "^3.2.5"
+    react-onclickoutside "^6.8.0"
+    react-popper "^1.3.3"
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -1893,7 +1902,25 @@ chrome-trace-event@^1.0.2:
   resolved "https://registry.yarnpkg.com/chrome-trace-event/-/chrome-trace-event-1.0.3.tgz#1015eced4741e15d06664a957dbbf50d041e26ac"
   integrity sha512-p3KULyQg4S7NIHixdwbGX+nFHkoBiA4YQmyWtjb8XngSKV124nJmRysgAeujbUVb15vh+RvFUfCPqU7rXk+hZg==
 
-classnames@^2.2.6:
+ckeditor4-integrations-common@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-1.0.0.tgz#a8afc33b94877b4d01362c7c73aa9eec162b2d20"
+  integrity sha512-OAoQT/gYrHkg0qgzf6MS/rndYhq3SScLVQ3rtXQeuCE8ju7nFHg3qZ7WGA2XpFxcZzsMP6hhugXqdel5vbcC3g==
+
+ckeditor4-react@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-react/-/ckeditor4-react-2.1.0.tgz#98b4b7f2eadffdb547d95bdf4c00f6d23092a979"
+  integrity sha512-sa79buBoZzqmJS7G7r/NKM6qhowWuPpPJ7SKOmA0Z2lFNI95RUqpdiuNKQUfAr7li+HU3BrY2RgNKSyARq06jA==
+  dependencies:
+    ckeditor4-integrations-common "^1.0.0"
+    prop-types "^15.7.2"
+
+classcat@^3.2.5:
+  version "3.2.5"
+  resolved "https://registry.yarnpkg.com/classcat/-/classcat-3.2.5.tgz#bf4271dee0c93fdf132bc127f5d0432d35245888"
+  integrity sha512-exme+Vc60aBW3KbPcVg+t7P2qsA5EXxYjD4ivpB2i+bAclFqtbchE4z7/Wj5A2eoKKi4jO+T+Da5zwS/Jw55Kw==
+
+classnames@^2.2.4, classnames@^2.2.6:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.1.tgz#dfcfa3891e306ec1dad105d0e88f4417b8535e8e"
   integrity sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
@@ -1964,7 +1991,7 @@ colorette@^2.0.10, colorette@^2.0.14:
   resolved "https://registry.yarnpkg.com/colorette/-/colorette-2.0.16.tgz#713b9af84fdb000139f04546bd4a93f62a5085da"
   integrity sha512-hUewv7oMjCp+wkBv5Rm0v87eJhq4woh5rSR+42YSQJKecCqgIqNkZ6lAlQms/BwHPJA5NKMRlpxPRv0n8HQW6g==
 
-commander@^2.20.0:
+commander@^2.20.0, commander@^2.20.3:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
@@ -2129,6 +2156,11 @@ cssesc@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/cssesc/-/cssesc-3.0.0.tgz#37741919903b868565e1c09ea747445cd18983ee"
   integrity sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
+
+cssfilter@0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/cssfilter/-/cssfilter-0.0.10.tgz#c6d2672632a2e5c83e013e6864a42ce8defd20ae"
+  integrity sha1-xtJnJjKi5cg+AT5oZKQs6N79IK4=
 
 csstype@^3.0.2:
   version "3.0.10"
@@ -3901,6 +3933,11 @@ react-dom@16.11.0:
     prop-types "^15.6.2"
     scheduler "^0.17.0"
 
+react-input-autosize@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-1.1.0.tgz#3fe1ac832387d8abab85f6051ceab1c9e5570853"
+  integrity sha1-P+GsgyOH2KurhfYFHOqxyeVXCFM=
+
 react-is@^16.13.1, react-is@^16.3.1, react-is@^16.3.2, react-is@^16.6.0, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -3910,6 +3947,11 @@ react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
+
+react-onclickoutside@^6.8.0:
+  version "6.12.1"
+  resolved "https://registry.yarnpkg.com/react-onclickoutside/-/react-onclickoutside-6.12.1.tgz#92dddd28f55e483a1838c5c2930e051168c1e96b"
+  integrity sha512-a5Q7CkWznBRUWPmocCvE8b6lEYw1s6+opp/60dCunhO+G6E4tDTO2Sd2jKE+leEnnrLAE2Wj5DlDHNqj5wPv1Q==
 
 react-overlays@^1.2.0:
   version "1.2.0"
@@ -3925,7 +3967,7 @@ react-overlays@^1.2.0:
     uncontrollable "^6.0.0"
     warning "^4.0.2"
 
-react-popper@^1.3.2:
+react-popper@^1.3.2, react-popper@^1.3.3:
   version "1.3.11"
   resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-1.3.11.tgz#a2cc3f0a67b75b66cfa62d2c409f9dd1fcc71ffd"
   integrity sha512-VSA/bS+pSndSF2fiasHK/PTEEAyOpX60+H5EPAjoArr8JGm+oihu4UbrqcEBpQibJxBVCpYyjAX7abJ+7DoYVg==
@@ -3966,6 +4008,14 @@ react-router@5.1.2:
     react-is "^16.6.0"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
+
+react-select-plus@^1.0.0-rc.3.patch12:
+  version "1.0.0-rc.3.patch12"
+  resolved "https://registry.yarnpkg.com/react-select-plus/-/react-select-plus-1.0.0-rc.3.patch12.tgz#38f6b47b083989d5b03cb3393c9a1f033806b020"
+  integrity sha512-BuSEBLcKGlWVL8XkvEef/v3A6wr2Cm/ZSSFa1xiLq+kKxlw8ZTbhw5wOlMKn2J9jx4xqPmTO5NJMYBfCuVM30g==
+  dependencies:
+    classnames "^2.2.4"
+    react-input-autosize "1.1.0"
 
 react-transition-group@2.5.1:
   version "2.5.1"
@@ -4408,6 +4458,11 @@ spdy@^4.0.2:
     select-hose "^2.0.0"
     spdy-transport "^3.0.0"
 
+sprintf-js@^1.0.3:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.1.2.tgz#da1765262bf8c0f571749f2ad6c26300207ae673"
+  integrity sha512-VE0SOVEHCk7Qc8ulkWw3ntAzXuqf7S2lvwQaDLRnUeIEaKNQJzV6BwmLKhOqT61aGhfUMrXeaBk+oDGCzvhcug==
+
 "statuses@>= 1.4.0 < 2", "statuses@>= 1.5.0 < 2", statuses@~1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
@@ -4450,6 +4505,11 @@ strip-final-newline@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/strip-final-newline/-/strip-final-newline-2.0.0.tgz#89b852fb2fcbe936f6f4b3187afb0a12c1ab58ad"
   integrity sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==
+
+strip@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/strip/-/strip-3.0.0.tgz#750fc933152a7d35af0b7420e651789b914cc35e"
+  integrity sha1-dQ/JMxUqfTWvC3Qg5lF4m5FMw14=
 
 style-loader@^3.3.0:
   version "3.3.1"
@@ -4638,6 +4698,19 @@ uncontrollable@^7.0.0:
     "@types/react" ">=16.9.11"
     invariant "^2.2.4"
     react-lifecycles-compat "^3.0.4"
+
+underscore.string@^3.3.5:
+  version "3.3.5"
+  resolved "https://registry.yarnpkg.com/underscore.string/-/underscore.string-3.3.5.tgz#fc2ad255b8bd309e239cbc5816fd23a9b7ea4023"
+  integrity sha512-g+dpmgn+XBneLmXXo+sGlW5xQEt4ErkS3mgeN2GFbremYeMBSJKr9Wf2KJplQVaiPY/f7FN6atosWYNm9ovrYg==
+  dependencies:
+    sprintf-js "^1.0.3"
+    util-deprecate "^1.0.2"
+
+underscore@^1.13.2:
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.2.tgz#276cea1e8b9722a8dbed0100a407dda572125881"
+  integrity sha512-ekY1NhRzq0B08g4bGuX4wd2jZx5GnKz6mKSqFL4nqBlfyMGiG10gDFhDTMEfYmDL6Jy0FUIZp7wiRB+0BP7J2g==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
@@ -4883,6 +4956,14 @@ ws@^8.1.0:
   version "8.4.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.4.0.tgz#f05e982a0a88c604080e8581576e2a063802bed6"
   integrity sha512-IHVsKe2pjajSUIl4KYMQOdlyliovpEPquKkqbwswulszzI7r0SfQrxnXdWAEqOlDCLrVSJzo+O1hAwdog2sKSQ==
+
+xss@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/xss/-/xss-1.0.10.tgz#5cd63a9b147a755a14cb0455c7db8866120eb4d2"
+  integrity sha512-qmoqrRksmzqSKvgqzN0055UFWY7OKx1/9JWeRswwEVX9fCG5jcYRxa/A2DHcmZX6VJvjzHRQ2STeeVcQkrmLSw==
+  dependencies:
+    commander "^2.20.3"
+    cssfilter "0.0.10"
 
 yallist@^4.0.0:
   version "4.0.0"

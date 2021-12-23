@@ -1,5 +1,5 @@
-import { generatePaginationParams } from 'modules/common/utils/router';
-import { TargetCount } from 'modules/engage/types';
+import { generatePaginationParams } from 'erxes-ui/lib/utils/router';
+import { TargetCount } from './types';
 
 export const generateListQueryVariables = ({ queryParams }) => ({
   ...generatePaginationParams(queryParams),
