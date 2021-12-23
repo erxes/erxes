@@ -24,7 +24,9 @@ export const callback = (groupType: string) => {
 };
 
 export const generateName = groupObj => {
-  if (groupObj.name) return groupObj.name;
+  if (groupObj.name) {
+    return groupObj.name;
+  }
 
   const details = groupObj.details || {};
 
