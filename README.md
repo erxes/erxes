@@ -73,6 +73,9 @@ Follow these deployment instructions.
 
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters. 
 
+## Is erxes secure?
+
+You can check it's security certificate on <a href="https://www.erxes.org/">erxes </a>website. A security certificate is issued only if the website is secure. You can learn more about this on the main site. Just click on lock symbol on the top left corner of the website.
 ## Which license does erxes use?
 
 erxes is a free and open <a href="https://faircode.io/">fair-code</a> licensed under GNU General Public License v3.0 with Commons Clause.
