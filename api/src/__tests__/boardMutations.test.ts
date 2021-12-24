@@ -572,16 +572,6 @@ describe('Test boards mutations', () => {
       }
     `;
 
-    try {
-      await graphqlRequest(mutation, 'boardItemsSaveForGanttTimeline', {
-        items: [],
-        type: 'task',
-        links: []
-      });
-    } catch (e) {
-      expect(e[0].message).toBe('No data to save');
-    }
-
     const response = await graphqlRequest(
       mutation,
       'boardItemsSaveForGanttTimeline',

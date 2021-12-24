@@ -411,10 +411,6 @@ const boardMutations = {
   ) {
     const bulkOps: any[] = [];
 
-    if (items.length === 0) {
-      throw new Error('No data to save');
-    }
-
     for (const item of items) {
       bulkOps.push({
         updateOne: {

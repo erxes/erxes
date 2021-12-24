@@ -81,6 +81,10 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
     }
 
     const save = (boardItems: any[], links: any[]) => {
+      if (boardItems.length === 0) {
+        return;
+      }
+
       client
         .mutate({
           mutation: gql(mutations.boardItemsSaveForGanttTimeline),
