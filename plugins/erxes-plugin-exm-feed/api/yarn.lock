@@ -689,10 +689,10 @@ error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-erxes-api-utils@^0.0.33:
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/erxes-api-utils/-/erxes-api-utils-0.0.33.tgz#7df37de1e5be66756ca951b14c3077d5fc09fe19"
-  integrity sha512-cyBq4IXlbUSE2iMtMIpSTxkAqj9PO0qRD6DWg0TSYN9ahzoJ+5JA06YW23LPYGpW1e1RxpYAeCYA/48ovA/DcA==
+erxes-api-utils@^0.0.34:
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/erxes-api-utils/-/erxes-api-utils-0.0.34.tgz#d0cb02729ae22e8662a8b15b5bb1cad34a67a332"
+  integrity sha512-RivMTTnrE0Nz9WKPb3H79QlH9BpXbjJ7L4pZovqtXYmH1//6pj3g3/amKGhq5PMnZBh6udixLpOpGtk5GYHtMg==
   dependencies:
     "@babel/runtime" "^7.11.2"
     aws-sdk "^2.151.0"
