@@ -36,8 +36,8 @@ export class VoucherCompaign {
 
   public static async validVoucherCompaign(doc) {
     validCompaign(doc)
-
-    if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.productId && !doc.spinId && !doc.lotteryId) {
+    console.log(doc)
+    if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.bonusProductId && !doc.spinCompaignId && !doc.lotteryCompaignId) {
       throw new Error('Could not create null Voucher compaign');
     }
 
