@@ -16,18 +16,18 @@ type Props = {
 };
 
 export default function GeneralContainer(props: Props) {
-  const integrationQuery = useQuery(gql(queries.integrations), {
+  const brandsQuery = useQuery(gql(queries.allBrands), {
     variables: { kind: 'lead' }
   });
   const kbQuery = useQuery(gql(queries.knowledgeBaseTopics));
   const [kbCategories, setKbCategories] = useState({});
 
-  if (integrationQuery.loading || kbQuery.loading) {
+  if (brandsQuery.loading || kbQuery.loading) {
     return <Spinner />;
   }
 
-  if (integrationQuery.error) {
-    return <ErrorMsg>{integrationQuery.error.message}</ErrorMsg>;
+  if (brandsQuery.error) {
+    return <ErrorMsg>{brandsQuery.error.message}</ErrorMsg>;
   }
 
   if (kbQuery.error) {
@@ -55,7 +55,7 @@ export default function GeneralContainer(props: Props) {
       kbTopics={kbQuery.data.knowledgeBaseTopics || []}
       kbCategories={kbCategories}
       getKbCategories={getKbCategories}
-      forms={integrationQuery.data.integrations || []}
+      brands={brandsQuery.data.allBrands || []}
     />
   );
 }

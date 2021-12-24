@@ -27,14 +27,14 @@ const getEmptyFeature = () => ({
 type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
-  forms: any[];
+  brands: any[];
   kbTopics: any[];
   kbCategories: { [key: string]: any[] };
   getKbCategories: (topicId: string) => void;
 };
 
 export default function General(props: Props) {
-  const { forms, kbTopics, exm, edit, getKbCategories, kbCategories } = props;
+  const { brands, kbTopics, exm, edit, getKbCategories, kbCategories } = props;
   const exmFeatures = exm.features || [];
   const [name, setName] = useState(exm.name || '');
   const [description, setDescription] = useState(exm.description || '');
@@ -64,7 +64,7 @@ export default function General(props: Props) {
 
   const getContentValues = (contentType: string) => {
     if (contentType === 'form') {
-      return forms.map(f => ({ value: f._id, label: f.name }));
+      return brands.map(f => ({ value: f._id, label: f.name }));
     }
 
     return kbTopics.map(c => ({ value: c._id, label: c.title }));
@@ -169,7 +169,13 @@ export default function General(props: Props) {
             </FeatureRowItem>
             <FeatureRowItem>
               <Select
-                placeholder={__('Choose a content')}
+                placeholder={__(
+                  `Choose a ${
+                    feature.contentType === 'knowledgeBase'
+                      ? 'knowledge base'
+                      : 'brand'
+                  }`
+                )}
                 value={feature.contentId}
                 options={getContentValues(feature.contentType)}
                 onChange={item => {
