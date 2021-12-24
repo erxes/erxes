@@ -98,6 +98,7 @@ function PlaceHolderInput(props: Props) {
     }
   };
 
+  // converted config
   const converted: string = config;
 
   return (
