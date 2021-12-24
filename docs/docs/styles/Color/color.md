@@ -1,23 +1,18 @@
 ---
-id: dimensions
-title: Dimensions
+id: color
+title: Color
 ---
 
-import { DimensionComponent } from "./dimensions.js"
+import { ColorComponent } from "./color.js"
 
-<p>We included a few main spacings that you can use to modify the margin, padding and so on.</p>
+<p>Our main colors for text, background, border and so on. And you can also costumize the colors with specific functions.</p>
 
 ## Import
 
-<p>Import <code>dimensions</code> from erxes-ui to use our main spacings in your project.</p>
-<DimensionComponent type="import" />
+<p>Import <code>colors</code> from erxes-ui to use our mainly used colors in your project.</p>
+<ColorComponent type="import" />
 
-## Dimensions
-
-<p>You can choose from the following spacings. They return string values such as '10px', '20px', '50px'. '70px'.</p>
-<DimensionComponent dimensions={['unitSpacing', 'coreSpacing', 'headerSpacing', 'headerSpacingWide']} />
-
-<!-- ## Core colors
+## Core colors
 
 <p>Main colors that we use. Click to copy the color name.</p>
 <ColorComponent colors={['colorPrimaryDark', 'colorPrimary', 'colorSecondary', 'colorCoreDarkBlue', 'colorCoreBlue', 'colorCoreTeal', 'colorCoreOrange', 'colorCoreSunYellow', 'colorCoreYellow', 'colorBlack', 'colorCoreDarkGray', 'colorCoreBlack', 'colorCoreGray', 'colorLightGray', 'colorCoreLightGray', 'colorShadowGray', 'colorLightBlue', 'colorWhite', 'colorCoreRed', 'colorCoreGreen']} />
@@ -50,4 +45,29 @@ import { DimensionComponent } from "./dimensions.js"
 ## Social colors
 
 <p>You can choose from the social media main colors. Click on the color to copy the name.</p>
-<ColorComponent colors={['socialFacebook', 'socialFacebookMessenger', 'socialTwitter', 'socialGoogleMeet', 'socialLine', 'socialWhatsApp', 'socialGmail', 'socialTelegram', 'socialViber', 'socialTwilio']} /> -->
+<ColorComponent colors={['socialFacebook', 'socialFacebookMessenger', 'socialTwitter', 'socialGoogleMeet', 'socialLine', 'socialWhatsApp', 'socialGmail', 'socialTelegram', 'socialViber', 'socialTwilio']} />
+
+## Ecolors
+
+<p>You can make a color by yourself with hex code using rgb, rgba, darken, lighten functions.</p>
+
+### Hex into RGB
+
+<p>Convert a hex value into RGB with <code>rgb</code> function. Click on the color box to copy the function name.</p>
+<ColorComponent type="rgb" />
+
+### Hex into RGBA
+
+<p>Convert hex to rgb with opacity with <code>rgba</code> function. Click on the color box to copy the function name.</p>
+<ColorComponent type="rgba" />
+
+### Darken
+
+<p>Darken the color by <code>darken</code> function. Click on the color box to copy the function name.</p>
+<ColorComponent type="darken" />
+
+### Lighten
+
+<p>Lighten the color by <code>lighten</code> function. Click on the color box to copy the function name.</p>
+<ColorComponent type="lighten" />
+

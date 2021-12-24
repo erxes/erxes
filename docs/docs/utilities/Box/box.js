@@ -10,7 +10,7 @@ import "erxes-icon/css/erxes.min.css";
 export function BoxComponent(props) {
   const { type, table = [] } = props;
 
-  const propDatas = (propName, extra, isComponent) => {
+  const propDatas = (propName, extra) => {
     let datas;
     if (propName) {
       const kind = {
@@ -38,7 +38,7 @@ export function BoxComponent(props) {
       <>
         <div className={styles.styled}>
           {propName === "collapsible" ? (
-            <Box {...propDatas(propName, extra, true)}>
+            <Box {...propDatas(propName, extra)}>
               <div className={styles.styled}>
                 <p>
                   Larry the Bird. Larry Joe Bird (born December 7, 1956) is an

@@ -1,9 +1,9 @@
 ---
-id: buttons
-title: Buttons
+id: button
+title: Button
 ---
 
-import { ButtonComponent } from "./buttons.js"
+import { ButtonComponent } from "./button.js"
 
 <p>Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
 

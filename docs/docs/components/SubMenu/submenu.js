@@ -1,19 +1,20 @@
 import React from "react";
 import Submenu from "erxes-ui/lib/components/subMenu/Submenu";
+import Button from "erxes-ui/lib/components/Button";
 import CodeBlock from "@theme/CodeBlock";
 import Table from "erxes-ui/lib/components/table/index";
 import styles from "../../../src/components/styles.module.css";
 
 export function SubMenuComponent(props) {
-  const { add, type } = props;
+  const { type, add } = props;
   const array = [
     { title: "Submenu 1", link: "" },
     { title: "Submenu 2", link: "" },
     { title: "Submenu 3", link: "" },
   ];
-  const addition = "Additional item";
+  // const addition = <Button>Additional item</Button>;
 
-  const propDatas = () => {
+  const propDatas = (addition) => {
     const kind = {
       items: array,
       additionalMenuItem: add && addition,
@@ -24,8 +25,8 @@ export function SubMenuComponent(props) {
   const stringify = (kind) => {
     let string = JSON.stringify(kind);
     string = string.replace(
-      /}],"additionalMenuItem":/g,
-      "}]} additionalMenuItem="
+      /}],"additionalMenuItem":"/g,
+      "}]} additionalMenuItem={"
     );
     string = string.replace(/{"items":/g, "items={");
     string = string.replace(/":/g, ":");
@@ -33,16 +34,17 @@ export function SubMenuComponent(props) {
     string = string.replace(/}}/g, "}");
     string = string.replace(/"title/g, "title");
     string = string.replace(/"link/g, " link");
+    string = string.replace(/>"/g, ">");
 
     return string;
   };
 
-  const renderBlock = () => {
+  const renderBlock = (additional, addition) => {
     return (
       <>
-        <Submenu {...propDatas()} />
+        <Submenu {...propDatas(additional)} />
         <CodeBlock className="language-jsx">
-          {`<>\n\t<Submenu ${stringify(propDatas())} />\n</>`}
+          {`<>\n\t<Submenu ${stringify(propDatas(addition))} />\n</>`}
         </CodeBlock>
       </>
     );
@@ -94,5 +96,5 @@ export function SubMenuComponent(props) {
       </>
     );
   }
-  return renderBlock();
+  return renderBlock(<Button>Additional item</Button>, `<Button>Additional item</Button>`);
 }

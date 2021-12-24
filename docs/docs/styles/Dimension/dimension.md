@@ -1,18 +1,23 @@
 ---
-id: colors
-title: Color
+id: dimension
+title: Dimension
 ---
 
-import { ColorComponent } from "./colors.js"
+import { DimensionComponent } from "./dimension.js"
 
-<p>Convey meaning through color with a handful of color utility classes. Includes support for styling links with hover states, too.</p>
+<p>We included a few main spacings that you can use to modify the margin, padding and so on.</p>
 
 ## Import
 
-<p>Import <code>colors</code> from erxes-ui to use our mainly used colors in your project.</p>
-<ColorComponent type="import" />
+<p>Import <code>dimensions</code> from erxes-ui to use our main spacings in your project.</p>
+<DimensionComponent type="import" />
 
-## Core colors
+## Dimensions
+
+<p>You can choose from the following spacings. They return string values such as '10px', '20px', '50px'. '70px'. Click on the colored box to copy the dimension name.</p>
+<DimensionComponent dimensions={['unitSpacing', 'coreSpacing', 'headerSpacing', 'headerSpacingWide']} />
+
+<!-- ## Core colors
 
 <p>Main colors that we use. Click to copy the color name.</p>
 <ColorComponent colors={['colorPrimaryDark', 'colorPrimary', 'colorSecondary', 'colorCoreDarkBlue', 'colorCoreBlue', 'colorCoreTeal', 'colorCoreOrange', 'colorCoreSunYellow', 'colorCoreYellow', 'colorBlack', 'colorCoreDarkGray', 'colorCoreBlack', 'colorCoreGray', 'colorLightGray', 'colorCoreLightGray', 'colorShadowGray', 'colorLightBlue', 'colorWhite', 'colorCoreRed', 'colorCoreGreen']} />
@@ -45,29 +50,4 @@ import { ColorComponent } from "./colors.js"
 ## Social colors
 
 <p>You can choose from the social media main colors. Click on the color to copy the name.</p>
-<ColorComponent colors={['socialFacebook', 'socialFacebookMessenger', 'socialTwitter', 'socialGoogleMeet', 'socialLine', 'socialWhatsApp', 'socialGmail', 'socialTelegram', 'socialViber', 'socialTwilio']} />
-
-## Ecolors
-
-<p>You can make a color by yourself with hex code using rgb, rgba, darken, lighten functions.</p>
-
-### Hex into RGB
-
-<p>Convert a hex value into RGB with <code>rgb</code> function. Click on the color box to copy the function name.</p>
-<ColorComponent type="rgb" />
-
-### Hex into RGBA
-
-<p>Convert hex to rgb with opacity with <code>rgba</code> function. Click on the color box to copy the function name.</p>
-<ColorComponent type="rgba" />
-
-### Darken
-
-<p>Darken the color by <code>darken</code> function. Click on the color box to copy the function name.</p>
-<ColorComponent type="darken" />
-
-### Lighten
-
-<p>Lighten the color by <code>lighten</code> function. Click on the color box to copy the function name.</p>
-<ColorComponent type="lighten" />
-
+<ColorComponent colors={['socialFacebook', 'socialFacebookMessenger', 'socialTwitter', 'socialGoogleMeet', 'socialLine', 'socialWhatsApp', 'socialGmail', 'socialTelegram', 'socialViber', 'socialTwilio']} /> -->

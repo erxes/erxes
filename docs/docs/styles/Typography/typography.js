@@ -29,7 +29,7 @@ export function TypoComponent(props) {
             copyToClipBoard(tpgphy);
           }}
         >
-          <p style={{ fontWeight: typography[tpgphy] }}>
+          <p style={{ fontWeight: `${typography[tpgphy]}px` }}>
             {tpgphy} = {typography[tpgphy]}px
           </p>
         </div>
@@ -42,12 +42,13 @@ export function TypoComponent(props) {
             copyToClipBoard(tpgphy);
           }}
         >
-          <p style={{ fontSize: typography[tpgphy] }}>
+          <p style={{ fontSize: `${typography[tpgphy]}px` }}>
             {tpgphy} = {typography[tpgphy]}px
           </p>
         </div>
       );
     }
+
     return (
       <>
         <a
@@ -73,28 +74,6 @@ export function TypoComponent(props) {
       <CodeBlock className="language-jsx">{`import typography from "erxes-ui/lib/styles/typography";`}</CodeBlock>
     );
   }
-
-  // if (typev === "weight") {
-  //   return (
-  //     <>
-  //       <div className={styles.test}>{weightItems}</div>
-  //     </>
-  //   );
-  // }
-  // if (typev === "size") {
-  //   return (
-  //     <>
-  //       <div className={styles.test}>{sizeItems}</div>
-  //     </>
-  //   );
-  // }
-  // if (typev === "height") {
-  //   return (
-  //     <>
-  //       <div className={styles.test}>{heightItems}</div>
-  //     </>
-  //   );
-  // }
 
   return (
     <>

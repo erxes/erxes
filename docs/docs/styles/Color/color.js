@@ -45,19 +45,17 @@ export function ColorComponent(props) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          padding: "10px",
         }}
+        onClick={() => {
+          copyToClipBoard(clr);
+        }}
+        key={i}
       >
-        <div
-          onClick={() => {
-            copyToClipBoard(clr);
-          }}
-          className={styles.buttonBox}
-          key={i}
-        >
-          <span>{clr}</span>
-          <span>{color[clr]}</span>
-        </div>
+        <span>{clr}</span>
+        <span>{color[clr]}</span>
       </div>
+      // </div>
     );
   });
 

@@ -247,7 +247,7 @@ code {
   background-color: #e5e8eb71;
 }
 
-.iconButton:hover{
+.iconButton:hover {
   background-color: #d4d8dd;
 }
 
@@ -301,6 +301,11 @@ code {
   padding: 10px;
 }
 
+.smBox:hover {
+  background-color: #57b9bd;
+  cursor: pointer;
+}
+
 .sizeBox {
   height: 100%;
   width: 100%;
@@ -313,17 +318,7 @@ code {
   padding: 10px;
 }
 
-.buttonBox {
-  height: 100%;
-  width: 100%;
-  padding: 10px;
-  font-weight: 500;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.buttonBox :hover {
-  box-shadow: rgb(0, 0, 0);
+.sizeBox :hover {
+  background-color: #d8e0e7;
   cursor: pointer;
 }

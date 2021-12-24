@@ -5,7 +5,7 @@ title: Introduction
 
 import { Examples } from './introduction.js'
 
-<p>We transfered the common ui into common components. We use them on erxes, erxes plugins and our enterprize companies. You can learn everything about erxes-ui common components, utilities, erxes-icon, and so on.</p>
+<p>We transfered the common ui into common components. We use them on erxes, erxes plugins and our enterprize companies. This tab includes everything that you can learn about erxes-ui common components, utilities, erxes-icon and so on.</p>
 
 ## Installation
 
@@ -29,15 +29,3 @@ import { Examples } from './introduction.js'
 <p>Import paths are displayed in the API section of each component.</p>
 
 <Examples type="import" />
-
-<!-- ## CSS
-
-<p></p>
-<Examples type="css" /> -->
-
-
-<!-- ## Passing a prop
-
-<p>You can pass props that play a role to the component. For inctance, we change the button style by passing <code>btnStyle</code> prop. You can see the difference below.</p> -->
-
-<!-- <Examples /> -->

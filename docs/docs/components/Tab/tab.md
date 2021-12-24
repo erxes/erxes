@@ -1,9 +1,9 @@
 ---
-id: tabs
-title: Tabs
+id: tab
+title: Tab
 ---
 
-import { TabsComponent } from "./tabs.js"
+import { TabsComponent } from "./tab.js"
 
 <p>Dynamic tabbed interfaces.</p>
 <p><code>handleSelect</code> is triggered when tab is clicked.</p>
