@@ -2,7 +2,7 @@ import * as schedule from 'node-schedule';
 import { checkTask, getTrueMailBulk } from '../api';
 import { getBulkResult, getStatus } from '../apiPhoneVerifier';
 import { getArray, setArray } from '../redisClient';
-import { debugCrons } from '../debuggers';
+import { debugCrons } from '../utils';
 
 schedule.scheduleJob('1 * * * * *', async () => {
   let listIds = await getArray('erxes_phone_verifier_list_ids');
