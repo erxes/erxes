@@ -578,7 +578,7 @@ describe('Test boards mutations', () => {
       {
         items: [{ _id: '_id', startDate: new Date(), endDate: new Date() }],
         type: 'task',
-        links: []
+        links: [{ start: '_id' }, { start: '_id1' }]
       }
     );
 
