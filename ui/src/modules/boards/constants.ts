@@ -121,6 +121,25 @@ export const groupByList = [
   }
 ];
 
+export const groupByGantt = [
+  {
+    name: 'stage',
+    title: 'Stage'
+  },
+  {
+    name: 'label',
+    title: 'Label'
+  },
+  {
+    name: 'priority',
+    title: 'Priority'
+  },
+  {
+    name: 'assignee',
+    title: 'Assignee'
+  }
+];
+
 export const stackByChart = [
   {
     name: 'stage',
@@ -174,3 +193,11 @@ export const SEARCH_ACTIVITY_CHECKBOX = [
   },
   { action: 'addNote', value: 'added notes on', title: 'Added notes' }
 ];
+
+export const TYPES = {
+  DAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
+  all: ['day', 'week', 'month', 'year']
+};

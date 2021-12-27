@@ -1,27 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 
-export const EmptyWrapper = styled.div`
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-
-  .ant-empty-description {
-    margin-top: 20px;
-  }
-`;
-
-export const RowFill = styled.div`
-  display: flex;
-  padding: 5px 5px 5px 20px;
-`;
-
-export const FieldStyle = styled.div`
-  margin: 2px 0 0 5px;
-`;
-
 export const ActivityList = styled.div`
   padding: ${dimensions.coreSpacing}px;
   position: relative;
@@ -48,4 +27,13 @@ export const DateType = styled.div`
   align-self: center;
   color: ${colors.colorCoreGray};
   font-size: 11px;
+`;
+
+export const RowFill = styled.div`
+  display: flex;
+  padding: 5px 5px 5px 20px;
+`;
+
+export const FieldStyle = styled.div`
+  margin: 2px 0 0 5px;
 `;

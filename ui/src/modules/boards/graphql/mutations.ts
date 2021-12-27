@@ -2,6 +2,7 @@ export const commonMutationVariables = `
   $proccessId: String,
   $aboveItemId: String,
   $stageId: String,
+  $startDate: Date,
   $closeDate: Date,
   $description: String,
   $assignedUserIds: [String],
@@ -19,6 +20,7 @@ export const commonMutationParams = `
   proccessId: $proccessId,
   aboveItemId: $aboveItemId,
   stageId: $stageId,
+  startDate: $startDate,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
@@ -58,6 +60,8 @@ export const commonListFields = `
   stage
   isComplete
   isWatched
+  relations
+  startDate
   closeDate
   modifiedAt
   priority
@@ -89,6 +93,7 @@ export const commonFields = `
     primaryPhone
     visitorContactInfo
   }
+  startDate
   closeDate
   description
   priority
@@ -208,6 +213,12 @@ const boardItemUpdateTimeTracking = `
   }
 `;
 
+const boardItemsSaveForGanttTimeline = `
+  mutation boardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
+    boardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
+  }
+`;
+
 export default {
   stagesUpdateOrder,
   pipelinesWatch,
@@ -219,5 +230,6 @@ export default {
   stagesRemove,
   stagesSortItems,
   conversationConvertToCard,
-  boardItemUpdateTimeTracking
+  boardItemUpdateTimeTracking,
+  boardItemsSaveForGanttTimeline
 };

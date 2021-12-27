@@ -6,16 +6,16 @@ on:
       - master
       - develop
     paths:
-      - "logger/**"
-      - ".github/workflows/logger.yaml"
+      - 'logger/**'
+      - '.github/workflows/logger.yaml'
 
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "logger/**"
-      - ".github/workflows/logger.yaml"
+      - 'logger/**'
+      - '.github/workflows/logger.yaml'
 
 jobs:
   logger:
@@ -59,7 +59,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
         run: |
           cd logger
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

@@ -12,7 +12,6 @@ import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
 import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
-import { IDepartment } from '../../types';
 
 type Props = {
   user: IUser;
@@ -38,7 +37,7 @@ function LeftSidebar({
   excludeUserSkill,
   renderSkillForm
 }: Props) {
-  const { details = {}, department = {} as IDepartment } = user;
+  const { details = {} } = user;
 
   const renderRow = (title: string, value: any, nowrap?: boolean) => {
     return (
@@ -65,7 +64,6 @@ function LeftSidebar({
               : '-'
           )}
           {renderRow('Position', details.position)}
-          {department && renderRow('Department', department.title)}
           {renderRow('Score', user.score)}
           {renderRow(
             'Joined date',
