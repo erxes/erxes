@@ -3,17 +3,17 @@ name: Engages CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "engages-email-sender/**"
-      - ".github/workflows/engages.yaml"
+      - 'engages-email-sender/**'
+      - '.github/workflows/engages.yaml'
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "engages-email-sender/**"
-      - ".github/workflows/engages.yaml"
+      - 'engages-email-sender/**'
+      - '.github/workflows/engages.yaml'
 
 jobs:
   engages:
