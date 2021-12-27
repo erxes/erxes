@@ -1478,30 +1478,6 @@
     fast-equals "^1.6.3"
     lodash "^4.17.15"
 
-"@datadog/browser-core@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-2.3.1.tgz#37b88c8c88303666b36531bfe74fe12a79a457a1"
-  integrity sha512-Ds3XRHY9PN7Vnp4R6WQ0ansQOnBeHzYNmQh1EEXqGuNZcK2oqpKagFkzIdixFnogFhWDWE9YheXQoS9XTiqvMw==
-  dependencies:
-    tslib "^1.10.0"
-
-"@datadog/browser-rum-core@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-2.3.1.tgz#d62ee48e13c27570ade0a00674e17ed9c9cf6c65"
-  integrity sha512-XUccq2hUQ/zQEXl7esh7BC5+G1zDLygIuNKugsjNjrgcRdLS15l/qxIf5W6t1jwnY7JRm/snfoRU6OXAA8T7xg==
-  dependencies:
-    "@datadog/browser-core" "2.3.1"
-    tslib "^1.10.0"
-
-"@datadog/browser-rum@^2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-2.3.1.tgz#2840d3fa2353b30b6f7e02b16d2b68c21238aa47"
-  integrity sha512-ZYlQB5EW24nIAEJUT4VWWCSiiMgSwLgPyb+iwed8VDi9FolWLEVjTfMLezYflxFKuLuWcbsLVJq/rbdz2KnhxA==
-  dependencies:
-    "@datadog/browser-core" "2.3.1"
-    "@datadog/browser-rum-core" "2.3.1"
-    tslib "^1.10.0"
-
 "@hapi/address@2.x.x":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.0.0.tgz#9f05469c88cb2fd3dcd624776b54ee95c312126a"
