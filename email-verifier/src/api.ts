@@ -1,12 +1,11 @@
 import * as EmailValidator from 'email-deep-validator';
-import { debugBase, debugError } from './debuggers';
 import {
   EMAIL_VALIDATION_SOURCES,
   EMAIL_VALIDATION_STATUSES,
   Emails
 } from './models';
 import { getArray, setArray } from './redisClient';
-import { sendRequest } from './utils';
+import { debugBase, debugError, sendRequest } from './utils';
 
 const { TRUE_MAIL_API_KEY, EMAIL_VERIFICATION_TYPE = 'truemail' } = process.env;
 

@@ -20,8 +20,6 @@
     "amqplib": "^0.5.5",
     "aws-sdk": "^2.493.0",
     "body-parser": "^1.17.1",
-    "connect-datadog": "^0.0.9",
-    "dd-trace": "0.30.5",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "erxes-message-broker": "^1.0.27",
