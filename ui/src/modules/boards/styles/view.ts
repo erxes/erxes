@@ -20,7 +20,6 @@ export const GanttContainer = styled.div`
   flex-direction: column;
   overflow: hidden;
   height: 100%;
-  margin-top: 20px;
 `;
 
 export const TimelineContainer = styled.div`

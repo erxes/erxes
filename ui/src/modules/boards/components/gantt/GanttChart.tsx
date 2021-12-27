@@ -5,7 +5,7 @@ import {
   TimelineContainer,
   AssingStyle,
   TextStyle
-} from 'modules/boards/styles/viewType';
+} from 'modules/boards/styles/view';
 import { withRouter } from 'react-router-dom';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
