@@ -238,7 +238,11 @@ class MainActionBar extends React.Component<Props> {
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
             <Button btnStyle="primary" icon="list-ui-alt">
-              {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
+              {viewType === 'gantt'
+                ? viewType.charAt(0).toUpperCase() +
+                  viewType.slice(1) +
+                  ' Timeline'
+                : viewType.charAt(0).toUpperCase() + viewType.slice(1)}
               <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
@@ -298,7 +302,7 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('gantt')}
                 className={viewType === 'gantt' ? 'active' : ''}
               >
-                {__('Gantt')}
+                {__('Gantt Timeline')}
               </Link>
             </li>
           </Dropdown.Menu>
