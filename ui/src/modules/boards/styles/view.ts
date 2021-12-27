@@ -35,8 +35,8 @@ export const TimelineContainer = styled.div`
   }
 
   .verticalResizer {
-    border-right: 1px solid ${colors.borderPrimary} !important;
-    border-left: 1px solid ${colors.borderPrimary} !important;
+    border-right: 1px solid ${colors.borderDarker} !important;
+    border-left: 1px solid ${colors.borderDarker} !important;
   }
 
   .timeLine-side {
@@ -47,24 +47,26 @@ export const TimelineContainer = styled.div`
   .timeLine {
     height: 100% !important;
     box-shadow: rgb(0 0 0 / 8%) 0px 0px 6px 1px;
-    border: 1px solid ${colors.borderPrimary} !important;
+    border: 1px solid ${colors.borderDarker} !important;
     box-shadow: none;
   }
 
-  .header-top > div {
-    border-left: 1px solid #d9e2ec !important;
-    border-bottom: 1px solid ${colors.borderPrimary} !important;
-    font-weight: 500;
+  .header-top {
+    height: 25px !important;
+
+    > div {
+      border-left: 2px solid ${colors.borderDarker} !important;
+      font-weight: 500;
+      height: 24px !important;
+    }
   }
 
   .header-middle > div {
-    border-left: 1px solid #d9e2ec !important;
-    border-bottom: 1px solid ${colors.borderPrimary} !important;
+    border-left: 2px solid ${colors.borderDarker} !important;
   }
 
   .header-bottom > div {
-    border-left: 1px solid ${colors.borderDarker} !important;
-    border-bottom: 1px solid ${colors.borderPrimary} !important;
+    border-left: 2px solid ${colors.borderDarker} !important;
   }
 
   .timeLine-main {
@@ -75,7 +77,7 @@ export const TimelineContainer = styled.div`
     height: 35px !important;
     top: 5px !important;
     padding: 5px 10px !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     &:hover {
       opacity: 0.8;
     }

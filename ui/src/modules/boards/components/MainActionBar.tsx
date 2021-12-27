@@ -48,7 +48,6 @@ type Props = {
   options: IOptions;
   viewType: string;
 };
-
 class MainActionBar extends React.Component<Props> {
   static defaultProps = {
     viewType: 'board',
@@ -203,7 +202,7 @@ class MainActionBar extends React.Component<Props> {
       <GroupByContent>
         <SelectType
           title={__('Chart Type:')}
-          icon="chart-bar"
+          icon="chart-growth"
           list={chartTypes}
           text={__('Stacked Bar Chart')}
           queryParamName="chartType"
@@ -225,6 +224,27 @@ class MainActionBar extends React.Component<Props> {
   renderViewChooser = () => {
     const { currentBoard, currentPipeline, options, viewType } = this.props;
 
+    const getIcon = () => {
+      switch (viewType) {
+        case 'board':
+          return <Icon icon="sliders-v" />;
+        case 'calendar':
+          return <Icon icon="calendar-alt" />;
+        case 'conversion':
+          return <Icon icon="signal-alt" />;
+        case 'activity':
+          return <Icon icon="filter" />;
+        case 'list':
+          return <Icon icon="list-ul" />;
+        case 'chart':
+          return <Icon icon="chart-bar" />;
+        case 'gantt':
+          return <Icon icon="document-layout-left" />;
+        default:
+          return <Icon icon="list-ui-alt" />;
+      }
+    };
+
     const onFilterClick = (type: string) => {
       if (currentBoard && currentPipeline) {
         return `/${options.type}/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
@@ -237,7 +257,8 @@ class MainActionBar extends React.Component<Props> {
       <ButtonGroup>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
-            <Button btnStyle="primary" icon="list-ui-alt">
+            <Button btnStyle="primary">
+              {getIcon()} &nbsp;
               {viewType === 'gantt'
                 ? viewType.charAt(0).toUpperCase() +
                   viewType.slice(1) +
@@ -252,7 +273,8 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('board')}
                 className={viewType === 'board' ? 'active' : ''}
               >
-                {__('Board')}
+                <Icon icon="sliders-v" />
+                {__(' Board')}
               </Link>
             </li>
             <li key="calendar">
@@ -260,7 +282,8 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('calendar')}
                 className={viewType === 'calendar' ? 'active' : ''}
               >
-                {__('Calendar')}
+                <Icon icon="calendar-alt" />
+                {__(' Calendar')}
               </Link>
             </li>
             {options.type === 'deal' && (
@@ -269,7 +292,8 @@ class MainActionBar extends React.Component<Props> {
                   to={onFilterClick('conversion')}
                   className={viewType === 'conversion' ? 'active' : ''}
                 >
-                  {__('Conversion')}
+                  <Icon icon="signal-alt" />
+                  {__(' Conversion')}
                 </Link>
               </li>
             )}
@@ -278,7 +302,8 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('activity')}
                 className={viewType === 'activity' ? 'active' : ''}
               >
-                {__('Activity')}
+                <Icon icon="filter" />
+                {__(' Activity')}
               </Link>
             </li>
             <li key="list">
@@ -286,7 +311,8 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('list')}
                 className={viewType === 'list' ? 'active' : ''}
               >
-                {__('List')}
+                <Icon icon="list-ul" />
+                {__(' List')}
               </Link>
             </li>
             <li key="chart">
@@ -294,7 +320,8 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('chart')}
                 className={viewType === 'chart' ? 'active' : ''}
               >
-                {__('Chart')}
+                <Icon icon="chart-bar" />
+                {__(' Chart')}
               </Link>
             </li>
             <li key="gantt">
@@ -302,7 +329,8 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick('gantt')}
                 className={viewType === 'gantt' ? 'active' : ''}
               >
-                {__('Gantt Timeline')}
+                <Icon icon="document-layout-left" />
+                {__(' Gantt Timeline')}
               </Link>
             </li>
           </Dropdown.Menu>

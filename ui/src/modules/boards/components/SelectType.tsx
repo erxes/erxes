@@ -37,7 +37,7 @@ const SelectType = ({
                   routerUtils.setParams(history, { [queryParamName]: m.name })
                 }
               >
-                <Icon icon={m.icon} color="#673FBD" />
+                <Icon icon={m.icon} />
                 &nbsp;
                 {m.title}
               </a>
@@ -57,7 +57,7 @@ const SelectType = ({
                 routerUtils.setParams(history, { [queryParamName]: m.name })
               }
             >
-              <Icon icon={m.icon} color="#673FBD" />
+              <Icon icon={m.icon} />
               &nbsp;
               {m.title}
             </a>
