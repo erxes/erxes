@@ -138,6 +138,7 @@ export const mutations = `
   boardsEdit(_id: String!, ${commonParams}): Board
   boardsRemove(_id: String!): JSON
   boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
 
   pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
   pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline

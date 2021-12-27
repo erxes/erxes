@@ -3,18 +3,18 @@ name: Logger CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "logger/**"
-      - ".github/workflows/logger.yaml"
+      - 'logger/**'
+      - '.github/workflows/logger.yaml'
 
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "logger/**"
-      - ".github/workflows/logger.yaml"
+      - 'logger/**'
+      - '.github/workflows/logger.yaml'
 
 jobs:
   logger:
