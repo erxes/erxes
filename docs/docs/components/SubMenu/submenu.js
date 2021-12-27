@@ -12,7 +12,6 @@ export function SubMenuComponent(props) {
     { title: "Submenu 2", link: "" },
     { title: "Submenu 3", link: "" },
   ];
-  // const addition = <Button>Additional item</Button>;
 
   const propDatas = (addition) => {
     const kind = {
@@ -50,7 +49,7 @@ export function SubMenuComponent(props) {
     );
   };
 
-  if (type) {
+  if (type === "api") {
     return (
       <>
         <CodeBlock className="language-javascript">{`import Submenu from "erxes-ui/lib/components/subMenu/Submenu";`}</CodeBlock>

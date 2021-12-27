@@ -17,4 +17,4 @@ import { SubMenuComponent } from "./submenu.js"
 
 ## API
 
-<SubMenuComponent type />
+<SubMenuComponent type="api" />
