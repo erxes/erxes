@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styles from "../../src/components/styles.module.css";
-import CodeBlock from "@theme/CodeBlock";
 import "erxes-icon/css/erxes.min.css";
 import Icon from "erxes-ui/lib/components/Icon";
 import Alert from "erxes-ui/lib/utils/Alert/index";

@@ -134,7 +134,7 @@ export function FormComponent(props) {
   // <FormControl />
   // </FormGroup>
   // <CodeBlock className="language-jsx">
-  // {<>\n\t<FormGroup horizontal=${horizontal}>\n\t  <ControlLabel>Label</ControlLabel>\n\t  <FormControl />\n\t</FormGroup>\n</>}
+  // {`<>\n\t<FormGroup horizontal=${horizontal}>\n\t  <ControlLabel>Label</ControlLabel>\n\t  <FormControl />\n\t</FormGroup>\n</>`}
   // </CodeBlock>
   // </>)
   // }

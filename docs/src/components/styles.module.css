@@ -322,3 +322,22 @@ code {
   background-color: #d8e0e7;
   cursor: pointer;
 }
+
+.datecontrol {
+  padding: 15px;
+  border-color: #eee;
+  border-style: solid;
+  border-radius: 6px;
+  background-color: white;
+}
+
+.datecontrol:focus-within {
+  height: 520px;
+}
+
+.formborder {
+  padding: 15px;
+  border-color: #eee;
+  border-style: solid;
+  border-radius: 6px;
+}
