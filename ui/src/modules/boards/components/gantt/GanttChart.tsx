@@ -2,31 +2,45 @@ import React, { useCallback, useEffect, useState } from 'react';
 import TimeLine from 'react-gantt-timeline';
 import {
   GanttContainer,
-  NavContainer,
-  ModeContainer,
-  TimelineContainer
-} from 'modules/boards/styles/viewtype';
+  TimelineContainer,
+  AssingStyle,
+  TextStyle
+} from 'modules/boards/styles/viewType';
 import { withRouter } from 'react-router-dom';
 import { IOptions, IItem } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import { colors } from 'modules/common/styles';
-import { ButtonGroup } from 'modules/boards/styles/header';
-import { TYPES } from 'modules/boards/constants';
-import { capitalize } from 'modules/activityLogs/utils';
 import ContextMenu from 'modules/common/components/ContextMenu';
 import { EditForm } from 'modules/boards/containers/editForm';
+import { callback, generateName } from 'modules/boards/components/gantt/utils';
+import Assignees from 'modules/boards/components/Assignees';
+import { getColors } from 'modules/boards/utils';
+import {
+  BoardItemArgs,
+  GanttLink
+} from 'modules/boards/containers/gantt/GanttChart';
+
+type GanttData = {
+  id: string;
+  start: Date;
+  end: Date;
+  name: any;
+  color?: string;
+};
 
 type Props = {
   items: IItem[];
   options: IOptions;
   refetch: () => void;
-  save: (items: any[], links: any[]) => void;
-  stageId?: string;
-  data: any[];
-  links: any[];
-} & IRouterProps;
+  save: (items: BoardItemArgs[], links: GanttLink[]) => void;
+  groups: any;
+  groupType: string;
+};
 
-const GanttChart = (props: Props) => {
+type FinalProps = Props &
+  IRouterProps & { data: GanttData[]; links: GanttLink[] };
+
+const GanttChart = (props: FinalProps) => {
   const config = {
     header: {
       top: {
@@ -117,10 +131,9 @@ const GanttChart = (props: Props) => {
   const [data, setData] = useState(props.data);
   const [links, setLinks] = useState(props.links);
   const [selectedItem, setSelectedItem] = useState(null as any);
-  const [timelineMode, setTimelineMode] = useState('month');
 
   const saveCallback = useCallback(() => {
-    const pushItems: any[] = [];
+    const pushItems: BoardItemArgs[] = [];
 
     for (const item of data) {
       pushItems.push({
@@ -162,9 +175,7 @@ const GanttChart = (props: Props) => {
     return {
       id: Math.random().toString(),
       start: start.task.id,
-      startPosition: start.position,
-      end: end.task.id,
-      endPosition: end.position
+      end: end.task.id
     };
   };
 
@@ -172,10 +183,6 @@ const GanttChart = (props: Props) => {
     const newLink = createLink(item.start, item.end);
 
     setLinks(links.concat(newLink));
-  };
-
-  const modeChange = value => {
-    setTimelineMode(value);
   };
 
   const deleteItem = () => {
@@ -223,26 +230,6 @@ const GanttChart = (props: Props) => {
 
   return (
     <GanttContainer>
-      <NavContainer>
-        <ModeContainer>
-          <ButtonGroup>
-            {TYPES.all.map(item => {
-              const onClick = () => modeChange(item);
-
-              return (
-                <a
-                  key={item}
-                  href={`#${item}`}
-                  onClick={onClick}
-                  className={timelineMode === item ? 'active' : ''}
-                >
-                  {capitalize(item)}
-                </a>
-              );
-            })}
-          </ButtonGroup>
-        </ModeContainer>
-      </NavContainer>
       <TimelineContainer id="timeline-container">
         <TimeLine
           data={data}
@@ -252,7 +239,7 @@ const GanttChart = (props: Props) => {
           onSelectItem={onSelectItem}
           onUpdateTask={onUpdateTask}
           onCreateLink={onCreateLink}
-          mode={timelineMode}
+          mode={'month'}
           selectedItem={selectedItem}
           itemheight={45}
           nonEditableName={true}
@@ -266,4 +253,60 @@ const GanttChart = (props: Props) => {
   );
 };
 
-export default withRouter(GanttChart);
+const WithRouterGanttChart = withRouter(GanttChart);
+
+const GenerateData = (props: Props) => {
+  const dbData: GanttData[] = [];
+  const dbLinks: GanttLink[] = [];
+  const { groups, groupType, items } = props;
+
+  groups.forEach((groupObj, index) => {
+    const filtered = items.filter(item => callback(groupType)(item, groupObj));
+
+    if (filtered.length > 0) {
+      dbData.push({
+        id: groupObj._id,
+        start: new Date('1970-01-01'),
+        end: new Date('1970-01-01'),
+        name: (
+          <TextStyle>
+            <span style={{ fontWeight: 600 }}>{generateName(groupObj)}</span>
+          </TextStyle>
+        )
+      });
+    }
+
+    filtered.forEach(item => {
+      dbData.push({
+        id: item._id,
+        start: new Date(item.startDate),
+        end: new Date(item.closeDate),
+        name: (
+          <>
+            <AssingStyle>
+              <Assignees users={item.assignedUsers} />
+            </AssingStyle>
+            <TextStyle>
+              <div style={{ paddingLeft: 20 }}>{item.name}</div>
+            </TextStyle>
+          </>
+        ),
+        color: `${groupObj.colorCode || getColors(index)}`
+      });
+
+      if (item.relations) {
+        dbLinks.push(...item.relations);
+      }
+    });
+  });
+
+  const extendedProps = {
+    ...props,
+    data: dbData,
+    links: dbLinks
+  };
+
+  return <WithRouterGanttChart {...extendedProps} />;
+};
+
+export default GenerateData;

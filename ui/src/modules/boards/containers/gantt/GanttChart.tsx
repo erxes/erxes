@@ -7,6 +7,7 @@ import client from 'apolloClient';
 import GanttChart from '../../components/gantt/GanttChart';
 import {
   IFilterParams,
+  IItem,
   IOptions,
   ItemsQueryResponse,
   RemoveStageMutation,
@@ -14,10 +15,18 @@ import {
 } from '../../types';
 import Spinner from 'modules/common/components/Spinner';
 import { mutations } from '../../graphql';
-import { callback, generateName } from 'modules/boards/components/gantt/utils';
-import { AssingStyle, TextStyle } from 'modules/boards/styles/viewtype';
-import Assignees from 'modules/boards/components/Assignees';
-import { getColors } from 'modules/boards/utils';
+
+export type BoardItemArgs = {
+  _id: string;
+  startDate: Date;
+  closeDate: Date;
+};
+
+export type GanttLink = {
+  id: string;
+  start: string;
+  end: string;
+};
 
 type StageProps = {
   queryParams: IFilterParams;
@@ -33,7 +42,7 @@ type FinalStageProps = {
 } & StageProps;
 
 type State = {
-  items: any[];
+  items: IItem[];
 };
 
 class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
@@ -74,13 +83,13 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
   };
 
   render() {
-    const { itemsQuery, options, groups, groupType } = this.props;
+    const { itemsQuery, options, groupType, groups } = this.props;
 
     if (itemsQuery.loading) {
       return <Spinner />;
     }
 
-    const save = (boardItems: any[], links: any[]) => {
+    const save = (boardItems: BoardItemArgs[], links: GanttLink[]) => {
       if (boardItems.length === 0) {
         return;
       }
@@ -107,61 +116,14 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
       });
     };
 
-    const { items } = this.state;
-
-    const dbData: any[] = [];
-    const dbLinks: any[] = [];
-
-    groups.forEach((groupObj, index) => {
-      const filtered = items.filter(item =>
-        callback(groupType)(item, groupObj)
-      );
-
-      if (filtered.length > 0) {
-        dbData.push({
-          id: groupObj._id,
-          start: new Date('1970-01-01'),
-          end: new Date('1970-01-01'),
-          name: (
-            <TextStyle>
-              <span style={{ fontWeight: 600 }}>{generateName(groupObj)}</span>
-            </TextStyle>
-          )
-        });
-      }
-
-      filtered.forEach(item => {
-        dbData.push({
-          id: item._id,
-          start: new Date(item.startDate),
-          end: new Date(item.closeDate),
-          name: (
-            <>
-              <AssingStyle>
-                <Assignees users={item.assignedUsers} />
-              </AssingStyle>
-              <TextStyle>
-                <div style={{ paddingLeft: 20 }}>{item.name}</div>
-              </TextStyle>
-            </>
-          ),
-          color: `${groupObj.colorCode || getColors(index)}`
-        });
-
-        if (item.relations) {
-          dbLinks.push(...item.relations);
-        }
-      });
-    });
-
     return (
       <GanttChart
         options={options}
-        data={dbData}
-        links={dbLinks}
-        items={items}
+        items={this.state.items}
         refetch={refetch}
         save={save}
+        groupType={groupType}
+        groups={groups}
       />
     );
   }
