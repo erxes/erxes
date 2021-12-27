@@ -3,21 +3,21 @@ name: Automations CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "automations/**"
-      - "!automations/**.md"
-      - "!.github/**"
-      - ".github/workflows/automations.yaml"
+      - 'automations/**'
+      - '!automations/**.md'
+      - '!.github/**'
+      - '.github/workflows/automations.yaml'
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "automations/**"
-      - "!automations/**.md"
-      - "!.github/**"
-      - ".github/workflows/automations.yaml"
+      - 'automations/**'
+      - '!automations/**.md'
+      - '!.github/**'
+      - '.github/workflows/automations.yaml'
 
 jobs:
   automations:
@@ -71,7 +71,7 @@ jobs:
           MAIN_APP_DOMAIN: http://localhost:4000
 
       - name: Build
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/office' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
         run: |
           cd automations
           rm -rf node_modules
@@ -79,7 +79,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/office' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
         run: |
           cd automations
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

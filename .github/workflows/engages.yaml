@@ -3,17 +3,17 @@ name: Engages CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "engages-email-sender/**"
-      - ".github/workflows/engages.yaml"
+      - 'engages-email-sender/**'
+      - '.github/workflows/engages.yaml'
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "engages-email-sender/**"
-      - ".github/workflows/engages.yaml"
+      - 'engages-email-sender/**'
+      - '.github/workflows/engages.yaml'
 
 jobs:
   engages:
@@ -59,7 +59,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
         run: |
           cd engages-email-sender
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

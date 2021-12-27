@@ -1,6 +1,3 @@
-import * as connect_datadog from 'connect-datadog';
-import ddTracer from 'dd-trace';
-
 import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -15,22 +12,9 @@ import ActivityLogs from './models/ActivityLogs';
 import Logs from './models/Logs';
 import { routeErrorHandling } from './utils';
 
-ddTracer.init({
-  hostname: process.env.DD_HOST,
-  logInjection: true,
-  profiling: true
-});
-
 connect();
 
 const app = express();
-
-const datadogMiddleware = connect_datadog({
-  response_code: true,
-  tags: ['logger']
-});
-
-app.use(datadogMiddleware);
 
 app.use((req: any, _res, next) => {
   req.rawBody = '';

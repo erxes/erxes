@@ -6,13 +6,11 @@ on:
       - '**'
     paths:
       - 'api/**'
-      - 'plugins/**/api/**'
       - '.github/workflows/api.yaml'
   pull_request:
     branches:
       - master
       - develop
-      - apm
       - crons
       - workers
     paths:
@@ -69,16 +67,6 @@ jobs:
           cd api
           yarn install --frozen-lockfile
 
-      - name: Install plugin dependencies
-        run: |
-          cd plugins/erxes-plugin-exm-feed/api
-          yarn install --frozen-lockfile
-
-      - name: Install plugin dependencies
-        run: |
-          cd plugins/erxes-plugin-chat/api
-          yarn install --frozen-lockfile
-
       - name: Lint
         run: |
           yarn lint api
@@ -87,6 +75,18 @@ jobs:
         run: |
           cd api
           yarn tsc -p tsconfig.prod.json
+
+      - name: Test
+        run: |
+          cd api
+          yarn test
+        env:
+          MONGO_URL: mongodb://localhost/erxes
+          TEST_MONGO_URL: mongodb://localhost/test
+          JWT_TOKEN_SECRET: token
+          MAIN_APP_DOMAIN: http://localhost:3000
+          RABBITMQ_HOST: amqp://localhost
+          PORT: 3300
 
       - name: Build
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
@@ -97,7 +97,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/feat-gantt-chart' || github.ref == 'refs/heads/office' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers' || github.ref == 'refs/heads/apm')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
         env:
           BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
         run: |
