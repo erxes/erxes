@@ -12,7 +12,6 @@ function TagComponent(props) {
     colors.map((clr, i) => {
       arr.push({ _id: i, type: "", name: clr, colorCode: clr });
     });
-    console.log(arr);
     const kind = {
       tags: arr,
     };

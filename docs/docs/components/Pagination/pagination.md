@@ -19,4 +19,10 @@ import { PaginationComponent } from "./pagination.js"
 
 ## API
 
-<PaginationComponent type="APIpagination" table={[['count', 'number', '', 'Define total number of lists']]} />
+<PaginationComponent type="APIpagination" table={[
+    ['count', 'number', '', 'Define total number of lists'],
+    ['totalPagesCount', 'number', '', 'The number of total pages'],
+    ['pages', 'number[]', '', 'The array that contains the pages'],
+    ['currentPage', 'number', '', 'The page that shows on start'],
+    ['isPaginated', 'boolean', '', 'Returns true when the total page number is greater than 1'],
+]} />
