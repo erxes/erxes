@@ -57,6 +57,17 @@ export const DATA_RETENTION_DURATION = [
   { label: __('12 months'), value: 12 }
 ];
 
+export const LOG_RETENTION_DURATION = [
+  { label: __('1 month'), value: 1 },
+  { label: __('2 months'), value: 2 },
+  { label: __('3 months'), value: 3 },
+  { label: __('4 months'), value: 4 },
+  { label: __('5 months'), value: 5 },
+  { label: __('6 months'), value: 6 },
+  { label: __('9 months'), value: 9 },
+  { label: __('12 months'), value: 12 }
+];
+
 export const MEASUREMENTS = [
   { label: 'Bag BG', value: 'BG' },
   { label: 'Barrel BA', value: 'BA' },
@@ -167,7 +178,14 @@ export const KEY_LABELS = {
   company_industry_types: 'Company industry types',
   social_links: 'Social links',
 
-  NOTIFICATION_DATA_RETENTION: 'Notification data retention'
+  NOTIFICATION_DATA_RETENTION: 'Notification data retention',
+  LOG_DATA_RETENTION: 'Log data retention',
+
+  THEME_LOGO: 'Logo',
+  THEME_LOGIN_PAGE_DESCRIPTION: 'Login page description',
+  THEME_FAVICON: 'Favicon',
+  THEME_TEXT_COLOR: 'Text color',
+  THEME_BACKGROUND: 'Background'
 };
 
 export const FILE_MIME_TYPES = [

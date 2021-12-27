@@ -94,6 +94,26 @@ describe('configQueries', () => {
     await graphqlRequest(qry, 'configsConstants');
   });
 
+  test('Check premium service', async () => {
+    const qry = `
+      query configsCheckPremiumService($type: String!) {
+        configsCheckPremiumService(type: $type)
+      }
+    `;
+
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('no');
+    });
+
+    const response = await graphqlRequest(qry, 'configsCheckPremiumService', {
+      type: 'isThemeEnabled'
+    });
+
+    expect(response).toBe(false);
+
+    mock.restore();
+  });
+
   test('Check activate installation', async () => {
     const qry = `
       query configsCheckActivateInstallation($hostname: String!) {

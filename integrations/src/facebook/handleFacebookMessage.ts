@@ -93,27 +93,7 @@ export const handleFacebookMessage = async msg => {
             recipientId,
             integrationId
           );
-
-          return { status: 'success' };
         } catch (e) {
-          if (e.code === '10') {
-            try {
-              await sendReply(
-                'me/messages',
-                {
-                  recipient: { id: senderId },
-                  message: { text: content },
-                  tag: 'CONFIRMED_EVENT_UPDATE'
-                },
-                recipientId,
-                integrationId
-              );
-
-              return { status: 'success' };
-            } catch (e) {
-              throw new Error(e.message);
-            }
-          }
           throw new Error(e.message);
         }
       }
@@ -127,31 +107,13 @@ export const handleFacebookMessage = async msg => {
             integrationId
           );
         } catch (e) {
-          if (e.code === '10') {
-            try {
-              await sendReply(
-                'me/messages',
-                {
-                  recipient: { id: senderId },
-                  message: { text: content },
-                  tag: 'CONFIRMED_EVENT_UPDATE'
-                },
-                recipientId,
-                integrationId
-              );
-
-              return { status: 'success' };
-            } catch (e) {
-              throw new Error(e.message);
-            }
-          }
           throw new Error(e.message);
         }
       }
-
-      return { status: 'success' };
     } catch (e) {
       throw new Error(e.message);
     }
+
+    return { status: 'success' };
   }
 };

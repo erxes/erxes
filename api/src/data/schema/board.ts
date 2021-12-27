@@ -108,6 +108,7 @@ export const queries = `
   archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
   archivedStagesCount(pipelineId: String!, search: String): Int
   itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+  itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
 `;
 
 const commonParams = `
@@ -136,6 +137,7 @@ export const mutations = `
   boardsAdd(${commonParams}): Board
   boardsEdit(_id: String!, ${commonParams}): Board
   boardsRemove(_id: String!): JSON
+  boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
 
   pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
   pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
@@ -144,6 +146,7 @@ export const mutations = `
   pipelinesRemove(_id: String!): JSON
   pipelinesArchive(_id: String!): JSON  
   pipelinesCopied(_id: String!): JSON
+  
   stagesUpdateOrder(orders: [OrderItem]): [Stage]
   stagesRemove(_id: String!): JSON
   stagesEdit(_id: String!, type: String, name: String, status: String): Stage

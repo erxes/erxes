@@ -9,36 +9,57 @@ export function renderApiTable(Name, table) {
         <CodeBlock className="language-javascript">{`import ${Name} from "erxes-ui/lib/components/${Name}";`}</CodeBlock>
       )}
 
-      <Table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Default</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {table.map((row, index) => (
-            <tr key={index}>
-              {row.map((cell, i) => (
-                <td key={i}>{cell}</td>
+      {table && (
+        <>
+          <p>
+            <required>* required prop</required>
+          </p>
+          <Table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {table.map((row, index) => (
+                <tr key={index}>
+                  {row.map((cell, i) => (
+                    <td key={i}>
+                      {cell[cell.length - 1] === "*" ? (
+                        <>
+                          {cell.slice(0, -1)}
+                          <required>*</required>
+                        </>
+                      ) : (
+                        <>{cell}</>
+                      )}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+            </tbody>
+          </Table>
+        </>
+      )}
     </>
   );
 }
 
 export function stringify(datas) {
   let string = JSON.stringify(datas);
+  string = string.replace(/{}/g, "");
   string = string.replace(/{"/g, "");
   string = string.replace(/":/g, "=");
   string = string.replace(/,"/g, " ");
   string = string.replace(/}/g, "");
   string = string.replace(/=true/g, "");
-  
+  string = string.replace(/"</g, "{<");
+  string = string.replace(/>"/g, ">}");
+  string = string.replace(/true/g, "{true}");
+  string = string.replace(/false/g, "{false}");
+
   return string;
 }

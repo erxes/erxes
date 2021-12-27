@@ -25,6 +25,14 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   sendToBoard?: (item: any) => void;
+  updateTimeTrack: (
+    {
+      _id,
+      status,
+      timeSpent
+    }: { _id: string; status: string; timeSpent: number; startDate?: string },
+    callback?: () => void
+  ) => void;
 };
 
 type State = {
@@ -184,7 +192,15 @@ export default class DealEditForm extends React.Component<Props, State> {
     copy,
     remove
   }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
+    const {
+      item,
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack
+    } = this.props;
+
     return (
       <>
         <Top
@@ -213,6 +229,7 @@ export default class DealEditForm extends React.Component<Props, State> {
           <Sidebar
             options={options}
             item={item}
+            updateTimeTrack={updateTimeTrack}
             sidebar={this.renderProductSection}
             saveItem={saveItem}
             renderItems={this.renderItems}

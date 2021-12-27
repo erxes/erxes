@@ -4,16 +4,22 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps,
+  IOption
+} from 'modules/common/types';
+import { extractAttachment, __ } from 'modules/common/utils';
 import { articleReactions } from 'modules/knowledgeBase/icons.constant';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
+import { FILE_MIME_TYPES } from 'modules/settings/general/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IArticle, ITopic } from '../../types';
 import { ReactionItem } from './styles';
-import xss from 'xss';
 
 type Props = {
   article: IArticle;
@@ -28,6 +34,8 @@ type State = {
   reactionChoices: string[];
   topicId?: string;
   categoryId: string;
+  attachments: IAttachment[];
+  image: IAttachment | null;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -35,12 +43,17 @@ class ArticleForm extends React.Component<Props, State> {
     super(props);
 
     const article = props.article || { content: '' };
+    const attachments =
+      (article.attachments && extractAttachment(article.attachments)) || [];
+    const image = article.image ? extractAttachment([article.image])[0] : null;
 
     this.state = {
-      content: xss(article.content),
+      content: article.content,
       reactionChoices: article.reactionChoices || [],
       topicId: article.topicId,
-      categoryId: article.categoryId
+      categoryId: article.categoryId,
+      image,
+      attachments
     };
   }
 
@@ -52,6 +65,12 @@ class ArticleForm extends React.Component<Props, State> {
     }
   }
 
+  getFirstAttachment = () => {
+    const { attachments } = this.state;
+
+    return attachments.length > 0 ? attachments[0] : ({} as IAttachment);
+  };
+
   generateDoc = (values: {
     _id?: string;
     title: string;
@@ -59,7 +78,14 @@ class ArticleForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { article, currentCategoryId } = this.props;
-    const { content, reactionChoices, topicId, categoryId } = this.state;
+    const {
+      attachments,
+      content,
+      reactionChoices,
+      topicId,
+      categoryId,
+      image
+    } = this.state;
 
     const finalValues = values;
 
@@ -77,17 +103,41 @@ class ArticleForm extends React.Component<Props, State> {
         status: finalValues.status,
         categoryIds: [currentCategoryId],
         topicId,
-        categoryId
+        attachments,
+        categoryId,
+        image
       }
     };
   };
 
   onChange = e => {
-    this.setState({ content: xss(e.editor.getData()) });
+    this.setState({ content: e.editor.getData() });
   };
 
   onChangeReactions = (options: IOption[]) => {
     this.setState({ reactionChoices: options.map(option => option.value) });
+  };
+
+  onChangeAttachments = (attachments: IAttachment[]) =>
+    this.setState({ attachments });
+
+  onChangeImage = (images: IAttachment[]) => {
+    if (images && images.length > 0) {
+      this.setState({ image: images[0] });
+    } else {
+      this.setState({ image: null });
+    }
+  };
+
+  onChangeAttachment = (key: string, value: string | number) => {
+    this.setState({
+      attachments: [
+        {
+          ...this.getFirstAttachment(),
+          [key]: value
+        }
+      ]
+    });
   };
 
   renderOption = option => {
@@ -175,7 +225,13 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
-    const { reactionChoices, content } = this.state;
+    const { attachments, reactionChoices, content, image } = this.state;
+    const attachment = this.getFirstAttachment();
+
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+      value: item.value,
+      label: `${item.label} (${item.extension})`
+    }));
 
     const { isSubmitted, values } = formProps;
 
@@ -247,9 +303,94 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
+          <ControlLabel>{__('Image')}</ControlLabel>
+          <Uploader
+            defaultFileList={image ? [image] : []}
+            onChange={this.onChangeImage}
+            single={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Attachment')}</ControlLabel>
+          <Uploader
+            defaultFileList={attachments}
+            onChange={this.onChangeAttachments}
+            single={true}
+          />
+        </FormGroup>
+
+        <FlexContent>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File url')}</ControlLabel>
+              <FormControl
+                placeholder="Url"
+                value={attachment.url || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('url', e.target.value)
+                }
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('File name')}</ControlLabel>
+              <FormControl
+                placeholder="Name"
+                value={attachment.name || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('name', e.target.value)
+                }
+              />
+            </FormGroup>
+          </FlexItem>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File size (byte)')}</ControlLabel>
+              <FormControl
+                placeholder="Size (byte)"
+                value={attachment.size || ''}
+                type="number"
+                onChange={(e: any) =>
+                  this.onChangeAttachment('size', parseInt(e.target.value, 10))
+                }
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('File type')}</ControlLabel>
+              <FormControl
+                componentClass="select"
+                value={attachment.type || ''}
+                onChange={(e: any) =>
+                  this.onChangeAttachment('type', e.target.value)
+                }
+                options={[
+                  { value: '', label: 'Select type' },
+                  ...mimeTypeOptions
+                ]}
+              />
+            </FormGroup>
+          </FlexItem>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>{__('File duration (sec)')}</ControlLabel>
+              <FormControl
+                placeholder="Duration"
+                value={attachment.duration || 0}
+                onChange={(e: any) =>
+                  this.onChangeAttachment(
+                    'duration',
+                    parseInt(e.target.value, 10)
+                  )
+                }
+              />
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+
+        <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK
-            content={xss(content)}
+            content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}

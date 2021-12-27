@@ -1,13 +1,8 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { BoxRoot } from 'modules/common/styles/main';
-import { Box as TypeBox } from 'modules/settings/growthHacks/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import {
-  Launcher,
-  WidgetPreviewStyled
-} from '../settings/integrations/components/messenger/widgetPreview/styles';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { BoxRoot } from "modules/common/styles/main";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
@@ -32,7 +27,7 @@ const HelperText = styled.div`
 
 const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
   display: flex;
-  flex-direction: ${props => props.direction};
+  flex-direction: ${(props) => props.direction};
 `;
 
 const Title = styled.h3`
@@ -60,10 +55,10 @@ const PreviewContent = styledTS<{
   word-break: break-word;
   min-height: 500px;
 
-  ${props => {
+  ${(props) => {
     if (!props.isFullmessage) {
       return `
-        overflow: ${props.showOverflow ? 'auto' : 'hidden'};
+        overflow: ${props.showOverflow ? "auto" : "hidden"};
         -webkit-box-orient: vertical;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -84,8 +79,79 @@ const Messenger = styled.div`
   align-items: flex-end;
 `;
 
-const LauncherContainer = styled(Launcher)`
+const LogoContainer = styled.div`
+  color: ${colors.colorWhite};
+  line-height: 56px;
+  text-align: center;
+  border-radius: 28px;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
+  background-image: url("/images/erxes.png");
+  background-color: ${colors.colorPrimary};
+  background-position: center;
+  background-size: 20px;
+  background-repeat: no-repeat;
+  margin-top: ${dimensions.unitSpacing}px;
+  position: relative;
+  float: right;
+  display: table;
+
+  span {
+    position: absolute;
+    width: ${coreSpace};
+    height: ${coreSpace};
+    background: ${colors.colorCoreRed};
+    display: block;
+    right: -2px;
+    top: -5px;
+    color: ${colors.colorWhite};
+    border-radius: ${dimensions.unitSpacing}px;
+    text-align: center;
+    line-height: ${coreSpace};
+    font-size: ${dimensions.unitSpacing}px;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  label {
+    display: block;
+    margin: 0;
+    visibility: hidden;
+    border-radius: 50%;
+  }
+
+  &:hover label {
+    visibility: visible;
+    cursor: pointer;
+  }
+`;
+
+const LauncherContainer = styled(LogoContainer)`
   position: absolute;
+  right: ${dimensions.unitSpacing}px;
+  bottom: ${dimensions.unitSpacing}px;
+`;
+
+const WidgetPreviewStyled = styled.div`
+  background: ${colors.colorWhite};
+  color: ${colors.colorWhite};
+  border-radius: ${dimensions.unitSpacing}px;
+  border-bottom-right-radius: 25px;
+  bottom: 80px;
+  box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 95px);
+  max-height: 660px;
+  overflow: hidden;
+  position: absolute;
+  right: 8px;
+  width: 380px;
+  z-index: 1;
 `;
 
 const WidgetPreview = styled(WidgetPreviewStyled)`
@@ -105,7 +171,7 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
     rgba(0, 0, 0, 0.08) 95%,
     rgba(0, 0, 0, 0.1) 100%
   );
-  width: ${props => props.isEngage && '100%'};
+  width: ${(props) => props.isEngage && "100%"};
 
   .engage-message {
     > div:first-of-type {
@@ -123,8 +189,8 @@ const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;
-  background-color: ${props =>
-    props.chosen ? colors.borderPrimary : 'transparent'};
+  background-color: ${(props) =>
+    props.chosen ? colors.borderPrimary : "transparent"};
 
   a {
     outline: none;
@@ -192,8 +258,12 @@ const Box = styled(BoxRoot)`
   }
 `;
 
-const ChooseBox = styled(TypeBox)`
-  margin-right: 0;
+const ChooseBox = styled(BoxRoot)`
+  text-align: left;
+  background: ${colors.colorWhite};
+  margin: 10px 0 0 0;
+  flex: 1;
+  padding: ${dimensions.unitSpacing * 1.5}px;
 
   &:last-of-type {
     margin-bottom: ${dimensions.unitSpacing}px;
@@ -203,7 +273,12 @@ const ChooseBox = styled(TypeBox)`
     font-size: 15px;
     line-height: 20px;
     color: ${colors.textPrimary};
-    text-transform: none;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.textSecondary};
   }
 
   a {
@@ -230,7 +305,7 @@ const BoxContent = styled.div`
 
 const BoxHeader = styled.div`
   position: relative;
-  background-image: url('/images/patterns/bg-2.png');
+  background-image: url("/images/patterns/bg-2.png");
   background-repeat: repeat;
   background-position: 0 0;
   height: 90px;
@@ -437,7 +512,7 @@ const Shell = styled.div`
     list-style: none;
     background: #141414;
     color: #45d40c;
-    font: 0.8em 'Andale Mono', Consolas, 'Courier New';
+    font: 0.8em "Andale Mono", Consolas, "Courier New";
     line-height: 1.6em;
 
     -webkit-border-bottom-right-radius: 3px;
@@ -449,7 +524,7 @@ const Shell = styled.div`
   }
 
   .shell-body li:before {
-    content: '$';
+    content: "$";
     position: absolute;
     left: 0;
     top: 0;
@@ -465,15 +540,15 @@ const Shell = styled.div`
 const DesktopPreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   width: 70%;
   margin: 0 auto;
-  background: ${props => !props.templateId && colors.colorWhite}
-  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
+  background: ${(props) => !props.templateId && colors.colorWhite}
+  padding: ${(props) => !props.templateId && `${dimensions.coreSpacing}px`}
 `;
 
 const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   height: 100%;
   overflow: auto;
-  background: ${props => !props.templateId && colors.colorWhite}
-  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
+  background: ${(props) => !props.templateId && colors.colorWhite}
+  padding: ${(props) => !props.templateId && `${dimensions.coreSpacing}px`}
   overflow-x: hidden;
 `;
 
@@ -539,5 +614,5 @@ export {
   Shell,
   TestEmailWrapper,
   Disabled,
-  InfoWrapper
+  InfoWrapper,
 };

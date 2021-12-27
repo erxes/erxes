@@ -45,6 +45,7 @@ import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
+import structures from './structures';
 
 export default {
   ...users,
@@ -89,6 +90,7 @@ export default {
   ...dashboards,
   ...skillTypesMutations,
   ...skillsMutations,
+  ...structures,
   ...clientPortal,
   ...automationsMutations
 };

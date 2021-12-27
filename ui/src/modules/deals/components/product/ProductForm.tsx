@@ -102,7 +102,7 @@ class ProductForm extends React.Component<Props, State> {
     const { productsData, onChangeProductsData, currencies } = this.props;
     const { tax, discount } = this.state;
     const unitPrice = product ? product.unitPrice : 0;
-    const amount = discountT && discountT > 0 ? unitPrice / 100 * discountT : 0;
+    const amount = discountT && discountT > 0 ? unitPrice / 100 * discountT : unitPrice;
 
     const currency = currencies ? currencies[0] : '';
 

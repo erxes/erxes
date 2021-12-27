@@ -14,8 +14,21 @@ export function SpinnerComponent(props) {
       right: rights && rights[index],
       objective: true,
     };
-    
+
     return datas;
+  };
+
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.replace(/40/g, "{40}");
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/15/g, "{15}");
+    string = string.replace(/=true/g, " ");
+    string = string.slice(0, string.length - 1);
+
+    return string;
   };
 
   const renderBlock = (propName) => {
@@ -29,10 +42,12 @@ export function SpinnerComponent(props) {
           ))}
         </div>
         <CodeBlock className="language-jsx">
-          {`<>${values.map(
-            (value, index) =>
-            `\n\t<Spinner ${stringify(propDatas(propName, value, index))}/>`
-          )}\n</>`}
+          {`<>${values
+            .map(
+              (value, index) =>
+                `\n\t<Spinner ${stringify(propDatas(propName, value, index))}/>`
+            )
+            .join(" ")}\n</>`}
         </CodeBlock>
       </>
     );

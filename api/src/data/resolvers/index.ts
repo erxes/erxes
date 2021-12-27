@@ -53,6 +53,11 @@ import UsersGroup from './usersGroup';
 import Automation from './automation';
 import AutomationNote from './automationNote';
 import Trigger from './trigger';
+import Structure from './structure';
+import Department from './departments';
+import Unit from './units';
+import Branch from './branches';
+import BookingData from './bookingData';
 
 const resolvers: any = {
   ...customScalars,
@@ -110,7 +115,12 @@ const resolvers: any = {
   Tag,
   Automation,
   AutomationNote,
-  Trigger
+  Trigger,
+  Structure,
+  Department,
+  Unit,
+  Branch,
+  BookingData
 };
 
 export default resolvers;

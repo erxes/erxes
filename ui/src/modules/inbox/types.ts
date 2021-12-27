@@ -48,6 +48,8 @@ export interface IConversation {
   customFieldsData?: {
     [key: string]: any;
   };
+
+  bookingProductId?: string;
 }
 
 interface IEngageDataRules {
@@ -186,6 +188,7 @@ export interface IMessage {
   customer?: ICustomer;
   createdAt: Date;
   updatedAt: Date;
+  bookingWidgetData?: any;
 }
 
 // mutation types

@@ -36,72 +36,72 @@ jobs:
           - 27017:27017
 
     steps:
-    - name: Configure sysctl limits
-      run: |
-        sudo swapoff -a
-        sudo sysctl -w vm.swappiness=1
-        sudo sysctl -w fs.file-max=262144
-        sudo sysctl -w vm.max_map_count=262144
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
 
-    - uses: getong/elasticsearch-action@v1.2
-      with:
-        elasticsearch version: '7.6.1'
-        host port: 9200
-        container port: 9200
-        host node port: 9300
-        node port: 9300
-        discovery type: 'single-node'
+      - uses: getong/elasticsearch-action@v1.2
+        with:
+          elasticsearch version: '7.6.1'
+          host port: 9200
+          container port: 9200
+          host node port: 9300
+          node port: 9300
+          discovery type: 'single-node'
 
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Use Node.js 12.19.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.19.x
+      - name: Use Node.js 12.19.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.19.x
 
-    # https://github.com/actions/cache/blob/master/examples.md#node---yarn
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-    - uses: actions/cache@v2
-      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-ui-${{ hashFiles('yarn.lock', 'ui/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-ui-
-          ${{ runner.os }}-yarn-
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-ui-${{ hashFiles('yarn.lock', 'ui/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-ui-
+            ${{ runner.os }}-yarn-
 
-    - name: Install dependencies
-      run: |
-        yarn install
-        cd ui
-        yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: |
+          yarn install
+          cd ui
+          yarn install --frozen-lockfile
 
-    - name: Lint
-      run: |
-        yarn lint ui
+      - name: Lint
+        run: |
+          yarn lint ui
 
-    - name: Tsc
-      run: |
-        cd ui
-        yarn tsc
+      - name: Tsc
+        run: |
+          cd ui
+          yarn tsc
 
-    - name: Build
-      run: |
-        cd ui
-        rm -rf src/__tests__
-        rm src/setupTests.ts
-        yarn install --frozen-lockfile --production
-        yarn build
+      - name: Build
+        run: |
+          cd ui
+          rm -rf src/__tests__
+          rm src/setupTests.ts
+          yarn install --frozen-lockfile --production
+          yarn build
 
-    - name: Build docker image
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations')
-      env:
-        BASE_IMAGE: erxes/erxes:base-1.18-alpine
-      run: |
-        cd ui
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
-        docker push erxes/erxes:${GITHUB_REF#refs/heads/}
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm')
+        env:
+          BASE_IMAGE: erxes/erxes:base-1.18-alpine
+        run: |
+          cd ui
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
+          docker push erxes/erxes:${GITHUB_REF#refs/heads/}

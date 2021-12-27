@@ -14,6 +14,8 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
+  productCategoryFactory,
+  productFactory,
   userFactory
 } from '../db/factories';
 import { Brands, Conversations, Customers, Integrations } from '../db/models';
@@ -65,6 +67,77 @@ describe('widgetQueries', () => {
     });
 
     expect(response.length).toBe(2);
+  });
+
+  test('Conversation export messages', async () => {
+    const mock = sinon.stub(utils, 'uploadFile').callsFake(() => {
+      return Promise.resolve('filepath');;
+    });
+    // Creating test data
+    const user = await userFactory({});
+
+    const integration = await integrationFactory({
+      kind: 'messenger',
+      messengerData: { supporterIds: [user._id] }
+    });
+
+    const conversation = await conversationFactory({
+      integrationId: integration._id
+    });
+
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      internal: false
+    });
+
+    const qry = `
+      query widgetExportMessengerData($_id: String, $integrationId: String!) {
+        widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'widgetExportMessengerData', {
+      _id: conversation._id,
+      integrationId: '_id '
+    });
+    expect(response).toBe(null);
+
+    response = await graphqlRequest(qry, 'widgetExportMessengerData', {
+      _id: conversation._id,
+      integrationId: integration._id
+    });
+
+    expect(response).toBe('filepath');
+
+    mock.restore();
+  });
+
+  test('Conversation failed export messages', async () => {
+    const user = await userFactory({});
+
+    const integration = await integrationFactory({
+      kind: 'messenger',
+      messengerData: { supporterIds: [user._id] }
+    });
+
+    const conversation = await conversationFactory({
+      integrationId: integration._id
+    });
+
+    const qry = `
+      query widgetExportMessengerData($_id: String, $integrationId: String!) {
+        widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
+      }
+    `;
+    
+    try {
+      await graphqlRequest(qry, 'widgetExportMessengerData', {
+        _id: conversation._id,
+        integrationId: integration._id
+      });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
   });
 
   test('Conversation detail', async () => {
@@ -421,5 +494,51 @@ describe('widgetQueries', () => {
     }
 
     envMock.restore();
+  });
+
+  test('widgetsProductCategory', async () => {
+    const productCategory = await productCategoryFactory({});
+
+    const qry = `
+      query widgetsProductCategory($_id: String!) {
+        widgetsProductCategory(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsProductCategory', {
+      _id: productCategory._id
+    });
+
+    expect(productCategory._id).toBe(response._id);
+  });
+
+  test('widgetsBookingProductWithFields', async () => {
+    const product = await productFactory({});
+
+    const qry = `
+      query widgetsBookingProductWithFields($_id: String!) {
+        widgetsBookingProductWithFields(_id: $_id) {
+          product {
+            _id
+          }
+          fields {
+            _id
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      qry,
+      'widgetsBookingProductWithFields',
+      {
+        _id: product._id
+      }
+    );
+
+    expect(response.product._id).toBe(product._id);
+    expect(response.fields).toBeDefined();
   });
 });

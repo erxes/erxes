@@ -41,8 +41,7 @@ const options = {
     changeMutation: mutations.tasksChange,
     watchMutation: mutations.tasksWatch,
     archiveMutation: mutations.tasksArchive,
-    copyMutation: mutations.tasksCopy,
-    updateTimeTrackMutation: mutations.taskUpdateTimeTracking
+    copyMutation: mutations.tasksCopy
   },
   texts: {
     addText: 'Add a task',
@@ -53,11 +52,23 @@ const options = {
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {
-    const { priority } = queryParams;
+    const { priority, userIds, startDate, endDate } = queryParams;
     const extraParams: any = {};
 
     if (priority) {
       extraParams.priority = toArray(priority);
+    }
+
+    if (userIds) {
+      extraParams.userIds = toArray(userIds);
+    }
+
+    if (startDate) {
+      extraParams.startDate = startDate;
+    }
+
+    if (endDate) {
+      extraParams.endDate = endDate;
     }
 
     return extraParams;

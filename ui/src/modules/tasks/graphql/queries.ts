@@ -88,27 +88,46 @@ const taskDetail = `
   query taskDetail($_id: String!) {
     taskDetail(_id: $_id) {
       ${commonFields}
-      timeTrack {
-        status
-        timeSpent
-        startDate
-      }
     }
   }
 `;
 
+const archivedTasksParams = `
+  $pipelineId: String!
+  $search: String
+  $userIds: [String]
+  $priorities: [String]
+  $assignedUserIds: [String]
+  $labelIds: [String]
+  $companyIds: [String]
+  $customerIds: [String]
+  $startDate: String
+  $endDate: String
+`;
+
+const archivedTasksArgs = `
+  pipelineId: $pipelineId
+  search: $search
+  userIds: $userIds
+  priorities: $priorities
+  assignedUserIds: $assignedUserIds
+  labelIds: $labelIds
+  companyIds: $companyIds
+  customerIds: $customerIds
+  startDate: $startDate
+  endDate: $endDate
+`;
+
 const archivedTasks = `
   query archivedTasks(
-    $pipelineId: String!,
-    $search: String,
-    $page: Int,
-    $perPage: Int,
+    $page: Int
+    $perPage: Int
+    ${archivedTasksParams}
   ) {
     archivedTasks(
-      pipelineId: $pipelineId,
-      search: $search,
-      page: $page,
-      perPage: $perPage,
+      page: $page
+      perPage: $perPage
+     ${archivedTasksArgs}
     ) {
       ${commonFields}
     }
@@ -116,8 +135,12 @@ const archivedTasks = `
 `;
 
 const archivedTasksCount = `
-  query archivedTasksCount($pipelineId: String!, $search: String) {
-    archivedTasksCount(pipelineId: $pipelineId, search: $search)
+  query archivedTasksCount(
+    ${archivedTasksParams}
+  ) {
+    archivedTasksCount(
+      ${archivedTasksArgs}
+    )
   }
 `;
 

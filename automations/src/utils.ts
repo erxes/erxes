@@ -1,15 +1,19 @@
-import { addBoardItem } from './actions';
-import { setProperty } from './actions/setProperty';
-import { ACTIONS } from './constants';
-import { debugBase } from './debuggers';
-import { getActionsMap } from './helpers';
-import { sendRPCMessage } from './messageBroker';
 import Automations, {
   IActionsMap,
   ITrigger,
   TriggerType
 } from './models/Automations';
-import { Executions, EXECUTION_STATUS, IExecAction, IExecutionDocument } from './models/Executions';
+import { ACTIONS } from './constants';
+import { addBoardItem, customCode, setProperty } from './actions';
+import { debugBase } from './debuggers';
+import {
+  EXECUTION_STATUS,
+  Executions,
+  IExecAction,
+  IExecutionDocument
+} from './models/Executions';
+import { getActionsMap } from './helpers';
+import { sendRPCMessage } from './messageBroker';
 
 export const getEnv = ({
   name,
@@ -111,8 +115,12 @@ export const executeActions = async (
 
       actionResponse = await addBoardItem({ action, execution, type });
     }
+
+    if (action.type === ACTIONS.CUSTOM_CODE) {
+      actionResponse = await customCode({ action, execution })
+    }
   } catch (e) {
-    execAction.result = { error: e.message };
+    execAction.result = { error: e.message, result: e.result };
     execution.actions = [...(execution.actions || []), execAction]
     execution.status = EXECUTION_STATUS.ERROR
     execution.description = `An error occurred while working action: ${action.type}`
@@ -131,6 +139,32 @@ export const executeActions = async (
     action.nextActionId
   );
 };
+
+const isDiffValue = (latest, target, field) => {
+  const getValue = (obj, attr) => {
+    try {
+      return obj[attr]
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  const extractFields = field.split('.');
+  let latestValue = latest;
+  let targetValue = target;
+
+
+  for (const f of extractFields) {
+    latestValue = getValue(latestValue, f);
+    targetValue = getValue(targetValue, f);
+  }
+
+  if (targetValue !== latestValue) {
+    return true;
+  }
+
+  return false;
+}
 
 export const calculateExecution = async ({
   automationId,
@@ -177,7 +211,7 @@ export const calculateExecution = async ({
     let isChanged = false;
 
     for (const reEnrollmentRule of reEnrollmentRules) {
-      if (latestExecution.target[reEnrollmentRule] !== target[reEnrollmentRule]) {
+      if (isDiffValue(latestExecution.target, target, reEnrollmentRule)) {
         isChanged = true;
         break;
       }
@@ -210,16 +244,16 @@ export const receiveTrigger = async ({
   type: TriggerType;
   targets: any[];
 }) => {
+  const automations = await Automations.find({
+    status: 'active',
+    'triggers.type': { $in: [type] }
+  }).lean();
+
+  if (!automations.length) {
+    return;
+  }
+
   for (const target of targets) {
-    const automations = await Automations.find({
-      status: 'active',
-      'triggers.type': { $in: [type] }
-    }).lean();
-
-    if (!automations.length) {
-      return;
-    }
-
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
         if (trigger.type !== type) {

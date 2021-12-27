@@ -13,12 +13,19 @@ import {
   HeaderButton,
   HeaderLabel,
   HeaderLink,
-  PageHeader
+  PageHeader,
+  ButtonGroup
 } from '../styles/header';
 import { IBoard, IOptions, IPipeline } from '../types';
 import RightMenu from './RightMenu';
 import { GroupByContent } from '../styles/common';
 import Button from 'modules/common/components/Button';
+import {
+  chartTypes,
+  stackByChart,
+  groupByList
+} from 'modules/boards/constants';
+import SelectType from './SelectType';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -38,7 +45,7 @@ type Props = {
   boardText?: string;
   pipelineText?: string;
   options: IOptions;
-  viewType?: string;
+  viewType: string;
 };
 
 class MainActionBar extends React.Component<Props> {
@@ -170,57 +177,124 @@ class MainActionBar extends React.Component<Props> {
       return null;
     }
 
-    const onFilterType = (selectType: string) => {
-      const { currentBoard, currentPipeline, options } = this.props;
-      const pipelineType = options.type;
+    return (
+      <GroupByContent>
+        <SelectType
+          title={__('Group by:')}
+          icon="list-2"
+          list={groupByList}
+          text={__('Stage')}
+          queryParamName="groupBy"
+          queryParams={queryParams}
+        />
+      </GroupByContent>
+    );
+  };
 
-      if (currentBoard && currentPipeline) {
-        return `/${pipelineType}/list?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&groupBy=${selectType}`;
-      }
+  renderChartView = () => {
+    const { viewType, queryParams } = this.props;
 
-      return `/${pipelineType}/${selectType}`;
-    };
-
-    const labelLink = onFilterType('label');
-    const stageLink = onFilterType('stage');
-    const priorityLink = onFilterType('priority');
-    const assignLink = onFilterType('assignee');
-    const dueDateLink = onFilterType('dueDate');
-
-    const typeName = queryParams.groupBy;
+    if (viewType !== 'chart') {
+      return null;
+    }
 
     return (
       <GroupByContent>
-        <Icon icon="list-2" />
-        <span>{__('Group by:')}</span>
+        <SelectType
+          title={__('Chart Type:')}
+          icon="chart-bar"
+          list={chartTypes}
+          text={__('Stacked Bar Chart')}
+          queryParamName="chartType"
+          queryParams={queryParams}
+        />
+        &nbsp;&nbsp;&nbsp;
+        <SelectType
+          title={__('Stack By:')}
+          icon="list-2"
+          list={stackByChart}
+          text={__('Stage')}
+          queryParamName="stackBy"
+          queryParams={queryParams}
+        />
+      </GroupByContent>
+    );
+  };
+
+  renderViewChooser = () => {
+    const { currentBoard, currentPipeline, options, viewType } = this.props;
+
+    const onFilterClick = (type: string) => {
+      if (currentBoard && currentPipeline) {
+        return `/${options.type}/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
+      }
+
+      return `/${options.type}/${type}`;
+    };
+
+    return (
+      <ButtonGroup>
         <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
-            <Button btnStyle="primary" size="small">
-              {typeName
-                ? typeName.charAt(0).toUpperCase() + typeName.slice(1)
-                : __('Stage')}
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
+            <Button btnStyle="primary" icon="list-ui-alt">
+              {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
               <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <li>
-              <Link to={stageLink}>{__('Stage')}</Link>
+            <li key="board">
+              <Link
+                to={onFilterClick('board')}
+                className={viewType === 'board' ? 'active' : ''}
+              >
+                {__('Board')}
+              </Link>
             </li>
-            <li>
-              <Link to={labelLink}>{__('Label')}</Link>
+            <li key="calendar">
+              <Link
+                to={onFilterClick('calendar')}
+                className={viewType === 'calendar' ? 'active' : ''}
+              >
+                {__('Calendar')}
+              </Link>
             </li>
-            <li>
-              <Link to={priorityLink}>{__('Priority')}</Link>
+            {options.type === 'deal' && (
+              <li key="conversion">
+                <Link
+                  to={onFilterClick('conversion')}
+                  className={viewType === 'conversion' ? 'active' : ''}
+                >
+                  {__('Conversion')}
+                </Link>
+              </li>
+            )}
+            <li key="activity">
+              <Link
+                to={onFilterClick('activity')}
+                className={viewType === 'activity' ? 'active' : ''}
+              >
+                {__('Activity')}
+              </Link>
             </li>
-            <li>
-              <Link to={assignLink}>{__('Assignee')}</Link>
+            <li key="list">
+              <Link
+                to={onFilterClick('list')}
+                className={viewType === 'list' ? 'active' : ''}
+              >
+                {__('List')}
+              </Link>
             </li>
-            <li>
-              <Link to={dueDateLink}>{__('Due Date')}</Link>
+            <li key="chart">
+              <Link
+                to={onFilterClick('chart')}
+                className={viewType === 'chart' ? 'active' : ''}
+              >
+                {__('Chart')}
+              </Link>
             </li>
           </Dropdown.Menu>
         </Dropdown>
-      </GroupByContent>
+      </ButtonGroup>
     );
   };
 
@@ -289,6 +363,10 @@ class MainActionBar extends React.Component<Props> {
         {middleContent && middleContent()}
 
         {this.renderGroupBy()}
+
+        {this.renderChartView()}
+
+        {this.renderViewChooser()}
 
         {rightContent && rightContent()}
 

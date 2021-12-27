@@ -28,6 +28,12 @@ const checkActivateInstallation = `
   }
 `;
 
+const configsCheckPremiumService = `
+  query configsCheckPremiumService($type: String!) {
+    configsCheckPremiumService(type: $type)
+  }
+`;
+
 const configsGetEmailTemplate = `
   query configsGetEmailTemplate($name: String) {
     configsGetEmailTemplate(name: $name)
@@ -45,6 +51,7 @@ export default {
   configsConstants,
   configsGetEnv,
   checkActivateInstallation,
+  configsCheckPremiumService,
   configsGetEmailTemplate,
   search
 };
