@@ -13,11 +13,8 @@ import { SortableListComponent } from "./sortablelist.js"
 <SortableListComponent type="APIsortablelist" table={[
 ['field*', 'any[]', '', 'Define list properties'],
 ['child*', 'function', '', 'Show list item'],
-['onChangeFields*', 'function', '', ''],
-['isModal', 'boolean', '', ''],
+['onChangeFields*', 'function', '', 'Change field position'],
 ['showDragHandler', 'boolean', 'true', 'Activates hand cursor'],
 ['isDragDisabled', 'boolean', '', 'Activates drag function'],
 ['droppableId', 'string', '', 'Define droppable Id']
 ]} />
-
-<!-- isModal didn't used on tsx -->
