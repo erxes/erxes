@@ -5,6 +5,15 @@ const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPl
 
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 
+const configs = require("./plugin-src/configs");
+const { port=3000 } = configs;
+
+const exposes = {};
+
+for (const expose of Object.keys(configs.exposes || {})) {
+  exposes[expose] = configs.exposes[expose].replace('src', 'plugin-src')
+}
+
 // replace accordingly './.env' with the path of your .env file 
 require('dotenv').config({ path: './.env' }); 
 
@@ -22,7 +31,7 @@ for (const name of depNames) {
 
 module.exports = {
   output: {
-    publicPath: "http://localhost:3001/",
+    publicPath: `http://localhost:${port}/`,
   },
 
   optimization: { runtimeChunk: false, splitChunks: false },
@@ -32,7 +41,7 @@ module.exports = {
   },
 
   devServer: {
-    port: 3001,
+    port: port,
     historyApiFallback: true,
   },
 
@@ -60,7 +69,7 @@ module.exports = {
   },
 
   resolve: {
-    modules: [path.resolve(__dirname, "src"), "node_modules"],
+    modules: [path.resolve(__dirname, "src"), path.resolve(__dirname, "plugin-src"), "node_modules"],
     // fallback: { "path": require.resolve("path-browserify"), "timers": require.resolve("timers-browserify") },
     extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
   },
@@ -73,12 +82,10 @@ module.exports = {
       PUBLIC_URL: 'public' // can modify `static` to another name or get it from `process`
     }),
     new ModuleFederationPlugin({
-      name: "engages",
+      name: configs.name,
       filename: "remoteEntry.js",
       remotes: {},
-      exposes: {
-        "./routes": './src/routes.tsx'
-      },
+      exposes,
       shared
     }),
     new HtmlWebPackPlugin({
