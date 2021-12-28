@@ -6,9 +6,9 @@ import styles from "../../../src/components/styles.module.css";
 
 export function SortableListComponent(props) {
   const array = [
-    { _id: 0, field: "Name" },
-    { _id: 1, field: "Age" },
-    { _id: 2, field: "School" },
+    { _id: 0, field: "James" },
+    { _id: 1, field: "Robert" },
+    { _id: 2, field: "Larry" },
   ];
 
   const [fields, setFields] = React.useState(array);
@@ -33,11 +33,7 @@ export function SortableListComponent(props) {
           />
         </div>
         <CodeBlock className="language-jsx">
-          {`const array = [
-    { _id: 0, field: "Name" },
-    { _id: 1, field: "Age" },
-    { _id: 2, field: "School" },
-  ];
+          {`  const array = [\n\t{ _id: 0, field: "James" },\n\t{ _id: 1, field: "Robert" },\n\t{ _id: 2, field: "Larry" },\n   ];
 
   const [fields, setFields] = React.useState(array);
   const { type, table = [] } = props;
@@ -55,7 +51,9 @@ export function SortableListComponent(props) {
               fields={fields}
               child={child}
               onChangeFields={onChangeFields}
-            />\n  };`}
+            />\n  };
+            
+  return renderBlock("");`}
         </CodeBlock>
       </>
     );
