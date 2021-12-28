@@ -3,7 +3,7 @@ id: form
 title: Form
 ---
 
-import { FormComponent } from "./forms.js"
+import { FormComponent } from "./form.js"
 
 <p>Examples and usage guidelines for form, form control and so on.</p>
 

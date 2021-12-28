@@ -139,9 +139,7 @@ module.exports = {
         "components/EmptyState/emptystate",
         "components/ErrorMsg/errormsg",
         "components/FilePreview/filepreview",
-        "components/Filter/filter",
         "components/FilterByParams/filterbyparams",
-        "components/Form/form",
         "components/HelpPopOver/helppopover",
         "components/Icon/icon",
         "components/Info/info",
@@ -174,6 +172,7 @@ module.exports = {
         "utilities/CollapseContent/collapsecontent",
         "utilities/CountsByTag/countsbytag",
         "utilities/FilterableList/filterablelist",
+        "utilities/Form/form",
         "utilities/HeaderDescription/headerdescription",
         "utilities/ModifiableList/modifiablelist",
         {
