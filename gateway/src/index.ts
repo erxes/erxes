@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 dotenv.config();
 
 import { ApolloServer } from "apollo-server-express";
@@ -9,34 +9,25 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 import express from "express";
 import http from "http";
 // import { loadSubscriptions } from "./subscription";
-import { getConfiguredServices } from './subgraphs';
-import cors from 'cors';
-
-// function unless(path, middleware) {
-//   return function(req, res, next) {
-//       if (path === req.path) {
-//           return next();
-//       } else {
-//           return middleware(req, res, next);
-//       }
-//   };
-// };
+import { getConfiguredServices } from "./subgraphs";
 
 (async () => {
   const gatewayConfig: GatewayConfig = {
     serviceList: getConfiguredServices(),
   };
 
-  if(process.env.NODE_ENV === 'development') {
-    gatewayConfig.experimental_pollInterval = 30*1000; // 30 seconds
+  if (process.env.NODE_ENV === "development") {
+    gatewayConfig.experimental_pollInterval = 30 * 1000; // 30 seconds
   }
 
   const gateway = new ApolloGateway(gatewayConfig);
 
   const app = express();
 
-  // app.use(cors());
-  app.use(/\/((?!graphql).)*/, createProxyMiddleware({ target: process.env.FORWARD_EXCEPT_GRAPHQL_URL }));
+  app.use(
+    /\/((?!graphql).)*/,
+    createProxyMiddleware({ target: process.env.FORWARD_EXCEPT_GRAPHQL_URL })
+  );
 
   const httpServer = http.createServer(app);
 
@@ -56,13 +47,20 @@ import cors from 'cors';
   // );
 
   await apolloServer.start();
-  apolloServer.applyMiddleware({ app, path: "/graphql" });
+  apolloServer.applyMiddleware({
+    app,
+    path: "/graphql",
+    cors: {
+      credentials: true,
+      origin: [ process.env.MAIN_APP_DOMAIN || "http://localhost:3000", "https://studio.apollographql.com"],
+    },
+  });
+
+  
 
   const port = process.env.PORT || 4000;
 
-  await new Promise<void>((resolve) =>
-    httpServer.listen({ port }, resolve)
-  );
+  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
   console.log(
     `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
   );
