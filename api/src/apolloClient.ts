@@ -1,7 +1,6 @@
 import { ApolloServer, gql, PlaygroundConfig } from 'apollo-server-express';
-import * as cookie from 'cookie';
+import { buildSubgraphSchema } from '@apollo/federation';
 import * as dotenv from 'dotenv';
-import * as jwt from 'jsonwebtoken';
 import {
   AutomationsAPI,
   EngagesAPI,
@@ -10,16 +9,7 @@ import {
 } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
-import { Conversations, Customers, Users } from './db/models';
-import {
-  addToArray,
-  get,
-  inArray,
-  removeFromArray,
-  set
-} from './inmemoryStorage';
 import { extendViaPlugins } from './pluginUtils';
-import { graphqlPubsub } from './pubsub';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 
 // load environment variables
@@ -63,20 +53,21 @@ export const initApolloServer = async app => {
 
   const typeDefs = gql(`
     ${types}
-    type Query {
+    extend type Query {
       ${queries}
     }
-    type Mutation {
+    extend type Mutation {
       ${mutations}
-    }
-    type Subscription {
-      ${subscriptions}
     }
   `);
 
   apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema: buildSubgraphSchema([
+      {
+        typeDefs,
+        resolvers
+      }
+    ]),
     dataSources: generateDataSources,
     playground,
     uploads: false,
@@ -152,151 +143,6 @@ export const initApolloServer = async app => {
         requestInfo,
         dataLoaders
       };
-    },
-    subscriptions: {
-      keepAlive: 10000,
-      path: '/subscriptions',
-
-      onConnect(_connectionParams, webSocket: any, connectionContext: any) {
-        webSocket.on('message', async message => {
-          const parsedMessage = JSON.parse(message.toString()).id || {};
-
-          if (parsedMessage.type === 'messengerConnected') {
-            webSocket.messengerData = parsedMessage.value;
-
-            const customerId =
-              webSocket.messengerData && webSocket.messengerData.customerId;
-            const visitorId =
-              webSocket.messengerData && webSocket.messengerData.visitorId;
-
-            const memoryStorageValue = customerId || visitorId;
-
-            // get status from inmemory storage
-            const inConnectedClients = await inArray(
-              'connectedClients',
-              memoryStorageValue
-            );
-
-            const inClients = await inArray('clients', memoryStorageValue);
-
-            if (!inConnectedClients) {
-              await addToArray('connectedClients', memoryStorageValue);
-            }
-
-            // Waited for 1 minute to reconnect in disconnect hook and disconnect hook
-            // removed this customer from connected clients list. So it means this customer
-            // is back online
-            if (!inClients) {
-              await addToArray('clients', memoryStorageValue);
-
-              if (customerId) {
-                // mark as online
-                await Customers.markCustomerAsActive(customerId);
-              }
-              // notify as connected
-              graphqlPubsub.publish('customerConnectionChanged', {
-                customerConnectionChanged: {
-                  _id: customerId,
-                  status: 'connected'
-                }
-              });
-            }
-          }
-        });
-
-        let user;
-
-        try {
-          const cookies = cookie.parse(
-            connectionContext.request.headers.cookie
-          );
-
-          const jwtContext = jwt.verify(
-            cookies['auth-token'],
-            Users.getSecret()
-          );
-
-          user = jwtContext.user;
-        } catch (e) {
-          user = null;
-        }
-
-        return {
-          user
-        };
-      },
-
-      async onDisconnect(webSocket: any) {
-        const messengerData = webSocket.messengerData;
-
-        if (messengerData) {
-          const customerId = messengerData.customerId;
-          const memoryStorageValue = customerId
-            ? customerId
-            : messengerData.visitorId;
-          const integrationId = messengerData.integrationId;
-
-          // Temporarily marking as disconnected
-          // If client refreshes his browser, It will trigger disconnect, connect hooks.
-          // So to determine this issue. We are marking as disconnected here and waiting
-          // for 1 minute to reconnect.
-
-          await removeFromArray('connectedClients', memoryStorageValue);
-
-          setTimeout(async () => {
-            // get status from inmemory storage
-            const inNewConnectedClients = await inArray(
-              'connectedClients',
-              memoryStorageValue
-            );
-            const customerLastStatus = await get(
-              `customer_last_status_${customerId}`
-            );
-
-            if (inNewConnectedClients) {
-              return;
-            }
-
-            await removeFromArray('clients', memoryStorageValue);
-
-            if (customerId) {
-              // mark as offline
-              await Customers.markCustomerAsNotActive(customerId);
-            }
-            if (customerLastStatus !== 'left') {
-              set(`customer_last_status_${customerId}`, 'left');
-
-              // customer has left + time
-              const conversationMessages = await Conversations.changeCustomerStatus(
-                'left',
-                customerId,
-                integrationId
-              );
-
-              for (const message of conversationMessages) {
-                graphqlPubsub.publish('conversationMessageInserted', {
-                  conversationMessageInserted: message
-                });
-
-                graphqlPubsub.publish('conversationClientTypingStatusChanged', {
-                  conversationClientTypingStatusChanged: {
-                    conversationId: message.conversationId,
-                    text: ''
-                  }
-                });
-              }
-            }
-
-            // notify as disconnected
-            graphqlPubsub.publish('customerConnectionChanged', {
-              customerConnectionChanged: {
-                _id: customerId,
-                status: 'disconnected'
-              }
-            });
-          }, 60000);
-        }
-      }
     }
   });
 
