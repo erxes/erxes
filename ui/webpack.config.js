@@ -107,9 +107,6 @@ module.exports = {
     new ModuleFederationPlugin({
       name: "main",
       filename: "remoteEntry.js",
-      remotes: {
-        engages: 'engages@http://localhost:3001/remoteEntry.js'
-      },
       exposes: {
         QuickNavigation: './src/modules/layout/components/QuickNavigation.tsx'
       },
