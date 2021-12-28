@@ -14,7 +14,12 @@ import { Description } from '../../../styles';
 
 type Props = {
   onChange: (
-    name: 'onlineHours' | 'isOnline' | 'availabilityMethod' | 'responseRate' | 'showTimezone',
+    name:
+      | 'onlineHours'
+      | 'isOnline'
+      | 'availabilityMethod'
+      | 'responseRate'
+      | 'showTimezone',
     value: string
   ) => void;
   isOnline: boolean;
@@ -85,12 +90,20 @@ class Availability extends React.Component<Props> {
   }
 
   renderShowTimezone() {
-    const onChange = e => this.onChangeFunction('showTimezone', e.target.checked);
+    const onChange = e =>
+      this.onChangeFunction('showTimezone', e.target.checked);
 
     return (
       <FormGroup>
-        <ControlLabel required={true}>{__('Display Operator Timezone')}</ControlLabel>
-        <Description> {__('Display chat operator timezone set in their location in team member profiles')}</Description>
+        <ControlLabel required={true}>
+          {__('Display Operator Timezone')}
+        </ControlLabel>
+        <Description>
+          {' '}
+          {__(
+            'Display chat operator timezone set in their location in team member profiles'
+          )}
+        </Description>
         <ToggleWrapper>
           <Toggle
             checked={this.props.showTimezone}
@@ -144,30 +157,32 @@ class Availability extends React.Component<Props> {
 
           <FormGroup>
             <ControlLabel required={true}>Response rate</ControlLabel>
-              <FormControl
-                value="auto"
-                componentClass="radio"
-                checked={false}
-                inline={true}
-                disabled={true}
-              >
-                {__('Automatically calculated depending on your First Response Rate in Reports')}
-              </FormControl>
-              <FormControl
-                value="manual"
-                componentClass="radio"
-                checked={true}
-                inline={true}
-              >
-                {__('Set to display your pre defined response rate')}
-              </FormControl>
-              <Select
-                required={true}
-                value={this.props.responseRate}
-                options={respondrates}
-                onChange={respondTypeOnChange}
-                clearable={false}
-              />
+            <FormControl
+              value="auto"
+              componentClass="radio"
+              checked={false}
+              inline={true}
+              disabled={true}
+            >
+              {__(
+                'Automatically calculated depending on your First Response Rate in Reports'
+              )}
+            </FormControl>
+            <FormControl
+              value="manual"
+              componentClass="radio"
+              checked={true}
+              inline={true}
+            >
+              {__('Set to display your pre defined response rate')}
+            </FormControl>
+            <Select
+              required={true}
+              value={this.props.responseRate}
+              options={respondrates}
+              onChange={respondTypeOnChange}
+              clearable={false}
+            />
           </FormGroup>
 
           {this.renderShowTimezone()}

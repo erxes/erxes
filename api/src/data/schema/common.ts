@@ -36,6 +36,7 @@ export const commonTypes = `
   hasNotified: Boolean
   assignedUserIds: [String]
   labelIds: [String]
+  startDate: Date
   closeDate: Date
   description: String
   modifiedAt: Date
@@ -67,6 +68,7 @@ export const commonMutationParams = `
   stageId: String,
   assignedUserIds: [String],
   attachments: [AttachmentInput],
+  startDate: Date,
   closeDate: Date,
   description: String,
   order: Int,
@@ -98,6 +100,8 @@ export const commonListTypes = `
   labels: JSON
   isComplete: Boolean
   isWatched: Boolean
+  relations: JSON
+  startDate: Date
   closeDate: Date
   modifiedAt: Date
   priority: String

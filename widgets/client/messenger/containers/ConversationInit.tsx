@@ -27,13 +27,15 @@ class ConversationInit extends React.PureComponent<
 
     return (
       <AppConsumer>
-        {({ goToConversation, changeRoute }) => {
+        {({ goToConversation, changeRoute, getMessengerData }) => {
           const createConversation = () => {
             changeRoute("conversationCreate");
           };
           const goToAllConversations = () => {
             changeRoute("allConversations")
           }
+
+          const { responseRate } = getMessengerData();
           return (
             <DumbConversationList
               {...this.props}
@@ -42,6 +44,7 @@ class ConversationInit extends React.PureComponent<
               goToConversation={goToConversation}
               createConversation={createConversation}
               goToAllConversations={goToAllConversations}
+              responseRate={responseRate}
             />
           );
         }}

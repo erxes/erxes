@@ -954,7 +954,6 @@ describe('Segments mutations', () => {
       boardId: board1._id,
       pipelineId: b1p1._id,
 
-
       conditions: [
         {
           type: 'property',
@@ -966,7 +965,13 @@ describe('Segments mutations', () => {
       ]
     });
 
-    const result = await fetchSegment(segment, { pipelineId: pipeline._id, page: 1,  perPage: 11, sortField: 'createdAt', sortDirection: -1 });
+    const result = await fetchSegment(segment, {
+      pipelineId: pipeline._id,
+      page: 1,
+      perPage: 11,
+      sortField: 'createdAt',
+      sortDirection: -1
+    });
 
     expect(result.length).toBe(1);
     expect(result[0]).toBe(deal2._id);

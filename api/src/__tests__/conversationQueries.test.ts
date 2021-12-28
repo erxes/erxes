@@ -483,7 +483,7 @@ describe('conversationQueries', () => {
     });
 
     expect(responses.length).toBe(0);
-    
+
     fetchSegmentSpy.mockRestore();
   });
 

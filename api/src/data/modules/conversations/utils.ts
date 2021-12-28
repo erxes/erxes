@@ -1,10 +1,5 @@
 import * as _ from 'underscore';
-import {
-  Channels,
-  Integrations,
-  Tags,
-  Segments
-} from '../../../db/models';
+import { Channels, Integrations, Tags, Segments } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
@@ -168,10 +163,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public async segmentFilter(segmentId: string) {
     const segment = await Segments.getSegment(segmentId);
 
-    const selector = await fetchSegment(
-      segment,
-      { returnSelector: true }
-    );
+    const selector = await fetchSegment(segment, { returnSelector: true });
 
     this.positiveList = [...this.positiveList, selector];
   }
@@ -356,22 +348,24 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public async dateFilter(startDate: string, endDate: string) {
-    this.positiveList.push({
-      range : {
-        createdAt : {
-            gte : fixDate(startDate),
-            lte : fixDate(endDate)
+    this.positiveList.push(
+      {
+        range: {
+          createdAt: {
+            gte: fixDate(startDate),
+            lte: fixDate(endDate)
+          }
+        }
+      },
+      {
+        range: {
+          updatedAt: {
+            gte: fixDate(startDate),
+            lte: fixDate(endDate)
+          }
         }
       }
-    },
-    {
-      range : {
-        updatedAt : {
-            gte : fixDate(startDate),
-            lte : fixDate(endDate)
-        }
-      }
-    });
+    );
   }
 
   // filter by integration type
@@ -395,7 +389,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     await this.defaultFilters();
 
-     // filter by segment
+    // filter by segment
     if (this.params.segment) {
       await this.segmentFilter(this.params.segment);
     }
@@ -405,7 +399,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       await this.channelFilter(this.params.channelId);
     }
 
-     // filter by brand
+    // filter by brand
     if (this.params.brandId) {
       await this.brandFilter(this.params.brandId);
     }
