@@ -9,6 +9,8 @@ export const types = `
   type Chat {
     _id: String!
     name: String
+    description: String
+    visibility: String
     lastMessage: ChatMessage
     participantUsers: [User]
     createdUser: User
@@ -29,6 +31,16 @@ export const types = `
     direct
     group
   }
+
+  enum ChatMemberModifyType {
+    add
+    remove
+  }
+
+  enum ChatVisibilityType {
+    public
+    private
+  }
 `;
 
 const paginationParams = `
@@ -46,9 +58,10 @@ export const queries = `
 `;
 
 export const mutations = `
-  chatAdd(name: String!, type: ChatType!, participantIds: [String]): Chat
-  chatEdit(_id: String!, name: String!): Chat
+  chatAdd(name: String!, type: ChatType!, , description: String, visibility: ChatVisibilityType, participantIds: [String]): Chat
+  chatEdit(_id: String!, name: String!, description: String, visibility: ChatVisibilityType): Chat
   chatRemove(_id: String!): JSON
+  chatAddOrRemoveMember(_id: String!, userId: String, type: ChatMemberModifyType): String
   
   chatMessageAdd(chatId: String!, content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON

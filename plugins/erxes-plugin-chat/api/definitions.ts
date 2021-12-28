@@ -14,6 +14,12 @@ export const CHAT_TYPE = {
   ALL: ['direct', 'group']
 };
 
+export const VISIBILITIES = {
+  PUBLIC: 'public',
+  PRIVATE: 'private',
+  ALL: ['public', 'private']
+};
+
 export const chatMessageSchema = {
   _id: { pkey: true },
   chatId: { type: String, label: 'Connected chat' },
@@ -25,6 +31,8 @@ export const chatMessageSchema = {
 export const chatSchema = {
   _id: { pkey: true },
   name: { type: String },
+  description: { type: String },
+  visibility: { type: String, enum: VISIBILITIES.ALL },
   type: { type: String, enum: CHAT_TYPE.ALL },
   participantIds: { type: [String], label: 'User ids' },
   createdAt: { type: Date, label: 'Created at' },

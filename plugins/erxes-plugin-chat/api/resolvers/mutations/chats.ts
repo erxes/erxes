@@ -3,14 +3,10 @@ import { graphqlPubsub } from '../subscriptions/pubsub';
 const chatMutations = [
   {
     name: 'chatAdd',
-    handler: async (
-      _root,
-      { name, type, participantIds },
-      { user, models }
-    ) => {
+    handler: async (_root, { participantIds, ...doc }, { user, models }) => {
       return models.Chats.createChat(
         models,
-        { name, type, participantIds: (participantIds || []).concat(user._id) },
+        { ...doc, participantIds: (participantIds || []).concat(user._id) },
         user._id
       );
     }
@@ -51,6 +47,19 @@ const chatMutations = [
     name: 'chatMessageRemove',
     handler: (_root, { _id }, { models }) => {
       return models.ChatMessages.removeChatMessage(models, _id);
+    }
+  },
+  {
+    name: 'chatAddOrRemoveMember',
+    handler: async (_root, { _id, userId, type }, { models }) => {
+      await models.Chats.updateOne(
+        { _id },
+        type === 'add'
+          ? { $push: { participantIds: userId } }
+          : { $pull: { participantIds: userId } }
+      );
+
+      return 'Success';
     }
   }
 ];
