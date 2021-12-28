@@ -2,18 +2,17 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { ApolloServer } from "apollo-server-express";
-import { ApolloGateway } from "@apollo/gateway";
+import { ApolloGateway, GatewayConfig } from "@apollo/gateway";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 // import ws from "ws";
 import express from "express";
 import http from "http";
 // import { loadSubscriptions } from "./subscription";
-import { getAvailableServiceList } from './subgraphs';
+import { getConfiguredServices } from './subgraphs';
 
 (async () => {
-  const gatewayConfig = {
-    serviceList: getAvailableServiceList(),
-    experimental_pollInterval: 60*1000,
+  const gatewayConfig: GatewayConfig = {
+    serviceList: getConfiguredServices(),
   };
 
   if(process.env.NODE_ENV === 'development') {

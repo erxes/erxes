@@ -1,27 +1,33 @@
+import { ServiceEndpointDefinition } from '@apollo/gateway/src/config';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const possibleSubgraphs: { name: string; urlEnvKey: string; }[] = [
+interface SubgraphConfig {
+  name: string;
+  urlEnvKey : string;
+}
+
+const allSubgraphConfigs: SubgraphConfig[] = [
   {
     name : "api",
     urlEnvKey : "SUBGRAPH_API_URL"
   }
 ]
 
-export function getAvailableServiceList(): { name: string; url: string }[] {
-  const availableServiceList = [];
+export function getConfiguredServices(): ServiceEndpointDefinition[] {
+  const configuredServices: ServiceEndpointDefinition[] = [];
 
-  for(const possibleSubgraph of possibleSubgraphs) {
-    const url = process.env[possibleSubgraph.urlEnvKey];
+  for(const subgraphConfig of allSubgraphConfigs) {
+    const url = process.env[subgraphConfig.urlEnvKey];
   
-    // this subgraph is not configured in environment variables
+    // this subgraph's url is not configured in environment variables
     if(!url) continue;
   
-    availableServiceList.push({
-      name: possibleSubgraph.name,
+    configuredServices.push({
+      name: subgraphConfig.name,
       url
     })
   }
 
-  return availableServiceList;
+  return configuredServices;
 }
