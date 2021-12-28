@@ -4,11 +4,23 @@ dotenv.config();
 import { ApolloServer } from "apollo-server-express";
 import { ApolloGateway, GatewayConfig } from "@apollo/gateway";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+import { createProxyMiddleware } from "http-proxy-middleware";
 // import ws from "ws";
 import express from "express";
 import http from "http";
 // import { loadSubscriptions } from "./subscription";
 import { getConfiguredServices } from './subgraphs';
+import cors from 'cors';
+
+// function unless(path, middleware) {
+//   return function(req, res, next) {
+//       if (path === req.path) {
+//           return next();
+//       } else {
+//           return middleware(req, res, next);
+//       }
+//   };
+// };
 
 (async () => {
   const gatewayConfig: GatewayConfig = {
@@ -22,6 +34,9 @@ import { getConfiguredServices } from './subgraphs';
   const gateway = new ApolloGateway(gatewayConfig);
 
   const app = express();
+
+  // app.use(cors());
+  app.use(/\/((?!graphql).)*/, createProxyMiddleware({ target: process.env.FORWARD_EXCEPT_GRAPHQL_URL }));
 
   const httpServer = http.createServer(app);
 
@@ -43,7 +58,7 @@ import { getConfiguredServices } from './subgraphs';
   await apolloServer.start();
   apolloServer.applyMiddleware({ app, path: "/graphql" });
 
-  const port = process.env.port || 4000;
+  const port = process.env.PORT || 4000;
 
   await new Promise<void>((resolve) =>
     httpServer.listen({ port }, resolve)
