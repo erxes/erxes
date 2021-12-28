@@ -51,11 +51,11 @@ export function FormComponent(props) {
     string = string.slice(0, string.length - 1);
     string = string.replace(/{"/g, "");
     string = string.replace(/":/g, "=");
-    string = string.replace(/true/g, '{true}');
-    string = string.replace(/false/g, '{false}');
-    
+    string = string.replace(/true/g, "{true}");
+    string = string.replace(/false/g, "{false}");
+
     return string;
-  }
+  };
 
   const renderButton = (isSubmitted, sub) => {
     return (
@@ -76,7 +76,8 @@ export function FormComponent(props) {
       <>
         <FormGroup horizontal={true}>
           <div className={styles.controllabel}>
-          <ControlLabel required={true}>Email</ControlLabel></div>
+            <ControlLabel required={true}>Email</ControlLabel>
+          </div>
           <FormControl
             {...formProps}
             required={true}
@@ -85,8 +86,10 @@ export function FormComponent(props) {
             placeholder="Email"
             value={mail}
             onChange={mailChange}
-          /><div className={styles.controllabel}>
-          <ControlLabel required={true}>Password</ControlLabel></div>
+          />
+          <div className={styles.controllabel}>
+            <ControlLabel required={true}>Password</ControlLabel>
+          </div>
           <FormControl
             {...formProps}
             type="password"
@@ -97,8 +100,10 @@ export function FormComponent(props) {
             required={true}
           />
         </FormGroup>
-        <FormGroup horizontal={true}><div className={styles.controllabel}>
-          <ControlLabel>Description</ControlLabel></div>
+        <FormGroup horizontal={true}>
+          <div className={styles.controllabel}>
+            <ControlLabel>Description</ControlLabel>
+          </div>
           <FormControl
             {...formProps}
             type="description"
@@ -107,8 +112,10 @@ export function FormComponent(props) {
             placeholder="Description"
             value={desc}
             onChange={descChange}
-          /><div className={styles.controllabel}>
-          <ControlLabel>Url input</ControlLabel></div>
+          />
+          <div className={styles.controllabel}>
+            <ControlLabel>Url input</ControlLabel>
+          </div>
           <FormControl
             {...formProps}
             type="url"
@@ -118,8 +125,10 @@ export function FormComponent(props) {
             onChange={urlChange}
           />
         </FormGroup>
-        <FormGroup horizontal={true}><div className={styles.controllabel}>
-          <ControlLabel>Number</ControlLabel></div>
+        <FormGroup horizontal={true}>
+          <div className={styles.controllabel}>
+            <ControlLabel>Number</ControlLabel>
+          </div>
           <FormControl
             {...formProps}
             type="number"
@@ -127,8 +136,10 @@ export function FormComponent(props) {
             placeholder="Insert number"
             value={number}
             onChange={numberChange}
-          /><div className={styles.controllabel}>
-          <ControlLabel required={true}>Username</ControlLabel></div>
+          />
+          <div className={styles.controllabel}>
+            <ControlLabel required={true}>Username</ControlLabel>
+          </div>
           <FormControl
             {...formProps}
             type="username"
@@ -145,70 +156,84 @@ export function FormComponent(props) {
   };
 
   if (type === "group") {
-    const propDatas = () =>{
+    const propDatas = () => {
       const kind = {
         horizontal: addvalue && addvalue,
-      }
+      };
       return kind;
-    }
+    };
     const renderBlock = () => {
-    return (
-      <>
-      <div className={styles.formborder}>
-        <FormGroup {...propDatas()}>
-          <ControlLabel>Label</ControlLabel>
-          <FormControl />
-        </FormGroup></div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<FormGroup ${stringify(propDatas())}>\n\t  <ControlLabel>Label</ControlLabel>\n\t  <FormControl />\n\t</FormGroup>\n</>`}
-        </CodeBlock>
-      </>
-    );}
-    return renderBlock()
+      return (
+        <>
+          <div className={styles.formborder}>
+            <FormGroup {...propDatas()}>
+              <ControlLabel>Label</ControlLabel>
+              <FormControl />
+            </FormGroup>
+          </div>
+          <CodeBlock className="language-jsx">
+            {`<>\n\t<FormGroup ${stringify(
+              propDatas()
+            )}>\n\t  <ControlLabel>Label</ControlLabel>\n\t  <FormControl />\n\t</FormGroup>\n</>`}
+          </CodeBlock>
+        </>
+      );
+    };
+    return renderBlock();
   }
 
   if (type === "label") {
-    const propDatas = (propName) =>{
+    const propDatas = (propName) => {
       const kind = {
         [propName]: addvalue,
-      }
+      };
       return kind;
-    }
+    };
     const renderBlock = (propName) => {
-    return (
-      <>
-      <div className={styles.formborder}>
-          <ControlLabel {...propDatas(propName)}>{addtext}</ControlLabel>
-          <FormControl />
-        </div>
-        <CodeBlock className="language-jsx">
-          {`<>\n\t<ControlLabel ${stringify(propDatas(propName))}>${addtext}</ControlLabel>\n\t<FormControl />\n</>`}
-        </CodeBlock>
-      </>
-    );}
-    if(elementType==="required"){
-    return renderBlock("required");}
-    if(elementType==="uppercase"){
-      return renderBlock("uppercase");}
-      return null;
+      return (
+        <>
+          <div className={styles.formborder}>
+            <ControlLabel {...propDatas(propName)}>{addtext}</ControlLabel>
+            <FormControl />
+          </div>
+          <CodeBlock className="language-jsx">
+            {`<>\n\t<ControlLabel ${stringify(
+              propDatas(propName)
+            )}>${addtext}</ControlLabel>\n\t<FormControl />\n</>`}
+          </CodeBlock>
+        </>
+      );
+    };
+    if (elementType === "required") {
+      return renderBlock("required");
+    }
+    if (elementType === "uppercase") {
+      return renderBlock("uppercase");
+    }
+    return null;
   }
 
   if (type === "control") {
-    if(controltype==="input"){
+    if (controltype === "input") {
       return (
         <>
           <div className={styles.formborder}>
             <FormGroup>
               <ControlLabel>Default input</ControlLabel>
-              <FormControl  /><br/>
+              <FormControl />
+              <br />
               <ControlLabel>Example of disabled input</ControlLabel>
-              <FormControl value="Disabled input" disabled={true} /><br/>
+              <FormControl value="Disabled input" disabled={true} />
+              <br />
               <ControlLabel>Example of placeholder</ControlLabel>
-              <FormControl placeholder="Place holder"/><br/>
+              <FormControl placeholder="Place holder" />
+              <br />
               <ControlLabel>Example of value</ControlLabel>
-              <FormControl value="You can't change value" /><br/>
+              <FormControl value="You can't change value" />
+              <br />
               <ControlLabel>Example of default value</ControlLabel>
-              <FormControl value="You can change default value" /><br/>
+              <FormControl value="You can change default value" />
+              <br />
               <ControlLabel>Example of round edged input</ControlLabel>
               <FormControl placeholder="Round input" round={true} />
             </FormGroup>
@@ -230,54 +255,88 @@ export function FormComponent(props) {
             </FormGroup>`}
           </CodeBlock>
         </>
-      );};
-      if(controltype==="select"){
-        return (<>
-        <div className={styles.formborder}>
-        <FormControl componentClass="select" options={[{label:"Select options"}, {label: "Option 1"}, {label: "Option 2"}, {label: "Option 3"}]}/></div>
-        <CodeBlock className="language-jsx">{`<FormControl componentClass="select" options={[{label:"Select options"}, {label: "Option 1"}, {label: "Option 2"}, {label: "Option 3"}]}/>`}</CodeBlock>
-        </>)
-      };
+      );
+    }
+    if (controltype === "select") {
+      return (
+        <>
+          <div className={styles.formborder}>
+            <FormControl
+              componentClass="select"
+              options={[
+                { label: "Select options" },
+                { label: "Option 1" },
+                { label: "Option 2" },
+                { label: "Option 3" },
+              ]}
+            />
+          </div>
+          <CodeBlock className="language-jsx">{`<FormControl componentClass="select" options={[{label:"Select options"}, {label: "Option 1"}, {label: "Option 2"}, {label: "Option 3"}]}/>`}</CodeBlock>
+        </>
+      );
+    }
 
-      if(controltype==="poll"){
-        return (<>
-        <div className={styles.formborder}>
-        <FormControl componentClass="poll" options={["Poll 1", "Poll 2", "Poll 3"]}/></div>
-        <CodeBlock className="language-jsx">{`<FormControl componentClass="poll" options={["Poll 1", "Poll 2", "Poll 3"]}/>`}</CodeBlock>
-        </>)
-      };
-      if(controltype==="checkbox"){
-        return (<>
-        <div className={styles.formborder}>
-          <div className={styles.test}>
-        <FormControl componentClass="checkbox" />
-        <FormControl componentClass="checkbox"  color="green"/>
-        <FormControl componentClass="checkbox" disabled={true} />
-        <FormControl componentClass="checkbox" children="Children prop" />
-        <FormControl componentClass="checkbox" children="Checked" checked={true} />
-        <FormControl componentClass="checkbox" children="Default checked" defaultChecked={true}/></div></div>
-        <CodeBlock className="language-jsx">{`<>\n\t<FormControl componentClass="checkbox" />
+    if (controltype === "poll") {
+      return (
+        <>
+          <div className={styles.formborder}>
+            <FormControl
+              componentClass="poll"
+              options={["Poll 1", "Poll 2", "Poll 3"]}
+            />
+          </div>
+          <CodeBlock className="language-jsx">{`<FormControl componentClass="poll" options={["Poll 1", "Poll 2", "Poll 3"]}/>`}</CodeBlock>
+        </>
+      );
+    }
+    if (controltype === "checkbox") {
+      return (
+        <>
+          <div className={styles.formborder}>
+            <div className={styles.test}>
+              <FormControl componentClass="checkbox" />
+              <FormControl componentClass="checkbox" color="green" />
+              <FormControl componentClass="checkbox" disabled={true} />
+              <FormControl componentClass="checkbox" children="Children prop" />
+              <FormControl
+                componentClass="checkbox"
+                children="Checked"
+                checked={true}
+              />
+              <FormControl
+                componentClass="checkbox"
+                children="Default checked"
+                defaultChecked={true}
+              />
+            </div>
+          </div>
+          <CodeBlock className="language-jsx">{`<>\n\t<FormControl componentClass="checkbox" />
         <FormControl componentClass="checkbox"  color="green"/>
         <FormControl componentClass="checkbox" disabled={true} />
         <FormControl componentClass="checkbox" children="Children prop" />
         <FormControl componentClass="checkbox" children="Checked" checked={true} />
         <FormControl componentClass="checkbox" children="Default checked" defaultChecked={true}/>\n</>`}</CodeBlock>
-        </>)
-      }
-      if(controltype==="radio"){
-        return (<>
-         <div className={styles.formborder}>
-          <div className={styles.test}>
-        <FormControl componentClass="radio" />
-        <FormControl componentClass="radio"  color="green"/>
-        <FormControl componentClass="radio" disabled={true} />
-        <FormControl componentClass="radio" children="Children prop" /></div></div>
-        <CodeBlock className="language-jsx">{`<>\n\t<FormControl componentClass="radio" />
+        </>
+      );
+    }
+    if (controltype === "radio") {
+      return (
+        <>
+          <div className={styles.formborder}>
+            <div className={styles.test}>
+              <FormControl componentClass="radio" />
+              <FormControl componentClass="radio" color="green" />
+              <FormControl componentClass="radio" disabled={true} />
+              <FormControl componentClass="radio" children="Children prop" />
+            </div>
+          </div>
+          <CodeBlock className="language-jsx">{`<>\n\t<FormControl componentClass="radio" />
         <FormControl componentClass="radio"  color="green"/>
         <FormControl componentClass="radio" disabled={true} />
         <FormControl componentClass="radio" children="Children prop" />\n</>`}</CodeBlock>
-        </>)
-      }
+        </>
+      );
+    }
   }
 
   if (type === "date") {
@@ -294,23 +353,24 @@ export function FormComponent(props) {
 
     return (
       <>
-          <div className={styles.datecontrol}>
-        <FormGroup horizontal={true}>
-          <div className={styles.test}>
-          <DateControl
-            placeholder="Input date"
-            dateFormat="yyyy/MM/dd"
-            value={datestate}
-            onChange={onDateChange}
-          />
-          <DateControl
-            placeholder="Input date"
-            dateFormat="yyyy/MM/dd"
-            value={dstate}
-            onChange={onDChange}
-            timeFormat={true}
-          /></div>
-        </FormGroup>
+        <div className={styles.datecontrol}>
+          <FormGroup horizontal={true}>
+            <div className={styles.test}>
+              <DateControl
+                placeholder="Input date"
+                dateFormat="yyyy/MM/dd"
+                value={datestate}
+                onChange={onDateChange}
+              />
+              <DateControl
+                placeholder="Input date"
+                dateFormat="yyyy/MM/dd"
+                value={dstate}
+                onChange={onDChange}
+                timeFormat={true}
+              />
+            </div>
+          </FormGroup>
         </div>
         <CodeBlock className="language-jsx">
           {`<>\n\t<FormGroup horizontal={true}>
@@ -336,8 +396,9 @@ export function FormComponent(props) {
   if (type === "validations") {
     return (
       <>
-      <div className={styles.formborder}>
-        <Form renderContent={content} /></div>
+        <div className={styles.formborder}>
+          <Form renderContent={content} />
+        </div>
         <CodeBlock className="language-jsx">
           {`    const content = (formProps) => {
     var { values, isSubmitted } = formProps;
@@ -417,39 +478,49 @@ export function FormComponent(props) {
     );
   }
 
-  if(type==="APIform"){
-    return (<>
-      <CodeBlock className="language-javascript">{`import Form from "erxes-ui/lib/components/form/index";`}</CodeBlock>
-      {renderApiTable("",table)}
-    </>)
+  if (type === "APIform") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import Form from "erxes-ui/lib/components/form/index";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
+    );
   }
 
-  if(type==="APIgroup"){
-    return (<>
-      <CodeBlock className="language-javascript">{`import FormGroup from "erxes-ui/lib/components/form/index";`}</CodeBlock>
-      {renderApiTable("",table)}
-    </>)
+  if (type === "APIgroup") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import FormGroup from "erxes-ui/lib/components/form/index";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
+    );
   }
 
-  if(type==="APIlabel"){
-    return (<>
-      <CodeBlock className="language-javascript">{`import ControlLabel from "erxes-ui/lib/components/form/index";`}</CodeBlock>
-      {renderApiTable("",table)}
-    </>)
+  if (type === "APIlabel") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import ControlLabel from "erxes-ui/lib/components/form/index";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
+    );
   }
 
-  if(type==="APIcontrol"){
-    return (<>
-      <CodeBlock className="language-javascript">{`import FormControl from "erxes-ui/lib/components/form/index";`}</CodeBlock>
-      {renderApiTable("",table)}
-    </>)
+  if (type === "APIcontrol") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import FormControl from "erxes-ui/lib/components/form/index";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
+    );
   }
 
-  if(type==="APIdate"){
-    return (<>
-      <CodeBlock className="language-javascript">{`import DateControl from "erxes-ui/lib/components/form/DateControl";`}</CodeBlock>
-      {renderApiTable("",table)}
-    </>)
+  if (type === "APIdate") {
+    return (
+      <>
+        <CodeBlock className="language-javascript">{`import DateControl from "erxes-ui/lib/components/form/DateControl";`}</CodeBlock>
+        {renderApiTable("", table)}
+      </>
+    );
   }
 
   return null;
