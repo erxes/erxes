@@ -1,11 +1,8 @@
 import React, { Children } from "react";
 import CollapseContent from "erxes-ui/lib/components/CollapseContent";
-import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../../components/common.js";
 import "erxes-icon/css/erxes.min.css";
-import Icon from "erxes-ui/lib/components/Icon";
-import { updateExportDeclaration } from "typescript";
 
 export function CollapseContentComponent(props) {
   const { comp, opens, color, img, type, text, table = [] } = props;
