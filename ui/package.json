@@ -84,12 +84,11 @@
     "xss": "^1.0.3"
   },
   "scripts": {
-    "start": "webpack serve --open --mode development",
+    "watch-plugins": "node commands/watch-plugins.js",
+    "start": "yarn watch-plugins & webpack serve --open --mode development",
     "build": "yarn generateVersion && react-app-rewired build",
     "generateVersion": "node commands/generateVersion.js",
     "compress": "gzip -5 --keep -r build/static/js",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",
     "record-cypress": "cypress run --record=false --headless --browser chrome"
@@ -112,6 +111,7 @@
     "html-webpack-plugin": "^5.5.0",
     "interpolate-html-plugin": "^4.0.0",
     "json-loader": "^0.5.7",
+    "node-watch": "^0.7.2",
     "path-browserify": "^1.0.1",
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
