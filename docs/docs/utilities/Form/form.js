@@ -45,6 +45,20 @@ export function FormComponent(props) {
     setDesc((desc = description.value));
   };
 
+  const stringify = (datas) => {
+    let string = JSON.stringify(datas);
+    string = string.slice(0, string.length - 1);
+    string = string.replace(/{"/g, "");
+    string = string.replace(/":/g, "=");
+    string = string.replace(/,"/g, " ");
+    string = string.replace(/label=/g, "{label:");
+    string = string.replace(/options=/g, "options={");
+    string = string.replace(/]/g, "]}");
+    string = string.replace(/Option 2/g, ', "Option 2", ');
+    
+    return string;
+  }
+
   const renderButton = (isSubmitted, sub) => {
     return (
       <Button
@@ -256,7 +270,7 @@ export function FormComponent(props) {
             <FormControl {...propDatas(propName)} />
           </div>
           <CodeBlock className="language-jsx">
-            {`<FormControl ${JSON.stringify(propDatas(propName))} />`}
+            {`<FormControl ${stringify(propDatas(propName))} />`}
           </CodeBlock>
         </>
       );
