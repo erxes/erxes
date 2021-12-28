@@ -5,9 +5,11 @@ title: Form
 
 import { FormComponent } from "./form.js"
 
-<p>Examples and usage guidelines for form, form control and so on.</p>
+<p>Examples and usage guidelines for form, form control and so on. Assemble desired components to make complete form for your requirements.</p>
 
 ## Form control
+
+<p>The FormControl component renders a form control with erxes-ui styling. </p>
 
 ### Input types
 
@@ -26,12 +28,12 @@ import { FormComponent } from "./form.js"
 
 ### Check box
 
-<p> </p>
+<p>Erxes-ui have a variety of checkbox style. The first one is default checkbox. Customize it with <code>color</code> prop. You can also disable it with <code>disable</code> prop. To display word or react node give React.Node to <code>children</code> prop. Checked checkbox is unchangeable. Default checked box is checked from start, and changeable. </p>
 <FormComponent type="control" controltype="checkbox"/>
 
 ### Radio
 
-<p>Add simple radio by <code>radio</code> prop. </p>
+<p>Erxes-ui have a variety of radio style. The first one is default radio. Customize it with <code>color</code> prop. You can also disable it with <code>disable</code> prop. To display word or react node give React.Node to <code>children</code> prop. </p>
 <FormComponent type="control" controltype="radio"/>
 
 ## Form label
