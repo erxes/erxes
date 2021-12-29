@@ -5,82 +5,50 @@ title: Form
 
 import { FormComponent } from "./form.js"
 
-<p>Examples and usage guidelines for form, form control and so on.</p>
-
-## Example
-
-<p>Build any form for your purpose. </p>
-<p>Render following code with <code>{`<Form renderContent={content} />`}</code></p>
-<FormComponent type="full" />
-
-## Form group 
-
-<p>The <code>FormGroup</code> component wraps a form control with proper spacing, along with support for a label, help text, and validation state. Place form elements horizontally by <code>horizontal</code> prop.</p>
-
-<FormComponent type="group" />
-
-<FormComponent type="group" addvalue={true} /> 
-
-
-## Form label
-
-<p>Add label with <code>ControlLabel</code> component. Customize label with <code>required</code> and <code>uppercase</code> props. </p>
-<FormComponent type="label"  />
+<p>Examples and usage guidelines for form, form control and so on. Assemble desired components to make complete form for your requirements.</p>
 
 ## Form control
 
-### Input 
+<p>The FormControl component renders a form control with erxes-ui styling. </p>
+
+### Input types
 
 <p>Default default input type is <code>input</code>. When there is no componentClass it'll go as default.</p>
-<FormComponent type="control" />
-
-### Round
-
-<p>Give boolean value to <code>round</code> prop to have round edged input.</p>
-<FormComponent type="control" controltype="round" addvalue={true} />
-
-### Placeholder
-
-<p>Add placeholder on input by <code>placeholder</code> prop.</p> 
-<FormComponent type="control" controltype="placeholder" addvalue="Place holder" />
-
-### Value
-
-<p>Declare unchangeable value of input with <code>value</code> prop.</p> 
-<FormComponent type="control" controltype="value" addvalue="Value" />
-
-### Default value
-
-<p>Declare default value of input with <code>defaultValue</code> prop. Default value is changeable.</p> 
-<FormComponent type="control" controltype="defvalue" addvalue="Default value" />
+<FormComponent type="control" controltype="input" />
 
 ### Select
 
 <p>To create selectable input define component class as "select" and insert options to <code>options</code> prop.</p>
-<FormComponent type="control" elementType="select" addvalue={[{label: "Select options"}, {label: "Option 1"}, {label:"Option 2"}, {label:"Option 3"}]} />
+<FormComponent type="control" controltype="select" />
 
 ### Poll
 
 <p>Poll percentage is devided fairly by the option number. </p>
-<FormComponent type="control" elementType="poll" addvalue={["Option 1", "Option 2", "Option 3"]} />
+<FormComponent type="control" controltype="poll" />
 
 ### Check box
 
-<p>When there's no child only check box will be displayed. </p>
-<FormComponent type="control" controltype="color" elementType="checkbox"/>
-<p>Customize check box color by <code>color</code> prop. </p>
-<FormComponent type="control" controltype="color" elementType="checkbox" addvalue="green" />
-<p>Display desired output by <code>children</code> prop. </p>
-<FormComponent type="control" controltype="checkbox" elementType="checkbox" addtext="Checked" />
-<p>Make check box unchangeably checked by <code>checked</code> prop. </p>
-<FormComponent type="control" controltype="checkedbox" elementType="checkbox" addvalue={true} addtext="Checked" />
-<p>Make check box checked on start by <code>defaultChecked</code> prop. It's changeable. </p>
-<FormComponent type="control" controltype="defcheckedbox" elementType="checkbox" addvalue={true} addtext="Default checked" />
+<p>Erxes-ui have a variety of checkbox style. The first one is default checkbox. Customize it with <code>color</code> prop. You can also disable it with <code>disable</code> prop. To display word or react node give React.Node to <code>children</code> prop. Checked checkbox is unchangeable. Default checked box is checked from start, and changeable. </p>
+<FormComponent type="control" controltype="checkbox"/>
 
 ### Radio
 
-<p>Add simple radio by <code>radio</code> prop. </p>
-<FormComponent type="control" elementType="radio" addtext="Radio" />
+<p>Erxes-ui have a variety of radio style. The first one is default radio. Customize it with <code>color</code> prop. You can also disable it with <code>disable</code> prop. To display word or react node give React.Node to <code>children</code> prop. </p>
+<FormComponent type="control" controltype="radio"/>
+
+## Form label
+
+<p>Add label with <code>ControlLabel</code> component. Customize label with <code>required</code> and <code>uppercase</code> props. </p>
+<FormComponent type="label" elementType="required" addvalue={true} addtext="Required"/>
+<p><code>uppercase</code> prop is true by default. To make it lowercase give "false" value to prop.</p>
+<FormComponent type="label" elementType="uppercase" addvalue={false} addtext="Uppercase" />
+
+## Form group 
+
+<p>The <code>FormGroup</code> component wraps a form control with proper spacing, along with support for a label, help text, and validation state. </p>
+<FormComponent type="group" />
+<p>Place form elements horizontally by <code>horizontal</code> prop.</p>
+<FormComponent type="group" addvalue={true} /> 
 
 ## Date control
 
@@ -89,7 +57,7 @@ import { FormComponent } from "./form.js"
 
 ## Validations
 
-<p>Provide valuable, actionable feedback to your users with form validation feedback. Submit to validate. When input value doesn't match with input type it'll display error message. </p><p>Render following code with <code>{`<Form renderContent={val} />`}</code></p>
+<p>Provide valuable, actionable feedback to your users with form validation feedback. Submit to validate. When input value doesn't match with input type it'll display error message. </p>
 <FormComponent type="validations" />
 
 ## API
@@ -113,7 +81,7 @@ import { FormComponent } from "./form.js"
 
 <FormComponent type="APIlabel" table={[
 ['children*', 'React.ReactNode | string', '', 'Define item to display'],
-['ignoreTrans', 'boolean', '', 'Ignore translation'],
+['ignoreTrans', 'boolean', '', 'Default is translate the words. To ignore translation activate this prop'],
 ['required', 'boolean', 'false', 'Display red star(*) after children to state that it is required'],
 ['uppercase', 'boolean', 'true', 'Make all string capitalize']
 ]} />
@@ -141,7 +109,7 @@ import { FormComponent } from "./form.js"
 ['autoFocus', 'boolean', '', 'Focus on input on start'],
 ['autoComplete', 'string', '', 'Define word to auto complete'],
 ['onFocus', 'function', '', 'Define function when input is focused'],
-['componentClass', 'string', 'select | radio | poll | checkbox | textarea', 'Define input type'],
+['componentClass', 'string', 'input | select | radio | poll | checkbox | textarea', 'Define input type'],
 ['errors', 'any', '', 'Define error to display'],
 ['registerChild', 'function', '', 'Define function called during the Mounting phase of the React Life-cycle i.e after the component is rendered'],
 ['onBlur', 'function', '', 'Define additional function'],

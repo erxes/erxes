@@ -325,10 +325,8 @@ code {
 
 .datecontrol {
   padding: 15px;
-  border-color: #eee;
-  border-style: solid;
+  border: 1px solid #eee;
   border-radius: 6px;
-  background-color: white;
 }
 
 .datecontrol:focus-within {
@@ -337,7 +335,9 @@ code {
 
 .formborder {
   padding: 15px;
-  border-color: #eee;
-  border-style: solid;
+  border: 1px solid #eee;
   border-radius: 6px;
+}
+.controllabel{
+  width: 95px;
 }
