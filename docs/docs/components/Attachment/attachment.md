@@ -50,6 +50,22 @@ import { AttachmentComponent } from "./attachment.js"
 <p>Set the file to start from attachments by <code>index</code>. (Index number starts with 0)</p>
 <AttachmentComponent type="multi" attachments index/>
 
+## Attachment Gallery
+
+<p>Show a list of attachments with <code>AttachmentGallery</code> components.</p>
+<AttachmentComponent type="gallery"/>
+
+### Limit
+
+<p>Set limit to limit the number of attachments to show on start. Default limit is 4.</p>
+<AttachmentComponent type="gallery" limit/>
+
 ## API
 
+### Attachment
+
 <AttachmentComponent type="APIattachment"/>
+
+### Attachment Gallery
+
+<AttachmentComponent type="APIgallery"/>

@@ -1,12 +1,21 @@
 import React from "react";
 import Attachment from "erxes-ui/lib/components/Attachment";
+import AttachmentsGallery from "erxes-ui/lib/components/AttachmentGallery";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import Table from "erxes-ui/lib/components/table/index";
 import { renderApiTable } from "../common.js";
 
 export function AttachmentComponent(props) {
-  const { type, additionalItem, simple, index, attachments } = props;
+  const {
+    type,
+    additionalItem,
+    simple,
+    index,
+    attachments,
+    limit,
+    table = [],
+  } = props;
 
   const propDatas = () => {
     const datas = {
@@ -85,6 +94,90 @@ export function AttachmentComponent(props) {
       </>
     );
   };
+
+  if (type === "gallery") {
+    if (limit)
+      return (
+        <>
+          <AttachmentsGallery
+            limit={2}
+            attachments={[
+              {
+                name: "glyph_dark.svg",
+                type: "image",
+                url: "https://erxes.io/static/images/logo/glyph_dark.svg",
+              },
+              {
+                name: "flag_right.svg",
+                type: "image",
+                url: "https://erxes.io/static/images/logo/flag_right.svg",
+              },
+              {
+                name: "flag_right.svg",
+                type: "image",
+                url: "https://erxes.io/static/images/logo/logo_dark.svg",
+              },
+              {
+                name: "flag_right.svg",
+                type: "image",
+                url: "https://erxes.io/static/images/logo/flag_left.svg",
+              },
+            ]}
+          />
+          <CodeBlock className="language-jsx">{`<AttachmentsGallery limit={2} attachments={[
+            {
+              name: "glyph_dark.svg",
+              type: "image",
+              url: "https://erxes.io/static/images/logo/glyph_dark.svg",
+            },
+            {
+              name: "flag_right.svg",
+              type: "image",
+              url: "https://erxes.io/static/images/logo/flag_right.svg",
+            },
+            {
+              name: "flag_right.svg",
+              type: "image",
+              url: "https://erxes.io/static/images/logo/logo_dark.svg",
+            },
+            {
+              name: "flag_right.svg",
+              type: "image",
+              url: "https://erxes.io/static/images/logo/flag_left.svg",
+            }]}\n/>`}</CodeBlock>
+        </>
+      );
+    else
+      return (
+        <>
+          <AttachmentsGallery
+            attachments={[
+              {
+                name: "glyph_dark.svg",
+                type: "image",
+                url: "https://erxes.io/static/images/logo/glyph_dark.svg",
+              },
+              {
+                name: "flag_right.svg",
+                type: "image",
+                url: "https://erxes.io/static/images/logo/flag_right.svg",
+              },
+            ]}
+          />
+          <CodeBlock className="language-jsx">{`<AttachmentsGallery attachments={[
+          {
+            name: "glyph_dark.svg",
+            type: "image",
+            url: "https://erxes.io/static/images/logo/glyph_dark.svg",
+          },
+          {
+            name: "flag_right.svg",
+            type: "image",
+            url: "https://erxes.io/static/images/logo/flag_right.svg",
+          }]}\n/>`}</CodeBlock>
+        </>
+      );
+  }
 
   if (type === "APIattachment") {
     return (
@@ -194,6 +287,75 @@ export function AttachmentComponent(props) {
               <td>number</td>
               <td />
               <td>Shows file size</td>
+            </tr>
+          </tbody>
+        </Table>
+      </>
+    );
+  }
+  if (type === "APIgallery") {
+    return (
+      <>
+        {renderApiTable("AttachmentsGallery")}
+        <p>
+          required prop - <span className={styles.required}>* </span>
+        </p>
+        <Table>
+          <thead>
+            <tr>
+              <th colSpan="2">Name</th>
+              <th>Type</th>
+              <th>Defualt</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowSpan="4">attachments (array)</td>
+              <td>
+                name<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Define file name</td>
+            </tr>
+            <tr>
+              <td>
+                type<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Define file type</td>
+            </tr>
+            <tr>
+              <td>
+                url<span className={styles.required}>*</span>
+              </td>
+              <td>string</td>
+              <td />
+              <td>Declare file path</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>number</td>
+              <td />
+              <td>Shows file size</td>
+            </tr>
+            <tr>
+              <td colSpan="2">removeAttachment<span className={styles.required}>*</span></td>
+              <td>function</td>
+              <td />
+              <td>
+                Define function that removes attachment by the index
+              </td>
+            </tr>
+            <tr>
+              <td colSpan="2">limit</td>
+              <td>number</td>
+              <td />
+              <td>
+                Limit the number of attachments to show. Other will be collapsible.
+              </td>
             </tr>
           </tbody>
         </Table>

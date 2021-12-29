@@ -10,7 +10,8 @@ import { Examples } from './introduction.js'
 ## Installation
 
 <p>If you wish to use our common components in your project, we have npm package named "erxes-ui" which you can install with: </p>
-<Examples type="install" />
+<Examples type="installNPM" />
+<Examples type="installYARN" />
 
 ## Work on erxes-ui
 
