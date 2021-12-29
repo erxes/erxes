@@ -9,7 +9,10 @@ import {
   Stages
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
-import { IItemCommonFields } from '../../../db/models/definitions/boards';
+import {
+  IItemCommonFields,
+  IStageDocument
+} from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { CLOSE_DATE_TYPES } from '../../constants';
@@ -22,6 +25,17 @@ export interface IArchiveArgs {
   search: string;
   page?: number;
   perPage?: number;
+  userIds?: string[];
+  priorities?: string[];
+  assignedUserIds?: string[];
+  labelIds?: string[];
+  productIds?: string[];
+  companyIds?: string[];
+  customerIds?: string[];
+  startDate?: string;
+  endDate?: string;
+  sources?: string[];
+  hackStages?: string[];
 }
 
 const contains = (values: string[]) => {
@@ -74,6 +88,46 @@ export const getCloseDateByType = (closeDateType: string) => {
   }
 };
 
+export const generateExtraFilters = async (filter, extraParams) => {
+  const { source, userIds, priority, startDate, endDate } = extraParams;
+
+  const isListEmpty = value => {
+    return value.length === 1 && value[0].length === 0;
+  };
+
+  if (source) {
+    filter.source = contains(source);
+  }
+
+  if (userIds) {
+    const isEmpty = isListEmpty(userIds);
+
+    filter.userId = isEmpty ? { $in: [null, []] } : { $in: userIds };
+  }
+
+  if (priority) {
+    filter.priority = contains(priority);
+  }
+
+  if (startDate) {
+    filter.closeDate = {
+      $gte: new Date(startDate)
+    };
+  }
+
+  if (endDate) {
+    if (filter.closeDate) {
+      filter.closeDate.$lte = new Date(endDate);
+    } else {
+      filter.closeDate = {
+        $lte: new Date(endDate)
+      };
+    }
+  }
+
+  return filter;
+};
+
 export const generateCommonFilters = async (
   currentUserId: string,
   args: any
@@ -98,7 +152,8 @@ export const generateCommonFilters = async (
     segment,
     assignedToMe,
     startDate,
-    endDate
+    endDate,
+    hasStartAndCloseDate
   } = args;
 
   const isListEmpty = value => {
@@ -195,7 +250,10 @@ export const generateCommonFilters = async (
   if (stageId) {
     filter.stageId = stageId;
   } else if (pipelineId) {
-    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+    const stageIds = await Stages.find({
+      pipelineId,
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    }).distinct('_id');
 
     filter.stageId = { $in: stageIds };
   }
@@ -242,6 +300,11 @@ export const generateCommonFilters = async (
     filter._id = { $in: itemIds };
   }
 
+  if (hasStartAndCloseDate) {
+    filter.startDate = { $exists: true };
+    filter.closeDate = { $exists: true };
+  }
+
   return filter;
 };
 
@@ -260,13 +323,17 @@ export const calendarFilters = async (filter, args) => {
 
 export const generateDealCommonFilters = async (
   currentUserId: string,
-  args,
-  extraParams?
+  args: any,
+  extraParams?: any
 ) => {
   args.type = 'deal';
-
-  const filter = await generateCommonFilters(currentUserId, args);
   const { productIds } = extraParams || args;
+
+  let filter = await generateCommonFilters(currentUserId, args);
+
+  if (extraParams) {
+    filter = await generateExtraFilters(filter, extraParams);
+  }
 
   if (productIds) {
     filter['productsData.productId'] = contains(productIds);
@@ -285,11 +352,10 @@ export const generateTicketCommonFilters = async (
 ) => {
   args.type = 'ticket';
 
-  const filter = await generateCommonFilters(currentUserId, args);
-  const { source } = extraParams || args;
+  let filter = await generateCommonFilters(currentUserId, args);
 
-  if (source) {
-    filter.source = contains(source);
+  if (extraParams) {
+    filter = await generateExtraFilters(filter, extraParams);
   }
 
   // Calendar monthly date
@@ -300,11 +366,16 @@ export const generateTicketCommonFilters = async (
 
 export const generateTaskCommonFilters = async (
   currentUserId: string,
-  args: any
+  args: any,
+  extraParams?: any
 ) => {
   args.type = 'task';
 
-  const filter = await generateCommonFilters(currentUserId, args);
+  let filter = await generateCommonFilters(currentUserId, args);
+
+  if (extraParams) {
+    filter = await generateExtraFilters(filter, extraParams);
+  }
 
   // Calendar monthly date
   await calendarFilters(filter, args);
@@ -333,7 +404,11 @@ export const generateGrowthHackCommonFilters = async (
 
   const { hackStage, pipelineId, stageId } = extraParams || args;
 
-  const filter = await generateCommonFilters(currentUserId, args);
+  let filter = await generateCommonFilters(currentUserId, args);
+
+  if (extraParams) {
+    filter = await generateExtraFilters(filter, extraParams);
+  }
 
   if (hackStage) {
     filter.hackStages = contains(hackStage);
@@ -398,19 +473,14 @@ export const checkItemPermByUser = async (
 };
 
 export const archivedItems = async (params: IArchiveArgs, collection: any) => {
-  const { pipelineId, search, ...listArgs } = params;
+  const { pipelineId, ...listArgs } = params;
 
-  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
   const { page = 0, perPage = 0 } = listArgs;
 
   const stages = await Stages.find({ pipelineId }).lean();
 
   if (stages.length > 0) {
-    filter.stageId = { $in: stages.map(stage => stage._id) };
-
-    if (search) {
-      Object.assign(filter, regexSearchText(search, 'name'));
-    }
+    const filter = generateArhivedItemsFilter(params, stages);
 
     return collection
       .find(filter)
@@ -429,23 +499,89 @@ export const archivedItemsCount = async (
   params: IArchiveArgs,
   collection: any
 ) => {
-  const { pipelineId, search } = params;
-
-  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+  const { pipelineId } = params;
 
   const stages = await Stages.find({ pipelineId });
 
   if (stages.length > 0) {
-    filter.stageId = { $in: stages.map(stage => stage._id) };
-
-    if (search) {
-      Object.assign(filter, regexSearchText(search, 'name'));
-    }
+    const filter = generateArhivedItemsFilter(params, stages);
 
     return collection.countDocuments(filter);
   }
 
   return 0;
+};
+
+const generateArhivedItemsFilter = (
+  params: IArchiveArgs,
+  stages: IStageDocument[]
+) => {
+  const {
+    search,
+    userIds,
+    priorities,
+    assignedUserIds,
+    labelIds,
+    productIds,
+    startDate,
+    endDate,
+    sources,
+    hackStages
+  } = params;
+
+  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+
+  filter.stageId = { $in: stages.map(stage => stage._id) };
+
+  if (search) {
+    Object.assign(filter, regexSearchText(search, 'name'));
+  }
+
+  if (userIds && userIds.length) {
+    filter.userId = { $in: userIds };
+  }
+
+  if (priorities && priorities.length) {
+    filter.priority = { $in: priorities };
+  }
+
+  if (assignedUserIds && assignedUserIds.length) {
+    filter.assignedUserIds = { $in: assignedUserIds };
+  }
+
+  if (labelIds && labelIds.length) {
+    filter.labelIds = { $in: labelIds };
+  }
+
+  if (productIds && productIds.length) {
+    filter['productsData.productId'] = { $in: productIds };
+  }
+
+  if (startDate) {
+    filter.closeDate = {
+      $gte: new Date(startDate)
+    };
+  }
+
+  if (endDate) {
+    if (filter.closeDate) {
+      filter.closeDate.$lte = new Date(endDate);
+    } else {
+      filter.closeDate = {
+        $lte: new Date(endDate)
+      };
+    }
+  }
+
+  if (sources && sources.length) {
+    filter.source = { $in: sources };
+  }
+
+  if (hackStages && hackStages.length) {
+    filter.hackStages = { $in: hackStages };
+  }
+
+  return filter;
 };
 
 export const getItemList = async (
@@ -501,7 +637,9 @@ export const getItemList = async (
         stage: { $arrayElemAt: ['$stages_doc', 0] },
         name: 1,
         isComplete: 1,
+        startDate: 1,
         closeDate: 1,
+        relations: 1,
         modifiedAt: 1,
         priority: 1,
         watchedUserIds: 1,

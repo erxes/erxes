@@ -301,7 +301,8 @@ export const RABBITMQ_QUEUES = {
   WORKERS: 'workers',
   VISITOR_LOG: 'visitorLog',
   RPC_VISITOR_LOG: 'rpc_queue:visitorLog',
-  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger'
+  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger',
+  LOG_DELETE_OLD: 'log:delete:old'
 };
 
 export const AUTO_BOT_MESSAGES = {
@@ -477,6 +478,7 @@ export const PRODUCT_INFO = {
   vendor: 'Vendor',
   description: 'Description',
   sku: 'Sku',
+  productCount: 'Product count',
 
   ALL: [
     { field: 'code', label: 'Code' },
@@ -485,7 +487,8 @@ export const PRODUCT_INFO = {
     { field: 'category', label: 'Category' },
     { field: 'vendor', label: 'Vendor' },
     { field: 'description', label: 'Description' },
-    { field: 'sku', label: 'Sku' }
+    { field: 'sku', label: 'Sku' },
+    { field: 'productCount', label: 'Product count' }
   ]
 };
 

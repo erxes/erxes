@@ -64,6 +64,8 @@ type State = {
   availabilityMethod: string;
   isOnline: boolean;
   timezone: string;
+  responseRate: string;
+  showTimezone: boolean;
   onlineHours: any;
   logo: string;
   logoPreviewStyle: any;
@@ -125,6 +127,8 @@ class CreateMessenger extends React.Component<Props, State> {
       availabilityMethod: configData.availabilityMethod || 'manual',
       isOnline: configData.isOnline || false,
       timezone: configData.timezone || '',
+      responseRate: configData.responseRate || 'A few minutes',
+      showTimezone: configData.showTimezone || false,
       onlineHours: (configData.onlineHours || []).map(h => ({
         _id: Math.random(),
         ...h
@@ -243,6 +247,8 @@ class CreateMessenger extends React.Component<Props, State> {
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
         timezone: this.state.timezone,
+        responseRate: this.state.responseRate,
+        showTimezone: this.state.showTimezone,
         onlineHours: (this.state.onlineHours || []).map(oh => ({
           day: oh.day,
           from: oh.from,
@@ -306,6 +312,8 @@ class CreateMessenger extends React.Component<Props, State> {
       availabilityMethod,
       onlineHours,
       timezone,
+      responseRate,
+      showTimezone,
       color,
       textColor,
       logoPreviewUrl,
@@ -399,6 +407,8 @@ class CreateMessenger extends React.Component<Props, State> {
                   isOnline={isOnline}
                   availabilityMethod={availabilityMethod}
                   timezone={timezone}
+                  responseRate={responseRate}
+                  showTimezone={showTimezone}
                   onlineHours={onlineHours}
                 />
               </Step>
@@ -479,6 +489,8 @@ class CreateMessenger extends React.Component<Props, State> {
                 brands={this.props.brands}
                 brandId={brandId}
                 timezone={timezone}
+                showTimezone={showTimezone}
+                responseRate={responseRate}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
                 showChatPreview={isStepActive}

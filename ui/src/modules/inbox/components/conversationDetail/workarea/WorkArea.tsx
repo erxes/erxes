@@ -170,7 +170,11 @@ export default class WorkArea extends React.Component<Props, State> {
     const participatedUsers = currentConversation.participatedUsers || [];
     const { kind } = currentConversation.integration;
 
-    const showInternal = this.isMailConversation(kind) || kind === 'lead';
+    const showInternal =
+      this.isMailConversation(kind) ||
+      kind === 'lead' ||
+      kind === 'booking' ||
+      kind === 'webhook';
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">

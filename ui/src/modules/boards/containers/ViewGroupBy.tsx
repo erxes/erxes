@@ -10,6 +10,7 @@ import { queries } from '../graphql';
 import styled from 'styled-components';
 import { PRIORITIES } from '../constants';
 import ListGroupBy from './ListGroupBy';
+import GanttChart from './gantt/GanttChart';
 
 const Container = styled.div`
   min-height: 500px;
@@ -21,6 +22,7 @@ type Props = {
   pipeline: IPipeline;
   queryParams: any;
   options: IOptions;
+  viewType: string;
 };
 
 type WithStagesProps = {
@@ -36,7 +38,9 @@ class WithStages extends Component<WithStagesProps> {
       queryParams,
       stagesQuery,
       pipelineLabelsQuery,
-      pipelineAssigneeQuery
+      pipelineAssigneeQuery,
+      viewType,
+      pipeline
     } = this.props;
 
     let groupType = 'stage';
@@ -96,6 +100,18 @@ class WithStages extends Component<WithStagesProps> {
           text="No value in this pipeline"
           size="large"
           light={true}
+        />
+      );
+    }
+
+    if (viewType === 'gantt') {
+      return (
+        <GanttChart
+          key={pipeline._id}
+          options={options}
+          queryParams={queryParams}
+          groups={groups}
+          groupType={groupType}
         />
       );
     }

@@ -3,8 +3,6 @@ import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
@@ -27,13 +25,6 @@ type Props = {
     closeModal: () => void;
     user: IUser;
   }) => React.ReactNode;
-  renderEditForm: ({
-    closeModal,
-    user
-  }: {
-    closeModal: () => void;
-    user: IUser;
-  }) => React.ReactNode;
 };
 
 const { Section } = Sidebar;
@@ -44,103 +35,43 @@ function LeftSidebar({
   skills = [],
   channels,
   excludeUserSkill,
-  renderSkillForm,
-  renderEditForm
+  renderSkillForm
 }: Props) {
-  const { details = {}, links = {} } = user;
+  const { details = {} } = user;
 
-  const content = props => {
-    return renderEditForm({ ...props, user });
+  const renderRow = (title: string, value: any, nowrap?: boolean) => {
+    return (
+      <li>
+        <FieldStyle>{__(title)}:</FieldStyle>
+        <SidebarCounter nowrap={nowrap}>{value || '-'}</SidebarCounter>
+      </li>
+    );
   };
-
-  function renderLink(link, icon) {
-    if (!link) {
-      return null;
-    }
-
-    return (
-      <a href={link} target="_blank" rel="noopener noreferrer">
-        <Icon icon={icon} />
-      </a>
-    );
-  }
-
-  function renderLinks(item) {
-    return (
-      <Links>
-        {renderLink(item.facebook, 'facebook-official')}
-        {renderLink(item.linkedIn, 'linkedin')}
-        {renderLink(item.twitter, 'twitter')}
-        {renderLink(item.youtube, 'youtube-play')}
-        {renderLink(item.github, 'github-circled')}
-        {renderLink(item.website, 'external-link-alt')}
-      </Links>
-    );
-  }
 
   function renderUserInfo() {
     return (
       <Section>
-        <InfoWrapper>
-          <NameCard
-            user={user}
-            avatarSize={50}
-            secondLine={renderLinks(links)}
-          />
-          <ModalTrigger
-            title="Edit"
-            trigger={<Icon icon="pen-1" />}
-            size="lg"
-            content={content}
-          />
-        </InfoWrapper>
         <SidebarList className="no-link">
-          <li>
-            <FieldStyle>{__('Primary Email')}:</FieldStyle>
-            <SidebarCounter>{user.email || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('User name')}:</FieldStyle>
-            <SidebarCounter>{user.username || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Short name')}:</FieldStyle>
-            <SidebarCounter>{details.shortName || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Location')}:</FieldStyle>
-            <SidebarCounter>{details.location || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Birthdate')}:</FieldStyle>
-            <SidebarCounter>
-              {details.birthDate
-                ? dayjs(details.birthDate).format('YYYY-MM-DD')
-                : '-'}
-            </SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Position')}:</FieldStyle>
-            <SidebarCounter>{details.position || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Score')}:</FieldStyle>
-            <SidebarCounter>{user.score || '-'}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Joined date')}:</FieldStyle>
-            <SidebarCounter>
-              {details.workStartedDate
-                ? dayjs(details.workStartedDate).format('YYYY-MM-DD')
-                : '-'}
-            </SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Description')}:</FieldStyle>
-            <SidebarCounter nowrap={true}>
-              {details.description || '-'}
-            </SidebarCounter>
-          </li>
+          {renderRow('Primary Email', user.email)}
+          {renderRow('Operator Phone number', details.operatorPhone)}
+          {renderRow('User name', user.username)}
+          {renderRow('Short name', details.shortName)}
+          {renderRow('Location', details.location)}
+          {renderRow(
+            'Birthdate',
+            details.birthDate
+              ? dayjs(details.birthDate).format('YYYY-MM-DD')
+              : '-'
+          )}
+          {renderRow('Position', details.position)}
+          {renderRow('Score', user.score)}
+          {renderRow(
+            'Joined date',
+            details.workStartedDate
+              ? dayjs(details.workStartedDate).format('YYYY-MM-DD')
+              : '-'
+          )}
+          {renderRow('Description', details.description, true)}
         </SidebarList>
       </Section>
     );
@@ -205,9 +136,9 @@ function LeftSidebar({
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
-      <CustomFieldsSection user={user} isDetail={true} />
       {renderChannels()}
       {renderSkills()}
+      <CustomFieldsSection user={user} isDetail={true} />
     </Sidebar>
   );
 }

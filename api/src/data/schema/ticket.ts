@@ -42,15 +42,36 @@ const listQueryParams = `
   assignedToMe: String
   startDate: String
   endDate: String
+  hasStartAndCloseDate: Boolean
   ${conformityQueryFields}
+`;
+
+const archivedTicketsParams = `
+  pipelineId: String! 
+  search: String 
+  userIds: [String]
+  priorities: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  companyIds: [String]
+  customerIds: [String]
+  startDate: String
+  endDate: String
+  sources: [String]
 `;
 
 export const queries = `
   ticketDetail(_id: String!): Ticket
   tickets(${listQueryParams}): [TicketListItem]
   ticketsTotalCount(${listQueryParams}): Int
-  archivedTickets(pipelineId: String!, search: String, page: Int, perPage: Int): [Ticket]
-  archivedTicketsCount(pipelineId: String!, search: String): Int
+  archivedTickets(
+    page: Int
+    perPage: Int
+    ${archivedTicketsParams}
+  ): [Ticket]
+  archivedTicketsCount(
+    ${archivedTicketsParams}
+  ): Int
 `;
 
 const ticketMutationParams = `

@@ -388,23 +388,27 @@ describe('Customers model tests', () => {
       integrationId: integration._id
     });
 
-    await ['123', '1234', '12345'].map(async item => {
-      await conformityFactory({
-        mainType: 'company',
-        mainTypeId: item,
-        relType: 'customer',
-        relTypeId: customer1._id
-      });
-    });
+    await Promise.all(
+      ['123', '1234', '12345'].map(async item => {
+        await conformityFactory({
+          mainType: 'company',
+          mainTypeId: item,
+          relType: 'customer',
+          relTypeId: customer1._id
+        });
+      })
+    );
 
-    await ['123', '456', '45678'].map(async item => {
-      await conformityFactory({
-        mainType: 'customer',
-        mainTypeId: customer2._id,
-        relType: 'company',
-        relTypeId: item
-      });
-    });
+    await Promise.all(
+      ['123', '456', '45678'].map(async item => {
+        await conformityFactory({
+          mainType: 'customer',
+          mainTypeId: customer2._id,
+          relType: 'company',
+          relTypeId: item
+        });
+      })
+    );
 
     if (!customer1 || !customer1.tagIds) {
       throw new Error('Customer1 not found');

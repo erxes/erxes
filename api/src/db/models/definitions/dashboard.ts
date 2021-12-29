@@ -3,6 +3,8 @@ import { field, schemaWrapper } from './utils';
 
 export interface IDashboard {
   name: string;
+  visibility: string;
+  selectedMemberIds?: string[];
 }
 
 export interface IDashboardItemInput {
@@ -41,7 +43,9 @@ export interface IDashboardItemDocument extends IDashboardItem, Document {
 export const dashboardSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String })
+    name: field({ type: String }),
+    visibility: field({ type: String }),
+    selectedMemberIds: field({ type: [String] })
   })
 );
 

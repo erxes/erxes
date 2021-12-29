@@ -10,20 +10,14 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
-import { IBrandDocument } from '../db/models/definitions/brands';
-import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import {
-  fieldsCombinedByContentType,
-  getCustomFields
-} from './modules/fields/utils';
-import { generateAmounts, generateProducts } from './resolvers/deals';
 import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 import csvParser = require('csv-parser');
 import * as readline from 'readline';
+import * as _ from 'underscore';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -655,182 +649,6 @@ export const createTransporter = async ({ ses }) => {
 };
 
 export type IEmailParams = IEmailParamsC;
-interface IReplacer {
-  key: string;
-  value: string;
-}
-
-/**
- * Replace editor dynamic content tags
- */
-export const replaceEditorAttributes = async (args: {
-  content: string;
-  customer?: ICustomer | null;
-  user?: IUser | null;
-  customerFields?: string[];
-  item?: any;
-  brand?: IBrandDocument;
-}): Promise<{
-  replacers: IReplacer[];
-  replacedContent?: string;
-  customerFields?: string[];
-}> => {
-  const { content, user, brand, item } = args;
-  const customer = args.customer || {};
-  const replacers: IReplacer[] = [];
-
-  let replacedContent = content || '';
-  let customerFields = args.customerFields;
-
-  const customFieldsData = customer.customFieldsData || [];
-
-  if (!customerFields || customerFields.length === 0) {
-    const possibleCustomerFields = await fieldsCombinedByContentType({
-      contentType: 'customer'
-    });
-
-    customerFields = ['firstName', 'lastName', 'middleName'];
-
-    for (const field of possibleCustomerFields) {
-      if (content.includes(`{{ customer.${field.name} }}`)) {
-        if (field.name.includes('trackedData')) {
-          customerFields.push('trackedData');
-
-          continue;
-        }
-
-        if (field.name.includes('customFieldsData')) {
-          const fieldId = field.name.split('.').pop();
-
-          if (!customFieldsData.find(e => e.field === fieldId)) {
-            customFieldsData.push({ field: fieldId || '', value: '' });
-          }
-
-          customerFields.push('customFieldsData');
-
-          continue;
-        }
-
-        customerFields.push(field.name);
-      }
-    }
-
-    customer.customFieldsData = customFieldsData;
-  }
-
-  // replace customer fields
-  if (args.customer) {
-    replacers.push({
-      key: '{{ customer.name }}',
-      value: models.Customers.getCustomerName(customer)
-    });
-
-    for (const field of customerFields) {
-      if (field.includes('trackedData') || field.includes('customFieldsData')) {
-        const dbFieldName = field.includes('trackedData')
-          ? 'trackedData'
-          : 'customFieldsData';
-
-        for (const subField of customer[dbFieldName] || []) {
-          replacers.push({
-            key: `{{ customer.${dbFieldName}.${subField.field} }}`,
-            value: subField.value || ''
-          });
-        }
-
-        continue;
-      }
-
-      replacers.push({
-        key: `{{ customer.${field} }}`,
-        value: customer[field] || ''
-      });
-    }
-  }
-
-  // replace user fields
-  if (user) {
-    replacers.push({ key: '{{ user.email }}', value: user.email || '' });
-
-    if (user.details) {
-      replacers.push({
-        key: '{{ user.fullName }}',
-        value: user.details.fullName || ''
-      });
-      replacers.push({
-        key: '{{ user.position }}',
-        value: user.details.position || ''
-      });
-    }
-  }
-
-  // replace brand fields
-  if (brand) {
-    replacers.push({ key: '{{ brandName }}', value: brand.name || '' });
-  }
-
-  for (const replacer of replacers) {
-    const regex = new RegExp(replacer.key, 'gi');
-
-    replacedContent = replacedContent.replace(regex, replacer.value);
-  }
-
-  // deal, ticket, task mapping
-  if (item) {
-    replacers.push({ key: '{{ itemName }}', value: item.name || '' });
-    replacers.push({
-      key: '{{ itemDescription }}',
-      value: item.description || ''
-    });
-
-    replacers.push({
-      key: '{{ itemCloseDate }}',
-      value: item.closeDate ? new Date(item.closeDate).toLocaleDateString() : ''
-    });
-    replacers.push({
-      key: '{{ itemCreatedAt }}',
-      value: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''
-    });
-    replacers.push({
-      key: '{{ itemModifiedAt }}',
-      value: item.modifiedAt
-        ? new Date(item.modifiedAt).toLocaleDateString()
-        : ''
-    });
-
-    const products = await generateProducts(item.productsData);
-    const amounts = generateAmounts(item.productsData);
-
-    replacers.push({
-      key: '{{ dealProducts }}',
-      value: products.map(p => p.product.name).join(',')
-    });
-    replacers.push({
-      key: '{{ dealAmounts }}',
-      value: Object.keys(amounts)
-        .map(key => `${amounts[key]}${key}`)
-        .join(',')
-    });
-
-    const customFields = await getCustomFields(item.contentType);
-
-    for (const customField of customFields) {
-      const cFieldsData = item.customFieldsData || [];
-      const customFieldData = cFieldsData.find(
-        c => c.field === customField._id
-      );
-
-      if (customFieldData) {
-        replacers.push({
-          key: `{{ itemCustomField.${customField._id} }}`,
-          value: customFieldData.stringValue || customFieldData.value
-        });
-      }
-    }
-  }
-
-  return { replacedContent, replacers, customerFields };
-};
 
 /**
  * Send email
@@ -1097,7 +915,7 @@ export const getDashboardFile = async (dashboardId: string) => {
   return pdf;
 };
 
-export const getErxesSaasDomain = () => {
+export const getCoreDomain = () => {
   const NODE_ENV = process.env.NODE_ENV;
 
   return NODE_ENV === 'production'
@@ -1233,4 +1051,21 @@ export const findCompany = async doc => {
   }
 
   return company;
+};
+
+export const checkPremiumService = async type => {
+  try {
+    const domain = getEnv({ name: 'MAIN_APP_DOMAIN' })
+      .replace('https://', '')
+      .replace('http://', '');
+
+    const response = await sendRequest({
+      url: `${getCoreDomain()}/check-premium-service?domain=${domain}&type=${type}`,
+      method: 'GET'
+    });
+
+    return response === 'yes';
+  } catch (e) {
+    return false;
+  }
 };

@@ -5,13 +5,10 @@ import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import {
-  registerOnboardHistory,
-  replaceEditorAttributes,
-  sendToWebhook
-} from '../../utils';
+import { registerOnboardHistory, sendToWebhook } from '../../utils';
 import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from './engageUtils';
+import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -234,7 +231,7 @@ const engageMutations = {
     const customer = await Customers.findOne({ primaryEmail: to });
     const targetUser = await getDocument('users', { email: to });
 
-    const { replacedContent } = await replaceEditorAttributes({
+    const replacedContent = await new EditorAttributeUtil().replaceAttributes({
       content,
       customer,
       user: targetUser

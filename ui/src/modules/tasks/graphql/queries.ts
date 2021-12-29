@@ -21,23 +21,25 @@ const commonParams = `
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $hasStartAndCloseDate: Boolean
   ${conformityQueryFields}
 `;
 
 const commonParamDefs = `
-  companyIds: $companyIds,
-  customerIds: $customerIds,
-  assignedUserIds: $assignedUserIds,
-  closeDateType: $closeDateType,
-  priority: $priority,
-  labelIds: $labelIds,
-  sortField: $sortField,
-  sortDirection: $sortDirection,
-  userIds: $userIds,
-  segment: $segment,
-  assignedToMe: $assignedToMe,
-  startDate: $startDate,
-  endDate: $endDate,
+  companyIds: $companyIds
+  customerIds: $customerIds
+  assignedUserIds: $assignedUserIds
+  closeDateType: $closeDateType
+  priority: $priority
+  labelIds: $labelIds
+  sortField: $sortField
+  sortDirection: $sortDirection
+  userIds: $userIds
+  segment: $segment
+  assignedToMe: $assignedToMe
+  startDate: $startDate
+  endDate: $endDate
+  hasStartAndCloseDate: $hasStartAndCloseDate
   ${conformityQueryFieldDefs}
 `;
 
@@ -47,6 +49,7 @@ const tasks = `
     $stageId: String,
     $date: ItemDate,
     $skip: Int,
+    $limit: Int,
     $search: String,
     ${commonParams}
   ) {
@@ -55,6 +58,7 @@ const tasks = `
       stageId: $stageId,
       date: $date,
       skip: $skip,
+      limit: $limit,
       search: $search,
       ${commonParamDefs}
     ) {
@@ -91,18 +95,42 @@ const taskDetail = `
   }
 `;
 
+const archivedTasksParams = `
+  $pipelineId: String!
+  $search: String
+  $userIds: [String]
+  $priorities: [String]
+  $assignedUserIds: [String]
+  $labelIds: [String]
+  $companyIds: [String]
+  $customerIds: [String]
+  $startDate: String
+  $endDate: String
+`;
+
+const archivedTasksArgs = `
+  pipelineId: $pipelineId
+  search: $search
+  userIds: $userIds
+  priorities: $priorities
+  assignedUserIds: $assignedUserIds
+  labelIds: $labelIds
+  companyIds: $companyIds
+  customerIds: $customerIds
+  startDate: $startDate
+  endDate: $endDate
+`;
+
 const archivedTasks = `
   query archivedTasks(
-    $pipelineId: String!,
-    $search: String,
-    $page: Int,
-    $perPage: Int,
+    $page: Int
+    $perPage: Int
+    ${archivedTasksParams}
   ) {
     archivedTasks(
-      pipelineId: $pipelineId,
-      search: $search,
-      page: $page,
-      perPage: $perPage,
+      page: $page
+      perPage: $perPage
+     ${archivedTasksArgs}
     ) {
       ${commonFields}
     }
@@ -110,8 +138,12 @@ const archivedTasks = `
 `;
 
 const archivedTasksCount = `
-  query archivedTasksCount($pipelineId: String!, $search: String) {
-    archivedTasksCount(pipelineId: $pipelineId, search: $search)
+  query archivedTasksCount(
+    ${archivedTasksParams}
+  ) {
+    archivedTasksCount(
+      ${archivedTasksArgs}
+    )
   }
 `;
 

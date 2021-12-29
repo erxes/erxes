@@ -40,15 +40,35 @@ const listQueryParams = `
     assignedToMe: String
     startDate: String
     endDate: String
+    hasStartAndCloseDate: Boolean
     ${conformityQueryFields}
+`;
+
+const archivedTasksParams = `
+  pipelineId: String! 
+  search: String 
+  userIds: [String]
+  priorities: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  companyIds: [String]
+  customerIds: [String]
+  startDate: String
+  endDate: String 
 `;
 
 export const queries = `
   taskDetail(_id: String!): Task
   tasks(${listQueryParams}): [TaskListItem]
   tasksTotalCount(${listQueryParams}): Int
-  archivedTasks(pipelineId: String!, search: String, page: Int, perPage: Int): [Task]
-  archivedTasksCount(pipelineId: String!, search: String): Int
+  archivedTasks(
+    page: Int
+    perPage: Int
+    ${archivedTasksParams}
+  ): [Task]
+  archivedTasksCount(
+    ${archivedTasksParams}
+  ): Int
 `;
 
 export const mutations = `

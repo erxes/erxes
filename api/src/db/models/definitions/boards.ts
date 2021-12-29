@@ -23,6 +23,7 @@ export interface IItemCommonFields {
   // TODO migrate after remove 2row
   companyIds?: string[];
   customerIds?: string[];
+  startDate?: Date;
   closeDate?: Date;
   stageChangedDate?: Date;
   description?: string;
@@ -118,7 +119,8 @@ export const attachmentSchema = new Schema(
     name: field({ type: String }),
     url: field({ type: String }),
     type: field({ type: String }),
-    size: field({ type: Number, optional: true })
+    size: field({ type: Number, optional: true }),
+    duration: field({ type: Number, optional: true })
   },
   { _id: false }
 );
@@ -153,12 +155,22 @@ const timeTrackSchema = new Schema(
   { _id: false }
 );
 
+const relationSchema = new Schema(
+  {
+    id: field({ type: String }),
+    start: field({ type: String }),
+    end: field({ type: String })
+  },
+  { _id: false }
+);
+
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   userId: field({ type: String, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
+  startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
   stageChangedDate: field({
     type: Date,
@@ -215,6 +227,11 @@ export const commonItemFieldsSchema = {
     optional: true,
     label: 'Score',
     esType: 'number'
+  }),
+  relations: field({
+    type: [relationSchema],
+    optional: true,
+    label: 'Related items used for gantt chart'
   })
 };
 
