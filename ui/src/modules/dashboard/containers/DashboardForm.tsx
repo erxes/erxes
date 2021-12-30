@@ -8,6 +8,9 @@ import { IDashboard } from '../types';
 type Props = {
   dashboard?: IDashboard;
   trigger?: React.ReactNode;
+  loading: boolean;
+  category: IDashboard;
+  categories: IDashboard[];
 };
 
 class DashboardFormContainer extends React.Component<Props> {

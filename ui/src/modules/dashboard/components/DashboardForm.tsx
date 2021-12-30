@@ -11,20 +11,17 @@ import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import { IDashboard } from '../types';
-// import { Link } from 'react-router-dom';
-// import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-// import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import { generateCategoryOptions } from 'erxes-ui/lib/utils';
 
 type Props = {
   dashboard?: IDashboard;
+  dashboards?: IDashboard[];
   trigger?: React.ReactNode;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  // history: any;
-  // queryParams: any;
-  // remove: (productCategoryId: string) => void;
-  // productCategories: any;
-  // productCategoriesCount: number;
-  // loading: boolean;
+  loading: boolean;
+  category: IDashboard;
+  categories: IDashboard[];
 };
 
 type State = {
@@ -98,68 +95,70 @@ function DashbaordFormContent(props: FinalProps) {
     );
   };
 
-  // const isActive = (id: string) => {
-  //   const { queryParams } = props;
-  //   const currentGroup = queryParams.categoryId || '';
+  const renderParentCategories = (formProps: IFormProps) => {
+    const { category, categories } = props;
+    const object = category || ({} as IDashboard);
 
-  //   return currentGroup === id;
-  // };
+    return (
+      <FormGroup>
+        <ControlLabel>Parent Dashboard</ControlLabel>
 
-  // const renderDashboardContent = () => {
-  //   const { productCategories } = props;
+        <FormControl
+          {...formProps}
+          name="parentId"
+          componentClass="select"
+          defaultValue={object.parentId}
+        >
+          <option value="" />
+          {generateCategoryOptions(categories, object._id)}
+        </FormControl>
+      </FormGroup>
+    );
+  };
 
-  //   const result: React.ReactNode[] = [];
+  const renderDashboardContent = () => {
+    const dashboards = props.dashboards || [];
 
-  //   for (const category of productCategories) {
-  //     const order = category.order;
+    const result: React.ReactNode[] = [];
 
-  //     const m = order.match(/[/]/gi);
+    for (const category of dashboards) {
+      const order = category.order;
 
-  //     let space = '';
+      const m = order.match(/[/]/gi);
 
-  //     if (m) {
-  //       space = '\u00a0\u00a0'.repeat(m.length);
-  //     }
+      let space = '';
 
-  //     const name = category.isRoot ? (
-  //       `${category.name} (${category.productCount})`
-  //     ) : (
-  //       <span>
-  //         {category.name} ({category.productCount})
-  //       </span>
-  //     );
+      console.log(space);
 
-  //     result.push(
-  //       <SidebarListItem key={category._id} isActive={isActive(category._id)}>
-  //         <Link to={`?categoryId=${category._id}`}>
-  //           {space}
-  //           {name}
-  //         </Link>
-  //         <ActionButtons>
-  //           {/* {this.renderEditAction(category)}
-  //           {this.renderRemoveAction(category)} */}
-  //         </ActionButtons>
-  //       </SidebarListItem>
-  //     );
-  //   }
+      if (m) {
+        space = '\u00a0\u00a0'.repeat(m.length);
+      }
 
-  //   return result;
-  // };
+      // const name = category.isRoot ? (
+      //   `${category.name} (${category.dashboardCount})`
+      // ) : (
+      //   <span>
+      //     {category.name} ({category.dashboardCount})
+      //   </span>
+      // );
+    }
 
-  // const renderCategoryList = () => {
-  //   const { productCategoriesCount, loading } = props;
+    return result;
+  };
 
-  //   return (
-  //     <DataWithLoader
-  //       data={renderDashboardContent()}
-  //       loading={loading}
-  //       count={productCategoriesCount}
-  //       emptyText="There is no product & service category"
-  //       emptyIcon="folder-2"
-  //       size="small"
-  //     />
-  //   );
-  // };
+  const renderCategoryList = () => {
+    const { loading } = props;
+
+    return (
+      <DataWithLoader
+        data={renderDashboardContent()}
+        loading={loading}
+        // emptyText="There is no product & service category"
+        // emptyIcon="folder-2"
+        size="small"
+      />
+    );
+  };
 
   const renderContent = (formProps: IFormProps) => {
     const { renderButton } = props;
@@ -206,7 +205,9 @@ function DashbaordFormContent(props: FinalProps) {
 
         {renderSelectMembers()}
 
-        {/* {renderCategoryList()} */}
+        {renderCategoryList()}
+
+        {renderParentCategories(formProps)}
 
         <ModalFooter>
           <Button

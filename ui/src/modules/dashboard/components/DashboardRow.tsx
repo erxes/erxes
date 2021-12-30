@@ -12,11 +12,21 @@ type Props = {
   dashboard: IDashboard;
   isActive: boolean;
   removeDashboard: (id: string) => void;
+  loading: boolean;
+  category: IDashboard;
+  categories: IDashboard[];
 };
 
 class PipelineRow extends React.Component<Props, {}> {
   render() {
-    const { dashboard, isActive, removeDashboard } = this.props;
+    const {
+      dashboard,
+      isActive,
+      removeDashboard,
+      loading,
+      category,
+      categories
+    } = this.props;
 
     const remove = () => {
       removeDashboard(dashboard._id);
@@ -34,7 +44,13 @@ class PipelineRow extends React.Component<Props, {}> {
       <SidebarListItem key={dashboard._id} isActive={isActive}>
         <Link to={`/dashboard/${dashboard._id}`}>{dashboard.name}</Link>
         <ActionButtons>
-          <DashbaordForm dashboard={dashboard} trigger={editTrigger} />
+          <DashbaordForm
+            dashboard={dashboard}
+            trigger={editTrigger}
+            loading={loading}
+            category={category}
+            categories={categories}
+          />
           <Tip text={__('Delete')} placement="left">
             <Button btnStyle="link" icon="times-circle" onClick={remove} />
           </Tip>

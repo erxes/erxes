@@ -10,10 +10,20 @@ type Props = {
   loading: boolean;
   currentDashboard?: string;
   removeDashboard: (id: string) => void;
+  history: any;
+  category: IDashboard;
+  categories: IDashboard[];
 };
 
 function DashboardList(props: Props) {
-  const { dashboards, loading, currentDashboard, removeDashboard } = props;
+  const {
+    dashboards,
+    loading,
+    currentDashboard,
+    removeDashboard,
+    category,
+    categories
+  } = props;
 
   const renderContent = () => {
     if (loading) {
@@ -26,6 +36,9 @@ function DashboardList(props: Props) {
         key={dashboard._id}
         dashboard={dashboard}
         removeDashboard={removeDashboard}
+        loading={loading}
+        category={category}
+        categories={categories}
       />
     ));
   };
@@ -35,7 +48,7 @@ function DashboardList(props: Props) {
   return (
     <>
       <Dashboards>{renderContent()}</Dashboards>
-      <DashbaordForm trigger={triggerCreate} />
+      <DashbaordForm trigger={triggerCreate} {...props} />
     </>
   );
 }

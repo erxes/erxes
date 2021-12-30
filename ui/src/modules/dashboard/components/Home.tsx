@@ -11,6 +11,8 @@ type Props = {
   queryParams: any;
   dashboards: IDashboard[];
   loading: boolean;
+  category: IDashboard;
+  categories: IDashboard[];
 };
 
 type FinalProps = {} & Props & IRouterProps;
@@ -47,7 +49,7 @@ const Home = (props: FinalProps) => {
           image="/images/actions/8.svg"
           text="There is no Dashboard"
           size="full"
-          extra={<DashbaordForm />}
+          extra={<DashbaordForm {...props} />}
         />
       </>
     );

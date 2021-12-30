@@ -16,6 +16,15 @@ export const types = `
     type: String
     isDateRange: Boolean
   }
+
+  type DashboardCategory {
+    _id: String!
+    name: String
+    visibility: String!
+    selectedMemberIds: [String]
+    description: String
+    childs: [Dashboard]
+  }
 `;
 
 export const queries = `

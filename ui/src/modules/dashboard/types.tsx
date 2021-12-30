@@ -4,6 +4,12 @@ export interface IDashboard {
   visibility: string;
   selectedMemberIds?: string[];
   description: string;
+  parentId?: string;
+  order: string;
+  childsDashboard: string[];
+  isRoot: boolean;
+  createdAt: Date;
+  code: string;
 }
 
 export type DashboardsQueryResponse = {
