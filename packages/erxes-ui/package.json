@@ -1,0 +1,8 @@
+{
+  "name": "@erxes/ui",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "dependencies": {
+    "react": "16.14.0"
+  }
+}

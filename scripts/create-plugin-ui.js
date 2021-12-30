@@ -10,7 +10,7 @@ const filePath = (pathName) => {
 }
 
 var main = async () => {
-  fs.copySync(filePath('./scripts/templates/plugin-ui'), filePath(`./pls/${process.argv[2]}/ui`));
+  fs.copySync(filePath('./packages/plugin-ui-template'), filePath(`./packages/plugins/${process.argv[2]}/ui`));
 }
 
 main();

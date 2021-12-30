@@ -1,7 +1,0 @@
-{
-  "name": "plugin-ui",
-  "scripts": {
-    "install": "cd .erxes && yarn install",
-    "start": "cd .erxes && yarn start"
-  }
-}

@@ -61,32 +61,39 @@ module.exports = {
       {
         test: /\.(ts|tsx|js|jsx)$/,
         exclude: /node_modules/,
+        include: [
+          path.resolve(__dirname, "src"),
+          path.resolve(__dirname, "../../../../erxes-ui/src"),
+          path.resolve(__dirname, "plugin-src")
+        ],
         use: {
           loader: "babel-loader",
+          options: {
+            presets: [
+              "@babel/preset-typescript",
+              "@babel/preset-react",
+              "@babel/preset-env",
+            ],
+            plugins: [["@babel/transform-runtime"]],
+          },
         },
       },
     ],
   },
 
-  resolve: {
-    modules: [path.resolve(__dirname, "src"), path.resolve(__dirname, "plugin-src"), "node_modules"],
-    // fallback: { "path": require.resolve("path-browserify"), "timers": require.resolve("timers-browserify") },
-    extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
-  },
-
   plugins: [
     new webpack.DefinePlugin({
-      "process.env": JSON.stringify(process.env)
+      "process.env": JSON.stringify(process.env),
     }),
     new InterpolateHtmlPlugin({
-      PUBLIC_URL: 'public' // can modify `static` to another name or get it from `process`
+      PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
     }),
     new ModuleFederationPlugin({
       name: configs.name,
       filename: "remoteEntry.js",
       remotes: {},
       exposes,
-      shared
+      shared,
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
