@@ -61,7 +61,7 @@ export const mutations = `
   chatAdd(name: String!, type: ChatType!, , description: String, visibility: ChatVisibilityType, participantIds: [String]): Chat
   chatEdit(_id: String!, name: String!, description: String, visibility: ChatVisibilityType): Chat
   chatRemove(_id: String!): JSON
-  chatAddOrRemoveMember(_id: String!, userId: String, type: ChatMemberModifyType): String
+  chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   
   chatMessageAdd(chatId: String!, content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON

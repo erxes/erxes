@@ -51,12 +51,12 @@ const chatMutations = [
   },
   {
     name: 'chatAddOrRemoveMember',
-    handler: async (_root, { _id, userId, type }, { models }) => {
+    handler: async (_root, { _id, userIds, type }, { models }) => {
       await models.Chats.updateOne(
         { _id },
         type === 'add'
-          ? { $push: { participantIds: userId } }
-          : { $pull: { participantIds: userId } }
+          ? { $addToSet: { participantIds: userIds } }
+          : { $pull: { participantIds: { $in: userIds } } }
       );
 
       return 'Success';
