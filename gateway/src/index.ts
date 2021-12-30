@@ -1,32 +1,24 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { ApolloServer } from "apollo-server-express";
-import { ApolloGateway, GatewayConfig } from "@apollo/gateway";
+import { ApolloServer, ExpressContext } from "apollo-server-express";
+import { ApolloGateway } from "@apollo/gateway";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { createProxyMiddleware } from "http-proxy-middleware";
 // import ws from "ws";
 import express from "express";
 import http from "http";
 // import { loadSubscriptions } from "./subscription";
-import { getConfiguredServices } from "./subgraphs";
+import { createGateway, GatewayContext } from "./gateway";
 
 (async () => {
-  const gatewayConfig: GatewayConfig = {
-    serviceList: getConfiguredServices(),
-  };
-
-  if (process.env.NODE_ENV === "development") {
-    gatewayConfig.experimental_pollInterval = 30 * 1000; // 30 seconds
-  }
-
-  const gateway = new ApolloGateway(gatewayConfig);
 
   const app = express();
 
+  // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
   app.use(
     /\/((?!graphql).)*/,
-    createProxyMiddleware({ target: process.env.FORWARD_EXCEPT_GRAPHQL_URL })
+    createProxyMiddleware({ target: process.env.API_DOMAIN })
   );
 
   const httpServer = http.createServer(app);
@@ -36,10 +28,13 @@ import { getConfiguredServices } from "./subgraphs";
   //   path: "/graphql",
   // });
 
+  const gateway: ApolloGateway = createGateway();
+
   const apolloServer = new ApolloServer({
     gateway,
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    context: ({ res, req }: ExpressContext): GatewayContext => ({ res, req })
   });
 
   // gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
@@ -54,9 +49,7 @@ import { getConfiguredServices } from "./subgraphs";
       credentials: true,
       origin: [ process.env.MAIN_APP_DOMAIN || "http://localhost:3000", "https://studio.apollographql.com"],
     },
-  });
-
-  
+  });  
 
   const port = process.env.PORT || 4000;
 
