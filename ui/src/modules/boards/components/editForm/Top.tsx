@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import Move from '../../containers/editForm/Move';
 import { IItem, IOptions } from '../../types';
 import CloseDate from './CloseDate';
+import StartDate from './StartDate';
 
 type Props = {
   item: IItem;
@@ -99,7 +100,11 @@ function Top(props: Props) {
 
       <HeaderRow>
         <HeaderContent>{renderMove()}</HeaderContent>
-
+        <StartDate
+          onChangeField={onCloseDateFieldsChange}
+          startDate={item.startDate}
+          reminderMinute={item.reminderMinute}
+        />
         <CloseDate
           onChangeField={onCloseDateFieldsChange}
           closeDate={item.closeDate}

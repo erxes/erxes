@@ -196,6 +196,25 @@ export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
   return colorName;
 };
 
+export const generateButtonStart = (startDate: Date) => {
+  let colorName = 'teal';
+
+  if (startDate) {
+    const now = new Date();
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    if (new Date(startDate).getTime() - now.getTime() < oneDay) {
+      colorName = 'blue';
+    }
+
+    if (now > startDate) {
+      colorName = 'red';
+    }
+  }
+
+  return colorName;
+};
+
 export const onCalendarLoadMore = (fetchMore, queryName, skip: number) => {
   fetchMore({
     variables: { skip },
@@ -276,6 +295,10 @@ export const getBoardViewType = () => {
 
   if (window.location.href.includes('chart')) {
     viewType = 'chart';
+  }
+
+  if (window.location.href.includes('gantt')) {
+    viewType = 'gantt';
   }
 
   return viewType;

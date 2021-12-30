@@ -6,7 +6,11 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from 'modules/conformity/graphql/queries';
-import { productTemplateFields , productTemplateParamsDef , productTemplateParams } from '../../settings/template/graphql/queries'
+import {
+  productTemplateFields,
+  productTemplateParamsDef,
+  productTemplateParams
+} from '../../settings/template/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
@@ -22,23 +26,25 @@ const commonParams = `
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $hasStartAndCloseDate: Boolean
   ${conformityQueryFields}
 `;
 
 const commonParamDefs = `
-  companyIds: $companyIds,
-  customerIds: $customerIds,
-  assignedUserIds: $assignedUserIds,
-  closeDateType: $closeDateType,
-  priority: $priority,
-  labelIds: $labelIds,
-  sortField: $sortField,
-  sortDirection: $sortDirection,
-  userIds: $userIds,
-  segment: $segment,
-  assignedToMe: $assignedToMe,
-  startDate: $startDate,
-  endDate: $endDate,
+  companyIds: $companyIds
+  customerIds: $customerIds
+  assignedUserIds: $assignedUserIds
+  closeDateType: $closeDateType
+  priority: $priority
+  labelIds: $labelIds
+  sortField: $sortField
+  sortDirection: $sortDirection
+  userIds: $userIds
+  segment: $segment
+  assignedToMe: $assignedToMe
+  startDate: $startDate
+  endDate: $endDate
+  hasStartAndCloseDate: $hasStartAndCloseDate
   ${conformityQueryFieldDefs}
 `;
 
@@ -48,6 +54,7 @@ const tasks = `
     $stageId: String,
     $date: ItemDate,
     $skip: Int,
+    $limit: Int,
     $search: String,
     ${commonParams}
   ) {
@@ -56,6 +63,7 @@ const tasks = `
       stageId: $stageId,
       date: $date,
       skip: $skip,
+      limit: $limit,
       search: $search,
       ${commonParamDefs}
     ) {

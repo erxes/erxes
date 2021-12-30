@@ -403,6 +403,36 @@ const boardMutations = {
     await checkPermission(type, user, 'updateTimeTracking');
 
     return Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
+  },
+
+  async boardItemsSaveForGanttTimeline(
+    _root,
+    { items, links, type }: { items: any[]; links: any[]; type: string }
+  ) {
+    const bulkOps: any[] = [];
+
+    for (const item of items) {
+      bulkOps.push({
+        updateOne: {
+          filter: {
+            _id: item._id
+          },
+          update: {
+            $set: {
+              startDate: item.startDate,
+              closeDate: item.closeDate,
+              relations: links.filter(link => link.start === item._id)
+            }
+          }
+        }
+      });
+    }
+
+    const { collection } = getCollection(type);
+
+    await collection.bulkWrite(bulkOps);
+
+    return 'Success';
   }
 };
 

@@ -6,7 +6,11 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from 'modules/conformity/graphql/queries';
-import { productTemplateFields , productTemplateParamsDef , productTemplateParams } from '../../settings/template/graphql/queries'
+import {
+  productTemplateFields,
+  productTemplateParamsDef,
+  productTemplateParams
+} from '../../settings/template/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
@@ -54,6 +58,7 @@ const tickets = `
     $stageId: String,
     $date: ItemDate,
     $skip: Int,
+    $limit: Int,
     $search: String,
     ${commonParams}
   ) {
@@ -62,6 +67,7 @@ const tickets = `
       stageId: $stageId,
       date: $date,
       skip: $skip,
+      limit: $limit,
       search: $search,
       ${commonParamDefs}
     ) {

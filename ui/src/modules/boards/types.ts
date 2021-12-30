@@ -129,6 +129,7 @@ export interface IItem {
   order: number;
   stageId: string;
   boardId?: string;
+  startDate: Date;
   closeDate: Date;
   description: string;
   amount: number;
@@ -159,6 +160,7 @@ export interface IItem {
     [key: string]: any;
   };
   score?: number;
+  relations: any[];
 }
 
 export interface IDraggableLocation {
@@ -187,8 +189,6 @@ export interface IStageMap {
 export interface IItemMap {
   [key: string]: IItem[];
 }
-
-
 
 export type BoardsQueryResponse = BoardsQueryResponseC;
 
@@ -283,8 +283,6 @@ export type PipelineLabelsQueryResponse = {
 export type PipelineLabelDetailQueryResponse = {
   pipelineLabelDetail: IPipelineLabel;
 } & QueryResponse;
-
-
 
 // mutation response
 export type AddPipelineLabelMutationResponse = ({
