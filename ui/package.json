@@ -85,7 +85,7 @@
   },
   "scripts": {
     "watch-plugins": "node commands/watch-plugins.js",
-    "start": "yarn watch-plugins & webpack serve --open --mode development",
+    "start": "webpack serve --open --mode development",
     "build": "yarn generateVersion && react-app-rewired build",
     "generateVersion": "node commands/generateVersion.js",
     "compress": "gzip -5 --keep -r build/static/js",

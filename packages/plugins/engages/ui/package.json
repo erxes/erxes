@@ -1,5 +1,5 @@
 {
-  "name": "plugin-ui",
+  "name": "@erxes/plugin-engages",
   "scripts": {
     "install": "cd .erxes && yarn install",
     "start": "cd .erxes && yarn start"
