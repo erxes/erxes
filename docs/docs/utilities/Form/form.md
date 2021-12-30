@@ -28,7 +28,7 @@ import { FormComponent } from "./form.js"
 
 ### Check box
 
-<p>Erxes-ui have a variety of checkbox style. The first one is default checkbox. Customize it with <code>color</code> prop. You can also disable it with <code>disable</code> prop. To display word or react node give React.Node to <code>children</code> prop. Checked checkbox is unchangeable. Default checked box is checked from start, and changeable. </p>
+<p>Erxes-ui have a variety of checkbox style. The first one is default checkbox. Customize it with <code>color</code> prop. You can also disable it with <code>disable</code> prop. To display word or react node give React.Node to <code>children</code> prop. <code>checked</code> checkbox is unchangeable. <code>defaultChecked</code> box is checked from start, and changeable. </p>
 <FormComponent type="control" controltype="checkbox"/>
 
 ### Radio
