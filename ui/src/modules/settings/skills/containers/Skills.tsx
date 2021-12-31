@@ -38,6 +38,9 @@ const List = ({
     gql(mutations.skillRemove),
     {
       update: (cache, result) => {
+        if (!result || !result.data || !result.data.removeSkill) {
+          return;
+        }
         const _id = result.data.removeSkill;
 
         const commonSkillQuery = {
