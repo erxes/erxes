@@ -904,3 +904,32 @@ export const checkPremiumService = async type => {
     return false;
   }
 };
+
+// board item number calculator
+export const numberCalculator = (size: number, num?: any, skip?: boolean) => {
+  if (num && !skip) {
+    num = parseInt(num, 10) + 1;
+  }
+
+  if (skip) {
+    num = 0;
+  }
+
+  num = num.toString();
+
+  while (num.length < size) {
+    num = '0' + num;
+  }
+
+  return num;
+};
+
+export const configReplacer = config => {
+  const now = new Date();
+
+  // replace type of date
+  return config
+    .replace(/\{year}/g, now.getFullYear().toString())
+    .replace(/\{month}/g, (now.getMonth() + 1).toString())
+    .replace(/\{day}/g, now.getDate().toString());
+};
