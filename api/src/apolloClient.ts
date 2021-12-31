@@ -45,7 +45,7 @@ const generateDataSources = () => {
 let apolloServer;
 
 export const initApolloServer = async app => {
-  const { types, queries, mutations, subscriptions } = await extendViaPlugins(
+  const { types, queries, mutations } = await extendViaPlugins(
     app,
     resolvers,
     typeDefDetails
