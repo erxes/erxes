@@ -1,13 +1,7 @@
 import Button from 'modules/common/components/Button';
 import { readFile } from 'modules/common/utils';
-import {
-  LauncherContainer,
-  WebPreview,
-  WidgetPreview
-} from 'modules/engage/styles';
 import { FlexRow } from 'modules/settings/styles';
 import React from 'react';
-import styled from 'styled-components';
 import {
   BodyContent,
   CallOutBody,
@@ -22,12 +16,6 @@ import {
   SlideLeftContent,
   SlideRightContent
 } from './styles';
-
-export const ShoutBox = styled(WebPreview)`
-  height: 100%;
-  width: auto;
-  margin-left: 0;
-`;
 
 type Props = {
   title?: string;
@@ -178,16 +166,7 @@ class CommonPreview extends React.Component<Props, {}> {
     const { type, theme, color } = this.props;
 
     if (type === 'shoutbox') {
-      return (
-        <ShoutBox>
-          <WidgetPreview className="type-default">
-            {this.renderContent()}
-          </WidgetPreview>
-          <LauncherContainer style={{ backgroundColor: theme ? theme : color }}>
-            <span>1</span>
-          </LauncherContainer>
-        </ShoutBox>
-      );
+      return <div>shout</div>;
     }
 
     if (type === 'popup') {

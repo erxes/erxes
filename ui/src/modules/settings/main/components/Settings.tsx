@@ -1,7 +1,7 @@
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { pluginsOfSettings } from 'pluginUtils';
+import { pluginsOfSettings, pluginsSettingsNavigations } from 'pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -403,6 +403,8 @@ class Settings extends React.PureComponent {
         </Row>
 
         {pluginsOfSettings(this.renderBox)}
+
+        {pluginsSettingsNavigations()}
       </MenusContainer>
     );
 

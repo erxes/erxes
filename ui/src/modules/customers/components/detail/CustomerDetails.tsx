@@ -7,7 +7,6 @@ import { __, renderFullName } from 'modules/common/utils';
 import ActionSection from 'modules/customers/containers/common/ActionSection';
 import LeadState from 'modules/customers/containers/LeadState';
 import { MailBox, UserHeader } from 'modules/customers/styles';
-import Widget from 'modules/engage/containers/Widget';
 import Wrapper from 'modules/layout/components/Wrapper';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import { IField } from 'modules/settings/properties/types';
@@ -62,22 +61,7 @@ class CustomerDetails extends React.Component<Props> {
   };
 
   renderExtraTabs = () => {
-    const triggerMessenger = (
-      <TabTitle>
-        <Icon icon="comment-plus" /> {__('New message')}
-      </TabTitle>
-    );
-
-    return (
-      <>
-        <Widget
-          customers={[this.props.customer]}
-          modalTrigger={triggerMessenger}
-          channelType="messenger"
-        />
-        {this.renderEmailTab()}
-      </>
-    );
+    return <>{this.renderEmailTab()}</>;
   };
 
   render() {

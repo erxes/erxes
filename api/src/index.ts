@@ -153,6 +153,7 @@ const corsOptions = {
   credentials: true,
   origin: [
     MAIN_APP_DOMAIN,
+    'http://localhost:3001',
     WIDGETS_DOMAIN,
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
     DASHBOARD_DOMAIN

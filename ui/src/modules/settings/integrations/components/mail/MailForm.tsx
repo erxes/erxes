@@ -23,9 +23,7 @@ import {
 } from '../../containers/utils';
 
 import { IUser } from 'modules/auth/types';
-import { generateEmailTemplateParams } from 'modules/engage/utils';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import EmailTemplate from './emailTemplate/EmailTemplate';
 import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
@@ -805,13 +803,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const {
-      isReply,
-      emailTemplates,
-      toggleReply,
-      totalCount,
-      fetchMoreEmailTemplates
-    } = this.props;
+    const { isReply, toggleReply } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -837,13 +829,6 @@ class MailForm extends React.Component<Props, State> {
               icon: 'trash-alt',
               onClick: toggleReply
             })}
-
-            <EmailTemplate
-              onSelect={this.templateChange}
-              totalCount={totalCount}
-              fetchMoreEmailTemplates={fetchMoreEmailTemplates}
-              targets={generateEmailTemplateParams(emailTemplates || [])}
-            />
           </ToolBar>
           {this.state.isUploading ? (
             <Uploading>

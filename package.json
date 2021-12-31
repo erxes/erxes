@@ -1,6 +1,8 @@
 {
   "name": "erxes",
+  "private": true,
   "version": "0.22.3",
+  "workspaces": ["packages/*"],
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -27,6 +29,7 @@
     "subTaskConcurrency": 1
   },
   "scripts": {
+    "create-plugin-ui": "node scripts/create-plugin-ui",
     "prepare-plugins": "node scripts/prepare-plugins",
     "prepare-plugins-api": "node scripts/prepare-plugins-api",
     "prepare-plugins-ui": "node scripts/prepare-plugins-ui",
