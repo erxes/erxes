@@ -1,6 +1,6 @@
-import { gql } from 'apollo-server-core';
-import { withFilter } from 'graphql-subscriptions';
-import graphqlPubsub from '../pubsub';
+import { gql } from "apollo-server-core";
+import { withFilter } from "graphql-subscriptions";
+import graphqlPubsub from "../pubsub";
 
 export default {
   /*
@@ -8,41 +8,38 @@ export default {
    */
   conversationChanged: {
     subscribe: withFilter(
-      () => graphqlPubsub.asyncIterator('conversationChanged'),
+      () => graphqlPubsub.asyncIterator("conversationChanged"),
       // filter by conversationId
       (payload, variables) => {
         return payload.conversationChanged.conversationId === variables._id;
       }
-    )
+    ),
   },
 
   /*
    * Listen for new message insertion
    */
   conversationMessageInserted: {
-    resolve(payload: any, args: any, { dataSources: { gatewayDataSource }}: any, info: any) {
-      return gatewayDataSource.queryAndMergeMissingData({
+    resolve(
+      payload: any,
+      args: any,
+      { dataSources: { gatewayDataSource } }: any,
+      info: any
+    ) {
+      return gatewayDataSource.queryAndMergeMissingConversationMessageData({
         payload,
         info,
-        queryVariables: { _id: payload.conversationMessageInserted._id },
-        buildQueryUsingSelections: (selections: any) => gql`
-          query Subscription_GetMessage($_id: ID!) {
-            conversationMessage(_id: $_id) {
-              ${selections}
-            }
-          }
-      `,
       });
     },
     subscribe: withFilter(
-      () => graphqlPubsub.asyncIterator('conversationMessageInserted'),
+      () => graphqlPubsub.asyncIterator("conversationMessageInserted"),
       // filter by conversationId
       (payload, variables) => {
         return (
           payload.conversationMessageInserted.conversationId === variables._id
         );
       }
-    )
+    ),
   },
 
   /*
@@ -50,13 +47,13 @@ export default {
    */
   conversationBotTypingStatus: {
     subscribe: withFilter(
-      () => graphqlPubsub.asyncIterator('conversationBotTypingStatus'),
+      () => graphqlPubsub.asyncIterator("conversationBotTypingStatus"),
       async (payload, variables) => {
         return (
           payload.conversationBotTypingStatus.conversationId === variables._id
         );
       }
-    )
+    ),
   },
 
   /*
@@ -65,22 +62,33 @@ export default {
   conversationClientTypingStatusChanged: {
     subscribe: withFilter(
       () =>
-        graphqlPubsub.asyncIterator('conversationClientTypingStatusChanged'),
+        graphqlPubsub.asyncIterator("conversationClientTypingStatusChanged"),
       async (payload, variables) => {
         return (
           payload.conversationClientTypingStatusChanged.conversationId ===
           variables._id
         );
       }
-    )
+    ),
   },
 
   /*
    * Admin is listening for this subscription to show unread notification
    */
   conversationClientMessageInserted: {
+    resolve(
+      payload: any,
+      args: any,
+      { dataSources: { gatewayDataSource } }: any,
+      info: any
+    ) {
+      return gatewayDataSource.queryAndMergeMissingConversationMessageData({
+        payload,
+        info,
+      });
+    },
     subscribe: withFilter(
-      () => graphqlPubsub.asyncIterator('conversationClientMessageInserted'),
+      () => graphqlPubsub.asyncIterator("conversationClientMessageInserted"),
       async (payload, variables) => {
         return false;
         // TODO: connect to DB
@@ -110,7 +118,7 @@ export default {
 
         // return availableChannelsCount > 0;
       }
-    )
+    ),
   },
 
   /*
@@ -118,7 +126,7 @@ export default {
    */
   conversationAdminMessageInserted: {
     subscribe: withFilter(
-      () => graphqlPubsub.asyncIterator('conversationAdminMessageInserted'),
+      () => graphqlPubsub.asyncIterator("conversationAdminMessageInserted"),
       // filter by conversationId
       (payload, variables) => {
         return (
@@ -126,7 +134,7 @@ export default {
           variables.customerId
         );
       }
-    )
+    ),
   },
 
   /*
@@ -135,7 +143,7 @@ export default {
   conversationExternalIntegrationMessageInserted: {
     subscribe: () =>
       graphqlPubsub.asyncIterator(
-        'conversationExternalIntegrationMessageInserted'
-      )
-  }
+        "conversationExternalIntegrationMessageInserted"
+      ),
+  },
 };

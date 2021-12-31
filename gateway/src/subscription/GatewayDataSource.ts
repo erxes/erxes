@@ -2,7 +2,7 @@ const { GatewayDataSource } = require("esm")(module)(
   "federation-subscription-tools"
 );
 
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, gql } from "apollo-server-express";
 import { DocumentNode, GraphQLResolveInfo } from "graphql";
 import merge from "lodash/merge";
 
@@ -14,7 +14,7 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     this.apolloServer = apolloServer;
   }
 
-  async queryAndMergeMissingData({
+  public async queryAndMergeMissingData({
     payload,
     queryVariables,
     info,
@@ -24,7 +24,7 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     queryVariables: object;
     info: GraphQLResolveInfo;
     buildQueryUsingSelections: (selections: any) => DocumentNode;
-  }) {
+  }): Promise<any> {
     const selections = this.buildNonPayloadSelections(payload, info);
     const payloadData = Object.values(payload)[0];
 
@@ -45,5 +45,22 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  public async queryAndMergeMissingConversationMessageData({ payload, info }: { payload: any; info: GraphQLResolveInfo}): Promise<any> {
+    const conversationMessage: any = Object.values(payload)[0];
+
+    return this.queryAndMergeMissingData({
+      payload,
+      info,
+      queryVariables: { _id: conversationMessage._id },
+      buildQueryUsingSelections: (selections: any) => gql`
+        query Subscription_GetMessage($_id: ID!) {
+          conversationMessage(_id: $_id) {
+            ${selections}
+          }
+        }
+    `,
+    });
   }
 }
