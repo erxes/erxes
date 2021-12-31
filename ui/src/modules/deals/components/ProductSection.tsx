@@ -33,9 +33,7 @@ function ProductSection({
   productTemplates
 }: Props) {
   const contentWithId = (productId?: string) => {
-
     const content = props => (
-
       <ProductForm
         {...props}
         currentProduct={productId}
@@ -74,7 +72,7 @@ function ProductSection({
   ) => {
     return (
       <ModalTrigger
-        title="Manage Product & Service1"
+        title="Manage Product & Service2"
         size="lg"
         dialogClassName="modal-1000w"
         trigger={trigger}

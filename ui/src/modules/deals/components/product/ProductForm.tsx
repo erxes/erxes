@@ -93,16 +93,20 @@ class ProductForm extends React.Component<Props, State> {
     });
   };
 
-  addProductTemplateItem = (product: IProduct, discountT: number, quantity: number) => {
-
+  addProductTemplateItem = (
+    product: IProduct,
+    discountT: number,
+    quantity: number
+  ) => {
     console.log(product);
     console.log(discountT, quantity);
-    console.log("addItem");
+    console.log('addItem');
 
     const { productsData, onChangeProductsData, currencies } = this.props;
     const { tax, discount } = this.state;
     const unitPrice = product ? product.unitPrice : 0;
-    const amount = discountT && discountT > 0 ? unitPrice / 100 * discountT : unitPrice;
+    const amount =
+      discountT && discountT > 0 ? (unitPrice / 100) * discountT : unitPrice;
 
     const currency = currencies ? currencies[0] : '';
 
@@ -120,7 +124,7 @@ class ProductForm extends React.Component<Props, State> {
         amount,
         currency,
         tickUsed: true,
-        product: product ? product : {} as IProduct
+        product: product ? product : ({} as IProduct)
       });
 
       onChangeProductsData(productsData);
@@ -150,28 +154,27 @@ class ProductForm extends React.Component<Props, State> {
     // const { updateTotal } = this.props;
 
     // if (updateTotal) {
-    this.updateTotal();
+    //   this.updateTotal();
     // }
   };
 
-  addProductTemplate = (e) => {
+  addProductTemplate = e => {
     const templateId = e.target.value;
-    alert(templateId);
+    // alert(templateId);
 
     const productTemplates = this.props.productTemplates || [];
     const template = productTemplates.filter(p => p._id === templateId);
 
     const templateItems = template[0].templateItemsProduct || [];
 
-    console.log("templateItems");
+    console.log('templateItems');
     console.log(templateItems);
 
-    templateItems.forEach(e => {
-      console.log("foreach");
-      this.addProductTemplateItem(e.product, e.discount, e.quantity);
+    templateItems.forEach(item => {
+      console.log('foreach');
+      this.addProductTemplateItem(item.product, item.discount, item.quantity);
     });
-
-  }
+  };
 
   removeProductItem = productId => {
     const { productsData, onChangeProductsData } = this.props;
@@ -366,9 +369,12 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
-    const comboProductTemplate: any[] = [];
+    const comboProductTemplate: any[] = [{ value: '', label: '' }];
     productTemplates.forEach(productTemplate => {
-      comboProductTemplate.push({ value: productTemplate._id, label: productTemplate.title });
+      comboProductTemplate.push({
+        value: productTemplate._id,
+        label: productTemplate.title
+      });
     });
 
     return (
@@ -384,14 +390,11 @@ class ProductForm extends React.Component<Props, State> {
           </Button>
 
           <FormControl
-
             onChange={this.addProductTemplate}
             componentClass="select"
             options={comboProductTemplate}
-          >
-          </FormControl>
+          />
         </Add>
-
 
         <FooterInfo>
           <table>
@@ -411,7 +414,7 @@ class ProductForm extends React.Component<Props, State> {
             </tbody>
           </table>
         </FooterInfo>
-      </FormContainer >
+      </FormContainer>
     );
   }
 
