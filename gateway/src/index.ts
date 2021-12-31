@@ -38,7 +38,7 @@ import { createGateway, GatewayContext } from "./gateway";
   });
 
   gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
-    loadSubscriptions(apiSchema, wsServer, apolloServer)
+    loadSubscriptions(apiSchema, wsServer)
   );
 
   await apolloServer.start();
@@ -47,7 +47,7 @@ import { createGateway, GatewayContext } from "./gateway";
     path: "/graphql",
     cors: {
       credentials: true,
-      origin: [ process.env.MAIN_APP_DOMAIN || "http://localhost:3000", "https://studio.apollographql.com"],
+      origin: [ process.env.MAIN_APP_DOMAIN || "http://localhost:3000", "https://studio.apollographql.com", "http://localhost:3200"],
     },
   });  
 

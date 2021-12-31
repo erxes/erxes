@@ -7,11 +7,23 @@ import { DocumentNode, GraphQLResolveInfo } from "graphql";
 import merge from "lodash/merge";
 
 export default class MyGatewayDataSource extends GatewayDataSource {
-  private apolloServer: ApolloServer<any>;
+  constructor(gatewayUrl: string) {
+    super(gatewayUrl);
+  }
 
-  constructor(apolloServer: ApolloServer<any>) {
-    super();
-    this.apolloServer = apolloServer;
+  willSendRequest(request: any) {
+    if (!request.headers) {
+      request.headers = {};
+    }
+
+    request.headers["apollographql-client-name"] = "Subscriptions Service";
+    request.headers["apollographql-client-version"] = "0.1.0";
+
+    console.log(this.context);
+
+    // Forwards the encoded token extracted from the `connectionParams` with
+    // the request to the gateway
+    request.headers.authorization = `Bearer ${this.context.token}`;
   }
 
   public async queryAndMergeMissingData({
@@ -35,8 +47,7 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     const query = buildQueryUsingSelections(selections);
 
     try {
-      const response = await this.apolloServer.executeOperation({
-        query,
+      const response = await this.query(query, {
         variables: queryVariables,
       });
       if (response.data) {
@@ -47,7 +58,13 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     }
   }
 
-  public async queryAndMergeMissingConversationMessageData({ payload, info }: { payload: any; info: GraphQLResolveInfo}): Promise<any> {
+  public async queryAndMergeMissingConversationMessageData({
+    payload,
+    info,
+  }: {
+    payload: any;
+    info: GraphQLResolveInfo;
+  }): Promise<any> {
     const conversationMessage: any = Object.values(payload)[0];
 
     return this.queryAndMergeMissingData({
