@@ -4,6 +4,7 @@ import {
   STORAGE_PIPELINE_KEY
 } from 'modules/boards/constants';
 import { Amount } from 'modules/boards/styles/stage';
+import Icon from 'modules/common/components/Icon';
 import { IDateColumn } from 'modules/common/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -302,4 +303,25 @@ export const getBoardViewType = () => {
   }
 
   return viewType;
+};
+
+export const getIcon = () => {
+  let viewType = 'board';
+
+  switch (viewType) {
+    case 'calendar':
+      return <Icon icon="calendar-alt" />;
+    case 'conversion':
+      return <Icon icon="signal-alt" />;
+    case 'activity':
+      return <Icon icon="filter" />;
+    case 'list':
+      return <Icon icon="list-ul" />;
+    case 'chart':
+      return <Icon icon="chart-bar" />;
+    case 'gantt':
+      return <Icon icon="document-layout-left" />;
+    default:
+      return <Icon icon="sliders-v" />;
+  }
 };

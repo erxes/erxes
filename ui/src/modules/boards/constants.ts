@@ -162,23 +162,19 @@ export const stackByChart = [
 export const chartTypes = [
   {
     name: 'line',
-    title: 'Line Chart',
-    icon: 'chart-line'
+    title: 'Line Chart'
   },
   {
     name: 'area',
-    title: 'Area Chart',
-    icon: 'arrow-growth'
+    title: 'Area Chart'
   },
   {
     name: 'simpleBar',
-    title: 'Simple Bar Chart',
-    icon: 'chart-bar'
+    title: 'Simple Bar Chart'
   },
   {
     name: 'stackedBar',
-    title: 'Stacked Bar Chart',
-    icon: 'chart'
+    title: 'Stacked Bar Chart'
   }
 ];
 

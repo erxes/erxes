@@ -27,6 +27,7 @@ import {
   groupByGantt
 } from 'modules/boards/constants';
 import SelectType from './SelectType';
+import { getIcon } from '../utils';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -223,27 +224,6 @@ class MainActionBar extends React.Component<Props> {
 
   renderViewChooser = () => {
     const { currentBoard, currentPipeline, options, viewType } = this.props;
-
-    const getIcon = () => {
-      switch (viewType) {
-        case 'board':
-          return <Icon icon="sliders-v" />;
-        case 'calendar':
-          return <Icon icon="calendar-alt" />;
-        case 'conversion':
-          return <Icon icon="signal-alt" />;
-        case 'activity':
-          return <Icon icon="filter" />;
-        case 'list':
-          return <Icon icon="list-ul" />;
-        case 'chart':
-          return <Icon icon="chart-bar" />;
-        case 'gantt':
-          return <Icon icon="document-layout-left" />;
-        default:
-          return <Icon icon="list-ui-alt" />;
-      }
-    };
 
     const onFilterClick = (type: string) => {
       if (currentBoard && currentPipeline) {
