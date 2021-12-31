@@ -13,38 +13,10 @@ import {
 } from "graphql";
 import ws from "ws";
 import { GraphQLSchema } from "graphql";
-import { gql, ApolloServer } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import GatewayDataSource from "./GatewayDataSource";
-import Subscription from "./resolvers";
-
-const typeDefs = gql`
-  type Subscription {
-    conversationChanged(_id: String!): ConversationChangedResponse
-    conversationMessageInserted(_id: String!): ConversationMessage
-    conversationClientMessageInserted(userId: String!): ConversationMessage
-    conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
-    conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
-    conversationExternalIntegrationMessageInserted: JSON
-    conversationBotTypingStatus(_id: String!): JSON
-    customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
-    activityLogsChanged: Boolean
-    importHistoryChanged(_id: String!): ImportHistory
-    notificationInserted(userId: String): Notification
-    notificationRead(userId: String): JSON
-    onboardingChanged(userId: String!): OnboardingNotification
-
-    pipelinesChanged(_id: String!): PipelineChangeResponse
-    userChanged(userId: String): JSON
-
-    checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-    checklistDetailChanged(_id: String!): Checklist
-    calendarEventUpdated: JSON
-  }
-`;
-
-const resolvers = {
-  Subscription
-};
+import resolvers from "./resolvers";
+import typeDefs from './typeDefs';
 
 export function loadSubscriptions(
   gatewaySchema: GraphQLSchema,

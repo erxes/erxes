@@ -1,3 +1,4 @@
+import { gql } from 'apollo-server-core';
 import { withFilter } from 'graphql-subscriptions';
 import graphqlPubsub from '../pubsub';
 
@@ -19,6 +20,20 @@ export default {
    * Listen for new message insertion
    */
   conversationMessageInserted: {
+    resolve(payload: any, args: any, { dataSources: { gatewayDataSource }}: any, info: any) {
+      return gatewayDataSource.queryAndMergeMissingData({
+        payload,
+        info,
+        queryVariables: { _id: payload.conversationMessageInserted._id },
+        buildQueryUsingSelections: (selections: any) => gql`
+          query Subscription_GetMessage($_id: ID!) {
+            conversationMessage(_id: $_id) {
+              ${selections}
+            }
+          }
+      `,
+      });
+    },
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('conversationMessageInserted'),
       // filter by conversationId

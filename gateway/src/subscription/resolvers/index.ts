@@ -9,7 +9,7 @@ import pipelines from './pipelines';
 import robot from './robot';
 import users from './users';
 
-let Subscription: any = {
+const Subscription: any = {
   ...conversations,
   ...customers,
   ...activityLogs,
@@ -22,11 +22,9 @@ let Subscription: any = {
   ...users
 };
 
-const { NODE_ENV } = process.env;
-
-// disable subscriptions in test mode
-if (NODE_ENV === 'test') {
-  Subscription = {};
+const resolvers = {
+  Subscription
 }
 
-export default Subscription;
+
+export default resolvers;

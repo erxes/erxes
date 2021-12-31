@@ -5,10 +5,10 @@ import { ApolloServer, ExpressContext } from "apollo-server-express";
 import { ApolloGateway } from "@apollo/gateway";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { createProxyMiddleware } from "http-proxy-middleware";
-// import ws from "ws";
+import ws from "ws";
 import express from "express";
 import http from "http";
-// import { loadSubscriptions } from "./subscription";
+import { loadSubscriptions } from "./subscription";
 import { createGateway, GatewayContext } from "./gateway";
 
 (async () => {
@@ -23,10 +23,10 @@ import { createGateway, GatewayContext } from "./gateway";
 
   const httpServer = http.createServer(app);
 
-  // const wsServer = new ws.Server({
-  //   server: httpServer,
-  //   path: "/graphql",
-  // });
+  const wsServer = new ws.Server({
+    server: httpServer,
+    path: "/graphql",
+  });
 
   const gateway: ApolloGateway = createGateway();
 
@@ -37,9 +37,9 @@ import { createGateway, GatewayContext } from "./gateway";
     context: ({ res, req }: ExpressContext): GatewayContext => ({ res, req })
   });
 
-  // gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
-  //   loadSubscriptions(apiSchema, wsServer, apolloServer)
-  // );
+  gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
+    loadSubscriptions(apiSchema, wsServer, apolloServer)
+  );
 
   await apolloServer.start();
   apolloServer.applyMiddleware({
