@@ -20,22 +20,3 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     type: 'string'
   }
 ];
-
-export const renderText = value => {
-  switch (value) {
-    case 'customer':
-      return 'Customers';
-    case 'company':
-      return 'Companies';
-    case 'deal':
-      return 'Deals';
-    case 'ticket':
-      return 'Tickets';
-    case 'task':
-      return 'Tasks';
-    case 'lead':
-      return 'Leads';
-    default:
-      return value;
-  }
-};

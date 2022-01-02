@@ -8448,15 +8448,6 @@ stream-events@^1.0.1, stream-events@^1.0.4, stream-events@^1.0.5:
   dependencies:
     stubs "^3.0.0"
 
-stream-promise@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/stream-promise/-/stream-promise-3.2.0.tgz#bad976f2d0e1f11d56cc95cc11907cfd869a27ff"
-  integrity sha512-P+7muTGs2C8yRcgJw/PPt61q7O517tDHiwYEzMWo1GSBCcZedUMT/clz7vUNsSxFphIlJ6QUL4GexQKlfJoVtA==
-  dependencies:
-    "2-thenable" "^1.0.0"
-    es5-ext "^0.10.49"
-    is-stream "^1.1.0"
-
 stream-shift@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/stream-shift/-/stream-shift-1.0.1.tgz#d7088281559ab2778424279b0877da3c392d5a3d"
