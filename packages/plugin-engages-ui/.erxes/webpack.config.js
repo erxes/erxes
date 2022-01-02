@@ -63,7 +63,7 @@ module.exports = {
         exclude: /node_modules/,
         include: [
           path.resolve(__dirname, "src"),
-          path.resolve(__dirname, "../../../../erxes-ui/src"),
+          path.resolve(__dirname, "../../erxes-ui/src"),
           path.resolve(__dirname, "plugin-src")
         ],
         use: {
