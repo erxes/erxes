@@ -46,7 +46,7 @@ import {
 } from './events';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
-import { importer, uploader } from './middlewares/fileMiddleware';
+import { uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
@@ -394,9 +394,6 @@ app.get('/connect-integration', async (req: any, res, _next) => {
 
   return res.redirect(url);
 });
-
-// file import
-app.post('/import-file', importer);
 
 // unsubscribe
 app.get(
