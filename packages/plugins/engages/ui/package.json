@@ -2,6 +2,7 @@
   "name": "@erxes/plugin-engages",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
-    "start": "cd .erxes && yarn start"
+    "start": "cd .erxes && yarn start",
+    "build": "cd .erxes && yarn build"
   }
 }
