@@ -11,6 +11,8 @@ export const types = `
     updated: String
     name: String
     attachments: JSON
+    removed: [String]
+    ids: [String]
     
     date: Date
     user: User
@@ -31,7 +33,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  importHistoriesRemove(_id: String!): JSON
+  importHistoriesRemove(_id: String!, contentType: String!): JSON
   importHistoriesCancel(_id: String!): Boolean
   importHistoriesCreate(contentTypes: [String], files: JSON, columnsConfig: JSON, importName: String, associatedContentType: String, associatedField: String): JSON
 `;

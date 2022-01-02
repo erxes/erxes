@@ -20,7 +20,11 @@ class Row extends React.Component<Props, {}> {
     const sampleDatas = columns[column];
 
     return sampleDatas.map(sample => {
-      return <p key={Math.random()}>{`${sample}, `} &nbsp;</p>;
+      return (
+        <span key={Math.random()}>
+          <li>{sample}</li>
+        </span>
+      );
     });
   };
 
@@ -126,7 +130,7 @@ class Row extends React.Component<Props, {}> {
         <td>{this.renderMatch()}</td>
         <td>{this.props.column}</td>
         <td>
-          <FlexRow>{this.renderSampleDatas()}</FlexRow>
+          <>{this.renderSampleDatas()}</>
         </td>
         <td>
           <FlexRow>

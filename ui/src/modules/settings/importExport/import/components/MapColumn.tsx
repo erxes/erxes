@@ -1,9 +1,10 @@
 import React from 'react';
-import { DataWithLoader, __ } from 'erxes-ui';
+import { DataWithLoader, Info, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Row from './Row';
 import { Description, SubHeading } from 'modules/settings/styles';
 import { ColumnTable } from 'modules/settings/importExport/styles';
+import { isBoardKind } from 'modules/segments/utils';
 
 type Props = {
   columns: any[];
@@ -29,6 +30,22 @@ class MapColumn extends React.Component<Props, {}> {
       default:
         return value;
     }
+  };
+
+  renderInfo = () => {
+    const { contentType } = this.props;
+
+    if (isBoardKind(contentType)) {
+      return (
+        <Info>
+          {__(
+            'To complete your import, you have to choose Board, Pipeline, Stage.'
+          )}
+        </Info>
+      );
+    }
+
+    return null;
   };
 
   render() {
@@ -65,10 +82,11 @@ class MapColumn extends React.Component<Props, {}> {
         <FlexItem>
           <FlexPad direction="column" overflow="auto">
             <SubHeading>
-              {__(`${this.renderText(contentType)}' mapping`)}
+              {__(`${this.renderText(contentType)} mapping`)}
             </SubHeading>
             <Description>Map columns in your file to properties</Description>
 
+            {this.renderInfo()}
             <DataWithLoader
               data={content}
               loading={false}

@@ -5,7 +5,7 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { getEnv, __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import { EMPTY_IMPORT_CONTENT } from 'modules/settings/constants';
@@ -21,11 +21,32 @@ type Props = {
   histories: IImportHistory[];
   loading: boolean;
   totalCount: number;
+  currentType: string;
+  removeHistory: (historyId: string, contentType: string) => void;
 };
+
+const DYNAMICLY_TEMPLATE_TYPES = [
+  'customer',
+  'company',
+  'deal',
+  'task',
+  'ticket',
+  'lead',
+  'visitor'
+];
+
+const DATA_IMPORT_TYPES = [
+  'customer',
+  'company',
+  'deal',
+  'task',
+  'ticket',
+  'lead'
+];
 
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
-    const { histories } = this.props;
+    const { histories, removeHistory } = this.props;
 
     return (
       <Table hover={true}>
@@ -42,14 +63,84 @@ class Histories extends React.Component<Props & IRouterProps> {
         </thead>
         <tbody>
           {histories.map(history => {
-            return <HistoryRow key={history._id} history={history} />;
+            return (
+              <HistoryRow
+                key={history._id}
+                history={history}
+                removeHistory={removeHistory}
+              />
+            );
           })}
         </tbody>
       </Table>
     );
   };
 
+  getButtonText() {
+    const { currentType } = this.props;
+    let buttonText = `${currentType}s`;
+
+    switch (currentType) {
+      case 'company':
+        buttonText = 'companies';
+        break;
+      case 'deal':
+        buttonText = 'sales pipelines';
+        break;
+      case 'user':
+        buttonText = 'team members';
+        break;
+      default:
+        break;
+    }
+
+    return buttonText;
+  }
+
+  renderExportButton = () => {
+    const { currentType } = this.props;
+    const { REACT_APP_API_URL } = getEnv();
+
+    if (currentType === 'product') {
+      return null;
+    }
+
+    const exportData = () => {
+      window.open(
+        `${REACT_APP_API_URL}/file-export?type=${currentType}`,
+        '_blank'
+      );
+    };
+
+    if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
+      return (
+        <Link to={`/settings/export?type=${currentType}`}>
+          <Button icon="export" btnStyle="primary" size="small">
+            {__(`Export ${this.getButtonText()}`)}
+          </Button>
+        </Link>
+      );
+    }
+
+    return (
+      <Button
+        icon="export"
+        btnStyle="primary"
+        size="small"
+        onClick={exportData}
+      >
+        {__(`Export ${this.getButtonText()}`)}
+      </Button>
+    );
+  };
+
   renderDataImporter() {
+    const { currentType } = this.props;
+
+    if (!DATA_IMPORT_TYPES.includes(currentType)) {
+      return null;
+    }
+
     return (
       <Link to={`/settings/import`}>
         <Button icon="import" btnStyle="success" size="small">
@@ -60,7 +151,12 @@ class Histories extends React.Component<Props & IRouterProps> {
   }
 
   renderImportButton = () => {
-    return <BarItems>{this.renderDataImporter()}</BarItems>;
+    return (
+      <BarItems>
+        {this.renderDataImporter()}
+        {this.renderExportButton()}
+      </BarItems>
+    );
   };
 
   render() {

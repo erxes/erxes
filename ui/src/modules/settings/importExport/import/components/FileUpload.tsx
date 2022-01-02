@@ -5,6 +5,7 @@ import { IAttachment } from 'modules/common/types';
 import { Description, SubHeading } from 'modules/settings/styles';
 import { FullContent, UploadText } from '../../styles';
 import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
+import { renderIcon, renderText } from '../../utils';
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;
@@ -13,23 +14,6 @@ type Props = {
 };
 
 class FileUpload extends React.Component<Props, {}> {
-  renderText = value => {
-    switch (value) {
-      case 'customer':
-        return 'Customers';
-      case 'company':
-        return 'Companies';
-      case 'deal':
-        return 'Deals';
-      case 'ticket':
-        return 'Tickets';
-      case 'task':
-        return 'Tasks';
-      default:
-        return value;
-    }
-  };
-
   renderColumnChooser = (currentType: string) => {
     const manageColumns = props => {
       return (
@@ -54,24 +38,6 @@ class FileUpload extends React.Component<Props, {}> {
     );
   };
 
-  renderIcon = contentType => {
-    switch (contentType) {
-      case 'customer':
-        return 'users-alt';
-      case 'company':
-        return 'building';
-      case 'deal':
-        return 'signal-alt-3';
-      case 'task':
-        return 'laptop';
-      case 'ticket':
-        return 'ticket';
-
-      default:
-        return 'users-alt';
-    }
-  };
-
   rendertContent = () => {
     const { contentTypes, onChangeAttachment } = this.props;
 
@@ -82,16 +48,14 @@ class FileUpload extends React.Component<Props, {}> {
       return (
         <div key={contentType} style={{ marginTop: '20px' }}>
           <UploadText>
-            <p>{this.renderText(contentType)}</p>
+            <p>{renderText(contentType)}</p>
             {this.renderColumnChooser(contentType)}
           </UploadText>
 
           <Uploader
-            text={`Choose a file to upload your ${this.renderText(
-              contentType
-            )}.`}
+            text={`Choose a file to upload your ${renderText(contentType)}.`}
             warningText={'Only .csv file is supported.'}
-            icon={this.renderIcon(contentType)}
+            icon={renderIcon(contentType)}
             accept=".csv"
             single={true}
             defaultFileList={[]}

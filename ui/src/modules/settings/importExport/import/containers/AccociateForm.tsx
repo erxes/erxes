@@ -1,8 +1,9 @@
+import { Info } from 'erxes-ui';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 
-import { withProps } from 'modules/common/utils';
+import { withProps, __ } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import AccociateForm from '../components/AccociateForm';
@@ -26,7 +27,7 @@ class AccociateFormContainer extends React.Component<FinalProps, State> {
     const { importHistoryGetDuplicatedHeaders } = this.props;
 
     if (!importHistoryGetDuplicatedHeaders) {
-      return <div>aaa</div>;
+      return <Info>{__('You must choose two objects')}</Info>;
     }
 
     if (importHistoryGetDuplicatedHeaders.loading) {

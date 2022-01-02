@@ -77,7 +77,6 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
 
         // Read events as they are available
         eventStream.on('data', event => {
-          console.log(event);
           if (event.Records) {
             result = event.Records.Payload.toString();
           }

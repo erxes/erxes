@@ -8,35 +8,21 @@ import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import queryString from 'query-string';
+
 import {
   ImportTitle,
   ImportHistoryActions
 } from 'modules/settings/importExport/styles';
+import { renderText } from 'modules/settings/importExport/utils';
 
 type Props = {
   history?: any;
+  removeHistory: (historyId: string, contentType: string) => void;
 };
 
 const { REACT_APP_API_URL } = getEnv();
 
 class HistoryRow extends React.Component<Props> {
-  renderText = value => {
-    switch (value) {
-      case 'customer':
-        return 'Customers';
-      case 'company':
-        return 'Companies';
-      case 'deal':
-        return 'Deals';
-      case 'ticket':
-        return 'Tickets';
-      case 'task':
-        return 'Tasks';
-      default:
-        return value;
-    }
-  };
-
   renderView = () => {
     const { history } = this.props;
 
@@ -55,7 +41,7 @@ class HistoryRow extends React.Component<Props> {
               return (
                 <li key={Math.random()}>
                   <Link to={`/contacts/${contentType}`}>
-                    {__(`View ${this.renderText(contentType)}`)}
+                    {__(`View ${renderText(contentType)}`)}
                   </Link>
                 </li>
               );
@@ -68,7 +54,7 @@ class HistoryRow extends React.Component<Props> {
     return (
       <Button btnStyle="simple" size="small">
         <Link to={`/contacts/${contentTypes[0]}`} style={{ color: '#888' }}>
-          {__(`View ${this.renderText(contentTypes[0])}`)}
+          {__(`View ${renderText(contentTypes[0])}`)}
         </Link>
       </Button>
     );
@@ -89,7 +75,7 @@ class HistoryRow extends React.Component<Props> {
               href={readFile(attachment.url)}
               target="_blank"
             >
-              {__(`Download ${this.renderText(contentType)} file`)}
+              {__(`Download ${renderText(contentType)} file`)}
             </a>
           </li>
         );
@@ -108,7 +94,7 @@ class HistoryRow extends React.Component<Props> {
         return (
           <li key={Math.random()}>
             <a rel="noopener noreferrer" href={reqUrl} target="_blank">
-              {__(`Download ${this.renderText(contentType)} errors`)}
+              {__(`Download ${renderText(contentType)} errors`)}
             </a>
           </li>
         );
@@ -116,18 +102,17 @@ class HistoryRow extends React.Component<Props> {
     };
 
     const renderDelete = () => {
-      return contentTypes.map(contentType => {
-        const stringified = queryString.stringify({
-          importHistoryId: history._id,
-          contentType
-        });
+      const { removeHistory } = this.props;
 
-        const reqUrl = `${REACT_APP_API_URL}/download-import-error?${stringified}`;
+      return contentTypes.map(contentType => {
+        const onClick = () => {
+          removeHistory(history._id, contentType);
+        };
 
         return (
           <li key={Math.random()}>
-            <a rel="noopener noreferrer" href={reqUrl} target="_blank">
-              {__(`Delete ${this.renderText(contentType)}`)}
+            <a onClick={onClick} href="# ">
+              {__(`Delete ${renderText(contentType)}`)}
             </a>
           </li>
         );
@@ -138,7 +123,7 @@ class HistoryRow extends React.Component<Props> {
       <Dropdown className="dropdown-btn" alignRight={true}>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
           <Button btnStyle="simple" size="small">
-            {__('More')} <Icon icon="angle-down" />
+            {__('Actions')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
@@ -153,11 +138,23 @@ class HistoryRow extends React.Component<Props> {
   renderStatus = history => {
     if (history.status === 'Done') {
       return history.contentTypes.map(contentType => {
-        return <span key={Math.random()}>{contentType}</span>;
+        const { removed = [] } = history;
+
+        const isRemoved = removed.find(value => value === contentType);
+
+        if (isRemoved) {
+          return <span key={Math.random()}>{contentType}(deleted) &nbsp;</span>;
+        } else {
+          return <span key={Math.random()}>{contentType} &nbsp;</span>;
+        }
       });
     }
 
-    return <TextInfo textStyle="warning">{history.status}</TextInfo>;
+    return (
+      <TextInfo textStyle="warning">
+        {`${history.status}  ${history.percentage}%`}
+      </TextInfo>
+    );
   };
 
   render() {
@@ -201,10 +198,7 @@ class HistoryRow extends React.Component<Props> {
         </td>
 
         <td>
-          <ImportHistoryActions>
-            {this.renderView()}
-            {this.renderAction()}
-          </ImportHistoryActions>
+          <ImportHistoryActions>{this.renderAction()}</ImportHistoryActions>
         </td>
       </tr>
     );

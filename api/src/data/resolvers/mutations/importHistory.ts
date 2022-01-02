@@ -1,8 +1,8 @@
 import { ImportHistory } from '../../../db/models';
 import messageBroker from '../../../messageBroker';
 import { importer } from '../../../middlewares/fileMiddleware';
-import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
-import { putDeleteLog } from '../../logUtils';
+import { RABBITMQ_QUEUES } from '../../constants';
+
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -13,34 +13,20 @@ const importHistoryMutations = {
    */
   async importHistoriesRemove(
     _root,
-    { _id }: { _id: string },
-    { user }: IContext
+    { _id, contentType }: { _id: string; contentType }
   ) {
     const importHistory = await ImportHistory.getImportHistory(_id);
 
     await ImportHistory.updateOne(
       { _id: importHistory._id },
-      { $set: { status: 'Removing' } }
+      { $push: { removed: contentType } }
     );
 
-    const response = await messageBroker().sendRPCMessage(
-      RABBITMQ_QUEUES.RPC_API_TO_WORKERS,
-      {
-        action: 'removeImport',
-        importHistoryId: importHistory._id
-      }
-    );
-
-    if (response.status === 'ok') {
-      await putDeleteLog(
-        { type: MODULE_NAMES.IMPORT_HISTORY, object: importHistory },
-        user
-      );
-    } else {
-      throw new Error(response.message);
-    }
-
-    return ImportHistory.findOne({ _id: importHistory._id });
+    return messageBroker().sendMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+      action: 'removeImport',
+      importHistoryId: importHistory._id,
+      contentType
+    });
   },
 
   /**

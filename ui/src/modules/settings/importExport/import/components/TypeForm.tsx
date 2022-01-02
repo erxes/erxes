@@ -44,6 +44,7 @@ class TypeForm extends React.Component<Props> {
 
           <FullContent center={true}>
             {this.renderBox('Customer', 'users-alt', 'customer')}
+            {this.renderBox('Lead', 'file-alt', 'lead')}
             {this.renderBox('Company', 'building', 'company')}
             {this.renderBox('Deal', 'signal-alt-3', 'deal')}
             {this.renderBox('Task', 'laptop', 'task')}

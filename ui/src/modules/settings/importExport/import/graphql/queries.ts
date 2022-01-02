@@ -25,6 +25,7 @@ const importHistories = `
         status
         percentage
         attachments
+        removed
         user {
           details {
             fullName

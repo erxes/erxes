@@ -207,6 +207,11 @@ export const checkFieldNames = async (
       property.type = 'tag';
     }
 
+    if (fieldName === 'assignedUserEmail') {
+      property.name = 'assignedUserIds';
+      property.type = 'assignedUserEmail';
+    }
+
     if (fieldName === 'boardName') {
       property.name = 'boardId';
       property.type = 'boardName';

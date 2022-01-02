@@ -59,6 +59,11 @@ class Sidebar extends React.Component<Props> {
             {this.renderListItem(ITEM_TYPES.DEAL, 'Deals')}
             {this.renderListItem(ITEM_TYPES.TASK, 'Tasks')}
             {this.renderListItem(ITEM_TYPES.TICKET, 'Tickets')}
+            {this.renderListItem(ITEM_TYPES.BRAND, 'Brands')}
+            {this.renderListItem(ITEM_TYPES.CHANNEL, 'Channels')}
+            {this.renderListItem(ITEM_TYPES.PERMISSION, 'Permissions')}
+            {this.renderListItem(ITEM_TYPES.PRODUCT, 'Product & Service')}
+            {this.renderListItem(ITEM_TYPES.TEAM_MEMBER, 'Team members')}
           </List>
         </LeftSidebar.Section>
       </LeftSidebar>

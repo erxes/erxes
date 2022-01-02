@@ -638,7 +638,7 @@ const create = async ({
     await createConformity(associateMapping);
   }
 
-  return updated;
+  return { objects, updated };
 };
 
 connect().then(async () => {
@@ -814,6 +814,15 @@ connect().then(async () => {
 
           break;
 
+        case 'assignedUserEmail':
+          {
+            const assignedUser = await Users.findOne({ email: value });
+
+            doc[property.name] = assignedUser ? [assignedUser._id] : [];
+          }
+
+          break;
+
         case 'basic':
           {
             doc[property.name] = value;
@@ -896,7 +905,7 @@ connect().then(async () => {
   };
 
   try {
-    const updated = await create({
+    const { updated, objects } = await create({
       docs: bulkDoc,
       user,
       contentType,
@@ -907,6 +916,9 @@ connect().then(async () => {
       mainAssociateField
     });
 
+    const cocIds = objects.map(obj => obj._id).filter(obj => obj);
+
+    modifier.$push = { ids: cocIds };
     modifier.$inc.updated = updated;
     modifier.$inc.success = bulkDoc.length;
   } catch (e) {

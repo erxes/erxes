@@ -59,8 +59,9 @@ const importHistoryQueries = {
       Object.keys(value).forEach(key => {
         if (!object[key]) {
           object[key] = [value[key]];
+        } else {
+          object[key].push(value[key]);
         }
-        object[key].push(value[key]);
       });
     });
 

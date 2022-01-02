@@ -5,11 +5,13 @@ import { IAttachment } from 'modules/common/types';
 
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
+import { isBoardKind } from 'modules/segments/utils';
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from 'modules/settings/properties/constants';
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import MapColumn from '../components/MapColumn';
+import { BOARD_ITEM_EXTENDED_FIELDS } from '../constants';
 import { queries } from '../graphql';
 
 type Props = {
@@ -47,35 +49,24 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
       return <Spinner />;
     }
 
-    const fields = (fieldsQuery.fieldsCombinedByContentType || []).map(item => {
-      return {
-        value: item.name || item._id,
-        label: item.label || item.title,
-        type: (item.type || '').toLowerCase()
-      };
-    });
+    let fields: any = [];
 
-    // const fuzzyComparison = (str, mask) => {
-    //   console.log(str, mask);
-    //   const regex = '^' + mask.replace(/\*/, '.*') + '$';
+    if (isBoardKind(contentType)) {
+      fields = BOARD_ITEM_EXTENDED_FIELDS;
+    }
 
-    //   const r = new RegExp(regex);
-
-    //   return r.test(str);
-    // };
+    fields = [
+      ...fields,
+      ...(fieldsQuery.fieldsCombinedByContentType || []).map(item => {
+        return {
+          value: item.name || item._id,
+          label: item.label || item.title,
+          type: (item.type || '').toLowerCase()
+        };
+      })
+    ];
 
     const columns = importHistoryGetColumns.importHistoryGetColumns;
-
-    // for (const keys of Object.keys(columns)) {
-    //   if (!columnWithChosenField[keys]) {
-    //     for (const field of fields) {
-    //       if (fuzzyComparison(keys, field.label)) {
-    //         console.log('aa');
-    //         onChangeColumn(keys, field.value, contentType);
-    //       }
-    //     }
-    //   }
-    // }
 
     return (
       <MapColumn

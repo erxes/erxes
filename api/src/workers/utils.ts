@@ -31,7 +31,7 @@ export const connect = () =>
 
 dotenv.config();
 
-const WORKER_BULK_LIMIT = 1;
+const WORKER_BULK_LIMIT = 300;
 
 const myWorker = new CustomWorker();
 
@@ -258,23 +258,16 @@ export const receiveImportRemove = async (content: any) => {
     const { contentType, importHistoryId } = content;
 
     const handleOnEndWorker = async () => {
-      const updatedImportHistory = await ImportHistory.findOne({
-        _id: importHistoryId
-      });
-
-      if (updatedImportHistory && updatedImportHistory.status === 'Removed') {
-        await ImportHistory.deleteOne({ _id: importHistoryId });
-      }
-
       debugWorkers(`Remove import ended`);
     };
 
     myWorker.setHandleEnd(handleOnEndWorker);
 
-    const ids = [];
+    const importHistory = await ImportHistory.getImportHistory(importHistoryId);
+
+    const ids = importHistory.ids || [];
 
     if (ids.length === 0) {
-      await ImportHistory.deleteOne({ _id: importHistoryId });
       return { status: 'ok' };
     }
 

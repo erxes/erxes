@@ -114,6 +114,7 @@ const ColumnTable = styledTS<{
       padding: ${dimensions.unitSpacing - 2}px;
       display: table-cell;
       vertical-align: ${props.alignTop && 'top'};
+      max-width: 250px;
     }
 
     thead {

@@ -4,6 +4,13 @@ const importHistoriesCreate = `
   }
 `;
 
+const importHistoriesRemove = `
+  mutation importHistoriesRemove($_id: String!, $contentType: String!) {
+    importHistoriesRemove(_id: $_id, contentType: $contentType)
+  }
+`;
+
 export default {
-  importHistoriesCreate
+  importHistoriesCreate,
+  importHistoriesRemove
 };

@@ -36,7 +36,7 @@ type State = {
   associatedContentType: string;
 };
 
-class ExportForm extends React.Component<Props, State> {
+class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -157,12 +157,18 @@ class ExportForm extends React.Component<Props, State> {
     return this.props.addImportHistory(doc);
   };
 
-  renderImportButton = () =>
-    this.state.disclaimer ? (
-      <Button btnStyle="success" onClick={this.onSubmit}>
-        Import
-      </Button>
-    ) : null;
+  renderImportButton = () => {
+    const { disclaimer, importName } = this.state;
+    if (disclaimer && importName) {
+      return (
+        <Button btnStyle="success" onClick={this.onSubmit}>
+          Import
+        </Button>
+      );
+    }
+
+    return null;
+  };
 
   renderAssociateForm = () => {
     if (this.state.type === 'multi') {
@@ -178,7 +184,7 @@ class ExportForm extends React.Component<Props, State> {
       }
 
       return (
-        <Step img="/images/icons/erxes-10.svg" title="Upload">
+        <Step img="/images/icons/erxes-10.svg" title="Accociate">
           <AccociateForm
             attachmentNames={attachmentNames}
             contentTypes={contentTypes}
@@ -204,7 +210,8 @@ class ExportForm extends React.Component<Props, State> {
         result.push(
           <Step
             img="/images/icons/erxes-10.svg"
-            title={`${contentType} mapping`}
+            title={`Mapping  `}
+            key={Math.random()}
           >
             <MapColumn
               contentType={contentType}
@@ -291,4 +298,4 @@ class ExportForm extends React.Component<Props, State> {
   }
 }
 
-export default ExportForm;
+export default Form;

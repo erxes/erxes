@@ -11,6 +11,7 @@ export interface IImportHistory {
   percentage?: number;
   attachments: any;
   name: string;
+  removed?: string[];
 }
 
 export interface IImportHistoryDocument extends IImportHistory, Document {
@@ -18,6 +19,7 @@ export interface IImportHistoryDocument extends IImportHistory, Document {
   userId: string;
   date: Date;
   errorMsgs: object[];
+  ids: string[];
 }
 
 export const importHistorySchema = new Schema({
@@ -33,6 +35,8 @@ export const importHistorySchema = new Schema({
   name: field({ type: String, label: 'Name' }),
   percentage: field({ type: Number, default: 0, label: 'Percentage' }),
   errorMsgs: field({ type: [Object] }),
+  removed: field({ type: [String] }),
+  ids: field({ type: [String] }),
 
   attachments: field({ type: Object, label: 'Attachments' })
 });

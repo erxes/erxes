@@ -37,7 +37,7 @@ export type ImportHistoryDetailQueryResponse = {
 
 export type RemoveMutationResponse = {
   importHistoriesRemove: (params: {
-    variables: { _id: string };
+    variables: { _id: string; contentType: string };
   }) => Promise<any>;
 };
 
