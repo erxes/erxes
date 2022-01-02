@@ -95,6 +95,11 @@ module.exports = {
       exposes,
       shared: {
         ...shared,
+        "@erxes/ui": {
+          requiredVersion: "1.0.0",
+          singleton: true,
+          eager: true
+        }
       },
     }),
     new HtmlWebPackPlugin({

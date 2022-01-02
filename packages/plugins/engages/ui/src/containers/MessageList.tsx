@@ -19,6 +19,10 @@ import { generateListQueryVariables } from '../utils';
 
 import { AuthTest } from '@erxes/ui';
 
+import { helloWorld } from 'hello-world-npm';
+
+console.log(helloWorld());
+
 type Props = {
   type: string;
   queryParams: any;
