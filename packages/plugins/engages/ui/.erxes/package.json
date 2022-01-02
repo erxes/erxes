@@ -47,6 +47,7 @@
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",
     "erxes-ui": "0.0.86",
+    "@erxes/ui": "1.0.0",
     "graphql": "0.12.3",
     "graphql-tag": "2.10.0",
     "i18n-react": "0.6.4",

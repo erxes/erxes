@@ -17,6 +17,8 @@ import {
 } from '../types';
 import { generateListQueryVariables } from '../utils';
 
+import { AuthTest } from '@erxes/ui';
+
 type Props = {
   type: string;
   queryParams: any;
@@ -71,6 +73,8 @@ class MessageListContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
+    return <AuthTest />
+
     const {
       queryParams,
       engageMessagesQuery,

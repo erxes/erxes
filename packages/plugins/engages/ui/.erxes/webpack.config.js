@@ -93,7 +93,13 @@ module.exports = {
       filename: "remoteEntry.js",
       remotes: {},
       exposes,
-      shared,
+      shared: {
+        ...shared,
+        "@erxes/ui": {
+          singleton: true,
+          eager: true
+        }
+      },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
