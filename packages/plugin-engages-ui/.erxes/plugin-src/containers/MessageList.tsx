@@ -17,12 +17,6 @@ import {
 } from '../types';
 import { generateListQueryVariables } from '../utils';
 
-import { Header, Wrapper } from '@erxes/ui/src/layout';
-
-import { helloWorld } from 'hello-world-npm';
-
-console.log(helloWorld());
-
 type Props = {
   type: string;
   queryParams: any;
@@ -77,18 +71,6 @@ class MessageListContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    // return (
-    //   <Wrapper
-    //     header={
-    //       <Wrapper.Header
-    //         title={'Automations'}
-    //         breadcrumb={[{ title: 'Automations' }]}
-    //       />
-    //     }
-    //     content={<h1>ahhah</h1>}
-    //   />
-    // );
-
     const {
       queryParams,
       engageMessagesQuery,
