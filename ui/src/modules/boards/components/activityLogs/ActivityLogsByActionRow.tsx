@@ -4,7 +4,7 @@ import {
   ActivityList,
   InfoSection,
   DateType
-} from 'modules/boards/styles/viewtype';
+} from 'modules/boards/styles/activityLogs';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { Link } from 'react-router-dom';
 import {

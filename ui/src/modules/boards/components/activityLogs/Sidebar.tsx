@@ -4,7 +4,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import FormControl from 'modules/common/components/form/Control';
 import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
-import { RowFill, FieldStyle } from '../../styles/viewtype';
+import { RowFill, FieldStyle } from '../../styles/activityLogs';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IRouterProps } from 'modules/common/types';
 import Icon from 'modules/common/components/Icon';

@@ -1089,6 +1089,8 @@ interface IPipelineFactoryInput {
   startDate?: Date;
   endDate?: Date;
   templateId?: string;
+  numberConfig?: string;
+  numberSize?: string;
 }
 
 export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
@@ -1112,7 +1114,9 @@ export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
     watchedUserIds: params.watchedUserIds,
     startDate: params.startDate,
     endDate: params.endDate,
-    templateId: params.templateId
+    templateId: params.templateId,
+    numberConfig: params.numberConfig || '{year}_',
+    numberSize: params.numberSize || '1'
   });
 };
 
@@ -1164,6 +1168,7 @@ interface IDealFactoryInput {
   companyIds?: string[];
   customerIds?: string[];
   priority?: string;
+  startDate?: Date;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1230,6 +1235,7 @@ export const dealFactory = async (
       ? { closeDate: params.closeDate || new Date() }
       : {}),
     description: faker.random.word(),
+    startDate: params.startDate,
     productsData: params.productsData,
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
     userId: params.userId || faker.random.word(),
