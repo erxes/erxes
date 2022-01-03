@@ -404,7 +404,7 @@ export const receiveImportCreate = async (content: any) => {
         createdUser: ``,
         receivers: [user._id],
         content: `your ${updatedImportHistory.name} import is done`,
-        link: `/settings/importHistories`,
+        link: `/settings/importHistories?${mainType}`,
         notifType: NOTIFICATION_TYPES.IMPORT_DONE,
         contentType: 'import',
         contentTypeId: importHistoryId

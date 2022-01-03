@@ -13,15 +13,15 @@ describe('Import history queries', () => {
   });
 
   test('Import histories', async () => {
-    await importHistoryFactory({ contentType: 'company' });
-    await importHistoryFactory({ contentType: 'customer' });
+    await importHistoryFactory({ contentTypes: ['company'] });
+    await importHistoryFactory({ contentTypes: ['customer'] });
 
     const qry = `
       query importHistories($type: String!) {
         importHistories(type: $type) {
           list {
             _id
-            contentType
+            contentTypes
             date
             user {
               details {

@@ -21,10 +21,12 @@ class FormContainer extends React.Component<FinalProps, State> {
     const { importHistoriesCreate } = this.props;
 
     const addImportHistory = doc => {
+      const { contentTypes } = doc;
+
       importHistoriesCreate({
         variables: doc
       }).then(() => {
-        window.location.href = `/settings/importHistories`;
+        window.location.href = `/settings/importHistories?type=${contentTypes[0]}`;
       });
     };
 

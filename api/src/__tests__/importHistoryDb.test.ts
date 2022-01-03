@@ -41,14 +41,9 @@ describe('Import history model test', () => {
       user
     );
 
-    if (!importHistory || !importHistory.ids) {
-      throw new Error('History not found');
-    }
-
     expect(importHistory.success).toBe(0);
     expect(importHistory.failed).toBe(1);
     expect(importHistory.total).toBe(4);
-    expect(importHistory.ids.length).toBe(1);
     expect(importHistory.contentTypes).toBeDefined();
   });
 
