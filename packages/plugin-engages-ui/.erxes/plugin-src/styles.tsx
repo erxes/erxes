@@ -86,10 +86,6 @@ const LogoContainer = styled.div`
   width: 56px;
   height: 56px;
   cursor: pointer;
-<<<<<<< HEAD:packages/plugin-engages-ui/.erxes/plugin-src/styles.tsx
-=======
-  box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
->>>>>>> 7d8871557bd839302b2bf5ec39f31ba34cff386c:ui/src/modules/engage/styles.tsx
   background-image: url('/images/erxes.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
