@@ -9,6 +9,8 @@ import deliveryReports from './api/deliveryReports';
 import telnyx from './api/telnyx';
 import { buildSubgraphSchema } from "@apollo/federation";
 import { ApolloServer } from "apollo-server-express";
+import cookieParser from 'cookie-parser';
+
 import * as http from 'http';
 
 
@@ -23,6 +25,8 @@ import resolvers from './graphql/resolvers';
 export const app = express();
 
 app.disable('x-powered-by');
+
+app.use(cookieParser());
 
 trackEngages(app);
 
