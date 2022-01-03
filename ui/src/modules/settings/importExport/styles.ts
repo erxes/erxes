@@ -62,6 +62,17 @@ const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   align-items: ${props => (props.align ? 'flex-start' : 'center')};
 `;
 
+const TypeContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
+  flex: 1;
+  display: flex;
+  justify-content: ${props => props.center && 'center'};
+  align-items: ${props => (props.align ? 'flex-start' : 'center')};
+
+  @media (max-width: 1440px) {
+    display: block;
+  }
+`;
+
 const FlexRow = styled.div`
   display: flex;
   align-items: center;
@@ -167,5 +178,6 @@ export {
   ImportHistoryActions,
   Box,
   FullContent,
-  UploadText
+  UploadText,
+  TypeContent
 };

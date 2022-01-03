@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
 import { SubHeading } from 'modules/settings/styles';
-import { Box, FullContent } from '../../styles';
+import { Box, TypeContent } from '../../styles';
 
 type Props = {
   onChangeContentType: (value: string) => void;
@@ -42,14 +42,14 @@ class TypeForm extends React.Component<Props> {
         <FlexPad direction="column">
           <SubHeading>{__(this.renderText())}</SubHeading>
 
-          <FullContent center={true}>
+          <TypeContent center={true}>
             {this.renderBox('Customer', 'users-alt', 'customer')}
             {this.renderBox('Lead', 'file-alt', 'lead')}
             {this.renderBox('Company', 'building', 'company')}
             {this.renderBox('Deal', 'signal-alt-3', 'deal')}
             {this.renderBox('Task', 'laptop', 'task')}
             {this.renderBox('Ticket', 'ticket', 'ticket')}
-          </FullContent>
+          </TypeContent>
         </FlexPad>
       </FlexItem>
     );
