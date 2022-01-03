@@ -1,6 +1,6 @@
 import React from 'react';
 import BreadCrumb from '../../components/breadcrumb/BreadCrumb';
-// import Filter from '../../components/filter/Filter';
+import Filter from '../../components/filter/Filter';
 import Submenu from '../../components/subMenu/Submenu';
 import { IBreadCrumbItem, ISubMenuItem } from '../../types';
 import { __, setTitle } from '../../utils/core';
@@ -41,7 +41,7 @@ class Header extends React.Component<Props> {
         {submenu && (
           <Submenu items={submenu} additionalMenuItem={additionalMenuItem} />
         )}
-        {/* {queryParams && <Filter queryParams={queryParams} />} */}
+        {queryParams && <Filter queryParams={queryParams} />}
       </PageHeader>
     );
   }
