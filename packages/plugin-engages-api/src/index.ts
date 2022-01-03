@@ -8,7 +8,7 @@ import configs from './api/configs';
 import deliveryReports from './api/deliveryReports';
 import telnyx from './api/telnyx';
 import { buildSubgraphSchema } from "@apollo/federation";
-import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import * as http from 'http';
 
 
@@ -16,8 +16,9 @@ import { connect } from './connection';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initBroker } from './messageBroker';
 import { trackEngages } from './trackers/engageTracker';
-import { GraphQLResolverMap } from 'apollo-graphql';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
 
 export const app = express();
 
@@ -57,18 +58,6 @@ app.use((error, _req, res, _next) => {
 });
 
 const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
-
-const typeDefs = gql`
-  extend type Query {
-    one: Int
-  }
-`
-
-const resolvers: GraphQLResolverMap = {
-  Query: {
-    one: async () => { return 1; }
-  }
-}
 
 const httpServer = http.createServer(app);
 

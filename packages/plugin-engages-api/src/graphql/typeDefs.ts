@@ -1,4 +1,6 @@
-export const types = `
+import { gql } from "apollo-server-core";
+
+const types = `
   type EngageMessageSms {
     from: String,
     content: String!
@@ -41,7 +43,7 @@ export const types = `
     fromUser: User
     getTags: [Tag]
     fromIntegration: Integration
-    createdUser: String
+    createdUser: User
 
     stats: JSON
     logs: JSON
@@ -122,7 +124,7 @@ const listParams = `
   perPage: Int
 `;
 
-export const queries = `
+const queries = `
   engageMessages(${listParams}): [EngageMessage]
   engageMessagesTotalCount(${listParams}): Int
   engageMessageDetail(_id: String): EngageMessage
@@ -153,7 +155,7 @@ const commonParams = `
   shortMessage: EngageMessageSmsInput
 `;
 
-export const mutations = `
+const mutations = `
   engageMessageAdd(${commonParams}): EngageMessage
   engageMessageEdit(_id: String!, ${commonParams}): EngageMessage
   engageMessageRemove(_id: String!): EngageMessage
@@ -166,3 +168,17 @@ export const mutations = `
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
 `;
+
+
+const typeDefs = gql`
+  ${types}
+  
+  extend type Query {
+    ${queries}
+  }
+  extend type Mutation {
+    ${mutations}
+  }
+`;
+
+export default typeDefs;
