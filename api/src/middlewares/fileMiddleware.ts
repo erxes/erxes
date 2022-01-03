@@ -3,78 +3,44 @@ import * as request from 'request';
 import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 import { RABBITMQ_QUEUES } from '../data/constants';
-import { can } from '../data/permissions/utils';
 import {
   checkFile,
   frontendEnv,
   getConfig,
   getSubServiceDomain,
   registerOnboardHistory,
-  uploadFile,
-  uploadFileAWS,
-  uploadFileLocal
+  uploadFile
 } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 import messageBroker from '../messageBroker';
 
-export const importer = async (req: any, res, next) => {
-  if (!(await can('importXlsFile', req.user))) {
-    return next(new Error('Permission denied!'));
-  }
-
+export const importer = async (
+  contentTypes,
+  files,
+  columnsConfig,
+  importHistoryId,
+  associatedContentType,
+  associatedField,
+  user
+) => {
   try {
     const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
-    const scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
-    const form = new formidable.IncomingForm();
-
-    form.parse(req, async (_err, fields: any, response) => {
-      let status = '';
-      let fileType = 'xlsx';
-
-      try {
-        status = await checkFile(response.file);
-      } catch (e) {
-        return res.json({ status: e.message });
-      }
-
-      // if file is not ok then send error
-      if (status !== 'ok') {
-        return res.json({ status });
-      }
-
-      try {
-        const fileName =
-          UPLOAD_SERVICE_TYPE === 'local'
-            ? await uploadFileLocal(response.file)
-            : await uploadFileAWS(response.file, true);
-
-        if (fileName.includes('.csv')) {
-          fileType = 'csv';
-        }
-
-        const result = await messageBroker().sendRPCMessage(
-          RABBITMQ_QUEUES.RPC_API_TO_WORKERS,
-          {
-            action: 'createImport',
-            type: fields.type,
-            fileType,
-            fileName,
-            uploadType: UPLOAD_SERVICE_TYPE,
-            scopeBrandIds,
-            user: req.user
-          }
-        );
-
-        registerOnboardHistory({ type: `importCreate`, user: req.user });
-
-        return res.json(result);
-      } catch (e) {
-        return res.json({ status: 'error', message: e.message });
-      }
+    await messageBroker().sendMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+      action: 'createImport',
+      contentTypes,
+      files,
+      uploadType: UPLOAD_SERVICE_TYPE,
+      columnsConfig,
+      user,
+      importHistoryId,
+      associatedContentType,
+      associatedField
     });
+
+    registerOnboardHistory({ type: `importCreate`, user });
   } catch (e) {
-    return res.json({ status: 'error', message: e.message });
+    throw new Error();
   }
 };
 
