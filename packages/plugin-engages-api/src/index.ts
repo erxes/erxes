@@ -61,18 +61,17 @@ const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 
 const httpServer = http.createServer(app);
 
-const server = new ApolloServer({
+const apolloServer = new ApolloServer({
   schema: buildSubgraphSchema([{ typeDefs, resolvers }]),
   // for graceful shutdown
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],    
 });
 
-
 async function starServer() {
-  await server.start();
-  server.applyMiddleware({ app, path: '/graphql' });
+  await apolloServer.start();
+  apolloServer.applyMiddleware({ app, path: '/graphql' });
   await new Promise<void>(resolve => httpServer.listen({ port: PORT }, resolve));
-  console.log(`🚀 Engages graphql api ready at http://localhost:${PORT}${server.graphqlPath}`);
+  console.log(`🚀 Engages graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`);
 
   let mongoUrl = MONGO_URL;
 
