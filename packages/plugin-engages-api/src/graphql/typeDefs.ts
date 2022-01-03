@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-core";
+import { gql } from "apollo-server-express";
 
 const types = `
   type EngageMessageSms {
