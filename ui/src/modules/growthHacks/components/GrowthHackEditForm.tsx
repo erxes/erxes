@@ -1,8 +1,13 @@
 import { IUser } from 'modules/auth/types';
 import DueDateChanger from 'modules/boards/components/DueDateChanger';
 import EditForm from 'modules/boards/components/editForm/EditForm';
-import { FlexContent, LeftContainer } from 'modules/boards/styles/item';
+import {
+  FlexContent,
+  HeaderContentSmall,
+  LeftContainer
+} from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
+import { ControlLabel } from 'modules/common/components/form';
 import { IFormSubmission } from 'modules/forms/types';
 import React from 'react';
 import { GrowthHackFieldName, IGrowthHack, IGrowthHackParams } from '../types';
@@ -97,6 +102,23 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderNumber = () => {
+    const { item } = this.props;
+
+    const { number } = item;
+
+    if (!number) {
+      return null;
+    }
+
+    return (
+      <HeaderContentSmall>
+        <ControlLabel>Number</ControlLabel>
+        <p>{number}</p>
+      </HeaderContentSmall>
+    );
+  };
+
   renderFormContent = ({
     copy,
     remove,
@@ -123,6 +145,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           dueDate={this.renderDueDate(item.closeDate, dateOnChange)}
           score={this.renderScore}
           onChangeStage={onChangeStage}
+          number={this.renderNumber}
         />
 
         <FlexContent>
