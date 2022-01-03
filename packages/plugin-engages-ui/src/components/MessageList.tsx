@@ -1,13 +1,13 @@
-import Button from 'erxes-ui/lib/components/Button';
-import DataWithLoader from 'erxes-ui/lib/components/DataWithLoader';
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import ModalTrigger from 'erxes-ui/lib/components/ModalTrigger';
-import Pagination from 'erxes-ui/lib/components/pagination/Pagination';
-import EmptyContent from 'erxes-ui/lib/components/empty/EmptyContent';
-import Table from 'erxes-ui/lib/components/table';
-import colors from 'erxes-ui/lib/styles/colors';
-import { __ } from 'erxes-ui/lib/utils';
-import Wrapper from 'erxes-ui/lib/layout/components/Wrapper';
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import Table from '@erxes/ui/src/components/table';
+import colors from '@erxes/ui/src/styles/colors';
+import { __ } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import MessageListRow from '../containers/MessageListRow';
@@ -273,7 +273,7 @@ class List extends React.Component<Props> {
             data={mainContent}
             loading={loading}
             count={messages.length}
-            emptyContent={<EmptyContent content={<h1>empty content</h1>} />}
+            // emptyContent={<EmptyContent content={<h1>empty content</h1>} />}
           />
         }
       />

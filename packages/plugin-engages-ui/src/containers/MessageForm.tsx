@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withProps } from 'erxes-ui/lib/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import MessageForm from '../components/MessageForm';
 import { queries } from '../graphql';
 import { EngageMessageDetailQueryResponse } from '../types';

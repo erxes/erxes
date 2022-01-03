@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from 'erxes-ui/lib/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { withProps } from 'erxes-ui/lib/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import Sidebar from '../components/Sidebar';
 import { queries } from '../graphql';
 import { CountQueryResponse, TagCountQueryResponse } from '../types';

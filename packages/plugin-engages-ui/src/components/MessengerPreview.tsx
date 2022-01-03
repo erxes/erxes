@@ -1,4 +1,4 @@
-import NameCard from 'erxes-ui/lib/components/nameCard/NameCard';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import React from 'react';
 import strip from 'strip';
 import xss from 'xss';

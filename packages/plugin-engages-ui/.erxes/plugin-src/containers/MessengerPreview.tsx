@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withProps } from 'erxes-ui/lib/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import MessengerPreview from '../components/MessengerPreview';
 import { queries } from '../graphql';
 
@@ -32,16 +32,13 @@ const MessengerPreviewContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any, { _id: string }>(
-      gql(queries.userDetail),
-      {
-        name: 'userDetailQuery',
-        options: ({ fromUserId }: { fromUserId: string }) => ({
-          variables: {
-            _id: fromUserId
-          }
-        })
-      }
-    )
+    graphql<Props, any, { _id: string }>(gql(queries.userDetail), {
+      name: 'userDetailQuery',
+      options: ({ fromUserId }: { fromUserId: string }) => ({
+        variables: {
+          _id: fromUserId
+        }
+      })
+    })
   )(MessengerPreviewContainer)
 );

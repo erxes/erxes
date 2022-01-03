@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Bulk from 'erxes-ui/lib/components/Bulk';
-import { IRouterProps } from 'erxes-ui/lib/types';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { IRouterProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { withProps } from 'erxes-ui/lib/utils';
-import * as routerUtils from 'erxes-ui/lib/utils/router';
+import { withProps } from '@erxes/ui/src/utils';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import MessageList from '../components/MessageList';
 import { queries } from '../graphql';
 import {
