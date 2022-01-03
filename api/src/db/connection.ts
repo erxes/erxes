@@ -1,14 +1,14 @@
-import { gql } from 'apollo-server-express';
+// import { gql } from 'apollo-server-express';
 import * as dotenv from 'dotenv';
-import { graphql } from 'graphql';
-import { makeExecutableSchema } from 'graphql-tools';
+// import { graphql } from 'graphql';
+// import { makeExecutableSchema } from 'graphql-tools';
 import mongoose = require('mongoose');
-import resolvers from '../data/resolvers';
-import { mutations, queries, subscriptions, types } from '../data/schema';
+// import resolvers from '../data/resolvers';
+// import { mutations, queries, subscriptions, types } from '../data/schema';
 import { getEnv } from '../data/utils';
 import { debugDb } from '../debuggers';
-import { userFactory } from './factories';
-import { generateAllDataLoaders } from '../data/dataLoaders';
+// import { userFactory } from './factories';
+// import { generateAllDataLoaders } from '../data/dataLoaders';
 
 dotenv.config();
 
@@ -65,21 +65,21 @@ export const mongoStatus = () => {
   });
 };
 
-const typeDefs = gql(`
-  ${types}
+// const typeDefs = gql(`
+//   ${types}
 
-  type Query {
-    ${queries}
-  }
+//   type Query {
+//     ${queries}
+//   }
 
-  type Mutation {
-    ${mutations}
-  }
+//   type Mutation {
+//     ${mutations}
+//   }
 
-  type Subscription {
-    ${subscriptions}
-  }
-`);
+//   type Subscription {
+//     ${subscriptions}
+//   }
+// `);
 
 // const schema = makeExecutableSchema({
 //   typeDefs,

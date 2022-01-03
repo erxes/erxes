@@ -188,6 +188,7 @@ app.get(
 );
 
 app.post('/webhooks/:id', webhookMiddleware);
+// @ts-ignore
 app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
 // events
@@ -271,7 +272,7 @@ app.get(
       try {
         Segments.removeSegment(segment);
       } catch (e) {
-        console.log(e.message);
+        console.log((e as Error).message);
       }
     }
 
@@ -309,7 +310,7 @@ app.get('/read-file', async (req: any, res, next) => {
 
     return res.send(response);
   } catch (e) {
-    if (e.message.includes('key does not exist')) {
+    if ((e as Error).message.includes('key does not exist')) {
       return res.status(404).send('Not found');
     }
 
