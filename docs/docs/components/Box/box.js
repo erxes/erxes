@@ -75,7 +75,9 @@ export function BoxComponent(props) {
         <CodeBlock className="language-jsx">
           {`<>\n\t${
             propName === "collapsible"
-              ? `<Box ${stringify(propDatas(propName, extraString))} >\n\t\t<p>Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+              ? `<Box ${stringify(
+                  propDatas(propName, extraString)
+                )} >\n\t\t<p>Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
               American former professional basketball player, coach and
               executive in the National Basketball Association (NBA).
               Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
@@ -91,7 +93,9 @@ export function BoxComponent(props) {
               Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird
               is widely regarded as one of the greatest basketball players of
               all time.</p>\n\t</Box>`
-              : `<Box ${stringify(propDatas(propName, extraString))} >\n\t\t<p>Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
+              : `<Box ${stringify(
+                  propDatas(propName, extraString)
+                )} >\n\t\t<p>Larry the Bird. Larry Joe Bird (born December 7, 1956) is an
               American former professional basketball player, coach and
               executive in the National Basketball Association (NBA).</p>\n\t</Box>`
           }\n</>`}
@@ -113,7 +117,11 @@ export function BoxComponent(props) {
   }
 
   if (type === "extra") {
-    return renderBlock("extraButtons", `<Button btnStyle='simple'>Extra button</Button>`, <Button btnStyle='simple'>Extra button</Button>);
+    return renderBlock(
+      "extraButtons",
+      `<Button btnStyle='simple'>Extra button</Button>`,
+      <Button btnStyle="simple">Extra button</Button>
+    );
   }
 
   if (type === "APIbox") {
