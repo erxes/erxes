@@ -1,11 +1,11 @@
-import CountsByTag from 'erxes-ui/lib/components/CountsByTag';
-import { __, router } from 'erxes-ui/lib/utils';
-import Wrapper from 'erxes-ui/lib/layout/components/Wrapper';
+import CountsByTag from '@erxes/ui/src/components/CountsByTag';
+import { __, router } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList
-} from 'erxes-ui/lib/layout/styles';
+} from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MESSAGE_KIND_FILTERS, statusFilters } from '../constants';
