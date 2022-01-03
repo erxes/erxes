@@ -12,7 +12,7 @@ import {
   IBookingData
 } from '../types';
 import { Alert } from 'modules/common/utils';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse

@@ -3,7 +3,7 @@ import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import TelnyxForm from 'modules/settings/integrations/components/telnyx/TelnyxForm';
 import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '../../constants';
 import { getRefetchQueries } from '../utils';
 

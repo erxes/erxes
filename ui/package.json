@@ -43,7 +43,7 @@
     "draft-js-plugins-editor": "^2.0.3",
     "draft-js-static-toolbar-plugin": "^3.0.0",
     "erxes-icon": "^1.2.1",
-    "erxes-ui": "^0.0.86",
+    "erxes-ui": "^0.0.87",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^15",
     "graphql-tag": "^2.6.1",

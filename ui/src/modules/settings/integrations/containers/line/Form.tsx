@@ -7,7 +7,7 @@ import { Alert } from 'modules/common/utils';
 import Line from 'modules/settings/integrations/components/line/Line';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;

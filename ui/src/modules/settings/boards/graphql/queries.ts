@@ -33,6 +33,8 @@ const pipelines = `
       metric
       isCheckUser
       excludeCheckUserIds
+      numberConfig
+      numberSize
       createdAt
       createdUser{
         details {
