@@ -1,5 +1,5 @@
-import Icon from 'erxes-ui/lib/components/Icon';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { TagAdd, TargetCount } from '../../types';
 import React from 'react';
 import Common from './Common';

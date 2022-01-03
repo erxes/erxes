@@ -1,7 +1,7 @@
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { FlexItem } from 'erxes-ui/lib/components/step/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import { CAMPAIGN_TARGET_TYPES } from '../../constants';
 import { SelectMessageType } from '../../styles';
 import React from 'react';

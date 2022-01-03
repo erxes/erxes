@@ -1,6 +1,6 @@
-import Icon from 'erxes-ui/lib/components/Icon';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
-import { __ } from 'erxes-ui/lib/utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
 import { TargetCount } from '../../types';
 import React from 'react';
 import Common from './Common';

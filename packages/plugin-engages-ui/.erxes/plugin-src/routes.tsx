@@ -1,11 +1,11 @@
-import asyncComponent from 'erxes-ui/lib/components/AsyncComponent';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
 const MessageForm = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageForm - Engage" */ "./containers/MessageForm"
+    /* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm'
   );
 
   return comp;
@@ -13,7 +13,7 @@ const MessageForm = asyncComponent(() => {
 
 const MessageList = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageList - Engage" */ "./containers/MessageList"
+    /* webpackChunkName: "MessageList - Engage" */ './containers/MessageList'
   );
 
   return comp;
