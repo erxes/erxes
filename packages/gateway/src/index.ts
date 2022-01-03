@@ -5,11 +5,13 @@ import { ApolloServer, ExpressContext } from "apollo-server-express";
 import { ApolloGateway } from "@apollo/gateway";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import ws from "ws";
+// import ws from "ws";
 import express from "express";
 import http from "http";
-import { loadSubscriptions } from "./subscription";
+// import { loadSubscriptions } from "./subscription";
 import { createGateway, GatewayContext } from "./gateway";
+
+const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
 
 (async () => {
 
@@ -18,15 +20,15 @@ import { createGateway, GatewayContext } from "./gateway";
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
   app.use(
     /\/((?!graphql).)*/,
-    createProxyMiddleware({ target: process.env.API_DOMAIN })
+    createProxyMiddleware({ target: API_DOMAIN })
   );
 
   const httpServer = http.createServer(app);
 
-  const wsServer = new ws.Server({
-    server: httpServer,
-    path: "/graphql",
-  });
+  // const wsServer = new ws.Server({
+  //   server: httpServer,
+  //   path: "/graphql",
+  // });
 
   const gateway: ApolloGateway = createGateway();
 
@@ -37,9 +39,10 @@ import { createGateway, GatewayContext } from "./gateway";
     context: ({ res, req }: ExpressContext): GatewayContext => ({ res, req })
   });
 
-  gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
-    loadSubscriptions(apiSchema, wsServer)
-  );
+  // TODO: subscriptions don't work yet. Client's WebSocketLink, graphql version, graphql-ws needs to be updated
+  // gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
+  //   loadSubscriptions(apiSchema, wsServer)
+  // );
 
   await apolloServer.start();
   apolloServer.applyMiddleware({
@@ -47,11 +50,11 @@ import { createGateway, GatewayContext } from "./gateway";
     path: "/graphql",
     cors: {
       credentials: true,
-      origin: [ process.env.MAIN_APP_DOMAIN || "http://localhost:3000", "https://studio.apollographql.com", "http://localhost:3200"],
+      origin: [ MAIN_APP_DOMAIN || "http://localhost:3000", "https://studio.apollographql.com", "http://localhost:3200"],
     },
   });  
 
-  const port = process.env.PORT || 4000;
+  const port = PORT || 4000;
 
   await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
   console.log(
