@@ -3675,7 +3675,7 @@ collection-visit@^1.0.0:
     map-visit "^1.0.0"
     object-visit "^1.0.0"
 
-color-convert@^1.9.0:
+color-convert@^1.9.0, color-convert@^1.9.1:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
   integrity sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==
@@ -3699,13 +3699,21 @@ color-name@^1.0.0, color-name@~1.1.4:
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
 
-color-string@^1.9.0:
+color-string@^1.5.2, color-string@^1.9.0:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/color-string/-/color-string-1.9.0.tgz#63b6ebd1bec11999d1df3a79a7569451ac2be8aa"
   integrity sha512-9Mrz2AQLefkH1UvASKj6v6hj/7eWgjnT/cVsR8CumieLoT+g900exWeNogqtweI8dxloXN9BDQTYro1oWu/5CQ==
   dependencies:
     color-name "^1.0.0"
     simple-swizzle "^0.2.2"
+
+color@3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/color/-/color-3.1.2.tgz#68148e7f85d41ad7649c5fa8c8106f098d229e10"
+  integrity sha512-vXTJhHebByxZn3lDvDJYw4lR5+uB3vuoHsuYA5AKuxRVn5wzzIfQKGLBmgdVRHKTJYeK5rvJcHnrd0Li49CFpg==
+  dependencies:
+    color-convert "^1.9.1"
+    color-string "^1.5.2"
 
 color@^4.1.0:
   version "4.1.0"
@@ -4683,6 +4691,11 @@ erxes-ui@0.0.86:
   version "0.0.86"
   resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.86.tgz#d16c7be4f33b396a4100e2f24b8b1e62f0cb6db2"
   integrity sha512-F4+toUlf+A0wSRBJzSYQDMlLwMFji5o8E+EZExkc6xtv+iWfjtxGYNNcFGwGQnf+8b6mt+5ROcrJy7TppPcKtQ==
+
+erxes-ui@0.0.87:
+  version "0.0.87"
+  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.87.tgz#4d2d7220275ffacf84d8e64ce7286cef88f0cc2d"
+  integrity sha512-l3s1+Cn9T2AXRFD7Xj/NHtVHf4Y3JHycXgCaoMtjjxZGZVJzsjsLFnkH/noXqBmvXhTUAwli1ri2PNO2bzfQUQ==
 
 es-abstract@^1.18.5, es-abstract@^1.19.1:
   version "1.19.1"
@@ -10040,7 +10053,7 @@ style-loader@^3.3.0:
   resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-3.3.1.tgz#057dfa6b3d4d7c7064462830f9113ed417d38575"
   integrity sha512-GPcQ+LDJbrcxHORTRes6Jy2sfvK2kS6hpSfI/fXhPt+spVzxF6LJ1dHLN9zIGmVaaP044YKaIatFaufENRiDoQ==
 
-styled-components-ts@0.0.14:
+styled-components-ts@0.0.14, styled-components-ts@^0.0.14:
   version "0.0.14"
   resolved "https://registry.yarnpkg.com/styled-components-ts/-/styled-components-ts-0.0.14.tgz#bbd7a2e2a570e011827e92e460a49d72cc1e1c80"
   integrity sha512-e8lLWaC1fjniz40X8sTc+2IwA4s2ShRgUG1p1n4d0axwzYLGX0IkgLV9tLs39Xc+cJV8P/aLmjABSl7MpzVUNA==
@@ -10055,6 +10068,21 @@ styled-components@3.2.6:
     fbjs "^0.8.16"
     hoist-non-react-statics "^2.5.0"
     is-plain-object "^2.0.1"
+    prop-types "^15.5.4"
+    react-is "^16.3.1"
+    stylis "^3.5.0"
+    stylis-rule-sheet "^0.0.10"
+    supports-color "^3.2.3"
+
+styled-components@^3.2.6:
+  version "3.4.10"
+  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-3.4.10.tgz#9a654c50ea2b516c36ade57ddcfa296bf85c96e1"
+  integrity sha512-TA8ip8LoILgmSAFd3r326pKtXytUUGu5YWuqZcOQVwVVwB6XqUMn4MHW2IuYJ/HAD81jLrdQed8YWfLSG1LX4Q==
+  dependencies:
+    buffer "^5.0.3"
+    css-to-react-native "^2.0.3"
+    fbjs "^0.8.16"
+    hoist-non-react-statics "^2.5.0"
     prop-types "^15.5.4"
     react-is "^16.3.1"
     stylis "^3.5.0"
