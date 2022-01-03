@@ -132,3 +132,8 @@ export interface IBrand {
   description?: string;
   emailConfig: { type: string; template: string };
 }
+export interface IEmailTemplate {
+  _id: string;
+  name: string;
+  content: string;
+}

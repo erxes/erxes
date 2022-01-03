@@ -1,15 +1,15 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IUser } from 'modules/auth/types';
-import { Alert, withProps } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import { AddMutationResponse, IEngageMessageDoc } from 'modules/engage/types';
-import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { ICustomer } from '@erxes/ui/src/customers/types';
+import { AddMutationResponse, IEngageMessageDoc } from '../types';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql'; // will fix
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../settings/brands/types';
-import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
+import { BrandsQueryResponse } from '../../settings/brands/types'; // will fix
+import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List'; // will fix
 import Widget from '../components/Widget';
 import {
   MESSAGE_KINDS,

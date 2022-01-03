@@ -3,7 +3,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import Table from '@erxes/ui/src/components/table';
 import colors from '@erxes/ui/src/styles/colors';
 import { __ } from '@erxes/ui/src/utils';
