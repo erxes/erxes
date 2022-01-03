@@ -1,5 +1,6 @@
 {
   "name": "@erxes/plugin-engages-ui",
+  "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
     "start": "cd .erxes && yarn start",
