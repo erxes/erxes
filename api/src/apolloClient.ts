@@ -30,13 +30,13 @@ const generateDataSources = () => {
 let apolloServer;
 
 export const initApolloServer = async (app, httpServer) => {
-  // const { types, queries, mutations } = await extendViaPlugins(
-  //   app,
-  //   resolvers,
-  //   typeDefDetails
-  // );
+  const { types, queries, mutations } = await extendViaPlugins(
+    app,
+    resolvers,
+    typeDefDetails
+  );
 
-  let { types, queries, mutations } = typeDefDetails;
+  // let { types, queries, mutations } = typeDefDetails;
 
   const typeDefs = gql(`
     ${types}
