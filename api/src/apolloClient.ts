@@ -1,4 +1,5 @@
-import { ApolloServer, gql, PlaygroundConfig } from 'apollo-server-express';
+import { ApolloServer, gql } from 'apollo-server-express';
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { buildSubgraphSchema } from '@apollo/federation';
 import * as dotenv from 'dotenv';
 import {
@@ -15,23 +16,7 @@ import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 // load environment variables
 dotenv.config();
 
-const { NODE_ENV, USE_BRAND_RESTRICTIONS } = process.env;
-
-let playground: PlaygroundConfig = false;
-
-if (NODE_ENV !== 'production') {
-  playground = {
-    settings: {
-      'general.betaUpdates': false,
-      'editor.theme': 'dark',
-      'editor.reuseHeaders': true,
-      'tracing.hideTracingResponse': true,
-      'editor.fontSize': 14,
-      'editor.fontFamily': `'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace`,
-      'request.credentials': 'include'
-    }
-  };
-}
+const { USE_BRAND_RESTRICTIONS } = process.env;
 
 const generateDataSources = () => {
   return {
@@ -44,12 +29,14 @@ const generateDataSources = () => {
 
 let apolloServer;
 
-export const initApolloServer = async app => {
-  const { types, queries, mutations } = await extendViaPlugins(
-    app,
-    resolvers,
-    typeDefDetails
-  );
+export const initApolloServer = async (app, httpServer) => {
+  // const { types, queries, mutations } = await extendViaPlugins(
+  //   app,
+  //   resolvers,
+  //   typeDefDetails
+  // );
+
+  let { types, queries, mutations } = typeDefDetails;
 
   const typeDefs = gql(`
     ${types}
@@ -68,25 +55,13 @@ export const initApolloServer = async app => {
         resolvers
       }
     ]),
+    // for graceful shutdowns
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     dataSources: generateDataSources,
-    playground,
-    uploads: false,
-    context: ({ req, res, connection }) => {
+    context: ({ req, res }) => {
       let user = req && req.user ? req.user : null;
 
       const dataLoaders: IDataLoaders = generateAllDataLoaders();
-
-      if (!req) {
-        if (connection && connection.context && connection.context.user) {
-          user = connection.context.user;
-        }
-
-        return {
-          dataSources: generateDataSources(),
-          dataLoaders,
-          user
-        };
-      }
 
       const requestInfo = {
         secure: req.secure,
@@ -145,6 +120,8 @@ export const initApolloServer = async app => {
       };
     }
   });
+
+  await apolloServer.start();
 
   return apolloServer;
 };

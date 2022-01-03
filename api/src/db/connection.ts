@@ -81,48 +81,48 @@ const typeDefs = gql(`
   }
 `);
 
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers
-});
+// const schema = makeExecutableSchema({
+//   typeDefs,
+//   resolvers
+// });
 
-export const graphqlRequest = async (
-  source: string = '',
-  name: string = '',
-  args?: any,
-  context: any = {}
-) => {
-  const res = {
-    cookie: () => {
-      return 'cookie';
-    }
-  };
+// export const graphqlRequest = async (
+//   source: string = '',
+//   name: string = '',
+//   args?: any,
+//   context: any = {}
+// ) => {
+//   const res = {
+//     cookie: () => {
+//       return 'cookie';
+//     }
+//   };
 
-  const finalContext: any = {};
+//   const finalContext: any = {};
 
-  finalContext.requestInfo = { secure: false, cookies: [] };
-  finalContext.dataSources = context.dataSources;
-  finalContext.user = context.user || (await userFactory({}));
-  finalContext.res = context.res || res;
-  finalContext.commonQuerySelector = {};
-  finalContext.userBrandIdsSelector = {};
-  finalContext.brandIdSelector = {};
-  finalContext.docModifier = doc => doc;
-  finalContext.dataLoaders = generateAllDataLoaders();
+//   finalContext.requestInfo = { secure: false, cookies: [] };
+//   finalContext.dataSources = context.dataSources;
+//   finalContext.user = context.user || (await userFactory({}));
+//   finalContext.res = context.res || res;
+//   finalContext.commonQuerySelector = {};
+//   finalContext.userBrandIdsSelector = {};
+//   finalContext.brandIdSelector = {};
+//   finalContext.docModifier = doc => doc;
+//   finalContext.dataLoaders = generateAllDataLoaders();
 
-  const rootValue = {};
+//   const rootValue = {};
 
-  const response: any = await graphql(
-    schema,
-    source,
-    rootValue,
-    finalContext,
-    args
-  );
+//   const response: any = await graphql(
+//     schema,
+//     source,
+//     rootValue,
+//     finalContext,
+//     args
+//   );
 
-  if (response.errors || !response.data) {
-    throw response.errors;
-  }
+//   if (response.errors || !response.data) {
+//     throw response.errors;
+//   }
 
-  return response.data[name];
-};
+//   return response.data[name];
+// };
