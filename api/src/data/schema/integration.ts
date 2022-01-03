@@ -1,5 +1,5 @@
 export const types = `
-  type Integration @key(fields: "_id") {
+  type Integration @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     kind: String!
     name: String!

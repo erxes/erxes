@@ -38,7 +38,7 @@ export const types = `
     operatorPhone: String
   }
 
-  type User @key(fields: "_id") {
+  type User @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     createdAt: Date
     username: String
