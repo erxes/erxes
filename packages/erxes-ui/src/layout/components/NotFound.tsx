@@ -1,4 +1,4 @@
-import { __ } from 'erxes-ui/lib/utils';
+import { __ } from '../../utils';
 import React from 'react';
 
 function NotFound() {
