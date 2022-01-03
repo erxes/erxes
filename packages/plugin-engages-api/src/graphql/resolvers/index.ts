@@ -1,12 +1,15 @@
 import { GraphQLResolverMap } from "apollo-graphql";
 import { EngageMessages } from "../../db/models";
 import { IEngageMessageDocument } from "../../db/models/definitions/engages";
-import { Logs, Stats } from "../../models";
+import { DeliveryReports, Logs, Stats } from "../../models";
 import { prepareSmsStats } from "../../telnyxUtils";
 import Mutation from "./Mutation";
 import Query from "./Query";
 
 const DeliveryReport = {
+  __resolveReference({ _id }) {
+    return DeliveryReports.findOne({ _id })
+  },
   engage(root) {
     return EngageMessages.findOne(
       { _id: root.engageMessageId },
@@ -16,6 +19,9 @@ const DeliveryReport = {
 };
 
 const EngageMessage = {
+  __resolveReference({_id}) {
+    return EngageMessages.findOne({ _id });
+  },
   async segments(engageMessage: IEngageMessageDocument) {
     return (engageMessage.segmentIds || []).map((segmentId) => ({
       __typename: "Segment",

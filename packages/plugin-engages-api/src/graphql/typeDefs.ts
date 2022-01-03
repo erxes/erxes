@@ -1,13 +1,33 @@
 import { gql } from "apollo-server-express";
 
 const types = `
+  extend type Brand @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type Segment @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type Tag @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type User @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type Integration @key(fields: "_id") {
+    _id: ID! @external
+  }
+
   type EngageMessageSms {
     from: String,
     content: String!
     fromIntegrationId: String
   }
 
-  type EngageMessage {
+  type EngageMessage @key(fields: "_id") {
     _id: String!
     kind: String
     tagIds: [String]
@@ -57,7 +77,7 @@ const types = `
     dateTime: Date,
   }
 
-  type DeliveryReport {
+  type DeliveryReport @key(fields: "_id") {
     _id: String!,
     customerId: String,
     mailId: String,
