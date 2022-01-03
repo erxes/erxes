@@ -161,6 +161,7 @@ class CloseDate extends React.Component<Props, State> {
           container={this.ref.current}
         >
           <div>
+            {trigger}
             {closeDate && (
               <CheckBoxWrapper>
                 <FormControl
@@ -170,7 +171,6 @@ class CloseDate extends React.Component<Props, State> {
                 />
               </CheckBoxWrapper>
             )}
-            {trigger}
           </div>
         </OverlayTrigger>
       </CloseDateWrapper>

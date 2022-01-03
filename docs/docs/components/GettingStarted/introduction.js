@@ -12,7 +12,9 @@ export function Examples(props) {
       (content = `import React from "react";\nimport Button from "erxes-ui/lib/components/Button";\n\nconst App() {\n\treturn <Button>My button</Button>;\n}`),
     ];
 
-  if (type === "install") [(content = `npm install erxes-ui`)];
+  if (type === "installNPM") [(content = `npm install erxes-ui`)];
+
+  if (type === "installYARN") [(content = `yarn add erxes-ui`)];
 
   if (type === "css") [(content = `import "erxes-icon/css/erxes.min.css";`)];
 

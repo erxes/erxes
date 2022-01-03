@@ -21,7 +21,6 @@ export function BreadCrumbComponent(props) {
             ]}
           />
         </div>
-
         <CodeBlock className="language-jsx">
           {`<BreadCrumb breadcrumbs={[\n\t{title:"title1", link:"../.."},\n\t{title:"title2", link:"../.."},\n\t{title:"title3"}\n]}/>`}
         </CodeBlock>
