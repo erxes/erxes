@@ -797,7 +797,9 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
-  sendToWebhook
+  sendToWebhook,
+  getImportCsvInfo,
+  getCsvHeadersInfo
 };
 
 export const cleanHtml = (content?: string) =>

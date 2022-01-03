@@ -9,14 +9,7 @@ import {
 import { ISegment } from '../../../db/models/definitions/segments';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
-import {
-  getCsvHeadersInfo,
-  // createAWS,
-  // getConfig,
-  getImportCsvInfo,
-  // getS3ImportFileInfo,
-  paginate
-} from '../../utils';
+import utils, { paginate } from '../../utils';
 
 const importHistoryQueries = {
   /**
@@ -51,7 +44,7 @@ const importHistoryQueries = {
     _root,
     { attachmentName }: { attachmentName: string }
   ) {
-    const values = (await getImportCsvInfo(attachmentName)) as any;
+    const values = (await utils.getImportCsvInfo(attachmentName)) as any;
 
     const object = {} as any;
 
@@ -75,7 +68,7 @@ const importHistoryQueries = {
     const headers = [] as any;
 
     for (const attachmentName of attachmentNames) {
-      const results: any = await getCsvHeadersInfo(attachmentName);
+      const results: any = await utils.getCsvHeadersInfo(attachmentName);
 
       headers.push(...results.split(','));
     }

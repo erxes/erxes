@@ -1,3 +1,4 @@
+import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import { importHistoryFactory, segmentFactory } from '../db/factories';
 import { ImportHistory, Segments } from '../db/models';
@@ -82,6 +83,57 @@ describe('Import history queries', () => {
     });
 
     expect(response._id).toBe(importHistoryNoError._id);
+  });
+
+  test('Import history get columns', async () => {
+    const qry = `
+      query importHistoryGetColumns($attachmentName: String) {
+        importHistoryGetColumns(attachmentName: $attachmentName)
+      }
+    `;
+
+    const spy = jest.spyOn(utils, 'getImportCsvInfo');
+
+    spy.mockImplementation(async () => {
+      return Promise.resolve([
+        {
+          name: 'name',
+          city: 'city',
+          score: '1'
+        },
+        {
+          name: 'name1',
+          city: 'city1',
+          score: '2'
+        }
+      ]);
+    });
+
+    await graphqlRequest(qry, 'importHistoryGetColumns', {
+      attachmentName: 'test'
+    });
+
+    spy.mockRestore();
+  });
+
+  test('Import history get dublicated headers', async () => {
+    const qry = `
+      query importHistoryGetDuplicatedHeaders($attachmentNames: [String]) {
+        importHistoryGetDuplicatedHeaders(attachmentNames: $attachmentNames)
+      }
+    `;
+
+    const spy = jest.spyOn(utils, 'getCsvHeadersInfo');
+
+    spy.mockImplementation(async () => {
+      return Promise.resolve('firstName, lastName');
+    });
+
+    await graphqlRequest(qry, 'importHistoryGetDuplicatedHeaders', {
+      attachmentNames: ['test', 'test2']
+    });
+
+    spy.mockRestore();
   });
 
   test('Import history preview count', async () => {
