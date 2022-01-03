@@ -1,5 +1,5 @@
-import { colors, dimensions, typography } from '.';
-import { rgba } from './ecolor';
+import { colors, dimensions, typography } from '../styles';
+import { rgba } from '../styles/ecolor';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
