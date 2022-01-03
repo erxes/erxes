@@ -2,9 +2,10 @@
   "name": "@erxes/plugin-engages",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
-    "start": "cd .erxes && yarn start"
+    "start": "cd .erxes && yarn start",
+    "build": "cd .erxes && yarn build"
   },
   "dependencies": {
-    "@erxes/ui": "1.0.0"
+    "hello-world-npm": "^1.1.1"
   }
 }

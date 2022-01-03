@@ -63,7 +63,7 @@ module.exports = {
         exclude: /node_modules/,
         include: [
           path.resolve(__dirname, "src"),
-          path.resolve(__dirname, "../../../../erxes-ui/src"),
+          path.resolve(__dirname, "../../erxes-ui/src"),
           path.resolve(__dirname, "plugin-src")
         ],
         use: {
@@ -93,7 +93,14 @@ module.exports = {
       filename: "remoteEntry.js",
       remotes: {},
       exposes,
-      shared,
+      shared: {
+        ...shared,
+        "@erxes/ui": {
+          requiredVersion: "1.0.0",
+          singleton: true,
+          eager: true
+        }
+      },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",

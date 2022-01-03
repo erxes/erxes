@@ -17,6 +17,12 @@ import {
 } from '../types';
 import { generateListQueryVariables } from '../utils';
 
+import { AuthTest } from '@erxes/ui';
+
+import { helloWorld } from 'hello-world-npm';
+
+console.log(helloWorld());
+
 type Props = {
   type: string;
   queryParams: any;
@@ -71,6 +77,8 @@ class MessageListContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
+    return <AuthTest />
+
     const {
       queryParams,
       engageMessagesQuery,

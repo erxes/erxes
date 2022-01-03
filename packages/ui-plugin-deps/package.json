@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-ui-deps",
+  "name": "@erxes/ui-plugin-deps",
   "version": "1.0.0",
   "devDependencies": {
     "@babel/core": "^7.15.8",
