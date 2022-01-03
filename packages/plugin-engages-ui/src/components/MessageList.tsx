@@ -3,6 +3,7 @@ import DataWithLoader from 'erxes-ui/lib/components/DataWithLoader';
 import FormControl from 'erxes-ui/lib/components/form/Control';
 import ModalTrigger from 'erxes-ui/lib/components/ModalTrigger';
 import Pagination from 'erxes-ui/lib/components/pagination/Pagination';
+import EmptyContent from 'erxes-ui/lib/components/empty/EmptyContent';
 import Table from 'erxes-ui/lib/components/table';
 import colors from 'erxes-ui/lib/styles/colors';
 import { __ } from 'erxes-ui/lib/utils';
@@ -49,7 +50,7 @@ class List extends React.Component<Props> {
       return null;
     }
 
-    return (<div>tag</div>);
+    return <div>tag</div>;
   }
 
   renderBox(title, desc, url) {
@@ -256,9 +257,26 @@ class List extends React.Component<Props> {
     );
 
     return (
-      <div>
-        {mainContent}
-      </div>
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__('Campaigns')}
+            breadcrumb={[{ title: __('Campaigns') }]}
+            queryParams={queryParams}
+          />
+        }
+        leftSidebar={<Sidebar queryParams={queryParams} />}
+        actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
+        content={
+          <DataWithLoader
+            data={mainContent}
+            loading={loading}
+            count={messages.length}
+            emptyContent={<EmptyContent content={<h1>empty content</h1>} />}
+          />
+        }
+      />
     );
   }
 }
