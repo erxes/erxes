@@ -1,25 +1,25 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Bulk from 'erxes-ui/lib/components/Bulk';
-import { IRouterProps } from 'erxes-ui/lib/types';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { withProps } from 'erxes-ui/lib/utils';
-import * as routerUtils from 'erxes-ui/lib/utils/router';
-import MessageList from '../components/MessageList';
-import { queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Bulk from "erxes-ui/lib/components/Bulk";
+import { IRouterProps } from "erxes-ui/lib/types";
+import queryString from "query-string";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { withProps } from "erxes-ui/lib/utils";
+import * as routerUtils from "erxes-ui/lib/utils/router";
+import MessageList from "../components/MessageList";
+import { queries } from "../graphql";
 import {
   EngageMessagesQueryResponse,
   EngageMessagesTotalCountQueryResponse,
-  ListQueryVariables
-} from '../types';
-import { generateListQueryVariables } from '../utils';
+  ListQueryVariables,
+} from "../types";
+import { generateListQueryVariables } from "../utils";
 
-import { AuthTest } from '@erxes/ui';
+import { AuthTest } from "@erxes/ui";
 
-import { helloWorld } from 'hello-world-npm';
+import { helloWorld } from "hello-world-npm";
 
 console.log(helloWorld());
 
@@ -47,7 +47,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       bulk: [],
-      isAllSelected: false
+      isAllSelected: false,
     };
   }
 
@@ -56,7 +56,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
 
     const shouldRefetchList = routerUtils.getParam(
       history,
-      'engageRefetchList'
+      "engageRefetchList"
     );
 
     if (shouldRefetchList) {
@@ -68,7 +68,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
     const {
       engageMessagesQuery,
       engageMessagesTotalCountQuery,
-      engageStatsQuery
+      engageStatsQuery,
     } = this.props;
 
     engageMessagesQuery.refetch();
@@ -77,13 +77,13 @@ class MessageListContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    return <AuthTest />
+    // return <AuthTest />
 
     const {
       queryParams,
       engageMessagesQuery,
       engageMessagesTotalCountQuery,
-      engageStatsQuery
+      engageStatsQuery,
     } = this.props;
 
     const updatedProps = {
@@ -95,10 +95,10 @@ class MessageListContainer extends React.Component<FinalProps, State> {
       queryParams,
       loading: engageMessagesQuery.loading || engageStatsQuery.loading,
       emailPercentages: engageStatsQuery.engageEmailPercentages || {},
-      refetch: this.refetch
+      refetch: this.refetch,
     };
 
-    const content = props => {
+    const content = (props) => {
       return <MessageList {...updatedProps} {...props} />;
     };
 
@@ -111,25 +111,25 @@ const MessageListContainerWithData = withProps<Props>(
     graphql<Props, EngageMessagesQueryResponse, ListQueryVariables>(
       gql(queries.engageMessages),
       {
-        name: 'engageMessagesQuery',
-        options: props => ({
-          variables: generateListQueryVariables(props)
-        })
+        name: "engageMessagesQuery",
+        options: (props) => ({
+          variables: generateListQueryVariables(props),
+        }),
       }
     ),
     graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageMessagesTotalCount),
       {
-        name: 'engageMessagesTotalCountQuery',
-        options: props => ({
-          variables: generateListQueryVariables(props)
-        })
+        name: "engageMessagesTotalCountQuery",
+        options: (props) => ({
+          variables: generateListQueryVariables(props),
+        }),
       }
     ),
     graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageEmailPercentages),
       {
-        name: 'engageStatsQuery'
+        name: "engageStatsQuery",
       }
     )
   )(MessageListContainer)

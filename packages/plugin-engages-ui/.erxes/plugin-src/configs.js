@@ -22,7 +22,7 @@ module.exports = {
       icon: "icon-megaphone",
       location: "settings",
       scope: "engages",
-      component: './settings'
+      component: "./settings",
     },
   ],
 };
