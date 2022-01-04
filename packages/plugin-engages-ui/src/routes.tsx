@@ -5,7 +5,7 @@ import { Route } from 'react-router-dom';
 
 const MessageForm = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageForm - Engage" */ "./containers/MessageForm"
+    /* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm'
   );
 
   return comp;
@@ -13,7 +13,7 @@ const MessageForm = asyncComponent(() => {
 
 const MessageList = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageList - Engage" */ "./containers/MessageList"
+    /* webpackChunkName: "MessageList - Engage" */ './containers/MessageList'
   );
 
   return comp;
@@ -37,23 +37,23 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/campaigns"
+        key='/campaigns'
         exact={true}
-        path="/campaigns"
+        path='/campaigns'
         component={engageList}
       />
 
       <Route
-        key="/campaigns/create"
+        key='/campaigns/create'
         exact={true}
-        path="/campaigns/create"
+        path='/campaigns/create'
         component={createForm}
       />
 
       <Route
-        key="/campaigns/edit"
+        key='/campaigns/edit'
         exact={true}
-        path="/campaigns/edit/:_id"
+        path='/campaigns/edit/:_id'
         component={editForm}
       />
     </React.Fragment>
