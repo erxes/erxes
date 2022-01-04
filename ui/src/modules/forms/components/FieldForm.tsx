@@ -23,6 +23,7 @@ import {
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import Select from 'react-select-plus';
+import { IConfig } from 'modules/settings/general/types';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -31,6 +32,7 @@ type Props = {
   mode: 'create' | 'update';
   field: IField;
   fields: IField[];
+  configs: IConfig[];
   numberOfPages: number;
 };
 
@@ -435,7 +437,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={field} />
+            <FieldPreview field={field} configs={this.props.configs} />
 
             <ShowPreview>
               <Icon icon="eye" /> {__('Field preview')}

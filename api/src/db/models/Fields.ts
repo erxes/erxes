@@ -16,6 +16,7 @@ import {
   USER_PROPERTIES_INFO
 } from '../../data/constants';
 import { updateOrder } from './boardUtils';
+import { ICoordinates } from './definitions/common';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,
@@ -37,6 +38,7 @@ export interface ITypedListItem {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
+  locationValue?: ICoordinates;
 }
 
 export const isValidDate = value => {
@@ -318,6 +320,9 @@ export const loadFieldClass = () => {
       let stringValue;
       let numberValue;
       let dateValue;
+      let locationValue;
+
+      console.log('TYUPE = ', type);
 
       if (value) {
         stringValue = value.toString();
@@ -340,8 +345,24 @@ export const loadFieldClass = () => {
           dateValue = value;
           stringValue = null;
         }
+
+        if (type === 'map') {
+          const lat = value[0];
+          const lng = value[1];
+
+          stringValue = `${lng},${lat}`;
+          locationValue = { type: 'Point', coordinates: [lng, lat] };
+          return { field, value, stringValue, locationValue };
+        }
       }
-      return { field, value, stringValue, numberValue, dateValue };
+      return {
+        field,
+        value,
+        stringValue,
+        numberValue,
+        dateValue,
+        locationValue
+      };
     }
 
     public static generateTypedListFromMap(data: {

@@ -19,8 +19,10 @@ import {
 } from 'modules/settings/emailTemplates/containers/List';
 import { ILeadData } from 'modules/leads/types';
 import { queries } from '../graphql';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
 import { FieldsQueryResponse } from 'modules/settings/properties/types';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 
 type Props = {
   history: any;
@@ -30,6 +32,7 @@ type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
   fieldsQuery: FieldsQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & Props &
   IRouterProps &
   AddBookingIntegrationMutationResponse;
@@ -62,7 +65,8 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
       addIntegrationMutation,
       history,
       emailTemplatesQuery,
-      fieldsQuery
+      fieldsQuery,
+      configsQuery
     } = this.props;
 
     const afterFormDbSave = (id: string) => {
@@ -100,7 +104,8 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
       afterFormDbSave,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
       emailTemplates: emailTemplatesQuery.emailTemplates || [],
-      productFields: fieldsQuery.fields || []
+      productFields: fieldsQuery.fields || [],
+      configs: configsQuery.configs || []
     };
     return <Booking {...updatedProps} />;
   }
@@ -138,5 +143,8 @@ export default compose(
         }
       })
     }
-  )
+  ),
+  graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+    name: 'configsQuery'
+  })
 )(withRouter<FinalProps>(CreateBookingContainer));

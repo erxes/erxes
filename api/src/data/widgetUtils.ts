@@ -449,7 +449,8 @@ export const solveSubmissions = async (args: {
           'file',
           'textarea',
           'radio',
-          'check'
+          'check',
+          'map'
         ].includes(submissionType)
       ) {
         const field = await Fields.findById(submission.associatedFieldId);

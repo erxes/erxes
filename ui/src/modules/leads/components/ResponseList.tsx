@@ -70,7 +70,7 @@ class List extends React.Component<Props, {}> {
             })}
           </tr>
         </thead>
-        <tbody>{this.renderRow()}</tbody>
+        {/* <tbody>{this.renderRow()}</tbody> */}
       </Table>
     );
 

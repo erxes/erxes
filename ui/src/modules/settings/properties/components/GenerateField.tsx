@@ -18,11 +18,16 @@ import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-// import { colors } from 'modules/common/styles';
-// import { Divider } from "modules/settings/main/styles";
+import { MapContainer, Marker } from 'react-leaflet';
+import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
+import { FullscreenControl } from 'react-leaflet-fullscreen';
+import 'react-leaflet-fullscreen/dist/styles.css';
+import { IConfig } from 'modules/settings/general/types';
+import { Alert } from 'erxes-ui';
 
 type Props = {
   field: IField;
+  configs: IConfig[];
   onValueChange?: (data: { _id: string; value: any }) => void;
   defaultValue?: any;
   hasLogic?: boolean;
@@ -32,13 +37,49 @@ type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
+  currentLocation?: [number, number];
+  googleMapApiKey: string;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { errorCounter: 0, ...this.generateState(props) };
+    const config = props.configs.find(e => e.code === 'GOOGLE_MAP_API_KEY');
+
+    this.state = {
+      errorCounter: 0,
+      ...this.generateState(props),
+      googleMapApiKey: config ? config.value : ''
+    };
+  }
+
+  componentDidMount() {
+    const onSuccess = (position: { coords: any }) => {
+      const coordinates = position.coords;
+
+      this.setState({
+        currentLocation: [coordinates.latitude, coordinates.longitude]
+      });
+    };
+
+    const onError = (err: { code: any; message: any }) => {
+      return Alert.error(`${err.code}): ${err.message}`);
+    };
+
+    if (navigator.geolocation) {
+      navigator.permissions.query({ name: 'geolocation' }).then(result => {
+        if (result.state === 'granted') {
+          navigator.geolocation.getCurrentPosition(onSuccess);
+        } else if (result.state === 'prompt') {
+          navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        }
+      });
+    }
   }
 
   generateState = props => {
@@ -329,6 +370,50 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderMap(attrs) {
+    const { field, onValueChange } = this.props;
+    const { currentLocation, googleMapApiKey } = this.state;
+
+    const dragend = e => {
+      const location = e.target.getLatLng();
+      if (onValueChange) {
+        onValueChange({ _id: field._id, value: [location.lat, location.lng] });
+      }
+    };
+
+    const { value } = attrs;
+    let centerCoordinates: [number, number] = currentLocation || [0, 0];
+
+    if (value && value.length !== 0) {
+      centerCoordinates = value;
+    }
+
+    let zoom = 10;
+
+    if (centerCoordinates[0] === 0 && centerCoordinates[1] === 0) {
+      zoom = 2;
+    }
+
+    return (
+      <MapContainer
+        style={{ height: '300px', width: '100%' }}
+        zoom={zoom}
+        center={centerCoordinates}
+      >
+        <ReactLeafletGoogleLayer
+          apiKey={googleMapApiKey}
+          useGoogMapsLoader={true}
+        />
+        <FullscreenControl />
+        <Marker
+          draggable={true}
+          position={centerCoordinates}
+          eventHandlers={{ dragend }}
+        />
+      </MapContainer>
+    );
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -483,6 +568,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'objectList': {
         return this.renderObjectList(attrs);
+      }
+
+      case 'map': {
+        return this.renderMap(attrs);
       }
 
       default:

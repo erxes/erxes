@@ -3,6 +3,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
+import { IConfig } from 'modules/settings/general/types';
 import { IField } from 'modules/settings/properties/types';
 import { Description } from 'modules/settings/styles';
 import React from 'react';
@@ -25,6 +26,7 @@ type Props = {
   hideOptionalFields?: boolean;
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
+  configs: IConfig[];
 };
 
 type State = {
@@ -214,7 +216,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderPreviewWrapper } = this.props;
+    const { renderPreviewWrapper, configs } = this.props;
     const {
       currentMode,
       currentField,
@@ -231,6 +233,7 @@ class Form extends React.Component<Props, State> {
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
           currentPage={this.state.currentPage}
+          configs={configs}
         />
       );
     };
@@ -250,6 +253,7 @@ class Form extends React.Component<Props, State> {
             mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
+            configs={configs}
             numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}

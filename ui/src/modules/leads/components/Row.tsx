@@ -105,7 +105,7 @@ class Row extends React.Component<Props> {
     return (
       <Link to={`/forms/responses/${integration._id}/${formId}`}>
         <Button btnStyle="link">
-          <Tip text={__('Manage')} placement="top">
+          <Tip text={__('Responses')} placement="top">
             <Icon icon="down-arrow" />
           </Tip>
         </Button>

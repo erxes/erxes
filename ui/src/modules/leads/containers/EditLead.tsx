@@ -18,6 +18,8 @@ import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations, queries } from '../graphql';
 import { ILeadData } from '../types';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 
 type Props = {
   contentTypeId: string;
@@ -42,6 +44,7 @@ type FinalProps = {
   integrationDetailQuery: LeadIntegrationDetailQueryResponse;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
   IRouterProps;
@@ -59,7 +62,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       integrationDetailQuery,
       editIntegrationMutation,
       history,
-      emailTemplatesQuery
+      emailTemplatesQuery,
+      configsQuery
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -117,7 +121,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || []
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      configs: configsQuery.configs || []
     };
 
     return <Lead {...updatedProps} />;
@@ -157,6 +162,9 @@ export default withProps<FinalProps>(
         })
       }
     ),
+    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+      name: 'configsQuery'
+    }),
     graphql<
       Props,
       EditIntegrationMutationResponse,

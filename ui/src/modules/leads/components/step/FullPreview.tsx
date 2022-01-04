@@ -5,6 +5,7 @@ import { __ } from 'modules/common/utils';
 import FieldForm from 'modules/forms/components/FieldForm';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
+import { IConfig } from 'modules/settings/general/types';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import CalloutPreview from './preview/CalloutPreview';
@@ -38,6 +39,7 @@ type Props = {
   skip?: boolean;
   successImgSize?: string;
   successImage?: string;
+  configs: IConfig[];
 };
 
 type State = {
@@ -158,7 +160,7 @@ class FullPreviewStep extends React.Component<Props, State> {
   }
 
   renderPreview() {
-    const { carousel, formData } = this.props;
+    const { carousel, formData, configs } = this.props;
     const { currentMode, currentField, fields } = this.state;
 
     if (carousel === 'callout') {
@@ -174,6 +176,7 @@ class FullPreviewStep extends React.Component<Props, State> {
             onFieldClick={this.onFieldClick}
             onChangeFieldsOrder={this.onChangeFieldsOrder}
             currentPage={this.state.currentPage}
+            configs={configs}
           />
         </>
       );
@@ -193,6 +196,7 @@ class FullPreviewStep extends React.Component<Props, State> {
               mode={currentMode || 'create'}
               fields={fields}
               field={currentField}
+              configs={configs}
               numberOfPages={formData.numberOfPages || 1}
               onSubmit={this.onFieldSubmit}
               onDelete={this.onFieldDelete}
