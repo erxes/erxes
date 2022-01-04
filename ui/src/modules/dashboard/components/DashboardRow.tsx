@@ -7,14 +7,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import DashbaordForm from '../containers/DashboardForm';
 import { IDashboard } from '../types';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+
+export const DashboardWrapper = styledTS<{ space: number }>(styled.div)`
+  padding-left: ${props => props.space * 20}px;
+`;
 
 type Props = {
   dashboard: IDashboard;
+  dashboards: IDashboard[];
   isActive: boolean;
   removeDashboard: (id: string) => void;
   loading: boolean;
-  category: IDashboard;
-  categories: IDashboard[];
+  space: number;
 };
 
 class PipelineRow extends React.Component<Props, {}> {
@@ -24,8 +30,8 @@ class PipelineRow extends React.Component<Props, {}> {
       isActive,
       removeDashboard,
       loading,
-      category,
-      categories
+      dashboards,
+      space
     } = this.props;
 
     const remove = () => {
@@ -42,20 +48,20 @@ class PipelineRow extends React.Component<Props, {}> {
 
     return (
       <SidebarListItem key={dashboard._id} isActive={isActive}>
-        <Link to={`/dashboard/${dashboard._id}`}>{dashboard.name}</Link>
+        <DashboardWrapper space={space}>
+          <Link to={`/dashboard/${dashboard._id}`}>{dashboard.name}</Link>
+        </DashboardWrapper>
         <ActionButtons>
           <DashbaordForm
             dashboard={dashboard}
             trigger={editTrigger}
             loading={loading}
-            category={category}
-            categories={categories}
+            dashboards={dashboards}
           />
           <Tip text={__('Delete')} placement="left">
             <Button btnStyle="link" icon="times-circle" onClick={remove} />
           </Tip>
         </ActionButtons>
-        <Icon icon="angle-down" />
       </SidebarListItem>
     );
   }

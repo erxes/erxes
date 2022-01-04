@@ -5,6 +5,10 @@ const dashboardItemDetail = `
       layout
       vizState
       name
+      parentId
+      order
+      createdAt
+      relatedIds
     }
   }
 `;
@@ -17,6 +21,10 @@ const dashboards = `
       description
       visibility
       selectedMemberIds
+      parentId
+      order
+      createdAt
+      relatedIds
 	  }
   }
 `;
@@ -29,6 +37,10 @@ const dashboardDetails = `
       description
       visibility
       selectedMemberIds
+      parentId
+      order
+      createdAt
+      relatedIds
     }
   }
 `;

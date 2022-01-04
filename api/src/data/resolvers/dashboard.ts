@@ -2,7 +2,7 @@ import { Dashboards } from '../../db/models';
 import { IDashboardDocument } from '../../db/models/definitions/dashboard';
 
 export default {
-  childs(dashboard: IDashboardDocument) {
+  childsDashboard(dashboard: IDashboardDocument) {
     return Dashboards.find({
       parentId: dashboard._id
     }).sort({

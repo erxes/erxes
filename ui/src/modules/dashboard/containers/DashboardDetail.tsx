@@ -12,8 +12,8 @@ import { DashboardDetailsQueryResponse, IDashboard } from '../types';
 type Props = {
   id: string;
   isExplore?: boolean;
-  category: IDashboard;
-  categories: IDashboard[];
+  dashboard: IDashboard;
+  dashboards: IDashboard[];
 };
 
 type FinalProps = {

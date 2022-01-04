@@ -27,12 +27,12 @@ interface IDashboardEmailParams {
 
 const dashboardsMutations = {
   async dashboardAdd(_root, doc: IDashboard, { docModifier, user }: IContext) {
-    const dashboard = await Dashboards.create(docModifier(doc));
+    const dashboard = await Dashboards.addDashboard(docModifier(doc));
 
     await putCreateLog(
       {
         type: MODULE_NAMES.DASHBOARD,
-        newData: doc,
+        newData: { doc, order: dashboard.order },
         object: dashboard,
         description: `Dashboard "${doc.name}" has been created`
       },

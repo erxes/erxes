@@ -78,12 +78,14 @@ const deals = `
     $initialStageId: String,
     $stageId: String,
     $skip: Int,
+    $limit: Int,
     ${commonParams}
   ) {
     deals(
       initialStageId: $initialStageId,
       stageId: $stageId,
       skip: $skip,
+      limit: $limit,
       ${commonParamDefs}
     ) {
       products

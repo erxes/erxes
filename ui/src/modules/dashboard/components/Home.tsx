@@ -9,10 +9,9 @@ import { IDashboard } from '../types';
 
 type Props = {
   queryParams: any;
+  dashboard: IDashboard;
   dashboards: IDashboard[];
   loading: boolean;
-  category: IDashboard;
-  categories: IDashboard[];
 };
 
 type FinalProps = {} & Props & IRouterProps;

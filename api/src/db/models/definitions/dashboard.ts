@@ -6,6 +6,13 @@ export interface IDashboard {
   visibility: string;
   selectedMemberIds?: string[];
   description: string;
+  parentId?: string;
+  childsDashboard: [IDashboard];
+  order?: string;
+  createdAt: Date;
+  code: string;
+  dashboardCount: number;
+  relatedIds: string[];
 }
 
 export interface IDashboardItemInput {
@@ -47,7 +54,14 @@ export const dashboardSchema = schemaWrapper(
     name: field({ type: String }),
     description: field({ type: String, optional: true }),
     visibility: field({ type: String }),
-    selectedMemberIds: field({ type: [String] })
+    selectedMemberIds: field({ type: [String] }),
+    parentId: field({ type: String, optional: true }),
+    childsDashboard: field({ type: [String] }),
+    order: field({ type: String }),
+    createdAt: field({ type: Date }),
+    code: field({ type: String }),
+    dashboardCount: field({ type: Number }),
+    relatedIds: field({ type: [String] })
   })
 );
 
@@ -60,3 +74,5 @@ export const dashboardItemSchema = new Schema({
   type: field({ type: String }),
   isDateRange: field({ type: Boolean })
 });
+
+dashboardSchema.index({ type: 1, order: 1, name: 1 });

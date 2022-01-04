@@ -16,9 +16,8 @@ const { REACT_APP_DASHBOARD_URL } = getEnv();
 type Props = {
   id: string;
   dashboard: IDashboard;
+  dashboards: IDashboard[];
   isExplore?: boolean;
-  category: IDashboard;
-  categories: IDashboard[];
 };
 
 type State = {

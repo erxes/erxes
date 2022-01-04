@@ -6,41 +6,38 @@ import { IDashboard } from '../types';
 import DashboardRow from './DashboardRow';
 
 type Props = {
+  dashboard: IDashboard;
   dashboards: IDashboard[];
   loading: boolean;
   currentDashboard?: string;
   removeDashboard: (id: string) => void;
   history: any;
-  category: IDashboard;
-  categories: IDashboard[];
 };
 
 function DashboardList(props: Props) {
-  const {
-    dashboards,
-    loading,
-    currentDashboard,
-    removeDashboard,
-    category,
-    categories
-  } = props;
+  const { dashboards, loading, currentDashboard, removeDashboard } = props;
 
   const renderContent = () => {
     if (loading) {
       return <Spinner objective={true} />;
     }
 
-    return dashboards.map(dashboard => (
-      <DashboardRow
-        isActive={currentDashboard === dashboard._id}
-        key={dashboard._id}
-        dashboard={dashboard}
-        removeDashboard={removeDashboard}
-        loading={loading}
-        category={category}
-        categories={categories}
-      />
-    ));
+    return dashboards.map(dashboard => {
+      const order = dashboard.order || '';
+      const foundedString = order.match(/[/]/gi);
+
+      return (
+        <DashboardRow
+          isActive={currentDashboard === dashboard._id}
+          key={dashboard._id}
+          dashboard={dashboard}
+          removeDashboard={removeDashboard}
+          loading={loading}
+          space={foundedString ? foundedString.length : 0}
+          dashboards={dashboards}
+        />
+      );
+    });
   };
 
   const triggerCreate = <Create>Create a Dashboard</Create>;
@@ -48,7 +45,11 @@ function DashboardList(props: Props) {
   return (
     <>
       <Dashboards>{renderContent()}</Dashboards>
-      <DashbaordForm trigger={triggerCreate} {...props} />
+      <DashbaordForm
+        trigger={triggerCreate}
+        dashboards={dashboards}
+        loading={loading}
+      />
     </>
   );
 }

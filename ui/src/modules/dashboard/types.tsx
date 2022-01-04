@@ -5,11 +5,11 @@ export interface IDashboard {
   selectedMemberIds?: string[];
   description: string;
   parentId?: string;
-  order: string;
-  childsDashboard: string[];
-  isRoot: boolean;
+  order?: string;
+  childsDashboard: [IDashboard];
   createdAt: Date;
-  code: string;
+  dashboardCount: number;
+  relatedIds: string[];
 }
 
 export type DashboardsQueryResponse = {

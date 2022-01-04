@@ -17,8 +17,8 @@ import {
 
 type Props = {
   currentDashboard?: string;
-  category: IDashboard;
-  categories: IDashboard[];
+  dashboard: IDashboard;
+  dashboards: IDashboard[];
 } & IRouterProps;
 
 type FinalProps = {

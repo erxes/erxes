@@ -12,8 +12,8 @@ import { DashboardsQueryResponse, IDashboard } from '../types';
 
 type Props = {
   queryParams: any;
-  category: IDashboard;
-  categories: IDashboard[];
+  dashboard: IDashboard;
+  dashboards: IDashboard[];
 } & IRouterProps;
 
 type FinalProps = {

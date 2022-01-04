@@ -11,17 +11,13 @@ import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import { IDashboard } from '../types';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import { generateCategoryOptions } from 'erxes-ui/lib/utils';
 
 type Props = {
   dashboard?: IDashboard;
-  dashboards?: IDashboard[];
+  dashboards: IDashboard[];
   trigger?: React.ReactNode;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
-  category: IDashboard;
-  categories: IDashboard[];
 };
 
 type State = {
@@ -33,9 +29,14 @@ type FinalProps = {
   closeModal: () => void;
 } & Props;
 
+type IDashboradItem = {
+  order?: string;
+  name: string;
+  _id: string;
+};
+
 function DashbaordFormContent(props: FinalProps) {
   const dashboard = props.dashboard;
-
   const [state, setState] = useState<State>({
     visibility: dashboard ? dashboard.visibility || 'public' : 'public',
     selectedMemberIds: dashboard ? dashboard.selectedMemberIds || [] : []
@@ -45,6 +46,7 @@ function DashbaordFormContent(props: FinalProps) {
     _id?: string;
     name: string;
     description: string;
+    parentId?: string;
   }) => {
     const { selectedMemberIds, visibility } = state;
     const finalValues = values;
@@ -58,7 +60,8 @@ function DashbaordFormContent(props: FinalProps) {
       name: finalValues.name,
       visibility,
       selectedMemberIds,
-      description: finalValues.description
+      description: finalValues.description,
+      parentId: finalValues.parentId
     };
   };
 
@@ -95,9 +98,39 @@ function DashbaordFormContent(props: FinalProps) {
     );
   };
 
+  const generateDashboardOptions = (
+    dashboards: IDashboradItem[],
+    currentDashboardId?: string
+  ) => {
+    const result: React.ReactNode[] = [];
+
+    for (const dashboard1 of dashboards) {
+      const order = dashboard1.order || '';
+
+      const foundedString = order.match(/[/]/gi);
+
+      let space = '';
+
+      if (foundedString) {
+        space = '\u00A0 '.repeat(foundedString.length);
+      }
+
+      if (currentDashboardId !== dashboard1._id) {
+        result.push(
+          <option key={dashboard1._id} value={dashboard1._id}>
+            {space}
+            {dashboard1.name}
+          </option>
+        );
+      }
+    }
+
+    return result;
+  };
+
   const renderParentCategories = (formProps: IFormProps) => {
-    const { category, categories } = props;
-    const object = category || ({} as IDashboard);
+    const { dashboards } = props;
+    const object = dashboard || ({} as IDashboard);
 
     return (
       <FormGroup>
@@ -110,53 +143,9 @@ function DashbaordFormContent(props: FinalProps) {
           defaultValue={object.parentId}
         >
           <option value="" />
-          {generateCategoryOptions(categories, object._id)}
+          {generateDashboardOptions(dashboards, object._id)}
         </FormControl>
       </FormGroup>
-    );
-  };
-
-  const renderDashboardContent = () => {
-    const dashboards = props.dashboards || [];
-
-    const result: React.ReactNode[] = [];
-
-    for (const category of dashboards) {
-      const order = category.order;
-
-      const m = order.match(/[/]/gi);
-
-      let space = '';
-
-      console.log(space);
-
-      if (m) {
-        space = '\u00a0\u00a0'.repeat(m.length);
-      }
-
-      // const name = category.isRoot ? (
-      //   `${category.name} (${category.dashboardCount})`
-      // ) : (
-      //   <span>
-      //     {category.name} ({category.dashboardCount})
-      //   </span>
-      // );
-    }
-
-    return result;
-  };
-
-  const renderCategoryList = () => {
-    const { loading } = props;
-
-    return (
-      <DataWithLoader
-        data={renderDashboardContent()}
-        loading={loading}
-        // emptyText="There is no product & service category"
-        // emptyIcon="folder-2"
-        size="small"
-      />
     );
   };
 
@@ -205,8 +194,6 @@ function DashbaordFormContent(props: FinalProps) {
 
         {renderSelectMembers()}
 
-        {renderCategoryList()}
-
         {renderParentCategories(formProps)}
 
         <ModalFooter>
@@ -239,12 +226,18 @@ const DashbaordForm = (props: Props) => {
     <Button icon="sitemap-1">{__('Create new Dashboard')}</Button>
   );
 
-  const { dashboard, trigger = defatulTrigger, renderButton } = props;
+  const {
+    dashboard,
+    dashboards,
+    trigger = defatulTrigger,
+    renderButton
+  } = props;
 
   const content = modalProps => {
     const updatedProps = {
       ...modalProps,
       dashboard,
+      dashboards,
       renderButton
     };
 
