@@ -1,4 +1,4 @@
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { StepFormWrapper } from '../../../styles';
 import React from 'react';
 

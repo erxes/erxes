@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from 'erxes-ui/lib/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { withProps } from 'erxes-ui/lib/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import Sidebar from '../components/Sidebar';
 import { queries } from '../graphql';
 import { CountQueryResponse, TagCountQueryResponse } from '../types';
@@ -16,17 +16,24 @@ type Props = {
 type FinalProps = {
   kindCountsQuery: CountQueryResponse;
   statusCountsQuery: CountQueryResponse;
-  tagsQuery: any;
+  // tagsQuery: TagsQueryResponse;
   tagCountsQuery: TagCountQueryResponse;
 } & IRouterProps;
 
 const SidebarContainer = (props: FinalProps) => {
+  const {
+    kindCountsQuery,
+    statusCountsQuery,
+    // tagsQuery,
+    tagCountsQuery
+  } = props;
+
   const updatedProps = {
     ...props,
-    kindCounts: {},
-    statusCounts: {},
+    kindCounts: kindCountsQuery.engageMessageCounts || {},
+    statusCounts: statusCountsQuery.engageMessageCounts || {},
     tags: [],
-    tagCounts: {}
+    tagCounts: tagCountsQuery.engageMessageCounts || {}
   };
 
   return <Sidebar {...updatedProps} />;
@@ -48,6 +55,15 @@ export default withProps<Props>(
         })
       }
     ),
+    // graphql<Props, TagCountQueryResponse, { type: string }>(
+    //   gql(tagQueries.tags),
+    //   {
+    //     name: 'tagsQuery',
+    //     options: () => ({
+    //       variables: { type: 'engageMessage' }
+    //     })
+    //   }
+    // ),
     graphql<Props, CountQueryResponse, { kind: string; status: string }>(
       gql(queries.tagCounts),
       {

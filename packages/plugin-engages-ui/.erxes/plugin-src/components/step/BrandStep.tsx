@@ -1,13 +1,14 @@
-import Icon from 'erxes-ui/lib/components/Icon';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { TargetCount } from '../../types';
 import React from 'react';
 import Common from './Common';
 import BrandForm from './forms/BrandForm';
+import { IBrand } from '@erxes/ui/src/settings/brands/types';
 
 type Props = {
   brandIds: string[];
-  brands: any[];
+  brands: IBrand[];
   messageType: string;
   targetCount: TargetCount;
   customersCount: (ids: string[]) => number;

@@ -1,15 +1,15 @@
-import Button from 'erxes-ui/lib/components/Button';
-import ErrorMsg from 'erxes-ui/lib/components/ErrorMsg';
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import HelpPopover from 'erxes-ui/lib/components/HelpPopover';
-import Icon from 'erxes-ui/lib/components/Icon';
-import { FlexItem, FlexPad } from 'erxes-ui/lib/components/step/styles';
-import Tip from 'erxes-ui/lib/components/Tip';
-import Uploader from 'erxes-ui/lib/components/Uploader';
-import { ISelectedOption } from 'erxes-ui/lib/types';
-import { __ } from 'erxes-ui/lib/utils';
+import Button from '@erxes/ui/src/components/Button';
+import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import HelpPopover from '@erxes/ui/src/components/HelpPopover';
+import Icon from '@erxes/ui/src/components/Icon';
+import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
+import Tip from '@erxes/ui/src/components/Tip';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
 import {
   EditorContainer,
   TestEmailWrapper,
@@ -160,9 +160,7 @@ class EmailForm extends React.Component<Props, State> {
       </VerifyStatus>
     );
 
-    return (
-      <div>select</div>
-    );
+    return <div>select</div>;
   }
 
   renderTestEmailSection() {

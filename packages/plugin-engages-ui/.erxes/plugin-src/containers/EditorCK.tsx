@@ -1,8 +1,8 @@
-import EditorCK from 'erxes-ui/lib/containers/EditorCK';
-import { withProps } from 'erxes-ui/lib/utils';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { IEditorProps } from 'erxes-ui/lib/types';
+import { IEditorProps } from '@erxes/ui/src/types';
 
 const generateItemCustomFields = items =>
   (items || []).map(item => ({
@@ -10,10 +10,7 @@ const generateItemCustomFields = items =>
     name: `${item.fieldName}:${item.pipelineName}:${item.boardName}`
   }));
 
-const generateAttributes = (
-  itemTypeFields,
-  combinedFields?: any[]
-) => {
+const generateAttributes = (itemTypeFields, combinedFields?: any[]) => {
   let items: Array<{ name: string; value?: string }> = [
     { name: 'Customer' },
     { value: 'customer.name', name: 'Name' }

@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { Alert, withProps } from 'erxes-ui/lib/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import EmailForm from '../components/EmailForm';
 import { mutations, queries } from '../graphql';
 import { EngageVerifiedEmailsQueryResponse, IEmailFormProps } from '../types';

@@ -1,5 +1,5 @@
-import { colors, dimensions } from 'erxes-ui/lib/styles';
-import { BoxRoot } from 'erxes-ui/lib/styles/main';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import { BoxRoot } from '@erxes/ui/src/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
