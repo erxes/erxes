@@ -1,5 +1,5 @@
-import { SelectWrapper } from '../components/form/styles';
-import { colors, dimensions } from '../styles';
+import { SelectWrapper } from '../../components/form/styles';
+import { colors, dimensions } from '../../styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

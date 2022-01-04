@@ -5,11 +5,11 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { AddMutationResponse, IEngageMessageDoc } from '../types';
-import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql'; // will fix
+import { queries as templatesQuery } from '@erxes/ui/src/settings/emailTemplates/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../settings/brands/types'; // will fix
-import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List'; // will fix
+import { BrandsQueryResponse } from '@erxes/ui/src/settings/brands/types';
+import { EmailTemplatesQueryResponse } from '@erxes/ui/src/settings/emailTemplates/types'; // will fix
 import Widget from '../components/Widget';
 import {
   MESSAGE_KINDS,

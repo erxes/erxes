@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { combinedFields } from '../segments/graphql';
+import { combinedFields } from '../settings/segments/graphql';
 import { LeadIntegrationsQueryResponse } from '../leads/types';
 import {
   FieldsCombinedByType,

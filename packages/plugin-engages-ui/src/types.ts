@@ -1,9 +1,15 @@
 import { IConditionsRule, QueryResponse } from '@erxes/ui/src/types';
-import { IEmailTemplate, IAttachment, IBrand } from '@erxes/ui/src/types';
-import { IIntegration } from 'modules/settings/integrations/types';
+import { IAttachment } from '@erxes/ui/src/types';
+import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IEmailTemplate } from '@erxes/ui/src/settings/emailTemplates/types';
+import { IIntegration } from '@erxes/ui/src/settings/integrations/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types'; // will fix
-import { ITag } from '../tags/types'; // will fix
+import {
+  ISegment,
+  ISegmentCondition,
+  ISegmentDoc
+} from '@erxes/ui/src/settings/segments/types';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 export type IEngageScheduleDate = {
   type: string;
