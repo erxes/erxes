@@ -82,11 +82,6 @@ import {
   types as EmailTemplate
 } from './emailTemplate';
 import {
-  mutations as EngageMutations,
-  queries as EngageQueries,
-  types as EngageTypes
-} from './engage';
-import {
   fieldsGroupsMutations as FieldGroupMutations,
   fieldsGroupsQueries as FieldGroupQueries,
   fieldsGroupsTypes as FieldGroupTypes,
@@ -236,7 +231,6 @@ export let types = `
   ${ClientPortalTypes}
   ${SkillTypes}
   ${EmailTemplate}
-  ${EngageTypes}
   ${EmailDelivery}
   ${TagTypes}
   ${FieldTypes}
@@ -285,7 +279,6 @@ export let queries = `
   ${ClientPortalQueries}
   ${EmailDeliveryQueries}
   ${FieldQueries}
-  ${EngageQueries}
   ${FormQueries}
   ${TagQueries}
   ${InternalNoteQueries}
@@ -324,7 +317,6 @@ export let mutations = `
   ${UserMutations}
   ${CompanyMutations}
   ${ConversationMutations}
-  ${EngageMutations}
   ${TagMutations}
   ${BoardMutations}
   ${BrandMutations}

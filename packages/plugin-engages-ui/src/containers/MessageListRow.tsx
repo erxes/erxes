@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from 'erxes-ui/lib/types';
-import { Alert, confirm, withProps } from 'erxes-ui/lib/utils';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

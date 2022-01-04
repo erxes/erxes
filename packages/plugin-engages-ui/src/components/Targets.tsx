@@ -1,5 +1,5 @@
-import EmptyState from 'erxes-ui/lib/components/EmptyState';
-import { SidebarCounter, SidebarList } from 'erxes-ui/lib/layout/styles';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { ListCounter, ListWrapper } from '../styles';
 import { TargetCount } from '../types';

@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import { withProps } from 'erxes-ui/lib/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import AutoAndManualForm from '../components/AutoAndManualForm';
 import FormBase from '../components/FormBase';
@@ -47,4 +47,4 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
   return <FormBase kind={props.kind || ''} content={content} />;
 };
 
-export default  withProps<Props>( compose()(AutoAndManualFormContainer))
+export default withProps<Props>(compose()(AutoAndManualFormContainer));

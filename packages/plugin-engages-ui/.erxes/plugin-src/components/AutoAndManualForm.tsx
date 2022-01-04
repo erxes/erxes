@@ -1,14 +1,14 @@
-import Button from 'erxes-ui/lib/components/Button';
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import ConditionsRule from 'erxes-ui/lib/components/rule/ConditionsRule';
-import { Step, Steps } from 'erxes-ui/lib/components/step';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
+import { Step, Steps } from '@erxes/ui/src/components/step';
 import {
   StepWrapper,
   TitleContainer
-} from 'erxes-ui/lib/components/step/styles';
-import { Alert } from 'erxes-ui/lib/utils';
-import { __ } from 'erxes-ui/lib/utils';
-import Wrapper from 'erxes-ui/lib/layout/components/Wrapper';
+} from '@erxes/ui/src/components/step/styles';
+import { Alert } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { METHODS } from '../constants';

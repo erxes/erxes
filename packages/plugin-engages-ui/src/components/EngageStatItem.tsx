@@ -1,5 +1,5 @@
-import HelpPopover from 'modules/common/components/HelpPopover';
-import Icon from 'modules/common/components/Icon';
+import HelpPopover from '@erxes/ui/src/components/HelpPopover';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import s from 'underscore.string';
 import {

@@ -1,12 +1,12 @@
-import Button from 'erxes-ui/lib/components/Button';
-import DataWithLoader from 'erxes-ui/lib/components/DataWithLoader';
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import ModalTrigger from 'erxes-ui/lib/components/ModalTrigger';
-import Pagination from 'erxes-ui/lib/components/pagination/Pagination';
-import Table from 'erxes-ui/lib/components/table';
-import colors from 'erxes-ui/lib/styles/colors';
-import { __ } from 'erxes-ui/lib/utils';
-import Wrapper from 'erxes-ui/lib/layout/components/Wrapper';
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Table from '@erxes/ui/src/components/table';
+import colors from '@erxes/ui/src/styles/colors';
+import { __ } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import MessageListRow from '../containers/MessageListRow';
@@ -49,7 +49,7 @@ class List extends React.Component<Props> {
       return null;
     }
 
-    return (<div>tag</div>);
+    return <div>tag</div>;
   }
 
   renderBox(title, desc, url) {
@@ -256,9 +256,26 @@ class List extends React.Component<Props> {
     );
 
     return (
-      <div>
-        {mainContent}
-      </div>
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__('Campaigns')}
+            breadcrumb={[{ title: __('Campaigns') }]}
+            queryParams={queryParams}
+          />
+        }
+        leftSidebar={<Sidebar queryParams={queryParams} />}
+        actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
+        content={
+          <DataWithLoader
+            data={mainContent}
+            loading={loading}
+            count={messages.length}
+            // emptyContent={<EmptyContent content={<h1>empty content</h1>} />}
+          />
+        }
+      />
     );
   }
 }
