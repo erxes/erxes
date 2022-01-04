@@ -1,5 +1,5 @@
 export const types = `
-  type Brand {
+  type Brand @key(fields: "_id") {
     _id: String!
     name: String
     description: String

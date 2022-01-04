@@ -12,7 +12,7 @@ module.exports = {
   },
   menus: [
     {
-      text: "Sales Pipeline",
+      text: "Sales Pipeline1",
       url: "/deal",
       icon: "icon-megaphone",
       location: "mainNavigation",

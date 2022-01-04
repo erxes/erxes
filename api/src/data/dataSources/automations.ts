@@ -24,7 +24,7 @@ export default class AutomationAPI extends RESTDataSource {
   public didEncounterError(e) {
     const error = e.extensions || {};
     const { response } = error;
-    const { body } = response || { body: e.message };
+    const { body } = response || { body: (e as Error).message };
 
     if (e.code === 'ECONNREFUSED' || e.code === 'ENOTFOUND') {
       throw new Error('Automations api is not running');
@@ -42,7 +42,7 @@ export default class AutomationAPI extends RESTDataSource {
     } catch (e) {
       debugError(e);
 
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -55,7 +55,7 @@ export default class AutomationAPI extends RESTDataSource {
     } catch (e) {
       debugError(e);
 
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -68,7 +68,7 @@ export default class AutomationAPI extends RESTDataSource {
     } catch (e) {
       debugError(e);
 
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -79,7 +79,7 @@ export default class AutomationAPI extends RESTDataSource {
     } catch (e) {
       debugError(e);
 
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -88,7 +88,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.post(`/api/update`, { doc });
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -97,7 +97,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.post(`/api/remove`, { automationIds });
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -106,7 +106,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.post(`/api/create`, { doc });
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -115,7 +115,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.post(`/api/createNote`, { doc });
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -124,7 +124,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.post(`/api/updateNote`, { _id, doc });
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -133,7 +133,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.post(`/api/deleteNote`, { _id });
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -142,7 +142,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.get(`/api/notes`, selector);
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -151,7 +151,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.get(`/api/note`, selector);
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 
@@ -160,7 +160,7 @@ export default class AutomationAPI extends RESTDataSource {
       return await this.get(`/api/histories`, selector);
     } catch (e) {
       debugError(e);
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   }
 } // end class

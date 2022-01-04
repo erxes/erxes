@@ -10,7 +10,8 @@
     "noUnusedParameters": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "useUnknownInCatchVariables": false,
   },
   "include": ["./src/**/*.ts", "typings.d.ts"],
   "exclude": ["node_modules", "dist"]

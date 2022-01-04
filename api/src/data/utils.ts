@@ -770,7 +770,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugError(e.message);
+      debugError((e as Error).message);
 
       if (callback) {
         return callback(res, e, next);

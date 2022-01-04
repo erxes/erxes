@@ -22,10 +22,11 @@ const deals = () => {
 const boards = ({ location }) => {
   // const queryParams = queryString.parse(location.search);
 
-  return <div>Hi, Deal</div>;
+  return <div>Hi, Deal122</div>;
 };
 
 const routes = () => {
+  console.log("in rouuuteee");
   return (
     <React.Fragment>
       <Route key="deals" exact={true} path="/deal" render={deals} />

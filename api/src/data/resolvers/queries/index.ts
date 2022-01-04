@@ -14,7 +14,6 @@ import dashboards from './dashboards';
 import deals from './deals';
 import emailDeliveries from './emailDelivery';
 import emailTemplates from './emailTemplates';
-import engages from './engages';
 import {
   fieldQueries as fields,
   fieldsGroupQueries as fieldsgroups
@@ -59,7 +58,6 @@ export default {
   ...scripts,
   ...emailTemplates,
   ...emailDeliveries,
-  ...engages,
   ...forms,
   ...tags,
   ...internalNotes,
