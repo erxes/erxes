@@ -13,7 +13,7 @@ import DashboardRoutes from './modules/dashboard/routes';
 // import DealsRoutes from './modules/deals/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
-import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
+// import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import LeadRoutes from './modules/leads/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
@@ -95,7 +95,7 @@ const renderRoutes = currentUser => {
           <SegmentsRoutes />
           <CustomersRoutes />
           <CompaniesRoutes />
-          <KnowledgeBaseRoutes />
+          {/* <KnowledgeBaseRoutes /> */}
           <LeadRoutes />
           <SettingsRoutes />
           <TagsRoutes />
