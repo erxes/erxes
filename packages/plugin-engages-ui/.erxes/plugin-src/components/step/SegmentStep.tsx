@@ -23,7 +23,7 @@ type Props = {
     customerCounts: React.ReactNode;
   }) => React.ReactNode;
   segmentType: string;
-  afterSave: () => void;
+  afterSave?: () => void;
 };
 
 const SegmentStep = (props: Props) => {

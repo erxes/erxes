@@ -8,3 +8,11 @@ export interface ITag {
   order?: string;
   totalObjectCount?: number;
 }
+
+// queries
+
+export type TagsQueryResponse = {
+  tags: ITag[];
+  loading: boolean;
+  refetch: () => void;
+};

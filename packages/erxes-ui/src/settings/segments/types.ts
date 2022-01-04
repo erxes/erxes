@@ -83,3 +83,24 @@ export interface ISegment extends ISegmentDoc {
   subSegmentConditions: ISegment[];
   getParentSegment: ISegment;
 }
+
+export type SegmentsQueryResponse = {
+  segments: ISegment[];
+} & QueryResponse;
+
+export type HeadSegmentsQueryResponse = {
+  segmentsGetHeads: ISegment[];
+} & QueryResponse;
+
+// mutation types
+export type AddMutationVariables = {
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  conditions: ISegmentCondition[];
+};
+
+export type AddMutationResponse = {
+  segmentsAdd: (params: { variables: AddMutationVariables }) => Promise<any>;
+};

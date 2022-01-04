@@ -123,3 +123,20 @@ export type QueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+type CountResponse = {
+  [key: string]: number;
+};
+
+type CustomerCounts = {
+  byBrand: CountResponse;
+  byForm: CountResponse;
+  byIntegrationType: CountResponse;
+  byLeadStatus: CountResponse;
+  bySegment: CountResponse;
+  byTag: CountResponse;
+};
+
+export type CountQueryResponse = {
+  customerCounts: CustomerCounts;
+} & QueryResponse;
