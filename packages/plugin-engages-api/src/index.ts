@@ -68,7 +68,19 @@ const httpServer = http.createServer(app);
 const apolloServer = new ApolloServer({
   schema: buildSubgraphSchema([{ typeDefs, resolvers }]),
   // for graceful shutdown
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],    
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],   
+  context: ({ req }) => {
+    let user: any = null;
+
+    if (req.headers.user) {
+      const userJson = Buffer.from(req.headers.user, 'base64').toString(
+        'utf-8'
+      );
+      user = JSON.parse(userJson);
+    }
+
+    return { user }
+  }
 });
 
 async function starServer() {
