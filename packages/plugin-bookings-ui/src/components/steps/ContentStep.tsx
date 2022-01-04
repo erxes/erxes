@@ -1,20 +1,20 @@
 import React from 'react';
-import { Description, SubHeading } from 'modules/settings/styles';
-import { FlexItem } from 'modules/layout/styles';
-import { FlexContent } from 'modules/boards/styles/item';
+import { Description, SubHeading } from '@erxes/ui/src/settings/styles';
+import { FlexItem } from '@erxes/ui/src/layout/styles';
+import { FlexContent } from '@erxes/ui/src/boards/styles/item';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components/form';
-import { LeftItem } from 'modules/common/components/step/styles';
-import { extractAttachment, __ } from 'modules/common/utils';
+} from '@erxes/ui/src/components/form';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer } from './style';
-import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
-import Uploader from 'modules/common/components/Uploader';
-import { BOOKING_DISPLAY_BLOCK } from 'modules/bookings/constants';
-import { IField } from 'modules/settings/properties/types';
+import SelectProductCategory from '@erxes/ui/src/bookings/containers/SelectProductCategory';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { BOOKING_DISPLAY_BLOCK } from '@erxes/ui/src/bookings/constants';
+import { IField } from '@erxes/ui/src/settings/properties/types';
 
 type Name =
   | 'name'
@@ -91,7 +91,7 @@ function ContentStep({
             <FormGroup>
               <ControlLabel required={true}>Booking Name</ControlLabel>
               <FormControl
-                type="text"
+                type='text'
                 value={name}
                 onChange={(e: any) => onChangeBooking('name', e.target.value)}
               />
@@ -102,7 +102,7 @@ function ContentStep({
         <FormGroup>
           <ControlLabel required={true}>Booking Description</ControlLabel>
           <FormControl
-            type="text"
+            type='text'
             value={description}
             onChange={(e: any) =>
               onChangeBooking('description', e.target.value)
@@ -128,7 +128,7 @@ function ContentStep({
             Type in a word to display as the navigation button text
           </Description>
           <FormControl
-            type="text"
+            type='text'
             value={navigationText}
             onChange={(e: any) =>
               onChangeBooking('navigationText', e.target.value)
@@ -148,7 +148,7 @@ function ContentStep({
               <ControlLabel>Display blocks</ControlLabel>
               <Select
                 options={generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST)}
-                placeholder="Choose line"
+                placeholder='Choose line'
                 value={line}
                 onChange={(e: any) => onChangeBooking('line', e ? e.value : '')}
               />
@@ -159,7 +159,7 @@ function ContentStep({
             <FormGroup>
               <ControlLabel>Columns</ControlLabel>
               <FormControl
-                type="number"
+                type='number'
                 min={0}
                 value={columns}
                 onChange={(e: any) =>
@@ -173,7 +173,7 @@ function ContentStep({
             <FormGroup>
               <ControlLabel>Rows</ControlLabel>
               <FormControl
-                type="number"
+                type='number'
                 min={0}
                 value={rows}
                 onChange={(e: any) => onChangeBooking('rows', e.target.value)}
@@ -185,7 +185,7 @@ function ContentStep({
             <FormGroup>
               <ControlLabel>Margin</ControlLabel>
               <FormControl
-                type="number"
+                type='number'
                 min={0}
                 value={margin}
                 onChange={(e: any) => onChangeBooking('margin', e.target.value)}
@@ -209,13 +209,13 @@ function ContentStep({
           <Description>
             Select the main Product Category of the products and services you
             want to display. If you haven't created one, please go to
-            <a href="/settings/product-service">{__(' Product & Service ')}</a>
+            <a href='/settings/product-service'>{__(' Product & Service ')}</a>
             to organize your product first.
           </Description>
           <SelectProductCategory
             onChange={(e: any) => onChangeSelect('productCategoryId', e)}
             value={productCategoryId}
-            placeholder="Choose product category"
+            placeholder='Choose product category'
           />
         </FormGroup>
 
@@ -228,7 +228,7 @@ function ContentStep({
             product detail page.
           </Description>
           <FormControl
-            type="text"
+            type='text'
             value={bookingFormText}
             onChange={(e: any) =>
               onChangeBooking('bookingFormText', e.target.value)
@@ -251,7 +251,7 @@ function ContentStep({
             }
             value={productFieldIds}
             multi={true}
-            placeholder="Choose custom properties"
+            placeholder='Choose custom properties'
           />
         </FormGroup>
       </>

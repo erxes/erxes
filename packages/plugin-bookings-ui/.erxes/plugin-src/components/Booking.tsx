@@ -5,27 +5,30 @@ import {
   ControlWrapper,
   Indicator,
   StepWrapper
-} from 'modules/common/components/step/styles';
-import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import { Content, LeftContent } from 'modules/settings/integrations/styles';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { Alert, __ } from 'modules/common/utils';
+} from '@erxes/ui/src/components/step/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import {
+  Content,
+  LeftContent
+} from '@erxes/ui/src/settings/integrations/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import { IStyle, IBookingIntegration, IBookingData, IBooking } from '../types';
-import { Steps, Step } from 'modules/common/components/step';
+import { Steps, Step } from '@erxes/ui/src/components/step';
 import StyleStep from './steps/StyleStep';
 import ContentStep from './steps/ContentStep';
 import SettingsStep from './steps/SettingsStep';
 import FormStep from './steps/FormStep';
-import SuccessStep from 'modules/leads/components/step/SuccessStep';
-import { IField } from 'modules/settings/properties/types';
-import { PreviewWrapper } from 'modules/leads/components/step/style';
-import { FullPreview } from 'modules/leads/components/step';
-import { colors } from 'modules/common/styles';
-import { IForm, IFormData } from 'modules/forms/types';
-import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import { ILeadData } from 'modules/leads/types';
-import { IAttachment } from 'modules/common/types';
+import SuccessStep from '@erxes/ui/src/leads/components/step/SuccessStep';
+import { IField } from '@erxes/ui/src/settings/properties/types';
+import { PreviewWrapper } from '@erxes/ui/src/leads/components/step/style';
+import { FullPreview } from '@erxes/ui/src/leads/components/step';
+import { colors } from '@erxes/ui/src/styles';
+import { IForm, IFormData } from '@erxes/ui/src/forms/types';
+import { IEmailTemplate } from '@erxes/ui/src/settings/emailTemplates/types';
+import { ILeadData } from '@erxes/ui/src/leads/types';
+import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {
   integration?: IBookingIntegration;
@@ -241,8 +244,8 @@ function Booking(props: Props) {
 
   const renderButtons = () => {
     const cancelButton = (
-      <Link to="/bookings">
-        <Button btnStyle="simple" icon="times-circle">
+      <Link to='/bookings'>
+        <Button btnStyle='simple' icon='times-circle'>
           Cancel
         </Button>
       </Link>
@@ -254,12 +257,12 @@ function Booking(props: Props) {
 
         <Button
           disabled={false}
-          btnStyle="success"
+          btnStyle='success'
           icon={'check-circle'}
           onClick={handleSubmit}
         >
           {isActionLoading ? <SmallLoader /> : null}
-          Save
+          Save 88877
         </Button>
       </Button.Group>
     );
@@ -284,7 +287,7 @@ function Booking(props: Props) {
       <Content>
         <LeftContent>
           <Steps>
-            <Step img="/images/icons/erxes-04.svg" title="Style">
+            <Step img='/images/icons/erxes-04.svg' title='Style'>
               <StyleStep
                 onChangeBooking={onChangeBooking}
                 itemShape={booking.itemShape}
@@ -294,7 +297,7 @@ function Booking(props: Props) {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-09.svg" title="Content">
+            <Step img='/images/icons/erxes-09.svg' title='Content'>
               <ContentStep
                 onChangeBooking={onChangeBooking}
                 name={booking.name}
@@ -313,7 +316,7 @@ function Booking(props: Props) {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-01.svg" title="Settings">
+            <Step img='/images/icons/erxes-01.svg' title='Settings'>
               <SettingsStep
                 onChange={onChange}
                 title={state.title}
@@ -324,8 +327,8 @@ function Booking(props: Props) {
             </Step>
 
             <Step
-              img="/images/icons/erxes-02.svg"
-              title="Form"
+              img='/images/icons/erxes-02.svg'
+              title='Form'
               onClick={onStepClick}
             >
               <FormStep
@@ -340,8 +343,8 @@ function Booking(props: Props) {
             </Step>
 
             <Step
-              img="/images/icons/erxes-13.svg"
-              title="Confirmation"
+              img='/images/icons/erxes-13.svg'
+              title='Confirmation'
               onClick={onStepClick}
               noButton={true}
             >

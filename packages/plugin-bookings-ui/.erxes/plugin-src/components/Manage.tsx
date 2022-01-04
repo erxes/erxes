@@ -1,9 +1,9 @@
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import Info from 'modules/common/components/Info';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, getEnv } from 'modules/common/utils';
-import { MarkdownWrapper } from 'modules/settings/styles';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Info from '@erxes/ui/src/components/Info';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __, getEnv } from '@erxes/ui/src/utils';
+import { MarkdownWrapper } from '@erxes/ui/src/settings/styles';
 import React, { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
@@ -81,12 +81,12 @@ function Manage({ integration, closeModal }: Props) {
           <ReactMarkdown source={code || ''} />
           {code ? (
             <CopyToClipboard text={code} onCopy={onCopy}>
-              <Button btnStyle="primary" icon="copy-1">
+              <Button btnStyle='primary' icon='copy-1'>
                 {copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
-            <EmptyState icon="copy" text="No copyable code" size="small" />
+            <EmptyState icon='copy' text='No copyable code' size='small' />
           )}
         </MarkdownWrapper>
       </>
@@ -102,11 +102,11 @@ function Manage({ integration, closeModal }: Props) {
 
       {renderContent()}
       <ModalFooter>
-        <Button btnStyle="primary" icon="plus-circle" onClick={onSimulate}>
+        <Button btnStyle='primary' icon='plus-circle' onClick={onSimulate}>
           Simulate
         </Button>
 
-        <Button btnStyle="simple" icon="times-circle" onClick={closeModal}>
+        <Button btnStyle='simple' icon='times-circle' onClick={closeModal}>
           Close
         </Button>
       </ModalFooter>

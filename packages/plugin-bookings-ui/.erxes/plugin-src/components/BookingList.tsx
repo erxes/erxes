@@ -1,20 +1,20 @@
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import EmptyContent from 'modules/common/components/empty/EmptyContent';
-import FormControl from 'modules/common/components/form/Control';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { EMPTY_CONTENT_BOOKINGS } from 'modules/settings/constants';
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { EMPTY_CONTENT_BOOKINGS } from '@erxes/ui/src/settings/constants';
 import React from 'react';
 import { IBookingIntegration } from '../types';
 import Sidebar from './Sidebar';
 import Row from './BookingRow';
 import { Link } from 'react-router-dom';
-import { BarItems } from 'modules/layout/styles';
-import TaggerPopover from 'modules/tags/components/TaggerPopover';
-import { IntegrationsCount } from 'modules/leads/types';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
+import { IntegrationsCount } from '@erxes/ui/src/leads/types';
 
 type Props = {
   queryParams: any;
@@ -71,7 +71,7 @@ function BookingList(props: Props) {
 
   if (bulk.length > 0) {
     const tagButton = (
-      <Button btnStyle="simple" size="small" icon="tag-alt">
+      <Button btnStyle='simple' size='small' icon='tag-alt'>
         Tag
       </Button>
     );
@@ -79,7 +79,7 @@ function BookingList(props: Props) {
     actionBarLeft = (
       <BarItems>
         <TaggerPopover
-          type="integration"
+          type='integration'
           successCallback={emptyBulk}
           targets={bulk}
           trigger={tagButton}
@@ -89,8 +89,8 @@ function BookingList(props: Props) {
   }
 
   const actionBarRight = (
-    <Link to="/bookings/create">
-      <Button btnStyle="success" size="small" icon="plus-circle">
+    <Link to='/bookings/create'>
+      <Button btnStyle='success' size='small' icon='plus-circle'>
         Create Booking
       </Button>
     </Link>
@@ -101,12 +101,12 @@ function BookingList(props: Props) {
   );
 
   const content = (
-    <Table whiteSpace="nowrap" hover={true}>
+    <Table whiteSpace='nowrap' hover={true}>
       <thead>
         <tr>
           <th>
             <FormControl
-              componentClass="checkbox"
+              componentClass='checkbox'
               checked={isAllSelected}
               onChange={onChange}
             />
@@ -145,7 +145,7 @@ function BookingList(props: Props) {
           emptyContent={
             <EmptyContent
               content={EMPTY_CONTENT_BOOKINGS}
-              maxItemWidth="360px"
+              maxItemWidth='360px'
             />
           }
         />

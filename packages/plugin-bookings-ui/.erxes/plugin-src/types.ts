@@ -1,10 +1,10 @@
-import { IUser } from 'modules/auth/types';
-import { QueryResponse } from 'modules/common/types';
-import { ILeadData } from 'modules/leads/types';
-import { IBrand } from 'modules/settings/brands/types';
-import { IIntegration } from 'modules/settings/integrations/types';
-import { IProductCategory } from 'modules/settings/productService/types';
-import { ITag } from 'modules/tags/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { ILeadData } from '@erxes/ui/src/leads/types';
+import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IIntegration } from '@erxes/ui/src/settings/integrations/types';
+import { IProductCategory } from '@erxes/ui/src/settings/productService/types';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 export interface IStyle {
   itemShape?: string;

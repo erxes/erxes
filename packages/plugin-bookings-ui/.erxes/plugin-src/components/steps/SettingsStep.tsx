@@ -1,16 +1,16 @@
 import Select from 'react-select-plus';
-import { LANGUAGES } from 'modules/settings/general/constants';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
-import { LeftItem } from 'modules/common/components/step/styles';
+import { LANGUAGES } from '@erxes/ui/src/settings/general/constants';
+import SelectBrand from '@erxes/ui/src/settings/integrations/containers/SelectBrand';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components/form';
+} from '@erxes/ui/src/components/form';
 import { FlexItem as FlexItemContainer } from './style';
 import React from 'react';
-import { Description } from 'modules/settings/styles';
-import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
+import { Description } from '@erxes/ui/src/settings/styles';
+import SelectChannels from '@erxes/ui/src/settings/integrations/containers/SelectChannels';
 
 type Name = 'languageCode';
 
@@ -47,7 +47,7 @@ function SettingsStep({
             Name this widget to differentiate from the rest internally.
           </Description>
           <FormControl
-            type="text"
+            type='text'
             onChange={(e: any) => onChange('title', e.target.value)}
             defaultValue={title}
           />
@@ -71,7 +71,7 @@ function SettingsStep({
         <FormGroup>
           <ControlLabel required={true}>Language</ControlLabel>
           <Select
-            placeholder="Choose language"
+            placeholder='Choose language'
             options={LANGUAGES.map(el => ({
               label: el.label,
               value: el.value

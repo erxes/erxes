@@ -77,11 +77,19 @@ const Description = styled.div`
   font-size: 12px;
 `;
 
+const FlexRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+`;
+
 export {
   MarkdownWrapper,
   ColorPick,
   ColorPicker,
   ActionButtons,
   ExpandWrapper,
-  Description
+  Description,
+  FlexRow
 };
