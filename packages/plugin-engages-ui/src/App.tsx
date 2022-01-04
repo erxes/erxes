@@ -1,7 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { ApolloProvider } from "react-apollo";
-import apolloClient from "erxes-ui/lib/apolloClient";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { ApolloProvider } from 'react-apollo';
+import apolloClient from '@erxes/ui/src/apolloClient';
 import GeneralRoutes from './generalRoutes';
 
 const App = () => {
@@ -12,4 +12,4 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById("app"));
+ReactDOM.render(<App />, document.getElementById('app'));

@@ -1,9 +1,9 @@
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import DateControl from 'erxes-ui/lib/components/form/DateControl';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { DateContainer } from 'erxes-ui/lib/styles/main';
-import { __ } from 'erxes-ui/lib/utils';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
 import { SCHEDULE_TYPES } from '../constants';
 import React from 'react';
 import { SelectMonth } from '../styles';

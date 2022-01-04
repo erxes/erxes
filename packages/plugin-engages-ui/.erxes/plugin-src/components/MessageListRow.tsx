@@ -1,18 +1,14 @@
 import dayjs from 'dayjs';
-import ActionButtons from 'erxes-ui/lib/components/ActionButtons';
-import Button from 'erxes-ui/lib/components/Button';
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import Icon from 'erxes-ui/lib/components/Icon';
-import Label from 'erxes-ui/lib/components/Label';
-import NameCard from 'erxes-ui/lib/components/nameCard/NameCard';
-import Tags from 'erxes-ui/lib/components/Tags';
-import Tip from 'erxes-ui/lib/components/Tip';
-import { __, Alert } from 'erxes-ui/lib/utils';
-import {
-  MESSAGE_KIND_FILTERS,
-  MESSAGE_KINDS,
-  METHODS
-} from '../constants';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Tags from '@erxes/ui/src/components/Tags';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __, Alert } from '@erxes/ui/src/utils';
+import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '../constants';
 import React from 'react';
 import { Disabled, HelperText, RowTitle } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
@@ -277,9 +273,7 @@ class Row extends React.Component<Props> {
           <NameCard user={message.fromUser} avatarSize={30} />
         </td>
 
-        <td className="text-normal">
-          {message.createdUser || '-'}
-        </td>
+        <td className="text-normal">{message.createdUser || '-'}</td>
         <td>
           <Icon icon="calender" />{' '}
           {dayjs(message.createdAt).format('DD MMM YYYY')}

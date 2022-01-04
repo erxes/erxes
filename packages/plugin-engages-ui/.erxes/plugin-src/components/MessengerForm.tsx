@@ -1,8 +1,8 @@
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { FlexItem, FlexPad } from 'erxes-ui/lib/components/step/styles';
-import { __, Alert } from 'erxes-ui/lib/utils';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
+import { __, Alert } from '@erxes/ui/src/utils';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import React from 'react';
 import MessengerPreview from '../containers/MessengerPreview';

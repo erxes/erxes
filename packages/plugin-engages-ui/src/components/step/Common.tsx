@@ -1,7 +1,7 @@
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import Icon from 'erxes-ui/lib/components/Icon';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
-import { __ } from 'erxes-ui/lib/utils';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
 import { CustomerCounts, RadioContainer } from '../../styles';
 import { TargetCount } from '../../types';
 import React from 'react';
