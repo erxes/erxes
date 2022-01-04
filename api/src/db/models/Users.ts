@@ -4,6 +4,8 @@ import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { UsersGroups } from '.';
+import { userActionsMap } from '../../data/permissions/utils';
+import { set } from '../../inmemoryStorage';
 import { ILink } from './definitions/common';
 import {
   IDetail,
@@ -601,7 +603,7 @@ export const loadClass = () => {
 
       try {
         // validate refresh token
-        const { user } = jwt.verify(refreshToken, this.getSecret());
+        const { user }: any = jwt.verify(refreshToken, this.getSecret());
 
         _id = user._id;
         // if refresh token is expired then force to login
@@ -684,6 +686,10 @@ export const loadClass = () => {
 
       // generate user code
       await this.generateUserCodeField();
+
+      // put permission map in redis, so that other services can use it
+      const actionMap = await userActionsMap(user);
+      set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
 
       return {
         token,

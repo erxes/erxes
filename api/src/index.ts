@@ -46,7 +46,6 @@ import {
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { importer, uploader } from './middlewares/fileMiddleware';
-import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 
@@ -232,8 +231,6 @@ app.post(
     res => res.json({})
   )
 );
-
-app.use(userMiddleware);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 

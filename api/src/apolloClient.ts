@@ -59,7 +59,14 @@ export const initApolloServer = async (app, httpServer) => {
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     dataSources: generateDataSources,
     context: ({ req, res }) => {
-      let user = req && req.user ? req.user : null;
+      let user: any = null;
+
+      if (req.headers.user) {
+        const userJson = Buffer.from(req.headers.user, 'base64').toString(
+          'utf-8'
+        );
+        user = JSON.parse(userJson);
+      }
 
       const dataLoaders: IDataLoaders = generateAllDataLoaders();
 
