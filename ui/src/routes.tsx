@@ -10,7 +10,7 @@ import CalendarRoutes from './modules/calendar/routes';
 import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
 import DashboardRoutes from './modules/dashboard/routes';
-import DealsRoutes from './modules/deals/routes';
+// import DealsRoutes from './modules/deals/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
@@ -99,7 +99,7 @@ const renderRoutes = currentUser => {
           <LeadRoutes />
           <SettingsRoutes />
           <TagsRoutes />
-          <DealsRoutes />
+          {/* <DealsRoutes /> */}
           <TicketRoutes />
           <TaskRoutes />
           <GrowthHackRoutes />
