@@ -20,6 +20,7 @@
     "@types/node": "^17.0.3",
     "amqplib": "^0.5.5",
     "apollo-graphql": "^0.9.5",
+    "apollo-server-core": "^3.6.1",
     "apollo-server-express": "^3.6.1",
     "aws-sdk": "^2.493.0",
     "body-parser": "^1.17.1",
