@@ -206,12 +206,32 @@ const PopoverLinkWrapper = styled.div`
   }
 `;
 
+const Content = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+
+  > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+`;
+
+const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
 export {
   Attachments,
   FlexRow,
   Column,
   Subject,
   ToolBar,
+  Content,
+  LeftContent,
   MailEditorWrapper,
   ControlWrapper,
   LeftSection,
