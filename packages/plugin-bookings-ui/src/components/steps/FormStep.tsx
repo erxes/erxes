@@ -1,8 +1,8 @@
-import { IFormData } from 'modules/forms/types';
+import { IFormData } from '@erxes/ui/src/forms/types';
 import React from 'react';
-import { IField } from 'modules/settings/properties/types';
-import CreateForm from 'modules/forms/containers/CreateForm';
-import EditForm from 'modules/forms/containers/EditForm';
+import { IField } from '@erxes/ui/src/settings/properties/types';
+import CreateForm from '@erxes/ui/src/forms/containers/CreateForm';
+import EditForm from '@erxes/ui/src/forms/containers/EditForm';
 import { FlexItem } from './style';
 
 type Props = {

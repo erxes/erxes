@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
-import { Alert, confirm } from 'modules/common/utils';
-import Bulk from 'modules/common/components/Bulk';
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import Bulk from '@erxes/ui/src/components/Bulk';
 import BookingList from '../components/BookingList';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { mutations, queries } from '../graphql';
-import { generatePaginationParams } from 'modules/common/utils/router';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
   BookingIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
-import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
-import { CountQueryResponse } from 'modules/leads/types';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/settings/integrations/constants';
+import { ArchiveIntegrationResponse } from '@erxes/ui/src/settings/integrations/types';
+import { CountQueryResponse } from '@erxes/ui/src/leads/types';
 
 type Props = {
   queryParams: any;

@@ -1,20 +1,20 @@
 import React from 'react';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Label from 'modules/common/components/Label';
-import { __ } from 'modules/common/utils';
-import Tip from 'modules/common/components/Tip';
-import Button from 'modules/common/components/Button';
-import WithPermission from 'modules/common/components/WithPermission';
-import TextInfo from 'modules/common/components/TextInfo';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Label from '@erxes/ui/src/components/Label';
+import { __ } from '@erxes/ui/src/utils';
+import Tip from '@erxes/ui/src/components/Tip';
+import Button from '@erxes/ui/src/components/Button';
+import WithPermission from '@erxes/ui/src/components/WithPermission';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { Link } from 'react-router-dom';
-import ActionButtons from 'modules/common/components/ActionButtons';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import { IBookingIntegration } from '../types';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import dayjs from 'dayjs';
-import { DateWrapper } from 'modules/common/styles/main';
-import Tags from 'modules/common/components/Tags';
+import { DateWrapper } from '@erxes/ui/src/styles/main';
+import Tags from '@erxes/ui/src/components/Tags';
 import Manage from './Manage';
 
 type Props = {
@@ -47,9 +47,9 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
   const manageAction = () => {
     return (
       <Link to={`/bookings/edit/${integration._id}`}>
-        <Button id="skill-edit-skill" btnStyle="link">
-          <Tip text={__('Manage')} placement="bottom">
-            <Icon icon="edit-3" />
+        <Button id='skill-edit-skill' btnStyle='link'>
+          <Tip text={__('Manage')} placement='bottom'>
+            <Icon icon='edit-3' />
           </Tip>
         </Button>
       </Link>
@@ -60,13 +60,13 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     const onClick = () => remove(integration._id);
 
     return (
-      <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')} placement="top">
+      <WithPermission action='integrationsRemove'>
+        <Tip text={__('Delete')} placement='top'>
           <Button
-            id="integrationDelete"
-            btnStyle="link"
+            id='integrationDelete'
+            btnStyle='link'
             onClick={onClick}
-            icon="times-circle"
+            icon='times-circle'
           />
         </Tip>
       </WithPermission>
@@ -81,9 +81,9 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     }
 
     return (
-      <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+      <WithPermission action='integrationsArchive'>
+        <Tip text={__('Archive')} placement='top'>
+          <Button btnStyle='link' onClick={onClick} icon='archive-alt' />
         </Tip>
       </WithPermission>
     );
@@ -97,9 +97,9 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     }
 
     return (
-      <WithPermission action="integrationsArchive">
-        <Tip text={__('Unarchive')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="redo" />
+      <WithPermission action='integrationsArchive'>
+        <Tip text={__('Unarchive')} placement='top'>
+          <Button btnStyle='link' onClick={onClick} icon='redo' />
         </Tip>
       </WithPermission>
     );
@@ -107,9 +107,9 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
 
   const renderEditAction = () => {
     const trigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Install code')} placement="top">
-          <Icon icon="code" />
+      <Button btnStyle='link'>
+        <Tip text={__('Install code')} placement='top'>
+          <Icon icon='code' />
         </Tip>
       </Button>
     );
@@ -119,7 +119,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     return (
       <ModalTrigger
         title={`Install code of ${bookingData.name}`}
-        size="lg"
+        size='lg'
         trigger={trigger}
         content={content}
         isAnimate={true}
@@ -135,7 +135,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
       <td>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentClass='checkbox'
           onChange={onChange}
         />
       </td>
@@ -159,7 +159,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
         </div>
       </td>
       <td>
-        <Icon icon="calender" />{' '}
+        <Icon icon='calender' />{' '}
         <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
       </td>
 

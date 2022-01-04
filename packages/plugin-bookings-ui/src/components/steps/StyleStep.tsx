@@ -1,24 +1,24 @@
 import {
   FlexItem as FlexItemContainer,
   LeftItem
-} from 'modules/common/components/step/styles';
-import { FlexItem } from 'modules/layout/styles';
-import { COLORS } from 'modules/boards/constants';
+} from '@erxes/ui/src/components/step/styles';
+import { FlexItem } from '@erxes/ui/src/layout/styles';
+import { COLORS } from '@erxes/ui/src/boards/constants';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { ControlLabel, FormGroup } from 'modules/common/components/form';
+import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import {
   ColorPick,
   ColorPicker,
   SubHeading,
   WidgetBackgrounds
-} from 'modules/settings/styles';
+} from '@erxes/ui/src/settings/styles';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
-import { BOOKING_ITEM_SHAPE } from 'modules/bookings/constants';
-import { FlexContent } from 'modules/boards/styles/item';
-import { FONTS } from 'modules/settings/clientPortal/constants';
+import { BOOKING_ITEM_SHAPE } from '@erxes/ui/src/bookings/constants';
+import { FlexContent } from '@erxes/ui/src/boards/styles/item';
+import { FONTS } from '@erxes/ui/src/settings/clientPortal/constants';
 
 type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
 
@@ -39,10 +39,10 @@ function Style({
 }: Props) {
   const renderColorSelect = (item, color) => {
     const popoverBottom = (
-      <Popover id="color-picker">
+      <Popover id='color-picker'>
         <TwitterPicker
-          width="266px"
-          triangle="hide"
+          width='266px'
+          triangle='hide'
           color={color}
           onChange={e => onChangeBooking(item, e.hex)}
           colors={COLORS}
@@ -52,9 +52,9 @@ function Style({
 
     return (
       <OverlayTrigger
-        trigger="click"
+        trigger='click'
         rootClose={true}
-        placement="bottom-start"
+        placement='bottom-start'
         overlay={popoverBottom}
       >
         <ColorPick>
@@ -89,7 +89,7 @@ function Style({
             <FormGroup>
               <ControlLabel>Base Font</ControlLabel>
               <Select
-                placeholder="Please select a font"
+                placeholder='Please select a font'
                 value={baseFont}
                 options={FONTS.map(item => ({
                   label: item.label,
