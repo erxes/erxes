@@ -1,14 +1,15 @@
-import Icon from 'erxes-ui/lib/components/Icon';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { TagAdd, TargetCount } from '../../types';
 import React from 'react';
 import Common from './Common';
 import TagsForm from './forms/TagsForm';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 type Props = {
   tagIds: string[];
   messageType: string;
-  tags: any[];
+  tags: ITag[];
   targetCount: TargetCount;
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;

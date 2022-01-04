@@ -1,7 +1,7 @@
-import Icon from 'erxes-ui/lib/components/Icon';
-import { colors } from 'erxes-ui/lib/styles';
-import { BoxRoot, FullContent } from 'erxes-ui/lib/styles/main';
-import { __ } from 'erxes-ui/lib/utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import { colors } from '@erxes/ui/src/styles';
+import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
 import { METHODS } from '../../constants';
 import React from 'react';
 import styled from 'styled-components';

@@ -1,5 +1,6 @@
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
-import { StepFormWrapper } from '../../../styles';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+// import { StepFormWrapper } from '../../../styles';
+// import BrandForm from '@erxes/ui/src/settings/brands/components/BrandForm';
 import React from 'react';
 
 type Props = {
@@ -7,11 +8,16 @@ type Props = {
   afterSave: () => void;
 };
 
-const Form = ({}: Props) => {
+const Form = ({ renderButton, afterSave }: Props) => {
   return (
-    <StepFormWrapper>
-      <div>brand</div>
-    </StepFormWrapper>
+    <div>brand</div>
+    // <StepFormWrapper>
+    //   <BrandForm
+    //     afterSave={afterSave}
+    //     modal={false}
+    //     renderButton={renderButton}
+    //   />
+    // </StepFormWrapper>
   );
 };
 

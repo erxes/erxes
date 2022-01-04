@@ -1,4 +1,4 @@
-import Icon from 'erxes-ui/lib/components/Icon';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';

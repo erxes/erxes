@@ -1,11 +1,13 @@
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { FlexItem } from 'erxes-ui/lib/components/step/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import { CAMPAIGN_TARGET_TYPES } from '../../constants';
 import { SelectMessageType } from '../../styles';
 import React from 'react';
+import BrandStep from '../../containers/BrandStep';
 import SegmentStep from '../../containers/SegmentStep';
+import TagStep from '../../containers/TagStep';
 
 type Props = {
   clearState: () => void;
@@ -120,6 +122,12 @@ class MessageTypeStep extends React.Component<Props, State> {
     let Component;
 
     switch (this.state.messageType) {
+      case CAMPAIGN_TARGET_TYPES.BRAND:
+        Component = BrandStep;
+        break;
+      case CAMPAIGN_TARGET_TYPES.TAG:
+        Component = TagStep;
+        break;
       default:
         Component = SegmentStep;
         break;
