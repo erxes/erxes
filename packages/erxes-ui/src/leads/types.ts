@@ -61,3 +61,16 @@ export interface ILeadData {
   successImage?: string;
   successImageSize?: string;
 }
+
+export type Counts = {
+  [key: string]: number;
+};
+
+export type IntegrationsCount = {
+  total: number;
+  byTag: Counts;
+  byChannel: Counts;
+  byBrand: Counts;
+  byKind: Counts;
+  byStatus: Counts;
+};
