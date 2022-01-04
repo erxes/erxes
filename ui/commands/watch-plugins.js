@@ -17,7 +17,7 @@ watcher.on("change", function(evt, name) {
   const pluginsConfigs = [];
 
   for (const pluginName of pluginNames) {
-    if (pluginName === '.DS_Store' || !pluginName.startsWith('plugin-')) {
+    if (pluginName === '.DS_Store' || !pluginName.startsWith('plugin-') || pluginName.includes('api')) {
       continue;
     }
 
