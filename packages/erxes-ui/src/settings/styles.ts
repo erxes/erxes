@@ -72,10 +72,16 @@ const ExpandWrapper = styled.div`
   }
 `;
 
+const Description = styled.div`
+  color: ${colors.colorCoreGray};
+  font-size: 12px;
+`;
+
 export {
   MarkdownWrapper,
   ColorPick,
   ColorPicker,
   ActionButtons,
-  ExpandWrapper
+  ExpandWrapper,
+  Description
 };
