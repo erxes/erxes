@@ -1,0 +1,5 @@
+FROM erxes/runner
+WORKDIR /erxes-engages-email-sender
+COPY yarn.lock package.json ./
+RUN yarn install
+CMD ["yarn", "dev"]
