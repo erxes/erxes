@@ -224,9 +224,24 @@ const LeftContent = styled.div`
   flex: 1;
 `;
 
+const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
+  }
+`;
+
 export {
   Attachments,
   FlexRow,
+  Row,
   Column,
   Subject,
   ToolBar,
