@@ -22,6 +22,10 @@ const allSubgraphConfigs: SubgraphConfig[] = [
   {
     name : "api",
     urlEnvKey : "SUBGRAPH_API_URL"
+  },
+  {
+    name: "engages",
+    urlEnvKey: "SUBGRAPH_ENGAGES_URL"
   }
 ]
 

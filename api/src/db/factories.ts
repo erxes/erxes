@@ -83,9 +83,11 @@ import {
   IMessenger,
   IScheduleDate
 } from './models/definitions/engages';
+import { ITopic } from './models/definitions/knowledgebase';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { ICondition } from './models/definitions/segments';
 import { IUserDocument } from './models/definitions/users';
+import { IArticleCreate, ICategoryCreate } from './models/KnowledgeBase';
 import PipelineTemplates from './models/PipelineTemplates';
 
 export const getUniqueValue = async (
@@ -993,17 +995,16 @@ interface IKnowledgeBaseTopicFactoryInput {
 export const knowledgeBaseTopicFactory = async (
   params: IKnowledgeBaseTopicFactoryInput = {}
 ) => {
-  const doc = {
+  const doc: ITopic = {
     title: faker.random.word(),
-    description: faker.lorem.sentence,
+    description: faker.lorem.sentence(),
     brandId: params.brandId || faker.random.word(),
     color: params.color
   };
 
   return KnowledgeBaseTopics.createDoc(
     {
-      ...doc,
-      ...params
+      ...doc
     },
     params.userId || faker.random.word()
   );
@@ -1018,9 +1019,9 @@ interface IKnowledgeBaseCategoryFactoryInput {
 export const knowledgeBaseCategoryFactory = async (
   params: IKnowledgeBaseCategoryFactoryInput = {}
 ) => {
-  const doc = {
+  const doc: ICategoryCreate = {
     title: faker.random.word(),
-    description: faker.lorem.sentence,
+    description: faker.lorem.sentence(),
     icon: faker.random.word(),
     topicId: params.topicId,
     parentCategoryId: params.parentCategoryId
@@ -1045,10 +1046,10 @@ interface IKnowledgeBaseArticleCategoryInput {
 export const knowledgeBaseArticleFactory = async (
   params: IKnowledgeBaseArticleCategoryInput = {}
 ) => {
-  const doc = {
+  const doc: IArticleCreate = {
     title: params.title || faker.random.word(),
-    summary: faker.lorem.sentence,
-    content: faker.lorem.sentence,
+    summary: faker.lorem.sentence(),
+    content: faker.lorem.sentence(),
     icon: faker.random.word(),
     reactionChoices: params.reactionChoices || ['wow'],
     status: params.status || 'draft',

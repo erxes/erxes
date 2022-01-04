@@ -3,7 +3,7 @@ import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { checkPermission } from '../../permissions/wrappers';
+// import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, sendToWebhook } from '../../utils';
 import { getDocument } from './cacheUtils';
@@ -292,39 +292,39 @@ const engageMutations = {
   }
 };
 
-checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
-checkPermission(engageMutations, 'engageMessageEdit', 'engageMessageEdit');
-checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
-checkPermission(
-  engageMutations,
-  'engageMessageSetLive',
-  'engageMessageSetLive'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageSetPause',
-  'engageMessageSetPause'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageSetLiveManual',
-  'engageMessageSetLiveManual'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageVerifyEmail',
-  'engageMessageRemove'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageRemoveVerifiedEmail',
-  'engageMessageRemove'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageSendTestEmail',
-  'engageMessageRemove'
-);
-checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
+// checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
+// checkPermission(engageMutations, 'engageMessageEdit', 'engageMessageEdit');
+// checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
+// checkPermission(
+//   engageMutations,
+//   'engageMessageSetLive',
+//   'engageMessageSetLive'
+// );
+// checkPermission(
+//   engageMutations,
+//   'engageMessageSetPause',
+//   'engageMessageSetPause'
+// );
+// checkPermission(
+//   engageMutations,
+//   'engageMessageSetLiveManual',
+//   'engageMessageSetLiveManual'
+// );
+// checkPermission(
+//   engageMutations,
+//   'engageMessageVerifyEmail',
+//   'engageMessageRemove'
+// );
+// checkPermission(
+//   engageMutations,
+//   'engageMessageRemoveVerifiedEmail',
+//   'engageMessageRemove'
+// );
+// checkPermission(
+//   engageMutations,
+//   'engageMessageSendTestEmail',
+//   'engageMessageRemove'
+// );
+// checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
 
 export default engageMutations;

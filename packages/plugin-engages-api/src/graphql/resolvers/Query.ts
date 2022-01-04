@@ -1,6 +1,6 @@
 import { Customers, EngageMessages, Tags } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
+// import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
@@ -269,11 +269,11 @@ const engageQueries = {
   }
 };
 
-requireLogin(engageQueries, 'engageMessagesTotalCount');
-requireLogin(engageQueries, 'engageMessageCounts');
-requireLogin(engageQueries, 'engageMessageDetail');
-requireLogin(engageQueries, 'engageEmailPercentages');
+// requireLogin(engageQueries, 'engageMessagesTotalCount');
+// requireLogin(engageQueries, 'engageMessageCounts');
+// requireLogin(engageQueries, 'engageMessageDetail');
+// requireLogin(engageQueries, 'engageEmailPercentages');
 
-checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
+// checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
 
 export default engageQueries;

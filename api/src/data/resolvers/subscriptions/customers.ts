@@ -1,4 +1,4 @@
-import { withFilter } from 'apollo-server-express';
+import { withFilter } from 'graphql-subscriptions';
 import { graphqlPubsub } from '../../../pubsub';
 
 export default {

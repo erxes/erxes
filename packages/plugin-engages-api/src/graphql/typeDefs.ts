@@ -1,11 +1,33 @@
-export const types = `
+import { gql } from "apollo-server-express";
+
+const types = `
+  extend type Brand @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type Segment @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type Tag @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type User @key(fields: "_id") {
+    _id: ID! @external
+  }
+
+  extend type Integration @key(fields: "_id") {
+    _id: ID! @external
+  }
+
   type EngageMessageSms {
     from: String,
     content: String!
     fromIntegrationId: String
   }
 
-  type EngageMessage {
+  type EngageMessage @key(fields: "_id") {
     _id: String!
     kind: String
     tagIds: [String]
@@ -41,7 +63,7 @@ export const types = `
     fromUser: User
     getTags: [Tag]
     fromIntegration: Integration
-    createdUser: String
+    createdUser: User
 
     stats: JSON
     logs: JSON
@@ -55,7 +77,7 @@ export const types = `
     dateTime: Date,
   }
 
-  type DeliveryReport {
+  type DeliveryReport @key(fields: "_id") {
     _id: String!,
     customerId: String,
     mailId: String,
@@ -122,7 +144,7 @@ const listParams = `
   perPage: Int
 `;
 
-export const queries = `
+const queries = `
   engageMessages(${listParams}): [EngageMessage]
   engageMessagesTotalCount(${listParams}): Int
   engageMessageDetail(_id: String): EngageMessage
@@ -153,7 +175,7 @@ const commonParams = `
   shortMessage: EngageMessageSmsInput
 `;
 
-export const mutations = `
+const mutations = `
   engageMessageAdd(${commonParams}): EngageMessage
   engageMessageEdit(_id: String!, ${commonParams}): EngageMessage
   engageMessageRemove(_id: String!): EngageMessage
@@ -166,3 +188,17 @@ export const mutations = `
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
 `;
+
+
+const typeDefs = gql`
+  ${types}
+  
+  extend type Query {
+    ${queries}
+  }
+  extend type Mutation {
+    ${mutations}
+  }
+`;
+
+export default typeDefs;
