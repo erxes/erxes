@@ -1,6 +1,12 @@
 // import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 import { Redirect, Route } from "react-router-dom";
+
+const DealBoard = asyncComponent(() =>
+  import(/* webpackChunkName: "DealBoard" */ "./components/DealBoard")
+);
 
 const deals = () => {
   const dealsLink = "/deal/board";
@@ -20,9 +26,9 @@ const deals = () => {
 };
 
 const boards = ({ location }) => {
-  // const queryParams = queryString.parse(location.search);
+  const queryParams = queryString.parse(location.search);
 
-  return <div>Hi, Deal122</div>;
+  return <DealBoard viewType="board" queryParams={queryParams} />;
 };
 
 const routes = () => {

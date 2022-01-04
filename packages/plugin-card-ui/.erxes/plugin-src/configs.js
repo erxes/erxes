@@ -1,12 +1,12 @@
 module.exports = {
   name: "cards",
-  port: 3001,
+  port: 3002,
   exposes: {
     "./routes": "./src/routes.tsx",
     "./settings": "./src/Settings.tsx",
   },
   routes: {
-    url: "http://localhost:3001/remoteEntry.js",
+    url: "http://localhost:3002/remoteEntry.js",
     scope: "cards",
     module: "./routes",
   },

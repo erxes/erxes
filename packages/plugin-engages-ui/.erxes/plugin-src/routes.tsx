@@ -47,23 +47,23 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/campaigns"
+        key='/campaigns'
         exact={true}
-        path="/campaigns"
+        path='/campaigns'
         component={engageList}
       />
 
       <Route
-        key="/campaigns/create"
+        key='/campaigns/create'
         exact={true}
-        path="/campaigns/create"
+        path='/campaigns/create'
         component={createForm}
       />
 
       <Route
-        key="/campaigns/edit"
+        key='/campaigns/edit'
         exact={true}
-        path="/campaigns/edit/:_id"
+        path='/campaigns/edit/:_id'
         component={editForm}
       />
 
