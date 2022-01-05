@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 // load environment variables
 dotenv.config();
 import * as bodyParser from 'body-parser';
-import * as express from 'express';
+import express from 'express';
 import { filterXSS } from 'xss';
 import configs from './api/configs';
 import deliveryReports from './api/deliveryReports';
@@ -73,6 +73,9 @@ const apolloServer = new ApolloServer({
     let user: any = null;
 
     if (req.headers.user) {
+      if(Array.isArray(req.headers.user)) {
+        throw new Error(`Multiple user headers`);
+      }
       const userJson = Buffer.from(req.headers.user, 'base64').toString(
         'utf-8'
       );
