@@ -48,3 +48,28 @@ export const EMPTY_CONTENT_BOOKINGS = {
     }
   ]
 };
+
+export const EMPTY_CONTENT_POPUPS = {
+  title: __('Getting Started with erxes Popups'),
+  description: __(
+    'Never miss a potential lead by capturing them with a customizable Forms'
+  ),
+  steps: [
+    {
+      title: __('Create Popup'),
+      description: __(
+        'Fill out the details and create your popup message or form'
+      ),
+      url: '/forms/create',
+      urlText: 'Create Popup'
+    },
+    {
+      title: 'Install the script',
+      description: __(
+        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets'
+      ),
+      url: '/settings/scripts',
+      urlText: __('Go to Script Manager')
+    }
+  ]
+};
