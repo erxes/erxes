@@ -261,7 +261,7 @@ function Booking(props: Props) {
           onClick={handleSubmit}
         >
           {isActionLoading ? <SmallLoader /> : null}
-          Save 88877
+          Save
         </Button>
       </Button.Group>
     );

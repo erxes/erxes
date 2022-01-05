@@ -1,7 +1,3 @@
-import React from 'react';
+import GeneralRoutes from './generalRoutes';
 
-const App = () => {
-	return <div>App</div>
-}
-
-export default App;
+export default GeneralRoutes;

@@ -22,6 +22,7 @@
     "css-loader": "^6.3.0",
     "html-webpack-plugin": "^5.3.2",
     "interpolate-html-plugin": "^4.0.0",
+    "json-loader": "^0.5.7",
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
     "style-loader": "^3.3.0",
