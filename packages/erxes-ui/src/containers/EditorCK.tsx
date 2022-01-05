@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { combinedFields } from '../settings/segments/graphql';
+import { queries as segmentQueries } from '../settings/segments/graphql';
 import { LeadIntegrationsQueryResponse } from '../leads/types';
 import {
   FieldsCombinedByType,
@@ -97,7 +97,7 @@ export default withProps<Props>(
       })
     }),
 
-    graphql<Props>(gql(combinedFields), {
+    graphql<Props>(gql(segmentQueries.combinedFields), {
       name: 'combinedFieldsQuery',
       options: () => ({
         variables: {
