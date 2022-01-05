@@ -1,7 +1,7 @@
 // import { IBookingData } from 'modules/bookings/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 // import { IForm } from 'modules/forms/types';
-import { ILeadData } from '../../leads/types';
+import { ILeadData, ILeadIntegration } from '../../leads/types';
 import { IBrand } from '../brands/types';
 // import { IChannel } from '../channels/types';
 
@@ -140,3 +140,20 @@ export type AddIntegrationMutationResponse = {
     variables: AddIntegrationMutationVariables;
   }) => Promise<any>;
 };
+
+export type EditIntegrationMutationVariables = {
+  _id: string;
+  leadData: ILeadData;
+  languageCode: string;
+  formId: string;
+} & IntegrationMutationVariables;
+
+export type EditIntegrationMutationResponse = {
+  editIntegrationMutation: (params: {
+    variables: EditIntegrationMutationVariables;
+  }) => Promise<void>;
+};
+
+export type LeadIntegrationDetailQueryResponse = {
+  integrationDetail: ILeadIntegration;
+} & QueryResponse;

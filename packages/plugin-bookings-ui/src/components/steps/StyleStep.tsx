@@ -17,7 +17,7 @@ import {
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from '../../constants';
-import { FlexContent } from '@erxes/ui/src/boards/styles/item';
+import { OnlyFlexContent } from '@erxes/ui/src/styles/main';
 import { FONTS } from '@erxes/ui/src/settings/clientPortal/constants';
 
 type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
@@ -67,7 +67,7 @@ function Style({
   return (
     <FlexItemContainer>
       <LeftItem>
-        <FlexContent>
+        <OnlyFlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Item Shape</ControlLabel>
@@ -82,9 +82,9 @@ function Style({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </OnlyFlexContent>
 
-        <FlexContent>
+        <OnlyFlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel>Base Font</ControlLabel>
@@ -101,14 +101,14 @@ function Style({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </OnlyFlexContent>
 
         <SubHeading>
           Colors
           <span>Choose a widget main and navigation colors</span>
         </SubHeading>
 
-        <FlexContent>
+        <OnlyFlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel>Main Widget Color</ControlLabel>
@@ -124,7 +124,7 @@ function Style({
               {renderColorSelect('productAvailable', productAvailable)}
             </WidgetBackgrounds>
           </FlexItem>
-        </FlexContent>
+        </OnlyFlexContent>
       </LeftItem>
     </FlexItemContainer>
   );
