@@ -11,9 +11,9 @@ import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import Select from 'react-select-plus';
 import { FlexItem as FlexItemContainer } from './style';
-import SelectProductCategory from '@erxes/ui/src/bookings/containers/SelectProductCategory';
+import SelectProductCategory from '../../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { BOOKING_DISPLAY_BLOCK } from '@erxes/ui/src/bookings/constants';
+import { BOOKING_DISPLAY_BLOCK } from '../../constants';
 import { IField } from '@erxes/ui/src/settings/properties/types';
 
 type Name =

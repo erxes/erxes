@@ -1,9 +1,9 @@
-import Wrapper from 'modules/layout/components/Wrapper';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
-import BrandFilter from 'modules/leads/containers/filters/BrandFilter';
-import StatusFilter from 'modules/leads/containers/filters/StatusFilter';
-import TagFilter from 'modules/leads/containers/filters/TagFilter';
-import { Counts } from 'modules/leads/types';
+import BrandFilter from '@erxes/ui/src/leads/containers/filters/BrandFilter';
+import StatusFilter from '@erxes/ui/src/leads/containers/filters/StatusFilter';
+import TagFilter from '@erxes/ui/src/leads/containers/filters/TagFilter';
+import { Counts } from '@erxes/ui/src/leads/types';
 
 type Props = {
   counts: {

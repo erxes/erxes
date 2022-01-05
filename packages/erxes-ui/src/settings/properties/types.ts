@@ -106,3 +106,52 @@ export interface IField {
   groupName?: string;
   pageNumber?: number;
 }
+
+export interface IBoardSelectItem {
+  _id?: string;
+  boardId: string;
+  pipelineIds: string[];
+}
+
+export interface IFieldGroup {
+  _id: string;
+  name: string;
+  contentType: string;
+  order: React.ReactNode;
+  description: string;
+  isVisible: boolean;
+  isVisibleInDetail: boolean;
+  isDefinedByErxes: boolean;
+  fields: IField[];
+  lastUpdatedUserId: string;
+  lastUpdatedUser: IUser;
+  boardsPipelines?: IBoardSelectItem[];
+}
+
+// mutation types
+export type FieldsMutationVariables = {
+  type: string;
+  validation: string;
+  text: string;
+  description: string;
+  options: any[];
+  groupId: string;
+};
+
+export type FieldsAddMutationResponse = {
+  fieldsAdd: (fieldsAdd: {
+    variables: FieldsMutationVariables;
+  }) => Promise<any>;
+};
+
+export type FieldsEditMutationResponse = {
+  fieldsEdit: (fieldsEdit: {
+    variables: FieldsMutationVariables;
+  }) => Promise<any>;
+};
+
+export type FieldsGroupsQueryResponse = {
+  fieldsGroups: IFieldGroup[];
+  loading: boolean;
+  refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
+};

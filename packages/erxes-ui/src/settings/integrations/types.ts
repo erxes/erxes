@@ -115,3 +115,9 @@ export type IntegrationsQueryResponse = {
   loading: boolean;
   refetch: (variables?: QueryVariables) => Promise<any>;
 };
+
+export type ArchiveIntegrationResponse = {
+  archiveIntegration: (params: {
+    variables: { _id: string; status: boolean };
+  }) => Promise<any>;
+};

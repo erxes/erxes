@@ -11,7 +11,7 @@ import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import { IBookingIntegration } from '../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Capitalize } from 'modules/settings/permissions/styles';
+import { Capitalize } from '@erxes/ui/src/settings/permissions/styles';
 import dayjs from 'dayjs';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import Tags from '@erxes/ui/src/components/Tags';

@@ -16,7 +16,7 @@ import {
 } from '@erxes/ui/src/settings/styles';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
-import { BOOKING_ITEM_SHAPE } from '@erxes/ui/src/bookings/constants';
+import { BOOKING_ITEM_SHAPE } from '../../constants';
 import { FlexContent } from '@erxes/ui/src/boards/styles/item';
 import { FONTS } from '@erxes/ui/src/settings/clientPortal/constants';
 

@@ -74,3 +74,7 @@ export type IntegrationsCount = {
   byKind: Counts;
   byStatus: Counts;
 };
+
+export type CountQueryResponse = {
+  integrationsTotalCount: IntegrationsCount;
+} & QueryResponse;
