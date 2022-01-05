@@ -1,5 +1,6 @@
 import { IUserDocument, paginate } from 'erxes-api-utils';
 
+import { requireLogin, checkPermission } from '@erxes/permission-utils';
 import { Customers, EngageMessages, Tags } from '../../../db/models';
 // import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -269,11 +270,11 @@ const engageQueries = {
   }
 };
 
-// requireLogin(engageQueries, 'engageMessagesTotalCount');
-// requireLogin(engageQueries, 'engageMessageCounts');
-// requireLogin(engageQueries, 'engageMessageDetail');
-// requireLogin(engageQueries, 'engageEmailPercentages');
+requireLogin(engageQueries, 'engageMessagesTotalCount');
+requireLogin(engageQueries, 'engageMessageCounts');
+requireLogin(engageQueries, 'engageMessageDetail');
+requireLogin(engageQueries, 'engageEmailPercentages');
 
-// checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
+checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
 
 export default engageQueries;

@@ -1,0 +1,20 @@
+{
+  "name": "@erxes/permission-utils",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "install": "tsc"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4.28.7",
+    "@types/node": "^17.0.7",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "ioredis": "^4.28.2"
+  }
+}

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@apollo/federation": "^0.33.8",
+    "@erxes/permission-utils": "^1.0.0",
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
@@ -45,6 +46,7 @@
     "kerberos": "^1.0.0"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
     "@types/q": "^1.5.0",
     "jest": "^24.9.0",
     "supertest": "^5.0.0",
