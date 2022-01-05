@@ -155,3 +155,15 @@ export type FieldsGroupsQueryResponse = {
   loading: boolean;
   refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
 };
+
+export type AddFieldsMutationVariables = {
+  contentType: string;
+  contentTypeId: string;
+  field: IField;
+};
+
+export type AddFieldsMutationResponse = {
+  addFieldsMutation: (params: {
+    variables: AddFieldsMutationVariables;
+  }) => void;
+};
