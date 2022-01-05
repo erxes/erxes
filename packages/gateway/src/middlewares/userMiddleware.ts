@@ -1,11 +1,11 @@
 // @ts-ignore
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
-// import { Users } from '../db/models';
 // @ts-ignore
 import { sendRequest, frontendEnv } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
 import redis from '../redis';
+import { Users } from '../db';
 
 export default async function userMiddleware(req: Request & { user?: any }, _res: Response, next: NextFunction) {
   const erxesCoreToken = req.headers['erxes-core-token'];
@@ -61,12 +61,12 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
-    // TODO: check for invalid token
+    const userDoc = await Users.findOne({ _id : user._id });
+
     // invalid token access.
-    // const currentUser = await Users.getUser(user._id);
-    // if (!currentUser.validatedTokens?.includes(token)) {
-    //   return next();
-    // }
+    if (!userDoc.validatedTokens?.includes(token)) {
+      return next();
+    }
 
     // save user in request
     req.user = user;
