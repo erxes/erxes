@@ -1,4 +1,6 @@
 import { Transform } from 'stream';
+import { IUserDocument, chunkArray } from 'erxes-api-utils';
+
 import {
   Conformities,
   Customers,
@@ -7,21 +9,20 @@ import {
   Segments,
   Users
 } from '../../../db/models';
-import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import {
   IEngageMessage,
   IEngageMessageDocument
-} from '../../../db/models/definitions/engages';
+} from './types';
 import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { fetchElk } from '../../../elasticsearch';
 import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
-import { MESSAGE_KINDS } from '../../constants';
+import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
-import { chunkArray, isUsingElk } from '../../utils';
+import { isUsingElk } from '../../utils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
+
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -192,14 +193,14 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     brandIds
   });
 
-  if (engageMessage.method === METHODS.EMAIL) {
+  if (engageMessage.method === CAMPAIGN_METHODS.EMAIL) {
     return sendEmailOrSms(
       { engageMessage, customersSelector, user },
       'sendEngage'
     );
   }
 
-  if (engageMessage.method === METHODS.SMS) {
+  if (engageMessage.method === CAMPAIGN_METHODS.SMS) {
     return sendEmailOrSms(
       { engageMessage, customersSelector, user },
       'sendEngageSms'
@@ -217,7 +218,7 @@ const sendEmailOrSms = async (
   const MINUTELY =
     engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
 
-  if (!(engageMessage.kind === MESSAGE_KINDS.AUTO && MINUTELY)) {
+  if (!(engageMessage.kind === CAMPAIGN_KINDS.AUTO && MINUTELY)) {
     await sendQueueMessage({
       action: 'writeLog',
       data: {
@@ -245,7 +246,7 @@ const sendEmailOrSms = async (
 
   const onFinishPiping = async () => {
     if (
-      engageMessage.kind === MESSAGE_KINDS.MANUAL &&
+      engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
       customerInfos.length === 0
     ) {
       await EngageMessages.deleteOne({ _id: engageMessage._id });
@@ -254,7 +255,7 @@ const sendEmailOrSms = async (
 
     if (
       !(
-        engageMessage.kind === MESSAGE_KINDS.AUTO &&
+        engageMessage.kind === CAMPAIGN_KINDS.AUTO &&
         MINUTELY &&
         customerInfos.length === 0
       )
@@ -289,7 +290,7 @@ const sendEmailOrSms = async (
         kind: engageMessage.kind
       };
 
-      if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
+      if (engageMessage.method === CAMPAIGN_METHODS.EMAIL && engageMessage.email) {
         const replacedContent = await editorAttributeUtil.replaceAttributes({
           customerFields,
           content: emailContent,
@@ -394,12 +395,12 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     !scheduleDate ||
     (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
 
-  if (kind === MESSAGE_KINDS.AUTO && method === METHODS.EMAIL && noDate) {
+  if (kind === CAMPAIGN_KINDS.AUTO && method === CAMPAIGN_METHODS.EMAIL && noDate) {
     throw new Error('Schedule date & type must be chosen in auto campaign');
   }
 
   if (
-    kind !== MESSAGE_KINDS.VISITOR_AUTO &&
+    kind !== CAMPAIGN_KINDS.VISITOR_AUTO &&
     !(
       brandIds.length > 0 ||
       segmentIds.length > 0 ||

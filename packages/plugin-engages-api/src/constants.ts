@@ -103,6 +103,13 @@ export const CAMPAIGN_KINDS = {
   ALL: ['auto', 'visitorAuto', 'manual']
 };
 
+export const CAMPAIGN_METHODS = {
+  MESSENGER: 'messenger',
+  EMAIL: 'email',
+  SMS: 'sms',
+  ALL: ['messenger', 'email', 'sms']
+};
+
 export const MODULE_NAMES = {
   BOARD: 'board',
   BOARD_DEAL: 'dealBoards',
