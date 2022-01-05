@@ -1,7 +1,7 @@
 import React from 'react';
 import { Description, SubHeading } from '@erxes/ui/src/settings/styles';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexContent } from '@erxes/ui/src/boards/styles/item';
+import { OnlyFlexContent } from '@erxes/ui/src/styles/main';
 import {
   ControlLabel,
   FormControl,
@@ -86,7 +86,7 @@ function ContentStep({
   const renderGeneralSettings = () => {
     return (
       <>
-        <FlexContent>
+        <OnlyFlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Booking Name</ControlLabel>
@@ -97,7 +97,7 @@ function ContentStep({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </OnlyFlexContent>
 
         <FormGroup>
           <ControlLabel required={true}>Booking Description</ControlLabel>
@@ -142,7 +142,7 @@ function ContentStep({
   const renderDisplayBlock = () => {
     return (
       <>
-        <FlexContent>
+        <OnlyFlexContent>
           <FlexItem count={3}>
             <FormGroup>
               <ControlLabel>Display blocks</ControlLabel>
@@ -192,7 +192,7 @@ function ContentStep({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </OnlyFlexContent>
       </>
     );
   };

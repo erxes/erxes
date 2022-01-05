@@ -341,6 +341,10 @@ const Limited = styled.div`
   max-width: 200px;
 `;
 
+const OnlyFlexContent = styled.div`
+  display: flex;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -366,5 +370,6 @@ export {
   TopHeader,
   Title,
   Count,
-  Limited
+  Limited,
+  OnlyFlexContent
 };

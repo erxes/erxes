@@ -26,7 +26,7 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
         return (
           <li key={brand._id}>
             <a
-              href="#filter"
+              href='#filter'
               tabIndex={0}
               className={
                 router.getParam(history, 'brand') === brand._id ? 'active' : ''
@@ -46,15 +46,15 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
     <Box
       title={__('Filter by brand')}
       collapsible={brands.length > 5}
-      name="showFilterByBrand"
+      name='showFilterByBrand'
     >
       <DataWithLoader
         data={data}
         loading={loading}
         count={brands.length}
         emptyText={emptyText || 'Empty'}
-        emptyIcon="leaf"
-        size="small"
+        emptyIcon='leaf'
+        size='small'
         objective={true}
       />
     </Box>

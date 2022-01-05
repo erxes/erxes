@@ -61,7 +61,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderSelect(options: string[] = [], attrs = {}) {
     return (
-      <FormControl componentClass="select" {...attrs}>
+      <FormControl componentClass='select' {...attrs}>
         {options.map((option, index) => (
           <option key={index} value={option}>
             {option}
@@ -152,8 +152,8 @@ export default class GenerateField extends React.Component<Props, State> {
         <Datetime
           {...attrs}
           value={value}
-          dateFormat="YYYY/MM/DD"
-          timeFormat="HH:mm"
+          dateFormat='YYYY/MM/DD'
+          timeFormat='HH:mm'
           closeOnSelect={true}
         />
       );
@@ -172,7 +172,7 @@ export default class GenerateField extends React.Component<Props, State> {
         <Datetime
           {...attrs}
           value={value}
-          dateFormat="YYYY/MM/DD"
+          dateFormat='YYYY/MM/DD'
           timeFormat={false}
           closeOnSelect={true}
         />
@@ -193,7 +193,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderTextarea(attrs) {
-    return <FormControl componentClass="textarea" {...attrs} />;
+    return <FormControl componentClass='textarea' {...attrs} />;
   }
 
   renderRadioOrCheckInputs(options, attrs, hasError?: boolean) {
@@ -243,8 +243,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <SelectCustomers
-        label="Filter by customers"
-        name="customerIds"
+        label='Filter by customers'
+        name='customerIds'
         multi={false}
         initialValue={value}
         onSelect={onSelect}
@@ -295,7 +295,7 @@ export default class GenerateField extends React.Component<Props, State> {
     const entries = Object.entries(object);
 
     return (
-      <SidebarList className="no-hover" key={index}>
+      <SidebarList className='no-hover' key={index}>
         {entries.map(e => {
           const key = e[0];
           const value: any = e[1] || '';

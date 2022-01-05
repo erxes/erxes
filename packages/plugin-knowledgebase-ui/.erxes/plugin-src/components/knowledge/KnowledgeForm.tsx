@@ -29,7 +29,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import CopyToClipboard from 'react-copy-to-clipboard';
-// import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
 import Select from 'react-select-plus';
 
@@ -151,7 +151,7 @@ class KnowledgeForm extends React.Component<Props, State> {
   renderScript(code: string, copied: boolean, name: string) {
     return (
       <MarkdownWrapper>
-        {/* <ReactMarkdown source={code} /> */}
+        <ReactMarkdown source={code} />
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
             <Button btnStyle="primary" size="small" icon="copy-1">

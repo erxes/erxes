@@ -1,4 +1,3 @@
 export type TagCountQueryResponse = {
-    [key: string]: number;
+  [key: string]: number;
 };
-  

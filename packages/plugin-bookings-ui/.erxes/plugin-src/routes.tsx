@@ -1,4 +1,4 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { Route } from 'react-router-dom';
 import React from 'react';
 import queryString from 'query-string';
