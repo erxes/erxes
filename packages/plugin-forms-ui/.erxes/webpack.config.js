@@ -58,6 +58,10 @@ module.exports = {
         test: /\.(css|s[ac]ss)$/i,
         use: ["style-loader", "css-loader", "postcss-loader"],
       },
+      { 
+        test: /\.json$/, 
+        loader: "json-loader"
+      },
       {
         test: /\.(ts|tsx|js|jsx)$/,
         exclude: /node_modules/,

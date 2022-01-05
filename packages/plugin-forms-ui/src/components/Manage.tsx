@@ -95,7 +95,7 @@ class Manage extends React.Component<Props, State> {
   onSimulate = () => {
     const { REACT_APP_CDN_HOST } = getEnv();
     const integration = this.props.integration;
-    const brand = integration.brand || {};
+    const brand = integration.brand || {} as ILeadIntegration;
     const form = integration.form || {};
 
     window.open(
@@ -175,7 +175,7 @@ class Manage extends React.Component<Props, State> {
             icon="times-circle"
             onClick={this.props.closeModal}
           >
-            Close
+            Close ***
           </Button>
         </ModalFooter>
       </>

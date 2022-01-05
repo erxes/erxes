@@ -6,7 +6,7 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/settings/integrations/constants';
 import { mutations as integrationMutations } from '@erxes/ui/src/settings/integrations/graphql/index';
-import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
+import { ArchiveIntegrationResponse } from '@erxes/ui/src/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import * as routerUtils from '@erxes/ui/src/utils/router';

@@ -11,7 +11,7 @@
     "apollo-link-error": "^1.0.9",
     "apollo-link-http": "^1.5.16",
     "apollo-link-ws": "^1.0.8",
-    "apollo-utilities": "^1.0.5",
+    "apollo-utilities": "^1.3.4",
     "ckeditor4-react": "^1.0.0",
     "color": "3.1.2",
     "dayjs": "^1.8.15",
@@ -33,12 +33,14 @@
     "react-bootstrap": "1.0.0-beta.14",
     "react-color": "^2.17.3",
     "react-dom": "16.11.0",
+    "react-markdown": "^7.1.2",
     "react-router-dom": "5.1.2",
     "react-select-plus": "1.0.0-rc.5",
     "react-toggle": "4.1.1",
     "react-transition-group": "2.5.1",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
-    "validator": "12.1.0"
+    "validator": "12.1.0",
+    "xss": "^1.0.10"
   }
 }

@@ -1,23 +1,23 @@
 import Datetime from '@nateradebaugh/react-datetime';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Uploader from 'modules/common/components/Uploader';
-import SelectCustomers from '../../../customers/containers/common/SelectCustomers';
-import { IAttachment } from 'modules/common/types';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
+import { IAttachment } from '@erxes/ui/src/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES
-} from 'modules/companies/constants';
+} from '@erxes/ui/src/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput, ObjectList } from '../styles';
 import { IField } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
-import ModifiableList from 'modules/common/components/ModifiableList';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 // import { colors } from 'modules/common/styles';
 // import { Divider } from "modules/settings/main/styles";
 

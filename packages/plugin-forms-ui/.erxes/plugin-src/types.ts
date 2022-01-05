@@ -2,12 +2,12 @@ import {
   IAttachment,
   IConditionsRule,
   QueryResponse
-} from 'modules/common/types';
-import { IUser } from '../auth/types';
-import { IForm } from '../forms/types';
-import { IBrand } from '../settings/brands/types';
-import { IIntegration } from '../settings/integrations/types';
-import { ITag } from '../tags/types';
+} from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IForm } from '@erxes/ui/src/forms/types';
+import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IIntegration } from '@erxes/ui/src/settings/integrations/types';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 export interface ICallout {
   title?: string;
