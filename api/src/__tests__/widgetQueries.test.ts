@@ -71,7 +71,7 @@ describe('widgetQueries', () => {
 
   test('Conversation export messages', async () => {
     const mock = sinon.stub(utils, 'uploadFile').callsFake(() => {
-      return Promise.resolve('filepath');;
+      return Promise.resolve('filepath');
     });
     // Creating test data
     const user = await userFactory({});
@@ -129,7 +129,7 @@ describe('widgetQueries', () => {
         widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
       }
     `;
-    
+
     try {
       await graphqlRequest(qry, 'widgetExportMessengerData', {
         _id: conversation._id,

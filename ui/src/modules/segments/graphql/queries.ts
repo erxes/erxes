@@ -7,6 +7,7 @@ const segmentFields = `
   color
   conditions
   conditionsConjunction
+  shouldWriteActivityLog
 
   boardId
   pipelineId
