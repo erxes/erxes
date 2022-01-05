@@ -108,3 +108,4 @@ export const checkPermission = async (
 
 export const requireLogin = (cls: any, methodName: string) =>
   permissionWrapper(cls, methodName, [checkLogin]);
+
