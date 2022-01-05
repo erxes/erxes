@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
-
 import {
   ControlWrapper,
   Indicator,
@@ -23,7 +22,7 @@ import FormStep from './steps/FormStep';
 import SuccessStep from '@erxes/ui/src/leads/components/step/SuccessStep';
 import { IField } from '@erxes/ui/src/settings/properties/types';
 import { PreviewWrapper } from '@erxes/ui/src/leads/components/step/style';
-import { FullPreview } from '@erxes/ui/src/leads/components/step';
+import FullPreview from '@erxes/ui/src/leads/components/step/FullPreview';
 import { colors } from '@erxes/ui/src/styles';
 import { IForm, IFormData } from '@erxes/ui/src/forms/types';
 import { IEmailTemplate } from '@erxes/ui/src/settings/emailTemplates/types';
