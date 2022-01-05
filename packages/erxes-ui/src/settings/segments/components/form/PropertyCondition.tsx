@@ -1,6 +1,8 @@
 import { IBoard } from '@erxes/ui/src/boards/types';
 import Select from 'react-select-plus';
-import { FormGroup, ControlLabel, FormControl  } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { __ } from '@erxes/ui/src/utils';
 import { IField, ISegmentCondition, ISegmentMap } from '../../types';
 import React from 'react';

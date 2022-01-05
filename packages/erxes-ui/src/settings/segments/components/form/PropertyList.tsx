@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import { IField } from '../../types';
 import React from 'react';
-import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { OperatorList } from '../styles';
 
 type Props = {

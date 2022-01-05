@@ -1,11 +1,12 @@
 import { IBoard } from '@erxes/ui/src/boards/types';
-import { Button, Icon } from '@erxes/ui/src/components';
-import {
-  FormControl,
-  FormGroup,
-  ControlLabel,
-  Form as CommonForm
-} from '@erxes/ui/src/components/form';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, generateRandomColorCode } from '@erxes/ui/src/utils';

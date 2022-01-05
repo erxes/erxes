@@ -4,15 +4,16 @@ import {
   ISegmentCondition
 } from '../../../segments/types';
 import Select from 'react-select-plus';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl
-} from '@erxes/ui/src/components/form';
+
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+
 import React from 'react';
 import { OperatorList, SegmentBackIcon } from '../styles';
 import { CenterContent } from '@erxes/ui/src/styles/main';
-import { Button, Icon } from '@erxes/ui/src/components';
+import Icon from '@erxes/ui/src/components/Icon';
+import Button from '@erxes/ui/src/components/Button';
 import { DEFAULT_OPERATORS, EVENT_OCCURENCES } from '../constants';
 
 type Props = {

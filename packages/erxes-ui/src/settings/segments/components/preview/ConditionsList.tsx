@@ -1,4 +1,6 @@
-import { Button, Tip, Icon } from '@erxes/ui/src/components';
+import Button from '@erxes/ui/src/components/Button';
+import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
 import { FlexRightItem } from '@erxes/ui/src/layout';
 import PropertyCondition from '../../containers/form/PropertyCondition';
 import { IField, ISegmentCondition, ISegmentMap } from '../../types';

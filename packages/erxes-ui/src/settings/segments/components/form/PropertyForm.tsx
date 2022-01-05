@@ -2,7 +2,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { IField, ISegmentCondition } from '../../types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { FormControl } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { OPERATORS } from '../constants';
 import { OperatorList } from '../styles';
 import { Formgroup } from '@erxes/ui/src/components/form/styles';
