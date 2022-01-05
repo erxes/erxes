@@ -3,7 +3,6 @@ module.exports = {
   port: 3004,
   exposes: {
     "./routes": "./src/routes.tsx",
-    "./settings": "./src/Settings.tsx",
   },
   routes: {
     url: "http://localhost:3004/remoteEntry.js",
