@@ -84,9 +84,9 @@ export default compose(
     gql(queries.knowledgeBaseArticlesTotalCount),
     {
       name: 'articlesCountQuery',
-      // options: ({ currentCategoryId }) => ({
-      //   variables: { categoryIds: [currentCategoryId] || '' }
-      // })
+      options: ({ currentCategoryId }) => ({
+        variables: { categoryIds: [currentCategoryId] || '' }
+      })
     }
   ),
   graphql<Props, CategoriesTotalCountQueryResponse>(
