@@ -1,3 +1,4 @@
+import { sendToWebhook } from 'erxes-api-utils';
 import * as _ from 'underscore';
 import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../types';
@@ -5,7 +6,7 @@ import { CAMPAIGN_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 // import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory, sendToWebhook } from '../../utils';
+import { registerOnboardHistory } from '../../utils';
 import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';

@@ -1,3 +1,6 @@
+import * as express from 'express';
+import { IUserDocument } from 'erxes-api-utils';
+
 interface IShortMessage {
   content: string;
   from?: string;
@@ -139,4 +142,23 @@ export interface IEngageMessageDocument extends IEngageMessage, Document {
   messenger?: IMessengerDocument;
 
   _id: string;
+}
+
+export interface IContext {
+  res: express.Response;
+  requestInfo: any;
+  user: IUserDocument;
+  docModifier: <T>(doc: T) => any;
+  brandIdSelector: {};
+  userBrandIdsSelector: {};
+  commonQuerySelector: {};
+  commonQuerySelectorElk: {};
+  singleBrandIdSelector: {};
+  dataSources: {
+    AutomationsAPI: any;
+    EngagesAPI: any;
+    IntegrationsAPI: any;
+    HelpersApi: any;
+  };
+  // dataLoaders: IDataLoaders;
 }

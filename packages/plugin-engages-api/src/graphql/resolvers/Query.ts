@@ -1,8 +1,8 @@
+import { IUserDocument, paginate } from 'erxes-api-utils';
+
 import { Customers, EngageMessages, Tags } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
 // import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
 
 interface IListArgs {
   kind?: string;
