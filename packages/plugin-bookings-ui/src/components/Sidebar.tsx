@@ -3,14 +3,14 @@ import React from 'react';
 import BrandFilter from '@erxes/ui/src/leads/containers/filters/BrandFilter';
 import StatusFilter from '@erxes/ui/src/leads/containers/filters/StatusFilter';
 import TagFilter from '@erxes/ui/src/leads/containers/filters/TagFilter';
-import { Counts } from '@erxes/ui/src/leads/types';
+import { Counts, IntegrationsCount } from '@erxes/ui/src/leads/types';
 
 type Props = {
   counts: {
     byTag: Counts;
     byBrand: Counts;
     byStatus: Counts;
-  };
+  } & IntegrationsCount[];
 };
 
 function Sidebar({ counts }: Props) {

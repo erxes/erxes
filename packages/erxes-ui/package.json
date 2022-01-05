@@ -34,7 +34,7 @@
     "react-bootstrap": "1.0.0-beta.14",
     "react-color": "^2.17.3",
     "react-dom": "16.11.0",
-    "react-markdown": "^3.3.0",
+    "react-markdown": "^7.1.2",
     "react-router-dom": "5.1.2",
     "react-select-plus": "1.0.0-rc.5",
     "react-toggle": "4.1.1",
