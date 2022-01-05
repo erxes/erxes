@@ -104,8 +104,8 @@ function DashbaordFormContent(props: FinalProps) {
   ) => {
     const result: React.ReactNode[] = [];
 
-    for (const dashboard1 of dashboards) {
-      const order = dashboard1.order || '';
+    for (const reports of dashboards) {
+      const order = reports.order || '';
 
       const foundedString = order.match(/[/]/gi);
 
@@ -115,11 +115,11 @@ function DashbaordFormContent(props: FinalProps) {
         space = '\u00A0 '.repeat(foundedString.length);
       }
 
-      if (currentDashboardId !== dashboard1._id) {
+      if (currentDashboardId !== reports._id) {
         result.push(
-          <option key={dashboard1._id} value={dashboard1._id}>
+          <option key={reports._id} value={reports._id}>
             {space}
-            {dashboard1.name}
+            {reports.name}
           </option>
         );
       }

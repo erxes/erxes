@@ -5,14 +5,9 @@ export interface IDashboard {
   name: string;
   visibility: string;
   selectedMemberIds?: string[];
-  description: string;
+  description?: string;
   parentId?: string;
-  childsDashboard: [IDashboard];
-  order?: string;
-  createdAt: Date;
-  code: string;
-  dashboardCount: number;
-  relatedIds: string[];
+  childsDashboard?: [IDashboard];
 }
 
 export interface IDashboardItemInput {
@@ -42,6 +37,9 @@ export interface IDashboardItemEdit {
 export interface IDashboardDocument extends IDashboard, Document {
   _id: string;
   createdAt: Date;
+  order?: string;
+  dashboardCount?: number;
+  relatedIds?: string[];
 }
 export interface IDashboardItemDocument extends IDashboardItem, Document {
   _id: string;
