@@ -1,4 +1,4 @@
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '../appContext';
 import React from 'react';
 import { can } from '../utils/core';
 

@@ -1,4 +1,4 @@
-import client from 'apolloClient';
+import client from '../apolloClient';
 import gql from 'graphql-tag';
 import debounce from 'lodash/debounce';
 import React, { useCallback, useEffect, useState } from 'react';
