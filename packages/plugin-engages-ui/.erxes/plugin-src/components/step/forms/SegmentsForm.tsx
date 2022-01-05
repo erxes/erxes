@@ -1,3 +1,4 @@
+import Form from '@erxes/ui/src/settings/segments/containers/form/SegmentsForm';
 import React from 'react';
 
 type Props = {
@@ -5,8 +6,10 @@ type Props = {
   afterSave: () => void;
 };
 
-const SegmentsForm = (_props: Props) => {
-  return <div />;
+const SegmentsForm = (props: Props) => {
+  const { segmentType, afterSave } = props;
+
+  return <Form contentType={segmentType} closeModal={afterSave} />;
 };
 
 export default SegmentsForm;
