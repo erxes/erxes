@@ -27,6 +27,7 @@ type Props = {
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
   configs: IConfig[];
+  color?: string;
 };
 
 type State = {

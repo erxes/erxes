@@ -2235,5 +2235,7 @@
   "Primary action button": "Үндсэн үйлдлийн товчлуур",
   "Secondary action button": "Хоёрдогч үйлдлийн товчлуур",
   "Heading divider & Input focus glow": "Гарчиг хуваагч",
-  "Active tab": "Идэвхтэй таб"
+  "Active tab": "Идэвхтэй таб",
+  "Latitude": "Өргөрөг",
+  "Longitude": "Уртраг"
 }

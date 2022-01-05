@@ -160,6 +160,11 @@ const fields = `
       content
       description
       options
+      locationOptions {
+        description
+        lat
+        lng
+      }
       isRequired
       order
       column

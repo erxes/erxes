@@ -12,13 +12,13 @@ import {
 } from 'modules/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput, ObjectList } from '../styles';
-import { IField } from '../types';
+import { IField, ILocationOption } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { MapContainer, Marker } from 'react-leaflet';
+import { MapContainer, Marker, CircleMarker, Popup } from 'react-leaflet';
 import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
 import { FullscreenControl } from 'react-leaflet-fullscreen';
 import 'react-leaflet-fullscreen/dist/styles.css';
@@ -37,7 +37,7 @@ type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
-  currentLocation?: [number, number];
+  currentLocation?: ILocationOption;
   googleMapApiKey: string;
 };
 
@@ -59,7 +59,10 @@ export default class GenerateField extends React.Component<Props, State> {
       const coordinates = position.coords;
 
       this.setState({
-        currentLocation: [coordinates.latitude, coordinates.longitude]
+        currentLocation: {
+          lat: coordinates.latitude,
+          lng: coordinates.longitude
+        }
       });
     };
 
@@ -372,9 +375,13 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderMap(attrs) {
     const { field, onValueChange } = this.props;
+
     const { currentLocation, googleMapApiKey } = this.state;
 
+    const { locationOptions = [] } = field;
+
     const dragend = e => {
+      console.log(e.target);
       const location = e.target.getLatLng();
       if (onValueChange) {
         onValueChange({ _id: field._id, value: [location.lat, location.lng] });
@@ -382,7 +389,11 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     const { value } = attrs;
-    let centerCoordinates: [number, number] = currentLocation || [0, 0];
+    let centerCoordinates: [number, number] = [0, 0];
+
+    if (currentLocation) {
+      centerCoordinates = [currentLocation.lat, currentLocation.lng];
+    }
 
     if (value && value.length !== 0) {
       centerCoordinates = value;
@@ -396,7 +407,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <MapContainer
-        style={{ height: '300px', width: '100%' }}
+        style={{ width: '100%', aspectRatio: '1/1' }}
         zoom={zoom}
         center={centerCoordinates}
       >
@@ -405,6 +416,15 @@ export default class GenerateField extends React.Component<Props, State> {
           useGoogMapsLoader={true}
         />
         <FullscreenControl />
+
+        {locationOptions.map((option, index) => (
+          <div key={index}>
+            <CircleMarker key={index} center={[option.lat, option.lng]}>
+              <Popup>{option.description}</Popup>
+            </CircleMarker>
+          </div>
+        ))}
+
         <Marker
           draggable={true}
           position={centerCoordinates}

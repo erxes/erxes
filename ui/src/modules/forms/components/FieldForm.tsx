@@ -24,6 +24,7 @@ import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import Select from 'react-select-plus';
 import { IConfig } from 'modules/settings/general/types';
+import LocationOptions from './LocationOptions';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -73,8 +74,10 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) => {
+    console.log('name: ', name);
+    console.log('value: ', value);
     this.setFieldAttrChanges(name, value);
   };
 
@@ -142,7 +145,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
 
@@ -208,6 +211,25 @@ class FieldForm extends React.Component<Props, State> {
           componentClass="textarea"
           value={(field.options || []).join('\n')}
           onChange={onChange}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderLocationOptions() {
+    const { field } = this.state;
+
+    if (field.type !== 'map') {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+
+        <LocationOptions
+          currentField={field}
+          onFieldChange={this.onFieldChange}
         />
       </FormGroup>
     );
@@ -357,6 +379,8 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderValidation()}
 
           {this.renderOptions()}
+
+          {this.renderLocationOptions()}
 
           {this.renderMultipleSelectCheckBox()}
 

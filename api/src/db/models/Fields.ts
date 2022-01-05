@@ -313,7 +313,7 @@ export const loadFieldClass = () => {
 
     public static generateTypedItem(
       field: string,
-      value: string | number | string[],
+      value: string | number | string[] | number[] | ICoordinates,
       type: string,
       validation?: string
     ): ITypedListItem {
@@ -321,8 +321,6 @@ export const loadFieldClass = () => {
       let numberValue;
       let dateValue;
       let locationValue;
-
-      console.log('TYUPE = ', type);
 
       if (value) {
         stringValue = value.toString();

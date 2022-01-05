@@ -35,8 +35,9 @@ const ruleSchema = new Schema(
 );
 
 export interface ICoordinates {
-  type: string;
-  coordinates: number[];
+  lat: number;
+  lng: number;
+  description?: string;
 }
 
 export interface ICustomField {

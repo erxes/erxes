@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { ICoordinates } from './common';
 import { field, schemaWrapper } from './utils';
 
 export interface ISubmission {
@@ -59,6 +60,7 @@ export interface IField extends IVisibility {
   content?: string;
   description?: string;
   options?: string[];
+  locationOptions?: ICoordinates[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   order?: number;
@@ -128,6 +130,11 @@ export const fieldSchema = schemaWrapper(
       type: [String],
       optional: true,
       label: 'Options'
+    }),
+    locationOptions: field({
+      type: Array,
+      optional: true,
+      label: 'Location Options'
     }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),

@@ -6,9 +6,8 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from '../constants';
-import { FieldValue, IField, IFieldError } from '../types';
+import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
 import MSFmultiSelect from '../multipleSelectScript';
-import { IAttachment } from '../../messenger/types';
 
 type Props = {
   field: IField;
@@ -69,9 +68,8 @@ export default class Field extends React.Component<Props, State> {
     return (
       <div className="check-control">
         {options.map((option, index) => {
-       
           const checked = values.indexOf(option) > -1 ? true : false;
-          
+
           return (
             <div key={index}>
               <label>
@@ -342,6 +340,12 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
+  renderMap(attrs: any) {
+    console.log(attrs);
+
+    return null;
+  }
+
   renderControl() {
     const { field, value } = this.props;
     const { options = [], validation = 'text' } = field;
@@ -495,6 +499,9 @@ export default class Field extends React.Component<Props, State> {
 
       case 'html':
         return this.renderHtml(field.content || '', field._id);
+
+      case 'map':
+        return this.renderMap({ field });
 
       default:
         return Field.renderInput({
