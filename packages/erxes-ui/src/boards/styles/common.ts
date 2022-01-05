@@ -1,6 +1,6 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { Contents, MainContent } from 'modules/layout/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { Contents, MainContent } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
