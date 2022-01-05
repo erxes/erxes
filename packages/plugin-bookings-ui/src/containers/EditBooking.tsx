@@ -10,9 +10,9 @@ import {
   EditBookingIntegrationMutationVariables,
   IBookingData
 } from '../types';
-import { Alert } from '@erxes/ui/src/common/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse

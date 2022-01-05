@@ -7,8 +7,11 @@ import * as core from './core';
 import parseMD from './parseMd';
 import * as router from './router';
 import toggleCheckBoxes from './toggleCheckBoxes';
-import uploadHandler, { deleteHandler as uploadDeleteHandler } from './uploadHandler';
+import uploadHandler, {
+  deleteHandler as uploadDeleteHandler
+} from './uploadHandler';
 import urlParser from './urlParser';
+import commonListComposer from './commonListComposer';
 
 export const renderFullName = core.renderFullName;
 export const renderUserFullName = core.renderUserFullName;
@@ -58,5 +61,6 @@ export {
   confirm,
   toggleCheckBoxes,
   urlParser,
-  categories
+  categories,
+  commonListComposer
 };

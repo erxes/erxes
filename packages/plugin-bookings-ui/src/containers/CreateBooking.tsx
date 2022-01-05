@@ -1,6 +1,6 @@
 import React from 'react';
 import { queries as templatesQuery } from '@erxes/ui/src/settings/emailTemplates/graphql';
-import { IRouterProps } from '../../common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import Booking from '../components/Booking';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
@@ -11,7 +11,7 @@ import {
   AddBookingIntegrationMutationVariables,
   IBookingData
 } from '../types';
-import { Alert } from '@erxes/ui/src/common/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 import {
   EmailTemplatesQueryResponse,
