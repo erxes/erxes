@@ -1,24 +1,28 @@
 import Datetime from '@nateradebaugh/react-datetime';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Uploader from 'modules/common/components/Uploader';
-import SelectCustomers from '../../../customers/containers/common/SelectCustomers';
-import { IAttachment } from 'modules/common/types';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
+import { IAttachment } from '@erxes/ui/src/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES
-} from 'modules/companies/constants';
+} from '@erxes/ui/src/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput, ObjectList } from '../styles';
 import { IField } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
-import ModifiableList from 'modules/common/components/ModifiableList';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-// import { colors } from 'modules/common/styles';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+// import { colors } from '@erxes/ui/src/styles';
 // import { Divider } from "modules/settings/main/styles";
 
 type Props = {
@@ -61,7 +65,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderSelect(options: string[] = [], attrs = {}) {
     return (
-      <FormControl componentClass="select" {...attrs}>
+      <FormControl componentClass='select' {...attrs}>
         {options.map((option, index) => (
           <option key={index} value={option}>
             {option}
@@ -152,8 +156,8 @@ export default class GenerateField extends React.Component<Props, State> {
         <Datetime
           {...attrs}
           value={value}
-          dateFormat="YYYY/MM/DD"
-          timeFormat="HH:mm"
+          dateFormat='YYYY/MM/DD'
+          timeFormat='HH:mm'
           closeOnSelect={true}
         />
       );
@@ -172,7 +176,7 @@ export default class GenerateField extends React.Component<Props, State> {
         <Datetime
           {...attrs}
           value={value}
-          dateFormat="YYYY/MM/DD"
+          dateFormat='YYYY/MM/DD'
           timeFormat={false}
           closeOnSelect={true}
         />
@@ -193,7 +197,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderTextarea(attrs) {
-    return <FormControl componentClass="textarea" {...attrs} />;
+    return <FormControl componentClass='textarea' {...attrs} />;
   }
 
   renderRadioOrCheckInputs(options, attrs, hasError?: boolean) {
@@ -243,8 +247,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <SelectCustomers
-        label="Filter by customers"
-        name="customerIds"
+        label='Filter by customers'
+        name='customerIds'
         multi={false}
         initialValue={value}
         onSelect={onSelect}
@@ -295,7 +299,7 @@ export default class GenerateField extends React.Component<Props, State> {
     const entries = Object.entries(object);
 
     return (
-      <SidebarList className="no-hover" key={index}>
+      <SidebarList className='no-hover' key={index}>
         {entries.map(e => {
           const key = e[0];
           const value: any = e[1] || '';
