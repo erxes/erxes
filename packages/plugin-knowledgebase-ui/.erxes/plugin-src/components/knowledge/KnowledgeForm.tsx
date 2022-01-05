@@ -151,7 +151,7 @@ class KnowledgeForm extends React.Component<Props, State> {
   renderScript(code: string, copied: boolean, name: string) {
     return (
       <MarkdownWrapper>
-        <ReactMarkdown source={code} />
+        <ReactMarkdown children={code} />
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
             <Button btnStyle="primary" size="small" icon="copy-1">
