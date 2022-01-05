@@ -84,6 +84,29 @@ const FlexRow = styled.div`
   align-items: center;
 `;
 
+const SubHeading = styled.h4`
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding-bottom: ${dimensions.unitSpacing}px;
+  font-size: ${typography.fontSizeHeading7}px;
+  margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreDarkGray};
+
+  span {
+    display: block;
+    text-transform: none;
+    font-weight: normal;
+    margin-top: ${dimensions.unitSpacing}px;
+    color: ${colors.colorCoreGray};
+    font-size: 12px;
+  }
+`;
+
+const WidgetBackgrounds = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`;
+
 export {
   MarkdownWrapper,
   ColorPick,
@@ -91,5 +114,7 @@ export {
   ActionButtons,
   ExpandWrapper,
   Description,
-  FlexRow
+  FlexRow,
+  SubHeading,
+  WidgetBackgrounds
 };
