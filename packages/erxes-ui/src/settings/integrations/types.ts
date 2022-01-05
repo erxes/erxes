@@ -1,7 +1,7 @@
 // import { IBookingData } from 'modules/bookings/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 // import { IForm } from 'modules/forms/types';
-// import { ILeadData, ILeadIntegration, IWebhookData } from 'modules/leads/types';
+import { ILeadData, ILeadIntegration } from '../../leads/types';
 import { IBrand } from '../brands/types';
 // import { IChannel } from '../channels/types';
 
@@ -121,3 +121,39 @@ export type ArchiveIntegrationResponse = {
     variables: { _id: string; status: boolean };
   }) => Promise<any>;
 };
+
+export type IntegrationMutationVariables = {
+  brandId: string;
+  name: string;
+  channelIds?: string[];
+  data?: any;
+};
+
+export type AddIntegrationMutationVariables = {
+  leadData: ILeadData;
+  languageCode: string;
+  formId: string;
+} & IntegrationMutationVariables;
+
+export type AddIntegrationMutationResponse = {
+  addIntegrationMutation: (params: {
+    variables: AddIntegrationMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditIntegrationMutationVariables = {
+  _id: string;
+  leadData: ILeadData;
+  languageCode: string;
+  formId: string;
+} & IntegrationMutationVariables;
+
+export type EditIntegrationMutationResponse = {
+  editIntegrationMutation: (params: {
+    variables: EditIntegrationMutationVariables;
+  }) => Promise<void>;
+};
+
+export type LeadIntegrationDetailQueryResponse = {
+  integrationDetail: ILeadIntegration;
+} & QueryResponse;
