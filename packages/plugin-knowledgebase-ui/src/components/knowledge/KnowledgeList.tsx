@@ -1,13 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { TopHeader } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React from 'react';
-import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
-import { ITopic } from '../../types';
-import KnowledgeRow from './KnowledgeRow';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { TopHeader } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import React from "react";
+import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
+import { ITopic } from "../../types";
+import KnowledgeRow from "./KnowledgeRow";
+
 type Props = {
   queryParams: any;
   currentCategoryId: string;
@@ -29,12 +30,12 @@ class KnowledgeList extends React.Component<Props> {
       currentCategoryId,
       queryParams,
       articlesCount,
-      refetch
+      refetch,
     } = this.props;
 
     return (
       <>
-        {topics.map(topic => (
+        {topics.map((topic) => (
           <KnowledgeRow
             currentCategoryId={currentCategoryId}
             key={topic._id}
@@ -57,7 +58,7 @@ class KnowledgeList extends React.Component<Props> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <KnowledgeForm {...props} renderButton={this.props.renderButton} />
     );
 

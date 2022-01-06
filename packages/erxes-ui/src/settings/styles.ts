@@ -1,8 +1,8 @@
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions, typography } from "@erxes/ui/src/styles";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -116,5 +116,5 @@ export {
   Description,
   FlexRow,
   SubHeading,
-  WidgetBackgrounds
+  WidgetBackgrounds,
 };

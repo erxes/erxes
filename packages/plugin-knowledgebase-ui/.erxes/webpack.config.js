@@ -1,4 +1,4 @@
-const webpack = require('webpack');
+const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
@@ -6,16 +6,16 @@ const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPl
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 
 const configs = require("./plugin-src/configs");
-const { port=3000 } = configs;
+const { port = 3000 } = configs;
 
 const exposes = {};
 
 for (const expose of Object.keys(configs.exposes || {})) {
-  exposes[expose] = configs.exposes[expose].replace('src', 'plugin-src')
+  exposes[expose] = configs.exposes[expose].replace("src", "plugin-src");
 }
 
-// replace accordingly './.env' with the path of your .env file 
-require('dotenv').config({ path: './.env' }); 
+// replace accordingly './.env' with the path of your .env file
+require("dotenv").config({ path: "./.env" });
 
 const deps = require("./package.json").dependencies;
 const depNames = Object.keys(deps);
@@ -25,8 +25,8 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true,
-    eager: true
-  }
+    eager: true,
+  };
 }
 
 module.exports = {
@@ -58,9 +58,9 @@ module.exports = {
         test: /\.(css|s[ac]ss)$/i,
         use: ["style-loader", "css-loader", "postcss-loader"],
       },
-      { 
-        test: /\.json$/, 
-        loader: "json-loader"
+      {
+        test: /\.json$/,
+        loader: "json-loader",
       },
       {
         test: /\.(ts|tsx|js|jsx)$/,
@@ -68,7 +68,8 @@ module.exports = {
         include: [
           path.resolve(__dirname, "src"),
           path.resolve(__dirname, "../../erxes-ui/src"),
-          path.resolve(__dirname, "plugin-src")
+          path.resolve(__dirname, "../../common-ui-settings/src"),
+          path.resolve(__dirname, "plugin-src"),
         ],
         use: {
           loader: "babel-loader",
@@ -102,8 +103,8 @@ module.exports = {
         "@erxes/ui": {
           requiredVersion: "1.0.0",
           singleton: true,
-          eager: true
-        }
+          eager: true,
+        },
       },
     }),
     new HtmlWebPackPlugin({
