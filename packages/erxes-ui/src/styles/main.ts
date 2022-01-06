@@ -3,6 +3,14 @@ import { rgba } from '../styles/ecolor';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
+const FlexContent = styled.div`
+  display: flex;
+`;
+
+const FlexContentHt = styled(FlexContent)`
+  height: 100%;
+`;
+
 const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
@@ -341,10 +349,6 @@ const Limited = styled.div`
   max-width: 200px;
 `;
 
-const OnlyFlexContent = styled.div`
-  display: flex;
-`;
-
 const ColorPick = styled.div`
   border-radius: 4px;
   display: inline-block;
@@ -387,5 +391,6 @@ export {
   Title,
   Count,
   Limited,
-  OnlyFlexContent
+  FlexContent,
+  FlexContentHt
 };
