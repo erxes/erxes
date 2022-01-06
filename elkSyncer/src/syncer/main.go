@@ -15,7 +15,6 @@ import (
 
 func putTemplate(indexSuffix string, mapping string) {
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
-	dbName := os.Getenv("DB_NAME")
 
 	client, err := elastic.NewSimpleClient(elastic.SetURL(elasticsearchURL))
 
@@ -38,7 +37,7 @@ func putTemplate(indexSuffix string, mapping string) {
 
 	var bodyString = fmt.Sprintf(`
 	{
-			"index_patterns": ["%s__%s"],
+			"index_patterns": ["erxes__%s"],
 			"settings": {
 				"analysis": %s,
 				"number_of_shards": 1,
@@ -48,7 +47,7 @@ func putTemplate(indexSuffix string, mapping string) {
 				"properties": %s
 			}
 		}
-	`,dbName, indexSuffix, analysis, mapping)
+	`, indexSuffix, analysis, mapping)
 
 	putResponse, err := client.IndexPutTemplate(indexSuffix).BodyString(bodyString).Do(context.Background())
 
@@ -78,7 +77,6 @@ type Collection struct {
 func main() {
 	mongoURL := os.Getenv("MONGO_URL")
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
-	dbName := os.Getenv("DB_NAME")
 
 	jsonFile, err := os.Open("/data/essyncerData/plugins.json")
 
@@ -98,7 +96,6 @@ func main() {
 	fmt.Println("Successfully Opened plugins.json", plugins)
 	fmt.Println("Mongo url ", mongoURL)
 	fmt.Println("Elasticsearch url ", elasticsearchURL)
-	fmt.Println("Db name ", dbName)
 
 	var nested_type = `{
 		"type" : "nested",
@@ -176,13 +173,13 @@ func main() {
 
 	var namespaces []string
 
-	namespaces = append(namespaces, fmt.Sprintf(`"%s.deals"`, dbName))
-	namespaces = append(namespaces, fmt.Sprintf(`"%s.tickets"`, dbName))
-	namespaces = append(namespaces, fmt.Sprintf(`"%s.tasks"`, dbName))
+	namespaces = append(namespaces, fmt.Sprintf(`"erxes.deals"`))
+	namespaces = append(namespaces, fmt.Sprintf(`"erxes.tickets"`))
+	namespaces = append(namespaces, fmt.Sprintf(`"erxes.tasks"`))
 
 
 	var scripts []string
-	possible_dbs := []string{dbName}
+	possible_dbs := []string{"erxes"}
 	possible_collections := []string{"deals","tasks","tickets"}
 
 	for i := 0; i < len(plugins.Plugins); i++ {
