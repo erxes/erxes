@@ -1,16 +1,14 @@
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
-import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { statusFilters } from '../constants';
-import { Counts } from '../types';
+import Box from "@erxes/ui/src/components/Box";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { __, router } from "@erxes/ui/src/utils";
+import { FieldStyle } from "@erxes/ui/src/layout/styles";
+import { SidebarCounter } from "@erxes/ui/src/layout/styles";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import { statusFilters } from "../constants";
+import { Counts } from "../types";
 
 interface IProps extends IRouterProps {
   counts: Counts;
@@ -23,18 +21,18 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
       {statusFilters.map((status, index) => {
         const onClick = () => {
           router.setParams(history, { status: status.key });
-          router.removeParams(history, 'page');
+          router.removeParams(history, "page");
         };
 
         return (
           <li key={index}>
             <a
-              href='#filter'
+              href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'status') === status.key
-                  ? 'active'
-                  : ''
+                router.getParam(history, "status") === status.key
+                  ? "active"
+                  : ""
               }
               onClick={onClick}
             >
@@ -49,17 +47,17 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by status')}
+      title={__("Filter by status")}
       collapsible={statusFilters.length > 5}
-      name='showFilterByStatus'
+      name="showFilterByStatus"
     >
       <DataWithLoader
         data={data}
         loading={false}
         count={statusFilters.length}
-        emptyText={emptyText ? emptyText : 'Loading'}
-        emptyIcon='leaf'
-        size='small'
+        emptyText={emptyText ? emptyText : "Loading"}
+        emptyIcon="leaf"
+        size="small"
         objective={true}
       />
     </Box>

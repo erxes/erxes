@@ -8,7 +8,7 @@ import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import { EMPTY_CONTENT_POPUPS } from '@erxes/ui/src/settings/constants';
+import { EMPTY_CONTENT_POPUPS } from '@erxes/common-ui-settings/src/constants';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';

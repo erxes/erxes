@@ -1,4 +1,5 @@
-import { IBrand, QueryResponse } from 'types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ITag } from '@erxes/ui/src/tags/types';

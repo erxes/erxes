@@ -1,35 +1,35 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { readFile, uploadHandler, __ } from '@erxes/ui/src/utils';
-import { ILeadData } from '@erxes/ui/src/leads/types';
-import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
-import { FORM_SUCCESS_ACTIONS } from '@erxes/common-ui-settings/src/integrations/constants';
-import React from 'react';
-import { FlexItem, ImagePreview, ImageUpload } from './style';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import EditorCK from "@erxes/ui/src/containers/EditorCK";
+import { readFile, uploadHandler, __ } from "@erxes/ui/src/utils";
+import { ILeadData } from "../../types";
+import { IEmailTemplate } from "@erxes/common-ui-settings/src/emailTemplates/types";
+import { FORM_SUCCESS_ACTIONS } from "@erxes/common-ui-settings/src/integrations/constants";
+import React from "react";
+import { FlexItem, ImagePreview, ImageUpload } from "./style";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
 type Name =
-  | 'successAction'
-  | 'fromEmail'
-  | 'userEmailTitle'
-  | 'userEmailContent'
-  | 'adminEmails'
-  | 'adminEmailTitle'
-  | 'adminEmailContent'
-  | 'redirectUrl'
-  | 'thankContent'
-  | 'thankTitle'
-  | 'templateId'
-  | 'attachments'
-  | 'successImageSize'
-  | 'successImage'
-  | 'successPreviewStyle';
+  | "successAction"
+  | "fromEmail"
+  | "userEmailTitle"
+  | "userEmailContent"
+  | "adminEmails"
+  | "adminEmailTitle"
+  | "adminEmailContent"
+  | "redirectUrl"
+  | "thankContent"
+  | "thankTitle"
+  | "templateId"
+  | "attachments"
+  | "successImageSize"
+  | "successImage"
+  | "successPreviewStyle";
 
 type Props = {
   type: string;
@@ -60,18 +60,18 @@ class SuccessStep extends React.Component<Props, State> {
 
     this.state = {
       successAction: leadData.successAction || FORM_SUCCESS_ACTIONS.ONPAGE,
-      leadData
+      leadData,
     };
   }
 
   handleSuccessActionChange = () => {
     const element = document.getElementById(
-      'successAction'
+      "successAction"
     ) as HTMLInputElement;
     const value = element.value;
 
     this.setState({ successAction: value });
-    this.props.onChange('successAction', value);
+    this.props.onChange("successAction", value);
   };
 
   onChangeFunction = (name: Name, value: string) => {
@@ -79,77 +79,77 @@ class SuccessStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onEditorChange = e => {
+  onEditorChange = (e) => {
     const editorNumber: number =
-      e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
+      e.editor.name && e.editor.name.replace(/[^\d.]/g, "");
 
-    let propName: Name = 'adminEmailContent';
+    let propName: Name = "adminEmailContent";
 
     if (editorNumber % 2 !== 0) {
-      propName = 'userEmailContent';
+      propName = "userEmailContent";
     }
     this.props.onChange(propName, e.editor.getData());
   };
 
-  findTemplate = id => {
-    const template = this.props.emailTemplates.find(t => t._id === id);
+  findTemplate = (id) => {
+    const template = this.props.emailTemplates.find((t) => t._id === id);
 
     if (template) {
       return template.content;
     }
 
-    return '';
+    return "";
   };
 
-  templateChange = e => {
+  templateChange = (e) => {
     const userEmailContent = this.findTemplate(e.value);
 
     this.setState({ leadData: { userEmailContent, templateId: e.value } });
 
-    this.props.onChange('userEmailContent', this.findTemplate(e.value));
-    this.props.onChange('templateId', e.value);
+    this.props.onChange("userEmailContent", this.findTemplate(e.value));
+    this.props.onChange("templateId", e.value);
   };
 
-  onChangeAttachment = attachments => {
+  onChangeAttachment = (attachments) => {
     const leadData = this.state.leadData || {};
     leadData.attachments = attachments;
 
     this.setState({ leadData });
 
-    this.props.onChange('attachments', attachments);
+    this.props.onChange("attachments", attachments);
   };
 
   renderEmailFields(leadData: ILeadData) {
-    if (this.state.successAction !== 'email') {
+    if (this.state.successAction !== "email") {
       return null;
     }
 
-    const fromEmailOnChange = e =>
+    const fromEmailOnChange = (e) =>
       this.onChangeFunction(
-        'fromEmail',
+        "fromEmail",
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const userEmailTitle = e =>
+    const userEmailTitle = (e) =>
       this.onChangeFunction(
-        'userEmailTitle',
+        "userEmailTitle",
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const adminEmails = e =>
+    const adminEmails = (e) =>
       this.onChangeFunction(
-        'adminEmails',
+        "adminEmails",
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const adminEmailTitle = e =>
+    const adminEmailTitle = (e) =>
       this.onChangeFunction(
-        'adminEmailTitle',
+        "adminEmailTitle",
         (e.currentTarget as HTMLInputElement).value
       );
 
     const { type, formId } = this.props;
-    const editorSubName = `${type}_${formId || 'create'}`;
+    const editorSubName = `${type}_${formId || "create"}`;
 
     return (
       <div>
@@ -161,8 +161,8 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Send from</label>
           <FormControl
-            type='text'
-            id='fromEmail'
+            type="text"
+            id="fromEmail"
             defaultValue={leadData.fromEmail}
             onChange={fromEmailOnChange}
           />
@@ -171,8 +171,8 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Subject Line</label>
           <FormControl
-            type='text'
-            id='userEmailTitle'
+            type="text"
+            id="userEmailTitle"
             defaultValue={leadData.userEmailTitle}
             onChange={userEmailTitle}
           />
@@ -180,13 +180,13 @@ class SuccessStep extends React.Component<Props, State> {
 
         <FormGroup>
           <label>Email templates:</label>
-          <p>{__('Insert email template to content')}</p>
+          <p>{__("Insert email template to content")}</p>
         </FormGroup>
 
         <FormGroup>
           <label>Message</label>
           <EditorCK
-            content={leadData.userEmailContent || ''}
+            content={leadData.userEmailContent || ""}
             onChange={this.onEditorChange}
             height={500}
             name={`lead_user_email_${editorSubName}`}
@@ -208,10 +208,10 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Admin emails</label>
           <FormControl
-            id='adminEmails'
-            type='text'
+            id="adminEmails"
+            type="text"
             defaultValue={
-              leadData.adminEmails ? leadData.adminEmails.join(',') : ''
+              leadData.adminEmails ? leadData.adminEmails.join(",") : ""
             }
             onChange={adminEmails}
           />
@@ -220,9 +220,9 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Subject Line</label>
           <FormControl
-            type='text'
+            type="text"
             defaultValue={leadData.adminEmailTitle}
-            id='adminEmailTitle'
+            id="adminEmailTitle"
             onChange={adminEmailTitle}
           />
         </FormGroup>
@@ -230,7 +230,7 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Message</label>
           <EditorCK
-            content={leadData.adminEmailContent || ''}
+            content={leadData.adminEmailContent || ""}
             onChange={this.onEditorChange}
             height={500}
             name={`lead_admin_email_${editorSubName}`}
@@ -241,13 +241,13 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderRedirectUrl(leadData) {
-    if (this.state.successAction !== 'redirect') {
+    if (this.state.successAction !== "redirect") {
       return null;
     }
 
-    const onChange = e =>
+    const onChange = (e) =>
       this.onChangeFunction(
-        'redirectUrl',
+        "redirectUrl",
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -256,9 +256,9 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Redirect to this page after submission</ControlLabel>
           <FormControl
-            type='text'
+            type="text"
             defaultValue={leadData.redirectUrl}
-            id='redirectUrl'
+            id="redirectUrl"
             onChange={onChange}
           />
         </FormGroup>
@@ -270,22 +270,22 @@ class SuccessStep extends React.Component<Props, State> {
     const { thankContent, thankTitle, successImageSize } = this.props;
     const { successAction } = this.state;
 
-    const onChangeImageWidth = e =>
+    const onChangeImageWidth = (e) =>
       this.onChangeFunction(
-        'successImageSize',
+        "successImageSize",
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const onChangeTitle = e => {
+    const onChangeTitle = (e) => {
       this.onChangeFunction(
-        'thankTitle',
+        "thankTitle",
         (e.currentTarget as HTMLInputElement).value
       );
     };
 
-    const onChangeContent = e => {
+    const onChangeContent = (e) => {
       this.onChangeFunction(
-        'thankContent',
+        "thankContent",
         (e.currentTarget as HTMLInputElement).value
       );
     };
@@ -299,9 +299,9 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
-            id='thankTitle'
-            type='text'
-            componentClass='textinput'
+            id="thankTitle"
+            type="text"
+            componentClass="textinput"
             defaultValue={thankTitle}
             onChange={onChangeTitle}
           />
@@ -309,28 +309,28 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Confirmation message</ControlLabel>
           <FormControl
-            id='thankContent'
-            type='text'
-            componentClass='textarea'
+            id="thankContent"
+            type="text"
+            componentClass="textarea"
             defaultValue={thankContent}
             onChange={onChangeContent}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Featured image</ControlLabel>
-          <p>{__('You can upload only image file')}</p>
+          <p>{__("You can upload only image file")}</p>
           {this.renderUploadImage()}
         </FormGroup>
         <FormGroup>
           <ControlLabel>Confirm image size</ControlLabel>
           <FormControl
-            id='validation'
-            componentClass='select'
+            id="validation"
+            componentClass="select"
             value={successImageSize}
             onChange={onChangeImageWidth}
           >
-            <option value='100%'>{__('Full width')}</option>
-            <option value='50%'>{__('Half width')}</option>
+            <option value="100%">{__("Full width")}</option>
+            <option value="50%">{__("Half width")}</option>
           </FormControl>
         </FormGroup>
       </div>
@@ -338,7 +338,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderSelectOptions() {
-    return FORM_SUCCESS_ACTIONS.ALL_LIST.map(e => {
+    return FORM_SUCCESS_ACTIONS.ALL_LIST.map((e) => {
       return (
         <option key={e.value} value={e.value}>
           {e.text}
@@ -348,7 +348,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   removeImage = () => {
-    this.props.onChange('successImage', '');
+    this.props.onChange("successImage", "");
   };
 
   handleImage = (e: React.FormEvent<HTMLInputElement>) => {
@@ -358,34 +358,34 @@ class SuccessStep extends React.Component<Props, State> {
       files: imageFile,
 
       beforeUpload: () => {
-        this.props.onChange('successPreviewStyle', { opacity: '0.9' });
+        this.props.onChange("successPreviewStyle", { opacity: "0.9" });
       },
 
       afterUpload: ({ response }) => {
-        this.props.onChange('successPreviewStyle', { opacity: '1' });
+        this.props.onChange("successPreviewStyle", { opacity: "1" });
 
-        this.props.onChange('successImage', response);
-      }
+        this.props.onChange("successImage", response);
+      },
     });
   };
 
   renderImagePreview() {
     const { successImage, successPreviewStyle } = this.props;
 
-    if (successPreviewStyle && successPreviewStyle.opacity === '0.9') {
+    if (successPreviewStyle && successPreviewStyle.opacity === "0.9") {
       return <Spinner />;
     }
 
     if (!successImage) {
       return (
         <>
-          <Icon icon='plus' />
-          {__('Upload')}
+          <Icon icon="plus" />
+          {__("Upload")}
         </>
       );
     }
 
-    return <ImagePreview src={readFile(successImage)} alt='previewImage' />;
+    return <ImagePreview src={readFile(successImage)} alt="previewImage" />;
   }
 
   renderUploadImage() {
@@ -400,18 +400,18 @@ class SuccessStep extends React.Component<Props, State> {
       <ImageUpload>
         <label>
           <input
-            type='file'
+            type="file"
             onChange={onChange}
-            accept='image/x-png,image/jpeg'
+            accept="image/x-png,image/jpeg"
           />
           {this.renderImagePreview()}
         </label>
 
         {successImage && (
           <Button
-            btnStyle='link'
-            icon='cancel'
-            size='small'
+            btnStyle="link"
+            icon="cancel"
+            size="small"
             onClick={onClick}
           />
         )}
@@ -432,10 +432,10 @@ class SuccessStep extends React.Component<Props, State> {
               {__(`You can set only one confirmation message type at a time.`)}
             </p>
             <FormControl
-              componentClass='select'
+              componentClass="select"
               defaultValue={successAction}
               onChange={this.handleSuccessActionChange}
-              id='successAction'
+              id="successAction"
             >
               {this.renderSelectOptions()}
             </FormControl>

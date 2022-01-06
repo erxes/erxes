@@ -1,16 +1,13 @@
 import Button from "@erxes/ui/src/components/Button";
 import ConditionsRule from "@erxes/ui/src/components/rule/ConditionsRule";
 import { Step, Steps } from "@erxes/ui/src/components/step";
-import {
-  ControlWrapper,
-  Indicator,
-  StepWrapper,
-} from "@erxes/ui/src/components/step/styles";
+import { ControlWrapper } from "@erxes/ui/src/components/step/styles";
+import { Indicator } from "@erxes/ui/src/components/step/styles";
+import { StepWrapper } from "@erxes/ui/src/components/step/styles";
 import { IAttachment, IConditionsRule } from "@erxes/ui/src/types";
 import { Alert } from "@erxes/ui/src/utils";
 import { __ } from "@erxes/ui/src/utils";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-// import { IEmailTemplate } from "common-ui-settings/src/emailTemplates/types";
 import { IEmailTemplate } from "@erxes/common-ui-settings/src/emailTemplates/types";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -21,8 +18,8 @@ import { IFormData } from "@erxes/ui/src/forms/types";
 import {
   Content,
   LeftContent,
-} from "@erxes/ui/src/settings/integrations/styles";
-import { IField } from "@erxes/ui/src/settings/properties/types";
+} from "@erxes/common-ui-settings/src/integrations/styles";
+import { IField } from "@erxes/ui/src/types";
 import {
   CallOut,
   ChooseType,

@@ -1,5 +1,5 @@
 import { IFormData } from '@erxes/ui/src/forms/types';
-import { IField } from '@erxes/ui/src/settings/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import CommonPreview from './CommonPreview';
 
