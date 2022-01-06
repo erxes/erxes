@@ -1,6 +1,5 @@
-import { ICompany } from 'companies/types';
-import { ITag } from 'tags/types';
-
+import { ICompany } from '../companies/types';
+import { ITag } from '../tags/types';
 import { QueryResponse } from '../types';
 
 export interface IProductDoc {

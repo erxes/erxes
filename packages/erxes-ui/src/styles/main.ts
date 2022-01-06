@@ -345,10 +345,26 @@ const OnlyFlexContent = styled.div`
   display: flex;
 `;
 
+const ColorPick = styled.div`
+  border-radius: 4px;
+  display: inline-block;
+  padding: 3px;
+  border: 1px solid ${colors.borderDarker};
+  cursor: pointer;
+`;
+
+const ColorPicker = styled.div`
+  width: 80px;
+  height: 27px;
+  border-radius: 2px;
+`;
+
 export {
   Actions,
   PopoverButton,
   BoxRoot,
+  ColorPick,
+  ColorPicker,
   FullContent,
   ModalFooter,
   InfoWrapper,
