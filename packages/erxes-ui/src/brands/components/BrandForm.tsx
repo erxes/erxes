@@ -1,13 +1,11 @@
-import { Button } from '../../../components';
-import {
-  FormControl,
-  Form,
-  FormGroup,
-  ControlLabel
-} from '../../../components/form';
-import { ModalFooter } from '../../../styles/main';
-import { IButtonMutateProps, IFormProps } from '../../../types';
-import EmailConfigForm from '../../../settings/general/components/EmailConfigForm';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import EmailConfigForm from '@erxes/common-ui-settings/src/general/components/EmailConfigForm';
 import React, { useState } from 'react';
 import { IBrand } from '../types';
 
