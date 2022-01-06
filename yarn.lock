@@ -104,7 +104,7 @@
     ts-invariant "^0.4.4"
     tslib "^1.10.0"
 
-"@apollo/react-hoc@^3.1.3":
+"@apollo/react-hoc@^3.1.3", "@apollo/react-hoc@^3.1.5":
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/@apollo/react-hoc/-/react-hoc-3.1.5.tgz#6552d2fb4aafc59fdc8f4e353358b98b89cfab6f"
   integrity sha512-jlZ2pvEnRevLa54H563BU0/xrYSgWQ72GksarxUzCHQW85nmn9wQln0kLBX7Ua7SBt9WgiuYQXQVechaaCulfQ==
@@ -135,7 +135,7 @@
     ts-invariant "^0.4.4"
     tslib "^1.10.0"
 
-"@apollo/react-ssr@^3.1.3":
+"@apollo/react-ssr@^3.1.3", "@apollo/react-ssr@^3.1.5":
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/@apollo/react-ssr/-/react-ssr-3.1.5.tgz#53703cd493afcde567acc6d5512cab03dafce6de"
   integrity sha512-wuLPkKlctNn3u8EU8rlECyktpOUCeekFfb0KhIKknpGY6Lza2Qu0bThx7D9MIbVEzhKadNNrzLcpk0Y8/5UuWg==
@@ -1171,7 +1171,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.3", "@babel/runtime@^7.11.2", "@babel/runtime@^7.15.4", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.10.3", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.13", "@babel/runtime@^7.15.4", "@babel/runtime@^7.9.2":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.7.tgz#03ff99f64106588c9c403c6ecb8c3bafbbdff1fa"
   integrity sha512-9E9FJowqAsytyOY6LG+1KuueckRL+aQW+mKvXRXnuFGyRAyepJPmEo9vgMfXUA6O9u3IeEdv9MAkppFcaQwogQ==
@@ -6641,7 +6641,7 @@ graphql-tag@2.6.1:
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.6.1.tgz#4788d509f6e29607d947fc47a40c4e18f736d34a"
   integrity sha1-R4jVCfbilgfZR/xHpAxOGPc200o=
 
-graphql-tag@^2.11.0, graphql-tag@^2.12.3:
+graphql-tag@^2.11.0, graphql-tag@^2.12.3, graphql-tag@^2.6.1:
   version "2.12.6"
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.12.6.tgz#d441a569c1d2537ef10ca3d1633b48725329b5f1"
   integrity sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==
@@ -9179,6 +9179,14 @@ mini-create-react-context@^0.3.0:
     "@babel/runtime" "^7.12.1"
     tiny-warning "^1.0.3"
 
+mini-create-react-context@^0.4.0:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/mini-create-react-context/-/mini-create-react-context-0.4.1.tgz#072171561bfdc922da08a60c2197a497cc2d1d5e"
+  integrity sha512-YWCYEmd5CQeHGSAKrYvXgmzzkrvssZcuuQDDeqkT+PziKGMgE+0MCCtcKbROzocGBG1meBLl2FotlRwf4gAzbQ==
+  dependencies:
+    "@babel/runtime" "^7.12.1"
+    tiny-warning "^1.0.3"
+
 minimalistic-assert@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz#2e194de044626d4a10e7f7fbc00ce73e83e4d5c7"
@@ -10562,6 +10570,17 @@ react-apollo@3.1.3:
     "@apollo/react-hooks" "^3.1.3"
     "@apollo/react-ssr" "^3.1.3"
 
+react-apollo@^3.1.3:
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/react-apollo/-/react-apollo-3.1.5.tgz#36692d393c47e7ccc37f0a885c7cc5a8b4961c91"
+  integrity sha512-xOxMqxORps+WHrUYbjVHPliviomefOpu5Sh35oO3osuOyPTxvrljdfTLGCggMhcXBsDljtS5Oy4g+ijWg3D4JQ==
+  dependencies:
+    "@apollo/react-common" "^3.1.4"
+    "@apollo/react-components" "^3.1.5"
+    "@apollo/react-hoc" "^3.1.5"
+    "@apollo/react-hooks" "^3.1.5"
+    "@apollo/react-ssr" "^3.1.5"
+
 react-beautiful-dnd@13.0.0:
   version "13.0.0"
   resolved "https://registry.yarnpkg.com/react-beautiful-dnd/-/react-beautiful-dnd-13.0.0.tgz#f70cc8ff82b84bc718f8af157c9f95757a6c3b40"
@@ -10666,6 +10685,13 @@ react-input-autosize@^1.1.3:
     create-react-class "^15.5.2"
     prop-types "^15.5.8"
 
+react-input-autosize@^2.1.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-2.2.2.tgz#fcaa7020568ec206bc04be36f4eb68e647c4d8c2"
+  integrity sha512-jQJgYCA3S0j+cuOwzuCd1OjmBmnZLdqQdiLKRYrsMMzbjUrVDS5RvJUDwJqA7sKuksDuzFtm6hZGKFu7Mjk5aw==
+  dependencies:
+    prop-types "^15.5.8"
+
 react-is@^16.13.1, react-is@^16.3.1, react-is@^16.3.2, react-is@^16.6.0, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -10758,6 +10784,19 @@ react-router-dom@5.1.2:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
+react-router-dom@^5.1.2:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.3.0.tgz#da1bfb535a0e89a712a93b97dd76f47ad1f32363"
+  integrity sha512-ObVBLjUZsphUUMVycibxgMdh5jJ1e3o+KpAZBVeHcNQZ4W+uUGGWsokurzlF4YOldQYRQL4y6yFRWM4m3svmuQ==
+  dependencies:
+    "@babel/runtime" "^7.12.13"
+    history "^4.9.0"
+    loose-envify "^1.3.1"
+    prop-types "^15.6.2"
+    react-router "5.2.1"
+    tiny-invariant "^1.0.2"
+    tiny-warning "^1.0.0"
+
 react-router@5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/react-router/-/react-router-5.1.2.tgz#6ea51d789cb36a6be1ba5f7c0d48dd9e817d3418"
@@ -10768,6 +10807,22 @@ react-router@5.1.2:
     hoist-non-react-statics "^3.1.0"
     loose-envify "^1.3.1"
     mini-create-react-context "^0.3.0"
+    path-to-regexp "^1.7.0"
+    prop-types "^15.6.2"
+    react-is "^16.6.0"
+    tiny-invariant "^1.0.2"
+    tiny-warning "^1.0.0"
+
+react-router@5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-5.2.1.tgz#4d2e4e9d5ae9425091845b8dbc6d9d276239774d"
+  integrity sha512-lIboRiOtDLFdg1VTemMwud9vRVuOCZmUIT/7lUoZiSpPODiiH1UQlfXy+vPLC/7IWdFYnhRwAyNqA/+I7wnvKQ==
+  dependencies:
+    "@babel/runtime" "^7.12.13"
+    history "^4.9.0"
+    hoist-non-react-statics "^3.1.0"
+    loose-envify "^1.3.1"
+    mini-create-react-context "^0.4.0"
     path-to-regexp "^1.7.0"
     prop-types "^15.6.2"
     react-is "^16.6.0"
@@ -10791,6 +10846,15 @@ react-select-plus@^1.0.0-rc.3.patch12:
   dependencies:
     classnames "^2.2.4"
     react-input-autosize "1.1.0"
+
+react-select-plus@^1.0.0-rc.5:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-select-plus/-/react-select-plus-1.2.0.tgz#e09f6e12a2f1ca168be2a591bdd9602bd9b48f79"
+  integrity sha512-IIvRMB7Od6YAdLVFef61Tdd6FWsi6Kc0qLlSRuR/GsgYwE7IeyRx88HJ95by4hJ8M7q2LWwIkXKMDSrAUrjwyw==
+  dependencies:
+    classnames "^2.2.4"
+    prop-types "^15.5.8"
+    react-input-autosize "^2.1.2"
 
 react-toggle@4.1.1:
   version "4.1.1"
@@ -10819,7 +10883,7 @@ react-transition-group@^4.0.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-react@16.14.0:
+react@16.14.0, react@^16.14.0:
   version "16.14.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
   integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
