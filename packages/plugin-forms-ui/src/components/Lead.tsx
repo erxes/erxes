@@ -1,34 +1,38 @@
-import Button from '@erxes/ui/src/components/Button';
-import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import Button from "@erxes/ui/src/components/Button";
+import ConditionsRule from "@erxes/ui/src/components/rule/ConditionsRule";
+import { Step, Steps } from "@erxes/ui/src/components/step";
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper
-} from '@erxes/ui/src/components/step/styles';
-import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
-import { Alert } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IEmailTemplate } from '@erxes/ui/src/settings/emailTemplates/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ILeadData, ILeadIntegration } from '../types';
+  StepWrapper,
+} from "@erxes/ui/src/components/step/styles";
+import { IAttachment, IConditionsRule } from "@erxes/ui/src/types";
+import { Alert } from "@erxes/ui/src/utils";
+import { __ } from "@erxes/ui/src/utils";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+// import { IEmailTemplate } from "common-ui-settings/src/emailTemplates/types";
+import { IEmailTemplate } from "@erxes/common-ui-settings/src/emailTemplates/types";
+import React from "react";
+import { Link } from "react-router-dom";
+import { ILeadData, ILeadIntegration } from "../types";
 
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import { IFormData } from '@erxes/ui/src/forms/types';
-import { Content, LeftContent } from '@erxes/ui/src/settings/integrations/styles';
-import { IField } from '@erxes/ui/src/settings/properties/types';
+import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
+import { IFormData } from "@erxes/ui/src/forms/types";
+import {
+  Content,
+  LeftContent,
+} from "@erxes/ui/src/settings/integrations/styles";
+import { IField } from "@erxes/ui/src/settings/properties/types";
 import {
   CallOut,
   ChooseType,
   FormStep,
   FullPreview,
   OptionStep,
-  SuccessStep
-} from './step';
-import { PreviewWrapper } from './step/style';
-import StyleSheetStep from './step/StyleSheetStep';
+  SuccessStep,
+} from "./step";
+import { PreviewWrapper } from "./step/style";
+import StyleSheetStep from "./step/StyleSheetStep";
 
 type Props = {
   integration?: ILeadIntegration;
@@ -81,7 +85,7 @@ type State = {
   carousel: string;
   attachments?: IAttachment[];
 
-  currentMode: 'create' | 'update' | undefined;
+  currentMode: "create" | "update" | undefined;
   currentField?: IField;
   css?: string;
 
@@ -102,53 +106,53 @@ class Lead extends React.Component<Props, State> {
     const channels = integration.channels || [];
 
     this.state = {
-      type: leadData.loadType || 'shoutbox',
-      successAction: leadData.successAction || '',
-      fromEmail: leadData.fromEmail || '',
-      userEmailTitle: leadData.userEmailTitle || '',
-      userEmailContent: leadData.userEmailContent || '',
+      type: leadData.loadType || "shoutbox",
+      successAction: leadData.successAction || "",
+      fromEmail: leadData.fromEmail || "",
+      userEmailTitle: leadData.userEmailTitle || "",
+      userEmailContent: leadData.userEmailContent || "",
       adminEmails: leadData.adminEmails || [],
-      adminEmailTitle: leadData.adminEmailTitle || '',
-      adminEmailContent: leadData.adminEmailContent || '',
-      thankTitle: leadData.thankTitle || 'Confirmation',
-      thankContent: leadData.thankContent || 'Thank you.',
+      adminEmailTitle: leadData.adminEmailTitle || "",
+      adminEmailContent: leadData.adminEmailContent || "",
+      thankTitle: leadData.thankTitle || "Confirmation",
+      thankContent: leadData.thankContent || "Thank you.",
       attachments: leadData.attachments || [],
-      redirectUrl: leadData.redirectUrl || '',
+      redirectUrl: leadData.redirectUrl || "",
       rules: leadData.rules || [],
       isStepActive: false,
 
       brand: integration.brandId,
-      channelIds: channels.map(item => item._id) || [],
+      channelIds: channels.map((item) => item._id) || [],
       language: integration.languageCode,
-      title: integration.name || 'Create Form',
-      calloutTitle: callout.title || 'Call Out Title',
-      bodyValue: callout.body || 'Call Out Body',
-      calloutBtnText: callout.buttonText || 'Start',
-      color: '',
+      title: integration.name || "Create Form",
+      calloutTitle: callout.title || "Call Out Title",
+      bodyValue: callout.body || "Call Out Body",
+      calloutBtnText: callout.buttonText || "Start",
+      color: "",
       logoPreviewStyle: {},
       defaultValue: {},
       formData: {
-        title: form.title || 'Form Title',
-        description: form.description || 'Form Description',
-        buttonText: form.buttonText || 'Send',
+        title: form.title || "Form Title",
+        description: form.description || "Form Description",
+        buttonText: form.buttonText || "Send",
         fields: [],
-        type: form.type || '',
-        numberOfPages: form.numberOfPages || 1
+        type: form.type || "",
+        numberOfPages: form.numberOfPages || 1,
       },
-      theme: leadData.themeColor || '#6569DF',
+      theme: leadData.themeColor || "#6569DF",
       isRequireOnce: leadData.isRequireOnce,
       logo: callout.featuredImage,
-      calloutImgSize: callout.imgSize || '50%',
+      calloutImgSize: callout.imgSize || "50%",
       isSkip: callout.skip && true,
-      carousel: callout.skip ? 'form' : 'callout',
+      carousel: callout.skip ? "form" : "callout",
 
       currentMode: undefined,
       currentField: undefined,
-      css: leadData.css || '',
+      css: leadData.css || "",
 
-      successImage: leadData.successImage || '',
-      successImageSize: leadData.successImageSize || '',
-      successPreviewStyle: {}
+      successImage: leadData.successImage || "",
+      successImageSize: leadData.successImageSize || "",
+      successPreviewStyle: {},
     };
   }
 
@@ -161,19 +165,19 @@ class Lead extends React.Component<Props, State> {
       title,
       rules,
       formData,
-      channelIds
+      channelIds,
     } = this.state;
 
     if (!title) {
-      return Alert.error('Enter a Form name');
+      return Alert.error("Enter a Form name");
     }
 
     if (!formData.title) {
-      return Alert.error('Enter a Form title');
+      return Alert.error("Enter a Form title");
     }
 
     if (!brand) {
-      return Alert.error('Choose a Brand');
+      return Alert.error("Choose a Brand");
     }
 
     const doc = {
@@ -202,14 +206,14 @@ class Lead extends React.Component<Props, State> {
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logo,
           calloutImgSize: this.state.calloutImgSize,
-          skip: this.state.isSkip
+          skip: this.state.isSkip,
         },
-        rules: (rules || []).filter(rule => rule.condition && rule.value),
+        rules: (rules || []).filter((rule) => rule.condition && rule.value),
         isRequireOnce: this.state.isRequireOnce,
         css: this.state.css,
         successImage: this.state.successImage,
-        successImageSize: this.state.successImageSize
-      }
+        successImageSize: this.state.successImageSize,
+      },
     };
 
     this.props.save(doc);
@@ -219,7 +223,7 @@ class Lead extends React.Component<Props, State> {
     this.setState({ [key]: value } as any);
   };
 
-  onFormDocChange = formData => {
+  onFormDocChange = (formData) => {
     this.setState({ formData });
   };
 
@@ -231,22 +235,22 @@ class Lead extends React.Component<Props, State> {
   };
 
   onFieldClick = (field: IField) => {
-    this.setState({ currentMode: 'update', currentField: field });
+    this.setState({ currentMode: "update", currentField: field });
   };
 
-  onStepClick = currentStepNumber => {
+  onStepClick = (currentStepNumber) => {
     const { isSkip } = this.state;
 
-    let carousel = 'form';
+    let carousel = "form";
     switch (currentStepNumber) {
       case 1:
-        carousel = isSkip ? 'form' : 'callout';
+        carousel = isSkip ? "form" : "callout";
         break;
       case 2:
-        carousel = isSkip ? 'form' : 'callout';
+        carousel = isSkip ? "form" : "callout";
         break;
       case 7:
-        carousel = 'success';
+        carousel = "success";
         break;
     }
     return this.setState({ carousel });
@@ -270,7 +274,7 @@ class Lead extends React.Component<Props, State> {
         <Button
           disabled={isActionLoading}
           btnStyle="success"
-          icon={isActionLoading ? undefined : 'check-circle'}
+          icon={isActionLoading ? undefined : "check-circle"}
           onClick={this.handleSubmit}
         >
           {isActionLoading && <SmallLoader />}
@@ -304,17 +308,17 @@ class Lead extends React.Component<Props, State> {
       calloutImgSize,
       successImage,
       successImageSize,
-      successPreviewStyle
+      successPreviewStyle,
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
+    const breadcrumb = [{ title: __("Forms"), link: "/forms" }];
 
     return (
       <StepWrapper>
-        <Wrapper.Header title={__('Forms')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Forms")} breadcrumb={breadcrumb} />
         <Content>
           <LeftContent>
             <Steps>
@@ -352,7 +356,7 @@ class Lead extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-12.svg"
-                title={'Content'}
+                title={"Content"}
                 onClick={this.onStepClick}
               >
                 <FormStep
@@ -428,8 +432,8 @@ class Lead extends React.Component<Props, State> {
             </Steps>
             <ControlWrapper>
               <Indicator>
-                {__('You are')} {integration ? 'editing' : 'creating'}{' '}
-                <strong>{title}</strong> {__('form')}
+                {__("You are")} {integration ? "editing" : "creating"}{" "}
+                <strong>{title}</strong> {__("form")}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>
