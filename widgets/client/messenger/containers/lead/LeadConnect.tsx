@@ -44,7 +44,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
         }
       })
       .then(({ data = { widgetsLeadConnect: {} } }) => {
-        const response = data.widgetsLeadConnect;
+        const response = data?.widgetsLeadConnect;
 
         if (!response) {
           this.setState({ hasError: true });

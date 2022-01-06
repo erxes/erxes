@@ -62,9 +62,9 @@ export default async function userMiddleware(req: Request & { user?: any }, res:
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
     const userDoc = await Users.findOne({ _id : user._id });
-
+    
     // invalid token access.
-    if (!userDoc.validatedTokens?.includes(token)) {
+    if (!userDoc?.validatedTokens?.includes(token)) {
       res.clearCookie("auth-token");
       return next();
     }

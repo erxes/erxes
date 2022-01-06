@@ -537,7 +537,7 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       })
       .then(({ data }) => {
-        if (data.widgetGetBotInitialMessage) {
+        if (data?.widgetGetBotInitialMessage) {
           callback(data.widgetGetBotInitialMessage);
         }
       });
@@ -580,7 +580,7 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       })
       .then(({ data }) => {
-        const { conversationId, customerId } = data.widgetBotRequest;
+        const { conversationId, customerId } = data?.widgetBotRequest;
 
         setLocalStorageItem("customerId", customerId);
         connection.data.customerId = customerId;

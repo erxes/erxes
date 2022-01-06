@@ -13,6 +13,7 @@ import { loadSubscriptions } from "./subscription";
 import { createGateway, GatewayContext } from "./gateway";
 import userMiddleware from "./middlewares/userMiddleware";
 import * as db from './db';
+import pubsub from './subscription/pubsub';
 
 const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
 
@@ -34,7 +35,17 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
   const httpServer = http.createServer(app);
 
   httpServer.on("close", () => {
-    db.disconnect();
+    try {
+      db.disconnect();
+    } catch (e) {
+
+    }
+
+    try {
+      pubsub.close();
+    } catch (e) {
+      console.log("PubSub client disconnected")
+    }
   });
 
   const wsServer = new ws.Server({
