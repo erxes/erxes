@@ -1,5 +1,6 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
+import {rgba} from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -86,6 +87,7 @@ const LogoContainer = styled.div`
   width: 56px;
   height: 56px;
   cursor: pointer;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
   background-image: url('/images/erxes.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
@@ -140,6 +142,7 @@ const WidgetPreviewStyled = styled.div`
   border-radius: ${dimensions.unitSpacing}px;
   border-bottom-right-radius: 25px;
   bottom: 80px;
+  box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
   display: flex;
   flex-direction: column;
   height: calc(100% - 95px);
@@ -362,6 +365,7 @@ const DateTimePicker = styled.div`
   .rdtCounter {
     position: relative;
     height: ${dimensions.coreSpacing + 10}px
+    color: ${rgba(colors.colorCoreDarkGray, 0.8)};
     background: ${colors.bgLight};
     border: 1px solid ${colors.borderPrimary};
 
@@ -571,14 +575,7 @@ const InfoWrapper = styled.div`
   padding: 15px 20px;
 `;
 
-const Capitalize = styled.span`
-  text-transform: capitalize;
-  font-weight: 500;
-`;
-// fix needed
-
 export {
-  Capitalize,
   RowTitle,
   HelperText,
   FlexContainer,

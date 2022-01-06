@@ -15,12 +15,11 @@ import {
   Disabled,
   HelperText,
   RowTitle,
-  Capitalize,
-  Messenger
-} from '../styles'; // fix needed
+} from '../styles'; 
 import { IEngageMessage, IEngageMessenger } from '../types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { ISegment } from '@erxes/common-ui-segments/src/types';
+import { Capitalize } from '@erxes/common-ui-settings/src/styles';
 
 type Props = {
   message: any;

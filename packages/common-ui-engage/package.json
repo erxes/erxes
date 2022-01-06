@@ -1,7 +1,0 @@
-{
-  "name": "@erxes/common-ui-engage",
-  "version": "1.0.0",
-  "dependencies": {
-    "styled-components": "^3.2.6"
-  }
-}
