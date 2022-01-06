@@ -1,4 +1,4 @@
-import { IUserDocument } from './types';
+import { IUserDocument } from '@erxes/common-types';
 
 export const getEnv = ({
   name,

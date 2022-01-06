@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { Document } from 'mongoose';
 
-import { IUserDocument } from './definitions/users';
+import { IUserDocument } from '@erxes/common-types';
 
 export interface IBrandEmailConfig {
   type?: string;
