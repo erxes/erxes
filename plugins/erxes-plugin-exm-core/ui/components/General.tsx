@@ -120,6 +120,7 @@ export default function General(props: Props) {
         {features.map(feature => (
           <FeatureRow key={feature._id}>
             <FeatureRowItem>
+              <ControlLabel>1</ControlLabel>
               <FormControl
                 componentClass='select'
                 value={feature.contentType}
@@ -134,6 +135,7 @@ export default function General(props: Props) {
               />
             </FeatureRowItem>
             <FeatureRowItem>
+              <ControlLabel>2</ControlLabel>
               <FormControl
                 componentClass='select'
                 value={feature.icon}
@@ -144,6 +146,7 @@ export default function General(props: Props) {
               />
             </FeatureRowItem>
             <FeatureRowItem>
+              <ControlLabel>3</ControlLabel>
               <FormControl
                 name='name'
                 placeholder='Name'
@@ -154,6 +157,7 @@ export default function General(props: Props) {
               />
             </FeatureRowItem>
             <FeatureRowItem>
+              <ControlLabel>4</ControlLabel>
               <FormControl
                 name='description'
                 placeholder='Description'
@@ -168,6 +172,7 @@ export default function General(props: Props) {
               />
             </FeatureRowItem>
             <FeatureRowItem>
+              <ControlLabel>5</ControlLabel>
               <Select
                 placeholder={__(
                   `Choose a ${
@@ -191,6 +196,7 @@ export default function General(props: Props) {
 
             {feature.contentType === 'knowledgeBase' && (
               <FeatureRowItem>
+                <ControlLabel>6</ControlLabel>
                 <Select
                   placeholder={__('Choose a category')}
                   value={feature.subContentId}
@@ -207,18 +213,18 @@ export default function General(props: Props) {
                 />
               </FeatureRowItem>
             )}
-
-            <Button
-              btnStyle='danger'
-              onClick={() => onChangeFeature('remove', feature._id)}
-            >
-              X
-            </Button>
+            <FeatureRowItem>
+              <Button
+                btnStyle='danger'
+                icon="times-circle"
+                onClick={() => onChangeFeature('remove', feature._id)}
+              />
+            </FeatureRowItem>
           </FeatureRow>
         ))}
-        <Button onClick={() => onChangeFeature('add')}>+ Add Features</Button>
+        <Button btnStyle="primary" onClick={() => onChangeFeature('add')} >+ Add Features</Button>
       </FeatureLayout>
-      <Button btnStyle='success' onClick={onSave}>
+      <Button btnStyle='success' icon="check-circle" onClick={onSave}>
         Save
       </Button>
     </GeneralWrapper>

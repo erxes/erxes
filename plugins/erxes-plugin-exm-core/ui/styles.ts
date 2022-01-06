@@ -2,7 +2,9 @@ import styled from 'styled-components';
 import colors from 'erxes-ui/lib/styles/colors';
 
 export const GeneralWrapper = styled.div`
-  padding: 40px;
+  padding-top: 40px;
+  margin: auto;
+  width: 50%;
   min-width: max-content;
   > div {
     background-color: #fafafa;
@@ -25,7 +27,6 @@ export const TeamPortal = styled.div`
   > div {
     > div {
       margin-right: 80px;
-
       &:last-child {
         min-width: 450px;
       }
@@ -39,11 +40,12 @@ export const FeatureRow = styled.div`
 `;
 
 export const FeatureRowItem = styled.div`
-  min-width: 150px;
+  min-width: 200px;
   margin-right: 20px;
 `;
 
-export const FeatureLayout = styled.div``;
+export const FeatureLayout = styled.div`
+`;
 
 export const AppearanceWrapper = styled.div`
   display: flex;
