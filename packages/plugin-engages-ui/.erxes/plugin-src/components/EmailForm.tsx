@@ -1,3 +1,4 @@
+import Select from 'react-select-plus';
 import Button from '@erxes/ui/src/components/Button';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -10,6 +11,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { ISelectedOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
+import { generateEmailTemplateParams } from '../utils';
 import {
   EditorContainer,
   TestEmailWrapper,
@@ -20,6 +22,8 @@ import {
 import React from 'react';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
+import EditorCK from '../containers/EditorCK';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type EmailParams = {
   content: string;
@@ -42,7 +46,7 @@ type State = {
   testEmail?: string;
 };
 
-const getEmail = (users: any[], fromUserId: string): string => {
+const getEmail = (users: IUser[], fromUserId: string): string => {
   const user = users.find(u => u._id === fromUserId);
 
   return user && user.email ? user.email : '';
@@ -57,7 +61,7 @@ class EmailForm extends React.Component<Props, State> {
       content: props.content,
       email: props.email,
       scheduleDate: props.scheduleDate,
-      testEmail: getEmail(props.users || [], props.fromUserId)
+      testEmail: getEmail(props.users, props.fromUserId)
     };
   }
 
@@ -160,7 +164,15 @@ class EmailForm extends React.Component<Props, State> {
       </VerifyStatus>
     );
 
-    return <div>select</div>;
+    return (
+      <Select
+        placeholder={__('Choose users')}
+        value={this.state.fromUserId}
+        onChange={onChangeUser}
+        optionRenderer={optionRenderer}
+        options={selectOptions()}
+      />
+    );
   }
 
   renderTestEmailSection() {
@@ -282,6 +294,13 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
+
+            <Select
+              onChange={onChangeTemplate}
+              value={this.state.email.templateId}
+              options={generateEmailTemplateParams(this.props.templates)}
+              clearable={false}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Attachments: </ControlLabel>
@@ -298,6 +317,13 @@ class EmailForm extends React.Component<Props, State> {
         <FlexItem overflow="auto" count="2">
           <EditorContainer>
             <ControlLabel>Content:</ControlLabel>
+            <EditorCK
+              content={this.state.content}
+              isSubmitted={this.props.isSaved}
+              onChange={this.onEditorChange}
+              height={500}
+              name={`engage_email_${this.props.kind}_${this.props.fromUserId}`}
+            />
           </EditorContainer>
         </FlexItem>
       </FlexItem>

@@ -1,3 +1,4 @@
+import Select from 'react-select-plus';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -40,7 +41,7 @@ type Props = {
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   fromUserId: string;
-  smsConfig: any;
+  smsConfig: any; // fix needed IConfig;
   integrations: IIntegrationWithPhone[];
 };
 
@@ -191,6 +192,13 @@ class MessengerForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
+            <Select
+              placeholder={__('Choose phone number')}
+              value={fromIntegrationId}
+              onChange={onChangeFrom}
+              options={this.fromSelectOptions()}
+              optionRenderer={this.fromOptionRenderer}
+            />
           </FormGroup>
           <FormGroup>
             <SMSInfo>

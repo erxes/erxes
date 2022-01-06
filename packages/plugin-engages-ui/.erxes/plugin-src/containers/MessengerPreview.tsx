@@ -12,7 +12,9 @@ type Props = {
   content: string;
 };
 
-type FinalProps = { userDetailQuery: any } & Props;
+type FinalProps = {
+  userDetailQuery: any /* fix needed UserDetailQueryResponse */;
+} & Props;
 
 const MessengerPreviewContainer = (props: FinalProps) => {
   const { userDetailQuery } = props;
@@ -32,7 +34,11 @@ const MessengerPreviewContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any, { _id: string }>(gql(queries.userDetail), {
+    graphql<
+      Props,
+      any /* fix needed UserDetailQueryResponse */,
+      { _id: string }
+    >(gql(queries.userDetail), {
       name: 'userDetailQuery',
       options: ({ fromUserId }: { fromUserId: string }) => ({
         variables: {

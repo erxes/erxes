@@ -1,8 +1,5 @@
-import { colors, dimensions, typography } from "@erxes/ui/src/styles";
-import { rgba } from "@erxes/ui/src/styles/ecolor";
-import { DateContainer } from "@erxes/ui/src/styles/main";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import styled from 'styled-components';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -114,5 +111,5 @@ export {
   SubHeading,
   WidgetBackgrounds,
   Capitalize,
-  LinkButton,
+  LinkButton
 };

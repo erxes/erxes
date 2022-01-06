@@ -6,6 +6,8 @@ import { CustomerCounts, RadioContainer } from '../../styles';
 import { TargetCount } from '../../types';
 import React from 'react';
 import Targets from '../Targets';
+import { ISegmentDoc } from '@erxes/common-ui-segments/src/types';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 type Props<Target, OnSubmit> = {
   name: string;
@@ -18,8 +20,8 @@ type Props<Target, OnSubmit> = {
   targetCount: TargetCount;
   Form: any;
   formProps?: {
-    count?: (segment: any) => void;
-    tags?: any[];
+    count?: (segment: ISegmentDoc) => void;
+    tags?: ITag[];
     segmentType?: string;
     afterSave?: () => void;
   };

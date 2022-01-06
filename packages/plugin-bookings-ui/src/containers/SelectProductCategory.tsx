@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import Select from 'react-select-plus';
-import { ProductCategoriesQueryResponse } from '@erxes/ui/src/settings/productService/types';
+import { ProductCategoriesQueryResponse } from '@erxes/common-ui-settings/src/productService/types';
 
 type Props = {
   productCategoriesQuery: ProductCategoriesQueryResponse;

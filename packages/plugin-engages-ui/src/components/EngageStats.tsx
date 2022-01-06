@@ -2,7 +2,10 @@ import dayjs from 'dayjs';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FlexRow, Subject } from '@erxes/ui/src/settings/integrations/styles';
+import {
+  FlexRow,
+  Subject
+} from '@erxes/common-ui-settings/src/integrations/styles';
 import React from 'react';
 import {
   AWS_EMAIL_DELIVERY_STATUSES,

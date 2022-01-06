@@ -10,8 +10,17 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __, Alert } from '@erxes/ui/src/utils';
 import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '../constants';
 import React from 'react';
-import { Disabled, HelperText, RowTitle } from '../styles';
+import s from 'underscore.string';
+import {
+  Disabled,
+  HelperText,
+  RowTitle,
+  Capitalize,
+  Messenger
+} from '../styles'; // fix needed
 import { IEngageMessage, IEngageMessenger } from '../types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { ISegment } from '@erxes/common-ui-segments/src/types';
 
 type Props = {
   message: any;
@@ -31,13 +40,13 @@ type Props = {
 
 class Row extends React.Component<Props> {
   renderLink(text: string, iconName: string, onClick, disabled?: boolean) {
-    const button = <Button btnStyle='link' onClick={onClick} icon={iconName} />;
+    const button = <Button btnStyle="link" onClick={onClick} icon={iconName} />;
 
     return (
       <Tip
         text={__(text)}
         key={`${text}-${this.props.message._id}`}
-        placement='top'
+        placement="top"
       >
         {disabled ? <Disabled>{button}</Disabled> : button}
       </Tip>
@@ -101,8 +110,8 @@ class Row extends React.Component<Props> {
 
   renderRemoveButton = onClick => {
     return (
-      <Tip text={__('Delete')} placement='top'>
-        <Button btnStyle='link' onClick={onClick} icon='times-circle' />
+      <Tip text={__('Delete')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="times-circle" />
       </Tip>
     );
   };
@@ -112,13 +121,13 @@ class Row extends React.Component<Props> {
   };
 
   renderSegments(message) {
-    let segments = message.segments || ([] as any[]);
+    let segments = message.segments || ([] as ISegment[]);
 
     segments = segments.filter(segment => segment && segment._id);
 
     return segments.map(segment => (
       <HelperText key={segment._id}>
-        <Icon icon='chart-pie' /> {segment.name}
+        <Icon icon="chart-pie" /> {segment.name}
       </HelperText>
     ));
   }
@@ -129,17 +138,17 @@ class Row extends React.Component<Props> {
 
     return rules.map(rule => (
       <HelperText key={rule._id}>
-        <Icon icon='sign-alt' /> {rule.text} {rule.condition} {rule.value}
+        <Icon icon="sign-alt" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
     ));
   }
 
   renderBrands(message) {
-    const brands = message.brands || ([] as any[]);
+    const brands = message.brands || ([] as IBrand[]);
 
     return brands.map(brand => (
       <HelperText key={brand._id}>
-        <Icon icon='award' /> {brand.name}
+        <Icon icon="award" /> {brand.name}
       </HelperText>
     ));
   }
@@ -228,7 +237,7 @@ class Row extends React.Component<Props> {
       <div>
         <Icon icon={icon} /> {label}
         <HelperText>
-          <Icon icon='clipboard-notes' /> {kind && kind.text} Campaign
+          <Icon icon="clipboard-notes" /> {kind && kind.text} Campaign
         </HelperText>
       </div>
     );
@@ -247,40 +256,42 @@ class Row extends React.Component<Props> {
         <td>
           <FormControl
             checked={isChecked}
-            componentClass='checkbox'
+            componentClass="checkbox"
             onChange={this.toggleBulk}
           />
         </td>
         <td>
           <RowTitle onClick={this.onClick}>
             {message.title}{' '}
-            {message.isDraft && <Label lblStyle='simple'>Draft</Label>}
+            {message.isDraft && <Label lblStyle="simple">Draft</Label>}
           </RowTitle>
           {this.renderBrands(message)}
           {this.renderSegments(message)}
           {this.renderMessengerRules(message)}
         </td>
         <td>{this.renderStatus()}</td>
-        <td className='text-primary'>
-          <Icon icon='cube-2' />
-          <b> {totalCustomersCount}</b>
+        <td className="text-primary">
+          <Icon icon="cube-2" />
+          <b> {s.numberFormat(totalCustomersCount)}</b>
         </td>
         <td>{this.renderType(message)}</td>
         <td>
           <strong>{brand ? brand.name : '-'}</strong>
         </td>
-        <td className='text-normal'>
+        <td className="text-normal">
           <NameCard user={message.fromUser} avatarSize={30} />
         </td>
 
-        <td className='text-normal'>{message.createdUser || '-'}</td>
+        <td className="text-normal">
+          <Capitalize>{message.createdUser || '-'}</Capitalize>
+        </td>
         <td>
-          <Icon icon='calender' />{' '}
+          <Icon icon="calender" />{' '}
           {dayjs(message.createdAt).format('DD MMM YYYY')}
         </td>
 
         <td>
-          <Icon icon='clock-eight' />{' '}
+          <Icon icon="clock-eight" />{' '}
           {scheduleDate && scheduleDate.dateTime
             ? dayjs(scheduleDate.dateTime).format('DD MMM YYYY HH:mm')
             : '-- --- ---- --:--'}

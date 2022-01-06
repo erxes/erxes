@@ -1,6 +1,6 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { StepFormWrapper } from '../../../styles';
-import BrandForm from '@erxes/ui/src/settings/brands/components/BrandForm';
+import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
 
 type Props = {

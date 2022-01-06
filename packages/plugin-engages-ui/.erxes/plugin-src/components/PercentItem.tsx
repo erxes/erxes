@@ -3,9 +3,12 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import s from 'underscore.string';
+import colors from '@erxes/ui/src/styles/colors';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 const Item = styledTS<{ color: string }>(styled.div)`
   margin: 10px 10px 0 0;
+  background: ${colors.colorWhite};
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 6px 10px 1px rgba(136,136,136,0.08);
@@ -13,10 +16,12 @@ const Item = styledTS<{ color: string }>(styled.div)`
   display: flex;
   flex-direction: row;
   align-items: center;
+  color: ${colors.colorCoreGray};
   font-weight: 500;
   font-size: 12px;
 
   > i {
+    background: ${props => rgba(props.color, 0.13)};
     color: ${props => props.color};
     padding: 10px;
     border-radius: 6px;
@@ -29,10 +34,12 @@ const Item = styledTS<{ color: string }>(styled.div)`
 const Number = styled.div`
   font-weight: bold;
   font-size: 18px;
+  color: ${colors.textPrimary};
   line-height: 22px;
 
   span {
     font-size: 60%;
+    color: ${colors.colorCoreGray};
   }
 `;
 

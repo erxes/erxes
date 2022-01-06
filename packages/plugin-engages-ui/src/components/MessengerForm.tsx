@@ -5,17 +5,21 @@ import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import { __, Alert } from '@erxes/ui/src/utils';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import React from 'react';
+import EditorCK from '../containers/EditorCK';
 import MessengerPreview from '../containers/MessengerPreview';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
-  brands: any[];
+  brands: IBrand[];
   onChange: (
     name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId',
     value?: IEngageMessenger | IEngageScheduleDate | string
   ) => void;
-  users: any[];
+  users: IUser[];
   hasKind: boolean;
   messageKind: string;
   messenger: IEngageMessenger;
@@ -127,6 +131,18 @@ class MessengerForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>{__('Message:')}</ControlLabel>
+
+            <EditorCK
+              content={this.props.content}
+              onChange={this.onEditorChange}
+              toolbar={[
+                { name: 'insert', items: ['strinsert'] },
+                ...MAIL_TOOLBARS_CONFIG
+              ]}
+              height={300}
+              name={`engage_${messageKind}_${messenger.brandId}`}
+              isSubmitted={this.props.isSaved}
+            />
           </FormGroup>
 
           <FormGroup>

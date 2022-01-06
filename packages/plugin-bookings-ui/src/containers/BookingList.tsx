@@ -12,9 +12,9 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/settings/integrations/constants';
-import { ArchiveIntegrationResponse } from '@erxes/ui/src/settings/integrations/types';
-import { CountQueryResponse } from '@erxes/ui/src/leads/types';
+import { INTEGRATION_KINDS } from '@erxes/common-ui-settings/src/integrations/constants';
+import { ArchiveIntegrationResponse } from '@erxes/common-ui-settings/src/integrations/types';
+import { CountQueryResponse } from '@erxes/common-ui-leads/src/types';
 
 type Props = {
   queryParams: any;

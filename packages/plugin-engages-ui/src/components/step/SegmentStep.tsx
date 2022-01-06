@@ -5,12 +5,13 @@ import { TargetCount } from '../../types';
 import React from 'react';
 import Common from './Common';
 import SegmentsForm from './forms/SegmentsForm';
+import { ISegment } from '@erxes/common-ui-segments/src/types';
 
 type Props = {
   messageType: string;
   targetCount: TargetCount;
   segmentIds: string[];
-  segments: any[];
+  segments: ISegment[];
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;
   renderContent: ({
@@ -44,7 +45,7 @@ const SegmentStep = (props: Props) => {
     afterSave
   };
 
-  const orderedSegments: any[] = [];
+  const orderedSegments: ISegment[] = [];
   const icons: React.ReactNode[] = [];
 
   segments.forEach(segment => {
@@ -63,7 +64,7 @@ const SegmentStep = (props: Props) => {
   });
 
   return (
-    <Common<any, IButtonMutateProps>
+    <Common<ISegment, IButtonMutateProps>
       name="segmentIds"
       label={__('Create a segment')}
       targetIds={segmentIds}

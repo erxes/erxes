@@ -6,6 +6,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import MessageForm from '../components/MessageForm';
 import { queries } from '../graphql';
 import { EngageMessageDetailQueryResponse } from '../types';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 
 type Props = {
   kind?: string;
@@ -14,11 +15,15 @@ type Props = {
 
 type FinalProps = {
   engageMessageDetailQuery: EngageMessageDetailQueryResponse;
-  brandsQuery: any;
+  brandsQuery: BrandsQueryResponse;
 } & Props;
 
 const MessageFormContainer = (props: FinalProps) => {
   const { engageMessageDetailQuery, brandsQuery, kind } = props;
+
+  if (engageMessageDetailQuery.loading || brandsQuery.loading) {
+    return null;
+  }
 
   const message = engageMessageDetailQuery.engageMessageDetail;
   const brands = brandsQuery.brands || [];
@@ -54,7 +59,7 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, any>(gql(queries.brands), {
+    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
       name: 'brandsQuery'
     })
   )(MessageFormContainer)

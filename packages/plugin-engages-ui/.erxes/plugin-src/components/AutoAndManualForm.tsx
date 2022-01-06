@@ -26,12 +26,17 @@ import ChannelStep from './step/ChannelStep';
 import FullPreviewStep from './step/FullPreviewStep';
 import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
+import { IBreadCrumbItem } from '@erxes/ui/src/types';
+import { IConfig } from '@erxes/common-ui-settings/src/general/types';
 
 type Props = {
   message?: IEngageMessage;
-  brands: any[];
-  users: any[];
-  templates: any[];
+  brands: IBrand[];
+  users: IUser[];
+  templates: IEmailTemplate[];
   kind: string;
   segmentType?: string;
   isActionLoading: boolean;
@@ -42,8 +47,8 @@ type Props = {
     doc: IEngageMessageDoc
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
-  breadcrumbs: any[];
-  smsConfig: any;
+  breadcrumbs: IBreadCrumbItem[];
+  smsConfig: IConfig;
   integrations: IIntegrationWithPhone[];
 };
 
@@ -59,7 +64,7 @@ type State = {
   email?: IEngageEmail;
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
-  rules: any[];
+  rules: any[]; // fixNeeded IConditionsRule[];
   isSaved: boolean;
 };
 
@@ -201,12 +206,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     const cancelButton = (
       <Link
-        to='/campaigns'
+        to="/campaigns"
         onClick={() => {
           this.setState({ isSaved: true });
         }}
       >
-        <Button btnStyle='simple' icon='times-circle'>
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -218,7 +223,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         <>
           <Button
             disabled={isActionLoading}
-            btnStyle='warning'
+            btnStyle="warning"
             icon={isActionLoading ? undefined : 'file-alt'}
             onClick={this.handleSubmit.bind(this, 'draft')}
           >
@@ -226,7 +231,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </Button>
           <Button
             disabled={isActionLoading}
-            btnStyle='success'
+            btnStyle="success"
             icon={isActionLoading ? undefined : 'check-circle'}
             onClick={this.handleSubmit.bind(this, 'live')}
           >
@@ -263,7 +268,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     if (method === METHODS.SMS) {
       return (
-        <Step noButton={true} title='Compose your SMS' img={imagePath}>
+        <Step noButton={true} title="Compose your SMS" img={imagePath}>
           <SmsForm
             onChange={this.changeState}
             messageKind={kind}
@@ -280,7 +285,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     return (
       <Step
         img={imagePath}
-        title='Compose your campaign'
+        title="Compose your campaign"
         message={message}
         noButton={method !== METHODS.EMAIL && true}
       >
@@ -310,7 +315,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     return (
-      <Step img='/images/icons/erxes-04.svg' title='Rule' stepNumber={3}>
+      <Step img="/images/icons/erxes-04.svg" title="Rule" stepNumber={3}>
         <ConditionsRule
           rules={this.state.rules || []}
           onChange={this.changeState}
@@ -328,8 +333,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     return (
       <Step
-        img='/images/icons/erxes-19.svg'
-        title='Full Preview'
+        img="/images/icons/erxes-19.svg"
+        title="Full Preview"
         noButton={true}
       >
         <FullPreviewStep
@@ -362,7 +367,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           {this.renderSaveButton()}
         </TitleContainer>
         <Steps maxStep={4} active={1}>
-          <Step img='/images/icons/erxes-05.svg' title='Choose channel'>
+          <Step img="/images/icons/erxes-05.svg" title="Choose channel">
             <ChannelStep
               onChange={this.changeState}
               method={this.state.method}
@@ -370,8 +375,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </Step>
 
           <Step
-            img='/images/icons/erxes-06.svg'
-            title='Who is this campaign for?'
+            img="/images/icons/erxes-06.svg"
+            title="Who is this campaign for?"
           >
             <MessageTypeStep
               onChange={this.changeState}

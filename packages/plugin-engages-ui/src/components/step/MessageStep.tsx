@@ -7,16 +7,19 @@ import {
   IEngageScheduleDate
 } from '../../types';
 import MessengerForm from '../MessengerForm';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
 
 type Props = {
-  brands: any[];
+  brands: IBrand[];
   onChange: (
     name: 'messenger' | 'email' | 'content' | 'scheduleDate' | 'fromUserId',
     value?: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string
   ) => void;
-  users: any[];
+  users: IUser[];
   method: string;
-  templates: any[];
+  templates: IEmailTemplate[];
   kind: string;
   messenger?: IEngageMessenger;
   email?: IEngageEmail;

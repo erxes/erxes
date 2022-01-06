@@ -1,4 +1,4 @@
-import Form from '@erxes/ui/src/settings/segments/containers/form/SegmentsForm';
+import Form from '@erxes/common-ui-segments/src/containers/form/SegmentsForm';
 import React from 'react';
 
 type Props = {

@@ -571,7 +571,14 @@ const InfoWrapper = styled.div`
   padding: 15px 20px;
 `;
 
+const Capitalize = styled.span`
+  text-transform: capitalize;
+  font-weight: 500;
+`;
+// fix needed
+
 export {
+  Capitalize,
   RowTitle,
   HelperText,
   FlexContainer,

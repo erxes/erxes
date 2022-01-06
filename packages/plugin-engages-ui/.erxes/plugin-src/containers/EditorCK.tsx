@@ -1,8 +1,16 @@
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
+import gql from 'graphql-tag';
 import React from 'react';
 import { IEditorProps } from '@erxes/ui/src/types';
+import {
+  FieldsCombinedByType,
+  FieldsCombinedByTypeQueryResponse
+} from '@erxes/ui/src/properties/types';
+import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui/src/forms/graphql';
+import { queries as fieldQueries } from '@erxes/common-ui-settings/src/properties/graphql';
 
 const generateItemCustomFields = items =>
   (items || []).map(item => ({
@@ -10,7 +18,10 @@ const generateItemCustomFields = items =>
     name: `${item.fieldName}:${item.pipelineName}:${item.boardName}`
   }));
 
-const generateAttributes = (itemTypeFields, combinedFields?: any[]) => {
+const generateAttributes = (
+  itemTypeFields,
+  combinedFields?: FieldsCombinedByType[]
+) => {
   let items: Array<{ name: string; value?: string }> = [
     { name: 'Customer' },
     { value: 'customer.name', name: 'Name' }
@@ -60,7 +71,7 @@ const generateAttributes = (itemTypeFields, combinedFields?: any[]) => {
 type Props = {} & IEditorProps;
 
 type FinalProps = {
-  combinedFieldsQuery: any;
+  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
   fieldsItemTypedQuery;
 } & Props;
 
@@ -80,4 +91,18 @@ const EditorContainer = (props: FinalProps) => {
   return <EditorCK {...props} insertItems={insertItems} />;
 };
 
-export default withProps<Props>(compose()(EditorContainer));
+export default withProps<Props>(
+  compose(
+    graphql<Props>(gql(queries.fieldsCombinedByContentType), {
+      name: 'combinedFieldsQuery',
+      options: () => ({
+        variables: {
+          contentType: 'customer'
+        }
+      })
+    }),
+    graphql<Props>(gql(fieldQueries.fieldsItemTyped), {
+      name: 'fieldsItemTypedQuery'
+    })
+  )(EditorContainer)
+);
