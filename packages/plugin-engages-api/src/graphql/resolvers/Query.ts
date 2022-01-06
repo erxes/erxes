@@ -1,8 +1,5 @@
-import { IUserDocument, paginate } from 'erxes-api-utils';
-
-import { requireLogin, checkPermission } from '@erxes/api-utils';
+import { requireLogin, checkPermission, paginate, IUserDocument } from '@erxes/api-utils';
 import { Customers, EngageMessages, Tags } from '../../../db/models';
-// import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 interface IListArgs {

@@ -1,5 +1,4 @@
 import { Transform } from 'stream';
-import { IUserDocument, chunkArray } from 'erxes-api-utils';
 
 import {
   Conformities,
@@ -9,7 +8,7 @@ import {
   Segments,
   Users
 } from '../../../db/models';
-import { ICustomerDocument } from '../../../db/models/definitions/customers';
+import { ICustomerDocument, IUserDocument, chunkArray } from '@erxes/api-utils';
 import {
   IEngageMessage,
   IEngageMessageDocument

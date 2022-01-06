@@ -1,6 +1,6 @@
-import { sendToWebhook } from 'erxes-api-utils';
 import * as _ from 'underscore';
-import { checkPermission } from '@erxes/api-utils';
+
+import { checkPermission, sendToWebhook } from '@erxes/api-utils';
 import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../types';
 import { CAMPAIGN_KINDS, MODULE_NAMES } from '../../constants';

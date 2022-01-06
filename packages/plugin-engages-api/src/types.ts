@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { IUserDocument } from 'erxes-api-utils';
+import { IUserDocument } from '@erxes/api-utils';
 
 interface IShortMessage {
   content: string;

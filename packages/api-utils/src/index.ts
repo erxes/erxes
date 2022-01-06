@@ -37,6 +37,9 @@ import {
   requireLogin
 } from './permissions';
 
+import { ICustomerDocument } from './definitions/customers';
+import { IUserDocument } from './definitions/users';
+
 export { EMAIL_DELIVERY_STATUS };
 export { getEnv }; // ({ name, defaultValue })
 export { getConfigs }; // (models, memoryStorage)
@@ -72,7 +75,10 @@ export {
   permissionWrapper,
   getUserActionsMap,
   checkPermission,
-  requireLogin
+  requireLogin,
+  // types
+  ICustomerDocument,
+  IUserDocument
 };
 
 export default {

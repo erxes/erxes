@@ -1,26 +1,5 @@
 import { Document } from 'mongoose';
 
-export interface IBrandEmailConfig {
-  type?: string;
-  template?: string;
-}
-
-interface IBrandEmailConfigDocument extends IBrandEmailConfig, Document {}
-
-export interface IBrand {
-  code?: string;
-  name?: string;
-  description?: string;
-  userId?: string;
-  emailConfig?: IBrandEmailConfig;
-}
-
-export interface IBrandDocument extends IBrand, Document {
-  _id: string;
-  emailConfig?: IBrandEmailConfigDocument;
-  createdAt: Date;
-}
-
 export interface IEmailSignature {
   brandId?: string;
   signature?: string;
