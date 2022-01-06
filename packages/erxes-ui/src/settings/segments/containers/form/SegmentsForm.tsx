@@ -1,7 +1,7 @@
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { ITrigger } from '@erxes/ui/src/automations/types';
+import { ITrigger } from '../../types';
 import { queries as boardQueries } from '@erxes/ui/src/boards/graphql';
 import { BoardsQueryResponse } from '@erxes/ui/src/boards/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
