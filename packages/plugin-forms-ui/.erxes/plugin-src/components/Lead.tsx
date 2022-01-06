@@ -18,8 +18,8 @@ import { IFormData } from "@erxes/ui/src/forms/types";
 import {
   Content,
   LeftContent,
-} from "@erxes/ui/src/settings/integrations/styles";
-import { IField } from "@erxes/ui/src/settings/properties/types";
+} from "@erxes/common-ui-settings/src/integrations/styles";
+import { IField } from "@erxes/ui/src/types";
 import {
   CallOut,
   ChooseType,

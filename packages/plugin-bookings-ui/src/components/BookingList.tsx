@@ -6,7 +6,7 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { EMPTY_CONTENT_BOOKINGS } from '@erxes/ui/src/settings/constants';
+import { EMPTY_CONTENT_BOOKINGS } from '@erxes/common-ui-settings/src/constants';
 import React from 'react';
 import { IBookingIntegration } from '../types';
 import Sidebar from './Sidebar';
@@ -14,7 +14,7 @@ import Row from './BookingRow';
 import { Link } from 'react-router-dom';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import { IntegrationsCount } from '@erxes/ui/src/leads/types';
+import { IntegrationsCount } from '@erxes/common-ui-leads/src/types';
 
 type Props = {
   queryParams: any;

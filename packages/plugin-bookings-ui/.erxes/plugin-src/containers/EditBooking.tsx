@@ -16,11 +16,11 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
-} from '@erxes/ui/src/settings/emailTemplates/containers/List';
-import { queries as templatesQuery } from '@erxes/ui/src/settings/emailTemplates/graphql';
-import { ILeadData } from '@erxes/ui/src/leads/types';
-import { FieldsQueryResponse } from '@erxes/ui/src/settings/properties/types';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui/src/settings/properties/constants';
+} from '@erxes/common-ui-settings/src/emailTemplates/containers/List';
+import { queries as templatesQuery } from '@erxes/common-ui-settings/src/emailTemplates/graphql';
+import { ILeadData } from '@erxes/common-ui-leads/src/types';
+import { FieldsQueryResponse } from '@erxes/common-ui-settings/src/properties/types';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/common-ui-settings/src/properties/constants';
 
 type Props = {
   queryParams: any;

@@ -1,9 +1,9 @@
-import { IFormData } from '@erxes/ui/src/forms/types';
+import { IFormData } from '@erxes/common-ui-forms/src/forms/types';
 import React from 'react';
-import { IField } from '@erxes/ui/src/settings/properties/types';
-import CreateForm from '@erxes/ui/src/forms/containers/CreateForm';
-import EditForm from '@erxes/ui/src/forms/containers/EditForm';
-import { FlexItem } from './style';
+import { IField } from '@erxes/ui/src/types';
+import CreateForm from '@erxes/common-ui-forms/src/forms/containers/CreateForm';
+import EditForm from '@erxes/common-ui-forms/src/forms/containers/EditForm';
+import { FlexContentHt } from '@erxes/ui/src/styles/main';
 
 type Props = {
   type?: string;
@@ -47,7 +47,7 @@ function FormStep(props: Props) {
     return <CreateForm {...doc} />;
   };
 
-  return <FlexItem>{renderContent()}</FlexItem>;
+  return <FlexContentHt>{renderContent()}</FlexContentHt>;
 }
 
 export default FormStep;

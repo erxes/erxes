@@ -1,24 +1,22 @@
-import {
-  FlexItem as FlexItemContainer,
-  LeftItem
-} from '@erxes/ui/src/components/step/styles';
+import { FlexContentHt as FlexItemContainer } from '@erxes/ui/src/styles/main';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { COLORS } from '@erxes/ui/src/boards/constants';
+import { COLORS } from '@erxes/ui/src/constants/colors';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import Select from 'react-select-plus';
 import {
-  ColorPick,
-  ColorPicker,
   SubHeading,
   WidgetBackgrounds
-} from '@erxes/ui/src/settings/styles';
+} from '@erxes/common-ui-settings/src/styles';
+import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/colors';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from '../../constants';
-import { OnlyFlexContent } from '@erxes/ui/src/styles/main';
-import { FONTS } from '@erxes/ui/src/settings/clientPortal/constants';
+import { FlexContent } from '@erxes/ui/src/styles/main';
+import { FONTS } from '@erxes/common-ui-settings/src/constants';
 
 type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
 
@@ -67,7 +65,7 @@ function Style({
   return (
     <FlexItemContainer>
       <LeftItem>
-        <OnlyFlexContent>
+        <FlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Item Shape</ControlLabel>
@@ -82,9 +80,9 @@ function Style({
               />
             </FormGroup>
           </FlexItem>
-        </OnlyFlexContent>
+        </FlexContent>
 
-        <OnlyFlexContent>
+        <FlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel>Base Font</ControlLabel>
@@ -101,14 +99,14 @@ function Style({
               />
             </FormGroup>
           </FlexItem>
-        </OnlyFlexContent>
+        </FlexContent>
 
         <SubHeading>
           Colors
           <span>Choose a widget main and navigation colors</span>
         </SubHeading>
 
-        <OnlyFlexContent>
+        <FlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel>Main Widget Color</ControlLabel>
@@ -124,7 +122,7 @@ function Style({
               {renderColorSelect('productAvailable', productAvailable)}
             </WidgetBackgrounds>
           </FlexItem>
-        </OnlyFlexContent>
+        </FlexContent>
       </LeftItem>
     </FlexItemContainer>
   );
