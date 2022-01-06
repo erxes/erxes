@@ -8,11 +8,13 @@ import { withRouter } from 'react-router-dom';
 import { mutations, queries } from '../graphql';
 import {
   EngageMessageDetailQueryResponse,
+  IEngageMessage,
   WithFormAddMutationResponse,
   WithFormEditMutationResponse,
   WithFormMutationVariables
 } from '../types';
 import { crudMutationsOptions } from '../utils';
+import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
 
 type Props = {
   messageId: string;
@@ -21,7 +23,7 @@ type Props = {
 
 type FinalProps = {
   engageMessageDetailQuery: EngageMessageDetailQueryResponse;
-  usersQuery: any;
+  usersQuery: AllUsersQueryResponse;
 } & IRouterProps &
   Props &
   WithFormAddMutationResponse &
@@ -48,7 +50,8 @@ function withSaveAndEdit<IComponentProps>(Component) {
         editMutation
       } = this.props;
 
-      const message = engageMessageDetailQuery.engageMessageDetail || {};
+      const message =
+        engageMessageDetailQuery.engageMessageDetail || ({} as IEngageMessage);
       const users = usersQuery.allUsers || [];
       const verifiedUsers = users.filter(user => user.username) || [];
 
@@ -158,7 +161,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
           })
         }
       ),
-      graphql<Props, any>(gql(queries.users), {
+      graphql<Props, AllUsersQueryResponse>(gql(queries.users), {
         name: 'usersQuery'
       }),
       graphql<Props, WithFormAddMutationResponse, WithFormMutationVariables>(

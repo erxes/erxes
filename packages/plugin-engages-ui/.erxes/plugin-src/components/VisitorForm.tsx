@@ -18,12 +18,15 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import MessengerForm from './MessengerForm';
+import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBreadCrumbItem, IConditionsRule } from '@erxes/ui/src/types';
 
 type Props = {
   kind: string;
   message?: IEngageMessage;
-  brands: any[];
-  users: any[];
+  brands: IBrand[];
+  users: IUser[];
   handleSubmit?: (name: string, e: React.MouseEvent) => void;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
@@ -31,7 +34,7 @@ type Props = {
     doc: IEngageMessageDoc
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
-  breadcrumbs: any[];
+  breadcrumbs: IBreadCrumbItem[];
   isActionLoading: boolean;
 };
 
@@ -42,7 +45,7 @@ type State = {
   title: string;
   content: string;
   fromUserId: string;
-  rules: any[];
+  rules: IConditionsRule[];
   messenger?: IEngageMessenger;
   scheduleDate?: IEngageScheduleDate;
   isSaved: boolean;

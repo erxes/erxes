@@ -1,3 +1,4 @@
+import { IUser } from '@erxes/ui/src/auth/types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import React from 'react';
 import strip from 'strip';
@@ -11,7 +12,7 @@ import {
 
 type Props = {
   content?: string;
-  user?: any;
+  user?: IUser;
   sentAs?: string;
 };
 

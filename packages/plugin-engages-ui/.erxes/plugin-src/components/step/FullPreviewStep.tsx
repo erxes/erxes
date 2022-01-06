@@ -3,6 +3,15 @@ import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 
 import { __ } from '@erxes/ui/src/utils';
 import { DesktopPreviewContent, MobilePreviewContent } from '../../styles';
+import {
+  DesktopPreview,
+  FlexItem,
+  FullPreview,
+  MobilePreview,
+  TabletPreview,
+  PreviewContainer
+} from '@erxes/common-ui-engage/src/components/style';
+
 import React from 'react';
 
 type Props = {
@@ -33,24 +42,36 @@ class FullPreviewStep extends React.Component<Props, State> {
 
     if (currentTab === 'desktop') {
       return (
-        <DesktopPreviewContent
-          templateId={templateId}
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+        <DesktopPreview>
+          <PreviewContainer>
+            <DesktopPreviewContent
+              templateId={templateId}
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          </PreviewContainer>
+        </DesktopPreview>
       );
     }
 
     if (currentTab === 'tablet') {
       return (
-        <MobilePreviewContent
-          templateId={templateId}
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+        <TabletPreview>
+          <PreviewContainer>
+            <MobilePreviewContent
+              templateId={templateId}
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          </PreviewContainer>
+        </TabletPreview>
       );
     }
 
     return (
-      <MobilePreviewContent dangerouslySetInnerHTML={{ __html: content }} />
+      <MobilePreview>
+        <PreviewContainer>
+          <MobilePreviewContent dangerouslySetInnerHTML={{ __html: content }} />
+        </PreviewContainer>
+      </MobilePreview>
     );
   }
 
@@ -58,26 +79,31 @@ class FullPreviewStep extends React.Component<Props, State> {
     const { currentTab } = this.state;
 
     return (
-      <Tabs full={true}>
-        <TabTitle
-          className={currentTab === 'desktop' ? 'active' : ''}
-          onClick={this.onChangeTab.bind(this, 'desktop')}
-        >
-          <Icon icon="monitor-1" /> {__('Desktop')}
-        </TabTitle>
-        <TabTitle
-          className={currentTab === 'tablet' ? 'active' : ''}
-          onClick={this.onChangeTab.bind(this, 'tablet')}
-        >
-          <Icon icon="tablet" /> {__('Tablet')}
-        </TabTitle>
-        <TabTitle
-          className={currentTab === 'mobile' ? 'active' : ''}
-          onClick={this.onChangeTab.bind(this, 'mobile')}
-        >
-          <Icon icon="mobile-android" /> {__('Mobile')}
-        </TabTitle>
-      </Tabs>
+      <FlexItem>
+        <FullPreview>
+          <Tabs full={true}>
+            <TabTitle
+              className={currentTab === 'desktop' ? 'active' : ''}
+              onClick={this.onChangeTab.bind(this, 'desktop')}
+            >
+              <Icon icon="monitor-1" /> {__('Desktop')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'tablet' ? 'active' : ''}
+              onClick={this.onChangeTab.bind(this, 'tablet')}
+            >
+              <Icon icon="tablet" /> {__('Tablet')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'mobile' ? 'active' : ''}
+              onClick={this.onChangeTab.bind(this, 'mobile')}
+            >
+              <Icon icon="mobile-android" /> {__('Mobile')}
+            </TabTitle>
+          </Tabs>
+          {this.renderResolutionPreview()}
+        </FullPreview>
+      </FlexItem>
     );
   }
 }

@@ -6,6 +6,12 @@ import { graphql } from 'react-apollo';
 import SegmentStep from '../components/step/SegmentStep';
 import { queries } from '../graphql';
 import { sumCounts } from '../utils';
+import {
+  HeadSegmentsQueryResponse,
+  SegmentsQueryResponse,
+  AddMutationResponse
+} from '@erxes/ui/src/settings/segments/types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui/src/settings/properties/types';
 
 type Props = {
   segmentIds: string[];
@@ -24,11 +30,11 @@ type Props = {
 };
 
 type FinalProps = {
-  segmentsQuery: any;
-  customerCountsQuery: any;
-  headSegmentsQuery: any;
-  combinedFieldsQuery: any;
-} & any &
+  segmentsQuery: SegmentsQueryResponse;
+  customerCountsQuery: any; // fix needed;
+  headSegmentsQuery: HeadSegmentsQueryResponse;
+  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
+} & AddMutationResponse &
   Props;
 
 const SegmentStepContainer = (props: FinalProps) => {
@@ -63,7 +69,7 @@ const SegmentStepContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any>(gql(queries.segments), {
+    graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
       name: 'segmentsQuery',
       options: (props: Props) => ({
         variables: {
@@ -71,7 +77,7 @@ export default withProps<Props>(
         }
       })
     }),
-    graphql<Props, any, { only: string; source: string }>(
+    graphql<Props, any /* fix needed */, { only: string; source: string }>(
       gql(queries.customerCounts),
       {
         name: 'customerCountsQuery',
