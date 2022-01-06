@@ -1,5 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { ActionButtons } from '@erxes/ui/src/settings/styles';
+import { ActionButtons } from '@erxes/common-ui-settings/src/styles';
 import styled from 'styled-components';
 
 const RowArticle = styled.div`

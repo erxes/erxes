@@ -7,7 +7,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Info from '@erxes/ui/src/components/Info';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import colors from '@erxes/ui/src/styles/colors';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { ColorPick, ColorPicker, ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
@@ -15,15 +15,14 @@ import {
 } from '@erxes/ui/src/types';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
-import { LANGUAGES } from '@erxes/ui/src/settings/general/constants';
-import SelectBrand from '@erxes/ui/src/settings/integrations/containers/SelectBrand';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { LANGUAGES } from '@erxes/common-ui-settings/src/general/constants';
+import SelectBrand from '@erxes/common-ui-settings/src/integrations/containers/SelectBrand';
 import {
-  ColorPick,
-  ColorPicker,
+  
   ExpandWrapper,
   MarkdownWrapper
-} from '@erxes/ui/src/settings/styles';
+} from '@erxes/common-ui-settings/src/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

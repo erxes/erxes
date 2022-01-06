@@ -2,11 +2,11 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { queries } from '@erxes/ui/src/settings/brands/graphql';
+import { queries } from '@erxes/ui/src/brands/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
-import { BrandsQueryResponse } from '@erxes/ui/src/settings/brands/types';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import KnowledgeForm from '../../components/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
 
