@@ -1,3 +1,4 @@
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -15,6 +16,7 @@ import { ChooseBox, FlexContainer } from '../styles';
 import { IEngageMessage } from '../types';
 import PercentItem, { ItemWrapper } from './PercentItem';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
+import { EMPTY_CONTENT_ENGAGE } from '@erxes/common-ui-settings/src/constants';
 
 type Props = {
   messages: IEngageMessage[];
@@ -280,7 +282,7 @@ class List extends React.Component<Props> {
             data={mainContent}
             loading={loading}
             count={messages.length}
-            // emptyContent={<EmptyContent content={EMPTY_CONTENT_ENGAGE} />}
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_ENGAGE} />}
           />
         }
       />
