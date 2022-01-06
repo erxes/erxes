@@ -1,13 +1,10 @@
-import { Integrations, MessengerApps } from '../../db/models';
+import { MessengerApps } from '../../db/models';
 import { KIND_CHOICES } from '../../db/models/definitions/constants';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
 import { IContext } from '../types';
 import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
-  __resolveReference({ _id }) {
-    return Integrations.findOne({ _id });
-  },
   brand(integration: IIntegrationDocument) {
     return getDocument('brands', { _id: integration.brandId });
   },

@@ -1,5 +1,5 @@
 export const types = `
-  type Integration @key(fields: "_id") {
+  type Integration {
     _id: String!
     kind: String!
     name: String!

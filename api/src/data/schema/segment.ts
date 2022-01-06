@@ -36,7 +36,7 @@ export const types = `
     formId: String
   }
 
-  type Segment @key(fields: "_id") {
+  type Segment {
     _id: String!
     contentType: String!
     name: String

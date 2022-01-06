@@ -14,7 +14,6 @@ import {
 export interface IArticleCreate extends IArticle {
   userId?: string;
   icon?: string;
-  modifiedBy?: string;
 }
 
 export interface IArticleModel extends Model<IArticleDocument> {

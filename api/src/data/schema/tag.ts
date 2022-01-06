@@ -1,5 +1,5 @@
 export const types = `
-  type Tag @key(fields: "_id") {
+  type Tag {
     _id: String!
     name: String
     type: String

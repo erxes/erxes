@@ -14,6 +14,7 @@ import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
+import { generateErrors } from './data/modules/import/generateErrors';
 import {
   authCookieOptions,
   deleteFile,
@@ -45,7 +46,8 @@ import {
 } from './events';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
-import { importer, uploader } from './middlewares/fileMiddleware';
+import { uploader } from './middlewares/fileMiddleware';
+import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 
@@ -152,7 +154,6 @@ const corsOptions = {
   credentials: true,
   origin: [
     MAIN_APP_DOMAIN,
-    'http://localhost:3001',
     WIDGETS_DOMAIN,
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
     DASHBOARD_DOMAIN
@@ -187,7 +188,6 @@ app.get(
 );
 
 app.post('/webhooks/:id', webhookMiddleware);
-// @ts-ignore
 app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
 // events
@@ -232,6 +232,8 @@ app.post(
   )
 );
 
+app.use(userMiddleware);
+
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get(
@@ -269,7 +271,7 @@ app.get(
       try {
         Segments.removeSegment(segment);
       } catch (e) {
-        console.log((e as Error).message);
+        console.log(e.message);
       }
     }
 
@@ -291,6 +293,18 @@ app.get(
   })
 );
 
+app.get(
+  '/download-import-error',
+  routeErrorHandling(async (req: any, res) => {
+    const { query } = req;
+
+    const { name, response } = await generateErrors(query);
+
+    res.attachment(`${name}.csv`);
+    return res.send(response);
+  })
+);
+
 // read file
 app.get('/read-file', async (req: any, res, next) => {
   try {
@@ -307,7 +321,7 @@ app.get('/read-file', async (req: any, res, next) => {
 
     return res.send(response);
   } catch (e) {
-    if ((e as Error).message.includes('key does not exist')) {
+    if (e.message.includes('key does not exist')) {
       return res.status(404).send('Not found');
     }
 
@@ -381,9 +395,6 @@ app.get('/connect-integration', async (req: any, res, _next) => {
   return res.redirect(url);
 });
 
-// file import
-app.post('/import-file', importer);
-
 // unsubscribe
 app.get(
   '/unsubscribe',
@@ -440,11 +451,11 @@ httpServer.listen(PORT, () => {
     mongoUrl = TEST_MONGO_URL;
   }
 
-  initApolloServer(app, httpServer).then(apolloServer => {
+  initApolloServer(app).then(apolloServer => {
     apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
 
     // subscriptions server
-    // apolloServer.installSubscriptionHandlers(httpServer);
+    apolloServer.installSubscriptionHandlers(httpServer);
   });
 
   // connect to mongo database
