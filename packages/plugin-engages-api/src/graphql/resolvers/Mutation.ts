@@ -1,11 +1,13 @@
 import * as _ from 'underscore';
-import { Customers, EngageMessages } from '../../../db/models';
+import { EngageMessages } from '../../models';
+import { _Customers } from '../../apiCollections';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 // import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory, sendToWebhook } from '../../utils';
+import { sendToWebhook } from '../../utils';
+import { registerOnboardHistory } from '../../messageBroker';
 import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from './engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
@@ -227,7 +229,7 @@ const engageMutations = {
         'Email content, title, from address or to address is missing'
       );
     }
-
+    const Customers = await _Customers();
     const customer = await Customers.findOne({ primaryEmail: to });
     const targetUser = await getDocument('users', { email: to });
 

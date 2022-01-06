@@ -2251,6 +2251,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.60.tgz#35f3d6213daed95da7f0f73e75bcc6980e90597b"
   integrity sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==
 
+"@types/node@^17.0.8":
+  version "17.0.8"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.8.tgz#50d680c8a8a78fe30abe6906453b21ad8ab0ad7b"
+  integrity sha512-YofkM6fGv4gDJq78g4j0mMuGMkZVxZDgtU0JRdx6FgiJDG+0fY0GKVolOV8WqVmEhLCXkQRjwDdKyPxJp/uucg==
+
 "@types/parse-json@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
@@ -9521,7 +9526,7 @@ mongodb@3.3.2:
     require_optional "^1.0.1"
     safe-buffer "^5.1.2"
 
-mongodb@4.2.2:
+mongodb@4.2.2, mongodb@^4.2.2:
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-4.2.2.tgz#cd70568bd96003877e35358ad17a0c5de35c6dfd"
   integrity sha512-zt8rCTnTKyMQppyt63qMnrLM5dbADgUk18ORPF1XbtHLIYCyc9hattaYHi0pqMvNxDpgGgUofSVzS+UQErgTug==
