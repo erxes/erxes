@@ -48,6 +48,9 @@
   },
   "dependencies": {
     "@sentry/react": "^5.29.2",
-    "fs-extra": "^9.0.1"
+    "@types/react": "^17.0.38",
+    "erxes-ui": "^0.0.88",
+    "fs-extra": "^9.0.1",
+    "react-select-plus": "^1.0.0-rc.3.patch12"
   }
 }
