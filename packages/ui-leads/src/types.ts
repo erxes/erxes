@@ -1,8 +1,8 @@
-import { QueryResponse } from '@erxes/ui/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { QueryResponse } from "@erxes/ui/src/types";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IAttachment, IConditionsRule } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { ITag } from "@erxes/ui/src/tags/types";
 
 export interface IForm {
   _id: string;
@@ -17,10 +17,6 @@ export interface ILeadIntegration {
   brand: IBrand;
   form: IForm;
 }
-
-export type LeadIntegrationsQueryResponse = {
-  integrations: ILeadIntegration[];
-} & QueryResponse;
 
 export interface ICallout {
   title?: string;
@@ -76,6 +72,14 @@ export type IntegrationsCount = {
   byStatus: Counts;
 };
 
+export type LeadIntegrationsQueryResponse = {
+  integrations: ILeadIntegration[];
+} & QueryResponse;
+
 export type CountQueryResponse = {
   integrationsTotalCount: IntegrationsCount;
 } & QueryResponse;
+
+export type TagCountQueryResponse = {
+  [key: string]: number;
+};
