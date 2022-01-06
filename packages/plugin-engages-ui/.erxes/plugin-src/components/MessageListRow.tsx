@@ -19,8 +19,8 @@ import {
   Messenger
 } from '../styles'; // fix needed
 import { IEngageMessage, IEngageMessenger } from '../types';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
-import { ISegment } from '@erxes/ui/src/settings/segments/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { ISegment } from '@erxes/common-ui-segments/src/types';
 
 type Props = {
   message: any;

@@ -10,7 +10,7 @@ import MessengerPreview from '../containers/MessengerPreview';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {

@@ -5,7 +5,7 @@ import { TargetCount } from '../../types';
 import React from 'react';
 import Common from './Common';
 import SegmentsForm from './forms/SegmentsForm';
-import { ISegment } from '@erxes/ui/src/settings/segments/types';
+import { ISegment } from '@erxes/common-ui-segments/src/types';
 
 type Props = {
   messageType: string;

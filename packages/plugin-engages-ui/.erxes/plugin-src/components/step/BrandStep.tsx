@@ -4,7 +4,7 @@ import { TargetCount } from '../../types';
 import React from 'react';
 import Common from './Common';
 import BrandForm from './forms/BrandForm';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 
 type Props = {
   brandIds: string[];

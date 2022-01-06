@@ -6,7 +6,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import MessageForm from '../components/MessageForm';
 import { queries } from '../graphql';
 import { EngageMessageDetailQueryResponse } from '../types';
-import { BrandsQueryResponse } from '@erxes/ui/src/settings/brands/types';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 
 type Props = {
   kind?: string;

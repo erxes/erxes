@@ -18,7 +18,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import MessengerForm from './MessengerForm';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBreadCrumbItem, IConditionsRule } from '@erxes/ui/src/types';
 

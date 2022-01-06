@@ -1,6 +1,6 @@
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import FormBase from '../components/FormBase';
 import VisitorForm from '../components/VisitorForm';
 import { IEngageMessage, IEngageMessageDoc } from '../types';

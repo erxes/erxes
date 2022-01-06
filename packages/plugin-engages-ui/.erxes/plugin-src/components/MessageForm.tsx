@@ -3,7 +3,7 @@ import React from 'react';
 import AutoAndManualForm from '../containers/AutoAndManualForm';
 import VisitorForm from '../containers/VisitorForm';
 import { IEngageScheduleDate } from '../types';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 
 type Props = {
   kind?: string;

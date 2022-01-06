@@ -7,9 +7,9 @@ import {
   IEngageScheduleDate
 } from '../../types';
 import MessengerForm from '../MessengerForm';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IEmailTemplate } from '@erxes/ui/src/settings/emailTemplates/types';
+import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
 
 type Props = {
   brands: IBrand[];

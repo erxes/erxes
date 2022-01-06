@@ -6,7 +6,7 @@ import { CustomerCounts, RadioContainer } from '../../styles';
 import { TargetCount } from '../../types';
 import React from 'react';
 import Targets from '../Targets';
-import { ISegmentDoc } from '@erxes/ui/src/settings/segments/types';
+import { ISegmentDoc } from '@erxes/common-ui-segments/src/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 type Props<Target, OnSubmit> = {

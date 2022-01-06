@@ -26,11 +26,11 @@ import ChannelStep from './step/ChannelStep';
 import FullPreviewStep from './step/FullPreviewStep';
 import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IEmailTemplate } from '@erxes/ui/src/settings/emailTemplates/types';
+import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
 import { IBreadCrumbItem } from '@erxes/ui/src/types';
-import { IConfig } from '@erxes/ui/src/settings/general/types';
+import { IConfig } from '@erxes/common-ui-settings/src/general/types';
 
 type Props = {
   message?: IEngageMessage;

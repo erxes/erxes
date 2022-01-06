@@ -10,8 +10,8 @@ import {
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse,
   AddMutationResponse
-} from '@erxes/ui/src/settings/segments/types';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui/src/settings/properties/types';
+} from '@erxes/common-ui-settings/src/segments/types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/common-ui-settings/src/properties/types';
 
 type Props = {
   segmentIds: string[];

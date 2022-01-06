@@ -69,7 +69,9 @@ module.exports = {
           path.resolve(__dirname, 'src'),
           path.resolve(__dirname, '../../erxes-ui/src'),
           path.resolve(__dirname, 'plugin-src'),
-          path.resolve(__dirname, '../../common-ui-engage/src')
+          path.resolve(__dirname, '../../common-ui-engage/src'),
+          path.resolve(__dirname, '../../common-ui-settings/src'),
+          path.resolve(__dirname, '../../common-ui-segments/src')
         ],
         use: {
           loader: 'babel-loader',
