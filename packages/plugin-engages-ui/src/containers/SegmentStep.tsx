@@ -10,7 +10,7 @@ import {
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse,
   AddMutationResponse
-} from '@erxes/ui-settings/src/segments/types';
+} from '@erxes/ui-segments/src/types';
 import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
 
 type Props = {

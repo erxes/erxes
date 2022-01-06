@@ -8,7 +8,7 @@ import {
   ISegment,
   ISegmentCondition,
   ISegmentDoc
-} from '@erxes/ui-settings/src/segments/types';
+} from '@erxes/ui-segments/src/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 export type IEngageScheduleDate = {
