@@ -1,14 +1,14 @@
 import React from 'react';
 import { Description, SubHeading } from '@erxes/common-ui-settings/src/styles';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { OnlyFlexContent } from '@erxes/ui/src/styles/main';
+import { FlexContent } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import Select from 'react-select-plus';
-import { FlexItem as FlexItemContainer } from './style';
+import { FlexContentHt as FlexItemContainer } from '@erxes/ui/src/styles/main';
 import SelectProductCategory from '../../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { BOOKING_DISPLAY_BLOCK } from '../../constants';
@@ -84,7 +84,7 @@ function ContentStep({
   const renderGeneralSettings = () => {
     return (
       <>
-        <OnlyFlexContent>
+        <FlexContent>
           <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Booking Name</ControlLabel>
@@ -95,7 +95,7 @@ function ContentStep({
               />
             </FormGroup>
           </FlexItem>
-        </OnlyFlexContent>
+        </FlexContent>
 
         <FormGroup>
           <ControlLabel required={true}>Booking Description</ControlLabel>
@@ -140,7 +140,7 @@ function ContentStep({
   const renderDisplayBlock = () => {
     return (
       <>
-        <OnlyFlexContent>
+        <FlexContent>
           <FlexItem count={3}>
             <FormGroup>
               <ControlLabel>Display blocks</ControlLabel>
@@ -190,7 +190,7 @@ function ContentStep({
               />
             </FormGroup>
           </FlexItem>
-        </OnlyFlexContent>
+        </FlexContent>
       </>
     );
   };
