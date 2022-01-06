@@ -10,13 +10,13 @@ import Select from 'react-select-plus';
 import {
   SubHeading,
   WidgetBackgrounds
-} from '@erxes/common-ui-settings/src/styles';
+} from '@erxes/ui-settings/src/styles';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from '../../constants';
 import { Flex } from '@erxes/ui/src/styles/main';
-import { FONTS } from '@erxes/common-ui-settings/src/constants';
+import { FONTS } from '@erxes/ui-settings/src/constants';
 
 type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
 

@@ -16,7 +16,7 @@ import { ChooseBox, FlexContainer } from '../styles';
 import { IEngageMessage } from '../types';
 import PercentItem, { ItemWrapper } from './PercentItem';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import { EMPTY_CONTENT_ENGAGE } from '@erxes/common-ui-settings/src/constants';
+import { EMPTY_CONTENT_ENGAGE } from '@erxes/ui-settings/src/constants';
 
 type Props = {
   messages: IEngageMessage[];

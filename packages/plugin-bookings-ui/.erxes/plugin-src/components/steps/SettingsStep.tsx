@@ -1,14 +1,14 @@
 import Select from 'react-select-plus';
-import { LANGUAGES } from '@erxes/common-ui-settings/src/general/constants';
-import SelectBrand from '@erxes/common-ui-settings/src/integrations/containers/SelectBrand';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { Description } from '@erxes/common-ui-settings/src/styles';
-import SelectChannels from '@erxes/common-ui-settings/src/integrations/containers/SelectChannels';
+import { Description } from '@erxes/ui-settings/src/styles';
+import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
 
 type Name = 'languageCode';
 

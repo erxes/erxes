@@ -14,7 +14,7 @@ import Row from './BookingRow';
 import { Link } from 'react-router-dom';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import { IntegrationsCount } from '@erxes/common-ui-leads/src/types';
+import { IntegrationsCount } from '@erxes/ui-leads/src/types';
 
 type Props = {
   queryParams: any;

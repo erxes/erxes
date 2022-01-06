@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, getEnv } from '@erxes/ui/src/utils';
-import { MarkdownWrapper } from '@erxes/common-ui-settings/src/styles';
+import { MarkdownWrapper } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';

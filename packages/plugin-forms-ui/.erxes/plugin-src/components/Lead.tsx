@@ -8,14 +8,14 @@ import { IAttachment, IConditionsRule } from "@erxes/ui/src/types";
 import { Alert } from "@erxes/ui/src/utils";
 import { __ } from "@erxes/ui/src/utils";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { IEmailTemplate } from "@erxes/common-ui-settings/src/emailTemplates/types";
+import { IEmailTemplate } from "@erxes/ui-settings/src/emailTemplates/types";
 import React from "react";
 import { Link } from "react-router-dom";
 import { ILeadData, ILeadIntegration } from "../types";
 import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
 import { IFormData } from "@erxes/ui/src/forms/types";
-import { Content } from "@erxes/common-ui-settings/src/integrations/styles";
-import { LeftContent } from "@erxes/common-ui-settings/src/integrations/styles";
+import { Content } from "@erxes/ui-settings/src/integrations/styles";
+import { LeftContent } from "@erxes/ui-settings/src/integrations/styles";
 import { IField } from "@erxes/ui/src/types";
 import {
   CallOut,

@@ -11,7 +11,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import WithPermission from '@erxes/ui/src/components/WithPermission';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { __, getEnv } from '@erxes/ui/src/utils';
-import { Capitalize } from '@erxes/common-ui-settings/src/styles';
+import { Capitalize } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ILeadIntegration } from '../types';

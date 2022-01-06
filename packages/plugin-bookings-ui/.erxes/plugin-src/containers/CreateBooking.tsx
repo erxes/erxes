@@ -1,5 +1,5 @@
 import React from 'react';
-import { queries as templatesQuery } from '@erxes/common-ui-settings/src/emailTemplates/graphql';
+import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Booking from '../components/Booking';
 import * as compose from 'lodash.flowright';
@@ -16,11 +16,11 @@ import { withRouter } from 'react-router-dom';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
-} from '@erxes/common-ui-settings/src/emailTemplates/types';
-import { ILeadData } from '@erxes/common-ui-leads/src/types';
+} from '@erxes/ui-settings/src/emailTemplates/types';
+import { ILeadData } from '@erxes/ui-leads/src/types';
 import { queries } from '../graphql';
-import { FieldsQueryResponse } from '@erxes/common-ui-settings/src/properties/types';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/common-ui-settings/src/constants';
+import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/constants';
 
 type Props = {
   history: any;

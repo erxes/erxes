@@ -18,8 +18,8 @@ import {
 } from '../styles'; 
 import { IEngageMessage, IEngageMessenger } from '../types';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { ISegment } from '@erxes/common-ui-segments/src/types';
-import { Capitalize } from '@erxes/common-ui-settings/src/styles';
+import { ISegment } from '@erxes/ui-segments/src/types';
+import { Capitalize } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   message: any;

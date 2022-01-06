@@ -10,7 +10,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { METHODS } from '../constants';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
+import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import Select from 'react-select-plus';

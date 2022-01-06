@@ -10,7 +10,7 @@ import {
 } from '@erxes/ui/src/properties/types';
 import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui/src/forms/graphql';
-import { queries as fieldQueries } from '@erxes/common-ui-settings/src/properties/graphql';
+import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 
 const generateItemCustomFields = items =>
   (items || []).map(item => ({

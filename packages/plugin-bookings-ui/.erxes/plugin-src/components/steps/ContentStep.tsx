@@ -1,5 +1,5 @@
 import React from 'react';
-import { Description, SubHeading } from '@erxes/common-ui-settings/src/styles';
+import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
 import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries as segmentQueries } from '@erxes/common-ui-segments/src/graphql';
-import { LeadIntegrationsQueryResponse } from '@erxes/common-ui-leads/src/types';
+import { queries as segmentQueries } from '@erxes/ui-segments/src/graphql';
+import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
 import {
   FieldsCombinedByType,
   FieldsCombinedByTypeQueryResponse

@@ -6,7 +6,7 @@ import {
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IForm } from '@erxes/ui/src/forms/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IIntegration } from '@erxes/common-ui-settings/src/integrations/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 export interface ICallout {

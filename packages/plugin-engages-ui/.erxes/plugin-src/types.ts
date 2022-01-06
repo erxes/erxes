@@ -1,14 +1,14 @@
 import { IConditionsRule, QueryResponse } from '@erxes/ui/src/types';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
-import { IIntegration } from '@erxes/common-ui-settings/src/integrations/types';
+import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import {
   ISegment,
   ISegmentCondition,
   ISegmentDoc
-} from '@erxes/common-ui-settings/src/segments/types';
+} from '@erxes/ui-settings/src/segments/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 export type IEngageScheduleDate = {

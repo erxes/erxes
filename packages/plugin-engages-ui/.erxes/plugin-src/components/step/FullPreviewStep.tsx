@@ -4,8 +4,8 @@ import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __ } from '@erxes/ui/src/utils';
 import { DesktopPreviewContent, MobilePreviewContent } from '../../styles';
 
-import {DesktopPreview, FlexItem, FullPreview, MobilePreview, TabletPreview} from '@erxes/common-ui-leads/src/components/step/style'
-import {PreviewContainer} from '@erxes/common-ui-leads/src/components/step/preview/styles'
+import {DesktopPreview, FlexItem, FullPreview, MobilePreview, TabletPreview} from '@erxes/ui-leads/src/components/step/style'
+import {PreviewContainer} from '@erxes/ui-leads/src/components/step/preview/styles'
 
 import React from 'react';
 

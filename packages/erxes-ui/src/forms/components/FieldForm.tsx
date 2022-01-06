@@ -9,7 +9,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils';
-import SelectProperty from '@erxes/common-ui-settings/src/properties/containers/SelectProperty';
+import SelectProperty from '@erxes/ui-settings/src/properties/containers/SelectProperty';
 import { IField, IFieldLogic } from '@erxes/ui/src/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';

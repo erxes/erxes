@@ -10,7 +10,7 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import {
   Content,
   LeftContent
-} from '@erxes/common-ui-settings/src/integrations/styles';
+} from '@erxes/ui-settings/src/integrations/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { Alert, __ } from '@erxes/ui/src/utils';
 import { IStyle, IBookingIntegration, IBookingData, IBooking } from '../types';
@@ -19,14 +19,14 @@ import StyleStep from './steps/StyleStep';
 import ContentStep from './steps/ContentStep';
 import SettingsStep from './steps/SettingsStep';
 import FormStep from './steps/FormStep';
-import SuccessStep from '@erxes/common-ui-leads/src/components/step/SuccessStep';
+import SuccessStep from '@erxes/ui-leads/src/components/step/SuccessStep';
 import { IField } from '@erxes/ui/src/types';
-import { PreviewWrapper } from '@erxes/common-ui-leads/src/components/step/style';
-import FullPreview from '@erxes/common-ui-leads/src/components/step/FullPreview';
+import { PreviewWrapper } from '@erxes/ui-leads/src/components/step/style';
+import FullPreview from '@erxes/ui-leads/src/components/step/FullPreview';
 import { colors } from '@erxes/ui/src/styles';
 import { IForm, IFormData } from '@erxes/ui/src/forms/types';
-import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
-import { ILeadData } from '@erxes/common-ui-leads/src/types';
+import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
+import { ILeadData } from '@erxes/ui-leads/src/types';
 import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {

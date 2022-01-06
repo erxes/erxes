@@ -1,8 +1,8 @@
-import { IFormData } from '@erxes/common-ui-forms/src/forms/types';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import React from 'react';
 import { IField } from '@erxes/ui/src/types';
-import CreateForm from '@erxes/common-ui-forms/src/forms/containers/CreateForm';
-import EditForm from '@erxes/common-ui-forms/src/forms/containers/EditForm';
+import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
+import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import { FlexHeight } from '@erxes/ui/src/styles/main';
 
 type Props = {

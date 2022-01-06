@@ -28,9 +28,9 @@ import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IEmailTemplate } from '@erxes/common-ui-settings/src/emailTemplates/types';
+import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { IBreadCrumbItem } from '@erxes/ui/src/types';
-import { IConfig } from '@erxes/common-ui-settings/src/general/types';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
 
 type Props = {
   message?: IEngageMessage;

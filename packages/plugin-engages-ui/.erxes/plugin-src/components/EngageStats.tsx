@@ -5,7 +5,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   FlexRow,
   Subject
-} from '@erxes/common-ui-settings/src/integrations/styles';
+} from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
 import {
   AWS_EMAIL_DELIVERY_STATUSES,
