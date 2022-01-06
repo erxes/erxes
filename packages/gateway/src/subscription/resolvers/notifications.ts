@@ -18,7 +18,7 @@ export default {
         info,
         queryVariables: { _id: payload.notificationInserted._id },
         buildQueryUsingSelections: (selections: any) => gql`
-          query Subscription_GetNotification($_id: ID!) {
+          query Subscription_GetNotification($_id: String!) {
             notificationDetail(_id: $_id) {
               ${selections}
             }

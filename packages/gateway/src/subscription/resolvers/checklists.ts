@@ -18,7 +18,7 @@ export default {
         info,
         queryVariables: { _id: payload.checklistsChanged._id },
         buildQueryUsingSelections: (selections: any) => gql`
-          query Subscription_GetChecklist($_id: ID!) {
+          query Subscription_GetChecklist($_id: String!) {
             checklistDetail(_id: $_id) {
               ${selections}
             }
@@ -51,7 +51,7 @@ export default {
         info,
         queryVariables: { _id: payload.checklistDetailChanged._id },
         buildQueryUsingSelections: (selections: any) => gql`
-          query Subscription_GetChecklist($_id: ID!) {
+          query Subscription_GetChecklist($_id: String!) {
             checklistDetail(_id: $_id) {
               ${selections}
             }

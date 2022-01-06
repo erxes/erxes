@@ -38,8 +38,6 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     const selections = this.buildNonPayloadSelections(payload, info);
     const payloadData = Object.values(payload)[0];
 
-    console.log("queryAndMergeMissingData")
-    console.log("selections", selections);
     if (!selections) {
       return payloadData;
     }
@@ -72,7 +70,7 @@ export default class MyGatewayDataSource extends GatewayDataSource {
       info,
       queryVariables: { _id: conversationMessage._id },
       buildQueryUsingSelections: (selections: any) => gql`
-        query Subscription_GetMessage($_id: ID!) {
+        query Subscription_GetMessage($_id: String!) {
           conversationMessage(_id: $_id) {
             ${selections}
           }

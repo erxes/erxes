@@ -18,7 +18,7 @@ export default {
         info,
         queryVariables: { _id: payload.importHistoryChanged._id._id },
         buildQueryUsingSelections: (selections: any) => gql`
-          query Subscription_GetImportHistory($_id: ID!) {
+          query Subscription_GetImportHistory($_id: String!) {
             importHistoryDetail(_id: $_id) {
               ${selections}
             }
