@@ -1,4 +1,4 @@
-import { IUserDocument } from './types';
+import { IUserDocument } from './definitions/users';
 
 export type LogDesc = {
   [key: string]: any;
@@ -36,6 +36,52 @@ interface IDescriptions {
   description?: string;
   extraDesc?: LogDesc[];
 }
+
+interface ISubAfterMutations {
+  [action: string]: {
+    callBack: void;
+  };
+}
+interface IAfterMutations {
+  [type: string]: ISubAfterMutations[];
+}
+
+const callAfterMutations: IAfterMutations[] | {} = {};
+
+export const callAfterMutation = async (
+  params: IFinalLogParams,
+  user: IUserDocument
+) => {
+  if (!callAfterMutations) {
+    return;
+  }
+
+  const { type, action } = params;
+
+  // not used type in plugins
+  if (!callAfterMutations[type]) {
+    return;
+  }
+
+  // not used this type's action in plugins
+  if (!callAfterMutations[type][action]) {
+    return;
+  }
+
+  try {
+    for (const handler of callAfterMutations[type][action]) {
+      await handler({}, params, {
+        user,
+        models: allModels,
+        memoryStorage,
+        graphqlPubsub,
+        messageBroker
+      });
+    }
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
 
 const gatherDescriptions = async (
   descriptionHelper: (
