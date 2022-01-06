@@ -1,54 +1,60 @@
-import { ApolloGateway, GatewayConfig, RemoteGraphQLDataSource, GraphQLDataSourceProcessOptions } from '@apollo/gateway';
-import { ServiceEndpointDefinition } from '@apollo/gateway/src/config';
-import express from 'express';
-import * as dotenv from 'dotenv';
-import { GraphQLRequestContext, GraphQLResponse } from 'apollo-server-core';
-import { ValueOrPromise } from 'apollo-server-types';
-import splitCookiesString from './util/splitCookiesString';
+import {
+  ApolloGateway,
+  GatewayConfig,
+  RemoteGraphQLDataSource,
+  GraphQLDataSourceProcessOptions,
+} from "@apollo/gateway";
+import { ServiceEndpointDefinition } from "@apollo/gateway/src/config";
+import express from "express";
+import * as dotenv from "dotenv";
+import { GraphQLRequestContext, GraphQLResponse } from "apollo-server-core";
+import { ValueOrPromise } from "apollo-server-types";
+import splitCookiesString from "./util/splitCookiesString";
 
 dotenv.config();
 
 export interface GatewayContext {
-  req?: express.Request;
+  req?: express.Request & { user?: any };
   res?: express.Response;
 }
 
 interface SubgraphConfig {
   name: string;
-  urlEnvKey : string;
+  urlEnvKey: string;
 }
 
 const allSubgraphConfigs: SubgraphConfig[] = [
   {
-    name : "api",
-    urlEnvKey : "SUBGRAPH_API_URL"
+    name: "api",
+    urlEnvKey: "SUBGRAPH_API_URL",
   },
   {
     name: "engages",
-    urlEnvKey: "SUBGRAPH_ENGAGES_URL"
-  }
-]
+    urlEnvKey: "SUBGRAPH_ENGAGES_URL",
+  },
+];
 
 function getConfiguredServices(): ServiceEndpointDefinition[] {
   const configuredServices: ServiceEndpointDefinition[] = [];
 
-  for(const subgraphConfig of allSubgraphConfigs) {
+  for (const subgraphConfig of allSubgraphConfigs) {
     const url = process.env[subgraphConfig.urlEnvKey];
-  
+
     // this subgraph's url is not configured in environment variables
-    if(!url) continue;
-  
+    if (!url) continue;
+
     configuredServices.push({
       name: subgraphConfig.name,
-      url
-    })
+      url,
+    });
   }
 
   return configuredServices;
 }
 
-
-class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<GatewayContext> {
+class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
+  GatewayContext
+> {
   didReceiveResponse({
     response,
     context,
@@ -78,6 +84,12 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<GatewayConte
     // This means gateway is starting up and didn't recieve request from clients
     if (!("req" in context) || !context.req) {
       return;
+    }
+
+    if (context.req.user) {
+      const userJson = JSON.stringify(context.req.user);
+      const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
+      request.http?.headers.set("user", userJsonBase64);
     }
 
     const cookie = context.req?.headers.cookie;
