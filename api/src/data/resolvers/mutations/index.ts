@@ -13,6 +13,7 @@ import customers from './customers';
 import dashboards from './dashboards';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
+import engages from './engages';
 import {
   fieldMutations as fields,
   fieldsGroupsMutations as fieldsgroups
@@ -49,6 +50,7 @@ export default {
   ...users,
   ...conversations,
   ...tags,
+  ...engages,
   ...brands,
   ...internalNotes,
   ...customers,

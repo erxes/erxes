@@ -1,4 +1,4 @@
-import { withFilter } from 'graphql-subscriptions';
+import { withFilter } from 'apollo-server-express';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as schedule from 'node-schedule';

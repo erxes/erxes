@@ -88,8 +88,17 @@ export type SegmentsQueryResponse = {
   segments: ISegment[];
 } & QueryResponse;
 
+export type EventsQueryResponse = {
+  segmentsEvents: Array<{ name: string; attributeNames: string[] }>;
+  loading: boolean;
+};
+
 export type HeadSegmentsQueryResponse = {
   segmentsGetHeads: ISegment[];
+} & QueryResponse;
+
+export type SegmentDetailQueryResponse = {
+  segmentDetail: ISegment;
 } & QueryResponse;
 
 // mutation types
@@ -101,6 +110,27 @@ export type AddMutationVariables = {
   conditions: ISegmentCondition[];
 };
 
+export type IField = {
+  selectOptions?: Array<{ label: string; value: string | number }>;
+  type?: string;
+  group?: string;
+  value: string;
+  label: string;
+  options?: string[];
+  validation?: string;
+  choiceOptions?: string[];
+};
+
 export type AddMutationResponse = {
   segmentsAdd: (params: { variables: AddMutationVariables }) => Promise<any>;
+};
+
+export type EditMutationResponse = {
+  segmentsEdit: (params: {
+    variables: { _id: string; doc: AddMutationVariables };
+  }) => Promise<any>;
+};
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => any;
 };

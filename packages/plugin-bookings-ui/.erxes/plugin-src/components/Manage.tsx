@@ -78,7 +78,7 @@ function Manage({ integration, closeModal }: Props) {
     return (
       <>
         <MarkdownWrapper>
-          <ReactMarkdown source={code || ''} />
+          <ReactMarkdown children={code || ''} />
           {code ? (
             <CopyToClipboard text={code} onCopy={onCopy}>
               <Button btnStyle='primary' icon='copy-1'>

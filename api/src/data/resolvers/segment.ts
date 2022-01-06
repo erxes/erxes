@@ -4,9 +4,6 @@ import { fetchSegment } from '../modules/segments/queryBuilder';
 import { IContext } from '../types';
 
 export default {
-  __resolveReference({ _id }) {
-    return Segments.findOne({ _id });
-  },
   async getSubSegments(
     segment: ISegmentDocument,
     _,

@@ -83,11 +83,9 @@ import {
   IMessenger,
   IScheduleDate
 } from './models/definitions/engages';
-import { ITopic } from './models/definitions/knowledgebase';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { ICondition } from './models/definitions/segments';
 import { IUserDocument } from './models/definitions/users';
-import { IArticleCreate, ICategoryCreate } from './models/KnowledgeBase';
 import PipelineTemplates from './models/PipelineTemplates';
 
 export const getUniqueValue = async (
@@ -995,16 +993,17 @@ interface IKnowledgeBaseTopicFactoryInput {
 export const knowledgeBaseTopicFactory = async (
   params: IKnowledgeBaseTopicFactoryInput = {}
 ) => {
-  const doc: ITopic = {
+  const doc = {
     title: faker.random.word(),
-    description: faker.lorem.sentence(),
+    description: faker.lorem.sentence,
     brandId: params.brandId || faker.random.word(),
     color: params.color
   };
 
   return KnowledgeBaseTopics.createDoc(
     {
-      ...doc
+      ...doc,
+      ...params
     },
     params.userId || faker.random.word()
   );
@@ -1019,9 +1018,9 @@ interface IKnowledgeBaseCategoryFactoryInput {
 export const knowledgeBaseCategoryFactory = async (
   params: IKnowledgeBaseCategoryFactoryInput = {}
 ) => {
-  const doc: ICategoryCreate = {
+  const doc = {
     title: faker.random.word(),
-    description: faker.lorem.sentence(),
+    description: faker.lorem.sentence,
     icon: faker.random.word(),
     topicId: params.topicId,
     parentCategoryId: params.parentCategoryId
@@ -1046,10 +1045,10 @@ interface IKnowledgeBaseArticleCategoryInput {
 export const knowledgeBaseArticleFactory = async (
   params: IKnowledgeBaseArticleCategoryInput = {}
 ) => {
-  const doc: IArticleCreate = {
+  const doc = {
     title: params.title || faker.random.word(),
-    summary: faker.lorem.sentence(),
-    content: faker.lorem.sentence(),
+    summary: faker.lorem.sentence,
+    content: faker.lorem.sentence,
     icon: faker.random.word(),
     reactionChoices: params.reactionChoices || ['wow'],
     status: params.status || 'draft',
@@ -1555,7 +1554,7 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
 };
 
 interface IImportHistoryFactoryInput {
-  contentType?: string;
+  contentTypes?: string[];
   failed?: number;
   total?: number;
   success?: string;
@@ -1573,7 +1572,7 @@ export const importHistoryFactory = async (
     total: params.total || faker.random.number(),
     success: params.success || faker.random.number(),
     ids: params.ids,
-    contentType: params.contentType || 'customer',
+    contentTypes: params.contentTypes || ['customer'],
     errorMsgs: params.errorMsgs
   };
 

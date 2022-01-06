@@ -1,4 +1,4 @@
-import { withFilter } from 'graphql-subscriptions';
+import { withFilter } from 'apollo-server-express';
 import { Channels, Conversations } from '../../../db/models';
 import { graphqlPubsub } from '../../../pubsub';
 import { getDocument } from '../mutations/cacheUtils';
