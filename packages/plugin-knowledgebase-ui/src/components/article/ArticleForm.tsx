@@ -14,7 +14,8 @@ import {
 } from "@erxes/ui/src/types";
 import { extractAttachment, __ } from "@erxes/ui/src/utils";
 import { articleReactions } from "../../icons.constant";
-import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
+import { FlexItem } from "@erxes/ui/src/layout/styles";
+import { FlexContent } from "@erxes/ui/src/layout/styles";
 import { FILE_MIME_TYPES } from "@erxes/common-ui-settings/src/general/constants";
 import React from "react";
 import Select from "react-select-plus";
