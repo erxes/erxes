@@ -37,8 +37,6 @@ import {
   requireLogin
 } from './permissions';
 
-import { ICustomerDocument } from './definitions/customers';
-import { IUserDocument } from './definitions/users';
 import { IContext } from './types';
 
 export { EMAIL_DELIVERY_STATUS };
@@ -77,9 +75,6 @@ export {
   getUserActionsMap,
   checkPermission,
   requireLogin,
-  // types
-  ICustomerDocument,
-  IUserDocument,
   IContext
 };
 

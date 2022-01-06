@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { IUserDocument } from '@erxes/common-types'
+import { IUserDocument, ICustomerDocument } from '@erxes/common-types'
 import {
   _ConversationMessages,
   _Conversations,
@@ -17,7 +17,6 @@ import {
   IEngageData,
   IMessageDocument
 } from './definitions/conversationMessages';
-import { ICustomerDocument } from './definitions/customers';
 import {
   engageMessageSchema,
   IEngageMessage,
