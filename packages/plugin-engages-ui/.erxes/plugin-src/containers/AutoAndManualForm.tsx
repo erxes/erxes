@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
-import { AddMutationResponse } from '@erxes/ui-settings/src/segments/types';
+import { AddMutationResponse } from '@erxes/ui-segments/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { EmailTemplatesQueryResponse } from '@erxes/ui-settings/src/emailTemplates/types';
 import { queries } from '@erxes/ui-settings/src/emailTemplates/graphql';
