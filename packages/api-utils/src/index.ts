@@ -39,6 +39,7 @@ import {
 
 import { ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
+import { IContext } from './types';
 
 export { EMAIL_DELIVERY_STATUS };
 export { getEnv }; // ({ name, defaultValue })
@@ -78,7 +79,8 @@ export {
   requireLogin,
   // types
   ICustomerDocument,
-  IUserDocument
+  IUserDocument,
+  IContext
 };
 
 export default {

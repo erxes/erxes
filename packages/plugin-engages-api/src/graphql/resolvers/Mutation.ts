@@ -1,13 +1,10 @@
 import * as _ from 'underscore';
 
-import { checkPermission, sendToWebhook } from '@erxes/api-utils';
+import { checkPermission, sendToWebhook, IContext } from '@erxes/api-utils';
 import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../types';
 import { CAMPAIGN_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-// import { checkPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
-import { registerOnboardHistory } from '../../utils';
 import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
@@ -52,7 +49,7 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id })
     );
 
-    await sendToWebhook('create', 'engageMessages', engageMessage);
+    await sendToWebhook(models, { action: 'create', type: 'engageMessages', params: engageMessage });
 
     await send(engageMessage);
 
@@ -197,10 +194,8 @@ const engageMutations = {
   async engageMessageVerifyEmail(
     _root,
     { email }: { email: string },
-    { dataSources, user }: IContext
+    { dataSources }: IContext
   ) {
-    await registerOnboardHistory({ type: 'engageVerifyEmail', user });
-
     return dataSources.EngagesAPI.engagesVerifyEmail({ email });
   },
 
@@ -218,10 +213,8 @@ const engageMutations = {
   async engageMessageSendTestEmail(
     _root,
     args: ITestEmailParams,
-    { dataSources, user }: IContext
+    { dataSources }: IContext
   ) {
-    await registerOnboardHistory({ type: 'engageSendTestEmail', user });
-
     const { content, from, to, title } = args;
 
     if (!(content && from && to && title)) {
