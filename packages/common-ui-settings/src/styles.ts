@@ -2,7 +2,6 @@ import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
-const unitSpace = `${dimensions.unitSpacing}px`;
 
 const ActionButtons = styled.div`
   display: flex;

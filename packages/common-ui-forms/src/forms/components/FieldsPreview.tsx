@@ -1,5 +1,5 @@
 import SortableList from '@erxes/ui/src/components/SortableList';
-import { IField } from '@erxes/ui/src/settings/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import xss from 'xss';
 import { FieldsWrapper } from '../styles';
