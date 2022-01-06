@@ -7,7 +7,7 @@ import {
   FeatureRowItem,
   FeatureLayout,
   GeneralWrapper,
-  TeamPortal
+  TeamPortal,
 } from '../styles';
 import Button from 'erxes-ui/lib/components/Button';
 import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
@@ -120,7 +120,6 @@ export default function General(props: Props) {
         {features.map(feature => (
           <FeatureRow key={feature._id}>
             <FeatureRowItem>
-              <ControlLabel>1</ControlLabel>
               <FormControl
                 componentClass='select'
                 value={feature.contentType}
@@ -131,55 +130,39 @@ export default function General(props: Props) {
                     'contentType',
                     e.target.value
                   );
-                }}
-              />
+                } } />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>2</ControlLabel>
               <FormControl
                 componentClass='select'
                 value={feature.icon}
                 options={ICON_OPTIONS}
-                onChange={(e: any) =>
-                  onChangeFeatureItem(feature._id, 'icon', e.target.value)
-                }
-              />
+                onChange={(e: any) => onChangeFeatureItem(feature._id, 'icon', e.target.value)} />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>3</ControlLabel>
               <FormControl
                 name='name'
                 placeholder='Name'
                 value={feature.name}
-                onChange={(e: any) =>
-                  onChangeFeatureItem(feature._id, 'name', e.target.value)
-                }
-              />
+                onChange={(e: any) => onChangeFeatureItem(feature._id, 'name', e.target.value)} />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>4</ControlLabel>
               <FormControl
                 name='description'
                 placeholder='Description'
                 value={feature.description}
-                onChange={(e: any) =>
-                  onChangeFeatureItem(
-                    feature._id,
-                    'description',
-                    e.target.value
-                  )
-                }
-              />
+                onChange={(e: any) => onChangeFeatureItem(
+                  feature._id,
+                  'description',
+                  e.target.value
+                )} />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>5</ControlLabel>
               <Select
                 placeholder={__(
-                  `Choose a ${
-                    feature.contentType === 'knowledgeBase'
-                      ? 'knowledge base'
-                      : 'brand'
-                  }`
+                  `Choose a ${feature.contentType === 'knowledgeBase'
+                    ? 'knowledge base'
+                    : 'brand'}`
                 )}
                 value={feature.contentId}
                 options={getContentValues(feature.contentType)}
@@ -189,14 +172,12 @@ export default function General(props: Props) {
                   }
 
                   onChangeFeatureItem(feature._id, 'contentId', item.value);
-                }}
-                clearable={false}
-              />
+                } }
+                clearable={false} />
             </FeatureRowItem>
 
             {feature.contentType === 'knowledgeBase' && (
               <FeatureRowItem>
-                <ControlLabel>6</ControlLabel>
                 <Select
                   placeholder={__('Choose a category')}
                   value={feature.subContentId}
@@ -206,23 +187,19 @@ export default function General(props: Props) {
                     null
                   )}
                   style={{ width: 200 }}
-                  onChange={item =>
-                    onChangeFeatureItem(feature._id, 'subContentId', item.value)
-                  }
-                  clearable={false}
-                />
+                  onChange={item => onChangeFeatureItem(feature._id, 'subContentId', item.value)}
+                  clearable={false} />
               </FeatureRowItem>
             )}
-            <FeatureRowItem>
-              <Button
-                btnStyle='danger'
-                icon="times-circle"
-                onClick={() => onChangeFeature('remove', feature._id)}
-              />
-            </FeatureRowItem>
+            <Button
+              btnStyle='danger'
+              size="small"
+              icon="times-circle"
+              onClick={() => onChangeFeature('remove', feature._id)}
+            >Delete</Button>
           </FeatureRow>
         ))}
-        <Button btnStyle="primary" onClick={() => onChangeFeature('add')} >+ Add Features</Button>
+        <Button btnStyle="primary" icon="file-plus" onClick={() => onChangeFeature('add')} >Add Features</Button>
       </FeatureLayout>
       <Button btnStyle='success' icon="check-circle" onClick={onSave}>
         Save
