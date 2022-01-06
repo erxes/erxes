@@ -1,4 +1,4 @@
-import { COLORS } from '../../boards/constants';
+import { COLORS } from '@erxes/ui/src/constants/colors';
 import { Button } from '../../components';
 import {
   FormControl,
