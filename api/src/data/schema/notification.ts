@@ -33,6 +33,7 @@ export const queries = `
   notificationCounts(requireRead: Boolean): Int
   notificationsModules : [JSON]
   notificationsGetConfigurations : [NotificationConfiguration]
+  notificationDetail(_id: String!): Notification
 `;
 
 export const mutations = `

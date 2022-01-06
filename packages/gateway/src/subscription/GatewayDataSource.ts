@@ -19,11 +19,9 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     request.headers["apollographql-client-name"] = "Subscriptions Service";
     request.headers["apollographql-client-version"] = "0.1.0";
 
-    console.log(this.context);
-
-    // Forwards the encoded token extracted from the `connectionParams` with
-    // the request to the gateway
-    request.headers.authorization = `Bearer ${this.context.token}`;
+    if (this.context.extra.request.headers.cookie) {
+      request.headers.cookie = this.context.extra.request.headers.cookie;
+    }
   }
 
   public async queryAndMergeMissingData({
@@ -72,7 +70,7 @@ export default class MyGatewayDataSource extends GatewayDataSource {
       info,
       queryVariables: { _id: conversationMessage._id },
       buildQueryUsingSelections: (selections: any) => gql`
-        query Subscription_GetMessage($_id: ID!) {
+        query Subscription_GetMessage($_id: String!) {
           conversationMessage(_id: $_id) {
             ${selections}
           }

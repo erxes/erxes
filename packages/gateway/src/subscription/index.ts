@@ -64,16 +64,10 @@ export function loadSubscriptions(
         if (errors.length > 0) {
           return errors;
         }
-
         // Ready execution arguments
         return args;
       },
     },
     wsServer
   );
-
-
-  // wsServer.on('connection', (socket: ws, request: IncomingMessage) => {
-  //   console.log(request.headers.cookie);
-  // })
 }

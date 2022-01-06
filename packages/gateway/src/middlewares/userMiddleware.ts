@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 import redis from '../redis';
 import { Users } from '../db';
 
-export default async function userMiddleware(req: Request & { user?: any }, _res: Response, next: NextFunction) {
+export default async function userMiddleware(req: Request & { user?: any }, res: Response, next: NextFunction) {
   const erxesCoreToken = req.headers['erxes-core-token'];
   const url = req.headers['erxes-core-website-url'];
 
@@ -62,9 +62,10 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
     const userDoc = await Users.findOne({ _id : user._id });
-
+    
     // invalid token access.
-    if (!userDoc.validatedTokens?.includes(token)) {
+    if (!userDoc?.validatedTokens?.includes(token)) {
+      res.clearCookie("auth-token");
       return next();
     }
 

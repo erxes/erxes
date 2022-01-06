@@ -1,3 +1,4 @@
+import { gql } from 'apollo-server-express';
 import { withFilter } from 'graphql-subscriptions';
 import graphqlPubsub from '../pubsub';
 
@@ -6,6 +7,25 @@ export default {
    * Listen for checklist updates
    */
   checklistsChanged: {
+    resolve(
+      payload: any,
+      args: any,
+      { dataSources: { gatewayDataSource } }: any,
+      info: any
+    ) {
+      return gatewayDataSource.queryAndMergeMissingData({
+        payload,
+        info,
+        queryVariables: { _id: payload.checklistsChanged._id },
+        buildQueryUsingSelections: (selections: any) => gql`
+          query Subscription_GetChecklist($_id: String!) {
+            checklistDetail(_id: $_id) {
+              ${selections}
+            }
+          }
+      `,
+      });
+    },
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('checklistsChanged'),
       (payload, variables) => {
@@ -20,6 +40,25 @@ export default {
   },
 
   checklistDetailChanged: {
+    resolve(
+      payload: any,
+      args: any,
+      { dataSources: { gatewayDataSource } }: any,
+      info: any
+    ) {
+      return gatewayDataSource.queryAndMergeMissingData({
+        payload,
+        info,
+        queryVariables: { _id: payload.checklistDetailChanged._id },
+        buildQueryUsingSelections: (selections: any) => gql`
+          query Subscription_GetChecklist($_id: String!) {
+            checklistDetail(_id: $_id) {
+              ${selections}
+            }
+          }
+      `,
+      });
+    },
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('checklistDetailChanged'),
       (payload, variables) => {
