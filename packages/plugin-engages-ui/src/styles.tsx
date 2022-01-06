@@ -1,8 +1,8 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { BoxRoot } from '@erxes/ui/src/styles/main';
-import {rgba} from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "@erxes/ui/src/styles";
+import { BoxRoot } from "@erxes/ui/src/styles/main";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
@@ -27,7 +27,7 @@ const HelperText = styled.div`
 
 const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
   display: flex;
-  flex-direction: ${props => props.direction};
+  flex-direction: ${(props) => props.direction};
 `;
 
 const Title = styled.h3`
@@ -55,10 +55,10 @@ const PreviewContent = styledTS<{
   word-break: break-word;
   min-height: 500px;
 
-  ${props => {
+  ${(props) => {
     if (!props.isFullmessage) {
       return `
-        overflow: ${props.showOverflow ? 'auto' : 'hidden'};
+        overflow: ${props.showOverflow ? "auto" : "hidden"};
         -webkit-box-orient: vertical;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -88,7 +88,7 @@ const LogoContainer = styled.div`
   height: 56px;
   cursor: pointer;
   box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
-  background-image: url('/images/erxes.png');
+  background-image: url("/images/erxes.png");
   background-color: ${colors.colorPrimary};
   background-position: center;
   background-size: 20px;
@@ -113,7 +113,7 @@ const LogoContainer = styled.div`
     font-size: ${dimensions.unitSpacing}px;
   }
 
-  input[type='file'] {
+  input[type="file"] {
     display: none;
   }
 
@@ -171,7 +171,7 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
     rgba(0, 0, 0, 0.08) 95%,
     rgba(0, 0, 0, 0.1) 100%
   );
-  width: ${props => props.isEngage && '100%'};
+  width: ${(props) => props.isEngage && "100%"};
 
   .engage-message {
     > div:first-of-type {
@@ -189,8 +189,8 @@ const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;
-  background-color: ${props =>
-    props.chosen ? colors.borderPrimary : 'transparent'};
+  background-color: ${(props) =>
+    props.chosen ? colors.borderPrimary : "transparent"};
 
   a {
     outline: none;
@@ -305,7 +305,7 @@ const BoxContent = styled.div`
 
 const BoxHeader = styled.div`
   position: relative;
-  background-image: url('/images/patterns/bg-2.png');
+  background-image: url("/images/patterns/bg-2.png");
   background-repeat: repeat;
   background-position: 0 0;
   height: 90px;
@@ -512,7 +512,7 @@ const Shell = styled.div`
     list-style: none;
     background: #141414;
     color: #45d40c;
-    font: 0.8em 'Andale Mono', Consolas, 'Courier New';
+    font: 0.8em "Andale Mono", Consolas, "Courier New";
     line-height: 1.6em;
 
     -webkit-border-bottom-right-radius: 3px;
@@ -524,7 +524,7 @@ const Shell = styled.div`
   }
 
   .shell-body li:before {
-    content: '$';
+    content: "$";
     position: absolute;
     left: 0;
     top: 0;
@@ -540,15 +540,15 @@ const Shell = styled.div`
 const DesktopPreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   width: 70%;
   margin: 0 auto;
-  background: ${props => !props.templateId && colors.colorWhite}
-  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
+  background: ${(props) => !props.templateId && colors.colorWhite}
+  padding: ${(props) => !props.templateId && `${dimensions.coreSpacing}px`}
 `;
 
 const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   height: 100%;
   overflow: auto;
-  background: ${props => !props.templateId && colors.colorWhite}
-  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
+  background: ${(props) => !props.templateId && colors.colorWhite}
+  padding: ${(props) => !props.templateId && `${dimensions.coreSpacing}px`}
   overflow-x: hidden;
 `;
 
@@ -573,6 +573,28 @@ const Disabled = styled.div`
 
 const InfoWrapper = styled.div`
   padding: 15px 20px;
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  align-items: center;
+
+  > label {
+    margin: 2px ${dimensions.unitSpacing}px 2px 0;
+    color: ${colors.colorCoreGray};
+    align-self: baseline;
+  }
+`;
+
+const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-bottom:${(props) =>
+    !props.noBorder && `1px solid ${colors.borderPrimary}`};
+
+  input {
+    height: ${dimensions.coreSpacing}px;
+    border-bottom: 0;
+  }
 `;
 
 export {
@@ -614,5 +636,7 @@ export {
   Shell,
   TestEmailWrapper,
   Disabled,
-  InfoWrapper
+  InfoWrapper,
+  FlexRow,
+  Subject,
 };
