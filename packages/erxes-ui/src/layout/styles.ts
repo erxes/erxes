@@ -460,12 +460,6 @@ const SidebarFlexRow = styled.li`
   }
 `;
 
-const FlexContent = styled.div`
-  display: flex;
-  flex: 1;
-  min-height: 100%;
-`;
-
 const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
   flex: ${props => (props.count ? props.count : 1)};
   position: relative;
@@ -538,7 +532,6 @@ export {
   WhiteBox,
   BarItems,
   SidebarFlexRow,
-  FlexContent,
   FlexItem,
   FlexRightItem,
   SectionBodyItem

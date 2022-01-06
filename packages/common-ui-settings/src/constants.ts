@@ -24,31 +24,6 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
   ]
 };
 
-export const EMPTY_CONTENT_BOOKINGS = {
-  title: __('Getting Started with erxes Booking'),
-  description: __(
-    'erxes Booking widget helps you create listings of your Products and Services and receive bookings with your erxes Form.'
-  ),
-  steps: [
-    {
-      title: __('Prepare Product Properties'),
-      description: __(
-        'This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters.'
-      ),
-      url: '/settings/properties?type=product',
-      urlText: 'Create Custom Properties'
-    },
-    {
-      title: __('Organize Your Products'),
-      description: __(
-        'The number of pages in this widget depends on how many sub-categories you’ll create for your products and services. If you haven’t created or organized them yet, please go to Products & Services first.'
-      ),
-      url: '/settings/product-service',
-      urlText: 'Manage Products & Services'
-    }
-  ]
-};
-
 export const EMPTY_CONTENT_POPUPS = {
   title: __('Getting Started with erxes Popups'),
   description: __(
@@ -96,3 +71,13 @@ export const FONTS = [
     value: `'Open Sans', sans-serif`
   }
 ];
+
+export const FIELDS_GROUPS_CONTENT_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  PRODUCT: 'product',
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
+  USER: 'user',
+  ALL: ['customer', 'company', 'product', 'conversation', 'device', 'user']
+};

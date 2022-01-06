@@ -3,8 +3,8 @@ import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import { __ } from '@erxes/ui/src/utils';
-import { IField, IFieldLogic } from '@erxes/ui/src/settings/properties/types';
-import { LinkButton } from '@erxes/ui/src/settings/team/styles';
+import { IField, IFieldLogic } from '@erxes/ui/src/types';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
 import FieldLogic from './FieldLogic';
 

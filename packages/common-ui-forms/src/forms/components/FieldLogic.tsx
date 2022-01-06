@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { __ } from '@erxes/ui/src/utils';
-import { IField, IFieldLogic } from '@erxes/ui/src/settings/properties/types';
+import { IField, IFieldLogic } from '@erxes/ui/src/types';
 import React from 'react';
 import {
   dateTypeChoices,

@@ -1,15 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { IIntegration } from '@erxes/ui/src/settings/integrations/types';
-import {
-  FieldsQueryResponse,
-  IField
-} from '@erxes/ui/src/settings/properties/types';
+import { IIntegration } from '@erxes/common-ui-settings/src/integrations/types';
+import { FieldsQueryResponse } from '@erxes/common-ui-settings/src/properties/types';
+import { IField, IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {

@@ -1,4 +1,4 @@
-import { IOption } from '@erxes/ui/src/types';
+import { IOption, IField, IFieldLogic } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
@@ -9,8 +9,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils';
-import SelectProperty from '@erxes/ui/src/settings/properties/containers/SelectProperty';
-import { IField, IFieldLogic } from '@erxes/ui/src/settings/properties/types';
+import SelectProperty from '@erxes/common-ui-settings/src/properties/containers/SelectProperty';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import {

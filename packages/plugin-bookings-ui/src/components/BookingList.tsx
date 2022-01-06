@@ -6,7 +6,7 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { EMPTY_CONTENT_BOOKINGS } from '@erxes/common-ui-settings/src/constants';
+import { EMPTY_CONTENT_BOOKINGS } from '../constants';
 import React from 'react';
 import { IBookingIntegration } from '../types';
 import Sidebar from './Sidebar';

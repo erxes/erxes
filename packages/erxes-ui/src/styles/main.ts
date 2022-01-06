@@ -11,6 +11,11 @@ const FlexContentHt = styled(FlexContent)`
   height: 100%;
 `;
 
+const FlexContentMinHt = styled(FlexContent)`
+  flex: 1;
+  min-height: 100%;
+`;
+
 const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
@@ -363,6 +368,14 @@ const ColorPicker = styled.div`
   border-radius: 2px;
 `;
 
+const LinkButton = styled.a`
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -392,5 +405,7 @@ export {
   Count,
   Limited,
   FlexContent,
-  FlexContentHt
+  FlexContentHt,
+  FlexContentMinHt,
+  LinkButton
 };

@@ -2,9 +2,9 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { __ } from '@erxes/ui/src/utils';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { IField } from '@erxes/ui/src/settings/properties/types';
-import { Description } from '@erxes/ui/src/settings/styles';
+import { FlexContentMinHt } from '@erxes/ui/src/styles/main';
+import { IField } from '@erxes/ui/src/types';
+import { Description } from '@erxes/common-ui-settings/src/styles';
 import React from 'react';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FormTop, Title } from '../styles';
@@ -236,7 +236,7 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <FlexContent>
+      <FlexContentMinHt>
         <LeftItem>
           <FormTop>{this.renderOptionalFields()}</FormTop>
           <Title>{__('Add a new field')}</Title>
@@ -257,7 +257,7 @@ class Form extends React.Component<Props, State> {
           />
         )}
         {renderPreviewWrapper && renderPreviewWrapper(renderer, fields)}
-      </FlexContent>
+      </FlexContentMinHt>
     );
   }
 }
