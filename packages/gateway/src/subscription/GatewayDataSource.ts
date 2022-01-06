@@ -19,11 +19,9 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     request.headers["apollographql-client-name"] = "Subscriptions Service";
     request.headers["apollographql-client-version"] = "0.1.0";
 
-    console.log(this.context);
-
-    // Forwards the encoded token extracted from the `connectionParams` with
-    // the request to the gateway
-    request.headers.authorization = `Bearer ${this.context.token}`;
+    if (this.context.extra.request.headers.cookie) {
+      request.headers.cookie = this.context.extra.request.headers.cookie;
+    }
   }
 
   public async queryAndMergeMissingData({
@@ -40,6 +38,8 @@ export default class MyGatewayDataSource extends GatewayDataSource {
     const selections = this.buildNonPayloadSelections(payload, info);
     const payloadData = Object.values(payload)[0];
 
+    console.log("queryAndMergeMissingData")
+    console.log("selections", selections);
     if (!selections) {
       return payloadData;
     }

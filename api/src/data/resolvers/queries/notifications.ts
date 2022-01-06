@@ -73,6 +73,10 @@ const notificationQueries = {
    */
   notificationsGetConfigurations(_root, _args, { user }: IContext) {
     return NotificationConfigurations.find({ user: user._id });
+  },
+
+  notificationDetail(_root, { _id }) {
+    return Notifications.findOne({ _id });
   }
 };
 

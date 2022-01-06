@@ -5,11 +5,11 @@ import { ApolloServer, ExpressContext } from "apollo-server-express";
 import { ApolloGateway } from "@apollo/gateway";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { createProxyMiddleware } from "http-proxy-middleware";
-// import ws from "ws";
+import ws from "ws";
 import express, { Request, Response } from "express";
 import http from "http";
 import cookieParser from "cookie-parser";
-// import { loadSubscriptions } from "./subscription";
+import { loadSubscriptions } from "./subscription";
 import { createGateway, GatewayContext } from "./gateway";
 import userMiddleware from "./middlewares/userMiddleware";
 import * as db from './db';
@@ -37,10 +37,10 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
     db.disconnect();
   });
 
-  // const wsServer = new ws.Server({
-  //   server: httpServer,
-  //   path: "/graphql",
-  // });
+  const wsServer = new ws.Server({
+    server: httpServer,
+    path: "/graphql",
+  });
 
   const gateway: ApolloGateway = createGateway();
 
@@ -55,9 +55,9 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
   });
 
   // TODO: subscriptions don't work yet. Client's WebSocketLink, graphql version, graphql-ws needs to be updated
-  // gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
-  //   loadSubscriptions(apiSchema, wsServer)
-  // );
+  gateway.onSchemaLoadOrUpdate(({ apiSchema }) =>
+    loadSubscriptions(apiSchema, wsServer)
+  );
 
   await apolloServer.start();
   apolloServer.applyMiddleware({
