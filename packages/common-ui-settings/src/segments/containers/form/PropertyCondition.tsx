@@ -2,7 +2,7 @@ import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 
 import { queries as boardQueries } from '@erxes/ui/src/boards/graphql';
-import { queries as integrationQueries } from '@erxes/ui/src/leads/graphql';
+import { queries as integrationQueries } from '@erxes/common-ui-leads/src/graphql';
 
 import { isBoardKind } from '../../utils';
 import { INTEGRATION_KINDS } from '@erxes/common-ui-settings/src/integrations/constants';

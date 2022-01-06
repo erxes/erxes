@@ -8,7 +8,8 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import PropertyForm from '../containers/PropertyForm';
-import { IField, IFieldGroup } from '../types';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '../types';
 
 type Props = {
   queryParams: any;

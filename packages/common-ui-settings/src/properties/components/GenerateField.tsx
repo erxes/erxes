@@ -12,14 +12,12 @@ import {
 } from '@erxes/ui/src/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput, ObjectList } from '../styles';
-import { IField } from '../types';
+import { IField } from '@erxes/ui/src/types';
 import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-// import { colors } from 'modules/common/styles';
-// import { Divider } from "modules/settings/main/styles";
 
 type Props = {
   field: IField;

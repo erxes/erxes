@@ -12,13 +12,10 @@ import { IEmailTemplate } from "@erxes/common-ui-settings/src/emailTemplates/typ
 import React from "react";
 import { Link } from "react-router-dom";
 import { ILeadData, ILeadIntegration } from "../types";
-
 import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
 import { IFormData } from "@erxes/ui/src/forms/types";
-import {
-  Content,
-  LeftContent,
-} from "@erxes/common-ui-settings/src/integrations/styles";
+import { Content } from "@erxes/common-ui-settings/src/integrations/styles";
+import { LeftContent } from "@erxes/common-ui-settings/src/integrations/styles";
 import { IField } from "@erxes/ui/src/types";
 import {
   CallOut,

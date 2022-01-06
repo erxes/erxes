@@ -10,7 +10,8 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { Row } from '@erxes/common-ui-settings/src/integrations/styles';
 import React from 'react';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
-import { IField, IFieldGroup } from '../types';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '../types';
 
 type Props = {
   queryParams: any;

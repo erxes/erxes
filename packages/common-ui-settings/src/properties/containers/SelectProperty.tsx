@@ -8,10 +8,10 @@ import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import SelectProperty from '../components/SelectProperty';
 import { mutations, queries } from '../graphql';
+import { IField } from '@erxes/ui/src/types';
 import {
   FieldsGroupsQueryResponse,
   FieldsQueryResponse,
-  IField
 } from '../types';
 
 type Props = {

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import { FormControl, FormGroup, ControlLabel } from '../../../components/form';
-import { Info } from '../../../components';
-import EditorCK from '../../../containers/EditorCK';
-import { __ } from '../../../utils';
+import { FormControl, FormGroup, ControlLabel } from '@erxes/ui/src/components/form';
+import { Info } from '@erxes/ui/src/components';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import styled from 'styled-components';
