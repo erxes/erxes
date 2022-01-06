@@ -1,5 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
-import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import { __ } from '@erxes/ui/src/utils';
