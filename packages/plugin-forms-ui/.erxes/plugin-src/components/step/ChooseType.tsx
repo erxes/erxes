@@ -1,4 +1,4 @@
-import { COLORS } from '@erxes/ui/src/boards/constants';
+import { COLORS } from '@erxes/ui/src/constants/colors';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
