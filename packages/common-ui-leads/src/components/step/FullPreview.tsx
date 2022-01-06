@@ -5,7 +5,7 @@ import { __ } from '@erxes/ui/src/utils';
 import FieldForm from '@erxes/ui/src/forms/components/FieldForm';
 import FieldsPreview from '@erxes/ui/src/forms/components/FieldsPreview';
 import { IFormData } from '@erxes/ui/src/forms/types';
-import { IField } from '@erxes/ui/src/settings/properties/types';
+import { IField } from '@erxes/common-ui-settings/src/properties/types';
 import React from 'react';
 import CalloutPreview from './preview/CalloutPreview';
 import FormPreview from './preview/FormPreview';
