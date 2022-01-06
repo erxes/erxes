@@ -10,6 +10,8 @@ import { ISegmentDocument } from '../../../db/models/definitions/segments';
 import { fetchSegment } from '../segments/queryBuilder';
 import { debugError } from '../../../debuggers';
 
+import { Conversations, ConversationMessages } from '../../../db/models';
+
 export interface ICountBy {
   [index: string]: number;
 }
@@ -19,6 +21,38 @@ interface IUserArgs {
   code?: string;
   starredConversationIds?: string[];
 }
+
+// create conversation and message for messageBroker and engage plugin
+
+export const createConversationAndMessage = async (
+  userId,
+  status,
+  customerId,
+  visitorId,
+  integrationId,
+  content,
+  engageData
+) => {
+  // create conversation
+  const conversation = await Conversations.createConversation({
+    userId,
+    status,
+    customerId,
+    visitorId,
+    integrationId,
+    content
+  });
+
+  // create message
+  return ConversationMessages.createMessage({
+    engageData,
+    conversationId: conversation._id,
+    userId,
+    customerId,
+    visitorId,
+    content
+  });
+};
 
 // Count conversatio  by channel
 const countByChannels = async (

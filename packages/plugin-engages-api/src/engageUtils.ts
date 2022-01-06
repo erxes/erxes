@@ -1,26 +1,23 @@
 import { Transform } from 'stream';
 import { IUserDocument } from '@erxes/common-types';
 import { ICustomerDocument, chunkArray } from '@erxes/api-utils';
+import { EngageMessages } from './models';
+import {
+  _Users,
+  _Customers,
+  _Integrations,
+  _Conformities,
+  _Segments
+} from './apiCollections';
 
-import {
-  Conformities,
-  Customers,
-  EngageMessages,
-  Integrations,
-  Segments,
-  Users
-} from '../../../db/models';
-import {
-  IEngageMessage,
-  IEngageMessageDocument
-} from './types';
+import { IEngageMessage, IEngageMessageDocument } from './types';
 import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
 import { get, removeKey, set } from '../../../inmemoryStorage';
-import messageBroker from '../../../messageBroker';
+import messageBroker from './messageBroker';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
-import { isUsingElk } from '../../utils';
+import { isUsingElk } from './utils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IEngageParams {
@@ -54,6 +51,8 @@ export const generateCustomerSelector = async ({
     customerQuery = { tagIds: { $in: tagIds } };
   }
 
+  const Integrations = await _Integrations();
+
   if (brandIds.length > 0) {
     let integrationIds: string[] = [];
 
@@ -65,6 +64,8 @@ export const generateCustomerSelector = async ({
 
     customerQuery = { integrationId: { $in: integrationIds } };
   }
+
+  const Segments = await _Segments();
 
   if (segmentIds.length > 0) {
     const segments = await Segments.find({ _id: { $in: segmentIds } });
@@ -96,6 +97,8 @@ export const generateCustomerSelector = async ({
         const items = await fetchSegment(segment, {
           returnFields
         });
+
+        const Conformities = await _Conformities();
 
         for (const item of items) {
           const cusIds = await Conformities.savedConformity({
@@ -175,6 +178,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     }
   }
 
+  const Users = await _Users();
   const user = await Users.findOne({ _id: fromUserId });
 
   if (!user) {
@@ -214,6 +218,7 @@ const sendEmailOrSms = async (
   action: 'sendEngage' | 'sendEngageSms'
 ) => {
   const engageMessageId = engageMessage._id;
+  const Customers = await _Customers();
 
   const MINUTELY =
     engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
@@ -290,7 +295,10 @@ const sendEmailOrSms = async (
         kind: engageMessage.kind
       };
 
-      if (engageMessage.method === CAMPAIGN_METHODS.EMAIL && engageMessage.email) {
+      if (
+        engageMessage.method === CAMPAIGN_METHODS.EMAIL &&
+        engageMessage.email
+      ) {
         const replacedContent = await editorAttributeUtil.replaceAttributes({
           customerFields,
           content: emailContent,
@@ -395,7 +403,11 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     !scheduleDate ||
     (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
 
-  if (kind === CAMPAIGN_KINDS.AUTO && method === CAMPAIGN_METHODS.EMAIL && noDate) {
+  if (
+    kind === CAMPAIGN_KINDS.AUTO &&
+    method === CAMPAIGN_METHODS.EMAIL &&
+    noDate
+  ) {
     throw new Error('Schedule date & type must be chosen in auto campaign');
   }
 
@@ -432,6 +444,8 @@ export const findElk = async (index, query) => {
 
 // find user from elastic or mongo
 export const findUser = async (userId: string) => {
+  const Users = await _Users();
+
   if (!isUsingElk()) {
     return await Users.findOne({ _id: userId });
   }
@@ -455,6 +469,8 @@ export const checkCustomerExists = async (
   tagIds?: string[],
   brandIds?: string[]
 ) => {
+  const Customers = await _Customers();
+
   if (!isUsingElk()) {
     const customersSelector = {
       _id: id,

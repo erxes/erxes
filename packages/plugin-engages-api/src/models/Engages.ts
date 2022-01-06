@@ -1,14 +1,17 @@
 import { Model, model } from 'mongoose';
-import { IUserDocument } from '@erxes/common-types'
+import { IUserDocument } from '@erxes/common-types';
 import {
   _ConversationMessages,
   _Conversations,
   _findUser,
   _findElk
 } from '../apiCollections';
-import { removeEngageConversations } from '../messageBroker';
+import {
+  removeEngageConversations,
+  createRPCconversationAndMessage
+} from '../messageBroker';
 import { MESSAGE_KINDS } from '../constants';
-import { checkCustomerExists } from '../../data/resolvers/mutations/engageUtils';
+import { checkCustomerExists } from '../engageUtils';
 import { isUsingElk } from '../utils';
 import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
@@ -254,7 +257,7 @@ export const loadClass = () => {
       let messages: IEngageMessageDocument[];
 
       if (isUsingElk()) {
-        messages = await findElk('engage_messages', {
+        messages = await _findElk('engage_messages', {
           bool: {
             must: [
               { match: { 'messenger.brandId': brandId } },
@@ -412,7 +415,7 @@ export const loadClass = () => {
       const ConversationMessages = await _ConversationMessages();
 
       if (isUsingElk()) {
-        const conversationMessages = await findElk('conversation_messages', {
+        const conversationMessages = await _findElk('conversation_messages', {
           bool: {
             must: [
               { match: { 'engageData.messageId': engageData.messageId } },
@@ -445,7 +448,7 @@ export const loadClass = () => {
         const conversationId = prevMessage.conversationId;
 
         if (isUsingElk()) {
-          messages = await findElk('conversation_messages', {
+          messages = await _findElk('conversation_messages', {
             match: {
               conversationId
             }
@@ -469,27 +472,16 @@ export const loadClass = () => {
         return null;
       }
 
-      const Conversations = await _Conversations();
-
-      // create conversation
-      const conversation = await Conversations.createConversation({
-        userId: user._id,
-        status: 'engageVisitorAuto',
+      // create conversation and message replaced by messagebroker
+      return createRPCconversationAndMessage(
+        user._id,
+        'engageVisitorAuto',
         customerId,
         visitorId,
         integrationId,
-        content: replacedContent
-      });
-
-      // create message
-      return ConversationMessages.createMessage({
-        engageData,
-        conversationId: conversation._id,
-        userId: user._id,
-        customerId,
-        visitorId,
-        content: replacedContent
-      });
+        replacedContent,
+        engageData
+      );
     }
 
     /*

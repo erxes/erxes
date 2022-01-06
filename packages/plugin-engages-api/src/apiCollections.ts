@@ -40,9 +40,29 @@ export const _Tags = async () => {
   return collection;
 };
 
+export const _Users = async () => {
+  const collection = await db.collection('users');
+  return collection;
+};
+
+export const _Integrations = async () => {
+  const collection = await db.collection('integrations');
+  return collection;
+};
+
+export const _Conformities = async () => {
+  const collection = await db.collection('conformities');
+  return collection;
+};
+
+export const _Segments = async () => {
+  const collection = await db.collection('segments');
+  return collection;
+};
+
 // find user from elastic or mongo
 export const _findUser = async (userId: string) => {
-  const Users = await db.collection('users');
+  const Users = await _Users();
   return await Users.findOne({ _id: userId });
 };
 
