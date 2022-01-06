@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { Collection, Db, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient, MongoClientOptions } from "mongodb";
 
 const { MONGO_URL } = process.env;
 
@@ -9,7 +9,7 @@ if(!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-const client = new MongoClient(MONGO_URL, { useUnifiedTopology: true });
+const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
