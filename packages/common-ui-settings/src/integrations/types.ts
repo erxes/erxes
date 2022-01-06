@@ -1,7 +1,7 @@
 // import { IBookingData } from 'modules/bookings/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 // import { IForm } from 'modules/forms/types';
-import { ILeadData, ILeadIntegration } from '@erxes/ui/src/leads/types';
+import { ILeadData, ILeadIntegration } from '@erxes/common-ui-leads/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 // import { IChannel } from '../channels/types';
 
