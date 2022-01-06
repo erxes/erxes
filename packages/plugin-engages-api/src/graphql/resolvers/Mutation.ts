@@ -1,14 +1,14 @@
 import * as _ from 'underscore';
-import { checkPermission } from '@erxes/permission-utils';
-import { Customers, EngageMessages } from '../../../db/models';
-import { IEngageMessage } from '../../../db/models/definitions/engages';
-import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
+
+import { checkPermission, sendToWebhook, IContext } from '@erxes/api-utils';
+import { IEngageMessage } from '../../types';
+import { CAMPAIGN_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-// import { checkPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
-import { registerOnboardHistory, sendToWebhook } from '../../utils';
+
+import { EngageMessages } from '../../models';
+import { _Customers } from '../../apiCollections';
 import { getDocument } from './cacheUtils';
-import { checkCampaignDoc, send } from './engageUtils';
+import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -51,7 +51,7 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id })
     );
 
-    await sendToWebhook('create', 'engageMessages', engageMessage);
+    await sendToWebhook(models, { action: 'create', type: 'engageMessages', params: engageMessage });
 
     await send(engageMessage);
 
@@ -90,7 +90,7 @@ const engageMutations = {
     if (
       !engageMessage.isLive &&
       doc.isLive &&
-      doc.kind === MESSAGE_KINDS.MANUAL
+      doc.kind === CAMPAIGN_KINDS.MANUAL
     ) {
       await send(updated);
     }
@@ -196,10 +196,8 @@ const engageMutations = {
   async engageMessageVerifyEmail(
     _root,
     { email }: { email: string },
-    { dataSources, user }: IContext
+    { dataSources }: IContext
   ) {
-    await registerOnboardHistory({ type: 'engageVerifyEmail', user });
-
     return dataSources.EngagesAPI.engagesVerifyEmail({ email });
   },
 
@@ -217,10 +215,8 @@ const engageMutations = {
   async engageMessageSendTestEmail(
     _root,
     args: ITestEmailParams,
-    { dataSources, user }: IContext
+    { dataSources }: IContext
   ) {
-    await registerOnboardHistory({ type: 'engageSendTestEmail', user });
-
     const { content, from, to, title } = args;
 
     if (!(content && from && to && title)) {
@@ -228,7 +224,7 @@ const engageMutations = {
         'Email content, title, from address or to address is missing'
       );
     }
-
+    const Customers = await _Customers();
     const customer = await Customers.findOne({ primaryEmail: to });
     const targetUser = await getDocument('users', { email: to });
 

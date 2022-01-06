@@ -3,12 +3,14 @@ import messageBroker from 'erxes-message-broker';
 import {
   receiveEngagesNotification,
   receiveIntegrationsNotification,
-  receiveRpcMessage
+  receiveRpcMessage,
+  removeEngageConversations
 } from './data/modules/integrations/receiveMessage';
 import { receiveRpcMessage as receiveAutomations } from './data/modules/automations';
 import { pluginsConsume } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 import { receiveVisitorDetail } from './data/widgetUtils';
+import { registerOnboardHistory } from './data/modules/robot';
 
 dotenv.config();
 
@@ -47,6 +49,15 @@ export const initBroker = async (server?) => {
 
     consumeQueue('engagesNotification', async data => {
       await receiveEngagesNotification(data);
+    });
+
+    // listen for rpc queue =========
+    consumeQueue('registerOnboardHistory', async (type, user) => {
+      await registerOnboardHistory(type, user);
+    });
+
+    consumeQueue('removeEngageConversations', async data => {
+      await removeEngageConversations(data);
     });
 
     consumeQueue('visitor:convertResponse', async data => {

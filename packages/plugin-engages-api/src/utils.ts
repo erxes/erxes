@@ -8,6 +8,12 @@ import { DeliveryReports, Stats } from './models/index';
 import { getApi } from './trackers/engageTracker';
 import { ICampaign, ICustomer } from './types';
 
+export const isUsingElk = () => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  return ELK_SYNCER === 'false' ? false : true;
+};
+
 export const createTransporter = async () => {
   const config: ISESConfig = await Configs.getSESConfigs();
 

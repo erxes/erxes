@@ -39,6 +39,17 @@ export const sendRPCMessage = async (message): Promise<any> => {
   return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
 };
 
+export const removeEngageConversations = async (_id): Promise<any> => {
+  return client.consumeQueue('removeEngageConversations', _id);
+};
+
+export const registerOnboardHistory = async (
+  type: string,
+  user: any
+): Promise<any> => {
+  return client.consumeQueue('registerOnboardHistory', type, user);
+};
+
 export default function() {
   return client;
 }

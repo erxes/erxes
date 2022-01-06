@@ -15,6 +15,6 @@
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"],
   "references": [{
-    "path": "../permission-utils"
+    "path": "../api-utils"
   }]
 }
