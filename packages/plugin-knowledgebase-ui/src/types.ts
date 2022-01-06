@@ -1,6 +1,6 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 
 export interface IArticle {
   _id: string;

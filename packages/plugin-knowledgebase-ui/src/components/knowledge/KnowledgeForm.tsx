@@ -14,15 +14,11 @@ import {
   IFormProps
 } from '@erxes/ui/src/types';
 import { __, getEnv } from '@erxes/ui/src/utils';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { FlexContent } from "@erxes/ui/src/layout/styles";
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { LANGUAGES } from '@erxes/common-ui-settings/src/general/constants';
 import SelectBrand from '@erxes/common-ui-settings/src/integrations/containers/SelectBrand';
-import {
-  
-  ExpandWrapper,
-  MarkdownWrapper
-} from '@erxes/common-ui-settings/src/styles';
+import { ExpandWrapper, MarkdownWrapper } from '@erxes/common-ui-settings/src/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
