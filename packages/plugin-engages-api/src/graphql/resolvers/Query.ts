@@ -1,6 +1,6 @@
-import { requireLogin, checkPermission, paginate, IUserDocument } from '@erxes/api-utils';
-import { Customers, EngageMessages, Tags } from '../../../db/models';
-import { IContext } from '../../types';
+import { requireLogin, checkPermission, paginate, IUserDocument, IContext } from '@erxes/api-utils';
+import { EngageMessages } from '../../models';
+import { _Tags, _Customers } from '../../apiCollections';
 
 interface IListArgs {
   kind?: string;
@@ -105,6 +105,7 @@ const countsByTag = async (
   }
 ): Promise<ICountsByTag> => {
   let query: any = commonSelector;
+  const Tags = await _Tags();
 
   if (kind) {
     query.kind = kind;
@@ -113,7 +114,6 @@ const countsByTag = async (
   if (status) {
     query = { ...query, ...statusQueryBuilder(status, user) };
   }
-
   const tags = await Tags.find({ type: 'engageMessage' });
 
   // const response: {[name: string]: number} = {};
@@ -135,6 +135,7 @@ const listQuery = async (
   user: IUserDocument
 ) => {
   let query = commonSelector;
+  const Tags = await _Tags();
 
   // filter by ids
   if (ids) {
@@ -223,6 +224,7 @@ const engageQueries = {
       totalCount
     } = await dataSources.EngagesAPI.engageReportsList(params);
     const modifiedList: any[] = [];
+    const Customers = await _Customers();
 
     for (const item of list) {
       const modifiedItem = item;

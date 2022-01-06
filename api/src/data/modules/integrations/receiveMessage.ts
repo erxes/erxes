@@ -169,6 +169,13 @@ export const receiveIntegrationsNotification = async msg => {
   }
 };
 
+/**
+ * Remove engage conversations
+ */
+export const removeEngageConversations = async _id => {
+  await Conversations.removeEngageConversations(_id);
+};
+
 /*
  * Engages notification
  */

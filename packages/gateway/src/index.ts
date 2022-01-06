@@ -12,10 +12,13 @@ import cookieParser from "cookie-parser";
 // import { loadSubscriptions } from "./subscription";
 import { createGateway, GatewayContext } from "./gateway";
 import userMiddleware from "./middlewares/userMiddleware";
+import * as db from './db';
 
 const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
 
 (async () => {
+
+  await db.connect();
 
   const app = express();
   app.use(cookieParser());
@@ -29,6 +32,10 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
   app.use(userMiddleware);
 
   const httpServer = http.createServer(app);
+
+  httpServer.on("close", () => {
+    db.disconnect();
+  });
 
   // const wsServer = new ws.Server({
   //   server: httpServer,

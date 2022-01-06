@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"encoding/json"
+	"io/ioutil"
 	"os/exec"
 	"strings"
 
@@ -13,7 +15,6 @@ import (
 
 func putTemplate(indexSuffix string, mapping string) {
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
-	dbName := os.Getenv("DB_NAME")
 
 	client, err := elastic.NewSimpleClient(elastic.SetURL(elasticsearchURL))
 
@@ -36,7 +37,7 @@ func putTemplate(indexSuffix string, mapping string) {
 
 	var bodyString = fmt.Sprintf(`
 	{
-			"index_patterns": ["%s__%s"],
+			"index_patterns": ["erxes__%s"],
 			"settings": {
 				"analysis": %s,
 				"number_of_shards": 1,
@@ -46,7 +47,7 @@ func putTemplate(indexSuffix string, mapping string) {
 				"properties": %s
 			}
 		}
-	`,dbName, indexSuffix, analysis, mapping)
+	`, indexSuffix, analysis, mapping)
 
 	putResponse, err := client.IndexPutTemplate(indexSuffix).BodyString(bodyString).Do(context.Background())
 
@@ -57,15 +58,44 @@ func putTemplate(indexSuffix string, mapping string) {
 	fmt.Println(`Create %s template response`, indexSuffix, putResponse)
 }
 
+type Plugins struct {
+	Plugins []Plugin `json:"plugins"`
+}
+    
+type Plugin struct {
+	Db_name   string `json:"db_name"`
+	Script   string `json:"script"`
+	Collections []Collection `json:"collections"`
+}
+
+type Collection struct {
+	Name   string `json:"name"`
+	Schema string `json:"schema"`
+	Script string `json:"script"`
+}
+
 func main() {
 	mongoURL := os.Getenv("MONGO_URL")
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
-	dbName := os.Getenv("DB_NAME")
 
+	jsonFile, err := os.Open("/data/essyncerData/plugins.json")
 
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// defer the closing of our jsonFile so that we can parse it later on
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var plugins Plugins
+	json.Unmarshal([]byte(byteValue), &plugins)
+
+	fmt.Println("Successfully Opened plugins.json", plugins)
 	fmt.Println("Mongo url ", mongoURL)
 	fmt.Println("Elasticsearch url ", elasticsearchURL)
-	fmt.Println("Db name ", dbName)
 
 	var nested_type = `{
 		"type" : "nested",
@@ -89,135 +119,16 @@ func main() {
 		}
 	}`
 
-	putTemplate("customers", fmt.Sprintf(`{
-		"createdAt": {
-			"type": "date"
-		},
-		"organizationId": {
-			"type": "keyword"
-		},
-		"state": {
-			"type": "keyword"
-		},
-		"primaryEmail": {
-			"type": "text",
-			"analyzer": "uax_url_email_analyzer"
-		},
-		"primaryPhone": {
-			"type": "text",
-			"fields": {
-				"raw": {
-					"type": "keyword"
-				}
-			}
-		},
-		"code": {
-			"type": "text",
-			"fields": {
-				"raw": {
-					"type": "keyword"
-				}
-			}
-		},
-		"integrationId": {
-			"type": "keyword"
-		},
-		"relatedIntegrationIds": {
-			"type": "keyword"
-		},
-		"scopeBrandIds": {
-			"type": "keyword"
-		},
-		"ownerId": {
-			"type": "keyword"
-		},
-		"position": {
-			"type": "keyword"
-		},
-		"leadStatus": {
-			"type": "keyword"
-		},
-		"tagIds": {
-			"type": "keyword"
-		},
-		"companyIds": {
-			"type": "keyword"
-		},
-		"mergedIds": {
-			"type": "keyword"
-		},
-		"status": {
-			"type": "keyword"
-		},
-		"emailValidationStatus": {
-			"type": "keyword"
-		},
-		"customFieldsData": %s,
-		"trackedData": %s
-	}`, nested_type, nested_type))
+	for i := 0; i < len(plugins.Plugins); i++ {
+		var collections = plugins.Plugins[i].Collections
 
-	putTemplate("companies", fmt.Sprintf(`{
-		"createdAt": {
-			"type": "date"
-		},
-		"primaryEmail": {
-			"type": "text",
-			"analyzer": "uax_url_email_analyzer"
-		},
-		"primaryName": {
-			"type": "text",
-
-			"fields": {
-				"raw": {
-					"type": "keyword"
-				}
-			}
-		},
-		"scopeBrandIds": {
-			"type": "keyword"
-		},
-		"plan": {
-			"type": "keyword"
-		},
-		"industry": {
-			"type": "keyword"
-		},
-		"parentCompanyId": {
-			"type": "keyword"
-		},
-		"ownerId": {
-			"type": "keyword"
-		},
-		"tagIds": {
-			"type": "keyword"
-		},
-		"mergedIds": {
-			"type": "keyword"
-		},
-		"status": {
-			"type": "keyword"
-		},
-		"businessType": {
-			"type": "keyword"
-		},
-		"customFieldsData" : %s
-	}`, nested_type))
-
-	putTemplate("events", fmt.Sprintf(`{
-		"organizationId": {
-			"type": "keyword"
-		},
-		"type": {
-			"type": "keyword"
-		},
-		"name": {
-			"type": "keyword"
-		},
-		"customerId": {
-			"type": "keyword"
-		},
-    	"attributes" : %s
-	}`, nested_type))
+		for j := 0; j < len(collections); j++ {
+			var collection = collections[i]
+			var content = strings.Replace(collection.Schema, "'", "\"", -1)
+			content = strings.Replace(content, "<nested>", nested_type, -1)
+			putTemplate(collection.Name, content)
+		}
+	}
 
 	var itemTemplate = fmt.Sprintf(`{
 		"userId": {
@@ -245,27 +156,10 @@ func main() {
 	}`, nested_type)
 
 	putTemplate("deals", itemTemplate)
+
 	putTemplate("tasks", itemTemplate)
+
 	putTemplate("tickets", itemTemplate)
-	putTemplate("conversations", fmt.Sprintf(`{
-    	"customFieldsData" : %s
-	}`, nested_type))
-
-	putTemplate("conformities", fmt.Sprintf(`{
-		"mainType": {
-			"type": "keyword"
-		},
-		"mainTypeId": {
-			"type": "keyword"
-		},
-		"relType": {
-			"type": "keyword"
-		},
-		"relTypeId": {
-			"type": "keyword"
-		}
-	}`))
-
 
 	f, _ := os.Create("mongo-elastic.toml")
 
@@ -279,28 +173,36 @@ func main() {
 
 	var namespaces []string
 
+	namespaces = append(namespaces, fmt.Sprintf(`"erxes.deals"`))
+	namespaces = append(namespaces, fmt.Sprintf(`"erxes.tickets"`))
+	namespaces = append(namespaces, fmt.Sprintf(`"erxes.tasks"`))
 
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.customers"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.companies"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.conversations"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.integrations"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.deals"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.tickets"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.tasks"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.channels"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.users"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.stages"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.pipelines"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.brands"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.segments"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.conversation_messages"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.engage_messages"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.tags"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields_groups"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.form_submissions"`, dbName))
-		namespaces = append(namespaces, fmt.Sprintf(`"%s.conformities"`, dbName))
 
+	var scripts []string
+	possible_dbs := []string{"erxes"}
+	possible_collections := []string{"deals","tasks","tickets"}
+
+	for i := 0; i < len(plugins.Plugins); i++ {
+		var plugin = plugins.Plugins[i]
+		var collections = plugin.Collections
+
+		possible_dbs = append(possible_dbs, plugin.Db_name)
+
+		for j := 0; j < len(collections); j++ {
+			var collection = collections[i]
+
+			scripts = append(scripts, collection.Script)
+
+			possible_collections = append(possible_collections, collection.Name)
+
+			namespaces = append(namespaces, fmt.Sprintf(`"%s.%s"`, plugin.Db_name, collection.Name))
+		}
+	}
+
+	var possible_dbs_str = strings.Join(possible_dbs, "|")
+	var possible_collections_str = strings.Join(possible_collections, "|")
+
+	var namespace_regex = fmt.Sprintf("(%s).(%s)", possible_dbs_str, possible_collections_str)
 
 	f.WriteString(`
 		index-as-update=true
@@ -313,81 +215,20 @@ func main() {
 	f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]", strings.Join(namespaces, ",")))
 
 	f.WriteString(fmt.Sprintf(`
-		namespace-regex = "^%s.(customers|companies|conversations|conversation_messages|integrations|deals|tasks|tickets|brands|users|channels|stages|pipelines|segments|engage_messages|tags|fields|fields_groups|conformities)$"
+		namespace-regex = "^%s$"
 		routing-namespaces = [ "" ]
-		delete-index-pattern = "%s*"
+		delete-index-pattern = "erxes*"
 
 		[[script]]
 		script = """
 		module.exports = function(doc, ns) {
 			var index = ns.replace(".", "__");
 
-			if (ns.indexOf("customers") > -1) {
-				if (doc.urlVisits) {
-					delete doc.urlVisits
-				}
-
-				if (doc.trackedDataBackup) {
-					delete doc.trackedDataBackup
-				}
-
-				if (doc.customFieldsDataBackup) {
-					delete doc.customFieldsDataBackup
-				}
-
-				if (doc.messengerData) {
-					delete doc.messengerData
-				}	
+			if (ns.indexOf("_") > -1) {
+				index = ns.split("_")[0] + "__" + ns.split(".")[1];
 			}
 
-			if (ns.indexOf("engage_messages") > -1) {
-				if (doc.customerIds) {
-					delete doc.customerIds
-				}
-
-				if (doc.deliveryReports) {
-					delete doc.deliveryReports
-				}
-			}
-
-			if(ns.indexOf("conversations") > -1) {
-				var createdAt = JSON.stringify(doc.createdAt);
-				var closedAt = JSON.stringify(doc.closedAt);
-				var updatedAt = JSON.stringify(doc.updatedAt);
-				var firstRespondedDate = JSON.stringify(doc.firstRespondedDate);
-
-				if(createdAt){
-					doc.numberCreatedAt = Number(new Date(createdAt.replace(/\"/g,"")));
-				}
-
-				if(closedAt){
-					doc.numberClosedAt = Number(new Date(closedAt.replace(/\"/g,"")));
-				}
-
-				if(updatedAt){
-					doc.numberUpdatedAt= Number(new Date(updatedAt.replace(/\"/g,"")));
-				}
-
-
-				if(firstRespondedDate){
-					doc.numberFirstRespondedDate= Number(new Date(firstRespondedDate.replace(/\"/g,"")));
-				}			
-			}
-
-
-			if(ns.indexOf("deals") > -1) {
-				var productsDataString = JSON.stringify(doc.productsData);
-				var amount = 0;
-
-				var productsData = JSON.parse(productsDataString);
-
-				for (var i = 0; i < productsData.length; i++){
-					amount = amount + productsData[i].amount;
-				}
-
-				doc.amount = amount;
-			}
-
+			%s
 
 			doc._meta_monstache = {
 				id: doc._id.toString(),
@@ -399,7 +240,7 @@ func main() {
 			return doc;
 		}
 		"""
-	`, dbName, dbName))
+	`, namespace_regex, strings.Join(scripts, " ")))
 
 	f.Close()
 
