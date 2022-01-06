@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { IUserDocument } from '@erxes/common-types'
 import {
   _ConversationMessages,
   _Conversations,
@@ -23,7 +24,6 @@ import {
   IEngageMessageDocument
 } from './definitions/engages';
 import { CONTENT_TYPES } from './definitions/segments';
-import { IUserDocument } from './definitions/users';
 import EditorAttributeUtil from '../../data/editorAttributeUtils';
 interface ICheckRulesParams {
   rules: IRule[];
