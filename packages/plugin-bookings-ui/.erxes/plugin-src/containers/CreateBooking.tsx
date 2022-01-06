@@ -16,11 +16,11 @@ import { withRouter } from 'react-router-dom';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
-} from '@erxes/common-ui-settings/src/emailTemplates/containers/List';
+} from '@erxes/common-ui-settings/src/emailTemplates/types';
 import { ILeadData } from '@erxes/common-ui-leads/src/types';
 import { queries } from '../graphql';
 import { FieldsQueryResponse } from '@erxes/common-ui-settings/src/properties/types';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/common-ui-settings/src/properties/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/common-ui-settings/src/constants';
 
 type Props = {
   history: any;

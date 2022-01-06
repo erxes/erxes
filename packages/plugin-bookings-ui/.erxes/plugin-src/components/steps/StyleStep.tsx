@@ -11,7 +11,7 @@ import {
   SubHeading,
   WidgetBackgrounds
 } from '@erxes/common-ui-settings/src/styles';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/colors';
+import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from '../../constants';

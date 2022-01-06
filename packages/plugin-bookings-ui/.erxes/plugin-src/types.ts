@@ -1,9 +1,9 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { ILeadData } from '@erxes/ui/src/leads/types';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
-import { IIntegration } from '@erxes/ui/src/settings/integrations/types';
-import { IProductCategory } from '@erxes/ui/src/settings/productService/types';
+import { ILeadData } from '@erxes/common-ui-leads/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IIntegration } from '@erxes/common-ui-settings/src/integrations/types';
+import { IProductCategory } from '@erxes/common-ui-settings/src/productService/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 export interface IStyle {
