@@ -5,14 +5,14 @@ import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils';
 import { IFormData } from '@erxes/ui/src/forms/types';
-import { LANGUAGES } from '@erxes/ui/src/settings/general/constants';
-import SelectBrand from '@erxes/ui/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui/src/settings/integrations/containers/SelectChannels';
+import { LANGUAGES } from '@erxes/common-ui-settings/src/general/constants';
+import SelectBrand from '@erxes/common-ui-settings/src/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/common-ui-settings/src/integrations/containers/SelectChannels';
 import Select from 'react-select-plus';
-import { IField } from '@erxes/ui/src/settings/properties/types';
-import { Description } from '@erxes/ui/src/settings/styles';
+import { IField } from '@erxes/ui/src/types';
+import { Description } from '@erxes/common-ui-settings/src/styles';
 import React from 'react';
-import { IBrand } from '@erxes/ui/src/settings/brands/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { BackgroundSelector, FlexItem } from './style';
 
 type Props = {

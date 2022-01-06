@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import BrandFilter from '@erxes/ui/src/customers/components/list/BrandFilter';
-import { queries } from '@erxes/ui/src/settings/brands/graphql';
+import { queries } from '@erxes/ui/src/brands/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
-import { BrandsQueryResponse } from '@erxes/ui/src/settings/brands/types';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import { Counts } from '../../types';
 
 type Props = {

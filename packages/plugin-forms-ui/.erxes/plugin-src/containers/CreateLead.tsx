@@ -4,13 +4,13 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
-} from '@erxes/ui/src/settings/emailTemplates/containers/List';
-import { queries as templatesQuery } from '@erxes/ui/src/settings/emailTemplates/graphql';
+} from '@erxes/common-ui-settings/src/emailTemplates/containers/List';
+import { queries as templatesQuery } from '@erxes/common-ui-settings/src/emailTemplates/graphql';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables
-} from '@erxes/ui/src/settings/integrations/types';
-import { AddFieldsMutationResponse } from '@erxes/ui/src/settings/properties/types';
+} from '@erxes/common-ui-settings/src/integrations/types';
+import { AddFieldsMutationResponse } from '@erxes/common-ui-settings/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
