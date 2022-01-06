@@ -3,7 +3,7 @@ import React from 'react';
 import { IField } from '@erxes/ui/src/types';
 import CreateForm from '@erxes/common-ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/common-ui-forms/src/forms/containers/EditForm';
-import { FlexContentHt } from '@erxes/ui/src/styles/main';
+import { FlexHeight } from '@erxes/ui/src/styles/main';
 
 type Props = {
   type?: string;
@@ -47,7 +47,7 @@ function FormStep(props: Props) {
     return <CreateForm {...doc} />;
   };
 
-  return <FlexContentHt>{renderContent()}</FlexContentHt>;
+  return <FlexHeight>{renderContent()}</FlexHeight>;
 }
 
 export default FormStep;

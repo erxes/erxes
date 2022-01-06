@@ -70,6 +70,7 @@ module.exports = {
           path.resolve(__dirname, '../../erxes-ui/src'),
           path.resolve(__dirname, '../../common-ui-settings/src'),
           path.resolve(__dirname, '../../common-ui-leads/src'),
+          path.resolve(__dirname, '../../common-ui-forms/src'),
           path.resolve(__dirname, 'plugin-src')
         ],
         use: {
