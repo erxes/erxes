@@ -84,7 +84,7 @@ function ContentStep({
   const renderGeneralSettings = () => {
     return (
       <>
-        <FlexContent>
+        <Flex>
           <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Booking Name</ControlLabel>
@@ -95,7 +95,7 @@ function ContentStep({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </Flex>
 
         <FormGroup>
           <ControlLabel required={true}>Booking Description</ControlLabel>
@@ -140,7 +140,7 @@ function ContentStep({
   const renderDisplayBlock = () => {
     return (
       <>
-        <FlexContent>
+        <Flex>
           <FlexItem count={3}>
             <FormGroup>
               <ControlLabel>Display blocks</ControlLabel>
@@ -190,7 +190,7 @@ function ContentStep({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </Flex>
       </>
     );
   };

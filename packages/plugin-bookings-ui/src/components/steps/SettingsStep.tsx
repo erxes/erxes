@@ -5,7 +5,7 @@ import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexContentHt as FlexItemContainer } from '@erxes/ui/src/styles/main';
+import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { Description } from '@erxes/common-ui-settings/src/styles';
 import SelectChannels from '@erxes/common-ui-settings/src/integrations/containers/SelectChannels';

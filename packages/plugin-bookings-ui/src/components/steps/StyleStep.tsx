@@ -1,4 +1,4 @@
-import { FlexContentHt as FlexItemContainer } from '@erxes/ui/src/styles/main';
+import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
 import { COLORS } from '@erxes/ui/src/constants/colors';
@@ -15,7 +15,7 @@ import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from '../../constants';
-import { FlexContent } from '@erxes/ui/src/styles/main';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { FONTS } from '@erxes/common-ui-settings/src/constants';
 
 type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
@@ -65,7 +65,7 @@ function Style({
   return (
     <FlexItemContainer>
       <LeftItem>
-        <FlexContent>
+        <Flex>
           <FlexItem>
             <FormGroup>
               <ControlLabel required={true}>Item Shape</ControlLabel>
@@ -80,9 +80,9 @@ function Style({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </Flex>
 
-        <FlexContent>
+        <Flex>
           <FlexItem>
             <FormGroup>
               <ControlLabel>Base Font</ControlLabel>
@@ -99,14 +99,14 @@ function Style({
               />
             </FormGroup>
           </FlexItem>
-        </FlexContent>
+        </Flex>
 
         <SubHeading>
           Colors
           <span>Choose a widget main and navigation colors</span>
         </SubHeading>
 
-        <FlexContent>
+        <Flex>
           <FlexItem>
             <FormGroup>
               <ControlLabel>Main Widget Color</ControlLabel>
@@ -122,7 +122,7 @@ function Style({
               {renderColorSelect('productAvailable', productAvailable)}
             </WidgetBackgrounds>
           </FlexItem>
-        </FlexContent>
+        </Flex>
       </LeftItem>
     </FlexItemContainer>
   );
