@@ -3,17 +3,16 @@ import { rgba } from '../styles/ecolor';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const FlexContent = styled.div`
+const Flex = styled.div`
   display: flex;
 `;
 
-const FlexContentHt = styled(FlexContent)`
+const FlexHeight = styled(Flex)`
   height: 100%;
 `;
 
-const FlexContentMinHt = styled(FlexContent)`
-  flex: 1;
-  min-height: 100%;
+const FlexCenter = styled(Flex)`
+  align-items: center;
 `;
 
 const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
@@ -404,8 +403,8 @@ export {
   Title,
   Count,
   Limited,
-  FlexContent,
-  FlexContentHt,
-  FlexContentMinHt,
-  LinkButton
+  Flex,
+  FlexHeight,
+  LinkButton,
+  FlexCenter
 };

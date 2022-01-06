@@ -1,20 +1,17 @@
-import styled, {css} from "styled-components";
+import styled, { css } from 'styled-components';
 
 import Button from '@erxes/ui/src/components/Button';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
 import { borderRadius } from './common';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 const buttonColor = '#0a1e3c';
 
 export const PipelinePopoverContent = styled.div`
   padding: 30px 10px 10px 30px;
   width: 300px;
-`;
-
-export const FlexContent = styled.div`
-  display: flex;
 `;
 
 export const Content = styled.div`
@@ -104,7 +101,7 @@ export const StageColumn = styled.td`
   }
 `;
 
-export const HeaderRow = styled(FlexContent)`
+export const HeaderRow = styled(Flex)`
   margin-bottom: 30px;
 `;
 
@@ -201,7 +198,7 @@ export const FormFooter = styled.div`
   margin-top: 20px;
 `;
 
-export const SpaceContent = styled(FlexContent)`
+export const SpaceContent = styled(Flex)`
   position: relative;
   justify-content: space-between;
 `;
@@ -266,7 +263,7 @@ export const RightButton = styled(Button)`
   }
 `;
 
-export const MoveContainer = styled(FlexContent)`
+export const MoveContainer = styled(Flex)`
   margin-bottom: 20px;
   align-items: center;
   position: relative;
@@ -302,7 +299,6 @@ export const PipelineName = styled.div`
     cursor: pointer;
   }
 `;
-
 
 export const Stages = styled.ul`
   flex: 1;

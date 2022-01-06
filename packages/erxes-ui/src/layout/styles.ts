@@ -4,6 +4,12 @@ import { TabContainer } from 'erxes-ui/lib/components/tabs/styles';
 import { colors, dimensions, typography } from '../styles';
 import { lighten } from '../styles/ecolor';
 
+const FlexContent = styled.div`
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+`;
+
 const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
@@ -533,6 +539,7 @@ export {
   BarItems,
   SidebarFlexRow,
   FlexItem,
+  FlexContent,
   FlexRightItem,
   SectionBodyItem
 };

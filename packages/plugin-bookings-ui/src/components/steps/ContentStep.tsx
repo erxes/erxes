@@ -1,14 +1,14 @@
 import React from 'react';
 import { Description, SubHeading } from '@erxes/common-ui-settings/src/styles';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexContent } from '@erxes/ui/src/styles/main';
+import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import Select from 'react-select-plus';
-import { FlexContentHt as FlexItemContainer } from '@erxes/ui/src/styles/main';
+import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
 import SelectProductCategory from '../../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { BOOKING_DISPLAY_BLOCK } from '../../constants';
