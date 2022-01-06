@@ -78,6 +78,21 @@ function Top(props: Props) {
     );
   };
 
+  const renderNumber = () => {
+    const { number } = item;
+
+    if (!number) {
+      return null;
+    }
+
+    return (
+      <HeaderContentSmall>
+        <ControlLabel>Number</ControlLabel>
+        <p>{number}</p>
+      </HeaderContentSmall>
+    );
+  };
+
   return (
     <React.Fragment>
       <HeaderRow>
@@ -93,7 +108,7 @@ function Top(props: Props) {
             />
           </TitleRow>
         </HeaderContent>
-
+        {renderNumber()}
         {renderScore()}
         {amount && amount()}
       </HeaderRow>

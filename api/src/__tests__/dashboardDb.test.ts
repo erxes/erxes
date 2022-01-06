@@ -10,7 +10,10 @@ describe('Brands db', () => {
   });
 
   test('Add dashboard', async () => {
-    const dashboardObj = await Dashboards.addDashboard({ name: 'dashboard' });
+    const dashboardObj = await Dashboards.addDashboard({
+      name: 'dashboard',
+      visibility: 'public'
+    });
 
     expect(dashboardObj).toBeDefined();
     expect(dashboardObj.name).toBe('dashboard');
@@ -18,12 +21,16 @@ describe('Brands db', () => {
 
   test('Update dashboard', async () => {
     const dashboardObjPrev = await Dashboards.addDashboard({
-      name: 'dashboard'
+      name: 'dashboard',
+      visibility: 'public'
     });
 
     const updatedDashboard = await Dashboards.editDashboard(
       dashboardObjPrev._id,
-      { name: 'updatedDashboard' }
+      {
+        name: 'updatedDashboard',
+        visibility: 'public'
+      }
     );
 
     expect(updatedDashboard.name).toBe('updatedDashboard');
@@ -31,7 +38,8 @@ describe('Brands db', () => {
 
   test('Delete dashboard', async () => {
     const dashboardObjPrev = await Dashboards.addDashboard({
-      name: 'dashboard'
+      name: 'dashboard',
+      visibility: 'public'
     });
     await Dashboards.removeDashboard(dashboardObjPrev._id);
 

@@ -17,6 +17,7 @@ import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
+import { generateErrors } from './data/modules/import/generateErrors';
 import {
   authCookieOptions,
   deleteFile,
@@ -48,7 +49,7 @@ import {
 } from './events';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
-import { importer, uploader } from './middlewares/fileMiddleware';
+import { uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
@@ -308,6 +309,18 @@ app.get(
   })
 );
 
+app.get(
+  '/download-import-error',
+  routeErrorHandling(async (req: any, res) => {
+    const { query } = req;
+
+    const { name, response } = await generateErrors(query);
+
+    res.attachment(`${name}.csv`);
+    return res.send(response);
+  })
+);
+
 // read file
 app.get('/read-file', async (req: any, res, next) => {
   try {
@@ -397,9 +410,6 @@ app.get('/connect-integration', async (req: any, res, _next) => {
 
   return res.redirect(url);
 });
-
-// file import
-app.post('/import-file', importer);
 
 // unsubscribe
 app.get(
