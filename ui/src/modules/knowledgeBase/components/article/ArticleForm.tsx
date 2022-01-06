@@ -1,26 +1,25 @@
-import Button from "@erxes/ui/src/components/Button";
-import EditorCK from "@erxes/ui/src/components/EditorCK";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Uploader from "@erxes/ui/src/components/Uploader";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
+import { ModalFooter } from 'modules/common/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-  IOption,
-} from "@erxes/ui/src/types";
-import { extractAttachment, __ } from "@erxes/ui/src/utils";
-import { articleReactions } from "../../icons.constant";
-import { FlexItem } from "@erxes/ui/src/layout/styles";
-import { FlexContent } from "@erxes/ui/src/layout/styles";
-import { FILE_MIME_TYPES } from "@erxes/common-ui-settings/src/general/constants";
-import React from "react";
-import Select from "react-select-plus";
-import { IArticle, ITopic } from "../../types";
-import { ReactionItem } from "./styles";
+  IOption
+} from 'modules/common/types';
+import { extractAttachment, __ } from 'modules/common/utils';
+import { articleReactions } from 'modules/knowledgeBase/icons.constant';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
+import { FILE_MIME_TYPES } from 'modules/settings/general/constants';
+import React from 'react';
+import Select from 'react-select-plus';
+import { IArticle, ITopic } from '../../types';
+import { ReactionItem } from './styles';
 
 type Props = {
   article: IArticle;
@@ -43,7 +42,7 @@ class ArticleForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const article = props.article || ({ content: "" } as IArticle);
+    const article = props.article || { content: '' };
     const attachments =
       (article.attachments && extractAttachment(article.attachments)) || [];
     const image = article.image ? extractAttachment([article.image])[0] : null;
@@ -54,7 +53,7 @@ class ArticleForm extends React.Component<Props, State> {
       topicId: article.topicId,
       categoryId: article.categoryId,
       image,
-      attachments,
+      attachments
     };
   }
 
@@ -85,7 +84,7 @@ class ArticleForm extends React.Component<Props, State> {
       reactionChoices,
       topicId,
       categoryId,
-      image,
+      image
     } = this.state;
 
     const finalValues = values;
@@ -106,17 +105,17 @@ class ArticleForm extends React.Component<Props, State> {
         topicId,
         attachments,
         categoryId,
-        image,
-      },
+        image
+      }
     };
   };
 
-  onChange = (e) => {
+  onChange = e => {
     this.setState({ content: e.editor.getData() });
   };
 
   onChangeReactions = (options: IOption[]) => {
-    this.setState({ reactionChoices: options.map((option) => option.value) });
+    this.setState({ reactionChoices: options.map(option => option.value) });
   };
 
   onChangeAttachments = (attachments: IAttachment[]) =>
@@ -135,13 +134,13 @@ class ArticleForm extends React.Component<Props, State> {
       attachments: [
         {
           ...this.getFirstAttachment(),
-          [key]: value,
-        },
-      ],
+          [key]: value
+        }
+      ]
     });
   };
 
-  renderOption = (option) => {
+  renderOption = option => {
     return (
       <ReactionItem>
         <img src={option.value} alt={option.label} />
@@ -150,10 +149,10 @@ class ArticleForm extends React.Component<Props, State> {
     );
   };
 
-  generateOptions = (options) => {
-    return options.map((option) => ({
+  generateOptions = options => {
+    return options.map(option => ({
       value: option._id,
-      label: option.title,
+      label: option.title
     }));
   };
 
@@ -161,17 +160,17 @@ class ArticleForm extends React.Component<Props, State> {
     const self = this;
     const { topics } = this.props;
 
-    const onChange = (e) => {
+    const onChange = e => {
       e.preventDefault();
 
       const selectedTopicId = e.target.value;
 
-      const topic = topics.find((t) => t._id === selectedTopicId);
+      const topic = topics.find(t => t._id === selectedTopicId);
       const categories = topic ? topic.categories || [] : [];
 
       self.setState({
         topicId: selectedTopicId,
-        categoryId: categories.length > 0 ? categories[0]._id : "",
+        categoryId: categories.length > 0 ? categories[0]._id : ''
       });
     };
 
@@ -185,7 +184,7 @@ class ArticleForm extends React.Component<Props, State> {
           name="topicId"
           componentClass="select"
           required={true}
-          placeholder={__("Choose knowledgebase")}
+          placeholder={__('Choose knowledgebase')}
           value={self.state.topicId}
           options={self.generateOptions(topics)}
           onChange={onChange}
@@ -196,10 +195,10 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderCategories(formProps: IFormProps) {
     const self = this;
-    const topic = this.props.topics.find((t) => t._id === self.state.topicId);
+    const topic = this.props.topics.find(t => t._id === self.state.topicId);
     const categories = topic ? topic.categories || [] : [];
 
-    const onChange = (e) => {
+    const onChange = e => {
       e.preventDefault();
 
       self.setState({ categoryId: e.target.value });
@@ -214,7 +213,7 @@ class ArticleForm extends React.Component<Props, State> {
           {...formProps}
           name="categoryId"
           componentClass="select"
-          placeholder={__("Choose category")}
+          placeholder={__('Choose category')}
           value={self.state.categoryId}
           options={self.generateOptions(categories)}
           onChange={onChange}
@@ -229,9 +228,9 @@ class ArticleForm extends React.Component<Props, State> {
     const { attachments, reactionChoices, content, image } = this.state;
     const attachment = this.getFirstAttachment();
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`,
+      label: `${item.label} (${item.extension})`
     }));
 
     const { isSubmitted, values } = formProps;
@@ -241,7 +240,7 @@ class ArticleForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__("Title")}</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -252,7 +251,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__("Summary")}</ControlLabel>
+          <ControlLabel>{__('Summary')}</ControlLabel>
           <FormControl
             {...formProps}
             name="summary"
@@ -263,7 +262,7 @@ class ArticleForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={4}>
             <FormGroup>
-              <ControlLabel required={true}>{__("Reactions")}</ControlLabel>
+              <ControlLabel required={true}>{__('Reactions')}</ControlLabel>
               <Select
                 multi={true}
                 value={reactionChoices}
@@ -271,22 +270,22 @@ class ArticleForm extends React.Component<Props, State> {
                 onChange={this.onChangeReactions}
                 optionRenderer={this.renderOption}
                 valueRenderer={this.renderOption}
-                placeholder={__("Select")}
+                placeholder={__('Select')}
               />
             </FormGroup>
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={true}>{__("Status")}</ControlLabel>
+              <ControlLabel required={true}>{__('Status')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="status"
                 componentClass="select"
-                placeholder={__("Select")}
-                defaultValue={object.status || "draft"}
+                placeholder={__('Select')}
+                defaultValue={object.status || 'draft'}
                 required={true}
               >
-                {[{ value: "draft" }, { value: "publish" }].map((op) => (
+                {[{ value: 'draft' }, { value: 'publish' }].map(op => (
                   <option key={op.value} value={op.value}>
                     {op.value}
                   </option>
@@ -304,7 +303,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>{__("Image")}</ControlLabel>
+          <ControlLabel>{__('Image')}</ControlLabel>
           <Uploader
             defaultFileList={image ? [image] : []}
             onChange={this.onChangeImage}
@@ -313,7 +312,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__("Attachment")}</ControlLabel>
+          <ControlLabel>{__('Attachment')}</ControlLabel>
           <Uploader
             defaultFileList={attachments}
             onChange={this.onChangeAttachments}
@@ -324,62 +323,62 @@ class ArticleForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__("File url")}</ControlLabel>
+              <ControlLabel>{__('File url')}</ControlLabel>
               <FormControl
                 placeholder="Url"
-                value={attachment.url || ""}
+                value={attachment.url || ''}
                 onChange={(e: any) =>
-                  this.onChangeAttachment("url", e.target.value)
+                  this.onChangeAttachment('url', e.target.value)
                 }
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__("File name")}</ControlLabel>
+              <ControlLabel>{__('File name')}</ControlLabel>
               <FormControl
                 placeholder="Name"
-                value={attachment.name || ""}
+                value={attachment.name || ''}
                 onChange={(e: any) =>
-                  this.onChangeAttachment("name", e.target.value)
+                  this.onChangeAttachment('name', e.target.value)
                 }
               />
             </FormGroup>
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__("File size (byte)")}</ControlLabel>
+              <ControlLabel>{__('File size (byte)')}</ControlLabel>
               <FormControl
                 placeholder="Size (byte)"
-                value={attachment.size || ""}
+                value={attachment.size || ''}
                 type="number"
                 onChange={(e: any) =>
-                  this.onChangeAttachment("size", parseInt(e.target.value, 10))
+                  this.onChangeAttachment('size', parseInt(e.target.value, 10))
                 }
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__("File type")}</ControlLabel>
+              <ControlLabel>{__('File type')}</ControlLabel>
               <FormControl
                 componentClass="select"
-                value={attachment.type || ""}
+                value={attachment.type || ''}
                 onChange={(e: any) =>
-                  this.onChangeAttachment("type", e.target.value)
+                  this.onChangeAttachment('type', e.target.value)
                 }
                 options={[
-                  { value: "", label: "Select type" },
-                  ...mimeTypeOptions,
+                  { value: '', label: 'Select type' },
+                  ...mimeTypeOptions
                 ]}
               />
             </FormGroup>
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__("File duration (sec)")}</ControlLabel>
+              <ControlLabel>{__('File duration (sec)')}</ControlLabel>
               <FormControl
                 placeholder="Duration"
                 value={attachment.duration || 0}
                 onChange={(e: any) =>
                   this.onChangeAttachment(
-                    "duration",
+                    'duration',
                     parseInt(e.target.value, 10)
                   )
                 }
@@ -389,13 +388,13 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel required={true}>{__("Content")}</ControlLabel>
+          <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK
             content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
-            name={`knowledgeBase_${article ? article._id : "create"}`}
+            name={`knowledgeBase_${article ? article._id : 'create'}`}
           />
         </FormGroup>
 
@@ -406,15 +405,15 @@ class ArticleForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="times-circle"
           >
-            {__("Cancel")}
+            {__('Cancel')}
           </Button>
 
           {renderButton({
-            name: "article",
+            name: 'article',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: article,
+            object: article
           })}
         </ModalFooter>
       </>
