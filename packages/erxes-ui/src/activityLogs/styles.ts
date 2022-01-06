@@ -52,11 +52,6 @@ const FlexCenterContent = styled.div`
   align-items: center;
 `;
 
-const FlexContent = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const Title = styledTS<{ isComplete?: boolean; isEditing: boolean }>(
   styled.div
 )`
@@ -387,7 +382,6 @@ export {
   Description,
   EmailContent,
   ConversationContent,
-  FlexContent,
   FlexCenterContent,
   FlexBody,
   MergedContacts,
