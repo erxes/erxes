@@ -40,115 +40,22 @@ export const _Tags = async () => {
   return collection;
 };
 
-// find user from elastic or mongo
-export const _findUser = async (userId: string) => {
-  const Users = await db.collection('users');
-  return await Users.findOne({ _id: userId });
+export const _Users = async () => {
+  const collection = await db.collection('users');
+  return collection;
 };
 
-export const _findElk = async (index, query) => {
-  // elksyncer tur orhiw
-  return false;
+export const _Integrations = async () => {
+  const collection = await db.collection('integrations');
+  return collection;
 };
 
-// check customer exists from elastic or mongo
-export const checkCustomerExists = async (
-  id?: string,
-  customerIds?: string[],
-  segmentIds?: string[],
-  tagIds?: string[],
-  brandIds?: string[]
-) => {
-  const Customers = db.collection('customers');
-  const customersSelector = {
-    _id: id,
-    state: { $ne: CONTENT_TYPES.VISITOR },
-    ...(await generateCustomerSelector({
-      customerIds,
-      segmentIds,
-      tagIds,
-      brandIds
-    }))
-  };
-
-  return await Customers.findOne(customersSelector);
+export const _Conformities = async () => {
+  const collection = await db.collection('conformities');
+  return collection;
 };
 
-// export const getDocument = async (
-//   type: 'users' | 'integrations' | 'brands' | 'channels',
-//   selector: { [key: string]: any }
-// ) => {
-//   const list = await getDocumentList(type, selector);
-
-//   if (list.length > 0) {
-//     return list[0];
-//   }
-
-//   return null;
-// };
-
-// export const getDocumentList = async (
-//   type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
-//   selector: { [key: string]: any }
-// ) => {
-//   const listCache = await get(`erxes_${type}`);
-
-//   let list;
-
-//   if (listCache) {
-//     list = JSON.parse(listCache);
-//   } else {
-//     switch (type) {
-//       case 'users': {
-//         list = await db
-//           .collection(type)
-//           .find()
-//           .lean();
-//         break;
-//       }
-
-//       case 'channels': {
-//         list = await db
-//           .collection(type)
-//           .find()
-//           .lean();
-//         break;
-//       }
-
-//       case 'integrations': {
-//         list = await db
-//           .collection(type)
-//           .find()
-//           .lean();
-//         break;
-//       }
-
-//       case 'brands': {
-//         list = await db
-//           .collection(type)
-//           .find()
-//           .lean();
-//         break;
-//       }
-
-//       case 'products': {
-//         list = await db
-//           .collection(type)
-//           .find()
-//           .lean();
-//         break;
-//       }
-//       case 'tags': {
-//         list = await db
-//           .collection(type)
-//           .find()
-//           .lean();
-//         break;
-//       }
-//     }
-
-//     set(`erxes_${type}`, JSON.stringify(list));
-//   }
-
-//   return list.filter(sift(selector));
-// };
+export const _Segments = async () => {
+  const collection = await db.collection('segments');
+  return collection;
+};

@@ -1,13 +1,13 @@
 import { Model, model } from 'mongoose';
+import { IUserDocument, ICustomerDocument } from '@erxes/common-types';
+import { _ConversationMessages, _Conversations } from '../apiCollections';
+import { findUser, findElk } from '../engageUtils';
 import {
-  _ConversationMessages,
-  _Conversations,
-  _findUser,
-  _findElk
-} from '../apiCollections';
-import { removeEngageConversations } from '../messageBroker';
+  removeEngageConversations,
+  createRPCconversationAndMessage
+} from '../messageBroker';
 import { MESSAGE_KINDS } from '../constants';
-import { checkCustomerExists } from '../../data/resolvers/mutations/engageUtils';
+import { checkCustomerExists } from '../engageUtils';
 import { isUsingElk } from '../utils';
 import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
@@ -16,14 +16,12 @@ import {
   IEngageData,
   IMessageDocument
 } from './definitions/conversationMessages';
-import { ICustomerDocument } from './definitions/customers';
 import {
   engageMessageSchema,
   IEngageMessage,
   IEngageMessageDocument
 } from './definitions/engages';
 import { CONTENT_TYPES } from './definitions/segments';
-import { IUserDocument } from './definitions/users';
 import EditorAttributeUtil from '../../data/editorAttributeUtils';
 interface ICheckRulesParams {
   rules: IRule[];
@@ -313,7 +311,7 @@ export const loadClass = () => {
           continue;
         }
 
-        const user = await _findUser(fromUserId || '');
+        const user = await findUser(fromUserId || '');
 
         if (!user) {
           continue;
@@ -469,27 +467,16 @@ export const loadClass = () => {
         return null;
       }
 
-      const Conversations = await _Conversations();
-
-      // create conversation
-      const conversation = await Conversations.createConversation({
-        userId: user._id,
-        status: 'engageVisitorAuto',
+      // create conversation and message replaced by messagebroker
+      return createRPCconversationAndMessage(
+        user._id,
+        'engageVisitorAuto',
         customerId,
         visitorId,
         integrationId,
-        content: replacedContent
-      });
-
-      // create message
-      return ConversationMessages.createMessage({
-        engageData,
-        conversationId: conversation._id,
-        userId: user._id,
-        customerId,
-        visitorId,
-        content: replacedContent
-      });
+        replacedContent,
+        engageData
+      );
     }
 
     /*

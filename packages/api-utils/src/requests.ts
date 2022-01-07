@@ -1,9 +1,10 @@
-import { debugExternalApi } from './debuggers';
 import * as requestify from 'requestify';
 import * as admin from 'firebase-admin';
+import { IUserDocument } from '@erxes/common-types';
+
+import { debugExternalApi } from './debuggers';
 import { sendEmail } from './emails';
 import { getEnv, getUserDetail } from './core';
-import { IUserDocument } from './types';
 import { WEBHOOK_TYPES } from './constants';
 
 export interface IRequestParams {

@@ -14,7 +14,8 @@
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"],
-  "references": [{
-    "path": "../api-utils"
-  }]
+  "references": [
+    { "path": "../api-utils" },
+    { "path": "../common-types" }
+  ]
 }

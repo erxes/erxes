@@ -1,4 +1,4 @@
-import { IUserDocument } from './definitions/users';
+import { IUserDocument } from '@erxes/common-types';
 
 export type LogDesc = {
   [key: string]: any;
