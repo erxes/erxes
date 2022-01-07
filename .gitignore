@@ -27,3 +27,4 @@ private
 engages-email-sender/src/__tests__/coverage/
 widgets/static
 *.js.map
+tsconfig.tsbuildinfo
