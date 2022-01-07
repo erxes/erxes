@@ -1,64 +1,64 @@
-import { GraphQLResolverMap } from "apollo-graphql";
-import { EngageMessages } from "../../db/models";
-import { IEngageMessageDocument } from "../../types";
-import { DeliveryReports, Logs, Stats } from "../../models";
-import { prepareSmsStats } from "../../telnyxUtils";
-import Mutation from "./Mutation";
-import Query from "./Query";
+import { GraphQLResolverMap } from 'apollo-graphql';
+import { EngageMessages } from '../../models';
+import { IEngageMessageDocument } from '../../types';
+import { DeliveryReports, Logs, Stats } from '../../models';
+import { prepareSmsStats } from '../../telnyxUtils';
+import Mutation from './Mutation';
+import Query from './Query';
 
 const DeliveryReport = {
   __resolveReference({ _id }) {
-    return DeliveryReports.findOne({ _id })
+    return DeliveryReports.findOne({ _id });
   },
   engage(root) {
     return EngageMessages.findOne(
       { _id: root.engageMessageId },
       { title: 1 }
     ).lean();
-  },
+  }
 };
 
 const EngageMessage = {
-  __resolveReference({_id}) {
+  __resolveReference({ _id }) {
     return EngageMessages.findOne({ _id });
   },
   async segments(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.segmentIds || []).map((segmentId) => ({
-      __typename: "Segment",
-      _id: segmentId,
+    return (engageMessage.segmentIds || []).map(segmentId => ({
+      __typename: 'Segment',
+      _id: segmentId
     }));
   },
 
   brands(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.brandIds || []).map((brandId) => ({
-      __typename: "Brand",
-      _id: brandId,
+    return (engageMessage.brandIds || []).map(brandId => ({
+      __typename: 'Brand',
+      _id: brandId
     }));
   },
 
   async customerTags(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.customerTagIds || []).map((customerTagId) => ({
-      __typename: "Tag",
-      _id: customerTagId,
+    return (engageMessage.customerTagIds || []).map(customerTagId => ({
+      __typename: 'Tag',
+      _id: customerTagId
     }));
   },
 
   fromUser(engageMessage: IEngageMessageDocument) {
-    return { __typename: "User", _id: engageMessage.fromUserId };
+    return { __typename: 'User', _id: engageMessage.fromUserId };
   },
 
   // common tags
   async getTags(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.tagIds || []).map((tagId) => ({
-      __typename: "Tag",
-      _id: tagId,
+    return (engageMessage.tagIds || []).map(tagId => ({
+      __typename: 'Tag',
+      _id: tagId
     }));
   },
 
   brand(engageMessage: IEngageMessageDocument) {
     const { messenger } = engageMessage;
     if (messenger && messenger.brandId) {
-      return { __typename: "Brand", _id: messenger.brandId };
+      return { __typename: 'Brand', _id: messenger.brandId };
     }
   },
 
@@ -68,13 +68,11 @@ const EngageMessage = {
 
   logs(engageMessage: IEngageMessageDocument) {
     return Logs.find({
-      engageMessageId: engageMessage._id,
+      engageMessageId: engageMessage._id
     });
   },
 
-  smsStats(
-    engageMessage: IEngageMessageDocument
-  ) {
+  smsStats(engageMessage: IEngageMessageDocument) {
     return prepareSmsStats(engageMessage._id);
   },
 
@@ -84,8 +82,8 @@ const EngageMessage = {
       engageMessage.shortMessage.fromIntegrationId
     ) {
       return {
-        __typename: "Integration",
-        _id: engageMessage.shortMessage.fromIntegrationId,
+        __typename: 'Integration',
+        _id: engageMessage.shortMessage.fromIntegrationId
       };
     }
 
@@ -98,7 +96,7 @@ const EngageMessage = {
      * do the `user.username || user.email || user._id` on the UI
      */
 
-    return { __typename: "User", _id: engageMessage.createdBy }
+    return { __typename: 'User', _id: engageMessage.createdBy };
 
     // this resolver used to be like below
     // const user = await getDocument("users", { _id: engageMessage.createdBy });
@@ -108,14 +106,14 @@ const EngageMessage = {
     // }
 
     // return user.username || user.email || user._id;
-  },
+  }
 };
 
 const resolvers: GraphQLResolverMap = {
   DeliveryReport,
   EngageMessage,
   Mutation,
-  Query,
+  Query
 };
 
 export default resolvers;

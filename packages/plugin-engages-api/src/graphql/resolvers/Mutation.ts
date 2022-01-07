@@ -6,8 +6,7 @@ import { CAMPAIGN_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { EngageMessages } from '../../models';
-import { _Customers } from '../../apiCollections';
-import { getDocument } from './cacheUtils';
+import { _Customers, _Users } from '../../apiCollections';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
 
@@ -51,7 +50,11 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id })
     );
 
-    await sendToWebhook(models, { action: 'create', type: 'engageMessages', params: engageMessage });
+    await sendToWebhook(models, {
+      action: 'create',
+      type: 'engageMessages',
+      params: engageMessage
+    });
 
     await send(engageMessage);
 
@@ -224,9 +227,10 @@ const engageMutations = {
         'Email content, title, from address or to address is missing'
       );
     }
+    const Users = await _Users();
     const Customers = await _Customers();
     const customer = await Customers.findOne({ primaryEmail: to });
-    const targetUser = await getDocument('users', { email: to });
+    const targetUser = await Users.findOne({ email: to });
 
     const replacedContent = await new EditorAttributeUtil().replaceAttributes({
       content,

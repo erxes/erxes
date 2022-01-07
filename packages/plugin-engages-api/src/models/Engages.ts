@@ -9,7 +9,7 @@ import {
 import { MESSAGE_KINDS } from '../constants';
 import { checkCustomerExists } from '../engageUtils';
 import { isUsingElk } from '../utils';
-import { getNumberOfVisits } from '../../events';
+// import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { METHODS } from './definitions/constants';
 import {
@@ -318,11 +318,12 @@ export const loadClass = () => {
         }
 
         // check for rules ===
-        const numberOfVisits = await getNumberOfVisits({
-          url: browserInfo.url,
-          visitorId,
-          customerId: customer ? customer._id : undefined
-        });
+        const numberOfVisits = 0;
+        //  await getNumberOfVisits({
+        //   url: browserInfo.url,
+        //   visitorId,
+        //   customerId: customer ? customer._id : undefined
+        // });
 
         const hasPassedAllRules = await this.checkRules({
           rules: messenger.rules,

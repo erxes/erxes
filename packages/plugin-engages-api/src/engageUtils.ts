@@ -12,8 +12,7 @@ import {
 import { findRPCintegrations, saveRPCconformity } from './messageBroker';
 import { IEngageMessage, IEngageMessageDocument } from './types';
 import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
-import { fetchElk } from '../../../elasticsearch';
-import { get, removeKey, set } from '../../../inmemoryStorage';
+// import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from './messageBroker';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
@@ -128,10 +127,10 @@ export const generateCustomerSelector = async ({
     customerQuery = { _id: { $in: customerIdsBySegments } };
   } // end segmentIds if
 
-  await set(
-    `${engageId}_customers_items_mapping`,
-    JSON.stringify(customersItemsMapping)
-  );
+  // await set(
+  //   `${engageId}_customers_items_mapping`,
+  //   JSON.stringify(customersItemsMapping)
+  // );
 
   customersItemsMapping = {};
 
@@ -315,18 +314,19 @@ const sendEmailOrSms = async (
       }
     }
 
-    await removeKey(`${engageMessage._id}_customers_items_mapping`);
+    // await removeKey(`${engageMessage._id}_customers_items_mapping`);
   };
 
-  const customersItemsMapping = JSON.parse(
-    (await get(`${engageMessage._id}_customers_items_mapping`)) || '{}'
-  );
+  // const customersItemsMapping = JSON.parse(
+  //   (await get(`${engageMessage._id}_customers_items_mapping`)) || '{}'
+  // );
 
   const customerTransformerStream = new Transform({
     objectMode: true,
 
     async transform(customer: ICustomerDocument, _encoding, callback) {
-      const itemsMapping = customersItemsMapping[customer._id] || [null];
+      const itemsMapping = [];
+      // customersItemsMapping[customer._id] || [null];
 
       for (const item of itemsMapping) {
         const replacers = await editorAttributeUtil.generateReplacers({
@@ -421,14 +421,7 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
 };
 
 export const findElk = async (index, query) => {
-  const response = await fetchElk({
-    action: 'search',
-    index,
-    body: {
-      query
-    },
-    defaultValue: { hits: { hits: [] } }
-  });
+  const response = { hits: { hits: [index ? '' : index, query ? '' : query] } };
 
   return response.hits.hits.map(hit => {
     return {
