@@ -1,11 +1,7 @@
 import { Model, model } from 'mongoose';
 import { IUserDocument, ICustomerDocument } from '@erxes/common-types';
-import {
-  _ConversationMessages,
-  _Conversations,
-  _findUser,
-  _findElk
-} from '../apiCollections';
+import { _ConversationMessages, _Conversations } from '../apiCollections';
+import { findUser, findElk } from '../engageUtils';
 import {
   removeEngageConversations,
   createRPCconversationAndMessage
@@ -256,7 +252,7 @@ export const loadClass = () => {
       let messages: IEngageMessageDocument[];
 
       if (isUsingElk()) {
-        messages = await _findElk('engage_messages', {
+        messages = await findElk('engage_messages', {
           bool: {
             must: [
               { match: { 'messenger.brandId': brandId } },
@@ -315,7 +311,7 @@ export const loadClass = () => {
           continue;
         }
 
-        const user = await _findUser(fromUserId || '');
+        const user = await findUser(fromUserId || '');
 
         if (!user) {
           continue;
@@ -414,7 +410,7 @@ export const loadClass = () => {
       const ConversationMessages = await _ConversationMessages();
 
       if (isUsingElk()) {
-        const conversationMessages = await _findElk('conversation_messages', {
+        const conversationMessages = await findElk('conversation_messages', {
           bool: {
             must: [
               { match: { 'engageData.messageId': engageData.messageId } },
@@ -447,7 +443,7 @@ export const loadClass = () => {
         const conversationId = prevMessage.conversationId;
 
         if (isUsingElk()) {
-          messages = await _findElk('conversation_messages', {
+          messages = await findElk('conversation_messages', {
             match: {
               conversationId
             }

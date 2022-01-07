@@ -60,6 +60,26 @@ export const createRPCconversationAndMessage = async (
   );
 };
 
+export const findRPCintegrations = async (data): Promise<any> => {
+  return client.sendRPCMessage(
+    'rpc_queue:engageUtils_findIntegrations_to_api',
+    data
+  );
+};
+
+export const saveRPCconformity = async (
+  mainType,
+  mainTypeId,
+  relTypes
+): Promise<any> => {
+  return client.sendRPCMessage(
+    'rpc_queue:engageUtils_savedConformity_to_api',
+    mainType,
+    mainTypeId,
+    relTypes
+  );
+};
+
 export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
 };

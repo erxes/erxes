@@ -9,7 +9,7 @@ import {
   _Conformities,
   _Segments
 } from './apiCollections';
-
+import { findRPCintegrations, saveRPCconformity } from './messageBroker';
 import { IEngageMessage, IEngageMessageDocument } from './types';
 import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
@@ -51,13 +51,11 @@ export const generateCustomerSelector = async ({
     customerQuery = { tagIds: { $in: tagIds } };
   }
 
-  const Integrations = await _Integrations();
-
   if (brandIds.length > 0) {
     let integrationIds: string[] = [];
 
     for (const brandId of brandIds) {
-      const integrations = await Integrations.findIntegrations({ brandId });
+      const integrations = await findRPCintegrations({ brandId });
 
       integrationIds = [...integrationIds, ...integrations.map(i => i._id)];
     }
@@ -98,14 +96,12 @@ export const generateCustomerSelector = async ({
           returnFields
         });
 
-        const Conformities = await _Conformities();
-
         for (const item of items) {
-          const cusIds = await Conformities.savedConformity({
-            mainType: segment.contentType,
-            mainTypeId: item._id,
-            relTypes: ['customer']
-          });
+          const cusIds = await saveRPCconformity(
+            segment.contentType,
+            item._id,
+            ['customer']
+          );
 
           for (const customerId of cusIds) {
             if (!customersItemsMapping[customerId]) {

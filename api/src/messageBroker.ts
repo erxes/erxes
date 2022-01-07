@@ -12,6 +12,7 @@ import { graphqlPubsub } from './pubsub';
 import { receiveVisitorDetail } from './data/widgetUtils';
 import { registerOnboardHistory } from './data/modules/robot';
 import { createConversationAndMessage } from './data/modules/conversations/utils';
+import { Integrations, Conformities } from './db/models';
 
 dotenv.config();
 
@@ -59,6 +60,21 @@ export const initBroker = async (server?) => {
           content,
           engageData
         )
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:engageUtils_findIntegrations_to_api',
+      async data => await Integrations.findIntegrations({ brandId: data })
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:engageUtils_savedConformity_to_api',
+      async (mainType, mainTypeId, relTypes) =>
+        await Conformities.savedConformity({
+          mainType,
+          mainTypeId,
+          relTypes
+        })
     );
 
     // graphql subscriptions call =========
