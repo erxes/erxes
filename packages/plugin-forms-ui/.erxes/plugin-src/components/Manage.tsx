@@ -175,7 +175,7 @@ class Manage extends React.Component<Props, State> {
             icon="times-circle"
             onClick={this.props.closeModal}
           >
-            Close ***
+            Close
           </Button>
         </ModalFooter>
       </>

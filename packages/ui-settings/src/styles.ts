@@ -1,5 +1,6 @@
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -16,6 +17,44 @@ const ActionButtons = styled.div`
 
     &:first-child {
       margin-left: 0;
+    }
+  }
+`;
+
+const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+  position: relative;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${props => props.isActive && colors.bgActive};
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+  a {
+    white-space: normal;
+    flex: 1;
+    padding: 10px 0 10px 20px;
+    font-weight: 500;
+    &:hover {
+      background: none;
+    }
+    &:focus {
+      color: inherit;
+      text-decoration: none;
+    }
+    > span {
+      color: #666;
+      font-weight: normal;
+    }
+  }
+  &:last-child {
+    border: none;
+  }
+  &:hover {
+    cursor: pointer;
+    background: ${props => !props.isActive && colors.bgLight};
+    ${ActionButtons} {
+      width: 35px;
     }
   }
 `;
