@@ -117,6 +117,13 @@ export default function General(props: Props) {
       </TeamPortal>
       <FeatureLayout>
         <p>Features</p>
+        <FeatureRow>
+          <FeatureRowItem><ControlLabel>{__('Choose type')}</ControlLabel></FeatureRowItem>
+          <FeatureRowItem><ControlLabel>{__('Display icon')}</ControlLabel></FeatureRowItem>
+          <FeatureRowItem><ControlLabel>{__('Display name')}</ControlLabel></FeatureRowItem>
+          <FeatureRowItem><ControlLabel>{__('Display description')}</ControlLabel></FeatureRowItem>
+          <FeatureRowItem><ControlLabel>{__('Choose which to display')}</ControlLabel></FeatureRowItem>
+        </FeatureRow>
         {features.map(feature => (
           <FeatureRow key={feature._id}>
             <FeatureRowItem>
@@ -192,14 +199,13 @@ export default function General(props: Props) {
               </FeatureRowItem>
             )}
             <Button
-              btnStyle='danger'
+              btnStyle='link'
               size="small"
-              icon="times-circle"
               onClick={() => onChangeFeature('remove', feature._id)}
-            >Delete</Button>
+            >x</Button>
           </FeatureRow>
         ))}
-        <Button btnStyle="primary" icon="file-plus" onClick={() => onChangeFeature('add')} >Add Features</Button>
+        <Button btnStyle="primary"  onClick={() => onChangeFeature('add')} > +Add Features</Button>
       </FeatureLayout>
       <Button btnStyle='success' icon="check-circle" onClick={onSave}>
         Save
