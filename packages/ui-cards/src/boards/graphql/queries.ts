@@ -1,3 +1,12 @@
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+
 const boards = `
   query boards($type: String!) {
     boards(type: $type) {
@@ -81,11 +90,20 @@ const stages = `
   }
 `;
 
+const pipelineLabels = `
+  query pipelineLabels($pipelineId: String!) {
+    pipelineLabels(pipelineId: $pipelineId) {
+      ${pipelineLabelFields}
+    }
+  }
+`;
+
 export default {
   boards,
   pipelines,
   commonParams,
   commonParamDefs,
+  pipelineLabels,
   stageParams,
   stageParamDefs,
   stageCommon,
