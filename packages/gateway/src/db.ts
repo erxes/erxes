@@ -14,12 +14,18 @@ const client = new MongoClient(MONGO_URL);
 let db: Db;
 
 export let Users: Collection<any>;
+export let Conversations: Collection<any>;
+export let Channels: Collection<any>;
+export let Integrations: Collection<any>;
 
 export async function connect() {
   await client.connect();
   console.log(`DB: Connected to ${MONGO_URL}`)
   db = client.db();
   Users = db.collection('users');
+  Conversations = db.collection('conversations');
+  Channels = db.collection('channels');
+  Integrations = db.collection('integrations');
 }
 
 export async function disconnect() {

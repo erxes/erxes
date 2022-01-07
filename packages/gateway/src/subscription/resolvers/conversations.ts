@@ -1,5 +1,6 @@
 import { gql } from "apollo-server-express";
 import { withFilter } from "graphql-subscriptions";
+import { Channels, Conversations, Integrations } from "../../db";
 import graphqlPubsub from "../pubsub";
 
 export default {
@@ -90,33 +91,30 @@ export default {
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator("conversationClientMessageInserted"),
       async (payload, variables) => {
-        return false;
-        // TODO: connect to DB
-        // const message = payload.conversationClientMessageInserted;
+        const message = payload.conversationClientMessageInserted;
 
-        // const conversation = await Conversations.findOne(
-        //   { _id: message.conversationId },
-        //   { integrationId: 1 }
-        // );
+        const conversation = await Conversations.findOne({
+          _id: message.conversationId,
+        });
 
-        // if (!conversation) {
-        //   return false;
-        // }
+        if (!conversation) {
+          return false;
+        }
 
-        // const integration = await getDocument('integrations', {
-        //   _id: conversation.integrationId
-        // });
+        const integration = await Integrations.findOne({
+          _id: conversation.integrationId,
+        });
 
-        // if (!integration) {
-        //   return false;
-        // }
+        if (!integration) {
+          return false;
+        }
 
-        // const availableChannelsCount = await Channels.countDocuments({
-        //   integrationIds: { $in: [integration._id] },
-        //   memberIds: { $in: [variables.userId] }
-        // });
+        const availableChannelsCount = await Channels.countDocuments({
+          integrationIds: { $in: [integration._id] },
+          memberIds: { $in: [variables.userId] },
+        });
 
-        // return availableChannelsCount > 0;
+        return availableChannelsCount > 0;
       }
     ),
   },
