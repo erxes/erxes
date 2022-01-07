@@ -1,4 +1,4 @@
-import { EMAIL_DELIVERY_STATUS } from './constants';
+import { CONTENT_TYPES, EMAIL_DELIVERY_STATUS, MODULE_NAMES } from './constants';
 import {
   checkUserIds,
   chunkArray,
@@ -75,7 +75,9 @@ export {
   getUserActionsMap,
   checkPermission,
   requireLogin,
-  IContext
+  IContext,
+  MODULE_NAMES,
+  CONTENT_TYPES
 };
 
 export default {

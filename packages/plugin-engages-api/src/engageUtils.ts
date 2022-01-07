@@ -1,7 +1,7 @@
 import { Transform } from 'stream';
 import { EngageMessages } from './models';
 import { IUserDocument, ICustomerDocument } from '@erxes/common-types';
-import { chunkArray } from '@erxes/api-utils';
+import { chunkArray, CONTENT_TYPES } from '@erxes/api-utils';
 import {
   _Users,
   _Customers,
@@ -11,7 +11,6 @@ import {
 } from './apiCollections';
 import { findRPCintegrations, saveRPCconformity } from './messageBroker';
 import { IEngageMessage, IEngageMessageDocument } from './types';
-import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 // import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from './messageBroker';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';

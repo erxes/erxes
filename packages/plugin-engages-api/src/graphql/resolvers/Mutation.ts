@@ -1,8 +1,8 @@
 import * as _ from 'underscore';
 
-import { checkPermission, sendToWebhook, IContext } from '@erxes/api-utils';
+import { checkPermission, sendToWebhook, IContext, MODULE_NAMES } from '@erxes/api-utils';
 import { IEngageMessage } from '../../types';
-import { CAMPAIGN_KINDS, MODULE_NAMES } from '../../constants';
+import { CAMPAIGN_KINDS } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { EngageMessages } from '../../models';
