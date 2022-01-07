@@ -12,23 +12,19 @@ import cookieParser from "cookie-parser";
 import { loadSubscriptions } from "./subscription";
 import { createGateway, GatewayContext } from "./gateway";
 import userMiddleware from "./middlewares/userMiddleware";
-import * as db from './db';
-import pubsub from './subscription/pubsub';
+import * as db from "./db";
+import pubsub from "./subscription/pubsub";
 
-const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
+const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
 
 (async () => {
-
   await db.connect();
 
   const app = express();
   app.use(cookieParser());
 
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
-  app.use(
-    /\/((?!graphql).)*/,
-    createProxyMiddleware({ target: API_DOMAIN })
-  );
+  app.use(/\/((?!graphql).)*/, createProxyMiddleware({ target: API_DOMAIN }));
 
   app.use(userMiddleware);
 
@@ -37,14 +33,12 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
   httpServer.on("close", () => {
     try {
       db.disconnect();
-    } catch (e) {
-
-    }
+    } catch (e) {}
 
     try {
       pubsub.close();
     } catch (e) {
-      console.log("PubSub client disconnected")
+      console.log("PubSub client disconnected");
     }
   });
 
@@ -59,10 +53,16 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
     gateway,
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ res, req }: { res: Response, req: Request & { user?: any }}): GatewayContext => {
+    context: ({
+      res,
+      req,
+    }: {
+      res: Response;
+      req: Request & { user?: any };
+    }): GatewayContext => {
       // console.log(`building context ${JSON.stringify(req.user)}`);
-      return { res, req }
-    }
+      return { res, req };
+    },
   });
 
   // TODO: subscriptions don't work yet. Client's WebSocketLink, graphql version, graphql-ws needs to be updated
@@ -76,9 +76,14 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT} = process.env;
     path: "/graphql",
     cors: {
       credentials: true,
-      origin: [ MAIN_APP_DOMAIN || "http://localhost:3000", "https://studio.apollographql.com", "http://localhost:3200"],
+      origin: [
+        MAIN_APP_DOMAIN || "http://localhost:3000",
+        "http://localhost:3001",
+        "https://studio.apollographql.com",
+        "http://localhost:3200",
+      ],
     },
-  });  
+  });
 
   const port = PORT || 4000;
 
