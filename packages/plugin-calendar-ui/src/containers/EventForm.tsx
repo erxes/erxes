@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { queries } from '@erxes/common-ui-settings/src/integrations/graphql';
+import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import queryString from 'query-string';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

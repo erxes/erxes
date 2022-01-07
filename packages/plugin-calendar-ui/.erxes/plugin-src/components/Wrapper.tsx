@@ -5,7 +5,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IBoard, IGroup } from '../../../ui-settings/src/calendars/types';
+import { IBoard, IGroup } from '@erxes/ui-settings/src/calendars/types';
 import React from 'react';
 import { TYPES } from '../constants';
 import Event from '../containers/Event';

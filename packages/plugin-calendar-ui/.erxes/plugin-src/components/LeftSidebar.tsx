@@ -5,7 +5,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { IBoard, IGroup } from '../../../ui-settings/src/calendars/types';
+import { IBoard, IGroup } from '@erxes/ui-settings/src/calendars/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { STORAGE_CALENDAR_IDS } from '../constants';

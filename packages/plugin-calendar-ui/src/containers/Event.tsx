@@ -4,7 +4,7 @@ import Info from '@erxes/ui/src/components/Info';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { queries } from '@erxes/';
+import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Event from '../components/Event';

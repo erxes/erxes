@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import Info from '@erxes/ui/src/components/Info';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
-import { IBoard, IGroup } from '../../../ui-settings/src/calendars/types';
+import { IBoard, IGroup } from '@erxes/ui-settings/src/calendars/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Wrapper from '../components/Wrapper';
