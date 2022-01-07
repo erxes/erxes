@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { renderFullName, withProps } from '../../utils';
-import ConformityChooser from '../../conformity/containers/ConformityChooser';
+import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CustomerForm from './CustomerForm';

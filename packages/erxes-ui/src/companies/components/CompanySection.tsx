@@ -4,7 +4,7 @@ import Icon from '../../components/Icon';
 import ModalTrigger from '../../components/ModalTrigger';
 import { ButtonRelated } from '../../styles/main';
 import { __, urlParser } from '../../utils';
-import GetConformity from '../../conformity/containers/GetConformity';
+import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 import { SectionBodyItem } from '../../layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';

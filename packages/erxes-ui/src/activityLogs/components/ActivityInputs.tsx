@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from '../../components/Icon';
 import { Tabs, TabTitle } from '../../components/tabs';
 import NoteForm from '../../internalNotes/containers/Form';
-import TicketCommentForm from '../../boards/containers/TicketCommentForm';
+import TicketCommentForm from '@erxes/ui-cards/src/boards/containers/TicketCommentForm';
 import { WhiteBoxRoot } from '../../layout/styles';
 import { __ } from '../../utils';
 

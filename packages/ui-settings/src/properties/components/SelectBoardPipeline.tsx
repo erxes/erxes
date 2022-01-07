@@ -1,4 +1,4 @@
-import { IBoard, IPipeline } from '@erxes/ui/src/boards/types';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IOption } from '@erxes/ui/src/types';
@@ -155,7 +155,7 @@ class SelectBoards extends React.Component<Props, State> {
     return (
       <FlexRow key={_id}>
         <Select
-          className='flex-item'
+          className="flex-item"
           placeholder={__('Select board')}
           value={boardId}
           onChange={onBoardChange}
@@ -163,7 +163,7 @@ class SelectBoards extends React.Component<Props, State> {
           multi={false}
         />
         <Select
-          className='flex-item'
+          className="flex-item"
           placeholder={__('Select pipelines')}
           value={pipelineIds}
           onChange={onPipelineChange}
@@ -171,7 +171,7 @@ class SelectBoards extends React.Component<Props, State> {
           multi={true}
         />
 
-        <Button btnStyle='link' size='small' onClick={remove} icon='times' />
+        <Button btnStyle="link" size="small" onClick={remove} icon="times" />
       </FlexRow>
     );
   }
@@ -186,7 +186,7 @@ class SelectBoards extends React.Component<Props, State> {
         <br />
 
         <LinkButton onClick={this.addNew}>
-          <Icon icon='plus-1' /> {__('Add another board')}
+          <Icon icon="plus-1" /> {__('Add another board')}
         </LinkButton>
       </FormGroup>
     );

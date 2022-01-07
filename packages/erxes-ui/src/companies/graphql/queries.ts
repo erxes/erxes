@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '../../conformity/graphql/queries';
+} from '@erxes/ui-cards/src/conformity/graphql/queries';
 
 export const companyFields = `
   _id

@@ -1,4 +1,4 @@
-import { IBoard } from '@erxes/ui/src/boards/types';
+import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 

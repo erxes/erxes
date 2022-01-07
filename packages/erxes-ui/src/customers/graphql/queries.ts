@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '../../conformity/graphql/queries';
+} from '@erxes/ui-cards/src/conformity/graphql/queries';
 
 const basicFields = `
   _id
@@ -116,11 +116,10 @@ const customers = `
   }
 `;
 
-
 export default {
   basicFields,
   customerFields,
   listParamsDef,
   listParamsValue,
-  customers,
+  customers
 };

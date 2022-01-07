@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui/src/boards/graphql';
-import { BoardsQueryResponse } from '@erxes/ui/src/boards/types';
+import { queries } from '@erxes/ui-cards/src/boards/graphql';
+import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -53,7 +53,7 @@ const SelectContainer = (props: ChildProps<FinalProps>) => {
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
-        type='submit'
+        type="submit"
         successMessage={`You successfully added a ${name}`}
       />
     );

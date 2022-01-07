@@ -5,7 +5,7 @@ import ModalTrigger from '../../components/ModalTrigger';
 import Spinner from '../../components/Spinner';
 import { ButtonRelated } from '../../styles/main';
 import { __, renderFullName } from '../../utils';
-import GetConformity from '../../conformity/containers/GetConformity';
+import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 import { SectionBodyItem } from '../../layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';

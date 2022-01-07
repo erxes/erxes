@@ -1,5 +1,5 @@
 import { ITrigger } from '../../types';
-import { IBoard } from '@erxes/ui/src/boards/types';
+import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Title } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
