@@ -7,9 +7,9 @@ import FieldsPreview from '@erxes/ui/src/forms/components/FieldsPreview';
 import { IFormData } from '@erxes/ui/src/forms/types';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import CalloutPreview from './preview/CalloutPreview';
-import FormPreview from './preview/FormPreview';
-import SuccessPreview from './preview/SuccessPreview';
+import CalloutPreview from '@erxes/ui-leads/src/components/step/preview/CalloutPreview';
+import FormPreview from '@erxes/ui-leads/src/components/step/preview/FormPreview';
+import SuccessPreview from '@erxes/ui-leads/src/components/step/preview/SuccessPreview';
 import {
   CarouselInner,
   CarouselSteps,

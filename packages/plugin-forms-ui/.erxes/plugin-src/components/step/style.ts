@@ -4,7 +4,7 @@ import { BoxRoot } from '@erxes/ui/src/styles/main';
 import { ContentHeader } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
+import { Embedded, PreviewContainer, SlideLeftContent } from '@erxes/ui-leads/src/components/step/preview/styles';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
