@@ -1,6 +1,7 @@
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { DateContainer } from '@erxes/ui/src/styles/main';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -140,6 +141,14 @@ const LinkButton = styled.a`
   }
 `;
 
+const FilterItem = styled(DateContainer)`
+  position: relative;
+  float: left;
+  min-width: 200px;
+  margin-right: 20px;
+  z-index: 100;
+`;
+
 export {
   MarkdownWrapper,
   ActionButtons,
@@ -150,5 +159,6 @@ export {
   WidgetBackgrounds,
   Capitalize,
   LinkButton,
-  SidebarListItem
+  SidebarListItem,
+  FilterItem
 };

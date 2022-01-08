@@ -489,3 +489,36 @@ export const EMPTY_CONTENT_BOOKINGS = {
     }
   ]
 };
+
+export const FONTS = [
+  {
+    label: 'Ubuntu',
+    value: `'Ubuntu', sans-serif`
+  },
+  {
+    label: 'Lobster',
+    value: `'Lobster', cursive`
+  },
+  {
+    label: 'Roboto',
+    value: `'Roboto', sans-serif`
+  },
+  {
+    label: 'Roboto Condensed',
+    value: `'Roboto Condensed', sans-serif`
+  },
+  {
+    label: 'Open Sans',
+    value: `'Open Sans', sans-serif`
+  }
+];
+
+export const FIELDS_GROUPS_CONTENT_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  PRODUCT: 'product',
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
+  USER: 'user',
+  ALL: ['customer', 'company', 'product', 'conversation', 'device', 'user']
+};
