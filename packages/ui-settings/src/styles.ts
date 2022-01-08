@@ -149,5 +149,6 @@ export {
   SubHeading,
   WidgetBackgrounds,
   Capitalize,
-  LinkButton
+  LinkButton,
+  SidebarListItem
 };
