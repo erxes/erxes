@@ -27,9 +27,7 @@ export const TeamPortal = styled.div`
   > div {
     > div {
       margin-right: 80px;
-      &:last-child {
-        min-width: 450px;
-      }
+      min-width: 500px;
     }
   }
 `;
@@ -37,6 +35,7 @@ export const TeamPortal = styled.div`
 export const FeatureRow = styled.div`
   display: flex;
   margin-bottom: 15px;
+  justify-content: space-between;
 `;
 
 export const FeatureRowItem = styled.div`
@@ -44,7 +43,18 @@ export const FeatureRowItem = styled.div`
   margin-right: 20px;
 `;
 
+export const FeatureRowFlex = styled.div `
+  display: flex;
+`;
+
 export const FeatureLayout = styled.div`
+`;
+
+export const XButton = styled.div `
+  :hover{
+    color: red;
+    cursor: pointer;
+  }
 `;
 
 export const AppearanceWrapper = styled.div`

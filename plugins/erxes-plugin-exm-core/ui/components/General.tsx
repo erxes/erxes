@@ -8,6 +8,8 @@ import {
   FeatureLayout,
   GeneralWrapper,
   TeamPortal,
+  FeatureRowFlex,
+  XButton
 } from '../styles';
 import Button from 'erxes-ui/lib/components/Button';
 import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
@@ -117,15 +119,9 @@ export default function General(props: Props) {
       </TeamPortal>
       <FeatureLayout>
         <p>Features</p>
-        <FeatureRow>
-          <FeatureRowItem><ControlLabel>{__('Choose type')}</ControlLabel></FeatureRowItem>
-          <FeatureRowItem><ControlLabel>{__('Display icon')}</ControlLabel></FeatureRowItem>
-          <FeatureRowItem><ControlLabel>{__('Display name')}</ControlLabel></FeatureRowItem>
-          <FeatureRowItem><ControlLabel>{__('Display description')}</ControlLabel></FeatureRowItem>
-          <FeatureRowItem><ControlLabel>{__('Choose which to display')}</ControlLabel></FeatureRowItem>
-        </FeatureRow>
         {features.map(feature => (
           <FeatureRow key={feature._id}>
+            <FeatureRowFlex>
             <FeatureRowItem>
               <FormControl
                 componentClass='select'
@@ -198,14 +194,14 @@ export default function General(props: Props) {
                   clearable={false} />
               </FeatureRowItem>
             )}
-            <Button
-              btnStyle='link'
-              size="small"
+            </FeatureRowFlex>
+            <button
+              style = {{background: 'transparent', border: 'none', cursor:'pointer'}}
               onClick={() => onChangeFeature('remove', feature._id)}
-            >x</Button>
+            >X</button>
           </FeatureRow>
         ))}
-        <Button btnStyle="primary"  onClick={() => onChangeFeature('add')} > +Add Features</Button>
+        <Button btnStyle="primary"  onClick={() => onChangeFeature('add')} > + Add Features</Button>
       </FeatureLayout>
       <Button btnStyle='success' icon="check-circle" onClick={onSave}>
         Save

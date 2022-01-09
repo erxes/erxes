@@ -142,7 +142,7 @@ export default function Appearance(props: Props) {
     return (
       <div key={index}>
         <button
-          style={{ float: 'right' }}
+          style={{ float: 'right', background: 'transparent', border: 'none', cursor:'pointer' }}
           onClick={() => onChangePageCount('remove', page._id)}
         >
           X
