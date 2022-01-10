@@ -1,28 +1,27 @@
 module.exports = {
-  name: "cards",
+  name: 'deals',
   port: 3003,
   exposes: {
-    "./routes": "./src/routes.tsx",
-    "./settings": "./src/Settings.tsx",
+    './routes': './src/routes.tsx',
+    './settings': './src/Settings.tsx'
   },
   routes: {
-    url: "http://localhost:3003/remoteEntry.js",
-    scope: "cards",
-    module: "./routes",
+    url: 'http://localhost:3003/remoteEntry.js',
+    scope: 'deals',
+    module: './routes'
   },
   menus: [
     {
-      text: "Sales Pipeline1",
-      url: "/deal",
-      icon: "icon-megaphone",
-      location: "mainNavigation",
+      text: 'Sales Pipeline',
+      url: '/deal',
+      icon: 'icon-piggy-bank',
+      location: 'mainNavigation'
     },
     {
-      text: "Campaigns settings",
-      icon: "icon-megaphone",
-      location: "settings",
-      scope: "cards",
-      component: "./settings",
-    },
-  ],
+      text: 'Task',
+      url: '/task',
+      icon: 'icon-piggy-bank',
+      location: 'mainNavigation'
+    }
+  ]
 };
