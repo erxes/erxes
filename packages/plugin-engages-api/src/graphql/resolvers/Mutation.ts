@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 
 import { checkPermission, IContext, MODULE_NAMES } from '@erxes/api-utils';
-import { IEngageMessage } from '../../types';
+import { IEngageMessage } from '@erxes/common-types';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 

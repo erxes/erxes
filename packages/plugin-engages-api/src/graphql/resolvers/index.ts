@@ -1,7 +1,8 @@
 import { GraphQLResolverMap } from 'apollo-graphql';
-import { EngageMessages } from '../../models';
-import { IEngageMessageDocument } from '../../types';
-import { DeliveryReports, Logs, Stats } from '../../models';
+
+import { IEngageMessageDocument } from '@erxes/common-types';
+
+import { DeliveryReports, Logs, Stats, EngageMessages } from '../../models';
 import { prepareSmsStats } from '../../telnyxUtils';
 import Mutation from './Mutation';
 import Query from './Query';

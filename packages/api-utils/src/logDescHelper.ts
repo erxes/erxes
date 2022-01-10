@@ -9,7 +9,15 @@ import {
   IDealDocument,
   ITaskDocument,
   ITicketDocument,
-  IGrowthHackDocument
+  IGrowthHackDocument,
+  ITopicDocument,
+  ICategoryDocument,
+  IProductDocument,
+  IScriptDocument,
+  IPipelineTemplateDocument,
+  IUserDocument,
+  IEngageMessageDocument,
+  IEngageMessage
 } from '@erxes/common-types';
 
 import { MODULE_NAMES } from './constants';
@@ -53,6 +61,11 @@ export interface IDescriptionParams {
 interface IDescriptions {
   description?: string;
   extraDesc?: LogDesc[];
+}
+
+interface IContentTypeParams {
+  contentType: string;
+  contentTypeId: string;
 }
 
 const gatherStageFieldNames = async (
@@ -508,19 +521,19 @@ const findItemName = async ({
   const Tickets = await DB('tickets');
   const GrowthHacks = await DB('growthHacks');
 
-  if (contentType === ACTIVITY_CONTENT_TYPES.DEAL) {
+  if (contentType === MODULE_NAMES.DEAL) {
     item = await Deals.findOne({ _id: contentTypeId });
   }
 
-  if (contentType === ACTIVITY_CONTENT_TYPES.TASK) {
+  if (contentType === MODULE_NAMES.TASK) {
     item = await Tasks.findOne({ _id: contentTypeId });
   }
 
-  if (contentType === ACTIVITY_CONTENT_TYPES.TICKET) {
+  if (contentType === MODULE_NAMES.TICKET) {
     item = await Tickets.findOne({ _id: contentTypeId });
   }
 
-  if (contentType === ACTIVITY_CONTENT_TYPES.GROWTH_HACK) {
+  if (contentType === MODULE_NAMES.GROWTH_HACK) {
     item = await GrowthHacks.getGrowthHack(contentTypeId);
   }
 
