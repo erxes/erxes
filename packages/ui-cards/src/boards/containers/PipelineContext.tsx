@@ -2,7 +2,7 @@ import client from '@erxes/ui/src/apolloClient'; // will check
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps, router as routerUtils } from '@erxes/ui/src/utils';
-// import { UserDetailQueryResponse } from 'modules/settings/team/types'; // will fix
+import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
@@ -42,8 +42,8 @@ type WrapperProps = {
 };
 
 type Props = WrapperProps & {
-  currentUserQuery: any; // UserDetailQueryResponse; will fix
-  pipelineDetailQuery: any;
+  currentUserQuery: UserDetailQueryResponse;
+  pipelineDetailQuery: PipelineDetailQueryResponse;
 } & IRouterProps;
 
 type StageLoadMap = {
