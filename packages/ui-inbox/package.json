@@ -2,5 +2,6 @@
   "name": "@erxes/ui-inbox",
   "version": "1.0.0",
   "dependencies": {
+    "styled-components": "^3.2.6"
   }
 }
