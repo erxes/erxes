@@ -1,11 +1,7 @@
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '../../appContext';
 import { IUser } from '../../auth/types';
 import ButtonMutate from '../../components/ButtonMutate';
-import {
-  IButtonMutateProps,
-  IQueryParams,
-  IRouterProps
-} from '../../types';
+import { IButtonMutateProps, IQueryParams, IRouterProps } from '../../types';
 import { ICustomer } from '../../customers/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
@@ -83,8 +79,9 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           icon="check-circle"
           resetSubmit={resetSubmit}
           uppercase={false}
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };
