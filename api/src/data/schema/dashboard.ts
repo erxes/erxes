@@ -2,7 +2,7 @@ export const types = `
   type Dashboard {
     _id: String!
     name: String
-    visibility: String!
+    visibility: String
     selectedMemberIds: [String]
   }
 
