@@ -595,7 +595,7 @@ export const uploadFile = async (
   let nameOrLink = '';
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    nameOrLink = await uploadFileAWS(file, true);
+    nameOrLink = await uploadFileAWS(file);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
