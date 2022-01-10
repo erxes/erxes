@@ -22,7 +22,7 @@ import FormStep from './steps/FormStep';
 import SuccessStep from '@erxes/ui-leads/src/components/step/SuccessStep';
 import { IField } from '@erxes/ui/src/types';
 import { PreviewWrapper } from '@erxes/ui-leads/src/components/step/style';
-import FullPreview from '@erxes/ui-leads/src/components/step/FullPreview';
+import FullPreview from '@erxes/ui/src/components/step/FullPreview';
 import { colors } from '@erxes/ui/src/styles';
 import { IForm, IFormData } from '@erxes/ui/src/forms/types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';

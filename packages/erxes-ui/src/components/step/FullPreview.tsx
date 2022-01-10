@@ -1,15 +1,14 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-
-import { __ } from '@erxes/ui/src/utils';
-import FieldForm from '@erxes/ui/src/forms/components/FieldForm';
-import FieldsPreview from '@erxes/ui/src/forms/components/FieldsPreview';
-import { IFormData } from '@erxes/ui/src/forms/types';
-import { IField } from '@erxes/ui/src/types';
+import Icon from '../Icon';
+import { Tabs, TabTitle } from '../tabs';
+import { __ } from '../../utils';
+import FieldForm from '../../forms/components/FieldForm';
+import FieldsPreview from '../../forms/components/FieldsPreview';
+import { IFormData } from '../../forms/types';
+import { IField } from '../../types';
 import React from 'react';
-import CalloutPreview from '@erxes/ui-leads/src/components/step/preview/CalloutPreview';
-import FormPreview from '@erxes/ui-leads/src/components/step/preview/FormPreview';
-import SuccessPreview from '@erxes/ui-leads/src/components/step/preview/SuccessPreview';
+import CalloutPreview from './preview/CalloutPreview';
+import FormPreview from './preview/FormPreview';
+import SuccessPreview from './preview/SuccessPreview';
 import {
   CarouselInner,
   CarouselSteps,
@@ -231,19 +230,19 @@ class FullPreviewStep extends React.Component<Props, State> {
               className={currentTab === 'desktop' ? 'active' : ''}
               onClick={this.onChangeTab.bind(this, 'desktop')}
             >
-              <Icon icon="monitor-1" /> {__('Desktop')}
+              <Icon icon='monitor-1' /> {__('Desktop')}
             </TabTitle>
             <TabTitle
               className={currentTab === 'tablet' ? 'active' : ''}
               onClick={this.onChangeTab.bind(this, 'tablet')}
             >
-              <Icon icon="tablet" /> {__('Tablet')}
+              <Icon icon='tablet' /> {__('Tablet')}
             </TabTitle>
             <TabTitle
               className={currentTab === 'mobile' ? 'active' : ''}
               onClick={this.onChangeTab.bind(this, 'mobile')}
             >
-              <Icon icon="mobile-android" /> {__('Mobile')}
+              <Icon icon='mobile-android' /> {__('Mobile')}
             </TabTitle>
           </Tabs>
           {this.renderResolutionPreview()}

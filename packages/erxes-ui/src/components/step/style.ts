@@ -1,4 +1,4 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '../../styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
