@@ -1,6 +1,6 @@
-import Button from 'modules/common/components/Button';
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import Button from '@erxes/ui/src/components/Button';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius } from './common';
