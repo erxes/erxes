@@ -1,14 +1,14 @@
 import * as _ from 'underscore';
 
-import { checkPermission, IContext, MODULE_NAMES } from '@erxes/api-utils';
+import { checkPermission, IContext, MODULE_NAMES, putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils';
 import { IEngageMessage } from '@erxes/common-types';
 import { CAMPAIGN_KINDS } from '../../constants';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { EngageMessages } from '../../models';
 import { _Customers, _Users } from '../../apiCollections';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
+import messageBroker from '../../messageBroker';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -60,6 +60,7 @@ const engageMutations = {
     await send(engageMessage);
 
     await putCreateLog(
+      messageBroker,
       {
         type: MODULE_NAMES.ENGAGE,
         newData: {
@@ -100,6 +101,7 @@ const engageMutations = {
     }
 
     await putUpdateLog(
+      messageBroker,
       {
         type: MODULE_NAMES.ENGAGE,
         object: { ...engageMessage.toObject(), ...emptyCustomers },
@@ -125,6 +127,7 @@ const engageMutations = {
     const removed = await EngageMessages.removeEngageMessage(_id);
 
     await putDeleteLog(
+      messageBroker,
       {
         type: MODULE_NAMES.ENGAGE,
         object: { ...engageMessage.toObject(), ...emptyCustomers }
@@ -171,6 +174,7 @@ const engageMutations = {
     await send(live);
 
     await putUpdateLog(
+      messageBroker,
       {
         type: MODULE_NAMES.ENGAGE,
         newData: {
@@ -275,6 +279,7 @@ const engageMutations = {
     const copy = await EngageMessages.createEngageMessage(doc);
 
     await putCreateLog(
+      messageBroker,
       {
         type: MODULE_NAMES.ENGAGE,
         newData: {
