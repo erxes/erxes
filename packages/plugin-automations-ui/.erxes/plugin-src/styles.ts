@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { RightMenuContainer } from '@erxes/ui/src//boards/styles/rightMenu';
+import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 import { Contents } from '@erxes/ui/src/layout/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { DateWrapper } from '@erxes/ui/src/forms/styles';
-import { HeaderContent } from '@erxes/ui/src/boards/styles/item';
+import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
 import { dimensions, colors } from '@erxes/ui/src/styles';
 
 export const Container = styled.div`
