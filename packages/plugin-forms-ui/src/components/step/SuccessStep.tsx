@@ -8,7 +8,7 @@ import { ILeadData } from '../../types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { FORM_SUCCESS_ACTIONS } from '@erxes/ui-settings/src/integrations/constants';
 import React from 'react';
-import { FlexItem, ImagePreview, ImageUpload } from './style';
+import { FlexItem, ImagePreview, ImageUpload } from '@erxes/ui/src/components/step/style';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
