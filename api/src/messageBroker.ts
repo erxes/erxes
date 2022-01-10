@@ -12,7 +12,11 @@ import { graphqlPubsub } from './pubsub';
 import { receiveVisitorDetail } from './data/widgetUtils';
 import { registerOnboardHistory } from './data/modules/robot';
 import { createConversationAndMessage } from './data/modules/conversations/utils';
-import { Integrations, Conformities } from './db/models';
+import { Integrations, Conformities, Customers } from './db/models';
+import { fieldsCombinedByContentType } from './data/modules/fields/utils';
+import { generateAmounts, generateProducts } from './data/resolvers/deals';
+import { getSubServiceDomain } from './data/utils';
+import { fetchSegment } from './data/modules/segments/queryBuilder';
 
 dotenv.config();
 
@@ -75,6 +79,43 @@ export const initBroker = async (server?) => {
           mainTypeId,
           relTypes
         })
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:engageUtils_fetchSegment_to_api',
+      async (segment, options: any = {}) =>
+        await fetchSegment({
+          segment,
+          options
+        })
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:editorAttributeUtils_fieldsCombinedByContentType_to_api',
+      async contentType =>
+        await fieldsCombinedByContentType({
+          contentType
+        })
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:editorAttributeUtils_generateAmounts_to_api',
+      productsData => generateAmounts(productsData)
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:editorAttributeUtils_generateProducts_to_api',
+      async productsData => await generateProducts(productsData)
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:editorAttributeUtils_getSubServiceDomain_to_api',
+      name => getSubServiceDomain(name)
+    );
+
+    consumeRPCQueue(
+      'rpc_queue:editorAttributeUtils_getCustomerName_to_api',
+      customer => Customers.getCustomerName(customer)
     );
 
     // graphql subscriptions call =========

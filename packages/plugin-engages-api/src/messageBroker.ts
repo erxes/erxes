@@ -117,7 +117,10 @@ export const getCustomerName = customer => {
   );
 };
 
-export const fetchSegment = async (segment, options): Promise<any> => {
+export const fetchSegment = async (
+  segment,
+  options: any = {}
+): Promise<any> => {
   return client.sendRPCMessage(
     'rpc_queue:engageUtils_fetchSegment_to_api',
     segment,
