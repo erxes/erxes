@@ -9,7 +9,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { Box, BoxRow, FlexItem, LabelWrapper } from './style';
+import { Box, BoxRow, FlexItem, LabelWrapper } from '@erxes/ui/src/components/step/style';
 
 type Props = {
   type: string;
