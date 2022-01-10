@@ -106,3 +106,15 @@ export const CONTENT_TYPES = {
     'user'
   ]
 };
+
+export const RABBITMQ_QUEUES = {
+  PUT_LOG: 'putLog',
+  RPC_API_TO_INTEGRATIONS: 'rpc_queue:api_to_integrations',
+  RPC_API_TO_WORKERS: 'rpc_queue:api_to_workers',
+  RPC_API_TO_WEBHOOK_WORKERS: 'rpc_queue:api_to_webhook_workers',
+  WORKERS: 'workers',
+  VISITOR_LOG: 'visitorLog',
+  RPC_VISITOR_LOG: 'rpc_queue:visitorLog',
+  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger',
+  LOG_DELETE_OLD: 'log:delete:old'
+};

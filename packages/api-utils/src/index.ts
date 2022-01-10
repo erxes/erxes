@@ -1,4 +1,4 @@
-import { CONTENT_TYPES, EMAIL_DELIVERY_STATUS, MODULE_NAMES } from './constants';
+import { CONTENT_TYPES, EMAIL_DELIVERY_STATUS, MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
   checkUserIds,
   chunkArray,
@@ -77,7 +77,8 @@ export {
   requireLogin,
   IContext,
   MODULE_NAMES,
-  CONTENT_TYPES
+  CONTENT_TYPES,
+  RABBITMQ_QUEUES
 };
 
 export default {

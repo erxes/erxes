@@ -109,9 +109,10 @@ export const validSearchText = (values: string[]) => {
 };
 
 const stringToRegex = (value: string) => {
-  const specialChars = [...'{}[]\\^$.|?*+()'];
+  const specialChars = '{}[]\\^$.|?*+()'.split('');
+  const val = value.split('');
 
-  const result = [...value].map((char) =>
+  const result = val.map((char) =>
     specialChars.includes(char) ? '.?\\' + char : '.?' + char
   );
 

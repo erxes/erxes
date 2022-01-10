@@ -115,7 +115,7 @@ export const sendNotification = async (
   let link = doc.link;
 
   // remove duplicated ids
-  const receiverIds = [...new Set(receivers)];
+  const receiverIds = [...Array.from(new Set(receivers))];
 
   // collecting emails
   const recipients = await models.Users.find({

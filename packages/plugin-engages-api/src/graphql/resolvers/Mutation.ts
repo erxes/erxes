@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 
-import { checkPermission, sendToWebhook, IContext, MODULE_NAMES } from '@erxes/api-utils';
+import { checkPermission, IContext, MODULE_NAMES } from '@erxes/api-utils';
 import { IEngageMessage } from '../../types';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -50,11 +50,12 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id })
     );
 
-    await sendToWebhook(models, {
-      action: 'create',
-      type: 'engageMessages',
-      params: engageMessage
-    });
+    // all models must be collected inside an object
+    // await sendToWebhook(models, {
+    //   action: 'create',
+    //   type: 'engageMessages',
+    //   params: engageMessage
+    // });
 
     await send(engageMessage);
 

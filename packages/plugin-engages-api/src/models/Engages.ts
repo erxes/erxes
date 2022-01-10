@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { IUserDocument, ICustomerDocument } from '@erxes/common-types';
+import { IUserDocument, ICustomerDocument, IBrowserInfo } from '@erxes/common-types';
 import { _ConversationMessages, _Conversations } from '../apiCollections';
 import { findUser, findElk } from '../engageUtils';
 import {
@@ -10,18 +10,11 @@ import { MESSAGE_KINDS } from '../constants';
 import { checkCustomerExists } from '../engageUtils';
 import { isUsingElk } from '../utils';
 // import { getNumberOfVisits } from '../../events';
-import { IBrowserInfo } from './Customers';
-import { METHODS } from './definitions/constants';
-import {
-  IEngageData,
-  IMessageDocument
-} from './definitions/conversationMessages';
+import { CAMPAIGN_METHODS, CONTENT_TYPES } from '../constants';
+import { IEngageData, IMessageDocument, IEngageMessage, IEngageMessageDocument } from '../types';
 import {
   engageMessageSchema,
-  IEngageMessage,
-  IEngageMessageDocument
 } from './definitions/engages';
-import { CONTENT_TYPES } from './definitions/segments';
 import EditorAttributeUtil from '../../data/editorAttributeUtils';
 interface ICheckRulesParams {
   rules: IRule[];
@@ -256,7 +249,7 @@ export const loadClass = () => {
           bool: {
             must: [
               { match: { 'messenger.brandId': brandId } },
-              { match: { method: METHODS.MESSENGER } },
+              { match: { method: CAMPAIGN_METHODS.MESSENGER } },
               { match: { isLive: true } }
             ]
           }
@@ -264,7 +257,7 @@ export const loadClass = () => {
       } else {
         messages = await EngageMessages.find({
           'messenger.brandId': brandId,
-          method: METHODS.MESSENGER,
+          method: CAMPAIGN_METHODS.MESSENGER,
           isLive: true
         });
       }

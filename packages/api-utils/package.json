@@ -22,6 +22,7 @@
   "dependencies": {
     "ioredis": "^4.28.2",
     "@babel/runtime": "^7.11.2",
+    "@erxes/common-types": "^1.0.0",
     "aws-sdk": "^2.151.0",
     "dd-trace": "^0.30.5",
     "debug": "^4.1.1",

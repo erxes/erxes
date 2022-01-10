@@ -43,3 +43,10 @@ export interface IBrandDocument extends IBrand, Document {
   emailConfig?: IBrandEmailConfigDocument;
   createdAt: Date;
 }
+
+export interface IBrowserInfo {
+  language?: string;
+  url?: string;
+  city?: string;
+  countryCode?: string;
+}
