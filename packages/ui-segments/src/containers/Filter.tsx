@@ -7,7 +7,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Filter from '../components/SidebarFilter';
 import { queries } from '../graphql';
-import { Counts, SegmentsQueryResponse } from '../types'; // will fix
+import { Counts, SegmentsQueryResponse } from '../types';
 
 type Props = {
   contentType: string;
