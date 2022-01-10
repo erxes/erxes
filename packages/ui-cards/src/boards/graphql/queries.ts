@@ -1,3 +1,7 @@
+import * as teamQueries from '@erxes/ui/src/team/graphql';
+
+const detailFields = teamQueries.detailFields;
+
 const pipelineLabelFields = `
   _id
   name
@@ -5,6 +9,99 @@ const pipelineLabelFields = `
   pipelineId
   createdBy
   createdAt
+`;
+
+const archivedStages = `
+  query archivedStages(
+    $pipelineId: String!,
+    $search: String,
+    $page: Int,
+    $perPage: Int,
+  ) {
+    archivedStages(
+      pipelineId: $pipelineId,
+      search: $search,
+      page: $page,
+      perPage: $perPage,
+    ) {
+      _id
+      name
+    }
+  }
+`;
+
+const boardGetLast = `
+  query boardGetLast($type: String!) {
+    boardGetLast(type: $type) {
+      _id
+      name
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+`;
+
+const boardDetail = `
+  query boardDetail($_id: String!) {
+    boardDetail(_id: $_id) {
+      _id
+      name
+      pipelines {
+        _id
+        name
+        visibility
+        memberIds
+        isWatched
+        startDate
+        endDate
+        state
+        itemsTotalCount
+        members {
+          _id
+          email
+          username
+          details {
+            avatar
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
+const archivedStagesCount = `
+  query archivedStagesCount(
+    $pipelineId: String!,
+    $search: String
+  ) {
+    archivedStagesCount(
+      pipelineId: $pipelineId,
+      search: $search
+    )
+  }
+`;
+
+const pipelineAssignedUsers = `
+  query pipelineAssignedUsers($_id: String!) {
+    pipelineAssignedUsers(_id: $_id) {
+      _id
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
+const pipelineLabelDetail = `
+  query pipelineLabelDetail($_id: String!) {
+    pipelineLabelDetail(_id: $_id) {
+      ${pipelineLabelFields}
+    }
+  }
 `;
 
 const boards = `
@@ -98,7 +195,106 @@ const pipelineLabels = `
   }
 `;
 
+const pipelineDetail = `
+  query pipelineDetail($_id: String!) {
+    pipelineDetail(_id: $_id) {
+      _id
+      name
+      bgColor
+      isWatched
+      hackScoringType
+    }
+  }
+`;
+
+const itemsCountBySegments = `
+  query itemsCountBySegments($type: String!, $boardId: String, $pipelineId: String) {
+    itemsCountBySegments(type: $type, boardId: $boardId, pipelineId: $pipelineId)
+  } 
+`;
+
+const stageDetail = `
+  query stageDetail(
+    $_id: String!,
+    ${commonParams}
+  ) {
+    stageDetail(
+      _id: $_id,
+      ${commonParamDefs}
+    ) {
+      _id
+      name
+      pipelineId
+      amount
+      itemsTotalCount
+    }
+  }
+`;
+
+const itemsCountByAssignedUser = `
+  query itemsCountByAssignedUser($pipelineId: String!, $type: String!, $stackBy: String) {
+    itemsCountByAssignedUser(pipelineId: $pipelineId, type: $type, stackBy: $stackBy)
+  } 
+`;
+
+const activityLogsByAction = `
+  query activityLogsByAction(
+    $contentType: String,
+    $action: String,
+    $pipelineId: String
+    $perPage: Int,
+    $page: Int
+  ) {
+    activityLogsByAction(
+      contentType: $contentType,
+      action: $action,
+      pipelineId: $pipelineId,
+      perPage: $perPage,
+      page: $page,
+    ) {
+      activityLogs {
+        _id
+        createdUser {
+          _id
+          username
+          email
+          
+          details {
+            ${detailFields}
+          }
+        }
+
+        action
+        content
+        createdAt
+        contentType
+        contentTypeDetail
+      }
+
+      totalCount
+    }
+  }
+`;
+
+const conversionStages = `
+  query stages(
+    ${stageParams}
+  ) {
+    stages(
+      ${stageParamDefs}
+    ) {
+      ${stageCommon}
+      compareNextStage
+      initialDealsTotalCount
+      stayedDealsTotalCount
+      inProcessDealsTotalCount
+    }
+  }
+`;
+
 export default {
+  archivedStages,
+  archivedStagesCount,
   boards,
   pipelines,
   commonParams,
@@ -107,5 +303,15 @@ export default {
   stageParams,
   stageParamDefs,
   stageCommon,
-  stages
+  stages,
+  pipelineDetail,
+  itemsCountBySegments,
+  stageDetail,
+  pipelineLabelDetail,
+  itemsCountByAssignedUser,
+  pipelineAssignedUsers,
+  activityLogsByAction,
+  boardDetail,
+  boardGetLast,
+  conversionStages
 };
