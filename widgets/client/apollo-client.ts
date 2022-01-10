@@ -3,6 +3,7 @@ import { ApolloClient } from 'apollo-client';
 import { split } from 'apollo-link';
 import { createHttpLink } from 'apollo-link-http';
 import { getMainDefinition } from 'apollo-utilities';
+import { getLocalStorageItem } from './common';
 import { getEnv } from './utils';
 import WebSocketLink from './WebSocketLink';
 
@@ -18,7 +19,12 @@ export const wsLink = new WebSocketLink({
   url: API_SUBSCRIPTIONS_URL,
   lazyCloseTimeout: 30000,
   retryAttempts: 100,
-  retryWait: () => new Promise(resolve => setTimeout(resolve, 5000))
+  retryWait: () => new Promise(resolve => setTimeout(resolve, 5000)),
+  connectionParams: () => {
+    const params:any = {};
+    params.messengerDataJson = getLocalStorageItem('messengerDataJson');
+    return params;
+  },
 });
 
 type Definintion = {
