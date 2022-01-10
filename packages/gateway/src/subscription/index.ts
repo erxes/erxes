@@ -44,7 +44,7 @@ export function loadSubscriptions(
         ctx,
         msg: SubscribeMessage
       ): Promise<ExecutionArgs | readonly GraphQLError[] | void> => {
-        await markClientActive(ctx);
+        // await markClientActive(ctx);
 
         const args = {
           schema,
@@ -77,7 +77,7 @@ export function loadSubscriptions(
         return args;
       },
       onClose: async (ctx, code: number, reason: string) => {
-        await markClientInactive(ctx);
+        // await markClientInactive(ctx);
       },
     },
     wsServer
