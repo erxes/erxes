@@ -1,7 +1,6 @@
 const { makeSubscriptionSchema } = require("esm")(module)(
   "federation-subscription-tools"
 );
-
 import { useServer } from "graphql-ws/lib/use/ws";
 import {
   execute,
@@ -12,13 +11,15 @@ import {
   subscribe,
   validate,
 } from "graphql";
-import ws, { MessageEvent, WebSocket } from "ws";
+import ws from "ws";
 import { GraphQLSchema } from "graphql";
 import GatewayDataSource from "./GatewayDataSource";
 import resolvers from "./resolvers";
-import typeDefs from './typeDefs';
-import { CompleteMessage, OperationResult, SubscribeMessage } from "graphql-ws";
-import { IncomingMessage } from "http";
+import typeDefs from "./typeDefs";
+import {
+  SubscribeMessage,
+} from "graphql-ws";
+import { markClientActive, markClientInactive } from './clientStatusUtils';
 
 export function loadSubscriptions(
   gatewaySchema: GraphQLSchema,
@@ -30,23 +31,21 @@ export function loadSubscriptions(
       execute,
       subscribe,
       context: (ctx, msg: SubscribeMessage, args: ExecutionArgs) => {
-
         // Instantiate and initialize the GatewayDataSource subclass
-        const gatewayDataSource = new GatewayDataSource(`http://localhost:${process.env.PORT}/graphql`);
+        const gatewayDataSource = new GatewayDataSource(
+          `http://localhost:${process.env.PORT}/graphql`
+        );
         gatewayDataSource.initialize({ context: ctx, cache: undefined });
 
         // Return the complete context for the request
         return { dataSources: { gatewayDataSource } };
       },
-      onSubscribe: (_ctx, msg: SubscribeMessage): Promise<ExecutionArgs | readonly GraphQLError[] | void> | ExecutionArgs | readonly GraphQLError[] | void => {
+      onSubscribe: async (
+        ctx,
+        msg: SubscribeMessage
+      ): Promise<ExecutionArgs | readonly GraphQLError[] | void> => {
+        // await markClientActive(ctx);
 
-        // TODO:
-        // const socket: ws & { customData?: any } = _ctx.extra.socket;
-        // socket.customData = "customData";
-
-        // console.log("onSubscribe", msg);
-
-        // Construct the execution arguments
         const args = {
           schema,
           operationName: msg.payload.operationName,
@@ -77,12 +76,12 @@ export function loadSubscriptions(
         // Ready execution arguments
         return args;
       },
-      onClose: (ctx, code: number, reason: string)  => {
-        // TODO:
-        // const socket: ws & { customData?: any } = ctx.extra.socket;
-        // console.log("ctx.extra.socket.customData", socket.customData);
+      onClose: async (ctx, code: number, reason: string) => {
+        // await markClientInactive(ctx);
       },
     },
     wsServer
   );
 }
+
+
