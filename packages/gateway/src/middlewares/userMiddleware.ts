@@ -65,7 +65,6 @@ export default async function userMiddleware(req: Request & { user?: any }, res:
     
     // invalid token access.
     if (!userDoc?.validatedTokens?.includes(token)) {
-      res.clearCookie("auth-token");
       return next();
     }
 
