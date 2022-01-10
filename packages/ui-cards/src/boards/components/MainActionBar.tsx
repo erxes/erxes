@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-// import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators'; // will fix
+import Participators from '@erxes/ui-inbox/src/components/workarea/Participators';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
@@ -166,7 +166,7 @@ class MainActionBar extends React.Component<Props> {
         <HeaderButton isActive={true}>
           <Icon icon="users-alt" /> {__('Private')}
         </HeaderButton>
-        {/* <Participators participatedUsers={members} limit={3} /> */}
+        <Participators participatedUsers={members} limit={3} />
       </>
     );
   }

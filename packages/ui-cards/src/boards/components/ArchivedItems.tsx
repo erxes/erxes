@@ -1,8 +1,6 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-// import { IDeal } from 'modules/deals/types'; // will fix
-// import { ITicket } from 'modules/tickets/types';
 import React, { useState } from 'react';
 import { BoardItem, ItemContainer, LoadMore } from '../styles/rightMenu';
 import { IItem, IOptions, IDeal, ITicket } from '../types';
