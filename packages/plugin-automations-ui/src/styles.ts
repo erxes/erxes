@@ -736,3 +736,11 @@ export const BoardHeader = styled(HeaderContent)`
     }
   }
 `;
+
+export const MainInfo = styled.div`
+overflow: hidden;
+
+> span {
+  margin-right: ${dimensions.unitSpacing}px;
+}
+`;
