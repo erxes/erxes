@@ -4,15 +4,35 @@ export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
 export const PRIORITIES = ['Critical', 'High', 'Normal', 'Low'];
 
-// will fix growth hack typesaas oruulj irsen
-export const HACKSTAGES = [
-  'Awareness',
-  'Acquisition',
-  'Activation',
-  'Retention',
-  'Revenue',
-  'Referrals'
+export const TEXT_COLORS = [
+  '#fff',
+  '#fefefe',
+  '#fafafa',
+  '#ccc',
+  '#ddd',
+  '#888',
+  '#444',
+  '#333',
+  '#222',
+  '#000'
 ];
+
+export const REMINDER_MINUTES = [
+  { _id: '0', name: 'At Time of Due Date' },
+  { _id: '5', name: '5 Minutes Before' },
+  { _id: '10', name: '10 Minutes Before' },
+  { _id: '15', name: '15 Minutes Before' },
+  { _id: '60', name: '1 Hour Before' },
+  { _id: '120', name: '2 Hour Before' },
+  { _id: '1440', name: '1 Day Before' },
+  { _id: '2880', name: '2 Day Before' }
+];
+
+export const PIPELINE_UPDATE_STATUSES = {
+  START: __('start'),
+  END: __('end'),
+  NEW_REQUEST: __('newRequest')
+};
 
 export const EMPTY_CONTENT_DEAL = {
   title: __('Getting Started with Sales Pipeline'),
@@ -84,6 +104,7 @@ export const groupByList = [
     title: 'Due Date'
   }
 ];
+
 export const groupByGantt = [
   {
     name: 'stage',
@@ -145,17 +166,6 @@ export const chartTypes = [
   }
 ];
 
-export const REMINDER_MINUTES = [
-  { _id: '0', name: 'At Time of Due Date' },
-  { _id: '5', name: '5 Minutes Before' },
-  { _id: '10', name: '10 Minutes Before' },
-  { _id: '15', name: '15 Minutes Before' },
-  { _id: '60', name: '1 Hour Before' },
-  { _id: '120', name: '2 Hour Before' },
-  { _id: '1440', name: '1 Day Before' },
-  { _id: '2880', name: '2 Day Before' }
-];
-
 export const SEARCH_ACTIVITY_CHECKBOX = [
   { action: 'create', value: 'added new card', title: 'Added new card' },
   { action: 'moved', value: 'moved card', title: 'Moved card' },
@@ -166,4 +176,22 @@ export const SEARCH_ACTIVITY_CHECKBOX = [
     title: 'Deleted archived card'
   },
   { action: 'addNote', value: 'added notes on', title: 'Added notes' }
+];
+
+export const TYPES = {
+  DAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
+  all: ['day', 'week', 'month', 'year']
+};
+
+// will fix growth hack typesaas oruulj irsen
+export const HACKSTAGES = [
+  'Awareness',
+  'Acquisition',
+  'Activation',
+  'Retention',
+  'Revenue',
+  'Referrals'
 ];
