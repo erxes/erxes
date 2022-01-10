@@ -1,7 +1,25 @@
 import * as _ from 'underscore';
+import {
+  IStageDocument,
+  IPipelineDocument,
+  IChannelDocument,
+  IIntegrationDocument,
+  ICompanyDocument,
+  ICustomerDocument,
+  IDealDocument,
+  ITaskDocument,
+  ITicketDocument,
+  IGrowthHackDocument
+} from '@erxes/common-types';
 
 import { MODULE_NAMES } from './constants';
 import { LOG_ACTIONS } from './logUtils';
+
+type BoardItemDocument =
+  | IDealDocument
+  | ITaskDocument
+  | ITicketDocument
+  | IGrowthHackDocument;
 
 export type LogDesc = {
   [key: string]: any;
