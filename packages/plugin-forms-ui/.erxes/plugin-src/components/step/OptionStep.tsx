@@ -13,7 +13,7 @@ import { IField } from '@erxes/ui/src/types';
 import { Description } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { BackgroundSelector, FlexItem } from './style';
+import { BackgroundSelector, FlexItem } from '@erxes/ui/src/components/step/style';
 
 type Props = {
   onChange: (

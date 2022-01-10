@@ -91,7 +91,7 @@ class DashboardDetail extends React.Component<Props, State> {
         {!isExplore && (
           <Link to={`/dashboard/explore/${id}`}>
             <Button btnStyle="success" icon="plus-circle">
-              Create a new chart
+              Create a new char
             </Button>
           </Link>
         )}

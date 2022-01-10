@@ -1,5 +1,5 @@
 module.exports = {
-    name: "reports",
+    name: "dashboard",
     port: 3007,
     exposes: {
       "./routes": "./src/routes.tsx",
@@ -14,7 +14,7 @@ module.exports = {
       {
         text: "Dashboard",
         url: "/dashboard",
-        icon: "icon-dashboard",
+        icon: "icon-car",
         location: "mainNavigation",
       },
     ],
