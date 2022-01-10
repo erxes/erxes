@@ -50,8 +50,8 @@ const conversationQueries = {
       .limit(params.limit || 0);
   },
 
-  async conversationMessage(_root, { _id }) {
-    return await ConversationMessages.find({ _id });
+  conversationMessage(_root, { _id }) {
+    return ConversationMessages.findOne({ _id });
   },
 
   /**

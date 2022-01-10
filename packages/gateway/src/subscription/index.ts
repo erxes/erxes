@@ -5,17 +5,20 @@ const { makeSubscriptionSchema } = require("esm")(module)(
 import { useServer } from "graphql-ws/lib/use/ws";
 import {
   execute,
+  ExecutionArgs,
   getOperationAST,
   GraphQLError,
   parse,
   subscribe,
   validate,
 } from "graphql";
-import ws from "ws";
+import ws, { MessageEvent, WebSocket } from "ws";
 import { GraphQLSchema } from "graphql";
 import GatewayDataSource from "./GatewayDataSource";
 import resolvers from "./resolvers";
 import typeDefs from './typeDefs';
+import { CompleteMessage, OperationResult, SubscribeMessage } from "graphql-ws";
+import { IncomingMessage } from "http";
 
 export function loadSubscriptions(
   gatewaySchema: GraphQLSchema,
@@ -26,16 +29,23 @@ export function loadSubscriptions(
     {
       execute,
       subscribe,
-      context: (ctx, msg, args) => {
+      context: (ctx, msg: SubscribeMessage, args: ExecutionArgs) => {
+
         // Instantiate and initialize the GatewayDataSource subclass
-        // (data source methods will be accessible on the `gatewayApi` key)
-        const gatewayDataSource = new GatewayDataSource("http://localhost:4000/graphql");
+        const gatewayDataSource = new GatewayDataSource(`http://localhost:${process.env.PORT}/graphql`);
         gatewayDataSource.initialize({ context: ctx, cache: undefined });
 
         // Return the complete context for the request
         return { dataSources: { gatewayDataSource } };
       },
-      onSubscribe: (_ctx, msg) => {
+      onSubscribe: (_ctx, msg: SubscribeMessage): Promise<ExecutionArgs | readonly GraphQLError[] | void> | ExecutionArgs | readonly GraphQLError[] | void => {
+
+        // TODO:
+        // const socket: ws & { customData?: any } = _ctx.extra.socket;
+        // socket.customData = "customData";
+
+        // console.log("onSubscribe", msg);
+
         // Construct the execution arguments
         const args = {
           schema,
@@ -66,6 +76,11 @@ export function loadSubscriptions(
         }
         // Ready execution arguments
         return args;
+      },
+      onClose: (ctx, code: number, reason: string)  => {
+        // TODO:
+        // const socket: ws & { customData?: any } = ctx.extra.socket;
+        // console.log("ctx.extra.socket.customData", socket.customData);
       },
     },
     wsServer

@@ -2,9 +2,9 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { ApolloClient } from 'apollo-client';
 import { split } from 'apollo-link';
 import { createHttpLink } from 'apollo-link-http';
-import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import { getEnv } from './utils';
+import WebSocketLink from './WebSocketLink';
 
 const { API_URL, API_SUBSCRIPTIONS_URL } = getEnv();
 
@@ -15,11 +15,10 @@ const httpLink = createHttpLink({
 
 // Subscription config
 export const wsLink = new WebSocketLink({
-  uri: API_SUBSCRIPTIONS_URL,
-  options: {
-    reconnect: true,
-    timeout: 30000
-  }
+  url: API_SUBSCRIPTIONS_URL,
+  lazyCloseTimeout: 30000,
+  retryAttempts: 100,
+  retryWait: () => new Promise(resolve => setTimeout(resolve, 5000))
 });
 
 type Definintion = {

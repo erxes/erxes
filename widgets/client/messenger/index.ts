@@ -26,6 +26,8 @@ widgetConnect({
       visitorId = await getVisitorId();
     }
 
+    
+
     return client.mutate({
       mutation: gql(graphqTypes.connect),
       variables: {
@@ -66,12 +68,12 @@ widgetConnect({
     // customerId to mark customer as not active
 
     // TODO: temporarily disabling typescript checker
-    const wsLinkFaker: any = wsLink;
+    // const wsLinkFaker: any = wsLink;
 
-    wsLinkFaker.subscriptionClient.sendMessage({
-      type: 'messengerConnected',
-      value: messengerData
-    });
+    // wsLinkFaker.subscriptionClient.sendMessage({
+    //   type: 'messengerConnected',
+    //   value: messengerData
+    // });
   },
 
   AppContainer: App

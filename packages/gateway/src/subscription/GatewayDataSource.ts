@@ -6,7 +6,7 @@ import { ApolloServer, gql } from "apollo-server-express";
 import { DocumentNode, GraphQLResolveInfo } from "graphql";
 import merge from "lodash/merge";
 
-export default class MyGatewayDataSource extends GatewayDataSource {
+export default class ErxesGatewayDataSource extends GatewayDataSource {
   constructor(gatewayUrl: string) {
     super(gatewayUrl);
   }
@@ -70,12 +70,12 @@ export default class MyGatewayDataSource extends GatewayDataSource {
       info,
       queryVariables: { _id: conversationMessage._id },
       buildQueryUsingSelections: (selections: any) => gql`
-        query Subscription_GetMessage($_id: String!) {
-          conversationMessage(_id: $_id) {
-            ${selections}
-          }
-        }
-    `,
+            query Subscription_GetMessage($_id: String!) {
+              conversationMessage(_id: $_id) {
+                ${selections}
+              }
+            }
+        `,
     });
   }
 }
