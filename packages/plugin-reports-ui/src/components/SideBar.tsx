@@ -1,0 +1,84 @@
+import Button from '@erxes/ui/src/components/Button';
+import { TopHeader } from '@erxes/ui/src/styles/main';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { SidebarList as List } from '@erxes/ui/src/layout/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+type Props = {
+  dashboardId: string;
+};
+
+class Sidebar extends React.Component<Props> {
+  renderListItem(url: string, text: string, isAll: boolean) {
+    if (!isAll) {
+      return (
+        <li>
+          <Link
+            to={url}
+            className={window.location.href.includes(url) ? 'active' : ''}
+          >
+            {text}
+          </Link>
+        </li>
+      );
+    }
+
+    return (
+      <li>
+        <Link
+          to={url}
+          className={window.location.href.includes('?type') ? '' : 'active'}
+        >
+          {text}
+        </Link>
+      </li>
+    );
+  }
+
+  renderSidebarHeader() {
+    return (
+      <TopHeader>
+        <Link to="/dashboard">
+          <Button btnStyle="simple" icon="arrow-circle-left" block={true}>
+            Back to Dashboard
+          </Button>
+        </Link>
+      </TopHeader>
+    );
+  }
+
+  render() {
+    const { dashboardId } = this.props;
+
+    return (
+      <LeftSidebar full={true} header={this.renderSidebarHeader()}>
+        <List>
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}`,
+            'All',
+            true
+          )}
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=customers`,
+            'Customers',
+            false
+          )}
+
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=conversations`,
+            'Conversation',
+            false
+          )}
+          {this.renderListItem(
+            `/dashboard/reports/${dashboardId}?type=deals`,
+            'Deal',
+            false
+          )}
+        </List>
+      </LeftSidebar>
+    );
+  }
+}
+
+export default Sidebar;

@@ -1,12 +1,9 @@
 {
-  "name": "@erxes/plugin-forms-ui",
+  "name": "@erxes/plugin-reports-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
     "start": "cd .erxes && yarn start",
     "build": "cd .erxes && yarn build"
-  },
-  "dependencies": {
-    "react-markdown": "^7.1.2"
   }
 }

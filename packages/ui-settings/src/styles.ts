@@ -159,5 +159,6 @@ export {
   WidgetBackgrounds,
   Capitalize,
   LinkButton,
+  SidebarListItem,
   FilterItem
 };
