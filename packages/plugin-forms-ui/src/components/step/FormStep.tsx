@@ -3,7 +3,7 @@ import EditForm from '@erxes/ui/src/forms/containers/EditForm';
 import { IFormData } from '@erxes/ui/src/forms/types';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import { FlexItem } from './style';
+import { FlexItem } from '@erxes/ui/src/components/step/style';
 
 type Props = {
   type: string;
