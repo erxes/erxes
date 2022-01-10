@@ -186,7 +186,7 @@ export const TYPES = {
   all: ['day', 'week', 'month', 'year']
 };
 
-// will fix growth hack typesaas oruulj irsen
+// type from growthHack
 export const HACKSTAGES = [
   'Awareness',
   'Acquisition',
