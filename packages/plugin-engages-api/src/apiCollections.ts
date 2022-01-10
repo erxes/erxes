@@ -58,3 +58,8 @@ export const _Segments = async () => {
   const collection = await db.collection('segments');
   return collection;
 };
+
+export const _Fields = async () => {
+  const collection = await db.collection('fields');
+  return collection;
+};
