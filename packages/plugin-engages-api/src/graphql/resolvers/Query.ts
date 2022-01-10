@@ -202,7 +202,7 @@ const engageQueries = {
       EngageMessages.find(query).sort({
         createdAt: -1
       }),
-      args
+      { ...args, ids: args.ids ? args.ids.split(',') : [] }
     );
   },
 
