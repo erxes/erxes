@@ -2,6 +2,12 @@ import * as _ from 'underscore';
 
 import { MODULE_NAMES } from './constants';
 import { LOG_ACTIONS } from './logUtils';
+import { _DB } from '@erxes/plugin-engages-api/src/apiCollections';
+
+const DB = async collection => {
+  const db = _DB();
+  return await db.collection(collection);
+};
 
 export type LogDesc = {
   [key: string]: any;
@@ -50,7 +56,7 @@ const gatherStageFieldNames = async (
   }
   if (doc.pipelineId) {
     options = await gatherNames({
-      collection: Pipelines,
+      collection: await DB('pipelines'),
       idFields: [doc.pipelineId],
       foreignKey: 'pipelineId',
       prevList: options,
@@ -59,7 +65,7 @@ const gatherStageFieldNames = async (
   }
   if (doc.formId) {
     options = await gatherNames({
-      collection: Forms,
+      collection: await DB('forms'),
       idFields: [doc.formId],
       foreignKey: 'formId',
       prevList: options,
@@ -78,7 +84,7 @@ const gatherStageFieldNames = async (
  * @param params.prevList Array to save found id with name
  * @param params.nameFields List of values to be mapped to id field
  */
- const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
+const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   const {
     collection,
     idFields,
@@ -116,14 +122,13 @@ const gatherUsernames = async (params: ILogNameParams): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
-    collection: Users,
+    collection: await DB('users'),
     idFields,
     foreignKey,
     prevList,
     nameFields: ['email', 'username']
   });
 };
-
 
 const gatherPipelineFieldNames = async (
   doc: IPipelineDocument,
@@ -136,7 +141,7 @@ const gatherPipelineFieldNames = async (
   }
 
   options = await gatherNames({
-    collection: Boards,
+    collection: await DB('boards'),
     idFields: [doc.boardId],
     foreignKey: 'boardId',
     nameFields: ['name'],
@@ -177,7 +182,6 @@ const gatherPipelineFieldNames = async (
 
   return options;
 };
-
 
 const gatherChannelFieldNames = async (
   doc: IChannelDocument,
@@ -222,7 +226,7 @@ const gatherIntegrationNames = async (
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
-    collection: Integrations,
+    collection: await DB('integrations'),
     idFields,
     foreignKey,
     prevList,
@@ -266,7 +270,7 @@ const gatherIntegrationFieldNames = async (
 
   if (doc.formId) {
     options = await gatherNames({
-      collection: Forms,
+      collection: await DB('forms'),
       idFields: [doc.formId],
       foreignKey: 'formId',
       prevList: options,
@@ -277,14 +281,13 @@ const gatherIntegrationFieldNames = async (
   return options;
 };
 
-
 export const gatherTagNames = async (
   params: ILogNameParams
 ): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
-    collection: Tags,
+    collection: await DB('tags'),
     idFields,
     foreignKey,
     prevList,
@@ -296,14 +299,13 @@ const gatherBrandNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
-    collection: Brands,
+    collection: await DB('brands'),
     idFields,
     foreignKey,
     prevList,
     nameFields: ['name']
   });
 };
-
 
 const gatherCompanyFieldNames = async (
   doc: ICompanyDocument,
@@ -317,7 +319,7 @@ const gatherCompanyFieldNames = async (
 
   if (doc.parentCompanyId) {
     options = await gatherNames({
-      collection: Companies,
+      collection: await DB('companies'),
       idFields: [doc.parentCompanyId],
       foreignKey: 'parentCompanyId',
       prevList: options,
@@ -335,7 +337,7 @@ const gatherCompanyFieldNames = async (
 
   if (doc.mergedIds && doc.mergedIds.length > 0) {
     options = await gatherNames({
-      collection: Companies,
+      collection: await DB('companies'),
       idFields: doc.mergedIds,
       foreignKey: 'mergedIds',
       prevList: options,
@@ -390,7 +392,7 @@ const gatherCustomerFieldNames = async (
 
   if (doc.mergedIds) {
     options = await gatherNames({
-      collection: Customers,
+      collection: await DB('customers'),
       idFields: doc.mergedIds,
       foreignKey: 'mergedIds',
       prevList: options,
@@ -437,13 +439,15 @@ const gatherBoardItemFieldNames = async (
 
   if (doc.labelIds && doc.labelIds.length > 0) {
     options = await gatherNames({
-      collection: PipelineLabels,
+      collection: await DB('pipelineLabels'),
       idFields: doc.labelIds,
       foreignKey: 'labelIds',
       prevList: options,
       nameFields: ['name']
     });
   }
+
+  const Stages = await DB('stages');
 
   options = await gatherNames({
     collection: Stages,
@@ -480,6 +484,11 @@ const findItemName = async ({
 }: IContentTypeParams): Promise<string> => {
   let item: any;
   let name: string = '';
+
+  const Deals = await DB('deals');
+  const Tasks = await DB('tasks');
+  const Tickets = await DB('tickets');
+  const GrowthHacks = await DB('growthHacks');
 
   if (contentType === ACTIVITY_CONTENT_TYPES.DEAL) {
     item = await Deals.findOne({ _id: contentTypeId });
@@ -518,7 +527,7 @@ const gatherDealFieldNames = async (
 
   if (doc.productsData && doc.productsData.length > 0) {
     options = await gatherNames({
-      collection: Products,
+      collection: await DB('products'),
       idFields: doc.productsData.map(p => p.productId),
       foreignKey: 'productId',
       prevList: options,
@@ -541,7 +550,7 @@ const gatherEngageFieldNames = async (
 
   if (doc.segmentIds && doc.segmentIds.length > 0) {
     options = await gatherNames({
-      collection: Segments,
+      collection: await DB('segments'),
       idFields: doc.segmentIds,
       foreignKey: 'segmentIds',
       prevList: options,
@@ -607,7 +616,6 @@ const gatherGHFieldNames = async (
   return options;
 };
 
-
 const gatherKbTopicFieldNames = async (
   doc: ITopicDocument,
   prevList?: LogDesc[]
@@ -638,6 +646,7 @@ const gatherKbTopicFieldNames = async (
     });
   }
 
+  const KnowledgeBaseCategories = await DB('knowledgeBaseCategories');
   if (doc.categoryIds && doc.categoryIds.length > 0) {
     // categories are removed alongside
     const categories = await KnowledgeBaseCategories.find(
@@ -665,7 +674,7 @@ const gatherKbCategoryFieldNames = async (
   if (prevList) {
     options = prevList;
   }
-
+  const KnowledgeBaseArticles = await DB('knowledgeBaseArticles');
   const articles = await KnowledgeBaseArticles.find(
     { _id: { $in: doc.articleIds } },
     { title: 1 }
@@ -692,7 +701,6 @@ const gatherKbCategoryFieldNames = async (
   return options;
 };
 
-
 const gatherProductFieldNames = async (
   doc: IProductDocument,
   prevList?: LogDesc[]
@@ -713,7 +721,7 @@ const gatherProductFieldNames = async (
 
   if (doc.categoryId) {
     options = await gatherNames({
-      collection: ProductCategories,
+      collection: await DB('productCategories'),
       idFields: [doc.categoryId],
       foreignKey: 'categoryId',
       prevList: options,
@@ -744,7 +752,7 @@ const gatherScriptFieldNames = async (
 
   if (doc.kbTopicId) {
     options = await gatherNames({
-      collection: KnowledgeBaseTopics,
+      collection: await DB('knowledgeBaseTopics'),
       idFields: [doc.kbTopicId],
       foreignKey: 'kbTopicId',
       prevList: options,
@@ -781,7 +789,7 @@ const gatherPipelineTemplateFieldNames = async (
 
   if (doc.stages && doc.stages.length > 0) {
     options = await gatherNames({
-      collection: Forms,
+      collection: await DB('forms'),
       idFields: doc.stages.map(s => s.formId),
       foreignKey: 'formId',
       prevList: options,
@@ -804,7 +812,7 @@ const gatherUserFieldNames = async (
 
   // show only user group names of users for now
   options = await gatherNames({
-    collection: UsersGroups,
+    collection: await DB('usersGroups'),
     idFields: doc.groupIds || [],
     foreignKey: 'groupIds',
     nameFields: ['name'],
@@ -820,6 +828,15 @@ const findContentItemName = async (
   contentTypeId: string
 ): Promise<string> => {
   let name: string = '';
+
+  const Deals = await DB('deals');
+  const Customers = await DB('customers');
+  const Companies = await DB('companies');
+  const Tasks = await DB('tasks');
+  const Tickets = await DB('tickets');
+  const GrowthHacks = await DB('growthHacks');
+  const Users = await DB('users');
+  const Products = await DB('products');
 
   if (contentType === MODULE_NAMES.DEAL) {
     const deal = await Deals.getDeal(contentTypeId);
@@ -881,7 +898,6 @@ const findContentItemName = async (
   return name;
 };
 
-
 export const gatherDescriptions = async (
   params: IDescriptionParams
 ): Promise<IDescriptions> => {
@@ -889,6 +905,11 @@ export const gatherDescriptions = async (
 
   let extraDesc: LogDesc[] = [];
   let description: string = '';
+
+  const Checklists = await DB('checklists');
+  const Companies = await DB('companies');
+  const Customers = await DB('customers');
+  const Products = await DB('products');
 
   switch (type) {
     case MODULE_NAMES.BRAND:
@@ -1153,6 +1174,9 @@ export const gatherDescriptions = async (
     case MODULE_NAMES.PERMISSION:
       description = `Permission of module "${obj.module}", action "${obj.action}" assigned to `;
 
+      const UsersGroups = await DB('usersGroups');
+      const Users = await DB('users');
+
       if (obj.groupId) {
         const group = await UsersGroups.getGroup(obj.groupId);
 
@@ -1175,6 +1199,8 @@ export const gatherDescriptions = async (
       break;
     case MODULE_NAMES.PIPELINE_LABEL:
       description = `"${obj.name}" has been ${action}d`;
+
+      const Pipelines = await DB('pipelines');
 
       const pipeline = await Pipelines.findOne({ _id: obj.pipelineId });
 
@@ -1226,7 +1252,7 @@ export const gatherDescriptions = async (
 
       if (parentIds.length > 0) {
         extraDesc = await gatherNames({
-          collection: ProductCategories,
+          collection: await DB('productCategories'),
           idFields: parentIds,
           foreignKey: 'parentId',
           nameFields: ['name']
@@ -1286,7 +1312,7 @@ export const gatherDescriptions = async (
 
       if (parents.length > 0) {
         extraDesc = await gatherNames({
-          collection: Segments,
+          collection: await DB('segments'),
           idFields: parents,
           foreignKey: 'subOf',
           nameFields: ['name']
