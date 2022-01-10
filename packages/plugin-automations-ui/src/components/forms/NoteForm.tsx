@@ -6,11 +6,8 @@ import { IFormProps } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import { __, renderUserFullName } from '@erxes/ui/src/utils';
 import { IAutomationNote } from '../../types';
-import {
-  MainInfo,
-  CustomerName,
-  FlexWidth
-} from 'modules/inbox/components/leftSidebar/styles';
+import { CustomerName, EllipsisContent } from '@erxes/ui/src/styles/main';
+import {MainInfo} from '@erxes/ui-inbox/src/components/leftSidebar/styles';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import dayjs from 'dayjs';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -91,7 +88,7 @@ class NoteForm extends React.Component<Props, State> {
               user={note.createdUser || {}}
             />
             <CustomerName>
-              <FlexWidth>{renderUserFullName(note.createdUser)}</FlexWidth>
+              <EllipsisContent>{renderUserFullName(note.createdUser)}</EllipsisContent>
               <time>{dayjs(note.createdAt).fromNow(true)}</time>
             </CustomerName>
           </div>

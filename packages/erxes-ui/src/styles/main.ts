@@ -375,6 +375,23 @@ const LinkButton = styled.a`
   }
 `;
 
+const EllipsisContent = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+`;
+
+const CustomerName = styled(FlexCenter)`
+  overflow: hidden;
+
+  time {
+    padding-left: 5px;
+    color: ${colors.colorCoreGray};
+    font-size: 12px;
+  }
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -406,5 +423,7 @@ export {
   Flex,
   FlexHeight,
   LinkButton,
-  FlexCenter
+  FlexCenter,
+  EllipsisContent,
+  CustomerName,
 };
