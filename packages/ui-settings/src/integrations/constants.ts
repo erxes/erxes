@@ -129,3 +129,21 @@ export const hours = [
   { value: '11:30 PM', label: '11:30 PM' },
   { value: '11:59 PM', label: '11:59 PM' }
 ];
+
+export const MAIL_TOOLBARS_CONFIG = [
+  { name: 'styles', items: ['Font', 'FontSize'] },
+  {
+    name: 'other',
+    items: [
+      'TextColor',
+      'BGColor',
+      'Bold',
+      'Italic',
+      'Underline',
+      'NumberedList',
+      'BulletedList',
+      'Link'
+    ]
+  },
+  { name: 'clear', items: ['RemoveFormat'] }
+];

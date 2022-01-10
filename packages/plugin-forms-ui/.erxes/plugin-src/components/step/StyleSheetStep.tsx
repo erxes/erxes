@@ -4,7 +4,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { FlexItem } from './style';
+import { FlexItem } from '@erxes/ui/src/components/step/style';
 
 type Props = {
   onChange: (name: 'css', value: string) => void;

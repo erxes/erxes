@@ -1,4 +1,4 @@
-import { customerFields } from "./queries";
+import { customerFields } from './queries';
 
 const commonFields = `
   $avatar: String,
@@ -66,7 +66,32 @@ const customersEdit = `
   }
 `;
 
+const customersRemove = `
+  mutation customersRemove($customerIds: [String]) {
+    customersRemove(customerIds: $customerIds)
+  }
+`;
+
+const customersMerge = `
+  mutation customersMerge($customerIds: [String], $customerFields: JSON) {
+    customersMerge(customerIds: $customerIds, customerFields: $customerFields) {
+      _id
+    }
+  }
+`;
+
+const customersChangeState = `
+  mutation customersChangeState($_id: String!, $value: String!) {
+    customersChangeState(_id: $_id, value: $value) {
+      _id
+    }
+  }
+`;
+
 export default {
   customersAdd,
-  customersEdit
+  customersEdit,
+  customersRemove,
+  customersMerge,
+  customersChangeState
 };

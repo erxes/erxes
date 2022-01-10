@@ -80,3 +80,37 @@ export type AddMutationResponse = {
 export type CustomersQueryResponse = {
   customers: ICustomer[];
 } & QueryResponse;
+
+export type ChangeStateMutationVariables = {
+  _id: string;
+  value: string;
+};
+
+export type ChangeStateMutationResponse = {
+  customersChangeState: (doc: {
+    variables: ChangeStateMutationVariables;
+  }) => Promise<any>;
+};
+
+export type MergeMutationVariables = {
+  customerIds: string[];
+  customerFields: ICustomer;
+};
+
+export type MergeMutationResponse = {
+  customersMerge: (doc: { variables: MergeMutationVariables }) => Promise<any>;
+};
+
+export type RemoveMutationVariables = {
+  customerIds: string[];
+};
+
+export type RemoveMutationResponse = {
+  customersRemove: (doc: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditMutationResponse = {
+  customersEdit: (doc: { variables: ICustomer }) => Promise<any>;
+};
