@@ -1,4 +1,6 @@
-import { Document } from 'mongoose';
+import { Document, Schema } from 'mongoose';
+
+import { field } from './utils';
 
 export interface IRule {
   kind: string;
@@ -43,3 +45,22 @@ export interface IBrandDocument extends IBrand, Document {
   emailConfig?: IBrandEmailConfigDocument;
   createdAt: Date;
 }
+
+// schema for form's rules
+export const ruleSchema = new Schema(
+  {
+    _id: field({ type: String }),
+
+    // browserLanguage, currentUrl, etc ...
+    kind: field({ type: String, label: 'Kind' }),
+
+    // Browser language, Current url etc ...
+    text: field({ type: String, label: 'Text' }),
+
+    // is, isNot, startsWith
+    condition: field({ type: String, label: 'Condition' }),
+
+    value: field({ type: String, label: 'Value', optional: true })
+  },
+  { _id: false }
+);

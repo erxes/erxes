@@ -1,4 +1,4 @@
-import { IBrowserInfo } from "./common";
+import { IBrowserInfo, IRule } from "./common";
 import { ICustomerDocument, ICustomer } from "./customers";
 import { IUserDocument, IUser } from "./users";
 import { IBrandDocument } from "./brands";
@@ -9,5 +9,6 @@ export {
   IUserDocument,
   IUser,
   IBrandDocument,
-  IBrowserInfo
+  IBrowserInfo,
+  IRule
 };

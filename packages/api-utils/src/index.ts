@@ -38,6 +38,8 @@ import {
 } from './permissions';
 
 import { IContext } from './types';
+import { ruleSchema } from './definitions/common';
+import { field, schemaWrapper } from './definitions/utils';
 
 export { EMAIL_DELIVERY_STATUS };
 export { getEnv }; // ({ name, defaultValue })
@@ -78,7 +80,10 @@ export {
   IContext,
   MODULE_NAMES,
   CONTENT_TYPES,
-  RABBITMQ_QUEUES
+  RABBITMQ_QUEUES,
+  ruleSchema,
+  field,
+  schemaWrapper
 };
 
 export default {
