@@ -1,9 +1,34 @@
 import { colors, dimensions } from '../../styles';
+import { BoxRoot } from '@erxes/ui/src/styles/main';
+import { ContentHeader } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
+
+const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
+  padding: ${dimensions.coreSpacing * 1.5}px;
+  width: 50%;
+  background: ${colors.colorWhite};
+  min-width: 160px;
+  i {
+    font-size: 34px;
+    color: ${colors.colorSecondary};
+  }
+  span {
+    font-weight: ${props => props.selected && '500'};
+  }
+  &:last-child {
+    margin-right: 0;
+  }
+`;
+
+const BoxRow = styledTS<{ type?: string }>(styled.div)`
+  display: flex;
+  flex-direction: row;
+  margin-right: ${props => props.type && '20px'};
+`;
 
 const FlexItem = styled.div`
   display: flex;
@@ -39,6 +64,32 @@ const FullPreview = styled.div`
   justify-content: space-between;
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
+`;
+
+const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: ${dimensions.unitSpacing / 2}px;
+  margin-right: ${dimensions.unitSpacing / 2}px;
+  border: 1px solid
+    ${props => (props.selected ? colors.colorShadowGray : 'transparent')};
+  > div {
+    height: ${dimensions.headerSpacing - 20}px;
+    width: ${dimensions.headerSpacing - 20}px;
+    background: ${colors.borderPrimary};
+    border-radius: 50%;
+    text-align: center;
+    line-height: ${dimensions.headerSpacing - 20}px;
+    > i {
+      visibility: ${props => (props.selected ? 'visible' : 'hidden')};
+      font-size: ${dimensions.unitSpacing}px;
+      color: ${colors.colorWhite};
+      &:before {
+        font-weight: 700;
+      }
+    }
+  }
 `;
 
 const ImageUpload = styled.div`
@@ -169,6 +220,17 @@ const TabletPreview = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
+
+const FlexColumn = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  ${ContentHeader} {
+    border-bottom: none;
+    border-top: 1px solid ${colors.borderPrimary};
+  }
+`;
+
 const PreviewWrapper = styled.div`
   width: 40%;
   background: ${colors.colorWhite};
@@ -189,15 +251,24 @@ const PreviewWrapper = styled.div`
   }
 `;
 
+const LabelWrapper = styled.div`
+  margin-bottom: 10px;
+`;
+
 export {
+  Box,
+  BoxRow,
   FlexItem,
   ImageUpload,
   ImagePreview,
+  FlexColumn,
   PreviewWrapper,
+  BackgroundSelector,
   CarouselInner,
   CarouselSteps,
   DesktopPreview,
   FullPreview,
   MobilePreview,
-  TabletPreview
+  TabletPreview,
+  LabelWrapper
 };

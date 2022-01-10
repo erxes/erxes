@@ -11,7 +11,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { uploadHandler } from '@erxes/ui/src/utils';
 import ActionBar from '@erxes/ui/src/layout/components/ActionBar';
 import React from 'react';
-import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from './style';
+import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from '@erxes/ui/src/components/step/style';
 
 const defaultValue = {
   isSkip: false
