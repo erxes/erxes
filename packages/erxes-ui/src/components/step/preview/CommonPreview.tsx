@@ -1,5 +1,5 @@
-import Button from '@erxes/ui/src/components/Button';
-import { readFile } from '@erxes/ui/src/utils';
+import Button from '../../Button';
+import { readFile } from '../../../utils';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import {

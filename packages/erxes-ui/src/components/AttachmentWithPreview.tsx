@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { readFile, __ } from "../utils/core";
 import CommonPortal from "./CommonPortal";
 import Icon from "./Icon";
-import { IAttachment } from "types";
+import { IAttachment } from "../types";
 import { PreviewWrapper, Image } from "./ImageWithPreview";
 
 const PreviewOverlay = styled.div`

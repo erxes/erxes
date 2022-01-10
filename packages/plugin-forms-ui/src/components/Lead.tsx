@@ -25,7 +25,7 @@ import {
   OptionStep,
   SuccessStep,
 } from "./step";
-import { PreviewWrapper } from "./step/style";
+import { PreviewWrapper } from "@erxes/ui/src/components/step/style";
 import StyleSheetStep from "./step/StyleSheetStep";
 
 type Props = {

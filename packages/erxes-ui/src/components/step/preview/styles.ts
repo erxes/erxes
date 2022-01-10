@@ -1,6 +1,6 @@
-import { Formgroup, Label } from '@erxes/ui/src/components/form/styles';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { Formgroup, Label } from '../../form/styles';
+import { colors, dimensions } from '../../../styles';
+import { rgba } from '../../../styles/ecolor';
 import {
   DragHandler,
   SortableWrapper,
