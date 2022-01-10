@@ -1,11 +1,13 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { Contents, MainContent } from '@erxes/ui/src/layout/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 
+export const coreHeight = 50;
 export const stageWidth = 280;
 export const borderRadius = '2px';
+export const stageHeight = 'calc(100vh - 200px)';
 
 export const BoardContainer = styled(Contents)`
   margin: 0;
@@ -24,6 +26,14 @@ export const BoardContent = styledTS<{
     transparent ? 'transparent' : bgColor || colors.colorSecondary};
 `;
 
+export const ScrolledContent = styled.div`
+  padding: 4px 0 8px;
+  margin: 6px 10px 4px 5px;
+  flex: 1;
+  will-change: contents;
+  overflow: auto;
+`;
+
 export const RootBack = styled.div`
   display: flex;
   flex: 1;
@@ -36,14 +46,6 @@ export const ChartBack = styled(RootBack)`
   background-color: ${colors.colorWhite};
   margin: ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
-`;
-
-export const ScrolledContent = styled.div`
-  padding: 4px 0 8px;
-  margin: 6px 10px 4px 5px;
-  flex: 1;
-  will-change: contents;
-  overflow: auto;
 `;
 
 export const GroupByContent = styled.div`
@@ -65,12 +67,25 @@ export const GroupByContent = styled.div`
     color: ${colors.colorCoreGray};
   }
 `;
-export const DragDisabler = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  cursor: progress;
-  z-index: 10;
+
+// IItem list
+export const DropZone = styled.div`
+  min-height: 160px;
+  will-change: height;
+`;
+
+export const EmptyContainer = styled.div`
+  height: 100px;
+`;
+
+export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
+  background-color: ${({ isDraggingOver }) =>
+    isDraggingOver && 'rgba(10, 45, 65, .1)'};
+  display: flex;
+  flex-direction: column;
+  padding: 0 4px;
+  transition: background-color 0.1s ease, opacity 0.1s ease;
+  user-select: none;
 `;
 
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`
@@ -95,6 +110,10 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   }
 `;
 
+export const FormContainer = styled.div`
+  padding-right: 20px;
+`;
+
 export const SelectContainer = styled.div`
   padding-right: 15px;
 `;
@@ -102,6 +121,26 @@ export const SelectContainer = styled.div`
 export const ItemDate = styled.span`
   font-size: 11px;
   color: rgb(136, 136, 136);
+`;
+
+export const NotifiedContainer = styled.div`
+  position: absolute;
+  right: 8px;
+  border-radius: 12px;
+  width: 22px;
+  height: 22px;
+  background-color: ${rgba(colors.colorCoreRed, 0.2)};
+  color: ${colors.colorCoreRed};
+  text-align: center;
+  line-height: 22px;
+`;
+
+export const DragDisabler = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  cursor: progress;
+  z-index: 10;
 `;
 
 export const ItemContainer = styledTS<{
@@ -121,36 +160,4 @@ export const ItemContainer = styledTS<{
   -webkit-box-pack: justify;
   justify-content: space-between;
   will-change: transform;
-`;
-
-// IItem list
-export const DropZone = styled.div`
-  min-height: 160px;
-  will-change: height;
-`;
-
-export const EmptyContainer = styled.div`
-  height: 100px;
-`;
-
-export const NotifiedContainer = styled.div`
-  position: absolute;
-  right: 8px;
-  border-radius: 12px;
-  width: 22px;
-  height: 22px;
-  background-color: ${rgba(colors.colorCoreRed, 0.2)};
-  color: ${colors.colorCoreRed};
-  text-align: center;
-  line-height: 22px;
-`;
-
-export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
-  background-color: ${({ isDraggingOver }) =>
-    isDraggingOver && 'rgba(10, 45, 65, .1)'};
-  display: flex;
-  flex-direction: column;
-  padding: 0 4px;
-  transition: background-color 0.1s ease, opacity 0.1s ease;
-  user-select: none;
 `;

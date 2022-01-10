@@ -1,5 +1,5 @@
-import { colors } from '@erxes/ui/src/styles';
-import { darken, lighten } from '@erxes/ui/src/styles/ecolor';
+import { colors } from 'modules/common/styles';
+import { darken, lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
