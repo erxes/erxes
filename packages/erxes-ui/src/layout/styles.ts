@@ -3,6 +3,8 @@ import styledTS from 'styled-components-ts';
 import { TabContainer } from 'erxes-ui/lib/components/tabs/styles';
 import { colors, dimensions, typography } from '../styles';
 import { lighten } from '../styles/ecolor';
+import { rgba } from '../styles/ecolor';
+import { twinkling } from '../utils/animations';
 
 const FlexContent = styled.div`
   display: flex;
@@ -507,8 +509,91 @@ const SectionBodyItem = styled.div`
   }
 `;
 
+const AuthContent = styled.div`
+  position: relative;
+  margin: auto;
+`;
+
+const AuthDescription = styled.div`
+  margin: 20px 0;
+  img {
+    width: 100px;
+    margin-bottom: 50px;
+  }
+  h1 {
+    font-weight: bold;
+    font-size: 34px;
+    margin: 10px 0 30px;
+    color: ${colors.colorWhite};
+  }
+  h2 {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.4em;
+    font-weight: 500;
+  }
+  p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 50px;
+    font-size: 18px;
+    line-height: 1.8em;
+  }
+  a {
+    color: rgba(255, 255, 255, 0.7);
+    &:hover {
+      color: ${colors.colorWhite};
+    }
+  }
+  .not-found {
+    margin-top: 0;
+  }
+`;
+
+const Authlayout = styled.div`
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
+    center;
+  flex: 1;
+  display: flex;
+  &:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent url('/images/twinkling.png') repeat top center;
+    animation: ${twinkling} 200s linear infinite;
+  }
+  @media (max-width: 768px) {
+    overflow: auto;
+    padding-bottom: ${dimensions.coreSpacing * 5}px;
+  }
+`;
+
+const MobileRecommend = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 12px;
+  background: linear-gradient(
+    to right,
+    ${colors.colorSecondary},
+    ${colors.colorCoreTeal}
+  );
+  color: ${colors.colorWhite};
+  transition: all ease 0.3s;
+  padding: 15px ${dimensions.coreSpacing}px;
+  box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
+`;
+
 export {
   PageHeader,
+  AuthContent,
+  AuthDescription,
+  Authlayout,
+  MobileRecommend,
   VerticalContent,
   HeightedWrapper,
   Contents,

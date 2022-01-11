@@ -1,8 +1,8 @@
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import { LEAD_CHOICES } from 'modules/customers/constants';
-import { LeadStateWrapper, StateItem } from 'modules/customers/styles';
-import { ICustomer } from 'modules/customers/types';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LEAD_CHOICES } from '../../constants';
+import { LeadStateWrapper, StateItem } from '../../styles';
+import { ICustomer } from '../../types';
 import React from 'react';
 
 type IProps = {

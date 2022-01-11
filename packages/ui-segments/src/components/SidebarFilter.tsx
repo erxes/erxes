@@ -3,11 +3,7 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';

@@ -13,9 +13,9 @@ import CustomersMerge from '../detail/CustomersMerge';
 import CustomerForm from '../../containers/CustomerForm';
 import { Actions, MailBox, States } from '../../styles';
 import { ICustomer } from '../../types';
-import { Box } from 'modules/settings/growthHacks/styles';
+import { Box } from '../../styles';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import SmsForm from 'modules/settings/integrations/containers/telnyx/SmsForm';
+import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 

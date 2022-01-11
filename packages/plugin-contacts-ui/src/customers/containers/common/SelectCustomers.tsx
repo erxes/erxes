@@ -1,3 +1,3 @@
-import SelectCustomers from 'erxes-ui/lib/customers/containers/SelectCustomers';
+import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 
 export default SelectCustomers;

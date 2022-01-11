@@ -1,5 +1,5 @@
 {
-  "name": "ui-plugin-contacts",
+  "name": "@erxes/plugin-contacts-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",

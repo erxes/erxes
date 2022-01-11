@@ -1,12 +1,12 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
-import Box from 'modules/common/components/Box';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Icon from 'modules/common/components/Icon';
-import { __, router } from 'modules/common/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { IRouterProps } from '../../../common/types';
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __, router } from '@erxes/ui/src/utils';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { LEAD_STATUS_TYPES } from '../../constants';
 import { leadStatusChoices } from '../../utils';
 

@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
-import { __ } from 'modules/common/utils';
-import { GENDER_TYPES } from 'modules/customers/constants';
-import { ICustomer } from 'modules/customers/types';
+import { __ } from '@erxes/ui/src/utils';
+import { GENDER_TYPES } from '../../constants';
+import { ICustomer } from '../../types';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
-} from 'modules/layout/styles';
-import { IField } from 'modules/settings/properties/types';
+} from '@erxes/ui/src/layout/styles';
+import { IField } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import PrimaryEmail from './PrimaryEmail';
 import PrimaryPhone from './PrimaryPhone';

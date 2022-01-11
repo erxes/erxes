@@ -1,8 +1,8 @@
-import Box from 'modules/common/components/Box';
-import EmptyState from 'modules/common/components/EmptyState';
-import { __ } from 'modules/common/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { calculatePercentage } from 'modules/robot/utils';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { __ } from '@erxes/ui/src/utils';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import { calculatePercentage } from '../../utils';
 import React from 'react';
 import styled from 'styled-components';
 import { IUrlVisits } from '../../types';

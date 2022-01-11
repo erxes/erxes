@@ -1,11 +1,11 @@
-import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import Icon from 'modules/common/components/Icon';
-import { Column, Columns, Title } from 'modules/common/styles/chooser';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, renderFullName } from 'modules/common/utils';
+import Button from '@erxes/ui/src/components/Button';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __, renderFullName } from '@erxes/ui/src/utils';
 import React from 'react';
-import { IUser } from '../../../auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import {
   CUSTOMER_BASIC_INFO,
   CUSTOMER_DATAS,
