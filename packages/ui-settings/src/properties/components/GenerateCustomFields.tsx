@@ -72,13 +72,13 @@ class GenerateGroup extends React.Component<Props, State> {
     return (
       <Sidebar.Footer>
         <Button
-          btnStyle='simple'
+          btnStyle="simple"
           onClick={this.cancelEditing}
-          icon='times-circle'
+          icon="times-circle"
         >
           Discard
         </Button>
-        <Button btnStyle='success' onClick={this.save} icon='check-circle'>
+        <Button btnStyle="success" onClick={this.save} icon="check-circle">
           Save
         </Button>
       </Sidebar.Footer>
@@ -102,9 +102,9 @@ class GenerateGroup extends React.Component<Props, State> {
     ) {
       return (
         <EmptyState
-          icon='folder-2'
+          icon="folder-2"
           text={`${fields.length} property(s) hidden.`}
-          size='small'
+          size="small"
         />
       );
     }
@@ -138,7 +138,7 @@ class GenerateGroup extends React.Component<Props, State> {
     }
 
     return (
-      <Box title={fieldGroup.name} name='showCustomFields'>
+      <Box title={fieldGroup.name} name="showCustomFields">
         {this.renderContent()}
         {this.renderButtons()}
       </Box>

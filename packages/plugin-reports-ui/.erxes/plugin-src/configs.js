@@ -14,7 +14,7 @@ module.exports = {
       {
         text: "Dashboard",
         url: "/dashboard",
-        icon: "icon-car",
+        icon: "icon-dashboard",
         location: "mainNavigation",
       },
     ],

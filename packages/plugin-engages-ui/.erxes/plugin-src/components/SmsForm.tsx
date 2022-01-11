@@ -17,6 +17,7 @@ import {
 } from '../types';
 import Scheduler from './Scheduler';
 import SmsPreview from './SmsPreview';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
 
 const SMSInfo = styled.div`
   display: flex;
@@ -41,7 +42,7 @@ type Props = {
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   fromUserId: string;
-  smsConfig: any; // fix needed IConfig;
+  smsConfig: IConfig;
   integrations: IIntegrationWithPhone[];
 };
 

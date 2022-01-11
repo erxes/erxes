@@ -9,7 +9,7 @@ import { IAutomationNote } from '../../types';
 import { CustomerName, EllipsisContent } from '@erxes/ui/src/styles/main';
 import {MainInfo} from '../../styles';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
 

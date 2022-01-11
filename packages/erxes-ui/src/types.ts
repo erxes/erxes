@@ -183,3 +183,11 @@ type CustomerCounts = {
 export type CountQueryResponse = {
   customerCounts: CustomerCounts;
 } & QueryResponse;
+
+export interface ISubNav {
+  permission: string;
+  link: string;
+  value: string;
+  icon: string;
+  additional?: boolean;
+}

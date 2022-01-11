@@ -5,6 +5,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import MessengerPreview from '../components/MessengerPreview';
 import { queries } from '../graphql';
+import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 
 type Props = {
   fromUserId: string;
@@ -13,7 +14,7 @@ type Props = {
 };
 
 type FinalProps = {
-  userDetailQuery: any /* fix needed UserDetailQueryResponse */;
+  userDetailQuery: UserDetailQueryResponse;
 } & Props;
 
 const MessengerPreviewContainer = (props: FinalProps) => {
@@ -34,17 +35,16 @@ const MessengerPreviewContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<
-      Props,
-      any /* fix needed UserDetailQueryResponse */,
-      { _id: string }
-    >(gql(queries.userDetail), {
-      name: 'userDetailQuery',
-      options: ({ fromUserId }: { fromUserId: string }) => ({
-        variables: {
-          _id: fromUserId
-        }
-      })
-    })
+    graphql<Props, UserDetailQueryResponse, { _id: string }>(
+      gql(queries.userDetail),
+      {
+        name: 'userDetailQuery',
+        options: ({ fromUserId }: { fromUserId: string }) => ({
+          variables: {
+            _id: fromUserId
+          }
+        })
+      }
+    )
   )(MessengerPreviewContainer)
 );

@@ -1,4 +1,4 @@
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '../../appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -14,7 +14,10 @@ export type ActivityLogsProps = {
   contentType: string;
   target?: string;
   extraTabs: Array<{ name: string; label: string }>;
-  activityRenderItem?: (activity: IActivityLog, currentUser?: IUser) => React.ReactNode;
+  activityRenderItem?: (
+    activity: IActivityLog,
+    currentUser?: IUser
+  ) => React.ReactNode;
 };
 
 type FinalProps = {
@@ -66,7 +69,11 @@ class Container extends React.Component<FinalProps, {}> {
     return (
       <AppConsumer>
         {({ currentUser }) => (
-          <ActivityLogs {...props} currentUser={currentUser || ({} as IUser)} activityRenderItem={this.props.activityRenderItem} />
+          <ActivityLogs
+            {...props}
+            currentUser={currentUser || ({} as IUser)}
+            activityRenderItem={this.props.activityRenderItem}
+          />
         )}
       </AppConsumer>
     );
@@ -101,7 +108,7 @@ const WithData = withProps<WithDataProps>(
 export default class Wrapper extends React.Component<
   ActivityLogsProps,
   { activityType: string }
-  > {
+> {
   constructor(props) {
     super(props);
 
@@ -115,7 +122,13 @@ export default class Wrapper extends React.Component<
   };
 
   render() {
-    const { contentId, contentType, target, extraTabs, activityRenderItem } = this.props;
+    const {
+      contentId,
+      contentType,
+      target,
+      extraTabs,
+      activityRenderItem
+    } = this.props;
     const { activityType } = this.state;
 
     return (
