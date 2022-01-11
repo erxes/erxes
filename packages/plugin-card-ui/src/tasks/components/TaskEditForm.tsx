@@ -10,7 +10,7 @@ import {
   IOptions
 } from '@erxes/ui-cards/src/boards/types';
 import PortableDeals from '../../deals/components/PortableDeals';
-// import PortableTickets from 'modules/tickets/components/PortableTickets'; // will fix
+import PortableTickets from '../../tickets/components/PortableTickets';
 import React from 'react';
 
 type Props = {
@@ -56,8 +56,10 @@ export default class TaskEditForm extends React.Component<Props, State> {
     return (
       <>
         <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
-        {/* <PortableTickets mainType="task" mainTypeId={this.props.item._id} /> */}{' '}
-        // will fix
+        <PortableTickets
+          mainType="task"
+          mainTypeId={this.props.item._id}
+        />{' '}
       </>
     );
   };
