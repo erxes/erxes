@@ -66,7 +66,7 @@ export const types = `
   }
 
   type UserConversationListResponse {
-    list: [Conversation],
+    list: [JSON],
     totalCount: Float,
   }
 `;

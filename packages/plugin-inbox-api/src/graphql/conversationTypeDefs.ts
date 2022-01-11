@@ -1,22 +1,4 @@
-import { gql } from "apollo-server-express";
-
 export const types = `
-  type Attachment {
-    url: String!
-    name: String
-    type: String!
-    size: Float
-    duration: Float
-  }
-
-  input AttachmentInput {
-    url: String!
-    name: String!
-    type: String
-    size: Float
-    duration: Float
-  }
-
   extend type Customer @key(fields: "_id") {
     _id: String! @external
 
@@ -111,7 +93,7 @@ export const types = `
   type ConversationMessage {
     _id: String!
     content: String
-    attachments: [Attachment]
+    attachments: [JSON]
     mentionedUserIds: [String]
     conversationId: String
     internal: Boolean
@@ -297,7 +279,7 @@ export const mutations = `
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,
-    attachments: [AttachmentInput],
+    attachments: [JSON],
     contentType: String
     facebookMessageTag: String
   ): ConversationMessage
@@ -342,7 +324,7 @@ export const mutations = `
     visitorId: String
     conversationId: String
     message: String,
-    attachments: [AttachmentInput],
+    attachments: [JSON],
     contentType: String,
     skillId: String
   ): ConversationMessage
