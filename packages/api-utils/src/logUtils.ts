@@ -1,9 +1,7 @@
 import { IUserDocument } from '@erxes/common-types';
-import { RABBITMQ_QUEUES } from './constants';
 
-export type LogDesc = {
-  [key: string]: any;
-} & { name: any };
+import { RABBITMQ_QUEUES } from './constants';
+import { gatherDescriptions } from './logDescHelper';
 
 export interface ILogDataParams {
   type: string;
@@ -19,24 +17,11 @@ interface IFinalLogParams extends ILogDataParams {
   action: string;
 }
 
-const LOG_ACTIONS = {
+export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete',
 };
-
-export interface IDescriptionParams {
-  action: string;
-  type: string;
-  obj: any;
-  updatedDocument?: any;
-  extraParams?: any;
-}
-
-interface IDescriptions {
-  description?: string;
-  extraDesc?: LogDesc[];
-}
 
 // interface ISubAfterMutations {
 //   [action: string]: {
@@ -84,22 +69,8 @@ interface IDescriptions {
 //   }
 // };
 
-const gatherDescriptions = async (
-  descriptionHelper: (
-    params: IDescriptionParams
-  ) => { extraDesc: LogDesc[]; description: string },
-  params: IDescriptionParams
-): Promise<IDescriptions> => {
-  const { extraDesc, description } = await descriptionHelper(params);
-
-  return { extraDesc, description };
-};
-
 export const putCreateLog = async (
   messageBroker,
-  descriptionHelper: (
-    params: IDescriptionParams
-  ) => { extraDesc: LogDesc[]; description: string },
   params: ILogDataParams,
   user: IUserDocument
 ) => {
@@ -114,7 +85,7 @@ export const putCreateLog = async (
     targets: [params.object]
   });
 
-  const descriptions = await gatherDescriptions(descriptionHelper, {
+  const descriptions = await gatherDescriptions({
     action: LOG_ACTIONS.CREATE,
     type: params.type,
     obj: params.object,
@@ -140,13 +111,10 @@ export const putCreateLog = async (
  */
 export const putUpdateLog = async (
   messageBroker,
-  descriptionHelper: (
-    params: IDescriptionParams
-  ) => { extraDesc: LogDesc[]; description: string },
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions(descriptionHelper, {
+  const descriptions = await gatherDescriptions({
     action: LOG_ACTIONS.UPDATE,
     type: params.type,
     obj: params.object,
@@ -173,13 +141,10 @@ export const putUpdateLog = async (
  */
 export const putDeleteLog = async (
   messageBroker,
-  descriptionHelper: (
-    params: IDescriptionParams
-  ) => { extraDesc: LogDesc[]; description: string },
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions(descriptionHelper, {
+  const descriptions = await gatherDescriptions({
     action: LOG_ACTIONS.DELETE,
     type: params.type,
     obj: params.object,

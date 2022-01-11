@@ -8,7 +8,7 @@ export const types = `
     status: String!
   }
 
-  type Customer {
+  type Customer @key(fields: "_id") {
     _id: String!
     state: String
     createdAt: Date
@@ -52,10 +52,8 @@ export const types = `
     sessionCount: Int
     urlVisits: [JSON]
 
-    integration: Integration
     links: JSON
     companies: [Company]
-    conversations: [Conversation]
     getTags: [Tag]
     owner: User
     score: Float

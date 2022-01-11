@@ -80,6 +80,54 @@ export const saveRPCconformity = async (
   );
 };
 
+export const fieldsCombinedByContentType = async (
+  contentType
+): Promise<any> => {
+  return client.sendRPCMessage(
+    'rpc_queue:editorAttributeUtils_fieldsCombinedByContentType_to_api',
+    contentType
+  );
+};
+
+export const generateAmounts = productsData => {
+  return client.sendRPCMessage(
+    'rpc_queue:editorAttributeUtils_generateAmounts_to_api',
+    productsData
+  );
+};
+
+export const generateProducts = async (productsData): Promise<any> => {
+  return client.sendRPCMessage(
+    'rpc_queue:editorAttributeUtils_generateProducts_to_api',
+    productsData
+  );
+};
+
+export const getSubServiceDomain = name => {
+  return client.sendRPCMessage(
+    'rpc_queue:editorAttributeUtils_getSubServiceDomain_to_api',
+    name
+  );
+};
+
+export const getCustomerName = customer => {
+  return client.sendRPCMessage(
+    'rpc_queue:editorAttributeUtils_getCustomerName_to_api',
+    customer
+  );
+};
+
+export const fetchSegment = async (
+  segment,
+  options: any = {}
+): Promise<any> => {
+  return client.sendRPCMessage(
+    'rpc_queue:engageUtils_fetchSegment_to_api',
+    segment,
+    options
+  );
+};
+
 export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
 };

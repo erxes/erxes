@@ -1,5 +1,11 @@
 import { Model, model } from 'mongoose';
-import { IUserDocument, ICustomerDocument, IBrowserInfo } from '@erxes/common-types';
+import {
+  IUserDocument,
+  ICustomerDocument,
+  IBrowserInfo,
+  IEngageMessage,
+  IEngageMessageDocument
+} from '@erxes/common-types';
 import { _ConversationMessages, _Conversations } from '../apiCollections';
 import { findUser, findElk } from '../engageUtils';
 import {
@@ -9,13 +15,11 @@ import {
 import { MESSAGE_KINDS } from '../constants';
 import { checkCustomerExists } from '../engageUtils';
 import { isUsingElk } from '../utils';
-// import { getNumberOfVisits } from '../../events';
+
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '../constants';
-import { IEngageData, IMessageDocument, IEngageMessage, IEngageMessageDocument } from '../types';
-import {
-  engageMessageSchema,
-} from './definitions/engages';
-import EditorAttributeUtil from '../../data/editorAttributeUtils';
+import { IEngageData, IMessageDocument } from '../types';
+import { engageMessageSchema } from './definitions/engages';
+import EditorAttributeUtil from '../editorAttributeUtils';
 interface ICheckRulesParams {
   rules: IRule[];
   browserInfo: IBrowserInfo;

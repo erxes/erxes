@@ -25,6 +25,7 @@ export interface ILink {
 
 export interface IUser {
   createdAt?: Date;
+  code?: string;
   username?: string;
   password: string;
   resetPasswordToken?: string;

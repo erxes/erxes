@@ -1,7 +1,13 @@
 import { Transform } from 'stream';
-import { EngageMessages } from './models';
-import { IUserDocument, ICustomerDocument } from '@erxes/common-types';
+import {
+  IUserDocument,
+  ICustomerDocument,
+  IEngageMessage,
+  IEngageMessageDocument
+} from '@erxes/common-types';
 import { chunkArray, CONTENT_TYPES } from '@erxes/api-utils';
+
+import { EngageMessages } from './models';
 import {
   _Users,
   _Customers,
@@ -9,14 +15,16 @@ import {
   _Conformities,
   _Segments
 } from './apiCollections';
-import { findRPCintegrations, saveRPCconformity } from './messageBroker';
-import { IEngageMessage, IEngageMessageDocument } from './types';
-// import { get, removeKey, set } from '../../../inmemoryStorage';
+import {
+  findRPCintegrations,
+  saveRPCconformity,
+  fetchSegment
+} from './messageBroker';
+
 import messageBroker from './messageBroker';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';
-import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { isUsingElk } from './utils';
-import EditorAttributeUtil from '../../editorAttributeUtils';
+import EditorAttributeUtil from './editorAttributeUtils';
 
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;

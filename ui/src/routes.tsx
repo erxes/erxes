@@ -26,6 +26,7 @@ import VideoCallRoutes from './modules/videoCall/routes';
 import AutomationsRoutes from './modules/automations/routes';
 import ImportExportRoutes from './modules/importExport/routes';
 import BookingsRoutes from './modules/bookings/routes';
+import EngageRoutes from './modules/engage/routes';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -110,6 +111,7 @@ const renderRoutes = currentUser => {
           <AutomationsRoutes />
           <ImportExportRoutes />
           <BookingsRoutes />
+          <EngageRoutes />
 
           {specialPluginRoutes}
           {pluginRoutes}

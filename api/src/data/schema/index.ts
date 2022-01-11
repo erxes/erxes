@@ -23,11 +23,6 @@ import {
   types as CalendarTypes
 } from './calendars';
 import {
-  mutations as ChannelMutations,
-  queries as ChannelQueries,
-  types as ChannelTypes
-} from './channel';
-import {
   mutations as ChecklistMutations,
   queries as ChecklistQueries,
   types as ChecklistTypes
@@ -52,11 +47,6 @@ import {
   mutations as ConformityMutations,
   types as ConformityTypes
 } from './conformity';
-import {
-  mutations as ConversationMutations,
-  queries as ConversationQueries,
-  types as ConversationTypes
-} from './conversation';
 import {
   mutations as CustomerMutations,
   queries as CustomerQueries,
@@ -105,11 +95,6 @@ import {
   types as ImportHistoryTypes
 } from './importHistory';
 import {
-  mutations as IntegrationMutations,
-  queries as IntegrationQueries,
-  types as IntegrationTypes
-} from './integration';
-import {
   mutations as InternalNoteMutations,
   queries as InternalNoteQueries,
   types as InternalNoteTypes
@@ -151,11 +136,6 @@ import {
   types as ProductTypes
 } from './product';
 import {
-  mutations as ResponseTemplateMutations,
-  queries as ResponseTemplateQueries,
-  types as ResponseTemplate
-} from './responseTemplate';
-import {
   mutations as RobotMutations,
   queries as RobotQueries,
   types as RobotTypes
@@ -170,11 +150,6 @@ import {
   queries as SegmentQueries,
   types as SegmentTypes
 } from './segment';
-import {
-  mutations as SkillMutations,
-  queries as SkillQueries,
-  types as SkillTypes
-} from './skills';
 import {
   mutations as TagMutations,
   queries as TagQueries,
@@ -201,11 +176,6 @@ import {
   types as WebhookTypes
 } from './webhook';
 import {
-  mutations as WidgetMutations,
-  queries as WidgetQueries,
-  types as WidgetTypes
-} from './widget';
-import {
   queries as SmsDeliveryQueries,
   types as SmsDeliveryTypes
 } from './smsDelivery';
@@ -223,13 +193,9 @@ export let types = `
   ${InternalNoteTypes}
   ${ActivityLogTypes}
   ${CompanyTypes}
-  ${ChannelTypes}
   ${BrandTypes}
-  ${IntegrationTypes}
-  ${ResponseTemplate}
   ${Script}
   ${ClientPortalTypes}
-  ${SkillTypes}
   ${EmailTemplate}
   ${EmailDelivery}
   ${TagTypes}
@@ -238,7 +204,6 @@ export let types = `
   ${ConformityTypes}
   ${CustomerTypes}
   ${SegmentTypes}
-  ${ConversationTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
   ${BoardTypes}
@@ -258,7 +223,6 @@ export let types = `
   ${ChecklistTypes}
   ${RobotTypes}
   ${PipelineLabelTypes}
-  ${WidgetTypes}
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
@@ -268,13 +232,9 @@ export let types = `
 
 export let queries = `
   ${UserQueries}
-  ${ChannelQueries}
   ${BrandQueries}
   ${BoardQueries}
-  ${IntegrationQueries}
-  ${ResponseTemplateQueries}
   ${ScriptQueries}
-  ${SkillQueries}
   ${EmailTemplateQueries}
   ${ClientPortalQueries}
   ${EmailDeliveryQueries}
@@ -285,7 +245,6 @@ export let queries = `
   ${CompanyQueries}
   ${CustomerQueries}
   ${SegmentQueries}
-  ${ConversationQueries}
   ${KnowledgeBaseQueries}
   ${NotificationQueries}
   ${ActivityLogQueries}
@@ -304,7 +263,6 @@ export let queries = `
   ${ChecklistQueries}
   ${RobotQueries}
   ${PipelineLabelQueries}
-  ${WidgetQueries}
   ${WebhookQueries}
   ${CalendarQueries}
   ${MessengerAppQueries}
@@ -316,11 +274,9 @@ export let queries = `
 export let mutations = `
   ${UserMutations}
   ${CompanyMutations}
-  ${ConversationMutations}
   ${TagMutations}
   ${BoardMutations}
   ${BrandMutations}
-  ${ResponseTemplateMutations}
   ${ScriptMutations}
   ${EmailTemplateMutations}
   ${ClientPortalMutations}
@@ -328,9 +284,7 @@ export let mutations = `
   ${CustomerMutations}
   ${SegmentMutations}
   ${FieldMutations}
-  ${ChannelMutations}
   ${FormMutatons}
-  ${IntegrationMutations}
   ${KnowledgeBaseMutations}
   ${NotificationMutations}
   ${DealMutations}
@@ -348,9 +302,7 @@ export let mutations = `
   ${ConformityMutations}
   ${ChecklistMutations}
   ${RobotMutations}
-  ${SkillMutations}
   ${PipelineLabelMutations}
-  ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
   ${StructureMutations}
