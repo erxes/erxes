@@ -157,3 +157,47 @@ export type EditIntegrationMutationResponse = {
 export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
 } & QueryResponse;
+
+export interface IIntegrationWithPhone {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+  isActive: boolean;
+}
+
+export type SendSmsMutationResponse = ({
+  variables: SendSmsMutationVariables
+}) => Promise<any>;
+
+type By = { [key: string]: number };
+
+export type ByKindTotalCount = {
+  messenger: number;
+  lead: number;
+  facebook: number;
+  gmail: number;
+  callpro: number;
+  chatfuel: number;
+  imap: number;
+  office365: number;
+  outlook: number;
+  yahoo: number;
+  telegram: number;
+  viber: number;
+  line: number;
+  twilio: number;
+  whatsapp: number;
+};
+
+type IntegrationsCount = {
+  total: number;
+  byTag: By;
+  byChannel: By;
+  byBrand: By;
+  byKind: ByKindTotalCount;
+};
+
+export type IntegrationsCountQueryResponse = {
+  integrationsTotalCount: IntegrationsCount;
+  loading: boolean;
+};

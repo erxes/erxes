@@ -1,10 +1,10 @@
-import BasicInfoSection from 'modules/customers/components/common/BasicInfoSection';
-import CustomFieldsSection from 'modules/customers/containers/common/CustomFieldsSection';
-import Sidebar from 'modules/layout/components/Sidebar';
+import BasicInfoSection from '../common/BasicInfoSection';
+import CustomFieldsSection from '../../containers/common/CustomFieldsSection';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
 
-import { ICustomer } from 'modules/customers/types';
-import { IField } from 'modules/settings/properties/types';
+import { ICustomer } from '../../types';
+import { IField } from '@erxes/ui-settings/src/properties/types';
 import {
   DevicePropertiesSection,
   TaggerSection,

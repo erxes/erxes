@@ -1,8 +1,8 @@
 import debounce from 'lodash/debounce';
-import EmptyState from 'modules/common/components/EmptyState';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { __ } from '@erxes/ui/src/utils';
+import { ICustomer } from '@erxes/ui/src/customers/types';
 import React from 'react';
 import Select from 'react-select-plus';
 

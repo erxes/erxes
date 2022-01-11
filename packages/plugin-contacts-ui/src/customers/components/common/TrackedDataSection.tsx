@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import Box from 'modules/common/components/Box';
-import EmptyState from 'modules/common/components/EmptyState';
-import Label from 'modules/common/components/Label';
-import { __, isValidDate } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Label from '@erxes/ui/src/components/Label';
+import { __, isValidDate } from '@erxes/ui/src/utils';
+import { ICompany } from '@erxes/ui/src/companies/types';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { ICustomer } from '../../types';
 

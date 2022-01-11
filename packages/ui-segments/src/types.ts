@@ -148,3 +148,7 @@ export type ITrigger = {
 
   count?: number;
 };
+
+export type Counts = {
+  [key: string]: number;
+};

@@ -1,9 +1,9 @@
-import Box from 'modules/common/components/Box';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import { IRouterProps } from 'modules/common/types';
-import { __, router } from 'modules/common/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from '@erxes/ui/src/utils';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 

@@ -1,11 +1,11 @@
-import { AvatarWrapper } from 'modules/activityLogs/styles';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { renderFullName } from 'modules/common/utils';
-import CustomerForm from 'modules/customers/containers/CustomerForm';
-import { ICustomer } from 'modules/customers/types';
+import { AvatarWrapper } from '@erxes/ui/src/activityLogs/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
+import { renderFullName } from '@erxes/ui/src/utils';
+import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
+import { ICustomer } from '@erxes/ui/src/customers/types';
 import React from 'react';
 import { CustomerState, Name, NameContainer } from '../../styles';
 

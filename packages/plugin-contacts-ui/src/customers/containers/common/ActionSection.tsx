@@ -1,9 +1,9 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import ActionSection from 'modules/customers/components/common/ActionSection';
-import { mutations, queries } from 'modules/customers/graphql';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import ActionSection from '../../components/common/ActionSection';
+import { mutations, queries } from '../../graphql';
 import {
   ChangeStateMutationResponse,
   ChangeStateMutationVariables,
@@ -12,11 +12,11 @@ import {
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from 'modules/customers/types';
+} from '../../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../../common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   customer: ICustomer;
