@@ -71,10 +71,18 @@ export const types = `
     sentAs: String
   }
 
+  type Attachment {
+    url: String!
+    name: String
+    type: String!
+    size: Float
+    duration: Float
+  }
+
   type ConversationMessage {
     _id: String!
     content: String
-    attachments: [JSON]
+    attachments: [Attachment]
     mentionedUserIds: [String]
     conversationId: String
     internal: Boolean
@@ -188,6 +196,14 @@ export const types = `
     createdAt: Date,
     isCustomerRead: Boolean,
   }
+
+  input AttachmentInput {
+    url: String!
+    name: String!
+    type: String
+    size: Float
+    duration: Float
+  }
 `;
 
 const mutationFilterParams = `
@@ -213,8 +229,6 @@ const filterParams = `
 
 export const queries = `
   conversations(${filterParams}): [Conversation]
-
-  conversationMessage(_id: String!): ConversationMessage
 
   conversationMessages(
     conversationId: String!
@@ -251,7 +265,7 @@ export const mutations = `
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,
-    attachments: [JSON],
+    attachments: [AttachmentInput],
     contentType: String
     facebookMessageTag: String
   ): ConversationMessage

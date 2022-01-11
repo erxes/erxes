@@ -1,16 +1,22 @@
 import { gql } from "apollo-server-express";
 
 import {
+  types as ChannelTypes,
+  queries as ChannelQueries,
+  mutations as ChannelMutations
+} from './channelTypeDefs';
+
+import {
   types as ConversationTypes,
   queries as ConversationQueries,
   mutations as ConversationMutations
 } from './conversationTypeDefs';
 
 import {
-  types as ChannelTypes,
-  queries as ChannelQueries,
-  mutations as ChannelMutations
-} from './channelTypeDefs';
+  types as MessengerAppTypes,
+  queries as MessengerAppQueries,
+  mutations as MessengerAppMutations
+} from './messengerAppTypeDefs';
 
 import {
   types as IntegrationTypes,
@@ -18,42 +24,27 @@ import {
   mutations as IntegrationMutations
 } from './integrationTypeDefs';
 
-import {
-  types as ResponseTemplateTypes,
-  queries as ResponseTemplateQueries,
-  mutations as ResponseTemplateMutations
-} from './responseTemplateTypeDefs';
-
-import {
-  types as SkillTypes,
-  queries as SkillQueries,
-  mutations as SkillMutations
-} from './skillTypeDefs';
-
 const typeDefs = gql`
   scalar JSON
   scalar Date
 
-  ${ChannelTypes}
   ${ConversationTypes}
+  ${MessengerAppTypes}
+  ${ChannelTypes}
   ${IntegrationTypes}
-  ${ResponseTemplateTypes}
-  ${SkillTypes}
   
   extend type Query {
-    ${ChannelQueries}
     ${ConversationQueries}
+    ${MessengerAppQueries}
+    ${ChannelQueries}
     ${IntegrationQueries}
-    ${ResponseTemplateQueries}
-    ${SkillQueries}
   }
 
   extend type Mutation {
-    ${ChannelMutations}
     ${ConversationMutations}
+    ${MessengerAppMutations}
+    ${ChannelMutations}
     ${IntegrationMutations}
-    ${ResponseTemplateMutations}
-    ${SkillMutations}
   }
 `;
 

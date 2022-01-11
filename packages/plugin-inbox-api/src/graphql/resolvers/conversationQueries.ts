@@ -1,15 +1,15 @@
 import { ConversationMessages, Conversations } from '../../models';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
+import { IMessageDocument } from '../../models/definitions/conversationMessages';
+import { countByConversations } from '../../conversationUtils';
+
 import {
   checkPermission,
-  IContext
-} from '@erxes/api-utils';
+  moduleRequireLogin
+} from '@erxes/api-utils/src/permissions';
 
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-
-import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
-import { countByConversations } from '../../utils';
-import { IMessageDocument } from '../../models/definitions/conversationMessages';
+import { IContext } from '@erxes/api-utils';
+import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 
 interface ICountBy {
   [index: string]: number;
@@ -26,7 +26,7 @@ const count = async (query: any): Promise<number> => {
   return Number(result);
 };
 
-const conversationQueries: any = {
+const conversationQueries = {
   /**
    * Conversations list
    */
@@ -273,8 +273,5 @@ const conversationQueries: any = {
 moduleRequireLogin(conversationQueries);
 
 checkPermission(conversationQueries, 'conversations', 'showConversations', []);
-
-conversationQueries.conversationMessage = (_root, { _id }) =>
-  ConversationMessages.findOne({ _id });
 
 export default conversationQueries;

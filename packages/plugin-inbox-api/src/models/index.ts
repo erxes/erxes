@@ -1,16 +1,14 @@
-import Channels from './Channels';
 import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
+import Channels from './Channels';
 import Integrations from './Integrations';
-import ResponseTemplates from './ResponseTemplates';
 import { Skills, SkillTypes } from './Skills';
 
 export {
   Channels,
-  SkillTypes,
-  Skills,
-  ResponseTemplates,
   Integrations,
   Conversations,
+  SkillTypes,
+  Skills,
   ConversationMessages,
 };

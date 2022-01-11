@@ -6,6 +6,7 @@ const client = new MongoClient(url);
 const dbName = 'erxes';
 let db;
 
+export let Configs;
 export let Brands;
 export let Customers;
 export let Tags;
@@ -13,6 +14,8 @@ export let Users;
 export let Conformities;
 export let Segments;
 export let Fields;
+export let Products;
+export let Forms;
 
 const main = async () => {
   // Use connect method to connect to the server
@@ -22,6 +25,7 @@ const main = async () => {
 
   db = client.db(dbName);
 
+  Configs = await db.collection('configs');
   Brands = await db.collection('brands');
   Customers = await db.collection('customers');
   Tags = await db.collection('tags');
@@ -29,6 +33,8 @@ const main = async () => {
   Conformities = await db.collection('conformities');
   Segments = await db.collection('segments');
   Fields = await db.collection('form_fields');
+  Products = await db.collection('products');
+  Forms = await db.collection('forms');
 
   return 'done.';
 }

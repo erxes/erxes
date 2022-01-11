@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import strip from 'strip';
+import * as strip from 'strip';
 import { Conversations } from '.';
 import { MESSAGE_TYPES } from './definitions/constants';
 import {

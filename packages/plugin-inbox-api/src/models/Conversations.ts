@@ -1,8 +1,10 @@
-import strip from 'strip';
 import { Model, model } from 'mongoose';
+// import { ConversationMessages, Fields, Users } from '.';
 import { ConversationMessages } from '.';
-// import { sendToWebhook } from '@erxes/api-utils';
 import { stream } from '@erxes/api-utils/src/bulkUtils';
+import { cleanHtml } from '@erxes/api-utils/src/core';
+import { getDocument } from '../cacheUtils';
+// import { sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import {
   IMessageDocument,
@@ -13,11 +15,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
-import { Skills } from './Skills';
-import { Fields, Users } from '../apiCollections';
-
-export const cleanHtml = (content?: string) =>
-  strip(content || '').substring(0, 100);
+// import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
@@ -132,7 +130,7 @@ export const loadClass = () => {
         ...(userRelevance ? { userRelevance } : {})
       });
 
-      // await sendToWebhook({ action: 'create', type: 'conversation', params: result });
+      // await sendToWebhook('create', 'conversation', result);
 
       return result;
     }
@@ -145,12 +143,12 @@ export const loadClass = () => {
         doc.content = cleanHtml(doc.content);
       }
 
-      if (doc.customFieldsData) {
-        // clean custom field values
-        doc.customFieldsData = await Fields().prepareCustomFieldsData(
-          doc.customFieldsData
-        );
-      }
+      // if (doc.customFieldsData) {
+      //   // clean custom field values
+      //   doc.customFieldsData = await Fields.prepareCustomFieldsData(
+      //     doc.customFieldsData
+      //   );
+      // }
 
       return Conversations.updateOne({ _id }, { $set: doc });
     }
@@ -182,7 +180,7 @@ export const loadClass = () => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await Users().find({ _id: assignedUserId }))) {
+      if (!(await getDocument('users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 
@@ -429,27 +427,28 @@ export const loadClass = () => {
     }
 
     public static async getUserRelevance(args: { skillId?: string }) {
-      const skill = await Skills.findOne({ _id: args.skillId }).lean();
+      return null;
+      // const skill = await Skills.findOne({ _id: args.skillId }).lean();
 
-      if (!skill) {
-        return;
-      }
+      // if (!skill) {
+      //   return;
+      // }
 
-      const users =
-        (await Users().find({ _id: { $in: skill.memberIds || [] } }).sort({
-          createdAt: 1
-        })) || [];
+      // const users =
+      //   (await Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
+      //     createdAt: 1
+      //   })) || [];
 
-      if (users.length === 0) {
-        return;
-      }
+      // if (users.length === 0) {
+      //   return;
+      // }
 
-      const type = args.skillId ? 'SS' : '';
+      // const type = args.skillId ? 'SS' : '';
 
-      return users
-        .map(user => user.code + type)
-        .filter(code => code !== '' && code !== undefined)
-        .join('|');
+      // return users
+      //   .map(user => user.code + type)
+      //   .filter(code => code !== '' && code !== undefined)
+      //   .join('|');
     }
   }
 
