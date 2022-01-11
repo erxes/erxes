@@ -17,16 +17,28 @@ import GatewayDataSource from "./GatewayDataSource";
 import resolvers from "./resolvers";
 import typeDefs from "./typeDefs";
 import {
+  Disposable,
   SubscribeMessage,
 } from "graphql-ws";
 import { markClientActive, markClientInactive } from './clientStatusUtils';
 
-export function loadSubscriptions(
+let disposable: Disposable;
+
+export async function loadSubscriptions(
   gatewaySchema: GraphQLSchema,
   wsServer: ws.Server
 ) {
   const schema = makeSubscriptionSchema({ gatewaySchema, typeDefs, resolvers });
-  useServer(
+
+  if(disposable) {
+    try {
+      await disposable.dispose();
+    } catch (e) {
+      
+    }
+  }
+
+  disposable = useServer(
     {
       execute,
       subscribe,

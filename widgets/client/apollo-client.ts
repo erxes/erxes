@@ -19,7 +19,7 @@ export const wsLink = new WebSocketLink({
   url: API_SUBSCRIPTIONS_URL,
   lazyCloseTimeout: 30000,
   retryAttempts: 100,
-  retryWait: () => new Promise(resolve => setTimeout(resolve, 5000)),
+  retryWait: () => new Promise(resolve => setTimeout(resolve, 1)),
   connectionParams: () => {
     const params:any = {};
     params.messengerDataJson = getLocalStorageItem('messengerDataJson');

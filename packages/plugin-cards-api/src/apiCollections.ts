@@ -58,3 +58,8 @@ export const _Segments = async () => {
   const collection = await db.collection('segments');
   return collection;
 };
+
+export const _Checklists = async () => {
+  const collection = await db.collection('checklists');
+  return collection;
+};

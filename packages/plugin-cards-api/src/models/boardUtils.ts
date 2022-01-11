@@ -1,23 +1,17 @@
 import {
   Boards,
-  Checklists,
-  Conformities,
   Deals,
   GrowthHacks,
-  InternalNotes,
   Pipelines,
   Stages,
   Tasks,
   Tickets
 } from '.';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import {
-  configReplacer,
-  numberCalculator,
-  validSearchText
-} from '../../data/utils';
+import { numberCalculator, validSearchText } from '@erxes/api-utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
+import { configReplacer } from '../utils';
 
 interface ISetOrderParam {
   collection: any;
