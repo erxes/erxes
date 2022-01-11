@@ -12,6 +12,7 @@ import {
   AddMutationResponse
 } from '@erxes/ui-segments/src/types';
 import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
+import { CountQueryResponse } from '@erxes/ui/src/types';
 
 type Props = {
   segmentIds: string[];
@@ -31,7 +32,7 @@ type Props = {
 
 type FinalProps = {
   segmentsQuery: SegmentsQueryResponse;
-  customerCountsQuery: any; // fix needed;
+  customerCountsQuery: CountQueryResponse;
   headSegmentsQuery: HeadSegmentsQueryResponse;
   combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
 } & AddMutationResponse &
@@ -77,7 +78,7 @@ export default withProps<Props>(
         }
       })
     }),
-    graphql<Props, any /* fix needed */, { only: string; source: string }>(
+    graphql<Props, CountQueryResponse, { only: string; source: string }>(
       gql(queries.customerCounts),
       {
         name: 'customerCountsQuery',

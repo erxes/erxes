@@ -1,5 +1,9 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 
+export type Counts = {
+  [key: string]: number;
+};
+
 export interface IEvent {
   name: string;
   attributeNames: string[];

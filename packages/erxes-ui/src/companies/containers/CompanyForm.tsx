@@ -1,4 +1,4 @@
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '../../appContext';
 import ButtonMutate from '../../components/ButtonMutate';
 import { IButtonMutateProps } from '../../types';
 import React from 'react';
@@ -44,8 +44,9 @@ const CompanyFromContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${object ? 'updated' : 'added'
-          } a ${name}`}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
       />
     );
   };

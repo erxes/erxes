@@ -1,4 +1,5 @@
-import { IBrand, QueryResponse } from '../types';
+import { QueryResponse } from '../types';
+import { IBrand } from '../brands/types';
 export interface IOnboardingHistory {
   _id: string;
   userId: string;
@@ -74,4 +75,8 @@ export type CurrentUserQueryResponse = {
 
 export type UsersQueryResponse = {
   users: IUser[];
+} & QueryResponse;
+
+export type UserDetailQueryResponse = {
+  userDetail: IUser;
 } & QueryResponse;

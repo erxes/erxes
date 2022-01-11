@@ -87,7 +87,9 @@ export const reorder = (
 };
 
 export const generateRandomColorCode = () => {
-  return `#${Math.random().toString(16).slice(2, 8)}`;
+  return `#${Math.random()
+    .toString(16)
+    .slice(2, 8)}`;
 };
 
 const isNumeric = n => {
@@ -335,7 +337,7 @@ function createLinkFromUrl(url) {
   };
 
   return (
-    <a href='#website' onClick={onClick}>
+    <a href="#website" onClick={onClick}>
       {urlParser.extractRootDomain(url)}
     </a>
   );
@@ -356,7 +358,7 @@ export function formatValue(value) {
       (value.includes('/') || value.includes('-'))
     ) {
       return (
-        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement='top'>
+        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement="top">
           <time>{dayjs(value).format('L')}</time>
         </Tip>
       );
@@ -458,4 +460,17 @@ export const getConfig = (key: string) => {
 
 export const setConfig = (key, params) => {
   localStorage.setItem(key, JSON.stringify(params));
+};
+
+export const urlify = (text: string) => {
+  // validate url except html a tag
+  const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
+
+  return text.replace(urlRegex, url => {
+    if (url.startsWith('http')) {
+      return `<a href="${url}" target="_blank">${url}</a>`;
+    }
+
+    return `<a href="http://${url}" target="_blank">${url}</a>`;
+  });
 };

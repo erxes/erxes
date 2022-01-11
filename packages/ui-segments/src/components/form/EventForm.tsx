@@ -61,7 +61,8 @@ class EventForm extends React.Component<Props, State> {
   renderInput = attributeName => {
     const { eventAttributeFilters } = this.state;
 
-    const eventAttributeFilter = eventAttributeFilters[0] || ({} as any); // fix;
+    const eventAttributeFilter =
+      eventAttributeFilters[0] || ({} as IConditionFilter);
 
     const onChangeSelect = e => {
       eventAttributeFilter.operator = e ? e.value : '';
