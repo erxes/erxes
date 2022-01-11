@@ -19,7 +19,7 @@ import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
 // import TaskRoutes from './modules/tasks/routes';
-import TicketRoutes from './modules/tickets/routes';
+// import TicketRoutes from './modules/tickets/routes';
 import TutorialRoutes from './modules/tutorial/routes';
 import VideoCallRoutes from './modules/videoCall/routes';
 // import AutomationsRoutes from './modules/automations/routes';
@@ -98,7 +98,7 @@ const renderRoutes = currentUser => {
           <SettingsRoutes />
           <TagsRoutes />
           {/* <DealsRoutes /> */}
-          <TicketRoutes />
+          {/* <TicketRoutes /> */}
           {/* <TaskRoutes /> */}
           <GrowthHackRoutes />
           <VideoCallRoutes />
