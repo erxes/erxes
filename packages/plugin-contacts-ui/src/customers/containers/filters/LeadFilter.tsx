@@ -2,12 +2,12 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React, { useEffect, useRef, useState } from 'react';
 import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import { queries as integrationQuery } from '../../../settings/integrations/graphql';
+import { withProps } from '@erxes/ui/src/utils';
+import { queries as integrationQuery } from '@erxes/ui-settings/src/integrations/graphql';
 import {
   IntegrationsCountQueryResponse,
   IntegrationsQueryResponse
-} from '../../../settings/integrations/types';
+} from '@erxes/ui-settings/src/integrations/types';
 import LeadFilter from '../../components/list/LeadFilter';
 import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
@@ -87,7 +87,7 @@ export default withProps<WrapperProps>(
       }
     ),
     graphql<WrapperProps, IntegrationsCountQueryResponse, {}>(
-      gql(integrationQuery.integrationTotalCount),
+      gql((integrationQuery || {} as any).integrationTotalCount),
       {
         name: 'totalCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery

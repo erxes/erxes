@@ -1,9 +1,9 @@
-import Box from 'modules/common/components/Box';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { SidebarList } from 'modules/layout/styles';
-import Tagger from 'modules/tags/containers/Tagger';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import Tagger from '@erxes/ui/src/tags/containers/Tagger';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 

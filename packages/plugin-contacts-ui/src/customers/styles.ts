@@ -1,8 +1,9 @@
-import { Actions } from 'erxes-ui/lib/styles/main';
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { SidebarList } from 'modules/layout/styles';
+import { Actions } from '@erxes/ui/src/styles/main';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { BoxRoot } from '@erxes/ui/src/styles/main';
 
 const Info = styled.div`
   margin-top: 5px;
@@ -290,6 +291,32 @@ export const StateItem = styledTS<{ active?: boolean; past?: boolean }>(
   }
 `;
 
+const Box = styled(BoxRoot)`
+  flex: 1;
+  padding: ${dimensions.unitSpacing * 1.5}px;
+  text-align: left;
+  background: ${colors.colorWhite};
+  margin: 10px 10px 0 0;
+
+  b {
+    font-size: 26px;
+    text-transform: uppercase;
+    color: ${colors.colorCoreLightGray};
+    line-height: 30px;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.textSecondary};
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+`;
+
+
 export {
   InfoTitle,
   InfoDetail,
@@ -307,5 +334,6 @@ export {
   CustomerState,
   UserHeader,
   MailBox,
-  States
+  States,
+  Box
 };

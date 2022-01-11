@@ -1,9 +1,9 @@
-import Box from 'modules/common/components/Box';
-import EmptyState from 'modules/common/components/EmptyState';
-import { __ } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { IField } from 'modules/settings/properties/types';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { __ } from '@erxes/ui/src/utils';
+import { ICustomer } from '@erxes/ui/src/customers/types';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import { IField } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import parse from 'ua-parser-js';
 

@@ -6,10 +6,10 @@ import {
   ICustomerLinks as ICustomerLinksC,
   IUrlVisits as IUrlVisitsC,
   IVisitorContact as IVisitorContactC
-} from 'erxes-ui/lib/customers/types';
-import { QueryResponse } from 'modules/common/types';
-import { IActivityLog } from '../activityLogs/types';
-import { IIntegration } from '../settings/integrations/types';
+} from '@erxes/ui/src/customers/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 export type IVisitorContact = IVisitorContactC;
 
