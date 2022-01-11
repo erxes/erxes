@@ -231,6 +231,16 @@ const stageDetail = `
   }
 `;
 
+const boardCounts = `
+  query boardCounts($type: String!) {
+    boardCounts(type: $type) {
+      _id
+      name
+      count
+    }
+  }
+`;
+
 const itemsCountByAssignedUser = `
   query itemsCountByAssignedUser($pipelineId: String!, $type: String!, $stackBy: String) {
     itemsCountByAssignedUser(pipelineId: $pipelineId, type: $type, stackBy: $stackBy)
@@ -296,6 +306,9 @@ export default {
   archivedStages,
   archivedStagesCount,
   boards,
+  boardDetail,
+  boardGetLast,
+  boardCounts,
   pipelines,
   commonParams,
   commonParamDefs,
@@ -311,7 +324,5 @@ export default {
   itemsCountByAssignedUser,
   pipelineAssignedUsers,
   activityLogsByAction,
-  boardDetail,
-  boardGetLast,
   conversionStages
 };

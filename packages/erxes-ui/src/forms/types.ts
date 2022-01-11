@@ -1,5 +1,5 @@
 import { IUser } from '../auth/types';
-import { IField } from '../settings/properties/types';
+import { IField } from '@erxes/ui-settings/src/properties/types';
 
 interface IFormCommonFIelds {
   title?: string;
@@ -14,6 +14,12 @@ export interface IForm extends IFormCommonFIelds {
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;
+}
+
+export interface IFormSubmission {
+  formId: string;
+  formSubmissions: string;
+  contentTypeId: string;
 }
 
 export interface IFormData extends IFormCommonFIelds {
