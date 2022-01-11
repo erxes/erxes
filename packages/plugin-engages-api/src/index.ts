@@ -1,17 +1,15 @@
-import * as dotenv from 'dotenv';
-// load environment variables
-dotenv.config();
-import * as bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
 import express from 'express';
 import { filterXSS } from 'xss';
+import cookieParser from 'cookie-parser';
+import http from 'http';
+
 import configs from './api/configs';
 import deliveryReports from './api/deliveryReports';
 import telnyx from './api/telnyx';
 import { buildSubgraphSchema } from "@apollo/federation";
 import { ApolloServer } from "apollo-server-express";
-import cookieParser from 'cookie-parser';
-
-import * as http from 'http';
 
 
 import { connect } from './connection';
@@ -21,6 +19,9 @@ import { trackEngages } from './trackers/engageTracker';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
+
+// load environment variables
+dotenv.config();
 
 export const app = express();
 
@@ -56,6 +57,8 @@ app.use('/telnyx', telnyx);
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
+
+  console.log(error, 'ererer')
 
   debugBase(`Error: ${msg}`);
   res.status(500).send(msg);
