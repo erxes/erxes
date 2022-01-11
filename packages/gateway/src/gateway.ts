@@ -7,11 +7,10 @@ import {
 import { ServiceEndpointDefinition } from "@apollo/gateway/src/config";
 import express from "express";
 import * as dotenv from "dotenv";
+dotenv.config();
 import { GraphQLRequestContext, GraphQLResponse } from "apollo-server-core";
 import { ValueOrPromise } from "apollo-server-types";
 import splitCookiesString from "./util/splitCookiesString";
-
-dotenv.config();
 
 export interface GatewayContext {
   req?: express.Request & { user?: any };
@@ -19,32 +18,27 @@ export interface GatewayContext {
 }
 
 interface SubgraphConfig {
-  name: string;
-  urlEnvKey: string;
+  [x: string]: string;
 }
 
-const allSubgraphConfigs: SubgraphConfig[] = [
-  {
-    name: "api",
-    urlEnvKey: "SUBGRAPH_API_URL",
-  },
-  {
-    name: "engages",
-    urlEnvKey: "SUBGRAPH_ENGAGES_URL",
-  },
-];
+export const allSubgraphConfigs: SubgraphConfig = {
+    "api" : "SUBGRAPH_API_URL",
+    "engages" : "SUBGRAPH_ENGAGES_URL",
+    "inbox": "SUBGRAPH_INBOX_URL"
+};
 
 function getConfiguredServices(): ServiceEndpointDefinition[] {
   const configuredServices: ServiceEndpointDefinition[] = [];
 
-  for (const subgraphConfig of allSubgraphConfigs) {
-    const url = process.env[subgraphConfig.urlEnvKey];
+  for (const subgraphName of Object.keys(allSubgraphConfigs)) {
+    const envVarName = allSubgraphConfigs[subgraphName];
+    const url = process.env[envVarName];
 
     // this subgraph's url is not configured in environment variables
     if (!url) continue;
 
     configuredServices.push({
-      name: subgraphConfig.name,
+      name: subgraphName,
       url,
     });
   }

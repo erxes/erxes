@@ -58,7 +58,6 @@ export default class WebSocketLink extends ApolloLink {
   }
 
   public restart() {
-    console.log("restart");
     this.client.restart();
   }
 
