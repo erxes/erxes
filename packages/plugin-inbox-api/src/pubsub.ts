@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { RedisPubSub } from "graphql-redis-subscriptions";
-import Redis from "ioredis";
+import * as Redis from "ioredis";
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 

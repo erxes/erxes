@@ -42,7 +42,7 @@ export const getDocumentList = async (
   } else {
     switch (type) {
       case 'users': {
-        list = await Users.find().lean();
+        list = await Users.find().toArray();
         break;
       }
 
@@ -57,16 +57,16 @@ export const getDocumentList = async (
       }
 
       case 'brands': {
-        list = await Brands.find().lean();
+        list = await Brands.find().toArray();
         break;
       }
 
       case 'products': {
-        list = await Products.find().lean();
+        list = await Products.find().toArray();
         break;
       }
       case 'tags': {
-        list = await Tags.find().lean();
+        list = await Tags.find().toArray();
         break;
       }
     }

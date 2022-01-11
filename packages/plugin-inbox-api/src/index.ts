@@ -4,11 +4,11 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import * as bodyParser from 'body-parser';
-import express from 'express';
+import * as express from 'express';
 import { filterXSS } from 'xss';
 import { buildSubgraphSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server-express';
-import cookieParser from 'cookie-parser';
+import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
 
@@ -20,6 +20,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import apiConnect from  './apiCollections';
+import { generateAllDataLoaders } from './dataLoaders';
 
 export const app = express();
 
@@ -74,7 +75,9 @@ const apolloServer = new ApolloServer({
       user = JSON.parse(userJson);
     }
 
-    return { user };
+    const dataLoaders = generateAllDataLoaders();
+
+    return { user, dataLoaders };
   }
 });
 
