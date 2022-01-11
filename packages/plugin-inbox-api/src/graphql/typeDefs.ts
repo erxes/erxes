@@ -30,7 +30,6 @@ import {
   mutations as SkillMutations
 } from './skillTypeDefs';
 
-
 const typeDefs = gql`
   scalar JSON
   scalar Date
