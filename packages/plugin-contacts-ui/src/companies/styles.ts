@@ -1,6 +1,6 @@
-import { SidebarList } from 'modules/layout/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
-import { colors, dimensions } from '../common/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 
 const CompanyLogo = styled.div`
   width: ${dimensions.headerSpacing}px;

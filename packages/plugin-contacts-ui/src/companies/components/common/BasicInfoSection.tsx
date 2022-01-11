@@ -1,5 +1,5 @@
-import Sidebar from 'modules/layout/components/Sidebar';
-import { IField } from 'modules/settings/properties/types';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { IField } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { ICompany } from '../../types';
 import DetailInfo from './DetailInfo';

@@ -1,30 +1,14 @@
-import { mutations as customerMutations } from 'erxes-ui/lib/customers/graphql';
+import { mutations as customerMutations } from '@erxes/ui/src/customers/graphql';
 
 const customersAdd = customerMutations.customersAdd;
 
 const customersEdit = customerMutations.customersEdit;
 
-const customersRemove = `
-  mutation customersRemove($customerIds: [String]) {
-    customersRemove(customerIds: $customerIds)
-  }
-`;
+const customersRemove = customerMutations.customersRemove;
 
-const customersMerge = `
-  mutation customersMerge($customerIds: [String], $customerFields: JSON) {
-    customersMerge(customerIds: $customerIds, customerFields: $customerFields) {
-      _id
-    }
-  }
-`;
+const customersMerge = customerMutations.customersMerge;
 
-const customersChangeState = `
-  mutation customersChangeState($_id: String!, $value: String!) {
-    customersChangeState(_id: $_id, value: $value) {
-      _id
-    }
-  }
-`;
+const customersChangeState = customerMutations.customersChangeState;
 
 const customersVerify = `
   mutation customersVerify($verificationType: String!) {

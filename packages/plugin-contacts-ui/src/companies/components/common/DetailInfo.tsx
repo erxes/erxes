@@ -1,11 +1,11 @@
-import { __ } from 'modules/common/utils';
+import { __ } from '@erxes/ui/src/utils';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
-} from 'modules/layout/styles';
-import { IField } from 'modules/settings/properties/types';
+} from '@erxes/ui/src/layout/styles';
+import { IField } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { ICompany } from '../../types';
 

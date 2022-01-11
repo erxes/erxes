@@ -1,9 +1,9 @@
-import { AvatarWrapper } from 'modules/activityLogs/styles';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { Name, NameContainer } from 'modules/customers/styles';
+import { AvatarWrapper } from '@erxes/ui/src/activityLogs/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
+import { Name, NameContainer } from '@erxes/ui/src/customers/styles';
 import React from 'react';
 import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';

@@ -1,14 +1,14 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import { mutations, queries } from 'modules/companies/graphql';
-import ActionSection from 'modules/customers/components/common/ActionSection';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { mutations, queries } from '@erxes/ui/src/companies/graphql';
+import ActionSection from '../../../customers/components/common/ActionSection';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IUser } from '../../../auth/types';
-import { IRouterProps } from '../../../common/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import {
   ICompany,
   MergeMutationResponse,
@@ -96,14 +96,14 @@ const generateOptions = () => ({
 export default withProps<Props>(
   compose(
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
-      gql(mutations.companiesRemove),
+      gql((mutations || {} as any).companiesRemove),
       {
         name: 'companiesRemove',
         options: generateOptions
       }
     ),
     graphql<{}, MergeMutationResponse, MergeMutationVariables>(
-      gql(mutations.companiesMerge),
+      gql((mutations || {} as any).companiesMerge),
       {
         name: 'companiesMerge',
         options: generateOptions

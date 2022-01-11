@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { InboxFieldsQueryResponse } from 'modules/settings/properties/types';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { withProps } from '@erxes/ui/src/utils';
+import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
+import { InboxFieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CustomerDetails from '../components/detail/CustomerDetails';

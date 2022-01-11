@@ -1,27 +1,27 @@
 import gql from 'graphql-tag';
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import SortHandler from 'modules/common/components/SortHandler';
-import Table from 'modules/common/components/table';
-import withTableWrapper from 'modules/common/components/table/withTableWrapper';
-import { __, Alert, confirm, router } from 'modules/common/utils';
-import { menuContacts } from 'modules/common/utils/menus';
-import { queries } from 'modules/companies/graphql';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { BarItems } from 'modules/layout/styles';
-import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
-import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import { queries } from '@erxes/ui/src/companies/graphql';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
+import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { IRouterProps } from '../../../common/types';
-import { IConfigColumn } from '../../../settings/properties/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
 import CompaniesMerge from '../detail/CompaniesMerge';
@@ -202,7 +202,7 @@ class CompaniesList extends React.Component<IProps, State> {
           });
 
       const refetchQuery = {
-        query: gql(queries.companyCounts),
+        query: gql((queries || {} as any).companyCounts),
         variables: { only: 'byTag' }
       };
 

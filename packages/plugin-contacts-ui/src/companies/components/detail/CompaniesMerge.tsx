@@ -1,18 +1,18 @@
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import { Column, Columns, Title } from 'modules/common/styles/chooser';
-import { ModalFooter } from 'modules/common/styles/main';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   COMPANY_DATAS,
   COMPANY_INFO,
   COMPANY_LINKS
-} from 'modules/companies/constants';
+} from '@erxes/ui/src/companies/constants';
 import {
   Info,
   InfoAvatar,
   InfoDetail,
   InfoTitle
-} from 'modules/customers/styles';
+} from '@erxes/ui/src/customers/styles';
 import React from 'react';
 import { ICompany, ICompanyLinks } from '../../types';
 

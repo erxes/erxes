@@ -11,7 +11,7 @@ import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
-import { pluginsOfCustomerSidebar } from 'pluginUtils';
+import { pluginsOfCustomerSidebar } from '@erxes/ui/src/pluginUtils';
 import React from 'react';
 
 type Props = {

@@ -1,4 +1,4 @@
-import Wrapper from 'modules/layout/components/Wrapper';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import SegmentFilter from '../../containers/filters/SegmentFilter';
 import TagFilter from '../../containers/filters/TagFilter';

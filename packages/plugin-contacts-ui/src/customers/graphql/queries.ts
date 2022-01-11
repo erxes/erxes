@@ -1,4 +1,4 @@
-import { queries as customerQueries } from 'erxes-ui/lib/customers/graphql';
+import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
 
 const basicFields = customerQueries.basicFields;
 

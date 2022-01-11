@@ -4,9 +4,9 @@ import {
   ICompany as ICompanyC,
   ICompanyDoc as ICompanyDocC,
   ICompanyLinks as ICompanyLinksC
-} from 'erxes-ui/lib/companies/types';
-import { QueryResponse } from 'modules/common/types';
-import { IActivityLog, IActivityLogForMonth } from '../activityLogs/types';
+} from '@erxes/ui/src/companies/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { IActivityLog, IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
 
 export type ICompanyLinks = ICompanyLinksC;
 

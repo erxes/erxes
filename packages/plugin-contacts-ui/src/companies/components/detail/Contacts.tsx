@@ -1,10 +1,10 @@
-import Box from 'modules/common/components/Box';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import { __, renderFullName } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
-import { Contact } from 'modules/customers/styles';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { __, renderFullName } from '@erxes/ui/src/utils';
+import { ICompany } from '@erxes/ui/src/companies/types';
+import { Contact } from '@erxes/ui/src/customers/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 

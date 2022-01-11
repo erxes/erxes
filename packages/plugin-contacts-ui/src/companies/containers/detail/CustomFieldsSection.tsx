@@ -1,14 +1,14 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import Sidebar from 'modules/layout/components/Sidebar';
-import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
+import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import { FieldsGroupsQueryResponse } from '../../../settings/properties/types';
+import { withProps } from '@erxes/ui/src/utils';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { mutations } from '../../graphql';
 import { EditMutationResponse, ICompany } from '../../types';
 

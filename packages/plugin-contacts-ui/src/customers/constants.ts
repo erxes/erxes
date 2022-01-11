@@ -1,4 +1,4 @@
-import { getConstantFromStore } from 'modules/common/utils';
+import { getConstantFromStore } from '@erxes/ui/src/utils';
 
 export const CUSTOMER_BASIC_INFO = {
   avatar: 'Avatar',

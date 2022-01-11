@@ -138,3 +138,18 @@ export interface IConfigColumn {
   order: number;
   checked?: boolean;
 }
+
+export type InboxFieldsQueryResponse = {
+  fieldsInbox: {
+    customer: IField[];
+    device: IField[];
+    conversation: IField[];
+  };
+  loading: boolean;
+};
+
+export type SystemFieldsGroupsQueryResponse = {
+  getSystemFieldsGroup: IFieldGroup;
+  loading: boolean;
+  refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
+};

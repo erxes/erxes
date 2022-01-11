@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import FormControl from 'modules/common/components/form/Control';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tags from 'modules/common/components/Tags';
-import TextInfo from 'modules/common/components/TextInfo';
-import { formatValue } from 'modules/common/utils';
-import { ClickableRow } from 'modules/customers/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Tags from '@erxes/ui/src/components/Tags';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import { formatValue } from '@erxes/ui/src/utils';
+import { ClickableRow } from '@erxes/ui/src/customers/styles';
 import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';

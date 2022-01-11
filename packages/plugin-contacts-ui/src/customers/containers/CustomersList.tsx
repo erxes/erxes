@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, getEnv, withProps } from 'modules/common/utils';
-import { generatePaginationParams } from 'modules/common/utils/router';
+import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Bulk from '../../common/components/Bulk';
-import { IRouterProps } from '../../common/types';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { ListConfigQueryResponse } from '../../companies/types';
 import CustomersList from '../components/list/CustomersList';
 import { mutations, queries } from '../graphql';

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { __, Alert } from 'modules/common/utils';
-import { confirm } from 'modules/common/utils';
-import LeadState from 'modules/customers/components/detail/LeadState';
+import { __, Alert } from '@erxes/ui/src/utils';
+import { confirm } from '@erxes/ui/src/utils';
+import LeadState from '../components/detail/LeadState';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations } from '../graphql';

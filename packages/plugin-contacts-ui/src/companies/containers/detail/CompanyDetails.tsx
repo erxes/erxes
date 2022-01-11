@@ -1,17 +1,17 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { SystemFieldsGroupsQueryResponse } from 'modules/settings/properties/types';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { withProps } from '@erxes/ui/src/utils';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
+import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
+import { SystemFieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import CompanyDetails from '../../components/detail/CompanyDetails';
 import { queries } from '../../graphql';
-import { DetailQueryResponse } from '../../types';
+import { DetailQueryResponse, ICompany } from '../../types';
 
 type Props = {
   id: string;
@@ -42,7 +42,7 @@ const CompanyDetailsContainer = (props: FinalProps) => {
 
   const fields = fieldsGroupsQuery.getSystemFieldsGroup.fields;
 
-  const companyDetail = companyDetailQuery.companyDetail || {};
+  const companyDetail = companyDetailQuery.companyDetail || {} as ICompany;
 
   const taggerRefetchQueries = [
     {
