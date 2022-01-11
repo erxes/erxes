@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "lib": ["es2015", "es6", "es7", "esnext.asynciterable"],
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../api-utils" },
+    { "path": "../common-types" }
+  ]
+}
