@@ -23,7 +23,7 @@ type Props = {
   space: number;
 };
 
-class PipelineRow extends React.Component<Props, {}> {
+class DashboardRow extends React.Component<Props, {}> {
   render() {
     const {
       dashboard,
@@ -67,4 +67,4 @@ class PipelineRow extends React.Component<Props, {}> {
   }
 }
 
-export default PipelineRow;
+export default DashboardRow;
