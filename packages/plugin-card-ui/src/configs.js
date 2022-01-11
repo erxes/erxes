@@ -20,7 +20,13 @@ module.exports = {
     {
       text: 'Task',
       url: '/task',
-      icon: 'icon-piggy-bank',
+      icon: 'icon-laptop',
+      location: 'mainNavigation'
+    },
+    {
+      text: 'Ticket',
+      url: '/ticket/board',
+      icon: 'icon-ticket',
       location: 'mainNavigation'
     }
   ]
