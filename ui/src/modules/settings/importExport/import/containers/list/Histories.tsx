@@ -7,9 +7,13 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Histories from '../components/Histories';
-import { mutations, queries } from '../graphql';
-import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
+import Histories from '../../components/list/Histories';
+import { mutations, queries } from '../../graphql';
+import {
+  ImportHistoriesQueryResponse,
+  RemoveMutationResponse
+} from '../../../types';
+import { Spinner } from 'erxes-ui';
 
 type Props = {
   queryParams: any;
@@ -37,25 +41,23 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     };
   }
 
-  componentDidUpdate(prevProps: FinalProps) {
-    const { isDoneIndicatorAction, historiesQuery } = this.props;
-
-    if (
-      historiesQuery &&
-      isDoneIndicatorAction !== prevProps.isDoneIndicatorAction
-    ) {
-      historiesQuery.refetch();
-    }
-  }
-
   render() {
-    const {
-      historiesQuery,
-      history,
-      importHistoriesRemove,
-      showLoadingBar,
-      closeLoadingBar
-    } = this.props;
+    const { historiesQuery, importHistoriesRemove, history } = this.props;
+
+    const histories = historiesQuery.importHistories || {};
+    const list = histories.list || [];
+
+    if (historiesQuery.loading) {
+      return <Spinner />;
+    }
+
+    if (list.length === 0) {
+      historiesQuery.stopPolling();
+    }
+
+    if (list[0] && list[0].percentage === 100) {
+      historiesQuery.stopPolling();
+    }
 
     if (!router.getParam(history, 'type')) {
       router.setParams(history, { type: 'customer' }, true);
@@ -63,38 +65,28 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
 
     const currentType = router.getParam(history, 'type');
 
-    const removeHistory = historyId => {
-      // reset top indicator
-      closeLoadingBar();
-
-      localStorage.setItem('erxes_import_data', historyId);
-      localStorage.setItem('erxes_import_data_type', 'remove');
-
-      showLoadingBar(true);
-
+    const removeHistory = (historyId: string, contentType: string) => {
       importHistoriesRemove({
-        variables: { _id: historyId }
+        variables: { _id: historyId, contentType }
       })
         .then(() => {
           if (historiesQuery) {
             historiesQuery.refetch();
+            Alert.success('success');
           }
         })
         .catch(e => {
           Alert.error(e.message);
-          closeLoadingBar();
         });
     };
-
-    const histories = historiesQuery.importHistories || {};
 
     const updatedProps = {
       ...this.props,
       histories: histories.list || [],
       loading: historiesQuery.loading || this.state.loading,
+      totalCount: histories.count || 0,
       removeHistory,
-      currentType,
-      totalCount: histories.count || 0
+      currentType
     };
 
     return <Histories {...updatedProps} />;
@@ -109,36 +101,34 @@ const historiesListParams = queryParams => ({
 const HistoriesWithProps = withProps<Props>(
   compose(
     graphql<Props, ImportHistoriesQueryResponse, { type: string }>(
-      gql(queries.histories),
+      gql(queries.importHistories),
       {
         name: 'historiesQuery',
         options: ({ queryParams }) => ({
           fetchPolicy: 'network-only',
-          variables: historiesListParams(queryParams)
+          variables: historiesListParams(queryParams),
+          pollInterval: 3000
         })
       }
     ),
-    graphql<Props, RemoveMutationResponse, { _id: string }>(
-      gql(mutations.importHistoriesRemove),
-      {
-        name: 'importHistoriesRemove',
-        options: {
-          refetchQueries: ['importHistories']
-        }
-      }
-    )
+    graphql<
+      Props,
+      RemoveMutationResponse,
+      { _id: string; contentType: string }
+    >(gql(mutations.importHistoriesRemove), {
+      name: 'importHistoriesRemove'
+    })
   )(withRouter<FinalProps>(HistoriesContainer))
 );
 
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ showLoadingBar, closeLoadingBar, isDoneIndicatorAction }) => (
+      {({ showLoadingBar, closeLoadingBar }) => (
         <HistoriesWithProps
           {...props}
           showLoadingBar={showLoadingBar}
           closeLoadingBar={closeLoadingBar}
-          isDoneIndicatorAction={isDoneIndicatorAction}
         />
       )}
     </AppConsumer>
