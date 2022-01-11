@@ -24,7 +24,7 @@ const count = async (query: any): Promise<number> => {
   return Number(result);
 };
 
-const conversationQueries = {
+const conversationQueries: any = {
   /**
    * Conversations list
    */
@@ -48,10 +48,6 @@ const conversationQueries = {
     return Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .limit(params.limit || 0);
-  },
-
-  async conversationMessage(_root, { _id }) {
-    return await ConversationMessages.find({ _id });
   },
 
   /**
@@ -275,5 +271,8 @@ const conversationQueries = {
 moduleRequireLogin(conversationQueries);
 
 checkPermission(conversationQueries, 'conversations', 'showConversations', []);
+
+conversationQueries.conversationMessage = (_root, { _id }) =>
+  ConversationMessages.findOne({ _id });
 
 export default conversationQueries;

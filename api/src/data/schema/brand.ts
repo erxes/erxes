@@ -7,8 +7,6 @@ export const types = `
     userId: String
     createdAt: Date
     emailConfig: JSON
-
-    integrations: [Integration]
   }
 `;
 
@@ -30,5 +28,4 @@ export const mutations = `
   brandsAdd(${mutationParams}): Brand
   brandsEdit(_id: String! ${mutationParams}): Brand
   brandsRemove(_id: String!): JSON
-  brandsManageIntegrations(_id: String!, integrationIds: [String]!): [Integration]
 `;

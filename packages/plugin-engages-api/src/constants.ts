@@ -140,3 +140,17 @@ export const CAMPAIGN_METHODS = {
   SMS: 'sms',
   ALL: ['messenger', 'email', 'sms']
 };
+
+export const MESSENGER_KINDS = {
+  CHAT: 'chat',
+  NOTE: 'note',
+  POST: 'post',
+  ALL: ['chat', 'note', 'post']
+};
+
+export const SENT_AS_CHOICES = {
+  BADGE: 'badge',
+  SNIPPET: 'snippet',
+  FULL_MESSAGE: 'fullMessage',
+  ALL: ['badge', 'snippet', 'fullMessage']
+};

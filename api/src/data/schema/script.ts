@@ -5,10 +5,6 @@ export const types = `
     messengerId: String
     kbTopicId: String
     leadIds: [String]
-
-    messenger: Integration
-    leads: [Integration]
-    kbTopic: KnowledgeBaseTopic
   }
 `;
 

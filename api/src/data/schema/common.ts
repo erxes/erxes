@@ -7,6 +7,22 @@ const ruleFields = `
 `;
 
 export const types = `
+  type Attachment {
+    url: String!
+    name: String
+    type: String!
+    size: Float
+    duration: Float
+  }
+
+  input AttachmentInput {
+    url: String!
+    name: String!
+    type: String
+    size: Float
+    duration: Float
+  }
+
   type Rule {
     ${ruleFields}
   }

@@ -1,10 +1,10 @@
 const { makeSubscriptionSchema } = require("esm")(module)(
   "federation-subscription-tools"
 );
-
 import { useServer } from "graphql-ws/lib/use/ws";
 import {
   execute,
+  ExecutionArgs,
   getOperationAST,
   GraphQLError,
   parse,
@@ -15,28 +15,49 @@ import ws from "ws";
 import { GraphQLSchema } from "graphql";
 import GatewayDataSource from "./GatewayDataSource";
 import resolvers from "./resolvers";
-import typeDefs from './typeDefs';
+import typeDefs from "./typeDefs";
+import {
+  Disposable,
+  SubscribeMessage,
+} from "graphql-ws";
+import { markClientActive, markClientInactive } from './clientStatusUtils';
 
-export function loadSubscriptions(
+let disposable: Disposable;
+
+export async function loadSubscriptions(
   gatewaySchema: GraphQLSchema,
   wsServer: ws.Server
 ) {
   const schema = makeSubscriptionSchema({ gatewaySchema, typeDefs, resolvers });
-  useServer(
+
+  if(disposable) {
+    try {
+      await disposable.dispose();
+    } catch (e) {
+      
+    }
+  }
+
+  disposable = useServer(
     {
       execute,
       subscribe,
-      context: (ctx, msg, args) => {
+      context: (ctx, msg: SubscribeMessage, args: ExecutionArgs) => {
         // Instantiate and initialize the GatewayDataSource subclass
-        // (data source methods will be accessible on the `gatewayApi` key)
-        const gatewayDataSource = new GatewayDataSource("http://localhost:4000/graphql");
+        const gatewayDataSource = new GatewayDataSource(
+          `http://localhost:${process.env.PORT}/graphql`
+        );
         gatewayDataSource.initialize({ context: ctx, cache: undefined });
 
         // Return the complete context for the request
         return { dataSources: { gatewayDataSource } };
       },
-      onSubscribe: (_ctx, msg) => {
-        // Construct the execution arguments
+      onSubscribe: async (
+        ctx,
+        msg: SubscribeMessage
+      ): Promise<ExecutionArgs | readonly GraphQLError[] | void> => {
+        // await markClientActive(ctx);
+
         const args = {
           schema,
           operationName: msg.payload.operationName,
@@ -67,7 +88,12 @@ export function loadSubscriptions(
         // Ready execution arguments
         return args;
       },
+      onClose: async (ctx, code: number, reason: string) => {
+        // await markClientInactive(ctx);
+      },
     },
     wsServer
   );
 }
+
+

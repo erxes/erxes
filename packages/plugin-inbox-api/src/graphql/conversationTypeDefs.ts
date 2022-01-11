@@ -1,4 +1,41 @@
 export const types = `
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+
+    conversations: [Conversation]
+  }
+
+  extend type Brand @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Tag @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  type MessengerConnectResponse {
+    integrationId: String
+    uiOptions: JSON
+    languageCode: String
+    messengerData: JSON
+    customerId: String
+    visitorId: String
+    brand: Brand
+  }
+
+  type ConversationDetailResponse {
+    _id: String
+    messages: [ConversationMessage]
+    operatorStatus: String
+    participatedUsers: [User]
+    isOnline: Boolean
+    supporters: [User]
+  }
+
   type ConversationFacebookData {
     kind: String
     senderName: String
@@ -53,18 +90,10 @@ export const types = `
     sentAs: String
   }
 
-  type Attachment {
-    url: String!
-    name: String
-    type: String!
-    size: Float
-    duration: Float
-  }
-
   type ConversationMessage {
     _id: String!
     content: String
-    attachments: [Attachment]
+    attachments: [JSON]
     mentionedUserIds: [String]
     conversationId: String
     internal: Boolean
@@ -178,14 +207,6 @@ export const types = `
     createdAt: Date,
     isCustomerRead: Boolean,
   }
-
-  input AttachmentInput {
-    url: String!
-    name: String!
-    type: String
-    size: Float
-    duration: Float
-  }
 `;
 
 const mutationFilterParams = `
@@ -241,6 +262,15 @@ export const queries = `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
+
+  widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
+  widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
+  widgetExportMessengerData(_id: String, integrationId: String!): String
+  widgetsGetMessengerIntegration(brandCode: String!): Integration
+  widgetsMessages(conversationId: String): [ConversationMessage]
+  widgetsUnreadCount(conversationId: String): Int
+  widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
+  widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 `;
 
 export const mutations = `
@@ -249,7 +279,7 @@ export const mutations = `
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,
-    attachments: [AttachmentInput],
+    attachments: [JSON],
     contentType: String
     facebookMessageTag: String
   ): ConversationMessage
@@ -266,4 +296,51 @@ export const mutations = `
   conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
   conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String, bookingProductId: String): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
+
+  widgetsMessengerConnect(
+    brandCode: String!
+    email: String
+    phone: String
+    code: String
+    isUser: Boolean
+
+    companyData: JSON
+    data: JSON
+
+    visitorId: String
+    cachedCustomerId: String
+    deviceToken: String
+  ): MessengerConnectResponse
+
+  widgetsSaveBrowserInfo(
+    visitorId: String
+    customerId: String
+    browserInfo: JSON!
+  ): ConversationMessage
+
+  widgetsInsertMessage(
+    integrationId: String!
+    customerId: String
+    visitorId: String
+    conversationId: String
+    message: String,
+    attachments: [JSON],
+    contentType: String,
+    skillId: String
+  ): ConversationMessage
+
+  widgetBotRequest(
+    customerId: String
+    visitorId: String
+    conversationId: String
+    integrationId: String!,
+    message: String!
+    payload: String!
+    type: String!
+    ): JSON
+
+  widgetGetBotInitialMessage(integrationId: String): JSON
+  widgetsSendTypingInfo(conversationId: String!, text: String): String
+  widgetsReadConversationMessages(conversationId: String): JSON
+  widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
 `;

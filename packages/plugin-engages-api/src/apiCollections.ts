@@ -19,6 +19,10 @@ main()
   .catch(console.error)
   .finally(() => client.close());
 
+export const _DB = () => {
+  return db;
+};
+
 export const _ConversationMessages = async () => {
   const collection = await db.collection('conversation_messages');
   return collection;
@@ -56,5 +60,15 @@ export const _Conformities = async () => {
 
 export const _Segments = async () => {
   const collection = await db.collection('segments');
+  return collection;
+};
+
+export const _Fields = async () => {
+  const collection = await db.collection('fields');
+  return collection;
+};
+
+export const _Pipelines = async () => {
+  const collection = await db.collection('pipelines');
   return collection;
 };
