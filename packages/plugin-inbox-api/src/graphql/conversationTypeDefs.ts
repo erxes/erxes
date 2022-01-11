@@ -1,4 +1,8 @@
 export const types = `
+  extend type Attachment @key(fields: "url") {
+    url: String! @external
+  }
+
   extend type Customer @key(fields: "_id") {
     _id: String! @external
 
@@ -69,14 +73,6 @@ export const types = `
     fromUser: User
     kind: String
     sentAs: String
-  }
-
-  type Attachment {
-    url: String!
-    name: String
-    type: String!
-    size: Float
-    duration: Float
   }
 
   type ConversationMessage {
