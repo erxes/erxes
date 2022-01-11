@@ -25,6 +25,17 @@ export interface ICustomField {
   dateValue?: Date;
 }
 
+export const customFieldSchema = new Schema(
+  {
+    field: field({ type: String }),
+    value: field({ type: Schema.Types.Mixed }),
+    stringValue: field({ type: String, optional: true }),
+    numberValue: field({ type: Number, optional: true }),
+    dateValue: field({ type: Date, optional: true })
+  },
+  { _id: false }
+);
+
 export interface IBrandEmailConfig {
   type?: string;
   template?: string;
@@ -61,6 +72,17 @@ export const ruleSchema = new Schema(
     condition: field({ type: String, label: 'Condition' }),
 
     value: field({ type: String, label: 'Value', optional: true })
+  },
+  { _id: false }
+);
+
+export const attachmentSchema = new Schema(
+  {
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true }),
+    duration: field({ type: Number, optional: true })
   },
   { _id: false }
 );

@@ -7,7 +7,7 @@ const ruleFields = `
 `;
 
 export const types = `
-  type Attachment {
+  type Attachment @key(fields: "url") {
     url: String!
     name: String
     type: String!

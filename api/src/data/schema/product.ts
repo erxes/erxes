@@ -1,5 +1,5 @@
 export const types = `
-  type ProductCategory {
+  type ProductCategory @key(fields: "_id") {
     _id: String!
     name: String
     description: String
@@ -13,7 +13,7 @@ export const types = `
     productCount: Int
   }
 
-  type Product {
+  type Product @key(fields: "_id") {
     _id: String!
     name: String
     code: String
