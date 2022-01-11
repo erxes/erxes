@@ -10,6 +10,7 @@ export const GeneralWrapper = styled.div`
     background-color: #fafafa;
     padding: 20px 20px 40px 20px;
     margin-bottom: 20px;
+    margin-top: 20px;
     border-radius: 10px;
 
     > p {
@@ -51,6 +52,7 @@ export const FeatureLayout = styled.div`
 `;
 
 export const XButton = styled.div `
+   margin: auto;
   :hover{
     color: red;
     cursor: pointer;
@@ -65,15 +67,10 @@ export const AppearanceWrapper = styled.div`
   padding: 40px;
   > div:first-child {
     padding: 0 0 0 40px;
-    > div {
-      width: 690px;
-    }
+      width: 690px; 
   }
   > div:last-child {
     padding: 0;
-    > div {
-      margin: 0;
-    }
   }
 `;
 
@@ -92,18 +89,28 @@ export const AppSettings = styled.div`
   }
 `;
 
-export const Logos = styled.div``;
+export const Logos = styled.div`
+> div {
+  > img {
+  margin: 10px;
+}
+}
+`;
 
 export const Colors = styled.div`
+>div{
+  display: flex;
+  justify-content: space-around;
   > div {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-
+    margin-top: 20px;
+    margin-right: 20px;
     label {
-      width: 200px;
+      width: 100px;
     }
   }
+}
 `;
 
 export const WelcomeContent = styled.div`
@@ -114,6 +121,7 @@ export const WelcomeContent = styled.div`
     }
   }
 `;
+
 
 export const UploadItems = styled.div`
   display: flex;

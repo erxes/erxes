@@ -9,7 +9,8 @@ import {
   Colors,
   Logos,
   AppearanceWrapper,
-  WelcomeContent
+  WelcomeContent,
+  XButton
 } from '../styles';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from '../styles';
@@ -141,12 +142,13 @@ export default function Appearance(props: Props) {
 
     return (
       <div key={index}>
-        <button
+        <XButton
           style={{ float: 'right', background: 'transparent', border: 'none', cursor:'pointer' }}
           onClick={() => onChangePageCount('remove', page._id)}
+          title={'Delete Page'}
         >
           X
-        </button>
+        </XButton>
         <ControlLabel>Page {index + 1}</ControlLabel>
         <Uploader
           defaultFileList={image ? [image] : []}
@@ -181,22 +183,40 @@ export default function Appearance(props: Props) {
       <GeneralWrapper>
         <Logos>
           <p>Logos</p>
-          <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
+          <ControlLabel>{__('Logo 256x256 or 128x128')}</ControlLabel>
+          {!logo ? 
+            <div>
+            <img 
+              src={'https://i.pinimg.com/originals/3f/94/70/3f9470b34a8e3f526dbdb022f9f19cf7.jpg'} 
+              alt={logo}
+              width={128} 
+              height={128} 
+              title={'Logo'}
+            />
+            </div> 
+          : 
+            <div>
+            </div> 
+          }
+          <div>
           <Uploader
             defaultFileList={logo ? [logo] : []}
             onChange={(e: any) => onChangeAttachment(e.length ? e[0] : null)}
             single={true}
           />
+          </div>
         </Logos>
         <Colors>
           <p>Colors</p>
           <div>
-            <ControlLabel>{__('Primary color')}</ControlLabel>
-            {renderColorSelect('primaryColor', appearance.primaryColor)}
-          </div>
-          <div>
-            <ControlLabel>{__('Secondary color')}</ControlLabel>
-            {renderColorSelect('secondaryColor', appearance.secondaryColor)}
+            <div>
+              <ControlLabel>{__('Primary color')}</ControlLabel>
+              {renderColorSelect('primaryColor', appearance.primaryColor)}
+            </div>
+            <div>
+              <ControlLabel>{__('Secondary color')}</ControlLabel>
+              {renderColorSelect('secondaryColor', appearance.secondaryColor)}
+            </div>
           </div>
         </Colors>
         <WelcomeContent>
@@ -206,7 +226,7 @@ export default function Appearance(props: Props) {
             renderWelcomeContent(page, index)
           )}
         </WelcomeContent>
-        <Button btnStyle='success' onClick={onSave}>
+        <Button btnStyle='success' icon="check-circle" onClick={onSave}>
           Save
         </Button>
       </GeneralWrapper>

@@ -195,10 +195,10 @@ export default function General(props: Props) {
               </FeatureRowItem>
             )}
             </FeatureRowFlex>
-            <button
-              style = {{background: 'transparent', border: 'none', cursor:'pointer'}}
+            <XButton
               onClick={() => onChangeFeature('remove', feature._id)}
-            >X</button>
+              title={'Delete Feature'}
+            >X</XButton>
           </FeatureRow>
         ))}
         <Button btnStyle="primary"  onClick={() => onChangeFeature('add')} > + Add Features</Button>
