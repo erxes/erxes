@@ -109,3 +109,26 @@ export const checkPermission = async (
 export const requireLogin = (cls: any, methodName: string) =>
   permissionWrapper(cls, methodName, [checkLogin]);
 
+
+export const moduleRequireLogin = (mdl: any) => {
+  for (const method in mdl) {
+    if (mdl.hasOwnProperty(method)) {
+      requireLogin(mdl, method);
+    }
+  }
+};
+
+/**
+ * Wraps all properties (methods) of a given object with 'Permission action required' permission checker
+ */
+export const moduleCheckPermission = async (
+  mdl: any,
+  action: string,
+  defaultValue?: any
+) => {
+  for (const method in mdl) {
+    if (mdl.hasOwnProperty(method)) {
+      await checkPermission(mdl, method, action, defaultValue);
+    }
+  }
+};
