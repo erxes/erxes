@@ -149,8 +149,18 @@ const FilterItem = styled(DateContainer)`
   z-index: 100;
 `;
 
+const FlexItem = styled(DateContainer)`
+  flex: 1;
+  margin: 0;
+  margin-left: ${dimensions.coreSpacing}px;
+  &:first-child {
+    margin-left: 0;
+  }
+`;
+
 export {
   MarkdownWrapper,
+  FlexItem,
   ActionButtons,
   ExpandWrapper,
   Description,
