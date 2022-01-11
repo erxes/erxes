@@ -2,16 +2,63 @@
  * Link implementation based on: https://github.com/enisdenjo/graphql-ws#user-content-apollo-client
  */
 
-import { Client, ClientOptions, createClient } from 'graphql-ws';
+import { Client, ClientOptions, createClient, WebSocket } from 'graphql-ws';
 import { print } from 'graphql';
 import { ApolloLink, FetchResult, Observable, Operation } from 'apollo-link';
 
+interface RestartableClient extends Client {
+  restart(): void;
+}
+
+function createRestartableClient(options: ClientOptions): RestartableClient {
+  let restartRequested = false;
+  let restart = () => {
+    restartRequested = true;
+  };
+
+  const client = createClient({
+    ...options,
+    on: {
+      ...options.on,
+      opened: (socket: any) => {
+        options.on?.opened?.(socket);
+
+        restart = () => {
+          if (socket.readyState === WebSocket.OPEN) {
+            // if the socket is still open for the restart, do the restart
+            socket.close(4205, 'Client Restart');
+          } else {
+            // otherwise the socket might've closed, indicate that you want
+            // a restart on the next opened event
+            restartRequested = true;
+          }
+        };
+
+        // just in case you were eager to restart
+        if (restartRequested) {
+          restartRequested = false;
+          restart();
+        }
+      },
+    },
+  });
+
+  return {
+    ...client,
+    restart: () => restart(),
+  };
+}
+
 export default class WebSocketLink extends ApolloLink {
-  private client: Client;
+  private client: RestartableClient;
 
   constructor(options: ClientOptions) {
     super();
-    this.client = createClient(options);
+    this.client = createRestartableClient(options);
+  }
+
+  public restart() {
+    this.client.restart();
   }
 
   public request(operation: Operation): Observable<FetchResult> {

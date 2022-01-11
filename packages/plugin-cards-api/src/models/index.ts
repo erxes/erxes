@@ -1,7 +1,7 @@
-import Configs from './Configs';
-import { DeliveryReports, Stats } from './DeliveryReports';
-import Logs from './Logs';
-import SmsRequests from './SmsRequests';
-import EngageMessages from './Engages';
+import { Boards, Pipelines, Stages } from './Boards';
+import Deals from './Deals';
+import Tasks from './Tasks';
+import Tickets from './Tickets';
+import GrowthHacks from './GrowthHacks';
 
-export { Configs, Stats, DeliveryReports, Logs, SmsRequests, EngageMessages };
+export { Boards, Pipelines, Stages, Deals, Tasks, Tickets, GrowthHacks };

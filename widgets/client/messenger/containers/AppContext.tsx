@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import * as React from "react";
-import client from "../../apollo-client";
+import client, { wsLink } from "../../apollo-client";
 import { getLocalStorageItem, setLocalStorageItem } from "../../common";
 import {
   IBrand,
@@ -406,6 +406,13 @@ export class AppProvider extends React.Component<{}, IState> {
           isVisible: true,
           isSmallContainer: this.isSmallContainer()
         });
+
+        const messengerDataJson = getLocalStorageItem('messengerDataJson');
+        const messengerData = JSON.parse(messengerDataJson);
+        messengerData.customerId = widgetsSaveCustomerGetNotified._id;
+        setLocalStorageItem("messengerDataJson", JSON.stringify(messengerData));
+
+        wsLink.restart();
       });
   };
 

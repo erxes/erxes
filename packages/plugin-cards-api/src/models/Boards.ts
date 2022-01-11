@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { configReplacer } from '../../data/utils';
-import { Checklists, Conformities, Forms, InternalNotes } from './';
+import { configReplacer } from '../utils';
 import {
   getCollection,
   updateOrder,
