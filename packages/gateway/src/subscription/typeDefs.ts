@@ -6,6 +6,7 @@ import { gql } from "apollo-server-express";
 const { SUBGRAPH_INBOX_URL } = process.env;
 
 const inboxSubscriptions = `
+
   conversationChanged(_id: String!): ConversationChangedResponse
   conversationMessageInserted(_id: String!): ConversationMessage
   conversationClientMessageInserted(userId: String!): ConversationMessage
@@ -13,7 +14,7 @@ const inboxSubscriptions = `
   conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
   conversationExternalIntegrationMessageInserted: JSON
   conversationBotTypingStatus(_id: String!): JSON
-  customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
+
 `
 
 const typeDefs = gql`
@@ -21,6 +22,8 @@ const typeDefs = gql`
 
     ${SUBGRAPH_INBOX_URL ? inboxSubscriptions : ""}
 
+    customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
+    
     activityLogsChanged: Boolean
     importHistoryChanged(_id: String!): ImportHistory
     notificationInserted(userId: String): Notification
