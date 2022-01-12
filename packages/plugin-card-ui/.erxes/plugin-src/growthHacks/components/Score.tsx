@@ -1,5 +1,5 @@
-import FormControl from 'modules/common/components/form/Control';
-import { roundToTwo } from 'modules/common/utils';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { roundToTwo } from '@erxes/ui/src/utils';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

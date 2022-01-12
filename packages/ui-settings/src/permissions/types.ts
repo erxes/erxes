@@ -7,3 +7,8 @@ export interface IUserGroup {
   memberIds?: string[];
   members?: IUser[];
 }
+
+export type UsersGroupsQueryResponse = {
+  usersGroups: IUserGroup[];
+  loading: boolean;
+};

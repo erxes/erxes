@@ -63,8 +63,18 @@ const formDetail = `
   }
 `;
 
+const forms = `
+  query forms {
+    forms {
+      _id
+      title
+    }
+  }
+`;
+
 export default {
   fieldsCombinedByContentType,
   fields,
-  formDetail
+  formDetail,
+  forms
 };

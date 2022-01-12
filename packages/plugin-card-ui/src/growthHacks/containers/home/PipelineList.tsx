@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from 'modules/boards/graphql';
-import { PipelinesQueryResponse } from 'modules/boards/types';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
-import mutations from 'modules/settings/boards/graphql/mutations';
+import { queries } from '@erxes/ui-cards/src/boards/graphql';
+import { PipelinesQueryResponse } from '@erxes/ui-cards/src/boards/types';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils';
+import mutations from '../../../settings/boards/graphql/mutations';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

@@ -1,9 +1,9 @@
-import LoadMore from 'modules/common/components/LoadMore';
-import Table from 'modules/common/components/table';
-import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { LeftContent, ScrollContent } from 'modules/growthHacks/styles';
-import { IGrowthHackParams } from 'modules/growthHacks/types';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
+import Table from '@erxes/ui/src/components/table';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import { LeftContent, ScrollContent } from '../../styles';
+import { IGrowthHackParams } from '../../types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import GrowthHackAddTrigger from '../GrowthHackAddTrigger';

@@ -6,7 +6,7 @@ import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ManageColumns from '../components/ManageColumns';
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '../../constants';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '../constants';
 
 import {
   DefaultColumnsConfigQueryResponse,

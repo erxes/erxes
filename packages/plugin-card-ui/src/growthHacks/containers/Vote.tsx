@@ -1,11 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import {
-  IGrowthHack,
-  VoteMutation,
-  VoteVariables
-} from 'modules/growthHacks/types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { IGrowthHack, VoteMutation, VoteVariables } from '../types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import { Vote } from '../components/editForm';

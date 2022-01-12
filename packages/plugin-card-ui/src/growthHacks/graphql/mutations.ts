@@ -1,7 +1,7 @@
 import {
   commonDragParams,
   commonDragVariables
-} from 'modules/boards/graphql/mutations';
+} from '@erxes/ui-cards/src/boards/graphql/mutations';
 import { growthHackFields } from './queries';
 
 const commonVariables = `
