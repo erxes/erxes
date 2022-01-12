@@ -21,30 +21,16 @@ interface SubgraphConfig {
   [x: string]: string;
 }
 
-export const allSubgraphConfigs: SubgraphConfig = {
-    "api" : "SUBGRAPH_API_URL",
-    "engages" : "SUBGRAPH_ENGAGES_URL",
-    "inbox": "SUBGRAPH_INBOX_URL"
+export const allSubgraphEnvKeys: SubgraphConfig = {
+  api: "SUBGRAPH_API_URL",
+  engages: "SUBGRAPH_ENGAGES_URL",
+  inbox: "SUBGRAPH_INBOX_URL",
 };
 
-function getConfiguredServices(): ServiceEndpointDefinition[] {
-  const configuredServices: ServiceEndpointDefinition[] = [];
-
-  for (const subgraphName of Object.keys(allSubgraphConfigs)) {
-    const envVarName = allSubgraphConfigs[subgraphName];
-    const url = process.env[envVarName];
-
-    // this subgraph's url is not configured in environment variables
-    if (!url) continue;
-
-    configuredServices.push({
-      name: subgraphName,
-      url,
-    });
-  }
-
-  return configuredServices;
-}
+const getConfiguredServices = (): ServiceEndpointDefinition[] =>
+  Object.entries(allSubgraphEnvKeys)
+    .filter(([_name, envVar]) => process.env[envVar]) // filter subgraphs that are configured in environment variables
+    .map(([name, envVar]) => ({ name, url: process.env[envVar] })); // get url from environment variables
 
 class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
   GatewayContext
@@ -82,7 +68,7 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
 
     if (context.req.user) {
       const userJson = JSON.stringify(context.req.user);
-      const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
+      const userJsonBase64 = Buffer.from(userJson, "utf8").toString("base64");
       request.http?.headers.set("user", userJsonBase64);
     }
 
@@ -91,7 +77,6 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
 
     if (typeof cookie === "string") {
       request.http?.headers.set("Cookie", cookie);
-      return;
     }
   }
 }
