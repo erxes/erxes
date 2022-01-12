@@ -115,3 +115,30 @@ export const AUTO_BOT_MESSAGES = {
   NO_RESPONSE: 'No reply',
   CHANGE_OPERATOR: 'The team will reply in message'
 };
+
+export const INTEGRATION_NAMES_MAP = {
+  messenger: 'Messenger',
+  lead: 'Forms',
+  'facebook-messenger': 'Facebook Messenger',
+  'facebook-post': 'Facebook Post',
+  gmail: 'Gmail',
+  webhook: 'Webhook',
+  callpro: 'Call pro',
+  chatfuel: 'Chatfuel',
+
+  whatsapp: 'WhatsApp by Smooch',
+  'smooch-telegram': 'Telegram by Smooch',
+  'smooch-viber': 'Viber by Smooch',
+  'smooch-line': 'Line by Smooch',
+  'smooch-twilio': 'SMS Twilio by Smooch',
+
+  'nylas-imap': 'IMAP by Nylas',
+  'nylas-gmail': 'Gmail by Nylas',
+  'nylas-office365': 'Office 365 by Nylas',
+  'nylas-exchange': 'Microsoft Exchange by Nylas',
+  'nylas-outlook': 'Outlook by Nylas',
+  'nylas-yahoo': 'Yahoo by Nylas',
+  'twitter-dm': 'Twitter dm',
+
+  telnyx: 'SMS by Telnyx'
+};

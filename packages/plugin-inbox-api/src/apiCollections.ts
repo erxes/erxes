@@ -18,6 +18,7 @@ export let Fields;
 export let Products;
 export let ProductCategories;
 export let Forms;
+export let EmailDeliveries;
 
 const main = async () => {
   // Use connect method to connect to the server
@@ -39,6 +40,7 @@ const main = async () => {
   Products = await db.collection('products');
   ProductCategories = await db.collection('product_categories');
   Forms = await db.collection('forms');
+  EmailDeliveries = await db.collection('email_deliveries');
 
   return 'done.';
 }
