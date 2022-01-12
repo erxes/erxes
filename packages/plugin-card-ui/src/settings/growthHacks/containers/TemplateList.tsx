@@ -1,15 +1,15 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
-import { IButtonMutateProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
-import { generatePaginationParams } from 'modules/common/utils/router';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Alert } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
   ICommonFormProps,
   ICommonListProps
-} from 'modules/settings/common/types';
+} from '@erxes/ui-settings/src/common/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { commonListComposer } from '../../utils';
+import commonListComposer from '@erxes/ui-settings/src/utils/commonListComposer';
 import TemplateList from '../components/TemplateList';
 import { mutations, queries } from '../graphql';
 import { IPipelineTemplate } from '../types';
