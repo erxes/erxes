@@ -1,4 +1,4 @@
-import AddTrigger from 'modules/boards/components/portable/AddTrigger';
+import AddTrigger from '@erxes/ui-cards/src/boards/components/portable/AddTrigger';
 import React from 'react';
 import options from '../options';
 
