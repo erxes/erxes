@@ -1,5 +1,5 @@
 import { AppConsumer } from '@erxes/ui/src/appContext';
-import { IProduct } from '@erxes/ui-cards/src/products/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import ProductForm from '../../components/product/ProductForm';
 import { IPaymentsData, IProductData } from '../../types';

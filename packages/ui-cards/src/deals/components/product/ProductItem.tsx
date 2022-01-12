@@ -4,11 +4,11 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
 import { __ } from '@erxes/ui/src/utils';
 import { MEASUREMENTS } from '@erxes/ui-settings/src/general/constants';
-import { IProduct } from '@erxes/ui-cards/src/products/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
-import ProductChooser from '@erxes/ui-cards/src/products/containers/ProductChooser';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import {
   Amount,
   ContentColumn,
