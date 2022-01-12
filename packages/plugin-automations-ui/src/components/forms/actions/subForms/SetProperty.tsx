@@ -7,7 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { __, Alert } from '@erxes/ui/src/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { queries as formQueries } from '../../../../graphql';
 import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import Select from 'react-select-plus';

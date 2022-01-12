@@ -48,7 +48,7 @@ function CustomerDetailsContainer(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    customer: customerDetailQuery.customerDetail || {},
+    customer: customerDetailQuery.customerDetail || {} as any,
     taggerRefetchQueries,
     fields: fields.customer,
     deviceFields: fields.device
