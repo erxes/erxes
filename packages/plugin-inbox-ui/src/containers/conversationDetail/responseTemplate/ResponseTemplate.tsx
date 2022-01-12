@@ -9,7 +9,7 @@ import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
   SaveResponseTemplateMutationResponse
-} from '@erxes/ui/src/responseTemplates/types';
+} from '../../../settings/responseTemplates/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

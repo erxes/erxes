@@ -1,4 +1,4 @@
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 
 const FlexRow = styled.div`

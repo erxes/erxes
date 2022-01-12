@@ -1,18 +1,21 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IUser } from 'modules/auth/types';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
-import { queries as messageQueries } from 'modules/inbox/graphql';
-import { IMail, IMessage } from 'modules/inbox/types';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { queries as messageQueries } from '../../../../graphql';
+import { IMail, IMessage } from '../../../../types';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
-} from 'modules/settings/emailTemplates/containers/List';
-import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+} from '@erxes/ui-settings/src/emailTemplates/containers/List';
+import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-settings/src/integrations/graphql';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import MailForm from '../../components/mail/MailForm';

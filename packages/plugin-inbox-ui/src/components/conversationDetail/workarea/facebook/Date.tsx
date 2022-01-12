@@ -23,7 +23,7 @@ export default class DateComponent extends React.Component<Props, {}> {
     return (
       <Tip placement='bottom' text={dayjs(new Date(createdTime)).format('lll')}>
         <DateTime href={permalink_url}>
-          {dayjs(new Date(createdTime)).fromNow()}
+          {(dayjs(new Date(createdTime)) || ({} as any)).fromNow()}
         </DateTime>
       </Tip>
     );

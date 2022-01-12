@@ -1,9 +1,9 @@
-import Button from 'modules/common/components/Button';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
-import { days, hours } from 'modules/settings/integrations/constants';
-import { FlexRow } from 'modules/settings/integrations/styles';
+import Button from '@erxes/ui/src/components/Button';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import { days, hours } from '@erxes/ui-settings/src/integrations/constants';
+import { FlexRow } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '../../../types';
@@ -88,7 +88,7 @@ class OnlineHours extends React.Component<Props, State> {
     return (
       <FlexRow key={_id}>
         <Select
-          className="flex-item"
+          className='flex-item'
           value={day}
           options={days}
           onChange={onDayChange}
@@ -97,7 +97,7 @@ class OnlineHours extends React.Component<Props, State> {
 
         <span>from</span>
         <Select
-          className="flex-item"
+          className='flex-item'
           onChange={onFromChange}
           value={from}
           options={hours}
@@ -106,15 +106,15 @@ class OnlineHours extends React.Component<Props, State> {
 
         <span>to</span>
         <Select
-          className="flex-item"
+          className='flex-item'
           onChange={onToChange}
           value={to}
           options={hours}
           clearable={false}
         />
 
-        <Button size="small" btnStyle="danger" onClick={remove}>
-          <Icon icon="cancel-1" />
+        <Button size='small' btnStyle='danger' onClick={remove}>
+          <Icon icon='cancel-1' />
         </Button>
       </FlexRow>
     );
@@ -131,10 +131,10 @@ class OnlineHours extends React.Component<Props, State> {
 
         <br />
         <Button
-          btnStyle="success"
-          size="small"
+          btnStyle='success'
+          size='small'
           onClick={this.addTime}
-          icon="add"
+          icon='add'
         >
           Add another time
         </Button>

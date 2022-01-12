@@ -26,7 +26,7 @@ import ManageVideoRoom from 'modules/videoCall/containers/ManageRoom';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { IResponseTemplate } from '../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
 import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
 import { FacebookTaggedMessage } from './styles';

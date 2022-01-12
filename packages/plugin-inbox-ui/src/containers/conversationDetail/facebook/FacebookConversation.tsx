@@ -1,4 +1,4 @@
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '@erxes/ui/src/appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -157,7 +157,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       ...this.props,
       commentCount,
       post,
-      customer: conversation.customer || {},
+      customer: conversation.customer || ({} as any),
       comments,
       internalNotes: internalNotesQuery.conversationMessages,
       hasMore,

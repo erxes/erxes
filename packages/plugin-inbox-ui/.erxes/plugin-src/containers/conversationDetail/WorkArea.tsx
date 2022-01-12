@@ -1,4 +1,4 @@
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '@erxes/ui/src/appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';

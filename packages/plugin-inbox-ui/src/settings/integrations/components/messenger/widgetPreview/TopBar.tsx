@@ -1,12 +1,9 @@
 import dayjs from 'dayjs';
-import { IUser } from 'modules/auth/types';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
-import {
-  IMessagesItem,
-  IMessengerApps
-} from 'modules/settings/integrations/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IMessagesItem, IMessengerApps } from '../../../../integrations/types';
 import React from 'react';
 import {
   ErxesGreeting,
@@ -57,7 +54,7 @@ class TopBar extends React.Component<Props> {
     }
 
     return (
-      <a href="#icon">
+      <a href='#icon'>
         <Icon icon={icon} size={18} />
       </a>
     );

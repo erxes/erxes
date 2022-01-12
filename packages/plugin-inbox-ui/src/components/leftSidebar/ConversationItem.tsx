@@ -21,7 +21,6 @@ import {
   Count,
   CustomerName,
   FlexContent,
-  FlexRoot,
   FlexWidth,
   Idle,
   MainInfo,
@@ -30,7 +29,7 @@ import {
   RowItem,
   SmallTextOneLine
 } from './styles';
-
+import { Flex as FlexRoot } from '@erxes/ui/src/styles/main';
 type Props = {
   conversation: IConversation;
   channelId?: string;
@@ -136,7 +135,11 @@ class ConversationItem extends React.Component<Props> {
                   <FlexWidth>
                     {isExistingCustomer && renderFullName(customer)}
                   </FlexWidth>
-                  <time>{dayjs(updatedAt || createdAt).fromNow(true)}</time>
+                  <time>
+                    {(dayjs(updatedAt || createdAt) || ({} as any)).fromNow(
+                      true
+                    )}
+                  </time>
                 </CustomerName>
 
                 <SmallTextOneLine>

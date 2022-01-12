@@ -1,7 +1,7 @@
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import CallPro from 'modules/settings/integrations/components/callpro/Form';
-import { mutations } from 'modules/settings/integrations/graphql';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import CallPro from '../../components/callpro/Form';
+import { mutations } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Chatfuel from '../../components/chatfuel/Form';
@@ -61,7 +61,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
         callback={callback}
         isSubmitted={isSubmitted}
         refetchQueries={getRefetchQueries(type)}
-        type="submit"
+        type='submit'
         successMessage={`You successfully added a ${type} ${name}`}
       />
     );

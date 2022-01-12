@@ -1,10 +1,10 @@
-import { IUser } from 'modules/auth/types';
-import { IBrand } from 'modules/settings/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   IMessagesItem,
-  IMessengerApps,
   ISkillData
-} from 'modules/settings/integrations/types';
+} from '@erxes/ui-settings/src/integrations/types';
+import { IMessengerApps } from '../../../types';
 import React from 'react';
 import GreetingContent from './GreetingContent';
 import { Launcher, WidgetPreviewStyled } from './styles';

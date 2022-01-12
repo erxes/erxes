@@ -1,4 +1,4 @@
-import Spinner from 'modules/common/components/Spinner';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
 import styled from 'styled-components';
 

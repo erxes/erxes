@@ -1,9 +1,9 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { ISkillTypesDocument } from '../types';
 
@@ -38,17 +38,17 @@ function SkillTypeForm({ closeModal, object, renderButton }: Props) {
         <ControlLabel>Name</ControlLabel>
         <FormControl
           {...formProps}
-          name="name"
+          name='name'
           defaultValue={item.name}
           autoFocus={true}
           required={true}
         />
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
+            btnStyle='simple'
+            type='button'
             onClick={closeModal}
-            icon="times-circle"
+            icon='times-circle'
           >
             Cancel
           </Button>

@@ -1,4 +1,4 @@
-import colors from 'modules/common/styles/colors';
+import colors from '@erxes/ui/src/styles/colors';
 
 export const INTEGRATIONS_COLORS = {
   lead: colors.colorCoreYellow,

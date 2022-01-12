@@ -1,10 +1,13 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Info from 'modules/common/components/Info';
-import Spinner from 'modules/common/components/Spinner';
-import { IFormProps } from 'modules/common/types';
-import { Alert, getEnv, withProps } from 'modules/common/utils';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import Info from '@erxes/ui/src/components/Info';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IFormProps } from '@erxes/ui/src/types';
+import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Accounts from '../components/Accounts';

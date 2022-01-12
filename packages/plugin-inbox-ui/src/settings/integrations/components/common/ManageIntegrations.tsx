@@ -40,7 +40,7 @@ class ManageIntegrations extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const current = props.current || {};
+    const current = props.current || ({} as any);
 
     this.state = {
       selectedIntegrations: current.integrations || [],

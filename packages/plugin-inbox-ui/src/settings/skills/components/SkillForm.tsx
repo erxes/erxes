@@ -1,13 +1,13 @@
-import Button from 'modules/common/components/Button';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Button from '@erxes/ui/src/components/Button';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components/form';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+} from '@erxes/ui/src/components/form';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __, Alert } from '@erxes/ui/src/utils';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import mutations from '../graphql/mutations';
@@ -108,8 +108,8 @@ function SkillForm({
         <FormGroup>
           <ControlLabel required={true}>Team members</ControlLabel>
           <SelectTeamMembers
-            label="Choose team members"
-            name="memberIds"
+            label='Choose team members'
+            name='memberIds'
             initialValue={memberIds}
             onSelect={handleTeamMemberSelect}
           />
@@ -130,11 +130,11 @@ function SkillForm({
       {renderContent()}
       <ModalFooter>
         <Button
-          id="skill-form"
-          btnStyle="simple"
-          type="button"
+          id='skill-form'
+          btnStyle='simple'
+          type='button'
           onClick={closeModal}
-          icon="times-circle"
+          icon='times-circle'
         >
           Cancel
         </Button>
@@ -144,7 +144,7 @@ function SkillForm({
           callback={closeModal}
           refetchQueries={handleRefetch}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
         />
       </ModalFooter>
     </form>

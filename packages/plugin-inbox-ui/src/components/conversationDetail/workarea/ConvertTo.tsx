@@ -43,7 +43,7 @@ export default function ConvertTo(props: Props) {
   const customerIds = conversation.customerId ? [conversation.customerId] : [];
   const sourceConversationId = conversation._id;
 
-  const message: IMessage = conversationMessage || {};
+  const message: IMessage = conversationMessage || ({} as IMessage);
   const mailData = message.mailData || ({} as IMail);
 
   const triggerProps: any = {

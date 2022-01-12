@@ -1,13 +1,13 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import Select from 'react-select-plus';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import Toggle from 'modules/common/components/Toggle';
-import { __, Alert } from 'modules/common/utils';
-import { LANGUAGES } from 'modules/settings/general/constants';
-import { queries } from 'modules/settings/integrations/graphql';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __, Alert } from '@erxes/ui/src/utils';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { Description } from '../../../styles';
 
@@ -132,7 +132,7 @@ class Options extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Default Language</ControlLabel>
             <Select
-              id="languageCode"
+              id='languageCode'
               value={this.props.languageCode}
               options={LANGUAGES}
               onChange={languageOnChange}

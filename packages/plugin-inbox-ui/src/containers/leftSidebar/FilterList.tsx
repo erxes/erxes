@@ -1,4 +1,4 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import Spinner from '@erxes/ui/src/components/Spinner';

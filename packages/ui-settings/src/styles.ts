@@ -232,6 +232,18 @@ const FilterContainer = styled.div`
   z-index: 2;
 `;
 
+const NotWrappable = styled.div`
+  white-space: nowrap;
+`;
+
+const SidebarList = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  > div {
+    border-top: 1px solid ${colors.borderPrimary};
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -247,5 +259,7 @@ export {
   FilterItem,
   BackgroundSelector,
   SubItem,
-  FilterContainer
+  FilterContainer,
+  NotWrappable,
+  SidebarList
 };

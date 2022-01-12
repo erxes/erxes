@@ -1,11 +1,11 @@
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import Info from 'modules/common/components/Info';
-import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, getEnv } from 'modules/common/utils';
-import { IIntegration } from 'modules/settings/integrations/types';
-import { MarkdownWrapper } from 'modules/settings/styles';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Info from '@erxes/ui/src/components/Info';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __, getEnv } from '@erxes/ui/src/utils';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { MarkdownWrapper } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
@@ -252,7 +252,7 @@ class InstallCode extends React.PureComponent<Props, State> {
               {__(
                 `Add a 'Privacy - Photo Library Usage Description' entry to your`
               ) + ' Info.plist.'}
-              <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
+              <a href='https://developer.apple.com/library/content/qa/qa1937/_index.html'>
                 {' '}
                 {__('This is required by Apple')}{' '}
               </a>
@@ -274,7 +274,7 @@ class InstallCode extends React.PureComponent<Props, State> {
                 'Import ErxesSDK into your UIViewController class and you can start Erxes with following options:'
               )}{' '}
               <br />
-              <ol type="a">
+              <ol type='a'>
                 <li>
                   <b>{__('Without user data')}</b>
                   <MarkdownWrapper>
@@ -305,7 +305,7 @@ class InstallCode extends React.PureComponent<Props, State> {
               {__(
                 `Add a 'Privacy - Photo Library Usage Description' entry to your`
               ) + ' Info.plist.'}
-              <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
+              <a href='https://developer.apple.com/library/content/qa/qa1937/_index.html'>
                 {' '}
                 {__('This is required by Apple')}{' '}
               </a>
@@ -326,7 +326,7 @@ class InstallCode extends React.PureComponent<Props, State> {
               UIViewController.m{' '}
               {__('class and you can start Erxes with following options:')}{' '}
               <br />
-              <ol type="a">
+              <ol type='a'>
                 <li>
                   <b>{__('Without user data')}</b>
                   <MarkdownWrapper>
@@ -412,12 +412,12 @@ class InstallCode extends React.PureComponent<Props, State> {
             text={code}
             onCopy={this.onCopy.bind(this, currentTab)}
           >
-            <Button btnStyle={action ? 'primary' : 'success'} icon="copy-1">
+            <Button btnStyle={action ? 'primary' : 'success'} icon='copy-1'>
               {action ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
         ) : (
-          <EmptyState icon="copy" text="No copyable code" size="small" />
+          <EmptyState icon='copy' text='No copyable code' size='small' />
         )}
       </MarkdownWrapper>
     );
@@ -536,16 +536,16 @@ class InstallCode extends React.PureComponent<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle="primary"
-            icon="plus-circle"
+            btnStyle='primary'
+            icon='plus-circle'
             onClick={this.onSimulate}
           >
             Simulate
           </Button>
 
           <Button
-            btnStyle="simple"
-            icon="times-circle"
+            btnStyle='simple'
+            icon='times-circle'
             onClick={this.props.closeModal}
           >
             Close

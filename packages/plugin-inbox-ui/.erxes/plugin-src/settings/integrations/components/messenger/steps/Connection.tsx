@@ -1,12 +1,12 @@
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import Toggle from 'modules/common/components/Toggle';
-import { __ } from 'modules/common/utils';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
-import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
-import { IMessages } from 'modules/settings/integrations/types';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from '@erxes/ui/src/utils';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
+import { IMessages } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 
 type Props = {

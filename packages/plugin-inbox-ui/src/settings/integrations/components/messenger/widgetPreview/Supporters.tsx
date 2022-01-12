@@ -1,5 +1,5 @@
-import { IUser } from 'modules/auth/types';
-import { getUserAvatar } from 'modules/common/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { getUserAvatar } from '@erxes/ui/src/utils';
 import React from 'react';
 import {
   ErxesStaffProfile,
@@ -7,7 +7,7 @@ import {
   StateSpan,
   Supporters as SupporterStyled
 } from './styles';
-import { __ } from 'modules/common/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   showChatPreview?: boolean;
@@ -31,7 +31,7 @@ class Supporters extends React.Component<Props> {
 
       return (
         <ErxesStaffProfile key={u._id}>
-          <div className="avatar">
+          <div className='avatar'>
             <img src={getUserAvatar(u)} alt={details.fullName} />
             <StateSpan state={isOnline || false} />
           </div>

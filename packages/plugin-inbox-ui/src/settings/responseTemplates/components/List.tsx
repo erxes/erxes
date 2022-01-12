@@ -4,7 +4,7 @@ import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Table from '@erxes/ui/src/components/table';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
-import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import * as React from 'react';

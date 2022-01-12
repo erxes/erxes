@@ -1,11 +1,11 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import colors from 'modules/common/styles/colors';
-import { ISelectedOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { IIntegrationWithPhone } from 'modules/engage/types';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import colors from '@erxes/ui/src/styles/colors';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import { IIntegrationWithPhone } from '../../types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
@@ -91,9 +91,9 @@ class SmsForm extends React.Component<Props, State> {
       <ButtonWrapper>
         <Button
           onClick={onClick}
-          btnStyle="primary"
-          size="small"
-          icon="message"
+          btnStyle='primary'
+          size='small'
+          icon='message'
           disabled={hasContent === '' || !primaryPhone}
         >
           {__('Send')}
@@ -141,7 +141,7 @@ class SmsForm extends React.Component<Props, State> {
             <Char count={characterCount}>{characterCount}</Char>
           </SMSInfo>
           <FormControl
-            componentClass="textarea"
+            componentClass='textarea'
             defaultValue={this.state.message}
             onBlur={onChangeContent}
             onChange={onChangeSmsContent}

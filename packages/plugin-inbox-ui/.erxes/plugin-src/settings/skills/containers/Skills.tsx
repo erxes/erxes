@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IUser } from 'modules/auth/types';
-import { Alert, confirm } from 'modules/common/utils';
-import { generatePaginationParams } from 'modules/common/utils/router';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql, useMutation } from 'react-apollo';
 import Skills from '../components/Skills';

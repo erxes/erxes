@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { IMessengerApps } from 'modules/settings/integrations/types';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils';
+import { IMessengerApps } from '../../../types';
 import React from 'react';
 import {
   ContentBox,
@@ -55,7 +55,7 @@ function GreetingContent(props: Props) {
           <li>
             <LeftSide>
               <span>
-                <Icon icon="plus" />
+                <Icon icon='plus' />
               </span>
             </LeftSide>
             <RightSide>
@@ -66,7 +66,7 @@ function GreetingContent(props: Props) {
           </li>
           <li>
             <LeftSide>
-              <img src="/images/avatar-colored.svg" alt="avatar" />
+              <img src='/images/avatar-colored.svg' alt='avatar' />
             </LeftSide>
             <RightSide>
               <div>{dayjs(new Date()).format('LT')}</div>

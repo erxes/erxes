@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { mutations as brandMutations } from 'modules/settings/brands/graphql';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { mutations as brandMutations } from '@erxes/ui/src/brands/graphql';
+import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../brands/types';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import SelectBrand from '../components/SelectBrand';
 
 type Props = {
@@ -51,7 +51,7 @@ const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         successMessage={`You successfully added a ${name}`}
       />
     );

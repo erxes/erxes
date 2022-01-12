@@ -1,30 +1,30 @@
-import { IUser } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
-import { Step, Steps } from 'modules/common/components/step';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Button from '@erxes/ui/src/components/Button';
+import { Step, Steps } from '@erxes/ui/src/components/step';
 import {
   ControlWrapper,
   Indicator,
   Preview,
   StepWrapper
-} from 'modules/common/components/step/styles';
-import { __, Alert } from 'modules/common/utils';
-import { linkify } from 'modules/inbox/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { IBrand } from 'modules/settings/brands/types';
-import { LANGUAGES } from 'modules/settings/general/constants';
+} from '@erxes/ui/src/components/step/styles';
+import { __, Alert } from '@erxes/ui/src/utils';
+import { linkify } from '../../../../utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import {
   Content,
-  LeftContent,
-  MessengerPreview
-} from 'modules/settings/integrations/styles';
+  LeftContent
+} from '@erxes/ui-settings/src/integrations/styles';
+import { MessengerPreview } from '../../../integrations/styles';
 import {
   IIntegration,
   IMessages,
-  IMessengerApps,
   IMessengerData,
   ISkillData,
   IUiOptions
-} from 'modules/settings/integrations/types';
+} from '@erxes/ui-settings/src/integrations/types';
+import { IMessengerApps } from '../../../integrations/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import AddOns from '../../containers/messenger/AddOns';
@@ -285,8 +285,8 @@ class CreateMessenger extends React.Component<Props, State> {
 
   renderButtons() {
     const cancelButton = (
-      <Link to="/settings/integrations">
-        <Button btnStyle="simple" icon="times-circle">
+      <Link to='/settings/integrations'>
+        <Button btnStyle='simple' icon='times-circle'>
           Cancel
         </Button>
       </Link>
@@ -295,7 +295,7 @@ class CreateMessenger extends React.Component<Props, State> {
     return (
       <Button.Group>
         {cancelButton}
-        <Button btnStyle="success" icon="check-circle" onClick={this.save}>
+        <Button btnStyle='success' icon='check-circle' onClick={this.save}>
           Save
         </Button>
       </Button.Group>
@@ -354,8 +354,8 @@ class CreateMessenger extends React.Component<Props, State> {
           <LeftContent>
             <Steps>
               <Step
-                img="/images/icons/erxes-04.svg"
-                title="Appearance"
+                img='/images/icons/erxes-04.svg'
+                title='Appearance'
                 onClick={this.onStepClick.bind(null, 'appearance')}
               >
                 <Appearance
@@ -368,8 +368,8 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img="/images/icons/erxes-09.svg"
-                title="Greeting"
+                img='/images/icons/erxes-09.svg'
+                title='Greeting'
                 onClick={this.onStepClick.bind(null, 'greeting')}
               >
                 <Greeting
@@ -385,8 +385,8 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img="/images/icons/erxes-07.svg"
-                title="Intro"
+                img='/images/icons/erxes-07.svg'
+                title='Intro'
                 onClick={this.onStepClick.bind(null, 'intro')}
               >
                 <Intro
@@ -398,7 +398,7 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img="/images/icons/erxes-03.svg"
+                img='/images/icons/erxes-03.svg'
                 title={__('Hours & Availability')}
                 onClick={this.onStepClick.bind(null, 'hours')}
               >
@@ -414,8 +414,8 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img="/images/icons/erxes-06.svg"
-                title="Default Settings"
+                img='/images/icons/erxes-06.svg'
+                title='Default Settings'
                 onClick={this.onStepClick.bind(null, 'default')}
               >
                 <Options
@@ -431,7 +431,7 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img="/images/icons/erxes-16.svg"
+                img='/images/icons/erxes-16.svg'
                 title={__('Integration Setup')}
                 onClick={this.onStepClick.bind(null, 'setup')}
               >
@@ -445,7 +445,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img="/images/icons/erxes-15.svg"
+                img='/images/icons/erxes-15.svg'
                 title={__('Add Ons')}
                 onClick={this.onStepClick.bind(null, 'addon')}
                 noButton={true}

@@ -1,16 +1,16 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import FormControl from 'modules/common/components/form/Control';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { INTEGRATIONS } from 'modules/settings/integrations/constants';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { INTEGRATIONS } from '../../../integrations/constants';
 import React from 'react';
 import { ByKindTotalCount } from '../../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
-import { Title } from 'modules/common/styles/main';
+import { Title } from '@erxes/ui/src/styles/main';
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -82,7 +82,7 @@ class Home extends React.Component<Props, State> {
         <FullHeight>
           <EmptyState
             text={`No results for "${searchValue}"`}
-            image="/images/actions/2.svg"
+            image='/images/actions/2.svg'
           />
         </FullHeight>
       );
@@ -94,9 +94,9 @@ class Home extends React.Component<Props, State> {
   renderSearch() {
     return (
       <SearchInput isInPopover={false}>
-        <Icon icon="search-1" />
+        <Icon icon='search-1' />
         <FormControl
-          type="text"
+          type='text'
           placeholder={__('Type to search for an integration') + '...'}
           onChange={this.onSearch}
         />
@@ -115,8 +115,8 @@ class Home extends React.Component<Props, State> {
 
     const headerDescription = (
       <HeaderDescription
-        icon="/images/actions/33.svg"
-        title="App store"
+        icon='/images/actions/33.svg'
+        title='App store'
         description={`${__(
           'Set up your integrations and start connecting with your customers'
         )}.${__(

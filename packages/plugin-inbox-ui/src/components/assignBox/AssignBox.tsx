@@ -1,4 +1,4 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import debounce from 'lodash/debounce';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';

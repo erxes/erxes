@@ -1,4 +1,4 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
@@ -14,10 +14,8 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
-import {
-  CustomerDetailQueryResponse,
-  ICustomer
-} from '@erxes/ui/src/customers/types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
+import { CustomerDetailQueryResponse } from '../../types';
 import { IConversation } from '../../types';
 import { getConfig } from '../../utils';
 

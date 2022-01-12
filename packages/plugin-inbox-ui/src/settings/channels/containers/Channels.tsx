@@ -45,7 +45,7 @@ class Channels extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       queryParams: queryString.parse(location.search),
-      currentChannel: channelDetailQuery.channelDetail || {},
+      currentChannel: channelDetailQuery.channelDetail || ({} as IChannel),
       loading: channelDetailQuery.loading,
       integrationsCount
     };

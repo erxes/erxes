@@ -1,14 +1,18 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { IRouterProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
-import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
-import Form from 'modules/settings/integrations/components/messenger/Form';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __, Alert, withProps } from '@erxes/ui/src/utils';
+import { queries as kbQueries } from '@erxes/ui-settings/src/general/graphql';
+import Form from '../../components/messenger/Form';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-settings/src/integrations/graphql';
 import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
+  IIntegration,
   IMessengerApps,
   IMessengerData,
   IntegrationDetailQueryResponse,
@@ -17,13 +21,13 @@ import {
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse
-} from 'modules/settings/integrations/types';
+} from '../../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
-import { BrandsQueryResponse } from '../../../brands/types';
-import { UsersQueryResponse } from '../../../team/types';
+import { TopicsQueryResponse } from '@erxes/ui-inbox/src/types';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import { UsersQueryResponse } from '@erxes/ui-settings/src/general/types';
 
 type Props = {
   integrationId: string;
@@ -149,7 +153,7 @@ const EditMessenger = (props: FinalProps) => {
     brands,
     save,
     topics,
-    integration,
+    integration: integration || ({} as any),
     messengerApps: apps
   };
 

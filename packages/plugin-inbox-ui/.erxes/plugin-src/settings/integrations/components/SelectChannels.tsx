@@ -1,13 +1,13 @@
-import Button from 'modules/common/components/Button';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { IButtonMutateProps, IOption } from 'modules/common/types';
-import ChannelForm from 'modules/settings/channels/containers/ChannelForm';
-import { IChannel } from 'modules/settings/channels/types';
+import Button from '@erxes/ui/src/components/Button';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { IButtonMutateProps, IOption } from '@erxes/ui/src/types';
+import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
+import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '../../../common/utils';
+import { __ } from '@erxes/ui/src/utils';
 import { LeftContent, Row } from '../styles';
 
 type Props = {
@@ -24,7 +24,7 @@ class SelectChannels extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const trigger = (
-      <Button btnStyle="primary" icon="plus-circle">
+      <Button btnStyle='primary' icon='plus-circle'>
         Create channel
       </Button>
     );
@@ -35,7 +35,7 @@ class SelectChannels extends React.Component<Props, {}> {
 
     return (
       <ModalTrigger
-        title="Create channel"
+        title='Create channel'
         trigger={trigger}
         content={content}
       />

@@ -1,8 +1,8 @@
-import { formatText } from 'modules/activityLogs/utils';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
-import NylasForm from 'modules/settings/integrations/containers/mail/Form';
+import { formatText } from '@erxes/ui/src/activityLogs/utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { __ } from '@erxes/ui/src/utils';
+import NylasForm from '../../containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '../../constants';
@@ -58,7 +58,7 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="comment-alt-lines" /> {__('Works with messenger')}
+      <Icon icon='comment-alt-lines' /> {__('Works with messenger')}
     </Type>
   );
 }
@@ -131,7 +131,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <Twitter {...props} />;
 
     return (
-      <ModalTrigger title="Add twitter" trigger={trigger} content={content} />
+      <ModalTrigger title='Add twitter' trigger={trigger} content={content} />
     );
   }
 
@@ -139,7 +139,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <LineForm {...props} />;
 
     return (
-      <ModalTrigger title="Add Line" trigger={trigger} content={content} />
+      <ModalTrigger title='Add Line' trigger={trigger} content={content} />
     );
   }
 
@@ -147,7 +147,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <TelnyxForm {...props} />;
 
     return (
-      <ModalTrigger title="Add telnyx" trigger={trigger} content={content} />
+      <ModalTrigger title='Add telnyx' trigger={trigger} content={content} />
     );
   }
 
@@ -195,7 +195,7 @@ function Entry({
         onClick={() => toggleBox(kind)}
         isInMessenger={integration.inMessenger}
       >
-        <img alt="logo" src={integration.logo} />
+        <img alt='logo' src={integration.logo} />
         <h5>
           {integration.name} {getCount(kind, totalCount)}
         </h5>

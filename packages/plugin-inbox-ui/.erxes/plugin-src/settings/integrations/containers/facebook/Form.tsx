@@ -1,10 +1,13 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
-import Facebook from 'modules/settings/integrations/components/facebook/Form';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { Alert } from '@erxes/ui/src/utils';
+import Facebook from '../../components/facebook/Form';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IPages } from '../../types';
@@ -82,7 +85,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         callback={callback}
         refetchQueries={getRefetchQueries(kind)}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         successMessage={`You successfully added a ${name}`}
       />
     );

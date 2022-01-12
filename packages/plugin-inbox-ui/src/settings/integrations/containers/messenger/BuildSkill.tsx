@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import {
   SkillsQueryResponse,
   SkillTypesQueryResponse
-} from 'modules/settings/skills/types';
+} from '../../../skills/types';
 import React, { useCallback, useEffect } from 'react';
 import { graphql, useLazyQuery } from 'react-apollo';
 import queries from '../../../skills/graphql/queries';

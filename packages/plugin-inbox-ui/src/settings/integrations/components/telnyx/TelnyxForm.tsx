@@ -1,11 +1,11 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { INTEGRATION_KINDS } from '../../constants';
 import SelectBrand from '../../containers/SelectBrand';
@@ -61,22 +61,22 @@ class TelnyxForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name='name'
             required={true}
             autoFocus={true}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Telnyx messaging profile id</ControlLabel>
-          <FormControl {...formProps} type="text" name="telnyxProfileId" />
+          <FormControl {...formProps} type='text' name='telnyxProfileId' />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Telnyx phone number</ControlLabel>
           <FormControl
             {...formProps}
-            type="text"
-            name="telnyxPhoneNumber"
+            type='text'
+            name='telnyxPhoneNumber'
             required={true}
           />
         </FormGroup>
@@ -95,10 +95,10 @@ class TelnyxForm extends React.Component<Props, State> {
         />
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
+            btnStyle='simple'
+            type='button'
             onClick={closeModal}
-            icon="times-circle"
+            icon='times-circle'
           >
             Cancel
           </Button>

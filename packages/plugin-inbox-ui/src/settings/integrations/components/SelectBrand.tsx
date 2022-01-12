@@ -1,13 +1,13 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import BrandForm from 'modules/settings/brands/components/BrandForm';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
-import { __ } from '../../../common/utils';
-import { IBrand } from '../../brands/types';
+import { __ } from '@erxes/ui/src/utils';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { Row } from '../styles';
 
 type Props = {
@@ -30,7 +30,7 @@ class SelectBrand extends React.Component<Props, {}> {
     }
 
     const trigger = (
-      <Button btnStyle="primary" icon="plus-circle">
+      <Button btnStyle='primary' icon='plus-circle'>
         Create brand
       </Button>
     );
@@ -40,7 +40,7 @@ class SelectBrand extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger title="Create brand" trigger={trigger} content={content} />
+      <ModalTrigger title='Create brand' trigger={trigger} content={content} />
     );
   };
 
@@ -61,8 +61,8 @@ class SelectBrand extends React.Component<Props, {}> {
         <Row>
           <FormControl
             {...formProps}
-            name="brandId"
-            componentClass="select"
+            name='brandId'
+            componentClass='select'
             placeholder={__('Select Brand')}
             defaultValue={defaultValue}
             onChange={onChange}

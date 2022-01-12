@@ -1,4 +1,4 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -12,7 +12,7 @@ const responseTemplates = ({ location }) => {
 };
 
 const routes = () => (
-  <Route path="/settings/response-templates/" component={responseTemplates} />
+  <Route path='/settings/response-templates/' component={responseTemplates} />
 );
 
 export default routes;

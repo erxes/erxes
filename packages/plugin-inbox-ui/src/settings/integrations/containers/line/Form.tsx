@@ -1,11 +1,14 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { Alert } from 'modules/common/utils';
-import Line from 'modules/settings/integrations/components/line/Line';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
+import Line from '../../components/line/Line';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -39,7 +42,7 @@ class LineContainer extends React.Component<FinalProps, State> {
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         successMessage={__(`You successfully added a`) + `${name}`}
       />
     );

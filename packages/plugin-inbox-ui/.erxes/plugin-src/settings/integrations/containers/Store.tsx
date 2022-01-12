@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import Home from 'modules/settings/integrations/components/store/Home';
-import { queries } from 'modules/settings/integrations/graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Home from '../components/store/Home';
+import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { getEnv, withProps } from '../../../common/utils';
+import { getEnv, withProps } from '@erxes/ui/src/utils';
 import { IntegrationsCountQueryResponse } from '../types';
 
 type Props = {

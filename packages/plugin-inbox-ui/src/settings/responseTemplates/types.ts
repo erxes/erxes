@@ -1,5 +1,5 @@
-import { QueryResponse } from 'modules/common/types';
-import { IBrand } from '../brands/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 
 export interface IResponseTemplate {
   _id: string;

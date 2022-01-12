@@ -1,9 +1,9 @@
-import { CenterText } from 'modules/activityLogs/styles';
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import { IFormProps } from 'modules/common/types';
-import { __, confirm } from 'modules/common/utils';
+import { CenterText } from '@erxes/ui/src/activityLogs/styles';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IFormProps } from '@erxes/ui/src/types';
+import { __, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import {
   AccountBox,
@@ -58,20 +58,20 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const { onAdd, kind } = this.props;
 
     if (kind === 'gmail' || kind === 'nylas-gmail') {
-      return <GoogleButton href="#add" onClick={onAdd} />;
+      return <GoogleButton href='#add' onClick={onAdd} />;
     }
 
     if (kind === 'facebook') {
       return (
         <FacebookButton onClick={onAdd}>
-          <Icon icon="facebook-official" />
+          <Icon icon='facebook-official' />
           {__('Continue with Facebook')}
         </FacebookButton>
       );
     }
 
     return (
-      <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
+      <Button btnStyle='primary' icon='plus-circle' onClick={onAdd}>
         Add Account
       </Button>
     );
@@ -93,7 +93,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (accounts.length === 0) {
       return (
-        <EmptyState icon="user-6" text={__('There is no linked accounts')} />
+        <EmptyState icon='user-6' text={__('There is no linked accounts')} />
       );
     }
 
@@ -115,7 +115,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
           <Button
             onClick={this.onRemove.bind(this, account._id)}
-            btnStyle="danger"
+            btnStyle='danger'
           >
             {__('Remove')}
           </Button>

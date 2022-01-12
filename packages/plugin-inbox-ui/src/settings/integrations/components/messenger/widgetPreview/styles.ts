@@ -1,6 +1,5 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { LogoContainer } from 'modules/settings/styles';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -15,6 +14,57 @@ const ErxesTopbar = styled.div`
   min-height: 70px;
   display: inline-table;
   color: ${colors.colorWhite};
+`;
+
+const LogoContainer = styled.div`
+  color: ${colors.colorWhite};
+  line-height: 56px;
+  text-align: center;
+  border-radius: 28px;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  box-shadow: 0 0 ${unitSpace} 0 ${rgba(colors.colorBlack, 0.2)};
+  background-image: url('/images/erxes.png');
+  background-color: ${colors.colorPrimary};
+  background-position: center;
+  background-size: 20px;
+  background-repeat: no-repeat;
+  margin-top: ${unitSpace};
+  position: relative;
+  float: right;
+  display: table;
+
+  span {
+    position: absolute;
+    width: ${coreSpace};
+    height: ${coreSpace};
+    background: ${colors.colorCoreRed};
+    display: block;
+    right: -2px;
+    top: -5px;
+    color: ${colors.colorWhite};
+    border-radius: ${unitSpace};
+    text-align: center;
+    line-height: ${coreSpace};
+    font-size: ${unitSpace};
+  }
+
+  input[type='file'] {
+    display: none;
+  }
+
+  label {
+    display: block;
+    margin: 0;
+    visibility: hidden;
+    border-radius: 50%;
+  }
+
+  &:hover label {
+    visibility: visible;
+    cursor: pointer;
+  }
 `;
 
 const TopBarIcon = styledTS<{ isLeft: boolean }>(styled.div)`

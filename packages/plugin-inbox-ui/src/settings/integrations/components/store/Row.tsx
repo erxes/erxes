@@ -1,5 +1,5 @@
-import Pagination from 'modules/common/components/pagination/Pagination';
-import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import IntegrationList from '../../containers/common/IntegrationList';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { ByKindTotalCount } from '../../types';

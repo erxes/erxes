@@ -1,19 +1,19 @@
-import Button from 'modules/common/components/Button';
+import Button from '@erxes/ui/src/components/Button';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components/form';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import Toggle from 'modules/common/components/Toggle';
-import { __ } from 'modules/common/utils';
-import { Description, Row } from 'modules/settings/integrations/styles';
-import { ISkillData } from 'modules/settings/integrations/types';
+} from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from '@erxes/ui/src/utils';
+import { Description, Row } from '../../../../integrations/styles';
+import { ISkillData } from '@erxes/ui-settings/src/integrations/types';
 import {
   ISkillDocument,
   ISkillTypesDocument
-} from 'modules/settings/skills/types';
+} from '@erxes/ui-settings/src/skills/types';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
@@ -138,7 +138,7 @@ function BuildSkill({
           <FormGroup>
             <ControlLabel required={true}>Select a skill</ControlLabel>
             <Select
-              placeholder="Choose a select"
+              placeholder='Choose a select'
               value={option.skillId}
               isLoading={loading}
               options={generateOptions(skills)}
@@ -161,9 +161,9 @@ function BuildSkill({
               onChange={handleResponseChange}
             />
           </FormGroup>
-          <Tip text={__('Remove')} placement="top">
+          <Tip text={__('Remove')} placement='top'>
             <RemoveButton onClick={handleRemove}>
-              <Icon icon="times" />
+              <Icon icon='times' />
             </RemoveButton>
           </Tip>
         </Item>
@@ -173,8 +173,8 @@ function BuildSkill({
 
   function renderAddSkill() {
     return (
-      <Link to={'/settings/skills'} target="_blank">
-        <Button btnStyle="primary" icon="plus-circle">
+      <Link to={'/settings/skills'} target='_blank'>
+        <Button btnStyle='primary' icon='plus-circle'>
           Create skill
         </Button>
       </Link>
@@ -217,7 +217,7 @@ function BuildSkill({
           <ControlLabel>Choose a skill type</ControlLabel>
           <Row>
             <Select
-              placeholder="Please select a skill type"
+              placeholder='Please select a skill type'
               value={skillType}
               options={generateOptions(skillTypes)}
               onChange={handleSelectChange}
@@ -227,7 +227,7 @@ function BuildSkill({
         </FormGroup>
         {skillType ? (
           <FormGroup>
-            <Button btnStyle="simple" icon="plus-circle" onClick={handleAdd}>
+            <Button btnStyle='simple' icon='plus-circle' onClick={handleAdd}>
               Add skill option
             </Button>
           </FormGroup>

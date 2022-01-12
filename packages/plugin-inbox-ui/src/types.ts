@@ -3,6 +3,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 
 export interface IVideoCallData {
   url: string;
@@ -348,3 +349,13 @@ export type EditMutationResponse = {
     variables: EditCustomFieldsMutationVariables;
   }) => Promise<any>;
 };
+
+export type CustomerDetailQueryResponse = {
+  customerDetail: ICustomer;
+  loading: boolean;
+};
+
+export type ActivityLogQueryResponse = {
+  activityLogs: IActivityLog[];
+  subscribeToMore: any;
+} & QueryResponse;

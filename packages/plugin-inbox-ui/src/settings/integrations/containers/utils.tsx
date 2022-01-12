@@ -1,8 +1,8 @@
-import { cleanIntegrationKind } from 'erxes-ui/lib/utils';
+import { cleanIntegrationKind } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
 import juice from 'juice';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import { IEmail } from 'modules/inbox/types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { IEmail } from '../../../types';
 import sanitizeHtml from 'sanitize-html';
 import { queries } from '../graphql';
 
