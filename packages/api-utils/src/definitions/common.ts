@@ -1,6 +1,12 @@
 import { Document, Schema } from 'mongoose';
 
 import { field } from './utils';
+export interface IBrowserInfo {
+  language?: string;
+  url?: string;
+  city?: string;
+  countryCode?: string;
+}
 
 export interface IRule {
   kind: string;

@@ -13,9 +13,7 @@ import {
   FieldsGroups
 } from "./apiCollections";
 
-// import { IBrowserInfo } from "../db/models/Customers";
-
-import { ICustomField, ILink } from "@erxes/api-utils/src/definitions/common";
+import { IBrowserInfo, ICustomField, ILink } from "@erxes/api-utils/src/definitions/common";
 import { KIND_CHOICES } from "./models/definitions/constants";
 
 // import { ICustomerDocument } from "../db/models/definitions/customers";
@@ -34,8 +32,7 @@ import { getDocument } from "./cacheUtils";
 
 export const getOrCreateEngageMessage = async (
   integrationId: string,
-//   browserInfo: IBrowserInfo,
-  browserInfo,
+  browserInfo: IBrowserInfo,
   visitorId?: string,
   customerId?: string
 ) => {

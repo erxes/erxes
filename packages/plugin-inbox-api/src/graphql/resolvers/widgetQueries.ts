@@ -12,8 +12,6 @@ import {
   Users
 } from '../../apiCollections';
 
-// import { IBrowserInfo } from '../../../db/models/Customers';
-
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
 import {
@@ -27,6 +25,7 @@ import * as moment from 'moment';
 // import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
 import { IContext } from '@erxes/api-utils';
+import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -308,8 +307,7 @@ export default {
       integrationId: string;
       customerId?: string;
       visitorId?: string;
-//       browserInfo: IBrowserInfo;
-      browserInfo;
+      browserInfo: IBrowserInfo;
     }
   ) {
     return getOrCreateEngageMessage(

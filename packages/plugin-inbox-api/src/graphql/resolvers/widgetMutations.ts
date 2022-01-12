@@ -16,7 +16,6 @@ import {
 } from '../../apiCollections';
 
 // import {
-//   IBrowserInfo,
 //   IVisitorContactInfoParams
 // } from '../../../db/models/Customers';
 
@@ -60,6 +59,7 @@ import { IContext, sendRequest } from '@erxes/api-utils';
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
+import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
 // import EditorAttributeUtil from '../../editorAttributeUtils';
@@ -762,8 +762,7 @@ const widgetMutations = {
       visitorId,
       customerId,
       browserInfo
-//     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo }
-    }: { visitorId?: string; customerId?: string; browserInfo: any }
+    }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo }
   ) {
     // update location
 
