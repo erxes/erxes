@@ -5,8 +5,6 @@ import pubsub from "./pubsub";
 import redis from "../redis";
 import { Customers, ConversationMessages, Conversations } from "../db";
 
-let count = 0;
-
 export async function markClientActive(
   ctx: Context<Extra & Partial<Record<PropertyKey, never>>>
 ) {
@@ -30,15 +28,11 @@ export async function markClientActive(
 
   if (!socket.messengerData) return;
 
-  console.log("!messengerDataJson == false");
-
   // no messengerData
   if (!socket.messengerData) return;
 
   const customerId = socket.messengerData.customerId;
   const visitorId = socket.messengerData.visitorId;
-
-  console.log({ customerId, visitorId });
 
   const memoryStorageValue = customerId || visitorId;
 
@@ -46,13 +40,11 @@ export async function markClientActive(
 
   const inClients = await redis.sismember("clients", memoryStorageValue);
 
-
   // Waited for 1 minute to reconnect in onClose event and onClose event
   // removed this customer from connected clients list. So it means this customer
   // is back online
   if (!inClients) {
     redis.sadd("clients", memoryStorageValue);
-    console.log(`redis.sadd("clients", memoryStorageValue);`);
 
     if (customerId) {
       // mark as online
@@ -61,7 +53,6 @@ export async function markClientActive(
         { _id: customerId },
         { $set: { isOnline: true } }
       );
-      console.log("mark customer online");
 
       // notify as connected
       pubsub.publish("customerConnectionChanged", {
@@ -70,7 +61,6 @@ export async function markClientActive(
           status: "connected",
         },
       });
-      console.log(`pubsub.publish("customerConnectionChanged"`);
     }
   }
 }
@@ -94,7 +84,6 @@ export async function markClientInactive(
   const memoryStorageValue = customerId || visitorId;
 
   await redis.srem("connectedClients", memoryStorageValue);
-  console.log(`await redis.srem("connectedClients", memoryStorageValue);`);
 
   setTimeout(async () => {
     // get status from inmemory storage
@@ -105,21 +94,17 @@ export async function markClientInactive(
 
     // client reconnected again, before this setTimeout finished
     if (inNewConnectedClients) {
-      console.log("inNewConnectedClients==true");
       return;
     }
 
     redis.srem("clients", memoryStorageValue);
 
     if (!customerId) {
-      console.log("!customerId==true");
       return;
     }
 
     // mark as offline
     Customers.updateOne({ _id: customerId }, { $set: { isOnline: false } });
-
-    console.log("Customers.updateOne.isOnline=false");
 
     // notify as disconnected
     pubsub.publish("customerConnectionChanged", {
@@ -143,12 +128,7 @@ export async function markClientInactive(
       status: "open",
     }).toArray();
 
-    console.log("customerConversations", customerConversations);
-
-    if (!customerConversations || !customerConversations.length) {
-      console.log(
-        "(!customerConversations || !customerConversations.length) == true"
-      );
+    if (!customerConversations?.length) {
       return;
     }
 
@@ -168,10 +148,8 @@ export async function markClientInactive(
       { ordered: false }
     );
 
-    console.log("ConversationMessages.insertMany.insertResult", insertResult);
-
     const conversationMessages = await ConversationMessages.find({
-      _id: { $in: insertResult.insertedIds },
+      _id: { $in: Object.values(insertResult.insertedIds) },
     }).toArray();
 
     for (const message of conversationMessages) {
@@ -188,5 +166,5 @@ export async function markClientInactive(
         },
       });
     }
-  }, 5000);
+  }, 60000);
 }
