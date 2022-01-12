@@ -2,5 +2,9 @@
   "name": "@erxes/ui-contacts",
   "version": "1.0.0",
   "dependencies": {
+    "graphql-tag": "2.6.1",
+    "lodash.flowright": "3.5.0",
+    "react": "16.14.0",
+    "react-apollo": "3.1.3"
   }
 }
