@@ -222,7 +222,7 @@ const MailFormContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     sendMail,
-    integrations,
+    integrations: integrations || ({} as any),
     currentUser,
     fetchMoreEmailTemplates,
     emailTemplates: emailTemplatesQuery.emailTemplates,

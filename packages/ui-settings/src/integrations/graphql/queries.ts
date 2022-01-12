@@ -136,6 +136,12 @@ const messengerApps = `
   }
 `;
 
+const integrationGetLineWebhookUrl = `
+  query integrationGetLineWebhookUrl($id: String!) {
+    integrationGetLineWebhookUrl(_id: $id)
+  }
+`;
+
 export default {
   fetchApi,
   integrations,
@@ -143,5 +149,6 @@ export default {
   integrationDetail,
   integrationTotalCount,
   brands,
-  messengerApps
+  messengerApps,
+  integrationGetLineWebhookUrl
 };

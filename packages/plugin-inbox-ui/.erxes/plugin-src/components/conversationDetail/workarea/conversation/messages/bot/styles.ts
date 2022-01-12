@@ -71,8 +71,17 @@ const CardAction = styled.div`
   }
 `;
 
-const CardUrl = styled(CardAction.withComponent('a'))`
+const CardUrl = styled.a`
   text-decoration: none;
+  padding: 8px 16px;
+  border-top: 1px solid rgb(219, 225, 232);
+  display: block;
+  text-align: center;
+  font-weight: 500;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
 `;
 
 export {

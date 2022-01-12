@@ -2,9 +2,9 @@ import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
-import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
-import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
+// import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
+// import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
+// import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
@@ -63,7 +63,7 @@ export default function ConvertTo(props: Props) {
             {__('Convert')} <Icon icon='angle-down' />
           </Button>
         </Dropdown.Toggle>
-        <Dropdown.Menu>
+        {/* <Dropdown.Menu>
           <li key='ticket'>
             <TicketConvertTrigger
               {...triggerProps}
@@ -80,7 +80,7 @@ export default function ConvertTo(props: Props) {
           <li key='task'>
             <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
           </li>
-        </Dropdown.Menu>
+        </Dropdown.Menu> */}
       </Dropdown>
     </Container>
   );

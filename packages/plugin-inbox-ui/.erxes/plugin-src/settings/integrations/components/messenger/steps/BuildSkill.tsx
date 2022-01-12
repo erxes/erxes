@@ -1,9 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
