@@ -1,5 +1,5 @@
-import { __ } from 'modules/common/utils';
-import { RightContent } from 'modules/growthHacks/styles';
+import { __ } from '@erxes/ui/src/utils';
+import { RightContent } from '../../styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

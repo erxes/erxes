@@ -1,6 +1,6 @@
-import Left from 'modules/growthHacks/components/priorityMatrix/Left';
-import EditableGrowthHackList from 'modules/growthHacks/containers/EditableGrowthHackList';
-import { ContentContainer } from 'modules/growthHacks/styles';
+import Left from './Left';
+import EditableGrowthHackList from '../../containers/EditableGrowthHackList';
+import { ContentContainer } from '../../styles';
 import React from 'react';
 import Chart from './Chart';
 

@@ -29,5 +29,11 @@ module.exports = {
       icon: 'icon-ticket',
       location: 'mainNavigation'
     }
+    // {
+    //   text: 'Growth Hacking',
+    //   url: '/growthHack',
+    //   icon: 'icon-idea',
+    //   location: 'mainNavigation'
+    // }
   ]
 };
