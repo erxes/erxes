@@ -8,11 +8,18 @@ import {
 } from '../constants';
 import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
 import MSFmultiSelect from '../multipleSelectScript';
+import GoogleMapReact from 'google-map-react';
+import { getEnv } from '../../utils';
+import Marker from './Marker';
+
+const { GOOGLE_MAP_API_KEY } = getEnv();
 
 type Props = {
   field: IField;
   error?: IFieldError;
   value?: FieldValue;
+  currentLocation?: ILocationOption;
+  color?: string;
   onChange: (params: {
     fieldId: string;
     value: FieldValue;
@@ -289,6 +296,10 @@ export default class Field extends React.Component<Props, State> {
     this.setState({ multipleSelectValues });
   };
 
+  onLocationChange = (option: ILocationOption) => {
+    this.onChange(option || '');
+  };
+
   renderDatepicker(id: string) {
     let defaultValue = new Date();
 
@@ -340,10 +351,54 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
-  renderMap(attrs: any) {
-    console.log(attrs);
+  renderMap(field: IField, selectedValue?: FieldValue) {
+    const locationOptions: ILocationOption[] = field.locationOptions || [];
+    const { currentLocation = { lat: 0.0, lng: 0.0 } } = this.props;
+    let center = currentLocation;
 
-    return null;
+    if (selectedValue) {
+      const locationOption = selectedValue as ILocationOption;
+
+      center = { lat: locationOption.lat, lng: locationOption.lng };
+    }
+
+    return (
+      <div style={{ height: '250px', width: '100%' }}>
+        <GoogleMapReact
+          bootstrapURLKeys={{ key: GOOGLE_MAP_API_KEY }}
+          defaultCenter={{
+            lat: center.lat,
+            lng: center.lng
+          }}
+          defaultZoom={8}
+          options={{
+            controlSize: 30,
+            zoomControl: true,
+            mapTypeControl: true,
+            scaleControl: true,
+            streetViewControl: false,
+            rotateControl: true,
+            fullscreenControl: true,
+            fullscreenControlOptions: {
+              position: 1
+            }
+          }}
+          yesIWantToUseGoogleMapApiInternals={true}
+        >
+          {locationOptions.map((option, index) => (
+            <Marker
+              color={this.props.color}
+              key={index}
+              lat={option.lat}
+              lng={option.lng}
+              description={option.description || ''}
+              onChange={this.onLocationChange}
+              selectedOption={selectedValue as ILocationOption}
+            />
+          ))}
+        </GoogleMapReact>
+      </div>
+    );
   }
 
   renderControl() {
@@ -501,7 +556,7 @@ export default class Field extends React.Component<Props, State> {
         return this.renderHtml(field.content || '', field._id);
 
       case 'map':
-        return this.renderMap({ field });
+        return this.renderMap(field, value);
 
       default:
         return Field.renderInput({

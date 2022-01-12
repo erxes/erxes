@@ -6,6 +6,7 @@ export type ENV = {
   ROOT_URL: string;
   API_URL: string;
   API_SUBSCRIPTIONS_URL: string;
+  GOOGLE_MAP_API_KEY: string;
 };
 
 export interface IUserDetails {

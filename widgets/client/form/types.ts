@@ -21,6 +21,7 @@ export interface IField {
   content?: string;
   description?: string;
   options?: string[];
+  locationOptions?: ILocationOption[];
   isRequired: boolean;
   isDefinedByErxes: boolean;
   order: number;
@@ -61,7 +62,7 @@ interface IAttachment {
   type: string;
 }
 
-export type FieldValue = string | number | Date | string[] | IAttachment[];
+export type FieldValue = string | number | Date | string[] | IAttachment[] | ILocationOption;
 
 export interface IFieldError {
   fieldId?: string;
