@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import FunnelGroup from '../components/funnelImpact/FunnelGroup';

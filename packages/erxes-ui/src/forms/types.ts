@@ -84,3 +84,19 @@ export type RemoveFieldMutationResponse = {
     variable: RemoveFieldMutationVariables;
   }) => Promise<void>;
 };
+
+export type FormsQueryResponse = {
+  forms: IForm[];
+  loading: boolean;
+};
+
+export interface IFormSubmissionParams {
+  contentTypeId: string;
+  contentType: string;
+  formId: string;
+  formField: JSON;
+}
+
+export type SaveFormSubmissionMutation = ({
+  variables: IFormSubmissionParams
+}) => Promise<any>;

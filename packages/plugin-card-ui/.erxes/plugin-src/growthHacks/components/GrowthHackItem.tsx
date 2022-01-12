@@ -1,13 +1,17 @@
-import Labels from 'modules/boards/components/label/Labels';
-import ItemFooter from 'modules/boards/components/portable/ItemFooter';
-import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemContainer } from 'modules/boards/styles/common';
-import { Left, PriceContainer, Right } from 'modules/boards/styles/item';
-import { Content } from 'modules/boards/styles/stage';
-import { IOptions } from 'modules/boards/types';
-import { renderPriority } from 'modules/boards/utils';
-import Icon from 'modules/common/components/Icon';
-import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
+import Labels from '@erxes/ui-cards/src/boards/components/label/Labels';
+import ItemFooter from '@erxes/ui-cards/src/boards/components/portable/ItemFooter';
+import EditForm from '@erxes/ui-cards/src/boards/containers/editForm/EditForm';
+import { ItemContainer } from '@erxes/ui-cards/src/boards/styles/common';
+import {
+  Left,
+  PriceContainer,
+  Right
+} from '@erxes/ui-cards/src/boards/styles/item';
+import { Content } from '@erxes/ui-cards/src/boards/styles/stage';
+import { IOptions } from '@erxes/ui-cards/src/boards/types';
+import { renderPriority } from '@erxes/ui-cards/src/boards/utils';
+import Participators from '@erxes/ui-inbox/src/components/workarea/Participators';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import { ScoreAmount, Vote } from '../styles';
 import { IGrowthHack } from '../types';

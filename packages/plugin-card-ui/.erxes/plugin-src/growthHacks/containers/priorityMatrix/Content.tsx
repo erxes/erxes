@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
-import Content from 'modules/growthHacks/components/priorityMatrix/Content';
-import { GrowthHacksPriorityQueryResponse } from 'modules/growthHacks/types';
-import { getFilterParams } from 'modules/growthHacks/utils';
+import { withProps } from '@erxes/ui/src/utils';
+import Content from '../priorityMatrix/Content';
+import { GrowthHacksPriorityQueryResponse } from '../../types';
+import { getFilterParams } from '../../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';

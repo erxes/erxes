@@ -11,22 +11,28 @@ module.exports = {
     module: './routes'
   },
   menus: [
+    // {
+    //   text: 'Sales Pipeline',
+    //   url: '/deal',
+    //   icon: 'icon-piggy-bank',
+    //   location: 'mainNavigation'
+    // },
+    // {
+    //   text: 'Task',
+    //   url: '/task',
+    //   icon: 'icon-laptop',
+    //   location: 'mainNavigation'
+    // },
+    // {
+    //   text: 'Ticket',
+    //   url: '/ticket/board',
+    //   icon: 'icon-ticket',
+    //   location: 'mainNavigation'
+    // }
     {
-      text: 'Sales Pipeline',
-      url: '/deal',
-      icon: 'icon-piggy-bank',
-      location: 'mainNavigation'
-    },
-    {
-      text: 'Task',
-      url: '/task',
-      icon: 'icon-laptop',
-      location: 'mainNavigation'
-    },
-    {
-      text: 'Ticket',
-      url: '/ticket/board',
-      icon: 'icon-ticket',
+      text: 'Growth Hacking',
+      url: '/growthHack',
+      icon: 'icon-idea',
       location: 'mainNavigation'
     }
   ]

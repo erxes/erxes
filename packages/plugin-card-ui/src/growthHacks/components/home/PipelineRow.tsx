@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import { IPipeline } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
+import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { PipelineMeta, ProjectItem } from './styles';
