@@ -101,6 +101,15 @@ const customersListConfig = `
   }
 `;
 
+const integrationsGetUsedTypes = `
+  query integrationsGetUsedTypes {
+    integrationsGetUsedTypes {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   basicFields,
   customers,
@@ -108,5 +117,6 @@ export default {
   customerCounts,
   customerDetail,
   customersListConfig,
-  customersExport
+  customersExport,
+  integrationsGetUsedTypes
 };

@@ -1,5 +1,6 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { IBrand } from "@erxes/ui/src/brands/types";
 
 export type IAction = {
   id: string;
@@ -183,3 +184,21 @@ export interface IPipelineLabel {
 export type PipelineLabelsQueryResponse = {
   pipelineLabels: IPipelineLabel[];
 } & QueryResponse;
+
+export interface IForm {
+  _id: string;
+  code?: string;
+}
+export interface ILeadIntegration {
+  _id: string;
+  name: string;
+  code: string;
+  kind: string;
+  brand: IBrand;
+  form: IForm;
+}
+
+export type LeadIntegrationsQueryResponse = {
+  integrations: ILeadIntegration[];
+} & QueryResponse;
+
