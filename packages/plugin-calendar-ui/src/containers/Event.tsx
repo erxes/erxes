@@ -3,12 +3,11 @@ import * as compose from 'lodash.flowright';
 import Info from '@erxes/ui/src/components/Info';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
+import { getWarningMessage } from '../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Event from '../components/Event';
-import { mutations, subscriptions } from '../graphql';
+import { mutations, subscriptions, queries } from '../graphql';
 
 type Props = {
   type: string;
