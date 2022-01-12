@@ -1,14 +1,14 @@
-import { IUser } from 'modules/auth/types';
-import DueDateChanger from 'modules/boards/components/DueDateChanger';
-import EditForm from 'modules/boards/components/editForm/EditForm';
+import { IUser } from '@erxes/ui/src/auth/types';
+import DueDateChanger from '@erxes/ui-cards/src/boards/components/DueDateChanger';
+import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
 import {
   FlexContent,
   HeaderContentSmall,
   LeftContainer
-} from 'modules/boards/styles/item';
-import { IEditFormContent, IOptions } from 'modules/boards/types';
-import { ControlLabel } from 'modules/common/components/form';
-import { IFormSubmission } from 'modules/forms/types';
+} from '@erxes/ui-cards/src/boards/styles/item';
+import { IEditFormContent, IOptions } from '@erxes/ui-cards/src/boards/types';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import { IFormSubmission } from '@erxes/ui/src/forms/types';
 import React from 'react';
 import { GrowthHackFieldName, IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, StageForm, Top } from './editForm/';

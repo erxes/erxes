@@ -3,6 +3,9 @@ import React from 'react';
 import DealRoutes from './deals/routes';
 import TaskRoutes from './tasks/routes';
 import TicketRoutes from './tickets/routes';
+import GrowthHackingRoutes from './growthHacks/routes';
+import GrowthSettings from './settings/growthHacks/routes';
+import BoardSettings from './settings/boards/routes';
 
 const routes = () => {
   return (
@@ -10,6 +13,9 @@ const routes = () => {
       <DealRoutes />
       <TaskRoutes />
       <TicketRoutes />
+      <GrowthHackingRoutes />
+      <GrowthSettings />
+      <BoardSettings />
     </React.Fragment>
   );
 };

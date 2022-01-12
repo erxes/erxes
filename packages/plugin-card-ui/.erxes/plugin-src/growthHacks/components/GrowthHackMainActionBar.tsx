@@ -1,10 +1,10 @@
-import MainActionBar from 'modules/boards/components/MainActionBar';
-import { ButtonGroup } from 'modules/boards/styles/header';
-import { IBoard, IPipeline } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import { IOption, IRouterProps } from 'modules/common/types';
-import { __, router } from 'modules/common/utils';
+import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
+import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import { IOption, IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';

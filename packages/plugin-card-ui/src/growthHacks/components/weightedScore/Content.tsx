@@ -1,13 +1,9 @@
-import { IPipeline } from 'modules/boards/types';
-import LoadMore from 'modules/common/components/LoadMore';
-import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
-import {
-  FixedContainer,
-  ScrollContent,
-  TableHead
-} from 'modules/growthHacks/styles';
-import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
+import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils';
+import { FixedContainer, ScrollContent, TableHead } from '../../styles';
+import { IGrowthHack, IGrowthHackParams } from '../../types';
 import React from 'react';
 import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
 import Score from '../Score';

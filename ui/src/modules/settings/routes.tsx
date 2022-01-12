@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import BoardRoutes from './boards/routes';
+// import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
 import CalendarRoutes from './calendars/routes';
 import ChannelsRoutes from './channels/routes';
@@ -8,7 +8,7 @@ import ClientPortalRoutes from './clientPortal/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
-import GrowthHackRoutes from './growthHacks/routes';
+// import GrowthHackRoutes from './growthHacks/routes';
 import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
 import LogRoutes from './logs/routes';
@@ -36,7 +36,7 @@ const routes = () => (
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <ScriptsRoutes key="ScriptsRoutes" />
     <IntegrationsRoutes key="IntegrationsRoutes" />
-    <BoardRoutes key="BoardRoutes" />
+    {/* <BoardRoutes key="BoardRoutes" /> */}
     <ProductService key="ProductService" />
     <General key="General" />
     <PropertiesRoutes key="PropertiesRoutes" />
@@ -45,7 +45,7 @@ const routes = () => (
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
-    <GrowthHackRoutes key="GrowthHackRoutes" />
+    {/* <GrowthHackRoutes key="GrowthHackRoutes" /> */}
     <WebhookRoutes key="WebhookRoutes" />
     <CalendarRoutes key="CalendarRoutes" />
     <SkillsRoutes key="SkillsRoutes" />

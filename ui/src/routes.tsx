@@ -11,7 +11,7 @@ import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
 // import DashboardRoutes from './modules/dashboard/routes';
 // import DealsRoutes from './modules/deals/routes';
-import GrowthHackRoutes from './modules/growthHacks/routes';
+// import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
 // import LeadRoutes from './modules/leads/routes';
 import NotificationRoutes from './modules/notifications/routes';
@@ -100,7 +100,7 @@ const renderRoutes = currentUser => {
           {/* <DealsRoutes /> */}
           {/* <TicketRoutes /> */}
           {/* <TaskRoutes /> */}
-          <GrowthHackRoutes />
+          {/* <GrowthHackRoutes /> */}
           <VideoCallRoutes />
           <TutorialRoutes />
           {/* <CalendarRoutes /> */}
