@@ -40,7 +40,7 @@ export { setConfig };
 
 export const isConversationMailKind = (conversation: IConversation) => {
   // const integration = conversation.integration ? conversation.integration || {};
-  const integration = conversation.integration || {};
+  const integration = conversation.integration;
   const { kind } = integration;
 
   if (!kind) {

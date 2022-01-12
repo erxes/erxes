@@ -3,15 +3,15 @@ import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
 import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
-import { IAttachmentPreview } from 'modules/common/types';
-import RespondBox from 'modules/inbox/components/conversationDetail/workarea/RespondBox';
-import { queries } from 'modules/inbox/graphql';
+import { IAttachmentPreview } from '@erxes/ui/src/types';
+import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
+import { queries } from '../../graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
-import { withProps } from '../../../common/utils';
-import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
-import { UsersQueryResponse } from '../../../settings/team/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { withProps } from '@erxes/ui/src/utils';
+import { ResponseTemplatesQueryResponse } from '@erxes/ui/src/settings/responseTemplates/types';
+import { UsersQueryResponse } from '@erxes/ui-settings/src/team/types';
 import { AddMessageMutationVariables, IConversation } from '../../types';
 
 type Props = {

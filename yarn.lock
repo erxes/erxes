@@ -3962,6 +3962,18 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
+bat-draft-js-mention-plugin@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/bat-draft-js-mention-plugin/-/bat-draft-js-mention-plugin-2.0.1.tgz#65c23883f6a919a9cda5836bd9e65c06b38b341b"
+  integrity sha1-ZcI4g/apGanNpYNr2eZcBrOLNBs=
+  dependencies:
+    decorate-component-with-props "^1.0.2"
+    find-with-regex "^1.0.2"
+    immutable "~3.7.4"
+    lodash.escaperegexp "^4.1.2"
+    prop-types "^15.5.8"
+    union-class-names "^1.0.0"
+
 batch-processor@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/batch-processor/-/batch-processor-1.0.0.tgz#75c95c32b748e0850d10c2b168f6bdbe9891ace8"
@@ -5415,6 +5427,7 @@ data-urls@^1.1.0:
     abab "^2.0.0"
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
+
 datauri@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/datauri/-/datauri-2.0.0.tgz#ff0ee23729935a6bcc81f301621bed3e692bf3c7"
@@ -5917,6 +5930,7 @@ domexception@^1.0.1:
   integrity sha512-raigMkn7CJNNo6Ihro1fzG7wr3fHuYVytzquZKX5n0yizGsTcYgzdIUwj1X9pK0VvjeihV+XiclP+DjwbsSKug==
   dependencies:
     webidl-conversions "^4.0.2"
+
 domhandler@^2.3.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/domhandler/-/domhandler-2.4.2.tgz#8805097e933d65e85546f726d60f5eb88b44f803"
@@ -6861,7 +6875,7 @@ find-up@^2.0.0:
   dependencies:
     locate-path "^2.0.0"
 
-find-with-regex@^1.1.3:
+find-with-regex@^1.0.2, find-with-regex@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/find-with-regex/-/find-with-regex-1.1.3.tgz#d6c6f2debee898d36b6a77e05709b13dd5dc8a26"
   integrity sha512-zkEVQ1H3PIQL/19ADKt1lCQU4QGM3OneiderUcFgn5EgTm/TnoUh7HxPAwP8w/vXxWSLC6KtpbDQpypJ5+majw==
@@ -7053,6 +7067,11 @@ functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
+
+fuzzysearch-highlight@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/fuzzysearch-highlight/-/fuzzysearch-highlight-1.0.3.tgz#d4012f9f8e0778914b6b292b2c074301faa70b55"
+  integrity sha512-ZnMrUqkiOXTbsWWm3mXqwLC/042+yaBdCSgXCaKq0C66EKTbg4P6j+aE++Myx5PZiq7n/3R/cPMBt84dM2mXog==
 
 gatsby-core-utils@^1.3.14:
   version "1.10.1"
@@ -9727,6 +9746,11 @@ lodash.difference@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.difference/-/lodash.difference-4.5.0.tgz#9ccb4e505d486b91651345772885a2df27fd017c"
   integrity sha1-nMtOUF1Ia5FlE0V3KIWi3yf9AXw=
 
+lodash.escaperegexp@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/lodash.escaperegexp/-/lodash.escaperegexp-4.1.2.tgz#64762c48618082518ac3df4ccf5d5886dae20347"
+  integrity sha1-ZHYsSGGAglGKw99Mz11YhtriA0c=
+
 lodash.filter@^4.4.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.filter/-/lodash.filter-4.6.0.tgz#668b1d4981603ae1cc5a6fa760143e480b4c4ace"
@@ -9901,6 +9925,7 @@ lodash.throttle@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
   integrity sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=
+
 lodash.unescape@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/lodash.unescape/-/lodash.unescape-4.0.1.tgz#bf2249886ce514cda112fae9218cdc065211fc9c"
@@ -10553,14 +10578,15 @@ mime@^2.2.0:
   resolved "https://registry.yarnpkg.com/mime/-/mime-2.6.0.tgz#a2a682a95cd4d0cb1d6257e28f83da7e35800367"
   integrity sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==
 
-mimic-fn@^1.0.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-1.2.0.tgz#820c86a39334640e99516928bd03fca88057d022"
-  integrity sha512-jf84uxzwiuiIVKiOLpfYk7N46TSy8ubTonmneY9vrpHNAnp0QBt2BxWV9dO3/j+BoVAb+a5G6YDPW3M5HOdMWQ==
 mimer@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/mimer/-/mimer-1.1.1.tgz#f880cef5009e58d4755a98bfd7b3f6de1ce168f4"
   integrity sha512-ye7CWOnSgiX3mqOLJ0bNGxRAULS5a/gzjj6lGSCnRTkbLUhNvt/7dI80b6GZRoaj4CsylcWQzyyKKh1a3CT74g==
+
+mimic-fn@^1.0.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-1.2.0.tgz#820c86a39334640e99516928bd03fca88057d022"
+  integrity sha512-jf84uxzwiuiIVKiOLpfYk7N46TSy8ubTonmneY9vrpHNAnp0QBt2BxWV9dO3/j+BoVAb+a5G6YDPW3M5HOdMWQ==
 
 mimic-fn@^2.1.0:
   version "2.1.0"
@@ -11908,7 +11934,7 @@ prop-types@^15.0.0, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.8,
     object-assign "^4.1.1"
     react-is "^16.13.1"
 
-prop-types@^15.6.0:
+prop-types@^15.6.0, prop-types@^15.8.0:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -12470,6 +12496,13 @@ react-smooth@^1.0.5:
     prop-types "^15.6.0"
     raf "^3.4.0"
     react-transition-group "^2.5.0"
+
+react-to-print@^2.13.0:
+  version "2.14.3"
+  resolved "https://registry.yarnpkg.com/react-to-print/-/react-to-print-2.14.3.tgz#892580bdde1dcd5bca47661410254cf74a3eb97f"
+  integrity sha512-j0EAplQGcw4ujSLfUQoIhf1PgrSLrWRh4NSAiKZdWm6YNXMioHW56cGpbKEJkCpYN1E5g3tvFVHRADn0mTKGzg==
+  dependencies:
+    prop-types "^15.8.0"
 
 react-toggle@4.1.1:
   version "4.1.1"
@@ -13333,6 +13366,7 @@ sane@^4.0.3:
     micromatch "^3.1.4"
     minimist "^1.1.1"
     walker "~1.0.5"
+
 sanitize-html@^1.20.1:
   version "1.27.5"
   resolved "https://registry.yarnpkg.com/sanitize-html/-/sanitize-html-1.27.5.tgz#6c8149462adb23e360e1bb71cc0bae7f08c823c7"

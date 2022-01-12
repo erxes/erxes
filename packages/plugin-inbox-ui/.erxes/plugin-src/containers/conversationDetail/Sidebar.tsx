@@ -1,23 +1,23 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IUser } from 'modules/auth/types';
-import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
-import { queries } from 'modules/inbox/graphql';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { IUser } from '@erxes/ui/src/auth/types';
+import DumbSidebar from '../../components/conversationDetail/sidebar/Sidebar';
+import { queries } from '../../graphql';
+import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 import {
   IField,
   InboxFieldsQueryResponse
-} from 'modules/settings/properties/types';
+} from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import Spinner from '../../../common/components/Spinner';
-import { withProps } from '../../../common/utils';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { withProps } from '@erxes/ui/src/utils';
 import {
   CustomerDetailQueryResponse,
   ICustomer
-} from '../../../customers/types';
+} from '@erxes/ui/src/customers/types';
 import { IConversation } from '../../types';
 import { getConfig } from '../../utils';
 

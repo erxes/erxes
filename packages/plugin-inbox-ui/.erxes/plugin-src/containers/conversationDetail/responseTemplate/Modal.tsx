@@ -1,14 +1,14 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IAttachment } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import Modal from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/Modal';
-import { mutations, queries } from 'modules/inbox/graphql';
-import { IBrand } from 'modules/settings/brands/types';
+import { IAttachment } from '@erxes/ui/src/types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import Modal from '../../../components/conversationDetail/workarea/responseTemplate/Modal';
+import { mutations, queries } from '../../../graphql';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   SaveResponseTemplateMutationResponse,
   SaveResponseTemplateMutationVariables
-} from 'modules/settings/responseTemplates/types';
+} from '@erxes/ui-settings/src/responseTemplates/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

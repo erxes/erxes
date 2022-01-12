@@ -1,19 +1,19 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { mutations } from 'modules/inbox/graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { mutations } from '../../graphql';
 import {
   EditCustomFieldsMutationVariables,
   EditMutationResponse,
   IConversation
-} from 'modules/inbox/types';
-import Sidebar from 'modules/layout/components/Sidebar';
-import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+} from '../../types';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
+import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { renderWithProps } from '../../../common/utils';
-import { FieldsGroupsQueryResponse } from '../../../settings/properties/types';
+import { renderWithProps } from '@erxes/ui/src/utils';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 
 type Props = {
   conversation: IConversation;

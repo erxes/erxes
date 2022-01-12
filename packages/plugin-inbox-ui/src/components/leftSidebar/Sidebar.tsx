@@ -3,7 +3,6 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import { ScrollContent } from '@erxes/ui/src/growthHacks/styles';
 import { CONVERSATION_STATUSES } from '../../constants';
 import FilterToggler from '../../containers/leftSidebar/FilterToggler';
 import Resolver from '../../containers/Resolver';
@@ -21,13 +20,14 @@ import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,
   DropdownWrapper,
-  FlexRoot,
   LeftContent,
   RightItems,
   SidebarActions,
   SidebarContent,
-  ToggleButton
+  ToggleButton,
+  ScrollContent
 } from './styles';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
 
 const DateFilter = asyncComponent(
   () =>
@@ -118,7 +118,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
     return (
       <Sidebar.Header>
-        <FlexRoot>
+        <FlexCenter>
           <ToggleButton
             id='btn-inbox-channel-visible'
             isActive={this.state.isOpen}
@@ -135,7 +135,7 @@ class LeftSidebar extends React.Component<Props, State> {
               Resolve all
             </Button>
           )}
-        </FlexRoot>
+        </FlexCenter>
         <DropdownWrapper>
           <DateFilter
             queryParams={queryParams}

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { CONVERSATION_STATUSES } from '../constants';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Resolver from '../components/Resolver';

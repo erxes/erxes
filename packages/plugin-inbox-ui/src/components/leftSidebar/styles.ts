@@ -1,15 +1,21 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { SimpleButton } from 'modules/common/styles/main';
-import { ScrollContent } from 'modules/growthHacks/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import { SimpleButton, FlexCenter } from '@erxes/ui/src/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const FlexRoot = styled.div`
-  display: flex;
-  align-items: center;
+const ScrollContent = styled.div`
+  flex: 1;
+  overflow: auto;
+
+  .weighted-score-table-body {
+    .with-input:last-child {
+      background-color: ${colors.bgLightPurple};
+      border-left: 1px solid ${colors.borderPrimary};
+    }
+  }
 `;
 
-const RightItems = styled(FlexRoot)`
+const RightItems = styled(FlexCenter)`
   > div {
     margin-right: 10px;
   }
@@ -87,7 +93,7 @@ const FlexWidth = styled.div`
   flex: 1;
 `;
 
-const CustomerName = styled(FlexRoot)`
+const CustomerName = styled(FlexCenter)`
   overflow: hidden;
 
   time {
@@ -115,7 +121,7 @@ const SmallTextOneLine = styled(FlexWidth)`
   font-size: 12px;
 `;
 
-const MessageContent = styled(FlexRoot)`
+const MessageContent = styled(FlexCenter)`
   margin-top: 7px;
   line-height: 18px;
 `;
@@ -304,7 +310,7 @@ export {
   CheckBox,
   MainInfo,
   CustomerName,
-  FlexRoot,
+  FlexCenter,
   Count,
   SmallTextOneLine,
   MessageContent,
@@ -317,5 +323,6 @@ export {
   LeftContent,
   DropdownWrapper,
   ToggleButton,
-  Idle
+  Idle,
+  ScrollContent
 };

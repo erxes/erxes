@@ -1,13 +1,13 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import ConversationDetail from 'modules/inbox/components/conversationDetail/ConversationDetail';
-import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import { IField } from 'modules/settings/properties/types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import ConversationDetail from '../../components/conversationDetail/ConversationDetail';
+import { mutations, queries, subscriptions } from '../../graphql';
+import { IField } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import {
   ConversationDetailQueryResponse,
   MarkAsReadMutationResponse

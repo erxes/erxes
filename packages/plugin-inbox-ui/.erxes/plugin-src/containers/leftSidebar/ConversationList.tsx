@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import ConversationList from 'modules/inbox/components/leftSidebar/ConversationList';
-import { queries, subscriptions } from 'modules/inbox/graphql';
-import { generateParams } from 'modules/inbox/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+import ConversationList from '../../components/leftSidebar/ConversationList';
+import { queries, subscriptions } from '../../graphql';
+import { generateParams } from '../../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {

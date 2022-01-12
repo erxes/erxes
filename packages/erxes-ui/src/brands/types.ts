@@ -1,3 +1,4 @@
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { QueryResponse } from '../types';
 
 export interface IBrand {
@@ -7,6 +8,10 @@ export interface IBrand {
   createdAt: string;
   description?: string;
   emailConfig: { type: string; template: string };
+}
+
+export interface IBrandDoc extends IBrand {
+  integrations: IIntegration[];
 }
 
 // queries

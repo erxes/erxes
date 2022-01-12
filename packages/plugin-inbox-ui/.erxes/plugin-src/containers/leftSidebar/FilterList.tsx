@@ -1,11 +1,11 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import FilterByParams from 'modules/common/components/FilterByParams';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert } from 'modules/common/utils';
-import { queries } from 'modules/inbox/graphql';
-import { NoHeight } from 'modules/inbox/styles';
-import { generateParams } from 'modules/inbox/utils';
+import FilterByParams from '@erxes/ui/src/components/FilterByParams';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert } from '@erxes/ui/src/utils';
+import { queries } from '../../graphql';
+import { NoHeight } from '../../styles';
+import { generateParams } from '../../utils';
 import React from 'react';
 
 type Props = {

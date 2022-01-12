@@ -1,6 +1,6 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { can, router as routerUtils } from 'modules/common/utils';
+import { can, router as routerUtils } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Empty from '../components/Empty';

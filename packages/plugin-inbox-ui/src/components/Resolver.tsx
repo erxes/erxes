@@ -1,5 +1,5 @@
-import Button from 'modules/common/components/Button';
-import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
+import Button from '@erxes/ui/src/components/Button';
+import { CONVERSATION_STATUSES } from '../constants';
 import React from 'react';
 import { IConversation } from '../types';
 

@@ -1,11 +1,11 @@
-import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Header from 'modules/layout/components/Header';
-import { Contents, HeightedWrapper } from 'modules/layout/styles';
-import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
+import { IUser } from '@erxes/ui/src/auth/types';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Header from '@erxes/ui/src/layout/components/Header';
+import { Contents, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
 import React from 'react';
-import { __ } from 'modules/common/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 const Sidebar = asyncComponent(() =>
   import(
@@ -34,12 +34,12 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
 
   const sendEmail = (
     <ModalTrigger
-      dialogClassName="middle"
-      title="Send an Email"
+      dialogClassName='middle'
+      title='Send an Email'
       trigger={<span>{__('Send an Email')}</span>}
-      size="lg"
+      size='lg'
       content={content}
-      paddingContent="less-padding"
+      paddingContent='less-padding'
       enforceFocus={false}
     />
   );

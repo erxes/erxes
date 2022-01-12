@@ -97,7 +97,7 @@ const TaggerSection = asyncComponent(
 
 const SidebarActivity = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ '@erxes/ui/src/inbox/containers/conversationDetail/SidebarActivity'
+    /* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ '../../../containers/conversationDetail/SidebarActivity'
   )
 );
 

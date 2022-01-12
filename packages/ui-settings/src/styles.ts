@@ -158,6 +158,80 @@ const FlexItem = styled(DateContainer)`
   }
 `;
 
+const BackgroundSelector = styled.div`
+  border: 3px solid transparent;
+  margin-right: 15px;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+
+  > div {
+    width: 80px;
+    height: 40px;
+    margin: 5px;
+    border: 1px solid ${colors.borderDarker};
+    background-repeat: repeat;
+    background-position: 0 0;
+    background-size: 220%;
+
+    &.background-1 {
+      background-image: url('/images/patterns/bg-1.png');
+    }
+
+    &.background-2 {
+      background-image: url('/images/patterns/bg-2.png');
+    }
+
+    &.background-3 {
+      background-image: url('/images/patterns/bg-3.png');
+    }
+
+    &.background-4 {
+      background-image: url('/images/patterns/bg-4.png');
+    }
+
+    &.background-5 {
+      background: #faf9fb;
+    }
+  }
+
+  &.selected {
+    border-color: ${colors.borderDarker};
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const SubItem = styled.div`
+  margin-bottom: ${coreSpace};
+
+  img {
+    background-color: ${colors.colorLightGray};
+    max-height: 100px;
+    margin-right: 5px;
+  }
+
+  i:hover {
+    cursor: pointer;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+  }
+`;
+
+const FilterContainer = styled.div`
+  position: relative;
+  padding-bottom: ${dimensions.coreSpacing}px;
+  z-index: 2;
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -170,5 +244,8 @@ export {
   Capitalize,
   LinkButton,
   SidebarListItem,
-  FilterItem
+  FilterItem,
+  BackgroundSelector,
+  SubItem,
+  FilterContainer
 };

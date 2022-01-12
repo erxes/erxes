@@ -1,10 +1,10 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import { withProps } from 'modules/common/utils';
-import FacebookConversation from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookConversation';
-import { queries, subscriptions } from 'modules/inbox/graphql';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { withProps } from '@erxes/ui/src/utils';
+import FacebookConversation from '../../../components/conversationDetail/workarea/facebook/FacebookConversation';
+import { queries, subscriptions } from '../../../graphql';
 import {
   FacebookCommentsCountQueryResponse,
   FacebookCommentsQueryResponse,
@@ -12,7 +12,7 @@ import {
   IFacebookComment,
   IFacebookPost,
   MessagesQueryResponse
-} from 'modules/inbox/types';
+} from '../../../types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 

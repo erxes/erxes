@@ -1,4 +1,4 @@
-import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import { refetchSidebarConversationsOptions } from '../utils';
 import { InboxManagementActionConsumer } from './Inbox';
@@ -11,7 +11,7 @@ const Tagger = props => {
       {({ notifyConsumersOfManagementAction }) => (
         <TaggerPopover
           {...props}
-          type="conversation"
+          type='conversation'
           refetchQueries={refetchQueries}
           successCallback={notifyConsumersOfManagementAction}
         />

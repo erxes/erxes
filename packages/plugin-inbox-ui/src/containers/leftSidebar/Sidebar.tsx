@@ -1,14 +1,14 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Bulk from 'modules/common/components/Bulk';
-import { IBulkContentProps } from 'modules/common/components/Bulk';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import DumbSidebar from 'modules/inbox/components/leftSidebar/Sidebar';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import DumbSidebar from '../../components/leftSidebar/Sidebar';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../../common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations } from '../../graphql';
 import {
   ResolveAllMutationResponse,

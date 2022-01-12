@@ -1,15 +1,15 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
-import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
-import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import { isConversationMailKind } from 'modules/inbox/utils';
+import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';
+import { NOTIFICATION_TYPE } from '../../constants';
+import { mutations, queries, subscriptions } from '../../graphql';
+import { isConversationMailKind } from '../../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import strip from 'strip';
-import { IUser } from '../../../auth/types';
-import { sendDesktopNotification, withProps } from '../../../common/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { sendDesktopNotification, withProps } from '@erxes/ui/src/utils';
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,

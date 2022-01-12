@@ -1,4 +1,4 @@
-import { queries as customerQueries } from 'modules/customers/graphql';
+import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
 import conversationFields from './conversationFields';
 import messageFields from './messageFields';
 

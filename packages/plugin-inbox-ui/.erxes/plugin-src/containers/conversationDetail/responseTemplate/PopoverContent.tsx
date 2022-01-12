@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
-import PopoverContent from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/PopoverContent';
-import { IBrand } from 'modules/settings/brands/types';
+import { withProps } from '@erxes/ui/src/utils';
+import PopoverContent from '../../../components/conversationDetail/workarea/responseTemplate/PopoverContent';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { queries as responseTemplateQuery } from 'modules/settings/responseTemplates/graphql';
 import {
   IResponseTemplate,

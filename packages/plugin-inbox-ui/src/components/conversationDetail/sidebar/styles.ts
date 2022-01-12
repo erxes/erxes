@@ -13,13 +13,13 @@ import {
   EmailContent,
   FlexBody,
   FlexCenterContent,
-  FlexContent,
   Header,
   IconWrapper,
   Row,
   Timeline,
   Title
 } from '@erxes/ui/src/activityLogs/styles';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import { ActivityContent, DateContainer } from '@erxes/ui/src/styles/main';
 import {
@@ -154,7 +154,7 @@ const ActivityLogContent = styled(ActivityContent)`
     }
   }
 
-  ${FlexContent} {
+  ${Flex} {
     flex-direction: column;
   }
 

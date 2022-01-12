@@ -2,10 +2,7 @@ import highlighter from 'fuzzysearch-highlight';
 import strip from 'strip';
 import xss from 'xss';
 
-import {
-  ResponseSuggestionItem,
-  ResponseSuggestions
-} from 'modules/inbox/styles';
+import { ResponseSuggestionItem, ResponseSuggestions } from '../../../styles';
 import React from 'react';
 
 import { IResponseTemplate } from 'modules/settings/responseTemplates/types';

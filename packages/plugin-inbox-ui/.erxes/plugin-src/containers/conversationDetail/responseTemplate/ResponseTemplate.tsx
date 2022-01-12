@@ -1,15 +1,15 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
-import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/ResponseTemplate';
-import { queries } from 'modules/inbox/graphql';
-import { queries as brandQuery } from 'modules/settings/brands/graphql';
-import { BrandsQueryResponse } from 'modules/settings/brands/types';
+import { withProps } from '@erxes/ui/src/utils';
+import ResponseTemplate from '../../../components/conversationDetail/workarea/responseTemplate/ResponseTemplate';
+import { queries } from '../../../graphql';
+import { queries as brandQuery } from '@erxes/ui/src/brands/graphql';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
   SaveResponseTemplateMutationResponse
-} from 'modules/settings/responseTemplates/types';
+} from '@erxes/ui/src/responseTemplates/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import IntegrationIcon from '@erxes/ui-settings/src/integrations/components/IntegrationIcon';
