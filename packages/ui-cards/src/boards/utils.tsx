@@ -1,11 +1,12 @@
-import { Amount } from '@erxes/ui-cards/src/boards/styles/stage';
 import gql from 'graphql-tag';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
+import { Amount } from '@erxes/ui-cards/src/boards/styles/stage';
+import { IDateColumn } from '@erxes/ui/src/types';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import { ColumnProps, getCommonParams } from './components/Calendar';
-import { IDateColumn } from '@erxes/ui/src/types';
-import { IDraggableLocation, IItem, IItemMap } from './types';
 import PriorityIndicator from './components/editForm/PriorityIndicator';
+import { IDraggableLocation, IItem, IItemMap } from './types';
 
 type Options = {
   _id: string;
@@ -20,109 +21,12 @@ export function selectOptions(array: Options[] = []) {
   return array.map(item => ({ value: item._id, label: item.name }));
 }
 
-export const getWarningMessage = (type: string): string => {
-  return `This will permanently delete the current ${type}. Are you absolutely sure?`;
-};
-
-export const toArray = (item: string | string[] = []) => {
-  if (item instanceof Array) {
-    return item;
-  }
-
-  return [item];
-};
-
-export const getDefaultBoardAndPipelines = () => {
-  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || '{}';
-  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || '{}';
-
-  return {
-    defaultBoards: JSON.parse(defaultBoards),
-    defaultPipelines: JSON.parse(defaultPipelines)
-  };
-};
-
-export const calendarColumnQuery = (query, name) =>
-  graphql<ColumnProps, { skip: number; date: IDateColumn }>(gql(query), {
-    name,
-    options: ({ date, pipelineId, queryParams }: ColumnProps) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        variables: {
-          skip: 0,
-          date,
-          pipelineId,
-          ...getCommonParams(queryParams)
-        }
-      };
-    }
-  });
-
-export const onCalendarLoadMore = (fetchMore, queryName, skip: number) => {
-  fetchMore({
-    variables: { skip },
-    updateQuery: (prevResult, { fetchMoreResult }) => {
-      if (!fetchMoreResult || fetchMoreResult[queryName].length === 0) {
-        return prevResult;
-      }
-
-      return {
-        [queryName]: prevResult[queryName].concat(fetchMoreResult[queryName])
-      };
-    }
-  });
-};
-
-export const getBoardViewType = () => {
-  let viewType = 'board';
-
-  if (window.location.href.includes('calendar')) {
-    viewType = 'calendar';
-  }
-
-  if (window.location.href.includes('activity')) {
-    viewType = 'activity';
-  }
-
-  if (window.location.href.includes('conversion')) {
-    viewType = 'conversion';
-  }
-
-  if (window.location.href.includes('list')) {
-    viewType = 'list';
-  }
-
-  if (window.location.href.includes('chart')) {
-    viewType = 'chart';
-  }
-
-  if (window.location.href.includes('gantt')) {
-    viewType = 'gantt';
-  }
-
-  return viewType;
-};
-export const invalidateCache = () => {
-  localStorage.setItem('cacheInvalidated', 'true');
-};
-
-export const updateItemInfo = (state, item) => {
-  const { itemMap } = state;
-  const items = [...itemMap[item.stageId]];
-  const index = items.findIndex(d => d._id === item._id);
-
-  items[index] = item;
-
-  return { ...itemMap, [item.stageId]: items };
-};
-
-export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
-  const keys = Object.keys(queryParams || {});
-
-  if (!(keys.length === 2 || (keys.includes('key') && keys.length === 3))) {
-    routerUtils.setParams(history, { key: Math.random() });
-  }
-};
+export function collectOrders(array: Options[] = []) {
+  return array.map((item: Options, index: number) => ({
+    _id: item._id,
+    order: index
+  }));
+}
 
 // a little function to help us with reordering the result
 export const reorder = (
@@ -142,6 +46,16 @@ type ReorderItemMap = {
   itemMap: IItemMap;
   source: IDraggableLocation & { item?: IItem };
   destination: IDraggableLocation;
+};
+
+export const updateItemInfo = (state, item) => {
+  const { itemMap } = state;
+  const items = [...itemMap[item.stageId]];
+  const index = items.findIndex(d => d._id === item._id);
+
+  items[index] = item;
+
+  return { ...itemMap, [item.stageId]: items };
 };
 
 export const reorderItemMap = ({
@@ -211,6 +125,53 @@ export const reorderItemMap = ({
     target
   };
 };
+
+export const getDefaultBoardAndPipelines = () => {
+  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || '{}';
+  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || '{}';
+
+  return {
+    defaultBoards: JSON.parse(defaultBoards),
+    defaultPipelines: JSON.parse(defaultPipelines)
+  };
+};
+
+export const renderAmount = (amount = {}) => {
+  if (Object.keys(amount).length === 0) {
+    return null;
+  }
+
+  return (
+    <Amount>
+      {Object.keys(amount).map(key => (
+        <li key={key}>
+          {amount[key].toLocaleString()} <span>{key}</span>
+        </li>
+      ))}
+    </Amount>
+  );
+};
+
+export const invalidateCache = () => {
+  localStorage.setItem('cacheInvalidated', 'true');
+};
+
+export const toArray = (item: string | string[] = []) => {
+  if (item instanceof Array) {
+    return item;
+  }
+
+  return [item];
+};
+
+export const renderPriority = (priority?: string) => {
+  if (!priority) {
+    return null;
+  }
+
+  return <PriorityIndicator value={priority} />;
+};
+
 export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
   let colorName = '';
 
@@ -251,6 +212,37 @@ export const generateButtonStart = (startDate: Date) => {
   return colorName;
 };
 
+export const onCalendarLoadMore = (fetchMore, queryName, skip: number) => {
+  fetchMore({
+    variables: { skip },
+    updateQuery: (prevResult, { fetchMoreResult }) => {
+      if (!fetchMoreResult || fetchMoreResult[queryName].length === 0) {
+        return prevResult;
+      }
+
+      return {
+        [queryName]: prevResult[queryName].concat(fetchMoreResult[queryName])
+      };
+    }
+  });
+};
+
+export const calendarColumnQuery = (query, name) =>
+  graphql<ColumnProps, { skip: number; date: IDateColumn }>(gql(query), {
+    name,
+    options: ({ date, pipelineId, queryParams }: ColumnProps) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          skip: 0,
+          date,
+          pipelineId,
+          ...getCommonParams(queryParams)
+        }
+      };
+    }
+  });
+
 export const getColors = (index: number) => {
   const COLORS = [
     '#EA475D',
@@ -271,26 +263,44 @@ export const getColors = (index: number) => {
   return COLORS[index];
 };
 
-export const renderAmount = (amount = {}) => {
-  if (Object.keys(amount).length === 0) {
-    return null;
-  }
+export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
+  const keys = Object.keys(queryParams || {});
 
-  return (
-    <Amount>
-      {Object.keys(amount).map(key => (
-        <li key={key}>
-          {amount[key].toLocaleString()} <span>{key}</span>
-        </li>
-      ))}
-    </Amount>
-  );
+  if (!(keys.length === 2 || (keys.includes('key') && keys.length === 3))) {
+    routerUtils.setParams(history, { key: Math.random() });
+  }
 };
 
-export const renderPriority = (priority?: string) => {
-  if (!priority) {
-    return null;
+export const getBoardViewType = () => {
+  let viewType = 'board';
+
+  if (window.location.href.includes('calendar')) {
+    viewType = 'calendar';
   }
 
-  return <PriorityIndicator value={priority} />;
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
+  }
+
+  if (window.location.href.includes('conversion')) {
+    viewType = 'conversion';
+  }
+
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
+  }
+
+  if (window.location.href.includes('chart')) {
+    viewType = 'chart';
+  }
+
+  if (window.location.href.includes('gantt')) {
+    viewType = 'gantt';
+  }
+
+  return viewType;
+};
+
+export const getWarningMessage = (type: string): string => {
+  return `This will permanently delete the current ${type}. Are you absolutely sure?`;
 };
