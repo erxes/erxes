@@ -7,7 +7,7 @@ export const types = `
     skip: Boolean
   }
 
-  type Form {
+  type Form @key(fields: "_id") {
     _id: String!
     title: String
     code: String

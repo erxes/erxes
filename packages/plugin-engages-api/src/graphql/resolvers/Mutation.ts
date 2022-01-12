@@ -1,11 +1,18 @@
 import * as _ from 'underscore';
 
-import { checkPermission, IContext, MODULE_NAMES, putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils';
+import {
+  checkPermission,
+  IContext,
+  MODULE_NAMES,
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '@erxes/api-utils';
 import { IEngageMessage } from '@erxes/common-types';
 import { CAMPAIGN_KINDS } from '../../constants';
 
 import { EngageMessages } from '../../models';
-import { _Customers, _Users } from '../../apiCollections';
+import { Customers, Users } from '../../apiCollections';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
 import messageBroker from '../../messageBroker';
@@ -232,8 +239,6 @@ const engageMutations = {
         'Email content, title, from address or to address is missing'
       );
     }
-    const Users = await _Users();
-    const Customers = await _Customers();
     const customer = await Customers.findOne({ primaryEmail: to });
     const targetUser = await Users.findOne({ email: to });
 

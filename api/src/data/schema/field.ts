@@ -21,7 +21,7 @@ export const fieldsTypes = `
     logicValue: JSON
   }
 
-  type Field {
+  type Field @key(fields: "_id") {
     _id: String!
     contentType: String!
     contentTypeId: String

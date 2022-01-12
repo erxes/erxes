@@ -1,4 +1,4 @@
-import * as debug from 'debug';
+import debug from 'debug';
 
 export const debugInit = debug('erxes-engages:init');
 export const debugDb = debug('erxes-engages:db');

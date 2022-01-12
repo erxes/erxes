@@ -106,11 +106,6 @@ import {
 } from './knowledgeBase';
 import { queries as LogQueries, types as LogTypes } from './log';
 import {
-  mutations as MessengerAppMutations,
-  queries as MessengerAppQueries,
-  types as MessengerAppTypes
-} from './messengerApp';
-import {
   mutations as NotificationMutations,
   queries as NotificationQueries,
   types as NotificationTypes
@@ -213,7 +208,6 @@ export let types = `
   ${ConfigTypes}
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
-  ${MessengerAppTypes}
   ${PermissionTypes}
   ${TicketTypes}
   ${TaskTypes}
@@ -265,7 +259,6 @@ export let queries = `
   ${PipelineLabelQueries}
   ${WebhookQueries}
   ${CalendarQueries}
-  ${MessengerAppQueries}
   ${SmsDeliveryQueries}
   ${StructureQueries}
   ${AutomationQueries}
@@ -293,7 +286,6 @@ export let mutations = `
   ${ConfigMutations}
   ${FieldGroupMutations}
   ${ImportHistoryMutations}
-  ${MessengerAppMutations}
   ${PermissionMutations}
   ${TicketMutations}
   ${TaskMutations}

@@ -1,4 +1,9 @@
-import { CONTENT_TYPES, EMAIL_DELIVERY_STATUS, MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
+import {
+  CONTENT_TYPES,
+  EMAIL_DELIVERY_STATUS,
+  MODULE_NAMES,
+  RABBITMQ_QUEUES
+} from './constants';
 import {
   checkUserIds,
   chunkArray,
@@ -37,9 +42,15 @@ import {
   requireLogin
 } from './permissions';
 
+import * as db from './apiCollections';
+
 import { IContext } from './types';
 import { ruleSchema } from './definitions/common';
 import { field, schemaWrapper } from './definitions/utils';
+
+(async () => {
+  await db.connect();
+})();
 
 export { EMAIL_DELIVERY_STATUS };
 export { getEnv }; // ({ name, defaultValue })

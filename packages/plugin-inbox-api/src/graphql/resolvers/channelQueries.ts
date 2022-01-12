@@ -1,5 +1,6 @@
-import { requireLogin, checkPermission } from '@erxes/api-utils/src/permissions';
-import { Channels } from "../../models";
+import { Channels } from '../../models';
+import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import { getDocumentList } from '../../cacheUtils';
 
 interface IIn {
   $in: string[];
@@ -14,7 +15,7 @@ const channelQueries = {
    * Channels list
    */
   channelsByMembers(_root, { memberIds }: { memberIds: string[] }) {
-    return Channels.find({ memberIds: { $in: memberIds } }).toArray();
+    return getDocumentList('channels', { memberIds: { $in: memberIds } });
   },
 
   /**

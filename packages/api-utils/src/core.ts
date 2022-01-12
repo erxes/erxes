@@ -1,3 +1,7 @@
+import * as strip from 'strip';
+import * as faker from 'faker';
+import * as Random from 'meteor-random';
+
 import { IUserDocument } from '@erxes/common-types';
 
 export const getEnv = ({
@@ -215,4 +219,46 @@ export const chunkArray = (myArray, chunkSize: number) => {
   }
 
   return tempArray;
+};
+
+export const cleanHtml = (content?: string) =>
+  strip(content || '').substring(0, 100);
+
+/**
+ * Splits text into chunks of strings limited by given character count
+ * .{1,100}(\s|$)
+ * . - matches any character (except for line terminators)
+ * {1,100} - matches the previous token between 1 and 100 times, as many times as possible, giving back as needed (greedy)
+ * (\s|$) - capturing group
+ * \s - matches any whitespace character
+ * $ - asserts position at the end of the string
+ *
+ * @param str text to be split
+ * @param size character length of each chunk
+ */
+export const splitStr = (str: string, size: number): string[] => {
+  const cleanStr = strip(str);
+
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
+};
+
+export const getUniqueValue = async (
+  collection: any,
+  fieldName: string = 'code',
+  defaultValue?: string
+) => {
+  const getRandomValue = (type: string) =>
+    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
+
+  let uniqueValue = defaultValue || getRandomValue(fieldName);
+
+  let duplicated = await collection.findOne({ [fieldName]: uniqueValue });
+
+  while (duplicated) {
+    uniqueValue = getRandomValue(fieldName);
+
+    duplicated = await collection.findOne({ [fieldName]: uniqueValue });
+  }
+
+  return uniqueValue;
 };

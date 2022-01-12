@@ -1,8 +1,10 @@
 import * as _ from 'underscore';
+import { Channels, Integrations } from './models';
+import { Tags, Segments } from './apiCollections';
+import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
-import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { Tags } from '../../apiCollections';
-import { Channels, Integrations } from '../../models';
+import { getDocumentList } from './cacheUtils';
+// import { fetchSegment } from '../../modules/segments/queryBuilder';
 
 interface IIn {
   $in: string[];
@@ -75,22 +77,25 @@ export default class Builder {
   }
 
   // filter by segment
-//   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-//     const segment = await Segments.getSegment(segmentId);
+  public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
+    const segment = await Segments.getSegment(segmentId);
 
-//     const selector = await fetchSegment(segment, {
-//       returnFields: ['_id'],
-//       page: 1,
-//       perPage: this.params.limit ? this.params.limit + 1 : 11,
-//       sortField: 'updatedAt',
-//       sortDirection: -1
-//     });
+    // const selector = await fetchSegment(segment, {
+    //   returnFields: ['_id'],
+    //   page: 1,
+    //   perPage: this.params.limit ? this.params.limit + 1 : 11,
+    //   sortField: 'updatedAt',
+    //   sortDirection: -1
+    // });
 
-//     const Ids = _.pluck(selector, '_id');
-//     return {
-//       _id: { $in: Ids }
-//     };
-//   }
+    // const Ids = _.pluck(selector, '_id');
+
+    const Ids = [];
+
+    return {
+      _id: { $in: Ids }
+    };
+  }
 
   public userRelevanceQuery() {
     return [
@@ -100,7 +105,7 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await Integrations.find({
+    const activeIntegrations = await getDocumentList('integrations', {
       isActive: { $ne: false }
     });
 
@@ -148,7 +153,7 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await Channels.find({
+    const channels = await getDocumentList('channels', {
       memberIds: this.user._id
     });
 
@@ -292,7 +297,7 @@ export default class Builder {
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
-    const tags = await Tags().find({ _id: { $in: tagIds } });
+    const tags = await Tags.find({ _id: { $in: tagIds } });
 
     for (const tag of tags) {
       ids.push(tag._id);
@@ -401,9 +406,9 @@ export default class Builder {
     }
 
     // filter by segment
-    // if (this.params.segment) {
-      // this.queries.segments = await this.segmentFilter(this.params.segment);
-    // }
+    if (this.params.segment) {
+      this.queries.segments = await this.segmentFilter(this.params.segment);
+    }
 
     this.queries.extended = await this.extendedQueryFilter(this.params);
   }

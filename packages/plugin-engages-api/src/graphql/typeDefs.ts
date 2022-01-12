@@ -120,6 +120,14 @@ const types = `
     templateId: String
   }
 
+  input InputRule {
+    _id : String!,
+    kind: String!,
+    text: String!,
+    condition: String!,
+    value: String,
+  }
+
   input EngageMessageMessenger {
     brandId: String!,
     kind: String,
@@ -191,6 +199,9 @@ const mutations = `
 
 
 const typeDefs = gql`
+  scalar JSON
+  scalar Date
+
   ${types}
   
   extend type Query {

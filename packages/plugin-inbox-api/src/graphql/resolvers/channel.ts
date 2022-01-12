@@ -1,6 +1,6 @@
-import { Users } from "../../apiCollections";
-import { Integrations } from "../../models";
-import { IChannelDocument } from "../../models/definitions/channels";
+import { Integrations } from '../../models';
+import { IChannelDocument } from '../../models/definitions/channels';
+import { getDocumentList } from '../../cacheUtils';
 
 export default {
   integrations(channel: IChannelDocument) {
@@ -10,9 +10,9 @@ export default {
   },
 
   members(channel: IChannelDocument) {
-    return Users.find({
+    return getDocumentList('users', {
       _id: { $in: channel.memberIds },
       isActive: { $ne: false }
-    }).toArray();
+    });
   }
 };

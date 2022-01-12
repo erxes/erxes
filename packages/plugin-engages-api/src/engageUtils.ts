@@ -8,13 +8,7 @@ import {
 import { chunkArray, CONTENT_TYPES } from '@erxes/api-utils';
 
 import { EngageMessages } from './models';
-import {
-  _Users,
-  _Customers,
-  _Integrations,
-  _Conformities,
-  _Segments
-} from './apiCollections';
+import { Users, Customers, Segments } from './apiCollections';
 import {
   findRPCintegrations,
   saveRPCconformity,
@@ -68,8 +62,6 @@ export const generateCustomerSelector = async ({
 
     customerQuery = { integrationId: { $in: integrationIds } };
   }
-
-  const Segments = await _Segments();
 
   if (segmentIds.length > 0) {
     const segments = await Segments.find({ _id: { $in: segmentIds } });
@@ -180,7 +172,6 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     }
   }
 
-  const Users = await _Users();
   const user = await Users.findOne({ _id: fromUserId });
 
   if (!user) {
@@ -220,7 +211,6 @@ const sendEmailOrSms = async (
   action: 'sendEngage' | 'sendEngageSms'
 ) => {
   const engageMessageId = engageMessage._id;
-  const Customers = await _Customers();
 
   const MINUTELY =
     engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
@@ -370,10 +360,10 @@ const sendEmailOrSms = async (
     fieldsOption[field] = 1;
   }
 
-  const customersStream = (Customers.find(
+  const customersStream = (Customers.find({
     customersSelector,
     fieldsOption
-  ) as any).stream();
+  }) as any).stream();
 
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
@@ -440,8 +430,6 @@ export const findElk = async (index, query) => {
 
 // find user from elastic or mongo
 export const findUser = async (userId: string) => {
-  const Users = await _Users();
-
   if (!isUsingElk()) {
     return await Users.findOne({ _id: userId });
   }
@@ -465,8 +453,6 @@ export const checkCustomerExists = async (
   tagIds?: string[],
   brandIds?: string[]
 ) => {
-  const Customers = await _Customers();
-
   if (!isUsingElk()) {
     const customersSelector = {
       _id: id,

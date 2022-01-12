@@ -1,22 +1,11 @@
 import { Document, Schema } from 'mongoose';
-import { ICustomField } from '@erxes/common-types/src/common';
+import { customFieldSchema, ICustomField } from '@erxes/api-utils/src/definitions/common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_SELECT_OPTIONS,
   CONVERSATION_STATUSES
 } from './constants';
 import { field } from './utils';
-
-const customFieldSchema = new Schema(
-  {
-    field: field({ type: String }),
-    value: field({ type: Schema.Types.Mixed }),
-    stringValue: field({ type: String, optional: true }),
-    numberValue: field({ type: Number, optional: true }),
-    dateValue: field({ type: Date, optional: true })
-  },
-  { _id: false }
-);
 
 export interface IConversation {
   skillId?: string;
