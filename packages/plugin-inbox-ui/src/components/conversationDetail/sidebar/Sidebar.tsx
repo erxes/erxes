@@ -55,14 +55,14 @@ const PortableTickets = asyncComponent(() =>
 
 const Contacts = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-Contacts" */ '@erxes/ui/src/companies/components/detail/Contacts'
+    /* webpackChunkName:"Inbox-Sidebar-Contacts" */ '@erxes/ui-contacts/src/companies/components/detail/Contacts'
   )
 );
 
 const DetailInfo = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui/src/customers/components/common/DetailInfo'
+      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui-contacts/src/customers/components/common/DetailInfo'
     ),
   { isBox: true }
 );
@@ -70,27 +70,27 @@ const DetailInfo = asyncComponent(
 const InfoSection = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui/src/customers/components/common/InfoSection'
+      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui-contacts/src/customers/components/common/InfoSection'
     ),
   { withImage: true }
 );
 
 const DevicePropertiesSection = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ '@erxes/ui/src/customers/components/common/DevicePropertiesSection'
+    /* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ '@erxes/ui-contacts/src/customers/components/common/DevicePropertiesSection'
   )
 );
 
 const TrackedDataSection = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ '@erxes/ui/src/customers/components/common/TrackedDataSection'
+    /* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ '@erxes/ui-contacts/src/customers/components/common/TrackedDataSection'
   )
 );
 
 const TaggerSection = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ '@erxes/ui/src/customers/components/common/TaggerSection'
+      /* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ '@erxes/ui-contacts/src/customers/components/common/TaggerSection'
     ),
   { height: '200px', width: '100%', color: '#fff' }
 );
