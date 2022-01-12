@@ -8,6 +8,7 @@ import ChannelMutations from './channelMutations';
 import IntegrationMutations from './integrationMutations';
 import ResponseTempateMutations from './responseTempateMutations';
 import MessengerAppMutations from './messengerAppMutations';
+import WidgetMutations from './widgetMutations';
 import { skillTypesMutations, skillsMutations } from './skillMutations';
 import { skillTypesQueries, skillQueries } from './skillQueries';
 import Conversation from './conversation';
@@ -28,6 +29,7 @@ const resolvers: any = {
     ...ResponseTempateMutations,
     ...skillTypesMutations,
     ...skillsMutations,
+    ...WidgetMutations,
     ...MessengerAppMutations
   },
   Query: {

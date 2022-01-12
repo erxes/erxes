@@ -142,3 +142,7 @@ export const INTEGRATION_NAMES_MAP = {
 
   telnyx: 'SMS by Telnyx'
 };
+
+export const BOT_MESSAGE_TYPES = {
+    SAY_SOMETHING: 'say_something'
+};
