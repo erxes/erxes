@@ -190,6 +190,97 @@ const automationConfigPrievewCount = `
   }
 `;
 
+export const commonFields = `
+  brandId
+  name
+  kind
+  code
+  brand {
+    _id
+    name
+    code
+  }
+  channels {
+    _id
+    name
+  }
+  languageCode
+  leadData
+  formId
+  tags {
+    _id
+    name
+    colorCode
+  }
+  tagIds
+  form {
+    _id
+    title
+    code
+    description
+    type
+    buttonText
+    numberOfPages
+    createdDate
+    createdUserId
+    createdUser {
+      _id
+      details {
+        avatar
+        fullName
+        position
+      }
+    }
+  }
+  isActive
+`;
+
+const integrations = `
+  query leadIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String, $brandId: String, $status: String, $sortField: String, $sortDirection: Int) {
+    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag, brandId: $brandId, status: $status, sortField: $sortField, sortDirection: $sortDirection) {
+      _id
+      ${commonFields}
+    }
+  }
+`;
+
+const fieldsCombinedByContentType = `
+  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $pipelineId: String, $formId: String) {
+    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames, segmentId: $segmentId, pipelineId: $pipelineId, formId: $formId)
+  }
+`;
+
+const fields = `
+  query fields($contentType: String!, $contentTypeId: String) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      type
+      validation
+      text
+      content
+      description
+      options
+      isRequired
+      order
+      column
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
+      associatedFieldId
+      associatedField {
+        _id
+        text
+        contentType
+      }
+      pageNumber
+    }
+  }
+`;
+
 export default {
   automations,
   automationsMain,
@@ -197,5 +288,8 @@ export default {
   automationNotes,
   automationHistories,
   automationsTotalCount,
-  automationConfigPrievewCount
+  automationConfigPrievewCount,
+  integrations,
+  fieldsCombinedByContentType,
+  fields
 };

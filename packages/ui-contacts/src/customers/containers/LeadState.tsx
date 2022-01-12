@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { __, Alert } from '@erxes/ui/src/utils';
 import { confirm } from '@erxes/ui/src/utils';
-import LeadState from '../components/detail/LeadState';
+import LeadState from '../components/LeadState';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations } from '@erxes/ui/src/customers/graphql';
