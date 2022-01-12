@@ -23,6 +23,9 @@ export const sendRPCMessage = async (message): Promise<any> => {
   return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
 };
 
+export const sendToLog = (channel: string, data) =>
+  messageBroker().sendMessage(channel, data);
+
 export default function() {
   return client;
 }

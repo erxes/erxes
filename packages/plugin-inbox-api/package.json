@@ -28,6 +28,7 @@
     "dataloader": "^2.0.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
+    "elasticsearch": "^16.7.2",
     "erxes-inmemory-storage": "^1.0.20",
     "erxes-message-broker": "^1.0.27",
     "express": "^4.17.2",
@@ -35,12 +36,14 @@
     "graphql": "^15.8.0",
     "meteor-random": "^0.0.3",
     "moment-timezone": "^0.5.28",
+    "mongo-uri": "^0.1.2",
     "mongoose": "5.7.5",
     "nodemailer": "^6.2.1",
     "redis": "^2.8.0",
     "requestify": "^0.2.5",
     "sift": "^13.5.0",
     "ts-node": "^8.0.3",
+    "uuid-by-string": "^3.0.5",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {

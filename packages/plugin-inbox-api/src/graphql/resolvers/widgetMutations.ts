@@ -41,8 +41,6 @@ import { debugError } from '../../debuggers';
 import { get, set } from '../../inmemoryStorage';
 import graphqlPubsub from '../../pubsub';
 
-// import { sendToLog } from '../../logUtils';
-
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../models/definitions/constants';
 
 import { IContext, sendRequest } from '@erxes/api-utils';
@@ -60,6 +58,8 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
+import { sendToLog } from '../../messageBroker';
+import { trackViewPageEvent } from '../../events';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
 // import EditorAttributeUtil from '../../editorAttributeUtils';
@@ -128,7 +128,7 @@ const createVisitor = async (visitorId: string) => {
     visitorId
   });
 
-//   sendToLog('visitor:convertRequest', { visitorId });
+  sendToLog('visitor:convertRequest', { visitorId });
 
   return customer;
 };
@@ -382,11 +382,11 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-//       sendToLog('visitor:createOrUpdate', {
-//         visitorId,
-//         integrationId: integration._id,
-//         scopeBrandIds: [brand._id]
-//       });
+      sendToLog('visitor:createOrUpdate', {
+        visitorId,
+        integrationId: integration._id,
+        scopeBrandIds: [brand._id]
+      });
     }
 
     // get or create company
@@ -771,22 +771,22 @@ const widgetMutations = {
       await Customers.updateSession(customer._id);
     }
 
-//     if (visitorId) {
-//       sendToLog('visitor:updateEntry', { visitorId, location: browserInfo });
-//     }
+    if (visitorId) {
+      sendToLog('visitor:updateEntry', { visitorId, location: browserInfo });
+    }
 
-//     try {
-//       await trackViewPageEvent({
-//         visitorId,
-//         customerId,
-//         attributes: { url: browserInfo.url }
-//       });
-//     } catch (e) {
-//       /* istanbul ignore next */
-//       debugError(
-//         `Error occurred during widgets save browser info ${e.message}`
-//       );
-//     }
+    try {
+      await trackViewPageEvent({
+        visitorId,
+        customerId,
+        attributes: { url: browserInfo.url }
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      debugError(
+        `Error occurred during widgets save browser info ${e.message}`
+      );
+    }
 
     return null;
   },

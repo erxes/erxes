@@ -4,7 +4,7 @@ import { Tags, Segments } from './apiCollections';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
-// import { fetchElk } from '../../../elasticsearch';
+import { fetchElk } from './elasticsearch';
 
 import { getDocumentList } from './cacheUtils';
 import { IListArgs } from './conversationQueryBuilder';
@@ -460,14 +460,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     };
 
-    // const response = await fetchElk({
-    //   action: 'count',
-    //   index: 'conversations',
-    //   body: queryOptions,
-    //   defaultValue: 0
-    // });
+    const response = await fetchElk({
+      action: 'count',
+      index: 'conversations',
+      body: queryOptions,
+      defaultValue: 0
+    });
 
-    // return response.count;
-    return 0;
+    return response.count;
   }
 }

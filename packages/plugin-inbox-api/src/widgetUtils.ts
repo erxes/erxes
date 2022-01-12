@@ -22,11 +22,11 @@ import { KIND_CHOICES } from "./models/definitions/constants";
 
 import { debugBase, debugError } from "./debuggers";
 
-// import { client, fetchElk, getIndexPrefix } from "../elasticsearch";
-
-// import { getDbSchemaLabels, sendToLog } from "./logUtils";
+// import { getDbSchemaLabels } from "./logUtils";
 
 import { getDocument } from "./cacheUtils";
+import { client, getIndexPrefix } from "./elasticsearch";
+import { sendToLog } from "./messageBroker";
 
 // import { findCompany, findCustomer } from "./utils";
 
@@ -72,45 +72,45 @@ export const getOrCreateEngageMessage = async (
   return ConversationMessages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
-// export const receiveVisitorDetail = async (visitor) => {
-//   const { visitorId } = visitor;
+export const receiveVisitorDetail = async (visitor) => {
+  const { visitorId } = visitor;
 
-//   delete visitor.visitorId;
-//   delete visitor._id;
+  delete visitor.visitorId;
+  delete visitor._id;
 
-//   const customer = await Customers.update({ visitorId }, { $set: visitor });
+  const customer = await Customers.update({ visitorId }, { $set: visitor });
 
-//   const index = `${getIndexPrefix()}events`;
+  const index = `${getIndexPrefix()}events`;
 
-//   try {
-//     const response = await client.updateByQuery({
-//       index,
-//       body: {
-//         script: {
-//           lang: "painless",
-//           source:
-//             "ctx._source.visitorId = null; ctx._source.customerId = params.customerId",
-//           params: {
-//             customerId: customer._id,
-//           },
-//         },
-//         query: {
-//           term: {
-//             visitorId,
-//           },
-//         },
-//       },
-//     });
+  try {
+    const response = await client.updateByQuery({
+      index,
+      body: {
+        script: {
+          lang: "painless",
+          source:
+            "ctx._source.visitorId = null; ctx._source.customerId = params.customerId",
+          params: {
+            customerId: customer._id,
+          },
+        },
+        query: {
+          term: {
+            visitorId,
+          },
+        },
+      },
+    });
 
-//     debugBase(`Response ${JSON.stringify(response)}`);
-//   } catch (e) {
-//     debugError(`Update event error ${e.message}`);
-//   }
+    debugBase(`Response ${JSON.stringify(response)}`);
+  } catch (e) {
+    debugError(`Update event error ${e.message}`);
+  }
 
-//   sendToLog("visitor:removeEntry", { visitorId });
+  sendToLog("visitor:removeEntry", { visitorId });
 
-//   return customer;
-// };
+  return customer;
+};
 
 const getSocialLinkKey = (type: string) => {
   return type.substring(type.indexOf("_") + 1);
