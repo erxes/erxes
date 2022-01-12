@@ -1,4 +1,4 @@
-import { Actions } from 'erxes-ui/lib/styles/main';
+import { Actions, BoxRoot } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import styled, { css } from 'styled-components';
@@ -10,6 +10,31 @@ const Info = styled.div`
 
   > span {
     font-weight: normal;
+  }
+`;
+
+const Box = styled(BoxRoot)`
+  flex: 1;
+  padding: ${dimensions.unitSpacing * 1.5}px;
+  text-align: left;
+  background: ${colors.colorWhite};
+  margin: 10px 10px 0 0;
+
+  b {
+    font-size: 26px;
+    text-transform: uppercase;
+    color: ${colors.colorCoreLightGray};
+    line-height: 30px;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.textSecondary};
+  }
+
+  &:last-of-type {
+    margin-right: 0;
   }
 `;
 
@@ -307,5 +332,6 @@ export {
   CustomerState,
   UserHeader,
   MailBox,
-  States
+  States,
+  Box
 };

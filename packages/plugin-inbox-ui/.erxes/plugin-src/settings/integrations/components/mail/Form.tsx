@@ -11,7 +11,7 @@ import {
   IRouterProps
 } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import SelectBrand from '../../containers/SelectBrand';

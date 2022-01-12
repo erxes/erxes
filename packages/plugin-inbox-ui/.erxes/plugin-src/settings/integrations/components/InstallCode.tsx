@@ -10,6 +10,7 @@ import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
 import { Script } from '../styles';
+import { IBrand } from '@erxes/ui/src/brands/types';
 
 type Props = {
   integration: IIntegration;
@@ -160,11 +161,11 @@ class InstallCode extends React.PureComponent<Props, State> {
     let swift = '';
     let objc = '';
     let android = '';
-    const integration = props.integration || {};
+    const integration = props.integration || ({} as IIntegration);
 
     // showed install code automatically in edit mode
     if (integration._id) {
-      const brand = integration.brand || {};
+      const brand = integration.brand || ({} as IBrand);
 
       basicCode = getInstallCode(brand.code);
       singlePageCode = singlePageInstall(brand.code);
@@ -200,7 +201,7 @@ class InstallCode extends React.PureComponent<Props, State> {
 
   onSimulate = () => {
     const { REACT_APP_CDN_HOST } = getEnv();
-    const brand = this.props.integration.brand || {};
+    const brand = this.props.integration.brand || ({} as IBrand);
 
     window.open(
       `${REACT_APP_CDN_HOST}/test?type=messenger&brand_id=${brand.code}`,
@@ -406,7 +407,7 @@ class InstallCode extends React.PureComponent<Props, State> {
 
     return (
       <MarkdownWrapper>
-        <ReactMarkdown source={code} />
+        <ReactMarkdown children={code} />
         {code ? (
           <CopyToClipboard
             text={code}

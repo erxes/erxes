@@ -106,7 +106,7 @@ class MailForm extends React.Component<Props, State> {
     const cc = replyAll ? formatObj(mailData.cc || []) : '';
     const bcc = replyAll ? formatObj(mailData.bcc || []) : '';
 
-    const [from] = mailData.from || [{}];
+    const [from] = mailData.from || ([] as any);
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
     const fromId = this.getIntegrationId(
@@ -618,7 +618,7 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderFromValue = () => {
-    const { integrations = [], integrationId } = this.props;
+    const { integrations = [] as any, integrationId } = this.props;
 
     if (integrationId && integrationId.length > 0) {
       const integration = integrations.find(obj => obj._id === integrationId);

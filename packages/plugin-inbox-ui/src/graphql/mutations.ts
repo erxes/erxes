@@ -122,6 +122,15 @@ const editCustomFields = `
   }
 `;
 
+const createVideoChatRoom = `
+  mutation conversationCreateVideoChatRoom($_id: String!) {
+    conversationCreateVideoChatRoom(_id: $_id) {
+      url
+      name
+    }
+  }
+`;
+
 export default {
   conversationsReplyFacebookComment,
   conversationMessageAdd,
@@ -132,5 +141,6 @@ export default {
   markAsRead,
   conversationsChangeStatusFacebookComment,
   resolveAll,
-  editCustomFields
+  editCustomFields,
+  createVideoChatRoom
 };

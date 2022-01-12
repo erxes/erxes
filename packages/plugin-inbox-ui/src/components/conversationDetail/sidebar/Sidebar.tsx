@@ -30,28 +30,28 @@ const CustomFieldsSection = asyncComponent(
 const ConversationCustomFieldsSection = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-ConversationCustomFieldsSection" */ '@erxes/ui/src/inbox/containers/conversationDetail/ConversationCustomFieldsSection'
+      /* webpackChunkName:"Inbox-Sidebar-ConversationCustomFieldsSection" */ '../../../containers/conversationDetail/ConversationCustomFieldsSection'
     ),
   { height: '200px', width: '100%', color: '#fff' }
 );
 
-const PortableDeals = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ '@erxes/ui/src/deals/components/PortableDeals'
-  )
-);
+// const PortableDeals = asyncComponent(() =>
+//   import(
+//     /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ '@erxes/ui/src/deals/components/PortableDeals'
+//   )
+// );
 
-const PortableTasks = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ '@erxes/ui/src/tasks/components/PortableTasks'
-  )
-);
+// const PortableTasks = asyncComponent(() =>
+//   import(
+//     /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ '@erxes/ui/src/tasks/components/PortableTasks'
+//   )
+// );
 
-const PortableTickets = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui/src/tickets/components/PortableTickets'
-  )
-);
+// const PortableTickets = asyncComponent(() =>
+//   import(
+//     /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui/src/tickets/components/PortableTickets'
+//   )
+// );
 
 const Contacts = asyncComponent(() =>
   import(
@@ -252,9 +252,9 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <PortableDeals mainType='customer' mainTypeId={customer._id} />
+        {/* <PortableDeals mainType='customer' mainTypeId={customer._id} />
         <PortableTickets mainType='customer' mainTypeId={customer._id} />
-        <PortableTasks mainType='customer' mainTypeId={customer._id} />
+        <PortableTasks mainType='customer' mainTypeId={customer._id} /> */}
       </>
     );
   }

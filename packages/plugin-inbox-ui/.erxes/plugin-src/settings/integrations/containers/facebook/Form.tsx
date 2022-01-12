@@ -1,4 +1,4 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
