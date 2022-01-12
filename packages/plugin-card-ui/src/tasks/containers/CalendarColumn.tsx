@@ -8,7 +8,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
 import CalendarColumn from '../components/CalendarColumn';
 import React from 'react';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-cards/src/tasks/graphql';
 import { TasksQueryResponse, TasksTotalCountQueryResponse } from '../types';
 
 type FinalProps = ColumnProps & {

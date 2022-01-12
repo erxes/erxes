@@ -3,7 +3,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import * as React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import { IDeal } from '../../../types';
+import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import { BodyRow, StageName } from '../style';
 import DealList from './DealList';
 

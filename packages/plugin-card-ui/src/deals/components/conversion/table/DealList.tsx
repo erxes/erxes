@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import { IDeal } from '../../../types';
+import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import * as React from 'react';
 import { CenterButton, Deals, SubHead } from '../style';
 import DealItem from './DealItem';

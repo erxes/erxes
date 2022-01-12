@@ -10,9 +10,9 @@ import { IDateColumn } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import styled from 'styled-components';
-import options from '../options';
-import { IDeal, IDealTotalAmount } from '../types';
-import Deal from './DealItem';
+import options from '@erxes/ui-cards/src/deals/options';
+import { IDeal, IDealTotalAmount } from '@erxes/ui-cards/src/deals/types';
+import Deal from '@erxes/ui-cards/src/deals/components/DealItem';
 
 type Props = {
   deals: IDeal[];

@@ -1,7 +1,7 @@
 import { renderAmount } from '@erxes/ui-cards/src/boards/utils';
 import Tip from '@erxes/ui/src/components/Tip';
 import { getUserAvatar } from '@erxes/ui/src/utils';
-import { IDeal } from '../../../types';
+import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import * as React from 'react';
 import { BodyRow } from '../style';
 

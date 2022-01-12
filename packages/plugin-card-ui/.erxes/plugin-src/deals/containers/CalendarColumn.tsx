@@ -14,12 +14,12 @@ import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
 import CalendarColumn from '../components/CalendarColumn';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-cards/src/deals/graphql';
 import {
   DealsQueryResponse,
   DealsTotalAmountsQueryResponse,
   DealsTotalCountQueryResponse
-} from '../types';
+} from '@erxes/ui-cards/src/deals/types';
 
 type FinalProps = ColumnProps & {
   dealsQuery: DealsQueryResponse;
