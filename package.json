@@ -54,6 +54,6 @@
   },
   "dependencies": {
     "fs-extra": "^9.0.1",
-    "mongodb": "^4.2.2"
+    "mongodb": "3.7.3"
   }
 }
