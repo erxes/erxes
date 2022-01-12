@@ -24,7 +24,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
 };
 
 export const sendToLog = (channel: string, data) =>
-  messageBroker().sendMessage(channel, data);
+  client.sendMessage(channel, data);
 
 export default function() {
   return client;
