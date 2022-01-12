@@ -24,6 +24,18 @@ import {
   mutations as IntegrationMutations
 } from './integrationTypeDefs';
 
+import {
+  types as ResponseTemplateTypes,
+  queries as ResponseTemplateQueries,
+  mutations as ResponseTemplateMutations
+} from './responseTemplateTypeDefs';
+
+import {
+  types as WidgetTypes,
+  queries as WidgetQueries,
+  mutations as WidgetMutations
+} from './widgetTypeDefs';
+
 const typeDefs = gql`
   scalar JSON
   scalar Date
@@ -32,12 +44,17 @@ const typeDefs = gql`
   ${MessengerAppTypes}
   ${ChannelTypes}
   ${IntegrationTypes}
+  ${ResponseTemplateTypes}
+  ${WidgetTypes}
+  
   
   extend type Query {
     ${ConversationQueries}
     ${MessengerAppQueries}
     ${ChannelQueries}
     ${IntegrationQueries}
+    ${ResponseTemplateQueries}
+    ${WidgetQueries}
   }
 
   extend type Mutation {
@@ -45,6 +62,8 @@ const typeDefs = gql`
     ${MessengerAppMutations}
     ${ChannelMutations}
     ${IntegrationMutations}
+    ${ResponseTemplateMutations}
+    ${WidgetMutations}
   }
 `;
 
