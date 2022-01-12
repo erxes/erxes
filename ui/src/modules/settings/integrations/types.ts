@@ -413,3 +413,10 @@ export type SendSmsMutationVariables = {
 export type SendSmsMutationResponse = ({
   variables: SendSmsMutationVariables
 }) => Promise<any>;
+
+export interface IIntegrationWithPhone {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+  isActive: boolean;
+}

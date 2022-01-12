@@ -5,7 +5,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import BrandFilter from '@erxes/ui/src/customers/components/list/BrandFilter';
+import BrandFilter from '@erxes/ui/src/brands/components/BrandFilter';
 import { queries as customerQueries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 

@@ -1,3 +1,4 @@
+import { QueryResponse } from '@erxes/ui/src/types';
 export interface ICalendar {
   _id: string;
   object: 'calendar';
@@ -63,3 +64,31 @@ export interface IAccount {
 
   calendars: INylasCalendar[];
 }
+
+export interface IGroup {
+  _id: string;
+  name: string;
+  isPrivate: boolean;
+  boardId: string;
+  memberIds: string[];
+  calendars: ICalendar[];
+}
+export interface IBoard {
+  _id: string;
+  name: string;
+  groups: IGroup[];
+}
+
+export type BoardGetLastQueryResponse = {
+  calendarBoardGetLast: IBoard;
+  loading: boolean;
+};
+
+export type BoardsQueryResponse = {
+  calendarBoards: IBoard[];
+} & QueryResponse;
+
+export type BoardDetailQueryResponse = {
+  calendarBoardDetail: IBoard;
+  loading: boolean;
+};

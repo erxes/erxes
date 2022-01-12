@@ -5,15 +5,15 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
-import CompaniesMerge from '@erxes/ui/src/companies/components/detail/CompaniesMerge';
+// import CompaniesMerge from '@erxes/ui/src/companies/components/detail/CompaniesMerge';
 import CompanyForm from '@erxes/ui/src/companies/containers/CompanyForm';
 import { ICompany } from '@erxes/ui/src/companies/types';
-import TargetMerge from '@erxes/ui/src/customers/components/TargetMerge';
-import CustomersMerge from '@erxes/ui/src/customers/components/detail/CustomersMerge';
+// import TargetMerge from '@erxes/ui/src/customers/components/TargetMerge';
+// import CustomersMerge from '@erxes/ui/src/customers/components/detail/CustomersMerge';
 import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
 import { Actions, MailBox, States } from '@erxes/ui/src/customers/styles';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { Box } from '@erxes/ui-settings/src/growthHacks/styles';
+import { Box } from '../styles';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
 import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
 import React from 'react';
@@ -249,7 +249,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
         <Dropdown.Menu>
           {this.renderEditButton()}
           <li>
-            <TargetMerge
+            {/* <TargetMerge
               onSave={merge}
               object={coc}
               searchObject={search}
@@ -259,7 +259,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
               generateOptions={
                 cocType === 'customer' ? generateOptions : targetMergeOptions
               }
-            />
+            /> */}
           </li>
           <li>
             <a href='#delete' onClick={onClick}>

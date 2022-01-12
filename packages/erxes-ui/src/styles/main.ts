@@ -425,5 +425,5 @@ export {
   LinkButton,
   FlexCenter,
   EllipsisContent,
-  CustomerName,
+  CustomerName
 };
