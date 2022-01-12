@@ -2,6 +2,9 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
+import { ICategory } from '@erxes/ui/src/utils/categories';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { QueryResponse } from '@erxes/ui-settings/src/common/types';
 
 export interface IEmail {
   name?: string;
@@ -137,3 +140,22 @@ export interface IMessage {
   updatedAt: Date;
   bookingWidgetData?: any;
 }
+export interface ITopic {
+  _id: string;
+  title: string;
+  description: string;
+  categories: ICategory[];
+  brand: IBrand;
+  color: string;
+  backgroundImage: string;
+  languageCode: string;
+  createdBy: string;
+  createdDate: Date;
+  modifiedBy: string;
+  modifiedDate: Date;
+  parentCategories: ICategory[];
+}
+
+export type TopicsQueryResponse = {
+  knowledgeBaseTopics: ITopic[];
+} & QueryResponse;
