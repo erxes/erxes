@@ -2,7 +2,8 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
-
+import styledTS from 'styled-components-ts';
+import { Contents, MainContent } from '@erxes/ui/src/layout/styles';
 
 // modules/boards/styles/header in *styles.ts
 export const PageHeader = styled.div`
@@ -100,4 +101,81 @@ const Create = styled.div`
   }
 `;
 
-export { Title, RightActions, Dashboards, Create, Header };
+const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
+  position: relative;
+  z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  transition: all 0.3s ease;
+  width: 0;
+
+  * {
+    padding: 0;
+    margin-left: ${dimensions.unitSpacing}px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+`;
+
+const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+  position: relative;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${props => props.isActive && colors.bgActive};
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+  a {
+    white-space: normal;
+    flex: 1;
+    padding: 10px 0 10px 20px;
+    font-weight: 500;
+    &:hover {
+      background: none;
+    }
+    &:focus {
+      color: inherit;
+      text-decoration: none;
+    }
+    > span {
+      color: #666;
+      font-weight: normal;
+    }
+  }
+  &:last-child {
+    border: none;
+  }
+  &:hover {
+    cursor: pointer;
+    background: ${props => !props.isActive && colors.bgLight};
+    ${ActionButtons} {
+      width: 35px;
+    }
+  }
+`;
+
+export const BoardContainer = styled(Contents)`
+  margin: 0;
+  position: unset;
+  > div {
+    padding-left: 20px;
+  }
+`;
+
+export const BoardContent = styledTS<{
+  bgColor?: string;
+  transparent?: boolean;
+}>(styled(MainContent))`
+  margin: 0;
+  background-color: ${({ bgColor, transparent }) =>
+    transparent ? 'transparent' : bgColor || colors.colorSecondary};
+`;
+
+export { Title, RightActions, Dashboards, Create, Header, SelectMemberStyled, ActionButtons, SidebarListItem };
