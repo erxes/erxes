@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { ApolloProvider } from "react-apollo";
-import apolloClient from "erxes-ui/lib/apolloClient";
+import apolloClient from "@erxes/ui/src/apolloClient";
 import Main from '../plugin-src';
 
 const App = () => {

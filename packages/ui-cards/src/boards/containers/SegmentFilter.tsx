@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Segments from '@erxes/ui-segments/src/containers/Filter';
+import SegmentsAA from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
@@ -16,7 +16,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
   const counts = itemsCountBySegmentsQuery.itemsCountBySegments || [];
 
   return (
-    <Segments
+    <SegmentsAA
       contentType={type}
       boardId={boardId}
       pipelineId={pipelineId}

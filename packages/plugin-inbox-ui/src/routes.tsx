@@ -22,6 +22,7 @@ const inbox = (props: IRouterProps) => {
 };
 
 const routes = () => {
+  console.log('hhhhh')
   return (
     <React.Fragment>
       <Route exact={true} path='/' key='root' render={index} />
