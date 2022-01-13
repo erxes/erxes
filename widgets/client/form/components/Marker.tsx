@@ -5,13 +5,13 @@ type Props = {
   color?: string;
   lat: number;
   lng: number;
-  description?: string;
+  description?: any;
   onChange?: (selectedOption: ILocationOption) => void;
   selectedOption?: ILocationOption;
 };
 
 class Marker extends React.Component<Props> {
-  onClick = (e: any) => {
+  onClick = () => {
     const { lat, lng, description, onChange } = this.props;
     if (onChange) {
       onChange({ lat, lng, description });

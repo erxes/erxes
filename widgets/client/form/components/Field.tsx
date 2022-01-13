@@ -9,7 +9,7 @@ import {
 import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
 import MSFmultiSelect from '../multipleSelectScript';
 import GoogleMapReact from 'google-map-react';
-import { getEnv } from '../../utils';
+import { getEnv, __ } from '../../utils';
 import Marker from './Marker';
 
 const { GOOGLE_MAP_API_KEY } = getEnv();
@@ -33,6 +33,8 @@ type State = {
   dateTimeValue: Date | string;
   isAttachingFile?: boolean;
   multipleSelectValues?: string[];
+  isMapDraggable: boolean;
+  currentLocation: ILocationOption;
 };
 
 export default class Field extends React.Component<Props, State> {
@@ -128,10 +130,19 @@ export default class Field extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    let isMapDraggable = true;
+    const { locationOptions = [] } = props.field;
+
+    if (locationOptions.length > 0) {
+      isMapDraggable = false;
+    }
+
     this.state = {
       dateValue: '',
       dateTimeValue: '',
-      multipleSelectValues: []
+      multipleSelectValues: [],
+      isMapDraggable,
+      currentLocation: props.currentLocation || { lat: 0.0, lng: 0.0 }
     };
   }
 
@@ -353,7 +364,7 @@ export default class Field extends React.Component<Props, State> {
 
   renderMap(field: IField, selectedValue?: FieldValue) {
     const locationOptions: ILocationOption[] = field.locationOptions || [];
-    const { currentLocation = { lat: 0.0, lng: 0.0 } } = this.props;
+    const { currentLocation } = this.state;
     let center = currentLocation;
 
     if (selectedValue) {
@@ -362,11 +373,38 @@ export default class Field extends React.Component<Props, State> {
       center = { lat: locationOption.lat, lng: locationOption.lng };
     }
 
+    const onMarkerInteraction = (
+      _childKey: any,
+      _childProps: any,
+      mouse: any
+    ) => {
+      this.setState({
+        isMapDraggable: false,
+        currentLocation: { lat: mouse.lat, lng: mouse.lng }
+      });
+    };
+
+    const onMarkerInteractionMouseUp = (
+      _childKey: any,
+      _childProps: any,
+      mouse: any
+    ) => {
+      const location = { lat: mouse.lat, lng: mouse.lng };
+
+      this.setState({
+        currentLocation: location,
+        isMapDraggable: true
+      });
+
+      this.onLocationChange(location);
+    };
+
     return (
       <div style={{ height: '250px', width: '100%' }}>
         <GoogleMapReact
           bootstrapURLKeys={{ key: GOOGLE_MAP_API_KEY }}
-          defaultCenter={{
+          draggable={this.state.isMapDraggable}
+          center={{
             lat: center.lat,
             lng: center.lng
           }}
@@ -383,19 +421,31 @@ export default class Field extends React.Component<Props, State> {
               position: 1
             }
           }}
+          onChildMouseDown={onMarkerInteraction}
+          onChildMouseUp={onMarkerInteractionMouseUp}
+          onChildMouseMove={onMarkerInteraction}
           yesIWantToUseGoogleMapApiInternals={true}
         >
-          {locationOptions.map((option, index) => (
+          {locationOptions.length > 0 ? (
+            locationOptions.map((option, index) => (
+              <Marker
+                color={this.props.color}
+                key={index}
+                lat={option.lat}
+                lng={option.lng}
+                description={option.description || ''}
+                onChange={this.onLocationChange}
+                selectedOption={selectedValue as ILocationOption}
+              />
+            ))
+          ) : (
             <Marker
               color={this.props.color}
-              key={index}
-              lat={option.lat}
-              lng={option.lng}
-              description={option.description || ''}
-              onChange={this.onLocationChange}
-              selectedOption={selectedValue as ILocationOption}
+              lat={center.lat}
+              lng={center.lng}
+              description={__('Select your location')}
             />
-          ))}
+          )}
         </GoogleMapReact>
       </div>
     );
