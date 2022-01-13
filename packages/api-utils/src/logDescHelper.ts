@@ -15,9 +15,7 @@ import {
   IProductDocument,
   IScriptDocument,
   IPipelineTemplateDocument,
-  IUserDocument,
-  IEngageMessageDocument,
-  IEngageMessage
+  IUserDocument
 } from '@erxes/common-types';
 
 import { MODULE_NAMES } from './constants';
@@ -75,6 +73,7 @@ export interface IDescriptionParams {
   obj: any;
   updatedDocument?: any;
   extraParams?: any;
+  newData?: any;
 }
 
 interface IDescriptions {
@@ -134,7 +133,7 @@ const gatherStageFieldNames = async (
  * @param params.prevList Array to save found id with name
  * @param params.nameFields List of values to be mapped to id field
  */
-const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
+export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   const {
     collection,
     idFields,
@@ -168,7 +167,7 @@ const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   return options;
 };
 
-const gatherUsernames = async (params: ILogNameParams): Promise<LogDesc[]> => {
+export const gatherUsernames = async (params: ILogNameParams): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
@@ -345,7 +344,7 @@ export const gatherTagNames = async (
   });
 };
 
-const gatherBrandNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
+export const gatherBrandNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
@@ -575,61 +574,6 @@ const gatherDealFieldNames = async (
       foreignKey: 'productId',
       prevList: options,
       nameFields: ['name']
-    });
-  }
-
-  return options;
-};
-
-const gatherEngageFieldNames = async (
-  doc: IEngageMessageDocument | IEngageMessage,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.segmentIds && doc.segmentIds.length > 0) {
-    options = await gatherNames({
-      collection: Segments,
-      idFields: doc.segmentIds,
-      foreignKey: 'segmentIds',
-      prevList: options,
-      nameFields: ['name']
-    });
-  }
-
-  if (doc.brandIds && doc.brandIds.length > 0) {
-    options = await gatherBrandNames({
-      idFields: doc.brandIds,
-      foreignKey: 'brandIds',
-      prevList: options
-    });
-  }
-
-  if (doc.tagIds && doc.tagIds.length > 0) {
-    options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
-      prevList: options
-    });
-  }
-
-  if (doc.fromUserId) {
-    options = await gatherUsernames({
-      idFields: [doc.fromUserId],
-      foreignKey: 'fromUserId',
-      prevList: options
-    });
-  }
-
-  if (doc.messenger && doc.messenger.brandId) {
-    options = await gatherBrandNames({
-      idFields: [doc.messenger.brandId],
-      foreignKey: 'brandId',
-      prevList: options
     });
   }
 
@@ -1058,15 +1002,6 @@ export const gatherDescriptions = async (
       break;
     case MODULE_NAMES.EMAIL_TEMPLATE:
       description = `"${obj.name}" has been ${action}d`;
-
-      break;
-    case MODULE_NAMES.ENGAGE:
-      description = `"${obj.title}" has been ${action}d`;
-      extraDesc = await gatherEngageFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherEngageFieldNames(updatedDocument, extraDesc);
-      }
 
       break;
     case MODULE_NAMES.GROWTH_HACK:

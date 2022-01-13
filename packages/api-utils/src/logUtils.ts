@@ -1,7 +1,6 @@
 import { IUserDocument } from '@erxes/common-types';
 
 import { RABBITMQ_QUEUES } from './constants';
-import { gatherDescriptions } from './logDescHelper';
 
 export interface ILogDataParams {
   type: string;
@@ -69,8 +68,23 @@ export const LOG_ACTIONS = {
 //   }
 // };
 
+export type LogDesc = {
+  [key: string]: any;
+} & { name: any };
+
+export interface IDescriptionParams {
+  action: string;
+  type: string;
+  obj: any;
+  updatedDocument?: any;
+  extraParams?: any;
+}
+
+export type DescriptionHelper = (params: IDescriptionParams) => { extraDesc: LogDesc[], description: string };
+
 export const putCreateLog = async (
   messageBroker,
+  // descriptionHelper: DescriptionHelper,
   params: ILogDataParams,
   user: IUserDocument
 ) => {
@@ -85,20 +99,11 @@ export const putCreateLog = async (
     targets: [params.object]
   });
 
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.CREATE,
-    type: params.type,
-    obj: params.object,
-    extraParams: params.extraParams,
-  });
-
   return putLog(
     messageBroker,
     {
       ...params,
       action: LOG_ACTIONS.CREATE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description,
     },
     user
   );
@@ -114,21 +119,11 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.UPDATE,
-    type: params.type,
-    obj: params.object,
-    updatedDocument: params.updatedDocument,
-    extraParams: params.extraParams,
-  });
-
   return putLog(
     messageBroker,
     {
       ...params,
       action: LOG_ACTIONS.UPDATE,
-      description: params.description || descriptions.description,
-      extraDesc: descriptions.extraDesc,
     },
     user
   );
@@ -141,23 +136,15 @@ export const putUpdateLog = async (
  */
 export const putDeleteLog = async (
   messageBroker,
+  // descriptionHelper: DescriptionHelper,
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.DELETE,
-    type: params.type,
-    obj: params.object,
-    extraParams: params.extraParams,
-  });
-
   return putLog(
     messageBroker,
     {
       ...params,
-      action: LOG_ACTIONS.DELETE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description,
+      action: LOG_ACTIONS.DELETE
     },
     user
   );
