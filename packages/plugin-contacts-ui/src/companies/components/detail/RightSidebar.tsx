@@ -3,10 +3,10 @@ import Box from '@erxes/ui/src/components/Box';
 import { __ } from '@erxes/ui/src/utils';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import CustomerSection from '../../../customers/components/common/CustomerSection';
-import PortableDeals from 'modules/deals/components/PortableDeals';
+// import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import PortableTasks from 'modules/tasks/components/PortableTasks';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
+// import PortableTasks from 'modules/tasks/components/PortableTasks';
+// import PortableTickets from 'modules/tickets/components/PortableTickets';
 import { pluginsOfCompanySidebar } from '@erxes/ui/src/pluginUtils';
 import React from 'react';
 import { List } from '../../styles';
@@ -35,9 +35,9 @@ export default class RightSidebar extends React.Component<Props> {
     return (
       <Sidebar>
         <CustomerSection mainType="company" mainTypeId={company._id} />
-        <PortableDeals mainType="company" mainTypeId={company._id} />
+        {/* <PortableDeals mainType="company" mainTypeId={company._id} />
         <PortableTickets mainType="company" mainTypeId={company._id} />
-        <PortableTasks mainType="company" mainTypeId={company._id} />
+        <PortableTasks mainType="company" mainTypeId={company._id} /> */}
         {pluginsOfCompanySidebar(company)}
         <Box title={__('Other')} name="showOthers">
           <List>
