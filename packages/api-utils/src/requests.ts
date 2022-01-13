@@ -19,7 +19,7 @@ export interface IRequestParams {
 
 const initFirebase = async (models): Promise<void> => {
   const config = await models.Configs.findOne({
-    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
   });
 
   if (!config) {
@@ -33,7 +33,7 @@ const initFirebase = async (models): Promise<void> => {
 
     if (serviceAccount.private_key) {
       await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
+        credential: admin.credential.cert(serviceAccount)
       });
     }
   }
@@ -60,7 +60,7 @@ export const sendRequest = async (
       headers: { 'Content-Type': 'application/json', ...(headers || {}) },
       form,
       body,
-      params,
+      params
     });
 
     const responseBody = response.getBody();
@@ -110,7 +110,7 @@ export const sendNotification = async (
     notifType,
     action,
     contentType,
-    contentTypeId,
+    contentTypeId
   } = doc;
   let link = doc.link;
 
@@ -120,7 +120,7 @@ export const sendNotification = async (
   // collecting emails
   const recipients = await models.Users.find({
     _id: { $in: receiverIds },
-    isActive: true,
+    isActive: true
   });
 
   // collect recipient emails
@@ -145,7 +145,7 @@ export const sendNotification = async (
           receiver: receiverId,
           action,
           contentType,
-          contentTypeId,
+          contentTypeId
         },
         createdUser._id
       );
@@ -155,8 +155,8 @@ export const sendNotification = async (
           _id: notification._id,
           userId: receiverId,
           title: notification.title,
-          content: notification.content,
-        },
+          content: notification.content
+        }
       });
     } catch (e) {
       // Any other error is serious
@@ -172,7 +172,7 @@ export const sendNotification = async (
 
   // for controlling email template data filling
   const modifier = (data: any, email: string) => {
-    const user = recipients.find((item) => item.email === email);
+    const user = recipients.find(item => item.email === email);
 
     if (user) {
       data.uid = user._id;
@@ -187,10 +187,10 @@ export const sendNotification = async (
       data: {
         notification: { ...doc, link },
         action,
-        userName: getUserDetail(createdUser),
-      },
+        userName: getUserDetail(createdUser)
+      }
     },
-    modifier,
+    modifier
   });
 
   return true;
@@ -210,7 +210,7 @@ export const sendMobileNotification = async (
     title,
     body,
     customerId,
-    conversationId,
+    conversationId
   }: {
     receivers: string[];
     customerId?: string;
@@ -249,7 +249,7 @@ export const sendMobileNotification = async (
         await transporter.send({
           token,
           notification: { title, body },
-          data: { conversationId: conversationId || '' },
+          data: { conversationId: conversationId || '' }
         });
       } catch (e) {
         throw new Error(e);
@@ -263,7 +263,7 @@ export const sendToWebhook = async (
   { action, type, params }: { action: string; type: string; params: any }
 ) => {
   const webhooks = await models.Webhooks.find({
-    actions: { $elemMatch: { action, type } },
+    actions: { $elemMatch: { action, type } }
   });
 
   if (!webhooks) {
@@ -291,7 +291,7 @@ export const sendToWebhook = async (
     sendRequest({
       url: webhook.url,
       headers: {
-        'Erxes-token': webhook.token || '',
+        'Erxes-token': webhook.token || ''
       },
       method: 'post',
       body: {
@@ -300,8 +300,8 @@ export const sendToWebhook = async (
         content,
         url,
         action,
-        type,
-      },
+        type
+      }
     })
       .then(async () => {
         await models.Webhooks.updateStatus(webhook._id, 'available');

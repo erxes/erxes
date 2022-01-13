@@ -1,5 +1,5 @@
 import { Boards, Pipelines, Stages } from '../../models';
-import { bulkUpdateOrders, getCollection } from '../../models/boardUtils';
+import { bulkUpdateOrders, getCollection } from '../../models/modelUtils';
 import {
   IBoard,
   IOrderInput,
@@ -8,7 +8,7 @@ import {
   IStageDocument
 } from '../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../models/definitions/constants';
-// import { graphqlPubsub } from '../../../pubsub';
+import graphqlPubsub from '../../pubsub';
 import {
   putCreateLog,
   putDeleteLog,
@@ -16,7 +16,7 @@ import {
   IContext
 } from '@erxes/api-utils';
 import { configReplacer } from '../../utils';
-import { checkPermission } from '../boardUtils';
+import { checkPermission } from '../utils';
 import messageBroker from '../../messageBroker';
 import { _FieldsGroups } from '../../db';
 
@@ -372,7 +372,7 @@ const boardMutations = {
     {
       stageId,
       type,
-      // proccessId,
+      proccessId,
       sortType
     }: {
       stageId: string;
@@ -419,18 +419,18 @@ const boardMutations = {
       }
     }
 
-    // const stage = await Stages.getStage(stageId);
+    const stage = await Stages.getStage(stageId);
 
-    // graphqlPubsub.publish('pipelinesChanged', {
-    //   pipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     proccessId,
-    //     action: 'reOrdered',
-    //     data: {
-    //       destinationStageId: stageId
-    //     }
-    //   }
-    // });
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'reOrdered',
+        data: {
+          destinationStageId: stageId
+        }
+      }
+    });
 
     return 'ok';
   },

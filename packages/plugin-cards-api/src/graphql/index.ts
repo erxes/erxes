@@ -3,6 +3,6 @@ import typeDefs from './typeDefs';
 
 const mod = {
   resolvers,
-  typeDefs,
+  typeDefs
 };
 export default mod;

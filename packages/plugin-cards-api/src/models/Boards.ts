@@ -1,12 +1,12 @@
 import { Model, model } from 'mongoose';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+// import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { configReplacer } from '../utils';
 import {
   getCollection,
   updateOrder,
   watchItem,
   boardNumberGenerator
-} from './boardUtils';
+} from './modelUtils';
 import {
   boardSchema,
   IBoard,
@@ -19,7 +19,7 @@ import {
   stageSchema
 } from './definitions/boards';
 import { BOARD_STATUSES } from './definitions/constants';
-import { getDuplicatedStages } from './PipelineTemplates';
+// import { getDuplicatedStages } from './PipelineTemplates';
 
 export interface IOrderInput {
   _id: string;
@@ -45,27 +45,24 @@ const removeStageWithItems = async (
   return Stages.deleteMany(selector);
 };
 
-const removeItems = async (type: string, stageIds: string[]) => {
-  const { collection } = getCollection(type);
-
-  const items = await collection.find(
-    { stageId: { $in: stageIds } },
-    { _id: 1 }
-  );
-  const itemIds = items.map(i => i._id);
-
-  await putActivityLog({
-    action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
-    data: { type, itemIds }
-  });
-  await Checklists.removeChecklists(type, itemIds);
-  await Conformities.removeConformities({
-    mainType: type,
-    mainTypeIds: itemIds
-  });
-  await InternalNotes.removeInternalNotes(type, itemIds);
-
-  await collection.deleteMany({ stageId: { $in: stageIds } });
+const removeItems = async (_type: string, _stageIds: string[]) => {
+  // const { collection } = getCollection(type);
+  // const items = await collection.find(
+  //   { stageId: { $in: stageIds } },
+  //   { _id: 1 }
+  // );
+  // const itemIds = items.map(i => i._id);
+  // await putActivityLog({
+  //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
+  //   data: { type, itemIds }
+  // });
+  // await Checklists.removeChecklists(type, itemIds);
+  // await Conformities.removeConformities({
+  //   mainType: type,
+  //   mainTypeIds: itemIds
+  // });
+  // await InternalNotes.removeInternalNotes(type, itemIds);
+  // await collection.deleteMany({ stageId: { $in: stageIds } });
 };
 
 const removePipelineStagesWithItems = async (
@@ -321,17 +318,16 @@ export const loadPipelineClass = () => {
       const pipeline = await Pipelines.create(doc);
 
       if (doc.templateId) {
-        const duplicatedStages = await getDuplicatedStages({
-          templateId: doc.templateId,
-          pipelineId: pipeline._id,
-          type: doc.type
-        });
-
-        await createOrUpdatePipelineStages(
-          duplicatedStages,
-          pipeline._id,
-          pipeline.type
-        );
+        // const duplicatedStages = await getDuplicatedStages({
+        //   templateId: doc.templateId,
+        //   pipelineId: pipeline._id,
+        //   type: doc.type
+        // });
+        // await createOrUpdatePipelineStages(
+        //   duplicatedStages,
+        //   pipeline._id,
+        //   pipeline.type
+        // );
       } else if (stages) {
         await createOrUpdatePipelineStages(stages, pipeline._id, pipeline.type);
       }
@@ -351,13 +347,12 @@ export const loadPipelineClass = () => {
         const pipeline = await Pipelines.getPipeline(_id);
 
         if (doc.templateId !== pipeline.templateId) {
-          const duplicatedStages = await getDuplicatedStages({
-            templateId: doc.templateId,
-            pipelineId: _id,
-            type: doc.type
-          });
-
-          await createOrUpdatePipelineStages(duplicatedStages, _id, doc.type);
+          // const duplicatedStages = await getDuplicatedStages({
+          //   templateId: doc.templateId,
+          //   pipelineId: _id,
+          //   type: doc.type
+          // });
+          // await createOrUpdatePipelineStages(duplicatedStages, _id, doc.type);
         }
       } else if (stages) {
         await createOrUpdatePipelineStages(stages, _id, doc.type);
@@ -478,7 +473,7 @@ export const loadStageClass = () => {
       await removeStageItems(pipeline.type, _id);
 
       if (stage.formId) {
-        await Forms.removeForm(stage.formId);
+        // await Forms.removeForm(stage.formId);
       }
 
       return Stages.deleteOne({ _id });

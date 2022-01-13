@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { fillSearchTextItem, createBoardItem, watchItem } from './boardUtils';
+import { fillSearchTextItem, createBoardItem, watchItem } from './modelUtils';
 import {
   growthHackSchema,
   IGrowthHack,

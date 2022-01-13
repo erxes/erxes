@@ -2,8 +2,10 @@ import { IUserDocument } from '@erxes/common-types';
 import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '@erxes/api-utils/src/types';
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
-import { EngageMessages } from '../../models';
+import { awsRequests } from '../../trackers/engageTracker';
+import { EngageMessages, Configs, DeliveryReports } from '../../models';
 import { Tags, Customers } from '../../apiCollections';
+import { prepareAvgStats } from '../../utils';
 
 interface IListArgs {
   kind?: string;
@@ -211,22 +213,40 @@ const engageQueries = {
   /**
    * Config detail
    */
-  engagesConfigDetail(_root, _args, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engagesConfigDetail();
+  engagesConfigDetail(_root, _args) {
+    return Configs.find({});
   },
 
   async engageReportsList(
     _root,
     params: IReportParams,
-    { dataSources }: IContext
   ) {
-    const {
-      list = [],
-      totalCount
-    } = await dataSources.EngagesAPI.engageReportsList(params);
+    const { page, perPage, customerId, status } = params;
+    const _page = Number(page || '1');
+    const _limit = Number(perPage || '20');
+    const filter: any = {};
+
+    if (customerId) {
+      filter.customerId = customerId;
+    }
+    if (status) {
+      filter.status = status;
+    }
+
+    const deliveryReports = await DeliveryReports.find(filter)
+      .limit(_limit)
+      .skip((_page - 1) * _limit)
+      .sort({ createdAt: -1 });
+
+    if (!deliveryReports) {
+      return { list: [], totalCount: 0 };
+    }
+
+    const totalCount = await DeliveryReports.countDocuments();
+
     const modifiedList: any[] = [];
 
-    for (const item of list) {
+    for (const item of deliveryReports) {
       const modifiedItem = item;
 
       if (item.customerId) {
@@ -258,14 +278,14 @@ const engageQueries = {
   /**
    * Get all verified emails
    */
-  engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engagesGetVerifiedEmails();
+  engageVerifiedEmails() {
+    return awsRequests.getVerifiedEmails();
   },
 
-  async engageEmailPercentages(_root, _args, { dataSources }: IContext) {
-    const response = await dataSources.EngagesAPI.getAverageStats();
+  async engageEmailPercentages() {
+    const stats = await prepareAvgStats();
 
-    return response.data;
+    return stats[0];
   }
 };
 

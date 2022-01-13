@@ -4,11 +4,11 @@ import { BOARD_STATUSES } from '../../models/definitions/constants';
 // import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext, paginate, regexSearchText } from '@erxes/api-utils';
 // import { IConformityQueryParams } from './types';
-import { getCollection } from '../../models/boardUtils';
+import { getCollection } from '../../models/modelUtils';
 import { IStageDocument } from '../../models/definitions/boards';
 import { CLOSE_DATE_TYPES, PRIORITIES } from '../../constants';
 // import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
-import { getCloseDateByType } from './boardUtils1';
+import { getCloseDateByType } from './queryUtils';
 import { _PipelineLabels, _Segments, _Users } from '../../db';
 
 export interface IDate {
