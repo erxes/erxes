@@ -1,7 +1,6 @@
 import { Fields } from './apiCollections';
-import { IBrandDocument } from '@erxes/common-types';
-import { ICustomer } from '@erxes/common-types';
-import { IUser } from '@erxes/common-types';
+import { IBrandDocument, IUser } from '@erxes/common-types';
+import { ICustomer } from '@erxes/common-types/src/customers';
 import {
   fieldsCombinedByContentType,
   generateAmounts,

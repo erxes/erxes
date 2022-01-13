@@ -1,7 +1,6 @@
 import { IStageDocument, IPipelineDocument } from "./boards";
 import { IChannelDocument } from "./channels";
 import { IBrowserInfo, IRule } from "./common";
-import { ICustomerDocument, ICustomer } from "./customers";
 import { IUserDocument, IUser } from "./users";
 import { IBrandDocument } from "./brands";
 import { IIntegrationDocument } from "./integrations";
@@ -16,8 +15,6 @@ import { IScriptDocument } from "./scripts";
 import { IPipelineTemplateDocument } from "./pipelineTemplates";
 
 export {
-  ICustomerDocument,
-  ICustomer,
   IUserDocument,
   IUser,
   IBrandDocument,

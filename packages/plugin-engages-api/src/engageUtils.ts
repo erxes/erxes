@@ -1,9 +1,7 @@
 import { Transform } from 'stream';
 
-import {
-  IUserDocument,
-  ICustomerDocument,
-} from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types';
+import { ICustomerDocument } from '@erxes/common-types/src/customers';
 import { chunkArray } from '@erxes/api-utils/src/core';
 import { CONTENT_TYPES } from '@erxes/api-utils/src/constants';
 import { IEngageMessage, IEngageMessageDocument } from './models/definitions/engages';

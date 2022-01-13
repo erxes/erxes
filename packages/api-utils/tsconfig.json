@@ -9,7 +9,10 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@erxes/common-types/*": ["../common-types/*"]
+    }
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"],
