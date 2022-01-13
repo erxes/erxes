@@ -31,6 +31,7 @@
     "watch-sync": "^0.3.1",
     "webpack": "^5.57.1",
     "webpack-cli": "^4.9.0",
+    "webpack-bundle-analyzer": "^4.5.0",
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {

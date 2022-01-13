@@ -23,11 +23,12 @@ const list = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   localStorage.setItem('erxes_contact_url', 'companies');
-
+  console.log('here1')
   return <CompaniesList queryParams={queryParams} />;
 };
 
 const routes = () => {
+
   return (
     <React.Fragment>
       <Route
