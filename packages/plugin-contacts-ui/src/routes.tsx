@@ -1,14 +1,12 @@
 import React from 'react';
-import CompanyRoutes from './companies/routes'
-import CustomerRoutes from './customers/routes'
-
+import CompanyRoutes from './companies/routes';
+import CustomerRoutes from './customers/routes';
 
 const routes = () => {
-  console.log("test")
   return (
     <React.Fragment>
-      <CompanyRoutes/>
-      <CustomerRoutes/>
+      <CompanyRoutes />
+      <CustomerRoutes />
     </React.Fragment>
   );
 };

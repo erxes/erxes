@@ -1,4 +1,3 @@
-import { Actions } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import styled, { css } from 'styled-components';
@@ -316,10 +315,4 @@ const Box = styled(BoxRoot)`
   }
 `;
 
-
-export {
-  InfoTitle,
-  InfoDetail,
-  Info,
-  InfoAvatar,
-};
+export { InfoTitle, InfoDetail, Info, InfoAvatar };

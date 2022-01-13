@@ -15,7 +15,7 @@ import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-ActionSection" */ '@erxes/ui/src/customers/containers/ActionSection'
+    /* webpackChunkName:"Inbox-Sidebar-ActionSection" */ '@erxes/ui-contacts/src/customers/containers/ActionSection'
   )
 );
 
@@ -35,23 +35,23 @@ const ConversationCustomFieldsSection = asyncComponent(
   { height: '200px', width: '100%', color: '#fff' }
 );
 
-// const PortableDeals = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ '@erxes/ui/src/deals/components/PortableDeals'
-//   )
-// );
+const PortableDeals = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ '@erxes/ui-cards/src/deals/components/PortableDeals'
+  )
+);
 
-// const PortableTasks = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ '@erxes/ui/src/tasks/components/PortableTasks'
-//   )
-// );
+const PortableTasks = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ '@erxes/ui-cards/src/tasks/components/PortableTasks'
+  )
+);
 
-// const PortableTickets = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui/src/tickets/components/PortableTickets'
-//   )
-// );
+const PortableTickets = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
+  )
+);
 
 const Contacts = asyncComponent(() =>
   import(
