@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prepareSmsStats } from '../telnyxUtils';
-import { prepareAvgStats, routeErrorHandling } from '../utils';
+import { routeErrorHandling } from '../utils';
 
 const router = Router();
 
@@ -37,43 +37,6 @@ router.get(
 );
 
 router.get(
-  '/reportsList',
-  routeErrorHandling(async (req, res) => {
-    debugRequest(debugEngages, req);
-
-    const { page, perPage, customerId, status } = req.query;
-
-    const _page = Number(page || '1');
-    const _limit = Number(perPage || '20');
-
-    const filter: any = {};
-
-    if (customerId) {
-      filter.customerId = customerId;
-    }
-    if (status) {
-      filter.status = status;
-    }
-
-    const deliveryReports = await DeliveryReports.find(filter)
-      .limit(_limit)
-      .skip((_page - 1) * _limit)
-      .sort({ createdAt: -1 });
-
-    if (!deliveryReports) {
-      return res.json({ list: [], totalCount: 0 });
-    }
-
-    const totalCount = await DeliveryReports.countDocuments();
-
-    return res.json({
-      list: deliveryReports,
-      totalCount
-    });
-  })
-);
-
-router.get(
   `/reportsList/:engageMessageId`,
   routeErrorHandling(async (req, res) => {
     debugRequest(debugEngages, req);
@@ -100,17 +63,6 @@ router.get(
     });
 
     return res.json(logs);
-  })
-);
-
-router.get(
-  '/avgStatPercentages',
-  routeErrorHandling(async (req: any, res) => {
-    debugRequest(debugEngages, req);
-
-    const stats = await prepareAvgStats();
-
-    return res.json({ data: stats[0] });
   })
 );
 
