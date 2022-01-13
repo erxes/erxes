@@ -50,7 +50,8 @@ export default class FormMessage extends React.Component<Props, {}> {
     }
 
     if (data.type === 'map') {
-      return `Latitude: ${data.value.lat}, Longitude: ${data.value.lng} - ${data.value.description}`;
+      const description = data.value.description || '';
+      return `Latitude: ${data.value.lat}, Longitude: ${data.value.lng} - ${description}`;
     }
 
     if (['file', 'avatar', 'company_avatar'].includes(data.type)) {
