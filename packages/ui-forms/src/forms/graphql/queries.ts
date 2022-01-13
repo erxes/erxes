@@ -63,7 +63,18 @@ const formDetail = `
   }
 `;
 
+const fieldsDefaultColumnsConfig = `
+  query fieldsDefaultColumnsConfig($contentType: String!) {
+    fieldsDefaultColumnsConfig(contentType: $contentType) {
+      name
+      label
+      order
+    }
+  }
+`;
+
 export default {
+  fieldsDefaultColumnsConfig,
   fieldsCombinedByContentType,
   fields,
   formDetail
