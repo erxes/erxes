@@ -17,7 +17,8 @@ import {
   Conformities,
   Customers,
   Forms,
-  Companies
+  Companies,
+  EngageMessages
 } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
@@ -123,6 +124,14 @@ export const initBroker = async (server?) => {
       status: 'success',
       data: await Conformities.create(doc)
     }));
+
+    consumeRPCQueue(
+      'engages:rpc_queue:createVisitorOrCustomerMessages',
+      async params => ({
+        status: 'success',
+        data: await EngageMessages.createVisitorOrCustomerMessages(params)
+      })
+    );
 
     // listen for rpc queue =========
     consumeRPCQueue(

@@ -37,6 +37,10 @@ export const sendConformityMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`conformities:${action}`, data);
 };
 
+export const sendEngageMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
+};
+
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
