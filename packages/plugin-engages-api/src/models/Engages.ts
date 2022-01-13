@@ -2,10 +2,11 @@ import { Model, model } from 'mongoose';
 import {
   IUserDocument,
   ICustomerDocument,
-  IBrowserInfo,
-  IEngageMessage,
-  IEngageMessageDocument
+  IBrowserInfo
 } from '@erxes/common-types';
+
+import { IEngageMessage, IEngageMessageDocument } from './definitions/engages';
+
 import { ConversationMessages } from '../apiCollections';
 import { findUser, findElk } from '../engageUtils';
 import {
