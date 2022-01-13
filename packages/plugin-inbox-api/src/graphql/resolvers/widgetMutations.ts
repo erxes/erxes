@@ -739,8 +739,8 @@ const widgetMutations = {
         { $set: { customerId: customer._id, visitorId: '' } }
       );
     }
-
-    return Customers.saveVisitorContactInfo(args);
+    
+    return sendContactRPCMessage('saveVisitorContactInfo', args);
   },
 
   /*

@@ -98,6 +98,14 @@ export const initBroker = async (server?) => {
       })
     );
 
+    consumeRPCQueue(
+      'contacts:rpc_queue:saveVisitorContactInfo',
+      async data => ({
+        status: 'success',
+        data: await Customers.saveVisitorContactInfo(data)
+      })
+    );
+
     consumeQueue('contacts:updateLocation', ({ customerId, browserInfo }) =>
       Customers.updateLocation(customerId, browserInfo)
     );
