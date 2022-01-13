@@ -14,6 +14,7 @@ export default {
   __resolveReference: ({ _id }) => {
     return Users.findOne({ _id });
   },
+
   status(user: IUserDocument) {
     if (user.registrationToken) {
       return 'Not verified';

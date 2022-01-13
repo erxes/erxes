@@ -25,7 +25,7 @@ import { debugBase, debugError } from "./debuggers";
 
 import { getDocument } from "./cacheUtils";
 import { client, getIndexPrefix } from "./elasticsearch";
-import { sendConformityMessage, sendContactRPCMessage, sendToLog } from "./messageBroker";
+import { sendConformityMessage, sendContactRPCMessage, sendEngageMessage, sendToLog } from "./messageBroker";
 
 export const getOrCreateEngageMessage = async (
   integrationId: string,
@@ -51,13 +51,13 @@ export const getOrCreateEngageMessage = async (
   const brand = await Brands.getBrand({ _id: integration.brandId || "" });
 
   // try to create engage chat auto messages
-//   await EngageMessages.createVisitorOrCustomerMessages({
-//     brandId: brand._id,
-//     integrationId: integration._id,
-//     customer,
-//     visitorId,
-//     browserInfo,
-//   });
+  await sendEngageMessage('createVisitorOrCustomerMessages', {
+    brandId: brand._id,
+    integrationId: integration._id,
+    customer,
+    visitorId,
+    browserInfo,
+  });
 
   // find conversations
   const query = customerId
