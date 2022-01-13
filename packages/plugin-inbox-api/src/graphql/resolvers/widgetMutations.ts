@@ -47,7 +47,6 @@ import { IContext, sendRequest } from '@erxes/api-utils';
 
 // import {
 //   findCompany,
-//   registerOnboardHistory,
 //   sendEmail,
 //   sendMobileNotification,
 //   sendRequest,
@@ -58,7 +57,7 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendContactMessage, sendContactRPCMessage, sendToLog } from '../../messageBroker';
+import { sendContactMessage, sendContactRPCMessage, sendMessage, sendToLog } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
@@ -239,7 +238,7 @@ const widgetMutations = {
     if (integ.createdUserId) {
       const user = await Users.getUser(integ.createdUserId);
 
-//       registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
+      sendMessage('registerOnboardHistory', { type: 'leadIntegrationInstalled', user });
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {

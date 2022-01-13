@@ -11,6 +11,7 @@ import MessengerAppMutations from './messengerAppMutations';
 import WidgetMutations from './widgetMutations';
 import { skillTypesMutations, skillsMutations } from './skillMutations';
 import { skillTypesQueries, skillQueries } from './skillQueries';
+import WidgetQueries from './widgetQueries';
 import Conversation from './conversation';
 import Channel from './channel';
 import Integration from './integration';
@@ -38,6 +39,7 @@ const resolvers: any = {
     ...IntegrationQueries,
     ...skillTypesQueries,
     ...skillQueries,
+    ...WidgetQueries,
     ...ConversationQueries
   }
 };

@@ -11,12 +11,10 @@ export const initBroker = async server => {
     server,
     envs: process.env
   });
+};
 
-  // const { consumeQueue } = client;
-
-  // // listen for rpc queue =========
-  // consumeQueue('erxes-api:engages-notification', async ({ action, data }) => {
-  // });
+export const sendMessage = async (channel, message): Promise<any> => {
+  return client.sendMessage(channel, message);
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {

@@ -18,8 +18,9 @@ import {
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils';
 
-// import utils, { checkUserIds, registerOnboardHistory } from '../../utils';
+// import utils, { checkUserIds } from '../../utils';
 import { checkUserIds } from '@erxes/api-utils';
+import { sendMessage } from '../../messageBroker';
 
 interface IChannelsEdit extends IChannel {
   _id: string;
@@ -108,12 +109,12 @@ const channelMutations = {
 //       user
 //     );
 
-//     if (
-//       (channel.integrationIds || []).toString() !==
-//       (updated.integrationIds || []).toString()
-//     ) {
-//       registerOnboardHistory({ type: 'connectIntegrationsToChannel', user });
-//     }
+    if (
+      (channel.integrationIds || []).toString() !==
+      (updated.integrationIds || []).toString()
+    ) {
+      sendMessage('registerOnboardHistory', { type: 'connectIntegrationsToChannel', user });
+    }
 
     return updated;
   },

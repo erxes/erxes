@@ -31,7 +31,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debugError } from '../../debuggers';
-import messageBroker from '../../messageBroker';
+import { sendMessage } from '../../messageBroker';
 
 // import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 // import {
@@ -46,7 +46,6 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '@erxes/api-utils';
 
-// import { registerOnboardHistory } from '../../utils';
 // import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IEditIntegration extends IIntegration {
@@ -89,7 +88,7 @@ const createIntegration = async (
 
   telemetry.trackCli('integration_created', { type });
 
-//   await registerOnboardHistory({ type: `${type}IntegrationCreated`, user });
+  sendMessage('registerOnboardHistory', { type: `${type}IntegrationCreated`, user });
 
   return integration;
 };
@@ -627,7 +626,7 @@ const integrationMutations = {
 
     telemetry.trackCli('integration_created', { type: 'lead' });
 
-//     await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
+    sendMessage('registerOnboardHistory', { type: 'leadIntegrationCreate', user });
 
     return copiedIntegration;
   },
