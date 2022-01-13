@@ -21,7 +21,7 @@ import {
 } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
-import { getSubServiceDomain } from './data/utils';
+import { findCompany, findCustomer, getSubServiceDomain } from './data/utils';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
 
 dotenv.config();
@@ -40,6 +40,16 @@ export const initBroker = async (server?) => {
     const { consumeQueue, consumeRPCQueue } = client;
 
     // contacts ======================
+    consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => ({
+      status: 'success',
+      data: await findCustomer(doc)
+    }));
+
+    consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => ({
+      status: 'success',
+      data: await findCompany(doc)
+    }));
+
     consumeRPCQueue('contacts:rpc_queue:create_customer', async data => ({
       status: 'success',
       data: await Customers.createCustomer(data)

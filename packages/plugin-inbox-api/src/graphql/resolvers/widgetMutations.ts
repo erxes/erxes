@@ -44,7 +44,6 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../models/definitions/c
 import { IContext, sendRequest } from '@erxes/api-utils';
 
 // import {
-//   findCompany,
 //   sendEmail,
 //   sendMobileNotification,
 //   sendRequest,
@@ -383,8 +382,7 @@ const widgetMutations = {
 
     // get or create company
     if (companyData && companyData.name) {
-//       let company = await findCompany(companyData);
-      let company;
+      let company = await sendContactRPCMessage('findCompany', companyData);
 
       const {
         customFieldsData,

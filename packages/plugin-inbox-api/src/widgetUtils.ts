@@ -27,8 +27,6 @@ import { getDocument } from "./cacheUtils";
 import { client, getIndexPrefix } from "./elasticsearch";
 import { sendConformityMessage, sendContactRPCMessage, sendToLog } from "./messageBroker";
 
-// import { findCompany, findCustomer } from "./utils";
-
 export const getOrCreateEngageMessage = async (
   integrationId: string,
   browserInfo: IBrowserInfo,
@@ -407,12 +405,10 @@ export const solveSubmissions = async (args: {
         companyId: "",
       };
     } else {
-//       let customer = await findCustomer({
-//         customerPrimaryEmail: customerDoc.email || "",
-//         customerPrimaryPhone: customerDoc.phone || "",
-//       });
-
-      let customer;
+      let customer = await sendContactRPCMessage('findCustomer', {
+        customerPrimaryEmail: customerDoc.email || "",
+        customerPrimaryPhone: customerDoc.phone || "",
+      });
 
       if (!customer) {
         customer = await createCustomer(
@@ -446,13 +442,11 @@ export const solveSubmissions = async (args: {
       continue;
     }
 
-//     let company = await findCompany({
-//       companyPrimaryName: companyDoc.primaryName || "",
-//       companyPrimaryEmail: companyDoc.primaryEmail || "",
-//       companyPrimaryPhone: companyDoc.primaryPhone || "",
-//     });
-
-    let company;
+    let company = await sendContactRPCMessage('findCompany', {
+      companyPrimaryName: companyDoc.primaryName || "",
+      companyPrimaryEmail: companyDoc.primaryEmail || "",
+      companyPrimaryPhone: companyDoc.primaryPhone || "",
+    });
 
     companyDoc.scopeBrandIds = [integration.brandId || ""];
 
