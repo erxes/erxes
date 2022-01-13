@@ -3,6 +3,7 @@ import { FormControl } from 'erxes-ui/lib/components/form';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import Uploader from 'erxes-ui/lib/components/Uploader';
 import AvatarUpload from 'erxes-ui/lib/components/AvatarUpload';
+import Icon from 'erxes-ui/lib/components/Icon';
 import { __ } from 'erxes-ui/lib/utils';
 import React, { useState } from 'react';
 import {
@@ -147,38 +148,36 @@ export default function Appearance(props: Props) {
       <div key={index}>
         <DeleteButton
           onClick={() => onChangePageCount('remove', page._id)}
-          title={'Delete Page'}
+          title = 'Delete Page'
         >
+          <Icon icon="times-circle" size={30}/>
         </DeleteButton>
         
         <ControlLabel>Page {index + 1}</ControlLabel>
         <PageContainer>
-        <Uploader
-          defaultFileList={image ? [image] : []}
-          onChange={(e: any) => {
-            return onChangePageItem(page._id, 'image', e[0]);
-          }}
-          single={true}
-        />
-        <div>
-        <FormControl
-          name='title'
-          placeholder='Title'
-          value={page.title}
-          onChange={(e: any) => {
-            return onChangePageItem(page._id, 'title', e.target.value);
-          }}
-        />
-        <FormControl
-          name='description'
-          placeholder='Description'
-          componentClass='textarea'
-          value={page.content}
-          onChange={(e: any) => {
-            return onChangePageItem(page._id, 'content', e.target.value);
-          }}
-        />
-        </div>
+          <Uploader
+            defaultFileList={image ? [image] : []}
+            onChange={(e: any) => {
+              return onChangePageItem(page._id, 'image', e[0]);
+            }}
+            single={true}
+          />
+          <FormControl
+            name='title'
+            placeholder='Title'
+            value={page.title}
+            onChange={(e: any) => {
+              return onChangePageItem(page._id, 'title', e.target.value);
+            }}
+          />
+          <FormControl
+            name='description'
+            placeholder='Description'
+            value={page.content}
+            onChange={(e: any) => {
+              return onChangePageItem(page._id, 'content', e.target.value);
+            }}
+          />
         </PageContainer>
       </div>
     );
@@ -203,8 +202,6 @@ export default function Appearance(props: Props) {
                 <div>
                   <ControlLabel>{__('Primary color')}</ControlLabel>
                   {renderColorSelect('primaryColor', appearance.primaryColor)}
-                </div>
-                <div>
                   <ControlLabel>{__('Secondary color')}</ControlLabel>
                   {renderColorSelect('secondaryColor', appearance.secondaryColor)}
                 </div>

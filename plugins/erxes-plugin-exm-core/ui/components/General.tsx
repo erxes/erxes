@@ -12,6 +12,7 @@ import {
   DeleteButton
 } from '../styles';
 import Button from 'erxes-ui/lib/components/Button';
+import Icon from 'erxes-ui/lib/components/Icon';
 import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
 import { IExm } from '../types';
 import { generateTree, removeTypename } from '../utils';
@@ -202,11 +203,9 @@ export default function General(props: Props) {
               </FeatureRowItem>
             )}
             </FeatureRowFlex>
-            <DeleteButton
-              onClick={() => onChangeFeature('remove', feature._id)}
-              title={'Delete Feature'}
-              icon = 'icon-cancel'
-            />
+            <DeleteButton onClick={() => onChangeFeature('remove', feature._id)} title={'Delete Feature'}>
+            <Icon icon="times-circle" size={30}/>
+            </DeleteButton>
           </FeatureRow>
         ))}
         <Button btnStyle="primary" icon = 'plus-circle'  onClick={() => onChangeFeature('add')} >Add Features</Button>

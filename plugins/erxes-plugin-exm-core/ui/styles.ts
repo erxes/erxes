@@ -75,6 +75,7 @@ export const AppearanceWrapper = styled.div`
   justify-content: center;
   min-width: max-content;
   padding: 40px;
+  margin: 0 auto;
 
   > div:first-child {
     padding: 50px 0 40px 0;
@@ -85,6 +86,7 @@ export const AppearanceWrapper = styled.div`
   }
   > button {
     float: right;
+    margin-bottom:20px;
   }
 `;
 
@@ -107,8 +109,10 @@ export const Logos = styled.div`
     border-bottom: 1px dashed #EEE;
   > div {
     display: flex;
-    justify-content: space-around;
-    
+    justify-content: flex-start;
+    > div{
+      margin-right: 50px;
+    }
   }
   > img {
   margin: 10px;
@@ -123,16 +127,13 @@ export const GrayLabel = styled.div`
 export const Colors = styled.div`
  > div {
    display: flex;
-   flex-direction: column;
+   align-items: center;
  }
 `;
 
 export const WelcomeContent = styled.div`
   > div {
     margin-top: 20px;
-    input {
-      margin-top: 50px;
-    }
     :first-child {
       display: flex;
       height: 35px;
@@ -144,8 +145,20 @@ export const WelcomeContent = styled.div`
 
 export const PageContainer = styled.div`
   display: flex;
-`;
+  align-items: center;
+  margin: 20px 0 20px 0;
 
+  > div {
+  :first-child {
+    margin-right: 0;
+  }
+    margin-right: 40px;    
+  }
+
+  > span {
+    margin-right: 40px;    
+  }
+`;
 
 export const UploadItems = styled.div`
   display: flex;
