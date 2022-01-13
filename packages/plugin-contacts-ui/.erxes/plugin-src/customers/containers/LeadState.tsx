@@ -5,7 +5,7 @@ import { confirm } from '@erxes/ui/src/utils';
 import LeadState from '../components/detail/LeadState';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { mutations } from '../graphql';
+import { mutations } from '@erxes/ui/src/customers/graphql';
 import {
   ChangeStateMutationResponse,
   ChangeStateMutationVariables,
@@ -13,7 +13,7 @@ import {
   EditMutationResponse,
   ICustomer,
   ICustomerDoc
-} from '../types';
+} from '@erxes/ui/src/customers/types';
 
 type Props = {
   customer: ICustomer;
