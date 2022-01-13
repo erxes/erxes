@@ -5,7 +5,6 @@ import {
   IChannelDocument,
   IIntegrationDocument,
   ICompanyDocument,
-  ICustomerDocument,
   IDealDocument,
   ITaskDocument,
   ITicketDocument,
@@ -17,6 +16,7 @@ import {
   IPipelineTemplateDocument,
   IUserDocument
 } from '@erxes/common-types';
+import { ICustomerDocument } from '@erxes/common-types/src/customers';
 
 import { MODULE_NAMES } from './constants';
 import { LOG_ACTIONS } from './logUtils';

@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 
-import { IUserDocument, ICustomerDocument, IBrowserInfo } from '@erxes/common-types';
+import { IUserDocument, IBrowserInfo } from '@erxes/common-types';
+import { ICustomerDocument } from '@erxes/common-types/src/customers';
 import { ConversationMessages } from '../apiCollections';
 import { findUser, findElk } from '../engageUtils';
 import {
