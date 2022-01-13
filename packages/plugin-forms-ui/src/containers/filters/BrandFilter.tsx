@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import BrandFilter from '@erxes/ui/src/brands/components/list/BrandFilter';
+import BrandFilter from '@erxes/ui/src/brands/components/BrandFilter';
 import { queries } from '@erxes/ui/src/brands/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';

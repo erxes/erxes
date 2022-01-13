@@ -7,8 +7,6 @@
     "build": "cd .erxes && yarn build"
   },
   "dependencies": {
-    "hello-world-npm": "^1.1.1",
-    "json-loader": "^0.5.7",
     "react-copy-to-clipboard": "^5.0.4",
     "react-markdown": "^7.1.2"
   }

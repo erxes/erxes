@@ -38,7 +38,10 @@ module.exports = {
   optimization: { runtimeChunk: false, splitChunks: false },
 
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+    fallback: {
+      timers: require.resolve('timers-browserify')
+    }
   },
 
   devServer: {
@@ -73,6 +76,7 @@ module.exports = {
           path.resolve(__dirname, '../../ui-settings/src'),
           path.resolve(__dirname, '../../ui-cards/src'),
           path.resolve(__dirname, '../../ui-forms/src'),
+          path.resolve(__dirname, '../../ui-products/src'),
           path.resolve(__dirname, 'plugin-src')
         ],
         use: {

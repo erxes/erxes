@@ -1,38 +1,19 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { IRouterProps } from '@erxes/ui/src/types';
-import queryString from 'query-string';
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
-
-const Inbox = asyncComponent(() =>
-  import(/* webpackChunkName: "Inbox" */ './containers/Inbox')
-);
-
-const index = ({ location }) => {
-  return <Redirect to={`/inbox/index${location.search}`} />;
-};
-
-const inbox = (props: IRouterProps) => {
-  return (
-    <Inbox
-      history={props.history}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
-};
+import InboxRoutes from './inboxs/routes';
+import ChannelSettings from './settings/channels/routes';
+import IntegrationSettings from './settings/integrations/routes';
+import ResponseTemplates from './settings/responseTemplates/routes';
+import SkillSettings from './settings/skills/routes';
 
 const routes = () => {
   console.log('hhhhh')
   return (
     <React.Fragment>
-      <Route exact={true} path='/' key='root' render={index} />
-      <Route exact={true} path='/inbox' key='inbox' render={index} />
-      <Route
-        exact={true}
-        path='/inbox/index'
-        key='inbox/index'
-        render={inbox}
-      />
+      <InboxRoutes />
+      <ChannelSettings />
+      <IntegrationSettings />
+      <ResponseTemplates />
+      <SkillSettings />
     </React.Fragment>
   );
 };

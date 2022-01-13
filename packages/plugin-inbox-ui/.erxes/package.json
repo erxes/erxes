@@ -26,6 +26,7 @@
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
     "style-loader": "^3.3.0",
+    "timers-browserify": "^2.0.12",
     "typescript": "3.8.3",
     "watch-sync": "^0.3.1",
     "webpack": "^5.57.1",
