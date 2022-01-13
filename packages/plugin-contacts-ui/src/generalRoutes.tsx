@@ -1,10 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import KnowledgeRoutes from './routes';
+import CompanyRoutes from './companies/routes';
+import  CustomerRoutes from './customers/routes';
 
 const Routes = () => (
   <Router>
-    <KnowledgeRoutes />
+    <CompanyRoutes/>
+    <CustomerRoutes/>
   </Router>
 );
 
