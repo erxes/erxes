@@ -10,7 +10,7 @@ import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { DateWrapper } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { getEnv, __ } from 'modules/common/utils';
 import { RowTitle } from 'modules/engage/styles';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';
@@ -84,32 +84,21 @@ class Row extends React.Component<Props> {
     );
   }
 
-  renderExportAction(integration) {
-    // const { integration } = this.props;
-    // const { REACT_APP_API_URL } = getEnv();
+  renderExportAction() {
+    const { integration } = this.props;
+    const { REACT_APP_API_URL } = getEnv();
 
-    // const onClick = () => {
-    //   window.open(
-    //     `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
-    //     '_blank'
-    //   );
-    // };
-
-    // return (
-    //   <Tip text={__('Download responses')} placement="top">
-    //     <Button btnStyle="link" onClick={onClick} icon="down-arrow" />
-    //   </Tip>
-    // );
-    const { formId } = integration;
+    const onClick = () => {
+      window.open(
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        '_blank'
+      );
+    };
 
     return (
-      <Link to={`/forms/responses/${integration._id}/${formId}`}>
-        <Button btnStyle="link">
-          <Tip text={__('Responses')} placement="top">
-            <Icon icon="down-arrow" />
-          </Tip>
-        </Button>
-      </Link>
+      <Tip text={__('Download responses')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="down-arrow" />
+      </Tip>
     );
   }
 
@@ -242,7 +231,7 @@ class Row extends React.Component<Props> {
             {this.renderEditAction(integration)}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
-            {this.renderExportAction(integration)}
+            {this.renderExportAction()}
             {this.renderCopyAction()}
             {this.renderRemoveAction()}
           </ActionButtons>

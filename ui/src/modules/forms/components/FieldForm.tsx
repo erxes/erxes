@@ -76,8 +76,6 @@ class FieldForm extends React.Component<Props, State> {
     name: string,
     value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) => {
-    console.log('name: ', name);
-    console.log('value: ', value);
     this.setFieldAttrChanges(name, value);
   };
 

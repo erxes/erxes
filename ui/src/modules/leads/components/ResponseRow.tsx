@@ -31,8 +31,6 @@ class ResponseRow extends React.Component<Props> {
       }
     }
 
-    console.log(result);
-
     return (
       <tr>
         {result.map(e => {
