@@ -1,7 +1,7 @@
 import ConvertTrigger from '@erxes/ui-cards/src/boards/components/portable/ConvertTrigger';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import options from '../options';
+import options from '@erxes/ui-cards/src/tasks/options';
 
 type Props = {
   relType: string;

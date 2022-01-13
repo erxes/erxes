@@ -7,7 +7,7 @@ import {
 import { __ } from '@erxes/ui/src/utils';
 import Header from '@erxes/ui/src/layout/components/Header';
 import React from 'react';
-import options from '../options';
+import options from '@erxes/ui-cards/src/tickets/options';
 import TicketMainActionBar from './TicketMainActionBar';
 
 type Props = {

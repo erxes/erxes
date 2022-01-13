@@ -1,7 +1,7 @@
 import { renderFullName } from '@erxes/ui/src/utils';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IProduct } from '@erxes/ui-cards/src/products/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import { ItemIndicator } from '../styles/stage';
 

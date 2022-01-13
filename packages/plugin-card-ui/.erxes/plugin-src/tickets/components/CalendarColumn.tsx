@@ -9,9 +9,9 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { IDateColumn } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import options from '../options';
-import { ITicket } from '../types';
-import Ticket from './TicketItem';
+import options from '@erxes/ui-cards/src/tickets/options';
+import { ITicket } from '@erxes/ui-cards/src/tickets/types';
+import Ticket from '@erxes/ui-cards/src/tickets/components/TicketItem';
 
 type Props = {
   tickets: ITicket[];

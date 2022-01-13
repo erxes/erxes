@@ -17,7 +17,7 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Select from 'react-select-plus';
 import SelectLabel from './label/SelectLabel';
 import { PRIORITIES } from '../constants';
-import SelectProducts from '@erxes/ui-cards/src/products/containers/SelectProducts';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';

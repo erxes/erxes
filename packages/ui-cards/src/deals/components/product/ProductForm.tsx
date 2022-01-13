@@ -5,7 +5,7 @@ import Table from '@erxes/ui/src/components/table';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, Alert } from '@erxes/ui/src/utils';
-import { IProduct } from '@erxes/ui-cards/src/products/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import {
   Add,

@@ -4,7 +4,7 @@ import { __ } from '@erxes/ui/src/utils';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import React from 'react';
-import options from '../options';
+import options from '@erxes/ui-cards/src/tasks/options';
 import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
 
 type Props = {

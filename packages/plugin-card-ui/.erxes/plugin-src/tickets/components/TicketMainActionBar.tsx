@@ -7,7 +7,7 @@ import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers'
 import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
-import options from '../options';
+import options from '@erxes/ui-cards/src/tickets/options';
 import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
 
 type Props = {

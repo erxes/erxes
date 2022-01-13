@@ -5,8 +5,12 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import Stage from '../../components/conversion/table/Stage';
-import { queries } from '../../graphql';
-import { DealsQueryResponse, IDeal, IQueryParams } from '../../types';
+import { queries } from '@erxes/ui-cards/src/deals/graphql';
+import {
+  DealsQueryResponse,
+  IDeal,
+  IQueryParams
+} from '@erxes/ui-cards/src/deals/types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 

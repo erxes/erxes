@@ -13,9 +13,9 @@ import {
 } from '@erxes/ui-cards/src/boards/types';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ProductSection from './ProductSection';
-import { IProduct } from '@erxes/ui-cards/src/products/types';
-import PortableTasks from '../../tasks/components/PortableTasks';
-import PortableTickets from '../../tickets/components/PortableTickets';
+import { IProduct } from '@erxes/ui-products/src/types';
+import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
+import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
 import { pluginsOfItemSidebar } from '@erxes/ui/src/pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';

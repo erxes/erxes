@@ -9,9 +9,9 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { IDateColumn } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import options from '../options';
+import options from '@erxes/ui-cards/src/tasks/options';
 import { ITask } from '../types';
-import Task from './TaskItem';
+import Task from '@erxes/ui-cards/src/tasks/components/TaskItem';
 
 type Props = {
   tasks: ITask[];

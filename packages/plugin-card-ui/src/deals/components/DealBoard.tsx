@@ -9,7 +9,7 @@ import { menuDeal } from '@erxes/ui/src/utils/menus';
 import Header from '@erxes/ui/src/layout/components/Header';
 import React from 'react';
 import DealMainActionBar from '../components/DealMainActionBar';
-import options from '../options';
+import options from '@erxes/ui-cards/src/deals/options';
 
 type Props = {
   queryParams: any;

@@ -4,7 +4,7 @@ import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC
-} from '@erxes/ui-cards/src/products/types';
+} from '@erxes/ui-products/src/types';
 
 export type IProductDoc = IProductDocC & {};
 

@@ -5,7 +5,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import { IProduct } from '@erxes/ui-cards/src/products/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import ProductForm from '../containers/product/ProductForm';
 import { CustomField, ProductName } from '../styles';

@@ -9,8 +9,8 @@ import {
   IItemParams,
   IOptions
 } from '@erxes/ui-cards/src/boards/types';
-import PortableDeals from '../../deals/components/PortableDeals';
-import PortableTickets from '../../tickets/components/PortableTickets';
+import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
+import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
 import React from 'react';
 
 type Props = {
@@ -56,10 +56,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
     return (
       <>
         <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
-        <PortableTickets
-          mainType="task"
-          mainTypeId={this.props.item._id}
-        />{' '}
+        <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
       </>
     );
   };
