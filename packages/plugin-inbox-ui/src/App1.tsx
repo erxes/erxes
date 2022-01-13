@@ -1,10 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import apolloClient from '@erxes/ui/src/apolloClient';
 import GeneralRoutes from './generalRoutes';
 
-const App = () => {
+const App1 = () => {
   return (
     <ApolloProvider client={apolloClient}>
       <GeneralRoutes />
@@ -12,4 +11,5 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('app'));
+export default App1;
+
