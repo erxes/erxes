@@ -1,10 +1,10 @@
 import debug from 'debug';
 
-export const debugInit = debug('erxes-inboxs:init');
-export const debugDb = debug('erxes-inboxs:db');
-export const debugBase = debug('erxes-inboxs:base');
-export const debugEngages = debug('erxes-inboxs:inboxs');
-export const debugError = debug('erxes-inboxs:error');
+export const debugInit = debug('erxes-inbox:init');
+export const debugDb = debug('erxes-inbox:db');
+export const debugBase = debug('erxes-inbox:base');
+export const debugEngages = debug('erxes-inbox:inboxs');
+export const debugError = debug('erxes-inbox:error');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

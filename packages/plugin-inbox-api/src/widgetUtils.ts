@@ -26,7 +26,7 @@ import { debugBase, debugError } from "./debuggers";
 
 import { getDocument } from "./cacheUtils";
 import { client, getIndexPrefix } from "./elasticsearch";
-import { sendToLog } from "./messageBroker";
+import { sendContactRPCMessage, sendToLog } from "./messageBroker";
 
 // import { findCompany, findCustomer } from "./utils";
 
@@ -121,7 +121,7 @@ const createCustomer = async (
   customerDoc: any,
   brandId?: string
 ) => {
-  return Customers.createCustomer({
+  return sendContactRPCMessage('create_customer', {
     integrationId,
     primaryEmail: customerDoc.email || "",
     emails: [customerDoc.email || ""],

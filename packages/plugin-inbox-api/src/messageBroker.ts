@@ -7,7 +7,7 @@ let client;
 
 export const initBroker = async server => {
   client = await messageBroker({
-    name: 'logger',
+    name: 'inbox',
     server,
     envs: process.env
   });
@@ -19,8 +19,16 @@ export const initBroker = async server => {
   // });
 };
 
-export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
+export const sendRPCMessage = async (channel, message): Promise<any> => {
+  return client.sendRPCMessage(channel, message);
+};
+
+export const sendContactMessage = async (action, data): Promise<any> => {
+  return client.sendMessage(`contacts:${action}`, data);
+};
+
+export const sendContactRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
 };
 
 export const sendToLog = (channel: string, data) =>

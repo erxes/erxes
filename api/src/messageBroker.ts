@@ -33,6 +33,11 @@ export const initBroker = async (server?) => {
   if (!['crons', 'workers'].includes(process.env.PROCESS_NAME || '')) {
     const { consumeQueue, consumeRPCQueue } = client;
 
+    consumeRPCQueue('contacts:rpc_queue:create_customer', async data => ({
+      status: 'success',
+      data: await Customers.createCustomer(data)
+    }));
+
     // listen for rpc queue =========
     consumeRPCQueue(
       'rpc_queue:integrations_to_api',
@@ -116,6 +121,10 @@ export const initBroker = async (server?) => {
     consumeRPCQueue(
       'rpc_queue:editorAttributeUtils_getCustomerName_to_api',
       customer => Customers.getCustomerName(customer)
+    );
+
+    consumeQueue('contacts:markCustomerAsActive', ({ customerId }) =>
+      Customers.markCustomerAsActive(customerId)
     );
 
     // graphql subscriptions call =========

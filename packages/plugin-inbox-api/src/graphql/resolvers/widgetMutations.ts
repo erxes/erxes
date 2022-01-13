@@ -58,7 +58,7 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendToLog } from '../../messageBroker';
+import { sendContactMessage, sendContactRPCMessage, sendToLog } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
@@ -122,16 +122,11 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   };
 };
 
-const createVisitor = async (visitorId: string) => {
-  const customer = await Customers.createCustomer({
+const createVisitor = async (visitorId: string) =>
+  sendContactRPCMessage('create_customer', {
     state: 'visitor',
     visitorId
   });
-
-  sendToLog('visitor:convertRequest', { visitorId });
-
-  return customer;
-};
 
 const createFormConversation = async (
   args: {
@@ -597,7 +592,7 @@ const widgetMutations = {
     );
 
     // mark customer as active
-    await Customers.markCustomerAsActive(conversation.customerId);
+    sendContactMessage('markCustomerAsActive', { customerId: conversation.customerId });
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
       conversationClientMessageInserted: msg
