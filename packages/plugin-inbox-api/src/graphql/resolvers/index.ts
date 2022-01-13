@@ -1,36 +1,46 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import ConversationMutations from './conversationMutations';
-import ResponseTemplateMutations from './responseTemplateMutations';
-import { skillTypesMutations, skillsMutations } from './skillMutations';
 import ConversationQueries from './conversationQueries';
 import ChannelQueries from './channelQueries';
 import IntegrationQueries from './integrationQueries';
-import ResponseTemplateQueries from './responseTemplateQueries';
-import { skillQueries, skillTypesQueries } from './skillQueries';
+import MessengerAppQueries from './messengerAppQueries';
+import ChannelMutations from './channelMutations';
+import IntegrationMutations from './integrationMutations';
+import ResponseTempateMutations from './responseTempateMutations';
+import MessengerAppMutations from './messengerAppMutations';
+import WidgetMutations from './widgetMutations';
+import { skillTypesMutations, skillsMutations } from './skillMutations';
+import { skillTypesQueries, skillQueries } from './skillQueries';
+import WidgetQueries from './widgetQueries';
 import Conversation from './conversation';
-import ConversationMessage from './conversationMessage';
 import Channel from './channel';
-import ResponseTemplate from './responseTemplate';
+import Integration from './integration';
+import ConversationMessage from './conversationMessage';
 
 const resolvers: any = {
   ...customScalars,
   Conversation,
-  ConversationMessage,
   Channel,
-  ResponseTemplate,
+  Integration,
+  ConversationMessage,
   Mutation: {
     ...ConversationMutations,
-    ...ResponseTemplateMutations,
+    ...IntegrationMutations,
+    ...ChannelMutations,
+    ...ResponseTempateMutations,
     ...skillTypesMutations,
-    ...skillsMutations
+    ...skillsMutations,
+    ...WidgetMutations,
+    ...MessengerAppMutations
   },
   Query: {
-    ...ConversationQueries,
+    ...ChannelQueries,
+    ...MessengerAppQueries,
     ...IntegrationQueries,
-    ...skillQueries,
     ...skillTypesQueries,
-    ...ResponseTemplateQueries,
-    ...ChannelQueries
+    ...skillQueries,
+    ...WidgetQueries,
+    ...ConversationQueries
   }
 };
 

@@ -12,7 +12,7 @@ const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
-  autoReconnect: true,
+  // autoReconnect: true,
   family: 4,
   useFindAndModify: false
 };

@@ -12,10 +12,17 @@ import { graphqlPubsub } from './pubsub';
 import { receiveVisitorDetail } from './data/widgetUtils';
 import { registerOnboardHistory } from './data/modules/robot';
 import { createConversationAndMessage } from './data/modules/conversations/utils';
-import { Integrations, Conformities, Customers } from './db/models';
+import {
+  Integrations,
+  Conformities,
+  Customers,
+  Forms,
+  Companies,
+  EngageMessages
+} from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
-import { getSubServiceDomain } from './data/utils';
+import { findCompany, findCustomer, getSubServiceDomain } from './data/utils';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
 
 dotenv.config();
@@ -32,6 +39,99 @@ export const initBroker = async (server?) => {
   // do not receive messages in crons worker
   if (!['crons', 'workers'].includes(process.env.PROCESS_NAME || '')) {
     const { consumeQueue, consumeRPCQueue } = client;
+
+    // contacts ======================
+    consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => ({
+      status: 'success',
+      data: await findCustomer(doc)
+    }));
+
+    consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => ({
+      status: 'success',
+      data: await findCompany(doc)
+    }));
+
+    consumeRPCQueue('contacts:rpc_queue:create_customer', async data => ({
+      status: 'success',
+      data: await Customers.createCustomer(data)
+    }));
+
+    consumeRPCQueue('contacts:rpc_queue:createCompany', async data => ({
+      status: 'success',
+      data: await Companies.createCompany(data)
+    }));
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:updateCustomer',
+      async ({ _id, doc }) => ({
+        status: 'success',
+        data: await Customers.updateCustomer(_id, doc)
+      })
+    );
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:updateCompany',
+      async ({ _id, doc }) => ({
+        status: 'success',
+        data: await Companies.updateCompany(_id, doc)
+      })
+    );
+
+    consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => ({
+      status: 'success',
+      data: await Customers.getWidgetCustomer(data)
+    }));
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:updateMessengerCustomer',
+      async data => ({
+        status: 'success',
+        data: await Customers.updateMessengerCustomer(data)
+      })
+    );
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:createMessengerCustomer',
+      async data => ({
+        status: 'success',
+        data: await Customers.createMessengerCustomer(data)
+      })
+    );
+
+    consumeQueue('contacts:updateLocation', ({ customerId, browserInfo }) =>
+      Customers.updateLocation(customerId, browserInfo)
+    );
+
+    consumeQueue('contacts:updateSession', ({ customerId }) =>
+      Customers.updateSession(customerId)
+    );
+
+    // general ======================
+    consumeRPCQueue(
+      'forms:rpc_queue:validate',
+      async ({ formId, submissions }) => ({
+        status: 'success',
+        data: await Forms.validate(formId, submissions)
+      })
+    );
+
+    consumeQueue('conformities:addConformity', async doc => ({
+      status: 'success',
+      data: await Conformities.addConformity(doc)
+    }));
+
+    consumeQueue('conformities:create', async doc => ({
+      status: 'success',
+      data: await Conformities.create(doc)
+    }));
+
+    consumeRPCQueue(
+      'engages:rpc_queue:createVisitorOrCustomerMessages',
+      async params => ({
+        status: 'success',
+        data: await EngageMessages.createVisitorOrCustomerMessages(params)
+      })
+    );
 
     // listen for rpc queue =========
     consumeRPCQueue(
@@ -132,7 +232,7 @@ export const initBroker = async (server?) => {
     });
 
     // listen for rpc queue =========
-    consumeQueue('registerOnboardHistory', async (type, user) => {
+    consumeQueue('registerOnboardHistory', async ({ type, user }) => {
       await registerOnboardHistory(type, user);
     });
 

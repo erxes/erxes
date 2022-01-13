@@ -7,21 +7,42 @@ let client;
 
 export const initBroker = async server => {
   client = await messageBroker({
-    name: 'logger',
+    name: 'inbox',
     server,
     envs: process.env
   });
-
-  // const { consumeQueue } = client;
-
-  // // listen for rpc queue =========
-  // consumeQueue('erxes-api:engages-notification', async ({ action, data }) => {
-  // });
 };
 
-export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
+export const sendMessage = async (channel, message): Promise<any> => {
+  return client.sendMessage(channel, message);
 };
+
+export const sendRPCMessage = async (channel, message): Promise<any> => {
+  return client.sendRPCMessage(channel, message);
+};
+
+export const sendContactMessage = async (action, data): Promise<any> => {
+  return client.sendMessage(`contacts:${action}`, data);
+};
+
+export const sendContactRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
+};
+
+export const sendFormRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
+};
+
+export const sendConformityMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`conformities:${action}`, data);
+};
+
+export const sendEngageMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
+};
+
+export const sendToLog = (channel: string, data) =>
+  client.sendMessage(channel, data);
 
 export default function() {
   return client;

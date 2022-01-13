@@ -1,74 +1,49 @@
-import { MongoClient } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 
-const url = 'mongodb://localhost:27017';
-const client = new MongoClient(url);
+const { MONGO_URL } = process.env;
 
-const dbName = 'erxes';
-let db;
-
-async function main() {
-  // Use connect method to connect to the server
-  await client.connect();
-  console.log('Connected successfully to server');
-  db = client.db(dbName);
-  return 'done.';
+if (!MONGO_URL) {
+  throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-main()
-  .then(console.log)
-  .catch(console.error)
-  .finally(() => client.close());
+const client = new MongoClient(MONGO_URL);
 
-export const _DB = () => {
-  return db;
-};
+let db: Db;
 
-export const _ConversationMessages = async () => {
-  const collection = await db.collection('conversation_messages');
-  return collection;
-};
+export let Users;
+export let Conversations;
+export let Channels;
+export let Integrations;
+export let Customers;
+export let ConversationMessages;
+export let Fields;
+export let Segments;
+export let Conformities;
+export let Tags;
+export let Pipelines;
 
-export const _Conversations = async () => {
-  const collection = await db.collection('conversations');
-  return collection;
-};
+export async function connect() {
+  await client.connect();
+  console.log(`DB: Connected to ${MONGO_URL}`);
+  db = client.db();
+  Users = db.collection('users');
+  Conversations = db.collection('conversations');
+  Channels = db.collection('channels');
+  Integrations = db.collection('integrations');
+  Customers = db.collection('customers');
+  ConversationMessages = db.collection('conversation_messages');
+  Fields = db.collection('fields');
+  Segments = db.collection('segments');
+  Conformities = db.collection('conformities');
+  Tags = db.collection('tags');
+  Pipelines = db.collection('pipelines');
+}
 
-export const _Customers = async () => {
-  const collection = await db.collection('customers');
-  return collection;
-};
-
-export const _Tags = async () => {
-  const collection = await db.collection('tags');
-  return collection;
-};
-
-export const _Users = async () => {
-  const collection = await db.collection('users');
-  return collection;
-};
-
-export const _Integrations = async () => {
-  const collection = await db.collection('integrations');
-  return collection;
-};
-
-export const _Conformities = async () => {
-  const collection = await db.collection('conformities');
-  return collection;
-};
-
-export const _Segments = async () => {
-  const collection = await db.collection('segments');
-  return collection;
-};
-
-export const _Fields = async () => {
-  const collection = await db.collection('fields');
-  return collection;
-};
-
-export const _Pipelines = async () => {
-  const collection = await db.collection('pipelines');
-  return collection;
-};
+export async function disconnect() {
+  try {
+    await client.close();
+    console.log(`DB: Connection closed ${MONGO_URL}`);
+  } catch (e) {
+    console.error(e);
+  }
+}

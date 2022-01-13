@@ -1,4 +1,4 @@
-import { _Fields } from './apiCollections';
+import { Fields } from './apiCollections';
 import { IBrandDocument } from '@erxes/common-types';
 import { ICustomer } from '@erxes/common-types';
 import { IUser } from '@erxes/common-types';
@@ -169,7 +169,6 @@ export default class EditorAttributeUtil {
   async generateReplacers(args: IArgs): Promise<IReplacer[]> {
     const { content, user, brand, item } = args;
     const replacers: IReplacer[] = [];
-    const Fields = await _Fields();
 
     // replace customer fields
     if (args.customer) {

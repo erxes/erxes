@@ -1,5 +1,5 @@
-import Random from 'meteor-random';
-// import { removeKey } from '../../../inmemoryStorage';
+import * as Random from 'meteor-random';
+import { removeKey } from '../../inmemoryStorage';
 
 /*
  * Mongoose field options wrapper
@@ -40,7 +40,7 @@ const hookList = [
 export const schemaHooksWrapper = (schema, cacheKey: string) => {
   for (const hook of hookList) {
     schema.post(hook, () => {
-      // removeKey(cacheKey);
+      removeKey(cacheKey);
     });
   }
 

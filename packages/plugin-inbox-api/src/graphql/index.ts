@@ -5,4 +5,5 @@ const mod = {
   resolvers,
   typeDefs,
 };
+
 export default mod;

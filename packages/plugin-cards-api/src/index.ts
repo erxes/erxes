@@ -16,7 +16,6 @@ import * as http from 'http';
 import { connect } from './connection';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initBroker } from './messageBroker';
-import { trackEngages } from './trackers/engageTracker';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
@@ -26,8 +25,6 @@ export const app = express();
 app.disable('x-powered-by');
 
 app.use(cookieParser());
-
-trackEngages(app);
 
 // for health checking
 app.get('/health', async (_req, res) => {

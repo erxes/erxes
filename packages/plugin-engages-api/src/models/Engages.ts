@@ -6,7 +6,7 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from '@erxes/common-types';
-import { _ConversationMessages, _Conversations } from '../apiCollections';
+import { ConversationMessages } from '../apiCollections';
 import { findUser, findElk } from '../engageUtils';
 import {
   removeEngageConversations,
@@ -405,7 +405,6 @@ export const loadClass = () => {
       } = args;
 
       let prevMessage: IMessageDocument | null;
-      const ConversationMessages = await _ConversationMessages();
 
       if (isUsingElk()) {
         const conversationMessages = await findElk('conversation_messages', {

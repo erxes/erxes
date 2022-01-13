@@ -1,5 +1,5 @@
-import { checkPermission } from "@erxes/api-utils";
-import { Skills, SkillTypes } from "../../models";
+import { Skills, SkillTypes } from '../../models';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 const skillTypesMutations = {
   async createSkillType(_root, { name }: { name: string }) {

@@ -10,8 +10,7 @@
     "noUnusedParameters": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "useUnknownInCatchVariables": false
+    "esModuleInterop": true
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"],

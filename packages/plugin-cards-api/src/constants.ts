@@ -169,8 +169,19 @@ export const SES_DELIVERY_STATUSES = {
 
 // used for activity logging
 export const ACTIVITY_LOG_ACTIONS = {
-  SEND_EMAIL_CAMPAIGN: 'sendEmailCampaign',
-  SEND_SMS_CAMPAIGN: 'sendSmsCampaign'
+  ADD: 'add',
+  CREATE_BOARD_ITEM: 'createBoardItem',
+  CREATE_BOARD_ITEM_MOVEMENT_LOG: 'createBoardItemMovementLog',
+  CREATE_BOARD_ITEMS: 'createBoardItems',
+  CREATE_ARCHIVE_LOG: 'createArchiveLog',
+  CREATE_ASSIGNE_LOG: 'createAssigneLog',
+  CREATE_COC_LOG: 'createCocLog',
+  CREATE_COC_LOGS: 'createCocLogs',
+  CREATE_SEGMENT_LOG: 'createSegmentLog',
+  CREATE_CHECKLIST_LOG: 'createChecklistLog',
+  CREATE_TAG_LOG: 'createTagLog',
+  REMOVE_ACTIVITY_LOG: 'removeActivityLog',
+  REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
@@ -191,4 +202,50 @@ export const CAMPAIGN_METHODS = {
   EMAIL: 'email',
   SMS: 'sms',
   ALL: ['messenger', 'email', 'sms']
+};
+
+export const PRIORITIES = {
+  CRITICAL: 'Critical',
+  HIGH: 'High',
+  NORMAL: 'Normal',
+  LOW: 'Low',
+  ALL: [
+    {
+      name: 'Critical',
+      color: '#EA475D'
+    },
+    { name: 'High', color: '#F7CE53' },
+    { name: 'Normal', color: '#3B85F4' },
+    { name: 'Low', color: '#AAAEB3' }
+  ]
+};
+
+export const CLOSE_DATE_TYPES = {
+  NEXT_DAY: 'nextDay',
+  NEXT_WEEK: 'nextWeek',
+  NEXT_MONTH: 'nextMonth',
+  NO_CLOSE_DATE: 'noCloseDate',
+  OVERDUE: 'overdue',
+  ALL: [
+    {
+      name: 'Next day',
+      value: 'nextDay'
+    },
+    {
+      name: 'Next week',
+      value: 'nextWeek'
+    },
+    {
+      name: 'Next month',
+      value: 'nextMonth'
+    },
+    {
+      name: 'No close date',
+      value: 'noCloseDate'
+    },
+    {
+      name: 'Over due',
+      value: 'overdue'
+    }
+  ]
 };

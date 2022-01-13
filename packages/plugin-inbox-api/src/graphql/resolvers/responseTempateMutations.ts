@@ -1,7 +1,11 @@
-import { IContext } from "@erxes/api-utils";
-import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
-import { ResponseTemplates } from "../../models";
-import { IResponseTemplate } from "../../models/definitions/responseTemplates";
+import { ResponseTemplates } from '../../models';
+import { IResponseTemplate } from '../../models/definitions/responseTemplates';
+
+// import { MODULE_NAMES } from '../../constants';
+// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
   _id: string;
@@ -18,6 +22,15 @@ const responseTemplateMutations = {
   ) {
     const template = await ResponseTemplates.create(docModifier(doc));
 
+//     await putCreateLog(
+//       {
+//         type: MODULE_NAMES.RESPONSE_TEMPLATE,
+//         newData: doc,
+//         object: template
+//       },
+//       user
+//     );
+
     return template;
   },
 
@@ -32,6 +45,16 @@ const responseTemplateMutations = {
     const template = await ResponseTemplates.getResponseTemplate(_id);
     const updated = await ResponseTemplates.updateResponseTemplate(_id, fields);
 
+//     await putUpdateLog(
+//       {
+//         type: MODULE_NAMES.RESPONSE_TEMPLATE,
+//         object: template,
+//         newData: fields,
+//         updatedDocument: updated
+//       },
+//       user
+//     );
+
     return updated;
   },
 
@@ -45,6 +68,11 @@ const responseTemplateMutations = {
   ) {
     const template = await ResponseTemplates.getResponseTemplate(_id);
     const removed = await ResponseTemplates.removeResponseTemplate(_id);
+
+//     await putDeleteLog(
+//       { type: MODULE_NAMES.RESPONSE_TEMPLATE, object: template },
+//       user
+//     );
 
     return removed;
   }

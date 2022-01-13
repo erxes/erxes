@@ -1,4 +1,12 @@
 export const types = `
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Field @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type MessengerConnectResponse {
     integrationId: String
     uiOptions: JSON
@@ -70,8 +78,6 @@ export const queries = `
   widgetsUnreadCount(conversationId: String): Int
   widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
-  widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
-  widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
   widgetsProductCategory(_id: String!): ProductCategory
@@ -151,8 +157,6 @@ export const mutations = `
 
   widgetGetBotInitialMessage(integrationId: String): JSON
 
-  widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
-  widgetsKnowledgebaseDecReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
 

@@ -1,8 +1,19 @@
-import { IContext, paginate } from "@erxes/api-utils";
-import { moduleRequireLogin, checkPermission } from "@erxes/api-utils/src/permissions";
-import { Brands, Tags } from "../../apiCollections";
-import { Channels, Integrations } from "../../models";
+import { Channels, Integrations } from '../../models';
+import { Tags } from '../../apiCollections';
+import {
+  INTEGRATION_NAMES_MAP,
+  KIND_CHOICES,
+} from '../../models/definitions/constants';
 
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '@erxes/api-utils/src/permissions';
+
+import messageBroker from '../../messageBroker';
+import { IContext } from '@erxes/api-utils';
+import { paginate } from '@erxes/api-utils';
+import { getDocumentList } from '../../cacheUtils';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -125,13 +136,13 @@ const integrationQueries = {
   async integrationsGetUsedTypes(_root, {}) {
     const usedTypes: Array<{ _id: string; name: string }> = [];
 
-//     for (const kind of KIND_CHOICES.ALL) {
-//       if (
-//         (await Integrations.findIntegrations({ kind }).countDocuments()) > 0
-//       ) {
-//         usedTypes.push({ _id: kind, name: INTEGRATION_NAMES_MAP[kind] });
-//       }
-//     }
+    for (const kind of KIND_CHOICES.ALL) {
+      if (
+        (await Integrations.findIntegrations({ kind }).countDocuments()) > 0
+      ) {
+        usedTypes.push({ _id: kind, name: INTEGRATION_NAMES_MAP[kind] });
+      }
+    }
 
     return usedTypes;
   },
@@ -189,17 +200,17 @@ const integrationQueries = {
 
     // Counting integrations by kind
 
-//     for (const kind of KIND_CHOICES.ALL) {
-//       const countQueryResult = await count({ kind, ...qry });
-//       counts.byKind[kind] = !args.kind
-//         ? countQueryResult
-//         : args.kind === kind
-//         ? countQueryResult
-//         : 0;
-//     }
+    for (const kind of KIND_CHOICES.ALL) {
+      const countQueryResult = await count({ kind, ...qry });
+      counts.byKind[kind] = !args.kind
+        ? countQueryResult
+        : args.kind === kind
+        ? countQueryResult
+        : 0;
+    }
 
     // Counting integrations by channel
-    const channels = await Channels.find({});
+    const channels = await getDocumentList('channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -215,7 +226,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await Brands.find({}).toArray();
+    const brands = await getDocumentList('brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });
@@ -253,6 +264,16 @@ const integrationQueries = {
   ) {
     return dataSources.IntegrationsAPI.fetchApi(path, params);
   },
+
+  async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
+    return messageBroker().sendRPCMessage(
+      'rpc_queue:api_to_integrations',
+      {
+        action: 'line-webhook',
+        data: { _id }
+      }
+    );
+  }
 };
 
 moduleRequireLogin(integrationQueries);
