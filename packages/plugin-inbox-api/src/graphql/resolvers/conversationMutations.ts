@@ -37,7 +37,7 @@ import graphqlPubsub from '../../pubsub';
 // } from '../../logUtils';
 
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 import { splitStr } from '@erxes/api-utils/src/core';
 // import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';

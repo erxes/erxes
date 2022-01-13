@@ -41,7 +41,7 @@ import graphqlPubsub from '../../pubsub';
 
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../models/definitions/constants';
 
-import { IContext, sendRequest } from '@erxes/api-utils';
+import { IContext, sendRequest } from '@erxes/api-utils/src';
 
 // import {
 //   sendEmail,

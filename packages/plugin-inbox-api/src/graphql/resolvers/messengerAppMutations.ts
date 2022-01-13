@@ -1,6 +1,6 @@
 import { MessengerApps } from '../../models';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 
 const messengerAppMutations = {
   async messengerAppSave(

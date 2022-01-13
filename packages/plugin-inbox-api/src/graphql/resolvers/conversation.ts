@@ -1,7 +1,7 @@
 import { debugError } from '../../debuggers';
 import { getDocument } from '../../cacheUtils';
 import { IConversationDocument } from '../../models/definitions/conversations';
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 import { ConversationMessages } from '../../models';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 
