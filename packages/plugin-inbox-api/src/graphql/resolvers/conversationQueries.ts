@@ -27,6 +27,9 @@ const count = async (query: any): Promise<number> => {
 };
 
 const conversationQueries = {
+  conversationMessage(_, { _id }) {
+    return ConversationMessages.findOne({ _id });
+  },
   /**
    * Conversations list
    */
