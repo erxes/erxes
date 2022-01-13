@@ -1,8 +1,7 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-
-import { queries as generalQueries } from '@erxes/ui-settings/src//general/graphql';
+import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import Home from '../components/Home';
 import { options } from './UserList';
 import { queries, mutations } from '../graphql';
@@ -18,7 +17,7 @@ type Props = {
 function HomeContainer(props: Props) {
   const usersGroupQuery = useQuery(gql(permissionQueries.usersGroups));
   const configsEnvQuery = useQuery(gql(generalQueries.configsGetEnv));
-
+  
   const getRefetchQueries = () => {
     return [
       { query: gql(queries.users), options },
