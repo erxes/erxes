@@ -37,7 +37,10 @@ module.exports = {
   optimization: { runtimeChunk: false, splitChunks: false },
 
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+    fallback: {
+      timers: require.resolve('timers-browserify')
+    }
   },
 
   devServer: {
