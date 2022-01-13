@@ -72,19 +72,8 @@ export type LogDesc = {
   [key: string]: any;
 } & { name: any };
 
-export interface IDescriptionParams {
-  action: string;
-  type: string;
-  obj: any;
-  updatedDocument?: any;
-  extraParams?: any;
-}
-
-export type DescriptionHelper = (params: IDescriptionParams) => { extraDesc: LogDesc[], description: string };
-
 export const putCreateLog = async (
   messageBroker,
-  // descriptionHelper: DescriptionHelper,
   params: ILogDataParams,
   user: IUserDocument
 ) => {
@@ -136,7 +125,6 @@ export const putUpdateLog = async (
  */
 export const putDeleteLog = async (
   messageBroker,
-  // descriptionHelper: DescriptionHelper,
   params: ILogDataParams,
   user: IUserDocument
 ) => {

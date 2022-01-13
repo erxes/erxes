@@ -1,10 +1,7 @@
 import { IUserDocument } from '@erxes/common-types';
-import {
-  requireLogin,
-  checkPermission,
-  paginate,
-  IContext
-} from '@erxes/api-utils';
+import { paginate } from '@erxes/api-utils/src/core';
+import { IContext } from '@erxes/api-utils/src/types';
+import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
 import { EngageMessages } from '../../models';
 import { Tags, Customers } from '../../apiCollections';
 

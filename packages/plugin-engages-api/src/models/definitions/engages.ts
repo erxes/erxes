@@ -1,5 +1,7 @@
 import { Schema } from 'mongoose';
-import { ruleSchema, field, schemaWrapper } from '@erxes/api-utils';
+
+import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
+import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
 import { IRule } from '@erxes/common-types';
 import { MESSAGE_KINDS, MESSENGER_KINDS, CAMPAIGN_METHODS, SENT_AS_CHOICES } from '../../constants';
 

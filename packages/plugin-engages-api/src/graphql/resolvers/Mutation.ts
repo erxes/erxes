@@ -1,13 +1,9 @@
 import * as _ from 'underscore';
 
-import {
-  checkPermission,
-  IContext,
-  MODULE_NAMES,
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog,
-} from '@erxes/api-utils';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src/types';
+import { MODULE_NAMES } from '@erxes/api-utils/src/constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
 

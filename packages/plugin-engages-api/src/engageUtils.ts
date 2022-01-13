@@ -1,12 +1,12 @@
 import { Transform } from 'stream';
+
 import {
   IUserDocument,
   ICustomerDocument,
-  IEngageMessage,
-  IEngageMessageDocument
 } from '@erxes/common-types';
-import { chunkArray, CONTENT_TYPES } from '@erxes/api-utils';
-
+import { chunkArray } from '@erxes/api-utils/src/core';
+import { CONTENT_TYPES } from '@erxes/api-utils/src/constants';
+import { IEngageMessage, IEngageMessageDocument } from './models/definitions/engages';
 import { EngageMessages } from './models';
 import { Users, Customers, Segments } from './apiCollections';
 import {
