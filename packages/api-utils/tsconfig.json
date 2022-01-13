@@ -9,6 +9,7 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "strict": true,
+    "esModuleInterop": true
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"],

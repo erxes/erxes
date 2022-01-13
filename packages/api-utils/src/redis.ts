@@ -1,4 +1,4 @@
-import * as Redis from "ioredis";
+import Redis from "ioredis";
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 
