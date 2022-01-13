@@ -9,7 +9,7 @@ import {
   GeneralWrapper,
   TeamPortal,
   FeatureRowFlex,
-  XButton
+  DeleteButton
 } from '../styles';
 import Button from 'erxes-ui/lib/components/Button';
 import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
@@ -119,6 +119,13 @@ export default function General(props: Props) {
       </TeamPortal>
       <FeatureLayout>
         <p>Features</p>
+        <FeatureRow>
+              <FeatureRowItem>Title 1</FeatureRowItem>
+              <FeatureRowItem>Title 2</FeatureRowItem>
+              <FeatureRowItem>Title 3</FeatureRowItem>
+              <FeatureRowItem>Title 4</FeatureRowItem>
+              <FeatureRowItem>Title 5</FeatureRowItem>
+        </FeatureRow>
         {features.map(feature => (
           <FeatureRow key={feature._id}>
             <FeatureRowFlex>
@@ -195,13 +202,14 @@ export default function General(props: Props) {
               </FeatureRowItem>
             )}
             </FeatureRowFlex>
-            <XButton
+            <DeleteButton
               onClick={() => onChangeFeature('remove', feature._id)}
               title={'Delete Feature'}
-            >X</XButton>
+              icon = 'icon-cancel'
+            />
           </FeatureRow>
         ))}
-        <Button btnStyle="primary"  onClick={() => onChangeFeature('add')} > + Add Features</Button>
+        <Button btnStyle="primary" icon = 'plus-circle'  onClick={() => onChangeFeature('add')} >Add Features</Button>
       </FeatureLayout>
       <Button btnStyle='success' icon="check-circle" onClick={onSave}>
         Save

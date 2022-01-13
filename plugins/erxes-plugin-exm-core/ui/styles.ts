@@ -6,6 +6,7 @@ export const GeneralWrapper = styled.div`
   margin: auto;
   width: 50%;
   min-width: max-content;
+
   > div {
     background-color: #fafafa;
     padding: 20px 20px 40px 20px;
@@ -18,7 +19,11 @@ export const GeneralWrapper = styled.div`
       text-transform: uppercase;
       font-weight: 500;
     }
+    > h4 {
+      color: #673FBD;
+    }
   }
+
   > button {
     float: right;
   }
@@ -36,7 +41,7 @@ export const TeamPortal = styled.div`
 export const FeatureRow = styled.div`
   display: flex;
   margin-bottom: 15px;
-  justify-content: space-between;
+  justify-content: flex-start;
 `;
 
 export const FeatureRowItem = styled.div`
@@ -46,17 +51,22 @@ export const FeatureRowItem = styled.div`
 
 export const FeatureRowFlex = styled.div `
   display: flex;
+  flex: 1;
 `;
 
 export const FeatureLayout = styled.div`
 `;
 
-export const XButton = styled.div `
-   margin: auto;
-  :hover{
-    color: red;
-    cursor: pointer;
-  }
+export const DeleteButton = styled.div `
+  margin: auto;
+  float: right; 
+  background: transparent;
+  border: none;
+  
+    :hover{
+      color: red;
+      cursor: pointer;
+    }
 `;
 
 export const AppearanceWrapper = styled.div`
@@ -65,12 +75,16 @@ export const AppearanceWrapper = styled.div`
   justify-content: center;
   min-width: max-content;
   padding: 40px;
+
   > div:first-child {
-    padding: 0 0 0 40px;
-      width: 690px; 
+    padding: 50px 0 40px 0;
+    width: 70%; 
   }
   > div:last-child {
     padding: 0;
+  }
+  > button {
+    float: right;
   }
 `;
 
@@ -90,27 +104,27 @@ export const AppSettings = styled.div`
 `;
 
 export const Logos = styled.div`
-> div {
+    border-bottom: 1px dashed #EEE;
+  > div {
+    display: flex;
+    justify-content: space-around;
+    
+  }
   > img {
   margin: 10px;
 }
-}
+`;
+
+export const GrayLabel = styled.div`
+  color: #888;
+  margin-bottom: 20px;
 `;
 
 export const Colors = styled.div`
->div{
-  display: flex;
-  justify-content: space-around;
-  > div {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-    margin-right: 20px;
-    label {
-      width: 100px;
-    }
-  }
-}
+ > div {
+   display: flex;
+   flex-direction: column;
+ }
 `;
 
 export const WelcomeContent = styled.div`
@@ -119,7 +133,17 @@ export const WelcomeContent = styled.div`
     input {
       margin-top: 50px;
     }
+    :first-child {
+      display: flex;
+      height: 35px;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
   }
+`;
+
+export const PageContainer = styled.div`
+  display: flex;
 `;
 
 
@@ -135,6 +159,7 @@ export const ColorPick = styled.div`
   border-radius: 4px;
   display: inline-block;
   padding: 3px;
+  max-width: max-content;
   border: 1px solid ${colors.borderDarker};
   cursor: pointer;
 `;

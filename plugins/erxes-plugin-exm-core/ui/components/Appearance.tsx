@@ -2,6 +2,7 @@ import Button from 'erxes-ui/lib/components/Button';
 import { FormControl } from 'erxes-ui/lib/components/form';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import Uploader from 'erxes-ui/lib/components/Uploader';
+import AvatarUpload from 'erxes-ui/lib/components/AvatarUpload';
 import { __ } from 'erxes-ui/lib/utils';
 import React, { useState } from 'react';
 import {
@@ -10,7 +11,9 @@ import {
   Logos,
   AppearanceWrapper,
   WelcomeContent,
-  XButton
+  DeleteButton,
+  GrayLabel,
+  PageContainer
 } from '../styles';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from '../styles';
@@ -142,14 +145,14 @@ export default function Appearance(props: Props) {
 
     return (
       <div key={index}>
-        <XButton
-          style={{ float: 'right', background: 'transparent', border: 'none', cursor:'pointer' }}
+        <DeleteButton
           onClick={() => onChangePageCount('remove', page._id)}
           title={'Delete Page'}
         >
-          X
-        </XButton>
+        </DeleteButton>
+        
         <ControlLabel>Page {index + 1}</ControlLabel>
+        <PageContainer>
         <Uploader
           defaultFileList={image ? [image] : []}
           onChange={(e: any) => {
@@ -157,6 +160,7 @@ export default function Appearance(props: Props) {
           }}
           single={true}
         />
+        <div>
         <FormControl
           name='title'
           placeholder='Title'
@@ -174,54 +178,44 @@ export default function Appearance(props: Props) {
             return onChangePageItem(page._id, 'content', e.target.value);
           }}
         />
+        </div>
+        </PageContainer>
       </div>
     );
   };
 
   return (
     <AppearanceWrapper>
-      <GeneralWrapper>
+      <div>
         <Logos>
-          <p>Logos</p>
-          <ControlLabel>{__('Logo 256x256 or 128x128')}</ControlLabel>
-          {!logo ? 
-            <div>
-            <img 
-              src={'https://i.pinimg.com/originals/3f/94/70/3f9470b34a8e3f526dbdb022f9f19cf7.jpg'} 
-              alt={logo}
-              width={128} 
-              height={128} 
-              title={'Logo'}
-            />
-            </div> 
-          : 
-            <div>
-            </div> 
-          }
+          <h4>Logos and Colors</h4>
           <div>
-          <Uploader
-            defaultFileList={logo ? [logo] : []}
-            onChange={(e: any) => onChangeAttachment(e.length ? e[0] : null)}
-            single={true}
-          />
+            <div>
+              <ControlLabel>{__('Main logo')}</ControlLabel>
+              <GrayLabel>256x256 or 128x128</GrayLabel>
+              <AvatarUpload
+                    onAvatarUpload={onChangeAttachment}
+              />
+            </div>
+            <Colors>
+              <ControlLabel>{__('Color')}</ControlLabel>
+              <GrayLabel>Choose colors</GrayLabel>
+                <div>
+                  <ControlLabel>{__('Primary color')}</ControlLabel>
+                  {renderColorSelect('primaryColor', appearance.primaryColor)}
+                </div>
+                <div>
+                  <ControlLabel>{__('Secondary color')}</ControlLabel>
+                  {renderColorSelect('secondaryColor', appearance.secondaryColor)}
+                </div>
+            </Colors>
           </div>
         </Logos>
-        <Colors>
-          <p>Colors</p>
-          <div>
-            <div>
-              <ControlLabel>{__('Primary color')}</ControlLabel>
-              {renderColorSelect('primaryColor', appearance.primaryColor)}
-            </div>
-            <div>
-              <ControlLabel>{__('Secondary color')}</ControlLabel>
-              {renderColorSelect('secondaryColor', appearance.secondaryColor)}
-            </div>
-          </div>
-        </Colors>
         <WelcomeContent>
-          <p>Welcome content</p>
-          <Button onClick={() => onChangePageCount('add')}>+ Add Page</Button>
+          <div>
+            <h4>Welcome content</h4>
+            <Button icon = 'plus-circle' onClick={() => onChangePageCount('add')}>Add Page</Button>
+          </div>
           {welcomeContent.map((page, index) =>
             renderWelcomeContent(page, index)
           )}
@@ -229,7 +223,7 @@ export default function Appearance(props: Props) {
         <Button btnStyle='success' icon="check-circle" onClick={onSave}>
           Save
         </Button>
-      </GeneralWrapper>
+      </div>
     </AppearanceWrapper>
   );
 }
