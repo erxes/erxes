@@ -116,8 +116,8 @@ describe('Test deals model', () => {
     const deals = await Deals.find({ stageId: createdStage._id });
 
     expect(deals.length).toEqual(2);
-    expect(deals[0].number).toBe('2021__1');
-    expect(deals[1].number).toBe('2021__2');
+    expect(deals[0].number).toBe('2022__1');
+    expect(deals[1].number).toBe('2022__2');
   });
 
   test('Create deal Error(`Already converted a deal`)', async () => {

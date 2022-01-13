@@ -209,17 +209,24 @@ export const receiveEngagesNotification = async msg => {
   }
 
   if (action === 'setCampaignCount') {
-    const { campaignId, totalCustomersCount, validCustomersCount } = data;
+    const { campaignId, validCustomersCount = 0 } = data;
 
     const campaign = await EngageMessages.findOne({ _id: campaignId });
 
     if (campaign) {
+      const {
+        validCustomersCount: currentValid = 0,
+        totalCustomersCount = 0
+      } = campaign;
+      const validSum = currentValid + validCustomersCount;
+
       await EngageMessages.updateOne(
         { _id: campaignId },
         {
           $set: {
-            totalCustomersCount,
-            validCustomersCount,
+            // valid count must never exceed total count
+            validCustomersCount:
+              validSum > totalCustomersCount ? totalCustomersCount : validSum,
             lastRunAt: new Date()
           },
           $inc: { runCount: 1 }

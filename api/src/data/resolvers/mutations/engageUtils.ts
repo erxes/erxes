@@ -279,6 +279,11 @@ const sendEmailOrSms = async (
     }
 
     if (customerInfos.length > 0) {
+      await EngageMessages.updateOne(
+        { _id: engageMessageId },
+        { $set: { totalCustomersCount: customerInfos.length } }
+      );
+
       const data: any = {
         customers: [],
         fromEmail: user.email,

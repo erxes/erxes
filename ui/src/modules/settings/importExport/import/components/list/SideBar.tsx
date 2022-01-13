@@ -20,25 +20,24 @@ const ITEM_TYPES = {
 };
 
 type Props = {
-  currentType: string;
-  title: string;
+  currentType?: string;
 };
 
 class Sidebar extends React.Component<Props> {
   renderSidebarHeader = () => {
-    const { title } = this.props;
     const { Header } = LeftSidebar;
 
     return (
       <div>
         <SidebarHeader />
-        <Header uppercase={true}>{__(title)}</Header>
+        <Header uppercase={true}>{__('Filter by content type')}</Header>
       </div>
     );
   };
 
   renderListItem(type: string, text: string) {
-    const className = this.props.currentType === type ? 'active' : '';
+    const className =
+      this.props.currentType && this.props.currentType === type ? 'active' : '';
 
     return (
       <li>
@@ -54,16 +53,16 @@ class Sidebar extends React.Component<Props> {
       <LeftSidebar header={this.renderSidebarHeader()} full={true}>
         <LeftSidebar.Section>
           <List id={'ImportExportSidebar'}>
-            {this.renderListItem(ITEM_TYPES.BRAND, 'Brands')}
-            {this.renderListItem(ITEM_TYPES.CHANNEL, 'Channels')}
-            {this.renderListItem(ITEM_TYPES.LEAD, 'Leads')}
             {this.renderListItem(ITEM_TYPES.CUSTOMER, 'Customers')}
+            {this.renderListItem(ITEM_TYPES.LEAD, 'Leads')}
             {this.renderListItem(ITEM_TYPES.COMPANY, 'Companies')}
-            {this.renderListItem(ITEM_TYPES.PERMISSION, 'Permissions')}
-            {this.renderListItem(ITEM_TYPES.PRODUCT, 'Product & Service')}
             {this.renderListItem(ITEM_TYPES.DEAL, 'Deals')}
             {this.renderListItem(ITEM_TYPES.TASK, 'Tasks')}
             {this.renderListItem(ITEM_TYPES.TICKET, 'Tickets')}
+            {this.renderListItem(ITEM_TYPES.BRAND, 'Brands')}
+            {this.renderListItem(ITEM_TYPES.CHANNEL, 'Channels')}
+            {this.renderListItem(ITEM_TYPES.PERMISSION, 'Permissions')}
+            {this.renderListItem(ITEM_TYPES.PRODUCT, 'Product & Service')}
             {this.renderListItem(ITEM_TYPES.TEAM_MEMBER, 'Team members')}
           </List>
         </LeftSidebar.Section>
