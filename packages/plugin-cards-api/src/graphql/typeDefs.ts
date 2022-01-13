@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-express";
+import { gql } from 'apollo-server-express';
 
 const types = `
   extend type Brand @key(fields: "_id") {
@@ -188,7 +188,6 @@ const mutations = `
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
 `;
-
 
 const typeDefs = gql`
   ${types}
