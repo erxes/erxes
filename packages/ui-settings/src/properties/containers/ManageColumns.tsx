@@ -164,7 +164,7 @@ export default withProps<Props>(
       }
     }),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
-      gql((queries || {} as any).fieldsDefaultColumnsConfig),
+      gql(queries.fieldsDefaultColumnsConfig),
       {
         name: 'fieldsDefaultColumnsConfigQuery',
         options: ({ contentType }) => {
