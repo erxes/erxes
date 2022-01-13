@@ -7,6 +7,7 @@ export default function generateDataLoaderForm() {
     const result: any[] = await Forms.find({
       _id: { $in: ids }
     }).toArray();
+
     const resultById = _.indexBy(result, '_id');
     return ids.map(id => resultById[id]);
   });

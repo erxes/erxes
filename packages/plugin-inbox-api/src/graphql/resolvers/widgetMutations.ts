@@ -6,8 +6,6 @@ import {
 } from '../../models';
 
 import {
-  Companies,
-  Conformities,
   Customers,
   Fields,
   Forms,
@@ -57,7 +55,7 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendContactMessage, sendContactRPCMessage, sendMessage, sendToLog } from '../../messageBroker';
+import { sendConformityMessage, sendContactMessage, sendContactRPCMessage, sendFormRPCMessage, sendMessage, sendToLog } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
@@ -152,7 +150,7 @@ const createFormConversation = async (
     throw new Error('Form not found');
   }
 
-  const errors = await Forms.validate(formId, submissions);
+  const errors = await sendFormRPCMessage('validate', { formId, submissions });
 
   if (errors.length > 0) {
     return { status: 'error', errors };
@@ -236,7 +234,7 @@ const widgetMutations = {
     }
 
     if (integ.createdUserId) {
-      const user = await Users.getUser(integ.createdUserId);
+      const user = await Users.findOne({ _id: integ.createdUserId });
 
       sendMessage('registerOnboardHistory', { type: 'leadIntegrationInstalled', user });
     }
@@ -400,7 +398,7 @@ const widgetMutations = {
         companyData.primaryName = companyData.name;
 
         try {
-          company = await Companies.createCompany({
+          company = await sendContactRPCMessage('createCompany', {
             ...companyData,
             scopeBrandIds: [brand._id]
           });
@@ -408,7 +406,7 @@ const widgetMutations = {
           debugError(e.message);
         }
       } else {
-        company = await Companies.updateCompany(company._id, {
+        company = await sendContactRPCMessage('updateCompany', {
           ...companyData,
           scopeBrandIds: [brand._id]
         });
@@ -416,7 +414,7 @@ const widgetMutations = {
 
       if (customer && company) {
         // add company to customer's companyIds list
-        await Conformities.create({
+        sendConformityMessage('create', {
           mainType: 'customer',
           mainTypeId: customer._id,
           relType: 'company',

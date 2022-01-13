@@ -29,6 +29,14 @@ export const sendContactRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
 };
 
+export const sendFormRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
+};
+
+export const sendConformityMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`conformities:${action}`, data);
+};
+
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
