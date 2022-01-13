@@ -1,18 +1,11 @@
 import {
   Companies,
-  Conversations,
   Customers,
-  Deals,
   Fields,
   FieldsGroups,
   Integrations,
-  PipelineLabels,
   Products,
-  Segments,
-  Stages,
   Tags,
-  Tasks,
-  Tickets,
   Users
 } from '../../../db/models';
 import { IFieldGroup } from '../../../db/models/definitions/fields';
@@ -22,6 +15,7 @@ import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
 import { getConfig, isUsingElk } from '../../utils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
+import { custom, getPluginSchema } from './federationUtils';
 
 const generateBasicInfosFromSchema = async (
   queSchema: any,
@@ -73,21 +67,21 @@ export const getCustomFields = async (contentType: string) => {
   });
 };
 
-const getSegment = async (_id: string) => {
-  if (!isUsingElk()) {
-    return Segments.findOne({ _id });
-  }
+// const getSegment = async (_id: string) => {
+//   if (!isUsingElk()) {
+//     return Segments.findOne({ _id });
+//   }
 
-  const response = await fetchElk({
-    action: 'get',
-    index: 'segments',
-    body: null,
-    _id,
-    defaultValue: null
-  });
+//   const response = await fetchElk({
+//     action: 'get',
+//     index: 'segments',
+//     body: null,
+//     _id,
+//     defaultValue: null
+//   });
 
-  return response && { _id: response._id, ...response._source };
-};
+//   return response && { _id: response._id, ...response._source };
+// };
 
 const getFieldGroup = async (_id: string) => {
   if (!isUsingElk()) {
@@ -239,7 +233,7 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
   return properties;
 };
 
-const getIntegrations = async () => {
+export const getIntegrations = async () => {
   if (!isUsingElk()) {
     return Integrations.aggregate([
       {
@@ -270,7 +264,7 @@ const getIntegrations = async () => {
   });
 };
 
-const generateUsersOptions = async (
+export const generateUsersOptions = async (
   name: string,
   label: string,
   type: string
@@ -291,7 +285,7 @@ const generateUsersOptions = async (
   };
 };
 
-const generateProductsOptions = async (
+export const generateProductsOptions = async (
   name: string,
   label: string,
   type: string
@@ -314,7 +308,7 @@ const generateProductsOptions = async (
   };
 };
 
-const generateConfigOptions = async (
+export const generateConfigOptions = async (
   name: string,
   label: string,
   type: string,
@@ -332,46 +326,6 @@ const generateConfigOptions = async (
     name,
     label,
     type,
-    selectOptions: options
-  };
-};
-
-const getStageOptions = async pipelineId => {
-  const stages = await Stages.find({ pipelineId });
-  const options: Array<{ label: string; value: any }> = [];
-
-  for (const stage of stages) {
-    options.push({
-      value: stage._id,
-      label: stage.name || ''
-    });
-  }
-
-  return {
-    _id: Math.random(),
-    name: 'stageId',
-    label: 'Stage',
-    type: 'stage',
-    selectOptions: options
-  };
-};
-
-const getPipelineLabelOptions = async pipelineId => {
-  const labels = await PipelineLabels.find({ pipelineId });
-  const options: Array<{ label: string; value: any }> = [];
-
-  for (const label of labels) {
-    options.push({
-      value: label._id,
-      label: label.name
-    });
-  }
-
-  return {
-    _id: Math.random(),
-    name: 'labelIds',
-    label: 'Labels',
-    type: 'label',
     selectOptions: options
   };
 };
@@ -474,7 +428,9 @@ export const fieldsCombinedByContentType = async ({
   excludedNames,
   pipelineId,
   segmentId,
-  formId
+  formId,
+  pluginName,
+  pluginContentType
 }: {
   contentType: string;
   usageType?: string;
@@ -483,7 +439,11 @@ export const fieldsCombinedByContentType = async ({
   segmentId?: string;
   pipelineId?: string;
   formId?: string;
+  pluginName?: string;
+  pluginContentType?: string;
 }) => {
+  console.log(pipelineId, segmentId);
+
   let schema: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
   let fields: Array<{
@@ -502,34 +462,17 @@ export const fieldsCombinedByContentType = async ({
       schema = Companies.schema;
       break;
 
-    case FIELD_CONTENT_TYPES.PRODUCT:
-      schema = Products.schema;
-      extendFields = EXTEND_FIELDS.PRODUCT;
-      break;
-
     case FIELD_CONTENT_TYPES.CUSTOMER:
       schema = Customers.schema;
-      break;
-
-    case 'conversation':
-      schema = Conversations.schema;
-      break;
-
-    case 'deal':
-      schema = Deals.schema;
-      break;
-
-    case 'task':
-      schema = Tasks.schema;
-      break;
-
-    case 'ticket':
-      schema = Tickets.schema;
       break;
 
     case 'user':
       schema = Users.schema;
       break;
+  }
+
+  if (pluginName && pluginContentType) {
+    schema = await getPluginSchema(pluginName, pluginContentType);
   }
 
   if (schema) {
@@ -595,131 +538,9 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  if (contentType === 'conversation') {
-    const integrations = await getIntegrations();
+  const pluginsCustomFields = await custom(pluginName, pluginContentType);
 
-    fields.push({
-      _id: Math.random(),
-      name: 'integrationId',
-      label: 'Related integration',
-      selectOptions: integrations
-    });
-
-    const assignedUserOptions = await generateUsersOptions(
-      'assignedUserId',
-      'Assigned to',
-      'user'
-    );
-
-    const participatedUserOptions = await generateUsersOptions(
-      'participatedUserIds',
-      'Participating team member',
-      'user'
-    );
-
-    const closedUserOptions = await generateUsersOptions(
-      'closedUserId',
-      'Resolved by',
-      'user'
-    );
-
-    fields = [
-      ...fields,
-      ...[participatedUserOptions, assignedUserOptions, closedUserOptions]
-    ];
-  }
-
-  if (['deal', 'task', 'ticket'].includes(contentType)) {
-    const createdByOptions = await generateUsersOptions(
-      'userId',
-      'Created by',
-      'user'
-    );
-
-    const modifiedByOptions = await generateUsersOptions(
-      'modifiedBy',
-      'Modified by',
-      'user'
-    );
-
-    const assignedUserOptions = await generateUsersOptions(
-      'assignedUserIds',
-      'Assigned to',
-      'user'
-    );
-
-    const watchedUserOptions = await generateUsersOptions(
-      'watchedUserIds',
-      'Watched users',
-      'user'
-    );
-
-    if (segmentId || pipelineId) {
-      const segment = segmentId ? await getSegment(segmentId) : null;
-
-      const labelOptions = await getPipelineLabelOptions(
-        pipelineId || (segment ? segment.pipelineId : null)
-      );
-
-      const stageOptions = await getStageOptions(
-        pipelineId || (segment ? segment.pipelineId : null)
-      );
-
-      fields = [...fields, stageOptions, labelOptions];
-    } else {
-      const stageOptions = {
-        _id: Math.random(),
-        name: 'stageId',
-        label: 'Stage',
-        type: 'stage'
-      };
-
-      fields = [...fields, stageOptions];
-    }
-
-    fields = [
-      ...fields,
-      ...[
-        createdByOptions,
-        modifiedByOptions,
-        assignedUserOptions,
-        watchedUserOptions
-      ]
-    ];
-  }
-
-  if (contentType === 'deal') {
-    const productOptions = await generateProductsOptions(
-      'productsData.productId',
-      'Product',
-      'product'
-    );
-
-    const assignedUserOptions = await generateUsersOptions(
-      'productsData.assignUserId',
-      'Assigned to (product)',
-      'user'
-    );
-
-    const uomOptions = await generateConfigOptions(
-      'productsData.uom',
-      'UOM',
-      'uom',
-      'dealUOM'
-    );
-
-    const currenciesOptions = await generateConfigOptions(
-      'productsData.currency',
-      'Currency',
-      'currency',
-      'dealCurrency'
-    );
-
-    fields = [
-      ...fields,
-      ...[productOptions, assignedUserOptions, uomOptions, currenciesOptions]
-    ];
-  }
+  fields = [...fields, ...pluginsCustomFields];
 
   for (const extendField of extendFields) {
     fields.push({
