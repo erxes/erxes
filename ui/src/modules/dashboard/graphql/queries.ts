@@ -14,6 +14,8 @@ const dashboards = `
     dashboards(page: $page, perPage: $perPage) {
 	    _id
 	    name
+      visibility
+      selectedMemberIds
 	  }
   }
 `;
@@ -23,6 +25,8 @@ const dashboardDetails = `
     dashboardDetails(_id: $_id) {
 	    _id
 	    name
+      visibility
+      selectedMemberIds
     }
   }
 `;

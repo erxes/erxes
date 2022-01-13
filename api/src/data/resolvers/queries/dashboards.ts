@@ -15,15 +15,26 @@ import {
 } from '../../modules/dashboard/utils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
 
 const dashBoardQueries = {
-  dashboards(
-    _root,
-    args: { page: number; perPage: number },
-    { commonQuerySelector }: IContext
-  ) {
-    return paginate(Dashboards.find(commonQuerySelector), args);
+  dashboards(_root, _arg, { user }: IContext) {
+    const dashboardFilter = user.isOwner
+      ? {}
+      : {
+          $or: [
+            { visibility: 'public' },
+            {
+              $and: [
+                { visibility: 'private' },
+                {
+                  $or: [{ selectedMemberIds: user._id }]
+                }
+              ]
+            }
+          ]
+        };
+
+    return Dashboards.find(dashboardFilter);
   },
 
   dashboardDetails(_root, { _id }: { _id: string }) {

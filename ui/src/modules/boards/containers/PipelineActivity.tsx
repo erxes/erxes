@@ -12,7 +12,6 @@ import { graphql } from 'react-apollo';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { queries } from '../graphql';
 import ActivityLogs from '../components/activityLogs/ActivityLogs';
-import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
   pipeline: IPipeline;
@@ -28,10 +27,6 @@ const ActivityLits = (props: WithStagesProps) => {
   const { queryParams, activityLogsByActionQuery } = props;
 
   const { error, activityLogsByAction, loading } = activityLogsByActionQuery;
-
-  if (loading) {
-    return <Spinner />;
-  }
 
   const updatedProps = {
     ...props,
