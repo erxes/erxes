@@ -7,7 +7,7 @@ import Modal from '../../../../containers/conversationDetail/responseTemplate/Mo
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
 import { ResponseTemplateStyled } from '../../../../styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

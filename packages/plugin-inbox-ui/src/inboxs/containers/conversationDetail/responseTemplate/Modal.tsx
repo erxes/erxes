@@ -8,7 +8,7 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   SaveResponseTemplateMutationResponse,
   SaveResponseTemplateMutationVariables
-} from '../../../settings/responseTemplates/types';
+} from '../../../../settings/responseTemplates/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

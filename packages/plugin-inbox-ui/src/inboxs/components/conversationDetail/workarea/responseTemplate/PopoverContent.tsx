@@ -15,7 +15,7 @@ import {
   TemplateTitle
 } from '../../../../styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import strip from 'strip';

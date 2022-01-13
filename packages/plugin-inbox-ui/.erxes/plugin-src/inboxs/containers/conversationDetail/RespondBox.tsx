@@ -10,7 +10,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
-import { ResponseTemplatesQueryResponse } from '../../settings/responseTemplates/types';
+import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
 import { UsersQueryResponse } from '@erxes/ui-settings/src/general/types';
 import { AddMessageMutationVariables, IConversation } from '../../types';
 

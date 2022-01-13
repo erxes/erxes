@@ -3,12 +3,12 @@ import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import PopoverContent from '../../../components/conversationDetail/workarea/responseTemplate/PopoverContent';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { queries as responseTemplateQuery } from '../../../settings/responseTemplates/graphql';
+import { queries as responseTemplateQuery } from '../../../../settings/responseTemplates/graphql';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
   ResponseTemplatesTotalCountQueryResponse
-} from '../../../settings/responseTemplates/types';
+} from '../../../../settings/responseTemplates/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

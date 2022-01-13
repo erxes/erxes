@@ -12,11 +12,11 @@ import { IUser } from './modules/auth/types';
 // import DashboardRoutes from './modules/dashboard/routes';
 // import DealsRoutes from './modules/deals/routes';
 // import GrowthHackRoutes from './modules/growthHacks/routes';
-import InboxRoutes from './modules/inbox/routes';
+// import InboxRoutes from './modules/inbox/routes';
 // import LeadRoutes from './modules/leads/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
-import SettingsRoutes from './modules/settings/routes';
+// import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
 // import TaskRoutes from './modules/tasks/routes';
 // import TicketRoutes from './modules/tickets/routes';
@@ -90,12 +90,12 @@ const renderRoutes = currentUser => {
       <>
         <MainLayout currentUser={currentUser} plugins={plugins}>
           <NotificationRoutes />
-          <InboxRoutes />
+          {/* <InboxRoutes /> */}
           <SegmentsRoutes />
           {/* <CustomersRoutes />
           <CompaniesRoutes /> */}
           {/* <LeadRoutes /> */}
-          <SettingsRoutes />
+          {/* <SettingsRoutes /> */}
           <TagsRoutes />
           {/* <DealsRoutes /> */}
           {/* <TicketRoutes /> */}

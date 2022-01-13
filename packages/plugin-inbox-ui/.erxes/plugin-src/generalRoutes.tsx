@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import InboxRoutes from './routes';
+import InboxsRoutes from './routes';
 
 const Routes = () => (
   <Router>
-    <InboxRoutes />
+    <InboxsRoutes />
   </Router>
 );
 

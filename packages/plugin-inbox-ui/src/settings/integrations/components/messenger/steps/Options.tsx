@@ -1,4 +1,4 @@
-import client from 'apolloClient';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import Select from 'react-select-plus';
 import FormGroup from '@erxes/ui/src/components/form/Group';
