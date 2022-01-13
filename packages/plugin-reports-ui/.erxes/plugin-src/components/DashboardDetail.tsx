@@ -1,4 +1,4 @@
-import { BoardContainer, BoardContent } from '@erxes/ui-cards/src/boards/styles/common';
+import { BoardContainer, BoardContent } from '../styles';
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
