@@ -4,7 +4,7 @@ import {
   destroyBoardItemRelations,
   fillSearchTextItem,
   watchItem
-} from './boardUtils';
+} from './modelUtils';
 import { IItemCommonFields as ITask } from './definitions/boards';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { ITaskDocument, taskSchema } from './definitions/tasks';

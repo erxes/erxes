@@ -4,7 +4,7 @@ import {
   fillSearchTextItem,
   createBoardItem,
   watchItem
-} from './boardUtils';
+} from './modelUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { ITicket, ITicketDocument, ticketSchema } from './definitions/tickets';
 

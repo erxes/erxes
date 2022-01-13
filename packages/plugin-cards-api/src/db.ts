@@ -14,12 +14,15 @@ const client = new MongoClient(MONGO_URL);
 let db: Db;
 
 export let _Checklists: any;
+export let _ChecklistItems: any;
 export let _Notifications: any;
 export let _Fields: any;
 export let _FieldsGroups: any;
 export let _PipelineLabels: any;
 export let _Segments: any;
 export let _Users: any;
+export let _InternalNotes: any;
+export let _Conformities: any;
 
 export async function connect() {
   await client.connect();
@@ -27,12 +30,15 @@ export async function connect() {
   db = client.db();
 
   _Checklists = db.collection('checklists');
+  _ChecklistItems = db.collection('checklist_items');
   _Notifications = db.collection('notifications');
   _Fields = db.collection('fields');
   _FieldsGroups = db.collection('field_groups');
   _PipelineLabels = db.collection('pipeline_labels');
   _Segments = db.collection('segments');
   _Users = db.collection('users');
+  _InternalNotes = db.collection('internal_notes');
+  _Conformities = db.collection('conformities');
 }
 
 export async function disconnect() {

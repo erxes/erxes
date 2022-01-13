@@ -1,192 +1,167 @@
 import { gql } from 'apollo-server-express';
 
+const commonTypes = `
+  order: Int
+  createdAt: Date
+  type: String
+`;
+
 const types = `
-  extend type Brand @key(fields: "_id") {
-    _id: ID! @external
-  }
-
-  extend type Segment @key(fields: "_id") {
-    _id: ID! @external
-  }
-
-  extend type Tag @key(fields: "_id") {
-    _id: ID! @external
-  }
-
   extend type User @key(fields: "_id") {
     _id: ID! @external
   }
 
-  extend type Integration @key(fields: "_id") {
-    _id: ID! @external
-  }
-
-  type EngageMessageSms {
-    from: String,
-    content: String!
-    fromIntegrationId: String
-  }
-
-  type EngageMessage @key(fields: "_id") {
+  type Board @key(fields: "_id") {
     _id: String!
-    kind: String
-    tagIds: [String]
-    customerTagIds: [String]
-    segmentIds: [String]
-    brandIds: [String]
-    customerIds: [String]
-    title: String
-    fromUserId: String
-    method: String
-    isDraft: Boolean
-    isLive: Boolean
-    stopDate: Date
-    createdAt: Date
-    type: String
-    messengerReceivedCustomerIds: [String]
-    totalCustomersCount: Int
-    validCustomersCount: Int
-    runCount: Int
-    lastRunAt: Date
+    name: String!
+    ${commonTypes}
+    pipelines: [Pipeline]
+  }
 
-    brand: Brand
-
-    email: JSON
-    messenger: JSON
-    shortMessage: EngageMessageSms
-    createdBy: String
-
-    scheduleDate: EngageScheduleDate
-    segments: [Segment]
-    customerTags: [Tag]
-    brands: [Brand]
-    fromUser: User
-    getTags: [Tag]
-    fromIntegration: Integration
+  type Pipeline @key(fields: "_id") {
+    _id: String!
+    name: String!
+    status: String
+    boardId: String!
+    visibility: String!
+    memberIds: [String]
+    members: [User]
+    bgColor: String
+    isWatched: Boolean
+    itemsTotalCount: Int
+    userId: String
     createdUser: User
-
-    stats: JSON
-    logs: JSON
-    smsStats: JSON
-  }
-
-  type EngageScheduleDate {
-    type: String,
-    month: String,
-    day: String,
-    dateTime: Date,
-  }
-
-  type DeliveryReport @key(fields: "_id") {
-    _id: String!,
-    customerId: String,
-    mailId: String,
-    status: String,
-    engage: EngageMessage,
-    createdAt: Date,
-    customerName: String
-  }
-
-  type EngageDeliveryReport {
-    list: [DeliveryReport]
-    totalCount: Int
-  }
-
-  type AvgEmailStats {
-    avgBouncePercent: Float,
-    avgClickPercent: Float,
-    avgComplaintPercent: Float,
-    avgDeliveryPercent: Float,
-    avgOpenPercent: Float,
-    avgRejectPercent: Float,
-    avgRenderingFailurePercent: Float,
-    avgSendPercent: Float,
-    total: Float
-  }
-
-  input EngageScheduleDateInput {
-    type: String,
-    month: String,
-    day: String,
-    dateTime: Date,
-  }
-
-  input EngageMessageEmail {
-    content: String,
-    subject: String!,
-    replyTo: String,
-    sender: String,
-    attachments: [JSON]
+    startDate: Date
+    endDate: Date
+    metric: String
+    hackScoringType: String
     templateId: String
+    state: String
+    isCheckUser: Boolean
+    excludeCheckUserIds: [String]
+    numberConfig: String
+    numberSize: String
+    ${commonTypes}
   }
 
-  input EngageMessageMessenger {
-    brandId: String!,
-    kind: String,
-    sentAs: String,
-    content: String,
-    rules: [InputRule],
+  type Stage @key(fields: "_id") {
+    _id: String!
+    name: String!
+    pipelineId: String!
+    probability: String
+    status: String
+    amount: JSON
+    itemsTotalCount: Int
+    compareNextStage: JSON
+    stayedDealsTotalCount: Int
+    initialDealsTotalCount: Int
+    inProcessDealsTotalCount: Int
+    formId: String
+    ${commonTypes}
   }
 
-  input EngageMessageSmsInput {
-    from: String,
-    content: String!
-    fromIntegrationId: String!
+  type PipelineChangeResponse {
+    _id: String
+    proccessId: String
+    action: String
+    data: JSON
+  }
+
+  type ConvertTo {
+    ticketUrl: String,
+    dealUrl: String,
+    taskUrl: String,
+  }
+
+  type BoardCount {
+    _id: String
+    name: String
+    count: Int
+  }
+
+  input ItemDate {
+    month: Int
+    year: Int
   }
 `;
 
-const listParams = `
-  kind: String
-  status: String
-  tag: String
-  ids: String
-  page: Int
-  perPage: Int
+const stageParams = `
+  search: String,
+  companyIds: [String]
+  customerIds: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  extraParams: JSON,
+  closeDateType: String,
+  assignedToMe: String,
 `;
 
 const queries = `
-  engageMessages(${listParams}): [EngageMessage]
-  engageMessagesTotalCount(${listParams}): Int
-  engageMessageDetail(_id: String): EngageMessage
-  engageMessageCounts(name: String!, kind: String, status: String): JSON
-  engagesConfigDetail: JSON
-  engageVerifiedEmails: [String]
-  engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport
-  engageEmailPercentages: AvgEmailStats
+boards(type: String!): [Board]
+boardCounts(type: String!): [BoardCount]
+boardGetLast(type: String!): Board
+boardDetail(_id: String!): Board
+pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
+pipelineDetail(_id: String!): Pipeline
+pipelineAssignedUsers(_id: String!): [User]
+stages(
+  isNotLost: Boolean,
+  isAll: Boolean,
+  pipelineId: String!,
+  ${stageParams}
+): [Stage]
+stageDetail(_id: String!, ${stageParams}): Stage
+convertToInfo(conversationId: String!): ConvertTo
+pipelineStateCount(boardId: String, type: String): JSON
+archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
+archivedStagesCount(pipelineId: String!, search: String): Int
+itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
 `;
 
 const commonParams = `
-  title: String!,
-  kind: String!,
-  method: String!,
-  fromUserId: String,
-  isDraft: Boolean,
-  isLive: Boolean,
-  stopDate: Date,
-  scheduleDate: Date,
-  type: String
-  segmentIds: [String],
-  customerTagIds: [String],
-  brandIds: [String],
-  customerIds: [String],
-  email: EngageMessageEmail,
-  scheduleDate: EngageScheduleDateInput,
-  messenger: EngageMessageMessenger,
-  shortMessage: EngageMessageSmsInput
+  name: String!,
+  type: String!
+`;
+
+const pipelineParams = `
+  name: String!,
+  boardId: String!,
+  type: String!,
+  stages: JSON,
+  visibility: String!,
+  memberIds: [String],
+  bgColor: String,
+  startDate: Date,
+  endDate: Date,
+  metric: String,
+  hackScoringType: String,
+  templateId: String,
+  isCheckUser: Boolean
+  excludeCheckUserIds: [String],
+  numberConfig: String
+  numberSize: String
 `;
 
 const mutations = `
-  engageMessageAdd(${commonParams}): EngageMessage
-  engageMessageEdit(_id: String!, ${commonParams}): EngageMessage
-  engageMessageRemove(_id: String!): EngageMessage
-  engageMessageSetLive(_id: String!): EngageMessage
-  engageMessageSetPause(_id: String!): EngageMessage
-  engageMessageSetLiveManual(_id: String!): EngageMessage
-  engagesUpdateConfigs(configsMap: JSON!): JSON
-  engageMessageVerifyEmail(email: String!): String
-  engageMessageRemoveVerifiedEmail(email: String!): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
-  engageMessageCopy(_id: String!): EngageMessage
+boardsAdd(${commonParams}): Board
+boardsEdit(_id: String!, ${commonParams}): Board
+boardsRemove(_id: String!): JSON
+boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
+
+pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
+pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
+pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
+pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
+pipelinesRemove(_id: String!): JSON
+pipelinesArchive(_id: String!): JSON  
+pipelinesCopied(_id: String!): JSON
+
+stagesUpdateOrder(orders: [OrderItem]): [Stage]
+stagesRemove(_id: String!): JSON
+stagesEdit(_id: String!, type: String, name: String, status: String): Stage
+stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;
 
 const typeDefs = gql`

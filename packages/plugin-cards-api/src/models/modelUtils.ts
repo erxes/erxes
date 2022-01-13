@@ -7,11 +7,13 @@ import {
   Tasks,
   Tickets
 } from '.';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { numberCalculator, validSearchText } from '@erxes/api-utils';
+// import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '@erxes/api-utils';
+// import { numberCalculator, validSearchText } from '@erxes/api-utils';
+import { validSearchText } from '@erxes/api-utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 import { configReplacer } from '../utils';
+import { _Conformities, _InternalNotes } from '../db';
 
 interface ISetOrderParam {
   collection: any;
@@ -244,11 +246,13 @@ export const getCompanyIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await Conformities.find({
-    mainType,
-    mainTypeId,
-    relType: 'company'
-  }).lean();
+  const conformities = await _Conformities
+    .find({
+      mainType,
+      mainTypeId,
+      relType: 'company'
+    })
+    .lean();
 
   return conformities.map(c => c.relTypeId);
 };
@@ -257,11 +261,13 @@ export const getCustomerIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await Conformities.find({
-    mainType,
-    mainTypeId,
-    relType: 'customer'
-  }).lean();
+  const conformities = await _Conformities
+    .find({
+      mainType,
+      mainTypeId,
+      relType: 'customer'
+    })
+    .lean();
 
   return conformities.map(c => c.relTypeId);
 };
@@ -271,17 +277,17 @@ export const destroyBoardItemRelations = async (
   contentTypeId: string,
   contentType: string
 ) => {
-  await putActivityLog({
-    action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOG,
-    data: { contentTypeId }
-  });
+  // await putActivityLog({
+  //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOG,
+  //   data: { contentTypeId }
+  // });
 
-  await Checklists.removeChecklists(contentType, [contentTypeId]);
-  await Conformities.removeConformity({
-    mainType: contentType,
-    mainTypeId: contentTypeId
-  });
-  await InternalNotes.deleteMany({ contentType, contentTypeId });
+  // await Checklists.removeChecklists(contentType, [contentTypeId]);
+  // await Conformities.removeConformity({
+  //   mainType: contentType,
+  //   mainTypeId: contentTypeId
+  // });
+  await _InternalNotes.deleteMany({ contentType, contentTypeId });
 };
 
 // Get board item link
@@ -291,6 +297,25 @@ export const getBoardItemLink = async (stageId: string, itemId: string) => {
   const board = await Boards.getBoard(pipeline.boardId);
 
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
+};
+
+// board item number calculator
+const numberCalculator = (size: number, num?: any, skip?: boolean) => {
+  if (num && !skip) {
+    num = parseInt(num, 10) + 1;
+  }
+
+  if (skip) {
+    num = 0;
+  }
+
+  num = num.toString();
+
+  while (num.length < size) {
+    num = '0' + num;
+  }
+
+  return num;
 };
 
 export const boardNumberGenerator = async (
@@ -386,10 +411,10 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
   }
 
   // create log
-  await putActivityLog({
-    action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-    data: { item, contentType: type }
-  });
+  // await putActivityLog({
+  //   action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+  //   data: { item, contentType: type }
+  // });
 
   return item;
 };

@@ -1,4 +1,4 @@
-import resolvers from '..';
+import resolvers from '../resolvers';
 import { Boards, Pipelines, Stages } from '../../models';
 import { _Fields, _Notifications } from '../../db';
 import {
@@ -8,7 +8,7 @@ import {
   getCustomerIds,
   getItem,
   getNewOrder
-} from '../../models/boardUtils';
+} from '../../models/modelUtils';
 import {
   IItemCommonFields,
   IItemDragCommonFields,
@@ -26,14 +26,14 @@ import {
 import { ITaskDocument } from '../../models/definitions/tasks';
 import { ITicket, ITicketDocument } from '../../models/definitions/tickets';
 import { IUserDocument } from '@erxes/common-types';
-// import { graphqlPubsub } from '../../../pubsub';
+import graphqlPubsub from '../../pubsub';
 import {
   // putActivityLog,
   putCreateLog,
   putDeleteLog,
-  putUpdateLog
+  putUpdateLog,
+  checkUserIds
 } from '@erxes/api-utils';
-// import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -41,7 +41,7 @@ import {
   IBoardNotificationParams,
   prepareBoardItemDoc,
   sendNotifications
-} from '../boardUtils';
+} from '../utils';
 import messageBroker from '../../messageBroker';
 // import { ACTIVITY_LOG_ACTIONS } from '../../constants';
 
@@ -145,20 +145,20 @@ export const itemsAdd = async (
     );
   }
 
-  // const stage = await Stages.getStage(item.stageId);
+  const stage = await Stages.getStage(item.stageId);
 
-  // graphqlPubsub.publish('pipelinesChanged', {
-  //   pipelinesChanged: {
-  //     _id: stage.pipelineId,
-  //     proccessId: doc.proccessId,
-  //     action: 'itemAdd',
-  //     data: {
-  //       item,
-  //       aboveItemId: doc.aboveItemId,
-  //       destinationStageId: stage._id
-  //     }
-  //   }
-  // });
+  graphqlPubsub.publish('pipelinesChanged', {
+    pipelinesChanged: {
+      _id: stage.pipelineId,
+      proccessId: doc.proccessId,
+      action: 'itemAdd',
+      data: {
+        item,
+        aboveItemId: doc.aboveItemId,
+        destinationStageId: stage._id
+      }
+    }
+  });
 
   return item;
 };
@@ -166,10 +166,10 @@ export const itemsAdd = async (
 export const changeItemStatus = async ({
   type,
   item,
-  status
-}: // proccessId,
-// stage
-{
+  status,
+  proccessId,
+  stage
+}: {
   type: string;
   item: any;
   status: string;
@@ -177,17 +177,17 @@ export const changeItemStatus = async ({
   stage: IStageDocument;
 }) => {
   if (status === 'archived') {
-    // graphqlPubsub.publish('pipelinesChanged', {
-    //   pipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     proccessId,
-    //     action: 'itemRemove',
-    //     data: {
-    //       item,
-    //       oldStageId: item.stageId
-    //     }
-    //   }
-    // });
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemRemove',
+        data: {
+          item,
+          oldStageId: item.stageId
+        }
+      }
+    });
 
     return;
   }
@@ -219,18 +219,18 @@ export const changeItemStatus = async ({
     }
   );
 
-  // graphqlPubsub.publish('pipelinesChanged', {
-  //   pipelinesChanged: {
-  //     _id: stage.pipelineId,
-  //     proccessId,
-  //     action: 'itemAdd',
-  //     data: {
-  //       item: { ...item._doc, ...(await itemResolver(type, item)) },
-  //       aboveItemId,
-  //       destinationStageId: item.stageId
-  //     }
-  //   }
-  // });
+  graphqlPubsub.publish('pipelinesChanged', {
+    pipelinesChanged: {
+      _id: stage.pipelineId,
+      proccessId,
+      action: 'itemAdd',
+      data: {
+        item: { ...item._doc, ...(await itemResolver(type, item)) },
+        aboveItemId,
+        destinationStageId: item.stageId
+      }
+    }
+  });
 };
 
 export const itemsEdit = async (
@@ -293,27 +293,27 @@ export const itemsEdit = async (
     });
   }
 
-  // if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
-  //   const { addedUserIds, removedUserIds } = checkUserIds(
-  //     oldItem.assignedUserIds,
-  //     doc.assignedUserIds
-  //   );
+  if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
+    const { addedUserIds, removedUserIds } = checkUserIds(
+      oldItem.assignedUserIds,
+      doc.assignedUserIds
+    );
 
-  //   const activityContent = { addedUserIds, removedUserIds };
+    // const activityContent = { addedUserIds, removedUserIds };
 
-  //   putActivityLog({
-  //     action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
-  //     data: {
-  //       contentId: _id,
-  //       userId: user._id,
-  //       contentType: type,
-  //       content: activityContent
-  //     }
-  //   });
+    // putActivityLog({
+    //   action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
+    //   data: {
+    //     contentId: _id,
+    //     userId: user._id,
+    //     contentType: type,
+    //     content: activityContent
+    //   }
+    // });
 
-  //   notificationDoc.invitedUsers = addedUserIds;
-  //   notificationDoc.removedUsers = removedUserIds;
-  // }
+    notificationDoc.invitedUsers = addedUserIds;
+    notificationDoc.removedUsers = removedUserIds;
+  }
 
   await sendNotifications(notificationDoc);
 
@@ -331,46 +331,46 @@ export const itemsEdit = async (
   const oldStage = await Stages.getStage(oldItem.stageId);
 
   if (oldStage.pipelineId !== stage.pipelineId) {
-    // graphqlPubsub.publish('pipelinesChanged', {
-    //   pipelinesChanged: {
-    //     _id: oldStage.pipelineId,
-    //     proccessId,
-    //     action: 'itemRemove',
-    //     data: {
-    //       item: oldItem,
-    //       oldStageId: oldStage._id
-    //     }
-    //   }
-    // });
-    // graphqlPubsub.publish('pipelinesChanged', {
-    //   pipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     proccessId,
-    //     action: 'itemAdd',
-    //     data: {
-    //       item: {
-    //         ...updatedItem._doc,
-    //         ...(await itemResolver(type, updatedItem))
-    //       },
-    //       aboveItemId: '',
-    //       destinationStageId: stage._id
-    //     }
-    //   }
-    // });
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: oldStage.pipelineId,
+        proccessId,
+        action: 'itemRemove',
+        data: {
+          item: oldItem,
+          oldStageId: oldStage._id
+        }
+      }
+    });
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemAdd',
+        data: {
+          item: {
+            ...updatedItem._doc,
+            ...(await itemResolver(type, updatedItem))
+          },
+          aboveItemId: '',
+          destinationStageId: stage._id
+        }
+      }
+    });
   } else {
-    // graphqlPubsub.publish('pipelinesChanged', {
-    //   pipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     proccessId,
-    //     action: 'itemUpdate',
-    //     data: {
-    //       item: {
-    //         ...updatedItem._doc,
-    //         ...(await itemResolver(type, updatedItem))
-    //       }
-    //     }
-    //   }
-    // });
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemUpdate',
+        data: {
+          item: {
+            ...updatedItem._doc,
+            ...(await itemResolver(type, updatedItem))
+          }
+        }
+      }
+    });
   }
 
   if (oldItem.stageId === updatedItem.stageId) {
@@ -513,21 +513,21 @@ export const itemsChange = async (
   );
 
   // order notification
-  // const stage = await Stages.getStage(item.stageId);
+  const stage = await Stages.getStage(item.stageId);
 
-  // graphqlPubsub.publish('pipelinesChanged', {
-  //   pipelinesChanged: {
-  //     _id: stage.pipelineId,
-  //     proccessId,
-  //     action: 'orderUpdated',
-  //     data: {
-  //       item: { ...item._doc, ...(await itemResolver(type, item)) },
-  //       aboveItemId,
-  //       destinationStageId,
-  //       oldStageId: sourceStageId
-  //     }
-  //   }
-  // });
+  graphqlPubsub.publish('pipelinesChanged', {
+    pipelinesChanged: {
+      _id: stage.pipelineId,
+      proccessId,
+      action: 'orderUpdated',
+      data: {
+        item: { ...item._doc, ...(await itemResolver(type, item)) },
+        aboveItemId,
+        destinationStageId,
+        oldStageId: sourceStageId
+      }
+    }
+  });
 
   return item;
 };
@@ -559,7 +559,7 @@ export const itemsRemove = async (
 
 export const itemsCopy = async (
   _id: string,
-  _proccessId: string,
+  proccessId: string,
   type: string,
   user: IUserDocument,
   extraDocParam: string[],
@@ -596,18 +596,18 @@ export const itemsCopy = async (
   // order notification
   const stage = await Stages.getStage(clone.stageId);
 
-  // graphqlPubsub.publish('pipelinesChanged', {
-  //   pipelinesChanged: {
-  //     _id: stage.pipelineId,
-  //     proccessId,
-  //     action: 'itemAdd',
-  //     data: {
-  //       item: { ...clone._doc, ...(await itemResolver(type, clone)) },
-  //       aboveItemId: _id,
-  //       destinationStageId: stage._id
-  //     }
-  //   }
-  // });
+  graphqlPubsub.publish('pipelinesChanged', {
+    pipelinesChanged: {
+      _id: stage.pipelineId,
+      proccessId,
+      action: 'itemAdd',
+      data: {
+        item: { ...clone._doc, ...(await itemResolver(type, clone)) },
+        aboveItemId: _id,
+        destinationStageId: stage._id
+      }
+    }
+  });
 
   await publishHelperItemsConformities(clone, stage);
 
@@ -617,17 +617,17 @@ export const itemsCopy = async (
 export const itemsArchive = async (
   stageId: string,
   type: string,
-  _proccessId: string
+  proccessId: string
   // user: IUserDocument
 ) => {
   const { collection } = getCollection(type);
 
-  // const items = await collection
-  //   .find({
-  //     stageId,
-  //     status: { $ne: BOARD_STATUSES.ARCHIVED }
-  //   })
-  //   .lean();
+  const items = await collection
+    .find({
+      stageId,
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    })
+    .lean();
 
   await collection.updateMany(
     { stageId },
@@ -635,49 +635,49 @@ export const itemsArchive = async (
   );
 
   // order notification
-  // const stage = await Stages.getStage(stageId);
+  const stage = await Stages.getStage(stageId);
 
-  // for (const item of items) {
-  //   await putActivityLog({
-  //     action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
-  //     data: {
-  //       item,
-  //       contentType: type,
-  //       action: 'archived',
-  //       userId: user._id
-  //     }
-  //   });
+  for (const item of items) {
+    // await putActivityLog({
+    //   action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
+    //   data: {
+    //     item,
+    //     contentType: type,
+    //     action: 'archived',
+    //     userId: user._id
+    //   }
+    // });
 
-  //   graphqlPubsub.publish('pipelinesChanged', {
-  //     pipelinesChanged: {
-  //       _id: stage.pipelineId,
-  //       proccessId,
-  //       action: 'itemsRemove',
-  //       data: {
-  //         item,
-  //         destinationStageId: stage._id
-  //       }
-  //     }
-  //   });
-  // }
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemsRemove',
+        data: {
+          item,
+          destinationStageId: stage._id
+        }
+      }
+    });
+  }
 
   return 'ok';
 };
 
 export const publishHelperItemsConformities = async (
-  _item: IDealDocument | ITicketDocument | ITaskDocument | IGrowthHackDocument,
-  _stage: IStageDocument
+  item: IDealDocument | ITicketDocument | ITaskDocument | IGrowthHackDocument,
+  stage: IStageDocument
 ) => {
-  // graphqlPubsub.publish('pipelinesChanged', {
-  //   pipelinesChanged: {
-  //     _id: stage.pipelineId,
-  //     proccessId: Math.random().toString(),
-  //     action: 'itemOfConformitiesUpdate',
-  //     data: {
-  //       item: {
-  //         ...item
-  //       }
-  //     }
-  //   }
-  // });
+  graphqlPubsub.publish('pipelinesChanged', {
+    pipelinesChanged: {
+      _id: stage.pipelineId,
+      proccessId: Math.random().toString(),
+      action: 'itemOfConformitiesUpdate',
+      data: {
+        item: {
+          ...item
+        }
+      }
+    }
+  });
 };
