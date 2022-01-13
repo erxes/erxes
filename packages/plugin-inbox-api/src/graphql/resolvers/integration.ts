@@ -1,7 +1,7 @@
 import { MessengerApps } from '../../models';
 import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 import { getDocument, getDocumentList } from '../../cacheUtils';
 
 export default {
@@ -9,10 +9,12 @@ export default {
     return getDocument('brands', { _id: integration.brandId });
   },
 
-  form(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    return (
-      (integration.formId && dataLoaders.form.load(integration.formId)) || null
-    );
+  async form(integration: IIntegrationDocument) {
+    if (!integration.formId) {
+      return null;
+    }
+
+    return { __type: 'Form', _id: integration.formId }
   },
 
   channels(integration: IIntegrationDocument) {
@@ -21,9 +23,8 @@ export default {
     });
   },
 
-  async tags(integration: IIntegrationDocument, _, { dataLoaders }: IContext) {
-    const tags = await dataLoaders.tag.loadMany(integration.tagIds || []);
-    return tags.filter(tag => tag);
+  async tags(integration: IIntegrationDocument) {
+    return (integration.tagIds || []).map((_id) => ({ __type: 'Tag', _id }));
   },
 
   websiteMessengerApps(integration: IIntegrationDocument) {

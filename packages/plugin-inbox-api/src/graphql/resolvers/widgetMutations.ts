@@ -6,8 +6,6 @@ import {
 } from '../../models';
 
 import {
-  Companies,
-  Conformities,
   Customers,
   Fields,
   Forms,
@@ -43,11 +41,9 @@ import graphqlPubsub from '../../pubsub';
 
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../models/definitions/constants';
 
-import { IContext, sendRequest } from '@erxes/api-utils';
+import { IContext, sendRequest } from '@erxes/api-utils/src';
 
 // import {
-//   findCompany,
-//   registerOnboardHistory,
 //   sendEmail,
 //   sendMobileNotification,
 //   sendRequest,
@@ -58,7 +54,7 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendContactMessage, sendContactRPCMessage, sendToLog } from '../../messageBroker';
+import { sendConformityMessage, sendContactMessage, sendContactRPCMessage, sendFormRPCMessage, sendMessage, sendToLog } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
@@ -153,7 +149,7 @@ const createFormConversation = async (
     throw new Error('Form not found');
   }
 
-  const errors = await Forms.validate(formId, submissions);
+  const errors = await sendFormRPCMessage('validate', { formId, submissions });
 
   if (errors.length > 0) {
     return { status: 'error', errors };
@@ -237,9 +233,9 @@ const widgetMutations = {
     }
 
     if (integ.createdUserId) {
-      const user = await Users.getUser(integ.createdUserId);
+      const user = await Users.findOne({ _id: integ.createdUserId });
 
-//       registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
+      sendMessage('registerOnboardHistory', { type: 'leadIntegrationInstalled', user });
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
@@ -349,13 +345,13 @@ const widgetMutations = {
     let customer;
 
     if (cachedCustomerId || email || phone || code) {
-      customer = await Customers.getWidgetCustomer({
+      customer = await sendContactRPCMessage('getWidgetCustomer', {
         integrationId: integration._id,
         cachedCustomerId,
         email,
         phone,
         code
-      });
+      })
 
       const doc = {
         integrationId: integration._id,
@@ -368,12 +364,12 @@ const widgetMutations = {
       };
 
       customer = customer
-        ? await Customers.updateMessengerCustomer({
+        ? await sendContactRPCMessage('updateMessengerCustomer', {
             _id: customer._id,
             doc,
             customData
           })
-        : await Customers.createMessengerCustomer({ doc, customData });
+        : await sendContactRPCMessage('createMessengerCustome', { doc, customData });
     }
 
     if (visitorId) {
@@ -386,8 +382,7 @@ const widgetMutations = {
 
     // get or create company
     if (companyData && companyData.name) {
-//       let company = await findCompany(companyData);
-      let company;
+      let company = await sendContactRPCMessage('findCompany', companyData);
 
       const {
         customFieldsData,
@@ -401,7 +396,7 @@ const widgetMutations = {
         companyData.primaryName = companyData.name;
 
         try {
-          company = await Companies.createCompany({
+          company = await sendContactRPCMessage('createCompany', {
             ...companyData,
             scopeBrandIds: [brand._id]
           });
@@ -409,7 +404,7 @@ const widgetMutations = {
           debugError(e.message);
         }
       } else {
-        company = await Companies.updateCompany(company._id, {
+        company = await sendContactRPCMessage('updateCompany', {
           ...companyData,
           scopeBrandIds: [brand._id]
         });
@@ -417,7 +412,7 @@ const widgetMutations = {
 
       if (customer && company) {
         // add company to customer's companyIds list
-        await Conformities.create({
+        sendConformityMessage('create', {
           mainType: 'customer',
           mainTypeId: customer._id,
           relType: 'company',
@@ -762,8 +757,8 @@ const widgetMutations = {
     // update location
 
     if (customerId) {
-      const customer = await Customers.updateLocation(customerId, browserInfo);
-      await Customers.updateSession(customer._id);
+      sendContactMessage('updateLocation', { customerId, browserInfo });
+      sendContactMessage('updateSession', { customerId });
     }
 
     if (visitorId) {

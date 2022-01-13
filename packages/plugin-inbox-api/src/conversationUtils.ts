@@ -8,7 +8,7 @@ import { fetchElk } from './elasticsearch';
 
 import { getDocumentList } from './cacheUtils';
 import { IListArgs } from './conversationQueryBuilder';
-import { fixDate } from '@erxes/api-utils';
+import { fixDate } from '@erxes/api-utils/src';
 
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
 // import { fetchSegment } from '../segments/queryBuilder';

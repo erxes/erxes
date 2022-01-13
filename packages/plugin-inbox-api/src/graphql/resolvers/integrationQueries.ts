@@ -11,8 +11,8 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import messageBroker from '../../messageBroker';
-import { IContext } from '@erxes/api-utils';
-import { paginate } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
 import { getDocumentList } from '../../cacheUtils';
 /**
  * Common helper for integrations & integrationsTotalCount

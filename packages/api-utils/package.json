@@ -1,12 +1,9 @@
 {
   "name": "@erxes/api-utils",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
-    "install": "tsc"
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/ioredis": "^4.28.7",

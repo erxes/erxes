@@ -7,7 +7,6 @@ import {
 import {
   Brands,
   Companies,
-  Conformities,
   Customers,
   Fields,
   FieldsGroups
@@ -26,9 +25,7 @@ import { debugBase, debugError } from "./debuggers";
 
 import { getDocument } from "./cacheUtils";
 import { client, getIndexPrefix } from "./elasticsearch";
-import { sendContactRPCMessage, sendToLog } from "./messageBroker";
-
-// import { findCompany, findCustomer } from "./utils";
+import { sendConformityMessage, sendContactRPCMessage, sendEngageMessage, sendToLog } from "./messageBroker";
 
 export const getOrCreateEngageMessage = async (
   integrationId: string,
@@ -54,13 +51,13 @@ export const getOrCreateEngageMessage = async (
   const brand = await Brands.getBrand({ _id: integration.brandId || "" });
 
   // try to create engage chat auto messages
-//   await EngageMessages.createVisitorOrCustomerMessages({
-//     brandId: brand._id,
-//     integrationId: integration._id,
-//     customer,
-//     visitorId,
-//     browserInfo,
-//   });
+  await sendEngageMessage('createVisitorOrCustomerMessages', {
+    brandId: brand._id,
+    integrationId: integration._id,
+    customer,
+    visitorId,
+    browserInfo,
+  });
 
   // find conversations
   const query = customerId
@@ -210,7 +207,7 @@ export const updateCustomerFromForm = async (
     customerDoc.links = links;
   }
 
-  await Customers.updateCustomer(customer._id, customerDoc);
+  await sendContactRPCMessage('updateCustomer', { _id: customer._id, doc: customerDoc });
 };
 
 // const groupSubmissions = (submissions: ISubmission[]) => {
@@ -375,7 +372,7 @@ export const solveSubmissions = async (args: {
     }
 
     if (groupId === "default") {
-      cachedCustomer = await Customers.getWidgetCustomer({
+      cachedCustomer = await sendContactRPCMessage('getWidgetCustomer', {
         integrationId,
         cachedCustomerId,
         email: customerDoc.email || "",
@@ -408,12 +405,10 @@ export const solveSubmissions = async (args: {
         companyId: "",
       };
     } else {
-//       let customer = await findCustomer({
-//         customerPrimaryEmail: customerDoc.email || "",
-//         customerPrimaryPhone: customerDoc.phone || "",
-//       });
-
-      let customer;
+      let customer = await sendContactRPCMessage('findCustomer', {
+        customerPrimaryEmail: customerDoc.email || "",
+        customerPrimaryPhone: customerDoc.phone || "",
+      });
 
       if (!customer) {
         customer = await createCustomer(
@@ -447,18 +442,16 @@ export const solveSubmissions = async (args: {
       continue;
     }
 
-//     let company = await findCompany({
-//       companyPrimaryName: companyDoc.primaryName || "",
-//       companyPrimaryEmail: companyDoc.primaryEmail || "",
-//       companyPrimaryPhone: companyDoc.primaryPhone || "",
-//     });
-
-    let company;
+    let company = await sendContactRPCMessage('findCompany', {
+      companyPrimaryName: companyDoc.primaryName || "",
+      companyPrimaryEmail: companyDoc.primaryEmail || "",
+      companyPrimaryPhone: companyDoc.primaryPhone || "",
+    });
 
     companyDoc.scopeBrandIds = [integration.brandId || ""];
 
     if (!company) {
-      company = await Companies.createCompany(companyDoc);
+      company = await sendContactRPCMessage('createCompany', companyDoc);
     }
 
     if (Object.keys(companyLinks).length > 0) {
@@ -486,7 +479,7 @@ export const solveSubmissions = async (args: {
       );
     }
 
-    company = await Companies.updateCompany(company._id, companyDoc);
+    company = await sendContactRPCMessage('updateCompany', { _id: company._id, doc: companyDoc });
 
     // if company scopeBrandIds does not contain brandId
     if (
@@ -516,12 +509,12 @@ export const solveSubmissions = async (args: {
     }
 
     if (key !== "default" && companyId && customerId) {
-      await Conformities.addConformity({
+      sendConformityMessage('addConformity', {
         mainType: "company",
         mainTypeId: companyId,
         relType: "customer",
         relTypeId: customerId,
-      });
+      })
     }
 
     if (key !== "default" && !companyId && customerId) {
@@ -531,12 +524,12 @@ export const solveSubmissions = async (args: {
 
   if (mainCompanyId !== "" && relTypeIds.length > 0) {
     for (const relTypeId of relTypeIds) {
-      await Conformities.addConformity({
+      sendConformityMessage('addConformity', {
         mainType: "company",
         mainTypeId: mainCompanyId,
         relType: "customer",
         relTypeId,
-      });
+      })
     }
   }
 

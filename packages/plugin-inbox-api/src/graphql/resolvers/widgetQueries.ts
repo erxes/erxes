@@ -24,7 +24,7 @@ import * as moment from 'moment';
 
 // import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {

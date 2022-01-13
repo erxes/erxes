@@ -1,6 +1,6 @@
 import { ResponseTemplates } from '../../models';
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 
 interface IListParams {
   page: number;

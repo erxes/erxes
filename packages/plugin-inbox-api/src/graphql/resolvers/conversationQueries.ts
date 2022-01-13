@@ -8,7 +8,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 
 interface ICountBy {

@@ -2,6 +2,7 @@ import * as getUuid from 'uuid-by-string';
 import { Customers, Fields } from './apiCollections';
 import { debugBase, debugError } from './debuggers';
 import { client, fetchElk, getIndexPrefix } from './elasticsearch';
+import { sendContactRPCMessage } from './messageBroker';
 
 interface ISaveEventArgs {
   type?: string;
@@ -199,7 +200,7 @@ export const trackCustomEvent = (args: {
 
 export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
   // get or create customer
-  let customer = await Customers.getWidgetCustomer(args);
+  let customer = await sendContactRPCMessage('getWidgetCustomer', args)
 
   if (!customer) {
     customer = await Customers.createCustomer({
