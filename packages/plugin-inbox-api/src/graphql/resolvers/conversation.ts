@@ -1,5 +1,5 @@
 import { debugError } from '../../debuggers';
-import { getDocument, getDocumentList } from '../../cacheUtils';
+import { getDocument } from '../../cacheUtils';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { IContext } from '@erxes/api-utils';
 import { ConversationMessages } from '../../models';
@@ -15,12 +15,8 @@ export default {
     return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
   },
 
-  customer(conversation: IConversationDocument, _, { dataLoaders }: IContext) {
-    return (
-      (conversation.customerId &&
-        dataLoaders.customer.load(conversation.customerId)) ||
-      null
-    );
+  customer(conversation: IConversationDocument) {
+    return conversation.customerId && { __type: 'Customer', _id: conversation.customerId }
   },
 
   integration(conversation: IConversationDocument) {
@@ -28,17 +24,15 @@ export default {
   },
 
   user(conversation: IConversationDocument) {
-    return getDocument('users', { _id: conversation.userId });
+    return conversation.userId && { __type: 'User', _id: conversation.userId }
   },
 
   assignedUser(conversation: IConversationDocument) {
-    return getDocument('users', { _id: conversation.assignedUserId });
+    return conversation.assignedUserId && { __type: 'User', _id: conversation.assignedUserId }
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return getDocumentList('users', {
-      _id: { $in: conv.participatedUserIds || [] }
-    });
+    return (conv.participatedUserIds || []).map((_id) => ({ __type: 'User', _id }))
   },
 
   participatorCount(conv: IConversationDocument) {
@@ -116,9 +110,8 @@ export default {
     return null;
   },
 
-  async tags(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    const tags = await dataLoaders.tag.loadMany(conv.tagIds || []);
-    return tags.filter(tag => tag);
+  async tags(conv: IConversationDocument) {
+    return (conv.tagIds || []).map((_id) => ({ __type: 'Tag', _id }));
   },
 
   async videoCallData(
