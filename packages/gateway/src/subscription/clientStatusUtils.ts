@@ -26,8 +26,6 @@ export async function markClientActive(
     console.error("JSON.parse(messengerDataJson)", e);
   }
 
-  if (!socket.messengerData) return;
-
   // no messengerData
   if (!socket.messengerData) return;
 
