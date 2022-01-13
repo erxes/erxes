@@ -14,7 +14,6 @@ import { ITopicDocument, ICategoryDocument } from "./knowledgeBase";
 import { IProductDocument } from "./products";
 import { IScriptDocument } from "./scripts";
 import { IPipelineTemplateDocument } from "./pipelineTemplates";
-import { IShortMessage, IEngageMessage, IEngageMessageDocument } from './campaigns';
 
 export {
   ICustomerDocument,
@@ -37,8 +36,5 @@ export {
   ICategoryDocument,
   IProductDocument,
   IScriptDocument,
-  IPipelineTemplateDocument,
-  IShortMessage,
-  IEngageMessage,
-  IEngageMessageDocument
+  IPipelineTemplateDocument
 };

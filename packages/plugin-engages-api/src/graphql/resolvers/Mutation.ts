@@ -6,9 +6,9 @@ import {
   MODULE_NAMES,
   putCreateLog,
   putDeleteLog,
-  putUpdateLog
+  putUpdateLog,
 } from '@erxes/api-utils';
-import { IEngageMessage } from '@erxes/common-types';
+import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
 
 import { EngageMessages } from '../../models';
@@ -16,6 +16,7 @@ import { Customers, Users } from '../../apiCollections';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
 import messageBroker from '../../messageBroker';
+import { gatherDescriptions } from './logHelper';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -34,7 +35,7 @@ interface ITestEmailParams {
  */
 const emptyCustomers = {
   customerIds: [],
-  messengerReceivedCustomerIds: []
+  messengerReceivedCustomerIds: [],
 };
 
 const engageMutations = {
@@ -66,21 +67,21 @@ const engageMutations = {
 
     await send(engageMessage);
 
-    await putCreateLog(
-      messageBroker,
-      {
-        type: MODULE_NAMES.ENGAGE,
-        newData: {
-          ...doc,
-          ...emptyCustomers
-        },
-        object: {
-          ...engageMessage.toObject(),
-          ...emptyCustomers
-        }
+    const logDoc = {
+      type: MODULE_NAMES.ENGAGE,
+      newData: {
+        ...doc,
+        ...emptyCustomers,
       },
-      user
-    );
+      object: {
+        ...engageMessage.toObject(),
+        ...emptyCustomers,
+      },
+    };
+
+    const { description, extraDesc } = await gatherDescriptions(logDoc);
+
+    await putCreateLog(messageBroker, { ...logDoc, description, extraDesc }, user);
 
     return engageMessage;
   },
@@ -107,13 +108,21 @@ const engageMutations = {
       await send(updated);
     }
 
+    const logDoc = {
+      type: MODULE_NAMES.ENGAGE,
+      object: { ...engageMessage.toObject(), ...emptyCustomers },
+      newData: { ...updated.toObject(), ...emptyCustomers },
+      updatedDocument: updated,
+    };
+
+    const { description, extraDesc } = await gatherDescriptions(logDoc);
+
     await putUpdateLog(
       messageBroker,
       {
-        type: MODULE_NAMES.ENGAGE,
-        object: { ...engageMessage.toObject(), ...emptyCustomers },
-        newData: { ...updated.toObject(), ...emptyCustomers },
-        updatedDocument: updated
+        ...logDoc,
+        description,
+        extraDesc
       },
       user
     );
@@ -133,14 +142,14 @@ const engageMutations = {
 
     const removed = await EngageMessages.removeEngageMessage(_id);
 
-    await putDeleteLog(
-      messageBroker,
-      {
-        type: MODULE_NAMES.ENGAGE,
-        object: { ...engageMessage.toObject(), ...emptyCustomers }
-      },
-      user
-    );
+    const logDoc = {
+      type: MODULE_NAMES.ENGAGE,
+      object: { ...engageMessage.toObject(), ...emptyCustomers }
+    };
+
+    const { description, extraDesc } = await gatherDescriptions(logDoc);
+
+    await putDeleteLog(messageBroker, { ...logDoc, description, extraDesc }, user);
 
     return removed;
   },
@@ -186,14 +195,14 @@ const engageMutations = {
         type: MODULE_NAMES.ENGAGE,
         newData: {
           isLive: true,
-          isDraft: false
+          isDraft: false,
         },
         object: {
           _id,
           isLive: draftCampaign.isLive,
-          isDraft: draftCampaign.isDraft
+          isDraft: draftCampaign.isDraft,
         },
-        description: `Campaign "${draftCampaign.title}" has been set live`
+        description: `Campaign "${draftCampaign.title}" has been set live`,
       },
       user
     );
@@ -245,12 +254,12 @@ const engageMutations = {
     const replacedContent = await new EditorAttributeUtil().replaceAttributes({
       content,
       customer,
-      user: targetUser
+      user: targetUser,
     });
 
     return dataSources.EngagesAPI.engagesSendTestEmail({
       ...args,
-      content: replacedContent
+      content: replacedContent,
     });
   },
 
@@ -271,7 +280,7 @@ const engageMutations = {
       isLive: false,
       runCount: 0,
       totalCustomersCount: 0,
-      validCustomersCount: 0
+      validCustomersCount: 0,
     });
 
     delete doc._id;
@@ -289,19 +298,19 @@ const engageMutations = {
         type: MODULE_NAMES.ENGAGE,
         newData: {
           ...doc,
-          ...emptyCustomers
+          ...emptyCustomers,
         },
         object: {
           ...copy.toObject(),
-          ...emptyCustomers
+          ...emptyCustomers,
         },
-        description: `Campaign "${sourceCampaign.title}" has been copied`
+        description: `Campaign "${sourceCampaign.title}" has been copied`,
       },
       user
     );
 
     return copy;
-  }
+  },
 };
 
 checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
