@@ -4,6 +4,7 @@ import CustomerRoutes from './customers/routes'
 
 
 const routes = () => {
+  console.log("test")
   return (
     <React.Fragment>
       <CompanyRoutes/>
