@@ -2,9 +2,9 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-// import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
-// import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
-// import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
+import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
+import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
+import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
@@ -192,7 +192,7 @@ export default class FacebookComment extends React.Component<
                     <span>Convert</span>
                   </Reply>
                 </Dropdown.Toggle>
-                {/* <Dropdown.Menu>
+                <Dropdown.Menu>
                   <li key='ticket'>
                     <TicketConvertTrigger
                       {...triggerProps}
@@ -211,7 +211,7 @@ export default class FacebookComment extends React.Component<
                       url={convertToInfo.taskUrl}
                     />
                   </li>
-                </Dropdown.Menu> */}
+                </Dropdown.Menu>
               </Dropdown>
             </Container>
 
