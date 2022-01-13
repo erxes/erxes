@@ -38,6 +38,35 @@ export const initBroker = async (server?) => {
       data: await Customers.createCustomer(data)
     }));
 
+    consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => ({
+      status: 'success',
+      data: await Customers.getWidgetCustomer(data)
+    }));
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:updateMessengerCustomer',
+      async data => ({
+        status: 'success',
+        data: await Customers.updateMessengerCustomer(data)
+      })
+    );
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:createMessengerCustomer',
+      async data => ({
+        status: 'success',
+        data: await Customers.createMessengerCustomer(data)
+      })
+    );
+
+    consumeQueue('contacts:updateLocation', ({ customerId, browserInfo }) =>
+      Customers.updateLocation(customerId, browserInfo)
+    );
+
+    consumeQueue('contacts:updateSession', ({ customerId }) =>
+      Customers.updateSession(customerId)
+    );
+
     // listen for rpc queue =========
     consumeRPCQueue(
       'rpc_queue:integrations_to_api',
@@ -121,10 +150,6 @@ export const initBroker = async (server?) => {
     consumeRPCQueue(
       'rpc_queue:editorAttributeUtils_getCustomerName_to_api',
       customer => Customers.getCustomerName(customer)
-    );
-
-    consumeQueue('contacts:markCustomerAsActive', ({ customerId }) =>
-      Customers.markCustomerAsActive(customerId)
     );
 
     // graphql subscriptions call =========

@@ -375,7 +375,7 @@ export const solveSubmissions = async (args: {
     }
 
     if (groupId === "default") {
-      cachedCustomer = await Customers.getWidgetCustomer({
+      cachedCustomer = await sendContactRPCMessage('getWidgetCustomer', {
         integrationId,
         cachedCustomerId,
         email: customerDoc.email || "",

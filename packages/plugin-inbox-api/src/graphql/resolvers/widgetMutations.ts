@@ -349,13 +349,13 @@ const widgetMutations = {
     let customer;
 
     if (cachedCustomerId || email || phone || code) {
-      customer = await Customers.getWidgetCustomer({
+      customer = await sendContactRPCMessage('getWidgetCustomer', {
         integrationId: integration._id,
         cachedCustomerId,
         email,
         phone,
         code
-      });
+      })
 
       const doc = {
         integrationId: integration._id,
@@ -368,12 +368,12 @@ const widgetMutations = {
       };
 
       customer = customer
-        ? await Customers.updateMessengerCustomer({
+        ? await sendContactRPCMessage('updateMessengerCustomer', {
             _id: customer._id,
             doc,
             customData
           })
-        : await Customers.createMessengerCustomer({ doc, customData });
+        : await sendContactRPCMessage('createMessengerCustome', { doc, customData });
     }
 
     if (visitorId) {
@@ -762,8 +762,8 @@ const widgetMutations = {
     // update location
 
     if (customerId) {
-      const customer = await Customers.updateLocation(customerId, browserInfo);
-      await Customers.updateSession(customer._id);
+      sendContactMessage('updateLocation', { customerId, browserInfo });
+      sendContactMessage('updateSession', { customerId });
     }
 
     if (visitorId) {
