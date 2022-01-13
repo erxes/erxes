@@ -1,7 +1,7 @@
-import PortableDeals from '@erxes/ui/src/deals/components/PortableDeals';
+import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import PortableTasks from '@erxes/ui/src/tasks/components/PortableTasks';
-import PortableTickets from '@erxes/ui/src/tickets/components/PortableTickets';
+import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
+import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
 
