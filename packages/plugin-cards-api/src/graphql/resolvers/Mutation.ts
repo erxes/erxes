@@ -1,133 +1,133 @@
-import * as _ from 'underscore';
+import { Boards, Pipelines, Stages } from '../../models';
+import { bulkUpdateOrders, getCollection } from '../../models/boardUtils';
+import {
+  IBoard,
+  IOrderInput,
+  IPipeline,
+  IStage,
+  IStageDocument
+} from '../../models/definitions/boards';
+import { BOARD_STATUSES } from '../../models/definitions/constants';
+// import { graphqlPubsub } from '../../../pubsub';
+import {
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog,
+  IContext
+} from '@erxes/api-utils';
+import { configReplacer } from '../../utils';
+import { checkPermission } from '../boardUtils';
+import messageBroker from '../../messageBroker';
+import { _FieldsGroups } from '../../db';
 
-import { checkPermission, sendToWebhook, IContext } from '@erxes/api-utils';
-import { IEngageMessage } from '../../types';
-import { CAMPAIGN_KINDS, MODULE_NAMES } from '../../constants';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-
-import { EngageMessages } from '../../models';
-import { _Customers, _Users } from '../../apiCollections';
-import { checkCampaignDoc, send } from '../../engageUtils';
-import EditorAttributeUtil from '../../editorAttributeUtils';
-
-interface IEngageMessageEdit extends IEngageMessage {
+interface IBoardsEdit extends IBoard {
   _id: string;
 }
 
-interface ITestEmailParams {
-  from: string;
-  to: string;
-  content: string;
-  title: string;
+interface IPipelinesAdd extends IPipeline {
+  stages: IStageDocument[];
 }
 
-/**
- * These fields contain too much data & it's inappropriate
- * to save such data in each log row
- */
-const emptyCustomers = {
-  customerIds: [],
-  messengerReceivedCustomerIds: []
+interface IPipelinesEdit extends IPipelinesAdd {
+  _id: string;
+}
+
+interface IStageEdit extends IStage {
+  _id: string;
+}
+
+const checkNumberConfig = async (numberConfig: string, numberSize: string) => {
+  if (!numberConfig) {
+    throw new Error('Please input number configuration.');
+  }
+
+  if (!numberSize) {
+    throw new Error('Please input fractional part.');
+  }
+
+  const replaced = await configReplacer(numberConfig);
+  const re = /[0-9]$/;
+
+  if (re.test(replaced)) {
+    throw new Error(
+      `Please make sure that the number configuration itself doesn't end with any number.`
+    );
+  }
+
+  return;
 };
 
-const engageMutations = {
+const boardMutations = {
   /**
-   * Create new message
+   * Create new board
    */
-  async engageMessageAdd(
-    _root,
-    doc: IEngageMessage,
-    { user, docModifier }: IContext
-  ) {
-    checkCampaignDoc(doc);
+  async boardsAdd(_root, doc: IBoard, { user, docModifier }: IContext) {
+    await checkPermission(doc.type, user, 'boardsAdd');
 
-    // fromUserId is not required in sms engage, so set it here
-    if (!doc.fromUserId) {
-      doc.fromUserId = user._id;
-    }
+    const extendedDoc = docModifier({ userId: user._id, ...doc });
 
-    const engageMessage = await EngageMessages.createEngageMessage(
-      docModifier({ ...doc, createdBy: user._id })
-    );
-
-    await sendToWebhook(models, {
-      action: 'create',
-      type: 'engageMessages',
-      params: engageMessage
-    });
-
-    await send(engageMessage);
+    const board = await Boards.createBoard(extendedDoc);
 
     await putCreateLog(
+      messageBroker,
       {
-        type: MODULE_NAMES.ENGAGE,
-        newData: {
-          ...doc,
-          ...emptyCustomers
-        },
-        object: {
-          ...engageMessage.toObject(),
-          ...emptyCustomers
-        }
+        type: `${doc.type}Boards`,
+        newData: extendedDoc,
+        object: board
       },
       user
     );
 
-    return engageMessage;
+    return board;
   },
 
   /**
-   * Edit message
+   * Edit board
    */
-  async engageMessageEdit(
-    _root,
-    { _id, ...doc }: IEngageMessageEdit,
-    { user }: IContext
-  ) {
-    checkCampaignDoc(doc);
+  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user }: IContext) {
+    await checkPermission(doc.type, user, 'boardsEdit');
 
-    const engageMessage = await EngageMessages.getEngageMessage(_id);
-    const updated = await EngageMessages.updateEngageMessage(_id, doc);
-
-    // run manually when it was draft & live afterwards
-    if (
-      !engageMessage.isLive &&
-      doc.isLive &&
-      doc.kind === CAMPAIGN_KINDS.MANUAL
-    ) {
-      await send(updated);
-    }
+    const board = await Boards.getBoard(_id);
+    const updated = await Boards.updateBoard(_id, doc);
 
     await putUpdateLog(
+      messageBroker,
       {
-        type: MODULE_NAMES.ENGAGE,
-        object: { ...engageMessage.toObject(), ...emptyCustomers },
-        newData: { ...updated.toObject(), ...emptyCustomers },
+        type: `${doc.type}Boards`,
+        newData: doc,
+        object: board,
         updatedDocument: updated
       },
       user
     );
 
-    return EngageMessages.findOne({ _id });
+    return updated;
   },
 
   /**
-   * Remove message
+   * Remove board
    */
-  async engageMessageRemove(
-    _root,
-    { _id }: { _id: string },
-    { user }: IContext
-  ) {
-    const engageMessage = await EngageMessages.getEngageMessage(_id);
+  async boardsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+    const board = await Boards.getBoard(_id);
 
-    const removed = await EngageMessages.removeEngageMessage(_id);
+    await checkPermission(board.type, user, 'boardsRemove');
+
+    const removed = await Boards.removeBoard(_id);
+
+    const relatedFieldsGroups = (await _FieldsGroups()).find({
+      boardIds: board._id
+    });
+
+    for (const fieldGroup of relatedFieldsGroups) {
+      const boardIds = fieldGroup.boardIds || [];
+      fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
+
+      (await _FieldsGroups()).updateGroup(fieldGroup._id, fieldGroup);
+    }
 
     await putDeleteLog(
-      {
-        type: MODULE_NAMES.ENGAGE,
-        object: { ...engageMessage.toObject(), ...emptyCustomers }
-      },
+      messageBroker,
+      { type: `${board.type}Boards`, object: board },
       user
     );
 
@@ -135,197 +135,357 @@ const engageMutations = {
   },
 
   /**
-   * Engage message set live
+   * Create new pipeline
    */
-  async engageMessageSetLive(_root, { _id }: { _id: string }) {
-    const campaign = await EngageMessages.getEngageMessage(_id);
-
-    if (campaign.isLive) {
-      throw new Error('Campaign is already live');
-    }
-
-    checkCampaignDoc(campaign);
-
-    return EngageMessages.engageMessageSetLive(_id);
-  },
-
-  /**
-   * Engage message set pause
-   */
-  engageMessageSetPause(_root, { _id }: { _id: string }) {
-    return EngageMessages.engageMessageSetPause(_id);
-  },
-
-  /**
-   * Engage message set live manual
-   */
-  async engageMessageSetLiveManual(
+  async pipelinesAdd(
     _root,
-    { _id }: { _id: string },
+    { stages, ...doc }: IPipelinesAdd,
     { user }: IContext
   ) {
-    const draftCampaign = await EngageMessages.getEngageMessage(_id);
-    const live = await EngageMessages.engageMessageSetLive(_id);
+    await checkPermission(doc.type, user, 'pipelinesAdd');
 
-    await send(live);
+    if (doc.numberConfig || doc.numberSize) {
+      await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
+    }
 
-    await putUpdateLog(
-      {
-        type: MODULE_NAMES.ENGAGE,
-        newData: {
-          isLive: true,
-          isDraft: false
-        },
-        object: {
-          _id,
-          isLive: draftCampaign.isLive,
-          isDraft: draftCampaign.isDraft
-        },
-        description: `Campaign "${draftCampaign.title}" has been set live`
-      },
-      user
+    const pipeline = await Pipelines.createPipeline(
+      { userId: user._id, ...doc },
+      stages
     );
-
-    return live;
-  },
-
-  engagesUpdateConfigs(_root, configsMap, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engagesUpdateConfigs(configsMap);
-  },
-
-  /**
-   * Engage message verify email
-   */
-  async engageMessageVerifyEmail(
-    _root,
-    { email }: { email: string },
-    { dataSources }: IContext
-  ) {
-    return dataSources.EngagesAPI.engagesVerifyEmail({ email });
-  },
-
-  /**
-   * Engage message remove verified email
-   */
-  engageMessageRemoveVerifiedEmail(
-    _root,
-    { email }: { email: string },
-    { dataSources }: IContext
-  ) {
-    return dataSources.EngagesAPI.engagesRemoveVerifiedEmail({ email });
-  },
-
-  async engageMessageSendTestEmail(
-    _root,
-    args: ITestEmailParams,
-    { dataSources }: IContext
-  ) {
-    const { content, from, to, title } = args;
-
-    if (!(content && from && to && title)) {
-      throw new Error(
-        'Email content, title, from address or to address is missing'
-      );
-    }
-    const Users = await _Users();
-    const Customers = await _Customers();
-    const customer = await Customers.findOne({ primaryEmail: to });
-    const targetUser = await Users.findOne({ email: to });
-
-    const replacedContent = await new EditorAttributeUtil().replaceAttributes({
-      content,
-      customer,
-      user: targetUser
-    });
-
-    return dataSources.EngagesAPI.engagesSendTestEmail({
-      ...args,
-      content: replacedContent
-    });
-  },
-
-  // Helps users fill less form fields to create a campaign
-  async engageMessageCopy(
-    _root,
-    { _id }: { _id },
-    { docModifier, user }: IContext
-  ) {
-    const sourceCampaign = await EngageMessages.getEngageMessage(_id);
-
-    const doc = docModifier({
-      ...sourceCampaign.toObject(),
-      createdAt: new Date(),
-      createdBy: user._id,
-      title: `${sourceCampaign.title}-copied`,
-      isDraft: true,
-      isLive: false,
-      runCount: 0,
-      totalCustomersCount: 0,
-      validCustomersCount: 0
-    });
-
-    delete doc._id;
-
-    if (doc.scheduleDate && doc.scheduleDate.dateTime) {
-      // schedule date should be manually set
-      doc.scheduleDate.dateTime = null;
-    }
-
-    const copy = await EngageMessages.createEngageMessage(doc);
 
     await putCreateLog(
+      messageBroker,
       {
-        type: MODULE_NAMES.ENGAGE,
-        newData: {
-          ...doc,
-          ...emptyCustomers
-        },
-        object: {
-          ...copy.toObject(),
-          ...emptyCustomers
-        },
-        description: `Campaign "${sourceCampaign.title}" has been copied`
+        type: `${doc.type}Pipelines`,
+        newData: doc,
+        object: pipeline
       },
       user
     );
 
-    return copy;
+    return pipeline;
+  },
+
+  /**
+   * Edit pipeline
+   */
+  async pipelinesEdit(
+    _root,
+    { _id, stages, ...doc }: IPipelinesEdit,
+    { user }: IContext
+  ) {
+    await checkPermission(doc.type, user, 'pipelinesEdit');
+
+    if (doc.numberConfig || doc.numberSize) {
+      await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
+    }
+
+    const pipeline = await Pipelines.getPipeline(_id);
+
+    const updated = await Pipelines.updatePipeline(_id, doc, stages);
+
+    await putUpdateLog(
+      messageBroker,
+      {
+        type: `${doc.type}Pipelines`,
+        newData: doc,
+        object: pipeline,
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return updated;
+  },
+
+  /**
+   * Update pipeline orders
+   */
+  async pipelinesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
+    return Pipelines.updateOrder(orders);
+  },
+
+  /**
+   * Watch pipeline
+   */
+  async pipelinesWatch(
+    _root,
+    { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string },
+    { user }: IContext
+  ) {
+    await checkPermission(type, user, 'pipelinesWatch');
+
+    return Pipelines.watchPipeline(_id, isAdd, user._id);
+  },
+
+  /**
+   * Remove pipeline
+   */
+  async pipelinesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+    const pipeline = await Pipelines.getPipeline(_id);
+
+    await checkPermission(pipeline.type, user, 'pipelinesRemove');
+
+    const removed = await Pipelines.removePipeline(_id);
+
+    const relatedFieldsGroups = (await _FieldsGroups()).find({
+      pipelineIds: pipeline._id
+    });
+
+    for (const fieldGroup of relatedFieldsGroups) {
+      const pipelineIds = fieldGroup.pipelineIds || [];
+      fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
+
+      (await _FieldsGroups()).updateGroup(fieldGroup._id, fieldGroup);
+    }
+
+    await putDeleteLog(
+      messageBroker,
+      { type: `${pipeline.type}Pipelines`, object: pipeline },
+      user
+    );
+
+    return removed;
+  },
+
+  /**
+   * Archive pipeline
+   */
+  async pipelinesArchive(
+    _root,
+    { _id, status }: { _id; status: string },
+    { user }: IContext
+  ) {
+    const pipeline = await Pipelines.getPipeline(_id);
+
+    await checkPermission(pipeline.type, user, 'pipelinesArchive');
+
+    const archived = await Pipelines.archivePipeline(_id, status);
+
+    const updated = await Pipelines.findOne({ _id });
+
+    await putUpdateLog(
+      messageBroker,
+      {
+        type: `${pipeline.type}Pipelines`,
+        object: pipeline,
+        newData: { isActive: !status },
+        description: `"${pipeline.name}" has been ${
+          status === BOARD_STATUSES.ACTIVE ? 'archived' : 'unarchived'
+        }"`,
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return archived;
+  },
+
+  /**
+   * Duplicate pipeline
+   */
+  async pipelinesCopied(_root, { _id }: { _id: string }, { user }: IContext) {
+    const sourcePipeline = await Pipelines.getPipeline(_id);
+    const sourceStages = await Stages.find({ pipelineId: _id }).lean();
+
+    await checkPermission(sourcePipeline.type, user, 'pipelinesCopied');
+
+    const pipelineDoc = {
+      ...sourcePipeline,
+      _id: undefined,
+      status: sourcePipeline.status || 'active',
+      name: `${sourcePipeline.name}-copied`
+    };
+
+    const copied = await Pipelines.createPipeline(pipelineDoc);
+
+    for (const stage of sourceStages) {
+      await Stages.createStage({
+        ...stage,
+        _id: undefined,
+        probability: stage.probability || '10%',
+        type: copied.type,
+        pipelineId: copied._id
+      });
+    }
+
+    await putUpdateLog(
+      messageBroker,
+      { type: `${sourcePipeline.type}Pipelines`, object: copied },
+      user
+    );
+
+    return copied;
+  },
+
+  /**
+   * Update stage orders
+   */
+  stagesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
+    return Stages.updateOrder(orders);
+  },
+
+  /**
+   * Edit stage
+   */
+  async stagesEdit(_root, { _id, ...doc }: IStageEdit, { user }: IContext) {
+    await checkPermission(doc.type, user, 'stagesEdit');
+
+    const stage = await Stages.getStage(_id);
+    const updated = await Stages.updateStage(_id, doc);
+
+    await putUpdateLog(
+      messageBroker,
+      {
+        type: `${doc.type}Stages`,
+        newData: doc,
+        object: stage,
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return updated;
+  },
+
+  /**
+   * Remove stage
+   */
+  async stagesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+    const stage = await Stages.getStage(_id);
+
+    await checkPermission(stage.type, user, 'stagesRemove');
+
+    const removed = await Stages.removeStage(_id);
+
+    await putDeleteLog(
+      messageBroker,
+      { type: `${stage.type}Stages`, object: stage },
+      user
+    );
+
+    return removed;
+  },
+
+  async stagesSortItems(
+    _root,
+    {
+      stageId,
+      type,
+      // proccessId,
+      sortType
+    }: {
+      stageId: string;
+      type: string;
+      proccessId: string;
+      sortType: string;
+    },
+    { user }: IContext
+  ) {
+    await checkPermission(type, user, 'itemsSort');
+
+    const { collection } = getCollection(type);
+
+    const sortTypes = {
+      'created-asc': { createdAt: 1 },
+      'created-desc': { createdAt: -1 },
+      'modified-asc': { modifiedAt: 1 },
+      'modified-desc': { modifiedAt: -1 },
+      'close-asc': { closeDate: 1, order: 1 },
+      'close-desc': { closeDate: -1, order: 1 },
+      'alphabetically-asc': { name: 1 }
+    };
+    const sort: { [key: string]: any } = sortTypes[sortType];
+
+    if (sortType === 'close-asc') {
+      await bulkUpdateOrders({
+        collection,
+        stageId,
+        sort,
+        additionFilter: { closeDate: { $ne: null } }
+      });
+      await bulkUpdateOrders({
+        collection,
+        stageId,
+        sort: { order: 1 },
+        additionFilter: { closeDate: null },
+        startOrder: 100001
+      });
+    } else {
+      const response = await bulkUpdateOrders({ collection, stageId, sort });
+
+      if (!response) {
+        return;
+      }
+    }
+
+    // const stage = await Stages.getStage(stageId);
+
+    // graphqlPubsub.publish('pipelinesChanged', {
+    //   pipelinesChanged: {
+    //     _id: stage.pipelineId,
+    //     proccessId,
+    //     action: 'reOrdered',
+    //     data: {
+    //       destinationStageId: stageId
+    //     }
+    //   }
+    // });
+
+    return 'ok';
+  },
+
+  async boardItemUpdateTimeTracking(
+    _root,
+    {
+      _id,
+      type,
+      status,
+      timeSpent,
+      startDate
+    }: {
+      _id: string;
+      type: string;
+      status: string;
+      timeSpent: number;
+      startDate: string;
+    },
+    { user }
+  ) {
+    await checkPermission(type, user, 'updateTimeTracking');
+
+    return Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
+  },
+
+  async boardItemsSaveForGanttTimeline(
+    _root,
+    { items, links, type }: { items: any[]; links: any[]; type: string }
+  ) {
+    const bulkOps: any[] = [];
+
+    for (const item of items) {
+      bulkOps.push({
+        updateOne: {
+          filter: {
+            _id: item._id
+          },
+          update: {
+            $set: {
+              startDate: item.startDate,
+              closeDate: item.closeDate,
+              relations: links.filter(link => link.start === item._id)
+            }
+          }
+        }
+      });
+    }
+
+    const { collection } = getCollection(type);
+
+    await collection.bulkWrite(bulkOps);
+
+    return 'Success';
   }
 };
 
-checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
-checkPermission(engageMutations, 'engageMessageEdit', 'engageMessageEdit');
-checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
-checkPermission(
-  engageMutations,
-  'engageMessageSetLive',
-  'engageMessageSetLive'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageSetPause',
-  'engageMessageSetPause'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageSetLiveManual',
-  'engageMessageSetLiveManual'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageVerifyEmail',
-  'engageMessageRemove'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageRemoveVerifiedEmail',
-  'engageMessageRemove'
-);
-checkPermission(
-  engageMutations,
-  'engageMessageSendTestEmail',
-  'engageMessageRemove'
-);
-checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
-
-export default engageMutations;
+export default boardMutations;
