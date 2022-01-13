@@ -1,6 +1,7 @@
 import React from 'react';
 import { SidebarCounter } from '@erxes/ui/src/layout/styles';
 import { IStructure } from '../../types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { __, readFile } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -28,11 +29,11 @@ export default function View({ structure, showEdit }: Props) {
   };
 
   const { title, description, code, phoneNumber, email, image } = structure;
-  const supervisor = structure.supervisor || {} as IStructure;
+  const supervisor = structure.supervisor || {} as IUser;
   const links = structure.links || {};
   const coordinate = structure.coordinate || {};
 
-  const supervisorName = supervisor.details
+  const supervisorName = supervisor.details   
     ? supervisor.details.fullName || supervisor.email
     : supervisor.email;
 
