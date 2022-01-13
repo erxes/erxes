@@ -13,8 +13,8 @@ module.exports = {
     menus: [
       {
         text: "Team",
-        url: "/team",
-        icon: "icon-car",
+        url: "/settings/team",
+        icon: "icon-puzzle-piece",
         location: "mainNavigation",
       },
     ],

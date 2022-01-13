@@ -1,3 +1,11 @@
+const configsGetEnv = `
+  query configsGetEnv {
+    configsGetEnv {
+      USE_BRAND_RESTRICTIONS
+    }
+  }
+`;
+
 const configsGetEmailTemplate = `
   query configsGetEmailTemplate($name: String) {
     configsGetEmailTemplate(name: $name)
@@ -40,6 +48,7 @@ const knowledgeBaseTopics = `
 `;
 
 export default {
+  configsGetEnv,
   configsGetEmailTemplate,
   knowledgeBaseTopics
 };
