@@ -1,6 +1,6 @@
 import { Skills, SkillTypes } from '../../models/Skills';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-import { paginate } from '@erxes/api-utils';
+import { paginate } from '@erxes/api-utils/src';
 
 const skillTypesQueries = {
   skillTypes() {

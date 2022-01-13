@@ -1,4 +1,4 @@
-import { IShortMessage } from '@erxes/common-types';
+import { IShortMessage } from './models/definitions/engages';
 
 interface IIntegration {
   _id: string;

@@ -5,7 +5,7 @@ import { IResponseTemplate } from '../../models/definitions/responseTemplates';
 // import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
   _id: string;

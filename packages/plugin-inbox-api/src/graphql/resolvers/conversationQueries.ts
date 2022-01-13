@@ -8,7 +8,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 
 interface ICountBy {
@@ -27,6 +27,9 @@ const count = async (query: any): Promise<number> => {
 };
 
 const conversationQueries = {
+  conversationMessage(_, { _id }) {
+    return ConversationMessages.findOne({ _id });
+  },
   /**
    * Conversations list
    */

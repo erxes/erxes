@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { debugEngages, debugRequest } from '../debuggers';
-import { Configs } from '../models';
 import { awsRequests } from '../trackers/engageTracker';
 import { createTransporter, routeErrorHandling, updateConfigs } from '../utils';
 
@@ -16,28 +15,6 @@ router.post(
     await updateConfigs(configsMap);
 
     return res.json({ status: 'ok' });
-  })
-);
-
-router.get(
-  '/detail',
-  routeErrorHandling(async (req, res) => {
-    debugRequest(debugEngages, req);
-
-    const configs = await Configs.find({});
-
-    return res.json(configs);
-  })
-);
-
-router.get(
-  '/get-verified-emails',
-  routeErrorHandling(async (req, res) => {
-    debugRequest(debugEngages, req);
-
-    const emails = await awsRequests.getVerifiedEmails();
-
-    return res.json(emails);
   })
 );
 

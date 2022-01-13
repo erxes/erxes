@@ -44,7 +44,7 @@ import { sendMessage } from '../../messageBroker';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 
 // import EditorAttributeUtil from '../../editorAttributeUtils';
 

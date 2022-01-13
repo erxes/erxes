@@ -225,6 +225,8 @@ const filterParams = `
 `;
 
 export const queries = `
+  conversationMessage(_id: String!): ConversationMessage
+  
   conversations(${filterParams}): [Conversation]
 
   conversationMessages(

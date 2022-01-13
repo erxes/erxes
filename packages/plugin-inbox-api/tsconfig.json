@@ -10,11 +10,10 @@
     "skipLibCheck": true,
     "strict": true,
     "useUnknownInCatchVariables": false,
+    "paths": {
+      "@erxes/api-utils/*": ["../api-utils/*"],
+    }
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../api-utils" },
-    { "path": "../common-types" }
-  ]
 }

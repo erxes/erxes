@@ -1,7 +1,6 @@
 import { IStageDocument, IPipelineDocument } from "./boards";
 import { IChannelDocument } from "./channels";
 import { IBrowserInfo, IRule } from "./common";
-import { ICustomerDocument, ICustomer } from "./customers";
 import { IUserDocument, IUser } from "./users";
 import { IBrandDocument } from "./brands";
 import { IIntegrationDocument } from "./integrations";
@@ -14,11 +13,8 @@ import { ITopicDocument, ICategoryDocument } from "./knowledgeBase";
 import { IProductDocument } from "./products";
 import { IScriptDocument } from "./scripts";
 import { IPipelineTemplateDocument } from "./pipelineTemplates";
-import { IShortMessage, IEngageMessage, IEngageMessageDocument } from './campaigns';
 
 export {
-  ICustomerDocument,
-  ICustomer,
   IUserDocument,
   IUser,
   IBrandDocument,
@@ -37,8 +33,5 @@ export {
   ICategoryDocument,
   IProductDocument,
   IScriptDocument,
-  IPipelineTemplateDocument,
-  IShortMessage,
-  IEngageMessage,
-  IEngageMessageDocument
+  IPipelineTemplateDocument
 };

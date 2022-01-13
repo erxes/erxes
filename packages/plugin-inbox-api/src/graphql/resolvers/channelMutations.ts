@@ -16,10 +16,10 @@ import {
 // import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils';
+import { IContext } from '@erxes/api-utils/src';
 
 // import utils, { checkUserIds } from '../../utils';
-import { checkUserIds } from '@erxes/api-utils';
+import { checkUserIds } from '@erxes/api-utils/src';
 import { sendMessage } from '../../messageBroker';
 
 interface IChannelsEdit extends IChannel {

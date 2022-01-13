@@ -41,7 +41,7 @@ import graphqlPubsub from '../../pubsub';
 
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../models/definitions/constants';
 
-import { IContext, sendRequest } from '@erxes/api-utils';
+import { IContext, sendRequest } from '@erxes/api-utils/src';
 
 // import {
 //   sendEmail,
@@ -739,8 +739,8 @@ const widgetMutations = {
         { $set: { customerId: customer._id, visitorId: '' } }
       );
     }
-
-    return Customers.saveVisitorContactInfo(args);
+    
+    return sendContactRPCMessage('saveVisitorContactInfo', args);
   },
 
   /*
