@@ -1,15 +1,22 @@
-import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from '../../models';
-import { BOARD_STATUSES } from '../../models/definitions/constants';
+import {
+  Boards,
+  Deals,
+  Pipelines,
+  Stages,
+  Tasks,
+  Tickets
+} from '../../../models';
+import { BOARD_STATUSES } from '../../../models/definitions/constants';
 // import { fetchSegment } from '../../modules/segments/queryBuilder';
-// import { moduleRequireLogin } from '../../permissions/wrappers';
-import { IContext, paginate, regexSearchText } from '@erxes/api-utils';
+import { IContext, paginate, regexSearchText } from '@erxes/api-utils/src';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 // import { IConformityQueryParams } from './types';
-import { getCollection } from '../../models/modelUtils';
-import { IStageDocument } from '../../models/definitions/boards';
-import { CLOSE_DATE_TYPES, PRIORITIES } from '../../constants';
+import { getCollection } from '../../../models/utils';
+import { IStageDocument } from '../../../models/definitions/boards';
+import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
 // import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
-import { getCloseDateByType } from './queryUtils';
-import { _PipelineLabels, _Segments, _Users } from '../../db';
+import { getCloseDateByType } from './utils';
+import { PipelineLabels, Users } from '../../../db';
 
 export interface IDate {
   month: number;
@@ -296,7 +303,7 @@ const boardQueries = {
       .find({ stageId: { $in: stageIds } })
       .distinct('assignedUserIds');
 
-    return _Users.find({ _id: { $in: assignedUserIds } }).lean();
+    return Users.find({ _id: { $in: assignedUserIds } }).lean();
   },
 
   /**
@@ -366,8 +373,7 @@ const boardQueries = {
       }
 
       case 'label': {
-        const labels = await _PipelineLabels.find({ pipelineId });
-
+        const labels = await PipelineLabels.find({ pipelineId });
         groups = labels.map(label => ({
           _id: label._id,
           name: label.name,
@@ -416,7 +422,7 @@ const boardQueries = {
       return {};
     }
 
-    const users = await _Users.find({ _id: { $in: assignedUserIds } });
+    const users = await Users.find({ _id: { $in: assignedUserIds } });
 
     const usersWithInfo: Array<{ name: string }> = [];
     const countsByGroup = {};
@@ -571,6 +577,6 @@ const boardQueries = {
   }
 };
 
-// moduleRequireLogin(boardQueries);
+moduleRequireLogin(boardQueries);
 
 export default boardQueries;

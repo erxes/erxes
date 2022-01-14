@@ -1,6 +1,6 @@
-import resolvers from '../resolvers';
-import { Boards, Pipelines, Stages } from '../../models';
-import { _Fields, _Notifications } from '../../db';
+import resolvers from '..';
+import { Boards, Pipelines, Stages } from '../../../models';
+import { _Fields, _Notifications } from '../../../db';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -8,32 +8,32 @@ import {
   getCustomerIds,
   getItem,
   getNewOrder
-} from '../../models/modelUtils';
+} from '../../../models/utils';
 import {
   IItemCommonFields,
   IItemDragCommonFields,
   IStageDocument
-} from '../../models/definitions/boards';
+} from '../../../models/definitions/boards';
 import {
   BOARD_STATUSES,
   NOTIFICATION_TYPES
-} from '../../models/definitions/constants';
-import { IDeal, IDealDocument } from '../../models/definitions/deals';
+} from '../../../models/definitions/constants';
+import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
   IGrowthHack,
   IGrowthHackDocument
-} from '../../models/definitions/growthHacks';
-import { ITaskDocument } from '../../models/definitions/tasks';
-import { ITicket, ITicketDocument } from '../../models/definitions/tickets';
+} from '../../../models/definitions/growthHacks';
+import { ITaskDocument } from '../../../models/definitions/tasks';
+import { ITicket, ITicketDocument } from '../../../models/definitions/tickets';
 import { IUserDocument } from '@erxes/common-types';
-import graphqlPubsub from '../../pubsub';
+import graphqlPubsub from '../../../pubsub';
 import {
   // putActivityLog,
   putCreateLog,
   putDeleteLog,
   putUpdateLog,
   checkUserIds
-} from '@erxes/api-utils';
+} from '@erxes/api-utils/src';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -41,8 +41,8 @@ import {
   IBoardNotificationParams,
   prepareBoardItemDoc,
   sendNotifications
-} from '../utils';
-import messageBroker from '../../messageBroker';
+} from '../../utils';
+import messageBroker from '../../../messageBroker';
 // import { ACTIVITY_LOG_ACTIONS } from '../../constants';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {

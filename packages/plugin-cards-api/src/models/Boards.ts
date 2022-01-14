@@ -6,7 +6,7 @@ import {
   updateOrder,
   watchItem,
   boardNumberGenerator
-} from './modelUtils';
+} from './utils';
 import {
   boardSchema,
   IBoard,

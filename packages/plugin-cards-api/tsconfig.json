@@ -10,12 +10,13 @@
     "noUnusedParameters": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "src",
+    "paths": {
+      "@erxes/api-utils/*": ["../api-utils/*"],
+      "@erxes/common-types/*": ["../common-types/*"]
+    }
   },
   "include": ["./src/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../api-utils" },
-    { "path": "../common-types" }
-  ]
+  "exclude": ["node_modules", "dist"]
 }

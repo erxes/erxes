@@ -1,24 +1,24 @@
-import { Boards, Pipelines, Stages } from '../../models';
-import { bulkUpdateOrders, getCollection } from '../../models/modelUtils';
+import { Boards, Pipelines, Stages } from '../../../models';
+import { bulkUpdateOrders, getCollection } from '../../../models/utils';
 import {
   IBoard,
   IOrderInput,
   IPipeline,
   IStage,
   IStageDocument
-} from '../../models/definitions/boards';
-import { BOARD_STATUSES } from '../../models/definitions/constants';
-import graphqlPubsub from '../../pubsub';
+} from '../../../models/definitions/boards';
+import { BOARD_STATUSES } from '../../../models/definitions/constants';
+import graphqlPubsub from '../../../pubsub';
 import {
   putCreateLog,
   putDeleteLog,
   putUpdateLog,
   IContext
-} from '@erxes/api-utils';
-import { configReplacer } from '../../utils';
-import { checkPermission } from '../utils';
-import messageBroker from '../../messageBroker';
-import { _FieldsGroups } from '../../db';
+} from '@erxes/api-utils/src';
+import { configReplacer } from '../../../utils';
+import { checkPermission } from '../../utils';
+import messageBroker from '../../../messageBroker';
+import { FieldsGroups } from '../../../db';
 
 interface IBoardsEdit extends IBoard {
   _id: string;
@@ -114,7 +114,7 @@ const boardMutations = {
 
     const removed = await Boards.removeBoard(_id);
 
-    const relatedFieldsGroups = (await _FieldsGroups()).find({
+    const relatedFieldsGroups = await FieldsGroups.find({
       boardIds: board._id
     });
 
@@ -122,7 +122,7 @@ const boardMutations = {
       const boardIds = fieldGroup.boardIds || [];
       fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
 
-      (await _FieldsGroups()).updateGroup(fieldGroup._id, fieldGroup);
+      await FieldsGroups.updateGroup(fieldGroup._id, fieldGroup);
     }
 
     await putDeleteLog(
@@ -228,7 +228,7 @@ const boardMutations = {
 
     const removed = await Pipelines.removePipeline(_id);
 
-    const relatedFieldsGroups = (await _FieldsGroups()).find({
+    const relatedFieldsGroups = (await FieldsGroups()).find({
       pipelineIds: pipeline._id
     });
 
@@ -236,7 +236,7 @@ const boardMutations = {
       const pipelineIds = fieldGroup.pipelineIds || [];
       fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
 
-      (await _FieldsGroups()).updateGroup(fieldGroup._id, fieldGroup);
+      (await FieldsGroups()).updateGroup(fieldGroup._id, fieldGroup);
     }
 
     await putDeleteLog(

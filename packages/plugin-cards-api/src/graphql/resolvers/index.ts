@@ -1,7 +1,7 @@
 import { GraphQLResolverMap } from 'apollo-graphql';
 import { Boards, Pipelines } from '../../models';
-import Mutation from './Mutation';
-import Query from './Query';
+import Mutation from './mutations/boards';
+import Query from './queries/boards';
 import { IBoardDocument } from '../../models/definitions/boards';
 import { IContext } from '@erxes/api-utils/src/types';
 
