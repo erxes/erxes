@@ -171,34 +171,3 @@ export type AutomationsCount = {
 export type CountQueryResponse = {
   automationsTotalCount: AutomationsCount;
 } & QueryResponse;
-
-export interface IPipelineLabel {
-  _id?: string;
-  name: string;
-  colorCode: string;
-  pipelineId?: string;
-  createdBy?: string;
-  createdAt?: Date;
-}
-
-export type PipelineLabelsQueryResponse = {
-  pipelineLabels: IPipelineLabel[];
-} & QueryResponse;
-
-export interface IForm {
-  _id: string;
-  code?: string;
-}
-export interface ILeadIntegration {
-  _id: string;
-  name: string;
-  code: string;
-  kind: string;
-  brand: IBrand;
-  form: IForm;
-}
-
-export type LeadIntegrationsQueryResponse = {
-  integrations: ILeadIntegration[];
-} & QueryResponse;
-

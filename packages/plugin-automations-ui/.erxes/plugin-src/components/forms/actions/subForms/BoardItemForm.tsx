@@ -5,7 +5,7 @@ import { IAction } from '../../../../types';
 import { PRIORITIES } from '@erxes/ui-cards/src/boards/constants';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
-import { IPipelineLabel } from '../../../../types'; // solih
+import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import Common from '../Common';

@@ -3,10 +3,10 @@ import Form from '../../../../components/forms/triggers/subForms/FormSubmit';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { LeadIntegrationsQueryResponse } from '../../../../types';
+import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
 import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
 import { withProps } from '@erxes/ui/src/utils';
-import { queries } from '../../../../graphql';
+import { queries } from '@erxes/ui-leads/src/graphql';
 import { ITrigger } from '../../../../types';
 
 type Props = {

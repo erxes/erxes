@@ -8,7 +8,7 @@ import { allUsers } from '@erxes/ui/src/team/graphql';
 import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
 import React from 'react';
 import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { PipelineLabelsQueryResponse } from '../../../../types'; // solih
+import { PipelineLabelsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 
 type Props = {
   activeAction: IAction;

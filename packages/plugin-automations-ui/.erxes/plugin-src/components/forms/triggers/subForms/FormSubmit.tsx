@@ -2,7 +2,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
-import { ILeadIntegration } from '../../../../types';
+import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 import { ITrigger } from '../../../../types';
 import Select from 'react-select-plus';
 import FormGroup from '@erxes/ui/src/components/form/Group';
