@@ -185,7 +185,6 @@ export default function Appearance(props: Props) {
 
   return (
     <AppearanceWrapper>
-      <div>
         <Logos>
           <h4>Logos and Colors</h4>
           <div>
@@ -220,7 +219,6 @@ export default function Appearance(props: Props) {
         <Button btnStyle='success' icon="check-circle" onClick={onSave}>
           Save
         </Button>
-      </div>
     </AppearanceWrapper>
   );
 }

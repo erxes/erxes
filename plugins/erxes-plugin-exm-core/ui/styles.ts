@@ -70,20 +70,14 @@ export const DeleteButton = styled.div `
 `;
 
 export const AppearanceWrapper = styled.div`
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-  min-width: max-content;
-  padding: 40px;
+  padding: 40px 0 50px 0;
   margin: 0 auto;
+  width: 70%
 
-  > div:first-child {
-    padding: 50px 0 40px 0;
-    width: 70%; 
-  }
   > div:last-child {
     padding: 0;
   }
+
   > button {
     float: right;
     margin-bottom:20px;
@@ -125,10 +119,17 @@ export const GrayLabel = styled.div`
 `;
 
 export const Colors = styled.div`
- > div {
-   display: flex;
-   align-items: center;
- }
+  >div {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    >div {
+      margin-right: 20px;
+    }
+    >label {
+      margin-right: 20px;
+    }
+  }
 `;
 
 export const WelcomeContent = styled.div`
@@ -157,6 +158,9 @@ export const PageContainer = styled.div`
 
   > span {
     margin-right: 40px;    
+      :first-child {
+        width: 50%;
+      }
   }
 `;
 
