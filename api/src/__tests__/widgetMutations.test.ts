@@ -1551,6 +1551,19 @@ describe('lead', () => {
       type: 'company_isSubscribed'
     });
 
+    const customMapProperty = await fieldFactory({
+      type: 'map',
+      isVisible: true,
+      contentType: 'customer'
+    });
+
+    const mapField = await fieldFactory({
+      type: customMapProperty.type,
+      contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customMapProperty._id
+    });
+
     const integration = await integrationFactory({ formId: form._id });
 
     const response = await widgetMutations.widgetsSaveLead(
@@ -1641,6 +1654,11 @@ describe('lead', () => {
             _id: companyDoNotDisturbField._id,
             type: 'company_isSubscribed',
             value: 'Yes'
+          },
+          {
+            _id: mapField._id,
+            type: 'map',
+            value: { lat: 0, lng: 0, description: 'desc' }
           }
         ],
         browserInfo: {

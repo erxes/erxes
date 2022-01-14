@@ -381,10 +381,9 @@ export default class GenerateField extends React.Component<Props, State> {
     const { locationOptions = [] } = field;
 
     const dragend = e => {
-      console.log(e.target);
       const location = e.target.getLatLng();
       if (onValueChange) {
-        onValueChange({ _id: field._id, value: [location.lat, location.lng] });
+        onValueChange({ _id: field._id, value: location });
       }
     };
 

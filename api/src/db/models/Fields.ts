@@ -345,8 +345,7 @@ export const loadFieldClass = () => {
         }
 
         if (type === 'map') {
-          const lat = value[0];
-          const lng = value[1];
+          const { lat, lng } = value as ICoordinates;
 
           stringValue = `${lng},${lat}`;
           locationValue = { type: 'Point', coordinates: [lng, lat] };

@@ -280,6 +280,10 @@ const widgetMutations = {
   ) {
     const { submissions } = args;
 
+    if (submissions.findIndex(e => e.type === 'map') !== -1) {
+      console.log(submissions);
+    }
+
     return createFormConversation(
       args,
       form => {
