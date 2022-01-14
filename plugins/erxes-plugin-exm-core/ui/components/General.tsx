@@ -204,7 +204,7 @@ export default function General(props: Props) {
             )}
             </FeatureRowFlex>
             <DeleteButton onClick={() => onChangeFeature('remove', feature._id)} title={'Delete Feature'}>
-            <Icon icon="times-circle" size={30}/>
+            <Icon icon="cancel-1" size={15}/>
             </DeleteButton>
           </FeatureRow>
         ))}

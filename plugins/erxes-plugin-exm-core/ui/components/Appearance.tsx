@@ -146,22 +146,19 @@ export default function Appearance(props: Props) {
 
     return (
       <div key={index}>
-        <DeleteButton
+        { index == 0  ?
+          <div></div>
+          :
+          <DeleteButton
           onClick={() => onChangePageCount('remove', page._id)}
           title = 'Delete Page'
-        >
-          <Icon icon="times-circle" size={30}/>
-        </DeleteButton>
+          >
+            <Icon icon="cancel-1" size={15}/>
+          </DeleteButton>          
+        }        
         
         <ControlLabel>Page {index + 1}</ControlLabel>
         <PageContainer>
-          <Uploader
-            defaultFileList={image ? [image] : []}
-            onChange={(e: any) => {
-              return onChangePageItem(page._id, 'image', e[0]);
-            }}
-            single={true}
-          />
           <FormControl
             name='title'
             placeholder='Title'
@@ -179,6 +176,13 @@ export default function Appearance(props: Props) {
             }}
           />
         </PageContainer>
+        <Uploader
+            defaultFileList={image ? [image] : []}
+            onChange={(e: any) => {
+              return onChangePageItem(page._id, 'image', e[0]);
+            }}
+            single={true}
+          />
       </div>
     );
   };
