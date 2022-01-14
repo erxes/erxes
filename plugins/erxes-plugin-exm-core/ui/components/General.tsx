@@ -121,11 +121,11 @@ export default function General(props: Props) {
       <FeatureLayout>
         <p>Features</p>
         <FeatureRow>
-              <FeatureRowItem>Title 1</FeatureRowItem>
-              <FeatureRowItem>Title 2</FeatureRowItem>
-              <FeatureRowItem>Title 3</FeatureRowItem>
-              <FeatureRowItem>Title 4</FeatureRowItem>
-              <FeatureRowItem>Title 5</FeatureRowItem>
+              <FeatureRowItem>Type</FeatureRowItem>
+              <FeatureRowItem>Icon</FeatureRowItem>
+              <FeatureRowItem>Name</FeatureRowItem>
+              <FeatureRowItem>Description</FeatureRowItem>
+              <FeatureRowItem>Which to Display</FeatureRowItem>
         </FeatureRow>
         {features.map(feature => (
           <FeatureRow key={feature._id}>

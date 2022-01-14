@@ -210,7 +210,7 @@ export default function Appearance(props: Props) {
         <WelcomeContent>
           <div>
             <h4>Welcome content</h4>
-            <Button icon = 'plus-circle' onClick={() => onChangePageCount('add')}>Add Page</Button>
+            <Button btnStyle='success' icon = 'plus-circle' onClick={() => onChangePageCount('add')}>Add Page</Button>
           </div>
           {welcomeContent.map((page, index) =>
             renderWelcomeContent(page, index)

@@ -123,6 +123,9 @@ export const Colors = styled.div`
     display: flex;
     align-items: center;
     margin-right: 20px;
+    :last-child {
+      height: 50%;
+    }
     >div {
       margin-right: 20px;
     }
