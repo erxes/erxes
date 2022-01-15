@@ -34,24 +34,8 @@ export default class EngagesAPI extends RESTDataSource {
     return this.get(`/configs/detail`);
   }
 
-  public async engagesUpdateConfigs(configsMap) {
-    return this.post(`/configs/save`, configsMap);
-  }
-
-  public async engagesSendTestEmail(params) {
-    return this.post(`/configs/send-test-email`, params);
-  }
-
   public engagesGetVerifiedEmails() {
     return this.get(`/configs/get-verified-emails`);
-  }
-
-  public engagesVerifyEmail(params) {
-    return this.post(`/configs/verify-email`, params);
-  }
-
-  public engagesRemoveVerifiedEmail(params) {
-    return this.post(`/configs/remove-verified-email`, params);
   }
 
   public async engagesStats(engageMessageId) {

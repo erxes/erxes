@@ -6,19 +6,19 @@ import {
   Pipelines,
   // Segments,
   Stages
-} from '../../models';
-import { getCollection } from '../../models/modelUtils';
+} from '../../../models';
+import { getCollection } from '../../../models/utils';
 import {
   IItemCommonFields,
   IStageDocument
-} from '../../models/definitions/boards';
-import { BOARD_STATUSES } from '../../models/definitions/constants';
+} from '../../../models/definitions/boards';
+import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { IUserDocument } from '@erxes/common-types';
-import { CLOSE_DATE_TYPES } from '../../constants';
+import { CLOSE_DATE_TYPES } from '../../../constants';
 // import { fetchSegment } from '../../modules/segments/queryBuilder';
-import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils';
-import { IListParams } from './Query';
-import { _Notifications } from '../../db';
+import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
+import { IListParams } from './boards';
+import { _Notifications } from '../../../db';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -658,26 +658,26 @@ export const getItemList = async (
   //   relTypes: ['company', 'customer']
   // });
 
-  const companyIds: string[] = [];
-  const customerIds: string[] = [];
-  const companyIdsByItemId = {};
-  const customerIdsByItemId = {};
+  // const companyIds: string[] = [];
+  // const customerIds: string[] = [];
+  // const companyIdsByItemId = {};
+  // const customerIdsByItemId = {};
 
-  const perConformity = (
-    conformity,
-    cocIdsByItemId,
-    cocIds,
-    typeId1,
-    typeId2
-  ) => {
-    cocIds.push(conformity[typeId1]);
+  // const perConformity = (
+  //   conformity,
+  //   cocIdsByItemId,
+  //   cocIds,
+  //   typeId1,
+  //   typeId2
+  // ) => {
+  //   cocIds.push(conformity[typeId1]);
 
-    if (!cocIdsByItemId[conformity[typeId2]]) {
-      cocIdsByItemId[conformity[typeId2]] = [];
-    }
+  //   if (!cocIdsByItemId[conformity[typeId2]]) {
+  //     cocIdsByItemId[conformity[typeId2]] = [];
+  //   }
 
-    cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
-  };
+  //   cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
+  // };
 
   // for (const conf of conformities) {
   //   if (conf.mainType === 'company') {

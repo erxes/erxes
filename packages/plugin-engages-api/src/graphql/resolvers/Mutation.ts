@@ -13,6 +13,8 @@ import { checkCampaignDoc, send } from '../../engageUtils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
 import messageBroker from '../../messageBroker';
 import { gatherDescriptions } from './logHelper';
+import { updateConfigs, createTransporter } from '../../utils';
+import { awsRequests } from '../../trackers/engageTracker';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -206,37 +208,31 @@ const engageMutations = {
     return live;
   },
 
-  engagesUpdateConfigs(_root, configsMap, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engagesUpdateConfigs(configsMap);
+  async engagesUpdateConfigs(_root, { configsMap }) {
+    await updateConfigs(configsMap);
+
+    return { status: 'ok' };
   },
 
   /**
    * Engage message verify email
    */
-  async engageMessageVerifyEmail(
-    _root,
-    { email }: { email: string },
-    { dataSources }: IContext
-  ) {
-    return dataSources.EngagesAPI.engagesVerifyEmail({ email });
+  async engageMessageVerifyEmail(_root, { email }: { email: string }) {
+    const response = await awsRequests.verifyEmail(email);
+
+    return JSON.stringify(response);
   },
 
   /**
    * Engage message remove verified email
    */
-  engageMessageRemoveVerifiedEmail(
-    _root,
-    { email }: { email: string },
-    { dataSources }: IContext
-  ) {
-    return dataSources.EngagesAPI.engagesRemoveVerifiedEmail({ email });
+  async engageMessageRemoveVerifiedEmail(_root, { email }: { email: string }) {
+    const response = await awsRequests.removeVerifiedEmail(email);
+
+    return JSON.stringify(response);
   },
 
-  async engageMessageSendTestEmail(
-    _root,
-    args: ITestEmailParams,
-    { dataSources }: IContext
-  ) {
+  async engageMessageSendTestEmail(_root, args: ITestEmailParams) {
     const { content, from, to, title } = args;
 
     if (!(content && from && to && title)) {
@@ -253,10 +249,17 @@ const engageMutations = {
       user: targetUser,
     });
 
-    return dataSources.EngagesAPI.engagesSendTestEmail({
-      ...args,
-      content: replacedContent,
+    const transporter = await createTransporter();
+
+    const response = await transporter.sendMail({
+      from,
+      to,
+      subject: title,
+      html: content,
+      content: replacedContent
     });
+
+    return JSON.stringify(response);
   },
 
   // Helps users fill less form fields to create a campaign

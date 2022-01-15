@@ -1,5 +1,5 @@
 import { Boards, Pipelines, Stages } from '../models';
-import { getNewOrder } from '../models/modelUtils';
+import { getNewOrder } from '../models/utils';
 // import { IConformityAdd } from '../models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../models/definitions/constants';
 import { IDealDocument } from '../models/definitions/deals';
@@ -7,7 +7,7 @@ import { IGrowthHackDocument } from '../models/definitions/growthHacks';
 import { ITaskDocument } from '../models/definitions/tasks';
 import { ITicketDocument } from '../models/definitions/tickets';
 import { IUserDocument } from '@erxes/common-types';
-import { can, checkLogin } from '@erxes/api-utils';
+import { can, checkLogin } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
 import {
   ISendNotification
