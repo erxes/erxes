@@ -1,4 +1,3 @@
-import * as DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import integration from './integration';
 import conversationMessagesByConversationId from './conversationMessagesByConversationId';

@@ -1,4 +1,4 @@
-import { debugError } from '../../debuggers';
+import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { IContext } from '@erxes/api-utils/src';
@@ -71,7 +71,7 @@ export default {
 
       return response;
     } catch (e) {
-      debugError(e);
+      debug.error(e);
       return null;
     }
   },
@@ -102,7 +102,7 @@ export default {
 
         return response ? response.audioSrc : '';
       } catch (e) {
-        debugError(e);
+        debug.error(e);
         return null;
       }
     }
@@ -138,7 +138,7 @@ export default {
 
       return response;
     } catch (e) {
-      debugError(e);
+      debug.error(e);
       return null;
     }
   },

@@ -26,9 +26,9 @@ import { IMessageDocument } from '../../models/definitions/conversationMessages'
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/common-types';
-import { debugError } from '../../debuggers';
-import messageBroker from '../../messageBroker';
-import graphqlPubsub from '../../pubsub';
+import { debug } from '../../configs';
+import { sendMessage, sendRPCMessage } from '../../messageBroker';
+import { graphqlPubsub } from '../../configs';
 
 // import {
 //   ACTIVITY_LOG_ACTIONS,
@@ -96,7 +96,7 @@ const sendConversationToIntegrations = async (
     const content = strip(doc.content);
 
     try {
-      await messageBroker().sendRPCMessage(
+      await sendRPCMessage(
         'rpc_queue:api_to_integrations',
         {
           action,
@@ -403,7 +403,7 @@ const conversationMutations = {
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
       for (let i = 0; i < chunks.length; i++) {
-        await messageBroker().sendMessage(
+        await sendMessage(
           'erxes-api:integrations-notification',
           {
             action: 'sendConversationSms',
@@ -710,7 +710,7 @@ const conversationMutations = {
     try {
       return await dataSources.IntegrationsAPI.deleteDailyVideoChatRoom(name);
     } catch (e) {
-      debugError(e.message);
+      debug.error(e.message);
 
       throw new Error(e.message);
     }
@@ -746,7 +746,7 @@ const conversationMutations = {
 
       return videoCallData;
     } catch (e) {
-      debugError(e.message);
+      debug.error(e.message);
 
       await ConversationMessages.deleteOne({ _id: message._id });
 
@@ -793,7 +793,7 @@ const conversationMutations = {
 
       return response.status;
     } catch (e) {
-      debugError(e);
+      debug.error(e);
 
       throw new Error(e.message);
     }

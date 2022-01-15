@@ -42,3 +42,11 @@ export interface IContext {
   };
   dataLoaders: any;
 }
+
+export interface IFetchElkArgs {
+    action: string;
+    index: string;
+    body: any;
+    _id?: string;
+    defaultValue?: any;
+}

@@ -1,11 +1,8 @@
-import * as dotenv from 'dotenv';
+import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import * as elasticsearch from 'elasticsearch';
 import * as telemetry from 'erxes-telemetry';
 import * as mongoUri from 'mongo-uri';
 import { debugError } from './debuggers';
-
-// load environment variables
-dotenv.config();
 
 const {
   NODE_ENV,
@@ -46,13 +43,7 @@ export const fetchElk = async ({
   body,
   _id,
   defaultValue
-}: {
-  action: string;
-  index: string;
-  body: any;
-  _id?: string;
-  defaultValue?: any;
-}) => {
+}: IFetchElkArgs) => {
   try {
     const params: any = {
       index: `${getIndexPrefix()}${index}`,

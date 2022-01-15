@@ -32,12 +32,12 @@ import {
   IMessengerDataMessagesItem
 } from '../../models/definitions/integrations';
 
-import { debugError } from '../../debuggers';
+import { debug } from '../../configs';
 
 // import { trackViewPageEvent } from '../../../events';
 
 import { get, set } from '../../inmemoryStorage';
-import graphqlPubsub from '../../pubsub';
+import { graphqlPubsub } from '../../configs';
 
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../models/definitions/constants';
 
@@ -401,7 +401,7 @@ const widgetMutations = {
             scopeBrandIds: [brand._id]
           });
         } catch (e) {
-          debugError(e.message);
+          debug.error(e.message);
         }
       } else {
         company = await sendContactRPCMessage('updateCompany', {
@@ -478,7 +478,7 @@ const widgetMutations = {
             '/configs'
           );
         } catch (e) {
-          debugError(e);
+          debug.error(e);
         }
 
         const timeDelay = integrationConfigs.find(
@@ -650,7 +650,7 @@ const widgetMutations = {
           conversationMessageInserted: botMessage
         });
       } catch (e) {
-        debugError(`Failed to connect to BOTPRESS: ${e.message}`);
+        debug.error(`Failed to connect to BOTPRESS: ${e.message}`);
       }
     }
 
@@ -694,7 +694,7 @@ const widgetMutations = {
 //           receivers: conversationNotifReceivers(conversation, customerId)
 //         });
 //       } catch (e) {
-//         debugError(`Failed to send mobile notification: ${e.message}`);
+//         debug.error(`Failed to send mobile notification: ${e.message}`);
 //       }
 //     }
 
@@ -773,7 +773,7 @@ const widgetMutations = {
       });
     } catch (e) {
       /* istanbul ignore next */
-      debugError(
+      debug.error(
         `Error occurred during widgets save browser info ${e.message}`
       );
     }

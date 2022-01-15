@@ -1,4 +1,4 @@
-import { debugBase } from './debuggers';
+import { debugInfo } from './debuggers';
 
 export const getEnv = ({
   name,
@@ -14,7 +14,7 @@ export const getEnv = ({
   }
 
   if (!value) {
-    debugBase(`Missing environment variable configuration for ${name}`);
+    debugInfo(`Missing environment variable configuration for ${name}`);
   }
 
   return value || '';
