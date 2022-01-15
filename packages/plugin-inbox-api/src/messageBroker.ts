@@ -1,16 +1,7 @@
-import * as dotenv from 'dotenv';
-import messageBroker from 'erxes-message-broker';
-
-dotenv.config();
-
 let client;
 
-export const initBroker = async server => {
-  client = await messageBroker({
-    name: 'inbox',
-    server,
-    envs: process.env
-  });
+export const initBroker = (cl) => {
+  client = cl;
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

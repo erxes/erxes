@@ -1,7 +1,7 @@
 import * as getUuid from 'uuid-by-string';
 import { Customers, Fields } from './apiCollections';
-import { debugBase, debugError } from './debuggers';
-import { client, fetchElk, getIndexPrefix } from './elasticsearch';
+import { debug } from './configs';
+import { es } from './configs';
 import { sendContactRPCMessage } from './messageBroker';
 
 interface ISaveEventArgs {
@@ -47,10 +47,10 @@ export const saveEvent = async (args: ISaveEventArgs) => {
     searchQuery.bool.must.push(additionalQuery);
   }
 
-  const index = `${getIndexPrefix()}events`;
+  const index = `${es.getIndexPrefix()}events`;
 
   try {
-    const response = await client.update({
+    const response = await es.client.update({
       index,
       // generate unique id based on searchQuery
       id: getUuid(JSON.stringify(searchQuery)),
@@ -68,9 +68,9 @@ export const saveEvent = async (args: ISaveEventArgs) => {
       }
     });
 
-    debugBase(`Response ${JSON.stringify(response)}`);
+    debug.info(`Response ${JSON.stringify(response)}`);
   } catch (e) {
-    debugError(`Save event error ${e.message}`);
+    debug.error(`Save event error ${e.message}`);
 
     customerId = undefined;
     visitorId = undefined;
@@ -89,7 +89,7 @@ export const getNumberOfVisits = async (params: {
     : { visitorId: params.visitorId };
 
   try {
-    const response = await fetchElk({
+    const response = await es.fetchElk({
       action: 'search',
       index: 'events',
       body: {
@@ -135,7 +135,7 @@ export const getNumberOfVisits = async (params: {
 
     return firstHit._source.count;
   } catch (e) {
-    debugError(`Error occured during getNumberOfVisits ${e.message}`);
+    debug.error(`Error occured during getNumberOfVisits ${e.message}`);
     return 0;
   }
 };

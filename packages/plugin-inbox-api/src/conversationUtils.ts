@@ -4,7 +4,7 @@ import { Tags, Segments } from './apiCollections';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
-import { fetchElk } from './elasticsearch';
+import { es } from './configs';
 
 import { getDocumentList } from './cacheUtils';
 import { IListArgs } from './conversationQueryBuilder';
@@ -13,7 +13,7 @@ import { fixDate } from '@erxes/api-utils/src';
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
 // import { fetchSegment } from '../segments/queryBuilder';
 
-import { debugError } from './debuggers';
+import { debug } from './configs';
 
 export interface ICountBy {
   [index: string]: number;
@@ -102,7 +102,7 @@ export const countBySegment = async (
       await qb.segmentFilter(s._id);
       counts[s._id] = await qb.runQueries();
     } catch (e) {
-      debugError(`Error during segment count ${e.message}`);
+      debug.error(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }
@@ -460,7 +460,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     };
 
-    const response = await fetchElk({
+    const response = await es.fetchElk({
       action: 'count',
       index: 'conversations',
       body: queryOptions,
