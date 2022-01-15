@@ -18,7 +18,9 @@ import {
   Customers,
   Forms,
   Companies,
-  EngageMessages
+  EngageMessages,
+  Checklists,
+  InternalNotes
 } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
@@ -123,6 +125,21 @@ export const initBroker = async (server?) => {
       })
     );
 
+    consumeRPCQueue('forms:rpc_queue:duplicate', async ({ formId }) => ({
+      status: 'success',
+      data: await Forms.duplicate(formId)
+    }));
+
+    consumeQueue('forms:removeForm', async ({ formId }) => ({
+      status: 'success',
+      data: await Forms.removeForm(formId)
+    }));
+
+    consumeQueue('checklists:removeChecklists', async ({ type, itemIds }) => ({
+      status: 'success',
+      data: await Checklists.removeChecklists(type, itemIds)
+    }));
+
     consumeQueue('conformities:addConformity', async doc => ({
       status: 'success',
       data: await Conformities.addConformity(doc)
@@ -132,6 +149,19 @@ export const initBroker = async (server?) => {
       status: 'success',
       data: await Conformities.create(doc)
     }));
+
+    consumeQueue('conformities:removeConformities', async doc => ({
+      status: 'success',
+      data: await Conformities.removeConformities(doc)
+    }));
+
+    consumeQueue(
+      'internalNotes:removeInternalNotes',
+      async ({ type, itemIds }) => ({
+        status: 'success',
+        data: await InternalNotes.removeInternalNotes(type, itemIds)
+      })
+    );
 
     consumeRPCQueue(
       'engages:rpc_queue:createVisitorOrCustomerMessages',

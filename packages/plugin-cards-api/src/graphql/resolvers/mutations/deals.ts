@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Deals, Products, Stages } from '../../../models';
+import { Deals, Stages } from '../../../models';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
 import { IDeal } from '../../../models/definitions/deals';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
@@ -12,6 +12,7 @@ import {
   itemsEdit,
   itemsRemove
 } from './utils';
+import { Products } from '../../../db';
 
 interface IDealsEdit extends IDeal {
   _id: string;

@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { Pipelines } from '.';
-import { getCollection } from './boardUtils';
+import { getCollection } from './utils';
 import {
   IPipelineLabel,
   IPipelineLabelDocument,

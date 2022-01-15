@@ -1,6 +1,6 @@
 import resolvers from '..';
 import { Boards, Pipelines, Stages } from '../../../models';
-import { _Fields, _Notifications } from '../../../db';
+import { _Fields, Notifications } from '../../../db';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -25,7 +25,6 @@ import {
 } from '../../../models/definitions/growthHacks';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { ITicket, ITicketDocument } from '../../../models/definitions/tickets';
-import { IUserDocument } from '@erxes/common-types';
 import graphqlPubsub from '../../../pubsub';
 import {
   // putActivityLog,
@@ -398,7 +397,7 @@ export const itemsEdit = async (
 };
 
 const itemMover = async (
-  userId: string,
+  _userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
   destinationStageId: string
@@ -441,7 +440,7 @@ const itemMover = async (
     //   }
     // });
 
-    (await _Notifications()).update(
+    await Notifications.update(
       { contentType, contentTypeId: item._id },
       { $set: { link } },
       { multi: true }
@@ -454,7 +453,8 @@ const itemMover = async (
 export const itemsChange = async (
   doc: IItemDragCommonFields,
   type: string,
-  user: IUserDocument,
+  //user: IUserDocument,
+  user: any,
   modelUpdate: any
 ) => {
   const { collection } = getCollection(type);
@@ -535,7 +535,8 @@ export const itemsChange = async (
 export const itemsRemove = async (
   _id: string,
   type: string,
-  user: IUserDocument
+  // user: IUserDocument,
+  user: any
 ) => {
   const item = await getItem(type, { _id });
 
@@ -561,7 +562,8 @@ export const itemsCopy = async (
   _id: string,
   proccessId: string,
   type: string,
-  user: IUserDocument,
+  user: any,
+  // user: IUserDocument,
   extraDocParam: string[],
   modelCreate: any
 ) => {
@@ -617,7 +619,8 @@ export const itemsCopy = async (
 export const itemsArchive = async (
   stageId: string,
   type: string,
-  proccessId: string
+  proccessId: string,
+  _user: any
   // user: IUserDocument
 ) => {
   const { collection } = getCollection(type);

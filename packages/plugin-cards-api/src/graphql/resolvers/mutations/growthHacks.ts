@@ -1,9 +1,8 @@
-import { GrowthHacks } from '../../../db/models';
-import { IItemDragCommonFields } from '../../../db/models/definitions/boards';
-import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { GrowthHacks } from '../../../models';
+import { IItemDragCommonFields } from '../../../models/definitions/boards';
+import { IGrowthHack } from '../../../models/definitions/growthHacks';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src';
 import {
   itemsAdd,
   itemsArchive,
@@ -11,7 +10,7 @@ import {
   itemsCopy,
   itemsEdit,
   itemsRemove
-} from './boardUtils';
+} from './utils';
 
 interface IGrowthHacksEdit extends IGrowthHack {
   _id: string;
@@ -70,11 +69,7 @@ const growthHackMutations = {
   /**
    * Remove a growth hack
    */
-  async growthHacksRemove(
-    _root,
-    { _id }: { _id: string },
-    { user }: { user: IUserDocument }
-  ) {
+  async growthHacksRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     return itemsRemove(_id, 'growthHack', user);
   },
 
@@ -84,7 +79,7 @@ const growthHackMutations = {
   growthHacksWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user }: { user: IUserDocument }
+    { user }: IContext
   ) {
     return GrowthHacks.watchGrowthHack(_id, isAdd, user._id);
   },
@@ -95,7 +90,7 @@ const growthHackMutations = {
   growthHacksVote(
     _root,
     { _id, isVote }: { _id: string; isVote: boolean },
-    { user }: { user: IUserDocument }
+    { user }: IContext
   ) {
     return GrowthHacks.voteGrowthHack(_id, isVote, user._id);
   },

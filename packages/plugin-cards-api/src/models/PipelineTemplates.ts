@@ -1,5 +1,5 @@
+import { sendFormMessage, sendFormRPCMessage } from '../messageBroker';
 import { Model, model } from 'mongoose';
-import { Forms } from '.';
 import {
   IPipelineTemplateDocument,
   IPipelineTemplateStage,
@@ -26,7 +26,7 @@ export const getDuplicatedStages = async ({
   const stages: any[] = [];
 
   for (const stage of template.stages) {
-    const duplicated = await Forms.duplicate(stage.formId);
+    const duplicated = await sendFormRPCMessage('duplicate', stage.formId);
 
     stages.push({
       _id: Math.random().toString(),
@@ -135,7 +135,7 @@ export const loadPipelineTemplateClass = () => {
       }
 
       for (const stage of pipelineTemplate.stages) {
-        await Forms.removeForm(stage.formId);
+        sendFormMessage('removeForm', stage.formId);
       }
 
       return PipelineTemplates.deleteOne({ _id });

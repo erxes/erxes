@@ -18,7 +18,7 @@ import { CLOSE_DATE_TYPES } from '../../../constants';
 // import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
-import { _Notifications } from '../../../db';
+import { Notifications } from '../../../db';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -761,7 +761,7 @@ export const getItemList = async (
 
   const updatedList: any[] = [];
 
-  const notifications = await _Notifications.find(
+  const notifications = await Notifications.find(
     { contentTypeId: { $in: ids }, isRead: false, receiver: user._id },
     { contentTypeId: 1 }
   );
