@@ -23,9 +23,10 @@ interface SubgraphConfig {
 
 export const allSubgraphEnvKeys: SubgraphConfig = {
   api: 'SUBGRAPH_API_URL',
-  engages: 'SUBGRAPH_ENGAGES_URL',
-  inbox: 'SUBGRAPH_INBOX_URL',
+  //engages: 'SUBGRAPH_ENGAGES_URL',
+  //inbox: 'SUBGRAPH_INBOX_URL',
   cards: 'SUBGRAPH_CARDS_URL'
+
 };
 
 const getConfiguredServices = (): ServiceEndpointDefinition[] =>
