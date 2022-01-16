@@ -376,16 +376,18 @@ func main() {
 
 
 			if(ns.indexOf("deals") > -1) {
-				var productsDataString = JSON.stringify(doc.productsData);
-				var amount = 0;
+				if (doc.productsData) {
+					var productsDataString = JSON.stringify(doc.productsData);
+					var amount = 0;
 
-				var productsData = JSON.parse(productsDataString);
+					var productsData = JSON.parse(productsDataString);
 
-				for (var i = 0; i < productsData.length; i++){
-					amount = amount + productsData[i].amount;
+					for (var i = 0; i < productsData.length; i++){
+						amount = amount + productsData[i].amount;
+					}
+
+					doc.amount = amount;
 				}
-
-				doc.amount = amount;
 			}
 
 

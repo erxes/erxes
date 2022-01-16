@@ -152,7 +152,8 @@ export const generateCommonFilters = async (
     segment,
     assignedToMe,
     startDate,
-    endDate
+    endDate,
+    hasStartAndCloseDate
   } = args;
 
   const isListEmpty = value => {
@@ -297,6 +298,11 @@ export const generateCommonFilters = async (
     const itemIds = await fetchSegment(segmentObj);
 
     filter._id = { $in: itemIds };
+  }
+
+  if (hasStartAndCloseDate) {
+    filter.startDate = { $exists: true };
+    filter.closeDate = { $exists: true };
   }
 
   return filter;
@@ -631,9 +637,12 @@ export const getItemList = async (
         stage: { $arrayElemAt: ['$stages_doc', 0] },
         name: 1,
         isComplete: 1,
+        startDate: 1,
         closeDate: 1,
+        relations: 1,
         modifiedAt: 1,
         priority: 1,
+        number: 1,
         watchedUserIds: 1,
         ...(extraFields || {})
       }

@@ -127,6 +127,7 @@ export interface IItem {
   order: number;
   stageId: string;
   boardId?: string;
+  startDate: Date;
   closeDate: Date;
   description: string;
   amount: number;
@@ -157,6 +158,8 @@ export interface IItem {
     [key: string]: any;
   };
   score?: number;
+  number?: string;
+  relations: any[];
 }
 
 export interface IDraggableLocation {

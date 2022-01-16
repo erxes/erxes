@@ -23,6 +23,7 @@ export interface IItemCommonFields {
   // TODO migrate after remove 2row
   companyIds?: string[];
   customerIds?: string[];
+  startDate?: Date;
   closeDate?: Date;
   stageChangedDate?: Date;
   description?: string;
@@ -49,6 +50,7 @@ export interface IItemCommonFields {
   };
   customFieldsData?: ICustomField[];
   score?: number;
+  number?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -87,6 +89,9 @@ export interface IPipeline extends ICommonFields {
   templateId?: string;
   isCheckUser?: boolean;
   excludeCheckUserIds?: string[];
+  numberConfig?: string;
+  numberSize?: string;
+  lastNum?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -154,12 +159,22 @@ const timeTrackSchema = new Schema(
   { _id: false }
 );
 
+const relationSchema = new Schema(
+  {
+    id: field({ type: String }),
+    start: field({ type: String }),
+    end: field({ type: String })
+  },
+  { _id: false }
+);
+
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   userId: field({ type: String, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
+  startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
   stageChangedDate: field({
     type: Date,
@@ -216,6 +231,17 @@ export const commonItemFieldsSchema = {
     optional: true,
     label: 'Score',
     esType: 'number'
+  }),
+  number: field({
+    type: String,
+    unique: true,
+    sparse: true,
+    label: 'Item number'
+  }),
+  relations: field({
+    type: [relationSchema],
+    optional: true,
+    label: 'Related items used for gantt chart'
   })
 };
 
@@ -265,6 +291,13 @@ export const pipelineSchema = new Schema({
     type: [String],
     optional: true,
     label: 'Users elligible to see all cards'
+  }),
+  numberConfig: field({ type: String, optional: true, label: 'Number config' }),
+  numberSize: field({ type: String, optional: true, label: 'Number count' }),
+  lastNum: field({
+    type: String,
+    optional: true,
+    label: 'Last generated number'
   }),
   ...commonFieldsSchema
 });
