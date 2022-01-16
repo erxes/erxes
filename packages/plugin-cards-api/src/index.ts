@@ -4,9 +4,6 @@ dotenv.config();
 import * as bodyParser from 'body-parser';
 import express from 'express';
 import { filterXSS } from 'xss';
-import configs from './api/configs';
-import deliveryReports from './api/deliveryReports';
-import telnyx from './api/telnyx';
 import { buildSubgraphSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server-express';
 import cookieParser from 'cookie-parser';
@@ -19,6 +16,7 @@ import { initBroker } from './messageBroker';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
+import * as db from './db';
 
 export const app = express();
 
@@ -43,11 +41,6 @@ app.use((req: any, _res, next) => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Insert routes below
-app.use('/configs', configs);
-app.use('/deliveryReports', deliveryReports);
-app.use('/telnyx', telnyx);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -104,6 +97,8 @@ async function starServer() {
       debugError(`Error ocurred during message broker init ${e.message}`);
     });
   });
+
+  await db.connect();
 
   debugInit(`Engages server is running on port ${PORT}`);
 }

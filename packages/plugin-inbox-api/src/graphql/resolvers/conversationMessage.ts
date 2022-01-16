@@ -1,4 +1,4 @@
-import { debugError } from '../../debuggers';
+import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IContext } from '@erxes/api-utils/src';
@@ -72,7 +72,7 @@ export default {
       );
       return response;
     } catch (e) {
-      debugError(e);
+      debug.error(e);
       return null;
     }
   }

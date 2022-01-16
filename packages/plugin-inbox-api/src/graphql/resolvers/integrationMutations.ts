@@ -30,7 +30,7 @@ import {
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
-import { debugError } from '../../debuggers';
+import { debug } from '../../configs';
 import { sendMessage } from '../../messageBroker';
 
 // import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
@@ -378,7 +378,7 @@ const integrationMutations = {
 
       return Integrations.removeIntegration(_id);
     } catch (e) {
-      debugError(e);
+      debug.error(e);
       throw e;
     }
   },
@@ -404,7 +404,7 @@ const integrationMutations = {
 
       return 'success';
     } catch (e) {
-      debugError(e);
+      debug.error(e);
       throw e;
     }
   },
@@ -454,7 +454,7 @@ const integrationMutations = {
         data: JSON.stringify(doc)
       });
     } catch (e) {
-      debugError(e);
+      debug.error(e);
       throw e;
     }
 

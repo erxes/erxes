@@ -23,6 +23,7 @@ export let _Segments: any;
 export let _Users: any;
 export let _InternalNotes: any;
 export let _Conformities: any;
+export let Products: any;
 
 export async function connect() {
   await client.connect();
@@ -39,6 +40,7 @@ export async function connect() {
   _Users = db.collection('users');
   _InternalNotes = db.collection('internal_notes');
   _Conformities = db.collection('conformities');
+  Products = db.collection('products');
 }
 
 export async function disconnect() {

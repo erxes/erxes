@@ -5,7 +5,6 @@ import { filterXSS } from 'xss';
 import cookieParser from 'cookie-parser';
 import http from 'http';
 
-import configs from './api/configs';
 import deliveryReports from './api/deliveryReports';
 import telnyx from './api/telnyx';
 import { buildSubgraphSchema } from '@apollo/federation';
@@ -50,7 +49,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Insert routes below
-app.use('/configs', configs);
 app.use('/deliveryReports', deliveryReports);
 app.use('/telnyx', telnyx);
 

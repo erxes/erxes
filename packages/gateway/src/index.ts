@@ -21,6 +21,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
   await db.connect();
 
   const app = express();
+
   app.use(cookieParser());
 
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
@@ -71,6 +72,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
   );
 
   await apolloServer.start();
+
   apolloServer.applyMiddleware({
     app,
     path: "/graphql",
@@ -88,7 +90,6 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
   const port = PORT || 4000;
 
   await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
-  console.log(
-    `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
-  );
+
+  console.log(`Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`);
 })();

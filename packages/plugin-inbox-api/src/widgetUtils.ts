@@ -19,12 +19,12 @@ import { KIND_CHOICES } from "./models/definitions/constants";
 
 // import { ISubmission } from "../db/models/definitions/fields";
 
-import { debugBase, debugError } from "./debuggers";
+import { debug } from "./configs";
 
 // import { getDbSchemaLabels } from "./logUtils";
 
 import { getDocument } from "./cacheUtils";
-import { client, getIndexPrefix } from "./elasticsearch";
+import { es } from "./configs";
 import { sendConformityMessage, sendContactRPCMessage, sendEngageMessage, sendToLog } from "./messageBroker";
 
 export const getOrCreateEngageMessage = async (
@@ -77,10 +77,10 @@ export const receiveVisitorDetail = async (visitor) => {
 
   const customer = await Customers.update({ visitorId }, { $set: visitor });
 
-  const index = `${getIndexPrefix()}events`;
+  const index = `${es.getIndexPrefix()}events`;
 
   try {
-    const response = await client.updateByQuery({
+    const response = await es.client.updateByQuery({
       index,
       body: {
         script: {
@@ -99,9 +99,9 @@ export const receiveVisitorDetail = async (visitor) => {
       },
     });
 
-    debugBase(`Response ${JSON.stringify(response)}`);
+    debug.info(`Response ${JSON.stringify(response)}`);
   } catch (e) {
-    debugError(`Update event error ${e.message}`);
+    debug.error(`Update event error ${e.message}`);
   }
 
   sendToLog("visitor:removeEntry", { visitorId });

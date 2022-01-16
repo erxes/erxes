@@ -9,6 +9,7 @@ import {
   PROBABILITY,
   TIME_TRACK_TYPES
 } from './constants';
+import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
   userId?: string;
@@ -119,200 +120,202 @@ export interface IOrderInput {
 
 export const attachmentSchema = new Schema(
   {
-    name: { type: String },
-    url: { type: String },
-    type: { type: String },
-    size: { type: Number, optional: true },
-    duration: { type: Number, optional: true }
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true }),
+    duration: field({ type: Number, optional: true })
   },
   { _id: false }
 );
 
 // Mongoose schemas =======================
 const commonFieldsSchema = {
-  userId: { type: String, label: 'Created by' },
-  createdAt: {
+  userId: field({ type: String, label: 'Created by' }),
+  createdAt: field({
     type: Date,
     default: new Date(),
     label: 'Created at'
-  },
-  order: { type: Number, label: 'Order' },
-  type: {
+  }),
+  order: field({ type: Number, label: 'Order' }),
+  type: field({
     type: String,
     enum: BOARD_TYPES.ALL,
     required: true,
     label: 'Type'
-  }
+  })
 };
 
 const timeTrackSchema = new Schema(
   {
-    startDate: { type: String },
-    timeSpent: { type: Number },
-    status: {
+    startDate: field({ type: String }),
+    timeSpent: field({ type: Number }),
+    status: field({
       type: String,
       enum: TIME_TRACK_TYPES.ALL,
       default: TIME_TRACK_TYPES.STOPPED
-    }
+    })
   },
   { _id: false }
 );
 
 const relationSchema = new Schema(
   {
-    id: { type: String },
-    start: { type: String },
-    end: { type: String }
+    id: field({ type: String }),
+    start: field({ type: String }),
+    end: field({ type: String })
   },
   { _id: false }
 );
 
 export const commonItemFieldsSchema = {
-  _id: { pkey: true },
-  userId: { type: String, esType: 'keyword' },
-  createdAt: { type: Date, label: 'Created at', esType: 'date' },
-  order: { type: Number },
-  name: { type: String, label: 'Name' },
-  startDate: { type: Date, label: 'Start date', esType: 'date' },
-  closeDate: { type: Date, label: 'Close date', esType: 'date' },
-  stageChangedDate: {
+  _id: field({ pkey: true }),
+  userId: field({ type: String, esType: 'keyword' }),
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  order: field({ type: Number }),
+  name: field({ type: String, label: 'Name' }),
+  startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
+  closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
+  stageChangedDate: field({
     type: Date,
     label: 'Stage changed date',
     esType: 'date'
-  },
-  reminderMinute: { type: Number, label: 'Reminder minute' },
-  isComplete: {
+  }),
+  reminderMinute: field({ type: Number, label: 'Reminder minute' }),
+  isComplete: field({
     type: Boolean,
     default: false,
     label: 'Is complete',
     esType: 'boolean'
-  },
-  description: { type: String, optional: true, label: 'Description' },
-  assignedUserIds: { type: [String], esType: 'keyword' },
-  watchedUserIds: { type: [String], esType: 'keyword' },
-  labelIds: { type: [String], esType: 'keyword' },
-  attachments: { type: [attachmentSchema], label: 'Attachments' },
-  stageId: { type: String, index: true },
-  initialStageId: {
+  }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  assignedUserIds: field({ type: [String], esType: 'keyword' }),
+  watchedUserIds: field({ type: [String], esType: 'keyword' }),
+  labelIds: field({ type: [String], esType: 'keyword' }),
+  attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
+  stageId: field({ type: String, index: true }),
+  initialStageId: field({
     type: String,
     optional: true
-  },
-  modifiedAt: {
+  }),
+  modifiedAt: field({
     type: Date,
     default: new Date(),
     label: 'Modified at',
     esType: 'date'
-  },
-  modifiedBy: { type: String, esType: 'keyword' },
-  searchText: { type: String, optional: true, index: true },
-  priority: { type: String, optional: true, label: 'Priority' },
+  }),
+  modifiedBy: field({ type: String, esType: 'keyword' }),
+  searchText: field({ type: String, optional: true, index: true }),
+  priority: field({ type: String, optional: true, label: 'Priority' }),
   // TODO remove after migration
-  sourceConversationId: { type: String, optional: true },
-  sourceConversationIds: { type: [String], optional: true },
-  timeTrack: {
+  sourceConversationId: field({ type: String, optional: true }),
+  sourceConversationIds: field({ type: [String], optional: true }),
+  timeTrack: field({
     type: timeTrackSchema
-  },
-  status: {
+  }),
+  status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
     label: 'Status',
     selectOptions: BOARD_STATUSES_OPTIONS,
     index: true
-  },
-  customFieldsData: {
+  }),
+  customFieldsData: field({
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
-  },
-  score: {
+  }),
+  score: field({
     type: Number,
     optional: true,
     label: 'Score',
     esType: 'number'
-  },
-  number: {
+  }),
+  number: field({
     type: String,
     unique: true,
     sparse: true,
     label: 'Item number'
-  },
-  relations: {
+  }),
+  relations: field({
     type: [relationSchema],
     optional: true,
     label: 'Related items used for gantt chart'
-  }
+  })
 };
 
-export const boardSchema = new Schema({
-  _id: { pkey: true },
-  name: { type: String, label: 'Name' },
-  ...commonFieldsSchema
-});
+export const boardSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String, label: 'Name' }),
+    ...commonFieldsSchema
+  })
+);
 
 export const pipelineSchema = new Schema({
-  _id: { pkey: true },
-  name: { type: String, label: 'Name' },
-  boardId: { type: String, label: 'Board' },
-  status: {
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
+  boardId: field({ type: String, label: 'Board' }),
+  status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
     label: 'Status'
-  },
-  visibility: {
+  }),
+  visibility: field({
     type: String,
     enum: PIPELINE_VISIBLITIES.ALL,
     default: PIPELINE_VISIBLITIES.PUBLIC,
     label: 'Visibility'
-  },
-  watchedUserIds: { type: [String], label: 'Watched users' },
-  memberIds: { type: [String], label: 'Members' },
-  bgColor: { type: String, label: 'Background color' },
+  }),
+  watchedUserIds: field({ type: [String], label: 'Watched users' }),
+  memberIds: field({ type: [String], label: 'Members' }),
+  bgColor: field({ type: String, label: 'Background color' }),
   // Growth hack
-  startDate: { type: Date, optional: true, label: 'Start date' },
-  endDate: { type: Date, optional: true, label: 'End date' },
-  metric: { type: String, optional: true, label: 'Metric' },
-  hackScoringType: {
+  startDate: field({ type: Date, optional: true, label: 'Start date' }),
+  endDate: field({ type: Date, optional: true, label: 'End date' }),
+  metric: field({ type: String, optional: true, label: 'Metric' }),
+  hackScoringType: field({
     type: String,
     enum: HACK_SCORING_TYPES.ALL,
     label: 'Hacking scoring type'
-  },
-  templateId: { type: String, optional: true, label: 'Template' },
-  isCheckUser: {
+  }),
+  templateId: field({ type: String, optional: true, label: 'Template' }),
+  isCheckUser: field({
     type: Boolean,
     optional: true,
     label: 'Show only the users created or assigned cards'
-  },
-  excludeCheckUserIds: {
+  }),
+  excludeCheckUserIds: field({
     type: [String],
     optional: true,
     label: 'Users elligible to see all cards'
-  },
-  numberConfig: { type: String, optional: true, label: 'Number config' },
-  numberSize: { type: String, optional: true, label: 'Number count' },
-  lastNum: {
+  }),
+  numberConfig: field({ type: String, optional: true, label: 'Number config' }),
+  numberSize: field({ type: String, optional: true, label: 'Number count' }),
+  lastNum: field({
     type: String,
     optional: true,
     label: 'Last generated number'
-  },
+  }),
   ...commonFieldsSchema
 });
 
 export const stageSchema = new Schema({
-  _id: { pkey: true },
-  name: { type: String, label: 'Name' },
-  probability: {
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
+  probability: field({
     type: String,
     enum: PROBABILITY.ALL,
     label: 'Probability'
-  }, // Win probability
-  pipelineId: { type: String, label: 'Pipeline' },
-  formId: { type: String, label: 'Form' },
-  status: {
+  }), // Win probability
+  pipelineId: field({ type: String, label: 'Pipeline' }),
+  formId: field({ type: String, label: 'Form' }),
+  status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE
-  },
+  }),
   ...commonFieldsSchema
 });

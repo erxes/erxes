@@ -1,9 +1,13 @@
-import { Conformities } from '../../db/models';
+import { Conformities, Customers } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
 import { IContext } from '../types';
 
 export default {
+  __resolveReference: ({ _id }) => {
+    return Customers.findOne({ _id });
+  },
+
   integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
     return (
       (customer.integrationId &&
