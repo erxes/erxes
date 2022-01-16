@@ -262,7 +262,7 @@ export const pluginsOfWebhooks = () => {
 };
 
 export const pluginsOfAutomationActions = () => {
-  let automationActions: any = [];
+  const automationActions: any = [];
 
   for (const pluginName of Object.keys(pluginModules)) {
     const plugin = pluginModules[pluginName]();

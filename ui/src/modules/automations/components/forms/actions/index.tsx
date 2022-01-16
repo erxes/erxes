@@ -28,11 +28,7 @@ class DefaultForm extends React.Component<Props> {
 
     if (currentAction) {
       const Component = currentAction.component;
-      return (
-        <>
-          <Component {...this.props} common={Common}></Component>
-        </>
-      );
+      return <Component {...this.props} common={Common} />;
     }
 
     return (
