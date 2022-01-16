@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { TabContainer } from 'erxes-ui/lib/components/tabs/styles';
+import { TabContainer } from '@erxes/ui/src/components/tabs/styles';
 import { colors, dimensions, typography } from '../styles';
 import { lighten } from '../styles/ecolor';
 import { rgba } from '../styles/ecolor';
