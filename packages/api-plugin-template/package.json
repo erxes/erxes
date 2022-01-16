@@ -42,6 +42,7 @@
     "sift": "13.5.0",
     "ts-node": "^8.0.3",
     "uuid-by-string": "^3.0.5",
+    "clerq": "0.5.0",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {

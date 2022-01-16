@@ -20,6 +20,7 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 
 import configs from '../../src/configs';
+import { join } from './serviceDiscovery';
 
 export const app = express();
 
@@ -106,21 +107,27 @@ async function startServer() {
     mongoUrl = TEST_MONGO_URL;
   }
 
-  // connect to mongo database
-  await connect(mongoUrl);
-  const messsageBrokerClient = await initBroker(configs.name, app);
+  try {
+    // connect to mongo database
+    await connect(mongoUrl);
+    const messsageBrokerClient = await initBroker(configs.name, app);
 
-  configs.onServerInit({
-    pubsub,
-    elasticsearch,
-    messsageBrokerClient,
-    debug: {
-      info: debugInfo,
-      error: debugError
-    }
-  });
+    configs.onServerInit({
+      pubsub,
+      elasticsearch,
+      messsageBrokerClient,
+      debug: {
+        info: debugInfo,
+        error: debugError
+      }
+    });
 
-  debugInfo(`${configs.name} server is running on port ${PORT}`);
+    await join(configs.name, PORT);
+
+    debugInfo(`${configs.name} server is running on port ${PORT}`);
+  } catch (e) {
+    debugError(`Error during startup ${e.message}`)
+  }
 }
 
 startServer();
