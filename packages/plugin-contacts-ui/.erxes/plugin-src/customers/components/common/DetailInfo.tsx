@@ -8,7 +8,7 @@ import {
   SidebarFlexRow,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import PrimaryEmail from './PrimaryEmail';
 import PrimaryPhone from './PrimaryPhone';

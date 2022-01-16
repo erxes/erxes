@@ -2,8 +2,8 @@ import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
 import Left from '@erxes/ui-cards/src/boards/components/editForm/Left';
 import Sidebar from '@erxes/ui-cards/src/boards/components/editForm/Sidebar';
 import Top from '@erxes/ui-cards/src/boards/components/editForm/Top';
+import { Flex } from '@erxes/ui/src/styles/main';
 import {
-  FlexContent,
   HeaderContentSmall
 } from '@erxes/ui-cards/src/boards/styles/item';
 import {
@@ -214,7 +214,7 @@ export default class DealEditForm extends React.Component<Props, State> {
           onChangeStage={onChangeStage}
         />
 
-        <FlexContent>
+        <Flex>
           <Left
             options={options}
             saveItem={saveItem}
@@ -236,7 +236,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             saveItem={saveItem}
             renderItems={this.renderItems}
           />
-        </FlexContent>
+        </Flex>
       </>
     );
   };

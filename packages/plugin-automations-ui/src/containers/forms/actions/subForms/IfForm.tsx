@@ -7,7 +7,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { IAction } from '../../../../types';
 import client from '@erxes/ui/src/apolloClient';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 
 type Props = {
   activeAction: IAction;

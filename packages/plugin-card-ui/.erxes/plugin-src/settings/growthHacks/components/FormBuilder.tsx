@@ -6,7 +6,7 @@ import { __ } from '@erxes/ui/src/utils';
 import CreateForm from '@erxes/ui/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui/src/forms/containers/EditForm';
 import { ShowPreview } from '@erxes/ui/src/forms/styles';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { ContentWrapper, PreviewWrapper } from '../styles';

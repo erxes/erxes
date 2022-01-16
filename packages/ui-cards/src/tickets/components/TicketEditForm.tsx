@@ -2,7 +2,7 @@ import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
 import Left from '@erxes/ui-cards/src/boards/components/editForm/Left';
 import Sidebar from '@erxes/ui-cards/src/boards/components/editForm/Sidebar';
 import Top from '@erxes/ui-cards/src/boards/components/editForm/Top';
-import { FlexContent } from '@erxes/ui-cards/src/boards/styles/item';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { IEditFormContent, IOptions } from '@erxes/ui-cards/src/boards/types';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -116,7 +116,7 @@ export default function TicketEditForm(props: Props) {
           onChangeStage={onChangeStage}
         />
 
-        <FlexContent>
+        <Flex>
           <Left
             options={options}
             saveItem={saveItem}
@@ -138,7 +138,7 @@ export default function TicketEditForm(props: Props) {
             renderItems={renderItems}
             updateTimeTrack={updateTimeTrack}
           />
-        </FlexContent>
+        </Flex>
       </>
     );
   }

@@ -4,7 +4,7 @@ import Sidebar from '../../containers/conversationDetail/Sidebar';
 import WorkArea from '../../containers/conversationDetail/WorkArea';
 import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { MainContent, ContentBox } from '@erxes/ui/src/layout/styles';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { IConversation } from '../../types';
 

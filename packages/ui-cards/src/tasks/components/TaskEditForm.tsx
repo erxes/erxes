@@ -2,7 +2,7 @@ import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
 import Left from '@erxes/ui-cards/src/boards/components/editForm/Left';
 import Sidebar from '@erxes/ui-cards/src/boards/components/editForm/Sidebar';
 import Top from '@erxes/ui-cards/src/boards/components/editForm/Top';
-import { FlexContent } from '@erxes/ui-cards/src/boards/styles/item';
+import { Flex } from '@erxes/ui/src/styles/main';
 import {
   IEditFormContent,
   IItem,
@@ -87,7 +87,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
           onChangeStage={onChangeStage}
         />
 
-        <FlexContent>
+        <Flex>
           <Left
             options={options}
             saveItem={saveItem}
@@ -108,7 +108,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
             updateTimeTrack={updateTimeTrack}
             renderItems={this.renderItems}
           />
-        </FlexContent>
+        </Flex>
       </>
     );
   };

@@ -9,7 +9,7 @@ import { FlexItem } from '../../../companies/styles';
 import { GENDER_TYPES, LEAD_STATUS_TYPES } from '../../constants';
 import { BooleanStatus, ClickableRow } from '../../styles';
 import { ICustomer } from '../../types';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
+import { IConfigColumn } from '@erxes/ui/src/types';
 import React from 'react';
 import parse from 'ua-parser-js';
 import { renderFlag } from '../common/DevicePropertiesSection';

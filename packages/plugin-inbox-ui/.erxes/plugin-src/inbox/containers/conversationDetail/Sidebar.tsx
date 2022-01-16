@@ -7,7 +7,6 @@ import DumbSidebar from '../../components/conversationDetail/sidebar/Sidebar';
 import { queries } from '../../graphql';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 import {
-  IField,
   InboxFieldsQueryResponse
 } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';

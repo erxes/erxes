@@ -1,5 +1,5 @@
 import { IUser } from '../auth/types';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '../types';
 
 interface IFormCommonFIelds {
   title?: string;

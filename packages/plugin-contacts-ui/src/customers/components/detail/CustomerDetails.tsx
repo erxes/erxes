@@ -9,7 +9,7 @@ import LeadState from '../../containers/LeadState';
 import { MailBox, UserHeader } from '../../styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICustomer } from '../../types';
 import InfoSection from '../common/InfoSection';

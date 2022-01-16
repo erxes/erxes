@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import ConversationDetail from '../../components/conversationDetail/ConversationDetail';
 import { mutations, queries, subscriptions } from '../../graphql';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';

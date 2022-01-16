@@ -3,7 +3,7 @@ import { ICompany } from '@erxes/ui/src/companies/types';
 import { TrackedDataSection } from '../../../customers/components/common';
 import TaggerSection from '../../../customers/components/common/TaggerSection';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import BasicInfoSection from '../common/BasicInfoSection';
 

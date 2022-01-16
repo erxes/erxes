@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { __ } from '@erxes/ui/src/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import parse from 'ua-parser-js';
 

@@ -10,7 +10,7 @@ import { __ } from '@erxes/ui/src/utils';
 import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
 import WebsiteActivity from '@erxes/ui/src/customers/components/WebsiteActivity';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(() =>

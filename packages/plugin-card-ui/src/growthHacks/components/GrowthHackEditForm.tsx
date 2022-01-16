@@ -1,8 +1,8 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import DueDateChanger from '@erxes/ui-cards/src/boards/components/DueDateChanger';
 import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
+import { Flex } from '@erxes/ui/src/styles/main';
 import {
-  FlexContent,
   HeaderContentSmall,
   LeftContainer
 } from '@erxes/ui-cards/src/boards/styles/item';
@@ -148,7 +148,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           number={this.renderNumber}
         />
 
-        <FlexContent>
+        <Flex>
           <LeftContainer>
             <Actions
               onChangeField={this.onChangeExtraField}
@@ -177,7 +177,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             onChangeExtraField={this.onChangeExtraField}
             save={saveFormSubmission}
           />
-        </FlexContent>
+        </Flex>
       </>
     );
   };

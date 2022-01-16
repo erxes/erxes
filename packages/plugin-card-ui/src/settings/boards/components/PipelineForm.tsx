@@ -1,5 +1,5 @@
 import { COLORS } from '@erxes/ui/src/constants/colors';
-import { FlexContent } from '@erxes/ui-cards/src/boards/styles/item';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -276,7 +276,7 @@ class PipelineForm extends React.Component<Props, State> {
 
           {renderExtraFields && renderExtraFields(formProps)}
 
-          <FlexContent>
+          <Flex>
             <ExpandWrapper>
               <FormGroup>
                 <ControlLabel required={true}>Visibility</ControlLabel>
@@ -309,7 +309,7 @@ class PipelineForm extends React.Component<Props, State> {
                 </OverlayTrigger>
               </div>
             </FormGroup>
-          </FlexContent>
+          </Flex>
 
           {this.renderBoards()}
 

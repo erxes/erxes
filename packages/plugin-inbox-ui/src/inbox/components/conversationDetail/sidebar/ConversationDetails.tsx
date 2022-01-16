@@ -8,7 +8,7 @@ import {
   SidebarList
 } from '@erxes/ui/src/layout/styles';
 import { cleanIntegrationKind } from '@erxes/ui/src/utils';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IBrand } from '@erxes/ui/src/brands/types';

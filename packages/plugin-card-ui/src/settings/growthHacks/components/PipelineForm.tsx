@@ -1,6 +1,6 @@
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
-import { FlexContent } from '@erxes/ui-cards/src/boards/styles/item';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -314,7 +314,7 @@ class PipelineForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Scoring type</ControlLabel>
 
-            <FlexContent>
+            <Flex>
               {this.renderBox(
                 'ice',
                 'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:',
@@ -330,11 +330,11 @@ class PipelineForm extends React.Component<Props, State> {
                 'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:',
                 '(Potential + Importance + Ease) / 3'
               )}
-            </FlexContent>
+            </Flex>
           </FormGroup>
 
           <FormGroup>
-            <FlexContent>
+            <Flex>
               <DateItem>
                 <ControlLabel required={true}>Start date</ControlLabel>
                 <DateControl
@@ -357,10 +357,10 @@ class PipelineForm extends React.Component<Props, State> {
                   onChange={this.onDateInputChange.bind(this, 'endDate')}
                 />
               </DateItem>
-            </FlexContent>
+            </Flex>
           </FormGroup>
 
-          <FlexContent>
+          <Flex>
             <ExpandWrapper>
               <FormGroup>
                 <ControlLabel>Metric</ControlLabel>
@@ -374,7 +374,7 @@ class PipelineForm extends React.Component<Props, State> {
               </FormGroup>
             </ExpandWrapper>
             <ExpandWrapper>
-              <FlexContent>
+              <Flex>
                 <ExpandWrapper>
                   <FormGroup>
                     <ControlLabel required={true}>Visibility</ControlLabel>
@@ -409,9 +409,9 @@ class PipelineForm extends React.Component<Props, State> {
                     </OverlayTrigger>
                   </div>
                 </FormGroup>
-              </FlexContent>
+              </Flex>
             </ExpandWrapper>
-          </FlexContent>
+          </Flex>
 
           {this.renderSelectMembers()}
           {this.renderTemplates()}

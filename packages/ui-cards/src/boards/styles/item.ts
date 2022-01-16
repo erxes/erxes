@@ -3,13 +3,10 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { borderRadius } from './common';
 
 const buttonColor = '#0a1e3c';
-
-export const FlexContent = styled.div`
-  display: flex;
-`;
 
 export const Content = styled.div`
   padding: 12px 22px;
@@ -98,7 +95,7 @@ export const StageColumn = styled.td`
   }
 `;
 
-export const HeaderRow = styled(FlexContent)`
+export const HeaderRow = styled(Flex)`
   margin-bottom: 30px;
 `;
 
@@ -195,7 +192,7 @@ export const FormFooter = styled.div`
   margin-top: 20px;
 `;
 
-export const SpaceContent = styled(FlexContent)`
+export const SpaceContent = styled(Flex)`
   position: relative;
   justify-content: space-between;
 `;
@@ -260,7 +257,7 @@ export const RightButton = styled(Button)`
   }
 `;
 
-export const MoveContainer = styled(FlexContent)`
+export const MoveContainer = styled(Flex)`
   margin-bottom: 20px;
   align-items: center;
   position: relative;

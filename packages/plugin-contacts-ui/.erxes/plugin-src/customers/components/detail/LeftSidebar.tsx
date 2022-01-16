@@ -4,7 +4,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
 
 import { ICustomer } from '../../types';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import {
   DevicePropertiesSection,
   TaggerSection,

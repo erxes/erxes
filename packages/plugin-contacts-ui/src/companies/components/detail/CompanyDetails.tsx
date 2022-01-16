@@ -6,7 +6,7 @@ import BasicInfo from '../../containers/detail/BasicInfo';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { UserHeader } from '@erxes/ui/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import InfoSection from '../common/InfoSection';
 import LeftSidebar from './LeftSidebar';

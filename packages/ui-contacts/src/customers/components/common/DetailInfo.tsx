@@ -5,7 +5,7 @@ import {
   SidebarFlexRow,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { IField } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICompany } from '@erxes/ui/src/companies/types';
 
