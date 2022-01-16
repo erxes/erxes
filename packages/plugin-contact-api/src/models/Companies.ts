@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 // import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { validSearchText } from '@erxes/api-utils';
+import { validSearchText } from '@erxes/api-utils/src';
 import { Conformities, Fields, InternalNotes } from '../apiCollections';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import {

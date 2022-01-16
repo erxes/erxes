@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 
-import { Companies } from '../../../db/models';
+import Companies from '../../../db/models/Companies';
 import { IConformityQueryParams } from '../../resolvers/queries/types';
 import { CommonBuilder } from './utils';
 

@@ -8,6 +8,14 @@ export const types = `
     status: String!
   }
 
+  extend type Form @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Company @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type Customer @key(fields: "_id") {
     _id: String!
     state: String

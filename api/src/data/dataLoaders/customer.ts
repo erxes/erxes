@@ -1,6 +1,6 @@
 import * as DataLoader from 'dataloader';
 import * as _ from 'underscore';
-import { Customers } from '../../db/models';
+import Customers from '../../db/models/Customers';
 
 export default function generateDataLoaderCustomer() {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {

@@ -7,6 +7,8 @@ import integration from './integration';
 import user from './user';
 import segmentsBySubOf from './segmentsBySubOf';
 import segment from './segment';
+import customer from './customer';
+import company from './company';
 import conversationMessagesByConversationId from './conversationMessagesByConversationId';
 import conversationsByCustomerId from './conversationsByCustomerId';
 
@@ -20,6 +22,8 @@ export interface IDataLoaders {
   segment: DataLoader<string, any>;
   conversationMessagesByConversationId: DataLoader<string, any[]>;
   conversationsByCustomerId: DataLoader<string, any[]>;
+  company: DataLoader<string, any>;
+  customer: DataLoader<string, any>;
 }
 
 export function generateAllDataLoaders(): IDataLoaders {
@@ -32,6 +36,8 @@ export function generateAllDataLoaders(): IDataLoaders {
     segmentsBySubOf: segmentsBySubOf(),
     segment: segment(),
     conversationMessagesByConversationId: conversationMessagesByConversationId(),
-    conversationsByCustomerId: conversationsByCustomerId()
+    conversationsByCustomerId: conversationsByCustomerId(),
+    customer: customer(),
+    company: company()
   };
 }

@@ -4,7 +4,7 @@ import { companySchema } from '../models/definitions/companies';
 import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 // import { debugError } from '@erxes/plugin-inbox-api/src/debuggers';
-import { fetchElk } from '@erxes/plugin-inbox-api/src/elasticsearch';
+import { es } from '@erxes/plugin-inbox-api/src/configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
 import { getDocumentList } from '@erxes/plugin-inbox-api/src/cacheUtils';
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
@@ -400,7 +400,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     let totalCount = 0;
 
     if (action === 'search') {
-      const totalCountResponse = await fetchElk({
+      const totalCountResponse = await es.fetchElk({
         action: 'count',
         index: this.contentType,
         body: queryOptions,
@@ -433,7 +433,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       }
     }
 
-    const response = await fetchElk({
+    const response = await es.fetchElk({
       action,
       index: this.contentType,
       body: queryOptions

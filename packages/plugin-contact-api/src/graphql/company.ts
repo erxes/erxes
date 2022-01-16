@@ -8,6 +8,14 @@ export const conformityQueryFields = `
 `;
 
 export const types = `
+  extend type Form @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type Company {
     _id: String!
 

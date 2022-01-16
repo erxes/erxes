@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 // import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 // import { sendToWebhook } from '../../data/utils';
-import { validSearchText } from '@erxes/api-utils';
+import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
 import { Conformities, Fields, InternalNotes } from '../apiCollections';
 import { EngageMessages } from '@erxes/plugin-engages-api/src/models';

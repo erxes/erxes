@@ -1,6 +1,6 @@
 import { Conformities } from '../../apiCollections';
 import { ICustomerDocument } from '../../models/definitions/customers';
-import { fetchElk } from '@erxes/plugin-inbox-api/src/elasticsearch';
+import { es } from '@erxes/plugin-inbox-api/src/configs';
 import { IContext } from '@erxes/api-utils/src';
 
 export default {
@@ -18,7 +18,7 @@ export default {
   },
 
   async urlVisits(customer: ICustomerDocument) {
-    const response = await fetchElk({
+    const response = await es.fetchElk({
       action: 'search',
       index: 'events',
       body: {
