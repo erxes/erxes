@@ -11,5 +11,5 @@ const redis = new Redis({
 
 const registry = new ServiceRegistry(redis, {});
 
-export const join = (name, port) => registry.up(name, port);
-export const leave = (name, port) => registry.down(name, port);
+export const join = (name, port) => registry.up(name, `http://localhost:${port}`);
+export const leave = (name, port) => registry.down(name, `http://localhost:${port}`);

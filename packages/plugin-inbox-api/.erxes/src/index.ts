@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 
 // load environment variables
@@ -25,6 +26,8 @@ import { join } from './serviceDiscovery';
 export const app = express();
 
 app.disable('x-powered-by');
+
+app.use(cors());
 
 app.use(cookieParser());
 
@@ -110,12 +113,13 @@ async function startServer() {
   try {
     // connect to mongo database
     await connect(mongoUrl);
-    const messsageBrokerClient = await initBroker(configs.name, app);
+    const messageBrokerClient = await initBroker(configs.name, app);
 
     configs.onServerInit({
+      app,
       pubsub,
       elasticsearch,
-      messsageBrokerClient,
+      messageBrokerClient,
       debug: {
         info: debugInfo,
         error: debugError
