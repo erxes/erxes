@@ -1,4 +1,5 @@
-import { Customers, Fields } from '../db/models';
+import { Fields } from '../db/models';
+import Customers from '../db/models/Customers';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser } from '../db/models/definitions/users';

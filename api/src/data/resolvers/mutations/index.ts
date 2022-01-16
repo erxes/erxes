@@ -5,11 +5,9 @@ import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
 import clientPortal from './clientPortal';
-import companies from './companies';
 import configs from './configs';
 import conformity from './conformities';
 import conversations from './conversations';
-import customers from './customers';
 import dashboards from './dashboards';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
@@ -51,9 +49,7 @@ export default {
   ...tags,
   ...brands,
   ...internalNotes,
-  ...customers,
   ...segments,
-  ...companies,
   ...fields,
   ...emailTemplates,
   ...responseTemplates,

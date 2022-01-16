@@ -1,4 +1,4 @@
-import { Customers } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
 import { ICustomer } from '../../../db/models/definitions/customers';
 import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES } from '../../constants';

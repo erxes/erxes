@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { Customers, FormSubmissions, Integrations } from '../../../db/models';
+import { FormSubmissions, Integrations } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
 import { IConformityQueryParams } from '../../resolvers/queries/types';
 import { CommonBuilder } from './utils';
 

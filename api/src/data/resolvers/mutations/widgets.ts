@@ -1,10 +1,8 @@
 import * as strip from 'strip';
 import {
-  Companies,
   Conformities,
   ConversationMessages,
   Conversations,
-  Customers,
   Fields,
   Forms,
   Integrations,
@@ -12,6 +10,8 @@ import {
   Products,
   Users
 } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
+import Companies from '../../../db/models/Companies';
 import Messages from '../../../db/models/ConversationMessages';
 import {
   IBrowserInfo,

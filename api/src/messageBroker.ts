@@ -12,14 +12,9 @@ import { graphqlPubsub } from './pubsub';
 import { receiveVisitorDetail } from './data/widgetUtils';
 import { registerOnboardHistory } from './data/modules/robot';
 import { createConversationAndMessage } from './data/modules/conversations/utils';
-import {
-  Integrations,
-  Conformities,
-  Customers,
-  Forms,
-  Companies,
-  EngageMessages
-} from './db/models';
+import { Integrations, Conformities, Forms, EngageMessages } from './db/models';
+import Customers from './db/models/Customers';
+import Companies from './db/models/Companies';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
 import { findCompany, findCustomer, getSubServiceDomain } from './data/utils';

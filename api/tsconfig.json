@@ -13,6 +13,6 @@
     "strict": true,
     "useUnknownInCatchVariables": false,
   },
-  "include": ["./src/**/*.ts", "typings.d.ts"],
+  "include": ["./src/**/*.ts", "typings.d.ts", "../packages/plugin-contact-api/src/verifierUtils.ts"],
   "exclude": ["node_modules", "dist"]
 }

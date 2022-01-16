@@ -1,6 +1,4 @@
 import {
-  Companies,
-  Customers,
   Fields,
   FieldsGroups,
   Integrations,
@@ -8,6 +6,8 @@ import {
   Tags,
   Users
 } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
+import Companies from '../../../db/models/Companies';
 import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';

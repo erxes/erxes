@@ -1,5 +1,6 @@
 import * as getUuid from 'uuid-by-string';
-import { Customers, Fields } from './db/models';
+import { Fields } from './db/models';
+import Customers from './db/models/Customers';
 import { debugBase, debugError } from './debuggers';
 import { client, fetchElk, getIndexPrefix } from './elasticsearch';
 

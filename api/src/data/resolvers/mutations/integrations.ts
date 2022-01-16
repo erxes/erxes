@@ -2,12 +2,12 @@ import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '../../../db/factories';
 import {
   Channels,
-  Customers,
   EmailDeliveries,
   Fields,
   Forms,
   Integrations
 } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
 import {
   ACTIVITY_ACTIONS,
   ACTIVITY_CONTENT_TYPES,

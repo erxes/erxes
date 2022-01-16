@@ -1,7 +1,10 @@
 import { IUserDocument } from '@erxes/common-types';
 import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '@erxes/api-utils/src/types';
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { awsRequests } from '../../trackers/engageTracker';
 import { EngageMessages, Configs, DeliveryReports } from '../../models';
 import { Tags, Customers } from '../../apiCollections';
@@ -217,10 +220,7 @@ const engageQueries = {
     return Configs.find({});
   },
 
-  async engageReportsList(
-    _root,
-    params: IReportParams,
-  ) {
+  async engageReportsList(_root, params: IReportParams) {
     const { page, perPage, customerId, status } = params;
     const _page = Number(page || '1');
     const _limit = Number(perPage || '20');

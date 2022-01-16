@@ -28,7 +28,7 @@ import {
 import {
   updateContactsValidationStatus,
   updateContactValidationStatus
-} from './data/verifierUtils';
+} from '../../packages/plugin-contact-api/src/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
 import { Configs, Segments, Users } from './db/models';
 import initWatchers from './db/watchers';

@@ -1,12 +1,12 @@
 import {
   ConversationMessages,
   Conversations,
-  Customers,
   EmailDeliveries,
   EngageMessages,
   Integrations,
   Users
 } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';

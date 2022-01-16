@@ -1,5 +1,5 @@
 import { Transform } from 'stream';
-import { Customers } from '../db/models';
+import Customers from '../db/models/Customers';
 import {
   IValidationResponse,
   IVisitorContact

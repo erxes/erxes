@@ -1,13 +1,7 @@
 // TODO: check if related stages are selected in client portal config
 
-import {
-  ClientPortals,
-  Customers,
-  Stages,
-  Tasks,
-  Tickets
-} from '../../../db/models';
-
+import { ClientPortals, Stages, Tasks, Tickets } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
 import { paginate } from '../../utils';
 
 const configClientPortalQueries = {

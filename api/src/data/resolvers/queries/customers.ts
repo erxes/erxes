@@ -1,4 +1,5 @@
-import { Customers, Forms } from '../../../db/models';
+import { Forms } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
 import {
   KIND_CHOICES,
   TAG_TYPES

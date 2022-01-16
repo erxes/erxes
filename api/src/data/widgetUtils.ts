@@ -1,15 +1,15 @@
 import {
   Brands,
-  Companies,
   Conformities,
   Conversations,
-  Customers,
   EngageMessages,
   Fields,
   FieldsGroups,
   FormSubmissions,
   Integrations
 } from '../db/models';
+import Customers from '../db/models/Customers';
+import Companies from '../db/models/Companies';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
 import { ICustomField, ILink } from '../db/models/definitions/common';

@@ -1,13 +1,8 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
-import {
-  Companies,
-  Conversations,
-  Customers,
-  EngageMessages,
-  Integrations,
-  Products
-} from '.';
+import { Conversations, EngageMessages, Integrations, Products } from '.';
+import Companies from './Companies';
+import Customers from './Customers';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { escapeRegExp } from '../../data/utils';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';

@@ -1,12 +1,6 @@
-import {
-  Companies,
-  Customers,
-  Deals,
-  GrowthHacks,
-  Stages,
-  Tasks,
-  Tickets
-} from '../../db/models';
+import { Deals, GrowthHacks, Stages, Tasks, Tickets } from '../../db/models';
+import Companies from '../../db/models/Companies';
+import Customers from '../../db/models/Customers';
 import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
 import { ITagDocument } from '../../db/models/definitions/tags';

@@ -5,10 +5,10 @@ import {
   Conformities,
   ConversationMessages,
   Conversations,
-  Customers,
   Integrations,
   Products
 } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
 import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
 import {

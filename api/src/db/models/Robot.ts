@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
-import { Companies, Customers } from '.';
+import Customers from './Customers';
+import Companies from './Companies';
 import {
   IOnboardingHistoryDocument,
   IRobotEntryDocument,

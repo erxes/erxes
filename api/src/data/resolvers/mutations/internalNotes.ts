@@ -1,6 +1,4 @@
 import {
-  Companies,
-  Customers,
   Deals,
   GrowthHacks,
   InternalNotes,
@@ -11,6 +9,8 @@ import {
   Tickets,
   Users
 } from '../../../db/models';
+import Customers from '../../../db/models/Customers';
+import Companies from '../../../db/models/Companies';
 import {
   BOARD_TYPES,
   NOTIFICATION_CONTENT_TYPES,

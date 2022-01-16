@@ -9,10 +9,8 @@ import {
 } from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
-import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
-import Customer from './customer';
 import customScalars from './customScalars';
 import Deal from './deals';
 import EmailDelivery from './emailDeliveries';
@@ -65,8 +63,6 @@ const resolvers: any = {
   Brand,
   InternalNote,
   Checklist,
-  Customer,
-  Company,
   Segment,
   EmailDelivery,
   Conversation,

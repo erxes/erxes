@@ -10,9 +10,9 @@ import {
   IStageDocument
 } from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
-import { ICompanyDocument } from '../db/models/definitions/companies';
+// import { ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
-import { ICustomerDocument } from '../db/models/definitions/customers';
+// import { ICustomerDocument } from '../db/models/definitions/customers';
 import {
   IDealDocument,
   IProductDocument
@@ -36,8 +36,6 @@ import {
   Boards,
   Brands,
   Checklists,
-  Companies,
-  Customers,
   Deals,
   Forms,
   GrowthHacks,
@@ -180,20 +178,20 @@ const findContentItemName = async (
       name = deal.name;
     }
   }
-  if (contentType === MODULE_NAMES.CUSTOMER) {
-    const customer = await Customers.getCustomer(contentTypeId);
+  // if (contentType === MODULE_NAMES.CUSTOMER) {
+  //   const customer = await Customers.getCustomer(contentTypeId);
 
-    if (customer) {
-      name = Customers.getCustomerName(customer);
-    }
-  }
-  if (contentType === MODULE_NAMES.COMPANY) {
-    const company = await Companies.getCompany(contentTypeId);
+  //   if (customer) {
+  //     name = Customers.getCustomerName(customer);
+  //   }
+  // }
+  // if (contentType === MODULE_NAMES.COMPANY) {
+  //   const company = await Companies.getCompany(contentTypeId);
 
-    if (company) {
-      name = Companies.getCompanyName(company);
-    }
-  }
+  //   if (company) {
+  //     name = Companies.getCompanyName(company);
+  //   }
+  // }
   if (contentType === MODULE_NAMES.TASK) {
     const task = await Tasks.getTask(contentTypeId);
 
@@ -357,101 +355,101 @@ const findItemName = async ({
   return name;
 };
 
-const gatherCompanyFieldNames = async (
-  doc: ICompanyDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
+// const gatherCompanyFieldNames = async (
+//   doc: ICompanyDocument,
+//   prevList?: LogDesc[]
+// ): Promise<LogDesc[]> => {
+//   let options: LogDesc[] = [];
 
-  if (prevList) {
-    options = prevList;
-  }
+//   if (prevList) {
+//     options = prevList;
+//   }
 
-  if (doc.parentCompanyId) {
-    options = await gatherNames({
-      collection: Companies,
-      idFields: [doc.parentCompanyId],
-      foreignKey: 'parentCompanyId',
-      prevList: options,
-      nameFields: ['primaryName']
-    });
-  }
+//   if (doc.parentCompanyId) {
+//     options = await gatherNames({
+//       collection: Companies,
+//       idFields: [doc.parentCompanyId],
+//       foreignKey: 'parentCompanyId',
+//       prevList: options,
+//       nameFields: ['primaryName']
+//     });
+//   }
 
-  if (doc.ownerId) {
-    options = await gatherUsernames({
-      idFields: [doc.ownerId],
-      foreignKey: 'ownerId',
-      prevList: options
-    });
-  }
+//   if (doc.ownerId) {
+//     options = await gatherUsernames({
+//       idFields: [doc.ownerId],
+//       foreignKey: 'ownerId',
+//       prevList: options
+//     });
+//   }
 
-  if (doc.mergedIds && doc.mergedIds.length > 0) {
-    options = await gatherNames({
-      collection: Companies,
-      idFields: doc.mergedIds,
-      foreignKey: 'mergedIds',
-      prevList: options,
-      nameFields: ['primaryName']
-    });
-  }
+//   if (doc.mergedIds && doc.mergedIds.length > 0) {
+//     options = await gatherNames({
+//       collection: Companies,
+//       idFields: doc.mergedIds,
+//       foreignKey: 'mergedIds',
+//       prevList: options,
+//       nameFields: ['primaryName']
+//     });
+//   }
 
-  if (doc.tagIds && doc.tagIds.length > 0) {
-    options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
-      prevList: options
-    });
-  }
+//   if (doc.tagIds && doc.tagIds.length > 0) {
+//     options = await gatherTagNames({
+//       idFields: doc.tagIds,
+//       foreignKey: 'tagIds',
+//       prevList: options
+//     });
+//   }
 
-  return options;
-};
+//   return options;
+// };
 
-const gatherCustomerFieldNames = async (
-  doc: ICustomerDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
+// const gatherCustomerFieldNames = async (
+//   doc: ICustomerDocument,
+//   prevList?: LogDesc[]
+// ): Promise<LogDesc[]> => {
+//   let options: LogDesc[] = [];
 
-  if (prevList) {
-    options = prevList;
-  }
+//   if (prevList) {
+//     options = prevList;
+//   }
 
-  if (doc.ownerId) {
-    options = await gatherUsernames({
-      idFields: [doc.ownerId],
-      foreignKey: 'ownerId',
-      prevList: options
-    });
-  }
+//   if (doc.ownerId) {
+//     options = await gatherUsernames({
+//       idFields: [doc.ownerId],
+//       foreignKey: 'ownerId',
+//       prevList: options
+//     });
+//   }
 
-  if (doc.integrationId) {
-    options = await gatherIntegrationNames({
-      idFields: [doc.integrationId],
-      foreignKey: 'integrationId',
-      prevList: options
-    });
-  }
+//   if (doc.integrationId) {
+//     options = await gatherIntegrationNames({
+//       idFields: [doc.integrationId],
+//       foreignKey: 'integrationId',
+//       prevList: options
+//     });
+//   }
 
-  if (doc.tagIds && doc.tagIds.length > 0) {
-    options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
-      prevList: options
-    });
-  }
+//   if (doc.tagIds && doc.tagIds.length > 0) {
+//     options = await gatherTagNames({
+//       idFields: doc.tagIds,
+//       foreignKey: 'tagIds',
+//       prevList: options
+//     });
+//   }
 
-  if (doc.mergedIds) {
-    options = await gatherNames({
-      collection: Customers,
-      idFields: doc.mergedIds,
-      foreignKey: 'mergedIds',
-      prevList: options,
-      nameFields: ['firstName']
-    });
-  }
+//   if (doc.mergedIds) {
+//     options = await gatherNames({
+//       collection: Customers,
+//       idFields: doc.mergedIds,
+//       foreignKey: 'mergedIds',
+//       prevList: options,
+//       nameFields: ['firstName']
+//     });
+//   }
 
-  return options;
-};
+//   return options;
+// };
 
 const gatherBoardItemFieldNames = async (
   doc: BoardItemDocument,
@@ -1107,25 +1105,25 @@ const gatherDescriptions = async (
       }
 
       break;
-    case MODULE_NAMES.COMPANY:
-      extraDesc = await gatherCompanyFieldNames(obj);
-      description = `"${obj.primaryName}" has been ${action}d`;
+    // case MODULE_NAMES.COMPANY:
+    //   extraDesc = await gatherCompanyFieldNames(obj);
+    //   description = `"${obj.primaryName}" has been ${action}d`;
 
-      if (updatedDocument) {
-        extraDesc = await gatherCompanyFieldNames(updatedDocument, extraDesc);
-      }
+    //   if (updatedDocument) {
+    //     extraDesc = await gatherCompanyFieldNames(updatedDocument, extraDesc);
+    //   }
 
-      break;
-    case MODULE_NAMES.CUSTOMER:
-      description = `"${obj.firstName}" has been ${action}d`;
+    //   break;
+    // case MODULE_NAMES.CUSTOMER:
+    //   description = `"${obj.firstName}" has been ${action}d`;
 
-      extraDesc = await gatherCustomerFieldNames(obj);
+    //   extraDesc = await gatherCustomerFieldNames(obj);
 
-      if (updatedDocument) {
-        extraDesc = await gatherCustomerFieldNames(updatedDocument, extraDesc);
-      }
+    //   if (updatedDocument) {
+    //     extraDesc = await gatherCustomerFieldNames(updatedDocument, extraDesc);
+    //   }
 
-      break;
+    //   break;
     case MODULE_NAMES.DEAL:
       description = `"${obj.name}" has been ${action}d`;
       extraDesc = await gatherDealFieldNames(obj);
@@ -1174,20 +1172,20 @@ const gatherDescriptions = async (
       };
 
       switch (obj.contentType) {
-        case MODULE_NAMES.COMPANY:
-          extraDesc = await gatherNames({
-            ...param,
-            collection: Companies,
-            nameFields: ['primaryName']
-          });
-          break;
-        case MODULE_NAMES.CUSTOMER:
-          extraDesc = await gatherNames({
-            ...param,
-            collection: Customers,
-            nameFields: ['firstName']
-          });
-          break;
+        // case MODULE_NAMES.COMPANY:
+        //   extraDesc = await gatherNames({
+        //     ...param,
+        //     collection: Companies,
+        //     nameFields: ['primaryName']
+        //   });
+        //   break;
+        // case MODULE_NAMES.CUSTOMER:
+        //   extraDesc = await gatherNames({
+        //     ...param,
+        //     collection: Customers,
+        //     nameFields: ['firstName']
+        //   });
+        //   break;
         case MODULE_NAMES.PRODUCT:
           extraDesc = await gatherNames({
             ...param,
