@@ -3,6 +3,8 @@ import { commonFields } from '../../commonTypes';
 export const voucherCompaignFields = `
   _id
   ${commonFields}
+  buyScore
+
   score
   scoreAction
   voucherType

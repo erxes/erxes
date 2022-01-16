@@ -10,14 +10,14 @@ const spinAward = {
 export const spinCompaignSchema = {
   ...commonCompaignSchema,
 
-  byScore: { type: Number },
+  buyScore: { type: Number },
 
   awards: { type: [spinAward] }
 };
 
 export class SpinCompaign {
   public static async getSpinCompaign(models, _id: string) {
-    const spinCompaign = await models.SpinCompaigns.findOne({ _id });
+    const spinCompaign = await models.SpinCompaigns.findOne({ _id }).lean();
 
     if (!spinCompaign) {
       throw new Error('not found spin compaign');
@@ -71,8 +71,8 @@ export class SpinCompaign {
 
   public static async removeSpinCompaigns(models, ids: [String]) {
     const atSpinIds = await models.Spins.find({
-      spinCompaignId: { $in: ids }
-    }).distinct('spinCompaignId');
+      compaignId: { $in: ids }
+    }).distinct('compaignId');
 
     const atVoucherIds = await models.VoucherCompaigns.find({
       spinCompaignId: { $in: ids }

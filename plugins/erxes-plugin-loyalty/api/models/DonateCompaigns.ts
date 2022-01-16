@@ -14,6 +14,10 @@ export const donateCompaignSchema = {
   maxScore: { type: Number },
 };
 
+const getSortAwards = (awards) => {
+  return awards.sort((a, b) => a.minScore - b.minScore)
+}
+
 export class DonateCompaign {
   public static async getDonateCompaign(models, _id: string) {
     const donateCompaign = await models.DonateCompaigns.findOne({ _id });
@@ -25,7 +29,7 @@ export class DonateCompaign {
     return donateCompaign;
   }
 
-  public static async validDonateCompaign(doc) {
+  static async validDonateCompaign(doc) {
     validCompaign(doc)
 
     const awards = doc.awards || [];
@@ -34,37 +38,39 @@ export class DonateCompaign {
     }
 
     const levels = awards.map(a => a.minScore)
-    if (levels.length > [...new Set(levels)].length ) {
+    if (levels.length > [...new Set(levels)].length) {
       throw new Error('Levels scores must be unique')
     }
   }
 
   public static async createDonateCompaign(models, doc) {
+    doc = {
+      ...doc,
+      awards: getSortAwards(doc.awards),
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+    }
+
     try {
       await this.validDonateCompaign(doc);
     } catch (e) {
       throw new Error(e.message);
-    }
-
-    doc = {
-      ...doc,
-      createdAt: new Date(),
-      modifiedAt: new Date(),
     }
 
     return models.DonateCompaigns.create(doc);
   }
 
   public static async updateDonateCompaign(models, _id, doc) {
+    doc = {
+      ...doc,
+      awards: getSortAwards(doc.awards),
+      modifiedAt: new Date(),
+    }
+
     try {
       await this.validDonateCompaign(doc);
     } catch (e) {
       throw new Error(e.message);
-    }
-
-    doc = {
-      ...doc,
-      modifiedAt: new Date(),
     }
 
     return models.DonateCompaigns.updateOne({ _id }, { $set: doc });
@@ -72,8 +78,8 @@ export class DonateCompaign {
 
   public static async removeDonateCompaigns(models, ids: [String]) {
     const atDonateIds = await models.Donates.find({
-      donateCompaignId: { $in: ids }
-    }).distinct('donateCompaignId');
+      compaignId: { $in: ids }
+    }).distinct('compaignId');
 
     const usedCompaignIds = [...atDonateIds];
     const deleteCompaignIds = ids.map(id => !usedCompaignIds.includes(id));

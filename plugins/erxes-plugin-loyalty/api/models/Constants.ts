@@ -11,3 +11,22 @@ export const OWNER_TYPES = {
   COMPANY: 'company',
   ALL: ['customer', 'user', 'company']
 }
+
+export const VOUCHER_STATUS = {
+  NEW: 'new',
+  LOSS: 'used',
+  ALL: ['new', 'used']
+}
+
+export const LOTTERY_STATUS = {
+  NEW: 'new',
+  WON: 'won',
+  ALL: ['new', 'won']
+}
+
+export const SPIN_STATUS = {
+  NEW: 'new',
+  LOSS: 'loss',
+  WON: 'won',
+  ALL: ['new', 'loss', 'won']
+}

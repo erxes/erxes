@@ -1,6 +1,6 @@
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from 'erxes-ui';
+import { __, Alert } from 'erxes-ui';
 import {
   Button,
   ControlLabel,
@@ -16,7 +16,7 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
   Uploader
-  } from 'erxes-ui';
+} from 'erxes-ui';
 import { IAttachment, IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
 import { ILotteryCompaign, ILotteryCompaignAward } from '../types';
 import { IVoucherCompaign } from '../../voucherCompaign/types';
@@ -29,7 +29,9 @@ type Props = {
 };
 
 type State = {
-  lotteryCompaign: ILotteryCompaign
+  lotteryCompaign: ILotteryCompaign;
+  perFormatType: string;
+  perFormatLen: number;
 };
 
 class Form extends React.Component<Props, State> {
@@ -38,7 +40,13 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       lotteryCompaign: this.props.lotteryCompaign || {},
+      perFormatType: '',
+      perFormatLen: 6,
     };
+  }
+
+  componentWillUnmount(): void {
+    this.props.closeModal();
   }
 
   generateDoc = (values: {
@@ -55,7 +63,7 @@ class Form extends React.Component<Props, State> {
       finalValues._id = lotteryCompaign._id;
     }
 
-    lotteryCompaign.byScore = Number(lotteryCompaign.byScore || 0);
+    lotteryCompaign.buyScore = Number(lotteryCompaign.buyScore || 0);
     lotteryCompaign.awards = lotteryCompaign.awards && lotteryCompaign.awards.sort((a, b) => (a.count - b.count)) || []
 
     return {
@@ -87,9 +95,8 @@ class Form extends React.Component<Props, State> {
   };
 
   onInputChange = e => {
-    e.preventDefault();
-    const value = e.target.value
-    const name = e.target.name
+    const value = e.target.value;
+    const name = e.target.name;
 
     this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, [name]: value } });
   };
@@ -175,6 +182,31 @@ class Form extends React.Component<Props, State> {
     )
   }
 
+  onSelectPerFormat = (value) => {
+    this.setState({ perFormatType: value ? value.value : '' })
+  }
+
+  onChangePerLen = (e) => {
+    this.setState({ perFormatLen: e.target.value })
+  }
+
+  onAddFormat = () => {
+    const { perFormatType, perFormatLen } = this.state;
+    if (!perFormatType || !perFormatLen) {
+      return Alert.error('must choose format type and format len');
+    }
+    let { numberFormat } = this.state.lotteryCompaign;
+    numberFormat = `${numberFormat || ''}${`{ [ ${perFormatType} ] * ${perFormatLen} }`}`
+    this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, numberFormat } });
+  }
+
+  numberFormatKey = (e: React.KeyboardEvent) => {
+    if (['Backspace', 'Delete'].includes(e.key)) {
+      e.preventDefault();
+      this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, numberFormat: '' } });
+    }
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
@@ -241,6 +273,106 @@ class Form extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
 
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>buy Score</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="buyScore"
+                  type="number"
+                  min={0}
+                  defaultValue={lotteryCompaign.buyScore}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Lottery Date</ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    {...formProps}
+                    required={true}
+                    name="lotteryDate"
+                    placeholder={__('Lottery date')}
+                    value={lotteryCompaign.lotteryDate}
+                    onChange={this.onDateInputChange.bind(this, 'lotteryDate')}
+                  />
+                </DateContainer>
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+
+          <FormGroup>
+            <ControlLabel required={true}>Number Format</ControlLabel>
+            <FormWrapper>
+              <FormColumn>
+                <Select
+                  options={[
+                    { value: '0-9', label: '[0-9]' },
+                    { value: 'a-z', label: '[a-z]' },
+                    { value: 'A-Z', label: '[A-Z]' },
+                    { value: 'a-Z', label: '[a-z][A-Z]' },
+                    { value: '0-z', label: '[0-9][a-z]' },
+                    { value: '0-Z', label: '[0-9][A-Z]' },
+                    { value: '0-zZ', label: '[0-9][a-z][A-Z]' },
+                  ]}
+                  value={this.state.perFormatType}
+                  name="perFormatType"
+                  onChange={this.onSelectPerFormat}
+                  placeholder={__('Choose allow chars')}
+                />
+              </FormColumn>
+              <FormColumn>
+                <FormControl
+                  type="number"
+                  min={1}
+                  max={9}
+                  name="perFormatLen"
+                  defaultValue={this.state.perFormatLen}
+                  onChange={this.onChangePerLen}
+                />
+              </FormColumn>
+              <FormColumn>
+                <Button
+                  btnStyle='simple'
+                  onClick={this.onAddFormat}
+                >
+                  {__('Add format')}
+                </Button>
+              </FormColumn>
+
+              <FormColumn>
+                <FormControl
+                  {...formProps}
+                  name="numberFormat"
+                  value={lotteryCompaign.numberFormat}
+                  onKeyDown={this.numberFormatKey}
+                  onChange={this.onInputChange}
+                />
+              </FormColumn>
+            </FormWrapper>
+          </FormGroup>
+
+          <FormWrapper>
+            <FormColumn>
+              <ControlLabel required={true}>voucher Compaign</ControlLabel>
+            </FormColumn>
+            <FormColumn>
+              <ControlLabel required={true}>Count</ControlLabel>
+            </FormColumn>
+            <Button
+              btnStyle='simple'
+              icon="add"
+              onClick={this.onAddAward}
+            >
+              {__('Add level')}
+            </Button>
+          </FormWrapper>
+          {this.renderAwards(formProps)}
+
+          <br />
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK
@@ -278,65 +410,6 @@ class Form extends React.Component<Props, State> {
               single={true}
             />
           </FormGroup>
-
-
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>buy Score</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="byScore"
-                  type="number"
-                  min={0}
-                  defaultValue={lotteryCompaign.byScore}
-                  onChange={this.onInputChange}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Lottery Date</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={true}
-                    name="lotteryDate"
-                    placeholder={__('Lottery date')}
-                    value={lotteryCompaign.lotteryDate}
-                    onChange={this.onDateInputChange.bind(this, 'lotteryDate')}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-
-          <FormGroup>
-            <ControlLabel required={true}>Number Format</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="numberFormat"
-              defaultValue={lotteryCompaign.numberFormat}
-              onChange={this.onInputChange}
-            />
-          </FormGroup>
-
-          <FormWrapper>
-            <FormColumn>
-              <ControlLabel required={true}>voucher Compaign</ControlLabel>
-            </FormColumn>
-            <FormColumn>
-              <ControlLabel required={true}>Count</ControlLabel>
-            </FormColumn>
-            <Button
-              btnStyle='simple'
-              icon="add"
-              onClick={this.onAddAward}
-            >
-              {__('Add level')}
-            </Button>
-          </FormWrapper>
-          {this.renderAwards(formProps)}
         </ScrollWrapper>
         <ModalFooter>
           <Button

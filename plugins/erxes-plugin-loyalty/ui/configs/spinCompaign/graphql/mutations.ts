@@ -3,13 +3,13 @@ import { spinCompaignFields } from './queries';
 
 const paramDefs = `
   ${commonParamDefs}
-  $byScore: Float,
+  $buyScore: Float,
   $awards: JSON
 `;
 
 const params = `
   ${commonParams}
-  byScore: $byScore,
+  buyScore: $buyScore,
   awards: $awards,
 `;
 

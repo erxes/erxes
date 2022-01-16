@@ -3,6 +3,7 @@ import { voucherCompaignFields } from './queries';
 
 const paramDefs = `
   ${commonParamDefs}
+  $buyScore: Float,
   $score: Float,
   $scoreAction: String,
   $voucherType: String,
@@ -19,6 +20,7 @@ const paramDefs = `
 
 const params = `
   ${commonParams}
+  buyScore: $buyScore
   score: $score
   scoreAction: $scoreAction
   voucherType: $voucherType

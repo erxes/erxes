@@ -5,7 +5,7 @@ const paramDefs = `
   ${commonParamDefs}
   $lotteryDate: Date,
   $numberFormat: String,
-  $byScore: Float,
+  $buyScore: Float,
   $awards: JSON
 `;
 
@@ -13,7 +13,7 @@ const params = `
   ${commonParams}
   lotteryDate: $lotteryDate,
   numberFormat: $numberFormat,
-  byScore: $byScore,
+  buyScore: $buyScore,
   awards: $awards,
 `;
 

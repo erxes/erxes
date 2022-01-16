@@ -4,6 +4,8 @@ import { COMPAIGN_STATUS } from './Constants';
 export const voucherCompaignSchema = {
   ...commonCompaignSchema,
 
+  buyScore: { type: Number },
+
   score: { type: Number },
   scoreAction: { type: String },
 
@@ -23,6 +25,26 @@ export const voucherCompaignSchema = {
   lotteryCount: { type: Number },
 };
 
+const validVoucherCompaign = (doc) => {
+  validCompaign(doc)
+
+  if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.bonusProductId && !doc.spinCompaignId && !doc.lotteryCompaignId) {
+    throw new Error('Could not create null Voucher compaign');
+  }
+
+  if (doc.bonusProductId && !doc.bonusCount) {
+    throw new Error('Must fill product count or product limit to false');
+  }
+
+  if (doc.spinCompaignId && !doc.spinCount) {
+    throw new Error('Must fill spin count when choosed spin compaign');
+  }
+
+  if (doc.lotteryCompaignId && !doc.lotteryCount) {
+    throw new Error('Must fill lottery count when choosed lottery compaign');
+  }
+}
+
 export class VoucherCompaign {
   public static async getVoucherCompaign(models, _id: string) {
     const voucherCompaign = await models.VoucherCompaigns.findOne({ _id });
@@ -34,29 +56,9 @@ export class VoucherCompaign {
     return voucherCompaign;
   }
 
-  public static async validVoucherCompaign(doc) {
-    validCompaign(doc)
-    console.log(doc)
-    if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.bonusProductId && !doc.spinCompaignId && !doc.lotteryCompaignId) {
-      throw new Error('Could not create null Voucher compaign');
-    }
-
-    if (doc.bonusProductId && !doc.bonusCount) {
-      throw new Error('Must fill product count or product limit to false');
-    }
-
-    if (doc.spinCompaignId && !doc.spinCount) {
-      throw new Error('Must fill spin count when choosed spin compaign');
-    }
-
-    if (doc.lotteryCompaignId && !doc.lotteryCount) {
-      throw new Error('Must fill lottery count when choosed lottery compaign');
-    }
-  }
-
   public static async createVoucherCompaign(models, doc) {
     try {
-      await this.validVoucherCompaign(doc);
+      await validVoucherCompaign(doc);
     } catch (e) {
       throw new Error(e.message);
     }
@@ -73,9 +75,29 @@ export class VoucherCompaign {
 
   public static async updateVoucherCompaign(models, _id, doc) {
     try {
-      await this.validVoucherCompaign(doc);
+      await validVoucherCompaign(doc);
     } catch (e) {
       throw new Error(e.message);
+    }
+
+    const voucherCompaignDB = await models.VoucherCompaigns.getVoucherCompaign(models, _id);
+
+    if (voucherCompaignDB.voucherType !== doc.voucherType) {
+      let usedVoucherCount = 0
+      switch (voucherCompaignDB.voucherType) {
+        case 'spin':
+          usedVoucherCount = models.Spins.find({ spinCompaingId: voucherCompaignDB.spinCompaignId }).countDocuments();
+          break;
+        case 'lottery':
+          usedVoucherCount = models.Lotteries.find({ lotteryCompaingId: voucherCompaignDB.lotteryCompaignId }).countDocuments();
+          break;
+        default:
+          usedVoucherCount = models.Vouchers.find({ voucherCompaignId: voucherCompaignDB._id }).countDocuments();
+      }
+
+      if (usedVoucherCount) {
+        throw new Error(`Cant change voucher type because: this voucher Compaign in used. Set voucher type: ${voucherCompaignDB.voucherType}`)
+      }
     }
 
     doc = {
@@ -86,51 +108,24 @@ export class VoucherCompaign {
     return models.VoucherCompaigns.updateOne({ _id }, { $set: doc });
   }
 
-  public static async removeVoucherCompaigns(models, ids: [String], dataSources) {
-    // const atVoucherIds = await models.Vouchers.find({
-    //   voucherCompaignId: { $in: ids }
-    // }).distinct('voucherCompaignId');
-    const atVoucherIds = [];
+  public static async removeVoucherCompaigns(models, ids: [String]) {
+    const atVoucherIds = await models.Vouchers.find({
+      voucherCompaignId: { $in: ids }
+    }).distinct('voucherCompaignId');
 
-    const atDonateIds = await models.DonateCompaigns.find({
+    const atDonateCompaignIds = await models.DonateCompaigns.find({
       'awards.voucherCompaignId': { $in: ids }
     }).distinct('awards.voucherCompaignId');
 
-    const atLotteryIds = await models.LotteryCompaigns.find({
+    const atLotteryCompaignIds = await models.LotteryCompaigns.find({
       'awards.voucherCompaignId': { $in: ids }
     }).distinct('awards.voucherCompaignId');
 
-    const atSpinIds = await models.SpinCompaigns.find({
+    const atSpinCompaignIds = await models.SpinCompaigns.find({
       'awards.voucherCompaignId': { $in: ids }
     }).distinct('awards.voucherCompaignId');
 
-    let atAssignmentAutomations = await dataSources.AutomationsAPI.getAutomations({
-      'actions.config.voucherCompaignId': { $in: ids }
-    }) || []
-
-    if (atAssignmentAutomations.error) {
-      atAssignmentAutomations = []
-    }
-
-    const usedCompaignIds = [...atVoucherIds, ...atDonateIds, ...atLotteryIds, ...atSpinIds];
-
-    for (const automation of atAssignmentAutomations) {
-      usedCompaignIds.concat(
-        automation.actions.map(action => (
-          action.config &&
-          action.config.voucherCompaignId &&
-          !usedCompaignIds.includes(action.config.voucherCompaignId) &&
-          action.config.voucherCompaignId
-        ))
-      )
-    }
-
-    // const atAssignmentIds = await models.AssignmentCompaigns.find({
-    //   voucherCompaignId: { $in: ids }
-    // }).distinct('voucherCompaignId');
-
-    // automation actions check
-
+    const usedCompaignIds = [...atVoucherIds, ...atDonateCompaignIds, ...atLotteryCompaignIds, ...atSpinCompaignIds];
 
     const deleteCompaignIds = ids.filter(id => (!usedCompaignIds.includes(id)));
     const now = new Date();

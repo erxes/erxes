@@ -6,7 +6,7 @@ export const types = `
     ${commonTypes}
     lotteryDate: Date,
     numberFormat: String,
-    byScore: Float,
+    buyScore: Float,
     awards: JSON
   }
 `;
@@ -15,7 +15,7 @@ const LotteryCompaignDoc = `
   ${commonInputs}
   lotteryDate: Date,
   numberFormat: String,
-  byScore: Float,
+  buyScore: Float,
   awards: JSON
 `
 

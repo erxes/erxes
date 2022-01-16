@@ -55,7 +55,7 @@ class Form extends React.Component<Props, State> {
       finalValues._id = spinCompaign._id;
     }
 
-    spinCompaign.byScore = Number(spinCompaign.byScore || 0);
+    spinCompaign.buyScore = Number(spinCompaign.buyScore || 0);
     spinCompaign.awards = spinCompaign.awards && spinCompaign.awards.sort((a, b) => (a.count - b.count)) || []
 
     return {
@@ -242,6 +242,40 @@ class Form extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
 
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>buy Score</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="buyScore"
+                  type="number"
+                  min={0}
+                  defaultValue={spinCompaign.buyScore}
+                  onChange={this.onInputChange}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+
+          <FormWrapper>
+            <FormColumn>
+              <ControlLabel required={true}>voucher Compaign</ControlLabel>
+            </FormColumn>
+            <FormColumn>
+              <ControlLabel required={true}>Probability</ControlLabel>
+            </FormColumn>
+            <Button
+              btnStyle='simple'
+              icon="add"
+              onClick={this.onAddAward}
+            >
+              {__('Add level')}
+            </Button>
+          </FormWrapper>
+          {this.renderAwards(formProps)}
+
+          <br />
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK
@@ -279,40 +313,6 @@ class Form extends React.Component<Props, State> {
               single={true}
             />
           </FormGroup>
-
-
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>buy Score</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="byScore"
-                  type="number"
-                  min={0}
-                  defaultValue={spinCompaign.byScore}
-                  onChange={this.onInputChange}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-
-          <FormWrapper>
-            <FormColumn>
-              <ControlLabel required={true}>voucher Compaign</ControlLabel>
-            </FormColumn>
-            <FormColumn>
-              <ControlLabel required={true}>Probability</ControlLabel>
-            </FormColumn>
-            <Button
-              btnStyle='simple'
-              icon="add"
-              onClick={this.onAddAward}
-            >
-              {__('Add level')}
-            </Button>
-          </FormWrapper>
-          {this.renderAwards(formProps)}
         </ScrollWrapper>
         <ModalFooter>
           <Button

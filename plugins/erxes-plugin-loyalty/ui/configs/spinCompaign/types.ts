@@ -7,7 +7,7 @@ export type ISpinCompaignAward = {
 }
 
 export type ISpinCompaign = ICommonTypes & {
-  byScore?: number,
+  buyScore?: number,
   awards?: ISpinCompaignAward[]
 };
 

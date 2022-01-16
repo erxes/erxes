@@ -13,8 +13,8 @@ export default [
   },
   {
     name: 'voucherCompaignsRemove',
-    handler: async (_root, doc, { models, dataSources }) => {
-      return models.VoucherCompaigns.removeVoucherCompaigns(models, doc._ids, dataSources)
+    handler: async (_root, doc, { models }) => {
+      return models.VoucherCompaigns.removeVoucherCompaigns(models, doc._ids)
     }
   },
 ]

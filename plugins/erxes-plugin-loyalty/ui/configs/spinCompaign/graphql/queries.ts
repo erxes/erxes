@@ -3,7 +3,7 @@ import { commonFields } from '../../commonTypes';
 export const spinCompaignFields = `
   _id
   ${commonFields}
-  byScore
+  buyScore
   awards
 `;
 

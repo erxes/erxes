@@ -1,6 +1,8 @@
 import { ICommonTypes } from "../commonTypes";
 
 export type IVoucherCompaign = ICommonTypes & {
+  buyScore?: number,
+
   score?: number,
   scoreAction?: string,
 

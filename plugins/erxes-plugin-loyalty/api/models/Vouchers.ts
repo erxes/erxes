@@ -1,17 +1,8 @@
-import { OWNER_TYPES } from './Constants';
-const VOUCHER_STATUS = {
-  NEW: 'new',
-  LOSS: 'used',
-  ALL: ['new', 'used']
-}
+import { changeScoreOwner, commonSchema } from './CompaignUtils';
+import { VOUCHER_STATUS } from './Constants';
 
 export const voucherSchema = {
-  _id: { pkey: true },
-  voucherCompaignId: { type: String, label: 'Voucher Compaign' },
-  ownerType: { type: String, label: 'Owner Type', enum: OWNER_TYPES.ALL },
-  ownerId: {type: String},
-
-  createdAt: { type: Date, label: 'Created at' },
+  ...commonSchema,
 
   status: { type: String, enum: VOUCHER_STATUS.ALL, default: 'new', label: 'Status' },
 };
@@ -32,21 +23,34 @@ export class Voucher {
     return voucherRule;
   }
 
-  public static async createVoucher(models, voucherCompaignId, ownerType, ownerId) {
-    const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, voucherCompaignId);
+  public static async createVoucher(models, { compaignId, ownerType, ownerId }) {
+    const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, compaignId);
 
     switch (voucherCompaign.voucherType) {
       case 'discount':
-        models.Vouchers.create({ voucherCompaignId, ownerType, ownerId })
-        break;
+        return models.Vouchers.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: VOUCHER_STATUS.NEW });
       case 'bonus':
-        break;
+        return models.Vouchers.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: VOUCHER_STATUS.NEW });
       case 'spin':
-        break;
+        return models.Spins.createSpin(models, { compaignId: voucherCompaign.spinCompaignId, ownerType, ownerId });
       case 'lottery':
-        break;
+        return models.Lottery.createLottery(models, { compaignId: voucherCompaign.lotteryCompaignId, ownerType, ownerId });
+      case 'score':
+        return changeScoreOwner(models, { ownerType, ownerId, changeScore: voucherCompaign.score })
       default:
         break
     }
+  }
+
+  public static async buyVoucher(models, { compaignId, ownerType, ownerId, count = 1 }) {
+    const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, compaignId);
+
+    if (!voucherCompaign.buyScore) {
+      throw new Error('can not buy this voucher');
+    }
+
+    await changeScoreOwner(models, { ownerType, ownerId, changeScore: -1 * voucherCompaign.buyScore * count });
+
+    return models.Vouchers.createVoucher(models, { compaignId, ownerType, ownerId });
   }
 }

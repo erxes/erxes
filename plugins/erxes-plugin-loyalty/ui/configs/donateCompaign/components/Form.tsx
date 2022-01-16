@@ -243,6 +243,35 @@ class Form extends React.Component<Props, State> {
           </FormWrapper>
 
           <FormGroup>
+            <ControlLabel required={true}>max Score</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="maxScore"
+              type="number"
+              min={0}
+              defaultValue={donateCompaign.maxScore}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
+          <FormWrapper>
+            <FormColumn>
+              <ControlLabel required={true}>Min Score</ControlLabel>
+            </FormColumn>
+            <FormColumn>
+              <ControlLabel required={true}>Voucher</ControlLabel>
+            </FormColumn>
+            <Button
+              btnStyle='simple'
+              icon="add"
+              onClick={this.onAddAward}
+            >
+              {__('Add level')}
+            </Button>
+          </FormWrapper>
+          {this.renderAwards(formProps)}
+
+          <br />
+          <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK
               content={donateCompaign.description}
@@ -279,33 +308,6 @@ class Form extends React.Component<Props, State> {
               single={true}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>max Score</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="maxScore"
-              type="number"
-              min={0}
-              defaultValue={donateCompaign.maxScore}
-              onChange={this.onInputChange}
-            />
-          </FormGroup>
-          <FormWrapper>
-            <FormColumn>
-              <ControlLabel required={true}>Min Score</ControlLabel>
-            </FormColumn>
-            <FormColumn>
-              <ControlLabel required={true}>Voucher</ControlLabel>
-            </FormColumn>
-            <Button
-              btnStyle='simple'
-              icon="add"
-              onClick={this.onAddAward}
-            >
-              {__('Add level')}
-            </Button>
-          </FormWrapper>
-          {this.renderAwards(formProps)}
         </ScrollWrapper>
         <ModalFooter>
           <Button

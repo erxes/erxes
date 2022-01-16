@@ -5,7 +5,7 @@ export const lotteryCompaignFields = `
   ${commonFields}
   lotteryDate
   numberFormat
-  byScore
+  buyScore
   awards
 `;
 

@@ -65,6 +65,7 @@ class Form extends React.Component<Props, State> {
     voucherCompaign.spinCount = Number(voucherCompaign.spinCount || 0);
     voucherCompaign.lotteryCount = Number(voucherCompaign.lotteryCount || 0);
     voucherCompaign.bonusCount = Number(voucherCompaign.bonusCount || 0);
+    voucherCompaign.buyScore = Number(voucherCompaign.buyScore || 0);
 
     return {
       ...finalValues,
@@ -352,6 +353,18 @@ class Form extends React.Component<Props, State> {
           </FormWrapper>
 
           {this.renderVoucherType(formProps)}
+
+          <FormGroup>
+            <ControlLabel required={true}>Buy Score</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="buyScore"
+              type="number"
+              min={0}
+              defaultValue={voucherCompaign.buyScore}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
 
           <FormGroup>
             <ControlLabel>Description</ControlLabel>

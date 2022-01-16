@@ -4,6 +4,8 @@ export const types = `
   type VoucherCompaign {
     _id: String,
     ${commonTypes}
+    buyScore: Float,
+
     score: Float,
     scoreAction: String,
 
@@ -26,6 +28,8 @@ export const types = `
 
 const VoucherCompaignDoc = `
   ${commonInputs}
+  buyScore: Float,
+
   score: Float,
   scoreAction: String,
 

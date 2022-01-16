@@ -4,14 +4,14 @@ export const types = `
   type SpinCompaign {
     _id: String,
     ${commonTypes}
-    byScore: Float,
+    buyScore: Float,
     awards: JSON
   }
 `;
 
 const SpinCompaignDoc = `
   ${commonInputs}
-  byScore: Float,
+  buyScore: Float,
   awards: JSON
 `
 
