@@ -418,3 +418,19 @@ export const getBoardItemLink = async (
 
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      console.log(e.message);
+
+      if (callback) {
+        return callback(res, e, next);
+      }
+
+      return next(e);
+    }
+  };
+};

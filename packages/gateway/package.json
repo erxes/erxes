@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "GNU General Public License v3.0 with Commons Clause",
   "scripts": {
-    "start": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts"
+    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts"
   },
   "dependencies": {
     "@apollo/federation": "^0.33.8",
