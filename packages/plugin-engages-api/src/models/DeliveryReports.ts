@@ -77,7 +77,9 @@ export interface IDeliveryReports {
   email?: string;
 }
 
-export interface IDeliveryReportsDocument extends IDeliveryReports, Document {}
+export interface IDeliveryReportsDocument extends IDeliveryReports, Document {
+  customerName?: string;
+}
 
 export const deliveryReportsSchema = new Schema({
   customerId: { type: String, label: 'Customer id at erxes-api' },

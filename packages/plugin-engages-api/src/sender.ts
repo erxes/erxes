@@ -30,7 +30,7 @@ export const start = async (data: IEmailParams) => {
     fromEmail,
     email,
     engageMessageId,
-    customers,
+    customers = [],
     createdBy,
     title
   } = data;
@@ -115,8 +115,8 @@ export const start = async (data: IEmailParams) => {
     10
   );
 
-  let filteredCustomers = [];
-  let emails = [];
+  let filteredCustomers: ICustomer[] = [];
+  let emails: string[] = [];
 
   if (customers.length > unverifiedEmailsLimit) {
     await Logs.createLog(
