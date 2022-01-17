@@ -99,7 +99,7 @@ module.exports = {
       'process.env': JSON.stringify(process.env)
     }),
     new InterpolateHtmlPlugin({
-      PUBLIC_URL: 'public' // can modify `static` to another name or get it from `process`
+      PUBLIC_URL: '' // can modify `static` to another name or get it from `process`
     }),
     new ModuleFederationPlugin({
       name: configs.name,

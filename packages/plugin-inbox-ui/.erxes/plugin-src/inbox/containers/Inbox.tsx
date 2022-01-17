@@ -64,7 +64,7 @@ class WithCurrentId extends React.Component<IProps> {
   componentWillReceiveProps(nextProps: IProps) {
     const { conversationsGetLast, loading, history, queryParams } = nextProps;
     const { _id } = queryParams;
-
+    console.log(conversationsGetLast)
     if (!_id && conversationsGetLast && !loading) {
       routerUtils.setParams(history, { _id: conversationsGetLast._id }, true);
     }
@@ -76,10 +76,10 @@ class WithCurrentId extends React.Component<IProps> {
         {({ currentUser }) => {
           const { queryParams } = this.props;
           const { _id } = queryParams;
-          console.log('hi curr', currentUser)
+          console.log('hi curr', currentUser, this.props)
           // if (!currentUser) {
           //   return null;
-          // } *fixthis
+          // } 
 
           if (!_id || !can('showConversations', currentUser)) {
             return (
