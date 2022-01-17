@@ -644,20 +644,6 @@ export const gatherDescriptions = async (
 
   switch (type) {
     case MODULE_NAMES.BRAND:
-    case MODULE_NAMES.BOARD_DEAL:
-    case MODULE_NAMES.BOARD_GH:
-    case MODULE_NAMES.BOARD_TASK:
-    case MODULE_NAMES.BOARD_TICKET:
-      if (obj.userId) {
-        extraDesc = await gatherUsernames({
-          idFields: [obj.userId],
-          foreignKey: 'userId'
-        });
-      }
-
-      description = `"${obj.name}" has been ${action}d`;
-
-      break;
     case MODULE_NAMES.CHANNEL:
       extraDesc = await gatherChannelFieldNames(obj);
       description = `"${obj.name}" has been ${action}d`;
@@ -877,34 +863,6 @@ export const gatherDescriptions = async (
           userId: obj.userId,
           name: permUser.username || permUser.email
         });
-      }
-
-      break;
-    case MODULE_NAMES.PIPELINE_LABEL:
-      description = `"${obj.name}" has been ${action}d`;
-
-      const pipeline = await Pipelines.findOne({ _id: obj.pipelineId });
-
-      extraDesc = await gatherUsernames({
-        idFields: [obj.createdBy],
-        foreignKey: 'createdBy'
-      });
-
-      if (pipeline) {
-        extraDesc.push({ pipelineId: pipeline._id, name: pipeline.name });
-      }
-
-      break;
-    case MODULE_NAMES.PIPELINE_TEMPLATE:
-      extraDesc = await gatherPipelineTemplateFieldNames(obj);
-
-      description = `"${obj.name}" has been created`;
-
-      if (updatedDocument) {
-        extraDesc = await gatherPipelineTemplateFieldNames(
-          updatedDocument,
-          extraDesc
-        );
       }
 
       break;
