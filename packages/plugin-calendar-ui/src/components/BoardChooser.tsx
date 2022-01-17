@@ -1,4 +1,5 @@
-import { HeaderButton, HeaderLink, Controls, FlexRow } from '../styles';
+import { Controls, FlexRow } from '../styles';
+import { HeaderButton, HeaderLink } from '@erxes/ui-cards/src/boards/styles/header';
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';

@@ -4,7 +4,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
-import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-leads/src/graphql';
 import { ITrigger } from '../../../../types';

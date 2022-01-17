@@ -114,3 +114,20 @@ export type RemoveMutationResponse = {
 export type EditMutationResponse = {
   customersEdit: (doc: { variables: ICustomer }) => Promise<any>;
 };
+
+type CountResponse = {
+  [key: string]: number;
+};
+
+type CustomerCounts = {
+  byBrand: CountResponse;
+  byForm: CountResponse;
+  byIntegrationType: CountResponse;
+  byLeadStatus: CountResponse;
+  bySegment: CountResponse;
+  byTag: CountResponse;
+};
+
+export type CountQueryResponse = {
+  customerCounts: CustomerCounts;
+} & QueryResponse;

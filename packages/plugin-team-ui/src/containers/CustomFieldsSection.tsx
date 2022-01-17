@@ -4,12 +4,12 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import GenerateCustomFields from '@erxes/ui-settings/src//properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src//properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-settings/src//properties/graphql';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
+import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src//properties/types';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { mutations } from '../graphql';
 import { EditMutationResponse } from '../types';
 

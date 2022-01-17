@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ICommonFormProps } from '@erxes/ui-settings/src//common/types';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import {
   IUserGroup,

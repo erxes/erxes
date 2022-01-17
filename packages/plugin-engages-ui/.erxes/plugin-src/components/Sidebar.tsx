@@ -9,6 +9,7 @@ import {
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MESSAGE_KIND_FILTERS, statusFilters } from '../constants';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -16,7 +17,7 @@ type Props = {
   kindCounts: any;
   statusCounts: any;
   tagCounts: any;
-  tags: any[];
+  tags: ITag[];
   history?: any;
 };
 
