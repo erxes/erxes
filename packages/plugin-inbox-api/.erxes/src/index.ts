@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 
 // load environment variables
@@ -20,10 +21,13 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 
 import configs from '../../src/configs';
+import { join } from './serviceDiscovery';
 
 export const app = express();
 
 app.disable('x-powered-by');
+
+app.use(cors());
 
 app.use(cookieParser());
 
@@ -106,21 +110,28 @@ async function startServer() {
     mongoUrl = TEST_MONGO_URL;
   }
 
-  // connect to mongo database
-  await connect(mongoUrl);
-  const messsageBrokerClient = await initBroker(configs.name, app);
+  try {
+    // connect to mongo database
+    await connect(mongoUrl);
+    const messageBrokerClient = await initBroker(configs.name, app);
 
-  configs.onServerInit({
-    pubsub,
-    elasticsearch,
-    messsageBrokerClient,
-    debug: {
-      info: debugInfo,
-      error: debugError
-    }
-  });
+    configs.onServerInit({
+      app,
+      pubsubClient: pubsub,
+      elasticsearch,
+      messageBrokerClient,
+      debug: {
+        info: debugInfo,
+        error: debugError
+      }
+    });
 
-  debugInfo(`${configs.name} server is running on port ${PORT}`);
+    await join(configs.name, PORT);
+
+    debugInfo(`${configs.name} server is running on port ${PORT}`);
+  } catch (e) {
+    debugError(`Error during startup ${e.message}`)
+  }
 }
 
 startServer();

@@ -24,7 +24,7 @@ import {
   sendChecklistMessage,
   sendConformityMessage,
   sendInternalNoteMessage
-} from 'messageBroker';
+} from '../messageBroker';
 
 export interface IOrderInput {
   _id: string;

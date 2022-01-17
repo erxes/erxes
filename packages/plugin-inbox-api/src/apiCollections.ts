@@ -24,8 +24,6 @@ const main = async () => {
   // Use connect method to connect to the server
   await client.connect();
 
-  console.log('Connected successfully to server');
-
   db = client.db(dbName);
 
   Configs = await db.collection('configs');
@@ -43,6 +41,6 @@ const main = async () => {
   EmailDeliveries = await db.collection('email_deliveries');
 
   return 'done.';
-}
+};
 
 export default main;

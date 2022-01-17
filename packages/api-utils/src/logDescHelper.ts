@@ -1,7 +1,5 @@
 import * as _ from 'underscore';
 import {
-  IStageDocument,
-  IPipelineDocument,
   IChannelDocument,
   IIntegrationDocument,
   ICompanyDocument,
@@ -13,9 +11,8 @@ import {
   ICategoryDocument,
   IProductDocument,
   IScriptDocument,
-  IPipelineTemplateDocument,
   IUserDocument
-} from '@erxes/common-types';
+} from '@erxes/common-types/src';
 import { ICustomerDocument } from '@erxes/common-types/src/customers';
 
 import { MODULE_NAMES } from './constants';
@@ -46,7 +43,7 @@ import {
   Checklists
 } from './apiCollections';
 
-type BoardItemDocument =
+export type BoardItemDocument =
   | IDealDocument
   | ITaskDocument
   | ITicketDocument
@@ -76,7 +73,7 @@ export interface IDescriptionParams {
   newData?: any;
 }
 
-interface IDescriptions {
+export interface IDescriptions {
   description?: string;
   extraDesc?: LogDesc[];
 }
@@ -85,45 +82,6 @@ interface IContentTypeParams {
   contentType: string;
   contentTypeId: string;
 }
-
-const gatherStageFieldNames = async (
-  doc: IStageDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.userId) {
-    options = await gatherUsernames({
-      idFields: [doc.userId],
-      foreignKey: 'userId',
-      prevList: options
-    });
-  }
-  if (doc.pipelineId) {
-    options = await gatherNames({
-      collection: Pipelines,
-      idFields: [doc.pipelineId],
-      foreignKey: 'pipelineId',
-      prevList: options,
-      nameFields: ['name']
-    });
-  }
-  if (doc.formId) {
-    options = await gatherNames({
-      collection: Forms,
-      idFields: [doc.formId],
-      foreignKey: 'formId',
-      prevList: options,
-      nameFields: ['title']
-    });
-  }
-
-  return options;
-};
 
 /**
  * Finds name field from given collection
@@ -167,7 +125,9 @@ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   return options;
 };
 
-export const gatherUsernames = async (params: ILogNameParams): Promise<LogDesc[]> => {
+export const gatherUsernames = async (
+  params: ILogNameParams
+): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
@@ -177,59 +137,6 @@ export const gatherUsernames = async (params: ILogNameParams): Promise<LogDesc[]
     prevList,
     nameFields: ['email', 'username']
   });
-};
-
-const gatherPipelineFieldNames = async (
-  doc: IPipelineDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  options = await gatherNames({
-    collection: Boards,
-    idFields: [doc.boardId],
-    foreignKey: 'boardId',
-    nameFields: ['name'],
-    prevList: options
-  });
-
-  if (doc.userId) {
-    options = await gatherUsernames({
-      idFields: [doc.userId],
-      foreignKey: 'userId',
-      prevList: options
-    });
-  }
-
-  if (doc.excludeCheckUserIds && doc.excludeCheckUserIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.excludeCheckUserIds,
-      foreignKey: 'excludeCheckUserIds',
-      prevList: options
-    });
-  }
-
-  if (doc.memberIds && doc.memberIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.memberIds,
-      foreignKey: 'memberIds',
-      prevList: options
-    });
-  }
-
-  if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.watchedUserIds,
-      foreignKey: 'watchedUserIds',
-      prevList: options
-    });
-  }
-
-  return options;
 };
 
 const gatherChannelFieldNames = async (
@@ -344,7 +251,9 @@ export const gatherTagNames = async (
   });
 };
 
-export const gatherBrandNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
+export const gatherBrandNames = async (
+  params: ILogNameParams
+): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
@@ -452,79 +361,6 @@ const gatherCustomerFieldNames = async (
   return options;
 };
 
-const gatherBoardItemFieldNames = async (
-  doc: BoardItemDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.userId) {
-    options = await gatherUsernames({
-      idFields: [doc.userId],
-      foreignKey: 'userId',
-      prevList: options
-    });
-  }
-
-  if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.assignedUserIds,
-      foreignKey: 'assignedUserIds',
-      prevList: options
-    });
-  }
-
-  if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.watchedUserIds,
-      foreignKey: 'watchedUserIds',
-      prevList: options
-    });
-  }
-
-  if (doc.labelIds && doc.labelIds.length > 0) {
-    options = await gatherNames({
-      collection: PipelineLabels,
-      idFields: doc.labelIds,
-      foreignKey: 'labelIds',
-      prevList: options,
-      nameFields: ['name']
-    });
-  }
-
-  options = await gatherNames({
-    collection: Stages,
-    idFields: [doc.stageId],
-    foreignKey: 'stageId',
-    prevList: options,
-    nameFields: ['name']
-  });
-
-  if (doc.initialStageId) {
-    options = await gatherNames({
-      collection: Stages,
-      idFields: [doc.initialStageId],
-      foreignKey: 'initialStageId',
-      prevList: options,
-      nameFields: ['name']
-    });
-  }
-
-  if (doc.modifiedBy) {
-    options = await gatherUsernames({
-      idFields: [doc.modifiedBy],
-      foreignKey: 'modifiedBy',
-      prevList: options
-    });
-  }
-
-  return options;
-};
-
 const findItemName = async ({
   contentType,
   contentTypeId
@@ -553,54 +389,6 @@ const findItemName = async ({
   }
 
   return name;
-};
-
-const gatherDealFieldNames = async (
-  doc: IDealDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  options = await gatherBoardItemFieldNames(doc, options);
-
-  if (doc.productsData && doc.productsData.length > 0) {
-    options = await gatherNames({
-      collection: Products,
-      idFields: doc.productsData.map(p => p.productId),
-      foreignKey: 'productId',
-      prevList: options,
-      nameFields: ['name']
-    });
-  }
-
-  return options;
-};
-
-const gatherGHFieldNames = async (
-  doc: IGrowthHackDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  options = await gatherBoardItemFieldNames(doc, options);
-
-  if (doc.votedUserIds && doc.votedUserIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.votedUserIds,
-      foreignKey: 'votedUserIds',
-      prevList: options
-    });
-  }
-
-  return options;
 };
 
 const gatherKbTopicFieldNames = async (
@@ -757,35 +545,6 @@ const gatherScriptFieldNames = async (
   return options;
 };
 
-const gatherPipelineTemplateFieldNames = async (
-  doc: IPipelineTemplateDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  options = await gatherUsernames({
-    idFields: [doc.createdBy || ''],
-    foreignKey: 'createdBy',
-    prevList: options
-  });
-
-  if (doc.stages && doc.stages.length > 0) {
-    options = await gatherNames({
-      collection: Forms,
-      idFields: doc.stages.map(s => s.formId),
-      foreignKey: 'formId',
-      prevList: options,
-      nameFields: ['title']
-    });
-  }
-
-  return options;
-};
-
 const gatherUserFieldNames = async (
   doc: IUserDocument,
   prevList?: LogDesc[]
@@ -899,19 +658,6 @@ export const gatherDescriptions = async (
       description = `"${obj.name}" has been ${action}d`;
 
       break;
-    case MODULE_NAMES.PIPELINE_DEAL:
-    case MODULE_NAMES.PIPELINE_GH:
-    case MODULE_NAMES.PIPELINE_TASK:
-    case MODULE_NAMES.PIPELINE_TICKET:
-      extraDesc = await gatherPipelineFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherPipelineFieldNames(updatedDocument, extraDesc);
-      }
-
-      description = `"${obj.name}" has been ${action}d`;
-
-      break;
     case MODULE_NAMES.CHANNEL:
       extraDesc = await gatherChannelFieldNames(obj);
       description = `"${obj.name}" has been ${action}d`;
@@ -988,29 +734,6 @@ export const gatherDescriptions = async (
 
       if (updatedDocument) {
         extraDesc = await gatherCustomerFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
-    case MODULE_NAMES.DEAL:
-      description = `"${obj.name}" has been ${action}d`;
-      extraDesc = await gatherDealFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherDealFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
-    case MODULE_NAMES.EMAIL_TEMPLATE:
-      description = `"${obj.name}" has been ${action}d`;
-
-      break;
-    case MODULE_NAMES.GROWTH_HACK:
-      description = `"${obj.name}" has been ${action}d`;
-
-      extraDesc = await gatherGHFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherGHFieldNames(updatedDocument, extraDesc);
       }
 
       break;
@@ -1280,26 +1003,6 @@ export const gatherDescriptions = async (
       description = `"${obj.name}" has been ${action}d`;
 
       break;
-    case MODULE_NAMES.TASK:
-      description = `"${obj.name}" has been ${action}d`;
-
-      extraDesc = await gatherBoardItemFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherBoardItemFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
-    case MODULE_NAMES.TICKET:
-      description = `"${obj.name}" has been ${action}d`;
-
-      extraDesc = await gatherBoardItemFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherBoardItemFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
     case MODULE_NAMES.USER:
       description = `"${obj.username || obj.email}" has been ${action}d`;
 
@@ -1307,19 +1010,6 @@ export const gatherDescriptions = async (
 
       if (updatedDocument) {
         extraDesc = await gatherUserFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
-    case MODULE_NAMES.STAGE_DEAL:
-    case MODULE_NAMES.STAGE_TASK:
-    case MODULE_NAMES.STAGE_TICKET:
-    case MODULE_NAMES.STAGE_GH:
-      description = `"${obj.name}" has been ${action}d`;
-
-      extraDesc = await gatherStageFieldNames(obj, extraDesc);
-
-      if (updatedDocument) {
-        extraDesc = await gatherStageFieldNames(updatedDocument, extraDesc);
       }
 
       break;

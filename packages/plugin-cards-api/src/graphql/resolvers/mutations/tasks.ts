@@ -1,11 +1,11 @@
-import { Tasks } from '../../../db/models';
+import { Tasks } from '../../../models';
 import {
   IItemCommonFields as ITask,
   IItemDragCommonFields
-} from '../../../db/models/definitions/boards';
-import { checkPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
-import { registerOnboardHistory } from '../../utils';
+} from '../../../models/definitions/boards';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src';
+// import { registerOnboardHistory } from '../../utils';
 import {
   itemsAdd,
   itemsArchive,
@@ -13,7 +13,7 @@ import {
   itemsCopy,
   itemsEdit,
   itemsRemove
-} from './boardUtils';
+} from './utils';
 
 interface ITasksEdit extends ITask {
   _id: string;
@@ -52,7 +52,7 @@ const taskMutations = {
     );
 
     if (updatedTask.assignedUserIds) {
-      await registerOnboardHistory({ type: 'taskAssignUser', user });
+      // await registerOnboardHistory({ type: 'taskAssignUser', user });
     }
 
     return updatedTask;

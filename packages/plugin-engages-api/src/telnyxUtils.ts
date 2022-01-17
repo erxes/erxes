@@ -124,7 +124,7 @@ export const prepareMessage = async ({
     i => i.erxesApiId === fromIntegrationId
   );
 
-  if (!integration.telnyxPhoneNumber) {
+  if (!integration || !integration.telnyxPhoneNumber) {
     throw new Error('Telnyx phone is not configured');
   }
 

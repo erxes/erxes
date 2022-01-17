@@ -38,12 +38,6 @@ import {
   debugExternalApi,
   debugInit
 } from './debuggers';
-import {
-  identifyCustomer,
-  trackCustomEvent,
-  trackViewPageEvent,
-  updateCustomerProperty
-} from './events';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
@@ -190,48 +184,6 @@ app.get(
 app.post('/webhooks/:id', webhookMiddleware);
 // @ts-ignore
 app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
-
-// events
-app.post(
-  '/events-receive',
-  routeErrorHandling(
-    async (req, res) => {
-      const { name, customerId, attributes } = req.body;
-
-      const response =
-        name === 'pageView'
-          ? await trackViewPageEvent({ customerId, attributes })
-          : await trackCustomEvent({ name, customerId, attributes });
-
-      return res.json(response);
-    },
-    res => res.json({ status: 'success' })
-  )
-);
-
-app.post(
-  '/events-identify-customer',
-  routeErrorHandling(
-    async (req, res) => {
-      const { args } = req.body;
-
-      const response = await identifyCustomer(args);
-      return res.json(response);
-    },
-    res => res.json({})
-  )
-);
-
-app.post(
-  '/events-update-customer-property',
-  routeErrorHandling(
-    async (req, res) => {
-      const response = await updateCustomerProperty(req.body);
-      return res.json(response);
-    },
-    res => res.json({})
-  )
-);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 

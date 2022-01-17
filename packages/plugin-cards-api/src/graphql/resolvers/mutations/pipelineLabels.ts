@@ -1,7 +1,7 @@
 import { PipelineLabels } from '../../../models';
 import { IPipelineLabel } from '../../../models/definitions/pipelineLabels';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { IContext, MODULE_NAMES } from '@erxes/api-utils/src';
+// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { IContext } from '@erxes/api-utils/src';
 
 interface IPipelineLabelsEdit extends IPipelineLabel {
   _id: string;
@@ -21,18 +21,18 @@ const pipelineLabelMutations = {
       ...doc
     });
 
-    await putCreateLog(
-      {
-        type: MODULE_NAMES.PIPELINE_LABEL,
-        newData: {
-          ...doc,
-          createdBy: user._id,
-          createdAt: pipelineLabel.createdAt
-        },
-        object: pipelineLabel
-      },
-      user
-    );
+    // await putCreateLog(
+    //   {
+    //     type: MODULE_NAMES.PIPELINE_LABEL,
+    //     newData: {
+    //       ...doc,
+    //       createdBy: user._id,
+    //       createdAt: pipelineLabel.createdAt
+    //     },
+    //     object: pipelineLabel
+    //   },
+    //   user
+    // );
 
     return pipelineLabel;
   },
@@ -42,20 +42,19 @@ const pipelineLabelMutations = {
    */
   async pipelineLabelsEdit(
     _root,
-    { _id, ...doc }: IPipelineLabelsEdit,
-    { user }: IContext
+    { _id, ...doc }: IPipelineLabelsEdit // { user }: IContext
   ) {
-    const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
+    // const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
     const updated = await PipelineLabels.updatePipelineLabel(_id, doc);
 
-    await putUpdateLog(
-      {
-        type: MODULE_NAMES.PIPELINE_LABEL,
-        newData: doc,
-        object: pipelineLabel
-      },
-      user
-    );
+    // await putUpdateLog(
+    //   {
+    //     type: MODULE_NAMES.PIPELINE_LABEL,
+    //     newData: doc,
+    //     object: pipelineLabel
+    //   },
+    //   user
+    // );
 
     return updated;
   },
@@ -65,16 +64,15 @@ const pipelineLabelMutations = {
    */
   async pipelineLabelsRemove(
     _root,
-    { _id }: { _id: string },
-    { user }: IContext
+    { _id }: { _id: string } // { user }: IContext
   ) {
-    const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
+    // const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
     const removed = await PipelineLabels.removePipelineLabel(_id);
 
-    await putDeleteLog(
-      { type: MODULE_NAMES.PIPELINE_LABEL, object: pipelineLabel },
-      user
-    );
+    // await putDeleteLog(
+    //   { type: MODULE_NAMES.PIPELINE_LABEL, object: pipelineLabel },
+    //   user
+    // );
 
     return removed;
   },

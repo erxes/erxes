@@ -1,5 +1,6 @@
 import * as strip from 'strip';
 import {
+  Channels,
   ConversationMessages,
   Conversations,
   Integrations
@@ -68,6 +69,39 @@ interface IWidgetEmailParams {
   customerId?: string;
   formId?: string;
   attachments?: IAttachment[];
+}
+
+const pConversationClientMessageInserted = async (message) => {
+  const conversation = await Conversations.findOne({
+    _id: message.conversationId,
+  }, { integrationId: 1 });
+
+  let integration;
+
+  if (conversation) {
+    integration = await Integrations.findOne({
+      _id: conversation.integrationId,
+    }, { _id: 1 });
+  }
+
+  let channelMemberIds: string[] = [];
+
+  if (integration) {
+    const channels = await Channels.find({
+      integrationIds: { $in: [integration._id] },
+    }, { _id: 1 });
+
+    for (const channel of channels) {
+      channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
+    }
+  }
+
+  graphqlPubsub.publish('conversationClientMessageInserted', {
+    conversationClientMessageInserted: message,
+    conversation,
+    integration,
+    channelMemberIds
+  });
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -177,9 +211,7 @@ const createFormConversation = async (
     ...conversationData.message
   });
 
-  graphqlPubsub.publish('conversationClientMessageInserted', {
-    conversationClientMessageInserted: message
-  });
+  await pConversationClientMessageInserted(message);
 
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message
@@ -589,9 +621,7 @@ const widgetMutations = {
     // mark customer as active
     sendContactMessage('markCustomerAsActive', { customerId: conversation.customerId });
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: msg
-    });
+    await pConversationClientMessageInserted(msg);
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg

@@ -1,9 +1,9 @@
-import { Tasks } from '../../../db/models';
+import { Tasks } from '../../../models';
 import {
   checkPermission,
   moduleRequireLogin
-} from '../../permissions/wrappers';
-import { IContext } from '../../types';
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -12,7 +12,7 @@ import {
   generateTaskCommonFilters,
   getItemList,
   IArchiveArgs
-} from './boardUtils';
+} from './utils';
 
 const taskQueries = {
   /**

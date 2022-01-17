@@ -41,6 +41,10 @@ export const sendChecklistMessage = async (action, data): Promise<any> => {
   return client.sendMessage(`checklists:${action}`, data);
 };
 
+export const sendChecklistRPCMessage = async (action, data): Promise<any> => {
+  return client.sendMessage(`checklists:rpc_queue:${action}`, data);
+};
+
 export const sendInternalNoteMessage = async (action, data): Promise<any> => {
   return client.sendMessage(`internalNotes:${action}`, data);
 };
@@ -49,8 +53,27 @@ export const sendConformityMessage = async (action, data): Promise<any> => {
   return client.sendMessage(`conformities:${action}`, data);
 };
 
-export const sendEngageMessage = async (action, data): Promise<any> => {
+export const sendConformityRPCMessage = async (action, data): Promise<any> => {
+  return client.sendMessage(`conformities:rpc_queue:${action}`, data);
+};
+
+export const sendFieldsGroupMessage = async (action, data): Promise<any> => {
+  return client.sendMessage(`fieldsGroups:${action}`, data);
+};
+
+export const sendEngageRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
+};
+
+export const sendFieldRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
+};
+
+export const sendNotificationRPCMessage = async (
+  action,
+  data
+): Promise<any> => {
+  return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
 };
 
 export const sendToLog = (channel: string, data) =>

@@ -26,7 +26,7 @@ const Events: any = {
   sendRequest(path: string, data: any) {
     const { API_URL } = getEnv();
 
-    return fetch(`${API_URL}/${path}`, {
+    return fetch(`${API_URL}/pl:inbox/${path}`, {
       method: "post",
       headers: {
         Accept: "application/json",

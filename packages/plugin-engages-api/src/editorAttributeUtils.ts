@@ -1,5 +1,6 @@
 import { Fields } from './apiCollections';
-import { IBrandDocument, IUser } from '@erxes/common-types';
+import { IBrandDocument } from '@erxes/common-types/src/brands';
+import { IUser } from '@erxes/common-types/src/users';
 import { ICustomer } from '@erxes/common-types/src/customers';
 import {
   fieldsCombinedByContentType,
@@ -101,7 +102,8 @@ export default class EditorAttributeUtil {
         contentType: 'customer'
       });
     }
-    return this._possibleCustomerFields;
+
+    return this._possibleCustomerFields || [];
   }
 
   async getCustomerFields(content: string): Promise<string[]> {

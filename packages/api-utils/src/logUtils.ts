@@ -1,4 +1,4 @@
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types/src/users';
 
 import { RABBITMQ_QUEUES } from './constants';
 

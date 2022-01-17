@@ -13,34 +13,36 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
-export let _Checklists: any;
-export let _ChecklistItems: any;
-export let _Notifications: any;
-export let _Fields: any;
-export let _FieldsGroups: any;
-export let _PipelineLabels: any;
-export let _Segments: any;
-export let _Users: any;
-export let _InternalNotes: any;
-export let _Conformities: any;
+export let Checklists: any;
+export let ChecklistItems: any;
+export let Notifications: any;
+export let Fields: any;
+export let FormSubmissions: any;
+export let FieldsGroups: any;
+export let Segments: any;
+export let Users: any;
+export let InternalNotes: any;
+export let Conformities: any;
 export let Products: any;
+export let Forms: any;
 
-export async function connect() {
+export default async function connect() {
   await client.connect();
   console.log(`DB: Connected to ${MONGO_URL}`);
   db = client.db();
 
-  _Checklists = db.collection('checklists');
-  _ChecklistItems = db.collection('checklist_items');
-  _Notifications = db.collection('notifications');
-  _Fields = db.collection('fields');
-  _FieldsGroups = db.collection('field_groups');
-  _PipelineLabels = db.collection('pipeline_labels');
-  _Segments = db.collection('segments');
-  _Users = db.collection('users');
-  _InternalNotes = db.collection('internal_notes');
-  _Conformities = db.collection('conformities');
+  Checklists = db.collection('checklists');
+  ChecklistItems = db.collection('checklist_items');
+  Notifications = db.collection('notifications');
+  FormSubmissions = db.collection('form_submissions');
+  Fields = db.collection('fields');
+  FieldsGroups = db.collection('field_groups');
+  Segments = db.collection('segments');
+  Users = db.collection('users');
+  InternalNotes = db.collection('internal_notes');
+  Conformities = db.collection('conformities');
   Products = db.collection('products');
+  Forms = db.collection('forms');
 }
 
 export async function disconnect() {

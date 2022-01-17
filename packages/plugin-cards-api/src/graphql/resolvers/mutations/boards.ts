@@ -8,7 +8,7 @@ import {
   IStageDocument
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import graphqlPubsub from '../../../pubsub';
+import graphqlPubsub from '../../../configs';
 import {
   putCreateLog,
   putDeleteLog,
@@ -17,7 +17,7 @@ import {
 } from '@erxes/api-utils/src';
 import { configReplacer } from '../../../utils';
 import { checkPermission } from '../../utils';
-import messageBroker from '../../../messageBroker';
+import messageBroker, { sendFieldsGroupMessage } from '../../../messageBroker';
 import { FieldsGroups } from '../../../db';
 
 interface IBoardsEdit extends IBoard {
@@ -122,7 +122,10 @@ const boardMutations = {
       const boardIds = fieldGroup.boardIds || [];
       fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
 
-      await FieldsGroups.updateGroup(fieldGroup._id, fieldGroup);
+      sendFieldsGroupMessage('updateGroup', {
+        groupId: fieldGroup._id,
+        fieldGroup
+      });
     }
 
     await putDeleteLog(
@@ -228,7 +231,7 @@ const boardMutations = {
 
     const removed = await Pipelines.removePipeline(_id);
 
-    const relatedFieldsGroups = (await FieldsGroups()).find({
+    const relatedFieldsGroups = await FieldsGroups.find({
       pipelineIds: pipeline._id
     });
 
@@ -236,7 +239,10 @@ const boardMutations = {
       const pipelineIds = fieldGroup.pipelineIds || [];
       fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
 
-      (await FieldsGroups()).updateGroup(fieldGroup._id, fieldGroup);
+      sendFieldsGroupMessage('updateGroup', {
+        groupId: fieldGroup._id,
+        fieldGroup
+      });
     }
 
     await putDeleteLog(

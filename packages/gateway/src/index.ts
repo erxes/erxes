@@ -14,6 +14,7 @@ import { createGateway, GatewayContext } from "./gateway";
 import userMiddleware from "./middlewares/userMiddleware";
 import * as db from "./db";
 import pubsub from "./subscription/pubsub";
+import { getService, getServices } from "./redis";
 
 const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
 
@@ -21,10 +22,42 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
   await db.connect();
 
   const app = express();
+
   app.use(cookieParser());
 
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
-  app.use(/\/((?!graphql).)*/, createProxyMiddleware({ target: API_DOMAIN }));
+  app.use(/\/((?!graphql).)*/,
+    createProxyMiddleware({
+      target: API_DOMAIN,
+      router: async (req) => {
+        const services = await getServices();
+
+        let foundService;
+
+        for (const service of services) {
+          if (req.path.includes(`/pl:${service}/`)) {
+            foundService = await getService(service);
+            break;
+          }
+        }
+
+        if (foundService) {
+          return foundService;
+        }
+      },
+      pathRewrite: async (path) => {
+        let newPath = path;
+
+        const services = await getServices();
+
+        for (const service of services) {
+          newPath = newPath.replace(`/pl:${service}`, '');
+        }
+
+        return newPath;
+      }
+    })
+  );
 
   app.use(userMiddleware);
 
@@ -71,6 +104,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
   );
 
   await apolloServer.start();
+
   apolloServer.applyMiddleware({
     app,
     path: "/graphql",
@@ -88,7 +122,6 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
   const port = PORT || 4000;
 
   await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
-  console.log(
-    `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
-  );
+
+  console.log(`Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`);
 })();

@@ -1,8 +1,5 @@
 import moment from 'moment';
 import {
-  // Companies,
-  // Conformities,
-  // Customers,
   Pipelines,
   // Segments,
   Stages
@@ -13,12 +10,13 @@ import {
   IStageDocument
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types/src/users';
 import { CLOSE_DATE_TYPES } from '../../../constants';
 // import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import { Notifications } from '../../../db';
+import { sendConformityRPCMessage, sendContactRPCMessage } from '../../../messageBroker';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -652,98 +650,104 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  // const conformities = await Conformities.getConformities({
-  //   mainType: type,
-  //   mainTypeIds: ids,
-  //   relTypes: ['company', 'customer']
-  // });
+  const conformities = await sendConformityRPCMessage('getConformities', {
+    mainType: type,
+    mainTypeIds: ids,
+    relTypes: ['company', 'customer']
+  });
 
-  // const companyIds: string[] = [];
-  // const customerIds: string[] = [];
-  // const companyIdsByItemId = {};
-  // const customerIdsByItemId = {};
+  const companyIds: string[] = [];
+  const customerIds: string[] = [];
+  const companyIdsByItemId = {};
+  const customerIdsByItemId = {};
 
-  // const perConformity = (
-  //   conformity,
-  //   cocIdsByItemId,
-  //   cocIds,
-  //   typeId1,
-  //   typeId2
-  // ) => {
-  //   cocIds.push(conformity[typeId1]);
+  const perConformity = (
+    conformity,
+    cocIdsByItemId,
+    cocIds,
+    typeId1,
+    typeId2
+  ) => {
+    cocIds.push(conformity[typeId1]);
 
-  //   if (!cocIdsByItemId[conformity[typeId2]]) {
-  //     cocIdsByItemId[conformity[typeId2]] = [];
-  //   }
+    if (!cocIdsByItemId[conformity[typeId2]]) {
+      cocIdsByItemId[conformity[typeId2]] = [];
+    }
 
-  //   cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
-  // };
+    cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
+  };
 
-  // for (const conf of conformities) {
-  //   if (conf.mainType === 'company') {
-  //     perConformity(
-  //       conf,
-  //       companyIdsByItemId,
-  //       companyIds,
-  //       'mainTypeId',
-  //       'relTypeId'
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.relType === 'company') {
-  //     perConformity(
-  //       conf,
-  //       companyIdsByItemId,
-  //       companyIds,
-  //       'relTypeId',
-  //       'mainTypeId'
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.mainType === 'customer') {
-  //     perConformity(
-  //       conf,
-  //       customerIdsByItemId,
-  //       customerIds,
-  //       'mainTypeId',
-  //       'relTypeId'
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.relType === 'customer') {
-  //     perConformity(
-  //       conf,
-  //       customerIdsByItemId,
-  //       customerIds,
-  //       'relTypeId',
-  //       'mainTypeId'
-  //     );
-  //     continue;
-  //   }
-  // }
+  for (const conf of conformities) {
+    if (conf.mainType === 'company') {
+      perConformity(
+        conf,
+        companyIdsByItemId,
+        companyIds,
+        'mainTypeId',
+        'relTypeId'
+      );
+      continue;
+    }
+    if (conf.relType === 'company') {
+      perConformity(
+        conf,
+        companyIdsByItemId,
+        companyIds,
+        'relTypeId',
+        'mainTypeId'
+      );
+      continue;
+    }
+    if (conf.mainType === 'customer') {
+      perConformity(
+        conf,
+        customerIdsByItemId,
+        customerIds,
+        'mainTypeId',
+        'relTypeId'
+      );
+      continue;
+    }
+    if (conf.relType === 'customer') {
+      perConformity(
+        conf,
+        customerIdsByItemId,
+        customerIds,
+        'relTypeId',
+        'mainTypeId'
+      );
+      continue;
+    }
+  }
 
-  // const companies = await Companies.findActiveCompanies(
-  //   {
-  //     _id: { $in: [...new Set(companyIds)] }
-  //   },
-  //   { primaryName: 1, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
-  // );
+  const companies = await sendContactRPCMessage('findActiveCompanies', {
+    selector: {
+      _id: { $in: [...new Set(companyIds)] }
+    },
+    fields: {
+      primaryName: 1,
+      primaryEmail: 1,
+      primaryPhone: 1,
+      emails: 1,
+      phones: 1
+    }
+  });
 
-  // const customers = await Customers.findActiveCustomers(
-  //   {
-  //     _id: { $in: [...new Set(customerIds)] }
-  //   },
-  //   {
-  //     firstName: 1,
-  //     lastName: 1,
-  //     middleName: 1,
-  //     visitorContactInfo: 1,
-  //     primaryEmail: 1,
-  //     primaryPhone: 1,
-  //     emails: 1,
-  //     phones: 1
-  //   }
-  // );
+  const customers = await sendContactRPCMessage('findActiveCustomers', {
+    selector: {
+      _id: { $in: [...new Set(customerIds)] }
+    },
+    fields: {
+      firstName: 1,
+      lastName: 1,
+      middleName: 1,
+      visitorContactInfo: 1,
+      primaryEmail: 1,
+      primaryPhone: 1,
+      emails: 1,
+      phones: 1
+    }
+  );
 
   const getCocsByItemId = (
     itemId: string,
@@ -773,8 +777,8 @@ export const getItemList = async (
       ...item,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       hasNotified: notification ? false : true,
-      // customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
-      // companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
+      customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
+      companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
       ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }

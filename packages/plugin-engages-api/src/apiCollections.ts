@@ -1,5 +1,5 @@
 import { Db, MongoClient } from 'mongodb';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -27,7 +27,9 @@ export let Pipelines;
 
 export async function connect() {
   await client.connect();
+
   console.log(`DB: Connected to ${MONGO_URL}`);
+
   db = client.db();
   Users = db.collection('users');
   Conversations = db.collection('conversations');
@@ -40,6 +42,8 @@ export async function connect() {
   Conformities = db.collection('conformities');
   Tags = db.collection('tags');
   Pipelines = db.collection('pipelines');
+
+  return 'done';
 }
 
 export async function disconnect() {

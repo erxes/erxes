@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, Document } from 'mongoose';
 
 import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
