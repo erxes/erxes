@@ -20,7 +20,9 @@ import {
   Companies,
   EngageMessages,
   Checklists,
-  InternalNotes
+  InternalNotes,
+  FieldsGroups,
+  Notifications
 } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
@@ -52,6 +54,22 @@ export const initBroker = async (server?) => {
       status: 'success',
       data: await findCompany(doc)
     }));
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:findActiveCustomers',
+      async ({ selector, fields }) => ({
+        status: 'success',
+        data: await Customers.findActiveCustomers(selector, fields)
+      })
+    );
+
+    consumeRPCQueue(
+      'contacts:rpc_queue:findActiveCompanies',
+      async ({ selector, fields }) => ({
+        status: 'success',
+        data: await Companies.findActiveCompanies(selector, fields)
+      })
+    );
 
     consumeRPCQueue('contacts:rpc_queue:create_customer', async data => ({
       status: 'success',
@@ -145,6 +163,11 @@ export const initBroker = async (server?) => {
       data: await Conformities.addConformity(doc)
     }));
 
+    consumeRPCQueue('conformities:rpc_queue:savedConformity', async doc => ({
+      status: 'success',
+      data: await Conformities.savedConformity(doc)
+    }));
+
     consumeQueue('conformities:create', async doc => ({
       status: 'success',
       data: await Conformities.create(doc)
@@ -154,6 +177,19 @@ export const initBroker = async (server?) => {
       status: 'success',
       data: await Conformities.removeConformities(doc)
     }));
+
+    consumeQueue('conformities:rpc_queue:getConformities', async doc => ({
+      status: 'success',
+      data: await Conformities.getConformities(doc)
+    }));
+
+    consumeQueue(
+      'notifications:rpc_queue:checkIfRead',
+      async ({ userId, itemId }) => ({
+        status: 'success',
+        data: await Notifications.checkIfRead(userId, itemId)
+      })
+    );
 
     consumeQueue(
       'internalNotes:removeInternalNotes',
@@ -281,6 +317,14 @@ export const initBroker = async (server?) => {
     consumeQueue('visitor:convertResponse', async data => {
       await receiveVisitorDetail(data);
     });
+
+    consumeQueue(
+      'fieldsGroups:updateGroup',
+      async ({ groupId, fieldsGroup }) => ({
+        status: 'success',
+        data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
+      })
+    );
 
     pluginsConsume(client);
   }
