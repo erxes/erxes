@@ -11,7 +11,7 @@ import { IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import { ISegment } from '@erxes/ui-segments/src/types';
 import React from 'react';
-import { FieldsCombinedByType } from '@erxes/ui/src/properties/types';
+import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 
 export type ReEnrollmentRule = {
   property: string;

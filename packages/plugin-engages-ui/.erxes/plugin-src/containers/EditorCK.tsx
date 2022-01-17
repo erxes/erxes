@@ -7,7 +7,7 @@ import { IEditorProps } from '@erxes/ui/src/types';
 import {
   FieldsCombinedByType,
   FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui/src/properties/types';
+} from '@erxes/ui-settings/src/properties/types';
 import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui/src/forms/graphql';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';

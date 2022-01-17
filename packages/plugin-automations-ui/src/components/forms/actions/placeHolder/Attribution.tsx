@@ -1,5 +1,5 @@
 import Icon from '@erxes/ui/src/components/Icon';
-import { FieldsCombinedByType } from '@erxes/ui/src/properties/types';
+import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

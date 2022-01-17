@@ -11,7 +11,7 @@ import {
   SegmentsQueryResponse,
   AddMutationResponse
 } from '@erxes/ui-segments/src/types';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui/src/properties/types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { CountQueryResponse } from '@erxes/ui/src/customers/types';
 
 type Props = {

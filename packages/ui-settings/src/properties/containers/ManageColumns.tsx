@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import ManageColumns from '../components/ManageColumns';
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '../constants';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui/src/properties/types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import {
   DefaultColumnsConfigQueryResponse,
   IConfigColumn

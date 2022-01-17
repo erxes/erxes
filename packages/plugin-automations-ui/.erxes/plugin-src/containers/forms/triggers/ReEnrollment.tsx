@@ -10,7 +10,7 @@ import { queries as formQueries } from '@erxes/ui/src/forms/graphql';
 import { SegmentDetailQueryResponse } from '@erxes/ui-segments/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui/src/properties/types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
 
 type Props = {
   trigger: ITrigger;

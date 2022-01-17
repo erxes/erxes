@@ -8,6 +8,24 @@ export type FieldsQueryResponse = {
   refetch: () => Promise<void>;
 };
 
+export type FieldsCombinedByType = {
+  _id: string;
+  name: string;
+  label: string;
+  brandName?: string;
+  brandId?: string;
+  type: string;
+  selectOptions?: any[];
+  order?: number;
+  group?: string;
+  options?: string[];
+  title?: string;
+};
+
+export type FieldsCombinedByTypeQueryResponse = {
+  fieldsCombinedByContentType: FieldsCombinedByType[];
+} & QueryResponse;
+
 export interface IBoardSelectItem {
   _id?: string;
   boardId: string;
