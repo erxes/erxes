@@ -40,11 +40,11 @@ class SettingsForm extends React.Component<Props> {
 
           <FullContent center={true}>
             {this.renderBox('One file', 'file-alt', 'single')}
-            {this.renderBox(
+            {/* {this.renderBox(
               'Multiple files with associations',
               'file-copy-alt',
               'multi'
-            )}
+            )} */}
           </FullContent>
         </FlexPad>
       </FlexItem>

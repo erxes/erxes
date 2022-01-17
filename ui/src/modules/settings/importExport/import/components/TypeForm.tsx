@@ -4,20 +4,33 @@ import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
 import { SubHeading } from 'modules/settings/styles';
 import { Box, TypeContent } from '../../styles';
+import { IImportHistoryContentType } from '../../types';
 
 type Props = {
-  onChangeContentType: (value: string) => void;
-  contentTypes: string[];
+  onChangeContentType: (value: IImportHistoryContentType) => void;
+  contentTypes: IImportHistoryContentType[];
   type: string;
+  typeOptions: any[];
 };
 
 class TypeForm extends React.Component<Props> {
-  renderBox(name, icon, selectedType) {
+  renderSelected = selectedType => {
     const { contentTypes } = this.props;
 
+    console.log('xaxaxaxax', selectedType);
+
+    contentTypes.find(contentType => {
+      return contentType.contentType === selectedType;
+    });
+
+    return contentTypes.length === 0 ? false : true;
+  };
+
+  renderBox(name, icon, selectedType) {
     return (
       <Box
-        selected={contentTypes.includes(selectedType)}
+        key={Math.random()}
+        selected={this.renderSelected(selectedType)}
         onClick={() => this.props.onChangeContentType(selectedType)}
       >
         <Icon icon={icon} />
@@ -36,20 +49,21 @@ class TypeForm extends React.Component<Props> {
     return 'Select an two  objects you would like to import';
   };
 
+  renderOptions = () => {
+    const { typeOptions } = this.props;
+
+    return typeOptions.map(option => {
+      return this.renderBox(option.text, option.icon, option);
+    });
+  };
+
   render() {
     return (
       <FlexItem>
         <FlexPad direction="column">
           <SubHeading>{__(this.renderText())}</SubHeading>
 
-          <TypeContent center={true}>
-            {this.renderBox('Customer', 'users-alt', 'customer')}
-            {this.renderBox('Lead', 'file-alt', 'lead')}
-            {this.renderBox('Company', 'building', 'company')}
-            {this.renderBox('Deal', 'signal-alt-3', 'deal')}
-            {this.renderBox('Task', 'laptop', 'task')}
-            {this.renderBox('Ticket', 'ticket', 'ticket')}
-          </TypeContent>
+          <TypeContent center={true}>{this.renderOptions()}</TypeContent>
         </FlexPad>
       </FlexItem>
     );

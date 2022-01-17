@@ -19,6 +19,12 @@ export interface IImportHistoryItem {
   list: IImportHistory[];
   count: number;
 }
+
+export interface IImportHistoryContentType {
+  type: 'core' | 'plugin';
+  contentType: string;
+  pluginType?: string;
+}
 // query types
 
 export type ImportHistoriesQueryResponse = {

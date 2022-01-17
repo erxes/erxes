@@ -6,25 +6,47 @@ import {
   getIntegrations
 } from './utils';
 
-export const getPluginSchema = async (
-  pluginName: string,
-  pluginContentType: string
+export const getPluginInfo = async (
+  pluginType: string,
+  contentType: string
 ) => {
   const PLUGINS = [
     {
-      pluginName: 'deal',
+      pluginType: 'deal',
       mongoUrl: 'mongodb://localhost/erxes-sales',
-      schema: Deals.schema
+      schema: Deals.schema,
+      fields: [
+        {
+          value: 'boardName',
+          label: 'Board name',
+          type: 'string'
+        },
+        {
+          value: 'pipelineName',
+          label: 'Pipeline name',
+          type: 'string'
+        },
+        {
+          value: 'stageName',
+          label: 'Stage name',
+          type: 'string'
+        },
+        {
+          value: 'assignedUserEmail',
+          label: 'Assigned user email',
+          type: 'string'
+        }
+      ]
     }
   ];
 
   const plugin = PLUGINS.find(item => {
-    return item.pluginName === pluginName;
+    return item.pluginType === pluginType;
   });
 
-  console.log(pluginContentType);
+  console.log(contentType);
 
-  return plugin?.schema;
+  return plugin;
 };
 
 // const getStageOptions = async pipelineId => {

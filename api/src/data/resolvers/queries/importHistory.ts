@@ -12,6 +12,24 @@ import { checkPermission } from '../../permissions/wrappers';
 import utils, { paginate } from '../../utils';
 
 const importHistoryQueries = {
+  importHistoryGetTypes() {
+    return [
+      {
+        type: 'core',
+        contentType: 'customer',
+        icon: 'users-alt',
+        text: 'Customer'
+      },
+      {
+        text: 'Deal',
+        type: 'plugin',
+        contentType: 'deal',
+        icon: 'signal-alt-3',
+        pluginType: 'deal'
+      }
+    ];
+  },
+
   /**
    * Import history list
    */

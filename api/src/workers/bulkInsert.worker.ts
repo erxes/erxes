@@ -1,36 +1,78 @@
 import * as mongoose from 'mongoose';
-import {
-  Boards,
-  Companies,
-  Conformities,
-  Customers,
-  Deals,
-  Fields,
-  ImportHistory,
-  Pipelines,
-  ProductCategories,
-  Products,
-  Stages,
-  Tags,
-  Tasks,
-  Tickets,
-  Users
-} from '../db/models';
-import { fillSearchTextItem } from '../db/models/boardUtils';
-import { IConformityAdd } from '../db/models/definitions/conformities';
+import { Customers, Fields, ImportHistory } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugWorkers } from '../debuggers';
 import { fetchElk } from '../elasticsearch';
-import {
-  clearEmptyValues,
-  connect,
-  generatePronoun,
-  IMPORT_CONTENT_TYPE
-} from './utils';
+import { clearEmptyValues, connect, IMPORT_CONTENT_TYPE } from './utils';
 import * as _ from 'underscore';
+import { prepareCoreDocs } from './coreUtils';
+import { PLUGINS } from './constants';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
+
+const PLUGINSS = [
+  {
+    pluginType: 'deal',
+    MONGO_URL: 'mongodb://localhost/erxes-sales',
+    prepareDocCommand: `
+
+    for (const fieldValue of result) {
+      let doc: any = {
+        customFieldsData: []
+      };
+  
+      let colIndex = 0
+      let boardName= '';
+      let pipelineName = '';
+      let stageName = '';
+  
+
+      for (const property of properties) {
+        let value = (fieldValue[colIndex] || '').toString();
+  
+        switch (property.type) {
+          case 'boardName':
+            boardName = value;
+            break;
+  
+          case 'pipelineName':
+            pipelineName = value;
+            break;
+  
+          case 'stageName':
+            stageName = value;
+            break;
+        }
+  
+        colIndex++;
+      }
+
+      doc.userId = user._id;
+  
+      if (boardName && pipelineName && stageName) {
+        let board = db.collection('boards').findOne({
+          name: boardName,
+          type: contentType
+        });
+        let pipeline = db.collection('pipelines').findOne({
+          boardId: board && board._id,
+          name: pipelineName
+        });
+        let stage = db.collection('stages').findOne({
+          pipelineId: pipeline && pipeline._id,
+          name: stageName
+        });
+  
+        doc.stageId = stage && stage._id;
+      }
+  
+      bulkDoc.push(doc);
+    }
+
+    `
+  }
+];
 
 let cancel = false;
 
@@ -45,37 +87,19 @@ const create = async ({
   docs,
   user,
   contentType,
-  model,
-  useElkSyncer,
-  associateContentType,
-  associateField,
-  mainAssociateField
+  useElkSyncer
 }: {
   docs: any;
   user: IUserDocument;
   contentType: string;
   model: any;
   useElkSyncer: boolean;
-  associateContentType?: string;
-  associateField?: string;
-  mainAssociateField?: string;
 }) => {
-  const {
-    PRODUCT,
-    CUSTOMER,
-    COMPANY,
-    DEAL,
-    TASK,
-    TICKET,
-    LEAD
-  } = IMPORT_CONTENT_TYPE;
+  const { CUSTOMER, LEAD } = IMPORT_CONTENT_TYPE;
 
   let objects;
 
   let updated: number = 0;
-  const conformityCompanyMapping = {};
-  const conformityCustomerMapping = {};
-  const associateMapping = {};
 
   const updateDocs: any = [];
 
@@ -102,32 +126,6 @@ const create = async ({
   const customFieldsByPrimaryPhone = {};
   const customFieldsByPrimaryName = {};
   const customFieldsByCode = {};
-
-  let associatedModel: any = null;
-
-  if (associateContentType && associateField && mainAssociateField) {
-    switch (associateContentType) {
-      case 'customer':
-        associatedModel = Customers;
-      case 'lead':
-        associatedModel = Customers;
-        break;
-      case 'company':
-        associatedModel = Companies;
-        break;
-      case 'deal':
-        associatedModel = Deals;
-        break;
-      case 'task':
-        associatedModel = Tasks;
-        break;
-      case 'ticket':
-        associatedModel = Tickets;
-        break;
-      default:
-        break;
-    }
-  }
 
   const generateUpdateDocs = async (
     _id,
@@ -261,55 +259,6 @@ const create = async ({
     }
   };
 
-  const createConformityMapping = async ({
-    index,
-    field,
-    values,
-    conformityTypeModel,
-    relType,
-    isAssociated
-  }: {
-    index: number;
-    field: string;
-    values: string[];
-    conformityTypeModel: any;
-    relType: string;
-    isAssociated: boolean;
-  }) => {
-    if (values.length === 0 && contentType !== relType) {
-      return;
-    }
-
-    let mapping =
-      relType === 'customer'
-        ? conformityCustomerMapping
-        : conformityCompanyMapping;
-
-    if (isAssociated) {
-      mapping = associateMapping;
-    }
-
-    const ids = await conformityTypeModel
-      .find({ [field]: { $in: values } })
-      .distinct('_id');
-
-    if (ids.length === 0) {
-      return;
-    }
-
-    for (const id of ids) {
-      if (!mapping[index]) {
-        mapping[index] = [];
-      }
-
-      mapping[index].push({
-        relType,
-        mainType: contentType === 'lead' ? 'customer' : contentType,
-        relTypeId: id
-      });
-    }
-  };
-
   if (contentType === CUSTOMER || contentType === LEAD) {
     debugWorkers('Worker: Import customer data');
     debugWorkers(`useElkSyncer:  ${useElkSyncer}`);
@@ -378,28 +327,6 @@ const create = async ({
 
     debugWorkers(`Insert doc length: ${insertDocs.length}`);
 
-    insertDocs.map(async (doc, docIndex) => {
-      await createConformityMapping({
-        index: docIndex,
-        field: 'primaryName',
-        values: doc.companiesPrimaryNames || [],
-        conformityTypeModel: Companies,
-        relType: 'company',
-        isAssociated: false
-      });
-
-      if (associateContentType && associateField && mainAssociateField) {
-        await createConformityMapping({
-          index: docIndex,
-          field: mainAssociateField,
-          values: doc[associateField] || [],
-          conformityTypeModel: associatedModel,
-          relType: associateContentType,
-          isAssociated: true
-        });
-      }
-    });
-
     debugWorkers(`Update doc length: ${updateDocs.length}`);
 
     if (updateDocs.length > 0) {
@@ -407,235 +334,6 @@ const create = async ({
     }
 
     objects = await Customers.insertMany(insertDocs);
-  }
-
-  if (contentType === COMPANY) {
-    for (const doc of docs) {
-      if (!doc.ownerId && user) {
-        doc.ownerId = user._id;
-      }
-
-      // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(
-        doc.customFieldsData
-      );
-
-      doc.searchText = Companies.fillSearchText(doc);
-      doc.createdAt = new Date();
-      doc.modifiedAt = new Date();
-
-      bulkValues.primaryName.push(doc.primaryName);
-      bulkValues.primaryEmail.push(doc.primaryEmail);
-      bulkValues.primaryPhone.push(doc.primaryPhone);
-      bulkValues.code.push(doc.code);
-    }
-
-    if (useElkSyncer) {
-      bulkValues.primaryName = bulkValues.primaryName.filter(value => value);
-      bulkValues.primaryEmail = bulkValues.primaryEmail.filter(value => value);
-      bulkValues.primaryPhone = bulkValues.primaryPhone.filter(value => value);
-      bulkValues.code = bulkValues.code.filter(value => value);
-
-      const queries: Array<{ terms: { [key: string]: string[] } }> = [];
-
-      if (bulkValues.primaryName.length > 0) {
-        queries.push({ terms: { 'primaryName.raw': bulkValues.primaryName } });
-      }
-
-      if (bulkValues.primaryEmail.length > 0) {
-        queries.push({ terms: { primaryEmail: bulkValues.primaryEmail } });
-      }
-
-      if (bulkValues.primaryPhone.length > 0) {
-        queries.push({
-          terms: { 'primaryPhone.raw': bulkValues.primaryPhone }
-        });
-      }
-
-      if (bulkValues.code.length > 0) {
-        queries.push({ terms: { 'code.raw': bulkValues.code } });
-      }
-
-      await prepareDocs(queries, 'companies', docs);
-    } else {
-      insertDocs = docs;
-    }
-
-    insertDocs.map(async (doc, docIndex) => {
-      await createConformityMapping({
-        index: docIndex,
-        field: 'primaryEmail',
-        values: doc.customersPrimaryEmails || [],
-        conformityTypeModel: Customers,
-        relType: 'customer',
-        isAssociated: false
-      });
-
-      if (associateContentType && associateField && mainAssociateField) {
-        await createConformityMapping({
-          index: docIndex,
-          field: mainAssociateField,
-          values: doc[associateField] || [],
-          conformityTypeModel: associatedModel,
-          relType: associateContentType,
-          isAssociated: true
-        });
-      }
-    });
-
-    if (updateDocs.length > 0) {
-      await Companies.bulkWrite(updateDocs);
-    }
-
-    objects = await Companies.insertMany(insertDocs);
-  }
-
-  if (contentType === PRODUCT) {
-    const categoryCodes = docs.map(doc => doc.categoryCode);
-
-    const categories = await ProductCategories.find(
-      { code: { $in: categoryCodes } },
-      { _id: 1, code: 1 }
-    );
-
-    const vendorCodes = docs.map(doc => doc.vendorCode);
-    const vendors = await Companies.find(
-      {
-        $or: [
-          { code: { $in: vendorCodes } },
-          { primaryEmail: { $in: vendorCodes } },
-          { primaryPhone: { $in: vendorCodes } },
-          { primaryName: { $in: vendorCodes } }
-        ]
-      },
-      { _id: 1, code: 1, primaryEmail: 1, primaryPhone: 1, primaryName: 1 }
-    );
-
-    if (!categories) {
-      throw new Error(
-        'Product & service category not found check categoryCode field'
-      );
-    }
-
-    for (const doc of docs) {
-      const category = categories.find(cat => cat.code === doc.categoryCode);
-
-      if (category) {
-        doc.categoryId = category._id;
-      } else {
-        throw new Error(
-          'Product & service category not found check categoryCode field'
-        );
-      }
-
-      if (doc.vendorCode) {
-        const vendor = vendors.find(
-          v =>
-            v.code === doc.vendorCode ||
-            v.primaryName === doc.vendorCode ||
-            v.primaryEmail === doc.vendorCode ||
-            v.primaryPhone === doc.vendorCode
-        );
-
-        if (vendor) {
-          doc.vendorId = vendor._id;
-        } else {
-          throw new Error(
-            'Product & service vendor not found check VendorCode field'
-          );
-        }
-      }
-
-      doc.unitPrice = parseFloat(
-        doc.unitPrice ? doc.unitPrice.replace(/,/g, '') : 0
-      );
-
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(
-        doc.customFieldsData
-      );
-    }
-
-    objects = await Products.insertMany(docs);
-  }
-
-  if ([DEAL, TASK, TICKET].includes(contentType)) {
-    const conversationIds = docs
-      .map(doc => doc.sourceConversationId)
-      .filter(item => item);
-
-    const conversations = await model.find({
-      sourceConversationId: { $in: conversationIds }
-    });
-
-    if (conversations && conversations.length > 0) {
-      throw new Error(`Already converted a ${contentType}`);
-    }
-
-    docs.map(async (doc, docIndex) => {
-      doc.createdAt = new Date();
-      doc.modifiedAt = new Date();
-      doc.searchText = fillSearchTextItem(doc);
-
-      await createConformityMapping({
-        index: docIndex,
-        field: 'primaryEmail',
-        values: doc.customersPrimaryEmails || [],
-        conformityTypeModel: Customers,
-        relType: 'customer',
-        isAssociated: false
-      });
-
-      await createConformityMapping({
-        index: docIndex,
-        field: 'primaryName',
-        values: doc.companiesPrimaryNames || [],
-        conformityTypeModel: Companies,
-        relType: 'company',
-        isAssociated: false
-      });
-
-      if (associateContentType && associateField && mainAssociateField) {
-        await createConformityMapping({
-          index: docIndex,
-          field: mainAssociateField,
-          values: doc[associateField] || [],
-          conformityTypeModel: associatedModel,
-          relType: associateContentType,
-          isAssociated: true
-        });
-      }
-    });
-
-    objects = await model.insertMany(docs);
-  }
-
-  // create conformity
-  if (contentType !== PRODUCT) {
-    const createConformity = async mapping => {
-      if (Object.keys(mapping).length === 0) {
-        return;
-      }
-
-      const conformityDocs: IConformityAdd[] = [];
-
-      objects.map(async (object, objectIndex) => {
-        const items = mapping[objectIndex] || [];
-
-        if (items.length === 0) {
-          return;
-        }
-
-        for (const item of items) {
-          item.mainTypeId = object._id;
-        }
-
-        conformityDocs.push(...items);
-      });
-
-      await Conformities.insertMany(conformityDocs);
-    };
-
-    await createConformity(associateMapping);
   }
 
   return { objects, updated };
@@ -646,260 +344,74 @@ connect().then(async () => {
     return;
   }
 
-  debugWorkers(`Worker message received`);
+  debugWorkers(`Worker message rece111ived`);
 
   const {
     user,
     scopeBrandIds,
     result,
     contentType,
+    type,
+    pluginType,
     properties,
     importHistoryId,
-    useElkSyncer,
     percentage,
-    associateContentType,
-    associateField,
-    mainAssociateField,
+    useElkSyncer,
     rowIndex
   }: {
     user: IUserDocument;
     scopeBrandIds: string[];
     result: any;
     contentType: string;
+    type: string;
+    pluginType: string;
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
     percentage: number;
     useElkSyncer: boolean;
-    associateContentType?: string;
-    associateField?: string;
-    mainAssociateField?: string;
     rowIndex?: number;
   } = workerData;
 
   let model: any = null;
 
-  const isBoardItem = (): boolean =>
-    contentType === 'deal' ||
-    contentType === 'task' ||
-    contentType === 'ticket';
-
-  switch (contentType || associateContentType) {
+  switch (contentType) {
     case 'customer':
+      model = Customers;
+      break;
     case 'lead':
       model = Customers;
       break;
-    case 'company':
-      model = Companies;
-      break;
-    case 'deal':
-      model = Deals;
-      break;
-    case 'task':
-      model = Tasks;
-      break;
-    case 'ticket':
-      model = Tickets;
-      break;
+
     default:
       break;
   }
 
-  if (!Object.values(IMPORT_CONTENT_TYPE).includes(contentType)) {
-    throw new Error(`Unsupported content type "${contentType}"`);
-  }
+  let bulkDoc: any = [];
 
-  const bulkDoc: any = [];
-
-  // Iterating field values
-  for (const fieldValue of result) {
-    const doc: any = {
+  if (type === 'core') {
+    bulkDoc = await prepareCoreDocs(
+      result,
+      properties,
+      contentType,
       scopeBrandIds,
-      customFieldsData: []
-    };
-
-    let colIndex: number = 0;
-    let boardName: string = '';
-    let pipelineName: string = '';
-    let stageName: string = '';
-
-    // Iterating through detailed properties
-    for (const property of properties) {
-      const value = (fieldValue[colIndex] || '').toString();
-
-      if (contentType === 'customer') {
-        doc.state = 'customer';
-      }
-      if (contentType === 'lead') {
-        doc.state = 'lead';
-      }
-
-      switch (property.type) {
-        case 'customProperty':
-          {
-            doc.customFieldsData.push({
-              field: property.id,
-              value: fieldValue[colIndex]
-            });
-          }
-          break;
-
-        case 'customData':
-          {
-            doc[property.name] = value;
-          }
-          break;
-
-        case 'ownerEmail':
-          {
-            const userEmail = value;
-
-            const owner = await Users.findOne({ email: userEmail }).lean();
-
-            doc[property.name] = owner ? owner._id : '';
-          }
-          break;
-
-        case 'pronoun':
-          {
-            doc.sex = generatePronoun(value);
-          }
-          break;
-
-        case 'companiesPrimaryNames':
-          {
-            doc.companiesPrimaryNames = value.split(',');
-          }
-          break;
-
-        case 'customersPrimaryEmails':
-          doc.customersPrimaryEmails = value.split(',');
-          break;
-
-        case 'boardName':
-          boardName = value;
-          break;
-
-        case 'pipelineName':
-          pipelineName = value;
-          break;
-
-        case 'stageName':
-          stageName = value;
-          break;
-
-        case 'categoryCode':
-          doc.categoryCode = value;
-          break;
-
-        case 'vendorCode':
-          doc.vendorCode = value;
-          break;
-
-        case 'tag':
-          {
-            const tagName = value;
-
-            let tag = await Tags.findOne({
-              name: new RegExp(`.*${tagName}.*`, 'i')
-            }).lean();
-
-            if (!tag) {
-              const type = contentType === 'lead' ? 'customer' : contentType;
-
-              tag = await Tags.createTag({ name: tagName, type });
-            }
-
-            doc[property.name] = tag ? [tag._id] : [];
-          }
-
-          break;
-
-        case 'assignedUserEmail':
-          {
-            const assignedUser = await Users.findOne({ email: value });
-
-            doc[property.name] = assignedUser ? [assignedUser._id] : [];
-          }
-
-          break;
-
-        case 'basic':
-          {
-            doc[property.name] = value;
-
-            if (property.name === 'primaryName' && value) {
-              doc.names = [value];
-            }
-
-            if (property.name === 'primaryEmail' && value) {
-              doc.emails = [value];
-            }
-
-            if (property.name === 'primaryPhone' && value) {
-              doc.phones = [value];
-            }
-
-            if (property.name === 'phones' && value) {
-              doc.phones = value.split(',');
-            }
-
-            if (property.name === 'emails' && value) {
-              doc.emails = value.split(',');
-            }
-
-            if (property.name === 'names' && value) {
-              doc.names = value.split(',');
-            }
-
-            if (property.name === 'isComplete') {
-              doc.isComplete = Boolean(value);
-            }
-          }
-          break;
-      } // end property.type switch
-
-      colIndex++;
-    } // end properties for loop
-
-    if (
-      (contentType === 'customer' || contentType === 'lead') &&
-      !doc.emailValidationStatus
-    ) {
-      doc.emailValidationStatus = 'unknown';
-    }
-
-    if (
-      (contentType === 'customer' || contentType === 'lead') &&
-      !doc.phoneValidationStatus
-    ) {
-      doc.phoneValidationStatus = 'unknown';
-    }
-
-    // set board item created user
-    if (isBoardItem()) {
-      doc.userId = user._id;
-
-      if (boardName && pipelineName && stageName) {
-        const board = await Boards.findOne({
-          name: boardName,
-          type: contentType
-        });
-        const pipeline = await Pipelines.findOne({
-          boardId: board && board._id,
-          name: pipelineName
-        });
-        const stage = await Stages.findOne({
-          pipelineId: pipeline && pipeline._id,
-          name: stageName
-        });
-
-        doc.stageId = stage && stage._id;
-      }
-    }
-
-    bulkDoc.push(doc);
+      bulkDoc
+    );
   }
 
+  if (type === 'plugin') {
+    const plugin = PLUGINS.find(value => {
+      return value.pluginType === pluginType;
+    });
+
+    if (plugin) {
+      try {
+        // tslint:disable-next-line:no-eval
+        await eval('(async () => {' + plugin.prepareDocCommand + '})()');
+      } catch (e) {
+        debugWorkers(e);
+      }
+    }
+  }
   const modifier: { $inc?; $push? } = {
     $inc: { percentage }
   };
@@ -910,10 +422,7 @@ connect().then(async () => {
       user,
       contentType,
       model,
-      useElkSyncer,
-      associateContentType,
-      associateField,
-      mainAssociateField
+      useElkSyncer
     });
 
     const cocIds = objects.map(obj => obj._id).filter(obj => obj);

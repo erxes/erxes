@@ -25,6 +25,7 @@ export const types = `
 `;
 
 export const queries = `
+  importHistoryGetTypes: JSON
   importHistories(perPage: Int, page: Int, type: String): ImportHistoryList
   importHistoryDetail(_id: String!): ImportHistory
   importHistoryPreviewExportCount(segmentId: String, contentType: String!): Int
@@ -35,5 +36,5 @@ export const queries = `
 export const mutations = `
   importHistoriesRemove(_id: String!, contentType: String!): JSON
   importHistoriesCancel(_id: String!): Boolean
-  importHistoriesCreate(contentTypes: [String], files: JSON, columnsConfig: JSON, importName: String, associatedContentType: String, associatedField: String): JSON
+  importHistoriesCreate(contentTypes: [JSON], files: JSON, columnsConfig: JSON, importName: String, associatedContentType: String, associatedField: String): JSON
 `;

@@ -6,12 +6,13 @@ import Spinner from 'modules/common/components/Spinner';
 import { withProps, __ } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { IImportHistoryContentType } from '../../types';
 import AccociateForm from '../components/AccociateForm';
 import { queries } from '../graphql';
 
 type Props = {
   attachmentNames: string[];
-  contentTypes: string[];
+  contentTypes: IImportHistoryContentType[];
   onChangeAssociateHeader: (value: string) => void;
   onChangeAssociateContentType: (value: string) => void;
 };

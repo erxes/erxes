@@ -6,10 +6,11 @@ import { Description, SubHeading } from 'modules/settings/styles';
 import { FullContent, UploadText } from '../../styles';
 import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import { renderIcon, renderText } from '../../utils';
+import { IImportHistoryContentType } from '../../types';
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;
-  contentTypes: string[];
+  contentTypes: IImportHistoryContentType[];
   type: string;
 };
 
@@ -43,17 +44,19 @@ class FileUpload extends React.Component<Props, {}> {
 
     return contentTypes.map(contentType => {
       const onChange = attachmentsAtt =>
-        onChangeAttachment(attachmentsAtt, contentType);
+        onChangeAttachment(attachmentsAtt, contentType.contentType);
 
       return (
-        <div key={contentType} style={{ marginTop: '20px' }}>
+        <div key={contentType.contentType} style={{ marginTop: '20px' }}>
           <UploadText>
-            <p>{renderText(contentType)}</p>
-            {this.renderColumnChooser(contentType)}
+            <p>{renderText(contentType.contentType)}</p>
+            {this.renderColumnChooser(contentType.contentType)}
           </UploadText>
 
           <Uploader
-            text={`Choose a file to upload your ${renderText(contentType)}.`}
+            text={`Choose a file to upload your ${renderText(
+              contentType.contentType
+            )}.`}
             warningText={'Only .csv file is supported.'}
             icon={renderIcon(contentType)}
             accept=".csv"

@@ -15,7 +15,7 @@ import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
 import { getConfig, isUsingElk } from '../../utils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
-import { custom, getPluginSchema } from './federationUtils';
+import { custom, getPluginInfo } from './federationUtils';
 
 const generateBasicInfosFromSchema = async (
   queSchema: any,
@@ -99,7 +99,11 @@ const getFieldGroup = async (_id: string) => {
 };
 
 // Checking field names, all field names must be configured correctly
-export const checkFieldNames = async (type: string, fields: string[]) => {
+export const checkFieldNames = async (
+  type: string,
+  fields: string[],
+  columnConfig?: object
+) => {
   const properties: any[] = [];
   let schema: any;
   let basicInfos: string[] = [];
@@ -155,6 +159,10 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
     fieldName = fieldName.trim();
 
     const property: { [key: string]: any } = {};
+
+    if (columnConfig) {
+      fieldName = columnConfig[fieldName].value;
+    }
 
     const fieldObj = await Fields.findOne({
       text: fieldName,
@@ -429,8 +437,7 @@ export const fieldsCombinedByContentType = async ({
   pipelineId,
   segmentId,
   formId,
-  pluginName,
-  pluginContentType
+  pluginType
 }: {
   contentType: string;
   usageType?: string;
@@ -439,12 +446,12 @@ export const fieldsCombinedByContentType = async ({
   segmentId?: string;
   pipelineId?: string;
   formId?: string;
-  pluginName?: string;
-  pluginContentType?: string;
+  pluginType?: string;
 }) => {
   console.log(pipelineId, segmentId);
 
   let schema: any;
+  let plugin: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
   let fields: Array<{
     _id: number;
@@ -471,8 +478,13 @@ export const fieldsCombinedByContentType = async ({
       break;
   }
 
-  if (pluginName && pluginContentType) {
-    schema = await getPluginSchema(pluginName, pluginContentType);
+  if (pluginType) {
+    plugin = await getPluginInfo(pluginType, contentType);
+  }
+
+  if (plugin) {
+    schema = plugin.schema;
+    fields = [...plugin.fields];
   }
 
   if (schema) {
@@ -538,7 +550,7 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  const pluginsCustomFields = await custom(pluginName, pluginContentType);
+  const pluginsCustomFields = await custom(pluginType, contentType);
 
   fields = [...fields, ...pluginsCustomFields];
 
