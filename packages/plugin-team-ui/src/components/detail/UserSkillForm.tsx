@@ -7,7 +7,7 @@ import { __, Alert } from '@erxes/ui/src/utils';
 import {
   ISkillDocument,
   ISkillTypesDocument
-} from '@erxes/ui-settings/src//skills/types';
+} from '@erxes/ui-settings/src/skills/types';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import mutations from '../../graphql/mutations';
