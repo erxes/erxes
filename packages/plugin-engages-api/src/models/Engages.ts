@@ -14,7 +14,11 @@ import { isUsingElk } from '../utils';
 
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '../constants';
 import { IEngageData, IMessageDocument } from '../types';
-import { engageMessageSchema, IEngageMessage, IEngageMessageDocument } from './definitions/engages';
+import {
+  engageMessageSchema,
+  IEngageMessage,
+  IEngageMessageDocument
+} from './definitions/engages';
 import EditorAttributeUtil from '../editorAttributeUtils';
 interface ICheckRulesParams {
   rules: IRule[];
