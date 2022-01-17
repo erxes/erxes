@@ -1,26 +1,20 @@
 import * as dotenv from "dotenv";
+
 dotenv.config();
 
 import { gql } from "apollo-server-express";
 
-const { SUBGRAPH_INBOX_URL } = process.env;
+import plugins from "../plugins";
 
-const inboxSubscriptions = `
+let pluginTypeDefs = '';
 
-  conversationChanged(_id: String!): ConversationChangedResponse
-  conversationMessageInserted(_id: String!): ConversationMessage
-  conversationClientMessageInserted(userId: String!): ConversationMessage
-  conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
-  conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
-  conversationExternalIntegrationMessageInserted: JSON
-  conversationBotTypingStatus(_id: String!): JSON
-
-`
+for (const plugin of plugins) {
+  pluginTypeDefs = `${pluginTypeDefs} ${plugin.typeDefs}`
+}
 
 const typeDefs = gql`
   type Subscription {
-
-    ${SUBGRAPH_INBOX_URL ? inboxSubscriptions : ""}
+    ${pluginTypeDefs}
 
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
     

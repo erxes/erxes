@@ -117,7 +117,7 @@ async function startServer() {
 
     configs.onServerInit({
       app,
-      pubsub,
+      pubsubClient: pubsub,
       elasticsearch,
       messageBrokerClient,
       debug: {
