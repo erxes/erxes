@@ -6,7 +6,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { queries as formQueries } from '@erxes/ui/src/forms/graphql';
 import PropertyList from '../../components/form/PropertyList';
 import { IField } from '../../types';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

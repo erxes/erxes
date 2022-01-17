@@ -3,7 +3,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IOption } from '@erxes/ui/src/types';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import { FieldsCombinedByType } from '@erxes/ui/src/properties/types';
 import React from 'react';
 
 import Attribution from '../../../../containers/forms/actions/Attribution';

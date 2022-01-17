@@ -5,7 +5,7 @@ import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import {
   FieldsCombinedByType,
   FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui-settings/src/properties/types';
+} from '@erxes/ui/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Form from '../../../components/forms/actions/placeHolder/Attribution';

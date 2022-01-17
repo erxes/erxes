@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps, CountQueryResponse } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { CountQueryResponse } from '@erxes/ui/src/customers/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { mutations } from '@erxes/ui/src/brands/graphql';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
