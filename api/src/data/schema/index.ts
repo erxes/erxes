@@ -89,11 +89,11 @@ import {
   queries as InternalNoteQueries,
   types as InternalNoteTypes
 } from './internalNote';
-import {
-  mutations as KnowledgeBaseMutations,
-  queries as KnowledgeBaseQueries,
-  types as KnowledgeBaseTypes
-} from './knowledgeBase';
+// import {
+//   mutations as KnowledgeBaseMutations,
+//   queries as KnowledgeBaseQueries,
+//   types as KnowledgeBaseTypes
+// } from './knowledgeBase';
 import { queries as LogQueries, types as LogTypes } from './log';
 import {
   mutations as NotificationMutations,
@@ -187,7 +187,6 @@ export let types = `
   ${FormTypes}
   ${ConformityTypes}
   ${SegmentTypes}
-  ${KnowledgeBaseTypes}
   ${NotificationTypes}
   ${BoardTypes}
   ${DealTypes}
@@ -225,7 +224,7 @@ export let queries = `
   ${TagQueries}
   ${InternalNoteQueries}
   ${SegmentQueries}
-  ${KnowledgeBaseQueries}
+  
   ${NotificationQueries}
   ${ActivityLogQueries}
   ${DealQueries}
@@ -262,7 +261,6 @@ export let mutations = `
   ${SegmentMutations}
   ${FieldMutations}
   ${FormMutatons}
-  ${KnowledgeBaseMutations}
   ${NotificationMutations}
   ${DealMutations}
   ${DashboardMutations}

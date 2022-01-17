@@ -8,17 +8,13 @@ import {
   IStageDocument
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import graphqlPubsub from '../../../configs';
-import {
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog,
-  IContext
-} from '@erxes/api-utils/src';
-import { configReplacer } from '../../../utils';
+import { graphqlPubsub } from '../../../configs';
+import { IContext } from '@erxes/api-utils/src';
 import { checkPermission } from '../../utils';
 import messageBroker, { sendFieldsGroupMessage } from '../../../messageBroker';
 import { FieldsGroups } from '../../../db';
+import { configReplacer } from '../../../utils';
+import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 
 interface IBoardsEdit extends IBoard {
   _id: string;
@@ -269,6 +265,16 @@ const boardMutations = {
     const archived = await Pipelines.archivePipeline(_id, status);
 
     const updated = await Pipelines.findOne({ _id });
+
+    const logDoc = {
+      type: `${pipeline.type}Pipelines`,
+      object: pipeline,
+      newData: { isActive: !status },
+      description: `"${pipeline.name}" has been ${
+        status === BOARD_STATUSES.ACTIVE ? 'archived' : 'unarchived'
+      }"`,
+      updatedDocument: updated
+    };
 
     await putUpdateLog(
       messageBroker,
