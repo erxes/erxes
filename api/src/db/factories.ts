@@ -15,10 +15,12 @@ import {
   ChecklistItems,
   Checklists,
   ClientPortals,
+  Companies,
   Configs,
   Conformities,
   ConversationMessages,
   Conversations,
+  Customers,
   DashboardItems,
   Dashboards,
   Deals,
@@ -61,8 +63,6 @@ import {
   UsersGroups,
   Webhooks
 } from './models';
-import Customers from './models/Customers';
-import Companies from './models/Companies';
 import { ICustomField } from './models/definitions/common';
 import {
   ACTIVITY_CONTENT_TYPES,

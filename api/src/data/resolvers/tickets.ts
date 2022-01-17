@@ -1,12 +1,12 @@
 import {
+  Companies,
   Conformities,
+  Customers,
   Notifications,
   PipelineLabels,
   Pipelines,
   Stages
 } from '../../db/models';
-import Customers from '../../db/models/Customers';
-import Companies from '../../db/models/Companies';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';

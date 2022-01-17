@@ -1,5 +1,7 @@
 import {
+  Companies,
   Conformities,
+  Customers,
   Fields,
   Notifications,
   PipelineLabels,
@@ -7,8 +9,6 @@ import {
   Products,
   Stages
 } from '../../db/models';
-import Companies from '../../db/models/Companies';
-import Customers from '../../db/models/Customers';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';

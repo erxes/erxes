@@ -10,8 +10,6 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
-import Customers from '../db/models/Customers';
-import Companies from '../db/models/Companies';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
@@ -826,7 +824,10 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await Customers.updateOne({ _id: cid }, { $set: { isSubscribed: 'No' } });
+    await models.Customers.updateOne(
+      { _id: cid },
+      { $set: { isSubscribed: 'No' } }
+    );
   }
 
   if (uid) {
@@ -974,7 +975,7 @@ export const findCustomer = async doc => {
   let customer;
 
   if (doc.customerPrimaryEmail) {
-    customer = await Customers.findOne({
+    customer = await models.Customers.findOne({
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
@@ -983,7 +984,7 @@ export const findCustomer = async doc => {
   }
 
   if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({
+    customer = await models.Customers.findOne({
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
@@ -992,7 +993,7 @@ export const findCustomer = async doc => {
   }
 
   if (!customer && doc.customerCode) {
-    customer = await Customers.findOne({ code: doc.customerCode });
+    customer = await models.Customers.findOne({ code: doc.customerCode });
   }
 
   return customer;
@@ -1002,7 +1003,7 @@ export const findCompany = async doc => {
   let company;
 
   if (doc.companyPrimaryName) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
         { primaryName: doc.companyPrimaryName }
@@ -1011,25 +1012,25 @@ export const findCompany = async doc => {
   }
 
   if (!company && doc.name) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
     });
   }
 
   if (!company && doc.email) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     });
   }
 
   if (!company && doc.phone) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     });
   }
 
   if (!company && doc.companyPrimaryEmail) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
         { primaryEmail: doc.companyPrimaryEmail }
@@ -1038,7 +1039,7 @@ export const findCompany = async doc => {
   }
 
   if (!company && doc.companyPrimaryPhone) {
-    company = await Companies.findOne({
+    company = await models.Companies.findOne({
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
         { primaryPhone: doc.companyPrimaryPhone }
@@ -1047,7 +1048,7 @@ export const findCompany = async doc => {
   }
 
   if (!company && doc.companyCode) {
-    company = await Companies.findOne({ code: doc.companyCode });
+    company = await models.Companies.findOne({ code: doc.companyCode });
   }
 
   return company;

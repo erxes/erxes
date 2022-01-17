@@ -12,12 +12,12 @@ import { graphqlPubsub } from './pubsub';
 import { receiveVisitorDetail } from './data/widgetUtils';
 import { registerOnboardHistory } from './data/modules/robot';
 import { createConversationAndMessage } from './data/modules/conversations/utils';
-import Customers from './db/models/Customers';
-import Companies from './db/models/Companies';
 import {
   Integrations,
   Conformities,
+  Customers,
   Forms,
+  Companies,
   EngageMessages,
   Checklists,
   InternalNotes,

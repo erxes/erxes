@@ -1,6 +1,11 @@
-import { Deals, ImportHistory, Segments, Tasks } from '../../../db/models';
-import Customers from '../../../db/models/Customers';
-import Companies from '../../../db/models/Companies';
+import {
+  Companies,
+  Customers,
+  Deals,
+  ImportHistory,
+  Segments,
+  Tasks
+} from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';

@@ -5,9 +5,11 @@ import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
 import clientPortal from './clientPortal';
+import companies from './companies';
 import configs from './configs';
 import conformity from './conformities';
 import conversations from './conversations';
+import customers from './customers';
 import dashboards from './dashboards';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
@@ -40,7 +42,6 @@ import tasks from './tasks';
 import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
-import widgets from './widgets';
 import structures from './structures';
 
 export default {
@@ -49,7 +50,9 @@ export default {
   ...tags,
   ...brands,
   ...internalNotes,
+  ...customers,
   ...segments,
+  ...companies,
   ...fields,
   ...emailTemplates,
   ...responseTemplates,
@@ -76,7 +79,6 @@ export default {
   ...pipelineTemplates,
   ...checklists,
   ...robot,
-  ...widgets,
   ...webhooks,
   ...calendars,
   ...dashboards,

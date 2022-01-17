@@ -30,7 +30,9 @@ import {
 } from '../../../db/models/definitions/users';
 import {
   Brands,
+  Companies,
   Conformities,
+  Customers,
   Integrations,
   PipelineLabels,
   Stages,
@@ -38,8 +40,7 @@ import {
   Users,
   UsersGroups
 } from '../../../db/models/index';
-import Companies from '../../../db/models/Companies';
-import Customers from '../../../db/models/Customers';
+
 import { MODULE_NAMES } from '../../constants';
 import {
   BOARD_BASIC_INFOS,

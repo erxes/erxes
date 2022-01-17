@@ -4,10 +4,12 @@ import { CalendarBoards, CalendarGroups, Calendars } from './Calendars';
 import Channels from './Channels';
 import { ChecklistItems, Checklists } from './Checklists';
 import ClientPortals from './ClientPortal';
+import Companies from './Companies';
 import Configs from './Configs';
 import Conformities from './Conformities';
 import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
+import Customers from './Customers';
 import { DashboardItems, Dashboards } from './Dashboard';
 import Deals from './Deals';
 import EmailDeliveries from './EmailDeliveries';
@@ -60,6 +62,8 @@ export {
   Fields,
   Segments,
   InternalNotes,
+  Customers,
+  Companies,
   Conformities,
   Conversations,
   ConversationMessages,

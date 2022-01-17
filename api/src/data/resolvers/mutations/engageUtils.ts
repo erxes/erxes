@@ -1,12 +1,12 @@
 import { Transform } from 'stream';
 import {
   Conformities,
+  Customers,
   EngageMessages,
   Integrations,
   Segments,
   Users
 } from '../../../db/models';
-import Customers from '../../../db/models/Customers';
 import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import {
