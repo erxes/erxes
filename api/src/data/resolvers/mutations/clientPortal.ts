@@ -1,6 +1,10 @@
-import { ClientPortals, Tasks, Tickets } from '../../../db/models';
-import Companies from '../../../db/models/Companies';
-import Customers from '../../../db/models/Customers';
+import {
+  ClientPortals,
+  Companies,
+  Customers,
+  Tasks,
+  Tickets
+} from '../../../db/models';
 import { IClientPortal } from '../../../db/models/definitions/clientPortal';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { checkPermission } from '../../permissions/wrappers';

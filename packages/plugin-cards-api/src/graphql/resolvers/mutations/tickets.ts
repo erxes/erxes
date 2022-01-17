@@ -1,8 +1,8 @@
-import { Tickets } from '../../../db/models';
-import { IItemDragCommonFields } from '../../../db/models/definitions/boards';
-import { ITicket } from '../../../db/models/definitions/tickets';
-import { checkPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { Tickets } from '../../../models';
+import { IItemDragCommonFields } from '../../../models/definitions/boards';
+import { ITicket } from '../../../models/definitions/tickets';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src';
 import {
   itemsAdd,
   itemsArchive,
@@ -10,7 +10,7 @@ import {
   itemsCopy,
   itemsEdit,
   itemsRemove
-} from './boardUtils';
+} from './utils';
 
 interface ITicketsEdit extends ITicket {
   _id: string;

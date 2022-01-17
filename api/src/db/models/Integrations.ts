@@ -1,8 +1,13 @@
 import * as momentTz from 'moment-timezone';
 import { Model, model, Query } from 'mongoose';
 import 'mongoose-type-email';
-import { Brands, ConversationMessages, Conversations, Forms } from '.';
-import Customers from './Customers';
+import {
+  Brands,
+  ConversationMessages,
+  Conversations,
+  Customers,
+  Forms
+} from '.';
 import { KIND_CHOICES } from './definitions/constants';
 import {
   IBookingData,

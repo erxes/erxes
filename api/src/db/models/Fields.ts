@@ -4,8 +4,7 @@
 
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
-import { Forms } from '.';
-import Customers from './Customers';
+import { Customers, Forms } from '.';
 import {
   COMPANY_INFO,
   CONVERSATION_INFO,

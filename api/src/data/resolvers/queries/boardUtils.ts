@@ -1,13 +1,13 @@
 import * as moment from 'moment';
 import {
+  Companies,
   Conformities,
+  Customers,
   Notifications,
   Pipelines,
   Segments,
   Stages
 } from '../../../db/models';
-import Customers from '../../../db/models/Customers';
-import Companies from '../../../db/models/Companies';
 import { getCollection } from '../../../db/models/boardUtils';
 import {
   IItemCommonFields,

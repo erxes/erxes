@@ -34,6 +34,11 @@ import {
 } from './clientPortal';
 import { types as CommonTypes } from './common';
 import {
+  mutations as CompanyMutations,
+  queries as CompanyQueries,
+  types as CompanyTypes
+} from './company';
+import {
   mutations as ConfigMutations,
   queries as ConfigQueries,
   types as ConfigTypes
@@ -42,6 +47,11 @@ import {
   mutations as ConformityMutations,
   types as ConformityTypes
 } from './conformity';
+import {
+  mutations as CustomerMutations,
+  queries as CustomerQueries,
+  types as CustomerTypes
+} from './customer';
 import {
   mutations as DashboardMutations,
   queries as DashboardQueries,
@@ -177,6 +187,7 @@ export let types = `
   ${UserTypes}
   ${InternalNoteTypes}
   ${ActivityLogTypes}
+  ${CompanyTypes}
   ${BrandTypes}
   ${Script}
   ${ClientPortalTypes}
@@ -186,6 +197,7 @@ export let types = `
   ${FieldTypes}
   ${FormTypes}
   ${ConformityTypes}
+  ${CustomerTypes}
   ${SegmentTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
@@ -224,6 +236,8 @@ export let queries = `
   ${FormQueries}
   ${TagQueries}
   ${InternalNoteQueries}
+  ${CompanyQueries}
+  ${CustomerQueries}
   ${SegmentQueries}
   ${KnowledgeBaseQueries}
   ${NotificationQueries}
@@ -252,6 +266,7 @@ export let queries = `
 
 export let mutations = `
   ${UserMutations}
+  ${CompanyMutations}
   ${TagMutations}
   ${BoardMutations}
   ${BrandMutations}
@@ -259,6 +274,7 @@ export let mutations = `
   ${EmailTemplateMutations}
   ${ClientPortalMutations}
   ${InternalNoteMutations}
+  ${CustomerMutations}
   ${SegmentMutations}
   ${FieldMutations}
   ${FormMutatons}

@@ -1,36 +1,37 @@
 import {
-  Companies,
-  Conformities,
-  Customers,
-  Notifications,
-  PipelineLabels,
-  Pipelines,
-  Stages
-} from '../../db/models';
-import { ITicketDocument } from '../../db/models/definitions/tickets';
-import { IContext } from '../types';
-import { boardId } from './boardUtils';
-import { getDocument, getDocumentList } from './mutations/cacheUtils';
+  sendConformityRPCMessage,
+  sendContactRPCMessage,
+  sendNotificationRPCMessage
+} from 'messageBroker';
+import { PipelineLabels, Pipelines, Stages } from '../../../models';
+import { ITicketDocument } from '../../../models/definitions/tickets';
+import { IContext } from '@erxes/api-utils/src';
+import { boardId } from '../../utils';
+import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export default {
   async companies(ticket: ITicketDocument) {
-    const companyIds = await Conformities.savedConformity({
+    const companyIds = await sendConformityRPCMessage('savedConformity', {
       mainType: 'ticket',
       mainTypeId: ticket._id,
       relTypes: ['company']
     });
 
-    return Companies.findActiveCompanies({ _id: { $in: companyIds || [] } });
+    return sendContactRPCMessage('findActiveCompanies', {
+      selector: { _id: { $in: companyIds } }
+    });
   },
 
   async customers(ticket: ITicketDocument) {
-    const customerIds = await Conformities.savedConformity({
+    const customerIds = await sendConformityRPCMessage('savedConformity', {
       mainType: 'ticket',
       mainTypeId: ticket._id,
       relTypes: ['customer']
     });
 
-    return Customers.findActiveCustomers({ _id: { $in: customerIds || [] } });
+    return sendContactRPCMessage('findActiveCustomers', {
+      selector: { _id: { $in: customerIds } }
+    });
   },
 
   assignedUsers(ticket: ITicketDocument) {
@@ -64,7 +65,10 @@ export default {
   },
 
   hasNotified(ticket: ITicketDocument, _args, { user }: IContext) {
-    return Notifications.checkIfRead(user._id, ticket._id);
+    return sendNotificationRPCMessage('checkIfRead', {
+      userId: user._id,
+      itemId: ticket._id
+    });
   },
 
   labels(ticket: ITicketDocument) {

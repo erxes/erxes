@@ -63,6 +63,30 @@ export const EXTEND_FIELDS = {
   ]
 };
 
+export const COC_LEAD_STATUS_TYPES = [
+  '',
+  'new',
+  'open',
+  'inProgress',
+  'openDeal',
+  'unqualified',
+  'attemptedToContact',
+  'connected',
+  'badTiming'
+];
+
+export const COC_LIFECYCLE_STATE_TYPES = [
+  '',
+  'subscriber',
+  'lead',
+  'marketingQualifiedLead',
+  'salesQualifiedLead',
+  'opportunity',
+  'customer',
+  'evangelist',
+  'other'
+];
+
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
@@ -268,30 +292,6 @@ export const MODULE_NAMES = {
   DASHBOARD: 'dashboard',
   DASHBOARD_ITEM: 'dashboardItem'
 };
-
-export const COC_LEAD_STATUS_TYPES = [
-  '',
-  'new',
-  'open',
-  'inProgress',
-  'openDeal',
-  'unqualified',
-  'attemptedToContact',
-  'connected',
-  'badTiming'
-];
-
-export const COC_LIFECYCLE_STATE_TYPES = [
-  '',
-  'subscriber',
-  'lead',
-  'marketingQualifiedLead',
-  'salesQualifiedLead',
-  'opportunity',
-  'customer',
-  'evangelist',
-  'other'
-];
 
 export const RABBITMQ_QUEUES = {
   PUT_LOG: 'putLog',

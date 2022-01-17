@@ -1,18 +1,15 @@
+import { Deals } from 'models';
+import { PipelineLabels, Pipelines, Stages } from '../../../models';
+import { IDealDocument } from '../../../models/definitions/deals';
+import { IContext } from '@erxes/api-utils/src';
+import { boardId } from '../../utils';
+import { Fields, Products } from 'db';
 import {
-  Companies,
-  Conformities,
-  Customers,
-  Fields,
-  Notifications,
-  PipelineLabels,
-  Pipelines,
-  Products,
-  Stages
-} from '../../db/models';
-import { IDealDocument } from '../../db/models/definitions/deals';
-import { IContext } from '../types';
-import { boardId } from './boardUtils';
-import { getDocument, getDocumentList } from './mutations/cacheUtils';
+  sendConformityRPCMessage,
+  sendContactRPCMessage,
+  sendNotificationRPCMessage
+} from 'messageBroker';
+import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export const generateProducts = async productsData => {
   const products: any = [];
@@ -22,7 +19,7 @@ export const generateProducts = async productsData => {
       continue;
     }
 
-    const product = await Products.getProduct({ _id: data.productId });
+    const product = await Products.findOne({ _id: data.productId });
 
     const { customFieldsData } = product;
 
@@ -74,24 +71,31 @@ export const generateAmounts = productsData => {
 };
 
 export default {
+  __resolveReference({ _id }) {
+    return Deals.findOne({ _id });
+  },
   async companies(deal: IDealDocument) {
-    const companyIds = await Conformities.savedConformity({
+    const companyIds = await sendConformityRPCMessage('savedConformity', {
       mainType: 'deal',
       mainTypeId: deal._id,
       relTypes: ['company']
     });
 
-    return Companies.findActiveCompanies({ _id: { $in: companyIds } });
+    return sendContactRPCMessage('findActiveCompanies', {
+      selector: { _id: { $in: companyIds } }
+    });
   },
 
   async customers(deal: IDealDocument) {
-    const customerIds = await Conformities.savedConformity({
+    const customerIds = await sendConformityRPCMessage('savedConformity', {
       mainType: 'deal',
       mainTypeId: deal._id,
       relTypes: ['customer']
     });
 
-    return Customers.findActiveCustomers({ _id: { $in: customerIds } });
+    return sendContactRPCMessage('findActiveCustomers', {
+      selector: { _id: { $in: customerIds } }
+    });
   },
 
   async products(deal: IDealDocument) {
@@ -133,7 +137,10 @@ export default {
   },
 
   hasNotified(deal: IDealDocument, _args, { user }: IContext) {
-    return Notifications.checkIfRead(user._id, deal._id);
+    return sendNotificationRPCMessage('checkIfRead', {
+      userId: user._id,
+      itemId: deal._id
+    });
   },
 
   labels(deal: IDealDocument) {
