@@ -2,7 +2,7 @@ import {
   sendConformityRPCMessage,
   sendContactRPCMessage,
   sendNotificationRPCMessage
-} from 'messageBroker';
+} from '../../../messageBroker';
 import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { ITicketDocument } from '../../../models/definitions/tickets';
 import { IContext } from '@erxes/api-utils/src';

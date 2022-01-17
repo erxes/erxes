@@ -22,7 +22,8 @@ import {
   Checklists,
   InternalNotes,
   FieldsGroups,
-  Notifications
+  Notifications,
+  Fields
 } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
@@ -178,9 +179,19 @@ export const initBroker = async (server?) => {
       data: await Conformities.removeConformities(doc)
     }));
 
-    consumeQueue('conformities:rpc_queue:getConformities', async doc => ({
+    consumeQueue('conformities:removeConformity', async doc => ({
+      status: 'success',
+      data: await Conformities.removeConformity(doc)
+    }));
+
+    consumeRPCQueue('conformities:rpc_queue:getConformities', async doc => ({
       status: 'success',
       data: await Conformities.getConformities(doc)
+    }));
+
+    consumeQueue('conformities:addConformities', async doc => ({
+      status: 'success',
+      data: await Conformities.addConformities(doc)
     }));
 
     consumeQueue(
@@ -206,6 +217,11 @@ export const initBroker = async (server?) => {
         data: await EngageMessages.createVisitorOrCustomerMessages(params)
       })
     );
+
+    consumeRPCQueue('fields:rpc_queue:prepareCustomFieldsData', async doc => ({
+      status: 'success',
+      data: await Fields.prepareCustomFieldsData(doc)
+    }));
 
     // listen for rpc queue =========
     consumeRPCQueue(

@@ -8,7 +8,7 @@ import {
   IStageDocument
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import graphqlPubsub from '../../../pubsub';
+import graphqlPubsub from '../../../configs';
 import {
   putCreateLog,
   putDeleteLog,

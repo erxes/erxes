@@ -3,10 +3,13 @@ import {
   gatherBrandNames,
   gatherTagNames,
   gatherUsernames,
-  LogDesc,
+  LogDesc
 } from '@erxes/api-utils/src/logDescHelper';
 
-import { IEngageMessage, IEngageMessageDocument } from '../../models/definitions/engages';
+import {
+  IEngageMessage,
+  IEngageMessageDocument
+} from '../../models/definitions/engages';
 import { Segments } from '../../apiCollections';
 
 const gatherEngageFieldNames = async (

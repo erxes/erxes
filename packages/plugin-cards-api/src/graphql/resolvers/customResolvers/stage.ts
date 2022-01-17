@@ -1,16 +1,16 @@
-import { Deals, GrowthHacks, Stages, Tasks, Tickets } from '../../db/models';
-import { IStageDocument } from '../../db/models/definitions/boards';
+import { Deals, GrowthHacks, Stages, Tasks, Tickets } from '../../../models';
+import { IStageDocument } from '../../../models/definitions/boards';
 import {
   BOARD_STATUSES,
   BOARD_TYPES
-} from '../../db/models/definitions/constants';
-import { IContext } from '../types';
+} from '../../../models/definitions/constants';
+import { IContext } from '@erxes/api-utils/src';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters
-} from './queries/boardUtils';
+} from '../queries/utils';
 
 export default {
   async amount(

@@ -2,12 +2,12 @@ import {
   sendConformityRPCMessage,
   sendContactRPCMessage,
   sendNotificationRPCMessage
-} from 'messageBroker';
-import { PipelineLabels, Pipelines, Stages } from '../../../models';
+} from '../../../messageBroker';
+import { PipelineLabels, Pipelines, Stages, Tasks } from '../../../models';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
-import { getDocument, getDocumentList } from 'cacheUtils';
+import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export default {
   async companies(task: ITaskDocument) {

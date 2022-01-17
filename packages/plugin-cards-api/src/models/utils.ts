@@ -8,12 +8,12 @@ import {
   Tickets
 } from '.';
 // import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '@erxes/api-utils';
-// import { numberCalculator, validSearchText } from '@erxes/api-utils';
-import { validSearchText } from '@erxes/api-utils';
+import { validSearchText } from '@erxes/api-utils/src';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 import { configReplacer } from '../utils';
-import { _Conformities, _InternalNotes } from '../db';
+import { Conformities, InternalNotes } from '../db';
+import { sendChecklistMessage, sendConformityMessage } from '../messageBroker';
 
 interface ISetOrderParam {
   collection: any;
@@ -246,13 +246,11 @@ export const getCompanyIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await _Conformities
-    .find({
-      mainType,
-      mainTypeId,
-      relType: 'company'
-    })
-    .lean();
+  const conformities = await Conformities.find({
+    mainType,
+    mainTypeId,
+    relType: 'company'
+  }).lean();
 
   return conformities.map(c => c.relTypeId);
 };
@@ -261,13 +259,11 @@ export const getCustomerIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await _Conformities
-    .find({
-      mainType,
-      mainTypeId,
-      relType: 'customer'
-    })
-    .lean();
+  const conformities = await Conformities.find({
+    mainType,
+    mainTypeId,
+    relType: 'customer'
+  }).lean();
 
   return conformities.map(c => c.relTypeId);
 };
@@ -282,12 +278,17 @@ export const destroyBoardItemRelations = async (
   //   data: { contentTypeId }
   // });
 
-  // await Checklists.removeChecklists(contentType, [contentTypeId]);
-  // await Conformities.removeConformity({
-  //   mainType: contentType,
-  //   mainTypeId: contentTypeId
-  // });
-  await _InternalNotes.deleteMany({ contentType, contentTypeId });
+  sendChecklistMessage('removeChecklists', {
+    type: contentType,
+    itemIds: [contentTypeId]
+  });
+
+  sendConformityMessage('removeConformity', {
+    mainType: contentType,
+    mainTypeId: contentTypeId
+  });
+
+  await InternalNotes.deleteMany({ contentType, contentTypeId });
 };
 
 // Get board item link

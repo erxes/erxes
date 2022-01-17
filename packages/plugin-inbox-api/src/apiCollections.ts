@@ -41,6 +41,6 @@ const main = async () => {
   EmailDeliveries = await db.collection('email_deliveries');
 
   return 'done.';
-}
+};
 
 export default main;

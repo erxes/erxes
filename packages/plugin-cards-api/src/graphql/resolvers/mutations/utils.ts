@@ -1,6 +1,6 @@
 import resolvers from '..';
 import { Boards, Pipelines, Stages } from '../../../models';
-import { _Fields, Notifications } from '../../../db';
+import { Notifications } from '../../../db';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -25,14 +25,14 @@ import {
 } from '../../../models/definitions/growthHacks';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { ITicket, ITicketDocument } from '../../../models/definitions/tickets';
-import graphqlPubsub from '../../../pubsub';
+import { graphqlPubsub } from '../../../configs';
 import {
   // putActivityLog,
   putCreateLog,
   putDeleteLog,
-  putUpdateLog,
-  checkUserIds
-} from '@erxes/api-utils/src';
+  putUpdateLog
+} from '@erxes/api-utils/src/logUtils';
+import { checkUserIds } from '@erxes/api-utils/src';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -41,7 +41,9 @@ import {
   prepareBoardItemDoc,
   sendNotifications
 } from '../../utils';
-import messageBroker from '../../../messageBroker';
+import messageBroker, { sendFieldRPCMessage } from '../../../messageBroker';
+import { IUserDocument } from '@erxes/common-types/src/users';
+import { gatherDescriptions } from '../../../utils';
 // import { ACTIVITY_LOG_ACTIONS } from '../../constants';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
@@ -109,9 +111,10 @@ export const itemsAdd = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    // extendedDoc.customFieldsData = await _Fields.prepareCustomFieldsData(
-    //   extendedDoc.customFieldsData
-    // );
+    extendedDoc.customFieldsData = await sendFieldRPCMessage(
+      'prepareCustomFieldsData',
+      extendedDoc.customFieldsData
+    );
   }
 
   const item = await createModel(extendedDoc);
@@ -133,13 +136,17 @@ export const itemsAdd = async (
       contentType: type
     });
 
+    const logDoc = {
+      type,
+      newData: extendedDoc,
+      object: item
+    };
+
+    const { description, extraDesc } = await gatherDescriptions(logDoc);
+
     await putCreateLog(
       messageBroker,
-      {
-        type,
-        newData: extendedDoc,
-        object: item
-      },
+      { ...logDoc, description, extraDesc },
       user
     );
   }
@@ -249,9 +256,10 @@ export const itemsEdit = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    // extendedDoc.customFieldsData = await _Fields.prepareCustomFieldsData(
-    //   extendedDoc.customFieldsData
-    // );
+    extendedDoc.customFieldsData = await sendFieldRPCMessage(
+      'prepareCustomFieldsData',
+      extendedDoc.customFieldsData
+    );
   }
 
   const updatedItem = await modelUpate(_id, extendedDoc);
@@ -453,8 +461,7 @@ const itemMover = async (
 export const itemsChange = async (
   doc: IItemDragCommonFields,
   type: string,
-  //user: IUserDocument,
-  user: any,
+  user: IUserDocument,
   modelUpdate: any
 ) => {
   const { collection } = getCollection(type);
@@ -535,8 +542,7 @@ export const itemsChange = async (
 export const itemsRemove = async (
   _id: string,
   type: string,
-  // user: IUserDocument,
-  user: any
+  user: IUserDocument
 ) => {
   const item = await getItem(type, { _id });
 
@@ -562,8 +568,7 @@ export const itemsCopy = async (
   _id: string,
   proccessId: string,
   type: string,
-  user: any,
-  // user: IUserDocument,
+  user: IUserDocument,
   extraDocParam: string[],
   modelCreate: any
 ) => {
@@ -620,8 +625,7 @@ export const itemsArchive = async (
   stageId: string,
   type: string,
   proccessId: string,
-  _user: any
-  // user: IUserDocument
+  _user: IUserDocument
 ) => {
   const { collection } = getCollection(type);
 

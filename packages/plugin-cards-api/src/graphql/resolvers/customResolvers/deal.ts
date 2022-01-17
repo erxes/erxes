@@ -1,14 +1,13 @@
-import { Deals } from 'models';
 import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { IDealDocument } from '../../../models/definitions/deals';
 import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
-import { Fields, Products } from 'db';
+import { Fields, Products } from '../../../db';
 import {
   sendConformityRPCMessage,
   sendContactRPCMessage,
   sendNotificationRPCMessage
-} from 'messageBroker';
+} from '../../../messageBroker';
 import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export const generateProducts = async productsData => {
@@ -23,7 +22,7 @@ export const generateProducts = async productsData => {
 
     const { customFieldsData } = product;
 
-    const customFields = [];
+    const customFields: any[] = [];
 
     for (const customFieldData of customFieldsData || []) {
       const field = await Fields.findOne({ _id: customFieldData.field }).lean();
@@ -71,9 +70,6 @@ export const generateAmounts = productsData => {
 };
 
 export default {
-  __resolveReference({ _id }) {
-    return Deals.findOne({ _id });
-  },
   async companies(deal: IDealDocument) {
     const companyIds = await sendConformityRPCMessage('savedConformity', {
       mainType: 'deal',

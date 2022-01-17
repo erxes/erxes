@@ -1,11 +1,8 @@
-import { Boards, Pipelines } from '../../../models';
+import { Pipelines } from '../../../models';
 import { IBoardDocument } from '../../../models/definitions/boards';
 import { IContext } from '@erxes/api-utils/src/types';
 
-const Board = {
-  __resolveReference({ _id }) {
-    return Boards.findOne({ _id });
-  },
+export default {
   pipelines(board: IBoardDocument, {}, { user }: IContext) {
     if (board.pipelines) {
       return board.pipelines;
@@ -35,5 +32,3 @@ const Board = {
     }).lean();
   }
 };
-
-export default Board;

@@ -1,36 +1,46 @@
-import { Boards, Pipelines, Stages } from '../models';
+import { Boards, PipelineLabels, Pipelines, Stages } from '../models';
+import * as models from '../models';
 import { getNewOrder } from '../models/utils';
-// import { IConformityAdd } from '../models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../models/definitions/constants';
 import { IDealDocument } from '../models/definitions/deals';
 import { IGrowthHackDocument } from '../models/definitions/growthHacks';
 import { ITaskDocument } from '../models/definitions/tasks';
 import { ITicketDocument } from '../models/definitions/tickets';
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types/src/users';
 import { can, checkLogin } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
 import {
-  ISendNotification
-  // sendNotification
+  ISendNotification,
+  sendNotification as commonSendNotification
 } from '@erxes/api-utils/src/requests';
-import { _Users, _ChecklistItems, _Checklists, _PipelineLabels } from '../db';
+import memoryStorage from '../inmemoryStorage';
+import { Users, Checklists } from '../db';
+import { sendConformityMessage } from '../messageBroker';
+import { graphqlPubsub } from '../configs';
+
+export interface IConformityAdd {
+  mainType: string;
+  mainTypeId: string;
+  relType: string;
+  relTypeId: string;
+}
 
 /**
  * Send a notification
  */
-export const _sendNotification = async (doc: ISendNotification) => {
-  await _Users.updateMany(
+export const sendNotification = async (doc: ISendNotification) => {
+  await Users.updateMany(
     { _id: { $in: doc.receivers } },
     { $set: { isShowNotification: false } }
   );
 
-  // for (const userId of doc.receivers) {
-  //   graphqlPubsub.publish('userChanged', {
-  //     userChanged: { userId }
-  //   });
-  // }
+  for (const userId of doc.receivers) {
+    graphqlPubsub.publish('userChanged', {
+      userChanged: { userId }
+    });
+  }
 
-  // return sendNotification(models, memoryStorage, graphqlPubsub, doc);
+  return commonSendNotification(models, memoryStorage, graphqlPubsub, doc);
 };
 
 export const notifiedUserIds = async (item: any) => {
@@ -105,7 +115,7 @@ export const sendNotifications = async ({
   };
 
   if (removedUsers && removedUsers.length > 0) {
-    await _sendNotification({
+    await sendNotification({
       ...notificationDoc,
       notifType:
         NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
@@ -116,7 +126,7 @@ export const sendNotifications = async ({
   }
 
   if (invitedUsers && invitedUsers.length > 0) {
-    await _sendNotification({
+    await sendNotification({
       ...notificationDoc,
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
       action: `invited you to the ${contentType}: `,
@@ -125,7 +135,7 @@ export const sendNotifications = async ({
     });
   }
 
-  await _sendNotification({
+  await sendNotification({
     ...notificationDoc
   });
 };
@@ -227,34 +237,36 @@ export const checkPermission = async (
   return;
 };
 
-export const createConformity = async ({}: // companyIds,
-// customerIds,
-// mainType,
-// mainTypeId
-{
+export const createConformity = async ({
+  companyIds,
+  customerIds,
+  mainType,
+  mainTypeId
+}: {
   companyIds?: string[];
   customerIds?: string[];
   mainType: string;
   mainTypeId: string;
 }) => {
-  // const companyConformities: IConformityAdd[] = (companyIds || []).map(
-  //   companyId => ({
-  //     mainType,
-  //     mainTypeId,
-  //     relType: 'company',
-  //     relTypeId: companyId
-  //   })
-  // );
-  // const customerConformities: IConformityAdd[] = (customerIds || []).map(
-  //   customerId => ({
-  //     mainType,
-  //     mainTypeId,
-  //     relType: 'customer',
-  //     relTypeId: customerId
-  //   })
-  // );
-  // const allConformities = companyConformities.concat(customerConformities);
-  // await Conformities.addConformities(allConformities);
+  const companyConformities: IConformityAdd[] = (companyIds || []).map(
+    companyId => ({
+      mainType,
+      mainTypeId,
+      relType: 'company',
+      relTypeId: companyId
+    })
+  );
+  const customerConformities: IConformityAdd[] = (customerIds || []).map(
+    customerId => ({
+      mainType,
+      mainTypeId,
+      relType: 'customer',
+      relTypeId: customerId
+    })
+  );
+  const allConformities = companyConformities.concat(customerConformities);
+
+  sendConformityMessage('addConformities', allConformities);
 };
 
 interface ILabelParams {
@@ -280,20 +292,16 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     return;
   }
 
-  const oldLabels = await _PipelineLabels
-    .find({
-      _id: { $in: item.labelIds }
-    })
-    .lean();
+  const oldLabels = await PipelineLabels.find({
+    _id: { $in: item.labelIds }
+  }).lean();
   const updatedLabelIds: string[] = [];
 
-  const existingLabels = await _PipelineLabels
-    .find({
-      name: { $in: oldLabels.map(o => o.name) },
-      colorCode: { $in: oldLabels.map(o => o.colorCode) },
-      pipelineId: newStage.pipelineId
-    })
-    .lean();
+  const existingLabels = await PipelineLabels.find({
+    name: { $in: oldLabels.map(o => o.name) },
+    colorCode: { $in: oldLabels.map(o => o.colorCode) },
+    pipelineId: newStage.pipelineId
+  }).lean();
 
   // index using only name and colorCode, since all pipelineIds are same
   const existingLabelsByUnique = _.indexBy(
@@ -323,7 +331,7 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
   } // end label loop
 
   // Insert labels that don't already exist on the new stage's pipeline
-  const newLabels = await _PipelineLabels.insertMany(notExistingLabels, {
+  const newLabels = await PipelineLabels.insertMany(notExistingLabels, {
     ordered: false
   });
 
@@ -331,11 +339,11 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     updatedLabelIds.push(newLabel._id);
   }
 
-  // await PipelineLabels.labelsLabel(
-  //   newStage.pipelineId,
-  //   item._id,
-  //   updatedLabelIds
-  // );
+  await PipelineLabels.labelsLabel(
+    newStage.pipelineId,
+    item._id,
+    updatedLabelIds
+  );
 };
 
 interface IChecklistParams {
@@ -351,14 +359,12 @@ interface IChecklistParams {
 export const copyChecklists = async (params: IChecklistParams) => {
   const { contentType, contentTypeId, targetContentId, user } = params;
 
-  const originalChecklists = await _Checklists
-    .find({
-      contentType,
-      contentTypeId
-    })
-    .lean();
+  const originalChecklists = await Checklists.find({
+    contentType,
+    contentTypeId
+  }).lean();
 
-  const clonedChecklists = await _Checklists.insertMany(
+  const clonedChecklists = await Checklists.insertMany(
     originalChecklists.map(originalChecklist => ({
       contentType,
       contentTypeId: targetContentId,
@@ -378,13 +384,11 @@ export const copyChecklists = async (params: IChecklistParams) => {
     );
   }
 
-  const originalChecklistItems = await _Checklists
-    .find({
-      checklistId: { $in: originalChecklists.map(x => x._id) }
-    })
-    .lean();
+  const originalChecklistItems = await Checklists.find({
+    checklistId: { $in: originalChecklists.map(x => x._id) }
+  }).lean();
 
-  await _Checklists.insertMany(
+  await Checklists.insertMany(
     originalChecklistItems.map(({ content, order, checklistId }) => ({
       checklistId: originalChecklistIdToClonedId.get(checklistId),
       isChecked: false,

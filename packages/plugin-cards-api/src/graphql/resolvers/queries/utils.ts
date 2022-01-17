@@ -10,13 +10,13 @@ import {
   IStageDocument
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-// import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types/src/users';
 import { CLOSE_DATE_TYPES } from '../../../constants';
 // import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import { Notifications } from '../../../db';
-import { sendConformityRPCMessage, sendContactRPCMessage } from 'messageBroker';
+import { sendConformityRPCMessage, sendContactRPCMessage } from '../../../messageBroker';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -580,8 +580,7 @@ const generateArhivedItemsFilter = (
 export const getItemList = async (
   filter: any,
   args: IListParams,
-  user: any,
-  // user: IUserDocument,
+  user: IUserDocument,
   type: string,
   extraFields?: { [key: string]: number },
   getExtraFields?: (item: any) => { [key: string]: any }

@@ -1,17 +1,17 @@
-import { Deals, GrowthHacks, Tasks, Tickets } from '../../db/models';
-import { IPipelineDocument } from '../../db/models/definitions/boards';
+import { Deals, GrowthHacks, Tasks, Tickets } from '../../../models';
+import { IPipelineDocument } from '../../../models/definitions/boards';
 import {
   BOARD_TYPES,
   PIPELINE_VISIBLITIES
-} from '../../db/models/definitions/constants';
-import { IContext } from '../types';
-import { getDocument, getDocumentList } from './mutations/cacheUtils';
+} from '../../../models/definitions/constants';
+import { IContext } from '@erxes/api-utils/src';
+import { getDocument, getDocumentList } from '../../../cacheUtils';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters
-} from './queries/boardUtils';
+} from '../queries/utils';
 
 export default {
   createdUser(pipeline: IPipelineDocument) {

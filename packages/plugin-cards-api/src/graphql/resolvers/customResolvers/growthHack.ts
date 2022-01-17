@@ -1,15 +1,9 @@
-import {
-  Fields,
-  FormSubmissions,
-  PipelineLabels,
-  Pipelines,
-  Stages
-} from '../../db/models';
-import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
-import { IUserDocument } from '../../db/models/definitions/users';
-import { boardId } from './boardUtils';
-import { getDocument, getDocumentList } from './mutations/cacheUtils';
-import { IFieldsQuery } from './queries/fields';
+import { PipelineLabels, Pipelines, Stages } from '../../../models';
+import { IGrowthHackDocument } from '../../../models/definitions/growthHacks';
+import { boardId } from '../../utils';
+import { getDocument, getDocumentList } from '../../../cacheUtils';
+import { IContext } from '@erxes/api-utils/src';
+import { Fields, FormSubmissions } from '../../../db';
 
 export default {
   async formSubmissions(growthHack: IGrowthHackDocument) {
@@ -37,7 +31,7 @@ export default {
   async formFields(growthHack: IGrowthHackDocument) {
     const stage = await Stages.getStage(growthHack.stageId);
 
-    const query: IFieldsQuery = { contentType: 'form' };
+    const query: any = { contentType: 'form' };
 
     if (stage.formId) {
       query.contentTypeId = stage.formId;
@@ -58,11 +52,7 @@ export default {
     });
   },
 
-  isVoted(
-    growthHack: IGrowthHackDocument,
-    _args,
-    { user }: { user: IUserDocument }
-  ) {
+  isVoted(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
     return growthHack.votedUserIds && growthHack.votedUserIds.length > 0
       ? growthHack.votedUserIds.indexOf(user._id) !== -1
       : false;
@@ -95,11 +85,7 @@ export default {
     return Stages.getStage(growthHack.stageId);
   },
 
-  isWatched(
-    growthHack: IGrowthHackDocument,
-    _args,
-    { user }: { user: IUserDocument }
-  ) {
+  isWatched(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
     const watchedUserIds = growthHack.watchedUserIds || [];
 
     if (watchedUserIds.includes(user._id)) {
