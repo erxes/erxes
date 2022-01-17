@@ -1,9 +1,9 @@
-import { GrowthHacks } from '../../../db/models';
+import { GrowthHacks } from '../../../models';
 import {
   checkPermission,
   moduleRequireLogin
-} from '../../permissions/wrappers';
-import { IContext } from '../../types';
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -11,7 +11,7 @@ import {
   checkItemPermByUser,
   generateGrowthHackCommonFilters,
   IArchiveArgs
-} from './boardUtils';
+} from './utils';
 
 interface IGrowthHackListParams extends IListParams {
   hackStage?: string;

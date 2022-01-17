@@ -1,10 +1,10 @@
-import { Deals, Products } from '../../../db/models';
+import { Deals } from '../../../models';
 import {
   checkPermission,
   moduleRequireLogin
-} from '../../permissions/wrappers';
-import { IContext } from '../../types';
-import dealResolvers from '../deals';
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src';
+// import dealResolvers from '../deals';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -13,7 +13,8 @@ import {
   generateDealCommonFilters,
   getItemList,
   IArchiveArgs
-} from './boardUtils';
+} from './utils';
+import { Products } from '../../../db';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -33,8 +34,8 @@ const dealQueries = {
       ...(await generateDealCommonFilters(user._id, args))
     };
 
-    const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item)
+    const getExtraFields = async (_item: any) => ({
+      // amount: await dealResolvers.amount(item)
     });
 
     const deals = await getItemList(
