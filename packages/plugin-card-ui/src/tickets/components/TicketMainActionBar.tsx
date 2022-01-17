@@ -4,7 +4,7 @@ import { IOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
-import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrationss';
 import React from 'react';
 import Select from 'react-select-plus';
 import options from '@erxes/ui-cards/src/tickets/options';

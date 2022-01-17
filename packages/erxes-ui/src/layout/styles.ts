@@ -588,6 +588,16 @@ const MobileRecommend = styled.div`
   box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
 `;
 
+const PluginLayout = styledTS<{}>(styled.main)`
+  height: 100%;
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding-top: ${dimensions.headerSpacing}px;
+  flex-direction: column;
+`;
+
 export {
   PageHeader,
   AuthContent,
@@ -626,5 +636,6 @@ export {
   FlexItem,
   FlexContent,
   FlexRightItem,
-  SectionBodyItem
+  SectionBodyItem,
+  PluginLayout
 };
