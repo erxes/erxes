@@ -392,6 +392,12 @@ const CustomerName = styled(FlexCenter)`
   }
 `;
 
+const PluginLayout = styled(Flex)`
+  max-height: 100%;
+  flex: 1;
+  padding-top: ${dimensions.headerSpacing}px;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -425,5 +431,6 @@ export {
   LinkButton,
   FlexCenter,
   EllipsisContent,
-  CustomerName
+  CustomerName,
+  PluginLayout
 };
