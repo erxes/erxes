@@ -31,7 +31,7 @@ import {
   putCreateLog,
   putDeleteLog,
   putUpdateLog
-} from '@erxes/api-utils/src/logUtils';
+} from '../../../logUtils';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
   copyChecklists,
@@ -43,7 +43,6 @@ import {
 } from '../../utils';
 import messageBroker, { sendFieldRPCMessage } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/common-types/src/users';
-import { gatherDescriptions } from '../../../utils';
 // import { ACTIVITY_LOG_ACTIONS } from '../../constants';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
@@ -136,17 +135,13 @@ export const itemsAdd = async (
       contentType: type
     });
 
-    const logDoc = {
-      type,
-      newData: extendedDoc,
-      object: item
-    };
-
-    const { description, extraDesc } = await gatherDescriptions(logDoc);
-
     await putCreateLog(
       messageBroker,
-      { ...logDoc, description, extraDesc },
+      {
+        type,
+        newData: extendedDoc,
+        object: item
+      },
       user
     );
   }

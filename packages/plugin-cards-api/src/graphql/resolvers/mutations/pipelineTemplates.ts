@@ -4,10 +4,11 @@ import {
   IPipelineTemplate,
   IPipelineTemplateStage
 } from '../../../models/definitions/pipelineTemplates';
-// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { IContext } from '@erxes/api-utils/src';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
+import { IContext, MODULE_NAMES } from '@erxes/api-utils/src';
 // import { registerOnboardHistory } from '../../utils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
+import messageBroker from '../../../messageBroker';
 
 interface IPipelineTemplatesEdit extends IPipelineTemplate {
   _id: string;
@@ -30,14 +31,15 @@ const pipelineTemplateMutations = {
       stages
     );
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.PIPELINE_TEMPLATE,
-    //     newData: { ...doc, stages: pipelineTemplate.stages },
-    //     object: pipelineTemplate
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      messageBroker,
+      {
+        type: MODULE_NAMES.PIPELINE_TEMPLATE,
+        newData: { ...doc, stages: pipelineTemplate.stages },
+        object: pipelineTemplate
+      },
+      user
+    );
 
     return pipelineTemplate;
   },
@@ -52,22 +54,23 @@ const pipelineTemplateMutations = {
   ) {
     await checkPermission(doc.type, user, 'templatesEdit');
 
-    // const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
+    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
     const updated = await PipelineTemplates.updatePipelineTemplate(
       _id,
       doc,
       stages
     );
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.PIPELINE_TEMPLATE,
-    //     newData: { ...doc, stages: updated.stages },
-    //     object: pipelineTemplate,
-    //     updatedDocument: updated
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      messageBroker,
+      {
+        type: MODULE_NAMES.PIPELINE_TEMPLATE,
+        newData: { ...doc, stages: updated.stages },
+        object: pipelineTemplate,
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -106,10 +109,11 @@ const pipelineTemplateMutations = {
 
     const removed = await PipelineTemplates.removePipelineTemplate(_id);
 
-    // await putDeleteLog(
-    //   { type: MODULE_NAMES.PIPELINE_TEMPLATE, object: pipelineTemplate },
-    //   user
-    // );
+    await putDeleteLog(
+      messageBroker,
+      { type: MODULE_NAMES.PIPELINE_TEMPLATE, object: pipelineTemplate },
+      user
+    );
 
     return removed;
   }
