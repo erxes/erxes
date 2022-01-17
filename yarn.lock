@@ -6282,11 +6282,6 @@ erxes-ui@0.0.86:
   resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.86.tgz#d16c7be4f33b396a4100e2f24b8b1e62f0cb6db2"
   integrity sha512-F4+toUlf+A0wSRBJzSYQDMlLwMFji5o8E+EZExkc6xtv+iWfjtxGYNNcFGwGQnf+8b6mt+5ROcrJy7TppPcKtQ==
 
-erxes-ui@0.0.87:
-  version "0.0.87"
-  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.87.tgz#4d2d7220275ffacf84d8e64ce7286cef88f0cc2d"
-  integrity sha512-l3s1+Cn9T2AXRFD7Xj/NHtVHf4Y3JHycXgCaoMtjjxZGZVJzsjsLFnkH/noXqBmvXhTUAwli1ri2PNO2bzfQUQ==
-
 es-abstract@^1.18.5, es-abstract@^1.19.1:
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.19.1.tgz#d4885796876916959de78edaa0df456627115ec3"
@@ -12201,18 +12196,6 @@ react-bootstrap@1.0.0-beta.14:
     react-transition-group "^4.0.0"
     uncontrollable "^7.0.0"
     warning "^4.0.3"
-
-react-color@2.17.3:
-  version "2.17.3"
-  resolved "https://registry.yarnpkg.com/react-color/-/react-color-2.17.3.tgz#b8556d744f95193468c7061d2aa19180118d4a48"
-  integrity sha512-1dtO8LqAVotPIChlmo6kLtFS1FP89ll8/OiA8EcFRDR+ntcK+0ukJgByuIQHRtzvigf26dV5HklnxDIvhON9VQ==
-  dependencies:
-    "@icons/material" "^0.2.4"
-    lodash "^4.17.11"
-    material-colors "^1.2.1"
-    prop-types "^15.5.10"
-    reactcss "^1.2.0"
-    tinycolor2 "^1.4.1"
 
 react-color@^2.17.3:
   version "2.19.3"

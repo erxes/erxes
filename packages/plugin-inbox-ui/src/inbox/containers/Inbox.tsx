@@ -76,10 +76,10 @@ class WithCurrentId extends React.Component<IProps> {
         {({ currentUser }) => {
           const { queryParams } = this.props;
           const { _id } = queryParams;
-
-          if (!currentUser) {
-            return null;
-          }
+          console.log('hi curr', currentUser)
+          // if (!currentUser) {
+          //   return null;
+          // } *fixthis
 
           if (!_id || !can('showConversations', currentUser)) {
             return (
