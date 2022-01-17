@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { capitalize } from '@erxes/ui/src/activityLogs/utils';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';;
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
@@ -9,7 +10,7 @@ import { IBoard, IGroup } from '../types';
 import React from 'react';
 import { TYPES } from '../constants';
 import Event from '../containers/Event';
-import { CalendarController, ButtonGroup } from '../styles';
+import { CalendarController } from '../styles';
 import { IAccount } from '../types';
 import { generateFilters, extractDate } from '../utils';
 import Sidebar from './LeftSidebar';
