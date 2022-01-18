@@ -4,7 +4,7 @@ const path = require('path');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const configs = require('./plugin-src/configs');
 const { port = 3000 } = configs;
@@ -32,6 +32,7 @@ for (const name of depNames) {
 
 module.exports = {
   output: {
+    uniqueName: configs.name,
     publicPath: `http://localhost:${port}/`
   },
 
@@ -118,6 +119,6 @@ module.exports = {
     new HtmlWebPackPlugin({
       template: './src/index.html'
     }),
-    new BundleAnalyzerPlugin()
+    // new BundleAnalyzerPlugin()
   ]
 };
