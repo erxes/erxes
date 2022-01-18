@@ -22,6 +22,9 @@ export default {
     typeDefs,
     resolvers
   },
+  segment: {
+    schemas: []
+  },
   apolloServerContext: context => {
     return context;
   },

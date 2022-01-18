@@ -23,9 +23,9 @@ interface SubgraphConfig {
 
 export const allSubgraphEnvKeys: SubgraphConfig = {
   api: 'SUBGRAPH_API_URL',
-  engages: 'SUBGRAPH_ENGAGES_URL',
+  // engages: 'SUBGRAPH_ENGAGES_URL',
   // inbox: 'SUBGRAPH_INBOX_URL',
-  // cards: 'SUBGRAPH_CARDS_URL'
+  cards: 'SUBGRAPH_CARDS_URL'
 };
 
 const getConfiguredServices = (): ServiceEndpointDefinition[] =>
@@ -46,7 +46,9 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
     >
   >): ValueOrPromise<GraphQLResponse> {
     // This means gateway is starting up and didn't recieve request from clients
-    if (!context.res) { return response; }
+    if (!context.res) {
+      return response;
+    }
 
     const setCookiesCombined = response.http?.headers.get('set-cookie');
 
@@ -74,7 +76,9 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
     }
 
     const cookie = context.req?.headers.cookie;
-    if (!cookie) { return; }
+    if (!cookie) {
+      return;
+    }
 
     if (typeof cookie === 'string') {
       request.http?.headers.set('Cookie', cookie);
