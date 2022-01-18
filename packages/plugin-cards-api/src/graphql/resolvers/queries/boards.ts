@@ -16,7 +16,7 @@ import { IStageDocument } from '../../../models/definitions/boards';
 import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
 import { IPipelineLabelDocument } from '../../../models/definitions/pipelineLabels';
 import { getCloseDateByType } from './utils';
-import { Users } from '../../../db';
+import { Users } from '../../../apiCollections';
 
 export interface IDate {
   month: number;
@@ -51,7 +51,7 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  boards(
+  async boards(
     _root,
     { type }: { type: string },
     { user, commonQuerySelector }: IContext
@@ -75,7 +75,7 @@ const boardQueries = {
           ]
         };
 
-    return Boards.aggregate([
+    const boards = await Boards.aggregate([
       { $match: { ...commonQuerySelector, type } },
       {
         $lookup: {
@@ -98,6 +98,10 @@ const boardQueries = {
         }
       }
     ]);
+
+    console.log('boards: ', boards);
+
+    return boards;
   },
 
   /**
@@ -151,16 +155,21 @@ const boardQueries = {
   /**
    * Get last board
    */
-  boardGetLast(
+  async boardGetLast(
     _root,
     { type }: { type: string },
     { commonQuerySelector }: IContext
   ) {
-    return Boards.findOne({ ...commonQuerySelector, type })
+    console.log('=========================bbb=========================');
+    const board = await Boards.findOne({ ...commonQuerySelector, type })
       .sort({
         createdAt: -1
       })
       .lean();
+
+    console.log('last: ', board);
+
+    return board;
   },
 
   /**

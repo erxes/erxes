@@ -12,7 +12,7 @@ import { graphqlPubsub } from '../../../configs';
 import { IContext } from '@erxes/api-utils/src';
 import { checkPermission } from '../../utils';
 import messageBroker, { sendFieldsGroupMessage } from '../../../messageBroker';
-import { FieldsGroups } from '../../../db';
+import { FieldsGroups } from '../../../apiCollections';
 import { configReplacer } from '../../../utils';
 import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 

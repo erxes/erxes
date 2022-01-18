@@ -14,7 +14,7 @@ import {
   sendNotification as commonSendNotification
 } from '@erxes/api-utils/src/requests';
 import memoryStorage from '../inmemoryStorage';
-import { Users, Checklists } from '../db';
+import { Users, Checklists } from '../apiCollections';
 import { sendConformityMessage } from '../messageBroker';
 import { graphqlPubsub } from '../configs';
 

@@ -70,11 +70,11 @@ export const queries = `
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
-  clientPortalGetTaskStages(taskPublicPipelineId: String!): [Stage]
-  clientPortalGetTasks(stageId: String!): [Task]
-  clientPortalTickets(email: String!): [Ticket]
-  clientPortalTask(_id: String!): Task
-  clientPortalTicket(_id: String!): Ticket
+  clientPortalGetTaskStages(taskPublicPipelineId: String!): JSON
+  clientPortalGetTasks(stageId: String!): JSON
+  clientPortalTickets(email: String!): JSON
+  clientPortalTask(_id: String!): JSON
+  clientPortalTicket(_id: String!): JSON
 `;
 
 export const mutations = `
@@ -115,7 +115,7 @@ export const mutations = `
     description: String
     email: String!
     priority: String
-  ): Ticket
+  ): JSON
 
   clientPortalCreateCustomer(
     configId: String!

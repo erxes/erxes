@@ -1,6 +1,6 @@
 import resolvers from '..';
 import { Boards, Pipelines, Stages } from '../../../models';
-import { Notifications } from '../../../db';
+import { Notifications } from '../../../apiCollections';
 import {
   destroyBoardItemRelations,
   getCollection,
