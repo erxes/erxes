@@ -1,6 +1,6 @@
 import sift from 'sift';
 
-import { Users } from './db';
+import { Users } from './apiCollections';
 
 import { get, set } from './inmemoryStorage';
 

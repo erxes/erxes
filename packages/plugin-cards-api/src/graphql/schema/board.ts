@@ -6,15 +6,15 @@ const commonTypes = `
 
 export const types = `
   extend type User @key(fields: "_id") {
-    _id: ID! @external
+    _id: String! @external
   }
 
   extend type Company @key(fields: "_id") {
-    _id: ID! @external
+    _id: String! @external
   }
 
   extend type Customer @key(fields: "_id") {
-    _id: ID! @external
+    _id: String! @external
   }
 
   type Board @key(fields: "_id") {

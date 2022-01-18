@@ -106,11 +106,7 @@ async function startServer() {
     `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
   );
 
-  let mongoUrl = MONGO_URL;
-
-  if (NODE_ENV === 'test') {
-    mongoUrl = TEST_MONGO_URL;
-  }
+  const mongoUrl = MONGO_URL || '';
 
   try {
     // connect to mongo database
@@ -119,7 +115,7 @@ async function startServer() {
 
     configs.onServerInit({
       app,
-      pubsub,
+      pubsubClient: pubsub,
       elasticsearch,
       messageBrokerClient,
       debug: {
@@ -128,7 +124,12 @@ async function startServer() {
       }
     });
 
-    await join(configs.name, PORT);
+    await join({
+      name: configs.name,
+      port: PORT || '',
+      dbConnectionString: mongoUrl,
+      segment: configs.segment
+    });
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);
   } catch (e) {

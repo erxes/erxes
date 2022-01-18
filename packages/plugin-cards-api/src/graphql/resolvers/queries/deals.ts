@@ -14,7 +14,7 @@ import {
   getItemList,
   IArchiveArgs
 } from './utils';
-import { Products } from '../../../db';
+import { Products } from '../../../apiCollections';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -57,7 +57,7 @@ const dealQueries = {
 
     const products = await Products.find({
       _id: { $in: [...new Set(dealProductIds)] }
-    }).lean();
+    }).toArray();
 
     for (const deal of deals) {
       if (

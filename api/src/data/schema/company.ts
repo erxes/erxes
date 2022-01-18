@@ -1,7 +1,7 @@
 import { conformityQueryFields } from './common';
 
 export const types = `
-  type Company {
+  type Company @key(fields: "_id") {
     _id: String!
 
     createdAt: Date

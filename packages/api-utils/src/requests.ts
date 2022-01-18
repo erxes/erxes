@@ -121,7 +121,7 @@ export const sendNotification = async (
   const recipients = await models.Users.find({
     _id: { $in: receiverIds },
     isActive: true
-  });
+  }).toArray();
 
   // collect recipient emails
   const toEmails: string[] = [];

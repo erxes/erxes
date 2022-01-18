@@ -8,11 +8,6 @@ import {
   types as AutomationTypes
 } from './automations';
 import {
-  mutations as BoardMutations,
-  queries as BoardQueries,
-  types as BoardTypes
-} from './board';
-import {
   mutations as BrandMutations,
   queries as BrandQueries,
   types as BrandTypes
@@ -48,11 +43,6 @@ import {
   types as DashboardTypes
 } from './dashboard';
 import {
-  mutations as DealMutations,
-  queries as DealQueries,
-  types as DealTypes
-} from './deal';
-import {
   queries as EmailDeliveryQueries,
   types as EmailDelivery
 } from './emailDelivery';
@@ -74,11 +64,6 @@ import {
   queries as FormQueries,
   types as FormTypes
 } from './form';
-import {
-  mutations as GrowthHackMutations,
-  queries as GrowthHackQueries,
-  types as GrowthHackTypes
-} from './growthHack';
 import {
   mutations as ImportHistoryMutations,
   queries as ImportHistoryQueries,
@@ -106,16 +91,6 @@ import {
   types as PermissionTypes
 } from './permission';
 import {
-  mutations as PipelineLabelMutations,
-  queries as PipelineLabelQueries,
-  types as PipelineLabelTypes
-} from './pipelineLabel';
-import {
-  mutations as PipelineTemplateMutations,
-  queries as PipelineTemplateQueries,
-  types as PipelineTemplateTypes
-} from './pipelineTemplate';
-import {
   mutations as ProductMutations,
   queries as ProductQueries,
   types as ProductTypes
@@ -140,16 +115,6 @@ import {
   queries as TagQueries,
   types as TagTypes
 } from './tag';
-import {
-  mutations as TaskMutations,
-  queries as TaskQueries,
-  types as TaskTypes
-} from './task';
-import {
-  mutations as TicketMutations,
-  queries as TicketQueries,
-  types as TicketTypes
-} from './ticket';
 import {
   mutations as UserMutations,
   queries as UserQueries,
@@ -188,22 +153,15 @@ export let types = `
   ${ConformityTypes}
   ${SegmentTypes}
   ${NotificationTypes}
-  ${BoardTypes}
-  ${DealTypes}
   ${DashboardTypes}
   ${ProductTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
   ${PermissionTypes}
-  ${TicketTypes}
-  ${TaskTypes}
   ${LogTypes}
-  ${GrowthHackTypes}
-  ${PipelineTemplateTypes}
   ${ChecklistTypes}
   ${RobotTypes}
-  ${PipelineLabelTypes}
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
@@ -214,7 +172,6 @@ export let types = `
 export let queries = `
   ${UserQueries}
   ${BrandQueries}
-  ${BoardQueries}
   ${ScriptQueries}
   ${EmailTemplateQueries}
   ${ClientPortalQueries}
@@ -227,21 +184,15 @@ export let queries = `
   
   ${NotificationQueries}
   ${ActivityLogQueries}
-  ${DealQueries}
   ${DashboardQueries}
   ${ProductQueries}
   ${ConfigQueries}
   ${FieldGroupQueries}
   ${ImportHistoryQueries}
   ${PermissionQueries}
-  ${TicketQueries}
-  ${TaskQueries}
   ${LogQueries}
-  ${GrowthHackQueries}
-  ${PipelineTemplateQueries}
   ${ChecklistQueries}
   ${RobotQueries}
-  ${PipelineLabelQueries}
   ${WebhookQueries}
   ${CalendarQueries}
   ${SmsDeliveryQueries}
@@ -252,7 +203,6 @@ export let queries = `
 export let mutations = `
   ${UserMutations}
   ${TagMutations}
-  ${BoardMutations}
   ${BrandMutations}
   ${ScriptMutations}
   ${EmailTemplateMutations}
@@ -262,21 +212,15 @@ export let mutations = `
   ${FieldMutations}
   ${FormMutatons}
   ${NotificationMutations}
-  ${DealMutations}
   ${DashboardMutations}
   ${ProductMutations}
   ${ConfigMutations}
   ${FieldGroupMutations}
   ${ImportHistoryMutations}
   ${PermissionMutations}
-  ${TicketMutations}
-  ${TaskMutations}
-  ${GrowthHackMutations}
-  ${PipelineTemplateMutations}
   ${ConformityMutations}
   ${ChecklistMutations}
   ${RobotMutations}
-  ${PipelineLabelMutations}
   ${WebhookMutations}
   ${CalendarMutations}
   ${StructureMutations}

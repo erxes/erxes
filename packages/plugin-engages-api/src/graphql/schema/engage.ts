@@ -18,10 +18,6 @@ export const types = `
     ${externalId}
   }
 
-  extend type Integration ${keyFields} {
-    ${externalId}
-  }
-
   type EngageMessage @key(fields: "_id") {
     _id: String!
     kind: String
@@ -57,7 +53,7 @@ export const types = `
     brands: [Brand]
     fromUser: User
     getTags: [Tag]
-    fromIntegration: Integration
+    fromIntegration: JSON
     createdUser: User
 
     stats: JSON

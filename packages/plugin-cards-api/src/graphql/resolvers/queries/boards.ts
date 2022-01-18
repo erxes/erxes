@@ -16,7 +16,7 @@ import { IStageDocument } from '../../../models/definitions/boards';
 import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
 import { IPipelineLabelDocument } from '../../../models/definitions/pipelineLabels';
 import { getCloseDateByType } from './utils';
-import { Users } from '../../../db';
+import { Users } from '../../../apiCollections';
 
 export interface IDate {
   month: number;
@@ -51,7 +51,7 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  boards(
+  async boards(
     _root,
     { type }: { type: string },
     { user, commonQuerySelector }: IContext

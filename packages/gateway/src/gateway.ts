@@ -12,20 +12,21 @@ import { GraphQLRequestContext, GraphQLResponse } from 'apollo-server-core';
 import { ValueOrPromise } from 'apollo-server-types';
 import splitCookiesString from './util/splitCookiesString';
 
-export interface GatewayContext {
+export interface IGatewayContext {
   req?: express.Request & { user?: any };
   res?: express.Response;
 }
 
-interface SubgraphConfig {
+interface ISubgraphConfig {
   [x: string]: string;
 }
 
-export const allSubgraphEnvKeys: SubgraphConfig = {
+export const allSubgraphEnvKeys: ISubgraphConfig = {
   api: 'SUBGRAPH_API_URL',
   // engages: 'SUBGRAPH_ENGAGES_URL',
-  inbox: 'SUBGRAPH_INBOX_URL'
-  // cards: 'SUBGRAPH_CARDS_URL'
+  // inbox: 'SUBGRAPH_INBOX_URL',
+  // contact: 'SUBGRAPH_CONTACT_URL',
+  cards: 'SUBGRAPH_CARDS_URL'
 };
 
 const getConfiguredServices = (): ServiceEndpointDefinition[] =>
@@ -34,14 +35,14 @@ const getConfiguredServices = (): ServiceEndpointDefinition[] =>
     .map(([name, envVar]) => ({ name, url: process.env[envVar] })); // get url from environment variables
 
 class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
-  GatewayContext
+  IGatewayContext
 > {
   didReceiveResponse({
     response,
     context
   }: Required<
     Pick<
-      GraphQLRequestContext<GatewayContext>,
+      GraphQLRequestContext<IGatewayContext>,
       'request' | 'response' | 'context'
     >
   >): ValueOrPromise<GraphQLResponse> {
@@ -63,7 +64,7 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
   willSendRequest({
     request,
     context
-  }: GraphQLDataSourceProcessOptions<GatewayContext>): ValueOrPromise<void> {
+  }: GraphQLDataSourceProcessOptions<IGatewayContext>): ValueOrPromise<void> {
     // This means gateway is starting up and didn't recieve request from clients
     if (!('req' in context) || !context.req) {
       return;

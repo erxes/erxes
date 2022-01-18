@@ -1,5 +1,5 @@
 import { Boards, PipelineLabels, Pipelines, Stages } from '../models';
-import * as models from '../models';
+import * as apiCollections from '../apiCollections';
 import { getNewOrder } from '../models/utils';
 import { NOTIFICATION_TYPES } from '../models/definitions/constants';
 import { IDealDocument } from '../models/definitions/deals';
@@ -14,7 +14,7 @@ import {
   sendNotification as commonSendNotification
 } from '@erxes/api-utils/src/requests';
 import memoryStorage from '../inmemoryStorage';
-import { Users, Checklists } from '../db';
+import { Users, Checklists } from '../apiCollections';
 import { sendConformityMessage } from '../messageBroker';
 import { graphqlPubsub } from '../configs';
 
@@ -40,7 +40,12 @@ export const sendNotification = async (doc: ISendNotification) => {
     });
   }
 
-  return commonSendNotification(models, memoryStorage, graphqlPubsub, doc);
+  return commonSendNotification(
+    apiCollections,
+    memoryStorage,
+    graphqlPubsub,
+    doc
+  );
 };
 
 export const notifiedUserIds = async (item: any) => {
