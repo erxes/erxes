@@ -29,6 +29,7 @@ export default {
     typeDefs,
     resolvers,
   },
+  segment: { schemas: []},
   apolloServerContext: (context) => { context.dataloaders = {} },
   onServerInit: async (options) => {
     await connect();

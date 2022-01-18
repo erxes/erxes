@@ -29,6 +29,7 @@ export default {
   segment: {
     schemas: [{
       name: 'conversation',
+      description: 'Conversation',
       options: conversationSchemaOptions
     }]
   },

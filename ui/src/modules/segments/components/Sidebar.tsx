@@ -15,22 +15,21 @@ function ListItem(link: string, label: string) {
   );
 }
 
-function TagsSidebar() {
+type Props = {
+  types: Array<{ name: string; description: string }>;
+};
+
+function Sidebar(props: Props) {
   return (
     <LeftSidebar full={true} header={<SidebarHeader />}>
       <LeftSidebar.Header uppercase={true}>
         {__('Segments type')}
       </LeftSidebar.Header>
+
       <SidebarList id={'SegmentSidebar'}>
-        {ListItem('/segments/customer', 'Customer')}
-        {ListItem('/segments/lead', 'Lead')}
-        {ListItem('/segments/visitor', 'Visitor')}
-        {ListItem('/segments/company', 'Company')}
-        {ListItem('/segments/deal', 'Sales Pipeline')}
-        {ListItem('/segments/task', 'Task')}
-        {ListItem('/segments/ticket', 'Ticket')}
-        {ListItem('/segments/conversation', 'Conversation')}
-        {ListItem('/segments/user', 'Team member')}
+        {props.types.map(type => {
+          return ListItem(`/segments/${type.name}`, type.description);
+        })}
         <li>
           <a
             target="_blank"
@@ -45,4 +44,4 @@ function TagsSidebar() {
   );
 }
 
-export default TagsSidebar;
+export default Sidebar;

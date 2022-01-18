@@ -56,6 +56,12 @@ const headSegments = `
   }
 `;
 
+const segmentsGetTypes = `
+  query segmentsGetTypes {
+    segmentsGetTypes
+  }
+`;
+
 const events = `
   query events($contentType: String!) {
     segmentsEvents(contentType: $contentType)
@@ -67,5 +73,6 @@ export default {
   segmentDetail,
   headSegments,
   events,
+  segmentsGetTypes,
   segmentsPreviewCount
 };
