@@ -1160,6 +1160,12 @@ a:hover {
     -moz-box-sizing:border-box;
     box-sizing:border-box;
   }
+
+  button,input,optgroup,select,textarea{
+    margin:0;
+    font:inherit;
+    color:inherit
+  }
 `;
 
 const globalStyle = [`${style}`] as any;
