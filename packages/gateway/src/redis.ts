@@ -18,8 +18,18 @@ export const getServices = () => {
   return registry.services();
 }
 
-export const getService = (name) => {
-  return registry.get(name);
+export const getService = async (name: string, meta?: boolean) => {
+  const result = {
+    address: await registry.get(name),
+    meta: {}
+  }
+
+  if (meta) {
+    const value = await redis.get(`service:config:${name}`);
+    result.meta = JSON.parse(value || '{}');
+  }
+
+  return result;
 }
 
 export default redis;

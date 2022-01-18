@@ -32,17 +32,18 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
       router: async (req) => {
         const services = await getServices();
 
-        let foundService;
+        let host;
 
         for (const service of services) {
           if (req.path.includes(`/pl:${service}/`)) {
-            foundService = await getService(service);
+            const foundService = await getService(service);
+            host = foundService.address;
             break;
           }
         }
 
-        if (foundService) {
-          return foundService;
+        if (host) {
+          return host;
         }
       },
       pathRewrite: async (path) => {
