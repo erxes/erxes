@@ -9,8 +9,8 @@ import ws from 'ws';
 import express, { Request, Response } from 'express';
 import http from 'http';
 import cookieParser from 'cookie-parser';
-import { loadSubscriptions } from './subscription';
-import { createGateway, GatewayContext } from './gateway';
+// import { loadSubscriptions } from './subscription';
+import { createGateway, IGatewayContext } from './gateway';
 import userMiddleware from './middlewares/userMiddleware';
 import * as db from './db';
 import pubsub from './subscription/pubsub';
@@ -94,7 +94,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
     }: {
       res: Response;
       req: Request & { user?: any };
-    }): GatewayContext => {
+    }): IGatewayContext => {
       // console.log(`building context ${JSON.stringify(req.user)}`);
       return { res, req };
     }
