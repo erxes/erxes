@@ -92,10 +92,10 @@
     "@types/express-serve-static-core" "*"
     "@types/serve-static" "*"
 
-"@types/google-map-react@2.0.0":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@types/google-map-react/-/google-map-react-1.1.8.tgz#4098db8a86a6d5cc27c6eaa2b3e20e78e7feabcf"
-  integrity sha512-8B83ZUtQgzIx/mwZi6ezPfV/SuI9WzNVGZQPp2HuSpbJVQxJjQ7XFJcGgtvzvD1q9nZGelOHMeCgacYy/x0SDg==
+"@types/google-map-react@1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@types/google-map-react/-/google-map-react-1.1.7.tgz#f4a6589ed33a72ee0fa315ec8fa537855d533f6e"
+  integrity sha512-/hX+vtt/NAWmc7n5WLTTnxf0MzReAC4qXQdRw9OHmVdToNvQ1XWmmLMjXr0LfZYmaijMlVD3ox9VdtQMlof30g==
   dependencies:
     "@types/react" "*"
 
@@ -2508,7 +2508,7 @@ globule@^1.0.0:
     lodash "~4.17.10"
     minimatch "~3.0.2"
 
-google-map-react@^1.1.7:
+google-map-react@1.1.7:
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/google-map-react/-/google-map-react-1.1.7.tgz#381baa7d16273de0e981cf2b8f996fccef2ab4a4"
   integrity sha512-OWwfvVlJG3aQbDZOezWPzT7b8uqk5iMya5yEfBcfGYBFONna5UYCWZl49/cS0j1DPigtwtN0YCzPKjXMQHOUeA==
