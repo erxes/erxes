@@ -39,6 +39,30 @@ export const savedConformity = async (doc): Promise<any> => {
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
+export const removeCustomersConversations = async (
+  customerIds
+): Promise<any> => {
+  await client.consumeQueue(
+    'contact:removeCustomersConversations',
+    customerIds
+  );
+};
+
+export const removeCustomersEngages = async (customerIds): Promise<any> => {
+  await client.consumeQueue('contact:removeCustomersEngages', customerIds);
+};
+
+export const changeCustomer = async (customerId, customerIds): Promise<any> => {
+  await client.consumeQueue('contact:changeCustomer', customerId, customerIds);
+};
+
+export const engageChangeCustomer = async (
+  customerId,
+  customerIds
+): Promise<any> => {
+  await client.consumeQueue('engage:changeCustomer', customerId, customerIds);
+};
+
 export default function() {
   return client;
 }

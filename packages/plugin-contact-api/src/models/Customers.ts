@@ -14,6 +14,12 @@ import {
   ICustomerDocument
 } from './definitions/customers';
 import { IUserDocument } from '@erxes/common-types';
+import {
+  changeCustomer,
+  engageChangeCustomer,
+  removeCustomersConversations,
+  removeCustomersEngages
+} from '../messageBroker';
 
 interface IGetCustomerParams {
   email?: string;
@@ -464,8 +470,8 @@ export const loadClass = () => {
       //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
       //   data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
       // });
-      // await Conversations.removeCustomersConversations(customerIds);
-      // await EngageMessages.removeCustomersEngages(customerIds);
+      await removeCustomersConversations(customerIds);
+      await removeCustomersEngages(customerIds);
       await InternalNotes.removeInternalNotes(
         ACTIVITY_CONTENT_TYPES.CUSTOMER,
         customerIds
@@ -571,8 +577,9 @@ export const loadClass = () => {
         newTypeId: customer._id,
         oldTypeIds: customerIds
       });
-      // await Conversations.changeCustomer(customer._id, customerIds);
-      // await EngageMessages.changeCustomer(customer._id, customerIds);
+
+      await changeCustomer(customer._id, customerIds);
+      await engageChangeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);
 
       return customer;
