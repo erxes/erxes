@@ -11,6 +11,7 @@ import {
   PRODUCT_CATEGORY_STATUSES,
   PRODUCT_SUPPLY
 } from './constants';
+import { field, schemaWrapper } from './utils';
 
 export interface IProduct {
   name: string;
@@ -39,7 +40,8 @@ export interface IProduct {
 export interface IProductDocument extends IProduct, Document {
   _id: string;
   createdAt: Date;
-  vendor?: ICompany;
+  // vendor?: ICompany;
+  vendor?: any;
 }
 
 export interface IProductCategory {

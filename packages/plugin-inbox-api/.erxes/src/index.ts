@@ -16,7 +16,7 @@ import * as http from 'http';
 import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { initBroker } from './messageBroker';
-import * as elasticsearch from './elasticsearch'
+import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 
@@ -63,10 +63,12 @@ const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 const httpServer = http.createServer(app);
 
 const apolloServer = new ApolloServer({
-  schema: buildSubgraphSchema([{
-    typeDefs: configs.graphql.typeDefs,
-    resolvers: configs.graphql.resolvers
-  }]),
+  schema: buildSubgraphSchema([
+    {
+      typeDefs: configs.graphql.typeDefs,
+      resolvers: configs.graphql.resolvers
+    }
+  ]),
 
   // for graceful shutdown
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
@@ -130,7 +132,7 @@ async function startServer() {
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);
   } catch (e) {
-    debugError(`Error during startup ${e.message}`)
+    debugError(`Error during startup ${e.message}`);
   }
 }
 

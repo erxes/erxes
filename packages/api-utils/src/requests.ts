@@ -1,6 +1,6 @@
 import * as requestify from 'requestify';
 import * as admin from 'firebase-admin';
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types/src/users';
 
 import { debugExternalApi } from './debuggers';
 import { sendEmail } from './emails';
