@@ -1,9 +1,9 @@
-import { commonInputs, commonTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes } from './common';
 
 export const types = `
   type LotteryCompaign {
     _id: String,
-    ${commonTypes}
+    ${commonCompaignTypes}
     lotteryDate: Date,
     numberFormat: String,
     buyScore: Float,
@@ -12,7 +12,7 @@ export const types = `
 `;
 
 const LotteryCompaignDoc = `
-  ${commonInputs}
+  ${commonCompaignInputs}
   lotteryDate: Date,
   numberFormat: String,
   buyScore: Float,

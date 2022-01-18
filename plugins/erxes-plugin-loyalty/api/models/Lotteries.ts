@@ -27,7 +27,7 @@ export class Lottery {
     return await models.Lotteries.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean()
   }
 
-  public static async createLottery(models, { compaignId, ownerType, ownerId }) {
+  public static async createLottery(models, { compaignId, ownerType, ownerId , voucherCompaignId = ''}) {
     const lotteryCompaign = await models.LotteryCompaigns.getLotteryCompaign(models, compaignId);
 
     const now = new Date();
@@ -37,7 +37,7 @@ export class Lottery {
     }
 
     const number = getRandomNumber(lotteryCompaign.numberFormat);
-    return await models.Lotteries.create({ compaignId, ownerType, ownerId, createdAt: new Date(), number, status: LOTTERY_STATUS.NEW })
+    return await models.Lotteries.create({ compaignId, ownerType, ownerId, createdAt: new Date(), number, status: LOTTERY_STATUS.NEW, voucherCompaignId })
   }
 
   public static async buyLottery(models, { compaignId, ownerType, ownerId, count = 1 }) {

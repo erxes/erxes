@@ -23,6 +23,10 @@ export class Voucher {
     return voucherRule;
   }
 
+  public static async getVouchers(models, { ownerType, ownerId, statuses }: { ownerType: string, ownerId: string, statuses: string[] }) {
+    return await models.Vouchers.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean()
+  }
+
   public static async createVoucher(models, { compaignId, ownerType, ownerId }) {
     const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, compaignId);
 
@@ -32,11 +36,11 @@ export class Voucher {
       case 'bonus':
         return models.Vouchers.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: VOUCHER_STATUS.NEW });
       case 'spin':
-        return models.Spins.createSpin(models, { compaignId: voucherCompaign.spinCompaignId, ownerType, ownerId });
+        return models.Spins.createSpin(models, { compaignId: voucherCompaign.spinCompaignId, ownerType, ownerId, voucherCompaignId: compaignId });
       case 'lottery':
-        return models.Lottery.createLottery(models, { compaignId: voucherCompaign.lotteryCompaignId, ownerType, ownerId });
+        return models.Lottery.createLottery(models, { compaignId: voucherCompaign.lotteryCompaignId, ownerType, ownerId, voucherCompaignId: compaignId });
       case 'score':
-        return changeScoreOwner(models, { ownerType, ownerId, changeScore: voucherCompaign.score })
+        return changeScoreOwner(models, { ownerType, ownerId, changeScore: voucherCompaign.score });
       default:
         break
     }

@@ -51,6 +51,15 @@ const donateCompaignList = ({ location, history }) => {
   );
 };
 
+const loyalties = ({ location, history }) => {
+  return (
+    <VoucherCompaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 export default () => ({
   routes: [
     {
@@ -76,8 +85,18 @@ export default () => ({
     {
       path: '/settings/donate',
       component: donateCompaignList
+    },
+    {
+      path: '/loyalties',
+      component: loyalties
     }
   ],
+  menu: {
+    label: 'Loyalty',
+    icon: 'icon-piggybank',
+    link: '/loyalties',
+    // permission: 'showContracts'
+  },
   customerRightSidebarSection: {
     section: LoyaltySectionContainer,
   },

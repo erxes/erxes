@@ -1,6 +1,6 @@
 import { commonCompaignSchema, validCompaign } from "./CompaignUtils";
 import { COMPAIGN_STATUS, LOTTERY_STATUS } from './Constants';
-import { randomBetween } from "./utils";
+import { randomBetween, getRandomNumber } from './utils';
 
 const lotteryAward = {
   _id: { type: String },
@@ -86,7 +86,7 @@ export class LotteryCompaign {
     return models.LotteryCompaigns.deleteMany({ _id: { $in: deleteCompaignIds } });
   }
 
-  public static async doLottery(models, { compaignId, awardId }) {
+  static async validDoLottery(models, compaignId, awardId) {
     const compaign = await models.getLotteryCompaign(models, compaignId);
     const award = compaign.awards.find(a => a.awardId === awardId)
     if (!award) {
@@ -96,6 +96,21 @@ export class LotteryCompaign {
     if ((award.wonLotteryIds || []).length >= award.count) {
       throw new Error('this award is fully');
     }
+
+    return { compaign, award }
+  }
+
+  static async setLuckyLottery(models, compaign, award, luckyLottery) {
+    const awards = compaign.awards.map(a => (a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
+
+    await models.LotteryCompaigns.updateOne({ _id: compaign._id }, { $set: { awards } });
+
+    const voucher = await models.Vouchers.createVoucher(models, { compaignId: award.voucherCompaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId })
+    await models.Lotteries.updateOne({ _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id } });
+  }
+
+  public static async doLottery(models, { compaignId, awardId }) {
+    const { compaign, award } = await this.validDoLottery(models, compaignId, awardId);
 
     const filter = { compaignId, status: LOTTERY_STATUS.NEW }
     const lotteriesCount = await models.Lotteries.find(filter).countDocuments();
@@ -108,13 +123,47 @@ export class LotteryCompaign {
       throw new Error('not found lucky lottery');
     }
 
-    const awards = compaign.awards.map(a => (a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
-
-    await models.LotteryCompaigns.updateOne({ _id: compaignId }, { $set: { awards } });
-
-    const voucher = await models.Vouchers.createVoucher(models, { compaignId: award.voucherCompaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId })
-    await models.Lotteries.updateOne({ _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherCompaignId: award.voucherCompaignId, voucherId: voucher._id } })
+    await this.setLuckyLottery(models, compaign, award, luckyLottery)
 
     return models.getLottery(models, luckyLottery._id);
+  }
+
+  public static async getNextChar(models, { compaignId, awardId, prevChars }) {
+    const { compaign, award } = await this.validDoLottery(models, compaignId, awardId);
+
+    const randomNumber = getRandomNumber(compaign.numberFormat);
+
+    const nextChar = randomNumber.substring(prevChars.len, prevChars.len);
+    const afterChars = `${prevChars}${nextChar}`;
+    const filter = {
+      compaignId,
+      status: LOTTERY_STATUS.NEW,
+      formatNumber: new RegExp(`^${afterChars}.*`, "g")
+    }
+
+    const fitLotteriesCount = await models.Lotteries.find(filter).countDocument();
+
+    if (fitLotteriesCount === 1) {
+      const luckyLottery = await models.Lotteries.findOne(filter);
+
+      await this.setLuckyLottery(models, compaign, award, luckyLottery);
+
+      return {
+        nextChar,
+        afterChars,
+        fitLotteriesCount,
+        luckyLottery: await models.getLottery(models, luckyLottery._id)
+      }
+
+    }
+
+    const fitLotteries = await models.Lotteries.find(filter).limit(10).lean();
+
+    return {
+      nextChar,
+      afterChars,
+      fitLotteriesCount,
+      fitLotteries
+    }
   }
 }

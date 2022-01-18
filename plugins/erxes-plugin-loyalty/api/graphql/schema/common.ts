@@ -1,4 +1,4 @@
-export const commonTypes = `
+export const commonCompaignTypes = `
   createdAt: Date,
   createdBy: String,
   modifiedAt: Date,
@@ -13,7 +13,7 @@ export const commonTypes = `
   status: String,
 `;
 
-export const commonInputs = `
+export const commonCompaignInputs = `
   title: String,
   description: String,
   startDate: Date,
@@ -21,3 +21,38 @@ export const commonInputs = `
   attachment: AttachmentInput,
   status: String,
 `;
+
+export const commonTypes = `
+  _id: String,
+  compaignId: String,
+  createdAt: Date,
+  usedAt: Date,
+
+  ownerType: String,
+  ownerId: String,
+
+  company: [Company]
+  customer: [Customer]
+  user: [User]
+  compaign: JSON,
+  owner: JSON
+`;
+
+export const commonInputs = `
+  compaignId: String,
+  createdAt: Date,
+  usedAt: Date,
+
+  ownerType: String,
+  ownerId: String,
+`;
+
+export const commonFilters = `
+  page: Int,
+  perPage: Int,
+  compaignId: String,
+  compaignType: String,
+  ownerType: String,
+  ownerId: String,
+  statuses: [String],
+`

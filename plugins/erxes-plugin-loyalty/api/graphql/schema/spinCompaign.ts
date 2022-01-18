@@ -1,16 +1,16 @@
-import { commonInputs, commonTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes } from './common';
 
 export const types = `
   type SpinCompaign {
     _id: String,
-    ${commonTypes}
+    ${commonCompaignTypes}
     buyScore: Float,
     awards: JSON
   }
 `;
 
 const SpinCompaignDoc = `
-  ${commonInputs}
+  ${commonCompaignInputs}
   buyScore: Float,
   awards: JSON
 `

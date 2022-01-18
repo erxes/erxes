@@ -1,9 +1,9 @@
-import { commonInputs, commonTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes } from './common';
 
 export const types = `
   type DonateCompaign {
     _id: String,
-    ${commonTypes}
+    ${commonCompaignTypes}
 
     maxScore: Float
     awards: JSON
@@ -11,7 +11,7 @@ export const types = `
 `;
 
 const DonateCompaignDoc = `
-  ${commonInputs}
+  ${commonCompaignInputs}
   maxScore: Float
   awards: JSON
 `

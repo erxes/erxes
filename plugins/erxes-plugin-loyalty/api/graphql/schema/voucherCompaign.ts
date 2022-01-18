@@ -1,9 +1,9 @@
-import { commonInputs, commonTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes } from './common';
 
 export const types = `
   type VoucherCompaign {
     _id: String,
-    ${commonTypes}
+    ${commonCompaignTypes}
     buyScore: Float,
 
     score: Float,
@@ -27,7 +27,7 @@ export const types = `
 `;
 
 const VoucherCompaignDoc = `
-  ${commonInputs}
+  ${commonCompaignInputs}
   buyScore: Float,
 
   score: Float,
