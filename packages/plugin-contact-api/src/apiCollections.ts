@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb://localhost/erxes';
 const client = new MongoClient(url);
 
 const dbName = 'erxes';

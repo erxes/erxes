@@ -15,6 +15,7 @@ import * as http from 'http';
 import { connect } from './connection';
 import { debugBase, debugError, debugInfo } from './debuggers';
 import { initBroker } from './messageBroker';
+import * as elasticsearch from './elasticsearch';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import typeDefs from '../../src/graphql/typeDefs';
 import resolvers from '../../src/graphql/resolvers';
@@ -96,7 +97,7 @@ async function starServer() {
   );
 
   console.log(
-    `🚀 Inbox graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
+    `🚀 Contact graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
   );
 
   let mongoUrl = MONGO_URL;
@@ -112,6 +113,7 @@ async function starServer() {
 
     configs.onServerInit({
       app,
+      elasticsearch,
       messageBrokerClient,
       debug: {
         info: debugInfo,

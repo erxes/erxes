@@ -4,8 +4,8 @@ import { Model, model } from 'mongoose';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
 import { Conformities, Fields, InternalNotes } from '../apiCollections';
-import { EngageMessages } from '@erxes/plugin-engages-api/src/models';
-import { Conversations } from '@erxes/plugin-inbox-api/src/models';
+// import { EngageMessages } from '@erxes/plugin-engages-api/src/models';
+// import { Conversations } from '@erxes/plugin-inbox-api/src/models';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
@@ -464,8 +464,8 @@ export const loadClass = () => {
       //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
       //   data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
       // });
-      await Conversations.removeCustomersConversations(customerIds);
-      await EngageMessages.removeCustomersEngages(customerIds);
+      // await Conversations.removeCustomersConversations(customerIds);
+      // await EngageMessages.removeCustomersEngages(customerIds);
       await InternalNotes.removeInternalNotes(
         ACTIVITY_CONTENT_TYPES.CUSTOMER,
         customerIds
@@ -571,8 +571,8 @@ export const loadClass = () => {
         newTypeId: customer._id,
         oldTypeIds: customerIds
       });
-      await Conversations.changeCustomer(customer._id, customerIds);
-      await EngageMessages.changeCustomer(customer._id, customerIds);
+      // await Conversations.changeCustomer(customer._id, customerIds);
+      // await EngageMessages.changeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);
 
       return customer;

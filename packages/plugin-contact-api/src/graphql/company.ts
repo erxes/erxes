@@ -12,7 +12,11 @@ export const types = `
     _id: String! @external
   }
 
-  extend type Customer @key(fields: "_id") {
+  extend type Tag @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type User @key(fields: "_id") {
     _id: String! @external
   }
 

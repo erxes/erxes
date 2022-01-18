@@ -42,15 +42,9 @@ import {
   requireLogin
 } from './permissions';
 
-import * as db from './apiCollections';
-
 import { IContext } from './types';
 import { ruleSchema } from './definitions/common';
 import { field, schemaWrapper } from './definitions/utils';
-
-(async () => {
-  await db.connect();
-})();
 
 export { EMAIL_DELIVERY_STATUS };
 export { getEnv }; // ({ name, defaultValue })

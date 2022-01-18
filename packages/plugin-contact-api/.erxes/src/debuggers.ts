@@ -1,10 +1,10 @@
 import debug from 'debug';
 import configs from '../../src/configs';
 
-export const debugInit = debug(`erxes-${configs.name}:init`);
+// export const debugInit = debug(`erxes-${configs.name}:init`);
 export const debugDb = debug(`erxes-${configs.name}:db`);
 export const debugBase = debug(`erxes-${configs.name}:base`);
-export const debugEngages = debug(`erxes-${configs.name}:contacts`);
+// export const debugEngages = debug(`erxes-${configs.name}:contacts`);
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`
