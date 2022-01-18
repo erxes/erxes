@@ -2,7 +2,6 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { PluginLayout} from "@erxes/ui/src/layout/styles";
 
 const Details = asyncComponent(() =>
   import(
@@ -30,7 +29,6 @@ const list = ({ location }) => {
 const routes = () => {
   return (
     <>
-    <PluginLayout>
       <Route
         key="/automations/details/:id"
         exact={true}
@@ -43,7 +41,6 @@ const routes = () => {
         key="/automations"
         component={list}
       />
-      </PluginLayout >
     </>
   );
 };

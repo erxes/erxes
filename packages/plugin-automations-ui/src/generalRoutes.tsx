@@ -1,11 +1,14 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import AutomationsRoutes from './routes';
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import AutomationsRoutes from "./routes";
+import { PluginLayout } from "@erxes/ui/src/styles/main";
 
 const Routes = () => (
-  <Router>
-    <AutomationsRoutes />
-  </Router>
+  <PluginLayout>
+    <Router>
+      <AutomationsRoutes />
+    </Router>
+  </PluginLayout>
 );
 
 export default Routes;
