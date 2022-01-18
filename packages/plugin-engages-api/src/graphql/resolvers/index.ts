@@ -1,4 +1,4 @@
-import { GraphQLResolverMap } from 'apollo-graphql';
+import customScalars from '@erxes/api-utils/src/customScalars';
 
 import { IEngageMessageDocument } from '../../models/definitions/engages';
 import { DeliveryReports, Logs, Stats, EngageMessages } from '../../models';
@@ -109,7 +109,8 @@ const EngageMessage = {
   }
 };
 
-const resolvers: GraphQLResolverMap = {
+const resolvers: any = {
+  ...customScalars,
   DeliveryReport,
   EngageMessage,
   Mutation,
