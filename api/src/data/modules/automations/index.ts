@@ -139,7 +139,7 @@ export const receiveRpcMessage = async msg => {
   }
 
   if (action.includes('erxes-plugin-')) {
-    return sendSuccess(pluginsAutomationConsume(action, doc));
+    return sendSuccess(await pluginsAutomationConsume(action, doc));
   }
 
   return receiveRpcMessageBoardItem(action, doc);
