@@ -1,16 +1,7 @@
-import * as dotenv from 'dotenv';
-import messageBroker from 'erxes-message-broker';
-
-dotenv.config();
-
 let client;
 
-export const initBroker = async server => {
-  client = await messageBroker({
-    name: 'inbox',
-    server,
-    envs: process.env
-  });
+export const initBroker = async cl => {
+  client = cl;
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -54,7 +45,7 @@ export const sendConformityMessage = async (action, data): Promise<any> => {
 };
 
 export const sendConformityRPCMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`conformities:rpc_queue:${action}`, data);
+  return client.sendRPCMessage(`conformities:rpc_queue:${action}`, data);
 };
 
 export const sendFieldsGroupMessage = async (action, data): Promise<any> => {

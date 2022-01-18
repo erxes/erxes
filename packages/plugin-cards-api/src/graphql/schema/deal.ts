@@ -14,7 +14,7 @@ export const types = `
     ${commonListTypes}
   }
     
-  type Deal @key(fields: "_id") {
+  type Deal {
     _id: String!
     amount: JSON
     companies: [Company]

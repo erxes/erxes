@@ -771,7 +771,7 @@ export const getItemList = async (
   const notifications = await Notifications.find(
     { contentTypeId: { $in: ids }, isRead: false, receiver: user._id },
     { contentTypeId: 1 }
-  );
+  ).toArray();
 
   for (const item of list) {
     const notification = notifications.find(n => n.contentTypeId === item._id);
