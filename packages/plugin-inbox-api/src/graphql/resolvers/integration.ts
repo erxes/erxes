@@ -1,10 +1,13 @@
-import { MessengerApps } from '../../models';
+import { Integrations, MessengerApps } from '../../models';
 import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 import { IContext } from '@erxes/api-utils/src';
 import { getDocument, getDocumentList } from '../../cacheUtils';
 
 export default {
+  __resolveReference({_id}) {
+    return Integrations.findOne({ _id })
+  },
   brand(integration: IIntegrationDocument) {
     return getDocument('brands', { _id: integration.brandId });
   },
