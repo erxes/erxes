@@ -1,22 +1,19 @@
 import { gql } from "apollo-server-express";
 
-import {
-  types as engageTypes,
-  queries as engageQueries,
-  mutations as engageMutations
-} from './schema/engage';
+import { types, mutations, queries } from './schema/engage';
 
 const typeDefs = gql`
   scalar JSON
   scalar Date
 
-  ${engageTypes}
+  ${types}
 
   extend type Query {
-    ${engageQueries}
+    ${queries}
   }
+
   extend type Mutation {
-    ${engageMutations}
+    ${mutations}
   }
 `;
 
