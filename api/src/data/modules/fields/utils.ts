@@ -1,3 +1,4 @@
+import { Schema } from 'mongoose';
 import {
   Companies,
   Customers,
@@ -10,6 +11,7 @@ import {
 } from '../../../db/models';
 import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
+import { getService, getServices } from '../../../inmemoryStorage';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
@@ -473,6 +475,24 @@ export const fieldsCombinedByContentType = async ({
 
   if (pluginName && pluginContentType) {
     schema = await getPluginSchema(pluginName, pluginContentType);
+  }
+
+  if (!schema) {
+    const serviceNames = await getServices();
+
+    for (const serviceName of serviceNames) {
+      const service = await getService(serviceName, true);
+      const segmentMeta = service.meta.segment;
+
+      if (segmentMeta) {
+        for (const schemaDef of segmentMeta.schemas || []) {
+          if (schemaDef.name === contentType) {
+            schema = new Schema(schemaDef.options);
+            continue;
+          }
+        }
+      }
+    }
   }
 
   if (schema) {
