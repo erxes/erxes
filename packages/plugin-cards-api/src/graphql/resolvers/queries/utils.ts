@@ -1,4 +1,4 @@
-import moment from 'moment';
+import * as moment from 'moment';
 import {
   Pipelines,
   // Segments,
@@ -16,7 +16,10 @@ import { CLOSE_DATE_TYPES } from '../../../constants';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import { Notifications } from '../../../db';
-import { sendConformityRPCMessage, sendContactRPCMessage } from '../../../messageBroker';
+import {
+  sendConformityRPCMessage,
+  sendContactRPCMessage
+} from '../../../messageBroker';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -747,7 +750,7 @@ export const getItemList = async (
       emails: 1,
       phones: 1
     }
-  );
+  });
 
   const getCocsByItemId = (
     itemId: string,

@@ -2,11 +2,11 @@ import * as strip from 'strip';
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types/src/users';
 
 export const getEnv = ({
   name,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   defaultValue?: string;
@@ -49,14 +49,14 @@ export const getConfig = async (models, memoryStorage, code, defaultValue?) => {
   return configs[code];
 };
 
-export const resetConfigsCache = (memoryStorage) => {
+export const resetConfigsCache = memoryStorage => {
   memoryStorage().set('configs_erxes_api', '');
 };
 
 export const frontendEnv = ({
   name,
   req,
-  requestInfo,
+  requestInfo
 }: {
   name: string;
   req?: any;
@@ -116,7 +116,7 @@ const stringToRegex = (value: string) => {
   const specialChars = '{}[]\\^$.|?*+()'.split('');
   const val = value.split('');
 
-  const result = val.map((char) =>
+  const result = val.map(char =>
     specialChars.includes(char) ? '.?\\' + char : '.?' + char
   );
 
@@ -198,9 +198,9 @@ export const checkUserIds = (
   oldUserIds: string[] = [],
   newUserIds: string[] = []
 ) => {
-  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };

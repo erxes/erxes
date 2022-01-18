@@ -1,10 +1,32 @@
 import { Segments } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
+import { getService, getServices } from '../../../inmemoryStorage';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 const segmentQueries = {
+  async segmentsGetTypes() {
+    const serviceNames = await getServices();
+    let types: Array<{ name: string; description: string }> = [];
+
+    for (const serviceName of serviceNames) {
+      const service = await getService(serviceName, true);
+
+      if (service.meta.segment) {
+        const schemas = service.meta.segment.schemas;
+        const schemasMetas = schemas.map(schema => ({
+          name: schema.name,
+          description: schema.description
+        }));
+
+        types = [...types, ...schemasMetas];
+      }
+    }
+
+    return types;
+  },
+
   /**
    * Segments list
    */

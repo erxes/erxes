@@ -4,7 +4,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
-// import dealResolvers from '../deals';
+import dealResolvers from '../customResolvers/deal';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -34,8 +34,8 @@ const dealQueries = {
       ...(await generateDealCommonFilters(user._id, args))
     };
 
-    const getExtraFields = async (_item: any) => ({
-      // amount: await dealResolvers.amount(item)
+    const getExtraFields = async (item: any) => ({
+      amount: await dealResolvers.amount(item)
     });
 
     const deals = await getItemList(

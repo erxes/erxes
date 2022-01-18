@@ -27,6 +27,11 @@ export const types = `
     ${ruleFields}
   }
 
+  input OrderItem {
+    _id: String!
+    order: Int!
+  }
+
   input InputRule {
     ${ruleFields}
   }

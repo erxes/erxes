@@ -7,7 +7,7 @@ import {
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { IContext, MODULE_NAMES } from '@erxes/api-utils/src';
 // import { registerOnboardHistory } from '../../utils';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '../../utils';
 import messageBroker from '../../../messageBroker';
 
 interface IPipelineTemplatesEdit extends IPipelineTemplate {

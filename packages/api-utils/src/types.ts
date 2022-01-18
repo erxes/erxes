@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { Document } from 'mongoose';
 
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/common-types/src/users';
 
 export interface IBrandEmailConfig {
   type?: string;
@@ -44,9 +44,9 @@ export interface IContext {
 }
 
 export interface IFetchElkArgs {
-    action: string;
-    index: string;
-    body: any;
-    _id?: string;
-    defaultValue?: any;
+  action: string;
+  index: string;
+  body: any;
+  _id?: string;
+  defaultValue?: any;
 }

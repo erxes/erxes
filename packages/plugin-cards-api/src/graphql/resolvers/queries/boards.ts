@@ -4,19 +4,19 @@ import {
   Pipelines,
   Stages,
   Tasks,
-  Tickets
+  Tickets,
+  PipelineLabels
 } from '../../../models';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
 // import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { IContext, paginate, regexSearchText } from '@erxes/api-utils/src';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-// import { IConformityQueryParams } from './types';
 import { getCollection } from '../../../models/utils';
 import { IStageDocument } from '../../../models/definitions/boards';
 import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
-// import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
+import { IPipelineLabelDocument } from '../../../models/definitions/pipelineLabels';
 import { getCloseDateByType } from './utils';
-import { PipelineLabels, Users } from '../../../db';
+import { Users } from '../../../db';
 
 export interface IDate {
   month: number;
@@ -382,10 +382,10 @@ const boardQueries = {
 
         filter.labelIds = { $in: labels.map(g => g._id) };
 
-        // detailFilter = (label: IPipelineLabelDocument) => ({
-        //   labelIds: { $in: [label._id] },
-        //   stageId: { $in: stageIds }
-        // });
+        detailFilter = (label: IPipelineLabelDocument) => ({
+          labelIds: { $in: [label._id] },
+          stageId: { $in: stageIds }
+        });
 
         break;
       }

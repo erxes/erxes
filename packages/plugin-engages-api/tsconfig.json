@@ -1,22 +1,3 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist",
-    "allowJs": true,
-    "target": "es6",
-    "moduleResolution": "node",
-    "module": "commonjs",
-    "lib": ["es2015", "es6", "es7", "esnext.asynciterable"],
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "baseUrl": "src",
-    "paths": {
-      "@erxes/api-utils/*": ["../api-utils/*"],
-      "@erxes/common-types/*": ["../common-types/*"]
-    }
-  },
-  "include": ["./src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "extends": "./.erxes/tsconfig.json"
 }

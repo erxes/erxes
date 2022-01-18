@@ -24,13 +24,30 @@ import {
   queries as growthHackQueries,
   mutations as growthHackMutations
 } from './schema/growthHack';
+import {
+  types as plTypes,
+  queries as plQueries,
+  mutations as plMutations
+} from './schema/pipelineLabel';
+import {
+  types as ptTypes,
+  queries as ptQueries,
+  mutations as ptMutations
+} from './schema/pipelineTemplate';
+import { types as CommonTypes } from './schema/common';
 
 const typeDefs = gql`
+  scalar JSON
+  scalar Date
+  
   ${boardTypes}
   ${dealTypes}
   ${taskTypes}
   ${ticketTypes}
   ${growthHackTypes}
+  ${plTypes}
+  ${ptTypes}
+  ${CommonTypes}
   
   extend type Query {
     ${boardQueries}
@@ -38,6 +55,8 @@ const typeDefs = gql`
     ${taskQueries}
     ${ticketQueries}
     ${growthHackQueries}
+    ${plQueries}
+    ${ptQueries}
   }
   
   extend type Mutation {
@@ -46,6 +65,8 @@ const typeDefs = gql`
     ${taskMutations}
     ${ticketMutations}
     ${growthHackMutations}
+    ${plMutations}
+    ${ptMutations}
   }
 `;
 

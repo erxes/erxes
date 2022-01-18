@@ -48,7 +48,8 @@ export interface IConversationDocument extends IConversation, Document {
 }
 
 // Conversation schema
-export const conversationSchema = new Schema({
+
+export const conversationSchemaOptions = {
   _id: field({ pkey: true }),
   operatorStatus: field({
     type: String,
@@ -110,7 +111,9 @@ export const conversationSchema = new Schema({
   }),
 
   bookingProductId: field({ type: String })
-});
+};
+
+export const conversationSchema = new Schema(conversationSchemaOptions);
 
 conversationSchema.index(
   { visitorId: 1 },
