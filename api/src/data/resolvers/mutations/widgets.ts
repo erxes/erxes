@@ -196,15 +196,25 @@ const createFormConversation = async (
   }
 
   for (const submission of submissions) {
+    let value: any = '';
+
+    if (submission.validation === 'number') {
+      value = Number(submission.value);
+    }
+
+    if (
+      submission.validation &&
+      ['datetime', 'date'].includes(submission.validation)
+    ) {
+      value = new Date(submission.value);
+    }
+
     const doc = {
       contentTypeId: conversation._id,
       contentType: type,
       formFieldId: submission._id,
       formId,
-      value:
-        submission.validation === 'number'
-          ? Number(submission.value)
-          : submission.value,
+      value,
       customerId: cachedCustomer._id
     };
 
@@ -279,10 +289,6 @@ const widgetMutations = {
     }
   ) {
     const { submissions } = args;
-
-    if (submissions.findIndex(e => e.type === 'map') !== -1) {
-      console.log(submissions);
-    }
 
     return createFormConversation(
       args,

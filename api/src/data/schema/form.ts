@@ -21,28 +21,6 @@ export const types = `
 
     fields: [Field]
   }
-
-  type FormSubmission {
-    formFieldId: String
-    value: JSON
-    formId: String
-    submittedAt: Date
-  }
-
-  type Submission {
-    formId: String
-    contentTypeId: String
-    customerId: String
-    customer: Customer
-    createdAt: Date
-    submissions: [FormSubmission]
-  }
-
-  input SubmissionFilter {
-    formFieldId: String
-    value: JSON
-    operator: String
-  }
 `;
 
 const commonFields = `
@@ -63,8 +41,6 @@ const commonFormSubmissionFields = `
 export const queries = `
   formDetail(_id: String!): Form
   forms: [Form]
-  formSubmissions(tagId: String, formId: String, contentTypeIds: [String], filters: [SubmissionFilter]): [Submission]
-  formSubmissionsTotalCount(integrationId: String): Int
 `;
 
 export const mutations = `
