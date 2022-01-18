@@ -196,7 +196,7 @@ const createFormConversation = async (
   }
 
   for (const submission of submissions) {
-    let value: any = '';
+    let value: any = submission.value || '';
 
     if (submission.validation === 'number') {
       value = Number(submission.value);
