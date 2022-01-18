@@ -4,7 +4,6 @@ import {
   Fields,
   FieldsGroups,
   Integrations,
-  Products,
   Tags,
   Users
 } from '../../../db/models';
@@ -14,7 +13,6 @@ import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
 import { getConfig, isUsingElk } from '../../utils';
-import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 import { custom, getPluginInfo } from './federationUtils';
 
 const generateBasicInfosFromSchema = async (
@@ -109,26 +107,12 @@ export const checkFieldNames = async (
   let basicInfos: string[] = [];
 
   switch (type) {
-    case 'company':
-      schema = Companies.schema;
-      break;
-
     case 'customer':
       schema = Customers.schema;
       break;
 
     case 'lead':
       schema = Customers.schema;
-      break;
-
-    case 'product':
-      schema = Products.schema;
-      break;
-
-    case 'deal':
-    case 'task':
-    case 'ticket':
-      basicInfos = BOARD_BASIC_INFOS;
       break;
   }
 
@@ -201,34 +185,9 @@ export const checkFieldNames = async (
       property.type = 'tag';
     }
 
-    if (fieldName === 'boardName') {
-      property.name = 'boardId';
-      property.type = 'boardName';
-    }
-
-    if (fieldName === 'pipelineName') {
-      property.name = 'pipelineId';
-      property.type = 'pipelineName';
-    }
-
-    if (fieldName === 'stageName') {
-      property.name = 'stageId';
-      property.type = 'stageName';
-    }
-
     if (fieldName === 'pronoun') {
       property.name = 'pronoun';
       property.type = 'pronoun';
-    }
-
-    if (fieldName === 'categoryCode') {
-      property.name = 'categoryCode';
-      property.type = 'categoryCode';
-    }
-
-    if (fieldName === 'vendorCode') {
-      property.name = 'vendorCode';
-      property.type = 'vendorCode';
     }
 
     if (!property.type) {
