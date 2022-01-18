@@ -14,7 +14,8 @@ import {
   ICurrentStatus,
   IFieldError,
   IForm,
-  IFormDoc
+  IFormDoc,
+  ILocationOption
 } from '../types';
 import { TopBar } from './';
 import Field from './Field';
@@ -37,13 +38,23 @@ type Props = {
 type State = {
   doc: IFormDoc;
   currentPage: number;
+  currentLocation?: ILocationOption;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { doc: this.resetDocState(), currentPage: 1 };
+    let currentLocation: ILocationOption | undefined;
+
+    if (props.form.fields.findIndex(e => e.type === 'map') !== -1) {
+      currentLocation = {
+        lat: connection.browserInfo.latitude,
+        lng: connection.browserInfo.longitude
+      };
+    }
+
+    this.state = { doc: this.resetDocState(), currentPage: 1, currentLocation };
   }
 
   componentDidMount() {
@@ -318,6 +329,8 @@ class Form extends React.Component<Props, State> {
           error={fieldError}
           onChange={this.onFieldValueChange}
           value={this.state.doc[field._id].value || ''}
+          currentLocation={this.state.currentLocation}
+          color={this.props.color}
         />
       );
     });
@@ -435,7 +448,7 @@ class Form extends React.Component<Props, State> {
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
-          {this.renderSuccessImage(successImage || "", form.title)}
+            {this.renderSuccessImage(successImage || '', form.title)}
             {thankContent ||
               __('Thanks for your message. We will respond as soon as we can.')}
           </div>

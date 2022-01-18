@@ -155,6 +155,7 @@ export const KEY_LABELS = {
   GOOGLE_GMAIL_SUBSCRIPTION_NAME: 'Google Gmail Subscription Name',
   GOOGLE_CLIENT_ID: 'Google Client Id',
   GOOGLE_CLIENT_SECRET: 'Google Client Secret',
+  GOOGLE_MAP_API_KEY: 'Google Map Api Key',
 
   DAILY_API_KEY: 'Daily api key',
   DAILY_END_POINT: 'Daily end point',

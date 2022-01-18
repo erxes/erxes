@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -8,6 +9,7 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import Form from '../components/Form';
 import { mutations } from '../graphql';
+import { queries } from 'modules/settings/general/graphql';
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
@@ -15,6 +17,7 @@ import {
   FieldsBulkAddAndEditMutationResponse,
   IFormData
 } from '../types';
+import { Spinner } from 'erxes-ui';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -27,7 +30,9 @@ type Props = {
   currentField?: IField;
 };
 
-type FinalProps = {} & Props &
+type FinalProps = {
+  configsQuery: ConfigsQueryResponse;
+} & Props &
   IRouterProps &
   AddFormMutationResponse &
   FieldsBulkAddAndEditMutationResponse;
@@ -42,8 +47,13 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       addFormMutation,
       afterDbSave,
       fieldsBulkAddAndEditMutation,
-      showMessage
+      showMessage,
+      configsQuery
     } = this.props;
+
+    if (configsQuery.loading) {
+      return <Spinner objective={true} />;
+    }
 
     const saveForm = doc => {
       let formId;
@@ -96,6 +106,7 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       ...this.props,
       fields: [],
+      configs: configsQuery.configs || [],
       saveForm
     };
 
@@ -114,6 +125,9 @@ export default withProps<Props>(
         }
       }
     ),
+    graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
+      name: 'configsQuery'
+    }),
     graphql<
       Props,
       FieldsBulkAddAndEditMutationResponse,

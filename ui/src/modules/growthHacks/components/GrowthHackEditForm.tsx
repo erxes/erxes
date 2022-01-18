@@ -9,6 +9,7 @@ import {
 import { IEditFormContent, IOptions } from 'modules/boards/types';
 import { ControlLabel } from 'modules/common/components/form';
 import { IFormSubmission } from 'modules/forms/types';
+import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { GrowthHackFieldName, IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, StageForm, Top } from './editForm/';
@@ -21,6 +22,7 @@ type Props = {
   options: IOptions;
   item: IGrowthHack;
   users: IUser[];
+  configs: IConfig[];
   addItem: (doc: IGrowthHackParams, callback: () => void) => void;
   copyItem: (itemId: string, callback: () => void) => void;
   saveFormSubmission: (doc: IFormSubmission) => void;
@@ -176,6 +178,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             item={item}
             onChangeExtraField={this.onChangeExtraField}
             save={saveFormSubmission}
+            configs={this.props.configs}
           />
         </FlexContent>
       </>

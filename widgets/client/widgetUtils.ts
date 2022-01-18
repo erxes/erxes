@@ -6,34 +6,34 @@ export const getEnv = (): ENV => {
 };
 
 export const getStorage = () => {
-  return localStorage.getItem("erxes") || "{}";
-}
+  return localStorage.getItem('erxes') || '{}';
+};
 
 export const listenForCommonRequests = async (event: any, iframe: any) => {
   const { message, fromErxes, source, key, value } = event.data;
-  
+
   if (fromErxes && iframe.contentWindow) {
-    if (message === "requestingBrowserInfo") {
+    if (message === 'requestingBrowserInfo') {
       iframe.contentWindow.postMessage(
         {
           fromPublisher: true,
           source,
-          message: "sendingBrowserInfo",
+          message: 'sendingBrowserInfo',
           browserInfo: await getBrowserInfo()
         },
-        "*"
+        '*'
       );
     }
 
-    if (message === "setLocalStorageItem") {
-      const erxesStorage = JSON.parse(localStorage.getItem("erxes") || "{}");
+    if (message === 'setLocalStorageItem') {
+      const erxesStorage = JSON.parse(localStorage.getItem('erxes') || '{}');
 
       erxesStorage[key] = value;
 
-      localStorage.setItem("erxes", JSON.stringify(erxesStorage));
+      localStorage.setItem('erxes', JSON.stringify(erxesStorage));
     }
   }
-}
+};
 
 declare const window: any;
 
@@ -81,7 +81,9 @@ export const getBrowserInfo = async () => {
       remoteAddress: '',
       region: '',
       country: '',
-      countryCode: ''
+      countryCode: '',
+      latitude: '',
+      longitude: ''
     };
   }
 
@@ -91,6 +93,8 @@ export const getBrowserInfo = async () => {
     countryCode: location.countryCode,
     city: location.city,
     country: location.countryName,
+    longitude: location.latitude,
+    latitude: location.longitude,
     url: window.location.pathname,
     hostname: window.location.origin,
     language: navigator.language,
@@ -126,4 +130,4 @@ export const getVisitorId = async () => {
 
   // This is the visitor identifier:
   return result.visitorId;
-}
+};
