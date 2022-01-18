@@ -1154,6 +1154,12 @@ a:hover {
     flex-wrap: wrap;
     justify-content: flex-start;
   }
+
+  *,:after,:before{
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;
