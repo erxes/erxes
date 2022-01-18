@@ -323,8 +323,6 @@ export const receiveImportCreate = async (content: any) => {
 
   let total = 0;
 
-  debugWorkers(contentTypes);
-
   let mainType = contentTypes[0].contentType;
   const type = contentTypes[0].type;
   const pluginType = contentTypes[0].pluginType;

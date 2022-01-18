@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { PLUGINS } from './constants';
 import { Customers, Fields, ImportHistory } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugWorkers } from '../debuggers';
@@ -6,7 +7,7 @@ import { fetchElk } from '../elasticsearch';
 import { clearEmptyValues, connect, IMPORT_CONTENT_TYPE } from './utils';
 import * as _ from 'underscore';
 import { prepareCoreDocs } from './coreUtils';
-import { PLUGINS } from './constants';
+import { MongoClient } from 'mongodb';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -15,6 +16,7 @@ const PLUGINSS = [
   {
     pluginType: 'deal',
     MONGO_URL: 'mongodb://localhost/erxes-sales',
+    collection: 'deals',
     prepareDocCommand: `
 
     for (const fieldValue of result) {
@@ -87,13 +89,18 @@ const create = async ({
   docs,
   user,
   contentType,
-  useElkSyncer
+  useElkSyncer,
+  db,
+  importType,
+  plugin
 }: {
   docs: any;
   user: IUserDocument;
   contentType: string;
-  model: any;
   useElkSyncer: boolean;
+  db: any;
+  importType: string;
+  plugin: any;
 }) => {
   const { CUSTOMER, LEAD } = IMPORT_CONTENT_TYPE;
 
@@ -135,6 +142,8 @@ const create = async ({
     let customFieldsData: Array<{ field: string; value: string }> = [];
 
     updated++;
+
+    console.log(PLUGINSS);
 
     if (
       doc.customFieldsData &&
@@ -336,6 +345,13 @@ const create = async ({
     objects = await Customers.insertMany(insertDocs);
   }
 
+  if (importType === 'plugin') {
+    debugWorkers('Importin plugin data');
+    const result = await db.collection(plugin.collection).insertMany(docs);
+
+    objects = result.ops;
+  }
+
   return { objects, updated };
 };
 
@@ -372,21 +388,10 @@ connect().then(async () => {
     rowIndex?: number;
   } = workerData;
 
-  let model: any = null;
-
-  switch (contentType) {
-    case 'customer':
-      model = Customers;
-      break;
-    case 'lead':
-      model = Customers;
-      break;
-
-    default:
-      break;
-  }
-
   let bulkDoc: any = [];
+
+  let db: any;
+  let plugin: any;
 
   if (type === 'core') {
     bulkDoc = await prepareCoreDocs(
@@ -399,14 +404,24 @@ connect().then(async () => {
   }
 
   if (type === 'plugin') {
-    const plugin = PLUGINS.find(value => {
+    plugin = PLUGINS.find(value => {
       return value.pluginType === pluginType;
     });
 
     if (plugin) {
       try {
+        const client = new MongoClient(plugin.MONGO_URL);
+        await client.connect();
+        db = client.db();
+
         // tslint:disable-next-line:no-eval
-        await eval('(async () => {' + plugin.prepareDocCommand + '})()');
+        bulkDoc = await prepareCoreDocs(
+          result,
+          properties,
+          contentType,
+          scopeBrandIds,
+          bulkDoc
+        );
       } catch (e) {
         debugWorkers(e);
       }
@@ -421,8 +436,10 @@ connect().then(async () => {
       docs: bulkDoc,
       user,
       contentType,
-      model,
-      useElkSyncer
+      useElkSyncer,
+      db,
+      plugin,
+      importType: type
     });
 
     const cocIds = objects.map(obj => obj._id).filter(obj => obj);
@@ -445,9 +462,7 @@ connect().then(async () => {
       endRow = startRow;
     }
 
-    debugWorkers(startRow, endRow, e.message, contentType);
-
-    // modifier.$push = { errorMsgs: e.message };
+    modifier.$push = { errorMsgs: e.message };
     modifier.$inc.failed = bulkDoc.length;
     modifier.$push = {
       errorMsgs: {

@@ -2,6 +2,7 @@ export const PLUGINS = [
   {
     pluginType: 'deal',
     MONGO_URL: 'mongodb://localhost/erxes-sales',
+    collection: 'deals',
     prepareDocCommand: `
 
     for (const fieldValue of result) {
