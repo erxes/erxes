@@ -392,6 +392,7 @@ connect().then(async () => {
 
   let db: any;
   let plugin: any;
+  let client: any;
 
   if (type === 'core') {
     bulkDoc = await prepareCoreDocs(
@@ -410,18 +411,12 @@ connect().then(async () => {
 
     if (plugin) {
       try {
-        const client = new MongoClient(plugin.MONGO_URL);
+        client = new MongoClient(plugin.MONGO_URL);
         await client.connect();
         db = client.db();
 
         // tslint:disable-next-line:no-eval
-        bulkDoc = await prepareCoreDocs(
-          result,
-          properties,
-          contentType,
-          scopeBrandIds,
-          bulkDoc
-        );
+        eval(plugin.prepareDocCommand);
       } catch (e) {
         debugWorkers(e);
       }
@@ -477,6 +472,10 @@ connect().then(async () => {
   await ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
   mongoose.connection.close();
+
+  if (client) {
+    await client.close();
+  }
 
   debugWorkers(`Worker done`);
 
