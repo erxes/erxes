@@ -6,7 +6,7 @@ import {
   IDescriptions,
   LogDesc
 } from '@erxes/api-utils/src/logDescHelper';
-import { Products, Forms } from './db';
+import { Products, Forms } from './apiCollections';
 import { Boards, PipelineLabels, Pipelines, Stages } from './models';
 import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';

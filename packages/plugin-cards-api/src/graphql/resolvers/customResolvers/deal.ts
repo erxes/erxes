@@ -2,7 +2,7 @@ import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { IDealDocument } from '../../../models/definitions/deals';
 import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
-import { Fields, Products } from '../../../db';
+import { Fields, Products } from '../../../apiCollections';
 import {
   sendConformityRPCMessage,
   sendContactRPCMessage,

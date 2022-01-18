@@ -12,7 +12,7 @@ import {
   itemsEdit,
   itemsRemove
 } from './utils';
-import { Products } from '../../../db';
+import { Products } from '../../../apiCollections';
 
 interface IDealsEdit extends IDeal {
   _id: string;

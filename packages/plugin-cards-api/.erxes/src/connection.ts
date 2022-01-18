@@ -19,7 +19,7 @@ export const connectionOptions: mongoose.ConnectionOptions = {
 
 mongoose.connection
   .on('connected', () => {
-    debugInfo(`Connected to the database: ${MONGO_URL}`);
+    console.log(`Connected to the database: ${MONGO_URL}`);
   })
   .on('disconnected', () => {
     debugInfo(`Disconnected from the database: ${MONGO_URL}`);

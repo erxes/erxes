@@ -2,7 +2,7 @@ import { commonDragParams, commonTypes } from './common';
 
 export const types = `
   extend type Field @key(fields: "_id") {
-    _id: ID! @external
+    _id: String! @external
   }
   
   type GrowthHack @key(fields: "_id") {

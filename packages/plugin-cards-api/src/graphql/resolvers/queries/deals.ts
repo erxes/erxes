@@ -14,7 +14,7 @@ import {
   getItemList,
   IArchiveArgs
 } from './utils';
-import { Products } from '../../../db';
+import { Products } from '../../../apiCollections';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];

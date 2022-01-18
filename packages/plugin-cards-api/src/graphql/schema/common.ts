@@ -7,12 +7,8 @@ const ruleFields = `
 `;
 
 export const types = `
-  type Attachment @key(fields: "url") {
-    url: String!
-    name: String
-    type: String!
-    size: Float
-    duration: Float
+  extend type Attachment @key(fields: "url") {
+    url: String! @external
   }
 
   input AttachmentInput {

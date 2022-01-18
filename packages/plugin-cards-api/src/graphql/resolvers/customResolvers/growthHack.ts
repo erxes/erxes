@@ -3,7 +3,7 @@ import { IGrowthHackDocument } from '../../../models/definitions/growthHacks';
 import { boardId } from '../../utils';
 import { getDocument, getDocumentList } from '../../../cacheUtils';
 import { IContext } from '@erxes/api-utils/src';
-import { Fields, FormSubmissions } from '../../../db';
+import { Fields, FormSubmissions } from '../../../apiCollections';
 
 export default {
   async formSubmissions(growthHack: IGrowthHackDocument) {

@@ -1,16 +1,9 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
-
 import { Db, MongoClient } from 'mongodb';
 
-const { MONGO_URL } = process.env;
+const url = 'mongodb://localhost:27017';
+const client = new MongoClient(url);
 
-if (!MONGO_URL) {
-  throw new Error(`Environment variable MONGO_URL not set.`);
-}
-
-const client = new MongoClient(MONGO_URL);
-
+const dbName = 'erxes';
 let db: Db;
 
 export let Checklists: any;
@@ -28,8 +21,7 @@ export let Forms: any;
 
 export default async function connect() {
   await client.connect();
-  console.log(`DB: Connected to ${MONGO_URL}`);
-  db = client.db();
+  db = client.db(dbName);
 
   Checklists = db.collection('checklists');
   ChecklistItems = db.collection('checklist_items');
@@ -48,7 +40,7 @@ export default async function connect() {
 export async function disconnect() {
   try {
     await client.close();
-    console.log(`DB: Connection closed ${MONGO_URL}`);
+    console.log(`DB: Connection closed api db`);
   } catch (e) {
     console.error(e);
   }
