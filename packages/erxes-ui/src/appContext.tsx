@@ -1,7 +1,8 @@
-// import dayjs from 'dayjs';
-// import T from 'i18n-react';
+import dayjs from 'dayjs';
+import T from 'i18n-react';
 import { IUser } from './auth/types';
 import React from 'react';
+import { currentUser } from './auth/graphql';
 
 interface IState {
   currentUser?: IUser;
@@ -33,7 +34,7 @@ export class AppProvider extends React.Component<
 
     // initiliaze locale ======
     const currentLanguage = localStorage.getItem('currentLanguage') || 'en';
-
+    console.log('user', currentUser);
     this.state = {
       currentUser: props.currentUser,
       currentLanguage,
@@ -81,17 +82,18 @@ export class AppProvider extends React.Component<
   }
 
   setLocale = (currentLanguage: string): void => {
-    // if (currentLanguage !== 'mn') {
-    //   import(`dayjs/locale/${currentLanguage}`)
-    //     .then(() => dayjs.locale(currentLanguage))
-    //     .catch(_ => dayjs.locale('en'));
-    // }
-    // import(`locales/${currentLanguage}.json`)
-    //   .then(data => {
-    //     const translations = data.default;
-    //     T.setTexts(translations);
-    //   })
-    //   .catch(e => console.log(e)); // tslint:disable-line
+    console.log(currentLanguage)
+    if (currentLanguage !== 'mn') {
+      import(`dayjs/locale/${currentLanguage}`)
+        .then(() => dayjs.locale(currentLanguage))
+        .catch(_ => dayjs.locale('en'));
+    }
+    import(`locales/${currentLanguage}.json`)
+      .then(data => {
+        const translations = data.default;
+        T.setTexts(translations);
+      })
+      .catch(e => console.log(e)); // tslint:disable-line
   };
 
   changeLanguage = (languageCode): void => {
@@ -109,6 +111,7 @@ export class AppProvider extends React.Component<
       isRemovingImport,
       isDoneIndicatorAction
     } = this.state;
+    console.log('here userrend', currentUser, this.props.children)
 
     return (
       <AppContext.Provider

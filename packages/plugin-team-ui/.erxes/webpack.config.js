@@ -21,11 +21,10 @@ const deps = require('./package.json').dependencies;
 const depNames = Object.keys(deps);
 
 const shared = {};
-
+console.log(depNames)
 for (const name of depNames) {
   shared[name] = {
-    singleton: true,
-    eager: true
+    singleton: true
   };
 }
 
@@ -109,8 +108,11 @@ module.exports = {
         ...shared,
         '@erxes/ui': {
           requiredVersion: '1.0.0',
-          singleton: true,
-          eager: true
+          singleton: true
+        },
+        'dayjs': {
+          requiredVersion: '1.8.15',
+          singleton: true
         }
       }
     }),
