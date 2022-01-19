@@ -23,18 +23,18 @@ export default async function connect() {
   await client.connect();
   db = client.db(dbName);
 
-  Checklists = db.collection('checklists');
-  ChecklistItems = db.collection('checklist_items');
-  Notifications = db.collection('notifications');
-  FormSubmissions = db.collection('form_submissions');
-  Fields = db.collection('fields');
-  FieldsGroups = db.collection('field_groups');
-  Segments = db.collection('segments');
-  Users = db.collection('users');
-  InternalNotes = db.collection('internal_notes');
-  Conformities = db.collection('conformities');
-  Products = db.collection('products');
-  Forms = db.collection('forms');
+  Checklists = await db.collection('checklists');
+  ChecklistItems = await db.collection('checklist_items');
+  Notifications = await db.collection('notifications');
+  FormSubmissions = await db.collection('form_submissions');
+  Fields = await db.collection('form_fields');
+  FieldsGroups = await db.collection('form_field_groups');
+  Segments = await db.collection('segments');
+  Users = await db.collection('users');
+  InternalNotes = await db.collection('internal_notes');
+  Conformities = await db.collection('conformities');
+  Products = await db.collection('products');
+  Forms = await db.collection('forms');
 }
 
 export async function disconnect() {

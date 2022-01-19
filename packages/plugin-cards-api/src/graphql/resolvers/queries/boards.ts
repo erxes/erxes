@@ -75,7 +75,7 @@ const boardQueries = {
           ]
         };
 
-    const boards = await Boards.aggregate([
+    return Boards.aggregate([
       { $match: { ...commonQuerySelector, type } },
       {
         $lookup: {
@@ -98,10 +98,6 @@ const boardQueries = {
         }
       }
     ]);
-
-    console.log('boards: ', boards);
-
-    return boards;
   },
 
   /**
@@ -155,21 +151,16 @@ const boardQueries = {
   /**
    * Get last board
    */
-  async boardGetLast(
+  boardGetLast(
     _root,
     { type }: { type: string },
     { commonQuerySelector }: IContext
   ) {
-    console.log('=========================bbb=========================');
-    const board = await Boards.findOne({ ...commonQuerySelector, type })
+    return Boards.findOne({ ...commonQuerySelector, type })
       .sort({
         createdAt: -1
       })
       .lean();
-
-    console.log('last: ', board);
-
-    return board;
   },
 
   /**
