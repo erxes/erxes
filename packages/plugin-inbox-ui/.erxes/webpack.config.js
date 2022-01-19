@@ -25,7 +25,7 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true
-  }
+  };
 }
 
 module.exports = {
@@ -107,8 +107,8 @@ module.exports = {
       exposes,
       shared: {
         ...shared,
-        "@erxes/ui": {
-          requiredVersion: "1.0.0",
+        '@erxes/ui': {
+          requiredVersion: '1.0.0',
           singleton: true
         }
       },

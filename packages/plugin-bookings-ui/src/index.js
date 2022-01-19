@@ -1,5 +1,5 @@
-import GeneralRoutes from './generalRoutes';
-import '@erxes/ui/src/styles/global-styles.ts';
+import App from './App';
+import '../public/style.min.css';
 import 'erxes-icon/css/erxes.min.css';
 
-export default GeneralRoutes;
+export default App;
