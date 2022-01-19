@@ -5,6 +5,20 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Contents, MainContent } from '@erxes/ui/src/layout/styles';
 
+export const PageHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 5px ${dimensions.coreSpacing}px 2px;
+  background: ${colors.colorWhite};
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+  min-height: 50px;
+  z-index: 2;
+  @media (max-width: 768px) {
+    min-height: auto;
+    flex-direction: column;
+  }
+`;
+
 const Header = styled(PageHeader)`
 min-height: auto;
 `;
@@ -86,19 +100,6 @@ color: ${colors.colorSecondary};
 }
 `;
 
-export const PageHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 5px ${dimensions.coreSpacing}px 2px;
-  background: ${colors.colorWhite};
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-  min-height: 50px;
-  z-index: 2;
-  @media (max-width: 768px) {
-    min-height: auto;
-    flex-direction: column;
-  }
-`;
 
 const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
 position: relative;
