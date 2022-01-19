@@ -26,8 +26,7 @@ const shared = {};
 
 for (const name of depNames) {
   shared[name] = {
-    singleton: true,
-    eager: true
+    singleton: true
   };
 }
 
@@ -106,14 +105,13 @@ module.exports = {
         ...shared,
         '@erxes/ui': {
           requiredVersion: '1.0.0',
-          singleton: true,
-          eager: true
+          singleton: true
         }
       }
     }),
     new HtmlWebPackPlugin({
       template: './src/index.html'
-    }),
+    })
     // new BundleAnalyzerPlugin()
   ]
 };
