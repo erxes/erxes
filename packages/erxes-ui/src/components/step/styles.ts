@@ -20,6 +20,7 @@ const StepWrapper = styled.div`
   height: calc(100% - ${dimensions.unitSpacing * 2}px);
   display: flex;
   flex-direction: column;
+  flex: 1;
 `;
 
 const StepItem = styledTS<{ show: boolean }>(styled.div)`

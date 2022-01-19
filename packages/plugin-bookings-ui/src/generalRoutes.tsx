@@ -4,11 +4,9 @@ import BookingsRoutes from "./routes";
 
 
 const Routes = () => (
-  
     <Router>
       <BookingsRoutes />
     </Router>
-  
 );
 
 export default Routes;
