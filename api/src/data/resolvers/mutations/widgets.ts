@@ -7,6 +7,7 @@ import {
   Customers,
   Fields,
   Forms,
+  FormSubmissions,
   Integrations,
   KnowledgeBaseArticles,
   Products,
@@ -192,6 +193,32 @@ const createFormConversation = async (
     };
 
     await sendToWebhook('create', 'popupSubmitted', formData);
+  }
+
+  for (const submission of submissions) {
+    let value: any = submission.value || '';
+
+    if (submission.validation === 'number') {
+      value = Number(submission.value);
+    }
+
+    if (
+      submission.validation &&
+      ['datetime', 'date'].includes(submission.validation)
+    ) {
+      value = new Date(submission.value);
+    }
+
+    const doc = {
+      contentTypeId: conversation._id,
+      contentType: type,
+      formFieldId: submission._id,
+      formId,
+      value,
+      customerId: cachedCustomer._id
+    };
+
+    await FormSubmissions.createFormSubmission(doc);
   }
 
   return {

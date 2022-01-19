@@ -34,16 +34,11 @@ const ruleSchema = new Schema(
   { _id: false }
 );
 
-const customFieldSchema = new Schema(
-  {
-    field: field({ type: String }),
-    value: field({ type: Schema.Types.Mixed }),
-    stringValue: field({ type: String, optional: true }),
-    numberValue: field({ type: Number, optional: true }),
-    dateValue: field({ type: Date, optional: true })
-  },
-  { _id: false }
-);
+export interface ICoordinates {
+  lat: number;
+  lng: number;
+  description?: string;
+}
 
 export interface ICustomField {
   field: string;
@@ -51,6 +46,33 @@ export interface ICustomField {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
+  locationValue?: ICoordinates;
 }
+
+const customFieldSchema = new Schema(
+  {
+    field: field({ type: String }),
+    value: field({ type: Schema.Types.Mixed }),
+    stringValue: field({ type: String, optional: true }),
+    numberValue: field({ type: Number, optional: true }),
+    dateValue: field({ type: Date, optional: true }),
+    locationValue: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+        required: false,
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        default: [0, 0]
+      }
+    }
+  },
+  { _id: false }
+);
+
+customFieldSchema.index({ locationValue: '2dsphere' });
 
 export { ruleSchema, customFieldSchema };

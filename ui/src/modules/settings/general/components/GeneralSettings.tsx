@@ -353,6 +353,7 @@ class GeneralSettings extends React.Component<Props, State> {
             'GOOGLE_APPLICATION_CREDENTIALS_JSON',
             'Firebase config for notifications'
           )}
+          {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
         </CollapseContent>
 
         <CollapseContent title={__('Common mail config')}>

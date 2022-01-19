@@ -1,6 +1,13 @@
+import widgetMutations from '../data/resolvers/mutations/widgets';
 import { graphqlRequest } from '../db/connection';
-import { formFactory } from '../db/factories';
-import { Fields, FieldsGroups } from '../db/models';
+import {
+  customerFactory,
+  fieldFactory,
+  formFactory,
+  integrationFactory,
+  tagsFactory
+} from '../db/factories';
+import { Fields, FieldsGroups, Integrations } from '../db/models';
 
 import './setup.ts';
 
