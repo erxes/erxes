@@ -1,7 +1,8 @@
+import { HeaderButton } from '@erxes/ui-cards/src/boards/styles/header';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { colors } from '@erxes/ui/src/styles';
 
 const rowHeight = 40;
 const borderColor = '#D9E2EC';
@@ -403,93 +404,12 @@ const Indicator = styledTS<{ hour: number }>(styled.div)`
   }
 `;
 
-export const HeaderButton = styledTS<{
-  hasBackground?: boolean;
-  rightIconed?: boolean;
-  isActive?: boolean;
-}>(styled.div)`
-  padding: 0 ${dimensions.unitSpacing}px;
-  line-height: ${dimensions.coreSpacing + 10}px;
-  height: ${dimensions.coreSpacing + 12}px; 
-  border-radius: ${dimensions.unitSpacing - 6}px;
-  transition: background 0.3s ease;
-  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
-  font-weight: ${typography.fontWeightMedium};
-  display: inline-block;
-  vertical-align: middle;
-  font-size: ${typography.fontSizeHeading8}px;
-  > i {
-    color: ${props =>
-      props.isActive ? colors.colorCoreLightGray : colors.colorCoreGray};
-    margin-right: ${dimensions.unitSpacing - 5}px;
-    ${props =>
-      props.rightIconed &&
-      css`
-        margin-right: -3px;
-        margin-left: ${dimensions.unitSpacing - 5}px;
-      `};
-  }
-  &:hover {
-    background: rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-  }
-  a span {
-    margin: 0;
-  }
-`;
-
-export const HeaderLink = styled(HeaderButton)`
-  padding: 0;
-  margin-left: 10px;
-  font-size: 12px;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 17px;
-  line-height: 21px;
-  a {
-    color: ${colors.colorCoreGray};
-    padding: 0 10px;
-    display: block;
-    line-height: 32px;
-    &:hover {
-      color: ${colors.colorCoreDarkGray};
-    }
-  }
-`;
-
 const HeadButton = styled(HeaderButton)`
   background: ${colors.bgLight};
 
   i {
     font-size: 16px;
     margin: 0;
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: inline-block;
-  border-radius: 18px;
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid ${colors.bgActive};
-  > a {
-    padding: 7px ${dimensions.coreSpacing}px;
-    display: inline-block;
-    color: ${colors.colorCoreGray};
-    font-weight: 500;
-    border-radius: 17px;
-    &.active {
-      color: ${colors.colorCoreDarkGray};
-      background: ${colors.colorWhite};
-      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
-      i {
-        color: ${colors.colorSecondary};
-      }
-    }
-    &:last-of-type {
-      border: none;
-    }
-    &:hover {
-      color: ${colors.colorCoreDarkGray};
-    }
   }
 `;
 
@@ -601,6 +521,5 @@ export {
   PopoverCell,
   Events,
   Controls,
-  FlexRow,
-  ButtonGroup
+  FlexRow
 };
