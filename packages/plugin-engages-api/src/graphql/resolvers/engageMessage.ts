@@ -6,6 +6,7 @@ export default {
   __resolveReference({ _id }) {
     return EngageMessages.findOne({ _id });
   },
+
   async segments(engageMessage: IEngageMessageDocument) {
     return (engageMessage.segmentIds || []).map(segmentId => ({
       __typename: 'Segment',
@@ -48,12 +49,6 @@ export default {
 
   stats(engageMessage: IEngageMessageDocument) {
     return Stats.findOne({ engageMessageId: engageMessage._id });
-  },
-
-  logs(engageMessage: IEngageMessageDocument) {
-    return Logs.find({
-      engageMessageId: engageMessage._id
-    });
   },
 
   smsStats(engageMessage: IEngageMessageDocument) {

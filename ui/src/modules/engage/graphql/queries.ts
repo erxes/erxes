@@ -130,7 +130,6 @@ const engageMessageStats = `
     engageMessageDetail(_id: $_id){
       ${engageDetailFields}
       stats
-      logs
 
       fromIntegration
     }

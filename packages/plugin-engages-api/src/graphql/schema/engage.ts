@@ -18,7 +18,7 @@ export const types = `
     ${externalId}
   }
 
-  type EngageMessage @key(fields: "_id") {
+  type EngageMessage ${keyFields} {
     _id: String!
     kind: String
     tagIds: [String]
@@ -57,7 +57,6 @@ export const types = `
     createdUser: User
 
     stats: JSON
-    logs: JSON
     smsStats: JSON
   }
 
@@ -68,7 +67,7 @@ export const types = `
     dateTime: Date,
   }
 
-  type DeliveryReport @key(fields: "_id") {
+  type DeliveryReport ${keyFields} {
     _id: String!,
     customerId: String,
     mailId: String,
