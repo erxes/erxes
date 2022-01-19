@@ -18,6 +18,10 @@ export const types = `
     ${externalId}
   }
 
+  extend type Customer ${keyFields} {
+    ${externalId}
+  }
+
   type EngageMessage ${keyFields} {
     _id: String!
     kind: String

@@ -1,5 +1,5 @@
 import { IEngageMessageDocument } from '../../models/definitions/engages';
-import { Logs, Stats, EngageMessages } from '../../models';
+import { Stats, EngageMessages } from '../../models';
 import { prepareSmsStats } from '../../telnyxUtils';
 
 export default {
@@ -70,20 +70,6 @@ export default {
   },
 
   async createdUser(engageMessage: IEngageMessageDocument) {
-    /**
-     * TODO:
-     * do the `user.username || user.email || user._id` on the UI
-     */
-
     return { __typename: 'User', _id: engageMessage.createdBy };
-
-    // this resolver used to be like below
-    // const user = await getDocument("users", { _id: engageMessage.createdBy });
-
-    // if (!user) {
-    //   return "";
-    // }
-
-    // return user.username || user.email || user._id;
   }
 };
