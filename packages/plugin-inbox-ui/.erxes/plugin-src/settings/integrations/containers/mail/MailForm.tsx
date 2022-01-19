@@ -5,8 +5,8 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as messageQueries } from '../../../../graphql';
-import { IMail, IMessage } from '../../../../types';
+import { queries as messageQueries } from '../../../../inbox/graphql';
+import { IMail, IMessage } from '../../../../inbox/types';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
@@ -19,7 +19,7 @@ import {
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import MailForm from '../../components/mail/MailForm';
-import { IntegrationsQueryResponse } from '../../types';
+import { IntegrationsQueryResponse } from '@erxes/ui-settings/src/integrations/types';
 import {
   defaultCustomerFields,
   defaultMailFields,

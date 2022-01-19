@@ -10,7 +10,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { NotWrappable } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import SkillTypes from '../containers/SkillTypes';
-import { ISkillDocument, ISkillTypesDocument } from '../types';
+import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 import SkillForm from './SkillForm';
 import SkillRow from './SkillRow';
 

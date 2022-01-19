@@ -1,78 +1,8 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 
-const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .flex-item {
-    flex: 1;
-    margin-left: ${dimensions.coreSpacing}px;
-
-    &:first-child {
-      margin: 0;
-    }
-
-    input[type='checkbox'] {
-      display: inline-block;
-      height: auto;
-      width: auto;
-      margin-right: 5px;
-    }
-  }
-
-  span {
-    margin: 0 5px;
-
-    .Select-value-label {
-      color: ${colors.colorLightGray} !important;
-    }
-  }
-
-  button {
-    margin-left: ${dimensions.coreSpacing / 2}px;
-  }
-
-  & + div {
-    margin-top: ${dimensions.coreSpacing / 2}px;
-  }
-`;
-
-const Content = styled.div`
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-
-  > form {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
-
-  .Select {
-    flex: 1;
-  }
-
-  button {
-    flex-shrink: 0;
-    margin-left: 10px;
-    align-self: baseline;
-  }
-`;
-
 const MessengerPreview = styled.div`
   width: 40%;
-`;
-
-const LeftContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
 `;
 
 const IntegrationName = styled.div`
@@ -242,8 +172,6 @@ const TextWrapper = styled.div`
 `;
 
 export {
-  FlexRow,
-  Row,
   MessengerPreview,
   IntegrationName,
   BrandName,
@@ -252,8 +180,6 @@ export {
   Script,
   RefreshPermission,
   GoogleButton,
-  LeftContent,
-  Content,
   AccountBox,
   AccountTitle,
   AccountItem,

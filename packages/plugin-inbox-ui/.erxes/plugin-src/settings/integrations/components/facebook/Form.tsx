@@ -19,15 +19,15 @@ import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { INTEGRATION_KINDS } from '../../constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import Accounts from '../../containers/Accounts';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
+import { Content } from '@erxes/ui-settings/src/integrations/styles';
 import {
   AccountBox,
   AccountItem,
   AccountTitle,
-  Content,
   ImageWrapper,
   MessengerPreview,
   TextWrapper

@@ -8,7 +8,7 @@ import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { Row } from '../styles';
+import { Row } from '@erxes/ui-settings/src/integrations/styles';
 
 type Props = {
   brands: IBrand[];

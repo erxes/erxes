@@ -13,14 +13,13 @@ import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
   IMessengerApps,
-  IMessengerData,
   IntegrationDetailQueryResponse,
-  IUiOptions,
   MessengerAppsQueryResponse,
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse
 } from '../../types';
+import { IMessengerData, IUiOptions,  } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

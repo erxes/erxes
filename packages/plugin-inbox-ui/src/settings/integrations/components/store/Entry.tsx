@@ -5,7 +5,7 @@ import { __ } from '@erxes/ui/src/utils';
 import NylasForm from '../../containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { INTEGRATION_KINDS } from '../../constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import IntegrationForm from '../../containers/common/IntegrationForm';
 import LineForm from '../../containers/line/Form';
 import TelnyxForm from '../../containers/telnyx/TelnyxForm';

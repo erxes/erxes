@@ -9,12 +9,10 @@ import { graphql, useMutation } from 'react-apollo';
 import Skills from '../components/Skills';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
+import { ISkillType, SkillTypesQueryResponse, SkillsQueryResponse } from '@erxes/ui-settings/src/skills/types';
 import {
-  ISkillType,
-  SkillsQueryResponse,
   SkillsRemoveMutationResponse,
   SkillsTotalCountQueryResponse,
-  SkillTypesQueryResponse
 } from '../types';
 
 type Props = {

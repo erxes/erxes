@@ -2,11 +2,11 @@ import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
-import { days, hours } from '@erxes/ui-settings/src/integrations/constants';
+import { days, hours } from '@erxes/ui/src/constants/integrations';
 import { FlexRow } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IOnlineHour } from '../../../types';
+import { IOnlineHour } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   prevOptions: any[];

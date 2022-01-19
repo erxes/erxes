@@ -4,7 +4,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import React from 'react';
 import { RefreshPermission } from '../../styles';
-import { IntegrationMutationVariables } from '../../types';
+import { IntegrationMutationVariables } from '@erxes/ui-settings/src/integrations/types';
 
 type CommonTypes = {
   name: string;

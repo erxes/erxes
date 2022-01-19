@@ -9,14 +9,13 @@ import {
 } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { ArchiveIntegrationResponse } from '@erxes/ui-settings/src/integrations/types';
 import {
-  ArchiveIntegrationResponse,
   CommonFieldsEditResponse,
-  IntegrationMutationVariables,
-  IntegrationsQueryResponse,
   RemoveMutationResponse,
   RepairMutationResponse
 } from '../../types';
+import { IntegrationsQueryResponse, IntegrationMutationVariables } from '@erxes/ui-settings/src/integrations/types';
 import { integrationsListParams } from '../utils';
 
 type Props = {

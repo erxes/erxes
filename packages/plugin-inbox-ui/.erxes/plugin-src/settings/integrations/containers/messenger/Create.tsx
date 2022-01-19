@@ -14,14 +14,13 @@ import {
 import * as compose from 'lodash.flowright';
 import {
   IMessengerApps,
-  IMessengerData,
-  IUiOptions,
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse,
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables
 } from '../../types';
+import { IMessengerData, IUiOptions } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

@@ -5,7 +5,7 @@ import xss from 'xss';
 import { ResponseSuggestionItem, ResponseSuggestions } from '../../../styles';
 import React from 'react';
 
-import { IResponseTemplate } from '../../../settings/responseTemplates/types';
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 
 type TemplateListProps = {
   suggestionsState: {

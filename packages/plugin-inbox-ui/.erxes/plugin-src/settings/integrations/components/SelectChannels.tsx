@@ -8,7 +8,7 @@ import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
-import { LeftContent, Row } from '../styles';
+import { LeftContent, Row } from '@erxes/ui-settings/src/integrations/styles';
 
 type Props = {
   channels: IChannel[];

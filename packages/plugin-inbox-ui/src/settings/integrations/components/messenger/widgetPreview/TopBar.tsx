@@ -3,7 +3,8 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IMessagesItem, IMessengerApps } from '../../../../integrations/types';
+import { IMessengerApps } from '../../../../integrations/types';
+import { IMessagesItem } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import {
   ErxesGreeting,

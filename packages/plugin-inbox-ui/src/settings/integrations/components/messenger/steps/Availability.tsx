@@ -7,7 +7,7 @@ import { respondrates } from '../../../constants';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IOnlineHour } from '../../../types';
+import { IOnlineHour } from '@erxes/ui-settings/src/integrations/types';
 import { ToggleWrapper } from '../widgetPreview/styles';
 import OnlineHours from './OnlineHours';
 import { Description } from '../../../styles';

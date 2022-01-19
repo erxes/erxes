@@ -6,7 +6,7 @@ import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { getEnv, withProps } from '@erxes/ui/src/utils';
-import { IntegrationsCountQueryResponse } from '../types';
+import { IntegrationsCountQueryResponse } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   queryParams: any;

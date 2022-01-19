@@ -20,6 +20,7 @@ import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,
   DropdownWrapper,
+  FlexCenter,
   LeftContent,
   RightItems,
   SidebarActions,
@@ -27,7 +28,6 @@ import {
   ToggleButton,
   ScrollContent
 } from './styles';
-import { FlexCenter } from '@erxes/ui/src/styles/main';
 
 const DateFilter = asyncComponent(
   () =>

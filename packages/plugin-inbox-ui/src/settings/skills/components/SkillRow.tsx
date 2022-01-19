@@ -5,7 +5,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { ISkillDocument, ISkillTypesDocument } from '../types';
+import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 import SkillForm from './SkillForm';
 
 type Props = {

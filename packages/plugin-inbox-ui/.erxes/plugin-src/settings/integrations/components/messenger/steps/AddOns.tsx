@@ -8,13 +8,11 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-import { ITopic } from '@erxes/ui-inbox/src/types';
 import { Options } from '../../../../integrations/styles';
+import { IIntegration, ITopic, ITopicMessengerApp } from '@erxes/ui-settings/src/integrations/types';
 import {
-  IIntegration,
   ILeadMessengerApp,
   IMessengerApps,
-  ITopicMessengerApp,
   IWebsite,
   IWebsiteMessengerApp
 } from '../../../../integrations/types';

@@ -12,7 +12,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { ArchiveIntegrationResponse } from '@erxes/ui-settings/src/integrations/types';
 import { CountQueryResponse } from '@erxes/ui-leads/src/types';
 
