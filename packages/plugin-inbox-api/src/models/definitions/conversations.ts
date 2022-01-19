@@ -50,70 +50,71 @@ export interface IConversationDocument extends IConversation, Document {
 // Conversation schema
 
 export const conversationSchemaOptions = {
-  _id: field({ pkey: true }),
   operatorStatus: field({
-    type: String,
+    type: 'String',
     enum: CONVERSATION_OPERATOR_STATUS.ALL,
     label: 'Operator Status',
     selectOptions: CONVERSATION_SELECT_OPTIONS.OPERATOR_STATUS,
     optional: true
   }),
-  content: field({ type: String, label: 'Content', optional: true }),
-  integrationId: field({ type: String, index: true }),
-  customerId: field({ type: String, index: true }),
+  content: field({ type: 'String', label: 'Content', optional: true }),
+  integrationId: field({ type: 'String', index: true }),
+  customerId: field({ type: 'String', index: true }),
   visitorId: field({
-    type: String
+    type: 'String'
   }),
-  userId: field({ type: String }),
-  assignedUserId: field({ type: String }),
-  participatedUserIds: field({ type: [String] }),
-  userRelevance: field({ type: String }),
-  readUserIds: field({ type: [String] }),
-  createdAt: field({ type: Date, label: 'Created at' }),
-  updatedAt: field({ type: Date, label: 'Updated at', index: true }),
+  userId: field({ type: 'String' }),
+  assignedUserId: field({ type: 'String' }),
+  participatedUserIds: field({ type: ['String'] }),
+  userRelevance: field({ type: 'String' }),
+  readUserIds: field({ type: ['String'] }),
+  createdAt: field({ type: 'Date', label: 'Created at' }),
+  updatedAt: field({ type: 'Date', label: 'Updated at', index: true }),
 
   closedAt: field({
-    type: Date,
+    type: 'Date',
     label: 'Closed at',
     optional: true
   }),
 
   closedUserId: field({
-    type: String,
+    type: 'String',
     optional: true
   }),
 
   status: field({
-    type: String,
+    type: 'String',
     enum: CONVERSATION_STATUSES.ALL,
     selectOptions: CONVERSATION_SELECT_OPTIONS.STATUS,
     label: 'Status',
     index: true
   }),
-  messageCount: field({ type: Number, label: 'Message count' }),
-  tagIds: field({ type: [String] }),
+  messageCount: field({ type: 'Number', label: 'Message count' }),
+  tagIds: field({ type: ['String'] }),
 
   // number of total conversations
-  number: field({ type: Number }),
+  number: field({ type: 'Number' }),
 
-  firstRespondedUserId: field({ type: String }),
-  firstRespondedDate: field({ type: Date, label: 'First responded date' }),
+  firstRespondedUserId: field({ type: 'String' }),
+  firstRespondedDate: field({ type: 'Date', label: 'First responded date' }),
 
   isCustomerRespondedLast: field({
-    type: Boolean,
+    type: 'Boolean',
     label: 'Last responder is customer'
   }),
 
+  bookingProductId: field({ type: 'String' })
+};
+
+export const conversationSchema = new Schema({
+  _id: field({ pkey: true }),
   customFieldsData: field({
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
   }),
-
-  bookingProductId: field({ type: String })
-};
-
-export const conversationSchema = new Schema(conversationSchemaOptions);
+  ...conversationSchemaOptions
+});
 
 conversationSchema.index(
   { visitorId: 1 },

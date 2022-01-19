@@ -195,7 +195,7 @@ export const initBroker = async (server?) => {
       data: await Conformities.addConformities(doc)
     }));
 
-    consumeQueue(
+    consumeRPCQueue(
       'notifications:rpc_queue:checkIfRead',
       async ({ userId, itemId }) => ({
         status: 'success',

@@ -30,7 +30,12 @@ export default {
     schemas: [{
       name: 'conversation',
       description: 'Conversation',
-      options: conversationSchemaOptions
+      options: {
+        ...conversationSchemaOptions,
+        customFieldsData: {
+          type: 'Object',
+        }
+      },
     }]
   },
   apolloServerContext: (context) => {
