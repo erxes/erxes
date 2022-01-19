@@ -5,7 +5,7 @@ import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
 import {
   FieldsCombinedByType,
   FieldsCombinedByTypeQueryResponse
-} from '../properties/types';
+} from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../utils';

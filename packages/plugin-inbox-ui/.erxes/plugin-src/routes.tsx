@@ -6,15 +6,14 @@ import ResponseTemplates from './settings/responseTemplates/routes';
 import SkillSettings from './settings/skills/routes';
 
 const routes = () => {
-
   return (
-    <React.Fragment>
+    <>
       <InboxRoutes />
       <ChannelSettings />
       <IntegrationSettings />
       <ResponseTemplates />
       <SkillSettings />
-    </React.Fragment>
+    </>
   );
 };
 

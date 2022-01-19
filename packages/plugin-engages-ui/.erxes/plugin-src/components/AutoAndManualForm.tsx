@@ -11,7 +11,7 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { IEmailTemplate } from "@erxes/ui-settings/src/emailTemplates/types";
-import { IBreadCrumbItem } from "@erxes/ui/src/types";
+import { IBreadCrumbItem, IConditionsRule } from "@erxes/ui/src/types";
 import { IConfig } from "@erxes/ui-settings/src/general/types";
 
 import React from "react";
@@ -64,7 +64,7 @@ type State = {
   email?: IEngageEmail;
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
-  rules: any[]; // fixNeeded IConditionsRule[];
+  rules: IConditionsRule[];
   isSaved: boolean;
 };
 

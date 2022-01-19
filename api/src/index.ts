@@ -156,8 +156,7 @@ const corsOptions = {
     MAIN_APP_DOMAIN,
     WIDGETS_DOMAIN,
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-    DASHBOARD_DOMAIN,
-    'http://localhost:3009'
+    DASHBOARD_DOMAIN
   ]
 };
 

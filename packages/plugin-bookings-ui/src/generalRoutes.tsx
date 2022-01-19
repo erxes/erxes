@@ -1,11 +1,14 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import BookingsRoutes from './routes';
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import BookingsRoutes from "./routes";
+
 
 const Routes = () => (
-  <Router>
-    <BookingsRoutes />
-  </Router>
+  
+    <Router>
+      <BookingsRoutes />
+    </Router>
+  
 );
 
 export default Routes;
