@@ -1,9 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import GeneralRoutes from './generalRoutes';
+import { PluginLayout } from '@erxes/ui/src/styles/main';
 
 const App = () => {
-  return <GeneralRoutes />;
+  return <PluginLayout><GeneralRoutes /></PluginLayout>;
 };
 
-ReactDOM.render(<App />, document.getElementById('app'));
+export default App;
+
