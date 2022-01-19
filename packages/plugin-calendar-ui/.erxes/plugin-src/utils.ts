@@ -103,3 +103,7 @@ export const timeConvert = (time: number) => {
 export const isSameMonth = (date: Date, currentDate: Date) => {
   return new Date(currentDate).getMonth() === date.getMonth();
 };
+
+export const getWarningMessage = (type: string): string => {
+  return `This will permanently delete the current ${type}. Are you absolutely sure?`;
+};

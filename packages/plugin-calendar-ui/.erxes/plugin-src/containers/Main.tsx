@@ -3,12 +3,12 @@ import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-settings/src/calendars/graphql';
+import { queries } from '../graphql';
 import {
   BoardDetailQueryResponse,
   BoardGetLastQueryResponse,
   BoardsQueryResponse
-} from '@erxes/ui-settings/src/calendars/types';
+} from '../types';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
