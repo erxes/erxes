@@ -30,7 +30,10 @@ export default {
     resolvers,
   },
   segment: { schemas: []},
-  apolloServerContext: (context) => { context.dataloaders = {} },
+  apolloServerContext: (context) => {
+    context.dataloaders = {};
+    context.docModifier = (doc) => doc;
+  },
   onServerInit: async (options) => {
     await connect();
 
