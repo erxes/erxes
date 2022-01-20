@@ -16,7 +16,7 @@ import {
 } from '../../types';
 import { getConfig, setConfig } from '../../utils';
 import { refetchSidebarConversationsOptions } from '../../utils';
-import { InboxManagementActionConsumer } from '../Inbox';
+import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {
   queryParams: any;

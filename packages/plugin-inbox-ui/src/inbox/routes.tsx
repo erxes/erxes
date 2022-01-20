@@ -4,8 +4,8 @@ import queryString from 'query-string';
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
-const Inbox = asyncComponent(() =>
-  import(/* webpackChunkName: "Inbox" */ './containers/Inbox')
+const InboxComponent = asyncComponent(() =>
+  import(/* webpackChunkName: "InboxCore" */ './containers/InboxCore')
 );
 
 const index = ({ location }) => {
@@ -14,7 +14,7 @@ const index = ({ location }) => {
 
 const inbox = (props: IRouterProps) => {
   return (
-    <Inbox
+    <InboxComponent
       history={props.history}
       queryParams={queryString.parse(props.location.search)}
     />

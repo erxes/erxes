@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StatusFilterPopover } from '../../components/leftSidebar';
-import { InboxManagementActionConsumer } from '../Inbox';
+import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {
   history: any;
