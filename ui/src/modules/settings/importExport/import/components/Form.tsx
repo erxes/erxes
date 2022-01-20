@@ -14,9 +14,10 @@ import FileUpload from './FileUpload';
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Details from './Details';
 import SettingsForm from './SettingsForm';
-import TypeForm from './TypeForm';
+import TypeForm from '../containers/TypeForm';
 import AccociateForm from '../containers/AccociateForm';
 import MapColumn from '../containers/MapColumn';
+import { IImportHistoryContentType } from '../../types';
 
 type Props = {
   contentType: string;
@@ -30,7 +31,7 @@ type State = {
   importName: string;
   disclaimer: boolean;
   type: string;
-  contentTypes: string[];
+  contentTypes: IImportHistoryContentType[];
 
   associatedField: string;
   associatedContentType: string;
@@ -99,28 +100,28 @@ class Form extends React.Component<Props, State> {
     this.setState({ associatedContentType: value });
   };
 
-  onChangeContentType = value => {
+  onChangeContentType = (contentType: IImportHistoryContentType) => {
     const { type, contentTypes } = this.state;
 
     if (type === 'single') {
-      return this.setState({ contentTypes: [value] });
+      return this.setState({ contentTypes: [contentType] });
     }
 
-    let temp: string[] = [];
+    let temp: IImportHistoryContentType[] = [];
 
     if (contentTypes.length === 2) {
       temp = [...contentTypes];
 
       temp[0] = contentTypes[1];
 
-      temp[1] = value;
+      temp[1] = contentType;
 
       return this.setState({ contentTypes: temp });
     }
 
     temp = [...contentTypes];
 
-    temp.push(value);
+    temp.push(contentType);
 
     return this.setState({ contentTypes: temp });
   };
@@ -138,8 +139,8 @@ class Form extends React.Component<Props, State> {
     const files = [] as any;
 
     for (const contentType of contentTypes) {
-      if (attachments[contentType]) {
-        const attachment = attachments[contentType];
+      if (attachments[contentType.contentType]) {
+        const attachment = attachments[contentType.contentType];
 
         files.push(attachment[0]);
       }
@@ -176,8 +177,8 @@ class Form extends React.Component<Props, State> {
       const attachmentNames: string[] = [];
 
       for (const contentType of contentTypes) {
-        if (attachments[contentType]) {
-          const attachment = attachments[contentType];
+        if (attachments[contentType.contentType]) {
+          const attachment = attachments[contentType.contentType];
 
           attachmentNames.push(attachment[0].url);
         }
@@ -204,8 +205,8 @@ class Form extends React.Component<Props, State> {
     const result = [] as any;
 
     for (const contentType of contentTypes) {
-      if (attachments[contentType]) {
-        const attachment = attachments[contentType];
+      if (attachments[contentType.contentType]) {
+        const attachment = attachments[contentType.contentType];
 
         result.push(
           <Step
@@ -214,7 +215,8 @@ class Form extends React.Component<Props, State> {
             key={Math.random()}
           >
             <MapColumn
-              contentType={contentType}
+              contentType={contentType.contentType}
+              pluginType={contentType.pluginType}
               attachments={attachment}
               columnWithChosenField={columnWithChosenField}
               onChangeColumn={this.onChangeColumn}
@@ -262,7 +264,7 @@ class Form extends React.Component<Props, State> {
                 />
               </Step>
 
-              {this.renderAssociateForm()}
+              {/* {this.renderAssociateForm()} */}
               {this.renderMapColumn()}
 
               <Step

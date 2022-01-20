@@ -10,6 +10,12 @@ const importHistoryGetDuplicatedHeaders = `
   }
 `;
 
+const importHistoryGetTypes = `
+  query importHistoryGetTypes {
+    importHistoryGetTypes
+  }
+`;
+
 const importHistories = `
   query importHistories($type: String, $perPage: Int, $page: Int) {
     importHistories(type: $type, perPage: $perPage, page: $page) {
@@ -38,6 +44,7 @@ const importHistories = `
 `;
 
 export default {
+  importHistoryGetTypes,
   importHistories,
   importHistoryGetColumns,
   importHistoryGetDuplicatedHeaders

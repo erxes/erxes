@@ -5,7 +5,6 @@ import {
   Fields,
   FieldsGroups,
   Integrations,
-  Products,
   Tags,
   Users
 } from '../../../db/models';
@@ -16,8 +15,7 @@ import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
 import { getConfig, isUsingElk } from '../../utils';
-import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
-import { custom, getPluginSchema } from './federationUtils';
+import { custom, getPluginInfo } from './federationUtils';
 
 const generateBasicInfosFromSchema = async (
   queSchema: any,
@@ -101,32 +99,22 @@ const getFieldGroup = async (_id: string) => {
 };
 
 // Checking field names, all field names must be configured correctly
-export const checkFieldNames = async (type: string, fields: string[]) => {
+export const checkFieldNames = async (
+  type: string,
+  fields: string[],
+  columnConfig?: object
+) => {
   const properties: any[] = [];
   let schema: any;
   let basicInfos: string[] = [];
 
   switch (type) {
-    case 'company':
-      schema = Companies.schema;
-      break;
-
     case 'customer':
       schema = Customers.schema;
       break;
 
     case 'lead':
       schema = Customers.schema;
-      break;
-
-    case 'product':
-      schema = Products.schema;
-      break;
-
-    case 'deal':
-    case 'task':
-    case 'ticket':
-      basicInfos = BOARD_BASIC_INFOS;
       break;
   }
 
@@ -157,6 +145,10 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
     fieldName = fieldName.trim();
 
     const property: { [key: string]: any } = {};
+
+    if (columnConfig) {
+      fieldName = columnConfig[fieldName].value;
+    }
 
     const fieldObj = await Fields.findOne({
       text: fieldName,
@@ -195,34 +187,9 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.type = 'tag';
     }
 
-    if (fieldName === 'boardName') {
-      property.name = 'boardId';
-      property.type = 'boardName';
-    }
-
-    if (fieldName === 'pipelineName') {
-      property.name = 'pipelineId';
-      property.type = 'pipelineName';
-    }
-
-    if (fieldName === 'stageName') {
-      property.name = 'stageId';
-      property.type = 'stageName';
-    }
-
     if (fieldName === 'pronoun') {
       property.name = 'pronoun';
       property.type = 'pronoun';
-    }
-
-    if (fieldName === 'categoryCode') {
-      property.name = 'categoryCode';
-      property.type = 'categoryCode';
-    }
-
-    if (fieldName === 'vendorCode') {
-      property.name = 'vendorCode';
-      property.type = 'vendorCode';
     }
 
     if (!property.type) {
@@ -431,8 +398,7 @@ export const fieldsCombinedByContentType = async ({
   pipelineId,
   segmentId,
   formId,
-  pluginName,
-  pluginContentType
+  pluginType
 }: {
   contentType: string;
   usageType?: string;
@@ -441,12 +407,12 @@ export const fieldsCombinedByContentType = async ({
   segmentId?: string;
   pipelineId?: string;
   formId?: string;
-  pluginName?: string;
-  pluginContentType?: string;
+  pluginType?: string;
 }) => {
   console.log(pipelineId, segmentId);
 
   let schema: any;
+  let plugin: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
   let fields: Array<{
     _id: number;
@@ -473,8 +439,13 @@ export const fieldsCombinedByContentType = async ({
       break;
   }
 
-  if (pluginName && pluginContentType) {
-    schema = await getPluginSchema(pluginName, pluginContentType);
+  if (pluginType) {
+    plugin = await getPluginInfo(pluginType, contentType);
+  }
+
+  if (plugin) {
+    schema = plugin.schema;
+    fields = [...plugin.fields];
   }
 
   if (!schema) {
@@ -558,7 +529,7 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  const pluginsCustomFields = await custom(pluginName, pluginContentType);
+  const pluginsCustomFields = await custom(pluginType, contentType);
 
   fields = [...fields, ...pluginsCustomFields];
 

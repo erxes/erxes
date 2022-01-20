@@ -314,8 +314,7 @@ export const receiveImportCreate = async (content: any) => {
     uploadType,
     columnsConfig,
     importHistoryId,
-    associatedContentType,
-    associatedField
+    associatedContentType
   } = content;
 
   const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
@@ -324,15 +323,17 @@ export const receiveImportCreate = async (content: any) => {
 
   let total = 0;
 
-  let mainType = contentTypes[0];
+  let mainType = contentTypes[0].contentType;
+  const type = contentTypes[0].type;
+  const pluginType = contentTypes[0].pluginType;
 
   if (associatedContentType) {
     mainType = associatedContentType;
   }
 
   for (const contentType of contentTypes) {
-    const file = files[contentType];
-    const columnConfig = columnsConfig[contentType];
+    const file = files[contentType.contentType];
+    const columnConfig = columnsConfig[contentType.contentType];
     const fileName = file[0].url;
 
     const { rows, columns }: any = await getCsvInfo(fileName, uploadType);
@@ -346,12 +347,12 @@ export const receiveImportCreate = async (content: any) => {
     const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
     const properties = await checkFieldNames(
-      contentType,
+      contentType.contentType,
       updatedColumns,
       columnConfig
     );
 
-    config[contentType] = { total: rows, properties, fileName };
+    config[contentType.contentType] = { total: rows, properties, fileName };
   }
 
   await ImportHistory.updateOne(
@@ -363,16 +364,6 @@ export const receiveImportCreate = async (content: any) => {
       total
     }
   );
-
-  const getAssociatedField = contentType => {
-    const properties = config[contentType].properties;
-
-    const property = properties.find(
-      value => value.fieldName === associatedField
-    );
-
-    return property.name;
-  };
 
   const updateImportHistory = async doc => {
     return ImportHistory.updateOne({ _id: importHistoryId }, doc);
@@ -415,35 +406,13 @@ export const receiveImportCreate = async (content: any) => {
       graphqlPubsub.publish('importHistoryChanged', {});
     }
 
-    if (associatedContentType && associatedField && status !== 'Done') {
-      const contentType = contentTypes.find(value => value !== mainType);
-
-      const mainAssociateField = getAssociatedField(mainType);
-
-      const associateField = getAssociatedField(contentType);
-
-      importBulkStream({
-        contentType,
-        fileName: config[contentType].fileName,
-        uploadType,
-        bulkLimit: WORKER_BULK_LIMIT,
-        handleBulkOperation,
-        associateContentType: associatedContentType,
-        associateField,
-        mainAssociateField
-      });
-    }
-
     debugWorkers(`Import create ended`);
   };
 
   const handleBulkOperation = async (
     rowIndex: number,
     rows: any,
-    contentType: string,
-    associateContentType?: string,
-    associateField?: string,
-    mainAssociateField?: string
+    contentType: string
   ) => {
     if (rows.length === 0) {
       return debugWorkers('Please import at least one row of data');
@@ -462,14 +431,13 @@ export const receiveImportCreate = async (content: any) => {
       scopeBrandIds,
       user,
       contentType,
+      type,
+      pluginType,
       properties: config[contentType].properties,
       importHistoryId,
       result,
       useElkSyncer,
-      percentage: Number(((result.length / total) * 100).toFixed(3)),
-      associateContentType,
-      associateField,
-      mainAssociateField
+      percentage: Number(((result.length / total) * 100).toFixed(3))
     });
   };
 

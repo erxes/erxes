@@ -1,39 +1,41 @@
+import { Spinner } from 'erxes-ui';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import Form from '../components/Form';
+import { IImportHistoryContentType } from '../../types';
+import TypeForm from '../components/TypeForm';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  contentType: string;
+  onChangeContentType: (value: IImportHistoryContentType) => void;
+  contentTypes: IImportHistoryContentType[];
+  type: string;
 };
 
 type State = {};
 
 type FinalProps = {
-  importHistoriesCreate: any;
+  importHistoryGetTypes: any;
 } & Props;
 
 class FormContainer extends React.Component<FinalProps, State> {
   render() {
-    const { importHistoriesCreate } = this.props;
+    const { importHistoryGetTypes } = this.props;
 
-    const addImportHistory = doc => {
-      const { contentTypes } = doc;
+    if (importHistoryGetTypes.loading) {
+      return <Spinner />;
+    }
 
-      importHistoriesCreate({
-        variables: doc
-      }).then(() => {
-        window.location.href = `/settings/importHistories?type=${contentTypes[0].contentType}`;
-      });
-    };
+    const typeOptions = importHistoryGetTypes.importHistoryGetTypes || [];
 
     return (
-      <Form
-        contentType={this.props.contentType}
-        addImportHistory={addImportHistory}
+      <TypeForm
+        onChangeContentType={this.props.onChangeContentType}
+        contentTypes={this.props.contentTypes}
+        type={this.props.type}
+        typeOptions={typeOptions}
       />
     );
   }

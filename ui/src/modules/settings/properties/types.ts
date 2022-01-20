@@ -113,6 +113,7 @@ export type FieldsCombinedByType = {
   _id: string;
   name: string;
   label: string;
+  value?: string;
   brandName?: string;
   brandId?: string;
   type: string;
