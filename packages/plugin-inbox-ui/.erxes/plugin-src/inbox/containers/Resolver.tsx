@@ -12,7 +12,7 @@ import {
   IConversation
 } from '../types';
 import { refetchSidebarConversationsOptions } from '../utils';
-import { InboxManagementActionConsumer } from './Inbox';
+import { InboxManagementActionConsumer } from './InboxCore';
 
 type Props = {
   conversations: IConversation[];

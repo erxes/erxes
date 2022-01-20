@@ -1,5 +1,5 @@
 {
-  "name": "ui",
+  "name": "inbox-ui",
   "version": "1.0.0",
   "scripts": {
     "watch-plugin-src": "node ./scripts/watch-plugin-src.js",

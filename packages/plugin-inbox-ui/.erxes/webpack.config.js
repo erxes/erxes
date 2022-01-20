@@ -1,24 +1,23 @@
 const webpack = require('webpack');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
-const path = require('path');
-const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const HtmlWebPackPlugin = require("html-webpack-plugin");
+const path = require("path");
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
-const InterpolateHtmlPlugin = require('interpolate-html-plugin');
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 
-const configs = require('./plugin-src/configs');
-const { port = 3000 } = configs;
+const configs = require("./plugin-src/configs");
+const { port=3000 } = configs;
 
 const exposes = {};
 
 for (const expose of Object.keys(configs.exposes || {})) {
-  exposes[expose] = configs.exposes[expose].replace('src', 'plugin-src');
+  exposes[expose] = configs.exposes[expose].replace('src', 'plugin-src')
 }
 
-// replace accordingly './.env' with the path of your .env file
-require('dotenv').config({ path: './.env' });
+// replace accordingly './.env' with the path of your .env file 
+require('dotenv').config({ path: './.env' }); 
 
-const deps = require('./package.json').dependencies;
+const deps = require("./package.json").dependencies;
 const depNames = Object.keys(deps);
 
 const shared = {};
@@ -26,19 +25,19 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true
-  };
+  }
 }
 
 module.exports = {
   output: {
     uniqueName: configs.name,
-    publicPath: `http://localhost:${port}/`
+    publicPath: `http://localhost:${port}/`,
   },
 
   optimization: { runtimeChunk: false, splitChunks: false },
 
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+    extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     fallback: {
       timers: require.resolve('timers-browserify')
     }
@@ -46,25 +45,25 @@ module.exports = {
 
   devServer: {
     port: port,
-    historyApiFallback: true
+    historyApiFallback: true,
   },
 
   module: {
     rules: [
       {
         test: /\.m?js/,
-        type: 'javascript/auto',
+        type: "javascript/auto",
         resolve: {
-          fullySpecified: false
-        }
+          fullySpecified: false,
+        },
       },
       {
         test: /\.(css|s[ac]ss)$/i,
-        use: ['style-loader', 'css-loader', 'postcss-loader']
+        use: ["style-loader", "css-loader", "postcss-loader"],
       },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
+      { 
+        test: /\.json$/, 
+        loader: "json-loader"
       },
       {
         test: /\.(ts|tsx|js|jsx)$/,
@@ -80,43 +79,42 @@ module.exports = {
           path.resolve(__dirname, 'plugin-src')
         ],
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
             presets: [
-              '@babel/preset-typescript',
-              '@babel/preset-react',
-              '@babel/preset-env'
+              "@babel/preset-typescript",
+              "@babel/preset-react",
+              "@babel/preset-env",
             ],
-            plugins: [['@babel/transform-runtime']]
-          }
-        }
-      }
-    ]
+            plugins: [["@babel/transform-runtime"]],
+          },
+        },
+      },
+    ],
   },
 
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': JSON.stringify(process.env)
+      "process.env": JSON.stringify(process.env),
     }),
     new InterpolateHtmlPlugin({
-      PUBLIC_URL: '' // can modify `static` to another name or get it from `process`
+      PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
     }),
     new ModuleFederationPlugin({
       name: configs.name,
-      filename: 'remoteEntry.js',
+      filename: "remoteEntry.js",
       remotes: {},
       exposes,
       shared: {
         ...shared,
-        '@erxes/ui': {
-          requiredVersion: '1.0.0',
+        "@erxes/ui": {
+          requiredVersion: "1.0.0",
           singleton: true
         }
-      }
+      },
     }),
     new HtmlWebPackPlugin({
-      template: './src/index.html'
-    })
-    // new BundleAnalyzerPlugin()
-  ]
+      template: "./src/index.html",
+    }),
+  ],
 };

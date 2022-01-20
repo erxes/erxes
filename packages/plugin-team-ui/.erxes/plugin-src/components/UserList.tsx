@@ -1,4 +1,4 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
+import { AppConsumer } from '../appContext';
 import { IUser } from '@erxes/ui/src/auth/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
@@ -203,9 +203,11 @@ class UserList extends React.Component<FinalProps, States> {
 const WithConsumer = (props: IProps & ICommonListProps & ICommonFormProps) => {
   return (
     <AppConsumer>
-      {({ currentUser }) => (
+      {({ currentUser }) => { 
+        console.log('userlist', currentUser)
+        return(
         <UserList {...props} currentUser={currentUser || ({} as IUser)} />
-      )}
+      )}}
     </AppConsumer>
   );
 };
