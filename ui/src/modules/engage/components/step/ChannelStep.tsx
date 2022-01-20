@@ -64,11 +64,6 @@ class ChannelStep extends React.Component<Props> {
           'comment-edit',
           'Interact personally with direct in-app-messaging'
         )}
-        {this.renderBox(
-          METHODS.SMS,
-          'comment-alt-message',
-          `Send bulk SMS online with simple and direct texts`
-        )}
       </FullContent>
     );
   }
