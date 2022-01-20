@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "license": "GNU General Public License v3.0 with Commons Clause",
   "scripts": {
-    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts"
+    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts",
+    "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
   },
   "dependencies": {
     "@apollo/federation": "^0.33.8",
     "@apollo/gateway": "^0.44.1",
     "apollo-server-express": "^3.5.0",
+    "clerq": "0.5.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^10.0.0",
     "erxes-api-utils": "^0.0.34",
@@ -25,7 +27,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "mongodb": "^3.7.3",
-    "clerq": "0.5.0",
+    "nodejs-file-downloader": "^4.9.2",
     "ws": "^8.4.0"
   },
   "devDependencies": {
