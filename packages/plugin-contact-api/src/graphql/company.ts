@@ -20,7 +20,7 @@ export const types = `
     _id: String! @external
   }
 
-  type Company {
+  type Company @key(fields: "_id") {
     _id: String!
 
     createdAt: Date

@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 
 // load environment variables
-dotenv.config();
+dotenv.config({ path: '../.env' });
 
 import * as bodyParser from 'body-parser';
 import * as express from 'express';

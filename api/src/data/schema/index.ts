@@ -138,6 +138,13 @@ import {
 export let types = `
   scalar JSON
   scalar Date
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Company @key(fields: "_id") {
+    _id: String! @external
+  }
   ${CommonTypes}
   ${UserTypes}
   ${InternalNoteTypes}

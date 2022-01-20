@@ -1,5 +1,4 @@
 import {
-  Companies,
   Conformities,
   Customers,
   Fields,
@@ -81,7 +80,10 @@ export default {
       relTypes: ['company']
     });
 
-    return Companies.findActiveCompanies({ _id: { $in: companyIds } });
+    return companyIds.map(companyId => ({
+      __typename: 'Company',
+      _id: companyId
+    }));
   },
 
   async customers(deal: IDealDocument) {

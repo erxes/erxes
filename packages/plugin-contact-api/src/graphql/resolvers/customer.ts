@@ -3,8 +3,13 @@ import { ICustomerDocument } from '../../models/definitions/customers';
 import { es } from '../../configs';
 import { IContext } from '@erxes/api-utils/src';
 import { savedConformity } from '../../messageBroker';
+import { Customers } from '../../apiCollections';
 
 export default {
+  __resolverReference({ _id }) {
+    return Customers.findOne({ _id });
+  },
+
   integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
     return (
       (customer.integrationId &&

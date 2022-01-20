@@ -2,8 +2,13 @@
 import { ICompanyDocument } from '../../models/definitions/companies';
 import { IContext } from '@erxes/api-utils/src';
 import { savedConformity } from '../../messageBroker';
+import { Companies } from '../../apiCollections';
 
 export default {
+  __resolverReference({ _id }) {
+    return Companies.findOne({ _id });
+  },
+
   async customers(
     company: ICompanyDocument,
     _,
