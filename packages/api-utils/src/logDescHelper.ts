@@ -18,17 +18,13 @@ import { ICustomerDocument } from '@erxes/common-types/src/customers';
 import { MODULE_NAMES } from './constants';
 import { LOG_ACTIONS } from './logUtils';
 import {
-  Pipelines,
   Forms,
   Users,
-  Boards,
   Integrations,
   Tags,
   Brands,
   Companies,
   Customers,
-  PipelineLabels,
-  Stages,
   Deals,
   Tasks,
   Tickets,
@@ -40,7 +36,8 @@ import {
   ProductCategories,
   KnowledgeBaseTopics,
   UsersGroups,
-  Checklists
+  Checklists,
+  findOne
 } from './apiCollections';
 
 export type BoardItemDocument =
@@ -108,7 +105,7 @@ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   const uniqueIds = _.compact(_.uniq(idFields));
 
   for (const id of uniqueIds) {
-    const item = await collection.findOne({ _id: id });
+    const item = await findOne(collection, { _id: id });
     let name: string = `item with id "${id}" has been deleted`;
 
     if (item) {
