@@ -1,19 +1,11 @@
-import * as dotenv from 'dotenv';
-import messageBroker from 'erxes-message-broker';
 import { debugBase } from './debuggers';
 import { Logs } from './models';
 import { sendBulkSms, start } from './sender';
 
-dotenv.config();
-
 let client;
 
-export const initBroker = async server => {
-  client = await messageBroker({
-    name: 'logger',
-    server,
-    envs: process.env
-  });
+export const initBroker = async cl => {
+  client = cl;
 
   const { consumeQueue } = client;
 

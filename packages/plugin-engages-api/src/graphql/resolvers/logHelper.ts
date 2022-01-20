@@ -40,10 +40,10 @@ const gatherEngageFieldNames = async (
     });
   }
 
-  if (doc.tagIds && doc.tagIds.length > 0) {
+  if (doc.customerTagIds && doc.customerTagIds.length > 0) {
     options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
+      idFields: doc.customerTagIds,
+      foreignKey: 'customerTagIds',
       prevList: options
     });
   }
@@ -71,6 +71,7 @@ export const gatherDescriptions = async (params: any) => {
   const { action, object, updatedDocument } = params;
 
   const description = `"${object.title}" has been ${action}d`;
+
   let extraDesc: LogDesc[] = await gatherEngageFieldNames(object);
 
   if (updatedDocument) {
