@@ -1,10 +1,10 @@
-import { AppConsumer } from 'erxes-ui/lib/appContext';
+import { AppConsumer } from '@erxes/ui/src/appContext';
 import gql from 'graphql-tag';
 import { can, router as routerUtils } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Empty from '../components/Empty';
-// import Inbox from '../components/Inbox';
+import InboxCore from '../components/InboxCore';
 import { queries } from '../graphql';
 import {
   ConvesationsQueryVariables,
@@ -71,19 +71,18 @@ class WithCurrentId extends React.Component<IProps> {
   }
 
   render() {
-    console.log(AppConsumer)
+    console.log(this.props.conversationsGetLast);
+
     return (
       <AppConsumer>
         {({ currentUser }) => {
           const { queryParams } = this.props;
           const { _id } = queryParams;
-          console.log('hi curr', currentUser, this.props)
+          console.log('hi curr1', currentUser, this.props)
 
           // if (!currentUser) {
           //   return null;
           // } 
-
-          return <div>hi</div>
 
           if (!_id || !can('showConversations', currentUser)) {
             return (
@@ -93,8 +92,8 @@ class WithCurrentId extends React.Component<IProps> {
 
           return (
             <WithRefetchHandling>
-              <div>hi</div>
-              {/* <Inbox
+              <div>hi33</div>
+              {/* <InboxCore
                 queryParams={queryParams}
                 currentConversationId={_id}
                 currentUser={currentUser}

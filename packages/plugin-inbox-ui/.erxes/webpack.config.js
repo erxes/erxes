@@ -25,7 +25,7 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true
-  };
+  }
 }
 
 module.exports = {
@@ -69,14 +69,14 @@ module.exports = {
         test: /\.(ts|tsx|js|jsx)$/,
         exclude: /node_modules/,
         include: [
-          path.resolve(__dirname, "src"),
+          path.resolve(__dirname, 'src'),
           path.resolve(__dirname, '../../erxes-ui/src'),
           path.resolve(__dirname, '../../ui-contacts/src'),
           path.resolve(__dirname, '../../ui-settings/src'),
           path.resolve(__dirname, '../../ui-cards/src'),
           path.resolve(__dirname, '../../ui-forms/src'),
           path.resolve(__dirname, '../../ui-products/src'),
-          path.resolve(__dirname, "plugin-src")
+          path.resolve(__dirname, 'plugin-src')
         ],
         use: {
           loader: "babel-loader",
@@ -107,8 +107,8 @@ module.exports = {
       exposes,
       shared: {
         ...shared,
-        '@erxes/ui': {
-          requiredVersion: '1.0.0',
+        "@erxes/ui": {
+          requiredVersion: "1.0.0",
           singleton: true
         }
       },

@@ -13,7 +13,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 import React from 'react';
 import RTG from 'react-transition-group';
-import { InboxManagementActionConsumer } from '../../containers/Inbox';
+import { InboxManagementActionConsumer } from '../../containers/InboxCore';
 import { StatusFilterPopover } from '../../containers/leftSidebar';
 import { IConversation } from '../../types';
 import { IntegrationModal } from './IntegrationModal';

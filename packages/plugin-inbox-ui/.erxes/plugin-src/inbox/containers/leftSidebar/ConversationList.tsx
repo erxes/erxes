@@ -13,7 +13,7 @@ import {
   IConversation
 } from '../../types';
 import { ConversationsTotalCountQueryResponse } from '../../types';
-import { InboxManagementActionConsumer } from '../Inbox';
+import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {
   currentUser?: IUser;

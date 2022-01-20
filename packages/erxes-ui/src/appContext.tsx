@@ -43,7 +43,7 @@ export class AppProvider extends React.Component<
       isDoneIndicatorAction: false
     };
 
-    this.setLocale(currentLanguage);
+    // this.setLocale(currentLanguage);
   }
 
   checkisShownIndicatorData = () => {
@@ -82,18 +82,17 @@ export class AppProvider extends React.Component<
   }
 
   setLocale = (currentLanguage: string): void => {
-    console.log(currentLanguage)
-    if (currentLanguage !== 'mn') {
-      import(`dayjs/locale/${currentLanguage}`)
-        .then(() => dayjs.locale(currentLanguage))
-        .catch(_ => dayjs.locale('en'));
-    }
-    import(`locales/${currentLanguage}.json`)
-      .then(data => {
-        const translations = data.default;
-        T.setTexts(translations);
-      })
-      .catch(e => console.log(e)); // tslint:disable-line
+    // if (currentLanguage !== 'mn') {
+    //   import(`dayjs/locale/${currentLanguage}`)
+    //     .then(() => dayjs.locale(currentLanguage))
+    //     .catch(_ => dayjs.locale('en'));
+    // }
+    // import(`locales/${currentLanguage}.json`)
+    //   .then(data => {
+    //     const translations = data.default;
+    //     T.setTexts(translations);
+    //   })
+    //   .catch(e => console.log(e)); // tslint:disable-line
   };
 
   changeLanguage = (languageCode): void => {
@@ -111,7 +110,7 @@ export class AppProvider extends React.Component<
       isRemovingImport,
       isDoneIndicatorAction
     } = this.state;
-    console.log('here userrend', currentUser, this.props.children)
+    console.log('here userrend', currentUser)
 
     return (
       <AppContext.Provider
