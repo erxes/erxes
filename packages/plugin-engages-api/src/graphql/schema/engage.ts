@@ -18,11 +18,11 @@ export const types = `
     ${externalId}
   }
 
-  extend type Integration ${keyFields} {
+  extend type Customer ${keyFields} {
     ${externalId}
   }
 
-  type EngageMessage @key(fields: "_id") {
+  type EngageMessage ${keyFields} {
     _id: String!
     kind: String
     tagIds: [String]
@@ -57,11 +57,10 @@ export const types = `
     brands: [Brand]
     fromUser: User
     getTags: [Tag]
-    fromIntegration: Integration
+    fromIntegration: JSON
     createdUser: User
 
     stats: JSON
-    logs: JSON
     smsStats: JSON
   }
 
@@ -72,7 +71,7 @@ export const types = `
     dateTime: Date,
   }
 
-  type DeliveryReport @key(fields: "_id") {
+  type DeliveryReport ${keyFields} {
     _id: String!,
     customerId: String,
     mailId: String,

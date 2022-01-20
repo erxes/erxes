@@ -57,14 +57,14 @@ const boardMutations = {
   /**
    * Create new board
    */
-  async boardsAdd(_root, doc: IBoard, { user, docModifier }: IContext) {
+  async boardsAdd(_root, doc: IBoard, { user }: IContext) {
     await checkPermission(doc.type, user, 'boardsAdd');
 
-    const extendedDoc = docModifier({ userId: user._id, ...doc });
+    const extendedDoc = { userId: user._id, ...doc };
 
     const board = await Boards.createBoard(extendedDoc);
 
-    await putCreateLog(
+    putCreateLog(
       messageBroker,
       {
         type: `${doc.type}Boards`,
@@ -112,7 +112,7 @@ const boardMutations = {
 
     const relatedFieldsGroups = await FieldsGroups.find({
       boardIds: board._id
-    });
+    }).toArray();
 
     for (const fieldGroup of relatedFieldsGroups) {
       const boardIds = fieldGroup.boardIds || [];
@@ -152,7 +152,7 @@ const boardMutations = {
       stages
     );
 
-    await putCreateLog(
+    putCreateLog(
       messageBroker,
       {
         type: `${doc.type}Pipelines`,

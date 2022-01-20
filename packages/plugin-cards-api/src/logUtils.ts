@@ -261,7 +261,7 @@ const gatherStageFieldNames = async (
 };
 
 const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
-  const { action, type, obj, updatedDocument } = params;
+  const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
   let description: string = '';
@@ -271,32 +271,32 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
     case MODULE_NAMES.BOARD_GH:
     case MODULE_NAMES.BOARD_TASK:
     case MODULE_NAMES.BOARD_TICKET:
-      if (obj.userId) {
+      if (object.userId) {
         extraDesc = await gatherUsernames({
-          idFields: [obj.userId],
+          idFields: [object.userId],
           foreignKey: 'userId'
         });
       }
 
-      description = `"${obj.name}" has been ${action}d`;
+      description = `"${object.name}" has been ${action}d`;
 
       break;
     case MODULE_NAMES.PIPELINE_DEAL:
     case MODULE_NAMES.PIPELINE_GH:
     case MODULE_NAMES.PIPELINE_TASK:
     case MODULE_NAMES.PIPELINE_TICKET:
-      extraDesc = await gatherPipelineFieldNames(obj);
+      extraDesc = await gatherPipelineFieldNames(object);
 
       if (updatedDocument) {
         extraDesc = await gatherPipelineFieldNames(updatedDocument, extraDesc);
       }
 
-      description = `"${obj.name}" has been ${action}d`;
+      description = `"${object.name}" has been ${action}d`;
 
       break;
     case MODULE_NAMES.DEAL:
-      description = `"${obj.name}" has been ${action}d`;
-      extraDesc = await gatherDealFieldNames(obj);
+      description = `"${object.name}" has been ${action}d`;
+      extraDesc = await gatherDealFieldNames(object);
 
       if (updatedDocument) {
         extraDesc = await gatherDealFieldNames(updatedDocument, extraDesc);
@@ -304,9 +304,9 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
       break;
     case MODULE_NAMES.GROWTH_HACK:
-      description = `"${obj.name}" has been ${action}d`;
+      description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherGHFieldNames(obj);
+      extraDesc = await gatherGHFieldNames(object);
 
       if (updatedDocument) {
         extraDesc = await gatherGHFieldNames(updatedDocument, extraDesc);
@@ -314,12 +314,12 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
       break;
     case MODULE_NAMES.PIPELINE_LABEL:
-      description = `"${obj.name}" has been ${action}d`;
+      description = `"${object.name}" has been ${action}d`;
 
-      const pipeline = await Pipelines.findOne({ _id: obj.pipelineId });
+      const pipeline = await Pipelines.findOne({ _id: object.pipelineId });
 
       extraDesc = await gatherUsernames({
-        idFields: [obj.createdBy],
+        idFields: [object.createdBy],
         foreignKey: 'createdBy'
       });
 
@@ -329,9 +329,9 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
       break;
     case MODULE_NAMES.PIPELINE_TEMPLATE:
-      extraDesc = await gatherPipelineTemplateFieldNames(obj);
+      extraDesc = await gatherPipelineTemplateFieldNames(object);
 
-      description = `"${obj.name}" has been created`;
+      description = `"${object.name}" has been created`;
 
       if (updatedDocument) {
         extraDesc = await gatherPipelineTemplateFieldNames(
@@ -342,9 +342,9 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
       break;
     case MODULE_NAMES.TASK:
-      description = `"${obj.name}" has been ${action}d`;
+      description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherBoardItemFieldNames(obj);
+      extraDesc = await gatherBoardItemFieldNames(object);
 
       if (updatedDocument) {
         extraDesc = await gatherBoardItemFieldNames(updatedDocument, extraDesc);
@@ -352,9 +352,9 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
       break;
     case MODULE_NAMES.TICKET:
-      description = `"${obj.name}" has been ${action}d`;
+      description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherBoardItemFieldNames(obj);
+      extraDesc = await gatherBoardItemFieldNames(object);
 
       if (updatedDocument) {
         extraDesc = await gatherBoardItemFieldNames(updatedDocument, extraDesc);
@@ -365,9 +365,9 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
     case MODULE_NAMES.STAGE_TASK:
     case MODULE_NAMES.STAGE_TICKET:
     case MODULE_NAMES.STAGE_GH:
-      description = `"${obj.name}" has been ${action}d`;
+      description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherStageFieldNames(obj, extraDesc);
+      extraDesc = await gatherStageFieldNames(object, extraDesc);
 
       if (updatedDocument) {
         extraDesc = await gatherStageFieldNames(updatedDocument, extraDesc);

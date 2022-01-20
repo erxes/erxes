@@ -2,6 +2,7 @@ import * as requestify from 'requestify';
 import * as admin from 'firebase-admin';
 import { IUserDocument } from '@erxes/common-types/src/users';
 
+import { Users } from './apiCollections';
 import { debugExternalApi } from './debuggers';
 import { sendEmail } from './emails';
 import { getEnv, getUserDetail } from './core';
@@ -121,7 +122,7 @@ export const sendNotification = async (
   const recipients = await models.Users.find({
     _id: { $in: receiverIds },
     isActive: true
-  });
+  }).toArray();
 
   // collect recipient emails
   const toEmails: string[] = [];

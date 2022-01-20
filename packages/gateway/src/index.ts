@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { ApolloServer, ExpressContext } from 'apollo-server-express';
+import { ApolloServer } from 'apollo-server-express';
 import { ApolloGateway } from '@apollo/gateway';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { createProxyMiddleware } from 'http-proxy-middleware';

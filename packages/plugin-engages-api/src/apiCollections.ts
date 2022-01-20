@@ -3,13 +3,13 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const { MONGO_URL } = process.env;
+const { API_MONGO_URL } = process.env;
 
-if (!MONGO_URL) {
-  throw new Error(`Environment variable MONGO_URL not set.`);
+if (!API_MONGO_URL) {
+  throw new Error(`Environment variable API_MONGO_URL not set.`);
 }
 
-const client = new MongoClient(MONGO_URL);
+const client = new MongoClient(API_MONGO_URL);
 
 let db: Db;
 
@@ -28,7 +28,7 @@ export let Pipelines;
 export async function connect() {
   await client.connect();
 
-  console.log(`DB: Connected to ${MONGO_URL}`);
+  console.log(`DB: Connected to ${API_MONGO_URL}`);
 
   db = client.db();
   Users = db.collection('users');
@@ -49,7 +49,7 @@ export async function connect() {
 export async function disconnect() {
   try {
     await client.close();
-    console.log(`DB: Connection closed ${MONGO_URL}`);
+    console.log(`DB: Connection closed ${API_MONGO_URL}`);
   } catch (e) {
     console.error(e);
   }

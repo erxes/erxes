@@ -33,11 +33,11 @@ export interface ICustomField {
 
 export const customFieldSchema = new Schema(
   {
-    field: field({ type: String }),
+    field: field({ type: 'String' }),
     value: field({ type: Schema.Types.Mixed }),
-    stringValue: field({ type: String, optional: true }),
-    numberValue: field({ type: Number, optional: true }),
-    dateValue: field({ type: Date, optional: true })
+    stringValue: field({ type: 'String', optional: true }),
+    numberValue: field({ type: 'Number', optional: true }),
+    dateValue: field({ type: 'Date', optional: true })
   },
   { _id: false }
 );
