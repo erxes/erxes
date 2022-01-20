@@ -18,6 +18,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import Lead from '../components/Lead';
 import { mutations, queries } from '../graphql';
 import { ILeadData } from '../types';
+import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 
 type Props = {
   contentTypeId: string;
@@ -66,7 +67,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       return false;
     }
 
-    const integration = integrationDetailQuery.integrationDetail || {};
+    const integration = integrationDetailQuery.integrationDetail || {} as ILeadIntegration;
 
     const afterFormDbSave = () => {
       if (this.state.doc) {
