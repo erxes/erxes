@@ -4,8 +4,8 @@ const path = require('path');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+//   .BundleAnalyzerPlugin;
 
 const configs = require('./plugin-src/configs');
 const { port = 3000 } = configs;
@@ -26,8 +26,7 @@ const shared = {};
 
 for (const name of depNames) {
   shared[name] = {
-    singleton: true,
-    eager: true
+    singleton: true
   };
 }
 
@@ -107,14 +106,13 @@ module.exports = {
         ...shared,
         '@erxes/ui': {
           requiredVersion: '1.0.0',
-          singleton: true,
-          eager: true
+          singleton: true
         }
       }
     }),
     new HtmlWebPackPlugin({
       template: './src/index.html'
-    }),
-    new BundleAnalyzerPlugin()
+    })
+    // new BundleAnalyzerPlugin()
   ]
 };

@@ -34,6 +34,7 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
+    "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "dayjs": "1.8.15",
     "graphql": "0.12.3",
     "graphql-tag": "2.10.0",
