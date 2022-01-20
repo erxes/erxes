@@ -64,21 +64,18 @@ class WithCurrentId extends React.Component<IProps> {
   componentWillReceiveProps(nextProps: IProps) {
     const { conversationsGetLast, loading, history, queryParams } = nextProps;
     const { _id } = queryParams;
-    console.log(conversationsGetLast)
+
     if (!_id && conversationsGetLast && !loading) {
       routerUtils.setParams(history, { _id: conversationsGetLast._id }, true);
     }
   }
 
   render() {
-    console.log(this.props.conversationsGetLast);
-
     return (
       <AppConsumer>
         {({ currentUser }) => {
           const { queryParams } = this.props;
           const { _id } = queryParams;
-          console.log('hi curr1', currentUser, this.props)
 
           // if (!currentUser) {
           //   return null;
@@ -92,12 +89,11 @@ class WithCurrentId extends React.Component<IProps> {
 
           return (
             <WithRefetchHandling>
-              <div>hi33</div>
-              {/* <InboxCore
+              <InboxCore
                 queryParams={queryParams}
                 currentConversationId={_id}
                 currentUser={currentUser}
-              /> */}
+              />
             </WithRefetchHandling>
           );
         }}
