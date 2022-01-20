@@ -6,7 +6,7 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { awsRequests } from '../../trackers/engageTracker';
-import { EngageMessages, Configs, DeliveryReports } from '../../models';
+import { EngageMessages, Configs, DeliveryReports, Logs } from '../../models';
 import { Tags, Customers } from '../../apiCollections';
 import { prepareAvgStats } from '../../utils';
 
@@ -286,6 +286,15 @@ const engageQueries = {
     const stats = await prepareAvgStats();
 
     return stats[0];
+  },
+
+  engageLogs(_root, args) {
+    return paginate(
+      Logs.find({ engageMessageId: args.engageMessageId }).sort({
+        createdAt: -1
+      }),
+      { ...args }
+    );
   }
 };
 
@@ -293,6 +302,7 @@ requireLogin(engageQueries, 'engageMessagesTotalCount');
 requireLogin(engageQueries, 'engageMessageCounts');
 requireLogin(engageQueries, 'engageMessageDetail');
 requireLogin(engageQueries, 'engageEmailPercentages');
+requireLogin(engageQueries, 'engageLogs');
 
 checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
 

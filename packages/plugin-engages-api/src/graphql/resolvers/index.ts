@@ -8,8 +8,8 @@ import Query from './Query';
 const resolvers: any = {
   ...customScalars,
 
-  ...DeliveryReport,
-  ...EngageMessage,
+  DeliveryReport: { ...DeliveryReport },
+  EngageMessage: { ...EngageMessage },
 
   Mutation,
   Query

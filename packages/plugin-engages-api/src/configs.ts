@@ -3,7 +3,7 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
 import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
+import resolvers from './graphql/resolvers/index';
 import { connect } from './apiCollections';
 import deliveryReports from './api/deliveryReports';
 import telnyx from './api/telnyx';

@@ -1,11 +1,12 @@
 import { IEngageMessageDocument } from '../../models/definitions/engages';
-import { Logs, Stats, EngageMessages } from '../../models';
+import { Stats, EngageMessages } from '../../models';
 import { prepareSmsStats } from '../../telnyxUtils';
 
 export default {
   __resolveReference({ _id }) {
     return EngageMessages.findOne({ _id });
   },
+
   async segments(engageMessage: IEngageMessageDocument) {
     return (engageMessage.segmentIds || []).map(segmentId => ({
       __typename: 'Segment',
@@ -50,12 +51,6 @@ export default {
     return Stats.findOne({ engageMessageId: engageMessage._id });
   },
 
-  logs(engageMessage: IEngageMessageDocument) {
-    return Logs.find({
-      engageMessageId: engageMessage._id
-    });
-  },
-
   smsStats(engageMessage: IEngageMessageDocument) {
     return prepareSmsStats(engageMessage._id);
   },
@@ -75,20 +70,6 @@ export default {
   },
 
   async createdUser(engageMessage: IEngageMessageDocument) {
-    /**
-     * TODO:
-     * do the `user.username || user.email || user._id` on the UI
-     */
-
     return { __typename: 'User', _id: engageMessage.createdBy };
-
-    // this resolver used to be like below
-    // const user = await getDocument("users", { _id: engageMessage.createdBy });
-
-    // if (!user) {
-    //   return "";
-    // }
-
-    // return user.username || user.email || user._id;
   }
 };
