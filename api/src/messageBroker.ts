@@ -202,6 +202,14 @@ export const initBroker = async (server?) => {
       })
     );
 
+    consumeRPCQueue(
+      'notifications:rpc_queue:createNotification',
+      async ({ params, userId }) => ({
+        status: 'success',
+        data: await Notifications.createNotification(params, userId)
+      })
+    );
+
     consumeQueue(
       'internalNotes:removeInternalNotes',
       async ({ type, itemIds }) => ({

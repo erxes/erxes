@@ -11,11 +11,14 @@ import { can, checkLogin } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
 import {
   ISendNotification,
-  sendNotification as commonSendNotification
+  sendNotification as sendNotificationC
 } from '@erxes/api-utils/src/requests';
 import memoryStorage from '../inmemoryStorage';
 import { Users, Checklists } from '../apiCollections';
-import { sendConformityMessage } from '../messageBroker';
+import {
+  sendConformityMessage,
+  sendNotificationRPCMessage
+} from '../messageBroker';
 import { graphqlPubsub } from '../configs';
 
 export interface IConformityAdd {
@@ -40,12 +43,10 @@ export const sendNotification = async (doc: ISendNotification) => {
     });
   }
 
-  return commonSendNotification(
-    apiCollections,
-    memoryStorage,
-    graphqlPubsub,
-    doc
-  );
+  apiCollections.Notifications.createNotification = async (params, userId) =>
+    sendNotificationRPCMessage('createNotification', { params, userId });
+
+  return sendNotificationC(apiCollections, memoryStorage, graphqlPubsub, doc);
 };
 
 export const notifiedUserIds = async (item: any) => {
