@@ -3,7 +3,7 @@ import AssignBox from '../../containers/AssignBox';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { InboxManagementActionConsumer } from '../../containers/Inbox';
+import { InboxManagementActionConsumer } from '../../containers/InboxCore';
 import { IConversation } from '../../types';
 
 type Props = {

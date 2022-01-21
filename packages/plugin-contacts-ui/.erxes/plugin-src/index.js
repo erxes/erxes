@@ -1,7 +1,6 @@
-import React from 'react';
-
-const App = () => {
-	return <div>App</div>
-}
+import App from './App';
+import '@erxes/ui/src/styles/global-styles';
+import 'erxes-icon/css/erxes.min.css';
+import '../public/style.min.css';
 
 export default App;
