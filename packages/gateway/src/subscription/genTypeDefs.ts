@@ -7,6 +7,15 @@ export default function getTypeDefs(plugins: any[]): DocumentNode {
     .join("\n\n");
 
   return gql`
+
+    # TODO: Move it into cards plugin
+    type PipelineChangeResponse {
+      _id: String
+      proccessId: String
+      action: String
+      data: JSON
+    }
+
     type Subscription {
 
       ${pluginTypeDefs}

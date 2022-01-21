@@ -15,10 +15,11 @@ import graphqlPubsub from "../pubsub";
 import * as _ from 'lodash';
 
 export default function genResolvers(plugins: any[]) {
-  const pluginResolvers = plugins.map(plugin => plugin.generateResolvers(graphqlPubsub));
+  const pluginResolversArray = plugins.map(plugin => plugin.generateResolvers(graphqlPubsub));
+  const pluginResolvers = _.merge({}, ...pluginResolversArray);
 
   const Subscription: any = {
-    ...(_.merge({}, ...pluginResolvers)),
+    ...pluginResolvers,
     ...customers,
     ...activityLogs,
     ...importHistory,
