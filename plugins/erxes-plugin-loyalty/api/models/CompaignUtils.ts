@@ -33,6 +33,7 @@ export const commonSchema = {
   compaignId: { type: String },
   createdAt: { type: Date, label: 'Created at' },
   usedAt: { type: Date, label: 'Used date' },
+  userId: { type: String, label: 'Modified User' },
 
   ownerType: { type: String, label: 'Owner Type', enum: OWNER_TYPES.ALL },
   ownerId: { type: String },

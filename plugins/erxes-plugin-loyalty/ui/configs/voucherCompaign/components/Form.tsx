@@ -223,6 +223,24 @@ class Form extends React.Component<Props, State> {
       );
     }
 
+    if (voucherType === 'coupon') {
+      return (
+        <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>Coupon title</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="coupon"
+              defaultValue={voucherCompaign.coupon}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
+      );
+    }
+
     return (
       <FormWrapper>
         <FormColumn>
@@ -361,6 +379,7 @@ class Form extends React.Component<Props, State> {
               name="buyScore"
               type="number"
               min={0}
+              required={false}
               defaultValue={voucherCompaign.buyScore}
               onChange={this.onInputChange}
             />

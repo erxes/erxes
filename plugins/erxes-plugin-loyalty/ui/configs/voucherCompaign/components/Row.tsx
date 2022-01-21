@@ -1,8 +1,9 @@
-import { FormControl, TextInfo, ModalTrigger } from 'erxes-ui';
+import { FormControl, TextInfo, ModalTrigger, Icon } from 'erxes-ui';
 import React from 'react';
 import { VOUCHER_TYPES } from '../../../constants';
 import Form from '../containers/Form';
 import { IVoucherCompaign } from '../types';
+import { Link } from 'react-router-dom';
 
 type Props = {
   voucherCompaign: IVoucherCompaign;
@@ -62,6 +63,11 @@ class Row extends React.Component<Props> {
         <td>{VOUCHER_TYPES[voucherType].label}</td>
         <td>
           <TextInfo>{status}</TextInfo>
+        </td>
+        <td onClick={onClick}>
+          <Link to={`/erxes-plugin-loyalty/vouchers?compaignId=${_id}`}>
+            <Icon icon='edit'/>
+          </Link>
         </td>
       </tr>
     )

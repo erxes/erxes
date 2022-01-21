@@ -18,6 +18,8 @@ export const voucherCompaignSchema = {
   bonusProductId: { type: String },
   bonusCount: { type: Number, optional: true },
 
+  coupon: { type: String },
+
   spinCompaignId: { type: String },
   spinCount: { type: Number },
 
@@ -28,7 +30,7 @@ export const voucherCompaignSchema = {
 const validVoucherCompaign = (doc) => {
   validCompaign(doc)
 
-  if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.bonusProductId && !doc.spinCompaignId && !doc.lotteryCompaignId) {
+  if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.bonusProductId && !doc.spinCompaignId && !doc.lotteryCompaignId && !doc.coupon) {
     throw new Error('Could not create null Voucher compaign');
   }
 

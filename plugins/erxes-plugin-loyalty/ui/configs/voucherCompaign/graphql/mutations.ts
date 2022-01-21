@@ -12,6 +12,7 @@ const paramDefs = `
   $discountPercent: Float,
   $bonusProductId: String,
   $bonusCount: Float,
+  $coupon: String,
   $spinCompaignId: String,
   $spinCount: Float,
   $lotteryCompaignId: String,
@@ -29,6 +30,7 @@ const params = `
   discountPercent: $discountPercent
   bonusProductId: $bonusProductId
   bonusCount: $bonusCount
+  coupon: $coupon
   spinCompaignId: $spinCompaignId
   spinCount: $spinCount
   lotteryCompaignId: $lotteryCompaignId

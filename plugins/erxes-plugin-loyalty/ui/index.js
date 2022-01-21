@@ -4,6 +4,7 @@ import LoyaltySectionContainer from './loyalties/containers/LoyaltySection';
 import CustomerLoyalties from './loyalties/containers/CustomerLoyalties';
 import Settings from './configs/general/containers/Settings';
 import VoucherCompaigns from './configs/voucherCompaign/containers/List';
+import Vouchers from './loyalties/vouchers/containers/List';
 import DonateCompaigns from './configs/donateCompaign/containers/List';
 import LotteryCompaigns from './configs/lotteryCompaign/containers/List';
 import SpinCompaigns from './configs/spinCompaign/containers/List';
@@ -51,9 +52,9 @@ const donateCompaignList = ({ location, history }) => {
   );
 };
 
-const loyalties = ({ location, history }) => {
+const vouchers = ({ location, history }) => {
   return (
-    <VoucherCompaigns
+    <Vouchers
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -87,14 +88,14 @@ export default () => ({
       component: donateCompaignList
     },
     {
-      path: '/loyalties',
-      component: loyalties
+      path: '/vouchers',
+      component: vouchers
     }
   ],
   menu: {
     label: 'Loyalty',
     icon: 'icon-piggybank',
-    link: '/loyalties',
+    link: '/vouchers',
     // permission: 'showContracts'
   },
   customerRightSidebarSection: {

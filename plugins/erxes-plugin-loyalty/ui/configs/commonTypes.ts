@@ -36,6 +36,32 @@ export const commonFields = `
   status
 `;
 
+export const paginateDefs = `
+  $page: Int,
+  $perPage: Int,
+  $sortField: String,
+  $sortDirection: Int,
+`;
+
+export const paginateValues = `
+  page: $page,
+  perPage: $perPage,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+`;
+
+export const commonFilterDefs = `
+  $searchValue: String,
+  $filterStatus: String,
+`;
+
+export const commonFilterValues = `
+  searchValue: $searchValue,
+  filterStatus: $filterStatus,
+`;
+
+
+
 export type ICommonTypes = {
   _id?: string,
   createdAt?: Date,

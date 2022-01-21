@@ -26,7 +26,7 @@ export class Spin {
     return await models.Spins.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean()
   }
 
-  public static async createSpin(models, { compaignId, ownerType, ownerId, voucherCompaignId = '' }) {
+  public static async createSpin(models, { compaignId, ownerType, ownerId, voucherCompaignId = '', userId = '' }) {
     const spinCompaign = await models.SpinCompaigns.getSpinCompaign(models, compaignId);
 
     const now = new Date();
@@ -35,7 +35,7 @@ export class Spin {
       throw new Error('Not create spin, expired');
     }
 
-    return await models.Spins.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: SPIN_STATUS.NEW, voucherCompaignId })
+    return await models.Spins.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: SPIN_STATUS.NEW, voucherCompaignId, userId })
   }
 
   public static async buySpin(models, { compaignId, ownerType, ownerId, count = 1 }) {

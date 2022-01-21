@@ -1,4 +1,4 @@
-import { commonCompaignInputs, commonCompaignTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes, commonFilterTypes, paginateTypes } from './common';
 
 export const types = `
   type VoucherCompaign {
@@ -18,11 +18,15 @@ export const types = `
     bonusProductId: String,
     bonusCount: Float,
 
+    coupon: String,
+
     spinCompaignId: String,
     spinCount: Float,
 
     lotteryCompaignId: String,
     lotteryCount: Float,
+
+    vouchersCount: Int,
   }
 `;
 
@@ -42,6 +46,8 @@ const VoucherCompaignDoc = `
   bonusProductId: String,
   bonusCount: Float,
 
+  coupon: String,
+
   spinCompaignId: String,
   spinCount: Float,
 
@@ -51,7 +57,8 @@ const VoucherCompaignDoc = `
 
 export const queries = `
   voucherCompaignDetail(_id: String!): VoucherCompaign
-  voucherCompaigns(searchValue: String, filterStatus: String, page: Int, perPage: Int): [VoucherCompaign]
+  voucherCompaigns(${commonFilterTypes} ${paginateTypes} equalTypeCompaignId: String): [VoucherCompaign]
+  voucherCompaignsCount(${commonFilterTypes}): Int
 `;
 
 export const mutations = `

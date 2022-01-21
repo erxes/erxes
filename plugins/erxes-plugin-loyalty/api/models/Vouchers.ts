@@ -27,22 +27,21 @@ export class Voucher {
     return await models.Vouchers.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean()
   }
 
-  public static async createVoucher(models, { compaignId, ownerType, ownerId }) {
+  public static async createVoucher(models, { compaignId, ownerType, ownerId, userId = '' }) {
     const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, compaignId);
 
     switch (voucherCompaign.voucherType) {
-      case 'discount':
-        return models.Vouchers.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: VOUCHER_STATUS.NEW });
-      case 'bonus':
-        return models.Vouchers.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: VOUCHER_STATUS.NEW });
       case 'spin':
-        return models.Spins.createSpin(models, { compaignId: voucherCompaign.spinCompaignId, ownerType, ownerId, voucherCompaignId: compaignId });
+        return models.Spins.createSpin(models, { compaignId: voucherCompaign.spinCompaignId, ownerType, ownerId, voucherCompaignId: compaignId, userId });
       case 'lottery':
-        return models.Lottery.createLottery(models, { compaignId: voucherCompaign.lotteryCompaignId, ownerType, ownerId, voucherCompaignId: compaignId });
+        return models.Lotteries.createLottery(models, { compaignId: voucherCompaign.lotteryCompaignId, ownerType, ownerId, voucherCompaignId: compaignId, userId });
       case 'score':
         return changeScoreOwner(models, { ownerType, ownerId, changeScore: voucherCompaign.score });
+      case 'discount':
+      case 'bonus':
+      case 'coupon':
       default:
-        break
+        return models.Vouchers.create({ compaignId, ownerType, ownerId, createdAt: new Date(), status: VOUCHER_STATUS.NEW, userId });
     }
   }
 
@@ -56,5 +55,9 @@ export class Voucher {
     await changeScoreOwner(models, { ownerType, ownerId, changeScore: -1 * voucherCompaign.buyScore * count });
 
     return models.Vouchers.createVoucher(models, { compaignId, ownerType, ownerId });
+  }
+
+  public static async removeVouchers(models, _ids: string[]) {
+    return models.Vouchers.deleteMany({ _id: { $in: _ids } })
   }
 }

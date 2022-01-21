@@ -1,4 +1,4 @@
-import { commonFields } from '../../commonTypes';
+import { commonFields, commonFilterDefs, commonFilterValues, paginateDefs, paginateValues } from '../../commonTypes';
 
 export const voucherCompaignFields = `
   _id
@@ -13,22 +13,31 @@ export const voucherCompaignFields = `
   discountPercent
   bonusProductId
   bonusCount
+  coupon
   spinCompaignId
   spinCount
   lotteryCompaignId
   lotteryCount
+
+  vouchersCount
 `;
 
 const voucherCompaigns = `
-  query voucherCompaigns($searchValue: String, $filterStatus: String, $page: Int, $perPage: Int) {
-    voucherCompaigns(searchValue: $searchValue, filterStatus: $filterStatus, page: $page, perPage: $perPage) {
+  query voucherCompaigns(${commonFilterDefs} ${paginateDefs} $equalTypeCompaignId: String) {
+    voucherCompaigns(${commonFilterValues} ${paginateValues} equalTypeCompaignId: $equalTypeCompaignId) {
       ${voucherCompaignFields}
     }
   }
 `;
 
+const voucherCompaignsCount = `
+  query voucherCompaignsCount(${commonFilterDefs}) {
+    voucherCompaignsCount(${commonFilterValues})
+  }
+`;
+
 const voucherCompaignDetail = `
-  query voucherCompaignDetail($_id: String) {
+  query voucherCompaignDetail($_id: String!) {
     voucherCompaignDetail(_id: $_id) {
       ${voucherCompaignFields}
     }
@@ -37,5 +46,6 @@ const voucherCompaignDetail = `
 
 export default {
   voucherCompaigns,
+  voucherCompaignsCount,
   voucherCompaignDetail
 };

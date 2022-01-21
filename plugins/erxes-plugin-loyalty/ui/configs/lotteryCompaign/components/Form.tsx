@@ -284,6 +284,7 @@ class Form extends React.Component<Props, State> {
                   min={0}
                   defaultValue={lotteryCompaign.buyScore}
                   onChange={this.onInputChange}
+                  required={false}
                 />
               </FormGroup>
             </FormColumn>

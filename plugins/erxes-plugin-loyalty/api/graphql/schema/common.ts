@@ -22,6 +22,18 @@ export const commonCompaignInputs = `
   status: String,
 `;
 
+export const paginateTypes = `
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int,
+`;
+
+export const commonFilterTypes = `
+  searchValue: String,
+  filterStatus: String,
+`
+
 export const commonTypes = `
   _id: String,
   compaignId: String,
@@ -40,7 +52,6 @@ export const commonTypes = `
 
 export const commonInputs = `
   compaignId: String,
-  createdAt: Date,
   usedAt: Date,
 
   ownerType: String,
@@ -48,8 +59,9 @@ export const commonInputs = `
 `;
 
 export const commonFilters = `
-  page: Int,
-  perPage: Int,
+  ${paginateTypes}
+
+  searchValue: String,
   compaignId: String,
   compaignType: String,
   ownerType: String,

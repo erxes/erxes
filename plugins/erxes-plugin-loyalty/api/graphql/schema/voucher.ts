@@ -5,18 +5,21 @@ export const types = `
     ${commonTypes}
     status: String
   }
+
+  type VoucherMain {
+    list: [Voucher]
+    totalCount: Int
+  }
 `;
 
 const VoucherDoc = `
   ${commonInputs}
   status: String
 `
-
-
 export const queries = `
-  voucherDetail(_id: String!): Voucher
+  vouchersMain(${commonFilters}): VoucherMain
   vouchers(${commonFilters}): [Voucher]
-  getVouchers(${commonFilters}): [Voucher]
+  voucherDetail(_id: String!): Voucher
 `;
 
 export const mutations = `

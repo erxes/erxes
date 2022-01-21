@@ -129,7 +129,7 @@ class VoucherCompaigns extends React.Component<Props, State> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Add voucher
+        Add voucher compaign
       </Button>
     );
 
@@ -178,6 +178,7 @@ class VoucherCompaigns extends React.Component<Props, State> {
               <th>{__('End Date')}</th>
               <th>{__('Type')}</th>
               <th>{__('Status')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>

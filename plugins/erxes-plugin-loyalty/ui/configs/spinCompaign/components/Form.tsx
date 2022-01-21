@@ -251,6 +251,7 @@ class Form extends React.Component<Props, State> {
                   name="buyScore"
                   type="number"
                   min={0}
+                  required={false}
                   defaultValue={spinCompaign.buyScore}
                   onChange={this.onInputChange}
                 />

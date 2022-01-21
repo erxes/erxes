@@ -1,4 +1,9 @@
+import voucher from "./resolvers/voucher";
+import voucherCompaign from "./resolvers/voucherCompaign";
+
 const resolvers = [
+  ...voucherCompaign,
+  ...voucher,
   {
     type: 'Loyalty',
     field: 'user',
