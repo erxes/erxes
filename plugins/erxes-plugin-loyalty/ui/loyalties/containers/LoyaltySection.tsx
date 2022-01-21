@@ -4,31 +4,33 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import LoyaltySection from '../components/LoyaltySection';
-import queries from '../graphql/queries';
-import { CustomerLoyaltyQueryResponse } from '../types';
+import { queries } from '../vouchers/graphql';
+import { VouchersQueryResponse } from '../vouchers/types';
 
 type IProps = {
-  customerId?: string;
+  ownerType?: string;
+  ownerId?: string;
 };
 
 type FinalProps = {
-  customerLoyaltyQuery: CustomerLoyaltyQueryResponse;
+  vouchersQuery: VouchersQueryResponse;
 } & IProps;
 
 class LoyaltySectionContainer extends React.Component<FinalProps> {
   render() {
-    const { customerId, customerLoyaltyQuery } = this.props;
+    const { ownerId, ownerType, vouchersQuery } = this.props;
 
-    if (customerLoyaltyQuery.loading) {
+    if (vouchersQuery.loading) {
       return null;
     }
 
-    const customerLoyalty = customerLoyaltyQuery.customerLoyalty || { loyalty: 0, customerId };
+    const vouchers = vouchersQuery.vouchers || [];
 
     const extendedProps = {
       ...this.props,
-      customerId,
-      customerLoyalty,
+      ownerId,
+      ownerType,
+      vouchers,
       // onclick
     };
     return <LoyaltySection {...extendedProps} />;
@@ -37,12 +39,12 @@ class LoyaltySectionContainer extends React.Component<FinalProps> {
 
 export default withProps<IProps>(
   compose(
-    graphql<IProps, CustomerLoyaltyQueryResponse, { customerId: string }>(
-      gql(queries.customerLoyalty),
+    graphql<IProps, VouchersQueryResponse, { ownerType: string, ownerId: string }>(
+      gql(queries.vouchers),
       {
-        name: 'customerLoyaltyQuery',
-        options: ({ customerId = '' }) => ({
-          variables: { customerId }
+        name: 'vouchersQuery',
+        options: ({ ownerType, ownerId }) => ({
+          variables: { ownerType, ownerId }
         })
       }
     )

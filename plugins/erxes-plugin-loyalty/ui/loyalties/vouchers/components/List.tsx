@@ -97,7 +97,7 @@ class VouchersList extends React.Component<IProps, State> {
 
     const renderCheckbox = () => {
       if (!currentCompaign || ['spin', 'lottery'].includes(currentCompaign.voucherType)) {
-        return '';
+        return;
       }
       return (
         <th>

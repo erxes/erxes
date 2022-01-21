@@ -13,12 +13,16 @@ export const commonParamsDef = `
   $page: Int
   $perPage: Int
   $compaignId: String
+  $ownerId: String
+  $ownerType: String
 `;
 
 export const commonParamsValue = `
   page: $page
   perPage: $perPage
   compaignId: $compaignId
+  ownerId: $ownerId
+  ownerType: $ownerType
 `;
 
 // mutation

@@ -3,27 +3,39 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { LoyaltyAmount } from '../../styles';
-import { ICustomerLoyalty } from '../types';
+import { FlexItem } from '../common/styles';
+import { IVoucher } from '../vouchers/types';
 
 type IProps = {
-  customerId?: string;
-  customerLoyalty: ICustomerLoyalty;
+  ownerId?: string;
+  ownerType?: string;
+  vouchers: IVoucher[];
 };
 
 class LoyaltySection extends React.Component<IProps, {}> {
+  renderVoucher(voucher: IVoucher) {
+    return (
+      <LoyaltyAmount key={voucher._id}>
+        {voucher.compaignId}
+      </LoyaltyAmount>
+    )
+  }
+
   render() {
-    const { customerLoyalty, customerId } = this.props;
+    const { ownerId, ownerType, vouchers } = this.props;
+
     return (
       <Box
         title={__('Loyalty')}
-        name="showCars"
+        name="Vouchers"
         isOpen={true}
       >
         <SectionBodyItem>
-          <Link to={`/erxes-plugin-loyalty/list/${customerId}`}>
+          <Link to={`/erxes-plugin-loyalty/vouchers?ownerId=${ownerId}&ownerType=${ownerType}`}>
             <Icon icon="star" />
-            <LoyaltyAmount>{customerLoyalty.loyalty || '0.00'}</LoyaltyAmount>
+            {`Vouchers`}
           </Link>
+          {(vouchers || []).map(v => (this.renderVoucher(v)))}
         </SectionBodyItem>
       </Box>
     )

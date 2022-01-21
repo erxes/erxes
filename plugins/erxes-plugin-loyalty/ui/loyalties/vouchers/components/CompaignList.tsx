@@ -1,4 +1,5 @@
 import React from 'react';
+import queryString from 'query-string';
 import {
   __,
   DataWithLoader,
@@ -36,7 +37,11 @@ class List extends React.Component<IProps> {
   };
 
   renderContent() {
-    const { voucherCompaigns } = this.props;
+    const { voucherCompaigns, queryParams } = this.props;
+
+    const otherParams = { ...queryParams };
+    delete otherParams.compaignId;
+    const qryString = queryString.stringify(otherParams)
 
     const result: React.ReactNode[] = [];
 
@@ -49,7 +54,7 @@ class List extends React.Component<IProps> {
           key={compaign._id}
           isActive={this.isActive(compaign._id)}
         >
-          <Link to={`?compaignType=voucher&compaignId=${compaign._id}`}>
+          <Link to={`?${qryString}&compaignId=${compaign._id}`}>
             {name}
           </Link>
         </SidebarListItem>

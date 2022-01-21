@@ -95,7 +95,7 @@ class VoucherRow extends React.Component<Props> {
 
     const renderCheckbox = () => {
       if (!currentCompaign || ['spin', 'lottery'].includes(currentCompaign.voucherType)) {
-        return '';
+        return;
       }
       return (
         <td onClick={onClick}>

@@ -2,9 +2,9 @@ import styled, { css } from 'styled-components';
 import dimensions from 'erxes-ui/lib/styles/dimensions';
 
 export const LoyaltyAmount = styled.div`
-  font-weight: 800;
+  font-weight: 500;
   line-height: 20px;
-  padding-left: 15px;
+  padding: 0 0 5px 15px;
   display: flex;
   position: relative;
   flex-direction: row;

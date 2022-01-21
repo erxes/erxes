@@ -1,7 +1,6 @@
 import queryString from 'query-string';
 import React from 'react';
 import LoyaltySectionContainer from './loyalties/containers/LoyaltySection';
-import CustomerLoyalties from './loyalties/containers/CustomerLoyalties';
 import Settings from './configs/general/containers/Settings';
 import VoucherCompaigns from './configs/voucherCompaign/containers/List';
 import Vouchers from './loyalties/vouchers/containers/List';
@@ -10,12 +9,6 @@ import LotteryCompaigns from './configs/lotteryCompaign/containers/List';
 import SpinCompaigns from './configs/spinCompaign/containers/List';
 import { __ } from 'erxes-ui'
 import SetVoucher from './automations/containers/SetVoucher';
-
-const customerLoyalties = ({ match }) => {
-  const customerId = match.params.customerId;
-
-  return <CustomerLoyalties customerId={customerId} />;
-};
 
 const voucherCompaignList = ({ location, history }) => {
   return (
@@ -61,12 +54,14 @@ const vouchers = ({ location, history }) => {
   );
 };
 
+const customerSection = (param) => {
+  return (
+    <LoyaltySectionContainer ownerId={param.customerId} ownerType='customer'/>
+  )
+}
+
 export default () => ({
   routes: [
-    {
-      path: '/list/:customerId',
-      component: customerLoyalties
-    },
     {
       path: '/settings/general',
       component: Settings
@@ -99,7 +94,7 @@ export default () => ({
     // permission: 'showContracts'
   },
   customerRightSidebarSection: {
-    section: LoyaltySectionContainer,
+    section: customerSection,
   },
   settings: [
     {

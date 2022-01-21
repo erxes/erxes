@@ -63,7 +63,6 @@ export const commonFilters = `
 
   searchValue: String,
   compaignId: String,
-  compaignType: String,
   ownerType: String,
   ownerId: String,
   statuses: [String],
