@@ -11,35 +11,11 @@ import {
 import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
 import { getService, getServices } from '../../../inmemoryStorage';
+import messageBroker from '../../../messageBroker';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
 import { getConfig, isUsingElk } from '../../utils';
-import { custom, getPluginInfo } from './federationUtils';
-
-const generateBasicInfosFromSchema = async (
-  queSchema: any,
-  namePrefix: string
-) => {
-  const queFields: string[] = [];
-
-  // field definations
-  const paths = queSchema.paths;
-
-  for (const name of Object.keys(paths)) {
-    const path = paths[name];
-
-    const label = path.options.label;
-    const type = path.instance;
-
-    if (['String', 'Number', 'Date', 'Boolean'].includes(type) && label) {
-      // add to fields list
-      queFields.push(`${namePrefix}${name}`);
-    }
-  }
-
-  return queFields;
-};
 
 export const getCustomFields = async (contentType: string) => {
   if (!isUsingElk()) {
@@ -67,22 +43,6 @@ export const getCustomFields = async (contentType: string) => {
   });
 };
 
-// const getSegment = async (_id: string) => {
-//   if (!isUsingElk()) {
-//     return Segments.findOne({ _id });
-//   }
-
-//   const response = await fetchElk({
-//     action: 'get',
-//     index: 'segments',
-//     body: null,
-//     _id,
-//     defaultValue: null
-//   });
-
-//   return response && { _id: response._id, ...response._source };
-// };
-
 const getFieldGroup = async (_id: string) => {
   if (!isUsingElk()) {
     return FieldsGroups.findOne({ _id });
@@ -100,42 +60,10 @@ const getFieldGroup = async (_id: string) => {
 
 // Checking field names, all field names must be configured correctly
 export const checkFieldNames = async (
-  type: string,
   fields: string[],
   columnConfig?: object
 ) => {
   const properties: any[] = [];
-  let schema: any;
-  let basicInfos: string[] = [];
-
-  switch (type) {
-    case 'customer':
-      schema = Customers.schema;
-      break;
-
-    case 'lead':
-      schema = Customers.schema;
-      break;
-  }
-
-  if (schema) {
-    basicInfos = [
-      ...basicInfos,
-      ...(await generateBasicInfosFromSchema(schema, ''))
-    ];
-
-    for (const name of Object.keys(schema.paths)) {
-      const path = schema.paths[name];
-
-      // extend fields list using sub schema fields
-      if (path.schema) {
-        basicInfos = [
-          ...basicInfos,
-          ...(await generateBasicInfosFromSchema(path.schema, `${name}.`))
-        ];
-      }
-    }
-  }
 
   for (let fieldName of fields) {
     if (!fieldName) {
@@ -148,48 +76,6 @@ export const checkFieldNames = async (
 
     if (columnConfig) {
       fieldName = columnConfig[fieldName].value;
-    }
-
-    const fieldObj = await Fields.findOne({
-      text: fieldName,
-      contentType: type === 'lead' ? 'customer' : type
-    });
-
-    // Collecting basic fields
-    if (basicInfos.includes(fieldName)) {
-      property.name = fieldName;
-      property.type = 'basic';
-    }
-
-    // Collecting custom fields
-    if (fieldObj) {
-      property.type = 'customProperty';
-      property.id = fieldObj._id;
-    }
-
-    if (fieldName === 'companiesPrimaryNames') {
-      property.name = 'companyIds';
-      property.type = 'companiesPrimaryNames';
-    }
-
-    if (fieldName === 'customersPrimaryEmails') {
-      property.name = 'customerIds';
-      property.type = 'customersPrimaryEmails';
-    }
-
-    if (fieldName === 'ownerEmail') {
-      property.name = 'ownerId';
-      property.type = 'ownerEmail';
-    }
-
-    if (fieldName === 'tag') {
-      property.name = 'tagIds';
-      property.type = 'tag';
-    }
-
-    if (fieldName === 'pronoun') {
-      property.name = 'pronoun';
-      property.type = 'pronoun';
     }
 
     if (!property.type) {
@@ -398,7 +284,7 @@ export const fieldsCombinedByContentType = async ({
   pipelineId,
   segmentId,
   formId,
-  pluginType
+  serviceType
 }: {
   contentType: string;
   usageType?: string;
@@ -407,12 +293,9 @@ export const fieldsCombinedByContentType = async ({
   segmentId?: string;
   pipelineId?: string;
   formId?: string;
-  pluginType?: string;
+  serviceType?: string;
 }) => {
-  console.log(pipelineId, segmentId);
-
   let schema: any;
-  let plugin: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
   let fields: Array<{
     _id: number;
@@ -439,13 +322,17 @@ export const fieldsCombinedByContentType = async ({
       break;
   }
 
-  if (pluginType) {
-    plugin = await getPluginInfo(pluginType, contentType);
-  }
+  if (serviceType) {
+    fields = await messageBroker().sendRPCMessage(
+      `${serviceType}:rpc_queue:getFields`,
+      {
+        contentType,
+        segmentId,
+        pipelineId
+      }
+    );
 
-  if (plugin) {
-    schema = plugin.schema;
-    fields = [...plugin.fields];
+    return fields;
   }
 
   if (!schema) {
@@ -529,9 +416,7 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  const pluginsCustomFields = await custom(pluginType, contentType);
-
-  fields = [...fields, ...pluginsCustomFields];
+  fields = [...fields];
 
   for (const extendField of extendFields) {
     fields.push({

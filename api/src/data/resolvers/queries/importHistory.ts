@@ -7,27 +7,32 @@ import {
   Tasks
 } from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
+import { getService, getServices } from '../../../inmemoryStorage';
+import messageBroker from '../../../messageBroker';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
 import utils, { paginate } from '../../utils';
 
 const importHistoryQueries = {
-  importHistoryGetTypes() {
-    return [
-      {
-        type: 'core',
-        contentType: 'customer',
-        icon: 'users-alt',
-        text: 'Customer'
-      },
-      {
-        text: 'Deal',
-        type: 'plugin',
-        contentType: 'deal',
-        icon: 'signal-alt-3',
-        pluginType: 'deal'
-      }
-    ];
+  async importHistoryGetTypes() {
+    const services = await getServices();
+
+    const servicesimportTypes: any = [];
+
+    for (const serviceName of services) {
+      const service = await getService(serviceName, true);
+
+      servicesimportTypes.push(...service.meta.importTypes);
+    }
+
+    const sda = await messageBroker().sendRPCMessage(
+      `${services[0]}:rpc_queue:getFields`,
+      {}
+    );
+
+    console.log(sda);
+
+    return servicesimportTypes;
   },
 
   /**

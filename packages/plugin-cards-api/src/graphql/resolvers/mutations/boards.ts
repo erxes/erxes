@@ -13,7 +13,7 @@ import { IContext } from '@erxes/api-utils/src';
 import { checkPermission } from '../../utils';
 import messageBroker, { sendFieldsGroupMessage } from '../../../messageBroker';
 import { FieldsGroups } from '../../../apiCollections';
-import { configReplacer } from '../../../utils';
+import { configReplacer } from '../../../fieldUtils';
 import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 
 interface IBoardsEdit extends IBoard {

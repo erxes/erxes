@@ -5,7 +5,7 @@ import {
 import { Boards, Fields, FieldsGroups, Pipelines } from '../../../db/models';
 import { IFieldDocument } from '../../../db/models/definitions/fields';
 import { fieldsCombinedByContentType } from '../../modules/fields/utils';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
+// import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 interface IFieldsDefaultColmns {
@@ -165,11 +165,11 @@ const fieldQueries = {
   }
 };
 
-requireLogin(fieldQueries, 'fieldsCombinedByContentType');
-requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
-requireLogin(fieldQueries, 'fieldsItemTyped');
+// requireLogin(fieldQueries, 'fieldsCombinedByContentType');
+// requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
+// requireLogin(fieldQueries, 'fieldsItemTyped');
 
-checkPermission(fieldQueries, 'fields', 'showForms', []);
+// checkPermission(fieldQueries, 'fields', 'showForms', []);
 
 const fieldsGroupQueries = {
   /**
@@ -259,6 +259,6 @@ const fieldsGroupQueries = {
   }
 };
 
-checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
+// checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
 
 export { fieldQueries, fieldsGroupQueries };
