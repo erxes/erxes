@@ -1,7 +1,10 @@
+import dotenv from 'dotenv';
 import path from "path";
 import fs from "fs";
 import Downloader from "nodejs-file-downloader";
 import redis, { getService, getServices } from "../../redis";
+
+const { NODE_ENV } = process.env;
 
 export default async function downloadPlugins(): Promise<void> {
   const directory = path.join(__dirname, "./downloads");
@@ -24,9 +27,11 @@ export default async function downloadPlugins(): Promise<void> {
 
   const services = allServices.filter(service => service.meta.hasSubscriptions);
 
-  try {
-    await redis.disconnect();
-  } catch (e) {}
+  if(NODE_ENV !== 'development') {
+    try {
+      await redis.disconnect();
+    } catch (e) {}
+  }
 
   await Promise.all(
     services.map(async (service, i) => {
