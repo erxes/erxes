@@ -12,17 +12,19 @@ import { ListConfigQueryResponse } from '../../companies/types';
 import CustomersList from '../components/list/CustomersList';
 import { mutations, queries } from '../graphql';
 import {
-  ChangeStatusMutationResponse,
-  ChangeStatusMutationVariables,
-  ListQueryVariables,
-  MainQueryResponse,
-  MergeMutationResponse,
-  MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables,
+  MergeMutationResponse,
+  MergeMutationVariables
+} from '@erxes/ui/src/customers/types';
+import {
+  MainQueryResponse,
+  ListQueryVariables,
+  VerifyMutationVariables,
   VerifyMutationResponse,
-  VerifyMutationVariables
-} from '../types';
+  ChangeStatusMutationResponse,
+  ChangeStatusMutationVariables
+} from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   queryParams: any;

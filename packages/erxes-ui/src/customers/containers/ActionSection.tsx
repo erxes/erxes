@@ -12,7 +12,7 @@ import {
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from '@erxes/ui/src/customers/types';
+} from '../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

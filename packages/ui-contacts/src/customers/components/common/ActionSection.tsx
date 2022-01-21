@@ -5,7 +5,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
-import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge';
+import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
 import CompanyForm from '../../../companies/containers/CompanyForm';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import TargetMerge from './TargetMerge';

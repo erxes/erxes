@@ -10,8 +10,8 @@ import {
   CUSTOMER_BASIC_INFO,
   CUSTOMER_DATAS,
   CUSTOMER_LINKS
-} from '../../constants';
-import { Info, InfoAvatar, InfoDetail, InfoTitle } from '../../styles';
+} from '@erxes/ui-contacts/src/customers/constants';
+import { Info, InfoAvatar, InfoDetail, InfoTitle } from '@erxes/ui/src/customers/styles';
 import {
   ICustomer,
   ICustomerDoc,

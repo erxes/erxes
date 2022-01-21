@@ -2,7 +2,7 @@ import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { __ } from '@erxes/ui/src/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { calculatePercentage } from '../../utils';
+import { calculatePercentage } from '@erxes/ui/src/customers/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { IUrlVisits } from '../../types';
