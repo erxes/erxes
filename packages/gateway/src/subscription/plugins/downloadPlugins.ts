@@ -14,13 +14,15 @@ export default async function downloadPlugins(): Promise<void> {
 
   const serviceNames = await getServices();
 
-  const services: any[] = await Promise.all(
+  const allServices: any[] = await Promise.all(
     serviceNames.map( async (serviceName) => {
-        const service: any = await getService(serviceName)
+        const service: any = await getService(serviceName, true)
         service.name = serviceName
         return service;
     })
   );
+
+  const services = allServices.filter(service => service.meta.hasSubscriptions);
 
   try {
     await redis.disconnect();

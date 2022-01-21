@@ -36,9 +36,11 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/subscriptionPlugin.ts', async (req, res) => {
-  res.sendFile(path.join(__dirname, "../../src/graphql/subscriptionPlugin.ts"))
-});
+if(configs.hasSubscriptions) {
+  app.get('/subscriptionPlugin.ts', async (req, res) => {
+    res.sendFile(path.join(__dirname, "../../src/graphql/subscriptionPlugin.ts"))
+  });
+}
 
 app.use((req: any, _res, next) => {
   req.rawBody = '';
@@ -132,7 +134,8 @@ async function startServer() {
       name: configs.name,
       port: PORT || '',
       dbConnectionString: mongoUrl,
-      segment: configs.segment
+      segment: configs.segment,
+      hasSubscriptions: configs.hasSubscriptions
     });
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);
