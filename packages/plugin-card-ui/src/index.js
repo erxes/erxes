@@ -1,3 +1,7 @@
-import GeneralRoutes from "./generalRoutes";
+import Settings from "./Settings";
+import '@erxes/ui/src/styles/global-styles';
+import 'erxes-icon/css/erxes.min.css';
+import '../public/style.min.css';
+import "@nateradebaugh/react-datetime/css/react-datetime.css";
 
-export default GeneralRoutes;
+export default Settings;

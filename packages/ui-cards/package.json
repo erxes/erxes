@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
-    "dayjs": "^1.8.15",
+    "dayjs": "1.8.15",
     "graphql-tag": "2.6.1",
     "lodash.flowright": "3.5.0",
     "lodash": "^4.17.15",

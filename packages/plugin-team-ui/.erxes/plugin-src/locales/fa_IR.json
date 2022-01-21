@@ -1,0 +1,2002 @@
+{
+  "Home page link": "https://www.erxes.io",
+  "Are you sure?": "مطمئنی؟ این قابل بازگشت نیست.",
+  "Yes, I am": "بله من هستم",
+  "No, Cancel": "نه ، لغو کنید",
+  "Filter by tags": "با برچسب ها فیلتر کنید",
+  "There is no data": "داده ای وجود ندارد",
+  "There is no data.": "داده ای وجود ندارد",
+  "There is no ": "There is no ",
+  "Load more": "بارگذاری بیشتر",
+  "There aren't any activities at the moment.": "هیچ فعالیتی در حال حاضر وجود ندارد",
+  "Reset your password": "رمزعبور خود را دوباره تنظیم کنید",
+  "Email me the instruction": "دستورالعمل را برای من ایمیل کنید",
+  "Sign in": "ورود",
+  "Change password": "رمز عبور را تغییر دهید",
+  "Set your new password": "رمزعبور جدید خود را تنظیم کنید",
+  "Forgot password?": "رمز عبور را فراموش کرده اید؟",
+  "Photo": "عکس",
+  "Name": "نام",
+  "Views": "بازدیدها",
+  "Conversion": "تبدیل",
+  "Go to import": "به واردات بروید",
+  "Conversion rate": "نرخ تبدیل",
+  "Contacts gathered": "مخاطبین جمع شدند",
+  "Create lead": "پاپ آپ ها را ایجاد کنید",
+  "Form title": "عنوان فرم",
+  "Related": "مربوط",
+  "Form description": "توضیحات فرم",
+  "Position": "موقعیت",
+  "Username": "نام کاربری",
+  "Email": "پست الکترونیک",
+  "sec": "ثانیه",
+  "Twitter username": "نام کاربری توییتر",
+  "Inbox": "صندوق ورودی",
+  "Workflow": "جریان کار",
+  "Watch": "تماشا کردن",
+  "Watching": "تماشا کردن",
+  "Team Inbox": "صندوق ورودی تیم",
+  "Customers": "مشتریان",
+  "Companies": "شرکتها",
+  "Engage": "مشغول کردن",
+  "Insights": "بینش",
+  "Knowledge Base": "دانش محور",
+  "Settings": "تنظیمات",
+  "Resolve": "برطرف کردن",
+  "Send": "ارسال",
+  "No company": "هیچ شرکتی نیست",
+  "No customer": "مشتری نیست",
+  "Not tagged yet": "هنوز برچسب گذاری نشده است",
+  "New note": "یادداشت جدید",
+  "Conversation": "گفتگو",
+  "conversation": "گفتگو",
+  "Notes": "یادداشت",
+  "Activity": "فعالیت",
+  "Basic info": "اطلاعات پایه",
+  "Size": "اندازه",
+  "Other": "دیگر",
+  "Industry": "صنعت",
+  "Website": "سایت اینترنتی",
+  "Plan": "طرح",
+  "About": "در باره",
+  "Discard": "دور انداختن",
+  "Save": "صرفه جویی",
+  "Create response template": "الگوی پاسخ ایجاد کنید",
+  "Associate": "وابسته",
+  "No tags": "بدون برچسب",
+  "Add customer": "مشتری را اضافه کنید",
+  "No segments": "بدون سگمنت",
+  "No segment": "No segment",
+  "Manage Columns": "مدیریت ستون ها",
+  "New customer": "مشتری جدید",
+  "Add company": "شرکت را اضافه کنید",
+  "New company": "شرکت جدید",
+  "Open in new tab": "Open in new tab",
+  "Choose which column you see": "کدام ستون را می بینید",
+  "There is no engage message.": "پیام تعامل وجود ندارد.",
+  "Add Knowledge Base": "Add Knowledge Base",
+  "There is no knowledge base": "There is no knowledge base",
+  "New Channel": "کانال جدید",
+  "Edit": "ویرایش کنید",
+  "Edit basic info": "اطلاعات اصلی را ویرایش کنید",
+  "Manage integration": "ادغام را مدیریت کنید",
+  "Manage Integration": "ادغام را مدیریت کنید",
+  "Choose new brand": "مارک جدید را انتخاب کنید",
+  "Edit integration": "ادغام را ویرایش کنید",
+  "Integration": "ادغام",
+  "Integration menu": "منوی ادغام",
+  "Never miss a potential lead by capturing them with a customizable Popups & Forms": "Never miss a potential lead by capturing them with a customizable Popups & Forms",
+  "New Brand": "برند جدید",
+  "Add facebook page": "صفحه فیس بوک را اضافه کنید",
+  "Add integrations": "ادغام ها را اضافه کنید",
+  "Add messenger": "مسنجر را اضافه کنید",
+  "There is no lead.": "سرب وجود ندارد.",
+  "New response template": "الگوی پاسخ جدید",
+  "Cancel": "لغو",
+  "Local": "Local",
+  "Public": "عمومی",
+  "Private": "خصوصی",
+  "New email template": "الگوی ایمیل جدید",
+  "Local publisher's email template": "الگوی ایمیل ناشر محلی",
+  "New user": "کاربر جدید",
+  "Load More": "بارگذاری بیشتر",
+  "Session count": "تعداد جلسه",
+  "Last seen at": "اخرین بازدید در",
+  "Tags": "برچسب ها",
+  "Member": "عضو",
+  "Remove": "برداشتن",
+  "No companies added yet!": "هنوز هیچ شرکتی اضافه نشده است!",
+  "Merge": "ادغام",
+  "First Name": "نام کوچک",
+  "Last Name": "نام خانوادگی",
+  "First name": "نام کوچک",
+  "Last name": "نام خانوادگی",
+  "Primary Email": "ایمیل اصلی",
+  "Primary email": "Primary email",
+  "Phone": "تلفن",
+  "Is user": "کاربر است",
+  "Save & New": "ذخیره و جدید",
+  "Save & Close": "ذخیره و بستن",
+  "Close": "نزدیک",
+  "Customer properties": "خواص مشتری",
+  "Device properties": "ویژگی های دستگاه",
+  "Location": "محل",
+  "Browser": "مرورگر",
+  "Platform": "سکو",
+  "IP Address": "آدرس آی پی",
+  "Hostname": "نام میزبان",
+  "Language": "زبان",
+  "User Agent": "عامل کاربر",
+  "Other properties": "خواص دیگر",
+  "Facebook": "فیس بوک",
+  "Facebook profile": "پروفایل فیس بوک",
+  "Messenger usage": "استفاده از مسنجر",
+  "Status": "وضعیت",
+  "Online": "برخط",
+  "Offline": "آفلاین",
+  "Twitter": "توییتر",
+  "Twitter quote": "نقل قول توییتر",
+  "Retweet": "بازتوییت",
+  "Screen name": "نام صفحه",
+  "Don't see the result you're looking for?": "Don't see the result you're looking for?",
+  "Merged Info": "اطلاعات ادغام شده",
+  "E-mail": "پست الکترونیک",
+  "Integrations": "ادغام",
+  "integration": "ادغام",
+  "Brands": "مارک ها",
+  "Start date": "تاریخ شروع",
+  "End date": "تاریخ پایان",
+  "lead": "پنجره های باز شو",
+  "twitter": "توییتر",
+  "facebook": "فیس بوک",
+  "messenger": "پیام رسان",
+  "Title": "عنوان",
+  "Brand": "نام تجاری",
+  "Current Password": "گذرواژه فعلی",
+  "Current password": "رمز عبور فعلی",
+  "New Password": "رمز عبور جدید",
+  "Set up your password": "Set up your password",
+  "Re-type Password to confirm": "برای تأیید دوباره کلمه عبور را تایپ کنید",
+  "Signature": "امضا",
+  "simple": "ساده",
+  "custom": "سفارشی",
+  "default": "پیش فرض",
+  "default language": "زبان پیش فرض",
+  "primary": "اولیه",
+  "Content": "محتوا",
+  "Save & draft": "ذخیره پیش نویس",
+  "Save & live": "ذخیره و زندگی کنید",
+  "Message:": "پیام:",
+  "Email template:": "الگوی ایمیل:",
+  "Email subject:": "موضوع نامه الکترونیکی:",
+  "From": "از جانب",
+  "from": "from",
+  "Message type:": "نوع پیام:",
+  "Sent as:": "ارسال شده به عنوان:",
+  "Brand:": "نام تجاری:",
+  "Add rule": "قانون را اضافه کنید",
+  "Last online": "آخرین آنلاین",
+  "No Activities": "فعالیتی وجود ندارد",
+  "There is no customer.": "مشتری وجود ندارد.",
+  "Properties": "خصوصیات",
+  "Customize": "Customize",
+  "Kind": "نوع",
+  "All": "همه",
+  "Auto": "خودکار",
+  "auto": "auto",
+  "visitorAuto": "visitorAuto",
+  "live": "live",
+  "yours": "yours",
+  "manual": "manual",
+  "board": "board",
+  "paused": "paused",
+  "Visitor auto": "خودکار بازدید کننده",
+  "Manual": "کتابچه راهنمای",
+  "Delivered to a user s email inbox": "به صندوق ورودی ایمیل کاربر منتقل شد",
+  "Customize with your own templates": "با الگوهای خاص خود سفارشی سازی کنید",
+  "Delivered inside your app": "داخل برنامه شما تحویل داده شده است",
+  "Reach active users": "دسترسی به کاربران فعال",
+  "Channel": "کانال",
+  "Edit columns": "ستون ها را ویرایش کنید",
+  "Auto message": "پیام خودکار",
+  "Manual message": "پیام دستی",
+  "Visitor auto message": "پیام خودکار بازدید کننده",
+  "Actions": "اقدامات",
+  "Created date": "تاریخ ایجاد شده",
+  "Type": "تایپ کنید",
+  "Failed": "ناموفق",
+  "Sent": "ارسال شد",
+  "Total": "جمع",
+  "Pause": "مکث کنید",
+  "Set live": "زندگی کن",
+  "Sending": "در حال ارسال",
+  "Delete": "حذف",
+  "Choose segment": "بخش را انتخاب کنید",
+  "To:": "به:",
+  "Messenger kind:": "نوع پیام رسان:",
+  "Title:": "عنوان",
+  "No items": "هیچ موردی نیست",
+  "New": "جدید",
+  "Options:": "گزینه ها:",
+  "Options": "گزینه ها",
+  "Type:": "نوع:",
+  "Add": "اضافه کردن",
+  "Validation:": "Validation:",
+  "Date": "تاریخ",
+  "Number": "عدد",
+  "Text:": "متن:",
+  "Description:": "شرح:",
+  "This item is requried": "این مورد دوباره تأیید شده است",
+  "Preview": "پیش نمایش",
+  "Column name": "نام ستون",
+  "Visible": "قابل رویت",
+  "Visibility": "دید",
+  "Choose person": "شخص را انتخاب کنید",
+  "Opened": "افتتاح شد",
+  "Conversations": "گفتگو",
+  "Channels": "کانالها",
+  "Select all": "انتخاب همه",
+  "Filter by tag": "فیلتر برچسب",
+  "Filter by integrations": "فیلتر توسط ادغام ها",
+  "Filter by brand": "فیلتر بر اساس نام تجاری",
+  "Filter by channel": "فیلتر توسط کانال",
+  "Filter by status": "فیلتر بر اساس وضعیت",
+  "# Channel": "# کانال",
+  "Unassigned": "دست نخورده",
+  "Participating": "شرکت کننده",
+  "Resolved": "حل شد",
+  "View more": "بیشتر ببینید",
+  "Customer is offline. Click to hide and send messages and they will receive them the next time they are online.": "مشتری آنلاین نیست. برای مخفی کردن و ارسال پیام کلیک کنید و دفعه بعد آنلاین بودن آنها را دریافت خواهید کرد.",
+  "No templates": "بدون الگو",
+  "Save as template": "به عنوان الگو ذخیره کنید",
+  "Daily First Response Resolve Rate": "نرخ پاسخ روزانه اول پاسخ",
+  "Daily First Response Resolve Rate by Team Members": "پاسخ روزانه میزان پاسخگویی توسط اعضای تیم",
+  "Daily Response Close Resolve Rate by Team Members": "پاسخ روزانه بستن نرخ حل توسط اعضای تیم",
+  "Volume Report": "گزارش جلد",
+  "Feedbacks gathered through various customer engagement channels.": "بازخورد از طریق کانال های مختلف جذب مشتری جمع آوری شده است.",
+  "Response Report": "گزارش پاسخ",
+  "Total number of response for customer feedbacks, by each staff.": "تعداد کل پاسخ ها برای بازخورد مشتری ، توسط هر یک از کارمندان.",
+  "Response Close Report": "گزارش بستن پاسخ",
+  "Average time of each staff solving problems that based on customer feedbacks.": "میانگین زمان هر پرسنلی که مشکلات را حل می کنند که بر اساس بازخورد مشتری است.",
+  "First Response Report": "اولین پاسخ پاسخ",
+  "Responding time for a single feedback. Stats will define average response time by each staff.": "زمان پاسخگویی برای یک بازخورد واحد. آمار میانگین زمان پاسخگویی توسط هر پرسنل را تعیین می کند.",
+  "Daily Response Close Resolve Rate": "پاسخ روزانه نرخ بستن پاسخ",
+  "Daily Response Close Resolve rate by Team Members": "پاسخ روزانه بستن نرخ حل توسط اعضای تیم",
+  "Response Times summary": "خلاصه پاسخ بار",
+  "Response Trend": "روند پاسخ",
+  "Punch card": "کارت پانچ",
+  "Response by team members": "پاسخ اعضای تیم",
+  "Tag": "برچسب زدن",
+  "Internal note": "یادداشت داخلی",
+  "Manage templates": "مدیریت الگوهای",
+  "Volume summary": "خلاصه جلد",
+  "Volume Trend": "روند دوره",
+  "Summary": "خلاصه",
+  "Install code": "نصب کد",
+  "No copyable code": "بدون کد قابل کپی کردن",
+  "Manage Knowledge Base": "پایگاه دانش را مدیریت کنید",
+  "Add Category": "افزودن دسته",
+  "Add Article": "مقاله را اضافه کنید",
+  "Customer engagement. REDEFINED.": "مشارکت مشتری. رد شده",
+  "erxes is an AI meets open source messaging platform for sales, marketing and support": "erxes یک هوش مصنوعی است که برای فروش ، بازاریابی و پشتیبانی از پلت فرم پیام رسانی متن باز برخوردار است",
+  "404. This page is not found.": "404. این صفحه یافت نمی شود.",
+  "erxes is an open-source messaging platform for customer success": "erxes یک بستر پیام رسان منبع باز برای موفقیت مشتری است",
+  "Notification settings": "تنظیمات اعلان",
+  "Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.": "بازاریابی ، فروش و بستر خدمات مشتری برای کمک به مشاغل شما در جذب مشتریان درگیرتر طراحی شده است. Hubspot را با مأموریت و اکوسیستم محور جامعه جایگزین کنید.",
+  "Mark Page Read": "علامت گذاری به عنوان صفحه خوانده شده",
+  "Mark All Read": "علامت گذاری همه خواندن",
+  "Coming soon": "به زودی",
+  "Looks like you are all caught up": "به نظر می رسد همه شما گرفتار هستید",
+  "AI": "هوش مصنوعی",
+  "See all": "همه را ببین",
+  "Select a field": "فیلد را انتخاب کنید",
+  "Add condition": "اضافه کردن شرط",
+  "Parent segment conditions": "شرایط بخش والدین",
+  "Filter by segments": "براساس بخش ها فیلتر کنید",
+  "New segment": "بخش جدید",
+  "Manage segments": "بخش ها را مدیریت کنید",
+  "Users who match": "کاربرانی که مطابقت دارند",
+  "any": "هر",
+  "all": "همه",
+  "of the below conditions": "از شرایط زیر",
+  "Sub segment of": "زیر بخش از",
+  "Color": "رنگ",
+  "Filters": "فیلترها",
+  "User(s) will receive this message": "User(s) will receive this message",
+  "Color code": "کد رنگ",
+  "Engage Message": "پیام نامزدی",
+  "Item counts": "تعداد موارد",
+  "Total item counts": "Total item counts",
+  "Appearance": "ظاهر",
+  "Hours, Availability & Other configs": "ساعت ، در دسترس بودن و سایر تنظیمات",
+  "There is no brand": "هیچ مارکی وجود ندارد",
+  "There is no integration in this channel.": "در این کانال ادغام وجود ندارد.",
+  "Template markup": "نشانه گذاری الگو",
+  "Use html template here": "از قالب html در اینجا استفاده کنید",
+  "Choose your email template type": "نوع الگوی ایمیل خود را انتخاب کنید",
+  "Email signatures": "امضاهای ایمیل",
+  "Personal Settings": "تنظیمات شخصی",
+  "Account Settings": "تنظیمات حساب",
+  "Profile": "مشخصات",
+  "Get notification by email": "اعلان را از طریق ایمیل دریافت کنید",
+  "Admin": "مدیر",
+  "Contributor": "مشارکت کننده",
+  "We welcome you warmly to erxes and look forward to a long term healthy working association with us.": "ما از گرمی به erxes استقبال می کنیم و مشتاقانه به دنبال یک همکاری طولانی کار سالم با ما هستیم.",
+  "Hi, any questions?": "سلام ، سوالی دارید؟",
+  "1 hour ago": "1 ساعت قبل",
+  "Send & Live": "Send & Live",
+  "We need your help!": "ما به کمک شما نیاز!",
+  "6 minutes ago": "6 دقیقه پیش",
+  "Write a reply ...": "نوشتن پاسخ ...",
+  "App": "برنامه",
+  "From email": "از ایمیل",
+  "User email title": "عنوان ایمیل کاربر",
+  "User email content": "محتوای ایمیل کاربر",
+  "Admin emails": "ایمیل های سرپرست",
+  "Admin email title": "عنوان ایمیل مدیر",
+  "Admin email content": "محتوای ایمیل مدیر",
+  "Redirect url": "تغییر آدرس اینترنتی",
+  "On success": "در موفقیت",
+  "Load": "بار",
+  "Success": "موفقیت",
+  "Thank content": "از مطالب تشکر می کنم",
+  "Choose a custom color": "یک رنگ دلخواه را انتخاب کنید",
+  "Choose a wallpaper": "تصویر زمینه را انتخاب کنید",
+  "Choose a logo": "یک آرم انتخاب کنید",
+  "Visible online to visitor or customer": "به صورت آنلاین برای بازدید کننده یا مشتری قابل مشاهده است",
+  "Online messaging": "پیام آنلاین",
+  "Welcome message": "پیام خوش امد گویی",
+  "Offline messaging": "پیام آفلاین",
+  "Away message": "پیام دور",
+  "Thank you message": "پیام ممنون",
+  "Hours & Availability": "ساعت و در دسترس بودن",
+  "Turn online/offline manually": "به صورت آنلاین و آفلاین بچرخید",
+  "Set to follow your schedule": "تنظیم کنید تا برنامه خود را دنبال کنید",
+  "Other configs": "سایر پیکربندی ها",
+  "Notify customer": "به مشتری اطلاع دهید",
+  "Online hours": "ساعات آنلاین",
+  "Add another time": "بار دیگر اضافه کنید",
+  "Add another rule": "Add another rule",
+  "Website Title": "Website Title",
+  "Time zone": "منطقه زمانی",
+  "Messenger": "پیام رسان",
+  "Notification": "اطلاع",
+  "Notifications": "اطلاعیه",
+  "Show unread": "نمایش خوانده نشده",
+  "Unread": "خوانده نشده",
+  "Recent": "اخیر",
+  "Mark all as read": "همه را به عنوان خوانده شده علامت بزن",
+  "Email Appearance": "ظاهر ایمیل",
+  "Team Members": "اعضای تیم",
+  "Account default": "پیش فرض حساب",
+  "Team members": "اعضای تیم",
+  "Full name": "نام و نام خانوادگی",
+  "Leads": "Leads",
+  "Email Signature": "امضای ایمیل",
+  "Response Template": "الگوی پاسخ",
+  "Email Template": "الگوی ایمیل",
+  "Response templates": "الگوهای پاسخ",
+  "Email templates": "قالب های ایمیل",
+  "Brand Name": "نام تجاری",
+  "Current template": "الگوی فعلی",
+  "Created at": "ایجاد شده در",
+  "Manage Fields": "مدیریت زمینه ها",
+  "Duplicate": "کپی کردن",
+  "Code": "کد",
+  "Profile settings": "تنظیمات نمایه",
+  "Change Password": "تغییر رمز عبور",
+  "Signatures are only included in response emails.": "امضاها فقط در ایمیل های پاسخ گنجانده شده اند.",
+  "Signature template": "الگوی امضا",
+  "You can use Markdown to format your signature.": "برای قالب بندی امضا می توانید از Markdown استفاده کنید.",
+  "Password": "کلمه عبور",
+  "Password confirmation": "تایید رمز عبور",
+  "Choose the channels": "کانالها را انتخاب کنید",
+  "Simple": "ساده",
+  "Custom": "سفارشی",
+  "Create a new Company": "یک شرکت جدید ایجاد کنید",
+  "New Company": "شرکت جدید",
+  "Edit name": "ویرایش نام",
+  "Customer": "مشتری",
+  "Add tag": "برچسب اضافه کنید",
+  "Company": "شرکت",
+  "New message ": "پیام جدید",
+  "There aren’t any activities at the moment.": "هیچ فعالیتی در حال حاضر وجود ندارد",
+  "This item is required": "این مورد الزامی است",
+  "Manage fields": "مدیریت زمینه ها",
+  "Add integrations ": "ادغام ها را اضافه کنید",
+  "Form": "فرم",
+  "Create a new Customer": "مشتری جدیدی ایجاد کنید",
+  "New Customer": "مشتری جدید",
+  "Segments": "بخش ها",
+  "Add a condition": "یک شرط اضافه کنید",
+  "Open": "باز کن",
+  "Choose channel": "کانال را انتخاب کنید",
+  "Who is this message for?": "این پیام برای چه کسی است؟",
+  "Compose your message": "پیام خود را بنویسید",
+  "No items added": "هیچ موردی اضافه نشد",
+  "Submit": "ارسال",
+  "Next": "بعد",
+  "Save & Draft": "ذخیره پیش نویس",
+  "Save & Live": "ذخیره و زنده",
+  "From:": "از جانب:",
+  "Pages": "صفحات",
+  "Links": "پیوندها",
+  "Enter your password to Confirm": "رمز عبور خود را برای تأیید وارد کنید",
+  "Number of visits": "تعداد بازدید",
+  "Written By": "نوشته شده توسط",
+  "Icon": "آیکون",
+  "draft": "پیش نویس",
+  "Twitter Username": "نام کاربری توییتر",
+  "LinkedIn": "لینکدین",
+  "Youtube": "یوتیوب",
+  "Github": "گیتوب",
+  "Edit response": "پاسخ را ویرایش کنید",
+  "To send your message press Enter and Shift + Enter to add a new line": "برای ارسال پیام خود Enter و Shift + Enter را بزنید تا یک خط جدید اضافه شود",
+  "To send your note press Enter and Shift + Enter to add a new line": "برای ارسال یادداشت خود ، Enter و Shift + Enter را فشار دهید تا یک خط جدید اضافه شود",
+  "Please enter an unit price. It should be a number": "لطفاً قیمت واحد را وارد کنید. باید یک عدد باشد",
+  "Type to search": "برای جستجو تایپ کنید",
+  "Members": "اعضا",
+  "Choose integrations": "ادغام را انتخاب کنید",
+  "Choose brands": "مارک ها را انتخاب کنید",
+  "Select a date": "تاریخ را انتخاب کنید",
+  "Click to select a date": "برای انتخاب تاریخ کلیک کنید",
+  "Choose users": "کاربران را انتخاب کنید",
+  "Select Brand": "نام تجاری را انتخاب کنید",
+  "Write here Welcome message.": "اینجا بنویسید پیام خوش آمدید.",
+  "Write here Away message.": "اینجا را بنویسید پیام دور.",
+  "Write here Thank you message.": "در اینجا بنویسید متشکرم",
+  "Select app": "برنامه را انتخاب کنید",
+  "Enter new password": "رمز ورود جدید را وارد کنید",
+  "Choose channels": "کانالها را انتخاب کنید",
+  "Select": "انتخاب کنید",
+  "select": "انتخاب کنید",
+  "Select...": "Select...",
+  "Choose members": "اعضا را انتخاب کنید",
+  "Search": "جستجو کردن",
+  "your@email.com": "your@email.com",
+  "password": "کلمه عبور",
+  "registered@email.com": "ثبت نام شده@email.com",
+  "new password": "رمز عبور جدید",
+  "Start typing to leave a note": "برای ترک یادداشت شروع به تایپ کنید",
+  "Re-type password": "رمزعبور را دوباره تایپ کنید",
+  "Name:": "نام:",
+  "Size:": "اندازه:",
+  "Website:": "سایت اینترنتی:",
+  "Industry:": "صنعت:",
+  "Plan:": "طرح:",
+  "There arent't any groups and fields": "هیچ گروه و زمینه وجود ندارد",
+  "Please add property Group first": "لطفاً ابتدا گروه ملک را اضافه کنید",
+  "Add group": "اضافه کردن گروه",
+  "ADD GROUP": "ADD GROUP",
+  "Add Property": "افزودن ملک",
+  "Add Group & Field ": "گروه و فیلد را اضافه کنید",
+  "Add Group": "افزودن گروه",
+  "Edit Property": "ویرایش ویژگی",
+  "Group:": "گروه:",
+  "There arent't any fields in this group": "هیچ فیلد در این گروه وجود ندارد",
+  "Customer Properties": "ویژگی های مشتری",
+  "Company Properties": "خواص شرکت",
+  "Add an option": "گزینه ای را اضافه کنید",
+  "Copy to clipboard": "کپی به کلیپ بورد",
+  "Go to home page": "به صفحه اصلی بروید",
+  "Assign to": "اختصاص به",
+  "Remove assignee": "انتصاب را حذف کنید",
+  "Account settings": "تنظیمات حساب",
+  "General settings": "General settings",
+  "Integration Settings": "تنظیمات ادغام",
+  "Personal settings": "تنظیمات شخصی",
+  "Add category": "افزودن دسته",
+  "Filter": "فیلتر",
+  "Live": "زنده",
+  "Draft": "پیش نویس",
+  "Paused": "مکث کرد",
+  "Your messages": "پیام های شما",
+  "Delivered inside your app Reach active users": "در برنامه خود تحویل داده شده است به کاربران فعال",
+  "Delivered to a user s email inbox Customize with your own templates": "تحویل به صندوق ورودی ایمیل یک کاربر با قالب های شخصی خود سفارشی سازی کنید",
+  "email": "پست الکترونیک",
+  "Create segment": "ایجاد بخش",
+  "customers": "مشتریان",
+  "has any value": "ارزش دارد",
+  "is unknown": "ناشناخته است",
+  "is not": "نیست",
+  "is": "است",
+  "Less than": "کمتر از",
+  "City": "شهر",
+  "Greater than": "بزرگتر از",
+  "Country": "کشور",
+  "Current page url": "آدرس صفحه فعلی",
+  "Browser language": "زبان مرورگر",
+  "Choose the Contact Type": "Choose the Contact Type",
+  "engageMessage": "engMessage",
+  "customer": "مشتری",
+  "company": "شرکت",
+  "starts with": "شروع می شود با",
+  "ends with": "به پایان می رسد با",
+  "contains": "حاوی",
+  "does not contain": "شامل نمی شود",
+  "Basic Info": "اطلاعات پایه",
+  "Add Phone": "تلفن را اضافه کنید",
+  "Add Email": "ارسال ایمیل",
+  "Choose your tags": "برچسب های خود را انتخاب کنید",
+  "Manage tags": "مدیریت برچسب ها",
+  "Edit Profile": "ویرایش نمایه",
+  "Sign out": "خروج از سیستم",
+  "Last Updated By": "آخرین به روزرسانی توسط",
+  "There is no channel": "کانالی وجود ندارد",
+  "Facebook page": "صفحه فیس بوک",
+  "plan": "طرح",
+  "Edit segment": "بخش را ویرایش کنید",
+  "New message": "پیام جدید",
+  "Message": "پیام",
+  "Merge Customers": "ادغام مشتریان",
+  "Assign": "اختصاص دادن",
+  "There is no message.": "پیامی وجود ندارد.",
+  "per page": "هر صفحه",
+  "[view]": "[چشم انداز]",
+  "Go to twitter": "برو توییتر",
+  "Build": "ساختن",
+  "`s integration": "ادغام",
+  "Created": "ایجاد شده",
+  "Email templates:": "الگوهای ایمیل:",
+  "Content:": "محتوا:",
+  "Response Templates": "الگوهای پاسخ",
+  "Merge Companies": "ادغام شرکت ها",
+  "Response template": "الگوی پاسخ",
+  "Attach file": "پیوست پرونده",
+  "Upload": "بارگذاری",
+  "ShoutBox": "ShoutBox",
+  "Popup": "پنجره",
+  "Embedded": "جاسازی شده",
+  "Choose a flow type": "یک نوع جریان را انتخاب کنید",
+  "CallOut": "CallOut",
+  "Callout title": "عنوان فراخوان",
+  "Callout body": "بدن فراخوان",
+  "Callout button text": "متن دکمه فراخوان",
+  "Skip callOut": "پرش از تماس",
+  "Form button text": "متن دکمه فرم",
+  "Theme color": "رنگ تم",
+  "Featured image": "تصویر شاخص",
+  "Full Preview": "پیش نمایش کامل",
+  "Try some of these colors:": "برخی از این رنگ ها را امتحان کنید:",
+  "Included fields": "زمینه های موجود",
+  "Deal": "Deal",
+  "Deals": "Deals",
+  "Sales Pipeline": "Sales Pipeline",
+  "Sales Pipelines": "Sales Pipelines",
+  "New Product & Service": "خدمات و خدمات جدید",
+  "No product or services": "هیچ محصولی یا خدماتی ندارد",
+  "UOM": "UOM",
+  "Parent Category": "Parent Category",
+  "Image": "Image",
+  "Service": "Service",
+  "service": "service",
+  "Quantity": "تعداد",
+  "Unit price": "قیمت واحد",
+  "Discount": "تخفیف",
+  "Select channel": "Select channel",
+  "Tax": "مالیات",
+  "Ticket": "بلیط",
+  "Task": "وظیفه",
+  "Select company": "شرکت را انتخاب کنید",
+  "Select customer": "مشتری را انتخاب کنید",
+  "Note": "توجه داشته باشید",
+  "Assigned to": "اختصاص یافته به",
+  "Move": "حرکت",
+  "Move deal": "حرکت معامله",
+  "Copy": "کپی 🀄",
+  "Close date": "تاریخ نزدیک",
+  "Choose product & service": "محصول و خدمات را انتخاب کنید",
+  "Select product & service": "محصول و خدمات را انتخاب کنید",
+  "Please, select a close date": "لطفاً تاریخ نزدیک را انتخاب کنید",
+  "Create a new Product": "محصولی جدید ایجاد کنید",
+  "New Product": "محصول جدید",
+  "SKU": "SKU",
+  "Choose a company": "شرکتی را انتخاب کنید",
+  "Choose a customer": "مشتری را انتخاب کنید",
+  "Choose a board": "هیئت مدیره را انتخاب کنید",
+  "Choose a pipeline": "خط لوله را انتخاب کنید",
+  "Manage Board & Pipeline": "مدیریت صفحه و خط لوله",
+  "Choose a stage": "مرحله ای را انتخاب کنید",
+  "Deal Settings": "تنظیمات خط لوله فروش",
+  "Ticket Settings": "تنظیمات بلیط",
+  "Task Settings": "تنظیمات کار",
+  "Boards & Pipelines": "تابلوها و خطوط لوله",
+  "Product & Service": "محصولات و خدمات",
+  "There is no pipeline in this board.": "خط لوله ای در این صفحه وجود ندارد.",
+  "There is no board": "هیچ تخته ای وجود ندارد",
+  "New Board": "صفحه جدید",
+  "Add pipeline": "خط لوله را اضافه کنید",
+  "Create one": "یکی بساز",
+  "Edit pipeline": "خط لوله را ویرایش کنید",
+  "Add stage": "مرحله را اضافه کنید",
+  "Board": "تخته",
+  "Pipeline": "خط لوله",
+  "Stage": "صحنه",
+  "Stage name": "نام صحنه",
+  "Add a deal": "معامله اضافه کنید",
+  "Add a task": "اضافه کردن یک کار",
+  "Add a ticket": "بلیط اضافه کنید",
+  "Priority": "اولویت",
+  "Critical": "بحرانی",
+  "High": "بالا",
+  "Normal": "معمولی",
+  "Low": "کم",
+  "Attachments": "پیوست ها",
+  "Source": "منبع",
+  "Select a source": "یک منبع را انتخاب کنید",
+  "Upload an attachment": "پیوست را بارگذاری کنید",
+  "Description": "شرح",
+  "Select a priority": "اولویت را انتخاب کنید",
+  "Edit deal": "معامله را ویرایش کنید",
+  "Edit task": "ویرایش کار",
+  "Edit ticket": "ویرایش بلیط",
+  "Add Product / Service": "اضافه کردن محصول / خدمات",
+  "Reply tweet": "توییت پاسخ دهید",
+  "Tweet": "توییت",
+  "Details": "جزئیات",
+  "View Profile": "مشاهده پروفایل",
+  "Empty Notes": "یادداشت های خالی",
+  "Mini-resume": "رزومه کوتاه",
+  "You cannot update this property": "شما نمی توانید این ویژگی را به روز کنید",
+  "Desktop": "دسکتاپ",
+  "Mobile": "سیار",
+  "Tablet": "قرص",
+  "Amount": "میزان",
+  "Owner": "صاحب",
+  "Department": "دپارتمان",
+  "Lifecycle State": "حالت چرخه عمر",
+  "Has Authority": "دارای اقتدار است",
+  "Do not disturb": "مزاحم نشوید",
+  "Parent Company": "شرکت مادر",
+  "Business Type": "نوع کسب و کار",
+  "Employees count": "کارمندان حساب می کنند",
+  "Yes": "آره",
+  "No": "نه",
+  "Copied": "کپی شده",
+  "General": "عمومی",
+  "Currency": "واحد پول",
+  "Unit of measurement": "واحد اندازه گیری",
+  "Create another board": "تابلوی دیگری ایجاد کنید",
+  "No pipeline": "خط لوله ای نیست",
+  "No Sales Pipelines": "No Sales Pipelines",
+  "No stage": "مرحله ای نیست",
+  "No deal": "هیچ معامله",
+  "Background": "زمینه",
+  "Choose": "انتخاب کنید",
+  "Successfully saved.": "با موفقیت ذخیره شد.",
+  "Successfully moved.": "با موفقیت جابجا شد.",
+  "Successfully selected.": "با موفقیت انتخاب شد.",
+  "Body description here": "توضیحات بدن در اینجا",
+  "Thank you.": "متشکرم.",
+  "Choose a brand": "یک مارک انتخاب کنید",
+  "Write a title": "یک عنوان بنویسید",
+  "Contact": "مخاطب",
+  "Created by": "خلق شده توسط",
+  "Manage": "مدیریت کنید",
+  "Dropdown": "رها کردن",
+  "Slide-in Left": "اسلاید در سمت چپ",
+  "Slide-in Right": "اسلاید در سمت راست",
+  "Enter name": "نام را وارد کنید",
+  "Delivered": "تحویل داده شده",
+  "Clicked": "کلیک کرد",
+  "Complaint": "شکایت",
+  "Bounce": "گزاف گویی",
+  "Rendering Failure": "ارائه عدم موفقیت",
+  "Rejected": "رد شد",
+  "Action": "عمل",
+  "Please select one to merge": "لطفاً یکی را انتخاب کنید تا ادغام شود",
+  "Filter by date": "فیلتر براساس تاریخ",
+  "Total conversations": "کل مکالمات",
+  "Filter by form": "فیلتر بر اساس فرم",
+  "Supporters": "حامیان",
+  "Import histories": "تاریخچه های واردات",
+  "Imported Date": "تاریخ وارد شده",
+  "Imported User": "کاربر وارد شده",
+  "Export customers": "صادرات مشتری",
+  "Import customers": "واردات مشتری",
+  "Export companies": "شرکت های صادراتی",
+  "Import companies": "شرکت های وارداتی",
+  "All customers imported successfully": "همه مشتریانی که با موفقیت وارد شدند",
+  "There aren't any imports": "هیچ وارداتی وجود ندارد",
+  "Successfully Removed all customers": "با موفقیت تمام مشتریان حذف شد",
+  "You can only import max 600 at a time": "شما فقط می توانید حداکثر 600 بار همزمان وارد کنید",
+  "Invalid import type": "نوع واردات نامعتبر است",
+  "Last updated": "اخرین به روز رسانی",
+  "No lead status chosen": "هیچ وضعیت سرب انتخاب نشده است",
+  "Schedule:": "برنامه:",
+  "Every Day": "هر روز",
+  "Every Month": "هر ماه",
+  "Every Year": "هر سال",
+  "Every Monday": "هر دوشنبه",
+  "Every Tuesday": "هر سه شنبه",
+  "Every Wednesday": "هر چهارشنبه",
+  "Every Thursday": "هر پنجشنبه",
+  "Every Friday": "هر جمعه",
+  "Every Saturday": "هر شنبه",
+  "Every Sunday": "هر یکشنبه",
+  "Choose a schedule day": "یک روز برنامه را انتخاب کنید",
+  "Choose a schedule time": "زمان برنامه را انتخاب کنید",
+  "Won": "برنده شد",
+  "Lost": "کم شده",
+  "App store": "فروشگاه برنامه",
+  "App store menu": "منوی فروشگاه برنامه",
+  "In Progress": "در حال پیش رفت",
+  "It`s size exceeds the limit 10mb": "اندازه آن از حد مجاز 10mb است",
+  "Congrats! Your email sent successfully!": "تبریک می گویم! ایمیل شما با موفقیت ارسال شد!",
+  "Works with messenger": "با پیام رسان کار می کند",
+  "Knowledge base topic": "مبحث پایه دانش",
+  "Package version": "نسخه بسته بندی",
+  "Branch name": "نام شعبه",
+  "Abbreviated": "مخفف",
+  "User": "کاربر",
+  "Recent conversations": "مکالمات اخیر",
+  "Start new conversation": "مکالمه جدید را شروع کنید",
+  "Talk with support staff": "با کارمندان پشتیبانی صحبت کنید",
+  "Send a message": "ارسال یک پیام",
+  "Volume Report By Customer": "گزارش حجم توسط مشتری",
+  "Export Report": "گزارش صادرات",
+  "Add Exchange": "Add Exchange",
+  "Exchange server host": "Exchange server host",
+  "We`re ready to help you.": "ما آماده کمک به شما هستیم.",
+  "Please choose a product": "لطفاً محصولی را انتخاب کنید",
+  "Please choose a currency": "لطفاً ارز انتخاب کنید",
+  "No board": "هيئت",
+  "Empty": "خالی",
+  "Getting Started with Segments": "Getting Started with Segments",
+  "Would you like to configure": "Would you like to configure",
+  "There is no account.": "حساب کاربری نیست",
+  "There is no tag": "There is no tag",
+  "Skip for now": "اکنون پرش کنید",
+  "Go to Inbox": "به صندوق ورودی بروید",
+  "Messenger Language": "زبان مسنجر",
+  "Messenger name": "نام مسنجر",
+  "Skip": "پرش",
+  "Resume": "Resume",
+  "Finish": "پایان",
+  "Reselect features": "Reselect features",
+  "Set up your account": "Set up your account",
+  "% done -": "% done -",
+  "keep going!": "keep going!",
+  "Show": "نشان دادن",
+  "Never see again": "Never see again",
+  "Hide": "پنهان شدن",
+  "Previous": "قبلی",
+  "Users": "کاربران",
+  "users": "کاربران",
+  "brands": "مارک ها",
+  "messengers": "پیام رسان ها",
+  "channels": "کانالها",
+  "Emails": "ایمیل",
+  "Messengers": "پیام رسان ها",
+  "You already have": "همین حالا داری",
+  "There is another": "مورد دیگری وجود دارد",
+  "Let's create your brand": "بیایید نام تجاری خود را ایجاد کنیم",
+  "Invite users": "کاربران را دعوت کنید",
+  "Let's grow your team": "بیایید تیم شما رشد کنیم",
+  "Invite": "دعوت",
+  "Let's start": "بیا شروع کنیم",
+  "Start messaging now!": "اکنون پیام را شروع کنید!",
+  "Create channel": "ایجاد کانال",
+  "Get started on your channel": "در کانال خود شروع کنید",
+  "Create your first messenger": "اولین پیام رسان خود را ایجاد کنید",
+  "Welcome": "خوش آمدی",
+  "Nothing inserted": "هیچ چیز درج نشده است",
+  "Empty emails": "ایمیل های خالی",
+  "Initial setup": "راه اندازی اولیه",
+  "Add another": "اضافه کردن یکی دیگر",
+  "Don't show again": "دوباره نشان ندهید",
+  "No other pipeline": "خط لوله دیگری نیست",
+  "No other boards": "تابلوهای دیگر",
+  "I'm ready to get started": "من برای شروع کار آماده هستم",
+  "Welcome paragraph": "ما از داشتن شما بسیار خوشحالیم. بیایید یک لحظه به شما راه اندازی شود",
+  "Get notified and notify others to keep everything up to date": "مطلع شوید و به دیگران اطلاع دهید تا همه چیز را به روز نگه دارید",
+  "If your team hasn't received messages that you sent on the site, we can send it to them via email": "اگر تیم شما پیامهایی را که شما در سایت ارسال کرده اید دریافت نکرده است ، ما می توانیم از طریق ایمیل برای آنها ارسال کنیم",
+  "Send an email and notify members that they've been invited!": "ایمیل بفرستید و اعضا را که از آنها دعوت شده اند مطلع کنید!",
+  "January": "ژانویه",
+  "February": "فوریه",
+  "March": "مارس",
+  "April": "آوریل",
+  "May": "ممکن است",
+  "June": "ژوئن",
+  "July": "جولای",
+  "August": "اوت",
+  "September": "سپتامبر",
+  "October": "اکتبر",
+  "November": "نوامبر",
+  "December": "دسامبر",
+  "Today": "امروز",
+  "Sales": "حراجی",
+  "Monthly view": "نمای ماهانه",
+  "Filter by": "محدود شده توسط",
+  "Creating a brand and by adding channels, you are able to better analyze your customers needs and help solve their problems": "شما می توانید با ایجاد یک برند و با اضافه کردن کانالها ، نیازهای مشتریان خود را بهتر تجزیه و تحلیل کرده و به حل مشکلات آنها کمک کنید",
+  "Grow and add users to your team! Assign, designate and let them do what they do best": "رشد و اضافه کردن کاربران به تیم خود! اختصاص دهید ، تعیین کنید و به آنها اجازه دهید کاری را که انجام می دهند به بهترین شکل انجام دهند",
+  "Stay up to date with every single customer feedback and create more meaningful conversations": "با هر بازخورد مشتری به روز بمانید و مکالمات معنادار تری ایجاد کنید",
+  "Create brand channels that are specifically categorized by type and activity": "کانال های مارک تجاری ایجاد کنید که به طور خاص بر اساس نوع و فعالیت طبقه بندی شوند",
+  "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.": "یک سربرگ را به اینجا اضافه کنید و آن را در ویجت مسنجر خود ببینید! برای دیدن موارد در صندوق ورودی خود ، لطفاً اطمینان حاصل کنید که در کانال شما اضافه شده است.",
+  "You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.": "می توانید از بسیاری از ادغام های پیام رسان ما انتخاب کرده و به پایگاه دانش خود اضافه کنید. پایگاه دانش در تب ویجت پیام رسان شما ظاهر می شود. برای انجام این کار ، لطفاً به پایگاه دانش خود ایجاد و اضافه کنید.",
+  "An email signature is an opportunity to share information that helps build recognition and trust.": "امضای ایمیل فرصتی برای اشتراک گذاری اطلاعاتی است که به ایجاد شناخت و اعتماد کمک می کند.",
+  "Let's start taking care of your customers": "بیایید مراقبت از مشتریان را شروع کنیم",
+  "Add in your first company!": "اولین شرکت خود را اضافه کنید!",
+  "You can choose": "You can choose",
+  "Choose from our many integrations and add to your channel": "از بسیاری از ادغام های ما استفاده کنید و به کانال خود اضافه کنید",
+  "Let's get you messaging away!": "بیایید پیام را از شما دور کنیم!",
+  "Whoops! No messages here but you can always start": "وای! هیچ پیامی در اینجا وجود ندارد اما همیشه می توانید شروع کنید",
+  "Articles can address any number of issues your customers encounter. Types of knowledge articles can include solutions to common issues, product or feature documentation, FAQ's and much more.": "مقالات می توانند به تعدادی از مواردی که مشتریان شما با آن روبرو هستند پرداخته شود. انواع مقالات دانش می تواند شامل راه حل هایی برای موضوعات مشترک ، اسناد مربوط به محصول یا ویژگی ها ، سؤالات متداول و موارد دیگر باشد.",
+  "Oops! No data here": "اوه! در اینجا داده ای وجود ندارد",
+  "You have not fully configured": "You have not fully configured",
+  "Customer created": "Customer created",
+  "Start adding integrations now!": "اکنون اضافه کردن ادغام ها را شروع کنید!",
+  "Add an integration in this Brand": "یکپارچه سازی در این برند را اضافه کنید",
+  "Oh dear! You have no imports": "اوه عزیزم! شما هیچ وارداتی ندارید",
+  "A strong customer engagement can help to further brand growth and loyalty": "مشارکت جدی مشتری می تواند به رشد و وفاداری بیشتر برند کمک کند",
+  "Get started on your pipeline": "در خط لوله خود شروع کنید",
+  "Connect to Facebook messages right from your Team Inbox": "از طریق صندوق ورودی تیم خود به پیام های فیس بوک وصل شوید",
+  "Tweet back to your DMs right from your Team Inbox": "درست از صندوق ورودی تیم خود به DM های خود بازگردید",
+  "Connect straight to your Gmail and get those emails going": "مستقیم به Gmail وصل شوید و آن ایمیل ها را ادامه دهید",
+  "Find your lead forms right here in your Widget": "اشکال اصلی خود را در اینجا در ویجت خود بیابید",
+  "Get access to your Knowledge Base right in your Widget": "درست در ویجت به پایگاه دانش خود دسترسی پیدا کنید",
+  "Soon you'll be able to connect Viber straight to your Team Inbox": "به زودی می توانید Viber را مستقیماً به صندوق ورودی تیم خود وصل کنید",
+  "Get a hold of your Whatsapp messages through your Team Inbox": "پیامهای Whatsapp خود را از طریق صندوق ورودی تیم دریافت کنید",
+  "Cloud-based mobile and desktop messaging app with a focus on speed and security": "Cloud-based mobile and desktop messaging app with a focus on speed and security",
+  "Connect with Wechat and start messaging right from your Team Inbox": "با Wechat ارتباط برقرار کنید و پیام را مستقیماً از صندوق ورودی تیم خود شروع کنید",
+  "Find feedback that has been gathered from various customer engagement channels.": "بازخورد هایی را که از کانال های مختلف جذب مشتری جمع آوری شده است پیدا کنید.",
+  "A report on the total number of customer feedback responses given by team members.": "گزارشی از تعداد کل پاسخهای بازخورد مشتری توسط اعضای تیم داده شده است.",
+  "The average time a team member solved a problem based on customer feedback.": "میانگین زمانی که یک عضو تیم بر اساس بازخورد مشتری یک مشکل را حل کرد.",
+  "You can find stats that defines the average response time by each team member.": "می توانید آماری پیدا کنید که میانگین زمان پاسخ توسط هر یک از اعضای تیم را تعیین کند.",
+  "Oh boy, looks like you need to get a head start on your deals": "اوه پسر ، به نظر می رسد که باید معاملات خود را شروع کنید",
+  "Open segments and starting add details": "بخش ها را باز کنید و جزئیات را اضافه کنید",
+  "Now easier to find contacts according to your brand": "اکنون راحت تر می توانید مخاطبین را مطابق با نام تجاری خود پیدا کنید",
+  "Search and filter customers by form": "مشتریان را به صورت فرم جستجو و فیلتر کنید",
+  "There is always a lead!": "همیشه سرب وجود دارد!",
+  "Calendar": "تقویم",
+  "Columns": "ستون ها",
+  "columns": "ستون ها",
+  "Linked Accounts": "حساب های مرتبط",
+  "Select account": "حساب را انتخاب کنید",
+  "Select account ...": "حساب را انتخاب کنید ...",
+  "Add Account": "اضافه کردن حساب",
+  "Remove Account": "حذف حساب",
+  "You can upload only image file": "فقط می توانید پرونده تصویری .png یا .jpg را بارگذاری کنید",
+  "Permissions": "مجوزها",
+  "New permission": "اجازه جدید",
+  "New group": "گروه جدید",
+  "Users groups": "گروه های کاربران",
+  "Choose the module": "ماژول را انتخاب کنید",
+  "Choose the actions": "اقدامات را انتخاب کنید",
+  "Choose the users": "کاربران را انتخاب کنید",
+  "Choose the groups": "گروه ها را انتخاب کنید",
+  "Choose groups": "گروه ها را انتخاب کنید",
+  "Allow": "اجازه",
+  "Invitation Status": "وضعیت دعوت",
+  "Verified": "Verified",
+  "Reset Member Password": "Reset Member Password",
+  "Permission": "اجازه",
+  "data successfully imported": "داده با موفقیت وارد شد",
+  "Show result": "نمایش نتیجه",
+  "Importing": "واردات",
+  "data": "داده ها",
+  "errors acquired": "خطاهای به دست آمده",
+  "There are": "وجود دارد",
+  "Continue": "ادامه هید",
+  "erxes": "erxes",
+  "at least two": "at least two",
+  "fields in your priority order": "fields in your priority order",
+  "Create brand": "ایجاد مارک",
+  "Create your first live chat and in-app messaging Stay up to date with every single customer feedback for more meaningful interactions": "اولین پیام زنده گپ و پیام درون برنامه خود را ایجاد کنید. برای تعامل معنادارتر با هر بازخورد مشتری به روز باشید.",
+  "A channel gives a full view of all the brands and its applications all in one place You can see all in-coming messages in your team inbox": "یک کانال نمایی کامل از همه مارک ها و برنامه های کاربردی آن همه را در یک مکان نشان می دهد. می توانید تمام پیام های در آینده را در صندوق ورودی تیم خود مشاهده کنید.",
+  "Hooray and Congratulations! You've completed the initial setup!": "هورای و تبریک! شما تنظیم اولیه را انجام داده اید!",
+  "Paste the code below before the body tag on every page you want erxes chat to appear": "قبل از کد کد زیر را وارد کنید </body> در هر صفحه مورد نظر چت erx نشان داده شود.",
+  "Paste the code below before the body tag on every page you want erxes lead to appear": "قبل از برچسب بدن در صفحه ای که می خواهید منجر به ظاهر شود ، کد زیر را چسبانید",
+  "If your flow type is embedded paste the code below additionally that you want erxes lead to appear": "اگر نوع جریان شما تعبیه شده است ، کد زیر را نیز اضافه کنید که می خواهید منجر به ظاهر شود",
+  "If your flow type is popup paste the code below additionally in your button": "اگر نوع جریان شما ظاهر شده است ، کد زیر را علاوه بر دکمه خود قرار دهید",
+  "Choose messengers": "پیام رسان ها را انتخاب کنید",
+  "erxes allows you to create multiple messengers": "erxes به شما امکان می دهد چندین پیام رسان ایجاد کنید",
+  "erxes allows you to create multiple brands": "erxes به شما امکان می دهد چندین مارک ایجاد کنید",
+  "erxes allows you to create multiple channels": "erxes به شما امکان می دهد چندین کانال ایجاد کنید",
+  "Contacts": "مخاطب",
+  "Create group": "ایجاد گروه",
+  "Visitors": "بازدید کنندگان",
+  "Due in the next day": "موعد در روز بعد",
+  "Due next week": "Due next week",
+  "Due next month": "Due next month",
+  "Has no close date": "تاریخ نزدیکی ندارد",
+  "Overdue": "Overdue",
+  "Clear Filter": "فیلتر را پاک کنید",
+  "Remove this filter": "این فیلتر را بردارید",
+  "Filtering is on": "فیلتر روشن است",
+  "Choose products": "محصولات را انتخاب کنید",
+  "Choose companies": "شرکت ها را انتخاب کنید",
+  "Choose customers": "مشتریان را انتخاب کنید",
+  "Choose team members": "اعضای تیم را انتخاب کنید",
+  "erxes Inc": "وارز",
+  "Get": "گرفتن",
+  "Download": "Download",
+  "Download ios app for free on the App Store": "برنامه ios را به صورت رایگان در فروشگاه App بارگیری کنید.",
+  "Download android app for free on the Google play": "برنامه Android را به صورت رایگان در Google Play بارگیری کنید.",
+  "Please upgrade your browser to use erxes!": "لطفاً برای استفاده از erxes ، مرورگر خود را ارتقا دهید!",
+  "Unfortunately, You are running on a browser that may not be fully compatible with erxes": "متأسفانه ، شما در حال مرورگری هستید که ممکن است کاملاً با erxes سازگار نباشد.",
+  "Please use recommended version": "لطفاً از نسخه پیشنهادی استفاده کنید",
+  "Messenger data": "داده های مسنجر",
+  "Customer field data": "داده های مربوط به مشتری",
+  "Others": "دیگران",
+  "Select brand": "مارک را انتخاب کنید",
+  "There is no permissions in this group": "در این گروه هیچ مجوزی وجود ندارد.",
+  "There is no group": "هیچ گروهی وجود ندارد",
+  "User groups": "گروه های کاربر",
+  "What action can do": "چه عملی می تواند انجام دهد",
+  "Who can": "که می تواند",
+  "Grant permission": "اجازه",
+  "Check if permission is allowed": "بررسی کنید که آیا اجازه مجاز است یا خیر",
+  "Then": "سپس",
+  "Or": "یا",
+  "Auto message description": "بر اساس نام تجاری / برچسب / بخش آنها ، ایمیل های هدفمند و گپ را برای کاربران وارد شده ارسال کنید. می توانید زمان خود را برای ارسال ایمیل یا گپ از قبل تنظیم کنید. طراحی چت می تواند به صورت snaps ، نشان و پیام کامل درآید و می تواند یک متن یا ویدیو باشد.",
+  "Manual message description": "بر اساس نام تجاری / برچسب / بخش آنها ، ایمیل های هدفمند و گپ را برای کاربران وارد شده ارسال کنید. بلافاصله پس از کلیک روی دکمه ذخیره ، یک ایمیل یا گپ ارسال می شود. طراحی چت می تواند به صورت snaps ، نشان و پیام کامل درآید و می تواند یک متن یا ویدیو باشد.",
+  "Visitor auto message description": "بر اساس صفحه بازدید ، فعالیت ، کشور محل اقامت و شهرشان ، چتهای هدفمند را برای بازدید کنندگان خارج از سیستم در وب سایت ارسال کنید. طراحی چت می تواند به صورت snaps ، نشان و پیام کامل درآید و می تواند یک متن یا ویدیو باشد.",
+  "Required field": "زمینه مورد نیاز!",
+  "Invalid email format! Please enter a valid email address": "قالب ایمیل نامعتبر است! لطفا یک آدرس ایمیل معتبر وارد کنید.",
+  "Invalid link": "پیوند نامعتبر است!",
+  "Maximum length is": "حداکثر طول آن است",
+  "characters": "شخصیت ها!",
+  "Invalid number format! Please enter a valid number": "قالب شماره نامعتبر است! لطفا یک شماره معتبر وارد کنید.",
+  "Insert email template to content": "الگوی ایمیل را به محتوا وارد کنید",
+  "Logs": "سیاههها",
+  "There are no logs recorded": "هیچ سابقه ای ثبت نشده است",
+  "There are no logs": "There are no logs",
+  "Email deliveries": "Email deliveries",
+  "Module": "مدول",
+  "Unchanged fields": "زمینه های بدون تغییر",
+  "Changed fields": "زمینه های تغییر یافته",
+  "Create": "ايجاد كردن",
+  "Update": "به روز رسانی",
+  "Changes": "تغییر می کند",
+  "Choose start date": "تاریخ شروع را انتخاب کنید",
+  "Choose end date": "تاریخ پایان را انتخاب کنید",
+  "Permission denied": "اجازه رد شد",
+  "Old data": "داده های قدیمی",
+  "New data": "داده های جدید",
+  "Archive": "بایگانی",
+  "Granted": "Granted",
+  "Workes with": "Workes with",
+  "There is no pages": "There is no pages",
+  "You are creating": "you are creating",
+  "Connect Account": "Connect account",
+  "Connect Your Pages": "Connect Your Pages",
+  "All permissions": "All permissions",
+  "NetworkError": "تلاش برای برقراری ارتباط است. تغییرات ایجاد شده اکنون ممکن است ذخیره نشوند.",
+  "Email add account description question": "آیا شما در حال اتصال به یک حساب ایمیل مشترک هستید؟",
+  "Email add account description": "وقتی ایمیلی را به صندوق ورودی مکالمات خود وصل می کنید ، آن را به عنوان یک اشتراک مشترک وصل می کنید. هر کسی که به صندوق ورودی تیم شما دسترسی داشته باشد ، پیام های ارسال شده به حساب های مشترک را می توان مشاهده کرد.",
+  "No connected email": "ایمیلی وصل نشده است",
+  "Your email will be sent with Erxes email template": "ایمیل شما با الگوی ایمیل Erxes ارسال می شود",
+  "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account": "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account",
+  "More: Understanding Amazon SES": "More: Understanding Amazon SES",
+  "More: Understanding File Upload": "More: Understanding File Upload",
+  "More: Understanding AWS S3 Variables": "More: Understanding AWS S3 Variables",
+  "More: Understanding AWS SES Variables": "More: Understanding AWS SES Variables",
+  "Used when using SES for transaction emails": "Used when using SES for transaction emails",
+  "More: Understanding Email Settings": "More: Understanding Email Settings",
+  "Fill up these inputs if you are using custom email service": "Fill up these inputs if you are using custom email service",
+  "General system config": "General system config",
+  "Write your default email service name. Default email service is SES": "Write your default email service name. Default email service is SES",
+  "Comma-separated list of media types. Leave it blank for accepting all media types": "Comma-separated list of media types. Leave it blank for accepting all media types",
+  "More: Understanding Gmail Integration Variables": "More: Understanding Gmail Integration Variables",
+  "More: Understanding Nylas Integration": "More: Understanding Nylas Integration",
+  "More: Understanding Twitter Integration Variables": "More: Understanding Twitter Integration Variables",
+  "More: Understanding Facebook Integration Variables": "More: Understanding Facebook Integration Variables",
+  "Must be 256 bits (32 characters)": "Must be 256 bits (32 characters)",
+  "Verified emails": "Verified emails",
+  "Custom Mail Service": "Custom Mail Service",
+  "Custom mail service": "Custom mail service",
+  "Common Mail Config": "Common Mail Config",
+  "Common mail config": "Common mail config",
+  "File upload": "File upload",
+  "System Config": "System Config",
+  "System config": "System config",
+  "Back to Settings": "Back to Settings",
+  "Integrations config": "Integrations config",
+  "Engage config": "Engage config",
+  "Join a call": "Join a call",
+  "Invite to video call": "Invite to video call",
+  "Video call invitation sent": "Video call invitation sent",
+  "Show the full message": "Show the full message",
+  "Snippet": "Snippet",
+  "Add New Brand": "Add New Brand",
+  "Basic JavaScript": "Website",
+  "Google tag manager": "Google Tag Manager",
+  "gtm_b": "To install erxes on your website with Google Tag Manager, just follow these steps.",
+  "gtm_li_1": "Navigate to the <b>Tags section</b> of your Google Tag Manager account",
+  "gtm_li_2": "Create a <b>new tag</b> and name it (for example: \"inflow\")",
+  "gtm_li_3": "Click the Tag Configuration section and choose <b>Custom HTML</b>{' '} tag type",
+  "gtm_li_4": "Paste the code below",
+  "gtm_li_5": "Next, click the Triggering section and choose “All Pages”",
+  "gtm_li_6": "Click ‘Save’ button in the top-right corner of the page",
+  "gtm_li_7": "Next click ‘Submit’ button in the top-right corner of the page to save the changes you made",
+  "gtm_li_8": "Now, erxes chat will be installed using your Google Tag Manager account. Just make sure you copy the gtm code to your website",
+  "formTitle": "formTitle",
+  "Your team members are the bolts and nuts of your business, Make sure all the parts are set and ready to go, Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info": "Your team members are the bolts and nuts of your business, Make sure all the parts are set and ready to go, Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info",
+  "Make sure all the parts are set and ready to go, Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info": "Make sure all the parts are set and ready to go, Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info",
+  "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear": "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear",
+  "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container": "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container",
+  "Google Cloud Storage": "Google Cloud Storage",
+  "Script manager": "Script manager",
+  "Growth Hacking Templates": "Growth Hacking Templates",
+  "Import & Export": "Import & Export",
+  "Import & export": "Import & export",
+  "Change state": "Change state",
+  "Change State": "Change State",
+  "Birthday": "Birthday",
+  "Pronoun": "Pronoun",
+  "Tracked data": "Tracked data",
+  "Website activity": "Website activity",
+  "No activity": "No activity",
+  "Growth Hacking": "Growth Hacking",
+  "Pop ups": "Pop ups",
+  "Tutorial": "Tutorial",
+  "Primary Phone": "Primary Phone",
+  "Primary phone:": "Primary phone:",
+  "Not known": "Not known",
+  "No contacts": "No contacts",
+  "Where do you want to start": "Where do you want to start",
+  "There are a ton of things you can do with ": "There are a ton of things you can do with ",
+  "Hello": "Hello",
+  "Let's set up your workplace for success": "Let's set up your workplace for success",
+  "done - keep going!": "done - keep going!",
+  "Let's pick the place to start, and we'll help you to get the most out of it": "Let's pick the place to start, and we'll help you to get the most out of it",
+  "Show completed": "Show completed",
+  "Filter by campaign": "Filter by campaign",
+  "Marketing campaigns": "Marketing campaigns",
+  "Choose a campaign": "Choose a campaign",
+  "Template": "Template",
+  "Campaign": "Campaign",
+  "campaign": "campaign",
+  "Project": "Project",
+  "Weighted scoring": "Weighted scoring",
+  "Priority matrix": "Priority matrix",
+  "Funnel Impact": "Funnel Impact",
+  "No item": "No item",
+  "Add an experiment": "Add an experiment",
+  "You successfully updated an experiment": "You successfully updated an experiment",
+  "You successfully deleted an experiment": "You successfully deleted an experiment",
+  "You successfully copied an experiment": "You successfully copied an experiment",
+  "You successfully changed an experiment": "You successfully changed an experiment",
+  "Add Project": "Add Project",
+  "Edit project": "Edit project",
+  "Go to templates": "Go to templates",
+  "Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:": "Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:",
+  "Educate your customers and staff by creating help articles to reach higher levels of satisfaction": "Educate your customers and staff by creating help articles to reach higher levels of satisfaction",
+  "Create your knowledgebase": "Create your knowledgebase",
+  "Install the script": "Install the script",
+  "Getting Started with Engage": "Getting Started with Engage",
+  "Learn how to use this feature to engage your contacts and drive conversations": "Learn how to use this feature to engage your contacts and drive conversations",
+  "Create a Segment": "Create a Segment",
+  "Getting Started with erxes Popups": "Getting Started with erxes Popups",
+  "Create Popup": "Create Popup",
+  "Prepare your contacts by Segment / Tag / Brand": "Prepare your contacts by Segment / Tag / Brand",
+  "Fill out the details and create your popup message or form": "Fill out the details and create your popup message or form",
+  "Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets": "Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets",
+  "New field": "New field",
+  "Go to Script Manager": "Go to Script Manager",
+  "Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:": "Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:",
+  "Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:": "Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:",
+  "Show Menu": "Show Menu",
+  "Usage": "Usage",
+  "article": "article",
+  "articles": "articles",
+  "Background image": "Background image",
+  "Custom color": "Custom color",
+  "Reactions": "Reactions",
+  "English": "English",
+  "Dashboard": "Dashboard",
+  "Profile score": "Profile score",
+  "Verify emails": "Verify emails",
+  "Verify phone numbers": "Verify phone numbers",
+  "Filter by Pop Ups": "Filter by Pop Ups",
+  "Master email marketing with fully customized templates": "Master email marketing with fully customized templates",
+  "Interact personally with direct in-app-messaging": "Interact personally with direct in-app-messaging",
+  "Send bulk SMS online with simple and direct texts": "Send bulk SMS online with simple and direct texts",
+  "Choose a message type:": "Choose a message type:",
+  "Choose a segment": "Choose a segment",
+  "Create a segment": "Create a segment",
+  "Inactive": "Inactive",
+  "days": "days",
+  "Segment name": "Segment name",
+  "Feature": "Feature",
+  "Edit Knowledge Base": "Edit Knowledge Base",
+  "You successfully updated an article": "You successfully updated an article",
+  "You successfully added an article": "You successfully added an article",
+  "Tags type": "Tags type",
+  "tags": "tags",
+  "You successfully deleted a tag": "You successfully deleted a tag",
+  "Product": "Product",
+  "Text area": "Text area",
+  "Text input": "Text input",
+  "Radio button": "Radio button",
+  "Checkbox": "Checkbox",
+  "File": "File",
+  "There is no fields": "There is no fields",
+  "New Field": "New Field",
+  "Start": "Start",
+  "Rule": "Rule",
+  "Sms": "Sms",
+  "Choose user": "Choose user",
+  "SMS marketing from the title": "SMS marketing from the title",
+  "SMS marketing content": "SMS marketing content",
+  "Compose your SMS": "Compose your SMS",
+  "SMS": "SMS",
+  "AWS S3": "AWS S3",
+  "Google": "Google",
+  "Constants": "Constants",
+  "Nylas": "Nylas",
+  "Video call": "Video call",
+  "Gmail": "Gmail",
+  "Sunshine Conversations API": "Sunshine Conversations API",
+  "WhatsApp Chat-API": "WhatsApp Chat-API",
+  "Verify the email addresses that you send email from": "Verify the email addresses that you send email from",
+  "Send your first testing email": "Send your first testing email",
+  "Marketing campaigns & Projects": "Marketing campaigns & Projects",
+  "Sender": "Sender",
+  "Reply to:": "Reply to:",
+  "Attachments:": "Attachments:",
+  "You successfully added a lead": "You successfully added a lead",
+  "Create Pop Ups": "Create Pop Ups",
+  "Your request has been successfully sent. Your contacts will be verified after a while": "Your request has been successfully sent. Your contacts will be verified after a while",
+  "Are your sure you want to convert lead to customer?": "Are your sure you want to convert lead to customer?",
+  "You successfully converted to customer": "You successfully converted to customer",
+  "You successfully updated state": "You successfully updated state",
+  "You successfully merged a customer": "You successfully merged a customer",
+  "You successfully deleted a customer": "You successfully deleted a customer",
+  "You successfully changed the state": "You successfully changed the state",
+  "Visitor": "Visitor",
+  "Learn how to create a segment": "Learn how to create a segment",
+  "Primary Name": "Primary Name",
+  "Unknown": "Unknown",
+  "Basic information of a customer": "Basic information of a customer",
+  "customer properties": "customer properties",
+  "Avatar": "Avatar",
+  "Add Webhook": "Add Webhook",
+  "Token": "Token",
+  "Basic information": "Basic information",
+  "Property types": "Property types",
+  "Search and filter customers by pop ups": "Search and filter customers by pop ups",
+  "General information": "General information",
+  "Choose an owner": "Choose an owner",
+  "Choose parent company": "Choose parent company",
+  "Successfully added": "Successfully added",
+  "Invalid format": "Invalid format",
+  "Successfully removed": "Successfully removed",
+  "Choose a Primary": "Choose a Primary",
+  "Save & View": "Save & View",
+  "Archive All Cards in This List": "Archive All Cards in This List",
+  "Archive This List": "Archive This List",
+  "Remove stage": "Remove stage",
+  "Archived items": "Archived items",
+  "Search ...": "Search ...",
+  "Filter by created members": "Filter by created members",
+  "Filter by priority": "Filter by priority",
+  "Filter by team members": "Filter by team members",
+  "Filter by labels": "Filter by labels",
+  "Filter by products": "Filter by products",
+  "Filter by companies": "Filter by companies",
+  "Filter by customers": "Filter by customers",
+  "Due tomorrow": "Due tomorrow",
+  "Search item": "Search item",
+  "There aren’t any archived item.": "There aren’t any archived item.",
+  "Switch To": "Switch To",
+  "list": "list",
+  "In progress": "In progress",
+  "ALL": "ALL",
+  "Not started": "Not started",
+  "Completed": "Completed",
+  "Growth campaign": "Growth campaign",
+  "See related companies": "See related companies",
+  "Conversation details": "Conversation details",
+  "Invalid Date": "Invalid Date",
+  "Call": "Call",
+  "No matching items found": "No matching items found",
+  "Unknown's company": "Unknown's company",
+  "You successfully deleted a file": "You successfully deleted a file",
+  "Customer is offline Click to hide and send messages and they will receive them the next time they are online": "Customer is offline Click to hide and send messages and they will receive them the next time they are online",
+  "Add a note:": "Add a note:",
+  "converted": "converted",
+  "Conversation with": "Conversation with",
+  "See related": "See related",
+  "No task": "No task",
+  "See full conversation": "See full conversation",
+  "You successfully deleted a checklist": "You successfully deleted a checklist",
+  "You successfully converted a card": "You successfully converted a card",
+  "A person who preparing to buy some service or product.": "A person who preparing to buy some service or product.",
+  "A person who already bought some service or product.": "A person who already bought some service or product.",
+  "Convert": "Convert",
+  "Go to a ticket": "Go to a ticket",
+  "Convert to a deal": "Convert to a deal",
+  "Convert to a task": "Convert to a task",
+  "This message must have at least one recipient.": "This message must have at least one recipient.",
+  "It`s size exceeds the limit 5mb": "It`s size exceeds the limit 5mb",
+  "Set language": "Set language",
+  "Write title": "Write title",
+  "You have successfully sent a email": "You have successfully sent a email",
+  "This email conversation will be automatically moved to a resolved state.": "This email conversation will be automatically moved to a resolved state.",
+  "You are": "You are",
+  "Please configure a video call settings": "Please configure a video call settings",
+  "Sales board & Pipelines": "Sales board & Pipelines",
+  "Ticket Sales board & Pipelines": "Ticket Sales board & Pipelines",
+  "Task Sales board & Pipelines": "Task Sales board & Pipelines",
+  "Require Authentication": "Require Authentication",
+  "It will require email and phone in widget": "It will require email and phone in widget",
+  "Show chat": "Show chat",
+  "Hide chat section and show only knowledgebase and form": "Hide chat section and show only knowledgebase and form",
+  "Show launcher": "Show launcher",
+  "The widget section will invisible but you can still get messenger data": "The widget section will invisible but you can still get messenger data",
+  "Force logout when resolve": "Force logout when resolve",
+  "If an operator resolve the conversation from inbox then client session will end automatically": "If an operator resolve the conversation from inbox then client session will end automatically",
+  "If customer is offline and inserted email, it will send email when operator respond": "If customer is offline and inserted email, it will send email when operator respond",
+  "Show video call request": "Show video call request",
+  "Bot Press Endpoint URL": "Bot Press Endpoint URL",
+  "Please enter your Bot Press endpoint URL": "Please enter your Bot Press endpoint URL",
+  "Please build initial message in BotPress builder": "Please build initial message in BotPress builder",
+  "Bot show initial message": "Bot show initial message",
+  "Add a Website": "Add a Website",
+  "Add Ons": "Add Ons",
+  "Which specific knowledgebase do you want to display in a separate tab in this messenger": "Which specific knowledgebase do you want to display in a separate tab in this messenger",
+  "The conversation has been reopened and restored to Inbox": "The conversation has been reopened and restored to Inbox",
+  "Growth Hacking Settings": "Growth Hacking Settings",
+  "Sales Pipeline Settings": "Sales Pipeline Settings",
+  "AWS SES": "AWS SES",
+  "Learn how to set file uploading.": "Learn how to set file uploading.",
+  "Learn the case of custom email service": "Learn the case of custom email service",
+  "Learn how to set Google variables": "Learn how to set Google variables",
+  "Learn how to create or find your Google Cloud Storage bucket": "Learn how to create or find your Google Cloud Storage bucket",
+  "Google Bucket Name": "Google Bucket Name",
+  "Learn how to set AWS S3 Variables": "Learn how to set AWS S3 Variables",
+  "In this field, the AWS SES configuration is dedicated to providing transaction emails": "In this field, the AWS SES configuration is dedicated to providing transaction emails",
+  "Learn how to set Amazon SES variables": "Learn how to set Amazon SES variables",
+  "Learn more about Email Settings": "Learn more about Email Settings",
+  "Upload File Types": "Upload File Types",
+  "Upload File Types of Widget": "Upload File Types of Widget",
+  "Upload Service Type": "Upload Service Type",
+  "Bucket file system type": "Bucket file system type",
+  "Used when using s3 compatible service": "Used when using s3 compatible service",
+  "Google Project Id": "Google Project Id",
+  "Google Application Credentials": "Google Application Credentials",
+  "Google Application Credentials JSON": "Google Application Credentials JSON",
+  "Google Client Id": "Google Client Id",
+  "Google Client Secret": "Google Client Secret",
+  "AWS SES Access Key id": "AWS SES Access Key id",
+  "AWS SES Secret Access Key": "AWS SES Secret Access Key",
+  "AWS Region": "AWS Region",
+  "AWS SES Config Set": "AWS SES Config Set",
+  "From Email": "From Email",
+  "Default Email Service": "Default Email Service",
+  "Mail Service Name": "Mail Service Name",
+  "Port": "Port",
+  "Host": "Host",
+  "Pronoun choices": "Pronoun choices",
+  "Company industry types": "Company industry types",
+  "Social links": "Social links",
+  "Learn how to set Facebook Integration Variables": "Learn how to set Facebook Integration Variables",
+  "Learn how to set Twitter Integration Variables": "Learn how to set Twitter Integration Variables",
+  "Learn how to set Nylas Integration": "Learn how to set Nylas Integration",
+  "Learn more about Video call configuration": "Learn more about Video call configuration",
+  "Learn how to set Gmail Integration Variables": "Learn how to set Gmail Integration Variables",
+  "Learn how to set Smooch Integration Variables": "Learn how to set Smooch Integration Variables",
+  "Learn how to set WhatsApp Integration Variables": "Learn how to set WhatsApp Integration Variables",
+  "Facebook App Id": "Facebook App Id",
+  "Facebook App Secret": "Facebook App Secret",
+  "Facebook Verify Token": "Facebook Verify Token",
+  "Facebook permissions": "Facebook permissions",
+  "Twitter Consumer Key": "Twitter Consumer Key",
+  "Twitter Consumer secret": "Twitter Consumer secret",
+  "Twitter Access Token": "Twitter Access Token",
+  "Twitter Access Token Secret": "Twitter Access Token Secret",
+  "Twitter Webhook Env": "Twitter Webhook Env",
+  "Nylas Client Id": "Nylas Client Id",
+  "Nylas Client Secret": "Nylas Client Secret",
+  "Nylas Webhook Callback Url": "Nylas Webhook Callback Url",
+  "Microsoft Client Id": "Microsoft Client Id",
+  "Microsoft Client Secret": "Microsoft Client Secret",
+  "Video call type": "Video call type",
+  "Daily api key": "Daily api key",
+  "Daily end point": "Daily end point",
+  "Use Default Gmail Service": "Use Default Gmail Service",
+  "Google Gmail Topic": "Google Gmail Topic",
+  "Google Gmail Subscription Name": "Google Gmail Subscription Name",
+  "Smooch App Id": "Smooch App Id",
+  "Smooch App Key Id": "Smooch App Key Id",
+  "Smooch App Key Secret": "Smooch App Key Secret",
+  "Smooch Webhook Callback Url": "Smooch Webhook Callback Url",
+  "Chat-API API key": "Chat-API API key",
+  "Chat-API Webhook Callback Url": "Chat-API Webhook Callback Url",
+  "You successfully updated engages config": "You successfully updated engages config",
+  "Successfully sent verification email. Please check your inbox": "Successfully sent verification email. Please check your inbox",
+  "You are about to remove verified email. Are your sure?": "You are about to remove verified email. Are your sure?",
+  "Successfully sent": "Successfully sent",
+  "Verify": "Verify",
+  "Write your email to verify!": "Write your email to verify!",
+  "Learn more about Amazon SES configuration": "Learn more about Amazon SES configuration",
+  "Required for sending SMS messages": "Required for sending SMS messages",
+  "SMS sender number (The phone number you have purchased from telnyx)": "SMS sender number (The phone number you have purchased from telnyx)",
+  "Required to properly display from number when sending international SMS. If not set, telnyx replaces from number to the text Sender": "Required to properly display from number when sending international SMS. If not set, telnyx replaces from number to the text Sender",
+  "Verify the email addresses that you send email from)": "Verify the email addresses that you send email from)",
+  "AWS SES Access key ID": "AWS SES Access key ID",
+  "AWS SES Secret access key": "AWS SES Secret access key",
+  "AWS SES Region": "AWS SES Region",
+  "AWS SES Config set": "AWS SES Config set",
+  "Unverified emails limit": "Unverified emails limit",
+  "Telnyx API key": "Telnyx API key",
+  "Telnyx phone number": "Telnyx phone number",
+  "Telnyx messaging profile id": "Telnyx messaging profile id",
+  "TELNYX MESSAGING PROFILE ID": "TELNYX MESSAGING PROFILE ID",
+  "To": "To",
+  "Write your content": "Write your content",
+  "Invite team members": "Invite team members",
+  "Invitation status": "Invitation status",
+  "repeat password": "repeat password",
+  "visitor": "visitor",
+  "Repeat password": "Repeat password",
+  "Reset member password": "Reset member password",
+  "Create user group": "Create user group",
+  "Group": "Group",
+  "You successfully added a permission": "You successfully added a permission",
+  "Tasks": "Tasks",
+  "Tickets": "Tickets",
+  "Download template": "Download template",
+  "Web dev requirement": "Web dev requirement",
+  "Contact us": "Contact us",
+  "Pop-ups": "Pop-ups",
+  "Export Pop-ups data": "Export Pop-ups data",
+  "System status": "System status",
+  "System Status": "System Status",
+  "Choose actions": "Choose actions",
+  "Please select the module!": "Please select the module!",
+  "Please select at least one action!": "Please select at least one action!",
+  "Please select at least one group or user!": "Please select at least one group or user!",
+  "Send test email": "Send test email",
+  "Erxes Status": "Erxes Status",
+  "Erxes API Status": "Erxes API Status",
+  "Erxes Widget Status": "Erxes Widget Status",
+  "Sha": "Sha",
+  "Info": "Info",
+  "This allows you to see erxes's real-time information on all system statuses": "This allows you to see erxes's real-time information on all system statuses",
+  "You'll find live and historical data on system performance": "You'll find live and historical data on system performance",
+  "Mark as incomplete": "Mark as incomplete",
+  "Mark as complete": "Mark as complete",
+  "Checklist": "Checklist",
+  "Add New Channel": "Add New Channel",
+  "Support": "Support",
+  "Add unlimited Brands with unlimited support to further your growth and accelerate your business": "Add unlimited Brands with unlimited support to further your growth and accelerate your business",
+  "All integrations": "All integrations",
+  "Type to search for an integration": "Type to search for an integration",
+  "Facebook post": "Facebook post",
+  "Connect to Facebook posts right from your Team Inbox": "Connect to Facebook posts right from your Team Inbox",
+  "Facebook messenger": "Facebook messenger",
+  "Connect and manage Facebook Messages right from your Team Inbox": "Connect and manage Facebook Messages right from your Team Inbox",
+  "Connect a company email address such as sales@mycompany.com or info@mycompany.com": "Connect a company email address such as sales@mycompany.com or info@mycompany.com",
+  "See and reply to Messenger messages in your Team Inbox": "See and reply to Messenger messages in your Team Inbox",
+  "Add telnyx": "Add telnyx",
+  "IMAP by Nylas": "IMAP by Nylas",
+  "Office 365 by Nylas": "Office 365 by Nylas",
+  "Gmail by Nylas": "Gmail by Nylas",
+  "Microsoft Exchange by Nylas": "Microsoft Exchange by Nylas",
+  "Pop Ups": "Pop Ups",
+  "Which popup(s) do you want to display in this messenger": "Which popup(s) do you want to display in this messenger",
+  "Outlook by Nylas": "Outlook by Nylas",
+  "Yahoo by Nylas": "Yahoo by Nylas",
+  "Call Pro": "Call Pro",
+  "Connect your call pro phone number": "Connect your call pro phone number",
+  "Chatfuel": "Chatfuel",
+  "Filter by type": "Filter by type",
+  "There is no product & service category": "There is no product & service category",
+  "All products": "All products",
+  "Connect your chatfuel account": "Connect your chatfuel account",
+  "Show your responsive website right in your Widget": "Show your responsive website right in your Widget",
+  "WhatsApp": "WhatsApp",
+  "Telegram": "Telegram",
+  "Connect to your Telegram, a cloud-based mobile and desktop messaging app": "Connect to your Telegram, a cloud-based mobile and desktop messaging app",
+  "Viber": "Viber",
+  "Connect Viber to your Team Inbox": "Connect Viber to your Team Inbox",
+  "Line": "Line",
+  "See and reply to Line messages in your Team Inbox": "See and reply to Line messages in your Team Inbox",
+  "Connect your Telnyx account to send & receive SMS": "Connect your Telnyx account to send & receive SMS",
+  "Configure incoming webhooks": "Configure incoming webhooks",
+  "Connect Twitter DMs to your Team Inbox": "Connect Twitter DMs to your Team Inbox",
+  "Wechat": "Wechat",
+  "Twitter post": "Twitter post",
+  "Connect to your twitter posts here in your Team Inbox": "Connect to your twitter posts here in your Team Inbox",
+  "Instagram": "Instagram",
+  "Connect to your instagram posts here in your Team Inbox": "Connect to your instagram posts here in your Team Inbox",
+  "Amazon Lex": "Amazon Lex",
+  "Build conversational interfaces using voice and text": "Build conversational interfaces using voice and text",
+  "Cisco Jabber": "Cisco Jabber",
+  "Connect your Cisco account and collaborate from your Team Inbox": "Connect your Cisco account and collaborate from your Team Inbox",
+  "Cisco Webex": "Cisco Webex",
+  "Connect your Cisco account and make calls for business right from your Team Inbox": "Connect your Cisco account and make calls for business right from your Team Inbox",
+  "Google Dialog Flow": "Google Dialog Flow",
+  "Connect an email address and build conversational experience": "Connect an email address and build conversational experience",
+  "Google Hangouts": "Google Hangouts",
+  "Connect an email address and start free video, voice calls or message with one person or a group": "Connect an email address and start free video, voice calls or message with one person or a group",
+  "IBM Watson": "IBM Watson",
+  "Get access to your IBM Watson right in your Widget": "Get access to your IBM Watson right in your Widget",
+  "Microsoft Luis": "Microsoft Luis",
+  "Connect this fast and effective way of messaging to your Team Inbox": "Connect this fast and effective way of messaging to your Team Inbox",
+  "Microsoft Team": "Microsoft Team",
+  "Communicate with your team members and share files through your Team Inbox": "Communicate with your team members and share files through your Team Inbox",
+  "Rasa": "Rasa",
+  "Connect Rasa straight to your Team Inbox": "Connect Rasa straight to your Team Inbox",
+  "SAP Conversational AI": "SAP Conversational AI",
+  "Connect SAP AI and send voice messages through your Team Inbox": "Connect SAP AI and send voice messages through your Team Inbox",
+  "Slack": "Slack",
+  "Connect Slack to send instant messages through your Team Inbox": "Connect Slack to send instant messages through your Team Inbox",
+  "WIT.AI": "WIT.AI",
+  "Connect WIT.AI and share knowledge in your Team Inbox": "Connect WIT.AI and share knowledge in your Team Inbox",
+  "Agatha Answers": "Agatha Answers",
+  "Connect Agatha Answers to increase productivity in your Team Inbox": "Connect Agatha Answers to increase productivity in your Team Inbox",
+  "Asana": "Asana",
+  "Connect Asana to track and manage tasks": "Connect Asana to track and manage tasks",
+  "Asknicely": "Asknicely",
+  "Close the loop in a hands-on manner in your Team Inbox": "Close the loop in a hands-on manner in your Team Inbox",
+  "Chatbase": "Chatbase",
+  "Build your best customer service virtual agent analytics": "Build your best customer service virtual agent analytics",
+  "Clearbit": "Clearbit",
+  "Connect Clearbit and supercharge your customer interactions": "Connect Clearbit and supercharge your customer interactions",
+  "Glassbox": "Glassbox",
+  "Help your organization manage the results of big data analytics": "Help your organization manage the results of big data analytics",
+  "Doorbell.io": "Doorbell.io",
+  "Connect DoorBell and understand different languages in your Team Inbox": "Connect DoorBell and understand different languages in your Team Inbox",
+  "Dropbox": "Dropbox",
+  "Connect Dropbox files to your Team Inbox": "Connect Dropbox files to your Team Inbox",
+  "Fivetran": "Fivetran",
+  "Connect Fivertran and get all the data you need, with no duplicates in your Team Inbox": "Connect Fivertran and get all the data you need, with no duplicates in your Team Inbox",
+  "Full contact": "Full contact",
+  "Improve your customer interactions with a simple, real-time API integration": "Improve your customer interactions with a simple, real-time API integration",
+  "Connect to Github repositories right from your Team Inbox": "Connect to Github repositories right from your Team Inbox",
+  "Google calendar": "Google calendar",
+  "Connect to Google calendar time-management and scheduling calendar service": "Connect to Google calendar time-management and scheduling calendar service",
+  "Google Drive": "Google Drive",
+  "Get started with Google drive right from your Team Inbox": "Get started with Google drive right from your Team Inbox",
+  "Hubspot import": "Hubspot import",
+  "Connect to Hubspot import file from your Team Inbox": "Connect to Hubspot import file from your Team Inbox",
+  "Jira": "Jira",
+  "Connect Jira then bug tracking and agile project management in your Team Inbox": "Connect Jira then bug tracking and agile project management in your Team Inbox",
+  "Keen": "Keen",
+  "Connect Keen then analysis fast in your Team Inbox": "Connect Keen then analysis fast in your Team Inbox",
+  "Apply and navigate your career with confidence to your Team Inbox": "Apply and navigate your career with confidence to your Team Inbox",
+  "Loom": "Loom",
+  "Get Loom and make quick videos using a lightning-fast video recorder": "Get Loom and make quick videos using a lightning-fast video recorder",
+  "Mailchimp import": "Mailchimp import",
+  "Join all‑in‑one Marketing Platform Mailchimp": "Join all‑in‑one Marketing Platform Mailchimp",
+  "ManDrill": "ManDrill",
+  "Connect to ManDrill and sending data-driven mails": "Connect to ManDrill and sending data-driven mails",
+  "ManyChat": "ManyChat",
+  "Connect with Facebook account and join Sales and Marketing platform ManyChat": "Connect with Facebook account and join Sales and Marketing platform ManyChat",
+  "Marketo Import": "Marketo Import",
+  "Connect to Marketo and enrich your leads with Intercom data": "Connect to Marketo and enrich your leads with Intercom data",
+  "Meya": "Meya",
+  "Connect to Meya and build a highly sophisticated bot or cognitive application": "Connect to Meya and build a highly sophisticated bot or cognitive application",
+  "Mixpanel": "Mixpanel",
+  "Grow your business by analyzing, measuring and improving your customer experience": "Grow your business by analyzing, measuring and improving your customer experience",
+  "Outlook calendar": "Outlook calendar",
+  "Connect with Microsoft account and join fully integrated scheduling component of Outlook": "Connect with Microsoft account and join fully integrated scheduling component of Outlook",
+  "Parabola": "Parabola",
+  "Connect to Parabola using your email address then hand off your routine data tasks": "Connect to Parabola using your email address then hand off your routine data tasks",
+  "Piesync": "Piesync",
+  "Connect to Piesync then keep your customer data 2-way in sync across all your business apps and devices": "Connect to Piesync then keep your customer data 2-way in sync across all your business apps and devices",
+  "Salesforce": "Salesforce",
+  "Connect SalesForce then  marketing automation, analytics in your Team Inbox": "Connect SalesForce then  marketing automation, analytics in your Team Inbox",
+  "Salesforce import": "Salesforce import",
+  "Connect SalesForce to import data with the Data Import Wizard in your Team Inbox": "Connect SalesForce to import data with the Data Import Wizard in your Team Inbox",
+  "Sendgrid": "Sendgrid",
+  "Connect to Sendgrid and send promotional emails, shipping notifications and email newsletters": "Connect to Sendgrid and send promotional emails, shipping notifications and email newsletters",
+  "Sendinblue": "Sendinblue",
+  "Make your business take flight with the complete sales & marketing toolbox": "Make your business take flight with the complete sales & marketing toolbox",
+  "Shipamax": "Shipamax",
+  "Connect to Shipmamax then aggregation of data in your Team Inbox": "Connect to Shipmamax then aggregation of data in your Team Inbox",
+  "Stitch": "Stitch",
+  "Sign in to Stitch, cloud first, open source platform for rapidly moving back": "Sign in to Stitch, cloud first, open source platform for rapidly moving back",
+  "Talkdesk": "Talkdesk",
+  "Connect to Talkdesk combines enterprise performances with consumer simplicity": "Connect to Talkdesk combines enterprise performances with consumer simplicity",
+  "Webhook": "Webhook",
+  "Transparently capture your API interactions and debug them in real-time": "Transparently capture your API interactions and debug them in real-time",
+  "Watch stream and discover what the world is watching with Youtube": "Watch stream and discover what the world is watching with Youtube",
+  "Zapier": "Zapier",
+  "Connect your apps and automate workflows from your Team Inbox": "Connect your apps and automate workflows from your Team Inbox",
+  "Categories": "Categories",
+  "Works with": "Works with",
+  "Featured": "Featured",
+  "Make things easy for your team members and add in ready made response templates": "Make things easy for your team members and add in ready made response templates",
+  "Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle": "Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle",
+  "It's all about thinking ahead for your customers": "It's all about thinking ahead for your customers",
+  "Team members will be able to choose from email templates and send out one message to multiple recipients": "Team members will be able to choose from email templates and send out one message to multiple recipients",
+  "You can use the email templates to send out a Mass email for leads/customers or you can send to other team members": "You can use the email templates to send out a Mass email for leads/customers or you can send to other team members",
+  "Appearances matter, especially for your business": "Appearances matter, especially for your business",
+  "Edit and manage your email appearance so that your business can operate in one voice": "Edit and manage your email appearance so that your business can operate in one voice",
+  "Email appearance": "Email appearance",
+  "Scripts": "Scripts",
+  "Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites": "Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites",
+  "Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites": "Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites",
+  "New script": "New script",
+  "Websites": "Websites",
+  "Which website(s) do you want to display in this messenger": "Which website(s) do you want to display in this messenger",
+  "Select leads": "Select leads",
+  "Knowledgebase topic": "Knowledgebase topic",
+  "Add New": "Add New",
+  "Manage your boards and pipelines so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs": "Manage your boards and pipelines so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs",
+  "Add in or delete boards and pipelines to keep business development on track and in check": "Add in or delete boards and pipelines to keep business development on track and in check",
+  "ice": "ice",
+  "Impact * Confidence * Ease": "Impact * Confidence * Ease",
+  "rice": "rice",
+  "(Reach * Impact * Confidence) / Effort": "(Reach * Impact * Confidence) / Effort",
+  "pie": "pie",
+  "(Potential + Importance + Ease) / 3": "(Potential + Importance + Ease) / 3",
+  "Metric": "Metric",
+  "Choose a metric": "Choose a metric",
+  "Add project": "Add project",
+  "Scoring type": "Scoring type",
+  "Choose template": "Choose template",
+  "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs": "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs",
+  "New Growth Hacking Templates": "New Growth Hacking Templates",
+  "Go to Campaign": "Go to Campaign",
+  "Stages": "Stages",
+  "Add another stage": "Add another stage",
+  "Build a form": "Build a form",
+  "Field preview": "Field preview",
+  "Field Label": "Field Label",
+  "Field description": "Field description",
+  "This field is required": "This field is required",
+  "Add textarea field": "Add textarea field",
+  "pipelines": "pipelines",
+  "pipeline": "pipeline",
+  "edit": "edit",
+  "Users eligible to see all": "Users eligible to see all",
+  "Show only the user's assigned(created)": "Show only the user's assigned(created)",
+  "All information and know-how related to your business's products and services are found here": "All information and know-how related to your business's products and services are found here",
+  "Create and add in unlimited products and servicess so that you and your team members can edit and share": "Create and add in unlimited products and servicess so that you and your team members can edit and share",
+  "Category": "Category",
+  "Unit Price": "Unit Price",
+  "Active": "Active",
+  "Archived": "Archived",
+  "Edit messenger integration": "Edit messenger integration",
+  "No file chosen": "No file chosen",
+  "Write here Greeting title": "Write here Greeting title",
+  "Write here Greeting message": "Write here Greeting message",
+  "Greeting message": "Greeting message",
+  "Greeting title": "Greeting title",
+  "Greeting": "Greeting",
+  "You Are": "You Are",
+  "Write here Greeting title.": "Write here Greeting title.",
+  "Choose a background color": "Choose a background color",
+  "Choose a text color": "Choose a text color",
+  "Intro": "Intro",
+  "Write here Welcome message": "Write here Welcome message",
+  "Write here Away message": "Write here Away message",
+  "Write here Thank you message": "Write here Thank you message",
+  "Integration Setup": "Integration Setup",
+  "creating": "creating",
+  "INTEGRATION NAME": "INTEGRATION NAME",
+  "Integration Name": "Integration Name",
+  "editing": "editing",
+  "Default Settings": "Default Settings",
+  "Default Language": "Default Language",
+  "Name this integration to differentiate from the rest": "Name this integration to differentiate from the rest",
+  "Name this popup to differentiate from the rest": "Name this popup to differentiate from the rest",
+  "Which specific Brand does this integration belong to?": "Which specific Brand does this integration belong to?",
+  "In which Channel(s) do you want to add this integration?": "In which Channel(s) do you want to add this integration?",
+  "We are ready to help you": "We are ready to help you",
+  "Add Pop Ups": "Add Pop Ups",
+  "You successfully added a form": "You successfully added a form",
+  "Learn how to connect a Gmail using IMAP": "Learn how to connect a Gmail using IMAP",
+  "Add Outlook": "Add Outlook",
+  "In order to connect Yahoo, you should generate the app password": "In order to connect Yahoo, you should generate the app password",
+  "Add Callpro": "Add Callpro",
+  "Add Chatfuel": "Add Chatfuel",
+  "Broadcast token": "Broadcast token",
+  "Add WhatsApp": "Add WhatsApp",
+  "Add Yahoo": "Add Yahoo",
+  "Add Telegram": "Add Telegram",
+  "Add Viber": "Viber нэмэх",
+  "Add Line": "Add Line",
+  "For websites and web apps with full-page refreshes": "For websites and web apps with full-page refreshes",
+  "For web apps built with asynchronous JavaScript": "For web apps built with asynchronous JavaScript",
+  "Paste the code below in main layout you want erxes chat to appear": "Paste the code below in main layout you want erxes chat to appear",
+  "Single page apps": "Single page apps",
+  "IOS": "IOS",
+  "Android": "Android",
+  "Add Erxes SDK to your iOS project in Xcode:": "Add Erxes SDK to your iOS project in Xcode:",
+  "then run": "then run",
+  "in terminal": "in terminal",
+  "Add a 'Privacy - Photo Library Usage Description' entry to your": "Add a 'Privacy - Photo Library Usage Description' entry to your",
+  "This is required by Apple": "This is required by Apple",
+  "and gives your users permission to upload images": "and gives your users permission to upload images",
+  "Open source:": "Open source:",
+  "Import ErxesSDK into your UIViewController class and you can start Erxes with following options:": " Import ErxesSDK into your UIViewController class and you can start Erxes with following options:",
+  "SAAS:": "SAAS:",
+  "Without user data": "Without user data",
+  "With user data": "With user data",
+  "then paste the following code into": "then paste the following code into",
+  "into your": "into your",
+  "class and you can start Erxes with following options:": "class and you can start Erxes with following options:",
+  "Add the JitPack repository to your build file": "Add the JitPack repository to your build file",
+  "Add it in your root build.gradle at the end of repositories:": "Add it in your root build.gradle at the end of repositories:",
+  "Add the dependency": "Add the dependency",
+  "Add it in your root": "Add it in your root",
+  "at the end of repositories:": "at the end of repositories:",
+  "Default configuration": "Default configuration",
+  "generated unique code of your brand": "generated unique code of your brand",
+  "erxes-widgets-api server url": "erxes-widgets-api server url",
+  "erxes-api subscription url": "erxes-api subscription url",
+  "erxes-api server url": "erxes-api server url",
+  "Start chat": "Start chat",
+  "Call a chat with login form": "Call a chat with login form",
+  "If your application has already registered with user , give user’s information with this way": "If your application has already registered with user , give user’s information with this way",
+  "Your browser does not support the video tag": "Your browser does not support the video tag",
+  "Meet with": "Meet with",
+  "Meeting Ready": "Meeting Ready",
+  "Please leave your contact details to start a conversation": "Please leave your contact details to start a conversation",
+  "Convert to a ticket": "Convert to a ticket",
+  "Invalid file type": "Invalid file type",
+  "Invalid Username": "Invalid username. Usernames must start with a letter. Allowed characters are a-z, 0-9, _, - (dash), and .(dot)",
+  "You successfully added a": "You successfully added a",
+  "For support teams": "For support teams",
+  "For sales teams": "For sales teams",
+  "For marketing teams": "For marketing teams",
+  "Email marketing": "Email marketing",
+  "Messaging": "Messaging",
+  "Marketing automation": "Marketing automation",
+  "Phone and video": "Phone and video",
+  "Social media": "Social media",
+  "Surveys and Feedback": "Surveys and Feedback",
+  "There aren’t any integrations at the moment": "There aren’t any integrations at the moment",
+  "Submit once": "Submit once",
+  "Archive this list?": "This will remove list from the board. To view archived list and bring them back to the board, click 'Menu' > 'Archived Items'. Are you sure",
+  "Archive All Cards in This List?": "This will remove all card list from the board. To view archived list and bring them back to the board, click 'Menu' > 'Archived Items'. Are you sure?",
+  "Add or overwrite default theme styles with your own custom css": "Add or overwrite default theme styles with your own custom css",
+  "Need help": "Need help",
+  "Need Help": "Need Help",
+  "Connect Integration": "Connect Integration",
+  "Resolve all": "Resolve all",
+  "Watch Tutorial": "Watch Tutorial",
+  "Manage Channels": "Manage Channels",
+  "Create Board & Group": "Create Board & Group",
+  "Add New Board": "Add New Board",
+  "Group & Calendar": "Group & Calendar",
+  "Is private": "Is private",
+  "There is no Channel": "There is no Channel",
+  "Choose board": "Choose board",
+  "Choose pipeline": "Choose pipeline",
+  "Hide Menu": "Hide Menu",
+  "Choose a source": "Choose a source",
+  "Oh boy, looks like you need to get a head start on your board": "Oh boy, looks like you need to get a head start on your board",
+  "Start Date": "Start Date",
+  "Awaiting Response": "Awaiting Response",
+  "Which integration would you like to connect?": "Which integration would you like to connect?",
+  "Tutorials": "Tutorials",
+  "See all Integration": "See all Integration",
+  "Facebook Post": "Facebook Post",
+  "Facebook Messenger": "Facebook Messenger",
+  "Email Deliveries": "Email Deliveries",
+  "Outgoing webhooks": "Outgoing webhooks",
+  "Ticket board & Pipelines": "Ticket board & Pipelines",
+  "Groups & Calendar": "Groups & Calendar",
+  "Task board & Pipelines": "Task board & Pipelines",
+  "Are you sure you want to resolve all conversations?": "Are you sure you want to resolve all conversations?",
+  "'s Integrations": "'s Integrations",
+  "Default stage": "Default stage",
+  "Welcome to erxes video tutorial": "Welcome to erxes video tutorial",
+  "Here is where you can check your performance and find some tips": "Here is where you can check your performance and find some tips",
+  "! For further help, please consult the": "! For further help, please consult the",
+  "Receiving Facebook post and comments in your team inbox": "Receiving Facebook post and comments in your team inbox",
+  "Receiving Facebook messages in your team inbox": "Receiving Facebook messages in your team inbox",
+  "Answer questions on your website with a live chat widget": "Answer questions on your website with a live chat widget",
+  "Connect your Gmail to start receiving emails in your team inbox": "Connect your Gmail to start receiving emails in your team inbox",
+  "Profile Settings": "Profile Settings",
+  "Organization settings": "Organization settings",
+  "System configuration": "System configuration",
+  "System Configuration": "System Configuration",
+  "Setting up stage": "Setting up stage",
+  "Using stage": "Using stage",
+  "Use Cases": "Use Cases",
+  "Please refer to the following playlist on the most up to date use case video guides": "Please refer to the following playlist on the most up to date use case video guides",
+  "8 steps": "8 steps",
+  "About 20 minutes": "About 20 minutes",
+  "19 steps": "19 steps",
+  "About 19 minutes": "About 19 minutes",
+  "6 steps": "6 steps",
+  "About 5 minutes": "About 5 minutes",
+  "These videos will help you accomplish tasks by combining multiple erxes features": "These videos will help you accomplish tasks by combining multiple erxes features",
+  "Team inbox": "Team inbox",
+  "Sales pipeline stage + Product service": "Sales pipeline stage + Product service",
+  "Campaign & Projects": "Campaign & Projects",
+  "Growth hacking template": "Growth hacking template",
+  "Task stage": "Task stage",
+  "Tickets stage": "Tickets stage",
+  "Tags - inbox, customer, engage pop, up": "Tags - inbox, customer, engage pop, up",
+  "Segments - customer": "Segments - customer",
+  "Permission - user group": "Permission - user group",
+  "Team members - invite": "Team members - invite",
+  "Email template": "Email template",
+  "Import/export - data": "Import/export - data",
+  "Script Manager": "Script Manager",
+  "No stage in this pipeline": "No stage in this pipeline",
+  "Create a Dashboard": "Create a Dashboard",
+  "Add chart from Library": "Add chart from Library",
+  "Create a new chart": "Create a new chart",
+  "Create custom charts": "Create custom charts",
+  "Add dashboard": "Add dashboard",
+  "Reports library": "Reports library",
+  "Back to Dashboard": "Back to Dashboard",
+  "+ Create New Project": "+ Create New Project",
+  "Background image:": "Background image:",
+  "Creating visitor segment": "Creating visitor segment",
+  "Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu": "Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu",
+  "Getting Started with erxes Knowledgebase": "Getting Started with erxes Knowledgebase",
+  "If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app": "If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app",
+  "Set up your initial account settings so that things run smoothly in unison": "Set up your initial account settings so that things run smoothly in unison",
+  "Export your data": "Export your data",
+  "If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them": "If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them",
+  "Export your data from your previous software or have your data sheet (csv, xls) ready": "Export your data from your previous software or have your data sheet (csv, xls) ready",
+  "Set up your integrations and start connecting with your customers, now you can reach them on wherever platform they feel most comfortable": "Set up your integrations and start connecting with your customers, Now you can reach them on wherever platform they feel most comfortable",
+  "Getting Started with erxes Messenger": "Getting Started with erxes Messenger",
+  "Connect your Facebook Posts to start receiving Facebook post and comments in your team inbox": "Connect your Facebook Posts to start receiving Facebook post and comments in your team inbox",
+  "Connect your": "Connect your",
+  "Facebook Posts": "Facebook Posts",
+  "Connect your Facebook Messenger to start receiving Facebook messages in your team inbox": "Connect your Facebook Messenger to start receiving Facebook messages in your team inbox",
+  "Search item...": "Search item...",
+  "Everyday": "Everyday",
+  "Weekdays": "Weekdays",
+  "Weekends": "Weekends",
+  "Monday": "Monday",
+  "Tuesday": "Tuesday",
+  "Wednesday": "Wednesday",
+  "Thursday": "Thursday",
+  "Friday": "Friday",
+  "Saturday": "Saturday",
+  "Sunday": "Sunday",
+  "Website Url": "Website Url",
+  "Button text": "Button text",
+  "Board & Pipeline": "Board & Pipeline",
+  "No label chosen": "No label chosen",
+  "Click on “Boards, Calendar, Conversions” to filter deals": "Click on “Boards, Calendar, Conversions” to filter deals",
+  "Getting Started with Sales Pipeline": "Getting Started with Sales Pipeline",
+  "Get started on your group": "Get started on your group",
+  "Add calendar": "Add calendar",
+  "Get started on your board": "Get started on your board",
+  "Calendar & Schedule": "Calendar & Schedule",
+  "Turn on to receive a submission from the visitor only once. Once a submission is received, the popup will not show.": "Turn on to receive a submission from the visitor only once. Once a submission is received, the popup will not show.",
+  "Add Imap": "Add Imap",
+  "IMAP Host": "IMAP Host",
+  "IMAP PORT": "IMAP PORT",
+  "SMTP Host": "SMTP Host",
+  "SMTP PORT": "SMTP PORT",
+  "There is no": "There is no",
+  "pipelineName": "pipelineName",
+  "You can export your data from the list on the left, If you wish to export your popup forms, go to Customer andßclick on Export Popups Data": "You can export your data from the list on the left, If you wish to export your popup forms, go to Customer and click on Export Popups Data",
+  "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc": "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc",
+  "Watch our tutorial": "Watch our tutorial",
+  "drive leads": "drive leads",
+  "Create a Board": "Create a Board",
+  "Create a Pipeline": "Create a Pipeline",
+  "Go to Board & Pipeline": "Go to Board & Pipeline",
+  "Create your first Sales Board": "Create your first Sales Board",
+  "Start adding Pipelines to the Board": "Start adding Pipelines to the Board",
+  "Tip: This could be equivalent to your brands and/or you can organize by year/project/etc": "Tip: This could be equivalent to your brands and/or you can organize by year/project/etc",
+  "Getting Started with Import & Export Feature": "Getting Started with Import & Export Feature",
+  "These steps will help you with importing or exporting your data to and from erxes": "These steps will help you with importing or exporting your data to and from erxes",
+  "Create Custom Properties": "Create Custom Properties",
+  "If you wish to import any properties that are not available on erxes, you need to create custom properties": "If you wish to import any properties that are not available on erxes, you need to create custom properties",
+  "You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Popups Data": "You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Popups Data",
+  "Choose the data type": "Choose the data type",
+  "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left": "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left",
+  "on the left": "on the left",
+  "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc": "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc",
+  "Learn More": "Learn More",
+  "Download Template": "Download Template",
+  "It's all about thinking ahead for your customers, Team members will be able to choose from email templates and send out one message to multiple recipients, You can use the email templates to send out a Mass email for leads/customers or you can send to other team members": "It's all about thinking ahead for your customers, Team members will be able to choose from email templates and send out one message to multiple recipients, You can use the email templates to send out a Mass email for leads/customers or you can send to other team members",
+  "Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites, Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites": "Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites, Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites",
+  "Getting Started with erxes Scripts": "Getting Started with erxes Scripts",
+  "Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, popups, etc)": "Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, popups, etc)",
+  "Generate the combination of scripts": "Generate the combination of scripts",
+  "Click on “New Script” and choose which widgets you’re going to display in a single page": "Click on “New Script” and choose which widgets you’re going to display in a single page",
+  "Copy the updated script and paste it into your website or Google Tag Manager": "Copy the updated script and paste it into your website or Google Tag Manager",
+  "New Release Available": "New Release Available",
+  "Please upgrade your erxes": "Please upgrade your erxes",
+  "Find out whats": "Find out whats",
+  "new in erxes": "new in erxes",
+  "Tip: Choose different views": "Tip: Choose different views",
+  "Creating customer segment": "Creating customer segment",
+  "Segment Name": "Segment Name",
+  "Export permissions": "Export permissions",
+  "permission": "permission",
+  "product": "product",
+  "deal": "deal",
+  "task": "task",
+  "ticket": "ticket",
+  "user": "user",
+  "brand": "brand",
+  "channel": "channel",
+  "Export brands": "Export brands",
+  "Export leads": "Export leads",
+  "Import leads": "Import leads",
+  "There are a ton of things you can do with": "There are a ton of things you can do with",
+  "segments": "segments",
+  "Email & SMS Marketing": "Email & SMS Marketing",
+  "customer segments": "customer segments",
+  "Setup a new segment": "Setup a new segment",
+  "There aren’t any filters at the moment": "There aren’t any filters at the moment ",
+  "You can create a segment by Property and/or by events": "You can create a segment by Property and/or by events",
+  "Install the Event Tracking script": "Install the Event Tracking script",
+  "Create your Segment": "Create your Segment",
+  "Go to Properties": "Go to Properties",
+  "Add Properties": "Add Properties",
+  "Show count": "Show count",
+  "Add Events": "Add Events",
+  "Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time": "Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time",
+  "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs, Add in or delete boards and pipelines to keep business development on track and in check": "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs, Add in or delete boards and pipelines to keep business development on track and in check",
+  "Not selected": "Not selected",
+  "Depending on your business type, you may type in a barcode or any other UPC (Universal Product Code), If you don't use UPC, type in any numeric value to differentiate your products": "Depending on your business type, you may type in a barcode or any other UPC (Universal Product Code), If you don't use UPC, type in any numeric value to differentiate your products",
+  "This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.": "This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.",
+  "Will be generated automatically when left blank": "Will be generated automatically when left blank",
+  "0.0.0.0 (optional)": "0.0.0.0 (optional)",
+  "Origin": "Origin",
+  "Script": "Script",
+  "Example payload": "Example payload",
+  "Deactivated": "Deactivated",
+  "Email address": "Email address",
+  "Choose group ...": "Choose group ...",
+  "add many at once": "add many at once",
+  "or": "or",
+  "You successfully deleted a channel.": "You successfully deleted a channel.",
+  "IMPORT CUSTOMERS": "aaa",
+  "Clean and prepare your data sheet": "Clean and prepare your data sheet",
+  "Go to Customers": "Go to Customers",
+  "Erxes integration status": "Erxes integration status",
+  "This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.": "This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.",
+  "Erxes api status": "Erxes api status",
+  "Boards": "Boards",
+  "Choose module": "Choose module",
+  "Choose action": "Choose action",
+  "See Releases": "See Releases",
+  "Getting Started with Contacts": "Getting Started with Contacts",
+  "Coordinate and manage all your customer interactions": "Coordinate and manage all your customer interactions",
+  "Import your previous contacts": "Import your previous contacts",
+  "Use Import feature to bulk import all your previous Customers or Leads": "Use Import feature to bulk import all your previous Customers or Leads",
+  "Go to Customer Import": "Go to Customer Import",
+  "Collect visitor information": "Collect visitor information",
+  "Create your erxes Messenger to start capturing Visitors": "Create your erxes Messenger to start capturing Visitors",
+  "Create Messenger": "Create Messenger",
+  "Sync email contacts": "Sync email contacts",
+  "Integrate your email address to sync previous email Leads": "Integrate your email address to sync previous email Leads",
+  "Visit AppStore": "Visit AppStore",
+  "Start capturing social media contacts": "Start capturing social media contacts",
+  "Integrate social media website to start capturing Leads": "Integrate social media website to start capturing Leads",
+  "Generate contacts through Popups": "Generate contacts through Popups",
+  "Create your popups and start collecting Leads": "Create your popups and start collecting Leads",
+  "Create a Popup": "Create a Popup",
+  "Enter company name": "Enter company name",
+  "Transaction": "Transaction",
+  "Make things easy for your team members and add in ready made response templates, Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle": "Make things easy for your team members and add in ready made response templates, Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle",
+  "Campaign & Project": "Campaign & Project",
+  "Get started on your project": "Get started on your project",
+  "New Campaign": "New Campaign",
+  "Choose Properties/View": "Choose Properties/View",
+  "Manage properties": "Manage properties",
+  "Expand table row": "Expand table row",
+  "Headquarters Country": "Headquarters Country",
+  "yes": "yes",
+  "Enter company phone": "Enter company phone",
+  "Export this contacts": "Export this contacts",
+  "There is no connected account": "There is no connected account",
+  "Month": "Month",
+  "Export visitors": "Export visitors",
+  "Tom action": "Tom action",
+  "New add": "New add",
+  "Add groups and fields of the exact information you want to see": "Add groups and fields of the exact information you want to see",
+  "Channels are important to know how and where your team members are spread out": "Channels are important to know how and where your team members are spread out",
+  "Manage your channels and stay at the top of your game": "Manage your channels and stay at the top of your game",
+  "Set up your integrations and start connecting with your customers": "Set up your integrations and start connecting with your customers",
+  "Now you can reach them on wherever platform they feel most comfortable": "Now you can reach them on wherever platform they feel most comfortable",
+  "The quick view finder helps you to view basic information on both companies and customers alike": "The quick view finder helps you to view basic information on both companies and customers alike",
+  "Your team members are the bolts and nuts of your business": "Your team members are the bolts and nuts of your business",
+  "Make sure all the parts are set and ready to go": "Make sure all the parts are set and ready to go",
+  "Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info": "Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info",
+  "The Segments feature helps you to filter, target, and engage a certain group of contacts": "The Segments feature helps you to filter, target, and engage a certain group of contacts",
+  "The Segments are used in the Contacts and Engage features": "The Segments are used in the Contacts and Engage features",
+  "Make sure you’re on the right page and  you want to segment by from the list on the left: Visitor, Lead, Customer, Company": "Make sure you’re on the right page and  you want to segment by from the list on the left: Visitor, Lead, Customer, Company",
+  "Here you can find data of all your previous imports of companies and customers": "Here you can find data of all your previous imports of companies and customers",
+  "Find out when they joined and their current status": "Find out when they joined and their current status",
+  "Nothing goes missing around here": "Nothing goes missing around here",
+  "Click on Download Template for importing": "Click on Download Template for importing",
+  "This is an important step, because your column titles need to match with erxes titles": "This is an important step, because your column titles need to match with erxes titles",
+  "Make sure the column titles match with the Template": "Make sure the column titles match with the Template",
+  "The order of the columns does not need to match": "The order of the columns does not need to match",
+  "Export team members": "Export team members",
+  "Export tickets": "Export tickets",
+  "Import tickets": "Import tickets",
+  "Export tasks": "Export tasks",
+  "Export channels": "Export channels",
+  "Export products": "Export products",
+  "Export sales pipelines": "Export sales pipelines",
+  "Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites": "Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites",
+  "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs": "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs",
+  "All information and know-how related to your business products and services are found here": "All information and know-how related to your business products and services are found here",
+  "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs": "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs",
+  "Add in or delete boards and calendars to keep business development on track and in check": "Add in or delete boards and calendars to keep business development on track and in check",
+  "There is no campaign": "There is no campaign",
+  "Track your entire sales pipeline from one dashboard": "Track your entire sales pipeline from one dashboard",
+  "You can also restrict access to your sales pipelines": "You can also restrict access to your sales pipelines",
+  "Drive leads to a successful close with our Kanban-style boards": "Drive leads to a successful close with our Kanban-style boards",
+  "Import": "Import",
+  "Add lead": "Add lead",
+  "Add New Campaign": "Add New Campaign",
+  "Create new Dashboard": "Create new Dashboard",
+  "There is no Dashboard": "There is no Dashboard",
+  "Subscribed": "Subscribed",
+  "Send an Email": "Send an Email",
+  "Health status": "Health status",
+  "Choose the knowledgebase": "Choose the knowledgebase",
+  "Choose the category": "Choose the category",
+  "Email statistics": "Email statistics",
+  "New campaign": "New campaign",
+  "Auto campaign": "Auto campaign",
+  "Manual campaign": "Manual campaign",
+  "Visitor auto campaign": "Visitor auto campaign",
+  "Campaigns": "Campaigns",
+  "Forms": "Forms",
+  "Style": "Style",
+  "Change email status ": "Change email status ",
+  "Change phone status ": "Change phone status",
+  "Filter by Forms": "Filter by Forms",
+  "Assigned to me": "Assigned to me",
+  "Date range:": "Date range:",
+  "Skills": "Skills",
+  "Create skill type": "Create skill type",
+  "Skill types": "Skill types",
+  "All Skills": "All Skills",
+  "New skill": "New skill",
+  "New Skill": "New Skill",
+  "name": "name",
+  "Skill type": "Skill type",
+  "Choose a skill type": "Choose a skill type",
+  "Get started by grouping the skills into types": "Get started by grouping the skills into types",
+  "For example, language skills": "For example, language skills",
+  "Add individual skills into your Skill Types": "Add individual skills into your Skill Types",
+  "The skills feature works with the erxes Messenger and the Team Inbox": "The skills feature works with the erxes Messenger and the Team Inbox",
+  "By creating and assigning certain skills to your team members, they will only see conversations that they have the skills for": "By creating and assigning certain skills to your team members, they will only see conversations that they have the skills for",
+  "As for the customers, they will see the option to choose from when interacting with you through the erxes Messenger": "As for the customers, they will see the option to choose from when interacting with you through the erxes Messenger",
+  "This way conversations are directed to the right person": "This way conversations are directed to the right person",
+  "New skill type": "New skill type",
+  "Error": "Error",
+  "SMS Deliveries": "SMS Deliveries",
+  "Creating brands and channels allows you can organize and view all messages and emails sent from customers under one platform": "Creating brands and channels allows you can organize and view all messages and emails sent from customers under one platform. Customizing the incoming communication channels is the foundation of all your effective operational process",
+  "You can bring all inboxes to one window and manage your interactions with your customers": "You can bring all inboxes to one window and manage your interactions with your customers. The shared Team Inbox keeps all history of your engagements It also provides tags and filter tools to help you work more productively",
+  "Create sales stages to track your entire sales pipeline from one dashboard": "Create sales stages to track your entire sales pipeline from one dashboard. Erxes also provides a field where you can add notes, tags, checklist dealine and all other useful tools to lead you successful sales.",
+  "Add and categorize your products and services to our system": "Add and categorize your products and services to our system. Storing them all in one place is a great way to stay organized.",
+  "Customizing your ticket stages will help you manage and keep track of the organization's internal operations and activities": "Customizing your ticket stages will help you manage and keep track of the organization's internal operations and activities. You can save time, manage your projects, monitor your team and increase your productivity in just a few clicks.",
+  "Evaluate the percentage of success on every idea by dividing them into categories": "Evaluate the percentage of success on every idea by dividing them into categories. This enables you to more effectively predict an experiment's impact.",
+  "A segment is smaller group of your contacts defined by rules or filters that you set": "A segment is smaller group of your contacts defined by rules or filters that you set. This can be used for target marketing.",
+  "Create campaigns that automatically deliver information to customers based on segments and labels": "Create campaigns that automatically deliver information to customers based on segments and labels. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can make manual and visitor auto campaigns as well.",
+  "Your responsive will determine your onboarindg guides": "Your responsive will determine your onboarindg guides. Each guide contains all-inclusive info on how to setup an organization from start to finish. You can re-select this later on.",
+  "Reports help you oversee the progress and effectiveness of your organization’s activities and make management decisions": "Reports help you oversee the progress and effectiveness of your organization’s activities and make management decisions. With charts and graphs, you can review the progression of your organization.",
+  "Managament": "Managament",
+  "Expand menu": "Expand menu",
+  "Collapse menu": "Collapse menu",
+  "Responses": "Responses",
+  "Team Settings": "Team Settings",
+  "Multipurpose Settings": "Multipurpose Settings",
+  "Set up your basic settings": "Set up your basic settings",
+  "Manage your team members and their usage": "Manage your team members and their usage",
+  "Organize your information with secondary features used across different core features": "Organize your information with secondary features used across different core features",
+  "Feature Settings": "Feature Settings",
+  "Setup and manage individual core features": "Setup and manage individual core features",
+  "Monitor": "Monitor",
+  "Keep track of your organization's status and activity": "Keep track of your organization's status and activity",
+  "Scheduler": "Scheduler",
+  "Widget Script Manager": "Widget Script Manager",
+  "Products & Services": "Products & Services",
+  "Products & Service": "Products & Service",
+  "Task Pipelines": "Task Pipelines",
+  "Ticket Pipelines": "Ticket Pipelines",
+  "Calendars": "Calendars",
+  "My Profile": "My Profile",
+  "Knowledgebase": "Knowledgebase",
+  "We're thrilled to have you on board and can't wait to see you set up your business here already": "We're thrilled to have you on board and can't wait to see you set up your business here already",
+  "Get Started": "Get Started",
+  "Forum": "Forum"
+}

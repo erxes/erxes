@@ -37,5 +37,4 @@ const AuthBox = styled.div`
   }
 `;
 
-
 export { AuthBox };

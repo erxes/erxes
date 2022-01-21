@@ -1,5 +1,6 @@
 import { QueryResponse } from '../types';
 import { IBrand } from '../brands/types';
+
 export interface IOnboardingHistory {
   _id: string;
   userId: string;
