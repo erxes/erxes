@@ -26,6 +26,7 @@ export default {
   segment: {
     schemas: []
   },
+  hasSubscriptions: true,
   apolloServerContext: context => {
     return context;
   },

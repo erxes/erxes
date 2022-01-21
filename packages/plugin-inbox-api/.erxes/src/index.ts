@@ -36,9 +36,11 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-if(configs.hasSubscriptions) {
+if (configs.hasSubscriptions) {
   app.get('/subscriptionPlugin.ts', async (req, res) => {
-    res.sendFile(path.join(__dirname, "../../src/graphql/subscriptionPlugin.ts"))
+    res.sendFile(
+      path.join(__dirname, '../../src/graphql/subscriptionPlugin.ts')
+    );
   });
 }
 
@@ -118,7 +120,7 @@ async function startServer() {
     // connect to mongo database
     await connect(mongoUrl);
     const messageBrokerClient = await initBroker(configs.name, app);
-    
+
     configs.onServerInit({
       app,
       pubsubClient: pubsub,

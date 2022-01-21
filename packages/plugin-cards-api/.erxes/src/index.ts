@@ -19,7 +19,7 @@ import { initBroker } from './messageBroker';
 import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-
+import * as path from 'path';
 import configs from '../../src/configs';
 import { join } from './serviceDiscovery';
 
@@ -35,6 +35,12 @@ app.use(cookieParser());
 app.get('/health', async (_req, res) => {
   res.end('ok');
 });
+
+if(configs.hasSubscriptions) {
+  app.get('/subscriptionPlugin.ts', async (req, res) => {
+    res.sendFile(path.join(__dirname, "../../src/graphql/subscriptionPlugin.ts"))
+  });
+}
 
 app.use((req: any, _res, next) => {
   req.rawBody = '';
@@ -112,7 +118,7 @@ async function startServer() {
     // connect to mongo database
     await connect(mongoUrl);
     const messageBrokerClient = await initBroker(configs.name, app);
-
+    
     configs.onServerInit({
       app,
       pubsubClient: pubsub,
@@ -128,7 +134,8 @@ async function startServer() {
       name: configs.name,
       port: PORT || '',
       dbConnectionString: mongoUrl,
-      segment: configs.segment
+      segment: configs.segment,
+      hasSubscriptions: configs.hasSubscriptions
     });
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);
