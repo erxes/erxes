@@ -11,7 +11,7 @@ Erxes 0.12.0 release contains the number of new features, resolved issues and im
 
 <!--truncate-->
 
-#### What’s new:
+#### What’s new in this version:
 
 - **Form: ability to change CSS from parent website.** In some cases, the developers want to hide form title, button or modify some auto-generated CSS, now it can pass  their desired CSS as a string config to install code.
 - **Form: ability to call submit action from parent website.** In some cases, developers want to do some action user click as a submit button. Now there is able to listen for callSubmit action from outside to force submit action.
