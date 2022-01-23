@@ -1,4 +1,4 @@
-import { commonCompaignInputs, commonCompaignTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes, commonFilterTypes, paginateTypes } from './common';
 
 export const types = `
   type DonateCompaign {
@@ -7,6 +7,8 @@ export const types = `
 
     maxScore: Float
     awards: JSON
+
+    donatesCount: Int,
   }
 `;
 
@@ -18,7 +20,8 @@ const DonateCompaignDoc = `
 
 export const queries = `
   donateCompaignDetail(_id: String!): DonateCompaign
-  donateCompaigns(searchValue: String, filterStatus: String, page: Int, perPage: Int): [DonateCompaign]
+  donateCompaigns(${commonFilterTypes} ${paginateTypes}): [DonateCompaign]
+  donateCompaignsCount(${commonFilterTypes}): Int
 `;
 
 export const mutations = `

@@ -1,18 +1,30 @@
-import {
-  __, Alert, Button, confirm, DataWithLoader, FormControl, ModalTrigger, Pagination, router,
-  SortHandler, Table, Wrapper, BarItems, MainStyleTitle as Title, MainStyleCount as Count
-} from 'erxes-ui';
-import { IRouterProps } from 'erxes-ui/lib/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
-
-import VoucherForm from '../containers/Form';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import { IVoucher } from '../types';
-import VoucherRow from './Row';
 import Sidebar from './Sidebar';
+import VoucherForm from '../containers/Form';
+import VoucherRow from './Row';
+import {
+  __,
+  Alert,
+  BarItems,
+  Button,
+  confirm,
+  DataWithLoader,
+  FormControl,
+  MainStyleCount as Count,
+  MainStyleTitle as Title,
+  ModalTrigger,
+  Pagination,
+  router,
+  SortHandler,
+  Table,
+  Wrapper
+} from 'erxes-ui';
+import { IRouterProps, IQueryParams } from 'erxes-ui/lib/types';
+import { IVoucher } from '../types';
 import { IVoucherCompaign } from '../../../configs/voucherCompaign/types';
+import { LoyaltiesTableWrapper } from '../../common/styles';
 import { menuLoyalties } from '../../common/constants';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   vouchers: IVoucher[];
@@ -28,7 +40,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeVouchers: (doc: { voucherIds: string[] }, emptyBulk: () => void) => void;
   history: any;
-  queryParams: any;
+  queryParams: IQueryParams;
 }
 
 type State = {
@@ -143,6 +155,7 @@ class VouchersList extends React.Component<IProps, State> {
                 history={history}
                 toggleBulk={toggleBulk}
                 currentCompaign={currentCompaign}
+                queryParams={queryParams}
               />
             ))}
           </tbody>

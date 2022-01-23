@@ -52,13 +52,20 @@ export const validCompaign = (doc) => {
 export const changeScoreOwner = async (models, { ownerType, ownerId, changeScore }) => {
   let owner;
   let collection;
+
   if (ownerType === 'customer') {
     collection = models.Customers;
     owner = models.Customers.findOne({ _id: ownerId }).lean();
   }
+
   if (ownerType === 'user') {
     collection = models.Users;
     owner = models.Users.findOne({ _id: ownerId }).lean();
+  }
+
+  if (ownerType === 'company') {
+    collection = models.Compaines;
+    owner = models.Companies.findOne({ _id: ownerId }).lean();
   }
 
   if (!owner) {
@@ -66,12 +73,11 @@ export const changeScoreOwner = async (models, { ownerType, ownerId, changeScore
   }
 
   const oldScore = owner.score || 0;
+  const newScore = oldScore + changeScore;
 
-  if (changeScore < 0 && oldScore < changeScore * -1) {
+  if (changeScore < 0 && newScore < 0) {
     throw new Error(`score are not enough`);
   }
-
-  const newScore = oldScore + changeScore;
 
   await collection.updateOne({ _id: ownerId }, { $set: { score: newScore } });
   return newScore;

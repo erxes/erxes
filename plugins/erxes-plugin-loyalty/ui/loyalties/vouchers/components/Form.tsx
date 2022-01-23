@@ -1,16 +1,20 @@
-import {
-  __, Button, ControlLabel, Form, FormControl, FormGroup, Icon,
-  MainStyleFormColumn as FormColumn, MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter, MainStyleScrollWrapper as ScrollWrapper,
-  SelectTeamMembers, MainStyleDateContainer as DateContainer, SelectCustomers, SelectCompanies
-} from 'erxes-ui';
-import { IUser } from 'erxes-ui/lib/auth/types';
-import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
-
 import React from 'react';
-import Select from 'react-select-plus';
-import { IVoucherCompaign } from '../../../configs/voucherCompaign/types';
+import {
+  __,
+  Button,
+  ControlLabel,
+  Form,
+  FormControl,
+  FormGroup,
+  MainStyleModalFooter as ModalFooter,
+  MainStyleScrollWrapper as ScrollWrapper,
+  SelectCompanies,
+  SelectCustomers,
+  SelectTeamMembers
+} from 'erxes-ui';
+import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
 import { IVoucher, IVoucherDoc } from '../types';
+import { IVoucherCompaign } from '../../../configs/voucherCompaign/types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -76,24 +80,6 @@ class VoucherForm extends React.Component<Props, State> {
       </FormGroup>
     );
   };
-
-  // onDateChange = (field, date) => {
-  //   this.setState({ voucher: { ...this.state.voucher, [field]: date } } as any);
-  // };
-
-  // renderDate = (name, formProps) => {
-  //   return (
-  //     <DateContainer>
-  //       <DateControl
-  //         {...formProps}
-  //         required={false}
-  //         name={name}
-  //         value={this.state.moreValues[name]}
-  //         onChange={this.onDateChange.bind(this, name)}
-  //       />
-  //     </DateContainer>
-  //   )
-  // }
 
   onChangeSelect = (e) => {
     const { voucher } = this.state;

@@ -1,4 +1,4 @@
-import { commonSchema } from "./CompaignUtils";
+import { changeScoreOwner, commonSchema } from "./CompaignUtils";
 
 export const donateSchema = {
   ...commonSchema,
@@ -20,11 +20,19 @@ export class Donate {
   }
 
   public static async getDonates(models, { ownerType, ownerId }: { ownerType: string, ownerId: string }) {
-    return await models.Spins.find({ ownerType, ownerId }).lean()
+    return await models.Donates.find({ ownerType, ownerId }).lean()
   }
 
   public static async createDonate(models, { compaignId, ownerType, ownerId, score }) {
-    const donateCompaign = await models.DonatesCompaign.getSpinCompaign(models, compaignId);
+    if (!score) {
+      throw new Error('Not create donate, score is NaN');
+    }
+
+    if (!ownerId || !ownerType) {
+      throw new Error('Not create donate, owner is undefined');
+    }
+
+    const donateCompaign = await models.DonateCompaigns.getDonateCompaign(models, compaignId);
 
     const now = new Date();
 
@@ -53,6 +61,12 @@ export class Donate {
       }
     }
 
+    await changeScoreOwner(models, { ownerType, ownerId, changeScore: -1 * score });
+
     return await models.Donates.create({ compaignId, ownerType, ownerId, createdAt: new Date(), donateScore: score, voucherCompaignId: fitAward.voucherCompaignId, voucherId: voucher._id });
+  }
+
+  public static async removeDonates(models, _ids: string[]) {
+    return models.Donates.deleteMany({ _id: { $in: _ids } })
   }
 }

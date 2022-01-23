@@ -28,13 +28,6 @@ export type RemoveMutationResponse = {
 };
 
 // query types
-export type ListQueryVariables = {
-  page?: number;
-  perPage?: number;
-  sortField?: string;
-  sortDirection?: number;
-};
-
 export type MainQueryResponse = {
   vouchersMain: { list: IVoucher[]; totalCount: number };
   loading: boolean;

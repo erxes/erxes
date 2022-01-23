@@ -1,22 +1,30 @@
-import { commonFields } from '../../commonTypes';
+import { commonFields, commonFilterDefs, commonFilterValues, paginateDefs, paginateValues } from '../../commonTypes';
 
 export const donateCompaignFields = `
   _id
   ${commonFields}
   maxScore
   awards
+
+  donatesCount
 `;
 
 const donateCompaigns = `
-  query donateCompaigns($searchValue: String, $filterStatus: String, $page: Int, $perPage: Int) {
-    donateCompaigns(searchValue: $searchValue, filterStatus: $filterStatus, page: $page, perPage: $perPage) {
+  query donateCompaigns(${commonFilterDefs} ${paginateDefs}) {
+    donateCompaigns(${commonFilterValues} ${paginateValues}) {
       ${donateCompaignFields}
     }
   }
 `;
 
+const donateCompaignsCount = `
+  query donateCompaignsCount(${commonFilterDefs}) {
+    donateCompaignsCount(${commonFilterValues})
+  }
+`;
+
 const donateCompaignDetail = `
-  query donateCompaignDetail($_id: String) {
+  query donateCompaignDetail($_id: String!) {
     donateCompaignDetail(_id: $_id) {
       ${donateCompaignFields}
     }
@@ -25,5 +33,6 @@ const donateCompaignDetail = `
 
 export default {
   donateCompaigns,
+  donateCompaignsCount,
   donateCompaignDetail
 };

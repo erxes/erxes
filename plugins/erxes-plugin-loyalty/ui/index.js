@@ -4,6 +4,9 @@ import LoyaltySectionContainer from './loyalties/containers/LoyaltySection';
 import Settings from './configs/general/containers/Settings';
 import VoucherCompaigns from './configs/voucherCompaign/containers/List';
 import Vouchers from './loyalties/vouchers/containers/List';
+import Lotteries from './loyalties/lotteries/containers/List';
+import Spins from './loyalties/spins/containers/List';
+import Donates from './loyalties/donates/containers/List';
 import DonateCompaigns from './configs/donateCompaign/containers/List';
 import LotteryCompaigns from './configs/lotteryCompaign/containers/List';
 import SpinCompaigns from './configs/spinCompaign/containers/List';
@@ -54,6 +57,33 @@ const vouchers = ({ location, history }) => {
   );
 };
 
+const lotteries = ({ location, history }) => {
+  return (
+    <Lotteries
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const spins = ({ location, history }) => {
+  return (
+    <Spins
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const donates = ({ location, history }) => {
+  return (
+    <Donates
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const customerSection = (param) => {
   return (
     <LoyaltySectionContainer ownerId={param.customerId} ownerType='customer'/>
@@ -85,7 +115,19 @@ export default () => ({
     {
       path: '/vouchers',
       component: vouchers
-    }
+    },
+    {
+      path: '/lotteries',
+      component: lotteries
+    },
+    {
+      path: '/spins',
+      component: spins
+    },
+    {
+      path: '/donates',
+      component: donates
+    },
   ],
   menu: {
     label: 'Loyalty',

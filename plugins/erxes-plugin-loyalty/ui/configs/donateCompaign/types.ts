@@ -9,12 +9,26 @@ export type IDonateCompaignAward = {
 
 export type IDonateCompaign = ICommonTypes & {
   maxScore?: number,
-  awards?: IDonateCompaignAward[]
+  awards?: IDonateCompaignAward[],
+
+  donatesCount?: number,
 };
 
 // query types
 export type DonateCompaignQueryResponse = {
   donateCompaigns: IDonateCompaign[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type DonateCompaignDetailQueryResponse = {
+  donateCompaignDetail: IDonateCompaign;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type DonateCompaignsCountQueryResponse = {
+  donateCompaignsCount: number;
   loading: boolean;
   refetch: () => void;
 };

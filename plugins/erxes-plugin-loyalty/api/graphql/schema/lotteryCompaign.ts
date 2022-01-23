@@ -1,4 +1,4 @@
-import { commonCompaignInputs, commonCompaignTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes, commonFilterTypes, paginateTypes } from './common';
 
 export const types = `
   type LotteryCompaign {
@@ -7,7 +7,9 @@ export const types = `
     lotteryDate: Date,
     numberFormat: String,
     buyScore: Float,
-    awards: JSON
+    awards: JSON,
+
+    lotteriesCount: Int,
   }
 `;
 
@@ -21,7 +23,8 @@ const LotteryCompaignDoc = `
 
 export const queries = `
   lotteryCompaignDetail(_id: String!): LotteryCompaign
-  lotteryCompaigns(searchValue: String, filterStatus: String, page: Int, perPage: Int): [LotteryCompaign]
+  lotteryCompaigns(${commonFilterTypes} ${paginateTypes}): [LotteryCompaign]
+  lotteryCompaignsCount(${commonFilterTypes}): Int
 `;
 
 export const mutations = `

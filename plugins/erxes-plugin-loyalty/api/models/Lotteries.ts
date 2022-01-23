@@ -28,6 +28,10 @@ export class Lottery {
   }
 
   public static async createLottery(models, { compaignId, ownerType, ownerId, voucherCompaignId = '', userId = '' }) {
+    if (!ownerId || !ownerType) {
+      throw new Error('Not create lottery, owner is undefined');
+    }
+
     const lotteryCompaign = await models.LotteryCompaigns.getLotteryCompaign(models, compaignId);
 
     const now = new Date();
@@ -41,6 +45,10 @@ export class Lottery {
   }
 
   public static async buyLottery(models, { compaignId, ownerType, ownerId, count = 1 }) {
+    if (!ownerId || !ownerType) {
+      throw new Error('can not buy lottery, owner is undefined');
+    }
+
     const lotteryCompaign = await models.LotteryCompaigns.getLotteryCompaign(models, compaignId);
 
     if (!lotteryCompaign.buyScore) {
@@ -49,5 +57,9 @@ export class Lottery {
     await changeScoreOwner(models, { ownerType, ownerId, changeScore: -1 * lotteryCompaign.buyScore * count });
 
     return models.createLottery(models, { compaignId, ownerType, ownerId });
+  }
+
+  public static async removeLotteries(models, _ids: string[]) {
+    return models.Lotteries.deleteMany({ _id: { $in: _ids } })
   }
 }

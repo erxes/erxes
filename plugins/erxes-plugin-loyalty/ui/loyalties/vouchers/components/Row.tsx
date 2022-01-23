@@ -9,6 +9,7 @@ import {
   renderFullName,
   renderUserFullName
 } from 'erxes-ui';
+import { IQueryParams } from 'erxes-ui/lib/types';
 import { IVoucher } from '../types';
 import { IVoucherCompaign } from '../../../configs/voucherCompaign/types';
 import { Link } from 'react-router-dom';
@@ -20,6 +21,7 @@ type Props = {
   history: any;
   isChecked: boolean;
   toggleBulk: (voucher: IVoucher, isChecked?: boolean) => void;
+  queryParams: IQueryParams;
 };
 
 class VoucherRow extends React.Component<Props> {

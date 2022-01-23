@@ -1,4 +1,4 @@
-import { commonCompaignInputs, commonCompaignTypes } from './common';
+import { commonCompaignInputs, commonCompaignTypes, commonFilterTypes, paginateTypes } from './common';
 
 export const types = `
   type SpinCompaign {
@@ -6,6 +6,8 @@ export const types = `
     ${commonCompaignTypes}
     buyScore: Float,
     awards: JSON
+
+    spinsCount: Int,
   }
 `;
 
@@ -17,7 +19,8 @@ const SpinCompaignDoc = `
 
 export const queries = `
   spinCompaignDetail(_id: String!): SpinCompaign
-  spinCompaigns(searchValue: String, filterStatus: String, page: Int, perPage: Int): [SpinCompaign]
+  spinCompaigns(${commonFilterTypes} ${paginateTypes}): [SpinCompaign]
+  spinCompaignsCount(${commonFilterTypes}): Int
 `;
 
 export const mutations = `

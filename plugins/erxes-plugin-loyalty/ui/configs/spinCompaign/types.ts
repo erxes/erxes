@@ -9,11 +9,25 @@ export type ISpinCompaignAward = {
 export type ISpinCompaign = ICommonTypes & {
   buyScore?: number,
   awards?: ISpinCompaignAward[]
+
+  spinsCount?: number
 };
 
 // query types
 export type SpinCompaignQueryResponse = {
   spinCompaigns: ISpinCompaign[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type SpinCompaignDetailQueryResponse = {
+  spinCompaignDetail: ISpinCompaign;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type SpinCompaignsCountQueryResponse = {
+  spinCompaignsCount: number;
   loading: boolean;
   refetch: () => void;
 };

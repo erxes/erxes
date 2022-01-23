@@ -1,4 +1,4 @@
-import { commonFields } from '../../commonTypes';
+import { commonFields, commonFilterDefs, commonFilterValues, paginateDefs, paginateValues } from '../../commonTypes';
 
 export const lotteryCompaignFields = `
   _id
@@ -7,18 +7,26 @@ export const lotteryCompaignFields = `
   numberFormat
   buyScore
   awards
+
+  lotteriesCount
 `;
 
 const lotteryCompaigns = `
-  query lotteryCompaigns($searchValue: String, $filterStatus: String, $page: Int, $perPage: Int) {
-    lotteryCompaigns(searchValue: $searchValue, filterStatus: $filterStatus, page: $page, perPage: $perPage) {
+  query lotteryCompaigns(${commonFilterDefs} ${paginateDefs}) {
+    lotteryCompaigns(${commonFilterValues} ${paginateValues}) {
       ${lotteryCompaignFields}
     }
   }
 `;
 
+const lotteryCompaignsCount = `
+  query lotteryCompaignsCount(${commonFilterDefs}) {
+    lotteryCompaignsCount(${commonFilterValues})
+  }
+`;
+
 const lotteryCompaignDetail = `
-  query lotteryCompaignDetail($_id: String) {
+  query lotteryCompaignDetail($_id: String!) {
     lotteryCompaignDetail(_id: $_id) {
       ${lotteryCompaignFields}
     }
@@ -27,5 +35,6 @@ const lotteryCompaignDetail = `
 
 export default {
   lotteryCompaigns,
+  lotteryCompaignsCount,
   lotteryCompaignDetail
 };

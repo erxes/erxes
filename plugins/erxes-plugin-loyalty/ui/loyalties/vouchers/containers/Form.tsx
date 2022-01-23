@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps, ButtonMutate } from 'erxes-ui';
-import { IButtonMutateProps, IQueryParams } from 'erxes-ui/lib/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
 import Form from '../components/Form';
-import { mutations, queries } from '../graphql';
-import { queries as compaignQueries } from '../../../configs/voucherCompaign/graphql';
-import { IVoucher } from '../types';
-import { UsersQueryResponse } from 'erxes-ui/lib/auth/types';
+import gql from 'graphql-tag';
+import React from 'react';
+import { ButtonMutate, withProps } from 'erxes-ui';
+import { graphql } from 'react-apollo';
+import { IButtonMutateProps, IQueryParams } from 'erxes-ui/lib/types';
 import { IUser } from 'erxes-ui/lib/auth/types';
+import { IVoucher } from '../types';
+import { mutations } from '../graphql';
+import { queries as compaignQueries } from '../../../configs/voucherCompaign/graphql';
+import { UsersQueryResponse } from 'erxes-ui/lib/auth/types';
 import { VoucherCompaignQueryResponse } from '../../../configs/voucherCompaign/types';
 
 type Props = {
@@ -22,7 +22,8 @@ type FinalProps = {
   usersQuery: UsersQueryResponse;
   currentUser: IUser;
   voucherCompaignsQuery: VoucherCompaignQueryResponse;
-} & Props & IQueryParams;
+  queryParams: IQueryParams;
+} & Props;
 
 class VoucherFromContainer extends React.Component<FinalProps> {
   render() {
@@ -91,14 +92,12 @@ const getOptions = (props) => {
     return {
       variables: {
         equalTypeCompaignId: voucher.compaignId,
-        fetchPolicy: 'network-only'
-      }
+      },
+      fetchPolicy: 'network-only'
     }
   }
   return {
-    variables: {
-      fetchPolicy: 'network-only'
-    }
+    fetchPolicy: 'network-only'
   }
 }
 

@@ -196,7 +196,7 @@ class Form extends React.Component<Props, State> {
       return Alert.error('must choose format type and format len');
     }
     let { numberFormat } = this.state.lotteryCompaign;
-    numberFormat = `${numberFormat || ''}${`{ [ ${perFormatType} ] * ${perFormatLen} }`}`
+    numberFormat = `${numberFormat || ''}${`{ [${perFormatType}] * ${perFormatLen} }`}`
     this.setState({ lotteryCompaign: { ...this.state.lotteryCompaign, numberFormat } });
   }
 

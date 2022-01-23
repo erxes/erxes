@@ -28,7 +28,17 @@ export class Voucher {
   }
 
   public static async createVoucher(models, { compaignId, ownerType, ownerId, userId = '' }) {
+    if (!ownerId || !ownerType) {
+      throw new Error('Not create voucher, owner is undefined');
+    }
+
     const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, compaignId);
+
+    const now = new Date();
+
+    if (voucherCompaign.startDate > now || voucherCompaign.endDate < now) {
+      throw new Error('Not create spin, expired');
+    }
 
     switch (voucherCompaign.voucherType) {
       case 'spin':
@@ -46,6 +56,10 @@ export class Voucher {
   }
 
   public static async buyVoucher(models, { compaignId, ownerType, ownerId, count = 1 }) {
+    if (!ownerId || !ownerType) {
+      throw new Error('can not buy voucher, owner is undefined');
+    }
+
     const voucherCompaign = await models.VoucherCompaigns.getVoucherCompaign(models, compaignId);
 
     if (!voucherCompaign.buyScore) {

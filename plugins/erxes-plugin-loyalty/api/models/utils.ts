@@ -32,6 +32,7 @@ export const getRandomNumber = (number) => {
   const result = []
   for (const item of items) {
     let str = item;
+
     if (re.test(str)) {
       const key = (str.match(/\[.-..?\]/g)[0] || '').replace('[', '').replace(']', '');
       const len = parseInt((str.match(/ \* [0-9]* /g)[0] || '').substring(3) || 0);
@@ -39,8 +40,8 @@ export const getRandomNumber = (number) => {
       str = generateRandom(key, len)
     }
 
-    result.push(item)
+    result.push(str)
   }
 
-  return result.join()
+  return result.join('')
 }

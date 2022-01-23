@@ -27,6 +27,10 @@ export class Spin {
   }
 
   public static async createSpin(models, { compaignId, ownerType, ownerId, voucherCompaignId = '', userId = '' }) {
+    if (!ownerId || !ownerType) {
+      throw new Error('Not create spin, owner is undefined');
+    }
+
     const spinCompaign = await models.SpinCompaigns.getSpinCompaign(models, compaignId);
 
     const now = new Date();
@@ -39,6 +43,10 @@ export class Spin {
   }
 
   public static async buySpin(models, { compaignId, ownerType, ownerId, count = 1 }) {
+    if (!ownerId || !ownerType) {
+      throw new Error('can not buy spin, owner is undefined');
+    }
+
     const spinCompaign = await models.SpinCompaigns.getSpinCompaign(models, compaignId);
 
     if (!spinCompaign.buyScore) {
@@ -48,6 +56,10 @@ export class Spin {
     await changeScoreOwner(models, { ownerType, ownerId, changeScore: -1 * spinCompaign.buyScore * count });
 
     return models.Spins.createSpin(models, { compaignId, ownerType, ownerId });
+  }
+
+  public static async removeSpins(models, _ids: string[]) {
+    return models.Spins.deleteMany({ _id: { $in: _ids } })
   }
 
   public static async doSpin(models, { spinId, ownerType, ownerId }) {

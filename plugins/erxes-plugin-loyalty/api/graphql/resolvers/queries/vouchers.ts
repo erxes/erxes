@@ -2,7 +2,7 @@ export default [
   {
     name: 'vouchers',
     handler: async (_root, params, { models, checkPermission, user }) => {
-      return models.Vouchers.getVouchers(models, {...params, statuses: ['new']})
+      return models.Vouchers.getVouchers(models, { ...params, statuses: ['new'] })
     }
   },
   {
@@ -18,24 +18,24 @@ export default [
       const compaignFilter: any = {}
       const voucherFilter: any = {}
 
-      if (params.status) {
-        compaignFilter.status = params.status
-        voucherFilter.status = params.status
-      }
-
       if (params.compaignId) {
         compaignFilter.compaignId = params.compaignId
         voucherFilter.voucherCompaignId = params.compaignId
       }
 
-      if (params.ownerType ) {
-        compaignFilter.ownerType = params.ownerType
-        voucherFilter.ownerType = params.ownerType
+      if (params.status) {
+        filter.status = params.status
+        filter.status = params.status
       }
 
-      if (params.ownerId ) {
-        compaignFilter.ownerId = params.ownerId
-        voucherFilter.ownerId = params.ownerId
+      if (params.ownerType) {
+        filter.ownerType = params.ownerType
+        filter.ownerType = params.ownerType
+      }
+
+      if (params.ownerId) {
+        filter.ownerId = params.ownerId
+        filter.ownerId = params.ownerId
       }
 
       const aggregate = [

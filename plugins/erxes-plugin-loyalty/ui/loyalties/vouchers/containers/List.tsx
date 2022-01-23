@@ -10,7 +10,6 @@ import { mutations, queries } from '../graphql';
 import { queries as compaignQueries } from '../../../configs/voucherCompaign/graphql';
 import { VoucherCompaignDetailQueryResponse } from '../../../configs/voucherCompaign/types';
 import {
-  ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
@@ -114,7 +113,7 @@ const generateOptions = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
+    graphql<{ queryParams: any }, MainQueryResponse>(
       gql(queries.vouchersMain),
       {
         name: 'vouchersMainQuery',

@@ -5,6 +5,9 @@ import loyaltyConfigQueries from './resolvers/queries/configs';
 import spinCompaignQueries from './resolvers/queries/spinCompaigns';
 import voucherCompaignQueries from './resolvers/queries/voucherCompaigns';
 import voucherQueries from './resolvers/queries/vouchers';
+import donateQueries from './resolvers/queries/donates';
+import spinQueries from './resolvers/queries/spins';
+import lotteryQueries from './resolvers/queries/lotteries';
 
 const loyaltyQueries = [
   ...donateCompaignQueries,
@@ -14,6 +17,10 @@ const loyaltyQueries = [
   ...lotteryCompaignQueries,
   ...spinCompaignQueries,
   ...voucherQueries,
+  ...donateQueries,
+  ...spinQueries,
+  ...lotteryQueries,
+
 ]
 
 export default loyaltyQueries;
