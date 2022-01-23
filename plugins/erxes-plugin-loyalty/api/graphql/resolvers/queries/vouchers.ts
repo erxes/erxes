@@ -1,12 +1,7 @@
-import { paginate } from 'erxes-api-utils'
-
-
-
 export default [
   {
     name: 'vouchers',
     handler: async (_root, params, { models, checkPermission, user }) => {
-      console.log(params, 'ddddddddddddd')
       return models.Vouchers.getVouchers(models, {...params, statuses: ['new']})
     }
   },
@@ -14,7 +9,6 @@ export default [
     name: 'vouchersMain',
     handler: async (_root, params, { models, checkPermission, user }) => {
       const { page = 0, perPage = 0 } = params;
-      console.log(params)
 
       const _page = Number(page || "1");
       const _limit = Number(perPage || "20");
