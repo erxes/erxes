@@ -13,6 +13,7 @@ export const commonParamsDef = `
   $page: Int
   $perPage: Int
   $compaignId: String
+  $status: String
   $ownerId: String
   $ownerType: String
 `;
@@ -21,6 +22,7 @@ export const commonParamsValue = `
   page: $page
   perPage: $perPage
   compaignId: $compaignId
+  status: $status
   ownerId: $ownerId
   ownerType: $ownerType
 `;

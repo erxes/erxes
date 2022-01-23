@@ -24,6 +24,11 @@ export default [
       const compaignFilter: any = {}
       const voucherFilter: any = {}
 
+      if (params.status) {
+        compaignFilter.status = params.status
+        voucherFilter.status = params.status
+      }
+
       if (params.compaignId) {
         compaignFilter.compaignId = params.compaignId
         voucherFilter.voucherCompaignId = params.compaignId

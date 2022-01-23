@@ -218,7 +218,6 @@ class VouchersList extends React.Component<IProps, State> {
         header={
           <Wrapper.Header
             title={__(`Vouchers`) + ` (${totalCount})`}
-            queryParams={queryParams}
             submenu={menuLoyalties}
           />
         }

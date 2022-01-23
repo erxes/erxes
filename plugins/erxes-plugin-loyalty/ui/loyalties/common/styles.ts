@@ -73,7 +73,6 @@ const ActionButtons = styled.div`
   }
 `;
 
-
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -119,11 +118,17 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
+const SidebarFilters = styledTS(styled.div)`
+  overflow: hidden;
+  padding: 5px 15px 30px 15px;
+`;
+
 export {
   LoyaltiesTableWrapper,
   List,
   FlexItem,
   GroupWrapper,
   SidebarListItem,
-  ActionButtons
+  ActionButtons,
+  SidebarFilters
 };

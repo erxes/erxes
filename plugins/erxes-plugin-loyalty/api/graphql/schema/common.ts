@@ -65,5 +65,5 @@ export const commonFilters = `
   compaignId: String,
   ownerType: String,
   ownerId: String,
-  statuses: [String],
+  status: String,
 `

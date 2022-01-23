@@ -96,6 +96,7 @@ const generateParams = ({ queryParams }) => ({
     ...router.generatePaginationParams(queryParams || {}),
     ids: queryParams.ids,
     compaignId: queryParams.compaignId,
+    status: queryParams.status,
     ownerId: queryParams.ownerId,
     ownerType: queryParams.ownerType,
     searchValue: queryParams.searchValue,

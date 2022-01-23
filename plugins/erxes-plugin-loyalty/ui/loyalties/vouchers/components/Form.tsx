@@ -178,7 +178,7 @@ class VoucherForm extends React.Component<Props, State> {
               {...formProps}
               name="ownerType"
               componentClass="select"
-              defaultValue={voucher.compaignId}
+              defaultValue={voucher.ownerType}
               required={true}
               onChange={this.onChangeSelect}
             >
