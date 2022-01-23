@@ -82,7 +82,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
     path: "/graphql",
   });
 
-  const gateway: ApolloGateway = createGateway();
+  const gateway: ApolloGateway = await createGateway();
 
   const apolloServer = new ApolloServer({
     gateway,
