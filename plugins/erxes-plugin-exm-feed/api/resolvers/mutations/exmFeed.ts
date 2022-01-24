@@ -73,8 +73,8 @@ const exmFeedMutations = [
       await sendMobileNotification(models, {
         title: doc.title,
         body: doc.description,
-        // receivers: ['x4GGpXWmy4tmBDBgv']
-        receivers: ['4vh3TyTTmodDALqGA']
+        receivers: ['x4GGpXWmy4tmBDBgv']
+        // receivers: ['4vh3TyTTmodDALqGA']
       });
 
       return exmFeed;
