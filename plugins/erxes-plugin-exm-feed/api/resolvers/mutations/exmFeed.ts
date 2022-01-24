@@ -5,6 +5,7 @@ import {
   sendNotification,
   sendMobileNotification
 } from 'erxes-api-utils';
+import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
 
 export const gatherDescriptions = async () => {
   let extraDesc = [];
@@ -29,13 +30,19 @@ const exmFeedMutations = [
         graphqlPubsub
       }
     ) => {
+      debugExternalApi('======exmFeedAdd is starting=========');
+
       await checkPermission('manageExmActivityFeed', user);
+
+      debugExternalApi('checkPermission');
 
       const exmFeed = await models.ExmFeed.createExmFeed(
         models,
         docModifier(doc),
         user
       );
+
+      debugExternalApi(`exmFeed: ${JSON.stringify(exmFeed)}`);
 
       await putCreateLog(
         messageBroker,
@@ -48,6 +55,8 @@ const exmFeedMutations = [
         },
         user
       );
+
+      debugExternalApi(`putCreateLog`);
 
       // let receivers = await models.Users.find().distinct('_id');
 
@@ -64,13 +73,19 @@ const exmFeedMutations = [
         contentType: 'exmFeed',
         contentTypeId: exmFeed._id,
         receivers: ['x4GGpXWmy4tmBDBgv']
+        // receivers: ['4vh3TyTTmodDALqGA']
       });
+
+      debugExternalApi(`sendNotification`);
 
       sendMobileNotification(models, {
         title: doc.title,
         body: doc.description,
         receivers: ['x4GGpXWmy4tmBDBgv']
+        // receivers: ['4vh3TyTTmodDALqGA']
       });
+
+      debugExternalApi(`sendMobileNotification`);
 
       return exmFeed;
     }
