@@ -27,8 +27,8 @@ export const join = ({ name, port, dbConnectionString, segment, hasSubscriptions
   return registry.up(name, `http://localhost:${port}`);
 };
 
-export const leave = (name, port) => {
-  registry.down(name, `http://localhost:${port}`);
+export const leave = async (name, port) => {
+  await registry.down(name, `http://localhost:${port}`);
 
-  redis.del(generateKey(name));
+  await redis.del(generateKey(name));
 }

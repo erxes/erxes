@@ -13,7 +13,7 @@ import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
 
-import { connect } from './connection';
+import { connect, disconnect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { initBroker } from './messageBroker';
 import * as elasticsearch from './elasticsearch';
@@ -21,7 +21,7 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import configs from '../../src/configs';
-import { join } from './serviceDiscovery';
+import { join, leave } from './serviceDiscovery';
 
 export const app = express();
 
@@ -69,6 +69,18 @@ app.use((error, _req, res, _next) => {
 const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 
 const httpServer = http.createServer(app);
+
+async function tryToDisconnect() {
+  try {
+    await leave(configs.name, PORT || '');
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+httpServer.on("close", async () => {
+  await tryToDisconnect();
+});
 
 const apolloServer = new ApolloServer({
   schema: buildSubgraphSchema([
