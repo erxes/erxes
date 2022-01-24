@@ -1,10 +1,9 @@
 import {
-  // putCreateLog,
+  putCreateLog,
   putDeleteLog,
-  putUpdateLog
-  // sendNotification
+  putUpdateLog,
+  sendNotification
 } from 'erxes-api-utils';
-import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
 import { sendMobileNotification } from '../../utils';
 
 export const gatherDescriptions = async () => {
@@ -24,14 +23,12 @@ const exmFeedMutations = [
         checkPermission,
         user,
         docModifier,
-        models
-        // messageBroker,
-        // memoryStorage,
-        // graphqlPubsub
+        models,
+        messageBroker,
+        memoryStorage,
+        graphqlPubsub
       }
     ) => {
-      debugExternalApi('======exmFeedAdd is starting=========');
-
       await checkPermission('manageExmActivityFeed', user);
 
       const exmFeed = await models.ExmFeed.createExmFeed(
@@ -40,41 +37,39 @@ const exmFeedMutations = [
         user
       );
 
-      // await putCreateLog(
-      //   messageBroker,
-      //   gatherDescriptions,
-      //   {
-      //     type: 'exmFeed',
-      //     newData: doc,
-      //     object: exmFeed,
-      //     extraParams: { models }
-      //   },
-      //   user
-      // );
+      await putCreateLog(
+        messageBroker,
+        gatherDescriptions,
+        {
+          type: 'exmFeed',
+          newData: doc,
+          object: exmFeed,
+          extraParams: { models }
+        },
+        user
+      );
 
-      // let receivers = await models.Users.find().distinct('_id');
+      let receivers = await models.Users.find().distinct('_id');
 
-      // receivers = receivers.filter(r => r._id !== user._id);
+      receivers = receivers.filter(r => r._id !== user._id);
 
-      // await sendNotification(models, memoryStorage, graphqlPubsub, {
-      //   notifType: 'plugin',
-      //   title: doc.title,
-      //   content: doc.description,
-      //   action: `${doc.contentType} created`,
-      //   link: `/erxes-plugin-exm-feed/list`,
-      //   createdUser: user,
-      //   // exclude current user
-      //   contentType: 'exmFeed',
-      //   contentTypeId: exmFeed._id,
-      //   receivers: ['x4GGpXWmy4tmBDBgv']
-      //   // receivers: ['4vh3TyTTmodDALqGA']
-      // });
+      sendNotification(models, memoryStorage, graphqlPubsub, {
+        notifType: 'plugin',
+        title: doc.title,
+        content: doc.description,
+        action: `${doc.contentType} created`,
+        link: `/erxes-plugin-exm-feed/list`,
+        createdUser: user,
+        // exclude current user
+        contentType: 'exmFeed',
+        contentTypeId: exmFeed._id,
+        receivers
+      });
 
-      await sendMobileNotification(models, {
+      sendMobileNotification(models, {
         title: doc.title,
         body: doc.description,
-        receivers: ['x4GGpXWmy4tmBDBgv']
-        // receivers: ['4vh3TyTTmodDALqGA']
+        receivers
       });
 
       return exmFeed;

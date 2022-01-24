@@ -46,10 +46,6 @@ export const sendMobileNotification = async (
     conversationId?: string;
   }
 ): Promise<void> => {
-  debugExternalApi('===================================');
-  debugExternalApi('Sending notifications to mobile ...');
-  debugExternalApi('===================================');
-
   if (!admin.apps.length) {
     await initFirebase(models);
   }
@@ -71,8 +67,6 @@ export const sendMobileNotification = async (
       ))
     );
   }
-
-  debugExternalApi(`selected tokens: ${JSON.stringify(tokens)}`);
 
   if (tokens.length > 0) {
     // send notification
