@@ -1,5 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
-import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { __ } from '@erxes/ui/src/utils';
 import { IField, IFieldLogic } from '@erxes/ui/src/types';
@@ -88,12 +89,12 @@ function FieldLogic(props: Props) {
       ) {
         return (
           <FormControl
-            componentClass='select'
+            componentClass="select"
             defaultValue={logic.logicValue}
-            name='logicValue'
+            name="logicValue"
             onChange={onChangeLogicValue}
           >
-            <option value='' />
+            <option value="" />
             {selectedField.options &&
               selectedField.options.map(option => (
                 <option key={option} value={option}>
@@ -123,7 +124,7 @@ function FieldLogic(props: Props) {
         return (
           <FormControl
             defaultValue={logic.logicValue}
-            name='logicValue'
+            name="logicValue"
             onChange={onChangeLogicValue}
             type={'number'}
           />
@@ -133,7 +134,7 @@ function FieldLogic(props: Props) {
       return (
         <FormControl
           defaultValue={logic.logicValue}
-          name='logicValue'
+          name="logicValue"
           onChange={onChangeLogicValue}
         />
       );
@@ -148,12 +149,12 @@ function FieldLogic(props: Props) {
         <RowFill>
           <FormGroup>
             <FormControl
-              componentClass='select'
+              componentClass="select"
               value={logic.fieldId || logic.tempFieldId}
-              name='fieldId'
+              name="fieldId"
               onChange={onChangeFieldId}
             >
-              <option value='' />
+              <option value="" />
               {fields.map(field => (
                 <option key={field._id} value={field._id}>
                   {field.text}
@@ -164,9 +165,9 @@ function FieldLogic(props: Props) {
           <LogicRow>
             <RowSmall>
               <FormControl
-                componentClass='select'
+                componentClass="select"
                 defaultValue={logic.logicOperator}
-                name='logicOperator'
+                name="logicOperator"
                 options={getOperatorOptions()}
                 onChange={onChangeLogicOperator}
               />
@@ -174,7 +175,7 @@ function FieldLogic(props: Props) {
             <RowFill>{renderLogicValue()}</RowFill>
           </LogicRow>
         </RowFill>
-        <Button onClick={remove} btnStyle='danger' icon='times' />
+        <Button onClick={remove} btnStyle="danger" icon="times" />
       </LogicRow>
     </LogicItem>
   );

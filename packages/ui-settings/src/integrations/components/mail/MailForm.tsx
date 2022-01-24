@@ -9,7 +9,7 @@ import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { __, Alert, uploadHandler } from '@erxes/ui/src/utils';
 import { Meta } from './styles';
 import { FileName } from './styles';
-import { IMail, IMessage } from '@erxes/ui-inbox/src/types';
+import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
@@ -106,7 +106,7 @@ class MailForm extends React.Component<Props, State> {
     const cc = replyAll ? formatObj(mailData.cc || []) : '';
     const bcc = replyAll ? formatObj(mailData.bcc || []) : '';
 
-    const [from] = mailData.from || [{}];
+    const [from] = mailData.from || ([] as IEmail[]);
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
     const fromId = this.getIntegrationId(
