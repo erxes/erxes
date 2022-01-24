@@ -11,7 +11,7 @@ import { IBrandDoc } from '@erxes/ui/src/brands/types';
 import { IChannelDoc } from '../../../channels/types';
 import React from 'react';
 import { BrandName, IntegrationName } from '../../styles';
-import { IIntegration } from '../../types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   current: IChannelDoc | IBrandDoc;

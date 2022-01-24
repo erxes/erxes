@@ -8,7 +8,7 @@ import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IIntegration } from '../../types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 const Wrapper = styled.div`
   .dropdown-menu {

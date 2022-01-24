@@ -7,7 +7,7 @@ import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
-import { IntegrationsQueryResponse } from '../../types';
+import { IntegrationsQueryResponse } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   current: IChannelDoc | IBrandDoc;
