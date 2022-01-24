@@ -152,7 +152,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
   const updatedProps = {
     renderEditForm: renderEditForm ? renderEditForm : editForm,
     renderSkillForm,
-    user: userDetailQuery.userDetail || {},
+    user: userDetailQuery.userDetail || {} as IUser,
     participatedConversations: list,
     totalConversationCount: totalCount,
     channels: channelsQuery.channels || [],
