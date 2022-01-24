@@ -7,11 +7,11 @@ import {
   FlexCenterContent,
   LogWrapper
 } from '../../styles';
-import { IUser } from '../../../auth/types';
-import Tip from '../../../components/Tip';
-import { renderUserFullName } from '../../../utils';
-import Form from '../../../internalNotes/components/Form';
-import { IInternalNote } from '../../../internalNotes/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Tip from '@erxes/ui/src/components/Tip';
+import { renderUserFullName } from '@erxes/ui/src/utils';
+import Form from '@erxes/ui/src/internalNotes/components/Form';
+import { IInternalNote } from '@erxes/ui/src/internalNotes/types';
 import React from 'react';
 import xss from 'xss';
 
@@ -39,7 +39,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
 
   renderBody = () => {
     const { internalNote } = this.props;
-    const createdUser = internalNote.createdUser || {};
+    const createdUser = internalNote.createdUser || ({} as IUser);
 
     let userName = 'Unknown';
 

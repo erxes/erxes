@@ -1,9 +1,9 @@
 import React from 'react';
-import { IUser } from '../../auth/types';
-import DataWithLoader from '../../components/DataWithLoader';
-import { Tabs, TabTitle } from '../../components/tabs';
-import { ActivityContent } from '../../styles/main';
-import { __ } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import { ActivityContent } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
 import { IActivityLog } from '../types';
 import { hasAnyActivity } from '../utils';
 import ActivityList from './ActivityList';
@@ -15,7 +15,10 @@ type Props = {
   loadingLogs: boolean;
   extraTabs: Array<{ name: string; label: string }>;
   onTabClick: (currentTab: string) => void;
-  activityRenderItem?: (activity: IActivityLog, currentUser?: IUser) => React.ReactNode;
+  activityRenderItem?: (
+    activity: IActivityLog,
+    currentUser?: IUser
+  ) => React.ReactNode;
 };
 
 type State = {
@@ -41,7 +44,13 @@ class ActivityLogs extends React.PureComponent<Props, State> {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, activityLogs, loadingLogs, target, activityRenderItem } = this.props;
+    const {
+      currentUser,
+      activityLogs,
+      loadingLogs,
+      target,
+      activityRenderItem
+    } = this.props;
 
     const hasActivity = hasAnyActivity(activityLogs);
 

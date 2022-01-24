@@ -1,7 +1,7 @@
 import SortableList from '@erxes/ui/src/components/SortableList';
-import { IField } from '@erxes/ui/src/settings/properties/types';
 import React from 'react';
 import xss from 'xss';
+import { IField } from '../../types';
 import { FieldsWrapper } from '../styles';
 import FieldPreview from './FieldPreview';
 
@@ -94,7 +94,7 @@ class FieldsPreview extends React.Component<Props, State> {
             child={child}
             fields={fields}
             onChangeFields={this.onChangeFields}
-            droppableId='form'
+            droppableId="form"
           />
         </FieldsWrapper>
       </>

@@ -1,4 +1,4 @@
-import { FormControl } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
 import { __ } from '@erxes/ui/src/utils';

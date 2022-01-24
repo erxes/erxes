@@ -1,9 +1,9 @@
 import React from 'react';
-import BreadCrumb from '../../components/breadcrumb/BreadCrumb';
-import Filter from '../../components/filter/Filter';
-import Submenu from '../../components/subMenu/Submenu';
-import { IBreadCrumbItem, ISubMenuItem } from '../../types';
-import { __, setTitle } from '../../utils/core';
+import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
+import Filter from '@erxes/ui/src/components/filter/Filter';
+import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
+import { IBreadCrumbItem, ISubMenuItem } from '@erxes/ui/src/types';
+import { __, setTitle } from '@erxes/ui/src/utils/core';
 import { PageHeader } from '../styles';
 
 type Props = {

@@ -1,4 +1,4 @@
-import { FormControl } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { Amount, ContentColumn, ContentRow, Measure } from '../../styles';
 import { IProductData } from '../../types';
 import React from 'react';

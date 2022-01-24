@@ -1,15 +1,15 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import InternalNote from '../../components/items/InternalNote';
-import { IUser } from '../../../auth/types';
-import Spinner from '../../../components/Spinner';
-import { Alert, confirm, withProps } from '../../../utils';
-import { mutations, queries } from '../../../internalNotes/graphql';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { mutations, queries } from '@erxes/ui/src/internalNotes/graphql';
 import {
   InternalNoteDetailQueryResponse,
   InternalNotesEditMutationResponse,
   InternalNotesRemoveMutationResponse
-} from '../../../internalNotes/types';
+} from '@erxes/ui/src/internalNotes/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 
@@ -22,8 +22,8 @@ type Props = {
 type FinalProps = {
   internalNoteDetailsQuery: InternalNoteDetailQueryResponse;
   editMutation: InternalNotesEditMutationResponse;
-} & Props
-  & InternalNotesRemoveMutationResponse;
+} & Props &
+  InternalNotesRemoveMutationResponse;
 
 class InternalNoteContainer extends React.Component<
   FinalProps,
