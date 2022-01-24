@@ -7,7 +7,7 @@ export const types = `
     skip: Boolean
   }
 
-  type Form @key(fields: "_id") {
+  type Form @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     title: String
     code: String
