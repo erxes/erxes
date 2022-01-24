@@ -13,7 +13,7 @@ import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { ISkillType, ISkillTypesDocument } from '../types';
+import { ISkillType, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 import SkillTypeForm from './SkillTypeForm';
 
 type Props = {

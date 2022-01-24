@@ -7,14 +7,14 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { __, Alert, uploadHandler } from '@erxes/ui/src/utils';
-import { Meta } from '../../../../components/conversationDetail/workarea/mail/style';
-import { FileName } from '../../../../styles';
-import { IMail, IMessage } from '../../../../types';
+import { Meta } from '../../../../inbox/components/conversationDetail/workarea/mail/style';
+import { FileName } from '../../../../inbox/styles';
+import { IMail, IMessage } from '../../../../inbox/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IEmailSignature } from '../../types';
+import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React, { ReactNode } from 'react';
-import { MAIL_TOOLBARS_CONFIG } from '../../constants';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import {
   formatObj,
   formatStr,

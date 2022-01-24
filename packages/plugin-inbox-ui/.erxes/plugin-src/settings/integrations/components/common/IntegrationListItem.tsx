@@ -10,13 +10,13 @@ import WithPermission from '@erxes/ui/src/components/WithPermission';
 import { Alert, getEnv } from '@erxes/ui/src/utils';
 import { __ } from '@erxes/ui/src/utils';
 import InstallCode from '../InstallCode';
-import { INTEGRATION_KINDS, WEBHOOK_DOC_URL } from '../../constants';
+import { INTEGRATION_KINDS, WEBHOOK_DOC_URL } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
 import { queries } from '../../graphql/index';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
-import { IIntegration, IntegrationMutationVariables } from '../../types';
+import { IIntegration, IntegrationMutationVariables } from '@erxes/ui-settings/src/integrations/types';
 import RefreshPermissionForm from '../facebook/RefreshPermission';
 import CommonFieldForm from './CommonFieldForm';
 

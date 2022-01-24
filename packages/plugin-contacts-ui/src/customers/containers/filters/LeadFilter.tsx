@@ -10,7 +10,7 @@ import {
 } from '@erxes/ui-settings/src/integrations/types';
 import LeadFilter from '../../components/list/LeadFilter';
 import { queries } from '../../graphql';
-import { CountQueryResponse } from '../../types';
+import { CountQueryResponse } from '@erxes/ui/src/customers/types';
 
 type Props = {
   integrationsQuery?: IntegrationsQueryResponse;

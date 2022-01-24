@@ -5,11 +5,11 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { INTEGRATION_KINDS } from '../../constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 
-import { IntegrationMutationVariables } from '../../types';
+import { IntegrationMutationVariables } from '@erxes/ui-settings/src/integrations/types';
 
 type CommonTypes = {
   name: string;

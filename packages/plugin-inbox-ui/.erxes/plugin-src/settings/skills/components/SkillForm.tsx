@@ -11,7 +11,7 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import mutations from '../graphql/mutations';
-import { ISkillDocument, ISkillTypesDocument } from '../types';
+import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 
 type Props = {
   skill: ISkillDocument;

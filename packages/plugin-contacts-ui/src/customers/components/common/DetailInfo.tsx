@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { __ } from '@erxes/ui/src/utils';
-import { GENDER_TYPES } from '../../constants';
+import { GENDER_TYPES } from '@erxes/ui/src/customers/constants';
 import { ICustomer } from '../../types';
 import {
   FieldStyle,

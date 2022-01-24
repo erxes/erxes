@@ -1,7 +1,7 @@
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { INTEGRATION_FILTERS } from '../../constants';
+import { INTEGRATION_FILTERS } from '@erxes/ui/src/constants/integrations';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import { SidebarList } from '@erxes/ui-settings/src/styles';

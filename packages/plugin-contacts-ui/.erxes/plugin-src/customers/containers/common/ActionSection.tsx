@@ -4,15 +4,15 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import ActionSection from '../../components/common/ActionSection';
 import { mutations, queries } from '../../graphql';
+import { ICustomer } from '../../types';
 import {
   ChangeStateMutationResponse,
   ChangeStateMutationVariables,
-  ICustomer,
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from '../../types';
+} from '@erxes/ui/src/customers/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

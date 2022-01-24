@@ -24,7 +24,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
-import CompaniesMerge from '../detail/CompaniesMerge';
+import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
 import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
 

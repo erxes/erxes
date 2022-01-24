@@ -53,11 +53,11 @@ class PipelinesContainer extends React.Component<FinalProps> {
       boardDetailQuery
     } = this.props;
 
-    if (pipelinesQuery.loading) {
+    if (pipelinesQuery?.loading) {
       return <Spinner />;
     }
 
-    const pipelines = pipelinesQuery.pipelines;
+    const pipelines = pipelinesQuery.pipelines || [];
 
     // archive action
     const archive = (pipelineId: string, status: string) => {
@@ -74,7 +74,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           refetchQueries: getRefetchQueries(boardId, pipelineId)
         })
           .then(() => {
-            pipelinesQuery.refetch({ boardId });
+            pipelinesQuery?.refetch({ boardId });
             const msg = `${__(`You succesfully ${action} a`)} ${__(
               'pipeline'
             )}.`;
@@ -96,7 +96,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           refetchQueries: getRefetchQueries(boardId, pipelineId)
         })
           .then(() => {
-            pipelinesQuery.refetch({ boardId });
+            pipelinesQuery?.refetch({ boardId });
 
             const msg = `${__(`You succesfully duplicated a`)} ${__(
               'pipeline'
@@ -119,7 +119,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
             refetchQueries: getRefetchQueries(boardId, pipelineId)
           })
             .then(() => {
-              pipelinesQuery.refetch({ boardId });
+              pipelinesQuery?.refetch({ boardId });
 
               const msg = `${__(`You successfully deleted a`)} ${__(
                 'pipeline'
@@ -143,7 +143,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       confirmationUpdate
     }: IButtonMutateProps) => {
       const callBackResponse = () => {
-        pipelinesQuery.refetch({ boardId });
+        pipelinesQuery?.refetch({ boardId });
 
         if (callback) {
           return callback();
@@ -152,11 +152,11 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
       return (
         <ButtonMutate
-          mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
+          mutation={object ? mutations?.pipelineEdit : mutations?.pipelineAdd}
           variables={values}
           callback={callBackResponse}
           confirmationUpdate={object ? confirmationUpdate : false}
-          refetchQueries={getRefetchQueries(boardId, object ? object._id : '')}
+          refetchQueries={getRefetchQueries(boardId, object ? object?._id : '')}
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
@@ -177,14 +177,14 @@ class PipelinesContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       pipelines,
-      refetch: pipelinesQuery.refetch,
-      loading: pipelinesQuery.loading,
+      refetch: pipelinesQuery?.refetch,
+      loading: pipelinesQuery?.loading,
       remove,
       archive,
       copied,
       renderButton,
       updateOrder,
-      currentBoard: boardDetailQuery ? boardDetailQuery.boardDetail : undefined
+      currentBoard: boardDetailQuery ? boardDetailQuery?.boardDetail : undefined
     };
 
     return <Pipelines {...extendedProps} />;
@@ -195,11 +195,11 @@ const getRefetchQueries = (boardId, pipelineId?: string) => {
   return [
     'pipelinesQuery',
     {
-      query: gql(boardQueries.boardDetail),
+      query: gql(boardQueries?.boardDetail),
       variables: { _id: boardId }
     },
     {
-      query: gql(boardQueries.stages),
+      query: gql(boardQueries?.stages),
       variables: {
         pipelineId,
         search: undefined,
@@ -218,7 +218,7 @@ const getRefetchQueries = (boardId, pipelineId?: string) => {
 export default withProps<Props>(
   compose(
     graphql<Props, PipelinesQueryResponse, { boardId: string }>(
-      gql(queries.pipelines),
+      gql(queries?.pipelines),
       {
         name: 'pipelinesQuery',
         options: ({
@@ -233,7 +233,7 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, BoardDetailQueryResponse>(gql(queries.boardDetail), {
+    graphql<Props, BoardDetailQueryResponse>(gql(queries?.boardDetail), {
       name: 'boardDetailQuery',
       skip: ({ boardId }: { boardId?: string }) => !boardId,
       options: ({ boardId }: { boardId?: string }) => ({
@@ -245,21 +245,21 @@ export default withProps<Props>(
       Props,
       RemovePipelineMutationResponse,
       RemovePipelineMutationVariables
-    >(gql(mutations.pipelineRemove), {
+    >(gql(mutations?.pipelineRemove), {
       name: 'removePipelineMutation'
     }),
     graphql<
       Props,
       ArchivePipelineMutationResponse,
       ArchivePipelineMutationVariables
-    >(gql(mutations.pipelinesArchive), {
+    >(gql(mutations?.pipelinesArchive), {
       name: 'archivePipelineMutation'
     }),
     graphql<
       Props,
       CopiedPipelineMutationResponse,
       CopiedPipelineMutationVariables
-    >(gql(mutations.pipelinesCopied), {
+    >(gql(mutations?.pipelinesCopied), {
       name: 'copiedPipelineMutation'
     }),
 
@@ -267,7 +267,7 @@ export default withProps<Props>(
       Props,
       UpdateOrderPipelineMutationResponse,
       UpdateOrderPipelineMutationVariables
-    >(gql(mutations.pipelinesUpdateOrder), {
+    >(gql(mutations?.pipelinesUpdateOrder), {
       name: 'pipelinesUpdateOrderMutation'
     })
   )(PipelinesContainer)

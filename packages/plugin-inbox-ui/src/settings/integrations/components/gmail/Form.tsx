@@ -21,8 +21,8 @@ import { Link } from 'react-router-dom';
 import Accounts from '../../containers/Accounts';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
+import { Content } from '@erxes/ui-settings/src/integrations/styles';
 import {
-  Content,
   ImageWrapper,
   MessengerPreview,
   TextWrapper

@@ -7,7 +7,7 @@ import { getWarningMessage } from '../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Event from '../components/Event';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
+import { queries } from '../graphql';
 import { mutations, subscriptions } from '../graphql';
 
 type Props = {
