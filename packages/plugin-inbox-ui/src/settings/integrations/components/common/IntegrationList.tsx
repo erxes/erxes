@@ -5,8 +5,8 @@ import { Count } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { EMPTY_CONTENT_MESSENGER } from '@erxes/ui-settings/src/constants';
 import React from 'react';
-import { INTEGRATION_KINDS } from '../../constants';
-import { IIntegration, IntegrationMutationVariables } from '../../types';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import { IIntegration, IntegrationMutationVariables } from '@erxes/ui-settings/src/integrations/types';
 import IntegrationListItem from './IntegrationListItem';
 
 type Props = {

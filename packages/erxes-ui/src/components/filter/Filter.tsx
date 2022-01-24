@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import Chip from '../Chip';
 import { __ } from '../../utils/core';
-import { cleanIntegrationKind } from '../../utils/core';
+import { cleanIntegrationKind } from '../../utils';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';

@@ -10,7 +10,8 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { mutations } from '../../graphql';
-import { EditMutationResponse, ICustomer } from '../../types';
+import { ICustomer } from '../../types';
+import { EditMutationResponse } from '@erxes/ui/src/customers/types';
 
 type Props = {
   customer: ICustomer;

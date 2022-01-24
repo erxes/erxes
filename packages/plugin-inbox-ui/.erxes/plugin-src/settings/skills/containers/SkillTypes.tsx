@@ -5,10 +5,10 @@ import { commonListComposer } from '@erxes/ui-settings/src/utils';
 import SkillTypes from '../components/SkillTypes';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
+import { SkillTypesQueryResponse } from '@erxes/ui-settings/src/skills/types';
 import {
   SkillTypesAddMutation,
   SkillTypesEditMutation,
-  SkillTypesQueryResponse,
   SkillTypesRemoveMutation,
   SkillTypesTotalCountQueryResponse
 } from '../types';

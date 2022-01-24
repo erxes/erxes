@@ -1,16 +1,4 @@
-import { QueryResponse } from '@erxes/ui/src/types';
-
-export interface ISkillType {
-  name: string;
-}
-
-export interface ISkillTypesDocument extends ISkillType {
-  _id: string;
-}
-
-export type SkillTypesQueryResponse = {
-  skillTypes: ISkillTypesDocument[];
-} & QueryResponse;
+import { ISkillType} from '@erxes/ui-settings/src/skills/types';
 
 export type SkillTypesTotalCountQueryResponse = {
   skillTypesTotalCunt: number;
@@ -32,21 +20,6 @@ export type SkillTypesRemoveMutation = {
   removeSkillType: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
-export interface ISkill {
-  name: string;
-  typeId: string;
-  memberIds: string[];
-}
-export interface ISkillDocument extends ISkill {
-  _id: string;
-}
-
-export type SkillsQueryResponse = {
-  skills: ISkillDocument[];
-  refetch: any;
-  loading: boolean;
-};
-
 export type SkillsTotalCountQueryResponse = {
   skillsTotalCount: number;
   loading: boolean;
@@ -65,12 +38,5 @@ export type SkillsUpdateMutationResponse = {
       memberIds?: string[];
       exclude?: boolean;
     };
-  }) => Promise<void>;
-};
-
-export type SkillsExcludeUserMutationResponse = {
-  excludeUserSkill: (params: {
-    _id: string;
-    memberIds: string[];
   }) => Promise<void>;
 };

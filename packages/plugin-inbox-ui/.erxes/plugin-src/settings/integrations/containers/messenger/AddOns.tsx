@@ -13,10 +13,9 @@ import AddOns from '../../components/messenger/steps/AddOns';
 import {
   ILeadMessengerApp,
   IMessengerApps,
-  IntegrationsQueryResponse,
-  ITopicMessengerApp,
   IWebsiteMessengerApp
 } from '../../types';
+import { IntegrationsQueryResponse, ITopicMessengerApp } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   selectedBrand?: string;

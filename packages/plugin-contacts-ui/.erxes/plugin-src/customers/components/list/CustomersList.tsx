@@ -16,7 +16,7 @@ import * as routerUtils from '@erxes/ui/src/utils/router';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
-} from '../../constants';
+} from '@erxes/ui/src/customers/constants';
 import { queries } from '../../graphql';
 import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
 import React from 'react';

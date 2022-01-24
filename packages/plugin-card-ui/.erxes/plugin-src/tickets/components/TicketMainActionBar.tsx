@@ -8,7 +8,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import options from '@erxes/ui-cards/src/tickets/options';
 import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
-import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 
 type Props = {
   onSearch: (search: string) => void;

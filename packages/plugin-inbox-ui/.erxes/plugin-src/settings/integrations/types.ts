@@ -1,27 +1,11 @@
-import { IBookingData } from '@erxes/ui/src/bookings/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IForm } from '@erxes/ui/src/forms/types';
 import {
-  ILeadData,
-  ILeadIntegration,
-  IWebhookData
-} from '@erxes/ui-leads/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IChannel } from '../channels/types';
-import { IEmailSignature as IEmailSignatureC } from '@erxes/ui/src/auth/types';
-
-export type IEmailSignature = IEmailSignatureC;
-
-export interface IMessengerApp {
-  _id: string;
-  name: string;
-}
-
-export interface ILink {
-  twitter?: string;
-  facebook?: string;
-  youtube?: string;
-}
+  IIntegration,
+  ITopic,
+  IUiOptions,
+  QueryVariables,
+  IMessengerData
+} from '@erxes/ui-settings/src/integrations/types';
 
 export interface IPages {
   id: string;
@@ -46,73 +30,6 @@ export interface IExchangeForm {
   username?: string;
 }
 
-export interface ISelectMessengerApps {
-  brand: IBrand;
-  label: string;
-  value: string;
-  form?: IForm;
-}
-
-export interface IOnlineHour {
-  _id: string;
-  day: string;
-  from: string;
-  to: string;
-}
-
-export interface IMessagesItem {
-  greetings: { title?: string; message?: string };
-  away?: string;
-  thank?: string;
-  welcome?: string;
-}
-
-export interface IMessages {
-  [key: string]: IMessagesItem;
-}
-
-export interface ISkillData {
-  typeId: string;
-  options: Array<{
-    label: string;
-    response: string;
-    skillId: string;
-  }>;
-}
-
-export interface IMessengerData {
-  botEndpointUrl?: string;
-  botShowInitialMessage?: boolean;
-  skillData?: ISkillData;
-  messages?: IMessages;
-  notifyCustomer?: boolean;
-  supporterIds?: string[];
-  availabilityMethod?: string;
-  isOnline?: boolean;
-  timezone?: string;
-  responseRate?: string;
-  showTimezone?: boolean;
-  requireAuth?: boolean;
-  showChat?: boolean;
-  showLauncher?: boolean;
-  forceLogoutWhenResolve?: boolean;
-  showVideoCallRequest?: boolean;
-  onlineHours?: IOnlineHour[];
-  links?: ILink;
-}
-
-export interface IUiOptions {
-  color?: string;
-  textColor?: string;
-  wallpaper?: string;
-  logo?: string;
-  logoPreviewUrl?: string;
-}
-
-export interface ITopic {
-  topicId: string;
-}
-
 export interface IWebsite {
   url: string;
   buttonText: string;
@@ -121,10 +38,6 @@ export interface IWebsite {
 
 export interface ILead {
   formCode: string;
-}
-
-export interface ITopicMessengerApp {
-  credentials: ITopic;
 }
 
 export interface IWebsiteMessengerApp {
@@ -140,36 +53,6 @@ export interface IMessengerApps {
   leads?: ILead[];
 }
 
-interface IIntegartionHealthStatus {
-  status: string;
-  error: string;
-}
-
-export interface IIntegration {
-  _id: string;
-  kind: string;
-  name: string;
-  brandId?: string;
-  code: string;
-  formId: string;
-  languageCode?: string;
-  createUrl: string;
-  createModal: string;
-  messengerData?: IMessengerData;
-  form: IForm;
-  uiOptions?: IUiOptions;
-  leadData: ILeadData;
-  brand: IBrand;
-  channels: IChannel[];
-  isActive?: boolean;
-  healthStatus?: IIntegartionHealthStatus;
-  webhookData?: IWebhookData;
-  leadMessengerApps?: ILeadMessengerApp[];
-  websiteMessengerApps?: IWebsiteMessengerApp[];
-  knowledgeBaseMessengerApps?: ITopicMessengerApp[];
-  bookingData?: IBookingData;
-}
-
 export interface IAccount {
   _id: string;
   name: string;
@@ -178,12 +61,6 @@ export interface IAccount {
 }
 
 // query types
-export type QueryVariables = {
-  page?: number;
-  perPage?: number;
-  searchValue?: string;
-};
-
 export type IntegrationTypes =
   | 'facebook'
   | 'gmail'
@@ -213,55 +90,6 @@ export type MessengerAppsQueryResponse = {
   messengerApps: IMessengerApps;
 } & QueryResponse;
 
-type By = { [key: string]: number };
-
-export type ByKindTotalCount = {
-  messenger: number;
-  lead: number;
-  facebook: number;
-  gmail: number;
-  callpro: number;
-  chatfuel: number;
-  imap: number;
-  office365: number;
-  outlook: number;
-  yahoo: number;
-  telegram: number;
-  viber: number;
-  line: number;
-  twilio: number;
-  whatsapp: number;
-};
-
-type IntegrationsCount = {
-  total: number;
-  byTag: By;
-  byChannel: By;
-  byBrand: By;
-  byKind: ByKindTotalCount;
-};
-
-export type IntegrationsCountQueryResponse = {
-  integrationsTotalCount: IntegrationsCount;
-  loading: boolean;
-};
-
-export interface IGmailAttachment {
-  filename?: string;
-  mimeType?: string;
-  size?: number;
-  data?: string;
-}
-
-export type MessengerAppsCountQueryResponse = {
-  messengerAppsCount: number;
-  loading: boolean;
-};
-
-export type LeadIntegrationDetailQueryResponse = {
-  integrationDetail: ILeadIntegration;
-} & QueryResponse;
-
 export type AccountsQueryResponse = {
   integrationsFetchApi: IAccount[];
   error?: Error;
@@ -273,28 +101,6 @@ export type SaveMessengerMutationVariables = {
   brandId: string;
   languageCode: string;
   channelIds?: string[];
-};
-
-export type CreateGmailMutationVariables = {
-  name: string;
-  brandId: string;
-};
-
-export type SendGmailMutationVariables = {
-  cc?: string;
-  bcc?: string;
-  toEmails?: string;
-  headerId?: string;
-  threadId?: string;
-  subject?: string;
-  body: string;
-  integrationId?: string;
-};
-
-export type SendGmailMutationResponse = {
-  integrationsSendGmail: (params: {
-    variables: SendGmailMutationVariables;
-  }) => Promise<any>;
 };
 
 export type SaveMessengerMutationResponse = {
@@ -335,38 +141,6 @@ export type EditMessengerMutationResponse = {
   }) => any;
 };
 
-export type IntegrationMutationVariables = {
-  brandId: string;
-  name: string;
-  channelIds?: string[];
-  data?: any;
-};
-
-export type AddIntegrationMutationVariables = {
-  leadData: ILeadData;
-  languageCode: string;
-  formId: string;
-} & IntegrationMutationVariables;
-
-export type AddIntegrationMutationResponse = {
-  addIntegrationMutation: (params: {
-    variables: AddIntegrationMutationVariables;
-  }) => Promise<any>;
-};
-
-export type EditIntegrationMutationVariables = {
-  _id: string;
-  leadData: ILeadData;
-  languageCode: string;
-  formId: string;
-} & IntegrationMutationVariables;
-
-export type EditIntegrationMutationResponse = {
-  editIntegrationMutation: (params: {
-    variables: EditIntegrationMutationVariables;
-  }) => Promise<void>;
-};
-
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
@@ -377,12 +151,6 @@ export type RepairMutationResponse = {
 
 export type RemoveAccountMutationResponse = {
   removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
-};
-
-export type ArchiveIntegrationResponse = {
-  archiveIntegration: (params: {
-    variables: { _id: string; status: boolean };
-  }) => Promise<any>;
 };
 
 export type CommonFieldsEditResponse = {
@@ -396,34 +164,3 @@ export type CommonFieldsEditResponse = {
     };
   }) => Promise<any>;
 };
-
-export type ProviderFormInput = (
-  key:
-    | 'email'
-    | 'password'
-    | 'imapHost'
-    | 'imapPort'
-    | 'smtpHost'
-    | 'smtpPort'
-    | 'host'
-    | 'username'
-    | string,
-  value: string | number
-) => void;
-
-export type SendSmsMutationVariables = {
-  integrationId: string;
-  content: string;
-  to: string;
-};
-
-export type SendSmsMutationResponse = ({
-  variables: SendSmsMutationVariables
-}) => Promise<any>;
-
-export interface IIntegrationWithPhone {
-  _id: string;
-  name: string;
-  phoneNumber: string;
-  isActive: boolean;
-}

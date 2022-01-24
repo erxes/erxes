@@ -5,7 +5,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import LeadStatusFilter from '../../components/list/LeadStatusFilter';
 import { queries } from '../../graphql';
-import { CountQueryResponse } from '../../types';
+import { CountQueryResponse } from '@erxes/ui/src/customers/types';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;

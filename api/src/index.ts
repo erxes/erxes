@@ -157,7 +157,17 @@ const corsOptions = {
     WIDGETS_DOMAIN,
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
     DASHBOARD_DOMAIN,
-    'http://localhost:3009'
+    'http://localhost:3001', // engage
+    'http://localhost:3002', // bookings
+    'http://localhost:3003', // cards
+    'http://localhost:3004', // knowledgeBase
+    'http://localhost:3005', // forms
+    'http://localhost:3006', // calendar
+    'http://localhost:3007', // dashboard
+    'http://localhost:3008', // automations
+    'http://localhost:3009', // inbox
+    'http://localhost:3010', // team
+    'http://localhost:3011' // contacts
   ]
 };
 

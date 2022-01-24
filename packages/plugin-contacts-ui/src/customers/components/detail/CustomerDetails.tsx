@@ -6,7 +6,7 @@ import { TabTitle } from '@erxes/ui/src/components/tabs';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import ActionSection from '../../containers/common/ActionSection';
 import LeadState from '../../containers/LeadState';
-import { MailBox, UserHeader } from '../../styles';
+import { MailBox, UserHeader } from '@erxes/ui/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
 import { IField } from '@erxes/ui/src/types';

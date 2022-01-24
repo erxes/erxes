@@ -5,7 +5,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import colors from '@erxes/ui/src/styles/colors';
 import { ISelectedOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import { IIntegrationWithPhone } from '../../types';
+import { IIntegrationWithPhone } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
