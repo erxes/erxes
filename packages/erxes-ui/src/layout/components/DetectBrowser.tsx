@@ -1,10 +1,10 @@
-import { dimensions } from '../../styles';
-import { __ } from '../../utils/core';
-import { AlertItem } from '../../utils/Alert/Alert';
+import { dimensions } from '@erxes/ui/src/styles';
+import { __ } from '@erxes/ui/src/utils/core';
+import { AlertItem } from '@erxes/ui/src/utils/Alert/Alert';
 import React from 'react';
 import RTG from 'react-transition-group';
 import styled from 'styled-components';
-import Icon from '../../components/Icon';
+import Icon from '@erxes/ui/src/components/Icon';
 
 const OldBrowserWarning = styled(AlertItem)`
   position: fixed;

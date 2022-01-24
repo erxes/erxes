@@ -1,6 +1,6 @@
 import React from 'react';
-import Sidebar from '../layout/components/Sidebar';
-import { SectionContainer, SidebarCollapse } from '../layout/styles';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { SectionContainer, SidebarCollapse } from '@erxes/ui/src/layout/styles';
 import { getConfig, setConfig } from '../utils/core';
 import Icon from './Icon';
 

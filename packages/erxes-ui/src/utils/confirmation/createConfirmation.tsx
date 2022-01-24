@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ConfirmDialog from '../../components/ConfirmDialog';
+import ConfirmDialog from '@erxes/ui/src/components/ConfirmDialog';
 
 const createConfirmation = (unmountDelay = 1000) => {
   return props => {

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '../../components/Spinner';
-import { storeConstantToStore, withProps } from '../../utils';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { storeConstantToStore, withProps } from '@erxes/ui/src/utils';
 import React, { useEffect } from 'react';
 import { graphql } from 'react-apollo';
 import { currentUser, userChanged } from '../graphql';
