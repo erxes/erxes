@@ -6,10 +6,10 @@ import ActionSection from '../../components/common/ActionSection';
 import { mutations, queries } from '../../graphql';
 import { ICustomer } from '../../types';
 import {
-  ChangeStateMutationResponse,
-  ChangeStateMutationVariables,
   MergeMutationResponse,
   MergeMutationVariables,
+  ChangeStateMutationResponse,
+  ChangeStateMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '@erxes/ui/src/customers/types';
