@@ -98,3 +98,8 @@ export const findOne = async (collection: any, query: any) => {
 
   return result && result[0];
 };
+
+// Static model function
+export const findIntegrations = (query: any, options?: any) => {
+  return Integrations && Integrations.find({ ...query, isActive: { $ne: false } }, options);
+};

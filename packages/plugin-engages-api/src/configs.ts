@@ -29,7 +29,8 @@ export default {
     typeDefs,
     resolvers,
   },
-  segment: { schemas: []},
+  segment: { schemas: [] },
+  hasSubscriptions: false,
   apolloServerContext: (context) => {
     context.dataloaders = {};
     context.docModifier = (doc) => doc;
