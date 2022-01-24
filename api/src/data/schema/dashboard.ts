@@ -2,8 +2,15 @@ export const types = `
   type Dashboard {
     _id: String!
     name: String
-    visibility: String!
+    visibility: String
     selectedMemberIds: [String]
+    description: String
+    parentId: String
+    childsDashboard: [Dashboard]
+    order: String
+    createdAt: Date
+    dashboardCount: Int
+    relatedIds: [String]
   }
 
   type DashboardItem {
@@ -28,8 +35,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  dashboardAdd(name: String, visibility: String, selectedMemberIds: [String]): Dashboard
-  dashboardEdit(_id: String!, name: String!, visibility: String, selectedMemberIds: [String]): Dashboard
+  dashboardAdd(name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
+  dashboardEdit(_id: String!, name: String!, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
   dashboardRemove(_id: String!): JSON
   dashboardItemAdd(dashboardId: String, layout: String, vizState: String, name: String, type: String, isDateRange: Boolean): DashboardItem
   dashboardItemEdit(_id: String!, dashboardId:String, layout: String, vizState: String, name: String, type: String): DashboardItem
