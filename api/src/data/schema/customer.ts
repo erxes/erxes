@@ -8,7 +8,7 @@ export const types = `
     status: String!
   }
 
-  type Customer @key(fields: "_id") {
+  type Customer @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     state: String
     createdAt: Date
