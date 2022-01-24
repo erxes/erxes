@@ -112,6 +112,9 @@ class LotteriesList extends React.Component<IProps, State> {
                 <SortHandler sortField={'createdAt'} label={__('Created')} />
               </th>
               <th>
+                <SortHandler sortField={'number'} label={__('Number')} />
+              </th>
+              <th>
                 <SortHandler sortField={'ownerType'} label={__('Owner Type')} />
               </th>
               <th>

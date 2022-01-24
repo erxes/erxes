@@ -2,7 +2,8 @@ import { IUser } from 'erxes-ui/lib/auth/types';
 import { ICommonDoc } from '../common/types';
 
 export interface ILotteryDoc extends ICommonDoc {
-  status: string
+  status: string;
+  number: string;
 }
 
 export interface ILottery extends ILotteryDoc {

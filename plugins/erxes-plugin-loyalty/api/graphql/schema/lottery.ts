@@ -4,6 +4,7 @@ export const types = `
   type Lottery {
     ${commonTypes}
     status: String
+    number: String
   }
 
   type LotteryMain {

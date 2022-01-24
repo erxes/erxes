@@ -105,6 +105,7 @@ class LotteryRow extends React.Component<Props> {
           />
         </td>
         <td key={'createdAt'}>{dayjs(lottery.createdAt).format('lll')} </td>
+        <td key={'ownerType'}>{this.displayValue(lottery, 'number')}</td>
         <td key={'ownerType'}>{this.displayValue(lottery, 'ownerType')}</td>
         <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
         <td key={'status'}>{this.displayValue(lottery, 'status')}</td>

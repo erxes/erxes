@@ -3,6 +3,7 @@ import { commonFields, commonParamsDef, commonParamsValue } from '../../common/g
 export const lotteryFields = `
   ${commonFields}
   status
+  number
 `;
 
 const listParamsDef = `
