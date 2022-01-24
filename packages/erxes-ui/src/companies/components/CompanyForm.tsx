@@ -1,26 +1,26 @@
-import AutoCompletionSelect from '../../components/AutoCompletionSelect';
-import AvatarUpload from '../../components/AvatarUpload';
-import Button from '../../components/Button';
-import CollapseContent from '../../components/CollapseContent';
-import FormControl from '../../components/form/Control';
-import Form from '../../components/form/Form';
-import FormGroup from '../../components/form/Group';
-import ControlLabel from '../../components/form/Label';
+import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
+import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
   ScrollWrapper
-} from '../../styles/main';
-import { IButtonMutateProps, IFormProps } from '../../types';
-import { __, getConstantFromStore } from '../../utils';
+} from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __, getConstantFromStore } from '@erxes/ui/src/utils';
 import SelectCompanies from '../containers/SelectCompanies';
-import { isValidPhone } from '../../customers/utils';
-import SelectTeamMembers from '../../team/containers/SelectTeamMembers';
+import { isValidPhone } from '@erxes/ui/src/customers/utils';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
 import validator from 'validator';
-import { IUser } from '../../auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
@@ -290,9 +290,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <Select
                     value={this.state.location}
                     onChange={this.onCountryChange}
-                    options={this.generateConstantParams(
-                      COUNTRIES
-                    )}
+                    options={this.generateConstantParams(COUNTRIES)}
                     placeholder={__('Select country')}
                     clearable={true}
                   />

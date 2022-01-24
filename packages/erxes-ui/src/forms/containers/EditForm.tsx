@@ -1,15 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { IIntegration } from '@erxes/ui/src/settings/integrations/types';
-import {
-  FieldsQueryResponse,
-  IField
-} from '@erxes/ui/src/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IField, IRouterProps } from '@erxes/ui/src/types';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
@@ -18,10 +13,13 @@ import {
   EditFormMutationVariables,
   FieldsBulkAddAndEditMutationResponse,
   FormDetailQueryResponse,
+  IForm,
   IFormData,
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -74,7 +72,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     }
 
     const dbFields = fieldsQuery.fields || [];
-    const form = formDetailQuery.formDetail || {};
+    const form = formDetailQuery.formDetail || ({} as IForm);
 
     const saveForm = doc => {
       const { title, desc, buttonText, type, numberOfPages } = doc;

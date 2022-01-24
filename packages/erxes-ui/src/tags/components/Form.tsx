@@ -1,11 +1,10 @@
 import { COLORS } from '@erxes/ui/src/constants/colors';
-import { Button } from '../../components';
-import {
-  FormControl,
-  Form,
-  FormGroup,
-  ControlLabel
-} from '../../components/form';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+
 import { colors } from '../../styles';
 import { ModalFooter } from '../../styles/main';
 import { IButtonMutateProps, IFormProps } from '../../types';

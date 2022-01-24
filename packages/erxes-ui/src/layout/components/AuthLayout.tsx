@@ -1,4 +1,4 @@
-import Button from '../../components/Button';
+import Button from '@erxes/ui/src/components/Button';
 import { __, bustIframe } from '../../utils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';

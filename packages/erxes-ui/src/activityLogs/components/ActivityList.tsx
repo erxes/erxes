@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import { IUser } from '../../auth/types';
-import EmptyState from '../../components/EmptyState';
+import { IUser } from '@erxes/ui/src/auth/types';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ActivityTitle, Timeline } from '../styles';
 import { IActivityLog } from '../types';
 import ActivityItem from './ActivityItem';
@@ -11,13 +11,21 @@ export type IActivityListProps = {
   user: IUser;
   target?: string;
   type: string;
-  activityRenderItem?: (activity: IActivityLog, currentUser?: IUser) => React.ReactNode;
+  activityRenderItem?: (
+    activity: IActivityLog,
+    currentUser?: IUser
+  ) => React.ReactNode;
 };
 
 class ActivityList extends React.Component<IActivityListProps> {
   renderItem(data) {
     return data.map((item, index) => (
-      <ActivityItem key={index} activity={item} currentUser={this.props.user} activityRenderItem={this.props.activityRenderItem} />
+      <ActivityItem
+        key={index}
+        activity={item}
+        currentUser={this.props.user}
+        activityRenderItem={this.props.activityRenderItem}
+      />
     ));
   }
 
