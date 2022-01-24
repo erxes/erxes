@@ -4,7 +4,6 @@ import { IRouterProps } from 'modules/common/types';
 import { bustIframe } from 'modules/common/utils';
 import { NotifProvider } from 'modules/notifications/context';
 import Robot from 'modules/robot/containers/Robot';
-import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Navigation from '../containers/Navigation';
@@ -77,18 +76,6 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
     return localStorage.getItem('erxes_import_data') || '';
   };
 
-  renderBackgroundProccess = () => {
-    const { isShownIndicator, closeLoadingBar } = this.props;
-
-    if (isShownIndicator) {
-      return (
-        <ImportIndicator id={this.getLastImport()} close={closeLoadingBar} />
-      );
-    }
-
-    return null;
-  };
-
   render() {
     const { currentUser, children, isShownIndicator, history } = this.props;
     const { isCollapsed } = this.state;
@@ -100,7 +87,7 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
     return (
       <>
         <div id="anti-clickjack" style={{ display: 'none' }} />
-        {this.renderBackgroundProccess()}
+
         <Layout isSqueezed={isShownIndicator}>
           {currentUser && (
             <Navigation

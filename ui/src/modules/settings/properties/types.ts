@@ -8,6 +8,13 @@ export interface IFieldLogic {
   logicValue: string;
   __typename?: string;
 }
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
+}
+
 export interface IField {
   _id: string;
   key?: string;
@@ -19,6 +26,7 @@ export interface IField {
   content?: string;
   description?: string;
   options?: string[];
+  locationOptions?: ILocationOption[];
   isRequired?: boolean;
   order?: React.ReactNode;
   canHide?: boolean;
@@ -118,6 +126,9 @@ export type FieldsCombinedByType = {
   type: string;
   selectOptions?: any[];
   order?: number;
+  group?: string;
+  options?: string[];
+  title?: string;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {

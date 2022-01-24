@@ -11,6 +11,7 @@ import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../types';
+import { configReplacer } from '../../utils';
 import { checkPermission } from '../boardUtils';
 
 interface IBoardsEdit extends IBoard {
@@ -28,6 +29,27 @@ interface IPipelinesEdit extends IPipelinesAdd {
 interface IStageEdit extends IStage {
   _id: string;
 }
+
+const checkNumberConfig = async (numberConfig: string, numberSize: string) => {
+  if (!numberConfig) {
+    throw new Error('Please input number configuration.');
+  }
+
+  if (!numberSize) {
+    throw new Error('Please input fractional part.');
+  }
+
+  const replaced = await configReplacer(numberConfig);
+  const re = /[0-9]$/;
+
+  if (re.test(replaced)) {
+    throw new Error(
+      `Please make sure that the number configuration itself doesn't end with any number.`
+    );
+  }
+
+  return;
+};
 
 const boardMutations = {
   /**
@@ -110,6 +132,10 @@ const boardMutations = {
   ) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
+    if (doc.numberConfig || doc.numberSize) {
+      await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
+    }
+
     const pipeline = await Pipelines.createPipeline(
       { userId: user._id, ...doc },
       stages
@@ -136,6 +162,10 @@ const boardMutations = {
     { user }: IContext
   ) {
     await checkPermission(doc.type, user, 'pipelinesEdit');
+
+    if (doc.numberConfig || doc.numberSize) {
+      await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
+    }
 
     const pipeline = await Pipelines.getPipeline(_id);
 

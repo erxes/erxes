@@ -9,7 +9,6 @@ import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import GrowthHackRoutes from './growthHacks/routes';
-import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
 import LogRoutes from './logs/routes';
 import MainRoutes from './main/routes';
@@ -40,7 +39,6 @@ const routes = () => (
     <ProductService key="ProductService" />
     <General key="General" />
     <PropertiesRoutes key="PropertiesRoutes" />
-    <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />

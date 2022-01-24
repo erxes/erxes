@@ -35,6 +35,7 @@ const commonFields = `
   modifiedAt
   status
   labelIds
+  number
 
   labels {
     _id

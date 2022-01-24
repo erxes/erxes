@@ -59,6 +59,7 @@ export const commonTypes = `
   customFieldsData: JSON
   score: Float
   timeTrack: TimeTrack
+  number: String
 `;
 
 export const commonMutationParams = `
@@ -106,4 +107,5 @@ export const commonListTypes = `
   priority: String
   hasNotified: Boolean
   score: Float
+  number: String
 `;

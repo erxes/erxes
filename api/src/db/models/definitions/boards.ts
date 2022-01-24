@@ -50,6 +50,7 @@ export interface IItemCommonFields {
   };
   customFieldsData?: ICustomField[];
   score?: number;
+  number?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -88,6 +89,9 @@ export interface IPipeline extends ICommonFields {
   templateId?: string;
   isCheckUser?: boolean;
   excludeCheckUserIds?: string[];
+  numberConfig?: string;
+  numberSize?: string;
+  lastNum?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -228,6 +232,12 @@ export const commonItemFieldsSchema = {
     label: 'Score',
     esType: 'number'
   }),
+  number: field({
+    type: String,
+    unique: true,
+    sparse: true,
+    label: 'Item number'
+  }),
   relations: field({
     type: [relationSchema],
     optional: true,
@@ -281,6 +291,13 @@ export const pipelineSchema = new Schema({
     type: [String],
     optional: true,
     label: 'Users elligible to see all cards'
+  }),
+  numberConfig: field({ type: String, optional: true, label: 'Number config' }),
+  numberSize: field({ type: String, optional: true, label: 'Number count' }),
+  lastNum: field({
+    type: String,
+    optional: true,
+    label: 'Last generated number'
   }),
   ...commonFieldsSchema
 });

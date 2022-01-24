@@ -67,6 +67,7 @@ export const commonListFields = `
   priority
   hasNotified
   score
+  number
 `;
 
 export const commonFields = `
@@ -134,6 +135,7 @@ export const commonFields = `
     timeSpent
     startDate
   }
+  number
 `;
 
 const stagesUpdateOrder = `

@@ -1,3 +1,4 @@
+import 'erxes-icon/css/erxes.min.css';
 import gql from 'graphql-tag';
 import client from '../apollo-client';
 import { getLocalStorageItem, initStorage } from '../common';
