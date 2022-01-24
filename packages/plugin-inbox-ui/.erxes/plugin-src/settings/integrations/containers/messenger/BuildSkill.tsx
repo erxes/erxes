@@ -4,12 +4,12 @@ import { withProps } from '@erxes/ui/src/utils';
 import {
   SkillsQueryResponse,
   SkillTypesQueryResponse
-} from '../../../skills/types';
+} from '@erxes/ui-settings/src/skills/types';
 import React, { useCallback, useEffect } from 'react';
 import { graphql, useLazyQuery } from 'react-apollo';
 import queries from '../../../skills/graphql/queries';
 import BuildSkill from '../../components/messenger/steps/BuildSkill';
-import { ISkillData } from '../../types';
+import { ISkillData } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   skillData?: ISkillData;

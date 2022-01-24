@@ -1,6 +1,6 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IIntegration } from '../integrations/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 export interface IChannel {
   _id: string;
@@ -33,19 +33,6 @@ export type ChannelsCountQueryResponse = {
 } & QueryResponse;
 
 // mutation types
-export type ChannelMutationVariables = {
-  name: string;
-  description: string;
-  memberIds: string[];
-  integrationIds: string[];
-};
-
-export type AddChannelMutationResponse = {
-  addMutation: (params: {
-    variables: ChannelMutationVariables;
-  }) => Promise<void>;
-};
-
 export type EditChannelMutationVariables = {
   _id?: string;
   name: string;

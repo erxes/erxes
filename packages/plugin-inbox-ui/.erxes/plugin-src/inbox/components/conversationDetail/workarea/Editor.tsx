@@ -15,7 +15,7 @@ import {
 } from '@erxes/ui/src/components/editor/Editor';
 import React from 'react';
 
-import { IResponseTemplate } from '../../../settings/responseTemplates/types';
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import TemplateList from './TemplateList';
 
 type EditorProps = {
