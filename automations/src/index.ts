@@ -5,6 +5,7 @@ import { connect } from './connection';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initBroker } from "./messageBroker";
 import controllers from './controllers';
+import { extendViaPlugins } from './pluginUtils';
 
 export const app = express();
 
@@ -49,6 +50,8 @@ app.listen(PORT, () => {
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {
+    await extendViaPlugins();
+
     initBroker(app).catch(e => {
       debugError(`Error ocurred during message broker init ${e.message}`);
     });
