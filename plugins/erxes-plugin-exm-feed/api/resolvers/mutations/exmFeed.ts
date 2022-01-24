@@ -49,9 +49,9 @@ const exmFeedMutations = [
         user
       );
 
-      let receivers = await models.Users.find().distinct('_id');
+      // let receivers = await models.Users.find().distinct('_id');
 
-      receivers = receivers.filter(r => r._id !== user._id);
+      // receivers = receivers.filter(r => r._id !== user._id);
 
       sendNotification(models, memoryStorage, graphqlPubsub, {
         notifType: 'plugin',
@@ -63,13 +63,13 @@ const exmFeedMutations = [
         // exclude current user
         contentType: 'exmFeed',
         contentTypeId: exmFeed._id,
-        receivers
+        receivers: ['x4GGpXWmy4tmBDBgv']
       });
 
-      await sendMobileNotification(models, {
+      sendMobileNotification(models, {
         title: doc.title,
         body: doc.description,
-        receivers
+        receivers: ['x4GGpXWmy4tmBDBgv']
       });
 
       return exmFeed;
