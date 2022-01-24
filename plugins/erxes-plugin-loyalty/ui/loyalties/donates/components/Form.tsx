@@ -11,7 +11,7 @@ import {
   SelectCompanies,
   SelectCustomers,
   SelectTeamMembers
-  } from 'erxes-ui';
+} from 'erxes-ui';
 import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
 import { IDonate, IDonateDoc } from '../types';
 import { IDonateCompaign } from '../../../configs/donateCompaign/types';
@@ -32,7 +32,7 @@ class DonateForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { donate = {} as IDonate, queryParams , compaigns} = this.props;
+    const { donate = {} as IDonate, queryParams, compaigns } = this.props;
 
     if (!donate.compaignId) {
       donate.compaignId = queryParams.compaignId || compaigns.length && compaigns[0]._id;
@@ -174,7 +174,22 @@ class DonateForm extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          {this.renderOwner()}
+          <FormGroup>
+            <ControlLabel required={true}>Owner</ControlLabel>
+            {this.renderOwner()}
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel required={true}>Donate Score</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="donateScore"
+              type="number"
+              min={0}
+              defaultValue={donate.donateScore}
+              onChange={this.onChangeInput}
+            />
+          </FormGroup>
         </ScrollWrapper>
 
         <ModalFooter>

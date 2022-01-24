@@ -2,8 +2,8 @@ import { commonDefs, commonVariables } from "../../common/graphq";
 import { donateFields } from "./queries";
 
 const donatesAdd = `
-mutation donatesAdd(${commonDefs}, $status: String) {
-  donatesAdd(${commonVariables}, status: $status) {
+mutation donatesAdd(${commonDefs}, $donateScore: Float) {
+  donatesAdd(${commonVariables}, donateScore: $donateScore) {
     ${donateFields}
   }
 }

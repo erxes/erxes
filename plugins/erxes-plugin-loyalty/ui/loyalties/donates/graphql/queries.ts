@@ -2,7 +2,7 @@ import { commonFields, commonParamsDef, commonParamsValue } from '../../common/g
 
 export const donateFields = `
   ${commonFields}
-  status
+  donateScore
 `;
 
 const listParamsDef = `

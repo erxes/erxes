@@ -2,7 +2,7 @@ import { IUser } from 'erxes-ui/lib/auth/types';
 import { ICommonDoc } from '../common/types';
 
 export interface IDonateDoc extends ICommonDoc {
-  status: string
+  donateScore: number;
 }
 
 export interface IDonate extends IDonateDoc {

@@ -7,7 +7,12 @@ export interface ISpinDoc extends ICommonDoc {
 
 export interface ISpin extends ISpinDoc {
   _id: string;
-  owner: IUser;
+  owner: any;
+  voucherCompaingId?: string;
+
+  // won
+  voucherId?: string;
+  awardId?: string;
 }
 
 // mutation types

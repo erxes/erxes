@@ -3,7 +3,7 @@ import { commonTypes, commonInputs, commonFilters } from './common';
 export const types = `
   type Donate {
     ${commonTypes}
-    status: String
+    donateScore: Float
   }
 
   type DonateMain {
@@ -14,7 +14,7 @@ export const types = `
 
 const DonateDoc = `
   ${commonInputs}
-  status: String
+  donateScore: Float
 `
 export const queries = `
   donatesMain(${commonFilters}): DonateMain

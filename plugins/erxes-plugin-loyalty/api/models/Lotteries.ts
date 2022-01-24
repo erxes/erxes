@@ -8,7 +8,10 @@ export const lotterySchema = {
   status: { type: String, enum: LOTTERY_STATUS.ALL, default: 'new' },
   number: { type: String, optional: true, label: 'Lottery number' },
 
-  voucherCompaignId: { type: String, label: 'Won Voucher Compaign', optional: true },
+  voucherCompaignId: { type: String, label: 'Source Voucher Compaign', optional: true },
+
+  // won
+  awardId: { type: String, label: 'Won award' },
   voucherId: { type: String, label: 'Won Voucher', optional: true }
 };
 

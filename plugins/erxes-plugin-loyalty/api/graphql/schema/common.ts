@@ -43,10 +43,6 @@ export const commonTypes = `
   ownerType: String,
   ownerId: String,
 
-  company: [Company]
-  customer: [Customer]
-  user: [User]
-  compaign: JSON,
   owner: JSON
 `;
 

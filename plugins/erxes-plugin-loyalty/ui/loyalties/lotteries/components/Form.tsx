@@ -174,7 +174,10 @@ class LotteryForm extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          {this.renderOwner()}
+          <FormGroup>
+            <ControlLabel required={true}>Owner</ControlLabel>
+            {this.renderOwner()}
+          </FormGroup>
         </ScrollWrapper>
 
         <ModalFooter>

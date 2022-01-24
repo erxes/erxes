@@ -55,17 +55,17 @@ export const changeScoreOwner = async (models, { ownerType, ownerId, changeScore
 
   if (ownerType === 'customer') {
     collection = models.Customers;
-    owner = models.Customers.findOne({ _id: ownerId }).lean();
+    owner = await models.Customers.findOne({ _id: ownerId }).lean();
   }
 
   if (ownerType === 'user') {
     collection = models.Users;
-    owner = models.Users.findOne({ _id: ownerId }).lean();
+    owner = await models.Users.findOne({ _id: ownerId }).lean();
   }
 
   if (ownerType === 'company') {
     collection = models.Compaines;
-    owner = models.Companies.findOne({ _id: ownerId }).lean();
+    owner = await models.Companies.findOne({ _id: ownerId }).lean();
   }
 
   if (!owner) {

@@ -118,7 +118,7 @@ class DonatesList extends React.Component<IProps, State> {
                 <SortHandler sortField={'ownerId'} label={__('Owner')} />
               </th>
               <th>
-                <SortHandler sortField={'status'} label={__('Status')} />
+                <SortHandler sortField={'donateScore'} label={__('Donate Score')} />
               </th>
               <th>
                 Actions

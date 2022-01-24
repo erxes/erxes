@@ -9,6 +9,12 @@ export interface ILotteryDoc extends ICommonDoc {
 export interface ILottery extends ILotteryDoc {
   _id: string;
   owner: IUser;
+
+  voucherCompaingId?: string;
+
+  // won
+  voucherId?: string;
+  awardId?: string;
 }
 
 // mutation types

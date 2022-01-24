@@ -5,9 +5,11 @@ import { SPIN_STATUS } from './Constants';
 export const spinSchema = {
   ...commonSchema,
   status: { type: String, enum: SPIN_STATUS.ALL, default: 'new' },
+
+  voucherCompaignId: { type: String, label: 'Source Voucher Compaign', optional: true },
+
   // won
-  awardId: { type: String, enum: SPIN_STATUS.ALL, default: 'new' },
-  voucherCompaignId: { type: String, label: 'Won Voucher Compaign', optional: true },
+  awardId: { type: String, label: 'Won award' },
   voucherId: { type: String, label: 'Won Voucher', optional: true }
 };
 
@@ -97,7 +99,7 @@ export class Spin {
 
     const award = awards.find(a => a._id === interval.awardId);
     const voucher = await models.Vouchers.createVoucher(models, { compaignId: award.voucherCompaignId, ownerType, ownerId });
-    await models.updateOne({ _id: spinId }, { status: SPIN_STATUS.WON, voucherId: voucher._id, awardId: award._id, usedAt: new Date() });
+    await models.Spins.updateOne({ _id: spinId }, { status: SPIN_STATUS.WON, voucherId: voucher._id, awardId: award._id, usedAt: new Date() });
 
     return models.Spins.getSpin(models, spinId);
   }

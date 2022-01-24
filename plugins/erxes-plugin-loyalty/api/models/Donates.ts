@@ -4,7 +4,7 @@ export const donateSchema = {
   ...commonSchema,
 
   donateScore: { type: Number },
-  voucherCompaignId: { type: String, label: 'Won Voucher Compaign', optional: true },
+  awardId: { type: String, label: 'Won Award', optional: true },
   voucherId: { type: String, label: 'Won Voucher', optional: true }
 };
 
@@ -23,8 +23,8 @@ export class Donate {
     return await models.Donates.find({ ownerType, ownerId }).lean()
   }
 
-  public static async createDonate(models, { compaignId, ownerType, ownerId, score }) {
-    if (!score) {
+  public static async createDonate(models, { compaignId, ownerType, ownerId, donateScore }) {
+    if (!donateScore) {
       throw new Error('Not create donate, score is NaN');
     }
 
@@ -40,7 +40,7 @@ export class Donate {
       throw new Error('Not create donate, expired');
     }
 
-    if (donateCompaign.maxScore < score) {
+    if (donateCompaign.maxScore < donateScore) {
       throw new Error('Your donation is in excess');
     }
 
@@ -51,7 +51,7 @@ export class Donate {
       const awards = donateCompaign.awards.sort((a, b) => a.minScore - b.minSocre);
 
       for (const award of awards) {
-        if (score >= award.minScore) {
+        if (donateScore >= award.minScore) {
           fitAward = award;
         }
       }
@@ -61,9 +61,9 @@ export class Donate {
       }
     }
 
-    await changeScoreOwner(models, { ownerType, ownerId, changeScore: -1 * score });
+    await changeScoreOwner(models, { ownerType, ownerId, changeScore: -1 * donateScore });
 
-    return await models.Donates.create({ compaignId, ownerType, ownerId, createdAt: new Date(), donateScore: score, voucherCompaignId: fitAward.voucherCompaignId, voucherId: voucher._id });
+    return await models.Donates.create({ compaignId, ownerType, ownerId, createdAt: new Date(), donateScore, awardId: fitAward._id, voucherId: voucher._id });
   }
 
   public static async removeDonates(models, _ids: string[]) {

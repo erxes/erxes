@@ -107,7 +107,7 @@ class DonateRow extends React.Component<Props> {
         <td key={'createdAt'}>{dayjs(donate.createdAt).format('lll')} </td>
         <td key={'ownerType'}>{this.displayValue(donate, 'ownerType')}</td>
         <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
-        <td key={'status'}>{this.displayValue(donate, 'status')}</td>
+        <td key={'status'}>{this.displayValue(donate, 'donateScore')}</td>
         <td key={'actions'} onClick={onClick}></td>
       </tr>
     );
