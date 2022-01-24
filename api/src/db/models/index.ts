@@ -42,6 +42,7 @@ import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
 import { Structures, Departments, Units, Branches } from './Structure';
+import EngageMessages from './Engages';
 
 export {
   EmailDeliveries,
@@ -57,6 +58,7 @@ export {
   Forms,
   FormSubmissions,
   Tags,
+  EngageMessages,
   Fields,
   Segments,
   InternalNotes,

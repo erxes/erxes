@@ -18,7 +18,6 @@ import {
   Customers,
   Forms,
   Companies,
-  EngageMessages,
   Checklists,
   InternalNotes,
   FieldsGroups,
@@ -218,14 +217,6 @@ export const initBroker = async (server?) => {
       })
     );
 
-    consumeRPCQueue(
-      'engages:rpc_queue:createVisitorOrCustomerMessages',
-      async params => ({
-        status: 'success',
-        data: await EngageMessages.createVisitorOrCustomerMessages(params)
-      })
-    );
-
     consumeRPCQueue('fields:rpc_queue:prepareCustomFieldsData', async doc => ({
       status: 'success',
       data: await Fields.prepareCustomFieldsData(doc)
@@ -252,8 +243,8 @@ export const initBroker = async (server?) => {
         integrationId,
         content,
         engageData
-      ) =>
-        await createConversationAndMessage(
+      ) => {
+        const data = await createConversationAndMessage(
           userId,
           status,
           customerId,
@@ -261,59 +252,89 @@ export const initBroker = async (server?) => {
           integrationId,
           content,
           engageData
-        )
+        );
+
+        return { data, status: 'success' };
+      }
     );
 
     consumeRPCQueue(
       'rpc_queue:engageUtils_findIntegrations_to_api',
-      async data => await Integrations.findIntegrations({ brandId: data })
+      async data => {
+        const integrations = await Integrations.findIntegrations({
+          brandId: data
+        });
+
+        return { data: integrations, status: 'success' };
+      }
     );
 
     consumeRPCQueue(
       'rpc_queue:engageUtils_savedConformity_to_api',
-      async (mainType, mainTypeId, relTypes) =>
-        await Conformities.savedConformity({
+      async (mainType, mainTypeId, relTypes) => {
+        const data = await Conformities.savedConformity({
           mainType,
           mainTypeId,
           relTypes
-        })
+        });
+
+        return { data, status: 'success' };
+      }
     );
 
     consumeRPCQueue(
       'rpc_queue:engageUtils_fetchSegment_to_api',
-      async (segment, options: any = {}) =>
-        await fetchSegment({
+      async (segment, options: any = {}) => {
+        const data = await fetchSegment({
           segment,
           options
-        })
+        });
+
+        return { data, status: 'success' };
+      }
     );
 
     consumeRPCQueue(
       'rpc_queue:editorAttributeUtils_fieldsCombinedByContentType_to_api',
-      async contentType =>
-        await fieldsCombinedByContentType({
+      async contentType => {
+        const f = await fieldsCombinedByContentType({
           contentType
-        })
+        });
+
+        return {
+          status: 'success',
+          data: f
+        };
+      }
     );
 
     consumeRPCQueue(
       'rpc_queue:editorAttributeUtils_generateAmounts_to_api',
-      productsData => generateAmounts(productsData)
+      async productsData => ({
+        data: await generateAmounts(productsData),
+        status: 'success'
+      })
     );
 
     consumeRPCQueue(
       'rpc_queue:editorAttributeUtils_generateProducts_to_api',
-      async productsData => await generateProducts(productsData)
+      async productsData => ({
+        data: await generateProducts(productsData),
+        status: 'success'
+      })
     );
 
     consumeRPCQueue(
       'rpc_queue:editorAttributeUtils_getSubServiceDomain_to_api',
-      name => getSubServiceDomain(name)
+      name => ({ data: getSubServiceDomain(name), status: 'success' })
     );
 
     consumeRPCQueue(
       'rpc_queue:editorAttributeUtils_getCustomerName_to_api',
-      customer => Customers.getCustomerName(customer)
+      async customer => ({
+        data: await Customers.getCustomerName(customer),
+        status: 'success'
+      })
     );
 
     // graphql subscriptions call =========
