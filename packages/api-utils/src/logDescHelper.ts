@@ -3,10 +3,6 @@ import {
   IChannelDocument,
   IIntegrationDocument,
   ICompanyDocument,
-  IDealDocument,
-  ITaskDocument,
-  ITicketDocument,
-  IGrowthHackDocument,
   ITopicDocument,
   ICategoryDocument,
   IProductDocument,
@@ -39,12 +35,6 @@ import {
   Checklists,
   findOne
 } from './apiCollections';
-
-export type BoardItemDocument =
-  | IDealDocument
-  | ITaskDocument
-  | ITicketDocument
-  | IGrowthHackDocument;
 
 export type LogDesc = {
   [key: string]: any;
