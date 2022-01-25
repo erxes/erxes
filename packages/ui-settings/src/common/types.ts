@@ -19,9 +19,3 @@ export interface ICommonFormProps {
   object?: any;
   closeModal: () => void;
 }
-
-export type QueryResponse = {
-  loading: boolean;
-  refetch: () => Promise<any>;
-  error?: string;
-};

@@ -2,6 +2,12 @@ import Button from '../../Button';
 import { readFile } from '../../../utils';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import React from 'react';
+import styled from 'styled-components';
+import {
+  LauncherContainer,
+  WebPreview,
+  WidgetPreview
+} from './styles';
 import {
   BodyContent,
   CallOutBody,
@@ -16,6 +22,12 @@ import {
   SlideLeftContent,
   SlideRightContent
 } from './styles';
+
+export const ShoutBox = styled(WebPreview)`
+  height: 100%;
+  width: auto;
+  margin-left: 0;
+`;
 
 type Props = {
   title?: string;
@@ -166,7 +178,16 @@ class CommonPreview extends React.Component<Props, {}> {
     const { type, theme, color } = this.props;
 
     if (type === 'shoutbox') {
-      return <div>shout</div>;
+      return (
+        <ShoutBox>
+          <WidgetPreview className="type-default">
+            {this.renderContent()}
+          </WidgetPreview>
+          <LauncherContainer style={{ backgroundColor: theme ? theme : color }}>
+            <span>1</span>
+          </LauncherContainer>
+        </ShoutBox>
+      );
     }
 
     if (type === 'popup') {

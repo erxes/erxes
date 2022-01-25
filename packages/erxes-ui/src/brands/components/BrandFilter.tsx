@@ -1,6 +1,6 @@
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IRouterProps } from '../../types';
 import { __, router } from '@erxes/ui/src/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';

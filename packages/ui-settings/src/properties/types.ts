@@ -87,14 +87,6 @@ export type AddFieldsMutationResponse = {
   }) => void;
 };
 
-export interface IFieldLogic {
-  fieldId?: string;
-  tempFieldId?: string;
-  logicOperator: string;
-  logicValue: string;
-  __typename?: string;
-}
-
 export type DefaultColumnsConfigQueryResponse = {
   fieldsDefaultColumnsConfig: IConfigColumn[];
 } & QueryResponse;

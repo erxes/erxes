@@ -113,7 +113,7 @@ class Manage extends React.Component<Props, State> {
     return (
       <>
         <MarkdownWrapper>
-          <ReactMarkdown source={code || ''} />
+          <ReactMarkdown children={code || ''} />
           {code ? (
             <CopyToClipboard text={code} onCopy={onCopy}>
               <Button btnStyle="primary" icon="copy-1">
@@ -135,7 +135,7 @@ class Manage extends React.Component<Props, State> {
           )}
         </Info>
         <MarkdownWrapper>
-          <ReactMarkdown source={embedCode || ''} />
+          <ReactMarkdown children={embedCode || ''} />
         </MarkdownWrapper>
         <br />
         <Info>
@@ -144,7 +144,7 @@ class Manage extends React.Component<Props, State> {
           )}
         </Info>
         <MarkdownWrapper>
-          <ReactMarkdown source={buttonCode || ''} />
+          <ReactMarkdown children={buttonCode || ''} />
         </MarkdownWrapper>
       </>
     );

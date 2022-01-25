@@ -1,5 +1,5 @@
 import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import { IOption, IQueryParams } from '../../types';
 import * as React from 'react';
 import { queries } from '@erxes/ui/src/brands/graphql';
 import { IBrand } from '@erxes/ui/src/brands/types';
