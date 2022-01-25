@@ -8,7 +8,14 @@ import { Divider, Row, RowTitle } from '@erxes/ui-settings/src/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import pluginModules from './plugins';
-import { ISubNav } from './types';
+
+interface ISubNav {
+  permission: string;
+  link: string;
+  value: string;
+  icon: string;
+  additional?: boolean;
+}
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];

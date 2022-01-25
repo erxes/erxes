@@ -139,6 +139,7 @@ export type IMentionUser = {
   id: string;
   avatar: string;
   username: string;
+  fullName?: string;
 };
 
 export type IEditorProps = {
@@ -164,13 +165,6 @@ export type IEditorProps = {
 
 export type QueryResponse = {
   loading: boolean;
-  refetch: () => void;
+  refetch: () => Promise<any>;
+  error?: string;
 };
-
-export interface ISubNav {
-  permission: string;
-  link: string;
-  value: string;
-  icon: string;
-  additional?: boolean;
-}

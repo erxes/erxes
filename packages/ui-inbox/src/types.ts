@@ -4,7 +4,7 @@ import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 import { ICategory } from '@erxes/ui/src/utils/categories';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { QueryResponse } from '@erxes/ui-settings/src/common/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IEmail {
   name?: string;

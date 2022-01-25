@@ -3,7 +3,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { __ } from '@erxes/ui/src/utils';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { IField } from '@erxes/ui/src/types';
+import { IField } from '../../types';
 import { Description } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import FormGroup from '@erxes/ui/src/components/form/Group';
