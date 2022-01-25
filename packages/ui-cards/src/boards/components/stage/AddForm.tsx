@@ -1,7 +1,7 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import ControlLabel from 'modules/common/components/form/Label';
-import { Alert } from 'modules/common/utils';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
 import { invalidateCache } from '../../utils';

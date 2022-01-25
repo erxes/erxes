@@ -2,8 +2,8 @@ import Button from '@erxes/ui/src/components/Button';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
 import { IField, IFieldLogic } from '../../types';
+import React from 'react';
 import {
   dateTypeChoices,
   numberTypeChoices,

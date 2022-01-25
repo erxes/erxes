@@ -1,5 +1,5 @@
 import GenerateField from '@erxes/ui-settings/src/properties/components/GenerateField';
-import { IField } from '@erxes/ui/src/types';
+import { IField } from '../../types';
 import React from 'react';
 import { FieldItem } from '../styles';
 

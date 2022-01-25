@@ -1,17 +1,12 @@
-import { IRouterProps } from '@erxes/ui/src/types';
-import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
-import Main from './containers/Main';
-
-const main = (props: IRouterProps) => {
-  return <Main queryParams={queryString.parse(props.location.search)} />;
-};
+import CalendarRoutes from './calendar/routes';
+import CalendarSettings from './settings/routes';
 
 const routes = () => {
   return (
     <React.Fragment>
-      <Route path='/calendar' exact={true} key='/calendar' render={main} />
+      <CalendarRoutes />
+      <CalendarSettings />
     </React.Fragment>
   );
 };

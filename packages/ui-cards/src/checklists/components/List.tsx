@@ -1,6 +1,7 @@
 import debounce from 'lodash/debounce';
 import Button from '@erxes/ui/src/components/Button';
-import { Form, FormControl } from '@erxes/ui/src/components/form';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import ProgressBar from '@erxes/ui/src/components/ProgressBar';
 import SortableList from '@erxes/ui/src/components/SortableList';

@@ -1,7 +1,7 @@
 import SortableList from '@erxes/ui/src/components/SortableList';
+import { IField } from '../../types';
 import React from 'react';
 import xss from 'xss';
-import { IField } from '../../types';
 import { FieldsWrapper } from '../styles';
 import FieldPreview from './FieldPreview';
 
