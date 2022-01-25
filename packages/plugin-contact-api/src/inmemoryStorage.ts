@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import memoryStorage from 'erxes-inmemory-storage';
-import { debugError } from '../.erxes/src/debuggers';
+import { debug } from './configs';
 
 // load environment variables
 dotenv.config();
@@ -21,7 +21,7 @@ export const removeKey = async (key: string) => {
   try {
     return await client.removeKey(key);
   } catch (e) {
-    debugError(
+    debug.error(
       `For removeKey of inmemoryStorage, key: ${key}. Error: ${e.message}`
     );
   }
@@ -33,7 +33,7 @@ export const removeFromArray = async (setKey: string, setMember: any) => {
       await client.removeFromArray(setKey, setMember);
     }
   } catch (e) {
-    debugError(
+    debug.error(
       `For removeFromArray of inmemoryStorage, ${setKey}: ${setMember}. Error: ${e.message}`
     );
   }
@@ -45,7 +45,7 @@ export const addToArray = async (setKey: string, setMember: any) => {
       await client.addToArray(setKey, setMember);
     }
   } catch (e) {
-    debugError(
+    debug.error(
       `For addToArray of inmemoryStorage, ${setKey}: ${setMember}. Error: ${e.message}`
     );
   }
@@ -55,7 +55,7 @@ export const inArray = async (setKey: string, setMember: any) => {
   try {
     return await client.inArray(setKey, setMember);
   } catch (e) {
-    debugError(
+    debug.error(
       `For inArray of inmemoryStorage, ${setKey}: ${setMember}. Error: ${e.message}`
     );
   }
@@ -65,7 +65,7 @@ export const set = async (key: string, value: any) => {
   try {
     client.set(key, value);
   } catch (e) {
-    debugError(
+    debug.error(
       `For set of inmemoryStorage, key: ${key}, value: ${value}. Error: ${e.message}`
     );
   }
@@ -75,7 +75,7 @@ export const get = async (key: string, defaultValue?: any) => {
   try {
     return await client.get(key, defaultValue);
   } catch (e) {
-    debugError(
+    debug.error(
       `For get of inmemoryStorage, key: ${key}, default value: ${defaultValue}. Error: ${e.message}`
     );
   }

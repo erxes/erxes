@@ -9,7 +9,7 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { IUserDocument } from '@erxes/common-types';
+// import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompanyName(company: ICompany): string;
@@ -27,7 +27,8 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
   findActiveCompanies(selector, fields?): Promise<ICompanyDocument[]>;
   getCompany(_id: string): Promise<ICompanyDocument>;
 
-  createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
+  // createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
+  createCompany(doc: ICompany, user?: any): Promise<ICompanyDocument>;
 
   updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
 
@@ -38,10 +39,16 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
     companyFields: ICompany
   ): Promise<ICompanyDocument>;
 
+  // bulkInsert(
+  //   fieldNames: string[],
+  //   fieldValues: string[][],
+  //   user: IUserDocument
+  // ): Promise<string[]>;
+
   bulkInsert(
     fieldNames: string[],
     fieldValues: string[][],
-    user: IUserDocument
+    user: any
   ): Promise<string[]>;
 }
 
@@ -214,7 +221,8 @@ export const loadClass = () => {
     /**
      * Create a company
      */
-    public static async createCompany(doc: ICompany, user: IUserDocument) {
+    // public static async createCompany(doc: ICompany, user: IUserDocument) {
+    public static async createCompany(doc: ICompany, user: any) {
       // Checking duplicated fields of company
       await Companies.checkDuplication(doc);
 

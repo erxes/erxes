@@ -1,4 +1,4 @@
-import { debugBase } from '../.erxes/src/debuggers';
+import { debug } from './configs';
 
 export const getEnv = ({
   name,
@@ -14,7 +14,7 @@ export const getEnv = ({
   }
 
   if (!value) {
-    debugBase(`Missing environment variable configuration for ${name}`);
+    debug.info(`Missing environment variable configuration for ${name}`);
   }
 
   return value || '';

@@ -13,7 +13,7 @@ import {
   ICustomer,
   ICustomerDocument
 } from './definitions/customers';
-import { IUserDocument } from '@erxes/common-types';
+// import { IUserDocument } from '@erxes/common-types';
 import {
   changeCustomer,
   engageChangeCustomer,
@@ -97,7 +97,8 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   createVisitor(): Promise<string>;
   createCustomer(
     doc: ICustomer,
-    user?: IUserDocument
+    // user?: IUserDocument
+    user?: any
   ): Promise<ICustomerDocument>;
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
@@ -107,12 +108,14 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   mergeCustomers(
     customerIds: string[],
     customerFields: ICustomer,
-    user?: IUserDocument
+    // user?: IUserDocument
+    user?: any
   ): Promise<ICustomerDocument>;
   bulkInsert(
     fieldNames: string[],
     fieldValues: string[][],
-    user: IUserDocument
+    // user: IUserDocument
+    user: any
   ): Promise<string[]>;
   calcPSS(doc: any): IPSS;
   updateVerificationStatus(
@@ -259,7 +262,8 @@ export const loadClass = () => {
      */
     public static async createCustomer(
       doc: ICustomer,
-      user?: IUserDocument
+      // user?: IUserDocument
+      user?: any
     ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       try {
@@ -490,7 +494,8 @@ export const loadClass = () => {
     public static async mergeCustomers(
       customerIds: string[],
       customerFields: ICustomer,
-      user?: IUserDocument
+      // user?: IUserDocument
+      user?: any
     ) {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(customerFields, customerIds);

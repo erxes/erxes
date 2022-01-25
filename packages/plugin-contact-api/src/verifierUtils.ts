@@ -4,9 +4,10 @@ import {
   IValidationResponse,
   IVisitorContact
 } from './models/definitions/customers';
-import { debugBase, debugExternalApi } from '../../../api/src/debuggers';
-import { get } from '../../../api/src/inmemoryStorage';
-import { getEnv, sendRequest } from '../../../api/src/data/utils';
+import { debug } from './configs';
+import { get } from './inmemoryStorage';
+import { getEnv } from './utils';
+import { sendRequest } from '@erxes/api-utils/src';
 
 export const validateSingle = async (contact: IVisitorContact) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
@@ -34,7 +35,7 @@ export const validateSingle = async (contact: IVisitorContact) => {
   try {
     await sendRequest(requestOptions);
   } catch (e) {
-    debugExternalApi(
+    debug.error(
       `An error occurred while sending request to the email verifier. Error: ${e.message}`
     );
   }
@@ -105,7 +106,7 @@ export const validateBulk = async (verificationType: string) => {
 
           sendRequest(requestOptions)
             .then(res => {
-              debugBase(`Response: ${res}`);
+              debug.info(`Response: ${res}`);
             })
             .catch(error => {
               throw error;
@@ -155,7 +156,7 @@ export const validateBulk = async (verificationType: string) => {
 
         sendRequest(requestOptions)
           .then(res => {
-            debugBase(`Response: ${res}`);
+            debug.info(`Response: ${res}`);
           })
           .catch(error => {
             throw error;

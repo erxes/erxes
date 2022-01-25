@@ -74,11 +74,11 @@ async function tryToDisconnect() {
   try {
     await leave(configs.name, PORT || '');
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
 }
 
-httpServer.on('close', async () => {
+httpServer.on("close", async () => {
   await tryToDisconnect();
 });
 
