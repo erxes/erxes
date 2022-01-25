@@ -77,9 +77,9 @@ erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded
 
 erxes is a free and open <a href="https://faircode.io/">fair-code</a> licensed under GNU General Public License v3.0 with Commons Clause.
 
-## Is erxes open-source?
+## Is erxes an open-source?
 
-Technically, no. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not open-source. Instead we are fair-code. 
+Technically, no. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not an open-source. Instead we are fair-code. 
 
 ## What does fair-code mean for erxes?
 erxes' source code is open, and everyone (individuals and companies) can **use it for free privately**. But if you want to commercialize it, restrictions may apply in the form of prior permissions and official agreements.
@@ -91,6 +91,6 @@ Yes, you can offer consulting and support services without prior permission as l
 
 You need to request permission to host erxes under the <a href="https://commonsclause.com/">Commons Clause</a>. Please reach out to us at info@erxes.io.
 
-## Why is erxes not open-source but fair-code licensed instead?
+## Why is erxes not an open-source but fair-code licensed instead?
 
 We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do. We understand that people who contribute to a project are the main drivers who push a project forward. To ensure that the project continues to evolve in the longer run, we decided to attach the Commons Clause. Any entities can not make money directly with erxes **without fairly compensating the project**.  Especially, if it competes with how we plan to finance our further developments. It does not affect the majority of the people who use erxes. At the same time, it protects the project. As erxes itself depends on and uses many other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of our revenue every month to these projects.
