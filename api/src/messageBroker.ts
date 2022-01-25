@@ -22,7 +22,9 @@ import {
   InternalNotes,
   FieldsGroups,
   Notifications,
-  Fields
+  Fields,
+  Conversations,
+  EngageMessages
 } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
@@ -370,6 +372,22 @@ export const initBroker = async (server?) => {
         data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
       })
     );
+
+    consumeQueue('contact:removeCustomersConversations', async customerIds => {
+      await Conversations.removeCustomersConversations(customerIds);
+    });
+
+    consumeQueue('contact:changeCustomer', async (customerId, customerIds) => {
+      await Conversations.changeCustomer(customerId, customerIds);
+    });
+
+    consumeQueue('engage:removeCustomersEngages', async customerIds => {
+      await EngageMessages.removeCustomersEngages(customerIds);
+    });
+
+    consumeQueue('engage:changeCustomer', async (customerId, customerIds) => {
+      await EngageMessages.changeCustomer(customerId, customerIds);
+    });
 
     pluginsConsume(client);
   }
