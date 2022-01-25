@@ -1,4 +1,3 @@
-import { IChannelDocument } from "./channels";
 import { IBrowserInfo, IRule } from "./common";
 import { IUserDocument, IUser } from "./users";
 import { IBrandDocument } from "./brands";
@@ -13,7 +12,6 @@ export {
   IBrandDocument,
   IBrowserInfo,
   IRule,
-  IChannelDocument,
   ICompanyDocument,
   IProductDocument,
   IScriptDocument,

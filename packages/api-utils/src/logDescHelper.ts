@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 import {
-  IChannelDocument,
   ICompanyDocument,
   IProductDocument,
   IScriptDocument,
@@ -11,7 +10,6 @@ import { ICustomerDocument } from '@erxes/common-types/src/customers';
 import { MODULE_NAMES } from './constants';
 import { LOG_ACTIONS } from './logUtils';
 import {
-  Forms,
   Users,
   Integrations,
   Tags,
@@ -119,43 +117,6 @@ export const gatherUsernames = async (
     prevList,
     nameFields: ['email', 'username']
   });
-};
-
-const gatherChannelFieldNames = async (
-  doc: IChannelDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.userId) {
-    options = await gatherUsernames({
-      idFields: [doc.userId],
-      foreignKey: 'userId',
-      prevList: options
-    });
-  }
-
-  if (doc.memberIds && doc.memberIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.memberIds,
-      foreignKey: 'memberIds',
-      prevList: options
-    });
-  }
-
-  if (doc.integrationIds && doc.integrationIds.length > 0) {
-    options = await gatherIntegrationNames({
-      idFields: doc.integrationIds,
-      foreignKey: 'integrationIds',
-      prevList: options
-    });
-  }
-
-  return options;
 };
 
 const gatherIntegrationNames = async (
@@ -494,16 +455,15 @@ export const gatherDescriptions = async (
   let description: string = '';
 
   switch (type) {
-    case MODULE_NAMES.BRAND:
-    case MODULE_NAMES.CHANNEL:
-      extraDesc = await gatherChannelFieldNames(obj);
-      description = `"${obj.name}" has been ${action}d`;
+    // case MODULE_NAMES.BRAND:
+    //   extraDesc = await gatherChannelFieldNames(obj);
+    //   description = `"${obj.name}" has been ${action}d`;
 
-      if (updatedDocument) {
-        extraDesc = await gatherChannelFieldNames(updatedDocument, extraDesc);
-      }
+    //   if (updatedDocument) {
+    //     extraDesc = await gatherChannelFieldNames(updatedDocument, extraDesc);
+    //   }
 
-      break;
+    //   break;
     case MODULE_NAMES.CHECKLIST:
       const itemName = await findItemName({
         contentType: obj.contentType,
