@@ -15,6 +15,7 @@ import {
   EditFormMutationVariables,
   FieldsBulkAddAndEditMutationResponse,
   FormDetailQueryResponse,
+  IForm,
   IFormData,
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
@@ -71,7 +72,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     }
 
     const dbFields = fieldsQuery.fields || [];
-    const form = formDetailQuery.formDetail || {};
+    const form = formDetailQuery.formDetail || ({} as IForm);
 
     const saveForm = doc => {
       const { title, desc, buttonText, type, numberOfPages } = doc;

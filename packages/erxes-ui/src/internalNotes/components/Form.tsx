@@ -1,7 +1,7 @@
-import Button from '../../components/Button';
-import { SmallLoader } from '../../components/ButtonMutate';
-import { getMentionedUserIds } from '../../components/EditorCK';
-import EditorCK from '../../containers/EditorCK';
+import Button from '@erxes/ui/src/components/Button';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import { getMentionedUserIds } from '@erxes/ui/src/components/EditorCK';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import React from 'react';
 import styled from 'styled-components';
 

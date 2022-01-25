@@ -28,16 +28,16 @@ const userDetail = ({ match, location }) => {
 const routes = () => (
   <React.Fragment>
     <Route
-      path="/settings/team/"
+      path='/settings/team/'
       exact={true}
-      key="/settings/team/"
+      key='/settings/team/'
       component={team}
     />
 
     <Route
-      key="/settings/team/details/:id"
+      key='/settings/team/details/:id'
       exact={true}
-      path="/settings/team/details/:id"
+      path='/settings/team/details/:id'
       component={userDetail}
     />
   </React.Fragment>

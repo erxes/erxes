@@ -4,7 +4,7 @@ import { IItem, IOptions, WatchMutation, WatchVariables } from '../../types';
 import { Alert, renderWithProps } from '@erxes/ui/src/utils';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
-import { Watch } from '../../components/editForm';
+import Watch from '../../components/editForm/Watch';
 
 type IProps = {
   item: IItem;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { IUser } from '../../auth/types';
-import Icon from '../../components/Icon';
-import Tip from '../../components/Tip';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
 import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
@@ -10,7 +10,10 @@ import { formatText, getIconAndColor } from '../utils';
 type Props = {
   activity: IActivityLog;
   currentUser: IUser;
-  activityRenderItem?: (activity: IActivityLog, currentUser?: IUser) => React.ReactNode;
+  activityRenderItem?: (
+    activity: IActivityLog,
+    currentUser?: IUser
+  ) => React.ReactNode;
 };
 
 class ActivityItem extends React.Component<Props> {
@@ -53,7 +56,6 @@ class ActivityItem extends React.Component<Props> {
     }
 
     return <div />;
-
   }
 }
 

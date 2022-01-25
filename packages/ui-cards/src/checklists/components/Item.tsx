@@ -1,7 +1,7 @@
 import debounce from 'lodash/debounce';
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { FormControl } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import { isEmptyContent } from '@erxes/ui/src/utils';
 import { urlify } from '@erxes/ui/src/utils/core';
