@@ -1,4 +1,3 @@
-import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 
 // load environment variables
@@ -13,21 +12,23 @@ import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
 
-import { connect, disconnect } from './connection';
-import { debugInfo, debugError } from './debuggers';
+import { connect } from './connection';
+import { debugBase, debugError, debugInfo } from './debuggers';
 import { initBroker } from './messageBroker';
 import * as elasticsearch from './elasticsearch';
-import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import * as path from 'path';
+import typeDefs from '../../src/graphql/typeDefs';
+import resolvers from '../../src/graphql/resolvers';
+
+import apiConnect from '../../src/apiCollections';
+
+import { generateAllDataLoaders } from '../../src/dataLoaders';
 import configs from '../../src/configs';
-import { join, leave } from './serviceDiscovery';
+import { join } from './serviceDiscovery';
 
 export const app = express();
 
 app.disable('x-powered-by');
-
-app.use(cors());
 
 app.use(cookieParser());
 
@@ -35,14 +36,6 @@ app.use(cookieParser());
 app.get('/health', async (_req, res) => {
   res.end('ok');
 });
-
-if (configs.hasSubscriptions) {
-  app.get('/subscriptionPlugin.ts', async (req, res) => {
-    res.sendFile(
-      path.join(__dirname, '../../src/graphql/subscriptionPlugin.ts')
-    );
-  });
-}
 
 app.use((req: any, _res, next) => {
   req.rawBody = '';
@@ -61,8 +54,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
 
-  debugError(`Error: ${msg}`);
-
+  debugBase(`Error: ${msg}`);
   res.status(500).send(msg);
 });
 
@@ -70,26 +62,8 @@ const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 
 const httpServer = http.createServer(app);
 
-async function tryToDisconnect() {
-  try {
-    await leave(configs.name, PORT || '');
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-httpServer.on('close', async () => {
-  await tryToDisconnect();
-});
-
 const apolloServer = new ApolloServer({
-  schema: buildSubgraphSchema([
-    {
-      typeDefs: configs.graphql.typeDefs,
-      resolvers: configs.graphql.resolvers
-    }
-  ]),
-
+  schema: buildSubgraphSchema([{ typeDefs, resolvers }]),
   // for graceful shutdown
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   context: ({ req }) => {
@@ -105,15 +79,15 @@ const apolloServer = new ApolloServer({
       user = JSON.parse(userJson);
     }
 
-    const context = { user };
+    const dataLoaders = generateAllDataLoaders();
 
-    configs.apolloServerContext(context);
-
-    return context;
+    return { user, dataLoaders };
   }
 });
 
-async function startServer() {
+async function starServer() {
+  await apiConnect();
+
   await apolloServer.start();
 
   apolloServer.applyMiddleware({ app, path: '/graphql' });
@@ -123,10 +97,14 @@ async function startServer() {
   );
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
+    `🚀 Contact graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
   );
 
-  const mongoUrl = MONGO_URL || '';
+  let mongoUrl = MONGO_URL;
+
+  if (NODE_ENV === 'test') {
+    mongoUrl = TEST_MONGO_URL;
+  }
 
   try {
     // connect to mongo database
@@ -135,7 +113,6 @@ async function startServer() {
 
     configs.onServerInit({
       app,
-      pubsubClient: pubsub,
       elasticsearch,
       messageBrokerClient,
       debug: {
@@ -144,13 +121,7 @@ async function startServer() {
       }
     });
 
-    await join({
-      name: configs.name,
-      port: PORT || '',
-      dbConnectionString: mongoUrl,
-      segment: configs.segment,
-      hasSubscriptions: configs.hasSubscriptions
-    });
+    await join(configs.name, PORT);
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);
   } catch (e) {
@@ -158,4 +129,4 @@ async function startServer() {
   }
 }
 
-startServer();
+starServer();

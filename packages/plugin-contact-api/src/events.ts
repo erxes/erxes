@@ -200,7 +200,7 @@ export const trackCustomEvent = (args: {
 
 export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
   // get or create customer
-  let customer = await sendContactRPCMessage('getWidgetCustomer', args)
+  let customer = await sendContactRPCMessage('getWidgetCustomer', args);
 
   if (!customer) {
     customer = await Customers.createCustomer({

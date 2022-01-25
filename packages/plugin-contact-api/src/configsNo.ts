@@ -1,41 +1,48 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
+import apiConnect from  './apiCollections';
 
 import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import {
-  identifyCustomer,
-  trackCustomEvent,
-  trackViewPageEvent,
-  updateCustomerProperty
-} from './events';
+import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
+import { conversationSchemaOptions } from './models/definitions/conversations';
 
 export let graphqlPubsub;
 
 export let es: {
   client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
+  fetchElk(args: IFetchElkArgs): Promise<any>,
+  getMappings(index: string): Promise<any>,
+  getIndexPrefix(): string,
 };
 
 export let debug;
 
 export default {
-  name: 'contact',
+  name: 'inbox',
   graphql: {
     typeDefs,
-    resolvers
+    resolvers,
   },
-  hasSubscriptions: false,
-  segment: { schemas: [] },
-  apolloServerContext: context => {
+  hasSubscriptions: true,
+  segment: {
+    schemas: [{
+      name: 'conversation',
+      description: 'Conversation',
+      options: {
+        ...conversationSchemaOptions,
+        customFieldsData: {
+          type: 'Object',
+        }
+      },
+    }]
+  },
+  apolloServerContext: (context) => {
     context.dataLoaders = generateAllDataLoaders();
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     await apiConnect();
 
     const app = options.app;
@@ -82,10 +89,11 @@ export default {
       )
     );
 
-    initBroker(options.messageBrokerClient);
+
+    initBroker(options.messageBrokerClient)
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
-  }
-};
+  },
+}

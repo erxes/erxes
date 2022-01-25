@@ -23,7 +23,8 @@ import {
   FieldsGroups,
   Notifications,
   Fields,
-  Conversations
+  Conversations,
+  EngageMessages
 } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { generateAmounts, generateProducts } from './data/resolvers/deals';
