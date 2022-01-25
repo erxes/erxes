@@ -1,8 +1,7 @@
 import { Document } from 'mongoose';
 
-import { ICustomField } from './common';
+import { ICustomField, IAttachment } from './common';
 import { ICompany } from './companies';
-import { IAttachment } from './integrations';
 
 interface IProductCommonFields {
   name: string;

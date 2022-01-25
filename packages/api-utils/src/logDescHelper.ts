@@ -1,7 +1,6 @@
 import * as _ from 'underscore';
 import {
   IChannelDocument,
-  IIntegrationDocument,
   ICompanyDocument,
   IProductDocument,
   IScriptDocument,
@@ -171,53 +170,6 @@ const gatherIntegrationNames = async (
     prevList,
     nameFields: ['name']
   });
-};
-
-const gatherIntegrationFieldNames = async (
-  doc: IIntegrationDocument,
-  prevList?: LogDesc[]
-) => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.createdUserId) {
-    options = await gatherUsernames({
-      idFields: [doc.createdUserId],
-      foreignKey: 'createdUserId',
-      prevList: options
-    });
-  }
-
-  if (doc.brandId) {
-    options = await gatherBrandNames({
-      idFields: [doc.brandId],
-      foreignKey: 'brandId',
-      prevList: options
-    });
-  }
-
-  if (doc.tagIds && doc.tagIds.length > 0) {
-    options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
-      prevList: options
-    });
-  }
-
-  if (doc.formId) {
-    options = await gatherNames({
-      collection: Forms,
-      idFields: [doc.formId],
-      foreignKey: 'formId',
-      prevList: options,
-      nameFields: ['title']
-    });
-  }
-
-  return options;
 };
 
 export const gatherTagNames = async (
@@ -661,19 +613,6 @@ export const gatherDescriptions = async (
           break;
         default:
           break;
-      }
-
-      break;
-    case MODULE_NAMES.INTEGRATION:
-      description = `"${obj.name}" has been ${action}d`;
-
-      extraDesc = await gatherIntegrationFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherIntegrationFieldNames(
-          updatedDocument,
-          extraDesc
-        );
       }
 
       break;
