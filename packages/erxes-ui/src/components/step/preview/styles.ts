@@ -15,6 +15,9 @@ import {
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
+const coreSpace = `${dimensions.coreSpacing}px`;
+const unitSpace = `${dimensions.unitSpacing}px`;
+
 const PreviewTitle = styled.div`
   background-color: ${colors.colorSecondary};
   border-top-left-radius: ${dimensions.unitSpacing}px;
@@ -250,6 +253,111 @@ const PrintButton = styled.div`
   }
 `;
 
+const LogoContainer = styled.div`
+  color: ${colors.colorWhite};
+  line-height: 56px;
+  text-align: center;
+  border-radius: 28px;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  box-shadow: 0 0 ${unitSpace} 0 ${rgba(colors.colorBlack, 0.2)};
+  background-image: url('/images/erxes.png');
+  background-color: ${colors.colorPrimary};
+  background-position: center;
+  background-size: 20px;
+  background-repeat: no-repeat;
+  margin-top: ${unitSpace};
+  position: relative;
+  float: right;
+  display: table;
+
+  span {
+    position: absolute;
+    width: ${coreSpace};
+    height: ${coreSpace};
+    background: ${colors.colorCoreRed};
+    display: block;
+    right: -2px;
+    top: -5px;
+    color: ${colors.colorWhite};
+    border-radius: ${unitSpace};
+    text-align: center;
+    line-height: ${coreSpace};
+    font-size: ${unitSpace};
+  }
+
+  input[type='file'] {
+    display: none;
+  }
+
+  label {
+    display: block;
+    margin: 0;
+    visibility: hidden;
+    border-radius: 50%;
+  }
+
+  &:hover label {
+    visibility: visible;
+    cursor: pointer;
+  }
+`;
+
+const Launcher = styled(LogoContainer)`
+  position: absolute;
+  right: ${unitSpace};
+  bottom: ${unitSpace};
+`;
+
+const LauncherContainer = styled(Launcher)`
+  position: absolute;
+`;
+
+const WidgetPreviewStyled = styled.div`
+  background: ${colors.colorWhite};
+  color: ${colors.colorWhite};
+  border-radius: ${dimensions.unitSpacing}px;
+  border-bottom-right-radius: 25px;
+  bottom: 80px;
+  box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 95px);
+  max-height: 660px;
+  overflow: hidden;
+  position: absolute;
+  right: 8px;
+  width: 380px;
+  z-index: 1;
+`;
+
+const WidgetPreview = styled(WidgetPreviewStyled)`
+  height: auto;
+  bottom: 90px;
+  right: ${coreSpace};
+  max-height: calc(100% - 95px);
+  max-width: calc(100% - 40px);
+`;
+
+const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
+  min-height: 100%;
+  position: relative;
+  background: linear-gradient(
+    140deg,
+    rgba(0, 0, 0, 0) 70%,
+    rgba(0, 0, 0, 0.08) 95%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  width: ${props => props.isEngage && '100%'};
+  .engage-message {
+    > div:first-of-type {
+      flex-shrink: 0;
+      padding: ${coreSpace} ${coreSpace} 10px ${coreSpace};
+    }
+  }
+`;
+
 export {
   PreviewTitle,
   PreviewBody,
@@ -264,5 +372,8 @@ export {
   Embedded,
   ThankContent,
   PreviewContainer,
-  PrintButton
+  PrintButton,
+  LauncherContainer,
+  WebPreview,
+  WidgetPreview
 };

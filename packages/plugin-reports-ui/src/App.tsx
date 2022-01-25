@@ -3,8 +3,11 @@ import GeneralRoutes from './generalRoutes';
 import { PluginLayout } from '@erxes/ui/src/styles/main';
 
 const App = () => {
-  return <PluginLayout><GeneralRoutes /></PluginLayout>;
+  return (
+    <PluginLayout>
+      <GeneralRoutes />
+    </PluginLayout>
+  );
 };
 
 export default App;
-

@@ -4,7 +4,7 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IField, IRouterProps } from '@erxes/ui/src/types';
+import { IField, IRouterProps } from '../../types';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {

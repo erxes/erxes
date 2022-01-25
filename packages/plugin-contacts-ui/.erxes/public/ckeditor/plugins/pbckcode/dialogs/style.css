@@ -1,0 +1,38 @@
+/*label styling */
+.cke_pbckcode_form .cke_dialog_ui_labeled_content {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/*select styling */
+.cke_pbckcode_form .cke_dialog_ui_input_select select {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #555;
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 12px;
+  height: auto;
+  margin-bottom: 0;
+  padding: 0;
+  vertical-align: middle;
+  width: 110px;
+}
+
+/* ace reset needed due to ckeditor style */
+.cke_pbckcode_ace.ace_editor * {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Droid Sans Mono', 'Consolas', monospace;
+  font-size: 12px;
+}
+
+.cke_pbckcode_ace .ace_invisible {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/*good font color on dark theme*/
+.cke_pbckcode_ace.ace_dark * {
+  color: inherit;
+}

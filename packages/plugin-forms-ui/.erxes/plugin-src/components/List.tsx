@@ -168,7 +168,7 @@ class List extends React.Component<Props, {}> {
             queryParams={queryParams}
           />
         }
-        leftSidebar={<Sidebar counts={counts || {}} />}
+        leftSidebar={<Sidebar counts={counts || {} as any} />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

@@ -1,5 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui-settings/src/common/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IChannel {
   _id: string;

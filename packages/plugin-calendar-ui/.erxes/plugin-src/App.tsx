@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { PluginLayout } from '@erxes/ui/src/styles/main';
 import { ApolloProvider } from 'react-apollo';
 import apolloClient from '@erxes/ui/src/apolloClient';
 import GeneralRoutes from './generalRoutes';
@@ -7,9 +7,11 @@ import GeneralRoutes from './generalRoutes';
 const App = () => {
   return (
     <ApolloProvider client={apolloClient}>
-      <GeneralRoutes />
+      <PluginLayout>
+        <GeneralRoutes />
+      </PluginLayout>
     </ApolloProvider>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('app'));
+export default App;
