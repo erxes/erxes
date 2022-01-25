@@ -14,15 +14,21 @@ describe('dashboardQueries', () => {
   });
 
   test('Dashboards', async () => {
-    await dashboardFactory({ name: 'name 1' });
+    const parentDashboard = await dashboardFactory({ name: 'name 1' });
     await dashboardFactory({ name: 'name 2' });
-    await dashboardFactory({ name: 'name 3' });
+    await dashboardFactory({ name: 'name 3', parentId: parentDashboard._id });
 
     const qry = `
       query dashboards {
         dashboards {
           _id
           name
+          parentId
+          childsDashboard{
+            _id
+            name
+            parentId
+          }
         }
       }
     `;

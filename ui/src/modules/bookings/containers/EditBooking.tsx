@@ -18,9 +18,11 @@ import {
   EmailTemplatesTotalCountQueryResponse
 } from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
 import { ILeadData } from 'modules/leads/types';
 import { FieldsQueryResponse } from 'modules/settings/properties/types';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 
 type Props = {
   queryParams: any;
@@ -33,6 +35,7 @@ type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
   fieldsQuery: FieldsQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & IRouterProps &
   Props &
   EditBookingIntegrationMutationResponse;
@@ -66,7 +69,8 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
       editIntegrationMutation,
       history,
       emailTemplatesQuery,
-      fieldsQuery
+      fieldsQuery,
+      configsQuery
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -112,7 +116,8 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
       afterFormDbSave,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
       emailTemplates: emailTemplatesQuery.emailTemplates || [],
-      productFields: fieldsQuery.fields || []
+      productFields: fieldsQuery.fields || [],
+      configs: configsQuery.configs || []
     };
 
     return <Booking {...updatedProps} />;
@@ -171,5 +176,8 @@ export default compose(
         }
       })
     }
-  )
+  ),
+  graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+    name: 'configsQuery'
+  })
 )(withRouter(EditBookingContainer));

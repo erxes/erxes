@@ -84,6 +84,24 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'leadStatus',
     'relatedIntegrationIds',
     'hasAuthority',
-    'isSubscribed'
+    'isSubscribed',
+    'stageChangedDate',
+    'productsData.quantity',
+    'productsData.unitPrice',
+    'productsData.taxPercent',
+    'productsData.tax',
+    'productsData.discountPercent',
+    'productsData.discount',
+    'productsData.amount',
+    'productsData.tickUsed',
+    'stageId',
+    'userId',
+    'modifiedBy',
+    'assignedUserIds',
+    'watchedUserIds',
+    'productsData.productId',
+    'productsData.assignUserId',
+    'productsData.uom',
+    'productsData.currency'
   ]
 };

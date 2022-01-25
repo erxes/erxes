@@ -158,6 +158,7 @@ export interface IItem {
     [key: string]: any;
   };
   score?: number;
+  number?: string;
   relations: any[];
 }
 

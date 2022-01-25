@@ -167,7 +167,6 @@ export const start = async (data: IEmailParams) => {
   // set finalized count of the campaign
   await setCampaignCount({
     _id: engageMessageId,
-    totalCustomersCount: filteredCustomers.length,
     validCustomersCount: cleanCustomers.length
   });
 
@@ -254,7 +253,6 @@ export const sendBulkSms = async (data: ISmsParams) => {
 
   await setCampaignCount({
     _id: engageMessageId,
-    totalCustomersCount: customers.length,
     validCustomersCount: validCustomers.length
   });
 
