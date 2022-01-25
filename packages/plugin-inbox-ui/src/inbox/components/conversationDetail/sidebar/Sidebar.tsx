@@ -252,9 +252,9 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        {/* <PortableDeals mainType='customer' mainTypeId={customer._id} />
+        <PortableDeals mainType='customer' mainTypeId={customer._id} />
         <PortableTickets mainType='customer' mainTypeId={customer._id} />
-        <PortableTasks mainType='customer' mainTypeId={customer._id} /> */}
+        <PortableTasks mainType='customer' mainTypeId={customer._id} />
       </>
     );
   }

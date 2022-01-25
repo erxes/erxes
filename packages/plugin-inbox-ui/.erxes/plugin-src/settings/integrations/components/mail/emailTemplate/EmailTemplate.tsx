@@ -9,7 +9,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-import { ResponseTemplateStyled as EmailTemplateStyled } from '../../../../../styles';
+import { ResponseTemplateStyled as EmailTemplateStyled } from '../../../../../inbox/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

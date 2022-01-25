@@ -4,7 +4,9 @@ import {
   ITopic,
   IUiOptions,
   QueryVariables,
-  IMessengerData
+  IMessengerData,
+  IWebsite,
+  ILead
 } from '@erxes/ui-settings/src/integrations/types';
 
 export interface IPages {
@@ -30,23 +32,6 @@ export interface IExchangeForm {
   username?: string;
 }
 
-export interface IWebsite {
-  url: string;
-  buttonText: string;
-  description: string;
-}
-
-export interface ILead {
-  formCode: string;
-}
-
-export interface IWebsiteMessengerApp {
-  credentials: IWebsite;
-}
-
-export interface ILeadMessengerApp {
-  credentials: ILead;
-}
 export interface IMessengerApps {
   knowledgebases?: ITopic[];
   websites?: IWebsite[];

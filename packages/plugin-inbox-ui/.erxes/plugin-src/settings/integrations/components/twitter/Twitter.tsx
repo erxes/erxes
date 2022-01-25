@@ -7,7 +7,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import * as React from 'react';
 import Accounts from '../../containers/Accounts';
-import SelectBrand from '../../containers/SelectBrand';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

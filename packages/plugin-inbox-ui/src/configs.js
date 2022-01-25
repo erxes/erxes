@@ -16,34 +16,46 @@ module.exports = {
       url: '/inbox',
       icon: 'icon-comment-1',
       location: 'mainNavigation'
+    },
+    {
+      text: 'Bookings',
+      url: '/bookings',
+      icon: 'icon-paste',
+      location: 'mainNavigation'
+    },
+    {
+      text: 'Forms',
+      url: '/forms',
+      icon: 'icon-head-1',
+      location: 'mainNavigation'
+    },
+    {
+      text: 'Skills',
+      icon: 'icon-file-info-alt',
+      location: 'settings',
+      scope: 'inbox',
+      component: './settings'
+    },
+    {
+      text: 'Channels',
+      icon: 'icon-layer-group',
+      location: 'settings',
+      scope: 'inbox',
+      component: './settings'
+    },
+    {
+      text: 'Integrations',
+      icon: 'icon-puzzle-piece',
+      location: 'settings',
+      scope: 'inbox',
+      component: './settings'
+    },
+    {
+      text: 'Responses',
+      icon: 'icon-files-landscapes',
+      location: 'settings',
+      scope: 'inbox',
+      component: './settings'
     }
-    // {
-    //   text: 'Skills',
-    //   icon: 'icon-file-info-alt',
-    //   location: 'settings',
-    //   scope: 'inbox',
-    //   component: './settings'
-    // },
-    // {
-    //   text: 'Channels',
-    //   icon: 'icon-layer-group',
-    //   location: 'settings',
-    //   scope: 'inbox',
-    //   component: './settings'
-    // },
-    // {
-    //   text: 'Integrations',
-    //   icon: 'icon-puzzle-piece',
-    //   location: 'settings',
-    //   scope: 'inbox',
-    //   component: './settings'
-    // },
-    // {
-    //   text: 'Responses',
-    //   icon: 'icon-files-landscapes',
-    //   location: 'settings',
-    //   scope: 'inbox',
-    //   component: './settings'
-    // }
   ]
 };

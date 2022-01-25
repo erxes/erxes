@@ -4,6 +4,9 @@ import ChannelSettings from './settings/channels/routes';
 import IntegrationSettings from './settings/integrations/routes';
 import ResponseTemplates from './settings/responseTemplates/routes';
 import SkillSettings from './settings/skills/routes';
+import BookingSettings from './bookings/routes';
+import FormsSettings from './forms/routes';
+import ProductServiceSettings from '@erxes/ui-settings/src/productService/routes';
 
 const routes = () => {
   return (
@@ -13,6 +16,9 @@ const routes = () => {
       <IntegrationSettings />
       <ResponseTemplates />
       <SkillSettings />
+      <BookingSettings />
+      <FormsSettings />
+      <ProductServiceSettings />
     </>
   );
 };

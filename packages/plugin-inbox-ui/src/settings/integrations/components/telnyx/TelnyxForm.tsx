@@ -8,8 +8,8 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import SelectBrand from '../../containers/SelectBrand';
-import SelectChannels from '../../containers/SelectChannels';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

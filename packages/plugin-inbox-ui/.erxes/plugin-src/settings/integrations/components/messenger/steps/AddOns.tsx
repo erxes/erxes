@@ -9,13 +9,15 @@ import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import { Options } from '../../../../integrations/styles';
-import { IIntegration, ITopic, ITopicMessengerApp } from '@erxes/ui-settings/src/integrations/types';
+import { IMessengerApps } from '../../../../integrations/types';
 import {
   ILeadMessengerApp,
-  IMessengerApps,
   IWebsite,
-  IWebsiteMessengerApp
-} from '../../../../integrations/types';
+  IWebsiteMessengerApp,
+  IIntegration,
+  ITopic,
+  ITopicMessengerApp
+} from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
