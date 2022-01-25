@@ -3,14 +3,15 @@ import { Model, model } from 'mongoose';
 import { IUserDocument, IBrowserInfo } from '@erxes/common-types';
 import { ICustomerDocument } from '@erxes/common-types/src/customers';
 import { ConversationMessages } from '../apiCollections';
-import { findUser, findElk } from '../engageUtils';
+// import { findUser, findElk } from '../engageUtils';
+import { findUser } from '../engageUtils';
 import {
   removeEngageConversations,
   createRPCconversationAndMessage
 } from '../messageBroker';
 import { MESSAGE_KINDS } from '../constants';
-import { checkCustomerExists } from '../engageUtils';
-import { isUsingElk } from '../utils';
+// import { checkCustomerExists } from '../engageUtils';
+// import { isUsingElk } from '../utils';
 
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '../constants';
 import { IEngageData, IMessageDocument } from '../types';
@@ -246,25 +247,31 @@ export const loadClass = () => {
         ? customer
         : { _id: '', state: CONTENT_TYPES.VISITOR };
 
-      let messages: IEngageMessageDocument[];
+      let messages: IEngageMessageDocument[] = [];
 
-      if (isUsingElk()) {
-        messages = await findElk('engage_messages', {
-          bool: {
-            must: [
-              { match: { 'messenger.brandId': brandId } },
-              { match: { method: CAMPAIGN_METHODS.MESSENGER } },
-              { match: { isLive: true } }
-            ]
-          }
-        });
-      } else {
-        messages = await EngageMessages.find({
-          'messenger.brandId': brandId,
-          method: CAMPAIGN_METHODS.MESSENGER,
-          isLive: true
-        });
-      }
+      // if (isUsingElk()) {
+      //   messages = await findElk('engage_messages', {
+      //     bool: {
+      //       must: [
+      //         { match: { 'messenger.brandId': brandId } },
+      //         { match: { method: CAMPAIGN_METHODS.MESSENGER } },
+      //         { match: { isLive: true } }
+      //       ]
+      //     }
+      //   });
+      // } else {
+      //   messages = await EngageMessages.find({
+      //     'messenger.brandId': brandId,
+      //     method: CAMPAIGN_METHODS.MESSENGER,
+      //     isLive: true
+      //   });
+      // }
+
+      messages = await EngageMessages.find({
+        'messenger.brandId': brandId,
+        method: CAMPAIGN_METHODS.MESSENGER,
+        isLive: true
+      });
 
       const conversationMessages: IMessageDocument[] = [];
 
@@ -275,9 +282,9 @@ export const loadClass = () => {
 
         const {
           customerIds = [],
-          segmentIds,
-          customerTagIds,
-          brandIds,
+          // segmentIds,
+          // customerTagIds,
+          // brandIds,
           fromUserId
         } = message;
 
@@ -289,13 +296,14 @@ export const loadClass = () => {
           continue;
         }
 
-        const customerExists = await checkCustomerExists(
-          customerObj._id,
-          customerIds,
-          segmentIds,
-          customerTagIds,
-          brandIds
-        );
+        // const customerExists = await checkCustomerExists(
+        //   customerObj._id,
+        //   customerIds,
+        //   segmentIds,
+        //   customerTagIds,
+        //   brandIds
+        // );
+        const customerExists = false;
 
         if (message.kind !== MESSAGE_KINDS.VISITOR_AUTO && !customerExists) {
           continue;
@@ -406,27 +414,32 @@ export const loadClass = () => {
 
       let prevMessage: IMessageDocument | null;
 
-      if (isUsingElk()) {
-        const conversationMessages = await findElk('conversation_messages', {
-          bool: {
-            must: [
-              { match: { 'engageData.messageId': engageData.messageId } },
-              { match: customerId ? { customerId } : { visitorId } }
-            ]
-          }
-        });
+      // if (isUsingElk()) {
+      //   const conversationMessages = await findElk('conversation_messages', {
+      //     bool: {
+      //       must: [
+      //         { match: { 'engageData.messageId': engageData.messageId } },
+      //         { match: customerId ? { customerId } : { visitorId } }
+      //       ]
+      //     }
+      //   });
 
-        prevMessage = null;
+      //   prevMessage = null;
 
-        if (conversationMessages.length > 0) {
-          prevMessage = conversationMessages[0];
-        }
-      } else {
-        const query = customerId
-          ? { customerId, 'engageData.messageId': engageData.messageId }
-          : { visitorId, 'engageData.messageId': engageData.messageId };
-        prevMessage = await ConversationMessages.findOne(query);
-      }
+      //   if (conversationMessages.length > 0) {
+      //     prevMessage = conversationMessages[0];
+      //   }
+      // } else {
+      //   const query = customerId
+      //     ? { customerId, 'engageData.messageId': engageData.messageId }
+      //     : { visitorId, 'engageData.messageId': engageData.messageId };
+      //   prevMessage = await ConversationMessages.findOne(query);
+      // }
+
+      const query = customerId
+        ? { customerId, 'engageData.messageId': engageData.messageId }
+        : { visitorId, 'engageData.messageId': engageData.messageId };
+      prevMessage = await ConversationMessages.findOne(query);
 
       if (prevMessage) {
         if (
@@ -439,17 +452,21 @@ export const loadClass = () => {
 
         const conversationId = prevMessage.conversationId;
 
-        if (isUsingElk()) {
-          messages = await findElk('conversation_messages', {
-            match: {
-              conversationId
-            }
-          });
-        } else {
-          messages = await ConversationMessages.find({
-            conversationId
-          });
-        }
+        // if (isUsingElk()) {
+        //   messages = await findElk('conversation_messages', {
+        //     match: {
+        //       conversationId
+        //     }
+        //   });
+        // } else {
+        //   messages = await ConversationMessages.find({
+        //     conversationId
+        //   });
+        // }
+
+        messages = await ConversationMessages.find({
+          conversationId
+        });
 
         // leave conversations with responses alone
         if (messages.length > 1) {

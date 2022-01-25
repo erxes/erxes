@@ -24,6 +24,8 @@ export let Segments;
 export let Conformities;
 export let Tags;
 export let Pipelines;
+export let EmailTemplates;
+export let Brands;
 
 export async function connect() {
   await client.connect();
@@ -42,6 +44,8 @@ export async function connect() {
   Conformities = db.collection('conformities');
   Tags = db.collection('tags');
   Pipelines = db.collection('pipelines');
+  EmailTemplates = db.collection('email_templates');
+  Brands = db.collection('brands');
 
   return 'done';
 }

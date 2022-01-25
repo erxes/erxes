@@ -1,13 +1,12 @@
 import path from "path";
 import fs from "fs";
+import downloadPlugins from "./downloadPlugins";
 
 function getFilesFullPaths(
   dir: string,
   pred: (filename: string) => boolean
 ): string[] {
-  if (!fs.existsSync(dir)) {
-    throw new Error(`${dir} path doesn't exist`);
-  }
+  if (!fs.existsSync(dir)) return []
 
   return fs
     .readdirSync(dir)
@@ -25,6 +24,7 @@ function getFilesFullPaths(
 }
 
 export default async function getPluginConfigs(download?: boolean): Promise<any[]> {
+  if(download) await downloadPlugins();
   const directory = path.join(__dirname, "/downloads");
   const files = getFilesFullPaths(directory, (name) => /\.(t|j)s$/.test(name));
   const modules = await Promise.all(files.map((file) => import(file)));

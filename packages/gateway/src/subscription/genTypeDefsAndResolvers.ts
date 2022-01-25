@@ -9,7 +9,7 @@ import genResolvers from './resolvers/genResolvers';
 import { DocumentNode } from 'graphql';
 
 export default async function genTypeDefsAndResolvers(): Promise<{ typeDefs: DocumentNode, resolvers: any }> {
-    const plugins = await getPluginConfigs();
+    const plugins = await getPluginConfigs(NODE_ENV === 'development');
     const typeDefs = genTypeDefs(plugins);
     const resolvers = genResolvers(plugins);
     return { typeDefs, resolvers };

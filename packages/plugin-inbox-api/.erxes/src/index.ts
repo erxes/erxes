@@ -13,7 +13,7 @@ import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
 
-import { connect } from './connection';
+import { connect, disconnect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { initBroker } from './messageBroker';
 import * as elasticsearch from './elasticsearch';
@@ -21,7 +21,7 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import configs from '../../src/configs';
-import { join } from './serviceDiscovery';
+import { join, leave } from './serviceDiscovery';
 
 export const app = express();
 
@@ -36,9 +36,13 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/subscriptionPlugin.ts', async (req, res) => {
-  res.sendFile(path.join(__dirname, "../../src/graphql/subscriptionPlugin.ts"))
-});
+if (configs.hasSubscriptions) {
+  app.get('/subscriptionPlugin.ts', async (req, res) => {
+    res.sendFile(
+      path.join(__dirname, '../../src/graphql/subscriptionPlugin.ts')
+    );
+  });
+}
 
 app.use((req: any, _res, next) => {
   req.rawBody = '';
@@ -65,6 +69,18 @@ app.use((error, _req, res, _next) => {
 const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 
 const httpServer = http.createServer(app);
+
+async function tryToDisconnect() {
+  try {
+    await leave(configs.name, PORT || '');
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+httpServer.on("close", async () => {
+  await tryToDisconnect();
+});
 
 const apolloServer = new ApolloServer({
   schema: buildSubgraphSchema([
@@ -116,7 +132,7 @@ async function startServer() {
     // connect to mongo database
     await connect(mongoUrl);
     const messageBrokerClient = await initBroker(configs.name, app);
-    
+
     configs.onServerInit({
       app,
       pubsubClient: pubsub,
@@ -132,7 +148,8 @@ async function startServer() {
       name: configs.name,
       port: PORT || '',
       dbConnectionString: mongoUrl,
-      segment: configs.segment
+      segment: configs.segment,
+      hasSubscriptions: configs.hasSubscriptions
     });
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);

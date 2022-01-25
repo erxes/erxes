@@ -1,5 +1,5 @@
 import { IEngageMessageDocument } from '../../models/definitions/engages';
-import { Stats, EngageMessages } from '../../models';
+import { Stats, EngageMessages, Logs } from '../../models';
 import { prepareSmsStats } from '../../telnyxUtils';
 
 export default {
@@ -75,5 +75,9 @@ export default {
     }
 
     return null;
+  },
+  
+  logs(engageMessage: IEngageMessageDocument) {
+    return Logs.find({ engageMessageId: engageMessage._id });
   }
 };

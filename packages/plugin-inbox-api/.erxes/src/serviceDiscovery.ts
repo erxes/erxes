@@ -17,17 +17,18 @@ interface ISegmentConfig {
 
 const generateKey = (name) => `service:config:${name}`;
 
-export const join = ({ name, port, dbConnectionString, segment }: { name: string, port: string, dbConnectionString: string, segment?: ISegmentConfig }) => {
+export const join = ({ name, port, dbConnectionString, segment, hasSubscriptions = false }: { name: string, port: string, dbConnectionString: string, segment?: ISegmentConfig, hasSubscriptions?: boolean }) => {
   redis.set(generateKey(name), JSON.stringify({
     dbConnectionString,
-    segment
+    segment,
+    hasSubscriptions
   }));
 
   return registry.up(name, `http://localhost:${port}`);
 };
 
-export const leave = (name, port) => {
-  registry.down(name, `http://localhost:${port}`);
+export const leave = async (name, port) => {
+  await registry.down(name, `http://localhost:${port}`);
 
-  redis.del(generateKey(name));
+  await redis.del(generateKey(name));
 }

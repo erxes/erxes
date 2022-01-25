@@ -26,6 +26,7 @@ export default {
     typeDefs,
     resolvers,
   },
+  hasSubscriptions: true,
   segment: {
     schemas: [{
       name: 'conversation',
