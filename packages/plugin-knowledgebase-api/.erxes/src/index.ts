@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 
 // load environment variables
@@ -15,15 +16,18 @@ import * as http from 'http';
 import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { initBroker } from './messageBroker';
-import * as elasticsearch from './elasticsearch'
+import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-
+import * as path from 'path';
 import configs from '../../src/configs';
+import { join } from './serviceDiscovery';
 
 export const app = express();
 
 app.disable('x-powered-by');
+
+app.use(cors());
 
 app.use(cookieParser());
 
@@ -31,6 +35,12 @@ app.use(cookieParser());
 app.get('/health', async (_req, res) => {
   res.end('ok');
 });
+
+if(configs.hasSubscriptions) {
+  app.get('/subscriptionPlugin.ts', async (req, res) => {
+    res.sendFile(path.join(__dirname, "../../src/graphql/subscriptionPlugin.ts"))
+  });
+}
 
 app.use((req: any, _res, next) => {
   req.rawBody = '';
@@ -59,10 +69,12 @@ const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 const httpServer = http.createServer(app);
 
 const apolloServer = new ApolloServer({
-  schema: buildSubgraphSchema([{
-    typeDefs: configs.graphql.typeDefs,
-    resolvers: configs.graphql.resolvers
-  }]),
+  schema: buildSubgraphSchema([
+    {
+      typeDefs: configs.graphql.typeDefs,
+      resolvers: configs.graphql.resolvers
+    }
+  ]),
 
   // for graceful shutdown
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
@@ -100,27 +112,36 @@ async function startServer() {
     `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
   );
 
-  let mongoUrl = MONGO_URL;
+  const mongoUrl = MONGO_URL || '';
 
-  if (NODE_ENV === 'test') {
-    mongoUrl = TEST_MONGO_URL;
+  try {
+    // connect to mongo database
+    await connect(mongoUrl);
+    const messageBrokerClient = await initBroker(configs.name, app);
+    
+    configs.onServerInit({
+      app,
+      pubsubClient: pubsub,
+      elasticsearch,
+      messageBrokerClient,
+      debug: {
+        info: debugInfo,
+        error: debugError
+      }
+    });
+
+    await join({
+      name: configs.name,
+      port: PORT || '',
+      dbConnectionString: mongoUrl,
+      segment: configs.segment,
+      hasSubscriptions: configs.hasSubscriptions
+    });
+
+    debugInfo(`${configs.name} server is running on port ${PORT}`);
+  } catch (e) {
+    debugError(`Error during startup ${e.message}`);
   }
-
-  // connect to mongo database
-  await connect(mongoUrl);
-  const messsageBrokerClient = await initBroker(configs.name, app);
-
-  configs.onServerInit({
-    pubsub,
-    elasticsearch,
-    messsageBrokerClient,
-    debug: {
-      info: debugInfo,
-      error: debugError
-    }
-  });
-
-  debugInfo(`${configs.name} server is running on port ${PORT}`);
 }
 
 startServer();
