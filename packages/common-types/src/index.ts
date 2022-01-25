@@ -4,7 +4,6 @@ import { IBrandDocument } from "./brands";
 import { ICompanyDocument } from "./companies";
 import { IProductDocument } from "./products";
 import { IScriptDocument } from "./scripts";
-import { IPipelineTemplateDocument } from "./pipelineTemplates";
 
 export {
   IUserDocument,
@@ -14,6 +13,5 @@ export {
   IRule,
   ICompanyDocument,
   IProductDocument,
-  IScriptDocument,
-  IPipelineTemplateDocument
+  IScriptDocument
 };

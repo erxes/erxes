@@ -1,6 +1,5 @@
 import { MODULE_NAMES } from '@erxes/api-utils/src';
 import {
-  BoardItemDocument,
   gatherNames,
   gatherUsernames,
   IDescriptions,
@@ -17,6 +16,10 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog
 } from '@erxes/api-utils/src/logUtils';
+import { ITaskDocument } from './models/definitions/tasks';
+import { ITicketDocument } from './models/definitions/tickets';
+
+type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
 const gatherPipelineFieldNames = async (
   doc: IPipelineDocument,
