@@ -4,7 +4,6 @@ import { IUserDocument, IUser } from "./users";
 import { IBrandDocument } from "./brands";
 import { IIntegrationDocument } from "./integrations";
 import { ICompanyDocument } from "./companies";
-import { ITopicDocument, ICategoryDocument } from "./knowledgeBase";
 import { IProductDocument } from "./products";
 import { IScriptDocument } from "./scripts";
 import { IPipelineTemplateDocument } from "./pipelineTemplates";
@@ -18,8 +17,6 @@ export {
   IChannelDocument,
   IIntegrationDocument,
   ICompanyDocument,
-  ITopicDocument,
-  ICategoryDocument,
   IProductDocument,
   IScriptDocument,
   IPipelineTemplateDocument
