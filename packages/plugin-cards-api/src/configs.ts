@@ -24,7 +24,16 @@ export default {
     resolvers
   },
   segment: {
-    schemas: []
+    indexesTypeContentType: {
+      'deal': 'deals',
+      'ticket': 'tickets',
+      'task': 'tasks',
+    },
+    contentTypes: ['deal', 'ticket', 'task'],
+    esTypesMapQueue: 'cards:segments:esTypesMap',
+    initialSelectorQueue: 'cards:segments:initialSelector',
+    associationTypesQueue: 'cards:segments:associationTypes',
+    propertyConditionExtenderQueue: 'cards:segments:propertyConditionExtender'
   },
   hasSubscriptions: true,
   apolloServerContext: context => {

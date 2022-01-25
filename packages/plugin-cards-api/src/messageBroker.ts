@@ -1,7 +1,81 @@
+import { generateConditionStageIds } from "./utils";
+
 let client;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeRPCQueue } = client;
+
+  // listen for rpc queue =========
+  consumeRPCQueue(
+    'cards:segments:propertyConditionExtender',
+    async ({ condition }) => {
+      let positive;
+
+      const stageIds = await generateConditionStageIds({
+        boardId: condition.boardId,
+        pipelineId: condition.pipelineId
+      });
+
+      if (stageIds.length > 0) {
+        positive = {
+          terms: {
+            stageId: stageIds,
+          },
+        };
+      }
+
+      return { data: { positive }, status: 'success' };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:segments:associationTypes',
+    async ({ mainType }) => {
+      let types: string[] = [];
+
+      if (mainType === 'deal') {
+        types = ['customer', 'company', 'ticket', 'task'];
+      }
+
+      if (mainType === 'task') {
+        types = ['customer', 'company', 'ticket', 'deal'];
+      }
+
+      if (mainType === 'ticket') {
+        types = ['customer', 'company', 'deal', 'task'];
+      }
+
+      return { data: { types }, status: 'success' };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:segments:esTypesMap',
+    async () => {
+      return { data: { typesMap: {} }, status: 'success' };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:segments:initialSelector',
+    async ({ segment, options }) => {
+      let positive;
+
+      const stageIds = await generateConditionStageIds({
+        boardId: segment.boardId,
+        pipelineId: segment.pipelineId,
+        options
+      });
+  
+      if (stageIds.length > 0) {
+        positive = { terms: { stageId: stageIds } };
+      }
+
+      return { data: { positive }, status: 'success' };
+    }
+  );
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
