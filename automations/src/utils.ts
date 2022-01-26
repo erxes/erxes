@@ -14,6 +14,7 @@ import {
 } from './models/Executions';
 import { getActionsMap } from './helpers';
 import { sendRPCMessage } from './messageBroker';
+import { callPluginsAction } from './pluginUtils';
 
 export const getEnv = ({
   name,
@@ -118,6 +119,10 @@ export const executeActions = async (
 
     if (action.type === ACTIONS.CUSTOM_CODE) {
       actionResponse = await customCode({ action, execution })
+    }
+
+    if (action.type.includes('erxes-plugin-')) {
+      actionResponse = await callPluginsAction({ action, execution })
     }
   } catch (e) {
     execAction.result = { error: e.message, result: e.result };

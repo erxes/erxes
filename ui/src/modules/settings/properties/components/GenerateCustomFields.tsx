@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import { Alert } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
+import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { SidebarContent } from '../styles';
 import { IFieldGroup } from '../types';
@@ -11,6 +12,7 @@ import GenerateField from './GenerateField';
 type Props = {
   isDetail: boolean;
   fieldGroup: IFieldGroup;
+  configs: IConfig[];
   loading?: boolean;
   data: any;
   save: (data: any, callback: (error: Error) => void) => void;
@@ -122,6 +124,7 @@ class GenerateGroup extends React.Component<Props, State> {
               key={index}
               onValueChange={this.onChange}
               defaultValue={data[field._id] || ''}
+              configs={this.props.configs}
             />
           );
         })}
@@ -151,6 +154,7 @@ type GroupsProps = {
   fieldsGroups: IFieldGroup[];
   customFieldsData: any;
   loading?: boolean;
+  configs: IConfig[];
   save: (data: { customFieldsData: any }, callback: () => any) => void;
 };
 
@@ -178,7 +182,13 @@ class GenerateGroups extends React.Component<GroupsProps> {
   };
 
   render() {
-    const { loading, fieldsGroups, customFieldsData, isDetail } = this.props;
+    const {
+      loading,
+      fieldsGroups,
+      customFieldsData,
+      isDetail,
+      configs
+    } = this.props;
 
     if (fieldsGroups.length === 0) {
       return null;
@@ -199,6 +209,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
           data={data}
           fieldGroup={fieldGroup}
           save={this.saveGroup}
+          configs={configs}
         />
       );
     });

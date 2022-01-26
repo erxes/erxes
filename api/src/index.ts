@@ -62,7 +62,7 @@ dotenv.config();
 ddTracer.init({
   hostname: process.env.DD_HOST,
   logInjection: true,
-  profiling: true,
+  profiling: true
 });
 
 const { NODE_ENV, JWT_TOKEN_SECRET } = process.env;
