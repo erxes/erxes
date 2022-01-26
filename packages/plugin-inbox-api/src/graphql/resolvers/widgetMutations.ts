@@ -401,7 +401,7 @@ const widgetMutations = {
             doc,
             customData
           })
-        : await sendContactRPCMessage('createMessengerCustome', { doc, customData });
+        : await sendContactRPCMessage('createMessengerCustomer', { doc, customData });
     }
 
     if (visitorId) {
