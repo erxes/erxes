@@ -94,9 +94,19 @@ const allBrands = `
   }
 `;
 
+const integrations = `
+  query integrations($kind: String, $brandId: String) {
+    integrations(kind: $kind, brandId: $brandId) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   exmGet,
   knowledgeBaseTopics,
   knowledgeBaseCategories,
-  allBrands
+  allBrands,
+  integrations
 };

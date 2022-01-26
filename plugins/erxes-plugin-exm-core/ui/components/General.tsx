@@ -28,13 +28,24 @@ type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
   brands: any[];
+  forms: any[];
   kbTopics: any[];
   kbCategories: { [key: string]: any[] };
   getKbCategories: (topicId: string) => void;
+  getForms: (brandId: string) => void;
 };
 
 export default function General(props: Props) {
-  const { brands, kbTopics, exm, edit, getKbCategories, kbCategories } = props;
+  const {
+    forms,
+    brands,
+    kbTopics,
+    exm,
+    edit,
+    getKbCategories,
+    getForms,
+    kbCategories
+  } = props;
   const exmFeatures = exm.features || [];
   const [name, setName] = useState(exm.name || '');
   const [description, setDescription] = useState(exm.description || '');
@@ -86,6 +97,20 @@ export default function General(props: Props) {
         'parentCategoryId'
       );
     }
+  };
+
+  const getFormValues = contentId => {
+    if (!contentId) {
+      return [];
+    }
+
+    if (!forms) {
+      getForms(contentId);
+
+      return [];
+    }
+
+    return forms.map(f => ({ value: f._id, label: f.name }));
   };
 
   const onSave = () => {
@@ -181,6 +206,8 @@ export default function General(props: Props) {
                 onChange={item => {
                   if (feature.contentType === 'knowledgeBase') {
                     getKbCategories(item.value);
+                  } else {
+                    getForms(item.value);
                   }
 
                   onChangeFeatureItem(feature._id, 'contentId', item.value);
@@ -189,7 +216,7 @@ export default function General(props: Props) {
               />
             </FeatureRowItem>
 
-            {feature.contentType === 'knowledgeBase' && (
+            {feature.contentType === 'knowledgeBase' ? (
               <FeatureRowItem>
                 <Select
                   placeholder={__('Choose a category')}
@@ -202,6 +229,19 @@ export default function General(props: Props) {
                   style={{ width: 200 }}
                   onChange={item =>
                     onChangeFeatureItem(feature._id, 'subContentId', item.value)
+                  }
+                  clearable={false}
+                />
+              </FeatureRowItem>
+            ) : (
+              <FeatureRowItem>
+                <Select
+                  placeholder={__('Choose a form')}
+                  value={feature.subContentId}
+                  options={getFormValues(feature.contentId)}
+                  style={{ width: 200 }}
+                  onChange={form =>
+                    onChangeFeatureItem(feature._id, 'subContentId', form.value)
                   }
                   clearable={false}
                 />
