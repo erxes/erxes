@@ -324,8 +324,7 @@ export const receiveImportCreate = async (content: any) => {
   let total = 0;
 
   let mainType = contentTypes[0].contentType;
-  const type = contentTypes[0].type;
-  const pluginType = contentTypes[0].pluginType;
+  const serviceType = contentTypes[0].serviceType;
 
   if (associatedContentType) {
     mainType = associatedContentType;
@@ -346,11 +345,7 @@ export const receiveImportCreate = async (content: any) => {
 
     const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
-    const properties = await checkFieldNames(
-      contentType.contentType,
-      updatedColumns,
-      columnConfig
-    );
+    const properties = await checkFieldNames(updatedColumns, columnConfig);
 
     config[contentType.contentType] = { total: rows, properties, fileName };
   }
@@ -432,7 +427,7 @@ export const receiveImportCreate = async (content: any) => {
       user,
       contentType,
       type,
-      pluginType,
+      serviceType,
       properties: config[contentType].properties,
       importHistoryId,
       result,

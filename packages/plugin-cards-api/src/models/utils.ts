@@ -11,9 +11,10 @@ import {
 import { validSearchText } from '@erxes/api-utils/src';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
-import { configReplacer } from '../utils';
+
 import { Conformities, InternalNotes } from '../apiCollections';
 import { sendChecklistMessage, sendConformityMessage } from '../messageBroker';
+import { configReplacer } from '../utils';
 
 interface ISetOrderParam {
   collection: any;

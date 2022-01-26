@@ -1,5 +1,4 @@
 import { Tags, Users } from '../db/models';
-import { debugWorkers } from '../debuggers';
 import { generatePronoun } from './utils';
 
 export const prepareCoreDocs = async (
@@ -107,8 +106,6 @@ export const prepareCoreDocs = async (
 
       colIndex++;
     }
-
-    doc.stageId = '69fC6rwqMyHNggKPP';
 
     if (
       (contentType === 'customer' || contentType === 'lead') &&

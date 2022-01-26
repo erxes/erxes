@@ -1,6 +1,6 @@
 export const PLUGINS = [
   {
-    pluginType: 'deal',
+    serviceType: 'deal',
     MONGO_URL: 'mongodb://localhost/erxes-sales',
     collection: 'deals',
     prepareDocCommand: `

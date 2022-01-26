@@ -1,3 +1,12 @@
+export const IMPORT_TYPES = [
+  {
+    text: 'Deals',
+    contentType: 'deal',
+    icon: 'signal-alt-3',
+    serviceType: 'cards'
+  }
+];
+
 export const PRIORITIES = {
   CRITICAL: 'Critical',
   HIGH: 'High',

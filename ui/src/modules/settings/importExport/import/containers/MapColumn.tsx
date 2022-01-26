@@ -16,7 +16,7 @@ type Props = {
   contentType: string;
   attachments: IAttachment[];
   columnWithChosenField: any;
-  pluginType?: string;
+  serviceType?: string;
   onChangeColumn: (column, value, contentType) => void;
 };
 
@@ -76,10 +76,10 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, pluginType }) => {
+      options: ({ contentType, serviceType }) => {
         return {
           variables: {
-            pluginType,
+            serviceType,
             contentType: ['lead', 'visitor'].includes(contentType)
               ? 'customer'
               : contentType,

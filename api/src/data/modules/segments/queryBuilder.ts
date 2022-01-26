@@ -342,11 +342,12 @@ export const generateQueryBySegment = async (args: {
           propertyConditionExtenderQueue &&
           contentTypes.includes(condition.propertyType)
         ) {
-          const {
-            positive
-          } = await sendRPCMessage(propertyConditionExtenderQueue, {
-            condition
-          });
+          const { positive } = await sendRPCMessage(
+            propertyConditionExtenderQueue,
+            {
+              condition
+            }
+          );
 
           if (positive) {
             positiveQuery = {

@@ -216,7 +216,7 @@ class Form extends React.Component<Props, State> {
           >
             <MapColumn
               contentType={contentType.contentType}
-              pluginType={contentType.pluginType}
+              serviceType={contentType.serviceType}
               attachments={attachment}
               columnWithChosenField={columnWithChosenField}
               onChangeColumn={this.onChangeColumn}
