@@ -11,10 +11,6 @@ const redis = new Redis({
 
 const registry = new ServiceRegistry(redis, {});
 
-interface ISegmentConfig {
-  schemas: Array<{ name: string; options: any }>;
-}
-
 const generateKey = name => `service:config:${name}`;
 
 export const join = ({
@@ -22,19 +18,22 @@ export const join = ({
   port,
   dbConnectionString,
   segment,
+  hasSubscriptions = false,
   importTypes
 }: {
   name: string;
   port: string;
   dbConnectionString: string;
-  segment?: ISegmentConfig;
-  importTypes: any;
+  segment?: any;
+  hasSubscriptions?: boolean;
+  importTypes?: any;
 }) => {
   redis.set(
     generateKey(name),
     JSON.stringify({
       dbConnectionString,
       segment,
+      hasSubscriptions,
       importTypes
     })
   );

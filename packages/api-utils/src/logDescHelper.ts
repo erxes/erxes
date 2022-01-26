@@ -1,14 +1,6 @@
 import * as _ from 'underscore';
 import {
-  IChannelDocument,
-  IIntegrationDocument,
   ICompanyDocument,
-  IDealDocument,
-  ITaskDocument,
-  ITicketDocument,
-  IGrowthHackDocument,
-  ITopicDocument,
-  ICategoryDocument,
   IProductDocument,
   IScriptDocument,
   IUserDocument
@@ -18,36 +10,24 @@ import { ICustomerDocument } from '@erxes/common-types/src/customers';
 import { MODULE_NAMES } from './constants';
 import { LOG_ACTIONS } from './logUtils';
 import {
-  Pipelines,
-  Forms,
   Users,
-  Boards,
   Integrations,
   Tags,
   Brands,
   Companies,
   Customers,
-  PipelineLabels,
-  Stages,
   Deals,
   Tasks,
   Tickets,
   GrowthHacks,
   Products,
   Segments,
-  KnowledgeBaseCategories,
-  KnowledgeBaseArticles,
   ProductCategories,
   KnowledgeBaseTopics,
   UsersGroups,
-  Checklists
+  Checklists,
+  findOne
 } from './apiCollections';
-
-export type BoardItemDocument =
-  | IDealDocument
-  | ITaskDocument
-  | ITicketDocument
-  | IGrowthHackDocument;
 
 export type LogDesc = {
   [key: string]: any;
@@ -108,7 +88,7 @@ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   const uniqueIds = _.compact(_.uniq(idFields));
 
   for (const id of uniqueIds) {
-    const item = await collection.findOne({ _id: id });
+    const item = await findOne(collection, { _id: id });
     let name: string = `item with id "${id}" has been deleted`;
 
     if (item) {
@@ -139,43 +119,6 @@ export const gatherUsernames = async (
   });
 };
 
-const gatherChannelFieldNames = async (
-  doc: IChannelDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.userId) {
-    options = await gatherUsernames({
-      idFields: [doc.userId],
-      foreignKey: 'userId',
-      prevList: options
-    });
-  }
-
-  if (doc.memberIds && doc.memberIds.length > 0) {
-    options = await gatherUsernames({
-      idFields: doc.memberIds,
-      foreignKey: 'memberIds',
-      prevList: options
-    });
-  }
-
-  if (doc.integrationIds && doc.integrationIds.length > 0) {
-    options = await gatherIntegrationNames({
-      idFields: doc.integrationIds,
-      foreignKey: 'integrationIds',
-      prevList: options
-    });
-  }
-
-  return options;
-};
-
 const gatherIntegrationNames = async (
   params: ILogNameParams
 ): Promise<LogDesc[]> => {
@@ -188,53 +131,6 @@ const gatherIntegrationNames = async (
     prevList,
     nameFields: ['name']
   });
-};
-
-const gatherIntegrationFieldNames = async (
-  doc: IIntegrationDocument,
-  prevList?: LogDesc[]
-) => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.createdUserId) {
-    options = await gatherUsernames({
-      idFields: [doc.createdUserId],
-      foreignKey: 'createdUserId',
-      prevList: options
-    });
-  }
-
-  if (doc.brandId) {
-    options = await gatherBrandNames({
-      idFields: [doc.brandId],
-      foreignKey: 'brandId',
-      prevList: options
-    });
-  }
-
-  if (doc.tagIds && doc.tagIds.length > 0) {
-    options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
-      prevList: options
-    });
-  }
-
-  if (doc.formId) {
-    options = await gatherNames({
-      collection: Forms,
-      idFields: [doc.formId],
-      foreignKey: 'formId',
-      prevList: options,
-      nameFields: ['title']
-    });
-  }
-
-  return options;
 };
 
 export const gatherTagNames = async (
@@ -389,90 +285,6 @@ const findItemName = async ({
   }
 
   return name;
-};
-
-const gatherKbTopicFieldNames = async (
-  doc: ITopicDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  options = await gatherUsernames({
-    idFields: [doc.createdBy],
-    foreignKey: 'createdBy',
-    prevList: options
-  });
-
-  options = await gatherUsernames({
-    idFields: [doc.modifiedBy],
-    foreignKey: 'modifiedBy',
-    prevList: options
-  });
-
-  if (doc.brandId) {
-    options = await gatherBrandNames({
-      idFields: [doc.brandId],
-      foreignKey: 'brandId',
-      prevList: options
-    });
-  }
-
-  if (doc.categoryIds && doc.categoryIds.length > 0) {
-    // categories are removed alongside
-    const categories = await KnowledgeBaseCategories.find(
-      { _id: { $in: doc.categoryIds } },
-      { title: 1 }
-    );
-
-    for (const cat of categories) {
-      options.push({
-        categoryIds: cat._id,
-        name: cat.title
-      });
-    }
-  }
-
-  return options;
-};
-
-const gatherKbCategoryFieldNames = async (
-  doc: ICategoryDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  const articles = await KnowledgeBaseArticles.find(
-    { _id: { $in: doc.articleIds } },
-    { title: 1 }
-  );
-
-  options = await gatherUsernames({
-    idFields: [doc.createdBy],
-    foreignKey: 'createdBy',
-    prevList: options
-  });
-
-  options = await gatherUsernames({
-    idFields: [doc.modifiedBy],
-    foreignKey: 'modifiedBy',
-    prevList: options
-  });
-
-  if (articles.length > 0) {
-    for (const article of articles) {
-      options.push({ articleIds: article._id, name: article.title });
-    }
-  }
-
-  return options;
 };
 
 const gatherProductFieldNames = async (
@@ -643,16 +455,15 @@ export const gatherDescriptions = async (
   let description: string = '';
 
   switch (type) {
-    case MODULE_NAMES.BRAND:
-    case MODULE_NAMES.CHANNEL:
-      extraDesc = await gatherChannelFieldNames(obj);
-      description = `"${obj.name}" has been ${action}d`;
+    // case MODULE_NAMES.BRAND:
+    //   extraDesc = await gatherChannelFieldNames(obj);
+    //   description = `"${obj.name}" has been ${action}d`;
 
-      if (updatedDocument) {
-        extraDesc = await gatherChannelFieldNames(updatedDocument, extraDesc);
-      }
+    //   if (updatedDocument) {
+    //     extraDesc = await gatherChannelFieldNames(updatedDocument, extraDesc);
+    //   }
 
-      break;
+    //   break;
     case MODULE_NAMES.CHECKLIST:
       const itemName = await findItemName({
         contentType: obj.contentType,
@@ -765,19 +576,6 @@ export const gatherDescriptions = async (
       }
 
       break;
-    case MODULE_NAMES.INTEGRATION:
-      description = `"${obj.name}" has been ${action}d`;
-
-      extraDesc = await gatherIntegrationFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherIntegrationFieldNames(
-          updatedDocument,
-          extraDesc
-        );
-      }
-
-      break;
     case MODULE_NAMES.INTERNAL_NOTE:
       description = `Note of type ${obj.contentType} has been ${action}d`;
 
@@ -793,54 +591,6 @@ export const gatherDescriptions = async (
         foreignKey: 'createdUserId',
         prevList: extraDesc
       });
-
-      break;
-    case MODULE_NAMES.KB_TOPIC:
-      description = `"${obj.title}" has been ${action}d`;
-
-      extraDesc = await gatherKbTopicFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherKbTopicFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
-    case MODULE_NAMES.KB_CATEGORY:
-      description = `"${obj.title}" has been ${action}d`;
-
-      extraDesc = await gatherKbCategoryFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherKbCategoryFieldNames(
-          updatedDocument,
-          extraDesc
-        );
-      }
-
-      break;
-    case MODULE_NAMES.KB_ARTICLE:
-      description = `"${obj.title}" has been ${action}d`;
-
-      extraDesc = await gatherUsernames({
-        idFields: [obj.createdBy],
-        foreignKey: 'createdBy'
-      });
-
-      if (obj.modifiedBy) {
-        extraDesc = await gatherUsernames({
-          idFields: [obj.modifiedBy],
-          foreignKey: 'modifiedBy',
-          prevList: extraDesc
-        });
-      }
-
-      if (updatedDocument && updatedDocument.modifiedBy) {
-        extraDesc = await gatherUsernames({
-          idFields: [updatedDocument.modifiedBy],
-          foreignKey: 'modifiedBy',
-          prevList: extraDesc
-        });
-      }
 
       break;
     case MODULE_NAMES.PERMISSION:

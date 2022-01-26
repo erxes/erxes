@@ -1,16 +1,10 @@
-import {
-  gatherNames,
-  gatherBrandNames,
-  gatherTagNames,
-  gatherUsernames,
-  LogDesc
-} from '@erxes/api-utils/src/logDescHelper';
+import { gatherNames, LogDesc } from '@erxes/api-utils/src/logDescHelper';
 
 import {
   IEngageMessage,
   IEngageMessageDocument
 } from '../../models/definitions/engages';
-import { Segments } from '../../apiCollections';
+import { Segments, Users, EmailTemplates, Brands, Tags } from '../../apiCollections';
 
 const gatherEngageFieldNames = async (
   doc: IEngageMessageDocument | IEngageMessage,
@@ -33,34 +27,62 @@ const gatherEngageFieldNames = async (
   }
 
   if (doc.brandIds && doc.brandIds.length > 0) {
-    options = await gatherBrandNames({
+    options = await gatherNames({
+      collection: Brands,
       idFields: doc.brandIds,
       foreignKey: 'brandIds',
-      prevList: options
+      prevList: options,
+      nameFields: ['name']
     });
   }
 
-  if (doc.tagIds && doc.tagIds.length > 0) {
-    options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
-      prevList: options
+  if (doc.customerTagIds && doc.customerTagIds.length > 0) {
+    options = await gatherNames({
+      collection: Tags,
+      idFields: doc.customerTagIds,
+      foreignKey: 'customerTagIds',
+      prevList: options,
+      nameFields: ['name']
     });
   }
 
   if (doc.fromUserId) {
-    options = await gatherUsernames({
+    options = await gatherNames({
+      collection: Users,
       idFields: [doc.fromUserId],
       foreignKey: 'fromUserId',
-      prevList: options
+      prevList: options,
+      nameFields: ['email', 'username']
     });
   }
 
   if (doc.messenger && doc.messenger.brandId) {
-    options = await gatherBrandNames({
+    options = await gatherNames({
+      collection: Brands,
       idFields: [doc.messenger.brandId],
       foreignKey: 'brandId',
-      prevList: options
+      prevList: options,
+      nameFields: ['name']
+    });
+  }
+
+  if (doc.createdBy) {
+    options = await gatherNames({
+      collection: Users,
+      idFields: [doc.createdBy],
+      foreignKey: 'createdBy',
+      prevList: options,
+      nameFields: ['email', 'username']
+    });
+  }
+
+  if (doc.email && doc.email.templateId) {
+    options = await gatherNames({
+      collection: EmailTemplates,
+      idFields: [doc.email.templateId],
+      foreignKey: 'email.templateId',
+      prevList: options,
+      nameFields: ['name']
     });
   }
 
@@ -68,9 +90,11 @@ const gatherEngageFieldNames = async (
 };
 
 export const gatherDescriptions = async (params: any) => {
-  const { action, object, updatedDocument } = params;
+  const { object, updatedDocument } = params;
 
-  const description = `"${object.title}" has been ${action}d`;
+  // action will be filled inside putLog()
+  const description = `"${object.title}" has been`;
+
   let extraDesc: LogDesc[] = await gatherEngageFieldNames(object);
 
   if (updatedDocument) {

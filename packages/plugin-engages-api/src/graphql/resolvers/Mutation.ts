@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
 import { MODULE_NAMES } from '@erxes/api-utils/src/constants';
@@ -8,13 +6,14 @@ import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
 
 import { EngageMessages } from '../../models';
-import { Customers, Users } from '../../apiCollections';
 import { checkCampaignDoc, send } from '../../engageUtils';
-import EditorAttributeUtil from '../../editorAttributeUtils';
 import messageBroker from '../../messageBroker';
 import { gatherDescriptions } from './logHelper';
 import { updateConfigs, createTransporter } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
+
+// import { Customers, Users } from '../../apiCollections';
+// import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -240,14 +239,14 @@ const engageMutations = {
         'Email content, title, from address or to address is missing'
       );
     }
-    const customer = await Customers.findOne({ primaryEmail: to });
-    const targetUser = await Users.findOne({ email: to });
+    // const customer = await Customers.findOne({ primaryEmail: to });
+    // const targetUser = await Users.findOne({ email: to });
 
-    const replacedContent = await new EditorAttributeUtil().replaceAttributes({
-      content,
-      customer,
-      user: targetUser,
-    });
+    // const replacedContent = await new EditorAttributeUtil().replaceAttributes({
+    //   content,
+    //   customer,
+    //   user: targetUser,
+    // });
 
     const transporter = await createTransporter();
 
@@ -256,7 +255,8 @@ const engageMutations = {
       to,
       subject: title,
       html: content,
-      content: replacedContent
+      // content: replacedContent
+      content
     });
 
     return JSON.stringify(response);

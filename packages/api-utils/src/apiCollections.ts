@@ -1,12 +1,12 @@
 import { Db, MongoClient } from 'mongodb';
 
-const { MONGO_URL } = process.env;
+const { API_MONGO_URL } = process.env;
 
-if (!MONGO_URL) {
-  throw new Error(`Environment variable MONGO_URL not set.`);
+if (!API_MONGO_URL) {
+  throw new Error(`Environment variable API_MONGO_URL not set.`);
 }
 
-const client = new MongoClient(MONGO_URL);
+const client = new MongoClient(API_MONGO_URL);
 
 let db: Db;
 
@@ -41,8 +41,10 @@ export let Checklists;
 
 export async function connect() {
   await client.connect();
-  console.log(`DB: Connected to ${MONGO_URL}`);
+  console.log(`DB: Connected to ${API_MONGO_URL}`);
+
   db = client.db();
+
   Users = db.collection('users');
   Conversations = db.collection('conversations');
   Channels = db.collection('channels');
@@ -76,8 +78,28 @@ export async function connect() {
 export async function disconnect() {
   try {
     await client.close();
-    console.log(`DB: Connection closed ${MONGO_URL}`);
+    console.log(`DB: Connection closed ${API_MONGO_URL}`);
   } catch (e) {
     console.error(e);
   }
 }
+
+export const findOne = async (collection: any, query: any) => {
+  if (!collection) {
+    return;
+  }
+
+  if (collection.findOne) {
+    return collection.findOne(query);
+  }
+
+  // if mongodb driver is used
+  const result = await collection.find(query).limit(1).toArray();
+
+  return result && result[0];
+};
+
+// Static model function
+export const findIntegrations = (query: any, options?: any) => {
+  return Integrations && Integrations.find({ ...query, isActive: { $ne: false } }, options);
+};

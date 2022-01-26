@@ -29,11 +29,6 @@ import {
 } from './clientPortal';
 import { types as CommonTypes } from './common';
 import {
-  mutations as CompanyMutations,
-  queries as CompanyQueries,
-  types as CompanyTypes
-} from './company';
-import {
   mutations as ConfigMutations,
   queries as ConfigQueries,
   types as ConfigTypes
@@ -42,11 +37,6 @@ import {
   mutations as ConformityMutations,
   types as ConformityTypes
 } from './conformity';
-import {
-  mutations as CustomerMutations,
-  queries as CustomerQueries,
-  types as CustomerTypes
-} from './customer';
 import {
   mutations as DashboardMutations,
   queries as DashboardQueries,
@@ -148,11 +138,29 @@ import {
 export let types = `
   scalar JSON
   scalar Date
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Company @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+  }
+  
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    inheritMaxAge: Boolean
+  ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+  
   ${CommonTypes}
   ${UserTypes}
   ${InternalNoteTypes}
   ${ActivityLogTypes}
-  ${CompanyTypes}
   ${BrandTypes}
   ${Script}
   ${ClientPortalTypes}
@@ -162,7 +170,6 @@ export let types = `
   ${FieldTypes}
   ${FormTypes}
   ${ConformityTypes}
-  ${CustomerTypes}
   ${SegmentTypes}
   ${NotificationTypes}
   ${DashboardTypes}
@@ -192,8 +199,6 @@ export let queries = `
   ${FormQueries}
   ${TagQueries}
   ${InternalNoteQueries}
-  ${CompanyQueries}
-  ${CustomerQueries}
   ${SegmentQueries}
   
   ${NotificationQueries}
@@ -216,14 +221,12 @@ export let queries = `
 
 export let mutations = `
   ${UserMutations}
-  ${CompanyMutations}
   ${TagMutations}
   ${BrandMutations}
   ${ScriptMutations}
   ${EmailTemplateMutations}
   ${ClientPortalMutations}
   ${InternalNoteMutations}
-  ${CustomerMutations}
   ${SegmentMutations}
   ${FieldMutations}
   ${FormMutatons}

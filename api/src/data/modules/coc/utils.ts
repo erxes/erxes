@@ -183,7 +183,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const selector = await fetchSegment(
       segment,
       source === 'engages'
-        ? { associatedCustomers: true, returnSelector: true }
+        ? {
+            returnSelector: true,
+            returnAssociated: { contentType: 'customers', relType: 'customer' }
+          }
         : { returnSelector: true }
     );
 

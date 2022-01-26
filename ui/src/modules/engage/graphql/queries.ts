@@ -123,6 +123,13 @@ export const engageDetailFields = `
   segments {
     contentType
   }
+  logs {
+    _id
+    createdAt
+    engageMessageId
+    message
+    type
+  }
 `;
 
 const engageMessageStats = `

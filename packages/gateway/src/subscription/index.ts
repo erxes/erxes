@@ -14,13 +14,12 @@ import {
 import ws from "ws";
 import { GraphQLSchema } from "graphql";
 import GatewayDataSource from "./GatewayDataSource";
-import resolvers from "./resolvers";
-import typeDefs from "./typeDefs";
 import {
   Disposable,
   SubscribeMessage,
 } from "graphql-ws";
 import { markClientActive, markClientInactive } from './clientStatusUtils';
+import genTypeDefsAndResolvers from './genTypeDefsAndResolvers';
 
 let disposable: Disposable;
 
@@ -28,6 +27,9 @@ export async function loadSubscriptions(
   gatewaySchema: GraphQLSchema,
   wsServer: ws.Server
 ) {
+
+  const { typeDefs, resolvers } = await genTypeDefsAndResolvers();
+
   const schema = makeSubscriptionSchema({ gatewaySchema, typeDefs, resolvers });
 
   if(disposable) {
