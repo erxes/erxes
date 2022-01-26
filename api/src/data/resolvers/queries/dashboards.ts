@@ -1,4 +1,3 @@
-import { $exists } from 'sift';
 import { DashboardItems, Dashboards } from '../../../db/models';
 import { BOARD_TYPES } from '../../../db/models/definitions/constants';
 import {
