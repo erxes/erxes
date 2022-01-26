@@ -30,6 +30,8 @@ import {
   sendToWebhook
 } from './requests';
 import { updateUserScore, getScoringConfig } from './scoring';
+import { generateFieldsFromSchema } from './fieldUtils';
+
 import {
   can,
   IActionMap,
@@ -78,6 +80,7 @@ export { putCreateLog, putUpdateLog, putDeleteLog };
 export { sendToWebhook };
 export { updateUserScore };
 export { getScoringConfig };
+export { generateFieldsFromSchema };
 export {
   can,
   IActionMap,
@@ -125,5 +128,6 @@ export default {
   putUpdateLog,
   putDeleteLog,
   updateUserScore,
-  getScoringConfig
+  getScoringConfig,
+  generateFieldsFromSchema
 };

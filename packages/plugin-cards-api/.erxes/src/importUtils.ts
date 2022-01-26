@@ -1,8 +1,7 @@
-import { Users } from './apiCollections';
-import { Boards, Pipelines, Stages } from './models/Boards';
+import { Boards, Pipelines, Stages } from '../../src/models';
 
 export const prepareImportDocs = async args => {
-  const { result, properties, contentType } = args;
+  const { result, properties, contentType, user } = args;
 
   const bulkDoc: any = [];
 
@@ -22,13 +21,16 @@ export const prepareImportDocs = async args => {
       const value = (fieldValue[colIndex] || '').toString();
 
       switch (property.type) {
-        case 'assignedUserEmail':
-          {
-            const assignedUser = await Users.findOne({ email: value });
+        case 'boardName':
+          boardName = value;
+          break;
 
-            doc[property.name] = assignedUser ? [assignedUser._id] : [];
-          }
+        case 'pipelineName':
+          pipelineName = value;
+          break;
 
+        case 'stageName':
+          stageName = value;
           break;
       }
 
@@ -54,4 +56,6 @@ export const prepareImportDocs = async args => {
 
     bulkDoc.push(doc);
   }
+
+  return bulkDoc;
 };

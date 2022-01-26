@@ -1,6 +1,12 @@
-import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';
-import { generateFieldsFromSchema } from '../.erxes/src/utils';
-import { Segments } from './apiCollections';
+import { Segments } from '@erxes/api-utils/src/apiCollections';
+import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import {
+  Deals,
+  PipelineLabels,
+  Stages,
+  Tasks,
+  Tickets
+} from '../../src/models';
 
 export const configReplacer = config => {
   const now = new Date();
@@ -53,7 +59,7 @@ const getPipelineLabelOptions = async pipelineId => {
 };
 
 export const generateFields = async args => {
-  const { contentType, pipelineId, segmentId, serviceType } = args;
+  const { contentType, pipelineId, segmentId } = args;
 
   let schema: any;
   let fields: Array<{
