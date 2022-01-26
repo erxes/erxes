@@ -22,6 +22,7 @@ const dashBoardQueries = {
       ? {}
       : {
           $or: [
+            { visibility: { $exists: null } },
             { visibility: 'public' },
             {
               $and: [
