@@ -3,12 +3,11 @@ import { Conformities, Segments, Tags } from '../apiCollections';
 import { companySchema } from '../models/definitions/companies';
 import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
-// import { debugError } from '@erxes/plugin-inbox-api/src/debuggers';
-import { es } from '../configs';
+import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
 import { getDocumentList } from '../cacheUtils';
+import { fetchSegment } from '../messageBroker';
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
-// import { fetchSegment } from '../segments/queryBuilder';
 
 export interface ICountBy {
   [index: string]: number;
@@ -38,25 +37,26 @@ export const countBySegment = async (
 
   // Count cocs by segments
   // let segments: ISegmentDocument[] = [];
+  let segments: any[] = [];
 
   // show all contact related engages when engage
-  // if (source === 'engages') {
-  //   segments = await Segments.find({});
-  // } else {
-  //   segments = await Segments.find({ contentType });
-  // }
+  if (source === 'engages') {
+    segments = await Segments.find({}).toArray();
+  } else {
+    segments = await Segments.find({ contentType }).toArray();
+  }
 
   // Count cocs by segment
-  // for (const s of segments) {
-  //   try {
-  //     await qb.buildAllQueries();
-  //     await qb.segmentFilter(s._id, source);
-  //     counts[s._id] = await qb.runQueries('count');
-  //   } catch (e) {
-  //     debugError(`Error during segment count ${e.message}`);
-  //     counts[s._id] = 0;
-  //   }
-  // }
+  for (const s of segments) {
+    try {
+      await qb.buildAllQueries();
+      await qb.segmentFilter(s._id, source);
+      counts[s._id] = await qb.runQueries('count');
+    } catch (e) {
+      debug.error(`Error during segment count ${e.message}`);
+      counts[s._id] = 0;
+    }
+  }
 
   return counts;
 };
@@ -178,16 +178,16 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string, source?: string) {
-    const segment = await Segments.getSegment(segmentId);
+    const segment = await Segments.findOne({ _id: segmentId });
 
-    // const selector = await fetchSegment(
-    //   segment,
-    //   source === 'engages'
-    //     ? { associatedCustomers: true, returnSelector: true }
-    //     : { returnSelector: true }
-    // );
+    const selector = await fetchSegment(
+      segment,
+      source === 'engages'
+        ? { associatedCustomers: true, returnSelector: true }
+        : { returnSelector: true }
+    );
 
-    // this.positiveList = [...this.positiveList, selector];
+    this.positiveList = [...this.positiveList, selector];
   }
 
   // filter by tagId

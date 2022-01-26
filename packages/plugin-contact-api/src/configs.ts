@@ -31,7 +31,16 @@ export default {
     resolvers
   },
   hasSubscriptions: false,
-  segment: { schemas: [] },
+  segment: {
+    indexesTypeContentType: {
+      customer: 'customers',
+      company: 'companies'
+    },
+    contentTypes: ['customer', 'company'],
+    esTypesMapQueue: 'contacts:segments:esTypesMap',
+    initialSelectorQueue: 'contacts:segments:initialSelector',
+    associationTypesQueue: 'contacts:segments:associationTypes',
+  },
   apolloServerContext: context => {
     context.dataLoaders = generateAllDataLoaders();
   },

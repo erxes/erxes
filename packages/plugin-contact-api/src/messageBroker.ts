@@ -1,7 +1,47 @@
+import { generateFields } from "./utils";
+
 let client;
 
 export const initBroker = cl => {
   client = cl;
+
+  const { consumeRPCQueue } = client;
+
+  consumeRPCQueue('contacts:rpc_queue:getFields', async args => ({
+    status: 'success',
+    data: await generateFields(args)
+  }));
+
+  consumeRPCQueue('contacts:segments:associationTypes', async ({ mainType }) => {
+    let types: string[] = [];
+
+    if (['customer', 'lead'].includes(mainType)) {
+      types = ['company', 'deal', 'ticket', 'task'];
+    }
+  
+    if (mainType === 'company') {
+      types = ['customer', 'deal', 'ticket', 'task'];
+    }
+
+    return { data: { types }, status: 'success' };
+  });
+
+  consumeRPCQueue('contacts:segments:esTypesMap', async () => {
+    return { data: { typesMap: {} }, status: 'success' };
+  });
+
+  consumeRPCQueue(
+    'contacts:segments:initialSelector',
+    async () => {
+      const negative = {
+        term: {
+          status: 'deleted'
+        }
+      }
+
+      return { data: { negative }, status: 'success' };
+    }
+  );
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -70,6 +110,12 @@ export const engageChangeCustomer = async (
 ): Promise<any> => {
   await client.consumeQueue('engage:changeCustomer', customerId, customerIds);
 };
+
+export const fetchSegment = (segment, options?) =>
+  sendRPCMessage("rpc_queue:fetchSegment", {
+    segment,
+    options,
+  });
 
 export default function() {
   return client;

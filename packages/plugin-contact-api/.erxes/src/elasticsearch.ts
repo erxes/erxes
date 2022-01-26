@@ -1,13 +1,10 @@
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import * as elasticsearch from 'elasticsearch';
 import * as telemetry from 'erxes-telemetry';
-import * as mongoUri from 'mongo-uri';
 import { debugError } from './debuggers';
 
 const {
   NODE_ENV,
-  MONGO_URL,
-  TEST_MONGO_URL = 'mongodb://localhost/test',
   ELASTICSEARCH_URL = 'http://localhost:9200'
 } = process.env;
 
@@ -27,14 +24,7 @@ export const getIndexPrefix = () => {
     return `${telemetry.getMachineId().toString()}__`;
   }
 
-  let uriObject = mongoUri.parse(MONGO_URL);
-  if (NODE_ENV === 'test') {
-    uriObject = mongoUri.parse(TEST_MONGO_URL);
-  }
-
-  const dbName = uriObject.database;
-
-  return `${dbName}__`;
+  return 'erxes__';
 };
 
 export const fetchElk = async ({
