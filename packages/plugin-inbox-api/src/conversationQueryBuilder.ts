@@ -4,7 +4,7 @@ import { Tags, Segments } from './apiCollections';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { getDocumentList } from './cacheUtils';
-// import { fetchSegment } from '../../modules/segments/queryBuilder';
+import { fetchSegment } from './messageBroker';
 
 interface IIn {
   $in: string[];
@@ -78,19 +78,17 @@ export default class Builder {
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const segment = await Segments.getSegment(segmentId);
+    const segment = await Segments.findOne({ _id: segmentId });
 
-    // const selector = await fetchSegment(segment, {
-    //   returnFields: ['_id'],
-    //   page: 1,
-    //   perPage: this.params.limit ? this.params.limit + 1 : 11,
-    //   sortField: 'updatedAt',
-    //   sortDirection: -1
-    // });
+    const selector = await fetchSegment(segment, {
+      returnFields: ['_id'],
+      page: 1,
+      perPage: this.params.limit ? this.params.limit + 1 : 11,
+      sortField: 'updatedAt',
+      sortDirection: -1
+    });
 
-    // const Ids = _.pluck(selector, '_id');
-
-    const Ids = [];
+    const Ids = _.pluck(selector, '_id');
 
     return {
       _id: { $in: Ids }

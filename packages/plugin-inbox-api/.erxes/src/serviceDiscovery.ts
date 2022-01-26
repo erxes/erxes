@@ -17,7 +17,7 @@ interface ISegmentConfig {
 
 const generateKey = (name) => `service:config:${name}`;
 
-export const join = ({ name, port, dbConnectionString, segment, hasSubscriptions = false }: { name: string, port: string, dbConnectionString: string, segment?: ISegmentConfig, hasSubscriptions?: boolean }) => {
+export const join = ({ name, port, dbConnectionString, segment, hasSubscriptions = false }: { name: string, port: string, dbConnectionString: string, segment?: any, hasSubscriptions?: boolean }) => {
   redis.set(generateKey(name), JSON.stringify({
     dbConnectionString,
     segment,

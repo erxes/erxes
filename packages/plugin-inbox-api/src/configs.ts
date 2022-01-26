@@ -28,16 +28,10 @@ export default {
   },
   hasSubscriptions: true,
   segment: {
-    schemas: [{
-      name: 'conversation',
-      description: 'Conversation',
-      options: {
-        ...conversationSchemaOptions,
-        customFieldsData: {
-          type: 'Object',
-        }
-      },
-    }]
+    indexesTypeContentType: {
+      conversation: 'conversations',
+    },
+    contentTypes: ['conversation'],
   },
   apolloServerContext: (context) => {
     context.dataLoaders = generateAllDataLoaders();

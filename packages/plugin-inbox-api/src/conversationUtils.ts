@@ -11,9 +11,9 @@ import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
 
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
-// import { fetchSegment } from '../segments/queryBuilder';
 
 import { debug } from './configs';
+import { fetchSegment } from './messageBroker';
 
 export interface ICountBy {
   [index: string]: number;
@@ -93,7 +93,7 @@ export const countBySegment = async (
 //   let segments: ISegmentDocument[] = [];
   let segments: any[] = [];
 
-  segments = await Segments.find({ contentType: 'conversation' });
+  segments = await Segments.find({ contentType: 'conversation' }).toArray();
 
   // Count cocs by segment
   for (const s of segments) {
@@ -167,10 +167,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    const segment = await Segments.getSegment(segmentId);
+    const segment = await Segments.findOne({ _id: segmentId });
 
-//     const selector = await fetchSegment(segment, { returnSelector: true });
-    const selector = {};
+    const selector = await fetchSegment(segment, { returnSelector: true });
 
     this.positiveList = [...this.positiveList, selector];
   }
