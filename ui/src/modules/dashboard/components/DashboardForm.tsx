@@ -14,8 +14,10 @@ import { IDashboard } from '../types';
 
 type Props = {
   dashboard?: IDashboard;
+  dashboards: IDashboard[];
   trigger?: React.ReactNode;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  loading: boolean;
 };
 
 type State = {
@@ -27,15 +29,25 @@ type FinalProps = {
   closeModal: () => void;
 } & Props;
 
+type IDashboradItem = {
+  order?: string;
+  name: string;
+  _id: string;
+};
+
 function DashbaordFormContent(props: FinalProps) {
   const dashboard = props.dashboard;
-
   const [state, setState] = useState<State>({
     visibility: dashboard ? dashboard.visibility || 'public' : 'public',
     selectedMemberIds: dashboard ? dashboard.selectedMemberIds || [] : []
   });
 
-  const generateDoc = (values: { _id?: string; name: string }) => {
+  const generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+    parentId?: string;
+  }) => {
     const { selectedMemberIds, visibility } = state;
     const finalValues = values;
 
@@ -47,7 +59,9 @@ function DashbaordFormContent(props: FinalProps) {
       _id: finalValues._id,
       name: finalValues.name,
       visibility,
-      selectedMemberIds
+      selectedMemberIds,
+      description: finalValues.description,
+      parentId: finalValues.parentId
     };
   };
 
@@ -84,11 +98,62 @@ function DashbaordFormContent(props: FinalProps) {
     );
   };
 
+  const generateDashboardOptions = (
+    dashboards: IDashboradItem[],
+    currentDashboardId?: string
+  ) => {
+    const result: React.ReactNode[] = [];
+
+    for (const reports of dashboards) {
+      const order = reports.order || '';
+
+      const foundedString = order.match(/[/]/gi);
+
+      let space = '';
+
+      if (foundedString) {
+        space = '\u00A0 '.repeat(foundedString.length);
+      }
+
+      if (currentDashboardId !== reports._id) {
+        result.push(
+          <option key={reports._id} value={reports._id}>
+            {space}
+            {reports.name}
+          </option>
+        );
+      }
+    }
+
+    return result;
+  };
+
+  const renderParentCategories = (formProps: IFormProps) => {
+    const { dashboards } = props;
+    const object = dashboard || ({} as IDashboard);
+
+    return (
+      <FormGroup>
+        <ControlLabel>Parent Dashboard</ControlLabel>
+
+        <FormControl
+          {...formProps}
+          name="parentId"
+          componentClass="select"
+          defaultValue={object.parentId}
+        >
+          <option value="" />
+          {generateDashboardOptions(dashboards, object._id)}
+        </FormControl>
+      </FormGroup>
+    );
+  };
+
   const renderContent = (formProps: IFormProps) => {
     const { renderButton } = props;
     const { visibility } = state;
     const { values, isSubmitted } = formProps;
-    const object = dashboard || { name: '' };
+    const object = dashboard || ({} as IDashboard);
 
     return (
       <>
@@ -101,6 +166,15 @@ function DashbaordFormContent(props: FinalProps) {
             defaultValue={object.name}
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="description"
+            defaultValue={object.description}
           />
         </FormGroup>
 
@@ -119,6 +193,8 @@ function DashbaordFormContent(props: FinalProps) {
         </FormGroup>
 
         {renderSelectMembers()}
+
+        {renderParentCategories(formProps)}
 
         <ModalFooter>
           <Button
@@ -150,12 +226,18 @@ const DashbaordForm = (props: Props) => {
     <Button icon="sitemap-1">{__('Create new Dashboard')}</Button>
   );
 
-  const { dashboard, trigger = defatulTrigger, renderButton } = props;
+  const {
+    dashboard,
+    dashboards,
+    trigger = defatulTrigger,
+    renderButton
+  } = props;
 
   const content = modalProps => {
     const updatedProps = {
       ...modalProps,
       dashboard,
+      dashboards,
       renderButton
     };
 
