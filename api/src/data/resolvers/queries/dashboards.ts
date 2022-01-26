@@ -1,3 +1,4 @@
+import { $exists } from 'sift';
 import { DashboardItems, Dashboards } from '../../../db/models';
 import { BOARD_TYPES } from '../../../db/models/definitions/constants';
 import {
@@ -22,6 +23,7 @@ const dashBoardQueries = {
       ? {}
       : {
           $or: [
+            { visibility: { $exists: null } },
             { visibility: 'public' },
             {
               $and: [
