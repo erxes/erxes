@@ -301,7 +301,8 @@ export const RABBITMQ_QUEUES = {
   WORKERS: 'workers',
   VISITOR_LOG: 'visitorLog',
   RPC_VISITOR_LOG: 'rpc_queue:visitorLog',
-  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger'
+  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger',
+  LOG_DELETE_OLD: 'log:delete:old'
 };
 
 export const AUTO_BOT_MESSAGES = {

@@ -3,21 +3,21 @@ name: Integrations CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "integrations/**"
-      - "!integrations/**.md"
-      - "!.github/**"
-      - ".github/workflows/integrations.yaml"
+      - 'integrations/**'
+      - '!integrations/**.md'
+      - '!.github/**'
+      - '.github/workflows/integrations.yaml'
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "integrations/**"
-      - "!integrations/**.md"
-      - "!.github/**"
-      - ".github/workflows/integrations.yaml"
+      - 'integrations/**'
+      - '!integrations/**.md'
+      - '!.github/**'
+      - '.github/workflows/integrations.yaml'
 
 jobs:
   integrations:
@@ -82,7 +82,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'  )
         run: |
           cd integrations
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

@@ -16,6 +16,9 @@ export const createActivityLogsFromSegments = async () => {
   const segments = await Segments.find({ name: { exists: true } });
 
   for (const segment of segments) {
+    if (!segment.shouldWriteActivityLog) {
+      continue;
+    }
     const result = await fetchSegment(segment, { returnFullDoc: true });
 
     const contentIds = result.map(c => c._id) || [];

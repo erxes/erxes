@@ -14,6 +14,7 @@ import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
 import Customer from './customer';
 import customScalars from './customScalars';
+import Dashboard from './dashboard';
 import Deal from './deals';
 import EmailDelivery from './emailDeliveries';
 import {
@@ -80,6 +81,8 @@ const resolvers: any = {
   Deal,
   Stage,
   Board,
+
+  Dashboard,
 
   Mutation,
   Query,

@@ -28,7 +28,9 @@ export const types = `
         code: String
         parent: Department
         children: [Department]
+        childCount: Int
         users: [User]
+        userCount: Int
         userIds: [String]
     }
 

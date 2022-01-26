@@ -83,6 +83,12 @@ const chart = ({ location }) => {
   return <DealBoard viewType="chart" queryParams={queryParams} />;
 };
 
+const gantt = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="gantt" queryParams={queryParams} />;
+};
+
 const conversion = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -100,30 +106,42 @@ const routes = () => {
         path="/deal/board"
         component={boards}
       />
+
       <Route
         key="deals/calendar"
         exact={true}
         path="/deal/calendar"
         component={calendar}
       />
+
       <Route
         key="deals/conversion"
         exact={true}
         path="/deal/conversion"
         component={conversion}
       />
+
       <Route
         key="deals/activity"
         exact={true}
         path="/deal/activity"
         component={activity}
       />
+
       <Route key="deals/list" exact={true} path="/deal/list" component={list} />
+
       <Route
         key="deals/chart"
         exact={true}
         path="/deal/chart"
         component={chart}
+      />
+
+      <Route
+        key="deals/gantt"
+        exact={true}
+        path="/deal/gantt"
+        component={gantt}
       />
     </React.Fragment>
   );

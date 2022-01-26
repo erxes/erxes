@@ -127,6 +127,7 @@ class ListGroupBy extends React.Component<Props> {
               <th>{groupType === 'priority' ? __('Label') : __('Priority')}</th>
               <th>{__('Due Date')}</th>
               {groupType !== 'assignee' && <th>{__('Assignee')}</th>}
+              {options.type === 'deal' && <th>{__('Products')}</th>}
               <th>{__('Associated Customer')}</th>
               <ColumnLastChild>{__('Associated Company')}</ColumnLastChild>
             </tr>

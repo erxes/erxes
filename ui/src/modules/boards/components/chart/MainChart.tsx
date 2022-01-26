@@ -46,11 +46,6 @@ export default function MainChart({ component, data, children }: Props) {
         <XAxis
           dataKey="name"
           padding={{ top: 10 }}
-          label={{
-            value: 'Assignees',
-            position: 'insideBottomRight',
-            offset: 0
-          }}
           tick={<CustomizedAxisTick />}
           height={60}
           interval={0}

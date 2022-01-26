@@ -114,6 +114,7 @@ describe('dealQueries', () => {
       $segment: String
       $startDate: String
       $endDate: String
+      $hasStartAndCloseDate: Boolean
     ) {
       deals(
         search: $search
@@ -136,6 +137,7 @@ describe('dealQueries', () => {
         segment: $segment
         startDate: $startDate
         endDate: $endDate
+        hasStartAndCloseDate: $hasStartAndCloseDate
       ) {
         _id
       }
@@ -245,6 +247,17 @@ describe('dealQueries', () => {
 
     const response = await graphqlRequest(qryDealFilter, 'deals', {
       productIds: [productId]
+    });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by hasStartAndCloseDate', async () => {
+    await dealFactory({ closeDate: new Date() });
+    await dealFactory({ closeDate: new Date(), startDate: new Date() });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', {
+      hasStartAndCloseDate: true
     });
 
     expect(response.length).toBe(1);

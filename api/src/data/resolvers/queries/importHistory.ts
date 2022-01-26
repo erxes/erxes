@@ -9,7 +9,7 @@ import {
 import { ISegment } from '../../../db/models/definitions/segments';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
-import { paginate } from '../../utils';
+import utils, { paginate } from '../../utils';
 
 const importHistoryQueries = {
   /**
@@ -19,11 +19,15 @@ const importHistoryQueries = {
     _root,
     { type, ...args }: { page: number; perPage: number; type: string }
   ) {
-    const list = paginate(
-      ImportHistory.find({ contentType: type }),
-      args
-    ).sort({ date: -1 });
-    const count = ImportHistory.find({ contentType: type }).countDocuments();
+    const filter: { [key: string]: any } = {};
+
+    if (type) {
+      filter.contentTypes = type;
+    }
+
+    const list = paginate(ImportHistory.find(filter), args).sort({ date: -1 });
+
+    const count = ImportHistory.find(filter).countDocuments();
 
     return { list, count };
   },
@@ -34,6 +38,46 @@ const importHistoryQueries = {
     importHistory.errorMsgs = (importHistory.errorMsgs || []).slice(0, 100);
 
     return importHistory;
+  },
+
+  async importHistoryGetColumns(
+    _root,
+    { attachmentName }: { attachmentName: string }
+  ) {
+    const values = (await utils.getImportCsvInfo(attachmentName)) as any;
+
+    const object = {} as any;
+
+    values.map(value => {
+      Object.keys(value).forEach(key => {
+        if (!object[key]) {
+          object[key] = [value[key]];
+        } else {
+          object[key].push(value[key]);
+        }
+      });
+    });
+
+    return object;
+  },
+
+  async importHistoryGetDuplicatedHeaders(
+    _root,
+    { attachmentNames }: { attachmentNames: string[] }
+  ) {
+    const headers = [] as any;
+
+    for (const attachmentName of attachmentNames) {
+      const results: any = await utils.getCsvHeadersInfo(attachmentName);
+
+      headers.push(...results.split(','));
+    }
+
+    const duplicates = headers.filter(
+      (item, index) => index !== headers.indexOf(item)
+    );
+
+    return duplicates;
   },
 
   async importHistoryPreviewExportCount(
@@ -48,43 +92,28 @@ const importHistoryQueries = {
       return fetchSegment(segment, { returnCount: true });
     }
 
-    let count = 0;
-
     switch (contentType) {
       case 'customer':
-        count = await Customers.countDocuments({ state: 'customer' });
+        return Customers.countDocuments({ state: 'customer' });
 
-        break;
       case 'lead':
-        count = await Customers.countDocuments({ state: 'lead' });
+        return Customers.countDocuments({ state: 'lead' });
 
-        break;
       case 'visitor':
-        count = await Customers.countDocuments({ state: 'visitor' });
+        return Customers.countDocuments({ state: 'visitor' });
 
-        break;
       case 'deal':
-        count = await Deals.countDocuments();
-
-        break;
+        return Deals.countDocuments({});
 
       case 'task':
-        count = await Tasks.countDocuments();
-
-        break;
+        return Tasks.countDocuments({});
 
       case 'company':
-        count = await Companies.countDocuments();
-
-        break;
+        return Companies.countDocuments({});
 
       case 'ticket':
-        count = await Tasks.countDocuments();
-
-        break;
+        return Tasks.countDocuments({});
     }
-
-    return count;
   }
 };
 

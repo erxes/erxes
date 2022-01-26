@@ -58,6 +58,8 @@ describe('Structure queries', () => {
                     supervisor {
                       _id
                     }
+                    childCount
+                    userCount
                 }
             }
         `;

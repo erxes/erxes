@@ -51,9 +51,7 @@ const userDetail = `
       emailSignatures
       getNotificationByEmail
       customFieldsData
-      department {
-        ${departmentField}
-      }
+      score
     }
   }
 `;

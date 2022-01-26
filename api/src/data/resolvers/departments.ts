@@ -9,12 +9,23 @@ export default {
     });
   },
 
+  userCount(department: IDepartmentDocument) {
+    return Users.countDocuments({
+      _id: { $in: department.userIds || [] },
+      isActive: true
+    });
+  },
+
   parent(department: IDepartmentDocument) {
     return Departments.findOne({ _id: department.parentId });
   },
 
   children(department: IDepartmentDocument) {
     return Departments.find({ parentId: department._id });
+  },
+
+  childCount(department: IDepartmentDocument) {
+    return Departments.countDocuments({ parentId: department._id });
   },
 
   supervisor(department: IDepartmentDocument) {

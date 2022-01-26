@@ -128,12 +128,18 @@ export const activityLogFactory = async (
 });
 
 interface IDashboardFactoryInput {
+  relatedIds?: string[];
   name?: string;
+  parentId?: string;
+  description?: string;
 }
 
 export const dashboardFactory = async (params: IDashboardFactoryInput) => {
   const dashboard = new Dashboards({
-    name: params.name || 'name'
+    name: params.name || faker.random.word(),
+    parentId: params.parentId,
+    description: params.description || faker.random.word(),
+    relatedIds: params.relatedIds || []
   });
 
   return dashboard.save();
@@ -1089,6 +1095,8 @@ interface IPipelineFactoryInput {
   startDate?: Date;
   endDate?: Date;
   templateId?: string;
+  numberConfig?: string;
+  numberSize?: string;
 }
 
 export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
@@ -1112,7 +1120,9 @@ export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
     watchedUserIds: params.watchedUserIds,
     startDate: params.startDate,
     endDate: params.endDate,
-    templateId: params.templateId
+    templateId: params.templateId,
+    numberConfig: params.numberConfig || '{year}_',
+    numberSize: params.numberSize || '1'
   });
 };
 
@@ -1164,6 +1174,7 @@ interface IDealFactoryInput {
   companyIds?: string[];
   customerIds?: string[];
   priority?: string;
+  startDate?: Date;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1230,6 +1241,7 @@ export const dealFactory = async (
       ? { closeDate: params.closeDate || new Date() }
       : {}),
     description: faker.random.word(),
+    startDate: params.startDate,
     productsData: params.productsData,
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
     userId: params.userId || faker.random.word(),
@@ -1548,7 +1560,7 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
 };
 
 interface IImportHistoryFactoryInput {
-  contentType?: string;
+  contentTypes?: string[];
   failed?: number;
   total?: number;
   success?: string;
@@ -1566,7 +1578,7 @@ export const importHistoryFactory = async (
     total: params.total || faker.random.number(),
     success: params.success || faker.random.number(),
     ids: params.ids,
-    contentType: params.contentType || 'customer',
+    contentTypes: params.contentTypes || ['customer'],
     errorMsgs: params.errorMsgs
   };
 

@@ -1,15 +1,14 @@
-import dayjs from 'dayjs';
 import Assignees from 'modules/boards/components/Assignees';
 import Details from 'modules/boards/components/Details';
 import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import Labels from 'modules/boards/components/label/Labels';
+import ItemFooter from 'modules/boards/components/portable/ItemFooter';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
-import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
+import { ItemContainer } from 'modules/boards/styles/common';
+import { PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IItem, IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 
 type Props = {
@@ -26,14 +25,6 @@ type Props = {
 };
 
 class TaskItem extends React.PureComponent<Props> {
-  renderDate(date) {
-    if (!date) {
-      return null;
-    }
-
-    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
-  }
-
   renderForm = () => {
     const { item, isFormVisible, stageId } = this.props;
 
@@ -74,9 +65,7 @@ class TaskItem extends React.PureComponent<Props> {
 
         <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
-        <Footer>
-          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
-        </Footer>
+        <ItemFooter item={item} />
       </>
     );
   }

@@ -60,6 +60,7 @@ const commonQueryParams = `
   assignedToMe: String
   startDate: String
   endDate: String
+  hasStartAndCloseDate: Boolean
   `;
 
 const listQueryParams = `

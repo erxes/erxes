@@ -26,6 +26,27 @@ const SelectType = ({
   icon
 }: Props & IRouterProps) => {
   const dropDownMenu = () => {
+    if (queryParamName === 'groupBy') {
+      return (
+        <Dropdown.Menu>
+          {list.map(m => (
+            <li key={m.title}>
+              <a
+                href="#listType"
+                onClick={() =>
+                  routerUtils.setParams(history, { [queryParamName]: m.name })
+                }
+              >
+                <Icon icon={m.icon} color="#673FBD" />
+                &nbsp;
+                {m.title}
+              </a>
+            </li>
+          ))}
+        </Dropdown.Menu>
+      );
+    }
+
     return (
       <Dropdown.Menu>
         {list.map(m => (

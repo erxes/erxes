@@ -171,7 +171,10 @@ export default class WorkArea extends React.Component<Props, State> {
     const { kind } = currentConversation.integration;
 
     const showInternal =
-      this.isMailConversation(kind) || kind === 'lead' || kind === 'booking';
+      this.isMailConversation(kind) ||
+      kind === 'lead' ||
+      kind === 'booking' ||
+      kind === 'webhook';
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">

@@ -40,6 +40,7 @@ const listQueryParams = `
     assignedToMe: String
     startDate: String
     endDate: String
+    hasStartAndCloseDate: Boolean
     ${conformityQueryFields}
 `;
 

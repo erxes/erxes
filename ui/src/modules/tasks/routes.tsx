@@ -57,6 +57,12 @@ const activity = ({ location }) => {
   return <TaskBoard viewType="activity" queryParams={queryParams} />;
 };
 
+const gantt = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="gantt" queryParams={queryParams} />;
+};
+
 const calendar = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -81,6 +87,13 @@ const routes = () => {
   return (
     <>
       <Route key="/task" exact={true} path="/task" render={tasks} />
+
+      <Route
+        key="task/gantt"
+        exact={true}
+        path="/task/gantt"
+        component={gantt}
+      />
 
       <Route
         key="/task/board"
