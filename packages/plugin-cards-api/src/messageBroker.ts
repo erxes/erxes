@@ -14,6 +14,11 @@ export const initBroker = async cl => {
     data: await generateFields(args)
   }));
 
+  consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
+    status: 'success',
+    data: await generateFields(args)
+  }));
+
   consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
     status: 'success',
     data: await prepareImportDocs(args)
@@ -149,6 +154,12 @@ export const sendNotificationRPCMessage = async (
 
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
+
+export const fetchSegment = (segment, options?) =>
+  sendRPCMessage("rpc_queue:fetchSegment", {
+    segment,
+    options,
+  });
 
 export default function() {
   return client;

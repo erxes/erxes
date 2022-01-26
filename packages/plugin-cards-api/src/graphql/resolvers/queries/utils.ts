@@ -12,11 +12,11 @@ import {
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { IUserDocument } from '@erxes/common-types/src/users';
 import { CLOSE_DATE_TYPES } from '../../../constants';
-// import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
-import { Notifications } from '../../../apiCollections';
+import { Notifications, Segments } from '../../../apiCollections';
 import {
+  fetchSegment,
   sendConformityRPCMessage,
   sendContactRPCMessage
 } from '../../../messageBroker';
@@ -163,7 +163,7 @@ export const generateCommonFilters = async (
 
   const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
 
-  let filterIds: string[] = [];
+  const filterIds: string[] = [];
 
   if (assignedUserIds) {
     // Filter by assigned to no one
@@ -291,9 +291,10 @@ export const generateCommonFilters = async (
   }
 
   if (segment) {
-    // const segmentObj = await Segments.findOne({ _id: segment }).lean();
-    // const itemIds = await fetchSegment(segmentObj);
-    // filter._id = { $in: itemIds };
+    const segmentObj = await Segments.findOne({ _id: segment });
+    const itemIds = await fetchSegment(segmentObj);
+
+    filter._id = { $in: itemIds };
   }
 
   if (hasStartAndCloseDate) {

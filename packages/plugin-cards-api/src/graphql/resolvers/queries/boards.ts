@@ -8,7 +8,6 @@ import {
   PipelineLabels
 } from '../../../models';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-// import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { IContext, paginate, regexSearchText } from '@erxes/api-utils/src';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { getCollection } from '../../../models/utils';
@@ -16,7 +15,8 @@ import { IStageDocument } from '../../../models/definitions/boards';
 import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
 import { IPipelineLabelDocument } from '../../../models/definitions/pipelineLabels';
 import { getCloseDateByType } from './utils';
-import { Users } from '../../../apiCollections';
+import { Segments, Users } from '../../../apiCollections';
+import { fetchSegment } from '../../../messageBroker';
 
 export interface IDate {
   month: number;
@@ -551,27 +551,28 @@ const boardQueries = {
 
   async itemsCountBySegments(
     _root,
-    {}: // type,
-    // boardId,
-    // pipelineId
+    { type,
+      boardId,
+      pipelineId
+    }:
     { type: string; boardId: string; pipelineId: string }
   ) {
-    // const segments = await _Segments
-    //   .find({
-    //     contentType: type,
-    //     boardId,
-    //     pipelineId
-    //   })
-    //   .lean();
+    const segments = await Segments
+      .find({
+        contentType: type,
+        boardId,
+        pipelineId
+      })
+      .toArray();
 
     const counts = {};
 
-    // for (const segment of segments) {
-    //   counts[segment._id] = await fetchSegment(segment, {
-    //     pipelineId,
-    //     returnCount: true
-    //   });
-    // }
+    for (const segment of segments) {
+      counts[segment._id] = await fetchSegment(segment, {
+          pipelineId,
+          returnCount: true
+      });
+    }
 
     return counts;
   }

@@ -339,6 +339,11 @@ export const initBroker = async (server?) => {
       })
     );
 
+    consumeRPCQueue('rpc_queue:fetchSegment', async ({ segment, options }) => {
+      const data = await fetchSegment(segment, options);
+      return { data, status: 'success' };
+    });
+
     // graphql subscriptions call =========
     consumeQueue('callPublish', params => {
       graphqlPubsub.publish(params.name, params.data);
