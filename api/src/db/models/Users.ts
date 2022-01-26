@@ -601,7 +601,7 @@ export const loadClass = () => {
 
       try {
         // validate refresh token
-        const { user } = jwt.verify(refreshToken, this.getSecret());
+        const { user }: any = jwt.verify(refreshToken, this.getSecret());
 
         _id = user._id;
         // if refresh token is expired then force to login
