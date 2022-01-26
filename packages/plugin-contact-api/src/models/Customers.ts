@@ -17,6 +17,7 @@ import {
 import {
   changeCustomer,
   engageChangeCustomer,
+  prepareCustomFieldsData,
   removeCustomersConversations,
   removeCustomersEngages
 } from '../messageBroker';
@@ -285,7 +286,7 @@ export const loadClass = () => {
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+      doc.customFieldsData = await prepareCustomFieldsData(
         doc.customFieldsData
       );
 
@@ -339,7 +340,7 @@ export const loadClass = () => {
 
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await prepareCustomFieldsData(
           doc.customFieldsData
         );
       }

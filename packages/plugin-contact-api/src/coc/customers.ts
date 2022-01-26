@@ -1,6 +1,8 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { Customers, FormSubmissions, Integrations } from '../apiCollections';
+import { FormSubmissions } from '../apiCollections';
+import { findIntegrations } from '../messageBroker';
+import Customers from '../models/Customers';
 // import { IConformityQueryParams } from '../../resolvers/queries/types';
 import { CommonBuilder } from './utils';
 
@@ -76,7 +78,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by brand
   public async brandFilter(brandId: string): Promise<void> {
-    const integrations = await Integrations.findIntegrations({ brandId });
+    const integrations = await findIntegrations({ brandId });
 
     this.positiveList.push({
       terms: {
@@ -87,7 +89,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
-    const integrations = await Integrations.findIntegrations({
+    const integrations = await findIntegrations({
       kind: integration
     });
 
@@ -104,7 +106,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by integration kind
   public async integrationTypeFilter(kind: string): Promise<void> {
-    const integrations = await Integrations.findIntegrations({ kind });
+    const integrations = await findIntegrations({ kind });
 
     this.positiveList.push({
       terms: {
@@ -147,7 +149,7 @@ export class Builder extends CommonBuilder<IListArgs> {
   }
 
   public async findAllMongo(limit: number) {
-    const activeIntegrations = await Integrations.findIntegrations(
+    const activeIntegrations = await findIntegrations(
       {},
       { _id: 1 }
     );

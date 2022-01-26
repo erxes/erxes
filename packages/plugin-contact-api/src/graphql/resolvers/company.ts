@@ -2,7 +2,7 @@
 import { ICompanyDocument } from '../../models/definitions/companies';
 import { IContext } from '@erxes/api-utils/src';
 import { savedConformity } from '../../messageBroker';
-import { Companies } from '../../apiCollections';
+import Companies from '../../models/Companies';
 
 export default {
   __resolverReference({ _id }) {

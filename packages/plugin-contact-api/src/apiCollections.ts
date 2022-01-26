@@ -8,8 +8,6 @@ let db;
 
 export let Configs;
 export let Brands;
-export let Customers;
-export let Companies;
 export let Tags;
 export let Users;
 export let Segments;
@@ -36,8 +34,6 @@ const main = async () => {
 
   Configs = await db.collection('configs');
   Brands = await db.collection('brands');
-  Customers = await db.collection('customers');
-  Companies = await db.collection('companies');
   Tags = await db.collection('tags');
   Users = await db.collection('users');
   Segments = await db.collection('segments');

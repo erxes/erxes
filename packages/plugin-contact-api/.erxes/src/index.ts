@@ -91,7 +91,7 @@ const apolloServer = new ApolloServer({
       user = JSON.parse(userJson);
     }
 
-    const context = { user };
+    const context = { user, docModifier: doc => ({ ...doc }) };
 
     configs.apolloServerContext(context);
 

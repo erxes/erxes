@@ -1,8 +1,9 @@
 import * as getUuid from 'uuid-by-string';
-import { Customers, Fields } from './apiCollections';
+import { Fields } from './apiCollections';
 import { debug } from './configs';
 import { es } from './configs';
 import { sendContactRPCMessage } from './messageBroker';
+import Customers from './models/Customers';
 
 interface ISaveEventArgs {
   type?: string;

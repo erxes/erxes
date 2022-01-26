@@ -36,6 +36,14 @@ export const savedConformity = async (doc): Promise<any> => {
   return client.sendRPCMessage('conformities:rpc_queue:savedConformity', doc);
 };
 
+export const prepareCustomFieldsData = async (doc): Promise<any> => {
+  return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', { doc });
+};
+
+export const findIntegrations = async (query, options?): Promise<any> => {
+  return client.sendRPCMessage('rpc_queue:findIntegrations', { query, options });
+};
+
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 

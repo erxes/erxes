@@ -1,4 +1,4 @@
-import { Customers, Forms } from '../../apiCollections';
+import { Forms } from '../../apiCollections';
 import { KIND_CHOICES, TAG_TYPES } from '../../models/definitions/constants';
 import { Builder as BuildQuery, IListArgs } from '../../coc/customers';
 import {
@@ -13,6 +13,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
+import Customers from '../../models/Customers';
 
 interface ICountParams extends IListArgs {
   only: string;

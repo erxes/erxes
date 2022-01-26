@@ -219,10 +219,13 @@ export const initBroker = async (server?) => {
       })
     );
 
-    consumeRPCQueue('fields:rpc_queue:prepareCustomFieldsData', async doc => ({
-      status: 'success',
-      data: await Fields.prepareCustomFieldsData(doc)
-    }));
+    consumeRPCQueue(
+      'fields:rpc_queue:prepareCustomFieldsData',
+      async ({ doc }) => ({
+        status: 'success',
+        data: await Fields.prepareCustomFieldsData(doc)
+      })
+    );
 
     // listen for rpc queue =========
     consumeRPCQueue(
@@ -261,11 +264,12 @@ export const initBroker = async (server?) => {
     );
 
     consumeRPCQueue(
-      'rpc_queue:engageUtils_findIntegrations_to_api',
-      async data => {
-        const integrations = await Integrations.findIntegrations({
-          brandId: data
-        });
+      'rpc_queue:findIntegrations',
+      async ({ query, options }) => {
+        const integrations = await Integrations.findIntegrations(
+          query,
+          options
+        );
 
         return { data: integrations, status: 'success' };
       }

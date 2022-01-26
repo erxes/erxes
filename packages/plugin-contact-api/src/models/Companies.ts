@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 // import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '@erxes/api-utils/src';
-import { Conformities, Fields, InternalNotes } from '../apiCollections';
+import { Conformities, InternalNotes } from '../apiCollections';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import {
   companySchema,
@@ -9,6 +9,7 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
+import { prepareCustomFieldsData } from '../messageBroker';
 // import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -233,7 +234,7 @@ export const loadClass = () => {
       this.fixListFields(doc, doc.trackedData);
 
       // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+      doc.customFieldsData = await prepareCustomFieldsData(
         doc.customFieldsData
       );
 
@@ -266,7 +267,7 @@ export const loadClass = () => {
 
       // clean custom field values
       if (doc.customFieldsData) {
-        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await prepareCustomFieldsData(
           doc.customFieldsData
         );
       }

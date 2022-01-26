@@ -3,7 +3,7 @@ import { ICustomerDocument } from '../../models/definitions/customers';
 import { es } from '../../configs';
 import { IContext } from '@erxes/api-utils/src';
 import { savedConformity } from '../../messageBroker';
-import { Customers } from '../../apiCollections';
+import Customers from '../../models/Customers';
 
 export default {
   __resolverReference({ _id }) {

@@ -123,7 +123,7 @@ func main() {
 		var collections = plugins.Plugins[i].Collections
 
 		for j := 0; j < len(collections); j++ {
-			var collection = collections[i]
+			var collection = collections[j]
 			var content = strings.Replace(collection.Schema, "'", "\"", -1)
 			content = strings.Replace(content, "<nested>", nested_type, -1)
 			putTemplate(collection.Name, content)
@@ -189,7 +189,7 @@ func main() {
 		possible_dbs = append(possible_dbs, plugin.Db_name)
 
 		for j := 0; j < len(collections); j++ {
-			var collection = collections[i]
+			var collection = collections[j]
 
 			scripts = append(scripts, collection.Script)
 
