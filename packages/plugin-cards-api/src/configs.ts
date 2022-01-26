@@ -5,6 +5,7 @@ import apiConnect from './apiCollections';
 import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
+import { IMPORT_TYPES } from './constants';
 
 export let graphqlPubsub;
 
@@ -25,9 +26,9 @@ export default {
   },
   segment: {
     indexesTypeContentType: {
-      'deal': 'deals',
-      'ticket': 'tickets',
-      'task': 'tasks',
+      deal: 'deals',
+      ticket: 'tickets',
+      task: 'tasks'
     },
     contentTypes: ['deal', 'ticket', 'task'],
     esTypesMapQueue: 'cards:segments:esTypesMap',
@@ -36,6 +37,7 @@ export default {
     propertyConditionExtenderQueue: 'cards:segments:propertyConditionExtender'
   },
   hasSubscriptions: true,
+  importTypes: IMPORT_TYPES,
   apolloServerContext: context => {
     return context;
   },

@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { PLUGINS } from './constants';
 import { ImportHistory } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugWorkers } from '../debuggers';
@@ -7,6 +6,7 @@ import { connect } from './utils';
 import * as _ from 'underscore';
 import { prepareCoreDocs } from './coreUtils';
 import { MongoClient } from 'mongodb';
+import { getService } from '../inmemoryStorage';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -23,26 +23,20 @@ parentPort.once('message', message => {
 const create = async ({
   docs,
   db,
-  importType,
-  plugin
+  service
 }: {
   docs: any;
-  user: IUserDocument;
-  contentType: string;
-  useElkSyncer: boolean;
   db: any;
-  importType: string;
-  plugin: any;
+  service: any;
 }) => {
   let objects;
   const updated = 0;
 
-  if (importType === 'plugin') {
-    debugWorkers('Importin plugin data');
-    const result = await db.collection(plugin.collection).insertMany(docs);
+  debugWorkers('Importing  data');
 
-    objects = result.ops;
-  }
+  const result = await db.collection(service.collection).insertMany(docs);
+
+  objects = result.ops;
 
   return { objects, updated };
 };
@@ -59,8 +53,7 @@ connect().then(async () => {
     scopeBrandIds,
     result,
     contentType,
-    type,
-    serviceType,
+    serviceName,
     properties,
     importHistoryId,
     percentage,
@@ -71,8 +64,7 @@ connect().then(async () => {
     scopeBrandIds: string[];
     result: any;
     contentType: string;
-    type: string;
-    serviceType: string;
+    serviceName: string;
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
     percentage: number;
@@ -83,37 +75,31 @@ connect().then(async () => {
   let bulkDoc: any = [];
 
   let db: any;
-  let plugin: any;
   let client: any;
 
-  if (type === 'core') {
-    bulkDoc = await prepareCoreDocs(
-      result,
-      properties,
-      contentType,
-      scopeBrandIds,
-      bulkDoc
-    );
-  }
+  bulkDoc = await prepareCoreDocs(
+    result,
+    properties,
+    contentType,
+    scopeBrandIds,
+    bulkDoc
+  );
 
-  if (type === 'plugin') {
-    plugin = PLUGINS.find(value => {
-      return value.serviceType === serviceType;
-    });
+  const service = await getService(serviceName, true);
 
-    if (plugin) {
-      try {
-        client = new MongoClient(plugin.MONGO_URL);
-        await client.connect();
-        db = client.db();
+  if (service) {
+    try {
+      const dbUrl = service.meta.dbConnectionString;
+      client = new MongoClient(dbUrl);
+      await client.connect();
+      db = client.db();
 
-        // tslint:disable-next-line:no-eval
-        eval(plugin.prepareDocCommand);
-      } catch (e) {
-        debugWorkers(e);
-      }
+      // tslint:disable-next-line:no-eval
+    } catch (e) {
+      debugWorkers(e);
     }
   }
+
   const modifier: { $inc?; $push? } = {
     $inc: { percentage }
   };
@@ -121,12 +107,8 @@ connect().then(async () => {
   try {
     const { updated, objects } = await create({
       docs: bulkDoc,
-      user,
-      contentType,
-      useElkSyncer,
       db,
-      plugin,
-      importType: type
+      service
     });
 
     const cocIds = objects.map(obj => obj._id).filter(obj => obj);

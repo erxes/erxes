@@ -22,9 +22,8 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import configs from '../../src/configs';
 import { join } from './serviceDiscovery';
-import { IMPORT_TYPES } from './constants';
 
-const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL, USE_IMPORT } = process.env;
+const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 
 export const app = express();
 
@@ -37,14 +36,6 @@ app.use(cookieParser());
 // for health checking
 app.get('/health', async (_req, res) => {
   res.end('ok');
-});
-
-app.get('/import-types', async (_req, res) => {
-  if (!USE_IMPORT) {
-    res.send(false);
-  }
-
-  res.send(IMPORT_TYPES);
 });
 
 if (configs.hasSubscriptions) {
@@ -147,7 +138,7 @@ async function startServer() {
       dbConnectionString: mongoUrl,
       segment: configs.segment,
       hasSubscriptions: configs.hasSubscriptions,
-      importTypes: IMPORT_TYPES
+      importTypes: configs.importTypes
     });
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);

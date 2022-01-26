@@ -1,4 +1,6 @@
-import { generateConditionStageIds } from "./utils";
+import { generateFields } from './fieldUtils';
+import { prepareImportDocs } from './importUtils';
+import { generateConditionStageIds } from './utils';
 
 let client;
 
@@ -6,6 +8,16 @@ export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;
+
+  consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
+    status: 'success',
+    data: await generateFields(args)
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
+    status: 'success',
+    data: await prepareImportDocs(args)
+  }));
 
   // listen for rpc queue =========
   consumeRPCQueue(
@@ -21,8 +33,8 @@ export const initBroker = async cl => {
       if (stageIds.length > 0) {
         positive = {
           terms: {
-            stageId: stageIds,
-          },
+            stageId: stageIds
+          }
         };
       }
 
@@ -30,33 +42,27 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue(
-    'cards:segments:associationTypes',
-    async ({ mainType }) => {
-      let types: string[] = [];
+  consumeRPCQueue('cards:segments:associationTypes', async ({ mainType }) => {
+    let types: string[] = [];
 
-      if (mainType === 'deal') {
-        types = ['customer', 'company', 'ticket', 'task'];
-      }
-
-      if (mainType === 'task') {
-        types = ['customer', 'company', 'ticket', 'deal'];
-      }
-
-      if (mainType === 'ticket') {
-        types = ['customer', 'company', 'deal', 'task'];
-      }
-
-      return { data: { types }, status: 'success' };
+    if (mainType === 'deal') {
+      types = ['customer', 'company', 'ticket', 'task'];
     }
-  );
 
-  consumeRPCQueue(
-    'cards:segments:esTypesMap',
-    async () => {
-      return { data: { typesMap: {} }, status: 'success' };
+    if (mainType === 'task') {
+      types = ['customer', 'company', 'ticket', 'deal'];
     }
-  );
+
+    if (mainType === 'ticket') {
+      types = ['customer', 'company', 'deal', 'task'];
+    }
+
+    return { data: { types }, status: 'success' };
+  });
+
+  consumeRPCQueue('cards:segments:esTypesMap', async () => {
+    return { data: { typesMap: {} }, status: 'success' };
+  });
 
   consumeRPCQueue(
     'cards:segments:initialSelector',
@@ -68,7 +74,7 @@ export const initBroker = async cl => {
         pipelineId: segment.pipelineId,
         options
       });
-  
+
       if (stageIds.length > 0) {
         positive = { terms: { stageId: stageIds } };
       }

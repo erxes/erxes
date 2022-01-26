@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
 // import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { configReplacer } from '../fieldUtils';
 import {
   getCollection,
   updateOrder,
@@ -25,6 +24,7 @@ import {
   sendConformityMessage,
   sendInternalNoteMessage
 } from '../messageBroker';
+import { configReplacer } from '../utils';
 
 export interface IOrderInput {
   _id: string;

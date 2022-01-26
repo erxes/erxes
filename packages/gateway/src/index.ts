@@ -1,20 +1,20 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { ApolloServer } from "apollo-server-express";
-import { ApolloGateway } from "@apollo/gateway";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import ws from "ws";
-import express, { Request, Response } from "express";
-import http from "http";
-import cookieParser from "cookie-parser";
-import { loadSubscriptions } from "./subscription";
-import { createGateway, IGatewayContext } from "./gateway";
-import userMiddleware from "./middlewares/userMiddleware";
-import * as db from "./db";
-import pubsub from "./subscription/pubsub";
-import { getService, getServices } from "./redis";
+import { ApolloServer } from 'apollo-server-express';
+import { ApolloGateway } from '@apollo/gateway';
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import ws from 'ws';
+import express, { Request, Response } from 'express';
+import http from 'http';
+import cookieParser from 'cookie-parser';
+import { loadSubscriptions } from './subscription';
+import { createGateway, IGatewayContext } from './gateway';
+import userMiddleware from './middlewares/userMiddleware';
+import * as db from './db';
+import pubsub from './subscription/pubsub';
+import { getService, getServices } from './redis';
 
 const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
 
@@ -30,7 +30,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
     /\/((?!graphql).)*/,
     createProxyMiddleware({
       target: API_DOMAIN,
-      router: async (req) => {
+      router: async req => {
         const services = await getServices();
 
         let host;
@@ -47,17 +47,17 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
           return host;
         }
       },
-      pathRewrite: async (path) => {
+      pathRewrite: async path => {
         let newPath = path;
 
         const services = await getServices();
 
         for (const service of services) {
-          newPath = newPath.replace(`/pl:${service}`, "");
+          newPath = newPath.replace(`/pl:${service}`, '');
         }
 
         return newPath;
-      },
+      }
     })
   );
 
@@ -65,7 +65,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
 
   const httpServer = http.createServer(app);
 
-  httpServer.on("close", () => {
+  httpServer.on('close', () => {
     try {
       db.disconnect();
     } catch (e) {}
@@ -73,13 +73,13 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
     try {
       pubsub.close();
     } catch (e) {
-      console.log("PubSub client disconnected");
+      console.log('PubSub client disconnected');
     }
   });
 
   const wsServer = new ws.Server({
     server: httpServer,
-    path: "/graphql",
+    path: '/graphql'
   });
 
   const gateway: ApolloGateway = await createGateway();
@@ -90,13 +90,13 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     context: ({
       res,
-      req,
+      req
     }: {
       res: Response;
       req: Request & { user?: any };
     }): IGatewayContext => {
       return { res, req };
-    },
+    }
   });
 
   let subscriptionsLoaded = false;
@@ -115,21 +115,21 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
 
   apolloServer.applyMiddleware({
     app,
-    path: "/graphql",
+    path: '/graphql',
     cors: {
       credentials: true,
       origin: [
-        MAIN_APP_DOMAIN || "http://localhost:3000",
-        "http://localhost:3001",
-        "https://studio.apollographql.com",
-        "http://localhost:3200",
-      ],
-    },
+        MAIN_APP_DOMAIN || 'http://localhost:3000',
+        'http://localhost:3001',
+        'https://studio.apollographql.com',
+        'http://localhost:3200'
+      ]
+    }
   });
 
   const port = PORT || 4000;
 
-  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
+  await new Promise<void>(resolve => httpServer.listen({ port }, resolve));
 
   console.log(
     `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`

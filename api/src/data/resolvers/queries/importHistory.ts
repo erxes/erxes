@@ -8,7 +8,6 @@ import {
 } from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
 import { getService, getServices } from '../../../inmemoryStorage';
-import messageBroker from '../../../messageBroker';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
 import utils, { paginate } from '../../utils';
@@ -24,13 +23,6 @@ const importHistoryQueries = {
 
       servicesimportTypes.push(...service.meta.importTypes);
     }
-
-    const sda = await messageBroker().sendRPCMessage(
-      `${services[0]}:rpc_queue:getFields`,
-      {}
-    );
-
-    console.log(sda);
 
     return servicesimportTypes;
   },
