@@ -1,27 +1,24 @@
 import * as _ from 'underscore';
-import {
-  Boards,
-  Conformities,
-  Pipelines,
-  Segments,
-  Stages
-} from '../../../db/models';
+
+import { Conformities, Segments } from '../../../db/models';
+
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
 } from '../../../db/models/definitions/constants';
+
 import { ICondition, ISegment } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
-import { getEsTypes } from '../coc/utils';
+import { getService, getServices } from '../../../inmemoryStorage';
+import { sendRPCMessage } from '../../../messageBroker';
 
 type IOptions = {
-  associatedCustomers?: boolean;
+  returnAssociated?: { contentType: string; relType: string };
   returnFields?: string[];
   returnFullDoc?: boolean;
   returnSelector?: boolean;
   returnCount?: boolean;
   defaultMustSelector?: any[];
-  pipelineId?: string;
   page?: number;
   perPage?: number;
   sortField?: string;
@@ -54,25 +51,37 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  let index = getIndexByContentType(contentType);
+  const serviceNames = await getServices();
+  const serviceConfigs: any = [];
+
+  for (const serviceName of serviceNames) {
+    const service = await getService(serviceName, true);
+    const segmentMeta = service.meta.segment;
+
+    if (segmentMeta) {
+      serviceConfigs.push(segmentMeta);
+    }
+  }
+
+  let index = await getIndexByContentType(serviceConfigs, contentType);
   let selector = { bool: {} };
 
   await generateQueryBySegment({
     segment,
     selector: selector.bool,
     options,
+    serviceConfigs,
     isInitialCall: true
   });
 
-  if (
-    ['company', 'deal', 'task', 'ticket'].includes(contentType) &&
-    options.associatedCustomers
-  ) {
-    index = 'customers';
+  const { returnAssociated } = options;
+
+  if (returnAssociated && contentType !== returnAssociated.contentType) {
+    index = returnAssociated.contentType;
 
     const itemsResponse = await fetchElk({
       action: 'search',
-      index: getIndexByContentType(segment.contentType),
+      index: await getIndexByContentType(serviceConfigs, contentType),
       body: {
         query: selector,
         _source: '_id'
@@ -83,10 +92,10 @@ export const fetchSegment = async (
     const items = itemsResponse.hits.hits;
     const itemIds = items.map(i => i._id);
 
-    const customerIds = await Conformities.filterConformity({
+    const associationIds = await Conformities.filterConformity({
       mainType: segment.contentType,
       mainTypeIds: itemIds,
-      relType: 'customer'
+      relType: returnAssociated.relType
     });
 
     selector = {
@@ -94,7 +103,7 @@ export const fetchSegment = async (
         must: [
           {
             terms: {
-              _id: customerIds
+              _id: associationIds
             }
           }
         ]
@@ -121,6 +130,7 @@ export const fetchSegment = async (
   }
 
   const { sortField, sortDirection, page, perPage } = options;
+
   let pagination = {};
 
   if (page && perPage) {
@@ -129,6 +139,7 @@ export const fetchSegment = async (
       size: perPage
     };
   }
+
   if (sortField && sortDirection) {
     pagination = {
       ...pagination,
@@ -165,13 +176,19 @@ export const fetchSegment = async (
 export const generateQueryBySegment = async (args: {
   segment: ISegment;
   selector: any;
+  serviceConfigs: any;
   options?: IOptions;
   isInitialCall?: boolean;
 }) => {
-  const { segment, selector, options = {}, isInitialCall } = args;
+  const {
+    segment,
+    selector,
+    serviceConfigs,
+    options = {},
+    isInitialCall
+  } = args;
   const { contentType } = segment;
   const { defaultMustSelector } = options;
-  const typesMap = getEsTypes(contentType);
 
   const defaultSelector =
     isInitialCall && defaultMustSelector
@@ -197,6 +214,7 @@ export const generateQueryBySegment = async (args: {
 
   const selectorPositiveList =
     cj === 'and' ? selector.must : selector.must[0].bool.should;
+
   const selectorNegativeList =
     cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
 
@@ -213,28 +231,40 @@ export const generateQueryBySegment = async (args: {
     });
   }
 
+  let typesMap = {};
+
   const eventPositive: any = [];
   const eventNegative: any = [];
   const propertiesPositive: any = [];
   const propertiesNegative: any = [];
 
-  if (['customer', 'lead', 'visitor'].includes(contentType)) {
-    propertiesNegative.push({
-      term: {
-        status: 'deleted'
+  for (const serviceConfig of serviceConfigs) {
+    const {
+      contentTypes,
+      esTypesMapQueue,
+      initialSelectorQueue
+    } = serviceConfig;
+
+    if (contentTypes && contentTypes.includes(contentType)) {
+      if (esTypesMapQueue) {
+        const response = await sendRPCMessage(esTypesMapQueue, { contentType });
+        typesMap = response.typesMap;
       }
-    });
-  }
 
-  if (['deal', 'task', 'ticket'].includes(contentType)) {
-    const stageIds = await generateConditionStageIds({
-      boardId: segment.boardId,
-      pipelineId: segment.pipelineId,
-      options
-    });
+      if (initialSelectorQueue) {
+        const {
+          negative,
+          positive
+        } = await sendRPCMessage(initialSelectorQueue, { segment, options });
 
-    if (stageIds.length > 0) {
-      propertiesPositive.push({ terms: { stageId: stageIds } });
+        if (negative) {
+          propertiesNegative.push(negative);
+        }
+
+        if (positive) {
+          propertiesPositive.push(positive);
+        }
+      }
     }
   }
 
@@ -304,25 +334,27 @@ export const generateQueryBySegment = async (args: {
 
       negativeQuery = negativeQuery;
 
-      if (isCardTyped(condition.propertyType)) {
-        const stageIds = await generateConditionStageIds({
-          boardId: condition.boardId,
-          pipelineId: condition.pipelineId
-        });
+      for (const serviceConfig of serviceConfigs) {
+        const { contentTypes, propertyConditionExtenderQueue } = serviceConfig;
 
-        if (stageIds.length > 0) {
-          positiveQuery = {
-            bool: {
-              must: [
-                positiveQuery,
-                {
-                  terms: {
-                    stageId: stageIds
-                  }
-                }
-              ]
-            }
-          };
+        if (
+          contentTypes &&
+          propertyConditionExtenderQueue &&
+          contentTypes.includes(condition.propertyType)
+        ) {
+          const {
+            positive
+          } = await sendRPCMessage(propertyConditionExtenderQueue, {
+            condition
+          });
+
+          if (positive) {
+            positiveQuery = {
+              bool: {
+                must: [positiveQuery, positive]
+              }
+            };
+          }
         }
       }
 
@@ -336,6 +368,7 @@ export const generateQueryBySegment = async (args: {
         }
       } else {
         const ids = await associationPropertyFilter({
+          serviceConfigs,
           mainType: contentType,
           propertyType: condition.propertyType,
           positiveQuery,
@@ -657,31 +690,19 @@ export function elkConvertConditionToQuery(args: {
   return [positiveQuery, negativeQuery];
 }
 
-export const getIndexByContentType = (contentType: string) => {
-  let index = 'customers';
+const getIndexByContentType = async (
+  serviceConfigs: any,
+  contentType: string
+) => {
+  let index = '';
 
-  if (contentType === 'company') {
-    index = 'companies';
-  }
+  for (const serviceConfig of serviceConfigs) {
+    const { indexesTypeContentType } = serviceConfig;
 
-  if (contentType === 'deal') {
-    index = 'deals';
-  }
-
-  if (contentType === 'task') {
-    index = 'tasks';
-  }
-
-  if (contentType === 'ticket') {
-    index = 'tickets';
-  }
-
-  if (contentType === 'conversation') {
-    index = 'conversations';
-  }
-
-  if (contentType === 'user') {
-    index = 'users';
+    if (indexesTypeContentType && indexesTypeContentType[contentType]) {
+      index = indexesTypeContentType[contentType];
+      break;
+    }
   }
 
   return index;
@@ -719,11 +740,13 @@ const fetchByQuery = async ({
 };
 
 const associationPropertyFilter = async ({
+  serviceConfigs,
   mainType,
   propertyType,
   positiveQuery,
   negativeQuery
 }: {
+  serviceConfigs: any;
   mainType: string;
   propertyType: string;
   positiveQuery: any;
@@ -731,29 +754,23 @@ const associationPropertyFilter = async ({
 }) => {
   let associatedTypes: string[] = [];
 
-  if (['customer', 'lead'].includes(mainType)) {
-    associatedTypes = ['company', 'deal', 'ticket', 'task'];
-  }
+  for (const serviceConfig of serviceConfigs) {
+    const { associationTypesQueue } = serviceConfig;
 
-  if (mainType === 'company') {
-    associatedTypes = ['customer', 'deal', 'ticket', 'task'];
-  }
+    if (associationTypesQueue) {
+      const { types } = await sendRPCMessage(associationTypesQueue, {
+        mainType
+      });
 
-  if (mainType === 'deal') {
-    associatedTypes = ['customer', 'company', 'ticket', 'task'];
-  }
-
-  if (mainType === 'task') {
-    associatedTypes = ['customer', 'company', 'ticket', 'deal'];
-  }
-
-  if (mainType === 'ticket') {
-    associatedTypes = ['customer', 'company', 'deal', 'task'];
+      if (types) {
+        associatedTypes = types;
+      }
+    }
   }
 
   if (associatedTypes.includes(propertyType)) {
     const mainTypeIds = await fetchByQuery({
-      index: getIndexByContentType(propertyType),
+      index: await getIndexByContentType(serviceConfigs, propertyType),
       positiveQuery,
       negativeQuery
     });
@@ -774,40 +791,3 @@ const associationPropertyFilter = async ({
     });
   }
 };
-
-const generateConditionStageIds = async ({
-  boardId,
-  pipelineId,
-  options
-}: {
-  boardId?: string;
-  pipelineId?: string;
-  options?: IOptions;
-}) => {
-  let pipelineIds: string[] = [];
-
-  if (options && options.pipelineId) {
-    pipelineIds = [options.pipelineId];
-  }
-
-  if (boardId && (!options || !options.pipelineId)) {
-    const board = await Boards.getBoard(boardId);
-
-    const pipelines = await Pipelines.find(
-      {
-        _id: {
-          $in: pipelineId ? [pipelineId] : board.pipelines || []
-        }
-      },
-      { _id: 1 }
-    );
-
-    pipelineIds = pipelines.map(p => p._id);
-  }
-
-  const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
-
-  return stages.map(s => s._id);
-};
-
-const isCardTyped = (type: string) => ['deal', 'task', 'ticket'].includes(type);

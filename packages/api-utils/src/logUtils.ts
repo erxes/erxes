@@ -90,10 +90,7 @@ export const putCreateLog = async (
 
   return putLog(
     messageBroker,
-    {
-      ...params,
-      action: LOG_ACTIONS.CREATE,
-    },
+    { ...params, action: LOG_ACTIONS.CREATE },
     user
   );
 };
@@ -110,10 +107,7 @@ export const putUpdateLog = async (
 ) => {
   return putLog(
     messageBroker,
-    {
-      ...params,
-      action: LOG_ACTIONS.UPDATE,
-    },
+    { ...params, action: LOG_ACTIONS.UPDATE },
     user
   );
 };
@@ -130,10 +124,7 @@ export const putDeleteLog = async (
 ) => {
   return putLog(
     messageBroker,
-    {
-      ...params,
-      action: LOG_ACTIONS.DELETE
-    },
+    { ...params, action: LOG_ACTIONS.DELETE },
     user
   );
 };
@@ -146,6 +137,7 @@ const putLog = async (
   try {
     return messageBroker().sendMessage('putLog', {
       ...params,
+      description: params.description ? `${params.description} ${params.action}d` : '',
       createdBy: user._id,
       unicode: user.username || user.email || user._id,
       object: JSON.stringify(params.object),

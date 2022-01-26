@@ -13,7 +13,7 @@ import { fetchElk } from '../../../elasticsearch';
 import { getService, getServices } from '../../../inmemoryStorage';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
-import { findElk } from '../../resolvers/mutations/engageUtils';
+// import { findElk } from '../../resolvers/mutations/engageUtils';
 import { getConfig, isUsingElk } from '../../utils';
 import { custom, getPluginInfo } from './federationUtils';
 
@@ -42,29 +42,34 @@ const generateBasicInfosFromSchema = async (
 };
 
 export const getCustomFields = async (contentType: string) => {
-  if (!isUsingElk()) {
-    return Fields.find({
-      contentType,
-      isDefinedByErxes: false
-    });
-  }
-
-  return findElk('fields', {
-    bool: {
-      must: [
-        {
-          match: {
-            contentType
-          }
-        },
-        {
-          match: {
-            isDefinedByErxes: false
-          }
-        }
-      ]
-    }
+  return Fields.find({
+    contentType,
+    isDefinedByErxes: false
   });
+
+  // if (!isUsingElk()) {
+  //   return Fields.find({
+  //     contentType,
+  //     isDefinedByErxes: false
+  //   });
+  // }
+
+  // return findElk('fields', {
+  //   bool: {
+  //     must: [
+  //       {
+  //         match: {
+  //           contentType
+  //         }
+  //       },
+  //       {
+  //         match: {
+  //           isDefinedByErxes: false
+  //         }
+  //       }
+  //     ]
+  //   }
+  // });
 };
 
 // const getSegment = async (_id: string) => {
@@ -321,35 +326,41 @@ const getTags = async (type: string) => {
 };
 
 export const getFormFields = async (formId: string) => {
-  if (!isUsingElk()) {
-    return Fields.find({
-      contentType: 'form',
-      isDefinedByErxes: false,
-      contentTypeId: formId
-    });
-  }
-
-  return findElk('fields', {
-    bool: {
-      must: [
-        {
-          match: {
-            contentType: 'form'
-          }
-        },
-        {
-          match: {
-            isDefinedByErxes: false
-          }
-        },
-        {
-          match: {
-            contentTypeId: formId
-          }
-        }
-      ]
-    }
+  return Fields.find({
+    contentType: 'form',
+    isDefinedByErxes: false,
+    contentTypeId: formId
   });
+
+  // if (!isUsingElk()) {
+  //   return Fields.find({
+  //     contentType: 'form',
+  //     isDefinedByErxes: false,
+  //     contentTypeId: formId
+  //   });
+  // }
+
+  // return findElk('fields', {
+  //   bool: {
+  //     must: [
+  //       {
+  //         match: {
+  //           contentType: 'form'
+  //         }
+  //       },
+  //       {
+  //         match: {
+  //           isDefinedByErxes: false
+  //         }
+  //       },
+  //       {
+  //         match: {
+  //           contentTypeId: formId
+  //         }
+  //       }
+  //     ]
+  //   }
+  // });
 };
 
 /*
@@ -487,12 +498,12 @@ export const fieldsCombinedByContentType = async ({
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await getFieldGroup(customField.groupId);
+    const group = await getFieldGroup(customField.groupId || '');
 
     if (
       group &&
-      group.isVisible &&
-      (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
+      group.isVisible
+      // (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
     ) {
       fields.push({
         _id: Math.random(),

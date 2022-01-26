@@ -14,7 +14,6 @@ import { DashboardItems, Dashboards } from './Dashboard';
 import Deals from './Deals';
 import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
-import EngageMessages from './Engages';
 import { Fields, FieldsGroups } from './Fields';
 import { Forms, FormSubmissions } from './Forms';
 import GrowthHacks from './GrowthHacks';
@@ -43,6 +42,7 @@ import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
 import { Structures, Departments, Units, Branches } from './Structure';
+import EngageMessages from './Engages';
 
 export {
   EmailDeliveries,
@@ -57,8 +57,8 @@ export {
   Integrations,
   Forms,
   FormSubmissions,
-  EngageMessages,
   Tags,
+  EngageMessages,
   Fields,
   Segments,
   InternalNotes,

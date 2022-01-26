@@ -1,5 +1,5 @@
 import { IEngageMessageDocument } from '../../models/definitions/engages';
-import { Stats, EngageMessages } from '../../models';
+import { Stats, EngageMessages, Logs } from '../../models';
 import { prepareSmsStats } from '../../telnyxUtils';
 
 export default {
@@ -70,6 +70,14 @@ export default {
   },
 
   async createdUser(engageMessage: IEngageMessageDocument) {
-    return { __typename: 'User', _id: engageMessage.createdBy };
+    if (engageMessage.createdBy) {
+      return { __typename: 'User', _id: engageMessage.createdBy };
+    }
+
+    return null;
+  },
+  
+  logs(engageMessage: IEngageMessageDocument) {
+    return Logs.find({ engageMessageId: engageMessage._id });
   }
 };

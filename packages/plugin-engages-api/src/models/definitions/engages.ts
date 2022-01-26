@@ -67,11 +67,11 @@ export interface IEngageMessage {
   totalCustomersCount?: number;
   validCustomersCount?: number;
   runCount?: number;
+  createdBy?: string;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
   scheduleDate?: IScheduleDateDocument;
-  createdBy: string;
   createdAt: Date;
 
   email?: IEmailDocument;

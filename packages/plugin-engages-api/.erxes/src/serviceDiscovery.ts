@@ -11,16 +11,13 @@ const redis = new Redis({
 
 const registry = new ServiceRegistry(redis, {});
 
-interface ISegmentConfig {
-  schemas: Array<{ name: string, options: any }>
-}
-
 const generateKey = (name) => `service:config:${name}`;
 
-export const join = ({ name, port, dbConnectionString, segment }: { name: string, port: string, dbConnectionString: string, segment?: ISegmentConfig }) => {
+export const join = ({ name, port, dbConnectionString, segment, hasSubscriptions = false }: { name: string, port: string, dbConnectionString: string, segment?: any, hasSubscriptions?: boolean }) => {
   redis.set(generateKey(name), JSON.stringify({
     dbConnectionString,
-    segment
+    segment,
+    hasSubscriptions
   }));
 
   return registry.up(name, `http://localhost:${port}`);
