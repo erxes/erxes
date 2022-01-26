@@ -7,7 +7,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import SelectBrand from '../../containers/SelectBrand';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

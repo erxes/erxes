@@ -19,14 +19,10 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Accounts from '../../containers/Accounts';
-import SelectBrand from '../../containers/SelectBrand';
-import SelectChannels from '../../containers/SelectChannels';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
 import { Content } from '@erxes/ui-settings/src/integrations/styles';
-import {
-  ImageWrapper,
-  MessengerPreview,
-  TextWrapper
-} from '../../styles';
+import { ImageWrapper, MessengerPreview, TextWrapper } from '../../styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

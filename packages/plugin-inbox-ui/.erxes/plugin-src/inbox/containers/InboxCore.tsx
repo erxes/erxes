@@ -79,7 +79,7 @@ class WithCurrentId extends React.Component<IProps> {
 
           // if (!currentUser) {
           //   return null;
-          // } 
+          // }
 
           if (!_id || !can('showConversations', currentUser)) {
             return (

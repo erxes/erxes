@@ -21,8 +21,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import Accounts from '../../containers/Accounts';
-import SelectBrand from '../../containers/SelectBrand';
-import SelectChannels from '../../containers/SelectChannels';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
 import { Content } from '@erxes/ui-settings/src/integrations/styles';
 import {
   AccountBox,

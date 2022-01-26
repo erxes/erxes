@@ -1,5 +1,4 @@
 import Datetime from '@nateradebaugh/react-datetime';
-import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';

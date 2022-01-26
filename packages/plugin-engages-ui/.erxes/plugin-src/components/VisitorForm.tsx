@@ -1,7 +1,8 @@
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import Step from '@erxes/ui/src/components/step/Step';
+import Steps from '@erxes/ui/src/components/step/Steps';
 import {
   StepWrapper,
   TitleContainer
