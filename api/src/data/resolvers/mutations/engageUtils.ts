@@ -13,7 +13,10 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from '../../../db/models/definitions/engages';
-import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
+import {
+  CONTENT_TYPES,
+  ISegmentDocument
+} from '../../../db/models/definitions/segments';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { fetchElk } from '../../../elasticsearch';
 import { get, removeKey, set } from '../../../inmemoryStorage';
@@ -22,11 +25,37 @@ import { MESSAGE_KINDS } from '../../constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { chunkArray, isUsingElk } from '../../utils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
+// count customers based on segment
+import { Builder } from '../../modules/coc/customers';
+
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
   user: IUserDocument;
 }
+
+interface ISelectorParams {
+  engageId?: string;
+  customerIds?: string[];
+  segmentIds?: string[];
+  tagIds?: string[];
+  brandIds?: string[];
+}
+
+export const getCountBySegment = async (segments: ISegmentDocument[]) => {
+  const counts: any = {};
+  let totalCount = 0;
+
+  const qb = new Builder({ type: 'customer' }, {});
+
+  for (const segment of segments) {
+    counts[segment._id] = await qb.runQueries('count');
+
+    totalCount += counts[segment._id];
+  }
+
+  return totalCount;
+};
 
 export const generateCustomerSelector = async ({
   engageId,
@@ -34,13 +63,7 @@ export const generateCustomerSelector = async ({
   segmentIds = [],
   tagIds = [],
   brandIds = []
-}: {
-  engageId?: string;
-  customerIds?: string[];
-  segmentIds?: string[];
-  tagIds?: string[];
-  brandIds?: string[];
-}): Promise<any> => {
+}: ISelectorParams): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
   let customersItemsMapping: { [key: string]: any } = {};
@@ -67,13 +90,18 @@ export const generateCustomerSelector = async ({
 
   if (segmentIds.length > 0) {
     const segments = await Segments.find({ _id: { $in: segmentIds } });
-
     let customerIdsBySegments: string[] = [];
 
+    const count = await getCountBySegment(segments);
+    const filter: any = { associatedCustomers: true };
+
+    if (count > 10000) {
+      filter.perPage = 5000;
+      filter.scroll = true;
+    }
+
     for (const segment of segments) {
-      const cIds = await fetchSegment(segment, {
-        associatedCustomers: true
-      });
+      const cIds = await fetchSegment(segment, filter);
 
       if (
         engageId &&
@@ -123,7 +151,7 @@ export const generateCustomerSelector = async ({
       }
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-    }
+    } // end segments for loop
 
     customerQuery = { _id: { $in: customerIdsBySegments } };
   } // end segmentIds if
