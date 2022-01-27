@@ -1,15 +1,11 @@
 import * as moment from 'moment';
 import {
   Brands,
-  Channels,
-  ConversationMessages,
-  Deals,
   Fields,
-  FormSubmissions,
   Permissions,
   Segments,
-  Tasks,
-  Tickets,
+  // Tasks,
+  // Tickets,
   Users
 } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -17,20 +13,20 @@ import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
 import { can } from '../../permissions/utils';
 import { createXlsFile, generateXlsx } from '../../utils';
-import {
-  Builder as CompanyBuildQuery,
-  IListArgs as ICompanyListArgs
-} from '../coc/companies';
-import {
-  Builder as CustomerBuildQuery,
-  IListArgs as ICustomerListArgs
-} from '../coc/customers';
+// import {
+//   Builder as CompanyBuildQuery,
+//   IListArgs as ICompanyListArgs
+// } from '../coc/companies';
+// import {
+//   Builder as CustomerBuildQuery,
+//   IListArgs as ICustomerListArgs
+// } from '../coc/customers';
 import { fetchSegment } from '../segments/queryBuilder';
 import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
 const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
-  const { type, unlimited = false, segment } = query;
+  const { type, segment } = query;
 
   let data: any[] = [];
 
@@ -45,153 +41,153 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
   }
 
   switch (type) {
-    case MODULE_NAMES.COMPANY:
-      if (!(await can('exportCompanies', user))) {
-        throw new Error('Permission denied');
-      }
+    // case MODULE_NAMES.COMPANY:
+    //   if (!(await can('exportCompanies', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      const companyParams: ICompanyListArgs = query;
+    //   const companyParams: ICompanyListArgs = query;
 
-      const companyQb = new CompanyBuildQuery(companyParams, {});
-      await companyQb.buildAllQueries();
+    //   const companyQb = new CompanyBuildQuery(companyParams, {});
+    //   await companyQb.buildAllQueries();
 
-      const companyResponse = await companyQb.runQueries('search', unlimited);
+    //   const companyResponse = await companyQb.runQueries('search', unlimited);
 
-      data = companyResponse.list;
+    //   data = companyResponse.list;
 
-      break;
+    //   break;
 
-    case 'lead':
-      const leadParams: ICustomerListArgs = query;
-      const leadQp = new CustomerBuildQuery(leadParams, {});
-      await leadQp.buildAllQueries();
+    // case 'lead':
+    //   const leadParams: ICustomerListArgs = query;
+    //   const leadQp = new CustomerBuildQuery(leadParams, {});
+    //   await leadQp.buildAllQueries();
 
-      const leadResponse = await leadQp.runQueries('search', unlimited);
+    //   const leadResponse = await leadQp.runQueries('search', unlimited);
 
-      data = leadResponse.list;
-      break;
+    //   data = leadResponse.list;
+    //   break;
 
-    case 'visitor':
-      const visitorParams: ICustomerListArgs = query;
-      const visitorQp = new CustomerBuildQuery(visitorParams, {});
-      await visitorQp.buildAllQueries();
+    // case 'visitor':
+    //   const visitorParams: ICustomerListArgs = query;
+    //   const visitorQp = new CustomerBuildQuery(visitorParams, {});
+    //   await visitorQp.buildAllQueries();
 
-      const visitorResponse = await visitorQp.runQueries('search', unlimited);
+    //   const visitorResponse = await visitorQp.runQueries('search', unlimited);
 
-      data = visitorResponse.list;
-      break;
+    //   data = visitorResponse.list;
+    //   break;
 
-    case MODULE_NAMES.CUSTOMER:
-      if (!(await can('exportCustomers', user))) {
-        throw new Error('Permission denied');
-      }
+    // case MODULE_NAMES.CUSTOMER:
+    //   if (!(await can('exportCustomers', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      const customerParams: ICustomerListArgs = query;
+    //   const customerParams: ICustomerListArgs = query;
 
-      if (customerParams.form && customerParams.popupData) {
-        debugBase('Start an query for popups export');
+    //   if (customerParams.form && customerParams.popupData) {
+    //     debugBase('Start an query for popups export');
 
-        const fields = await Fields.find({
-          contentType: 'form',
-          contentTypeId: customerParams.form
-        });
+    //     const fields = await Fields.find({
+    //       contentType: 'form',
+    //       contentTypeId: customerParams.form
+    //     });
 
-        if (fields.length === 0) {
-          return [];
-        }
+    //     if (fields.length === 0) {
+    //       return [];
+    //     }
 
-        const messageQuery: any = {
-          'formWidgetData._id': { $in: fields.map(field => field._id) },
-          customerId: { $exists: true }
-        };
+    //     const messageQuery: any = {
+    //       'formWidgetData._id': { $in: fields.map(field => field._id) },
+    //       customerId: { $exists: true }
+    //     };
 
-        const messages = await ConversationMessages.find(messageQuery, {
-          formWidgetData: 1,
-          customerId: 1,
-          createdAt: 1
-        });
+    //     const messages = await ConversationMessages.find(messageQuery, {
+    //       formWidgetData: 1,
+    //       customerId: 1,
+    //       createdAt: 1
+    //     });
 
-        const messagesMap: { [key: string]: any[] } = {};
+    //     const messagesMap: { [key: string]: any[] } = {};
 
-        for (const message of messages) {
-          const customerId = message.customerId || '';
+    //     for (const message of messages) {
+    //       const customerId = message.customerId || '';
 
-          if (!messagesMap[customerId]) {
-            messagesMap[customerId] = [];
-          }
+    //       if (!messagesMap[customerId]) {
+    //         messagesMap[customerId] = [];
+    //       }
 
-          messagesMap[customerId].push({
-            datas: message.formWidgetData,
-            createdInfo: {
-              _id: 'created',
-              type: 'input',
-              validation: 'date',
-              text: 'Created',
-              value: message.createdAt
-            }
-          });
-        }
+    //       messagesMap[customerId].push({
+    //         datas: message.formWidgetData,
+    //         createdInfo: {
+    //           _id: 'created',
+    //           type: 'input',
+    //           validation: 'date',
+    //           text: 'Created',
+    //           value: message.createdAt
+    //         }
+    //       });
+    //     }
 
-        const uniqueCustomerIds = await FormSubmissions.find(
-          { formId: customerParams.form },
-          { customerId: 1, submittedAt: 1 }
-        )
-          .sort({
-            submittedAt: -1
-          })
-          .distinct('customerId');
+    //     const uniqueCustomerIds = await FormSubmissions.find(
+    //       { formId: customerParams.form },
+    //       { customerId: 1, submittedAt: 1 }
+    //     )
+    //       .sort({
+    //         submittedAt: -1
+    //       })
+    //       .distinct('customerId');
 
-        const formDatas: any[] = [];
+    //     const formDatas: any[] = [];
 
-        for (const customerId of uniqueCustomerIds) {
-          const filteredMessages = messagesMap[customerId] || [];
+    //     for (const customerId of uniqueCustomerIds) {
+    //       const filteredMessages = messagesMap[customerId] || [];
 
-          for (const { datas, createdInfo } of filteredMessages) {
-            const formData: any[] = datas;
+    //       for (const { datas, createdInfo } of filteredMessages) {
+    //         const formData: any[] = datas;
 
-            formData.push(createdInfo);
+    //         formData.push(createdInfo);
 
-            formDatas.push(formData);
-          }
-        }
+    //         formDatas.push(formData);
+    //       }
+    //     }
 
-        debugBase('End an query for popups export');
+    //     debugBase('End an query for popups export');
 
-        data = formDatas;
-      } else {
-        const qb = new CustomerBuildQuery(customerParams, {});
-        await qb.buildAllQueries();
+    //     data = formDatas;
+    //   } else {
+    //     const qb = new CustomerBuildQuery(customerParams, {});
+    //     await qb.buildAllQueries();
 
-        const customerResponse = await qb.runQueries('search', unlimited);
+    //     const customerResponse = await qb.runQueries('search', unlimited);
 
-        data = customerResponse.list;
-      }
+    //     data = customerResponse.list;
+    //   }
 
-      break;
-    case MODULE_NAMES.DEAL:
-      if (!(await can('exportDeals', user))) {
-        throw new Error('Permission denied');
-      }
+    //   break;
+    // case MODULE_NAMES.DEAL:
+    //   if (!(await can('exportDeals', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      data = await Deals.find(boardItemsFilter);
+    //   data = await Deals.find(boardItemsFilter);
 
-      break;
-    case MODULE_NAMES.TASK:
-      if (!(await can('exportTasks', user))) {
-        throw new Error('Permission denied');
-      }
+    //   break;
+    // case MODULE_NAMES.TASK:
+    //   if (!(await can('exportTasks', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      data = await Tasks.find(boardItemsFilter);
+    //   data = await Tasks.find(boardItemsFilter);
 
-      break;
-    case MODULE_NAMES.TICKET:
-      if (!(await can('exportTickets', user))) {
-        throw new Error('Permission denied');
-      }
+    //   break;
+    // case MODULE_NAMES.TICKET:
+    //   if (!(await can('exportTickets', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      data = await Tickets.find(boardItemsFilter);
+    //   data = await Tickets.find(boardItemsFilter);
 
-      break;
+    //   break;
     case MODULE_NAMES.USER:
       if (!(await can('exportUsers', user))) {
         throw new Error('Permission denied');
@@ -216,12 +212,12 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       data = await Brands.find();
 
       break;
-    case MODULE_NAMES.CHANNEL:
-      if (!(await can('exportChannels', user))) {
-        throw new Error('Permission denied');
-      }
+      // case MODULE_NAMES.CHANNEL:
+      //   if (!(await can('exportChannels', user))) {
+      //     throw new Error('Permission denied');
+      //   }
 
-      data = await Channels.find();
+      //   data = await Channels.find();
 
       break;
     default:

@@ -25,13 +25,9 @@ import {
   registerOnboardHistory,
   routeErrorHandling
 } from './data/utils';
-import {
-  updateContactsValidationStatus,
-  updateContactValidationStatus
-} from './data/verifierUtils';
+
 import { connect, mongoStatus } from './db/connection';
 import { Configs, Segments, Users } from './db/models';
-import initWatchers from './db/watchers';
 import {
   debugBase,
   debugError,
@@ -41,8 +37,7 @@ import {
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import webhookMiddleware from './middlewares/webhookMiddleware';
-import widgetsMiddleware from './middlewares/widgetsMiddleware';
+// import webhookMiddleware from './middlewares/webhookMiddleware';
 
 import init from './startup';
 
@@ -181,9 +176,9 @@ app.get(
   })
 );
 
-app.post('/webhooks/:id', webhookMiddleware);
-// @ts-ignore
-app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
+// app.post('/webhooks/:id', webhookMiddleware);
+
+// app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
@@ -362,26 +357,6 @@ app.get(
   })
 );
 
-// verifier web hook
-app.post(
-  `/verifier/webhook`,
-  routeErrorHandling(async (req, res) => {
-    const { emails, phones, email, phone } = req.body;
-
-    if (email) {
-      await updateContactValidationStatus(email);
-    } else if (emails) {
-      await updateContactsValidationStatus('email', emails);
-    } else if (phone) {
-      await updateContactValidationStatus(phone);
-    } else if (phones) {
-      await updateContactsValidationStatus('phone', phones);
-    }
-
-    return res.send('success');
-  })
-);
-
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   debugError(error.message);
@@ -416,8 +391,6 @@ httpServer.listen(PORT, () => {
     });
 
     initMemoryStorage();
-
-    initWatchers();
 
     init()
       .then(() => {

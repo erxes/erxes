@@ -1,7 +1,38 @@
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
-import { Conversations } from "./models";
+import { ConversationMessages, Conversations, Integrations } from "./models";
+import { receiveRpcMessage } from "./receiveMessage";
 
 let client;
+
+const createConversationAndMessage = async (
+  userId,
+  status,
+  customerId,
+  visitorId,
+  integrationId,
+  content,
+  engageData
+) => {
+  // create conversation
+  const conversation = await Conversations.createConversation({
+    userId,
+    status,
+    customerId,
+    visitorId,
+    integrationId,
+    content
+  });
+
+  // create message
+  return ConversationMessages.createMessage({
+    engageData,
+    conversationId: conversation._id,
+    userId,
+    customerId,
+    visitorId,
+    content
+  });
+};
 
 export const generateFields = async args => {
   const schema: any = Conversations.schema;
@@ -38,7 +69,57 @@ export const generateFields = async args => {
 export const initBroker = (cl) => {
   client = cl;
   
-  const { consumeRPCQueue } = client;
+  const { consumeQueue, consumeRPCQueue } = client;
+
+  consumeRPCQueue(
+    'rpc_queue:engagePluginApi_to_api',
+    async (
+      userId,
+      status,
+      customerId,
+      visitorId,
+      integrationId,
+      content,
+      engageData
+    ) => {
+      const data = await createConversationAndMessage(
+        userId,
+        status,
+        customerId,
+        visitorId,
+        integrationId,
+        content,
+        engageData
+      );
+
+      return { data, status: 'success' };
+    }
+  );
+
+  consumeRPCQueue(
+    'rpc_queue:integrations_to_api',
+    async data => await receiveRpcMessage(data)
+  );
+
+  consumeRPCQueue(
+    'inbox:rpc_queue:findIntegrations',
+    async ({ query, options }) => {
+      const integrations = await Integrations.findIntegrations(
+        query,
+        options
+      );
+
+      return { data: integrations, status: 'success' };
+    }
+  );
+
+  consumeQueue('inbox:removeCustomersConversations', async customerIds => {
+    await Conversations.removeCustomersConversations(customerIds);
+  });
+
+  consumeQueue('inbox:changeCustomer', async (customerId, customerIds) => {
+    await Conversations.changeCustomer(customerId, customerIds);
+  });
 
   consumeRPCQueue('inbox:rpc_queue:getFields', async args => ({
     status: 'success',

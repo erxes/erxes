@@ -53,4 +53,14 @@ export interface ICustomField {
   dateValue?: Date;
 }
 
+export const attachmentSchema = new Schema(
+  {
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true })
+  },
+  { _id: false }
+);
+
 export { ruleSchema, customFieldSchema };

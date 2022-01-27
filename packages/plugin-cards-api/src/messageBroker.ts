@@ -1,3 +1,4 @@
+import { Checklists } from './apiCollections';
 import { generateFields } from './fieldUtils';
 import { prepareImportDocs } from './importUtils';
 import { generateConditionStageIds } from './utils';
@@ -7,7 +8,12 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeQueue, consumeRPCQueue } = client;
+
+  consumeQueue('checklists:removeChecklists', async ({ type, itemIds }) => ({
+    status: 'success',
+    data: await Checklists.removeChecklists(type, itemIds)
+  }));
 
   consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
     status: 'success',

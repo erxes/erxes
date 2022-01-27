@@ -1,11 +1,4 @@
-import {
-  Companies,
-  Customers,
-  Deals,
-  ImportHistory,
-  Segments,
-  Tasks
-} from '../../../db/models';
+import { ImportHistory, Segments } from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
 import { getService, getServices } from '../../../inmemoryStorage';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
@@ -97,7 +90,8 @@ const importHistoryQueries = {
 
   async importHistoryPreviewExportCount(
     _root,
-    { segmentId, contentType }: { segmentId: string; contentType: string }
+    // { segmentId, contentType }: { segmentId: string; contentType: string }
+    { segmentId }: { segmentId: string; contentType: string }
   ) {
     if (segmentId) {
       const segment = (await Segments.findOne({
@@ -107,28 +101,28 @@ const importHistoryQueries = {
       return fetchSegment(segment, { returnCount: true });
     }
 
-    switch (contentType) {
-      case 'customer':
-        return Customers.countDocuments({ state: 'customer' });
+    // switch (contentType) {
+    //   case 'customer':
+    //     return Customers.countDocuments({ state: 'customer' });
 
-      case 'lead':
-        return Customers.countDocuments({ state: 'lead' });
+    //   case 'lead':
+    //     return Customers.countDocuments({ state: 'lead' });
 
-      case 'visitor':
-        return Customers.countDocuments({ state: 'visitor' });
+    //   case 'visitor':
+    //     return Customers.countDocuments({ state: 'visitor' });
 
-      case 'deal':
-        return Deals.countDocuments({});
+    //   case 'deal':
+    //     return Deals.countDocuments({});
 
-      case 'task':
-        return Tasks.countDocuments({});
+    //   case 'task':
+    //     return Tasks.countDocuments({});
 
-      case 'company':
-        return Companies.countDocuments({});
+    //   case 'company':
+    //     return Companies.countDocuments({});
 
-      case 'ticket':
-        return Tasks.countDocuments({});
-    }
+    //   case 'ticket':
+    //     return Tasks.countDocuments({});
+    // }
   }
 };
 

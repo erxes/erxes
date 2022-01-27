@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import * as os from 'os';
-import { Configs, Pipelines, Stages } from '../../../db/models';
+import { Configs } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
 import { moduleRequireLogin } from '../../permissions/wrappers';
@@ -178,24 +178,24 @@ const configQueries = {
   },
 
   async search(_root, { value }: { value: string }) {
-    const searchBoardItems = async index => {
-      const items = await doSearch(index, value, ['name', 'description']);
+    const searchBoardItems = async _index => {
+      // const items = await doSearch(index, value, ['name', 'description']);
 
       const updatedItems: any = [];
 
-      for (const item of items) {
-        const stage = (await Stages.findOne({ _id: item.source.stageId })) || {
-          pipelineId: ''
-        };
-        const pipeline = (await Pipelines.findOne({
-          _id: stage.pipelineId
-        })) || { boardId: '' };
+      // for (const item of items) {
+      //   const stage = (await Stages.findOne({ _id: item.source.stageId })) || {
+      //     pipelineId: ''
+      //   };
+      //   const pipeline = (await Pipelines.findOne({
+      //     _id: stage.pipelineId
+      //   })) || { boardId: '' };
 
-        item.source.pipelineId = stage.pipelineId;
-        item.source.boardId = pipeline.boardId;
+      //   item.source.pipelineId = stage.pipelineId;
+      //   item.source.boardId = pipeline.boardId;
 
-        updatedItems.push(item);
-      }
+      //   updatedItems.push(item);
+      // }
 
       return updatedItems;
     };

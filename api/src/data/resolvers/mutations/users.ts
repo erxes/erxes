@@ -2,7 +2,6 @@ import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
 import {
   Branches,
-  Channels,
   Configs,
   Departments,
   FieldsGroups,
@@ -234,11 +233,6 @@ const userMutations = {
 
     const updatedUser = await Users.updateUser(_id, doc);
 
-    if (channelIds) {
-      // add new user to channels
-      await Channels.updateUserChannels(channelIds, _id);
-    }
-
     await resetPermissionsCache();
 
     await putUpdateLog(
@@ -378,12 +372,6 @@ const userMutations = {
           { $push: { userIds: createdUser?._id } }
         );
       }
-
-      // add new user to channels
-      await Channels.updateUserChannels(
-        entry.channelIds || [],
-        createdUser ? createdUser._id : ''
-      );
 
       sendInvitationEmail({ email: entry.email, token });
 

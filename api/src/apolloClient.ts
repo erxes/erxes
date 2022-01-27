@@ -2,15 +2,9 @@ import { ApolloServer, gql } from 'apollo-server-express';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { buildSubgraphSchema } from '@apollo/federation';
 import * as dotenv from 'dotenv';
-import {
-  AutomationsAPI,
-  EngagesAPI,
-  HelpersApi,
-  IntegrationsAPI
-} from './data/dataSources';
+import { HelpersApi } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
-import { extendViaPlugins } from './pluginUtils';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 
 // load environment variables
@@ -20,23 +14,14 @@ const { USE_BRAND_RESTRICTIONS } = process.env;
 
 const generateDataSources = () => {
   return {
-    AutomationsAPI: new AutomationsAPI(),
-    EngagesAPI: new EngagesAPI(),
-    IntegrationsAPI: new IntegrationsAPI(),
     HelpersApi: new HelpersApi()
   };
 };
 
 let apolloServer;
 
-export const initApolloServer = async (app, httpServer) => {
-  const { types, queries, mutations } = await extendViaPlugins(
-    app,
-    resolvers,
-    typeDefDetails
-  );
-
-  // let { types, queries, mutations } = typeDefDetails;
+export const initApolloServer = async (_app, httpServer) => {
+  const { types, queries, mutations } = typeDefDetails;
 
   const typeDefs = gql(`
     ${types}

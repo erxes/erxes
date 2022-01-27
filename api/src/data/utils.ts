@@ -18,6 +18,7 @@ import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 import csvParser = require('csv-parser');
 import * as readline from 'readline';
 import * as _ from 'underscore';
+import { Fields } from '../db/models';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -821,14 +822,15 @@ export const handleUnsubscription = async (query: {
   cid: string;
   uid: string;
 }) => {
-  const { cid, uid } = query;
+  // const { cid, uid } = query;
+  const { uid } = query;
 
-  if (cid) {
-    await models.Customers.updateOne(
-      { _id: cid },
-      { $set: { isSubscribed: 'No' } }
-    );
-  }
+  // if (cid) {
+  //   await models.Customers.updateOne(
+  //     { _id: cid },
+  //     { $set: { isSubscribed: 'No' } }
+  //   );
+  // }
 
   if (uid) {
     await models.Users.updateOne(
@@ -971,89 +973,6 @@ export const splitStr = (str: string, size: number): string[] => {
   return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };
 
-export const findCustomer = async doc => {
-  let customer;
-
-  if (doc.customerPrimaryEmail) {
-    customer = await models.Customers.findOne({
-      $or: [
-        { emails: { $in: [doc.customerPrimaryEmail] } },
-        { primaryEmail: doc.customerPrimaryEmail }
-      ]
-    });
-  }
-
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await models.Customers.findOne({
-      $or: [
-        { phones: { $in: [doc.customerPrimaryPhone] } },
-        { primaryPhone: doc.customerPrimaryPhone }
-      ]
-    });
-  }
-
-  if (!customer && doc.customerCode) {
-    customer = await models.Customers.findOne({ code: doc.customerCode });
-  }
-
-  return customer;
-};
-
-export const findCompany = async doc => {
-  let company;
-
-  if (doc.companyPrimaryName) {
-    company = await models.Companies.findOne({
-      $or: [
-        { names: { $in: [doc.companyPrimaryName] } },
-        { primaryName: doc.companyPrimaryName }
-      ]
-    });
-  }
-
-  if (!company && doc.name) {
-    company = await models.Companies.findOne({
-      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
-    });
-  }
-
-  if (!company && doc.email) {
-    company = await models.Companies.findOne({
-      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
-    });
-  }
-
-  if (!company && doc.phone) {
-    company = await models.Companies.findOne({
-      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
-    });
-  }
-
-  if (!company && doc.companyPrimaryEmail) {
-    company = await models.Companies.findOne({
-      $or: [
-        { emails: { $in: [doc.companyPrimaryEmail] } },
-        { primaryEmail: doc.companyPrimaryEmail }
-      ]
-    });
-  }
-
-  if (!company && doc.companyPrimaryPhone) {
-    company = await models.Companies.findOne({
-      $or: [
-        { phones: { $in: [doc.companyPrimaryPhone] } },
-        { primaryPhone: doc.companyPrimaryPhone }
-      ]
-    });
-  }
-
-  if (!company && doc.companyCode) {
-    company = await models.Companies.findOne({ code: doc.companyCode });
-  }
-
-  return company;
-};
-
 export const checkPremiumService = async type => {
   try {
     const domain = getEnv({ name: 'MAIN_APP_DOMAIN' })
@@ -1098,4 +1017,63 @@ export const configReplacer = config => {
     .replace(/\{year}/g, now.getFullYear().toString())
     .replace(/\{month}/g, (now.getMonth() + 1).toString())
     .replace(/\{day}/g, now.getDate().toString());
+};
+
+export const generateProducts = async productsData => {
+  const products: any = [];
+
+  for (const data of productsData || []) {
+    if (!data.productId) {
+      continue;
+    }
+
+    const product = await models.Products.getProduct({ _id: data.productId });
+
+    const { customFieldsData } = product;
+
+    const customFields = [];
+
+    for (const customFieldData of customFieldsData || []) {
+      const field = await Fields.findOne({ _id: customFieldData.field }).lean();
+
+      if (field) {
+        customFields[customFieldData.field] = {
+          text: field.text,
+          data: customFieldData.value
+        };
+      }
+    }
+
+    product.customFieldsData = customFields;
+
+    products.push({
+      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      product
+    });
+  }
+
+  return products;
+};
+
+export const generateAmounts = productsData => {
+  const amountsMap = {};
+
+  (productsData || []).forEach(product => {
+    // Tick paid or used is false then exclude
+    if (!product.tickUsed) {
+      return;
+    }
+
+    const type = product.currency;
+
+    if (type) {
+      if (!amountsMap[type]) {
+        amountsMap[type] = 0;
+      }
+
+      amountsMap[type] += product.amount || 0;
+    }
+  });
+
+  return amountsMap;
 };

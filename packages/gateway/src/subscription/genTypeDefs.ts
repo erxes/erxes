@@ -10,20 +10,6 @@ export default function getTypeDefs(plugins: any[]): DocumentNode {
     type Subscription {
 
       ${pluginTypeDefs}
-
-      customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
-      
-      activityLogsChanged: Boolean
-      importHistoryChanged(_id: String!): ImportHistory
-      notificationInserted(userId: String): Notification
-      notificationRead(userId: String): JSON
-      onboardingChanged(userId: String!): OnboardingNotification
-
-      userChanged(userId: String): JSON
-
-      checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-      checklistDetailChanged(_id: String!): Checklist
-      calendarEventUpdated: JSON
   }
 `;
 }

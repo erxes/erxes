@@ -3,6 +3,89 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import Customers from './models/Customers';
 import Companies from './models/Companies';
 
+export const findCustomer = async doc => {
+  let customer;
+
+  if (doc.customerPrimaryEmail) {
+    customer = await Customers.findOne({
+      $or: [
+        { emails: { $in: [doc.customerPrimaryEmail] } },
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({
+      $or: [
+        { phones: { $in: [doc.customerPrimaryPhone] } },
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerCode) {
+    customer = await Customers.findOne({ code: doc.customerCode });
+  }
+
+  return customer;
+};
+
+export const findCompany = async doc => {
+  let company;
+
+  if (doc.companyPrimaryName) {
+    company = await Companies.findOne({
+      $or: [
+        { names: { $in: [doc.companyPrimaryName] } },
+        { primaryName: doc.companyPrimaryName }
+      ]
+    });
+  }
+
+  if (!company && doc.name) {
+    company = await Companies.findOne({
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
+    });
+  }
+
+  if (!company && doc.email) {
+    company = await Companies.findOne({
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+    });
+  }
+
+  if (!company && doc.phone) {
+    company = await Companies.findOne({
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+    });
+  }
+
+  if (!company && doc.companyPrimaryEmail) {
+    company = await Companies.findOne({
+      $or: [
+        { emails: { $in: [doc.companyPrimaryEmail] } },
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryPhone) {
+    company = await Companies.findOne({
+      $or: [
+        { phones: { $in: [doc.companyPrimaryPhone] } },
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!company && doc.companyCode) {
+    company = await Companies.findOne({ code: doc.companyCode });
+  }
+
+  return company;
+};
+
 export const generateFields = async args => {
   const { contentType } = args;
 

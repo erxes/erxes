@@ -1,13 +1,15 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
-import {
-  Companies,
-  Conversations,
-  Customers,
-  EngageMessages,
-  Integrations,
-  Products
-} from '.';
+
+// import {
+//   Companies,
+//   Conversations,
+//   Customers,
+//   EngageMessages,
+//   Integrations,
+//   Products
+// } from '.';
+
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { escapeRegExp } from '../../data/utils';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
@@ -76,28 +78,30 @@ const removeRelatedIds = async (tag: ITagDocument) => {
   await Tags.bulkWrite(doc);
 };
 
-export const getCollection = type => {
-  let collection: any = Conversations;
+export const getCollection = (type): any => {
+  return type;
 
-  switch (type) {
-    case 'customer':
-      collection = Customers;
-      break;
-    case 'engageMessage':
-      collection = EngageMessages;
-      break;
-    case 'company':
-      collection = Companies;
-      break;
-    case 'integration':
-      collection = Integrations;
-      break;
-    case 'product':
-      collection = Products;
-      break;
-  }
+  // let collection: any = Conversations;
 
-  return collection;
+  // switch (type) {
+  //   case 'customer':
+  //     collection = Customers;
+  //     break;
+  //   case 'engageMessage':
+  //     collection = EngageMessages;
+  //     break;
+  //   case 'company':
+  //     collection = Companies;
+  //     break;
+  //   case 'integration':
+  //     collection = Integrations;
+  //     break;
+  //   case 'product':
+  //     collection = Products;
+  //     break;
+  // }
+
+  // return collection;
 };
 
 export interface ITagModel extends Model<ITagDocument> {

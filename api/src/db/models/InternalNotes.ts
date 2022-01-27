@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
+// import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
   IInternalNote,
   IInternalNoteDocument,
@@ -91,25 +91,25 @@ export const loadClass = () => {
     /**
      * Transfers customers' internal notes to another customer
      */
-    public static async changeCustomer(
-      newCustomerId: string,
-      customerIds: string[]
-    ) {
-      // Updating every internal notes of customer
-      await InternalNotes.updateMany(
-        {
-          contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-          contentTypeId: { $in: customerIds || [] }
-        },
-        { contentTypeId: newCustomerId }
-      );
+    // public static async changeCustomer(
+    //   newCustomerId: string,
+    //   customerIds: string[]
+    // ) {
+    //   // Updating every internal notes of customer
+    //   await InternalNotes.updateMany(
+    //     {
+    //       contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+    //       contentTypeId: { $in: customerIds || [] }
+    //     },
+    //     { contentTypeId: newCustomerId }
+    //   );
 
-      // Returning updated list of internal notes of new customer
-      return InternalNotes.find({
-        contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: newCustomerId
-      });
-    }
+    //   // Returning updated list of internal notes of new customer
+    //   return InternalNotes.find({
+    //     contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+    //     contentTypeId: newCustomerId
+    //   });
+    // }
 
     /**
      * Remove internal notes
@@ -128,25 +128,25 @@ export const loadClass = () => {
     /**
      * Transfers companies' internal notes to another company
      */
-    public static async changeCompany(
-      newCompanyId: string,
-      oldCompanyIds: string[]
-    ) {
-      // Updating every internal notes of company
-      await InternalNotes.updateMany(
-        {
-          contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-          contentTypeId: { $in: oldCompanyIds || [] }
-        },
-        { contentTypeId: newCompanyId }
-      );
+    // public static async changeCompany(
+    //   newCompanyId: string,
+    //   oldCompanyIds: string[]
+    // ) {
+    //   // Updating every internal notes of company
+    //   await InternalNotes.updateMany(
+    //     {
+    //       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+    //       contentTypeId: { $in: oldCompanyIds || [] }
+    //     },
+    //     { contentTypeId: newCompanyId }
+    //   );
 
-      // Returning updated list of internal notes of new company
-      return InternalNotes.find({
-        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-        contentTypeId: newCompanyId
-      });
-    }
+    //   // Returning updated list of internal notes of new company
+    //   return InternalNotes.find({
+    //     contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+    //     contentTypeId: newCompanyId
+    //   });
+    // }
   }
 
   internalNoteSchema.loadClass(InternalNote);

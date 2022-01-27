@@ -1,10 +1,4 @@
-import {
-  Branches,
-  Conversations,
-  Departments,
-  Units,
-  Users
-} from '../../../db/models';
+import { Branches, Departments, Units, Users } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -165,19 +159,19 @@ const userQueries = {
     return user
       ? Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
-  },
+  }
 
   /**
    * Users conversations list
    */
-  userConversations(_root, { _id, perPage }: { _id: string; perPage: number }) {
-    const selector = { participatedUserIds: { $in: [_id] } };
+  // userConversations(_root, { _id, perPage }: { _id: string; perPage: number }) {
+  //   const selector = { participatedUserIds: { $in: [_id] } };
 
-    const list = paginate(Conversations.find(selector), { perPage });
-    const totalCount = Conversations.find(selector).countDocuments();
+  //   const list = paginate(Conversations.find(selector), { perPage });
+  //   const totalCount = Conversations.find(selector).countDocuments();
 
-    return { list, totalCount };
-  }
+  //   return { list, totalCount };
+  // }
 };
 
 requireLogin(userQueries, 'usersTotalCount');

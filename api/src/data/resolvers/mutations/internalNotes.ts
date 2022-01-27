@@ -1,55 +1,55 @@
 import {
-  Companies,
-  Customers,
-  Deals,
-  GrowthHacks,
+  // Companies,
+  // Customers,
+  // Deals,
+  // GrowthHacks,
   InternalNotes,
-  Pipelines,
+  // Pipelines,
   Products,
-  Stages,
-  Tasks,
-  Tickets,
+  // Stages,
+  // Tasks,
+  // Tickets,
   Users
 } from '../../../db/models';
-import {
-  BOARD_TYPES,
-  NOTIFICATION_CONTENT_TYPES,
-  NOTIFICATION_TYPES
-} from '../../../db/models/definitions/constants';
-import { IDealDocument } from '../../../db/models/definitions/deals';
+// import {
+//   BOARD_TYPES,
+//   NOTIFICATION_CONTENT_TYPES,
+//   NOTIFICATION_TYPES
+// } from '../../../db/models/definitions/constants';
+// import { IDealDocument } from '../../../db/models/definitions/deals';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
-import { ITaskDocument } from '../../../db/models/definitions/tasks';
-import { ITicketDocument } from '../../../db/models/definitions/tickets';
-import { graphqlPubsub } from '../../../pubsub';
+// import { ITaskDocument } from '../../../db/models/definitions/tasks';
+// import { ITicketDocument } from '../../../db/models/definitions/tickets';
+// import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils, { ISendNotification } from '../../utils';
-import { notifiedUserIds } from '../boardUtils';
+// import { notifiedUserIds } from '../boardUtils';
 
 interface IInternalNotesEdit extends IInternalNote {
   _id: string;
 }
 
-const sendNotificationOfItems = async (
-  item: IDealDocument | ITicketDocument | ITaskDocument,
-  doc: ISendNotification,
-  contentType: string,
-  excludeUserIds: string[]
-) => {
-  const notifDocItems = { ...doc };
-  const relatedReceivers = await notifiedUserIds(item);
-  notifDocItems.action = `added note in ${contentType}`;
+// const sendNotificationOfItems = async (
+//   item: IDealDocument | ITicketDocument | ITaskDocument,
+//   doc: ISendNotification,
+//   contentType: string,
+//   excludeUserIds: string[]
+// ) => {
+//   const notifDocItems = { ...doc };
+//   const relatedReceivers = await notifiedUserIds(item);
+//   notifDocItems.action = `added note in ${contentType}`;
 
-  notifDocItems.receivers = relatedReceivers.filter(id => {
-    return excludeUserIds.indexOf(id) < 0;
-  });
+//   notifDocItems.receivers = relatedReceivers.filter(id => {
+//     return excludeUserIds.indexOf(id) < 0;
+//   });
 
-  utils.sendNotification(notifDocItems);
+//   utils.sendNotification(notifDocItems);
 
-  graphqlPubsub.publish('activityLogsChanged', {});
-};
+//   graphqlPubsub.publish('activityLogsChanged', {});
+// };
 
 const internalNoteMutations = {
   /**
@@ -71,82 +71,82 @@ const internalNoteMutations = {
       contentTypeId: ''
     };
 
-    if (contentType === MODULE_NAMES.DEAL) {
-      const deal = await Deals.getDeal(contentTypeId);
-      const stage = await Stages.getStage(deal.stageId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    // if (contentType === MODULE_NAMES.DEAL) {
+    //   const deal = await Deals.getDeal(contentTypeId);
+    //   const stage = await Stages.getStage(deal.stageId);
+    //   const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-      notifDoc.notifType = NOTIFICATION_TYPES.DEAL_EDIT;
-      notifDoc.content = `"${deal.name}"`;
-      notifDoc.link = `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
-      notifDoc.contentTypeId = deal._id;
-      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.DEAL;
+    //   notifDoc.notifType = NOTIFICATION_TYPES.DEAL_EDIT;
+    //   notifDoc.content = `"${deal.name}"`;
+    //   notifDoc.link = `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
+    //   notifDoc.contentTypeId = deal._id;
+    //   notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.DEAL;
 
-      await sendNotificationOfItems(deal, notifDoc, contentType, [
-        ...mentionedUserIds,
-        user._id
-      ]);
-    }
+    //   await sendNotificationOfItems(deal, notifDoc, contentType, [
+    //     ...mentionedUserIds,
+    //     user._id
+    //   ]);
+    // }
 
-    if (contentType === MODULE_NAMES.CUSTOMER) {
-      const customer = await Customers.getCustomer(contentTypeId);
+    // if (contentType === MODULE_NAMES.CUSTOMER) {
+    //   const customer = await Customers.getCustomer(contentTypeId);
 
-      notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
-      notifDoc.content = Customers.getCustomerName(customer);
-      notifDoc.link = `/contacts/details/${customer._id}`;
-      notifDoc.contentTypeId = customer._id;
-      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
-    }
+    //   notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
+    //   notifDoc.content = Customers.getCustomerName(customer);
+    //   notifDoc.link = `/contacts/details/${customer._id}`;
+    //   notifDoc.contentTypeId = customer._id;
+    //   notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
+    // }
 
-    if (contentType === MODULE_NAMES.COMPANY) {
-      const company = await Companies.getCompany(contentTypeId);
+    // if (contentType === MODULE_NAMES.COMPANY) {
+    //   const company = await Companies.getCompany(contentTypeId);
 
-      notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
-      notifDoc.content = Companies.getCompanyName(company);
-      notifDoc.link = `/companies/details/${company._id}`;
-      notifDoc.contentTypeId = company._id;
-      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
-    }
+    //   notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
+    //   notifDoc.content = Companies.getCompanyName(company);
+    //   notifDoc.link = `/companies/details/${company._id}`;
+    //   notifDoc.contentTypeId = company._id;
+    //   notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
+    // }
 
-    if (contentType === MODULE_NAMES.TICKET) {
-      const ticket = await Tickets.getTicket(contentTypeId);
-      const stage = await Stages.getStage(ticket.stageId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    // if (contentType === MODULE_NAMES.TICKET) {
+    //   const ticket = await Tickets.getTicket(contentTypeId);
+    //   const stage = await Stages.getStage(ticket.stageId);
+    //   const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-      notifDoc.notifType = NOTIFICATION_TYPES.TICKET_EDIT;
-      notifDoc.content = `"${ticket.name}"`;
-      notifDoc.link = `/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
-      notifDoc.contentTypeId = ticket._id;
-      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
+    //   notifDoc.notifType = NOTIFICATION_TYPES.TICKET_EDIT;
+    //   notifDoc.content = `"${ticket.name}"`;
+    //   notifDoc.link = `/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
+    //   notifDoc.contentTypeId = ticket._id;
+    //   notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
 
-      await sendNotificationOfItems(ticket, notifDoc, contentType, [
-        ...mentionedUserIds,
-        user._id
-      ]);
-    }
+    //   await sendNotificationOfItems(ticket, notifDoc, contentType, [
+    //     ...mentionedUserIds,
+    //     user._id
+    //   ]);
+    // }
 
-    if (contentType === MODULE_NAMES.TASK) {
-      const task = await Tasks.getTask(contentTypeId);
-      const stage = await Stages.getStage(task.stageId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    // if (contentType === MODULE_NAMES.TASK) {
+    //   const task = await Tasks.getTask(contentTypeId);
+    //   const stage = await Stages.getStage(task.stageId);
+    //   const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-      notifDoc.notifType = NOTIFICATION_TYPES.TASK_EDIT;
-      notifDoc.content = `"${task.name}"`;
-      notifDoc.link = `/task/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${task._id}`;
-      notifDoc.contentTypeId = task._id;
-      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TASK;
+    //   notifDoc.notifType = NOTIFICATION_TYPES.TASK_EDIT;
+    //   notifDoc.content = `"${task.name}"`;
+    //   notifDoc.link = `/task/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${task._id}`;
+    //   notifDoc.contentTypeId = task._id;
+    //   notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TASK;
 
-      await sendNotificationOfItems(task, notifDoc, contentType, [
-        ...mentionedUserIds,
-        user._id
-      ]);
-    }
+    //   await sendNotificationOfItems(task, notifDoc, contentType, [
+    //     ...mentionedUserIds,
+    //     user._id
+    //   ]);
+    // }
 
-    if (contentType === MODULE_NAMES.GROWTH_HACK) {
-      const hack = await GrowthHacks.getGrowthHack(contentTypeId);
+    // if (contentType === MODULE_NAMES.GROWTH_HACK) {
+    //   const hack = await GrowthHacks.getGrowthHack(contentTypeId);
 
-      notifDoc.content = `${hack.name}`;
-    }
+    //   notifDoc.content = `${hack.name}`;
+    // }
 
     if (contentType === MODULE_NAMES.USER) {
       const usr = await Users.getUser(contentTypeId);
@@ -203,9 +203,9 @@ const internalNoteMutations = {
       user
     );
 
-    if (BOARD_TYPES.ALL.includes(updated.contentType)) {
-      graphqlPubsub.publish('activityLogsChanged', {});
-    }
+    // if (BOARD_TYPES.ALL.includes(updated.contentType)) {
+    //   graphqlPubsub.publish('activityLogsChanged', {});
+    // }
 
     return updated;
   },
@@ -226,9 +226,9 @@ const internalNoteMutations = {
       user
     );
 
-    if (BOARD_TYPES.ALL.includes(internalNote.contentType)) {
-      graphqlPubsub.publish('activityLogsChanged', {});
-    }
+    // if (BOARD_TYPES.ALL.includes(internalNote.contentType)) {
+    //   graphqlPubsub.publish('activityLogsChanged', {});
+    // }
 
     return removed;
   }

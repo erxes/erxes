@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { Companies, Customers } from '.';
 import {
   IOnboardingHistoryDocument,
   IRobotEntryDocument,
@@ -37,70 +36,6 @@ export const loadClass = () => {
     public static async createEntry(
       data
     ): Promise<IRobotEntryDocument | undefined> {
-      if (data.action === 'mergeCustomers') {
-        const customerIds = data.customerIds;
-        const randomCustomer = await Customers.findOne({
-          _id: { $in: customerIds }
-        }).lean();
-
-        if (randomCustomer) {
-          delete randomCustomer._id;
-          await Customers.mergeCustomers(customerIds, randomCustomer);
-          return RobotEntries.create({
-            action: 'mergeCustomers',
-            data: { customerIds }
-          });
-        }
-      }
-
-      if (data.action === 'fillCompanyInfo') {
-        const results = data.results;
-
-        const parent = await RobotEntries.create({
-          action: 'fillCompanyInfo',
-          data: { count: results.length }
-        });
-
-        for (const result of results) {
-          const { _id, modifier } = result;
-
-          await Companies.updateOne({ _id }, { $set: modifier });
-          return RobotEntries.create({
-            action: 'fillCompanyInfo',
-            parentId: parent._id,
-            data: { _id, modifier }
-          });
-        }
-
-        return parent;
-      }
-
-      if (data.action === 'customerScoring') {
-        const { scoreMap } = data;
-
-        if (!scoreMap || scoreMap.length === 0) {
-          return undefined;
-        }
-
-        const modifier = scoreMap.map(entry => ({
-          updateOne: {
-            filter: {
-              _id: entry._id
-            },
-            update: {
-              $set: { profileScore: entry.score }
-            }
-          }
-        }));
-
-        await Customers.bulkWrite(modifier);
-
-        return RobotEntries.create({
-          action: 'customerScoring',
-          data: { scoreMap }
-        });
-      }
-
       if (data.action === 'channelsWithoutIntegration') {
         return RobotEntries.updateOrCreate('channelsWithoutIntegration', {
           channelIds: data.channelIds

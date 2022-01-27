@@ -1,15 +1,15 @@
 import { DashboardItems, Dashboards } from '../../../db/models';
-import { BOARD_TYPES } from '../../../db/models/definitions/constants';
+// import { BOARD_TYPES } from '../../../db/models/definitions/constants';
 import {
   DashboardFilters,
   DashboardFilterTypes
 } from '../../dashboardConstants';
 import {
-  getBoards,
+  // getBoards,
   getBrands,
-  getIntegrations,
-  getIntegrationTypes,
-  getPipelines,
+  // getIntegrations,
+  // getIntegrationTypes,
+  // getPipelines,
   getTags,
   getUsers
 } from '../../modules/dashboard/utils';
@@ -66,7 +66,7 @@ const dashBoardQueries = {
 
     const shemaType = type.split('.')[0];
     let tagType = 'customer';
-    let stageType = BOARD_TYPES.DEAL;
+    // const stageType = BOARD_TYPES.DEAL;
 
     switch (shemaType) {
       case 'Conversations':
@@ -81,19 +81,19 @@ const dashBoardQueries = {
         tagType = 'company';
         break;
 
-      case 'Tasks':
-        stageType = BOARD_TYPES.TASK;
-        break;
+      // case 'Tasks':
+      //   stageType = BOARD_TYPES.TASK;
+      //   break;
 
-      case 'Tickets':
-        stageType = BOARD_TYPES.TICKET;
-        break;
+      // case 'Tickets':
+      //   stageType = BOARD_TYPES.TICKET;
+      //   break;
     }
 
     if (!filters) {
-      if (type.includes('pipeline')) {
-        return getPipelines(stageType);
-      }
+      // if (type.includes('pipeline')) {
+      //   return getPipelines(stageType);
+      // }
 
       if (DashboardFilterTypes.User.some(name => type.includes(name))) {
         return getUsers();
@@ -103,17 +103,17 @@ const dashBoardQueries = {
         return getBrands();
       }
 
-      if (type.includes('integrationName')) {
-        return getIntegrations();
-      }
+      // if (type.includes('integrationName')) {
+      //   return getIntegrations();
+      // }
 
-      if (type.includes('integrationType')) {
-        return getIntegrationTypes();
-      }
+      // if (type.includes('integrationType')) {
+      //   return getIntegrationTypes();
+      // }
 
-      if (type.includes('board')) {
-        return getBoards(stageType);
-      }
+      // if (type.includes('board')) {
+      //   return getBoards(stageType);
+      // }
 
       if (type.includes('tag')) {
         return getTags(tagType);

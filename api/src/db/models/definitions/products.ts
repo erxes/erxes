@@ -1,11 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import {
-  attachmentSchema,
-  commonItemFieldsSchema,
-  IItemCommonFields
-} from './boards';
 import { customFieldSchema, ICustomField } from './common';
-import { ICompany } from './companies';
 import {
   PRODUCT_STATUSES,
   PRODUCT_TYPES,
@@ -13,6 +7,17 @@ import {
   PRODUCT_SUPPLY
 } from './constants';
 import { field, schemaWrapper } from './utils';
+
+const attachmentSchema = new Schema(
+  {
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true }),
+    duration: field({ type: Number, optional: true })
+  },
+  { _id: false }
+);
 
 export interface IProduct {
   name: string;
@@ -41,7 +46,7 @@ export interface IProduct {
 export interface IProductDocument extends IProduct, Document {
   _id: string;
   createdAt: Date;
-  vendor?: ICompany;
+  vendor?;
 }
 
 export interface IProductCategory {
@@ -57,37 +62,6 @@ export interface IProductCategory {
 export interface IProductCategoryDocument extends IProductCategory, Document {
   _id: string;
   createdAt: Date;
-}
-
-export interface IProductData extends Document {
-  productId: string;
-  uom: string;
-  currency: string;
-  quantity: number;
-  unitPrice: number;
-  taxPercent?: number;
-  tax?: number;
-  discountPercent?: number;
-  discount?: number;
-  amount?: number;
-  tickUsed?: boolean;
-  assignUserId?: string;
-}
-
-interface IPaymentsData {
-  [key: string]: {
-    currency?: string;
-    amount?: number;
-  };
-}
-
-export interface IDeal extends IItemCommonFields {
-  productsData?: IProductData[];
-  paymentsData?: IPaymentsData[];
-}
-
-export interface IDealDocument extends IDeal, Document {
-  _id: string;
 }
 
 // Mongoose schemas =======================
@@ -181,33 +155,5 @@ export const productCategorySchema = schemaWrapper(
       default: new Date(),
       label: 'Created at'
     })
-  })
-);
-
-export const productDataSchema = new Schema(
-  {
-    _id: field({ type: String }),
-    productId: field({ type: String, esType: 'keyword' }), // Product
-    uom: field({ type: String, esType: 'keyword' }), // Units of measurement
-    currency: field({ type: String, esType: 'keyword' }), // Currency
-    quantity: field({ type: Number, label: 'Quantity' }), // Quantity
-    unitPrice: field({ type: Number, label: 'Unit price' }), // Unit price
-    taxPercent: field({ type: Number, label: 'Tax percent' }), // Tax percent
-    tax: field({ type: Number, label: 'Tax' }), // Tax
-    discountPercent: field({ type: Number, label: 'Discount percent' }), // Discount percent
-    discount: field({ type: Number, label: 'Discount' }), // Discount
-    amount: field({ type: Number, label: 'Amount' }), // Amount
-    tickUsed: field({ type: Boolean, label: 'Tick used' }), // TickUsed
-    assignUserId: field({ type: String, optional: true, esType: 'keyword' }) // AssignUserId
-  },
-  { _id: false }
-);
-
-export const dealSchema = schemaWrapper(
-  new Schema({
-    ...commonItemFieldsSchema,
-
-    productsData: field({ type: [productDataSchema], label: 'Products' }),
-    paymentsData: field({ type: Object, optional: true, label: 'Payments' })
   })
 );

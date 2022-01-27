@@ -1,16 +1,9 @@
-import {
-  ConversationMessages,
-  Conversations,
-  Customers,
-  EmailDeliveries,
-  EngageMessages,
-  Integrations,
-  Users
-} from '../../../db/models';
-import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
-import { graphqlPubsub } from '../../../pubsub';
-import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
-import { getConfigs } from '../../utils';
+import { graphqlPubsub } from './configs';
+import { ConversationMessages, Conversations, Integrations } from './models';
+import { CONVERSATION_STATUSES } from './models/definitions/constants';
+import { Configs, Customers, Users } from './apiCollections';
+import { getConfigs } from '@erxes/api-utils/src';
+import inmemoryStorage from './inmemoryStorage';
 
 const sendError = message => ({
   status: 'error',
@@ -140,7 +133,7 @@ export const receiveRpcMessage = async msg => {
   }
 
   if (action === 'get-configs') {
-    const configs = await getConfigs();
+    const configs = await getConfigs({ Configs }, inmemoryStorage);
     return sendSuccess({ configs });
   }
 
@@ -174,64 +167,4 @@ export const receiveIntegrationsNotification = async msg => {
  */
 export const removeEngageConversations = async _id => {
   await Conversations.removeEngageConversations(_id);
-};
-
-/*
- * Engages notification
- */
-export const receiveEngagesNotification = async msg => {
-  const { action, data } = msg;
-
-  if (action === 'setSubscribed') {
-    const { customerId, status, customerIds = [] } = data;
-    const update: any = { isSubscribed: 'No' };
-
-    if (status === AWS_EMAIL_STATUSES.BOUNCE) {
-      update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
-    }
-
-    if (customerId) {
-      await Customers.updateOne({ _id: customerId }, { $set: update });
-    }
-    if (customerIds.length > 0 && !status) {
-      await Customers.updateMany(
-        { _id: { $in: customerIds } },
-        { $set: update }
-      );
-    }
-  }
-
-  if (action === 'transactionEmail') {
-    await EmailDeliveries.updateEmailDeliveryStatus(
-      data.emailDeliveryId,
-      data.status
-    );
-  }
-
-  if (action === 'setCampaignCount') {
-    const { campaignId, validCustomersCount = 0 } = data;
-
-    const campaign = await EngageMessages.findOne({ _id: campaignId });
-
-    if (campaign) {
-      const {
-        validCustomersCount: currentValid = 0,
-        totalCustomersCount = 0
-      } = campaign;
-      const validSum = currentValid + validCustomersCount;
-
-      await EngageMessages.updateOne(
-        { _id: campaignId },
-        {
-          $set: {
-            // valid count must never exceed total count
-            validCustomersCount:
-              validSum > totalCustomersCount ? totalCustomersCount : validSum,
-            lastRunAt: new Date()
-          },
-          $inc: { runCount: 1 }
-        }
-      );
-    }
-  }
 };

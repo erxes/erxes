@@ -1,41 +1,41 @@
 import * as moment from 'moment';
-import {
-  commonItemFieldsSchema,
-  IStageDocument
-} from '../../../db/models/definitions/boards';
+// import {
+//   commonItemFieldsSchema,
+//   IStageDocument
+// } from '../../../db/models/definitions/boards';
 import {
   brandSchema,
   IBrandDocument
 } from '../../../db/models/definitions/brands';
-import { channelSchema } from '../../../db/models/definitions/channels';
-import {
-  companySchema,
-  ICompanyDocument
-} from '../../../db/models/definitions/companies';
-import {
-  customerSchema,
-  ICustomerDocument
-} from '../../../db/models/definitions/customers';
-import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
+// import { channelSchema } from '../../../db/models/definitions/channels';
+// import {
+//   companySchema,
+//   ICompanyDocument
+// } from '../../../db/models/definitions/companies';
+// import {
+//   customerSchema,
+//   ICustomerDocument
+// } from '../../../db/models/definitions/customers';
+// import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import {
   IUserGroupDocument,
   permissionSchema
 } from '../../../db/models/definitions/permissions';
-import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
+// import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
 import { ITagDocument } from '../../../db/models/definitions/tags';
-import { ticketSchema } from '../../../db/models/definitions/tickets';
+// import { ticketSchema } from '../../../db/models/definitions/tickets';
 import {
   IUserDocument,
   userSchema
 } from '../../../db/models/definitions/users';
 import {
   Brands,
-  Companies,
-  Conformities,
-  Customers,
-  Integrations,
-  PipelineLabels,
-  Stages,
+  // Companies,
+  // Conformities,
+  // Customers,
+  // Integrations,
+  // PipelineLabels,
+  // Stages,
   Tags,
   Users,
   UsersGroups
@@ -43,11 +43,11 @@ import {
 
 import { MODULE_NAMES } from '../../constants';
 import {
-  BOARD_BASIC_INFOS,
+  // BOARD_BASIC_INFOS,
   BRAND_BASIC_INFOS,
-  CHANNEL_BASIC_INFOS,
-  COMPANY_BASIC_INFOS,
-  CUSTOMER_BASIC_INFOS,
+  // CHANNEL_BASIC_INFOS,
+  // COMPANY_BASIC_INFOS,
+  // CUSTOMER_BASIC_INFOS,
   PERMISSION_BASIC_INFOS,
   USER_BASIC_INFOS
 } from './constants';
@@ -80,31 +80,31 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
 
   switch (itemType) {
-    case MODULE_NAMES.COMPANY:
-      columnNames = findSchemaLabels(companySchema, COMPANY_BASIC_INFOS);
-      break;
-    case MODULE_NAMES.CUSTOMER:
-      columnNames = findSchemaLabels(customerSchema, CUSTOMER_BASIC_INFOS);
-      break;
-    case MODULE_NAMES.DEAL:
-    case MODULE_NAMES.TASK:
-      columnNames = findSchemaLabels(commonItemFieldsSchema, BOARD_BASIC_INFOS);
-      break;
-    case MODULE_NAMES.TICKET:
-      columnNames = findSchemaLabels(ticketSchema, [
-        ...BOARD_BASIC_INFOS,
-        'source'
-      ]);
-      break;
+    // case MODULE_NAMES.COMPANY:
+    //   columnNames = findSchemaLabels(companySchema, COMPANY_BASIC_INFOS);
+    //   break;
+    // case MODULE_NAMES.CUSTOMER:
+    //   columnNames = findSchemaLabels(customerSchema, CUSTOMER_BASIC_INFOS);
+    //   break;
+    // case MODULE_NAMES.DEAL:
+    // case MODULE_NAMES.TASK:
+    //   columnNames = findSchemaLabels(commonItemFieldsSchema, BOARD_BASIC_INFOS);
+    //   break;
+    // case MODULE_NAMES.TICKET:
+    //   columnNames = findSchemaLabels(ticketSchema, [
+    //     ...BOARD_BASIC_INFOS,
+    //     'source'
+    //   ]);
+    //   break;
     case MODULE_NAMES.USER:
       columnNames = findSchemaLabels(userSchema, USER_BASIC_INFOS);
       break;
     case MODULE_NAMES.BRAND:
       columnNames = findSchemaLabels(brandSchema, BRAND_BASIC_INFOS);
       break;
-    case MODULE_NAMES.CHANNEL:
-      columnNames = findSchemaLabels(channelSchema, CHANNEL_BASIC_INFOS);
-      break;
+    // case MODULE_NAMES.CHANNEL:
+    //   columnNames = findSchemaLabels(channelSchema, CHANNEL_BASIC_INFOS);
+    //   break;
     case MODULE_NAMES.PERMISSION:
       columnNames = findSchemaLabels(permissionSchema, PERMISSION_BASIC_INFOS);
       break;
@@ -115,22 +115,22 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   return columnNames;
 };
 
-const getCompanyNames = async _id => {
-  const conformities = await Conformities.find({ mainTypeId: _id });
-  const companyNames = [] as any;
+// const getCompanyNames = async _id => {
+//   const conformities = await Conformities.find({ mainTypeId: _id });
+//   const companyNames = [] as any;
 
-  for (const conf of conformities) {
-    const company: ICompanyDocument | null = await Companies.findOne({
-      _id: conf.relTypeId
-    });
+//   for (const conf of conformities) {
+//     const company: ICompanyDocument | null = await Companies.findOne({
+//       _id: conf.relTypeId
+//     });
 
-    if (company) {
-      companyNames.push(company.primaryName ? company.primaryName : 'unknown');
-    }
-  }
+//     if (company) {
+//       companyNames.push(company.primaryName ? company.primaryName : 'unknown');
+//     }
+//   }
 
-  return companyNames;
-};
+//   return companyNames;
+// };
 
 const getCellValue = (item, colName) => {
   const names = colName.split('.');
@@ -212,30 +212,30 @@ export const fillCellValue = async (
         .join(', ');
 
       break;
-    case 'labelIds':
-      const labels: IPipelineLabelDocument[] = await PipelineLabels.find({
-        _id: { $in: item.labelIds }
-      });
+    // case 'labelIds':
+    //   const labels: IPipelineLabelDocument[] = await PipelineLabels.find({
+    //     _id: { $in: item.labelIds }
+    //   });
 
-      cellValue = labels.map(label => label.name).join(', ');
+    //   cellValue = labels.map(label => label.name).join(', ');
 
-      break;
-    case 'stageId':
-      const stage: IStageDocument | null = await Stages.findOne({
-        _id: item.stageId
-      });
+    //   break;
+    // case 'stageId':
+    //   const stage: IStageDocument | null = await Stages.findOne({
+    //     _id: item.stageId
+    //   });
 
-      cellValue = stage ? stage.name : emptyMsg;
+    //   cellValue = stage ? stage.name : emptyMsg;
 
-      break;
-    case 'initialStageId':
-      const initialStage: IStageDocument | null = await Stages.findOne({
-        _id: item.initialStageId
-      });
+    //   break;
+    // case 'initialStageId':
+    //   const initialStage: IStageDocument | null = await Stages.findOne({
+    //     _id: item.initialStageId
+    //   });
 
-      cellValue = initialStage ? initialStage.name : emptyMsg;
+    //   cellValue = initialStage ? initialStage.name : emptyMsg;
 
-      break;
+    //   break;
     case 'modifiedBy':
       const modifiedBy: IUserDocument | null = await Users.findOne({
         _id: item.modifiedBy
@@ -264,14 +264,14 @@ export const fillCellValue = async (
       break;
 
     // channel fields
-    case 'integrationIds':
-      const integrations: IIntegrationDocument[] = await Integrations.find({
-        _id: { $in: item.integrationIds }
-      });
+    // case 'integrationIds':
+    //   const integrations: IIntegrationDocument[] = await Integrations.find({
+    //     _id: { $in: item.integrationIds }
+    //   });
 
-      cellValue = integrations.map(i => i.name).join(', ');
+    //   cellValue = integrations.map(i => i.name).join(', ');
 
-      break;
+    //   break;
     case 'memberIds':
       const members: IUserDocument[] = await Users.find({
         _id: { $in: item.memberIds }
@@ -295,43 +295,43 @@ export const fillCellValue = async (
 
       break;
     // customer fields
-    case 'integrationId':
-      const integration: IIntegrationDocument | null = await Integrations.findOne(
-        { _id: item.integrationId }
-      );
+    // case 'integrationId':
+    //   const integration: IIntegrationDocument | null = await Integrations.findOne(
+    //     { _id: item.integrationId }
+    //   );
 
-      cellValue = integration ? integration.name : emptyMsg;
+    //   cellValue = integration ? integration.name : emptyMsg;
 
-      break;
+    //   break;
     case 'emails':
       cellValue = (item.emails || []).join(', ');
       break;
     case 'phones':
       cellValue = (item.phones || []).join(', ');
       break;
-    case 'mergedIds':
-      const customers: ICustomerDocument[] | null = await Customers.find({
-        _id: { $in: item.mergedIds }
-      });
+    // case 'mergedIds':
+    //   const customers: ICustomerDocument[] | null = await Customers.find({
+    //     _id: { $in: item.mergedIds }
+    //   });
 
-      cellValue = customers
-        .map(cus => cus.firstName || cus.primaryEmail)
-        .join(', ');
+    //   cellValue = customers
+    //     .map(cus => cus.firstName || cus.primaryEmail)
+    //     .join(', ');
 
-      break;
+    //   break;
     // company fields
     case 'names':
       cellValue = (item.names || []).join(', ');
 
       break;
-    case 'parentCompanyId':
-      const parent: ICompanyDocument | null = await Companies.findOne({
-        _id: item.parentCompanyId
-      });
+    // case 'parentCompanyId':
+    //   const parent: ICompanyDocument | null = await Companies.findOne({
+    //     _id: item.parentCompanyId
+    //   });
 
-      cellValue = parent ? parent.primaryName : '';
+    //   cellValue = parent ? parent.primaryName : '';
 
-      break;
+    //   break;
 
     case 'tag':
       const tags: ITagDocument[] = await Tags.find({
@@ -348,12 +348,12 @@ export const fillCellValue = async (
 
       break;
 
-    case 'companiesPrimaryNames':
-      const companyNames = await getCompanyNames(item._id);
+    // case 'companiesPrimaryNames':
+    //   const companyNames = await getCompanyNames(item._id);
 
-      cellValue = companyNames.join(', ');
+    //   cellValue = companyNames.join(', ');
 
-      break;
+    //   break;
 
     case 'ownerEmail':
       const owner: IUserDocument | null = await Users.findOne({

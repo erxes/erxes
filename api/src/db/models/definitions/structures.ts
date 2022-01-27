@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { attachmentSchema } from './boards';
-import { ILink } from './common';
+import { attachmentSchema, ILink } from './common';
 import { field, schemaWrapper } from './utils';
 
 const commonSchemaFields = {

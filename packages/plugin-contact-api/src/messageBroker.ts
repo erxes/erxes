@@ -1,11 +1,110 @@
-import { generateFields } from "./utils";
+import Companies from "./models/Companies";
+import Customers from "./models/Customers";
+import { findCompany, findCustomer, generateFields } from "./utils";
 
 let client;
 
 export const initBroker = cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:getCustomerName',
+    async customer => ({
+      data: await Customers.getCustomerName(customer),
+      status: 'success'
+    })
+  );
+
+  consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => ({
+    status: 'success',
+    data: await findCustomer(doc)
+  }));
+
+  consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => ({
+    status: 'success',
+    data: await findCompany(doc)
+  }));
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:findActiveCustomers',
+    async ({ selector, fields }) => ({
+      status: 'success',
+      data: await Customers.findActiveCustomers(selector, fields)
+    })
+  );
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:findActiveCompanies',
+    async ({ selector, fields }) => ({
+      status: 'success',
+      data: await Companies.findActiveCompanies(selector, fields)
+    })
+  );
+
+  consumeRPCQueue('contacts:rpc_queue:create_customer', async data => ({
+    status: 'success',
+    data: await Customers.createCustomer(data)
+  }));
+
+  consumeRPCQueue('contacts:rpc_queue:createCompany', async data => ({
+    status: 'success',
+    data: await Companies.createCompany(data)
+  }));
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:updateCustomer',
+    async ({ _id, doc }) => ({
+      status: 'success',
+      data: await Customers.updateCustomer(_id, doc)
+    })
+  );
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:updateCompany',
+    async ({ _id, doc }) => ({
+      status: 'success',
+      data: await Companies.updateCompany(_id, doc)
+    })
+  );
+
+  consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => ({
+    status: 'success',
+    data: await Customers.getWidgetCustomer(data)
+  }));
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:updateMessengerCustomer',
+    async data => ({
+      status: 'success',
+      data: await Customers.updateMessengerCustomer(data)
+    })
+  );
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:createMessengerCustomer',
+    async data => ({
+      status: 'success',
+      data: await Customers.createMessengerCustomer(data)
+    })
+  );
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:saveVisitorContactInfo',
+    async data => ({
+      status: 'success',
+      data: await Customers.saveVisitorContactInfo(data)
+    })
+  );
+
+  consumeQueue('contacts:updateLocation', ({ customerId, browserInfo }) =>
+    Customers.updateLocation(customerId, browserInfo)
+  );
+
+  consumeQueue('contacts:updateSession', ({ customerId }) =>
+    Customers.updateSession(customerId)
+  );
 
   consumeRPCQueue('contacts:rpc_queue:getFields', async args => ({
     status: 'success',

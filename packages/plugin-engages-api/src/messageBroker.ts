@@ -9,6 +9,14 @@ export const initBroker = async cl => {
 
   const { consumeQueue } = client;
 
+  consumeQueue('engage:removeCustomersEngages', async customerIds => {
+    await EngageMessages.removeCustomersEngages(customerIds);
+  });
+
+  consumeQueue('engage:changeCustomer', async (customerId, customerIds) => {
+    await EngageMessages.changeCustomer(customerId, customerIds);
+  });
+
   // listen for rpc queue =========
   consumeQueue('erxes-api:engages-notification', async ({ action, data }) => {
     debugBase(`Receiving queue data from erxes-api ${JSON.stringify(data)}`);

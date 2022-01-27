@@ -4,7 +4,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { publishConversationsChanged } from './conversations';
+// import { publishConversationsChanged } from './conversations';
 
 interface ITagsEdit extends ITag {
   _id: string;
@@ -81,9 +81,9 @@ const tagMutations = {
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { user }: IContext
   ) {
-    if (type === 'conversation') {
-      publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
-    }
+    // if (type === 'conversation') {
+    //   publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
+    // }
 
     return Tags.tagObject({ type, targetIds, tagIds }, user);
   },

@@ -4,7 +4,7 @@
 
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
-import { Customers, Forms } from '.';
+import { Forms } from '.';
 import {
   COMPANY_INFO,
   CONVERSATION_INFO,
@@ -15,7 +15,7 @@ import {
   PROPERTY_GROUPS,
   USER_PROPERTIES_INFO
 } from '../../data/constants';
-import { updateOrder } from './boardUtils';
+// import { updateOrder } from './boardUtils';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,
@@ -217,10 +217,10 @@ export const loadFieldClass = () => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      await Customers.updateMany(
-        { 'customFieldsData.field': _id },
-        { $pull: { customFieldsData: { field: _id } } }
-      );
+      // await Customers.updateMany(
+      //   { 'customFieldsData.field': _id },
+      //   { $pull: { customFieldsData: { field: _id } } }
+      // );
 
       // Removing form associated field
       await Fields.updateMany(
@@ -234,9 +234,9 @@ export const loadFieldClass = () => {
     /*
      * Update given fields orders
      */
-    public static async updateOrder(orders: IOrderInput[]) {
-      return updateOrder(Fields, orders);
-    }
+    // public static async updateOrder(orders: IOrderInput[]) {
+    //   return updateOrder(Fields, orders);
+    // }
 
     /*
      * Validate per field according to it's validation and type
@@ -678,9 +678,9 @@ export const loadGroupClass = () => {
     /*
      * Update given fieldsGroups orders
      */
-    public static async updateOrder(orders: IOrderInput[]) {
-      return updateOrder(FieldsGroups, orders);
-    }
+    // public static async updateOrder(orders: IOrderInput[]) {
+    //   return updateOrder(FieldsGroups, orders);
+    // }
   }
 
   fieldGroupSchema.loadClass(FieldGroup);

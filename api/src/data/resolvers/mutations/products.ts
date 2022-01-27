@@ -3,7 +3,7 @@ import {
   IProduct,
   IProductCategory,
   IProductDocument
-} from '../../../db/models/definitions/deals';
+} from '../../../db/models/definitions/products';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';

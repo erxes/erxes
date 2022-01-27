@@ -1,4 +1,4 @@
-import { IProductDocument } from '../../db/models/definitions/deals';
+import { IProductDocument } from '../../db/models/definitions/products';
 import { IContext } from '../types';
 
 export default {
@@ -13,11 +13,11 @@ export default {
   async getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
     const tags = await dataLoaders.tag.loadMany(product.tagIds || []);
     return tags.filter(tag => tag);
-  },
-
-  vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
-    return (
-      (product.vendorId && dataLoaders.company.load(product.vendorId)) || null
-    );
   }
+
+  // vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
+  //   return (
+  //     (product.vendorId && dataLoaders.company.load(product.vendorId)) || null
+  //   );
+  // }
 };

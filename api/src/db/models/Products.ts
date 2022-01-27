@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
-import { Deals, Fields } from '.';
-import Companies from './Companies';
+import { Fields } from '.';
 import { ICustomField } from './definitions/common';
 import { PRODUCT_STATUSES } from './definitions/constants';
 import {
@@ -10,7 +9,7 @@ import {
   IProductDocument,
   productCategorySchema,
   productSchema
-} from './definitions/deals';
+} from './definitions/products';
 import { IUserDocument } from './definitions/users';
 
 export interface IProductModel extends Model<IProductDocument> {
@@ -70,18 +69,18 @@ export const loadProductClass = () => {
         doc.categoryId = category._id;
       }
 
-      if (doc.vendorCode) {
-        const vendor = await Companies.findOne({
-          $or: [
-            { code: doc.vendorCode },
-            { primaryEmail: doc.vendorCode },
-            { primaryPhone: doc.vendorCode },
-            { primaryName: doc.vendorCode }
-          ]
-        });
+      // if (doc.vendorCode) {
+      //   const vendor = await Companies.findOne({
+      //     $or: [
+      //       { code: doc.vendorCode },
+      //       { primaryEmail: doc.vendorCode },
+      //       { primaryPhone: doc.vendorCode },
+      //       { primaryName: doc.vendorCode }
+      //     ]
+      //   });
 
-        doc.vendorId = vendor?._id;
-      }
+      //   doc.vendorId = vendor?._id;
+      // }
 
       doc.customFieldsData = await Fields.prepareCustomFieldsData(
         doc.customFieldsData
@@ -115,37 +114,37 @@ export const loadProductClass = () => {
     /**
      * Remove products
      */
-    public static async removeProducts(_ids: string[]) {
-      const dealProductIds = await Deals.find({
-        'productsData.productId': { $in: _ids }
-      }).distinct('productsData.productId');
+    // public static async removeProducts(_ids: string[]) {
+    //   const dealProductIds = await Deals.find({
+    //     'productsData.productId': { $in: _ids }
+    //   }).distinct('productsData.productId');
 
-      const usedIds: string[] = [];
-      const unUsedIds: string[] = [];
-      let response = 'deleted';
+    //   const usedIds: string[] = [];
+    //   const unUsedIds: string[] = [];
+    //   let response = 'deleted';
 
-      for (const id of _ids) {
-        if (!dealProductIds.includes(id)) {
-          unUsedIds.push(id);
-        } else {
-          usedIds.push(id);
-        }
-      }
+    //   for (const id of _ids) {
+    //     if (!dealProductIds.includes(id)) {
+    //       unUsedIds.push(id);
+    //     } else {
+    //       usedIds.push(id);
+    //     }
+    //   }
 
-      if (usedIds.length > 0) {
-        await Products.updateMany(
-          { _id: { $in: usedIds } },
-          {
-            $set: { status: PRODUCT_STATUSES.DELETED }
-          }
-        );
-        response = 'updated';
-      }
+    //   if (usedIds.length > 0) {
+    //     await Products.updateMany(
+    //       { _id: { $in: usedIds } },
+    //       {
+    //         $set: { status: PRODUCT_STATUSES.DELETED }
+    //       }
+    //     );
+    //     response = 'updated';
+    //   }
 
-      await Products.deleteMany({ _id: { $in: unUsedIds } });
+    //   await Products.deleteMany({ _id: { $in: unUsedIds } });
 
-      return response;
-    }
+    //   return response;
+    // }
 
     /**
      * Merge products
@@ -172,7 +171,7 @@ export const loadProductClass = () => {
       const description: string = productFields.description || '';
       const categoryId: string = productFields.categoryId || '';
       const vendorId: string = productFields.vendorId || '';
-      const usedIds: string[] = [];
+      // const usedIds: string[] = [];
 
       for (const productId of productIds) {
         const productObj = await Products.getProduct({ _id: productId });
@@ -214,20 +213,20 @@ export const loadProductClass = () => {
         vendorId
       });
 
-      const dealProductIds = await Deals.find({
-        'productsData.productId': { $in: productIds }
-      }).distinct('productsData.productId');
+      // const dealProductIds = await Deals.find({
+      //   'productsData.productId': { $in: productIds }
+      // }).distinct('productsData.productId');
 
-      for (const deal of dealProductIds) {
-        if (productIds.includes(deal)) {
-          usedIds.push(deal);
-        }
-      }
+      // for (const deal of dealProductIds) {
+      //   if (productIds.includes(deal)) {
+      //     usedIds.push(deal);
+      //   }
+      // }
 
-      await Deals.updateMany(
-        { 'productsData.productId': { $in: usedIds } },
-        { $set: { 'productsData.$.productId': product._id } }
-      );
+      // await Deals.updateMany(
+      //   { 'productsData.productId': { $in: usedIds } },
+      //   { $set: { 'productsData.$.productId': product._id } }
+      // );
 
       return product;
     }

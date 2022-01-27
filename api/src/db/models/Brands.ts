@@ -1,8 +1,6 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
-import { Integrations } from './';
 import { brandSchema, IBrand, IBrandDocument } from './definitions/brands';
-import { IIntegrationDocument } from './definitions/integrations';
 
 export interface IBrandModel extends Model<IBrandDocument> {
   getBrand(doc: any): IBrandDocument;
@@ -11,14 +9,6 @@ export interface IBrandModel extends Model<IBrandDocument> {
   createBrand(doc: IBrand): IBrandDocument;
   updateBrand(_id: string, fields: IBrand): IBrandDocument;
   removeBrand(_id: string): IBrandDocument;
-
-  manageIntegrations({
-    _id,
-    integrationIds
-  }: {
-    _id: string;
-    integrationIds: string[];
-  }): IIntegrationDocument[];
 }
 
 export const loadClass = () => {
@@ -78,22 +68,6 @@ export const loadClass = () => {
       }
 
       return brandObj.remove();
-    }
-
-    public static async manageIntegrations({
-      _id,
-      integrationIds
-    }: {
-      _id: string;
-      integrationIds: string[];
-    }) {
-      await Integrations.updateMany(
-        { _id: { $in: integrationIds } },
-        { $set: { brandId: _id } },
-        { multi: true }
-      );
-
-      return Integrations.findIntegrations({ _id: { $in: integrationIds } });
     }
   }
 

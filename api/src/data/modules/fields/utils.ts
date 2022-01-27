@@ -154,6 +154,7 @@ export const fieldsCombinedByContentType = async ({
     options?: string[];
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
+  serviceType = 'inbox';
 
   if (serviceType) {
     fields = await messageBroker().sendRPCMessage(

@@ -1,11 +1,11 @@
 import { Model, model } from 'mongoose';
-import { getUniqueValue } from '../factories';
 import { WEBHOOK_STATUS } from './definitions/constants';
 import {
   IWebhook,
   IWebhookDocument,
   webhookSchema
 } from './definitions/webhook';
+import { getUniqueValue } from './utils';
 
 export interface IWebhookModel extends Model<IWebhookDocument> {
   getWebHook(_id: string): Promise<IWebhookDocument>;

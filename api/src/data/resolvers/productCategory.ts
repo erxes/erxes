@@ -1,6 +1,6 @@
 import { ProductCategories, Products } from '../../db/models';
 import { PRODUCT_STATUSES } from '../../db/models/definitions/constants';
-import { IProductCategoryDocument } from '../../db/models/definitions/deals';
+import { IProductCategoryDocument } from '../../db/models/definitions/products';
 
 export default {
   isRoot(category: IProductCategoryDocument, {}) {

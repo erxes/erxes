@@ -57,16 +57,6 @@ const brandMutations = {
     await putDeleteLog({ type: MODULE_NAMES.BRAND, object: brand }, user);
 
     return removed;
-  },
-
-  /**
-   * Update brandId fields in given Integrations
-   */
-  async brandsManageIntegrations(
-    _root,
-    { _id, integrationIds }: { _id: string; integrationIds: string[] }
-  ) {
-    return Brands.manageIntegrations({ _id, integrationIds });
   }
 };
 
