@@ -53,7 +53,7 @@ export default function Service() {
                 <div className={classnames("col col--6")}>
             <div className={styles.serviceBanner}>
               <img
-                src="img/service_cover.png"
+                src="/img/service_cover.png"
                 alt="Service cover"
               />
               </div>
@@ -77,7 +77,7 @@ export default function Service() {
                   <div className={styles.serviceItem}>
                     <img
                       className={styles.serviceIcon}
-                      src="img/s3.png"
+                      src="/img/s3.png"
                       alt="Founders"
                     />
                     <h4>Community based</h4>
@@ -90,7 +90,7 @@ export default function Service() {
                   <div className={styles.serviceItem}>
                     <img
                       className={styles.serviceIcon}
-                      src="img/s2.png"
+                      src="/img/s2.png"
                       alt="Investors"
                     />
                     <h4>Reliable and secure</h4>
@@ -103,7 +103,7 @@ export default function Service() {
                   <div className={styles.serviceItem}>
                     <img
                       className={styles.serviceIcon}
-                      src="img/s1.png"
+                      src="/img/s1.png"
                       alt="Stakeholders"
                     />
                     <h4>Trust and transparency</h4>
