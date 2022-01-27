@@ -38,7 +38,7 @@ export default function Service() {
             <p className={styles.description}>Open fair-code licensed all-in-one growth marketing & management software.</p>
             <Link
               className="button button--primary"
-              to={"https://invest.erxes.io/"}
+              to={"https://erxes.io/service"}
               target="_blank"
             >
               Request consultation
