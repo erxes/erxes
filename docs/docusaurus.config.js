@@ -42,6 +42,11 @@ module.exports = {
           position: "left",
         },
         {
+          to: "/service",
+          label: "Service",
+          position: "left",
+        },
+        {
           to: "/components/AnimatedLoader/animatedLoader",
           label: "Components",
           position: "left",
