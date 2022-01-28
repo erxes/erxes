@@ -118,6 +118,9 @@ export type FieldsCombinedByType = {
   type: string;
   selectOptions?: any[];
   order?: number;
+  group?: string;
+  options?: string[];
+  title?: string;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {

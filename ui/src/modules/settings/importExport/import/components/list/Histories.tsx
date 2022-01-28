@@ -2,43 +2,28 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
-import { __, getEnv } from 'modules/common/utils';
+import { getEnv, __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import { EMPTY_IMPORT_CONTENT } from 'modules/settings/constants';
-import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
-import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import React from 'react';
-import ExportPopupsData from '../containers/ExportPopupsData';
-import { IImportHistory } from '../types';
-import HistoryRow from './Row';
-import Sidebar from './Sidebar';
+import { IImportHistory } from '../../../types';
+import HistoryRow from './HistoryRow';
+import Sidebar from './SideBar';
 import { Title } from 'modules/common/styles/main';
 import { Link } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
-  currentType: string;
   histories: IImportHistory[];
-  removeHistory: (historyId: string) => void;
   loading: boolean;
   totalCount: number;
+  currentType: string;
+  removeHistory: (historyId: string, contentType: string) => void;
 };
-
-// currently support import data types
-const DATA_IMPORT_TYPES = [
-  'customer',
-  'company',
-  'product',
-  'deal',
-  'task',
-  'ticket',
-  'lead'
-];
 
 const DYNAMICLY_TEMPLATE_TYPES = [
   'customer',
@@ -50,6 +35,15 @@ const DYNAMICLY_TEMPLATE_TYPES = [
   'visitor'
 ];
 
+const DATA_IMPORT_TYPES = [
+  'customer',
+  'company',
+  'deal',
+  'task',
+  'ticket',
+  'lead'
+];
+
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
     const { histories, removeHistory } = this.props;
@@ -58,12 +52,13 @@ class Histories extends React.Component<Props & IRouterProps> {
       <Table hover={true}>
         <thead>
           <tr>
-            <th>{__('Success')}</th>
-            <th>{__('Failed')}</th>
-            <th>{__('Total')}</th>
-            <th>{__('Imported Date')}</th>
-            <th>{__('Imported User')}</th>
-            <th />
+            <th>{__('Name')}</th>
+            <th>{__('New records')}</th>
+            <th>{__('Updated records')}</th>
+            <th>{__('Error Count')}</th>
+            <th>{__('User')}</th>
+            <th>{__('Date')}</th>
+            <th>{__('Action')}</th>
           </tr>
         </thead>
         <tbody>
@@ -73,7 +68,6 @@ class Histories extends React.Component<Props & IRouterProps> {
                 key={history._id}
                 history={history}
                 removeHistory={removeHistory}
-                onClick={this.onClick}
               />
             );
           })}
@@ -101,108 +95,6 @@ class Histories extends React.Component<Props & IRouterProps> {
     }
 
     return buttonText;
-  }
-
-  renderColumnChooser = (type: string) => {
-    const { currentType } = this.props;
-
-    let icon = '';
-    let btnStyle = '';
-    let text = '';
-
-    switch (type) {
-      case 'import':
-        icon = 'folder-download';
-        btnStyle = 'success';
-        text = 'Download template';
-        break;
-
-      case 'export':
-        icon = 'export';
-        btnStyle = 'primary';
-        text = `Export ${this.getButtonText()}`;
-        break;
-    }
-
-    const manageColumns = props => {
-      return (
-        <ManageColumns
-          {...props}
-          contentType={currentType}
-          type={type}
-          isImport={true}
-        />
-      );
-    };
-
-    const editColumns = (
-      <Button btnStyle={btnStyle} size="small" icon={icon}>
-        {__(`${text}`)}
-      </Button>
-    );
-
-    return (
-      <ModalTrigger
-        title="Select Columns"
-        trigger={editColumns}
-        content={manageColumns}
-        autoOpenKey="showManageColumnsModal"
-      />
-    );
-  };
-
-  renderTemplateButton() {
-    const { REACT_APP_API_URL } = getEnv();
-    const { currentType } = this.props;
-
-    if (!DATA_IMPORT_TYPES.includes(currentType)) {
-      return null;
-    }
-
-    if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
-      return this.renderColumnChooser('import');
-    }
-
-    let name = 'product_template.csv';
-
-    switch (currentType) {
-      case 'product':
-        name = 'product_template.csv';
-        break;
-      case 'deal':
-      case 'task':
-      case 'ticket':
-        name = 'board_item_template.csv';
-        break;
-      default:
-        break;
-    }
-
-    return (
-      <Button
-        btnStyle="simple"
-        size="small"
-        icon="folder-download"
-        href={`${REACT_APP_API_URL}/download-template/?name=${name}`}
-      >
-        {__('Download template')}
-      </Button>
-    );
-  }
-
-  renderDataImporter() {
-    const { currentType } = this.props;
-
-    if (!DATA_IMPORT_TYPES.includes(currentType)) {
-      return null;
-    }
-
-    return (
-      <DataImporter
-        type={currentType}
-        text={`${__('Import')} ${this.getButtonText()}`}
-      />
-    );
   }
 
   renderExportButton = () => {
@@ -242,38 +134,38 @@ class Histories extends React.Component<Props & IRouterProps> {
     );
   };
 
-  renderExportPopupsData() {
-    if (this.props.currentType !== 'customer') {
+  renderDataImporter() {
+    const { currentType } = this.props;
+
+    if (!DATA_IMPORT_TYPES.includes(currentType)) {
       return null;
     }
 
-    return <ExportPopupsData />;
+    return (
+      <Link to={`/settings/import`}>
+        <Button icon="import" btnStyle="success" size="small">
+          {__(`Import data`)}
+        </Button>
+      </Link>
+    );
   }
 
   renderImportButton = () => {
     return (
       <BarItems>
-        {this.renderTemplateButton()}
         {this.renderDataImporter()}
         {this.renderExportButton()}
-        {this.renderExportPopupsData()}
       </BarItems>
     );
   };
 
-  onClick = id => {
-    const { history } = this.props;
-
-    history.push(`/settings/importHistory/${id}`);
-  };
-
   render() {
-    const { currentType, histories, loading, totalCount } = this.props;
+    const { histories, loading, totalCount, queryParams } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Import & Export'), link: '/settings/importHistories' },
-      { title: __(currentType) }
+      { title: __('Imports') }
     ];
 
     const headerDescription = (
@@ -291,15 +183,15 @@ class Histories extends React.Component<Props & IRouterProps> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Imports')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title capitalize={true}>{__(currentType)}</Title>}
+            left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
           />
         }
-        leftSidebar={<Sidebar title={__('Types')} currentType={currentType} />}
+        leftSidebar={<Sidebar currentType={queryParams.type} />}
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={

@@ -4,9 +4,10 @@ import { QueryResponse } from 'modules/common/types';
 export interface IImportHistory {
   _id: string;
   success: string;
+  updated: string;
   failed: string;
   total: string;
-  contentType: string;
+  contentTypes: string;
   date: Date;
   user: IUser;
   status: string;
@@ -22,6 +23,7 @@ export interface IImportHistoryItem {
 
 export type ImportHistoriesQueryResponse = {
   importHistories: IImportHistoryItem;
+  stopPolling: () => any;
 } & QueryResponse;
 
 export type ImportHistoryDetailQueryResponse = {
@@ -35,7 +37,7 @@ export type ImportHistoryDetailQueryResponse = {
 
 export type RemoveMutationResponse = {
   importHistoriesRemove: (params: {
-    variables: { _id: string };
+    variables: { _id: string; contentType: string };
   }) => Promise<any>;
 };
 

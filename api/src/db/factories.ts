@@ -1554,7 +1554,7 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
 };
 
 interface IImportHistoryFactoryInput {
-  contentType?: string;
+  contentTypes?: string[];
   failed?: number;
   total?: number;
   success?: string;
@@ -1572,7 +1572,7 @@ export const importHistoryFactory = async (
     total: params.total || faker.random.number(),
     success: params.success || faker.random.number(),
     ids: params.ids,
-    contentType: params.contentType || 'customer',
+    contentTypes: params.contentTypes || ['customer'],
     errorMsgs: params.errorMsgs
   };
 
