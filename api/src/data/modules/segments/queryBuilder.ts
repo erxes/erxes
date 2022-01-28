@@ -177,13 +177,17 @@ export const fetchSegment = async (
         });
       }
 
-      // check to see if we have collected all of the quotes
+      /* istanbul ignore next */
+
       if (hits.total && hits.total.value === results.length) {
+        // check to see if we have collected all the documents
         break;
       }
 
+      /* istanbul ignore next */
+
       if (initialResponse._scroll_id) {
-        // get the next response if there are more quotes to fetch
+        // get the next response if there are more to fetch
         resp.push(await fetchElkScroll(initialResponse._scroll_id));
       }
     }
