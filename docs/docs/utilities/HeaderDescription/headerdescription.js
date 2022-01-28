@@ -2,7 +2,6 @@ import React from "react";
 import HeaderDescription from "erxes-ui/lib/components/HeaderDescription";
 import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable } from "../../components/common.js";
-import "erxes-icon/css/erxes.min.css";
 
 export function HeaderDescriptionComponent(props) {
   const {type, table=[] } = props;
