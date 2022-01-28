@@ -22,10 +22,19 @@ import { MESSAGE_KINDS } from '../../constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { chunkArray, isUsingElk } from '../../utils';
 import EditorAttributeUtil from '../../editorAttributeUtils';
+
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
   user: IUserDocument;
+}
+
+interface ISelectorParams {
+  engageId?: string;
+  customerIds?: string[];
+  segmentIds?: string[];
+  tagIds?: string[];
+  brandIds?: string[];
 }
 
 export const generateCustomerSelector = async ({
@@ -34,13 +43,7 @@ export const generateCustomerSelector = async ({
   segmentIds = [],
   tagIds = [],
   brandIds = []
-}: {
-  engageId?: string;
-  customerIds?: string[];
-  segmentIds?: string[];
-  tagIds?: string[];
-  brandIds?: string[];
-}): Promise<any> => {
+}: ISelectorParams): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
   let customersItemsMapping: { [key: string]: any } = {};
@@ -67,13 +70,16 @@ export const generateCustomerSelector = async ({
 
   if (segmentIds.length > 0) {
     const segments = await Segments.find({ _id: { $in: segmentIds } });
-
     let customerIdsBySegments: string[] = [];
 
+    const filter: any = {
+      associatedCustomers: true,
+      perPage: 5000,
+      scroll: true
+    };
+
     for (const segment of segments) {
-      const cIds = await fetchSegment(segment, {
-        associatedCustomers: true
-      });
+      const cIds = await fetchSegment(segment, filter);
 
       if (
         engageId &&
@@ -123,7 +129,7 @@ export const generateCustomerSelector = async ({
       }
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-    }
+    } // end segments for loop
 
     customerQuery = { _id: { $in: customerIdsBySegments } };
   } // end segmentIds if
