@@ -1,9 +1,9 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { AppConsumer } from '../../appContext';
+import ButtonMutate from '../../components/ButtonMutate';
+import { IButtonMutateProps } from '../../types';
 import React from 'react';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { IUser } from '../../auth/types';
+import { UsersQueryResponse } from '../../auth/types';
 import CompanyForm from '../components/CompanyForm';
 import { mutations, queries } from '../graphql';
 import { ICompany } from '../types';
