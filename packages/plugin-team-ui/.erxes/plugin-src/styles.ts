@@ -63,14 +63,6 @@ const InviteOption = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
-const LinkButton = styled.a`
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 const FormTable = styled.table`
   width: 100%;
 
@@ -124,7 +116,6 @@ export {
   FlexRow,
   ButtonContainer,
   UserAvatar,
-  LinkButton,
   RemoveRow,
   InviteOption,
   FormTable,

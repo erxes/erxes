@@ -8,7 +8,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { IDepartment } from '../../types';
-import SelectTeamMembers from '../../containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { generateTree } from '../../utils';
 
 type Props = {

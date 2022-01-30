@@ -5,7 +5,7 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
-import { NameContainer, Name } from '@erxes/ui/src/customers/styles';
+import { NameContainer, Name } from '@erxes/ui-contacts/src/customers/styles';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {

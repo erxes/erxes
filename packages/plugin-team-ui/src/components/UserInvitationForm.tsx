@@ -5,7 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter, LinkButton } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
 import { __, Alert } from '@erxes/ui/src/utils';
 import { IChannel } from '@erxes/ui-settings/src/channels/types';
@@ -14,7 +14,7 @@ import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import { Description } from '@erxes/ui-settings/src/styles';
-import { FormTable, InviteOption, LinkButton, RemoveRow } from '../styles';
+import { FormTable, InviteOption, RemoveRow } from '../styles';
 import { IBranch, IDepartment, IInvitationEntry, IUnit } from '../types';
 import { generateTree } from '../utils';
 
