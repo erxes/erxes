@@ -3,12 +3,12 @@ import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IOptions } from '@erxes/ui-cards/src/boards/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations } from '@erxes/ui/src/forms/graphql';
+import { mutations } from '@erxes/ui-forms/src/forms/graphql';
 import {
   IFormSubmission,
   IFormSubmissionParams,
   SaveFormSubmissionMutation
-} from '@erxes/ui/src/forms/types';
+} from '@erxes/ui-forms/src/forms/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import GrowthHackEditForm from '../components/GrowthHackEditForm';

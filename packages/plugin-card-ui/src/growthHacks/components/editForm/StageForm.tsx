@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import colors from '@erxes/ui/src/styles/colors';
-import { IFormSubmission } from '@erxes/ui/src/forms/types';
+import { IFormSubmission } from '@erxes/ui-forms/src/forms/types';
 import { IGrowthHack } from '../../types';
 import GenerateField from '@erxes/ui-settings/src/properties/components/GenerateField';
 import React from 'react';

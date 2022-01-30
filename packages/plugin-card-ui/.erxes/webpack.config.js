@@ -69,6 +69,8 @@ module.exports = {
           path.resolve(__dirname, 'src'),
           path.resolve(__dirname, '../../erxes-ui/src'),
           path.resolve(__dirname, '../../ui-cards/src'),
+          path.resolve(__dirname, '../../ui-contacts/src'),
+          path.resolve(__dirname, '../../ui-forms/src'),
           path.resolve(__dirname, '../../ui-settings/src'),
           path.resolve(__dirname, '../../ui-segments/src'),
           path.resolve(__dirname, '../../ui-inbox/src'),
