@@ -40,19 +40,25 @@ export const getIndexPrefix = () => {
   return `${dbName}__`;
 };
 
-export const fetchElk = async ({
-  action,
-  index,
-  body,
-  _id,
-  defaultValue
-}: {
+interface IElkOptions {
   action: string;
   index: string;
   body: any;
   _id?: string;
   defaultValue?: any;
-}) => {
+  scroll?: string;
+  size?: number;
+}
+
+export const fetchElk = async ({
+  action,
+  index,
+  body,
+  _id,
+  defaultValue,
+  scroll,
+  size
+}: IElkOptions) => {
   try {
     const params: any = {
       index: `${getIndexPrefix()}${index}`,
@@ -67,6 +73,12 @@ export const fetchElk = async ({
       params.id = _id;
     }
 
+    // for returning results more than 10000
+    if (scroll && size) {
+      params.scroll = scroll;
+      params.size = size;
+    }
+
     const response = await client[action](params);
 
     return response;
@@ -77,6 +89,16 @@ export const fetchElk = async ({
       return defaultValue;
     }
 
+    throw new Error(e);
+  }
+};
+
+export const fetchElkScroll = async (scrollId: string) => {
+  try {
+    const response = await client.scroll({ scrollId, scroll: '1m' });
+
+    return response;
+  } catch (e) {
     throw new Error(e);
   }
 };
