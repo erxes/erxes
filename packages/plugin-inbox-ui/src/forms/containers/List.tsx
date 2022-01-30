@@ -4,7 +4,7 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { mutations as integrationMutations } from '@erxes/ui-settings/src/integrations/graphql/index';
 import { ArchiveIntegrationResponse } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';

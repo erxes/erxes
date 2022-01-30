@@ -1,6 +1,6 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { MailBox } from '@erxes/ui/src/customers/styles';
+import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 

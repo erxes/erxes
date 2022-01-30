@@ -11,11 +11,3 @@ export const NOTIFICATION_TYPE = {
   lead: 'You have got a new lead',
   messenger: 'You have a new message from messenger'
 };
-
-export const LEAD_STATUS_TYPES = {
-  new: 'New',
-  attemptedToContact: 'Contacted',
-  inProgress: 'Working',
-  badTiming: 'Bad Timing',
-  unqualified: 'Unqualified'
-};

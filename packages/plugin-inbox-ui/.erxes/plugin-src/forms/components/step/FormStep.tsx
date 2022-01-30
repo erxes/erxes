@@ -1,6 +1,6 @@
-import CreateForm from '@erxes/ui/src/forms/containers/CreateForm';
-import EditForm from '@erxes/ui/src/forms/containers/EditForm';
-import { IFormData } from '@erxes/ui/src/forms/types';
+import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
+import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { FlexItem } from '@erxes/ui/src/components/step/style';

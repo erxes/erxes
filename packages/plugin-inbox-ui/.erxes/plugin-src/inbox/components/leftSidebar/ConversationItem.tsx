@@ -19,9 +19,7 @@ import {
   AssigneeImg,
   CheckBox,
   Count,
-  CustomerName,
   FlexContent,
-  FlexWidth,
   Idle,
   MainInfo,
   MessageContent,
@@ -29,7 +27,7 @@ import {
   RowItem,
   SmallTextOneLine
 } from './styles';
-import { Flex as FlexRoot } from '@erxes/ui/src/styles/main';
+import { Flex as FlexRoot, CustomerName, EllipsisContent } from '@erxes/ui/src/styles/main';
 type Props = {
   conversation: IConversation;
   channelId?: string;
@@ -132,9 +130,9 @@ class ConversationItem extends React.Component<Props> {
               )}
               <FlexContent>
                 <CustomerName>
-                  <FlexWidth>
+                  <EllipsisContent>
                     {isExistingCustomer && renderFullName(customer)}
-                  </FlexWidth>
+                  </EllipsisContent>
                   <time>
                     {(dayjs(updatedAt || createdAt) || ({} as any)).fromNow(
                       true
@@ -152,9 +150,9 @@ class ConversationItem extends React.Component<Props> {
             </MainInfo>
 
             <MessageContent>
-              <FlexWidth>
+              <EllipsisContent>
                 {this.showMessageContent(integration.kind, content || '')}
-              </FlexWidth>
+              </EllipsisContent>
               <FlexRoot>
                 {messageCount > 1 && <Count>{messageCount}</Count>}
                 {assignedUser && (

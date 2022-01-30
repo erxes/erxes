@@ -13,7 +13,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ILeadData, ILeadIntegration } from '../types';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import { IFormData } from '@erxes/ui/src/forms/types';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { Content } from '@erxes/ui-settings/src/integrations/styles';
 import { LeftContent } from '@erxes/ui-settings/src/integrations/styles';
 import { IField } from '@erxes/ui/src/types';
