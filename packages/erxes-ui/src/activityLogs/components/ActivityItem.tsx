@@ -1,7 +1,7 @@
 import React from 'react';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
+import { IUser } from '../../auth/types';
+import Icon from '../../components/Icon';
+import Tip from '../../components/Tip';
 import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
