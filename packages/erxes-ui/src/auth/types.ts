@@ -61,9 +61,6 @@ export interface IUser extends IUserDoc {
   brands?: IBrand[];
   emailSignatures?: IEmailSignature[];
   onboardingHistory?: IOnboardingHistory;
-  isSubscribed?: boolean;
-  // department?: IDepartment;
-  isShowNotification?: boolean;
   customFieldsData?: {
     [key: string]: any;
   };
