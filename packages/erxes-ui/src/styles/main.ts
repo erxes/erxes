@@ -141,6 +141,21 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   }
 `;
 
+const Info = styled.div`
+  margin-top: 5px;
+  white-space: normal;
+
+  > span {
+    font-weight: normal;
+  }
+`;
+
+const InfoTitle = styled.span`
+  font-weight: 500;
+  margin-bottom: 5px;
+  margin-right: 10px;
+`;
+
 const InfoWrapper = styled.div`
   padding: 20px 20px 30px 20px;
   display: flex;
@@ -406,6 +421,8 @@ export {
   ColorPicker,
   FullContent,
   ModalFooter,
+  Info,
+  InfoTitle,
   InfoWrapper,
   Links,
   FormWrapper,

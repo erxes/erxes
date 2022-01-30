@@ -1,9 +1,9 @@
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { COLORS } from '../../constants/colors';
+import Button from '../../components/Button';
+import FormControl from '../../components/form/Control';
+import Form from '../../components/form/Form';
+import FormGroup from '../../components/form/Group';
+import ControlLabel from '../../components/form/Label';
 
 import { colors } from '../../styles';
 import { ModalFooter } from '../../styles/main';
