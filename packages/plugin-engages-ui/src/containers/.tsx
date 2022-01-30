@@ -3,8 +3,8 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import { CountQueryResponse } from '@erxes/ui/src/customers/types';
-import { queries as formQueries } from '@erxes/ui/src/forms/graphql';
+import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import {
   AddMutationResponse,
   AddMutationVariables,
