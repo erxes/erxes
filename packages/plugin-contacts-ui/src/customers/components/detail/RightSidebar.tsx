@@ -4,7 +4,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import colors from '@erxes/ui/src/styles/colors';
 import { __ } from '@erxes/ui/src/utils';
-import CompanySection from '../../../companies/components/common/CompanySection';
+import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
 import { List } from '../../../companies/styles';
 import { ICustomer } from '../../types';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';

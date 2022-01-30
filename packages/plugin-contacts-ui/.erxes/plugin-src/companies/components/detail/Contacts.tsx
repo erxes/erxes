@@ -4,7 +4,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import { ICompany } from '@erxes/ui/src/companies/types';
-import { Contact } from '@erxes/ui/src/customers/styles';
+import { Contact } from '@erxes/ui-contacts/src/customers/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 

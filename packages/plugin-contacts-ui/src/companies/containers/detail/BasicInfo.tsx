@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '@erxes/ui/src/companies/graphql';
-import ActionSection from '../../../customers/components/common/ActionSection';
+import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

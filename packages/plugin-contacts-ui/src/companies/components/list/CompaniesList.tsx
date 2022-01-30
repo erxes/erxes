@@ -22,7 +22,7 @@ import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import CompanyForm from '../../containers/CompanyForm';
+import CompanyForm from '@erxes/ui/src/companies/containers/CompanyForm';
 import { ICompany } from '../../types';
 import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
 import CompanyRow from './CompanyRow';

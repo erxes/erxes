@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { LEAD_CHOICES } from '@erxes/ui-contacts/src/customers/constants';
-import { LeadStateWrapper, StateItem } from '@erxes/ui/src/customers/styles';
+import { LeadStateWrapper, StateItem } from '@erxes/ui-contacts/src/customers/styles';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import React from 'react';
 

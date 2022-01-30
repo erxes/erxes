@@ -1,4 +1,4 @@
-import ActionSection from './ActionSection';
+import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
 import BasicInfoSection from './BasicInfoSection';
 import CustomerSection from './CustomerSection';
 import DetailInfo from './DetailInfo';

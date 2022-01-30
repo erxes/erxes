@@ -7,7 +7,7 @@ import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
 import { FlexItem } from '../../../companies/styles';
 import { GENDER_TYPES, LEAD_STATUS_TYPES } from '@erxes/ui/src/customers/constants';
-import { BooleanStatus, ClickableRow } from '@erxes/ui/src/customers/styles';
+import { BooleanStatus, ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
 import { ICustomer } from '../../types';
 import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
