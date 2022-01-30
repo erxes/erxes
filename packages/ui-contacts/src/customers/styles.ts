@@ -4,21 +4,6 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
 
-const Info = styled.div`
-  margin-top: 5px;
-  white-space: normal;
-
-  > span {
-    font-weight: normal;
-  }
-`;
-
-const InfoTitle = styled.span`
-  font-weight: 500;
-  margin-bottom: 5px;
-  margin-right: 10px;
-`;
-
 const InfoDetail = styled.p`
   margin: 0;
   display: block;
@@ -315,4 +300,20 @@ const Box = styled(BoxRoot)`
   }
 `;
 
-export { InfoTitle, InfoDetail, Info, InfoAvatar };
+export {
+  InfoDetail,
+  InfoAvatar,
+  Box,
+  Action,
+  States,
+  List,
+  Contact,
+  Name,
+  NameContainer,
+  CustomerState,
+  TabContent,
+  ClickableRow,
+  BooleanStatus,
+  UserHeader,
+  MailBox
+};

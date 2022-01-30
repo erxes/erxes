@@ -11,7 +11,8 @@ import {
   CUSTOMER_DATAS,
   CUSTOMER_LINKS
 } from '../../constants';
-import { Info, InfoAvatar, InfoDetail, InfoTitle } from '../../styles';
+import { InfoAvatar, InfoDetail } from '../../styles';
+import { Info, InfoTitle } from '@erxes/ui/src/styles/main';
 import {
   ICustomer,
   ICustomerDoc,
