@@ -1,32 +1,31 @@
-import { IUser, IUserLinks } from '@erxes/ui/src/auth/types';
-import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { IUser, IUserLinks } from '../../auth/types';
+import AutoCompletionSelect from '../../components/AutoCompletionSelect';
+import AvatarUpload from '../../components/AvatarUpload';
+import Button from '../../components/Button';
+import CollapseContent from '../../components/CollapseContent';
+import FormControl from '../../components/form/Control';
+import DateControl from '../../components/form/DateControl';
+import Form from '../../components/form/Form';
+import FormGroup from '../../components/form/Group';
+import ControlLabel from '../../components/form/Label';
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter,
   ScrollWrapper
-} from '@erxes/ui/src/styles/main';
+} from '../../styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
   IQueryParams
-} from '@erxes/ui/src/types';
-import { Alert, getConstantFromStore } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
+} from '../../types';
+import { Alert, getConstantFromStore, __ } from '../../utils';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
 } from '../constants';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '../../team/containers/SelectTeamMembers';
 import React from 'react';
 import validator from 'validator';
 import { ICustomer, ICustomerDoc } from '../types';

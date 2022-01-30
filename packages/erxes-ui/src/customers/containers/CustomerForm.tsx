@@ -1,12 +1,12 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { AppConsumer } from '../../appContext';
+import { IUser } from '../../auth/types';
+import ButtonMutate from '../../components/ButtonMutate';
 import {
   IButtonMutateProps,
   IQueryParams,
   IRouterProps
-} from '@erxes/ui/src/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+} from '../../types';
+import { ICustomer } from '../../customers/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import CustomerForm from '../components/CustomerForm';
