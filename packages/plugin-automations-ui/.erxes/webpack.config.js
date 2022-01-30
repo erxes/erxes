@@ -74,6 +74,7 @@ module.exports = {
           path.resolve(__dirname, '../../ui-cards/src'),
           path.resolve(__dirname, '../../ui-segments/src'),
           path.resolve(__dirname, '../../ui-settings/src'),
+          path.resolve(__dirname, '../../ui-forms/src'),
           path.resolve(__dirname, 'plugin-src')
         ],
         use: {

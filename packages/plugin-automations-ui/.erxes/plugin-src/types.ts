@@ -1,6 +1,5 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IBrand } from "@erxes/ui/src/brands/types";
 
 export type IAction = {
   id: string;

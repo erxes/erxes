@@ -6,7 +6,7 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-segments/src/graphql';
-import { queries as formQueries } from '@erxes/ui/src/forms/graphql';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { SegmentDetailQueryResponse } from '@erxes/ui-segments/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
