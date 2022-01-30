@@ -494,14 +494,14 @@ server {
         server_name YOUR_DOMAIN_COM;
 
         # erxes build path
-        root /home/erxes/erxes.io/erxes/build;
+        root /home/erxes/erxes.io/erxes/erxes;
         index index.html;
 
         error_log /var/log/nginx/erxes.error.log;
         access_log /var/log/nginx/erxes.access.log;
 
         location / {
-                root /home/erxes/erxes.io/erxes/build;
+                root /home/erxes/erxes.io/erxes/erxes;
                 index index.html;
                 try_files $uri /index.html;
         }
