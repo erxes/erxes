@@ -134,13 +134,6 @@ const Capitalize = styled.span`
   font-weight: 500;
 `;
 
-const LinkButton = styled.a`
-  cursor: pointer;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 const FilterItem = styled(DateContainer)`
   position: relative;
   float: left;
@@ -254,7 +247,6 @@ export {
   SubHeading,
   WidgetBackgrounds,
   Capitalize,
-  LinkButton,
   SidebarListItem,
   FilterItem,
   BackgroundSelector,

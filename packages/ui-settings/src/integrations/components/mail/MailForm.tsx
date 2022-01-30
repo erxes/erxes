@@ -14,7 +14,7 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React, { ReactNode } from 'react';
-import { MAIL_TOOLBARS_CONFIG } from '../../constants';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import {
   formatObj,
   formatStr,

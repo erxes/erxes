@@ -1,21 +1,6 @@
 import { colors } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 
-const Info = styled.div`
-  margin-top: 5px;
-  white-space: normal;
-
-  > span {
-    font-weight: normal;
-  }
-`;
-
-const InfoTitle = styled.span`
-  font-weight: 500;
-  margin-bottom: 5px;
-  margin-right: 10px;
-`;
-
 const InfoDetail = styled.p`
   margin: 0;
   display: block;
@@ -53,4 +38,4 @@ const ProductContent = styled.div`
   }
 `;
 
-export { InfoTitle, InfoDetail, Info, ProductContent };
+export { InfoDetail, ProductContent };
