@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 import { withProps } from '@erxes/ui/src/utils';
-import { queries as formQueries } from '@erxes/ui/src/forms/graphql';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import PropertyList from '../../components/form/PropertyList';
 import { IField } from '../../types';
 import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
