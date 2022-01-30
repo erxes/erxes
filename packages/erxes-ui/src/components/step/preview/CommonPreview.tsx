@@ -6,9 +6,7 @@ import styled from 'styled-components';
 import {
   LauncherContainer,
   WebPreview,
-  WidgetPreview
-} from './styles';
-import {
+  WidgetPreview,
   BodyContent,
   CallOutBody,
   CenterContainer,

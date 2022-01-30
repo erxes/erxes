@@ -1,5 +1,5 @@
 import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Sidebar from '../layout/components/Sidebar';
 import { SectionContainer, SidebarCollapse } from '@erxes/ui/src/layout/styles';
 import { getConfig, setConfig } from '../utils/core';
 import Icon from './Icon';

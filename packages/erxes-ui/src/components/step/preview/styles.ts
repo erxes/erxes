@@ -5,13 +5,13 @@ import {
   DragHandler,
   SortableWrapper,
   SortItem
-} from '@erxes/ui/src/styles/sort';
+} from '../../../styles/sort';
 import {
   fadeIn,
   slideDown,
   slideLeft,
   slideRight
-} from '@erxes/ui/src/utils/animations';
+} from '../../../utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

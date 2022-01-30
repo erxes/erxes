@@ -1,4 +1,4 @@
-import { IFormData } from '../../../forms/types';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { IField } from '../../../types';
 import React from 'react';
 import CommonPreview from './CommonPreview';

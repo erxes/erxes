@@ -1,6 +1,6 @@
 import { colors, dimensions } from '../../styles';
-import { BoxRoot } from '@erxes/ui/src/styles/main';
-import { ContentHeader } from '@erxes/ui/src/layout/styles';
+import { BoxRoot } from '../../styles/main';
+import { ContentHeader } from '../../layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
