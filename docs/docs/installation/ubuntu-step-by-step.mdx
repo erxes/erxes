@@ -232,7 +232,7 @@ You can read more about installing **Node.js** with **nvm** here: [How to instal
 Install **Node.js**
 
 ```bash
-nvm install --lts
+nvm install 15
 ```
 
 Check to see if **Node.js** is installed correctly.
@@ -722,7 +722,7 @@ module.exports = {
     {
       name: 'erxes-api',
       script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-api',
+      cwd: '/home/erxes/erxes.io/erxes-api/erxes-api',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
@@ -744,7 +744,7 @@ module.exports = {
     {
       name: 'erxes-cronjobs',
       script: 'dist/cronJobs',
-      cwd: '/home/erxes/erxes.io/erxes-api',
+      cwd: '/home/erxes/erxes.io/erxes-api/erxes-api',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
@@ -762,7 +762,7 @@ module.exports = {
     {
       name: 'erxes-workers',
       script: 'dist/workers',
-      cwd: '/home/erxes/erxes.io/erxes-api',
+      cwd: '/home/erxes/erxes.io/erxes-api/erxes-api',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
@@ -780,7 +780,7 @@ module.exports = {
     {
       name: 'erxes-widgets',
       script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-widgets',
+      cwd: '/home/erxes/erxes.io/erxes/erxes-widgets',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
@@ -794,7 +794,7 @@ module.exports = {
     {
       name: 'erxes-engages',
       script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-engages-email-sender',
+      cwd: '/home/erxes/erxes.io/erxes-api/erxes-engages-email-sender',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
@@ -812,7 +812,7 @@ module.exports = {
     {
       name: 'erxes-logger',
       script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-logger',
+      cwd: '/home/erxes/erxes.io/erxes-api/erxes-logger',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
@@ -826,7 +826,7 @@ module.exports = {
     {
       name: 'erxes-integrations',
       script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-integrations',
+      cwd: '/home/erxes/erxes.io/erxes-integrations/erxes-integrations',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
@@ -846,7 +846,7 @@ module.exports = {
     {
       name: 'erxes-elkSyncer',
       script: 'main.py',
-      cwd: '/home/erxes/erxes.io/erxes-elkSyncer/elkSyncer',
+      cwd: '/home/erxes/erxes.io/erxes-api/erxes-elkSyncer',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       interpreter: '/usr/bin/python3',
       env: {
@@ -857,7 +857,7 @@ module.exports = {
     {
       name: 'erxes-email-verifier',
       script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-email-verifier',
+      cwd: '/home/erxes/erxes.io/erxes-api/erxes-email-verifier',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       node_args: '--max_old_space_size=4096',
       env: {
