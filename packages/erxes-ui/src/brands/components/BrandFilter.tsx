@@ -1,9 +1,9 @@
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Box from '../../components/Box';
+import DataWithLoader from '../../components/DataWithLoader';
 import { IRouterProps } from '../../types';
-import { __, router } from '@erxes/ui/src/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { IBrand } from '@erxes/ui/src/brands/types';
+import { __, router } from '../../utils';
+import { FieldStyle, SidebarCounter, SidebarList } from '../../layout/styles';
+import { IBrand } from '../../brands/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 

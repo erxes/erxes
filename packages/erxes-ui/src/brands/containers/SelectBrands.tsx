@@ -1,8 +1,8 @@
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import SelectWithSearch from '../../components/SelectWithSearch';
 import { IOption, IQueryParams } from '../../types';
 import * as React from 'react';
-import { queries } from '@erxes/ui/src/brands/graphql';
-import { IBrand } from '@erxes/ui/src/brands/types';
+import { queries } from '../graphql';
+import { IBrand } from '../types';
 
 // get config options for react-select-plus
 export function generateBrandOptions(array: IBrand[] = []): IOption[] {
