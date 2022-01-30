@@ -9,7 +9,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ISelectedOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
-import { INTEGRATION_KINDS } from '@erxes/ui-settings/src/integrations/constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { Capitalize } from '@erxes/ui-settings/src/styles';
 import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
 import React, { useEffect, useState } from 'react';
