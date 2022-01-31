@@ -1,6 +1,6 @@
 import sift from 'sift';
 
-import { Brands, Products, Users } from '../../../db/models';
+import { Brands, Users } from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
@@ -17,7 +17,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
+  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);
@@ -35,11 +35,6 @@ export const getDocumentList = async (
 
       case 'brands': {
         list = await Brands.find().lean();
-        break;
-      }
-
-      case 'products': {
-        list = await Products.find().lean();
         break;
       }
     }

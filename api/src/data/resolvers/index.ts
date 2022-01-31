@@ -7,8 +7,6 @@ import Form from './forms';
 import ImportHistory from './importHistory';
 import Mutation from './mutations';
 import Permission from './permission';
-import Product from './product';
-import ProductCategory from './productCategory';
 import Query from './queries';
 import Segment from './segment';
 import Subscription from './subscriptions';
@@ -31,9 +29,6 @@ const resolvers: any = {
   Mutation,
   Query,
   Subscription,
-
-  Product,
-  ProductCategory,
 
   Form,
   FieldsGroup: fieldsGroup,

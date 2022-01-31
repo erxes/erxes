@@ -11,7 +11,6 @@ import {
   permissionQueries as permissions,
   usersGroupQueries as usersGroups
 } from './permissions';
-import products from './products';
 import robot from './robot';
 import segments from './segments';
 import users from './users';
@@ -25,7 +24,6 @@ export default {
   ...emailDeliveries,
   ...forms,
   ...segments,
-  ...products,
   ...configs,
   ...fieldsgroups,
   ...importHistory,

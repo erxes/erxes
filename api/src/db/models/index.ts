@@ -6,7 +6,6 @@ import { Fields, FieldsGroups } from './Fields';
 import { Forms, FormSubmissions } from './Forms';
 import ImportHistory from './ImportHistory';
 import { Permissions, UsersGroups } from './Permissions';
-import { ProductCategories, Products } from './Products';
 import { OnboardingHistories, RobotEntries } from './Robot';
 import Segments from './Segments';
 import Users from './Users';
@@ -21,8 +20,6 @@ export {
   Fields,
   Segments,
   Conformities,
-  Products,
-  ProductCategories,
   Configs,
   FieldsGroups,
   ImportHistory,

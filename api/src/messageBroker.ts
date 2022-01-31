@@ -4,11 +4,7 @@ import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 import { Conformities, Forms, FieldsGroups, Fields } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
-import {
-  generateAmounts,
-  generateProducts,
-  getSubServiceDomain
-} from './data/utils';
+import { generateAmounts, getSubServiceDomain } from './data/utils';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
 
 dotenv.config();
@@ -131,14 +127,6 @@ export const initBroker = async (server?) => {
       'rpc_queue:editorAttributeUtils_generateAmounts_to_api',
       async productsData => ({
         data: await generateAmounts(productsData),
-        status: 'success'
-      })
-    );
-
-    consumeRPCQueue(
-      'rpc_queue:editorAttributeUtils_generateProducts_to_api',
-      async productsData => ({
-        data: await generateProducts(productsData),
         status: 'success'
       })
     );

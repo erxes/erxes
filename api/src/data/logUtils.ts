@@ -5,15 +5,8 @@ import {
 } from 'erxes-api-utils';
 import * as _ from 'underscore';
 
-import { IProductDocument } from '../db/models/definitions/products';
 import { IUserDocument } from '../db/models/definitions/users';
-import {
-  ProductCategories,
-  Products,
-  Segments,
-  Users,
-  UsersGroups
-} from '../db/models/index';
+import { Segments, Users, UsersGroups } from '../db/models/index';
 import { debugError } from '../debuggers';
 import messageBroker from '../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
@@ -116,13 +109,6 @@ const findContentItemName = async (
       name = user.username || user.email || '';
     }
   }
-  if (contentType === MODULE_NAMES.PRODUCT) {
-    const product = await Products.getProduct({ _id: contentTypeId });
-
-    if (product) {
-      name = product.name;
-    }
-  }
 
   return name;
 };
@@ -176,29 +162,6 @@ const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
     }
 
     options.push({ [foreignKey]: id, name });
-  }
-
-  return options;
-};
-
-const gatherProductFieldNames = async (
-  doc: IProductDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.categoryId) {
-    options = await gatherNames({
-      collection: ProductCategories,
-      idFields: [doc.categoryId],
-      foreignKey: 'categoryId',
-      prevList: options,
-      nameFields: ['name']
-    });
   }
 
   return options;
@@ -263,24 +226,6 @@ const gatherDescriptions = async (
         prevList: extraDesc
       });
 
-      const param = {
-        idFields: obj.ids,
-        foreignKey: 'ids',
-        prevList: extraDesc
-      };
-
-      switch (obj.contentType) {
-        case MODULE_NAMES.PRODUCT:
-          extraDesc = await gatherNames({
-            ...param,
-            collection: Products,
-            nameFields: ['name']
-          });
-          break;
-        default:
-          break;
-      }
-
       break;
     case MODULE_NAMES.INTERNAL_NOTE:
       description = `Note of type ${obj.contentType} has been ${action}d`;
@@ -318,39 +263,6 @@ const gatherDescriptions = async (
         extraDesc.push({
           userId: obj.userId,
           name: permUser.username || permUser.email
-        });
-      }
-
-      break;
-    case MODULE_NAMES.PRODUCT:
-      description = `${obj.name} has been ${action}d`;
-
-      extraDesc = await gatherProductFieldNames(obj);
-
-      if (updatedDocument) {
-        extraDesc = await gatherProductFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
-    case MODULE_NAMES.PRODUCT_CATEGORY:
-      description = `"${obj.name}" has been ${action}d`;
-
-      const parentIds: string[] = [];
-
-      if (obj.parentId) {
-        parentIds.push(obj.parentId);
-      }
-
-      if (updatedDocument && updatedDocument.parentId !== obj.parentId) {
-        parentIds.push(updatedDocument.parentId);
-      }
-
-      if (parentIds.length > 0) {
-        extraDesc = await gatherNames({
-          collection: ProductCategories,
-          idFields: parentIds,
-          foreignKey: 'parentId',
-          nameFields: ['name']
         });
       }
 

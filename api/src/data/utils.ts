@@ -17,7 +17,6 @@ import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 import csvParser = require('csv-parser');
 import * as readline from 'readline';
 import * as _ from 'underscore';
-import { Fields } from '../db/models';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -996,42 +995,6 @@ export const configReplacer = config => {
     .replace(/\{year}/g, now.getFullYear().toString())
     .replace(/\{month}/g, (now.getMonth() + 1).toString())
     .replace(/\{day}/g, now.getDate().toString());
-};
-
-export const generateProducts = async productsData => {
-  const products: any = [];
-
-  for (const data of productsData || []) {
-    if (!data.productId) {
-      continue;
-    }
-
-    const product = await models.Products.getProduct({ _id: data.productId });
-
-    const { customFieldsData } = product;
-
-    const customFields = [];
-
-    for (const customFieldData of customFieldsData || []) {
-      const field = await Fields.findOne({ _id: customFieldData.field }).lean();
-
-      if (field) {
-        customFields[customFieldData.field] = {
-          text: field.text,
-          data: customFieldData.value
-        };
-      }
-    }
-
-    product.customFieldsData = customFields;
-
-    products.push({
-      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
-      product
-    });
-  }
-
-  return products;
 };
 
 export const generateAmounts = productsData => {

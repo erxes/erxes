@@ -41,11 +41,6 @@ import {
   types as PermissionTypes
 } from './permission';
 import {
-  mutations as ProductMutations,
-  queries as ProductQueries,
-  types as ProductTypes
-} from './product';
-import {
   mutations as RobotMutations,
   queries as RobotQueries,
   types as RobotTypes
@@ -96,7 +91,6 @@ export let types = `
   ${FormTypes}
   ${ConformityTypes}
   ${SegmentTypes}
-  ${ProductTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
@@ -114,7 +108,6 @@ export let queries = `
   ${FormQueries}
   ${SegmentQueries}
   
-  ${ProductQueries}
   ${ConfigQueries}
   ${FieldGroupQueries}
   ${ImportHistoryQueries}
@@ -130,7 +123,6 @@ export let mutations = `
   ${SegmentMutations}
   ${FieldMutations}
   ${FormMutatons}
-  ${ProductMutations}
   ${ConfigMutations}
   ${FieldGroupMutations}
   ${ImportHistoryMutations}

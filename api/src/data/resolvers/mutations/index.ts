@@ -11,7 +11,6 @@ import {
   permissionMutations as permissions,
   usersGroupMutations as usersGroups
 } from './permissions';
-import products from './products';
 import robot from './robot';
 import segments from './segments';
 import users from './users';
@@ -23,7 +22,6 @@ export default {
   ...segments,
   ...fields,
   ...forms,
-  ...products,
   ...configs,
   ...conformity,
   ...fieldsgroups,
