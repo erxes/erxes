@@ -68,7 +68,7 @@ export const mutations = `
   chatRemove(_id: String!): JSON
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   
-  chatMessageAdd(chatId: String!, content: String!, attachments: [JSON]): ChatMessage
+  chatMessageAdd(chatId: String!, content: String!, attachments: JSON): ChatMessage
   chatMessageRemove(_id: String!): JSON
 `;
 
