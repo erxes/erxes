@@ -5,7 +5,7 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ArticleList from '../../components/article/ArticleList';
-import { mutations, queries } from '../../graphql';
+import { mutations, queries } from '@erxes/ui-knowledgeBase/src/graphql';
 import {
   ArticlesQueryResponse,
   RemoveArticlesMutationResponse

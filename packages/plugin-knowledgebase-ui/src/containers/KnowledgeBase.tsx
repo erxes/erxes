@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import KnowledgeBaseComponent from '../components/KnowledgeBase';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-knowledgeBase/src/graphql';
 import {
   ArticlesTotalCountQueryResponse,
   CategoryDetailQueryResponse,
