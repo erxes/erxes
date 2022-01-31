@@ -4,12 +4,6 @@ import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 
-const FilterContainer = styled.div`
-  position: relative;
-  padding-bottom: ${dimensions.coreSpacing}px;
-  z-index: 2;
-`;
-
 const ButtonContainer = styled.div`
   button {
     margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
@@ -112,7 +106,6 @@ const ErrorContainer = styled.div`
 `;
 
 export {
-  FilterContainer,
   FlexRow,
   ButtonContainer,
   UserAvatar,
