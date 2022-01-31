@@ -2,6 +2,7 @@ export const types = `
   type ChatMessage {
     _id: String!
     content: String
+    attachments: [JSON]
     createdUser: User
     createdAt: Date
   }

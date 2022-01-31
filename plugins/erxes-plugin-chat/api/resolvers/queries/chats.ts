@@ -1,9 +1,9 @@
 const chatQueries = [
   {
     name: 'chats',
-    handler: async (_root, { type, limit, skip }, { models, user }) => {
+    handler: async (_root, { type, limit, skip }, { models, checkPermission, user }) => {
+      await checkPermission('showChats', user)
       const filter: any = { type, participantIds: { $in: [user._id] } };
-
       return {
         list: await models.Chats.find(filter)
           .sort({ createdAt: -1 })
@@ -15,13 +15,15 @@ const chatQueries = [
   },
   {
     name: 'chatDetail',
-    handler: async (_root, { _id }, { models }) => {
+    handler: async (_root, { _id }, { models, checkPermission, user }) => {
+      await checkPermission('showChats', user)
       return models.Chats.findOne({ _id });
     }
   },
   {
     name: 'chatMessages',
-    handler: async (_root, { chatId }, { models }) => {
+    handler: async (_root, { chatId }, { models, user, checkPermission }) => {
+      await checkPermission('showChats', user)
       return {
         list: await models.ChatMessages.find({ chatId }).sort({ createdAt: 1 }),
         totalCount: await models.ChatMessages.find({ chatId }).countDocuments()
@@ -30,7 +32,8 @@ const chatQueries = [
   },
   {
     name: 'getChatIdByUserIds',
-    handler: async (_root, { userIds }, { models, user }) => {
+    handler: async (_root, { userIds }, { models, checkPermission, user }) => {
+      await checkPermission('showChats', user)
       const participantIds = [...(userIds || [])];
 
       if (!participantIds.includes(user._id)) {

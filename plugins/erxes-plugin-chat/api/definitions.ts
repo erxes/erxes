@@ -1,3 +1,9 @@
+const attachmentSchema = {
+  name: { type: String },
+  url: { type: String },
+  type: { type: String },
+  size: { type: Number, optional: true }
+};
 export interface IChat {
   name: string;
   participantIds: string[];
@@ -22,10 +28,11 @@ export const VISIBILITIES = {
 
 export const chatMessageSchema = {
   _id: { pkey: true },
+  attachments:{type: [attachmentSchema], label:'attachments'},
   chatId: { type: String, label: 'Connected chat' },
   content: { type: String, label: 'Content' },
   createdAt: { type: Date, label: 'Created at' },
-  createdBy: { type: String, label: 'Created by' }
+  createdBy: { type: String, label: 'Created by' },
 };
 
 export const chatSchema = {
