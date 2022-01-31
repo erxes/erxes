@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { ITrigger } from 'modules/automations/types';
+import { ITrigger } from '../../types';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';

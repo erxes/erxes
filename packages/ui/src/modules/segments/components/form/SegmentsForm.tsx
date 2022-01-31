@@ -1,4 +1,3 @@
-import { ITrigger } from 'modules/automations/types';
 import { IBoard } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Title } from 'modules/common/styles/main';
@@ -8,7 +7,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
-import { IEvent, ISegment, ISegmentCondition } from '../../types';
+import { IEvent, ISegment, ISegmentCondition, ITrigger } from '../../types';
 import Form from './Form';
 import { ResultCount, SegmentResult } from '../styles';
 
