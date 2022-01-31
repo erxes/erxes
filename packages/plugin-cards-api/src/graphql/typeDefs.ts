@@ -36,38 +36,42 @@ import {
 } from './schema/pipelineTemplate';
 import { types as CommonTypes } from './schema/common';
 
-const typeDefs = gql`
-  scalar JSON
-  scalar Date
-  
-  ${boardTypes}
-  ${dealTypes}
-  ${taskTypes}
-  ${ticketTypes}
-  ${growthHackTypes}
-  ${plTypes}
-  ${ptTypes}
-  ${CommonTypes}
-  
-  extend type Query {
-    ${boardQueries}
-    ${dealQueries}
-    ${taskQueries}
-    ${ticketQueries}
-    ${growthHackQueries}
-    ${plQueries}
-    ${ptQueries}
-  }
-  
-  extend type Mutation {
-    ${boardMutations}
-    ${dealMutations}
-    ${taskMutations}
-    ${ticketMutations}
-    ${growthHackMutations}
-    ${plMutations}
-    ${ptMutations}
-  }
-`;
+const typeDefs = async (serviceDiscovery) => {
+  const contactsAvailable = await serviceDiscovery.isAvailable('contacts');
+
+  return gql`
+    scalar JSON
+    scalar Date
+    
+    ${boardTypes(contactsAvailable)}
+    ${dealTypes(contactsAvailable)}
+    ${taskTypes(contactsAvailable)}
+    ${ticketTypes(contactsAvailable)}
+    ${growthHackTypes}
+    ${plTypes}
+    ${ptTypes}
+    ${CommonTypes}
+    
+    extend type Query {
+      ${boardQueries}
+      ${dealQueries}
+      ${taskQueries}
+      ${ticketQueries}
+      ${growthHackQueries}
+      ${plQueries}
+      ${ptQueries}
+    }
+    
+    extend type Mutation {
+      ${boardMutations}
+      ${dealMutations}
+      ${taskMutations}
+      ${ticketMutations}
+      ${growthHackMutations}
+      ${plMutations}
+      ${ptMutations}
+    }
+  `;
+};
 
 export default typeDefs;

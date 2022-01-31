@@ -7,13 +7,18 @@ export const conformityQueryFields = `
   conformityIsSaved: Boolean
 `;
 
-export const types = `
+export const types = (tagsAvailable) => `
   extend type Form @key(fields: "_id") {
     _id: String! @external
   }
 
-  extend type Tag @key(fields: "_id") {
-    _id: String! @external
+  ${
+    tagsAvailable ? 
+    `
+      extend type Tag @key(fields: "_id") {
+        _id: String! @external
+      }
+    ` : ''
   }
 
   extend type User @key(fields: "_id") {
@@ -55,7 +60,7 @@ export const types = `
     trackedData: JSON
 
     customers: [Customer]
-    getTags: [Tag]
+    ${tagsAvailable ? 'getTags: [Tag]': '' }
     code: String
     location: String
     score: Float
