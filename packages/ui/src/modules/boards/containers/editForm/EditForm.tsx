@@ -3,8 +3,8 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import { queries as userQueries } from 'modules/settings/team/graphql';
-import { AllUsersQueryResponse } from 'modules/settings/team/types';
+import { allUsers } from '@erxes/ui/src/team/graphql';
+import { AllUsersQueryResponse } from '@erxes/ui-team/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
@@ -260,12 +260,9 @@ const withQuery = (props: ContainerProps) => {
           }
         }
       ),
-      graphql<ContainerProps, AllUsersQueryResponse>(
-        gql(userQueries.allUsers),
-        {
-          name: 'usersQuery'
-        }
-      ),
+      graphql<ContainerProps, AllUsersQueryResponse>(gql(allUsers), {
+        name: 'usersQuery'
+      }),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {

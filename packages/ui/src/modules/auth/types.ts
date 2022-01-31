@@ -5,7 +5,7 @@ import {
   IUserDoc as IUserDocC,
   IUserLinks as IUserLinksC
 } from 'erxes-ui/lib/auth/types';
-import { IDepartment } from 'modules/settings/team/types';
+import { IDepartment } from '@erxes/ui-team/src/types';
 
 export type IUser = IUserC & {
   isSubscribed?: boolean;

@@ -40,7 +40,7 @@ const Unsubscribe = asyncComponent(() =>
 
 const UserConfirmation = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings - UserConfirmation" */ 'modules/settings/team/containers/UserConfirmation'
+    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui-team/src/containers/UserConfirmation'
   )
 );
 

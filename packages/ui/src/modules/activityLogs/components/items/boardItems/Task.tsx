@@ -25,7 +25,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components/form';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import mutations from '../graphql/mutations';

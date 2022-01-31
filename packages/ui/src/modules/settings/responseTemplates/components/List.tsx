@@ -6,7 +6,7 @@ import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import { FlexItem, FlexRow } from 'modules/settings/styles';
-import { FilterContainer } from 'modules/settings/team/styles';
+import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import List from '../../common/components/List';

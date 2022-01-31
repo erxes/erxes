@@ -7,7 +7,7 @@ import Info from 'modules/common/components/Info';
 import TextInfo from 'modules/common/components/TextInfo';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
 import { mutations } from '../graphql';

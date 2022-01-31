@@ -6,7 +6,7 @@ import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { IMessages } from 'modules/settings/integrations/types';
 import { SubHeading } from 'modules/settings/styles';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 
 type Props = {

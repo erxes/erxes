@@ -11,7 +11,7 @@ import { graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
-import { UsersQueryResponse } from '../../../settings/team/types';
+import { UsersQueryResponse } from '@erxes/ui-team/src/types';
 import { AddMessageMutationVariables, IConversation } from '../../types';
 
 type Props = {

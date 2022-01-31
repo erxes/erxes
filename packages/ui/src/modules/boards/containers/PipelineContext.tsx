@@ -2,7 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps, router as routerUtils } from 'modules/common/utils';
-import { UserDetailQueryResponse } from 'modules/settings/team/types';
+import { UserDetailQueryResponse } from '@erxes/ui-team/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';

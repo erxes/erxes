@@ -9,7 +9,7 @@ import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FilterItem, FilterWrapper } from 'modules/settings/permissions/styles';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { ILog } from '../types';
@@ -119,7 +119,7 @@ class LogList extends React.Component<Props, State> {
 
   setFilter(
     name: string,
-    selectedItem: string & { value: string; label?: string }
+    selectedItem: string | { value: string; label?: string }
   ) {
     const value =
       typeof selectedItem === 'string'

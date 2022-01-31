@@ -12,7 +12,7 @@ import {
   FilterBox
 } from '../styles/rightMenu';
 import { IOptions } from '../types';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Select from 'react-select-plus';
 import SelectLabel from './label/SelectLabel';
 import { PRIORITIES } from '../constants';

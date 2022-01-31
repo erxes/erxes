@@ -24,7 +24,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgeBase/src/types';
 import { BrandsQueryResponse } from '../../../brands/types';
-import { UsersQueryResponse } from '../../../team/types';
+import { UsersQueryResponse } from '@erxes/ui-team/src/types';
 
 type Props = {
   queryParams: any;

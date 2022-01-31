@@ -15,7 +15,7 @@ import { __ } from 'modules/common/utils';
 import BoardNumberConfigs from 'modules/settings/boards/components/numberConfig/BoardNumberConfigs';
 import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';

@@ -1,7 +1,7 @@
 import CustomFieldsSection from 'modules/boards/containers/editForm/CustomFieldsSection';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import { RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';

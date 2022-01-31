@@ -7,7 +7,7 @@ import Table from 'modules/common/components/table';
 import { Title } from 'modules/common/styles/main';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
 import { isObject } from 'util';

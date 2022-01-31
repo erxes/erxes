@@ -4,7 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
 import { __ } from 'modules/common/utils';
 import { IField, IFieldLogic } from 'modules/settings/properties/types';
-import { LinkButton } from 'modules/settings/team/styles';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
 import FieldLogic from './FieldLogic';
 

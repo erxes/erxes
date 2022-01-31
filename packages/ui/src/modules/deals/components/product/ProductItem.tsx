@@ -5,7 +5,7 @@ import CURRENCIES from 'modules/common/constants/currencies';
 import { __ } from 'modules/common/utils';
 import { MEASUREMENTS } from 'modules/settings/general/constants';
 import { IProduct } from 'modules/settings/productService/types';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
 import ProductChooser from '../../containers/product/ProductChooser';

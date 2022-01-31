@@ -4,7 +4,7 @@ import SortableList from 'modules/common/components/SortableList';
 import { __ } from 'modules/common/utils';
 import { StageList } from 'modules/settings/boards/styles';
 import FormBuilder from 'modules/settings/growthHacks/components/FormBuilder';
-import { LinkButton } from 'modules/settings/team/styles';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import StageItem from './StageItem';
 

@@ -5,7 +5,7 @@ import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
 import RTG from 'react-transition-group';

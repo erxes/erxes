@@ -2,7 +2,7 @@ import { IStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import SortableList from 'modules/common/components/SortableList';
 import { __ } from 'modules/common/utils';
-import { LinkButton } from 'modules/settings/team/styles';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { StageList } from '../styles';
 import { IOption } from '../types';

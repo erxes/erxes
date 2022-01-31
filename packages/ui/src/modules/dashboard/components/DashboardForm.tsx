@@ -8,7 +8,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectMemberStyled } from 'modules/settings/boards/styles';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import { IDashboard } from '../types';
 
