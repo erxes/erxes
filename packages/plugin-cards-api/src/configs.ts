@@ -6,6 +6,7 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
 import { IMPORT_TYPES } from './constants';
+import permissions from './permissions';
 
 export let graphqlPubsub;
 
@@ -20,6 +21,7 @@ export let debug;
 
 export default {
   name: 'cards',
+  permissions,
   graphql: async (serviceDiscovery) => {
     return {
       typeDefs: await typeDefs(serviceDiscovery),

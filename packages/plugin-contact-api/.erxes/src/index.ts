@@ -154,6 +154,10 @@ async function startServer() {
       importTypes: configs.importTypes
     });
 
+    if (configs.permissions) {
+      await messageBrokerClient.sendMessage('registerPermissions', configs.permissions);
+    }
+
     debugInfo(`${configs.name} server is running on port ${PORT}`);
   } catch (e) {
     debugError(`Error during startup ${e.message}`);

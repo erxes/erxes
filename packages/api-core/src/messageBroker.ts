@@ -6,6 +6,7 @@ import { Conformities, Forms, FieldsGroups, Fields } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { getSubServiceDomain } from './data/utils';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
+import { registerModule } from './data/permissions/utils';
 
 dotenv.config();
 
@@ -22,7 +23,10 @@ export const initBroker = async (server?) => {
   if (!['crons', 'workers'].includes(process.env.PROCESS_NAME || '')) {
     const { consumeQueue, consumeRPCQueue } = client;
 
-    // general ======================
+    consumeQueue('registerPermissions', async (permissions) => {
+      await registerModule(permissions);
+    });
+
     consumeRPCQueue(
       'forms:rpc_queue:validate',
       async ({ formId, submissions }) => ({
