@@ -4,12 +4,7 @@ const attachmentSchema = {
   type: { type: String },
   size: { type: Number, optional: true }
 };
-export interface IAttachment {
-  name: string;
-  type: string;
-  url: string;
-  size?: number;
-}
+
 export interface IChat {
   name: string;
   participantIds: string[];
@@ -18,7 +13,7 @@ export interface IChat {
 export interface IChatMessage {
   chatId: string;
   content: string;
-  attachments: IAttachment[];
+  attachments: JSON;
 }
 
 export const CHAT_TYPE = {
