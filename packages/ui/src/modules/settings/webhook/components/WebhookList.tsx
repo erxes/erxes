@@ -17,7 +17,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
-import { FilterContainer } from '../styles';
+import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import { IWebhook } from '../types';
 import WebhookAddForm from './WebhookForm';
 

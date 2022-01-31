@@ -1,12 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 
-const FilterContainer = styled.div`
-  position: relative;
-  padding-bottom: ${dimensions.coreSpacing}px;
-  z-index: 2;
-`;
-
 const ButtonContainer = styled.div`
   button {
     margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
@@ -62,11 +56,4 @@ const LinkButton = styled.a`
   }
 `;
 
-export {
-  FilterContainer,
-  FlexRow,
-  ButtonContainer,
-  LinkButton,
-  RemoveRow,
-  InviteOption
-};
+export { FlexRow, ButtonContainer, LinkButton, RemoveRow, InviteOption };
