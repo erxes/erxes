@@ -8,7 +8,6 @@ import * as helmet from 'helmet';
 import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
-import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
@@ -44,8 +43,6 @@ export const app = express();
 
 app.disable('x-powered-by');
 
-app.use(serverTimingMiddleware({}));
-
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ extended: true }));
 
@@ -59,7 +56,7 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: '*'
+  origin: ['http://localhost:3000']
 };
 
 app.use(cors(corsOptions));
