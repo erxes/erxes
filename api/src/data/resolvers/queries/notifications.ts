@@ -55,13 +55,17 @@ const notificationQueries = {
    */
   notificationCounts(
     _root,
-    { requireRead }: { requireRead: boolean },
+    { requireRead, notifType }: { requireRead: boolean; notifType: string },
     { user }: IContext
   ) {
     const selector: any = { receiver: user._id };
 
     if (requireRead) {
       selector.isRead = false;
+    }
+
+    if (notifType) {
+      selector.notifType = notifType;
     }
 
     return Notifications.find(selector).countDocuments();

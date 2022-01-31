@@ -125,11 +125,15 @@ describe('notificationsQueries', () => {
     // Creating test data
     await notificationFactory({ createdUser: user, receiver: receiver1 });
     await notificationFactory({ createdUser: user, receiver: receiver1 });
-    await notificationFactory({ createdUser: user, receiver: receiver2 });
+    await notificationFactory({
+      createdUser: user,
+      receiver: receiver2,
+      notifType: NOTIFICATION_TYPES.DEAL_ADD
+    });
 
     const qry = `
-      query notificationCounts($requireRead: Boolean) {
-        notificationCounts(requireRead: $requireRead)
+      query notificationCounts($requireRead: Boolean, $notifType: String) {
+        notificationCounts(requireRead: $requireRead, notifType: $notifType)
       }
     `;
 
@@ -148,6 +152,16 @@ describe('notificationsQueries', () => {
       qry,
       'notificationCounts',
       { requireRead: true },
+      { user: receiver2 }
+    );
+
+    expect(response).toBe(1);
+
+    // filter by notifType
+    response = await graphqlRequest(
+      qry,
+      'notificationCounts',
+      { notifType: NOTIFICATION_TYPES.DEAL_ADD },
       { user: receiver2 }
     );
 
