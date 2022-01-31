@@ -60,7 +60,7 @@ export const registerModule = (modules: any): void => {
     }
 
     // save
-    modulesMap[module.name] = module.description;
+    modulesMap[module.name] = module;
 
     if (module.actions) {
       for (const action of module.actions) {
