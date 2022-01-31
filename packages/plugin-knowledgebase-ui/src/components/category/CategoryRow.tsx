@@ -6,7 +6,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CategoryForm from '../../containers/category/CategoryForm';
-import { ICategory } from '../../types';
+import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
 import { ActionButtons, CategoryItem } from './styles';
 
 type Props = {

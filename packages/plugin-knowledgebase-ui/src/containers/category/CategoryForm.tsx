@@ -6,7 +6,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import CategoryForm from '../../components/category/CategoryForm';
 import { mutations, queries } from '../../graphql';
-import { ICategory, TopicsQueryResponse } from '../../types';
+import {
+  ICategory,
+  TopicsQueryResponse
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   category: ICategory;

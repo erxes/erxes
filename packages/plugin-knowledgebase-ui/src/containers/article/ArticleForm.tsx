@@ -7,7 +7,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import ArticleForm from '../../components/article/ArticleForm';
 import { mutations, queries } from '../../graphql';
-import { IArticle, TopicsQueryResponse } from '../../types';
+import {
+  IArticle,
+  TopicsQueryResponse
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   article: IArticle;

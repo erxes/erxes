@@ -14,7 +14,7 @@ import {
   IFormProps
 } from '@erxes/ui/src/types';
 import { __, getEnv } from '@erxes/ui/src/utils';
-import { FlexContent } from "@erxes/ui/src/layout/styles";
+import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
@@ -25,7 +25,7 @@ import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
-import { ITopic } from '../../types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import Select from 'react-select-plus';
 
 type Props = {
@@ -334,12 +334,13 @@ class KnowledgeForm extends React.Component<Props, State> {
     return (
       <>
         {this.renderFormContent(
-          topic || {
-            title: '',
-            description: '',
-            languageCode: '',
-            brand: { _id: '' }
-          } as ITopic,
+          topic ||
+            ({
+              title: '',
+              description: '',
+              languageCode: '',
+              brand: { _id: '' }
+            } as ITopic),
           { ...formProps }
         )}
         <ModalFooter>

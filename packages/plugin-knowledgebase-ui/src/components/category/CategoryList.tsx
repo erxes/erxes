@@ -1,5 +1,5 @@
 import React from 'react';
-import { ICategory } from '../../types';
+import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
 import CategoryRow from './CategoryRow';
 import { Categories } from './styles';
 

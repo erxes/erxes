@@ -11,7 +11,7 @@ import {
   RemoveTopicsMutation,
   TopicsQueryResponse,
   TopicsTotalCountQueryResponse
-} from '../../types';
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   queryParams: any;

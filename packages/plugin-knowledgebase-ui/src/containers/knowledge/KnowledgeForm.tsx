@@ -8,7 +8,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import KnowledgeForm from '../../components/knowledge/KnowledgeForm';
-import { ITopic } from '../../types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   topic: ITopic;

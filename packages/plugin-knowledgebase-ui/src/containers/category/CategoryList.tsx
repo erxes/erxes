@@ -10,7 +10,7 @@ import {
   CategoriesQueryResponse,
   CategoriesTotalCountQueryResponse,
   RemoveCategoriesMutationResponse
-} from '../../types';
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   currentCategoryId: string;

@@ -13,7 +13,7 @@ import {
   CategoryDetailQueryResponse,
   ICategory,
   LastCategoryQueryResponse
-} from '../types';
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   queryParams: any;

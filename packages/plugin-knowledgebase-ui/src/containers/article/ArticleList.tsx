@@ -9,7 +9,7 @@ import { mutations, queries } from '../../graphql';
 import {
   ArticlesQueryResponse,
   RemoveArticlesMutationResponse
-} from '../../types';
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   queryParams: any;

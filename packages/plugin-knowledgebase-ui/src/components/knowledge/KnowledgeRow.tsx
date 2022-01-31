@@ -9,7 +9,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import CategoryForm from '../../containers/category/CategoryForm';
 import CategoryList from '../../containers/category/CategoryList';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
-import { ITopic } from '../../types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import {
   KnowledgeBaseRow,
   RowActions,
