@@ -1,5 +1,5 @@
-import { IBookingData } from 'modules/bookings/types';
 import { QueryResponse } from 'modules/common/types';
+import { IProductCategory } from 'modules/settings/productService/types';
 import { IForm } from 'modules/forms/types';
 import { ILeadData, ILeadIntegration, IWebhookData } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
@@ -92,6 +92,33 @@ export interface IMessengerData {
   showVideoCallRequest?: boolean;
   onlineHours?: IOnlineHour[];
   links?: ILink;
+}
+
+// booking data
+export interface IStyle {
+  itemShape?: string;
+  widgetColor: string;
+  productAvailable: string;
+  line?: string;
+  columns?: number;
+  rows?: number;
+  margin?: number;
+  baseFont?: string;
+}
+
+export interface IBookingData {
+  name?: string;
+  image?: any;
+  description?: string;
+  userFilters?: string[];
+  productCategoryId?: string;
+  style?: IStyle;
+  mainProductCategory?: IProductCategory;
+  navigationText?: string;
+  bookingFormText?: string;
+
+  viewCount?: number;
+  productFieldIds?: string[];
 }
 
 export interface IUiOptions {
