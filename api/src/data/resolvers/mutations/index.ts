@@ -1,7 +1,6 @@
 import brands from './brands';
 import configs from './configs';
 import conformity from './conformities';
-import dashboards from './dashboards';
 import emailTemplates from './emailTemplates';
 import {
   fieldMutations as fields,
@@ -40,6 +39,5 @@ export default {
   ...usersGroups,
   ...robot,
   ...webhooks,
-  ...dashboards,
   ...structures
 };

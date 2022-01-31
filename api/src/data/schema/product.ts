@@ -34,7 +34,6 @@ export const types = `
     minimiumCount: Int
 
     category: ProductCategory
-    vendor: Company
   }
 `;
 

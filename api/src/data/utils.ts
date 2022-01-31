@@ -6,7 +6,6 @@ import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
@@ -896,26 +895,6 @@ export const s3Stream = async (
   stream.on('error', errorCallback);
 
   return stream;
-};
-
-export const getDashboardFile = async (dashboardId: string) => {
-  const timeout = async ms => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  };
-
-  const DASHBOARD_DOMAIN = getSubServiceDomain({ name: 'DASHBOARD_DOMAIN' });
-
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-  const page = await browser.newPage();
-
-  await page.goto(`${DASHBOARD_DOMAIN}/details/${dashboardId}?pdf=true`);
-  await timeout(5000);
-
-  const pdf = await page.pdf({ format: 'A4' });
-
-  await browser.close();
-
-  return pdf;
 };
 
 export const getCoreDomain = () => {

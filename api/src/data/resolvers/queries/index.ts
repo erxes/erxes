@@ -1,6 +1,5 @@
 import brands from './brands';
 import configs from './configs';
-import dashboards from './dashboards';
 import emailDeliveries from './emailDelivery';
 import emailTemplates from './emailTemplates';
 import {
@@ -41,7 +40,6 @@ export default {
   ...usersGroups,
   ...robot,
   ...webhooks,
-  ...dashboards,
   ...smsDeliveries,
   ...structures
 };

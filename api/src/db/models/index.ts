@@ -1,7 +1,6 @@
 import Brands from './Brands';
 import Configs from './Configs';
 import Conformities from './Conformities';
-import { DashboardItems, Dashboards } from './Dashboard';
 import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
 import { Fields, FieldsGroups } from './Fields';
@@ -29,8 +28,6 @@ export {
   Segments,
   InternalNotes,
   Conformities,
-  Dashboards,
-  DashboardItems,
   Products,
   ProductCategories,
   Configs,

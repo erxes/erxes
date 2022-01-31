@@ -14,11 +14,6 @@ import {
   types as ConformityTypes
 } from './conformity';
 import {
-  mutations as DashboardMutations,
-  queries as DashboardQueries,
-  types as DashboardTypes
-} from './dashboard';
-import {
   queries as EmailDeliveryQueries,
   types as EmailDelivery
 } from './emailDelivery';
@@ -102,10 +97,6 @@ export let types = `
     _id: String! @external
   }
 
-  extend type Company @key(fields: "_id") {
-    _id: String! @external
-  }
-
   enum CacheControlScope {
     PUBLIC
     PRIVATE
@@ -128,7 +119,6 @@ export let types = `
   ${FormTypes}
   ${ConformityTypes}
   ${SegmentTypes}
-  ${DashboardTypes}
   ${ProductTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
@@ -151,7 +141,6 @@ export let queries = `
   ${InternalNoteQueries}
   ${SegmentQueries}
   
-  ${DashboardQueries}
   ${ProductQueries}
   ${ConfigQueries}
   ${FieldGroupQueries}
@@ -172,7 +161,6 @@ export let mutations = `
   ${SegmentMutations}
   ${FieldMutations}
   ${FormMutatons}
-  ${DashboardMutations}
   ${ProductMutations}
   ${ConfigMutations}
   ${FieldGroupMutations}

@@ -288,9 +288,7 @@ export const MODULE_NAMES = {
   FIELD: 'field',
   AUTOMATION: 'automation',
   FIELD_GROUP: 'fieldGroup',
-  WEBHOOK: 'webhook',
-  DASHBOARD: 'dashboard',
-  DASHBOARD_ITEM: 'dashboardItem'
+  WEBHOOK: 'webhook'
 };
 
 export const RABBITMQ_QUEUES = {
