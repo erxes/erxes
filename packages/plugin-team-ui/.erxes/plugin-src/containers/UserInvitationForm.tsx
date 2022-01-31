@@ -14,7 +14,7 @@ import {
   BranchesQueryResponse,
   DepartmentsQueryResponse,
   UnitsQueryResponse
-} from '../types';
+} from '@erxes/ui-team/src/types';
 
 type WrapperProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

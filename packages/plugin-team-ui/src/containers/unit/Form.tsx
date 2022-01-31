@@ -5,7 +5,7 @@ import Form from '../../components/unit/Form';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-import { IUnit } from '../../types';
+import { IUnit } from '@erxes/ui-team/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {

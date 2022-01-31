@@ -7,7 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
-import { IBranch } from '../../types';
+import { IBranch } from '@erxes/ui-team/src/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
 import { generateTree } from '../../utils';

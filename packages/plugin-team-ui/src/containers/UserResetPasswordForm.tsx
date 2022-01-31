@@ -6,7 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import UserResetPasswordForm from '../components/UserResetPasswordForm';
 import { mutations } from '../graphql';
-import { ResetMemberPasswordResponse } from '../types';
+import { ResetMemberPasswordResponse } from '@erxes/ui-team/src/types';
 
 type Props = {
   object: IUser;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { SidebarCounter } from '@erxes/ui/src/layout/styles';
-import { IStructure } from '../../types';
+import { IStructure } from '@erxes/ui-team/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __, readFile } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';

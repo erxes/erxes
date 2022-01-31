@@ -8,7 +8,10 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import UserConfirmation from '../components/UserConfirmation';
 import { mutations } from '../graphql';
-import { ConfirmMutationResponse, ConfirmMutationVariables } from '../types';
+import {
+  ConfirmMutationResponse,
+  ConfirmMutationVariables
+} from '@erxes/ui-team/src/types';
 
 type Props = {
   queryParams: any;

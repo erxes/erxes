@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { IStructure } from '../../types';
+import { IStructure } from '@erxes/ui-team/src/types';
 import View from './View';
 import Form from '../../containers/structure/Form';
 

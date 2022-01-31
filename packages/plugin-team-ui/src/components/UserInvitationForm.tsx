@@ -15,7 +15,12 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { Description } from '@erxes/ui-settings/src/styles';
 import { FormTable, InviteOption, RemoveRow } from '../styles';
-import { IBranch, IDepartment, IInvitationEntry, IUnit } from '../types';
+import {
+  IBranch,
+  IDepartment,
+  IInvitationEntry,
+  IUnit
+} from '@erxes/ui-team/src/types';
 import { generateTree } from '../utils';
 
 type Props = {

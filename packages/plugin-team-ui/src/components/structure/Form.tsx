@@ -9,7 +9,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
-import { IStructure } from '../../types';
+import { IStructure } from '@erxes/ui-team/src/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';

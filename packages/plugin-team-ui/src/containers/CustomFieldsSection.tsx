@@ -11,7 +11,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { mutations } from '../graphql';
-import { EditMutationResponse } from '../types';
+import { EditMutationResponse } from '@erxes/ui-team/src/types';
 
 type Props = {
   user: IUser;

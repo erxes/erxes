@@ -5,7 +5,7 @@ import { useMutation } from 'react-apollo';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { mutations } from '../../graphql';
 import Item from '../../components/unit/Item';
-import { IUnit } from '../../types';
+import { IUnit } from '@erxes/ui-team/src/types';
 
 type Props = {
   unit: IUnit;

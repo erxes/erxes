@@ -5,7 +5,7 @@ import Form from '../../components/department/Form';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-import { IDepartment } from '../../types';
+import { IDepartment } from '@erxes/ui-team/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 

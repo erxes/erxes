@@ -5,7 +5,7 @@ import { useMutation } from 'react-apollo';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { mutations } from '../../graphql';
 import Item from '../../components/branch/Item';
-import { IBranch } from '../../types';
+import { IBranch } from '@erxes/ui-team/src/types';
 
 type Props = {
   branch: IBranch;

@@ -3,7 +3,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { mutations } from '../../graphql';
 import Form from '../../components/structure/Form';
-import { IStructure } from '../../types';
+import { IStructure } from '@erxes/ui-team/src/types';
 
 type Props = {
   showView: () => void;

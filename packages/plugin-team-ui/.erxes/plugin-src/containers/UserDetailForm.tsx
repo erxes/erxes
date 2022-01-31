@@ -21,7 +21,7 @@ import { mutations, queries } from '../graphql';
 import {
   UserConverationsQueryResponse,
   UserDetailQueryResponse
-} from '../types';
+} from '@erxes/ui-team/src/types';
 import UserForm from './UserForm';
 
 type Props = {
