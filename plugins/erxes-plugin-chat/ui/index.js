@@ -17,6 +17,6 @@ export default () => ({
     label: 'Chat',
     icon: 'icon-chat',
     link: '/home',
-    permission: 'showChats'
+    permission: "showAll"
   }
 });

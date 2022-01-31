@@ -14,11 +14,13 @@ const notificationQueries = {
       requireRead,
       title,
       limit,
+      notifType,
       ...params
     }: {
       requireRead: boolean;
       title: string;
       limit: number;
+      notifType: string;
       page: number;
       perPage: number;
     },
@@ -35,6 +37,10 @@ const notificationQueries = {
       selector.title = title;
     }
 
+    if (notifType) {
+      selector.notifType = notifType;
+    }
+
     if (limit) {
       return Notifications.find(selector)
         .sort(sort)
@@ -49,13 +55,17 @@ const notificationQueries = {
    */
   notificationCounts(
     _root,
-    { requireRead }: { requireRead: boolean },
+    { requireRead, notifType }: { requireRead: boolean; notifType: string },
     { user }: IContext
   ) {
     const selector: any = { receiver: user._id };
 
     if (requireRead) {
       selector.isRead = false;
+    }
+
+    if (notifType) {
+      selector.notifType = notifType;
     }
 
     return Notifications.find(selector).countDocuments();

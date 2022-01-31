@@ -2,9 +2,9 @@ import {
   putCreateLog,
   putDeleteLog,
   putUpdateLog,
-  sendNotification,
-  sendMobileNotification
+  sendNotification
 } from 'erxes-api-utils';
+import { sendMobileNotification } from '../../utils';
 
 export const gatherDescriptions = async () => {
   let extraDesc = [];
@@ -66,7 +66,7 @@ const exmFeedMutations = [
         receivers
       });
 
-      await sendMobileNotification(models, {
+      sendMobileNotification(models, {
         title: doc.title,
         body: doc.description,
         receivers

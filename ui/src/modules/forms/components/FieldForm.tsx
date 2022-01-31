@@ -23,6 +23,8 @@ import {
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import Select from 'react-select-plus';
+import { IConfig } from 'modules/settings/general/types';
+import LocationOptions from './LocationOptions';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -31,6 +33,7 @@ type Props = {
   mode: 'create' | 'update';
   field: IField;
   fields: IField[];
+  configs: IConfig[];
   numberOfPages: number;
 };
 
@@ -71,7 +74,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -140,7 +143,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
 
@@ -206,6 +209,25 @@ class FieldForm extends React.Component<Props, State> {
           componentClass="textarea"
           value={(field.options || []).join('\n')}
           onChange={onChange}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderLocationOptions() {
+    const { field } = this.state;
+
+    if (field.type !== 'map') {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+
+        <LocationOptions
+          currentField={field}
+          onFieldChange={this.onFieldChange}
         />
       </FormGroup>
     );
@@ -356,6 +378,8 @@ class FieldForm extends React.Component<Props, State> {
 
           {this.renderOptions()}
 
+          {this.renderLocationOptions()}
+
           {this.renderMultipleSelectCheckBox()}
 
           <FormGroup>
@@ -435,7 +459,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={field} />
+            <FieldPreview field={field} configs={this.props.configs} />
 
             <ShowPreview>
               <Icon icon="eye" /> {__('Field preview')}

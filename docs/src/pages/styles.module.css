@@ -28,6 +28,11 @@
 	color: var(--ifm-color-primary);
 }
 
+.flexCenter {
+	display: flex;
+	align-items: center;
+}
+
 .description {
 	font-weight: 300;
 	opacity: 0.9;
@@ -107,6 +112,54 @@ table tr td > img {
 
 .colorPrimary {
 	color: var(--nebula-blue);
+}
+.serviceBanner {
+	display: flex;
+	justify-content: center;
+	margin: 40px 0;
+}
+
+.serviceItem {
+	background: rgba(180,180,180, 0.1);
+	padding: 30px;
+	border-radius: 20px;
+	text-align: center;
+	transition: background ease 0.3s;
+	margin: 20px 0;
+	height: 90%;
+}
+
+.serviceItem h4 {
+	font-size: 18px;
+	margin-top: 15px;
+}
+
+.serviceItem:hover {
+	background: rgba(180,180,180, 0.15);
+}
+
+.serviceIcon {
+	height: 70px;
+}
+
+.servicePrice {
+	margin: 0 20%;
+}
+
+.servicePrice table {
+	text-align: center;
+}
+
+.servicePrice table td {
+	width: 50%;
+}
+
+.servicePrice table p {
+	margin: 0;
+}
+
+.smallDesc {
+	text-align: justify;
 }
 
 .investList {

@@ -5,6 +5,8 @@ export const types = `
     title: String
     link: String
     content: String
+    contentType: String
+    contentTypeId: String
     action: String
     createdUser: User
     receiver: String
@@ -25,12 +27,13 @@ const params = `
   page: Int,
   perPage: Int,
   requireRead: Boolean,
+  notifType: String
   title: String
 `;
 
 export const queries = `
   notifications(${params}): [Notification]
-  notificationCounts(requireRead: Boolean): Int
+  notificationCounts(requireRead: Boolean, notifType: String): Int
   notificationsModules : [JSON]
   notificationsGetConfigurations : [NotificationConfiguration]
 `;
