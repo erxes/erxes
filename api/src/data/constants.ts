@@ -53,30 +53,6 @@ export const EXTEND_FIELDS = {
   ]
 };
 
-export const COC_LEAD_STATUS_TYPES = [
-  '',
-  'new',
-  'open',
-  'inProgress',
-  'openDeal',
-  'unqualified',
-  'attemptedToContact',
-  'connected',
-  'badTiming'
-];
-
-export const COC_LIFECYCLE_STATE_TYPES = [
-  '',
-  'subscriber',
-  'lead',
-  'marketingQualifiedLead',
-  'salesQualifiedLead',
-  'opportunity',
-  'customer',
-  'evangelist',
-  'other'
-];
-
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
@@ -147,21 +123,5 @@ export const USER_PROPERTIES_INFO = {
   ALL: [
     { field: 'email', label: 'Primary email', canHide: false },
     { field: 'username', label: 'User name' }
-  ]
-};
-
-export const PRIORITIES = {
-  CRITICAL: 'Critical',
-  HIGH: 'High',
-  NORMAL: 'Normal',
-  LOW: 'Low',
-  ALL: [
-    {
-      name: 'Critical',
-      color: '#EA475D'
-    },
-    { name: 'High', color: '#F7CE53' },
-    { name: 'Normal', color: '#3B85F4' },
-    { name: 'Low', color: '#AAAEB3' }
   ]
 };

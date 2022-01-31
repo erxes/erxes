@@ -996,26 +996,3 @@ export const configReplacer = config => {
     .replace(/\{month}/g, (now.getMonth() + 1).toString())
     .replace(/\{day}/g, now.getDate().toString());
 };
-
-export const generateAmounts = productsData => {
-  const amountsMap = {};
-
-  (productsData || []).forEach(product => {
-    // Tick paid or used is false then exclude
-    if (!product.tickUsed) {
-      return;
-    }
-
-    const type = product.currency;
-
-    if (type) {
-      if (!amountsMap[type]) {
-        amountsMap[type] = 0;
-      }
-
-      amountsMap[type] += product.amount || 0;
-    }
-  });
-
-  return amountsMap;
-};

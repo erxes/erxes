@@ -4,12 +4,10 @@ import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
-import * as fs from 'fs';
 import * as helmet from 'helmet';
 import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
-import * as request from 'request';
 import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
@@ -19,8 +17,6 @@ import {
   authCookieOptions,
   deleteFile,
   getEnv,
-  getSubServiceDomain,
-  handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
   routeErrorHandling
@@ -28,16 +24,10 @@ import {
 
 import { connect, mongoStatus } from './db/connection';
 import { Configs, Segments, Users } from './db/models';
-import {
-  debugBase,
-  debugError,
-  debugExternalApi,
-  debugInit
-} from './debuggers';
+import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-// import webhookMiddleware from './middlewares/webhookMiddleware';
 
 import init from './startup';
 
@@ -50,82 +40,11 @@ if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
 
-const pipeRequest = (req: any, res: any, next: any, url: string) => {
-  return req.pipe(
-    request
-      .post(url)
-      .on('response', response => {
-        if (response.statusCode !== 200) {
-          return next(response.statusMessage);
-        }
-
-        return response.pipe(res);
-      })
-      .on('error', e => {
-        debugExternalApi(`Error from pipe ${e.message}`);
-        next(e);
-      })
-  );
-};
-
-const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
-const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
-  name: 'INTEGRATIONS_API_DOMAIN'
-});
-
-const DASHBOARD_DOMAIN = getSubServiceDomain({
-  name: 'DASHBOARD_DOMAIN'
-});
-
-const ENGAGES_API_DOMAIN = getSubServiceDomain({
-  name: 'ENGAGES_API_DOMAIN'
-});
-
-const CLIENT_PORTAL_DOMAINS = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_DOMAINS'
-});
-
-const handleTelnyxWebhook = (req, res, next, hookName: string) => {
-  if (NODE_ENV === 'test') {
-    return res.json(req.body);
-  }
-
-  return pipeRequest(
-    req,
-    res,
-    next,
-    `${ENGAGES_API_DOMAIN}/telnyx/${hookName}`
-  );
-};
-
 export const app = express();
 
 app.disable('x-powered-by');
 
 app.use(serverTimingMiddleware({}));
-
-// handle engage trackers
-app.post(`/service/engage/tracker`, async (req, res, next) => {
-  debugBase('SES notification received ======');
-
-  return pipeRequest(
-    req,
-    res,
-    next,
-    `${ENGAGES_API_DOMAIN}/service/engage/tracker`
-  );
-});
-
-// relay telnyx sms web hook
-app.post(`/telnyx/webhook`, (req, res, next) => {
-  return handleTelnyxWebhook(req, res, next, 'webhook');
-});
-
-// relay telnyx sms web hook fail over url
-app.post(`/telnyx/webhook-failover`, (req, res, next) => {
-  return handleTelnyxWebhook(req, res, next, 'webhook-failover');
-});
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ extended: true }));
@@ -140,13 +59,7 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: [
-    MAIN_APP_DOMAIN,
-    'http://localhost:3001',
-    WIDGETS_DOMAIN,
-    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-    DASHBOARD_DOMAIN
-  ]
+  origin: '*'
 };
 
 app.use(cors(corsOptions));
@@ -277,31 +190,6 @@ app.get('/read-file', async (req: any, res, next) => {
   }
 });
 
-// get mail attachment file
-app.get(
-  '/read-mail-attachment',
-  routeErrorHandling(async (req: any, res) => {
-    const {
-      messageId,
-      attachmentId,
-      kind,
-      integrationId,
-      filename,
-      contentType
-    } = req.query;
-
-    if (!messageId || !attachmentId || !integrationId || !contentType) {
-      return res.status(404).send('Attachment not found');
-    }
-
-    const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
-
-    res.redirect(
-      `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&userId=${req.user._id}`
-    );
-  })
-);
-
 // delete file
 app.post(
   '/delete-file',
@@ -325,38 +213,6 @@ app.post('/upload-file', uploader);
 
 app.post('/upload-file&responseType=json', uploader);
 
-// redirect to integration
-app.get('/connect-integration', async (req: any, res, _next) => {
-  if (!req.user) {
-    return res.end('forbidden');
-  }
-
-  const { link, kind, type } = req.query;
-  let url = `${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`;
-
-  if (type) {
-    url = `${url}&type=${type}`;
-  }
-
-  return res.redirect(url);
-});
-
-// unsubscribe
-app.get(
-  '/unsubscribe',
-  routeErrorHandling(async (req: any, res) => {
-    await handleUnsubscription(req.query);
-
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-
-    const template = fs.readFileSync(
-      __dirname + '/private/emailTemplates/unsubscribe.html'
-    );
-
-    return res.send(template);
-  })
-);
-
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   debugError(error.message);
@@ -379,9 +235,6 @@ httpServer.listen(PORT, () => {
 
   initApolloServer(app, httpServer).then(apolloServer => {
     apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-
-    // subscriptions server
-    // apolloServer.installSubscriptionHandlers(httpServer);
   });
 
   // connect to mongo database
