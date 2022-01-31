@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { __, Alert, withProps } from 'modules/common/utils';
-import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
+import { queries as kbQueries } from '@erxes/ui-knowledgeBase/src/graphql';
 import Form from 'modules/settings/integrations/components/messenger/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import {
@@ -21,7 +21,7 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgeBase/src/types';
 import { BrandsQueryResponse } from '../../../brands/types';
 import { UsersQueryResponse } from '../../../team/types';
 

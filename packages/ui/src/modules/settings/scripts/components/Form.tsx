@@ -3,7 +3,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { ITopic } from 'modules/knowledgeBase/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
 import Select from 'react-select-plus';

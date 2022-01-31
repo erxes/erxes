@@ -8,7 +8,7 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { ITopic } from 'modules/knowledgeBase/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import { Options } from 'modules/settings/integrations/styles';
 import {
   IIntegration,

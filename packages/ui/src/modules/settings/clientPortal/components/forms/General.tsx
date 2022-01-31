@@ -5,7 +5,7 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
-import { ITopic } from 'modules/knowledgeBase/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import React, { useState } from 'react';
 import { OverlayTrigger } from 'react-bootstrap';
 import Select from 'react-select-plus';

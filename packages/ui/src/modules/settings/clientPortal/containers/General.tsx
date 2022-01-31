@@ -3,10 +3,10 @@ import gql from 'graphql-tag';
 import compose from 'lodash.flowright';
 import { BoardsQueryResponse, IPipeline } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
-import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgeBase/src/types';
 import React, { useEffect, useState } from 'react';
 import { graphql } from 'react-apollo';
-import knowledgeBaseQueries from '../../../knowledgeBase/graphql/queries';
+import knowledgeBaseQueries from '@erxes/ui-knowledgeBase/src/graphql/queries';
 import boardQueries from '../../boards/graphql/queries';
 import General from '../components/forms/General';
 
