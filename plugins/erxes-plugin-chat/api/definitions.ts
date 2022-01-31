@@ -13,7 +13,7 @@ export interface IChat {
 export interface IChatMessage {
   chatId: string;
   content: string;
-  attachments: JSON;
+  attachments: [JSON];
 }
 
 export const CHAT_TYPE = {
