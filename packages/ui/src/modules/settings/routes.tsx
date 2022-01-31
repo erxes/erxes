@@ -2,7 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 // import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
-import CalendarRoutes from './calendars/routes';
+// import CalendarRoutes from './calendars/routes';
 // import ChannelsRoutes from './channels/routes';
 import ClientPortalRoutes from './clientPortal/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
@@ -47,7 +47,7 @@ const routes = () => (
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     {/* <GrowthHackRoutes key="GrowthHackRoutes" /> */}
     <WebhookRoutes key="WebhookRoutes" />
-    <CalendarRoutes key="CalendarRoutes" />
+    {/* <CalendarRoutes key="CalendarRoutes" /> */}
     {/* <SkillsRoutes key="SkillsRoutes" /> */}
     <ClientPortalRoutes key="ClientPortalRoutes" />
     <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
