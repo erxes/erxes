@@ -6,7 +6,7 @@ import UserList from '../containers/UserList';
 import Sidebar from './Sidebar';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import { FilterContainer } from '../styles';
+import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
 import { router } from '@erxes/ui/src/utils';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
