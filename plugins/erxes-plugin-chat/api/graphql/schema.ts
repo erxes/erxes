@@ -1,12 +1,8 @@
 export const types = `
   type ChatMessage {
     _id: String!
-    content: String
-<<<<<<< HEAD
     attachments: JSON
-=======
-    attachments: [JSON]
->>>>>>> cc2fb453c2449c78c092f785fc02bef2f23dc16e
+    content: String
     createdUser: User
     createdAt: Date
   }
@@ -68,7 +64,7 @@ export const mutations = `
   chatRemove(_id: String!): JSON
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   
-  chatMessageAdd(chatId: String!, content: String!, attachments: JSON): ChatMessage
+  chatMessageAdd(chatId: String!,attachments: [JSON], content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON
 `;
 
