@@ -6,7 +6,8 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { PRODUCT_INFO } from '../../../constants';
-import { Info, InfoDetail, InfoTitle } from '../../../styles';
+import { InfoDetail } from '../../../styles';
+import { Info, InfoTitle } from '@erxes/ui/src/styles/main';
 import { IProduct, IProductDoc } from '../../../types';
 
 type Props = {

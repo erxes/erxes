@@ -8,7 +8,7 @@ import {
 } from '@erxes/ui-cards/src/boards/styles/item';
 import { IEditFormContent, IOptions } from '@erxes/ui-cards/src/boards/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
-import { IFormSubmission } from '@erxes/ui/src/forms/types';
+import { IFormSubmission } from '@erxes/ui-forms/src/forms/types';
 import React from 'react';
 import { GrowthHackFieldName, IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, StageForm, Top } from './editForm/';

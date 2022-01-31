@@ -6,7 +6,7 @@ import EditorCK from "@erxes/ui/src/containers/EditorCK";
 import { readFile, uploadHandler, __ } from "@erxes/ui/src/utils";
 import { ILeadData } from "../../types";
 import { IEmailTemplate } from "@erxes/ui-settings/src/emailTemplates/types";
-import { FORM_SUCCESS_ACTIONS } from "@erxes/ui-settings/src/integrations/constants";
+import { FORM_SUCCESS_ACTIONS } from "@erxes/ui/src/constants/integrations";
 import React from "react";
 import { FlexItem, ImagePreview, ImageUpload } from "@erxes/ui/src/components/step/style";
 import Uploader from "@erxes/ui/src/components/Uploader";

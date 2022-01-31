@@ -1,5 +1,5 @@
 import BasicInfoSection from '../common/BasicInfoSection';
-import CustomFieldsSection from '../../containers/common/CustomFieldsSection';
+import CustomFieldsSection from '@erxes/ui-contacts/src/customers/containers/CustomFieldsSection';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
 
@@ -10,7 +10,7 @@ import {
   TaggerSection,
   TrackedDataSection
 } from '../common';
-import WebsiteActivity from '../common/WebsiteActivity';
+import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 
 type Props = {
   customer: ICustomer;

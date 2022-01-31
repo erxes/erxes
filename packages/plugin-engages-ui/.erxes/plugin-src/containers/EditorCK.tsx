@@ -9,7 +9,7 @@ import {
   FieldsCombinedByTypeQueryResponse
 } from '@erxes/ui-settings/src/properties/types';
 import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui/src/forms/graphql';
+import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 
 const generateItemCustomFields = items =>

@@ -1,5 +1,5 @@
 import React from 'react';
-import useContextMenu from '@erxes/ui/src/components/useContextMenu';
+import useContextMenu from './useContextMenu';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

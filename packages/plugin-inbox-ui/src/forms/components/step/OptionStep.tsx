@@ -4,7 +4,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils';
-import { IFormData } from '@erxes/ui/src/forms/types';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';

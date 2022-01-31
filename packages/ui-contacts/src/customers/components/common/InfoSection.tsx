@@ -7,7 +7,7 @@ import { renderFullName } from '@erxes/ui/src/utils';
 import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import React from 'react';
-import { CustomerState, Name, NameContainer } from '@erxes/ui/src/customers/styles';
+import { CustomerState, Name, NameContainer } from '@erxes/ui-contacts/src/customers/styles';
 
 type Props = {
   customer: ICustomer;

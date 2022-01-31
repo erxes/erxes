@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from '../../utils';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';

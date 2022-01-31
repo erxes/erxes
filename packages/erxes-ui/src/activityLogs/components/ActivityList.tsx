@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import { IUser } from '@erxes/ui/src/auth/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IUser } from '../../auth/types';
+import EmptyState from '../../components/EmptyState';
 import { ActivityTitle, Timeline } from '../styles';
 import { IActivityLog } from '../types';
 import ActivityItem from './ActivityItem';

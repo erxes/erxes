@@ -23,7 +23,8 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { metricOptions } from '../constants';
 import { queries } from '../graphql';
-import { Box, DateItem } from '../styles';
+import { DateItem } from '../styles';
+import { Box } from '@erxes/ui-contacts/src/customers/styles';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import { COLORS } from '@erxes/ui/src/constants/colors';
 

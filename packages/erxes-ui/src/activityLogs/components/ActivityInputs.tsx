@@ -1,10 +1,10 @@
 import React from 'react';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import NoteForm from '@erxes/ui/src/internalNotes/containers/Form';
+import Icon from '../../components/Icon';
+import { Tabs, TabTitle } from '../../components/tabs';
+import NoteForm from '../../internalNotes/containers/Form';
 import TicketCommentForm from '@erxes/ui-cards/src/boards/containers/TicketCommentForm';
-import { WhiteBoxRoot } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { WhiteBoxRoot } from '../../layout/styles';
+import { __ } from '../../utils';
 
 type Props = {
   contentType: string;

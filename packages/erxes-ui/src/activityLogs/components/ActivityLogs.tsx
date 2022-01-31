@@ -1,9 +1,9 @@
 import React from 'react';
-import { IUser } from '@erxes/ui/src/auth/types';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { ActivityContent } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { IUser } from '../../auth/types';
+import DataWithLoader from '../../components/DataWithLoader';
+import { Tabs, TabTitle } from '../../components/tabs';
+import { ActivityContent } from '../../styles/main';
+import { __ } from '../../utils';
 import { IActivityLog } from '../types';
 import { hasAnyActivity } from '../utils';
 import ActivityList from './ActivityList';

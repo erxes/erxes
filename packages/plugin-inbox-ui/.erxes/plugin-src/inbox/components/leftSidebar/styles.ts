@@ -1,5 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { SimpleButton, FlexCenter } from '@erxes/ui/src/styles/main';
+import { SimpleButton, FlexCenter, EllipsisContent } from '@erxes/ui/src/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -86,23 +86,6 @@ const MainInfo = styled.div`
   }
 `;
 
-const FlexWidth = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-`;
-
-const CustomerName = styled(FlexCenter)`
-  overflow: hidden;
-
-  time {
-    padding-left: 5px;
-    color: ${colors.colorCoreGray};
-    font-size: 12px;
-  }
-`;
-
 const Count = styled.div`
   min-width: 18px;
   margin-left: 5px;
@@ -116,7 +99,7 @@ const Count = styled.div`
   text-align: center;
 `;
 
-const SmallTextOneLine = styled(FlexWidth)`
+const SmallTextOneLine = styled(EllipsisContent)`
   color: ${colors.colorCoreGray};
   font-size: 12px;
 `;
@@ -309,12 +292,10 @@ export {
   FlexContent,
   CheckBox,
   MainInfo,
-  CustomerName,
   FlexCenter,
   Count,
   SmallTextOneLine,
   MessageContent,
-  FlexWidth,
   AssigneeImg,
   SidebarActions,
   AdditionalSidebar,

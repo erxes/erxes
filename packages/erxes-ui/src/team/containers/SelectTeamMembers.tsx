@@ -1,6 +1,6 @@
-import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import { IUser, IUserDetails } from '../../auth/types';
+import SelectWithSearch from '../../components/SelectWithSearch';
+import { IOption, IQueryParams } from '../../types';
 import React from 'react';
 import { users } from '../graphql';
 

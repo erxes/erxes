@@ -1,10 +1,10 @@
 import Icon from '../Icon';
 import { Tabs, TabTitle } from '../tabs';
-import { __ } from '@erxes/ui/src/utils';
-import FieldForm from '@erxes/ui/src/forms/components/FieldForm';
-import FieldsPreview from '@erxes/ui/src/forms/components/FieldsPreview';
-import { IFormData } from '@erxes/ui/src/forms/types';
-import { IField } from '@erxes/ui/src/types';
+import { __ } from '../../utils';
+import FieldForm from '@erxes/ui-forms/src/forms/components/FieldForm';
+import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { IField } from '../../types';
 import React from 'react';
 import CalloutPreview from './preview/CalloutPreview';
 import FormPreview from './preview/FormPreview';

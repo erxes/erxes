@@ -9,7 +9,7 @@ import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
 import Label from '@erxes/ui/src/components/Label';
 import Icon from '@erxes/ui/src/components/Icon';
-import { DateWrapper } from '@erxes/ui/src/forms/styles';
+import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
 import dayjs from 'dayjs';
 import { Capitalize } from '@erxes/ui-settings/src/styles';
 

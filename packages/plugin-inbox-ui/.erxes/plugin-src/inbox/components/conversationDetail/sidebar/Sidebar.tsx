@@ -8,7 +8,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Box from '@erxes/ui/src/components/Box';
 import { __ } from '@erxes/ui/src/utils';
 import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
-import WebsiteActivity from '@erxes/ui/src/customers/components/WebsiteActivity';
+import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
 import { IConversation } from '../../../types';
@@ -22,7 +22,7 @@ const ActionSection = asyncComponent(() =>
 const CustomFieldsSection = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ '@erxes/ui/src/customers/containers/CustomFieldsSection'
+      /* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ '@erxes/ui-contacts/src/customers/containers/CustomFieldsSection'
     ),
   { height: '200px', width: '100%', color: '#fff' }
 );

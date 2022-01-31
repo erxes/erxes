@@ -4,7 +4,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from '@erxes/ui/src/utils';
 import BasicInfo from '../../containers/detail/BasicInfo';
 import { ICompany } from '@erxes/ui/src/companies/types';
-import { UserHeader } from '@erxes/ui/src/customers/styles';
+import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';

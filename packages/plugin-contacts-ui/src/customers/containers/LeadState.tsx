@@ -13,7 +13,7 @@ import {
   EditMutationResponse,
   ICustomer,
   ICustomerDoc
-} from '@erxes/ui/src/customers/types';
+} from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customer: ICustomer;

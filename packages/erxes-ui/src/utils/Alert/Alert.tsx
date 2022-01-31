@@ -1,7 +1,7 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { darken } from '@erxes/ui/src/styles/ecolor';
-import { slideDown } from '@erxes/ui/src/utils/animations';
+import Icon from '../../components/Icon';
+import { colors, dimensions, typography } from '../../styles';
+import { darken } from '../../styles/ecolor';
+import { slideDown } from '../../utils/animations';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';

@@ -2,7 +2,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '../styles';
-import { LinkButton } from '../styles';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 
 const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;

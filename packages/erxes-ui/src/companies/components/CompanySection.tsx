@@ -1,11 +1,11 @@
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ButtonRelated } from '@erxes/ui/src/styles/main';
-import { __, urlParser } from '@erxes/ui/src/utils';
+import Box from '../../components/Box';
+import EmptyState from '../../components/EmptyState';
+import Icon from '../../components/Icon';
+import ModalTrigger from '../../components/ModalTrigger';
+import { ButtonRelated } from '../../styles/main';
+import { __, urlParser } from '../../utils';
 import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import { SectionBodyItem } from '../../layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CompanyChooser from '../containers/CompanyChooser';

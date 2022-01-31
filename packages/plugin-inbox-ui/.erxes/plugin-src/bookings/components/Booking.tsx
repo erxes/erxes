@@ -28,7 +28,7 @@ import { IField } from '@erxes/ui/src/types';
 import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import FullPreview from '@erxes/ui/src/components/step/FullPreview';
 import { colors } from '@erxes/ui/src/styles';
-import { IForm, IFormData } from '@erxes/ui/src/forms/types';
+import { IForm, IFormData } from '@erxes/ui-forms/src/forms/types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { IAttachment } from '@erxes/ui/src/types';

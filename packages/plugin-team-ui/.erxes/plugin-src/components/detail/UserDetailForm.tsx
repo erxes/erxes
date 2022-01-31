@@ -8,7 +8,7 @@ import { ISkillDocument } from '@erxes/ui-settings/src/skills/types';
 import React from 'react';
 import { IConversation } from '@erxes/ui-inbox/src/types';
 import LeftSidebar from './LeftSidebar';
-import { UserHeader } from '@erxes/ui/src/customers/styles';
+import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import InfoSection from './InfoSection';
 import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import ActionSection from '../../containers/ActionSection';

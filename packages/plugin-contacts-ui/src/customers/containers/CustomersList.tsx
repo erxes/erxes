@@ -16,7 +16,7 @@ import {
   RemoveMutationVariables,
   MergeMutationResponse,
   MergeMutationVariables
-} from '@erxes/ui/src/customers/types';
+} from '@erxes/ui-contacts/src/customers/types';
 import {
   MainQueryResponse,
   ListQueryVariables,

@@ -8,7 +8,7 @@ import { __ } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IBoardSelectItem } from '../types';
-import { LinkButton } from '@erxes/ui-settings/src/styles';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import { FlexRow } from '../styles';
 
 type Props = {

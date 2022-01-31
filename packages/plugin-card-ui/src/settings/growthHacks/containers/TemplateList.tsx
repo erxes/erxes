@@ -9,7 +9,7 @@ import {
 } from '@erxes/ui-settings/src/common/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import commonListComposer from '@erxes/ui-settings/src/utils/commonListComposer';
+import commonListComposer from '@erxes/ui/src/utils/commonListComposer';
 import TemplateList from '../components/TemplateList';
 import { mutations, queries } from '../graphql';
 import { IPipelineTemplate } from '../types';

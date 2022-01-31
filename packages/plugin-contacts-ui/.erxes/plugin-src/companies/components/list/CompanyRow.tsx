@@ -4,7 +4,7 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
-import { ClickableRow } from '@erxes/ui/src/customers/styles';
+import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
 import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';

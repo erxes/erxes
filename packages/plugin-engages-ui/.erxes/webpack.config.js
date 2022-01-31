@@ -103,7 +103,8 @@ module.exports = smp.wrap({
           path.resolve(__dirname, '../../erxes-ui/src'),
           path.resolve(__dirname, 'plugin-src'),
           path.resolve(__dirname, '../../ui-settings/src'),
-          path.resolve(__dirname, '../../ui-segments/src')
+          path.resolve(__dirname, '../../ui-segments/src'),
+          path.resolve(__dirname, '../../ui-contacts/src')
         ],
         use: {
           loader: 'babel-loader',

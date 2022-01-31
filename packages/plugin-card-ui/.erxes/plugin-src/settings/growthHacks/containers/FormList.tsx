@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui/src/forms/graphql';
-import { FormsQueryResponse } from '@erxes/ui/src/forms/types';
+import { queries } from '@erxes/ui-forms/src/forms/graphql';
+import { FormsQueryResponse } from '@erxes/ui-forms/src/forms/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import FormList from '../components/FormList';

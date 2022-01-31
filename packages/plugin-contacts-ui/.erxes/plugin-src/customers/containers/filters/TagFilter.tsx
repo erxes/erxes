@@ -8,7 +8,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { ITag, TagsQueryResponse } from '@erxes/ui/src/tags/types';
 import { queries as customerQueries } from '../../graphql';
-import { CountQueryResponse } from '@erxes/ui/src/customers/types';
+import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 
 const TagFilterContainer = (props: {
   customersCountQuery?: CountQueryResponse;

@@ -73,9 +73,19 @@ const fieldsDefaultColumnsConfig = `
   }
 `;
 
+const forms = `
+  query forms {
+    forms {
+      _id
+      title
+    }
+  }
+`;
+
 export default {
   fieldsDefaultColumnsConfig,
   fieldsCombinedByContentType,
   fields,
-  formDetail
+  formDetail,
+  forms
 };

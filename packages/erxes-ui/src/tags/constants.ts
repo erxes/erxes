@@ -1,4 +1,5 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from '../utils';
+
 export const TAG_TYPES = {
   CONVERSATION: __('conversation'),
   CUSTOMER: __('customer'),

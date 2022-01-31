@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter, Info, InfoTitle } from '@erxes/ui/src/styles/main';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -11,7 +11,7 @@ import {
   CUSTOMER_DATAS,
   CUSTOMER_LINKS
 } from '@erxes/ui-contacts/src/customers/constants';
-import { Info, InfoAvatar, InfoDetail, InfoTitle } from '@erxes/ui/src/customers/styles';
+import { InfoDetail, InfoAvatar } from '@erxes/ui-contacts/src/customers/styles';
 import {
   ICustomer,
   ICustomerDoc,

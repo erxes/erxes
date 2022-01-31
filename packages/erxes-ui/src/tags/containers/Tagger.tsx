@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '../../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Tagger from '../components/Tagger';
