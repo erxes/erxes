@@ -2,13 +2,7 @@ import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import {
-  Conformities,
-  Forms,
-  InternalNotes,
-  FieldsGroups,
-  Fields
-} from './db/models';
+import { Conformities, Forms, FieldsGroups, Fields } from './db/models';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import {
   generateAmounts,
@@ -85,14 +79,6 @@ export const initBroker = async (server?) => {
       status: 'success',
       data: await Conformities.addConformities(doc)
     }));
-
-    consumeQueue(
-      'internalNotes:removeInternalNotes',
-      async ({ type, itemIds }) => ({
-        status: 'success',
-        data: await InternalNotes.removeInternalNotes(type, itemIds)
-      })
-    );
 
     consumeRPCQueue(
       'fields:rpc_queue:prepareCustomFieldsData',

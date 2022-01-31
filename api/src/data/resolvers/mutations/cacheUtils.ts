@@ -1,6 +1,6 @@
 import sift from 'sift';
 
-import { Brands, Products, Tags, Users } from '../../../db/models';
+import { Brands, Products, Users } from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
@@ -40,10 +40,6 @@ export const getDocumentList = async (
 
       case 'products': {
         list = await Products.find().lean();
-        break;
-      }
-      case 'tags': {
-        list = await Tags.find().lean();
         break;
       }
     }

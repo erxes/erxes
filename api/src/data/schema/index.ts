@@ -36,11 +36,6 @@ import {
   types as ImportHistoryTypes
 } from './importHistory';
 import {
-  mutations as InternalNoteMutations,
-  queries as InternalNoteQueries,
-  types as InternalNoteTypes
-} from './internalNote';
-import {
   mutations as PermissionMutations,
   queries as PermissionQueries,
   types as PermissionTypes
@@ -61,20 +56,10 @@ import {
   types as SegmentTypes
 } from './segment';
 import {
-  mutations as TagMutations,
-  queries as TagQueries,
-  types as TagTypes
-} from './tag';
-import {
   mutations as UserMutations,
   queries as UserQueries,
   types as UserTypes
 } from './user';
-import {
-  mutations as WebhookMutations,
-  queries as WebhookQueries,
-  types as WebhookTypes
-} from './webhook';
 import {
   queries as SmsDeliveryQueries,
   types as SmsDeliveryTypes
@@ -105,10 +90,8 @@ export let types = `
   
   ${CommonTypes}
   ${UserTypes}
-  ${InternalNoteTypes}
   ${BrandTypes}
   ${EmailDelivery}
-  ${TagTypes}
   ${FieldTypes}
   ${FormTypes}
   ${ConformityTypes}
@@ -119,7 +102,6 @@ export let types = `
   ${ImportHistoryTypes}
   ${PermissionTypes}
   ${RobotTypes}
-  ${WebhookTypes}
   ${SmsDeliveryTypes}
   ${StructureTypes}
 `;
@@ -130,8 +112,6 @@ export let queries = `
   ${EmailDeliveryQueries}
   ${FieldQueries}
   ${FormQueries}
-  ${TagQueries}
-  ${InternalNoteQueries}
   ${SegmentQueries}
   
   ${ProductQueries}
@@ -140,16 +120,13 @@ export let queries = `
   ${ImportHistoryQueries}
   ${PermissionQueries}
   ${RobotQueries}
-  ${WebhookQueries}
   ${SmsDeliveryQueries}
   ${StructureQueries}
 `;
 
 export let mutations = `
   ${UserMutations}
-  ${TagMutations}
   ${BrandMutations}
-  ${InternalNoteMutations}
   ${SegmentMutations}
   ${FieldMutations}
   ${FormMutatons}
@@ -160,7 +137,6 @@ export let mutations = `
   ${PermissionMutations}
   ${ConformityMutations}
   ${RobotMutations}
-  ${WebhookMutations}
   ${StructureMutations}
 `;
 

@@ -5,7 +5,6 @@ import EmailDelivery from './emailDeliveries';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
 import ImportHistory from './importHistory';
-import InternalNote from './internalNote';
 import Mutation from './mutations';
 import Permission from './permission';
 import Product from './product';
@@ -13,7 +12,6 @@ import ProductCategory from './productCategory';
 import Query from './queries';
 import Segment from './segment';
 import Subscription from './subscriptions';
-import Tag from './tags';
 import User from './user';
 import UsersGroup from './usersGroup';
 import Trigger from './trigger';
@@ -27,7 +25,6 @@ const resolvers: any = {
   ...permissionActions,
 
   Brand,
-  InternalNote,
   Segment,
   EmailDelivery,
 
@@ -45,7 +42,6 @@ const resolvers: any = {
   ImportHistory,
   Permission,
   UsersGroup,
-  Tag,
   Trigger,
   Structure,
   Department,

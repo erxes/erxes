@@ -11,7 +11,6 @@ import {
   ProductCategories,
   Products,
   Segments,
-  Tags,
   Users,
   UsersGroups
 } from '../db/models/index';
@@ -140,20 +139,6 @@ const gatherUsernames = async (params: ILogNameParams): Promise<LogDesc[]> => {
   });
 };
 
-export const gatherTagNames = async (
-  params: ILogNameParams
-): Promise<LogDesc[]> => {
-  const { idFields, foreignKey, prevList } = params;
-
-  return gatherNames({
-    collection: Tags,
-    idFields,
-    foreignKey,
-    prevList,
-    nameFields: ['name']
-  });
-};
-
 /**
  * Finds name field from given collection
  * @param params.collection Collection to find
@@ -204,14 +189,6 @@ const gatherProductFieldNames = async (
 
   if (prevList) {
     options = prevList;
-  }
-
-  if (doc.tagIds && doc.tagIds.length > 0) {
-    options = await gatherTagNames({
-      idFields: doc.tagIds,
-      foreignKey: 'tagIds',
-      prevList: options
-    });
   }
 
   if (doc.categoryId) {

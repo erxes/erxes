@@ -1,8 +1,5 @@
-import { ProductCategories, Products, Tags } from '../../../db/models';
-import {
-  PRODUCT_STATUSES,
-  TAG_TYPES
-} from '../../../db/models/definitions/constants';
+import { ProductCategories, Products } from '../../../db/models';
+import { PRODUCT_STATUSES } from '../../../db/models/definitions/constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { escapeRegExp, paginate } from '../../utils';
@@ -153,14 +150,14 @@ const productQueries = {
     const counts = {};
 
     // Count products by tag =========
-    const tags = await Tags.find({ type: TAG_TYPES.PRODUCT }).lean();
+    // const tags = await Tags.find({ type: TAG_TYPES.PRODUCT }).lean();
 
-    for (const tag of tags) {
-      counts[tag._id] = await Products.find({
-        tagIds: tag._id,
-        status: { $ne: PRODUCT_STATUSES.DELETED }
-      }).countDocuments();
-    }
+    // for (const tag of tags) {
+    //   counts[tag._id] = await Products.find({
+    //     tagIds: tag._id,
+    //     status: { $ne: PRODUCT_STATUSES.DELETED }
+    //   }).countDocuments();
+    // }
 
     return counts;
   }

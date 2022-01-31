@@ -22,7 +22,7 @@ import {
   permissionSchema
 } from '../../../db/models/definitions/permissions';
 // import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
-import { ITagDocument } from '../../../db/models/definitions/tags';
+// import { ITagDocument } from '../../../db/models/definitions/tags';
 // import { ticketSchema } from '../../../db/models/definitions/tickets';
 import {
   IUserDocument,
@@ -36,7 +36,7 @@ import {
   // Integrations,
   // PipelineLabels,
   // Stages,
-  Tags,
+  // Tags,
   Users,
   UsersGroups
 } from '../../../db/models/index';
@@ -333,20 +333,20 @@ export const fillCellValue = async (
 
     //   break;
 
-    case 'tag':
-      const tags: ITagDocument[] = await Tags.find({
-        _id: { $in: item.tagIds }
-      });
+    // case 'tag':
+    //   const tags: ITagDocument[] = await Tags.find({
+    //     _id: { $in: item.tagIds }
+    //   });
 
-      let tagNames = '';
+    //   let tagNames = '';
 
-      for (const tag of tags) {
-        tagNames = tagNames.concat(tag.name, ', ');
-      }
+    //   for (const tag of tags) {
+    //     tagNames = tagNames.concat(tag.name, ', ');
+    //   }
 
-      cellValue = tags ? tagNames : '';
+    //   cellValue = tags ? tagNames : '';
 
-      break;
+    //   break;
 
     // case 'companiesPrimaryNames':
     //   const companyNames = await getCompanyNames(item._id);

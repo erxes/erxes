@@ -7,7 +7,6 @@ import {
 } from './fields';
 import forms from './forms';
 import importHistory from './importHistory';
-import internalNotes from './internalNotes';
 import {
   permissionMutations as permissions,
   usersGroupMutations as usersGroups
@@ -15,16 +14,12 @@ import {
 import products from './products';
 import robot from './robot';
 import segments from './segments';
-import tags from './tags';
 import users from './users';
-import webhooks from './webhooks';
 import structures from './structures';
 
 export default {
   ...users,
-  ...tags,
   ...brands,
-  ...internalNotes,
   ...segments,
   ...fields,
   ...forms,
@@ -36,6 +31,5 @@ export default {
   ...permissions,
   ...usersGroups,
   ...robot,
-  ...webhooks,
   ...structures
 };
