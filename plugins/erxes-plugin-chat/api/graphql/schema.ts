@@ -1,8 +1,8 @@
 export const types = `
   type ChatMessage {
     _id: String!
-    attachments: JSON
     content: String
+    attachments: JSON
     createdUser: User
     createdAt: Date
   }
