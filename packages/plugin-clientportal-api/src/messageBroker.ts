@@ -7,10 +7,10 @@ export const initBroker = (cl) => {
 };
 
 export const sendContactsMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`contacts:rpc_queue${action}`, data);
+  return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
 };
 export const sendCardsMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`cards:rpc_queue${action}`, data);
+  return client.sendRPCMessage(`cards:rpc_queue:${action}`, data);
 };
 
 export default function() {

@@ -2,7 +2,7 @@ import { ClientPortals } from '../../models';
 import { IClientPortal } from '../../models/definitions/clientPortal';
 import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
-import { sendContactsMessage } from '../../messageBroker';
+import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 
 interface ICreateCard {
   type: string;
@@ -71,16 +71,18 @@ const configClientPortalMutations = {
       throw new Error('Customer not registered');
     }
 
-    const collection = type === 'ticket' ? Tickets : Tasks;
-
-    return collection.create({
+    const dataCol = {
       userId: customer._id,
       name: subject,
       description,
       priority,
       stageId,
       status: BOARD_STATUSES.ACTIVE,
-    });
+    };
+
+    return type === 'ticket'
+      ? await sendCardsMessage('createTickets', { dataCol })
+      : await sendCardsMessage('createTasks', { dataCol });
   },
 };
 

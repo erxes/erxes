@@ -17,11 +17,13 @@ export let es: {
 export let debug;
 
 export default {
-  name: 'knowledgebase',
+  name: 'clientportal',
   graphql: {
     typeDefs,
     resolvers,
   },
+  hasSubscriptions: false,
+  segment: {},
 
   apolloServerContext: (context) => {},
   onServerInit: async (options) => {

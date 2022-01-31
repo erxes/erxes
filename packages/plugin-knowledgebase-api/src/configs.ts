@@ -21,6 +21,9 @@ export default {
     typeDefs,
     resolvers,
   },
+  hasSubscriptions: false,
+  segment: {},
+
   apolloServerContext: (context) => {},
   onServerInit: async (options) => {
     await apiConnect();

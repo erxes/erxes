@@ -1,4 +1,21 @@
 export const types = `
+
+  extend type Stage @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Task @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Company @key(fields: "_id") {
+    _id: String! @external
+  }
   type ClientPortal {
     _id: String!
     name: String!

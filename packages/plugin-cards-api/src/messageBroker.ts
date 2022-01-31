@@ -1,3 +1,4 @@
+import { Stages, Tasks, Tickets } from '@erxes/api-utils/src/apiCollections';
 import { Checklists } from './apiCollections';
 import { generateFields } from './fieldUtils';
 import { prepareImportDocs } from './importUtils';
@@ -5,29 +6,64 @@ import { generateConditionStageIds } from './utils';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
 
+  consumeRPCQueue('cards:rpc_queue:createTickets', async (args) => ({
+    status: 'success',
+    data: await Tickets.create(args),
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:createTasks', async (args) => ({
+    status: 'success',
+    data: await Tasks.create(args),
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:findTickets', async (args) => ({
+    status: 'success',
+    data: await Tickets.find(args),
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:findOneTickets', async (args) => ({
+    status: 'success',
+    data: await Tickets.findOne(args),
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:findStages', async (args) => ({
+    status: 'success',
+    data: await Stages.find(args),
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:findTasks', async (args) => ({
+    status: 'success',
+    data: await Tasks.find(args),
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:findOneTasks', async (args) => ({
+    status: 'success',
+    data: await Tasks.findOne(args),
+  }));
+
   consumeQueue('checklists:removeChecklists', async ({ type, itemIds }) => ({
     status: 'success',
-    data: await Checklists.removeChecklists(type, itemIds)
+    data: await Checklists.removeChecklists(type, itemIds),
   }));
 
-  consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
+  consumeRPCQueue('cards:rpc_queue:getFields', async (args) => ({
     status: 'success',
-    data: await generateFields(args)
+    data: await generateFields(args),
   }));
 
-  consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
+  consumeRPCQueue('cards:rpc_queue:getFields', async (args) => ({
     status: 'success',
-    data: await generateFields(args)
+    data: await generateFields(args),
   }));
 
-  consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
+  consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async (args) => ({
     status: 'success',
-    data: await prepareImportDocs(args)
+    data: await prepareImportDocs(args),
   }));
 
   // listen for rpc queue =========
@@ -38,14 +74,14 @@ export const initBroker = async cl => {
 
       const stageIds = await generateConditionStageIds({
         boardId: condition.boardId,
-        pipelineId: condition.pipelineId
+        pipelineId: condition.pipelineId,
       });
 
       if (stageIds.length > 0) {
         positive = {
           terms: {
-            stageId: stageIds
-          }
+            stageId: stageIds,
+          },
         };
       }
 
@@ -83,7 +119,7 @@ export const initBroker = async cl => {
       const stageIds = await generateConditionStageIds({
         boardId: segment.boardId,
         pipelineId: segment.pipelineId,
-        options
+        options,
       });
 
       if (stageIds.length > 0) {
@@ -162,7 +198,7 @@ export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage("rpc_queue:fetchSegment", {
+  sendRPCMessage('rpc_queue:fetchSegment', {
     segment,
     options,
   });
