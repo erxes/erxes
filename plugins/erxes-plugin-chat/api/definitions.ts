@@ -28,11 +28,11 @@ export const VISIBILITIES = {
 
 export const chatMessageSchema = {
   _id: { pkey: true },
-  attachments:{type: [attachmentSchema], label:'attachments'},
+  attachments: { type: [attachmentSchema], label: 'attachments' },
   chatId: { type: String, label: 'Connected chat' },
   content: { type: String, label: 'Content' },
   createdAt: { type: Date, label: 'Created at' },
-  createdBy: { type: String, label: 'Created by' },
+  createdBy: { type: String, label: 'Created by' }
 };
 
 export const chatSchema = {
