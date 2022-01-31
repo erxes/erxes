@@ -21,7 +21,9 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import configs from '../../src/configs';
-import { join } from './serviceDiscovery';
+import { getServices, join } from './serviceDiscovery';
+
+const { MONGO_URL, PORT } = process.env;
 
 export const app = express();
 
@@ -36,9 +38,11 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-if(configs.hasSubscriptions) {
+if (configs.hasSubscriptions) {
   app.get('/subscriptionPlugin.ts', async (req, res) => {
-    res.sendFile(path.join(__dirname, "../../src/graphql/subscriptionPlugin.ts"))
+    res.sendFile(
+      path.join(__dirname, '../../src/graphql/subscriptionPlugin.ts')
+    );
   });
 }
 
@@ -64,42 +68,53 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(msg);
 });
 
-const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
-
 const httpServer = http.createServer(app);
 
-const apolloServer = new ApolloServer({
-  schema: buildSubgraphSchema([
-    {
-      typeDefs: configs.graphql.typeDefs,
-      resolvers: configs.graphql.resolvers
-    }
-  ]),
+const generateApolloServer = async (serviceDiscovery) => {
+  const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
 
-  // for graceful shutdown
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  context: ({ req }) => {
-    let user: any = null;
-
-    if (req.headers.user) {
-      if (Array.isArray(req.headers.user)) {
-        throw new Error(`Multiple user headers`);
+  return new ApolloServer({
+    schema: buildSubgraphSchema([
+      {
+        typeDefs,
+        resolvers
       }
-      const userJson = Buffer.from(req.headers.user, 'base64').toString(
-        'utf-8'
-      );
-      user = JSON.parse(userJson);
+    ]),
+
+    // for graceful shutdown
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    context: ({ req }) => {
+      let user: any = null;
+
+      if (req.headers.user) {
+        if (Array.isArray(req.headers.user)) {
+          throw new Error(`Multiple user headers`);
+        }
+        const userJson = Buffer.from(req.headers.user, 'base64').toString(
+          'utf-8'
+        );
+        user = JSON.parse(userJson);
+      }
+
+      const context = { user };
+
+      configs.apolloServerContext(context);
+
+      return context;
     }
-
-    const context = { user, docModifier: doc => ({ ...doc }) };
-
-    configs.apolloServerContext(context);
-
-    return context;
-  }
-});
+  });
+}
 
 async function startServer() {
+  const serviceDiscovery = {
+    isAvailable: async (name) => {
+      const serviceNames = await getServices();
+
+      return serviceNames.includes(name);
+    }
+  }
+
+  const apolloServer = await generateApolloServer(serviceDiscovery);
   await apolloServer.start();
 
   apolloServer.applyMiddleware({ app, path: '/graphql' });
@@ -118,7 +133,7 @@ async function startServer() {
     // connect to mongo database
     await connect(mongoUrl);
     const messageBrokerClient = await initBroker(configs.name, app);
-    
+
     configs.onServerInit({
       app,
       pubsubClient: pubsub,
@@ -135,7 +150,8 @@ async function startServer() {
       port: PORT || '',
       dbConnectionString: mongoUrl,
       segment: configs.segment,
-      hasSubscriptions: configs.hasSubscriptions
+      hasSubscriptions: configs.hasSubscriptions,
+      importTypes: configs.importTypes
     });
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);

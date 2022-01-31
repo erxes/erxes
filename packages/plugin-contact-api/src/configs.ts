@@ -26,10 +26,13 @@ export let debug;
 
 export default {
   name: 'contact',
-  graphql: {
-    typeDefs,
-    resolvers
+  graphql: async (serviceDiscovery) => {
+    return {
+      typeDefs: await typeDefs(serviceDiscovery),
+      resolvers
+    }
   },
+  importTypes: [],
   hasSubscriptions: false,
   segment: {
     indexesTypeContentType: {

@@ -1,33 +1,37 @@
 import { gql } from 'apollo-server-express';
 
 import {
-  types as CustomerTypes,
+  types as customerTypes,
   queries as CustomerQueries,
   mutations as CustomerMutations
 } from './customer';
 
 import {
-  types as CompanyTypes,
+  types as companyTypes,
   queries as CompanyQueries,
   mutations as CompanyMutations
 } from './company';
 
-const typeDefs = gql`
-  scalar JSON
-  scalar Date
+const typeDefs = async (serviceDiscovery) =>  {
+  const tagsAvailable = await serviceDiscovery.isAvailable('tags');
 
-  ${CustomerTypes}
-  ${CompanyTypes}
-  
-  extend type Query {
-    ${CustomerQueries}
-    ${CompanyQueries}
-  }
+  return gql`
+    scalar JSON
+    scalar Date
 
-  extend type Mutation {
-    ${CustomerMutations}
-    ${CompanyMutations}
-  }
-`;
+    ${customerTypes(tagsAvailable)}
+    ${companyTypes(tagsAvailable)}
+    
+    extend type Query {
+      ${CustomerQueries}
+      ${CompanyQueries}
+    }
+
+    extend type Mutation {
+      ${CustomerMutations}
+      ${CompanyMutations}
+    }
+  `;
+}
 
 export default typeDefs;
