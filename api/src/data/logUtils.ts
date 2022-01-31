@@ -6,16 +6,10 @@ import {
 import * as _ from 'underscore';
 
 import { IUserDocument } from '../db/models/definitions/users';
-import { debugError } from '../debuggers';
 import messageBroker from '../messageBroker';
 import { RABBITMQ_QUEUES } from './constants';
 
-import {
-  getSubServiceDomain,
-  registerOnboardHistory,
-  sendRequest,
-  sendToWebhook
-} from './utils';
+import { registerOnboardHistory, sendToWebhook } from './utils';
 
 export type LogDesc = {
   [key: string]: any;
@@ -146,30 +140,6 @@ export const putDeleteLog = async (
   });
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
-};
-
-/**
- * Sends a request to logs api
- * @param {Object} param0 Request
- */
-export const fetchLogs = async (
-  params: ILogQueryParams | IActivityLogQueryParams,
-  type = 'logs'
-) => {
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
-
-  try {
-    const response = await sendRequest({
-      url: `${LOGS_DOMAIN}/${type}`,
-      method: 'get',
-      body: { params: JSON.stringify(params) }
-    });
-    return response;
-  } catch (e) {
-    debugError(
-      `Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running: ${e.message}`
-    );
-  }
 };
 
 export const sendToLog = (channel: string, data) =>
