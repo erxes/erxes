@@ -8,7 +8,7 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import ActionSection from '../components/detail/ActionSection';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-team/src/graphql';
 
 type Props = {
   user: IUser;

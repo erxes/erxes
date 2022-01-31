@@ -10,7 +10,7 @@ import {
 } from '@erxes/ui-settings/src/skills/types';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
-import mutations from '../../graphql/mutations';
+import mutations from '@erxes/ui-team/src/graphql/mutations';
 
 type Props = {
   refetchSkills: (memberId: string) => void;

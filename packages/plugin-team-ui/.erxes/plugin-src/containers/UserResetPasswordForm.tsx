@@ -5,7 +5,7 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import UserResetPasswordForm from '../components/UserResetPasswordForm';
-import { mutations } from '../graphql';
+import { mutations } from '@erxes/ui-team/src/graphql';
 import { ResetMemberPasswordResponse } from '@erxes/ui-team/src/types';
 
 type Props = {

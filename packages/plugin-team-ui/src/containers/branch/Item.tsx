@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { mutations } from '../../graphql';
+import { mutations } from '@erxes/ui-team/src/graphql';
 import Item from '../../components/branch/Item';
 import { IBranch } from '@erxes/ui-team/src/types';
 

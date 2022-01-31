@@ -7,7 +7,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import UserConfirmation from '../components/UserConfirmation';
-import { mutations } from '../graphql';
+import { mutations } from '@erxes/ui-team/src/graphql';
 import {
   ConfirmMutationResponse,
   ConfirmMutationVariables

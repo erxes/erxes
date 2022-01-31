@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-team/src/graphql';
 import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
 import UserInvitationForm from '../components/UserInvitationForm';
 import {

@@ -17,7 +17,7 @@ import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
 import skillQueries from '@erxes/ui-settings/src/skills/graphql/queries';
 import UserDetailForm from '../components/detail/UserDetailForm';
 import UserSkillForm from '../components/detail/UserSkillForm';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-team/src/graphql';
 import {
   UserConverationsQueryResponse,
   UserDetailQueryResponse

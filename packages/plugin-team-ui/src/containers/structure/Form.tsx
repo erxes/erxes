@@ -1,7 +1,7 @@
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { mutations } from '../../graphql';
+import { mutations } from '@erxes/ui-team/src/graphql';
 import Form from '../../components/structure/Form';
 import { IStructure } from '@erxes/ui-team/src/types';
 

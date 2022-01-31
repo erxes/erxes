@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-apollo';
 import Select from 'react-select-plus';
 
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-team/src/graphql';
 
 type Props = {
   onSelect: (value: string[] | string) => void;

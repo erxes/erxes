@@ -2,7 +2,7 @@ import React from 'react';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from '../../components/branch/Form';
-import { mutations, queries } from '../../graphql';
+import { mutations, queries } from '@erxes/ui-team/src/graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 import { IBranch } from '@erxes/ui-team/src/types';
