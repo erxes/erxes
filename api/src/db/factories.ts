@@ -128,12 +128,18 @@ export const activityLogFactory = async (
 });
 
 interface IDashboardFactoryInput {
+  relatedIds?: string[];
   name?: string;
+  parentId?: string;
+  description?: string;
 }
 
 export const dashboardFactory = async (params: IDashboardFactoryInput) => {
   const dashboard = new Dashboards({
-    name: params.name || 'name'
+    name: params.name || faker.random.word(),
+    parentId: params.parentId,
+    description: params.description || faker.random.word(),
+    relatedIds: params.relatedIds || []
   });
 
   return dashboard.save();

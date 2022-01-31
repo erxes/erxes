@@ -20,7 +20,9 @@ export default function GeneralContainer(props: Props) {
     variables: { kind: 'lead' }
   });
   const kbQuery = useQuery(gql(queries.knowledgeBaseTopics));
+
   const [kbCategories, setKbCategories] = useState({});
+  const [forms, setForms] = useState();
 
   if (brandsQuery.loading || kbQuery.loading) {
     return <Spinner />;
@@ -49,9 +51,23 @@ export default function GeneralContainer(props: Props) {
       });
   };
 
+  const getForms = (brandId: string) => {
+    client
+      .query({
+        query: gql(queries.integrations),
+        fetchPolicy: 'network-only',
+        variables: { brandId, kind: 'lead' }
+      })
+      .then(({ data }) => {
+        setForms(data.integrations);
+      });
+  };
+
   return (
     <General
       {...props}
+      forms={forms}
+      getForms={getForms}
       kbTopics={kbQuery.data.knowledgeBaseTopics || []}
       kbCategories={kbCategories}
       getKbCategories={getKbCategories}

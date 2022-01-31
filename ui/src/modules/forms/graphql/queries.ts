@@ -160,6 +160,11 @@ const fields = `
       content
       description
       options
+      locationOptions {
+        description
+        lat
+        lng
+      }
       isRequired
       order
       column
@@ -217,6 +222,44 @@ const forms = `
   }
 `;
 
+const formSubmissions = `
+query formSubmissions(
+  $tagId: String
+  $formId: String
+  $contentTypeIds: [String]
+  $filters: [SubmissionFilter]
+) {
+  formSubmissions(
+    tagId: $tagId
+    formId: $formId
+    contentTypeIds: $contentTypeIds
+    filters: $filters
+  ) {
+    contentTypeId
+    customerId
+    createdAt
+    customer {
+      primaryEmail
+      primaryPhone
+      lastName
+      firstName
+    }
+    createdAt
+    submissions {
+      formFieldId
+      value
+      submittedAt
+    }
+  }
+}
+`;
+
+const formSubmissionTotalCount = `
+  query formSubmissionsTotalCount($integrationId: String!) {
+    formSubmissionsTotalCount(integrationId: $integrationId)
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
@@ -226,5 +269,7 @@ export default {
   forms,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig,
-  fields
+  fields,
+  formSubmissions,
+  formSubmissionTotalCount
 };

@@ -22,6 +22,7 @@ const dashBoardQueries = {
       ? {}
       : {
           $or: [
+            { visibility: { $exists: null } },
             { visibility: 'public' },
             {
               $and: [
@@ -34,7 +35,7 @@ const dashBoardQueries = {
           ]
         };
 
-    return Dashboards.find(dashboardFilter);
+    return Dashboards.find(dashboardFilter).sort({ order: 1 });
   },
 
   dashboardDetails(_root, { _id }: { _id: string }) {
