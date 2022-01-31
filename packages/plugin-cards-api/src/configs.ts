@@ -20,9 +20,11 @@ export let debug;
 
 export default {
   name: 'cards',
-  graphql: {
-    typeDefs,
-    resolvers
+  graphql: async (serviceDiscovery) => {
+    return {
+      typeDefs: await typeDefs(serviceDiscovery),
+      resolvers
+    }
   },
   segment: {
     indexesTypeContentType: {

@@ -7,7 +7,7 @@ import {
   copyParams
 } from './common';
 
-export const types = `
+export const types = (contactsAvailable) => `
   type DealListItem {
     products: JSON
     amount: JSON
@@ -17,8 +17,16 @@ export const types = `
   type Deal {
     _id: String!
     amount: JSON
-    companies: [Company]
-    customers: [Customer]
+
+    ${
+      contactsAvailable ?
+      `
+      companies: [Company]
+      customers: [Customer]
+      `
+      : ''
+    }
+
     products: JSON
     productsData: JSON
     paymentsData: JSON

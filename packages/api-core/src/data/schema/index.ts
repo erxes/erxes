@@ -64,9 +64,6 @@ import {
 export let types = `
   scalar JSON
   scalar Date
-  extend type Customer @key(fields: "_id") {
-    _id: String! @external
-  }
 
   enum CacheControlScope {
     PUBLIC

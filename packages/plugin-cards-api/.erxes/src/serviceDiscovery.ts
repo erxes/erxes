@@ -13,6 +13,10 @@ const registry = new ServiceRegistry(redis, {});
 
 const generateKey = name => `service:config:${name}`;
 
+export const getServices = () => {
+  return registry.services();
+}
+
 export const join = ({
   name,
   port,
