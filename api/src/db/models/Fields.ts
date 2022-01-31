@@ -6,12 +6,7 @@ import { Model, model } from 'mongoose';
 import * as validator from 'validator';
 import { Forms } from '.';
 import {
-  COMPANY_INFO,
-  CONVERSATION_INFO,
-  CUSTOMER_BASIC_INFO,
-  DEVICE_PROPERTIES_INFO,
   FIELD_CONTENT_TYPES,
-  PRODUCT_INFO,
   PROPERTY_GROUPS,
   USER_PROPERTIES_INFO
 } from '../../data/constants';
@@ -404,61 +399,61 @@ export const loadFieldClass = () => {
       contentType: string
     ) {
       switch (contentType) {
-        case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
-          const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
-            text: e.label,
-            type: e.field,
-            canHide: e.canHide,
-            validation: e.validation,
-            groupId,
-            contentType,
-            isDefinedByErxes: true
-          }));
-          await Fields.insertMany(customerFields);
-          break;
-        case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
-          const companyFields = COMPANY_INFO.ALL.map(e => ({
-            text: e.label,
-            type: e.field,
-            canHide: e.canHide,
-            validation: e.validation,
-            groupId,
-            contentType,
-            isDefinedByErxes: true
-          }));
-          await Fields.insertMany(companyFields);
-          break;
-        case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
-          const productFields = PRODUCT_INFO.ALL.map(e => ({
-            text: e.label,
-            type: e.field,
-            groupId,
-            contentType,
-            canHide: false,
-            isDefinedByErxes: true
-          }));
-          await Fields.insertMany(productFields);
-          break;
-        case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
-          const conversationFields = CONVERSATION_INFO.ALL.map(e => ({
-            text: e.label,
-            type: e.field,
-            groupId,
-            contentType,
-            isDefinedByErxes: true
-          }));
-          await Fields.insertMany(conversationFields);
-          break;
-        case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
-          const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => ({
-            text: e.label,
-            type: e.field,
-            groupId,
-            contentType,
-            isDefinedByErxes: true
-          }));
-          await Fields.insertMany(deviceFields);
-          break;
+        // case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
+        //   const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
+        //     text: e.label,
+        //     type: e.field,
+        //     canHide: e.canHide,
+        //     validation: e.validation,
+        //     groupId,
+        //     contentType,
+        //     isDefinedByErxes: true
+        //   }));
+        //   await Fields.insertMany(customerFields);
+        //   break;
+        // case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
+        //   const companyFields = COMPANY_INFO.ALL.map(e => ({
+        //     text: e.label,
+        //     type: e.field,
+        //     canHide: e.canHide,
+        //     validation: e.validation,
+        //     groupId,
+        //     contentType,
+        //     isDefinedByErxes: true
+        //   }));
+        //   await Fields.insertMany(companyFields);
+        //   break;
+        // case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
+        //   const productFields = PRODUCT_INFO.ALL.map(e => ({
+        //     text: e.label,
+        //     type: e.field,
+        //     groupId,
+        //     contentType,
+        //     canHide: false,
+        //     isDefinedByErxes: true
+        //   }));
+        //   await Fields.insertMany(productFields);
+        //   break;
+        // case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
+        //   const conversationFields = CONVERSATION_INFO.ALL.map(e => ({
+        //     text: e.label,
+        //     type: e.field,
+        //     groupId,
+        //     contentType,
+        //     isDefinedByErxes: true
+        //   }));
+        //   await Fields.insertMany(conversationFields);
+        //   break;
+        // case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
+        //   const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => ({
+        //     text: e.label,
+        //     type: e.field,
+        //     groupId,
+        //     contentType,
+        //     isDefinedByErxes: true
+        //   }));
+        //   await Fields.insertMany(deviceFields);
+        //   break;
         case FIELDS_GROUPS_CONTENT_TYPES.USER:
           const userFields = USER_PROPERTIES_INFO.ALL.map(e => ({
             text: e.label,

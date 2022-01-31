@@ -5,8 +5,6 @@ import {
   IFieldGroup
 } from '../../../db/models/definitions/fields';
 import { IOrderInput } from '../../../db/models/Fields';
-import { MODULE_NAMES } from '../../constants';
-import { putCreateLog } from '../../logUtils';
 import { getBoardsAndPipelines } from '../../modules/fields/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -42,15 +40,15 @@ const fieldMutations = {
       lastUpdatedUserId: user._id
     });
 
-    await putCreateLog(
-      {
-        type: MODULE_NAMES.FIELD,
-        newData: args,
-        object: field,
-        description: `Field "${args.text}" has been created`
-      },
-      user
-    );
+    // await putCreateLog(
+    //   {
+    //     type: MODULE_NAMES.FIELD,
+    //     newData: args,
+    //     object: field,
+    //     description: `Field "${args.text}" has been created`
+    //   },
+    //   user
+    // );
 
     return field;
   },
@@ -188,15 +186,15 @@ const fieldsGroupsMutations = {
       docModifier({ ...doc, lastUpdatedUserId: user._id })
     );
 
-    await putCreateLog(
-      {
-        type: MODULE_NAMES.FIELD_GROUP,
-        newData: doc,
-        object: fieldGroup,
-        description: `Field group "${doc.name}" has been created`
-      },
-      user
-    );
+    // await putCreateLog(
+    //   {
+    //     type: MODULE_NAMES.FIELD_GROUP,
+    //     newData: doc,
+    //     object: fieldGroup,
+    //     description: `Field group "${doc.name}" has been created`
+    //   },
+    //   user
+    // );
 
     return fieldGroup;
   },

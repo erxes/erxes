@@ -4,7 +4,7 @@ import * as moment from 'moment';
 //   IStageDocument
 // } from '../../../db/models/definitions/boards';
 import {
-  brandSchema,
+  // brandSchema,
   IBrandDocument
 } from '../../../db/models/definitions/brands';
 // import { channelSchema } from '../../../db/models/definitions/channels';
@@ -18,15 +18,15 @@ import {
 // } from '../../../db/models/definitions/customers';
 // import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import {
-  IUserGroupDocument,
-  permissionSchema
+  IUserGroupDocument
+  // permissionSchema
 } from '../../../db/models/definitions/permissions';
 // import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
 // import { ITagDocument } from '../../../db/models/definitions/tags';
 // import { ticketSchema } from '../../../db/models/definitions/tickets';
 import {
-  IUserDocument,
-  userSchema
+  IUserDocument
+  // userSchema
 } from '../../../db/models/definitions/users';
 import {
   Brands,
@@ -41,45 +41,16 @@ import {
   UsersGroups
 } from '../../../db/models/index';
 
-import { MODULE_NAMES } from '../../constants';
-import {
-  // BOARD_BASIC_INFOS,
-  BRAND_BASIC_INFOS,
-  // CHANNEL_BASIC_INFOS,
-  // COMPANY_BASIC_INFOS,
-  // CUSTOMER_BASIC_INFOS,
-  PERMISSION_BASIC_INFOS,
-  USER_BASIC_INFOS
-} from './constants';
-
 export interface IColumnLabel {
   name: string;
   label: string;
 }
 
-const findSchemaLabels = (
-  schema: any,
-  basicFields: string[]
-): IColumnLabel[] => {
-  const fields: IColumnLabel[] = [];
-
-  for (const name of basicFields) {
-    const field = schema.obj ? schema.obj[name] : schema[name];
-
-    if (field && field.label) {
-      fields.push({ name, label: field.label });
-    } else {
-      fields.push({ name, label: name });
-    }
-  }
-
-  return fields;
-};
-
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
-  let columnNames: IColumnLabel[] = [];
+  const columnNames: IColumnLabel[] = [];
 
-  switch (itemType) {
+  switch (
+    itemType
     // case MODULE_NAMES.COMPANY:
     //   columnNames = findSchemaLabels(companySchema, COMPANY_BASIC_INFOS);
     //   break;
@@ -96,20 +67,21 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
     //     'source'
     //   ]);
     //   break;
-    case MODULE_NAMES.USER:
-      columnNames = findSchemaLabels(userSchema, USER_BASIC_INFOS);
-      break;
-    case MODULE_NAMES.BRAND:
-      columnNames = findSchemaLabels(brandSchema, BRAND_BASIC_INFOS);
-      break;
-    // case MODULE_NAMES.CHANNEL:
-    //   columnNames = findSchemaLabels(channelSchema, CHANNEL_BASIC_INFOS);
+    // case MODULE_NAMES.USER:
+    //   columnNames = findSchemaLabels(userSchema, USER_BASIC_INFOS);
     //   break;
-    case MODULE_NAMES.PERMISSION:
-      columnNames = findSchemaLabels(permissionSchema, PERMISSION_BASIC_INFOS);
-      break;
-    default:
-      break;
+    // case MODULE_NAMES.BRAND:
+    //   columnNames = findSchemaLabels(brandSchema, BRAND_BASIC_INFOS);
+    //   break;
+    // // case MODULE_NAMES.CHANNEL:
+    // //   columnNames = findSchemaLabels(channelSchema, CHANNEL_BASIC_INFOS);
+    // //   break;
+    // case MODULE_NAMES.PERMISSION:
+    //   columnNames = findSchemaLabels(permissionSchema, PERMISSION_BASIC_INFOS);
+    //   break;
+    // default:
+    //   break;
+  ) {
   }
 
   return columnNames;

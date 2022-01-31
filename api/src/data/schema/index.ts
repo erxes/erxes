@@ -14,10 +14,6 @@ import {
   types as ConformityTypes
 } from './conformity';
 import {
-  queries as EmailDeliveryQueries,
-  types as EmailDelivery
-} from './emailDelivery';
-import {
   fieldsGroupsMutations as FieldGroupMutations,
   fieldsGroupsQueries as FieldGroupQueries,
   fieldsGroupsTypes as FieldGroupTypes,
@@ -86,7 +82,6 @@ export let types = `
   ${CommonTypes}
   ${UserTypes}
   ${BrandTypes}
-  ${EmailDelivery}
   ${FieldTypes}
   ${FormTypes}
   ${ConformityTypes}
@@ -103,7 +98,6 @@ export let types = `
 export let queries = `
   ${UserQueries}
   ${BrandQueries}
-  ${EmailDeliveryQueries}
   ${FieldQueries}
   ${FormQueries}
   ${SegmentQueries}

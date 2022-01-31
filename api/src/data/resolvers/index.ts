@@ -1,7 +1,6 @@
 import * as permissionActions from '../permissions/actions';
 import Brand from './brand';
 import customScalars from './customScalars';
-import EmailDelivery from './emailDeliveries';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
 import ImportHistory from './importHistory';
@@ -24,7 +23,6 @@ const resolvers: any = {
 
   Brand,
   Segment,
-  EmailDelivery,
 
   Mutation,
   Query,

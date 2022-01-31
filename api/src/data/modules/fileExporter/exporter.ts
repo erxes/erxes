@@ -1,17 +1,16 @@
 import * as moment from 'moment';
 import {
-  Brands,
+  // Brands,
   Fields,
-  Permissions,
-  Segments,
+  // Permissions,
+  Segments
   // Tasks,
   // Tickets,
-  Users
+  // Users
 } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugBase } from '../../../debuggers';
-import { MODULE_NAMES } from '../../constants';
-import { can } from '../../permissions/utils';
+// import { can } from '../../permissions/utils';
 import { createXlsFile, generateXlsx } from '../../utils';
 // import {
 //   Builder as CompanyBuildQuery,
@@ -25,10 +24,14 @@ import { fetchSegment } from '../segments/queryBuilder';
 import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
-const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
+// const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
+const prepareData = async (
+  query: any,
+  _user: IUserDocument
+): Promise<any[]> => {
   const { type, segment } = query;
 
-  let data: any[] = [];
+  const data: any[] = [];
 
   const boardItemsFilter: any = {};
 
@@ -40,7 +43,8 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  switch (type) {
+  switch (
+    type
     // case MODULE_NAMES.COMPANY:
     //   if (!(await can('exportCompanies', user))) {
     //     throw new Error('Permission denied');
@@ -188,40 +192,41 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
     //   data = await Tickets.find(boardItemsFilter);
 
     //   break;
-    case MODULE_NAMES.USER:
-      if (!(await can('exportUsers', user))) {
-        throw new Error('Permission denied');
-      }
+    // case MODULE_NAMES.USER:
+    //   if (!(await can('exportUsers', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      data = await Users.find({ isActive: true });
+    //   data = await Users.find({ isActive: true });
 
-      break;
-    case MODULE_NAMES.PERMISSION:
-      if (!(await can('exportPermissions', user))) {
-        throw new Error('Permission denied');
-      }
+    //   break;
+    // case MODULE_NAMES.PERMISSION:
+    //   if (!(await can('exportPermissions', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      data = await Permissions.find();
+    //   data = await Permissions.find();
 
-      break;
-    case MODULE_NAMES.BRAND:
-      if (!(await can('exportBrands', user))) {
-        throw new Error('Permission denied');
-      }
+    //   break;
+    // case MODULE_NAMES.BRAND:
+    //   if (!(await can('exportBrands', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      data = await Brands.find();
+    //   data = await Brands.find();
 
-      break;
-      // case MODULE_NAMES.CHANNEL:
-      //   if (!(await can('exportChannels', user))) {
-      //     throw new Error('Permission denied');
-      //   }
+    //   break;
+    // case MODULE_NAMES.CHANNEL:
+    //   if (!(await can('exportChannels', user))) {
+    //     throw new Error('Permission denied');
+    //   }
 
-      //   data = await Channels.find();
+    //   data = await Channels.find();
 
-      break;
-    default:
-      break;
+    //   break;
+    // default:
+    //   break;
+  ) {
   }
 
   return data;
@@ -325,7 +330,8 @@ export const buildFile = async (
   const columnNames: string[] = [];
   let rowIndex: number = 1;
 
-  if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
+  // if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
+  if (query.form && query.popupData) {
     await buildLeadFile(data, query.form, sheet, columnNames, rowIndex);
 
     type = 'Forms';
