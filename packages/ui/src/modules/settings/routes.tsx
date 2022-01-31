@@ -21,7 +21,6 @@ import PropertiesRoutes from './properties/routes';
 import ScriptsRoutes from './scripts/routes';
 // import SkillsRoutes from './skills/routes';
 import StatusRoutes from './status/routes';
-// import TeamRoutes from './team/routes';
 import WebhookRoutes from './webhook/routes';
 import SmsDeliveryRoutes from './smsDeliveries/routes';
 
@@ -32,7 +31,6 @@ const routes = () => (
     <BrandsRoutes key="BrandsRoutes" />
     {/* <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" /> */}
     <ProfileRoutes key="profile" />
-    {/* <TeamRoutes key="team" /> */}
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <ScriptsRoutes key="ScriptsRoutes" />
     {/* <IntegrationsRoutes key="IntegrationsRoutes" /> */}
