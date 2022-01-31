@@ -33,7 +33,7 @@ const params = `
 
 export const queries = `
   notifications(${params}): [Notification]
-  notificationCounts(requireRead: Boolean): Int
+  notificationCounts(requireRead: Boolean, notifType: String): Int
   notificationsModules : [JSON]
   notificationsGetConfigurations : [NotificationConfiguration]
 `;
