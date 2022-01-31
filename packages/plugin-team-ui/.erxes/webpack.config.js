@@ -21,7 +21,6 @@ const deps = require('./package.json').dependencies;
 const depNames = Object.keys(deps);
 
 const shared = {};
-console.log(depNames)
 for (const name of depNames) {
   shared[name] = {
     singleton: true
@@ -75,6 +74,7 @@ module.exports = {
           path.resolve(__dirname, '../../ui-products/src'),
           path.resolve(__dirname, '../../ui-segments/src'),
           path.resolve(__dirname, '../../ui-contacts/src'),
+          path.resolve(__dirname, '../../ui-team/src'),
           path.resolve(__dirname, 'plugin-src')
         ],
         use: {
@@ -110,7 +110,7 @@ module.exports = {
           requiredVersion: '1.0.0',
           singleton: true
         },
-        'dayjs': {
+        dayjs: {
           requiredVersion: '1.8.15',
           singleton: true
         }
