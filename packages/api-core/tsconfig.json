@@ -6,14 +6,13 @@
     "moduleResolution": "node",
     "module": "commonjs",
     "lib": ["es2015", "es6", "es7", "esnext.asynciterable"],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
-    "strict": true,
-    "baseUrl": ".",
-    "paths": {
-      "@erxes/api-utils/*": ["../../api-utils/*"]
-    },
+    "strict": true
   },
-  "exclude": ["node_modules", "dist"],
+  "include": ["./src/**/*.ts", "typings.d.ts", "../packages/plugin-contact-api/src/verifierUtils.ts"],
+  "exclude": ["node_modules", "dist"]
 }

@@ -4,17 +4,23 @@ const commonTypes = `
   type: String
 `;
 
-export const types = `
+export const types = (contactsAvailable) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
-  extend type Company @key(fields: "_id") {
-    _id: String! @external
-  }
+  ${
+    contactsAvailable ?
+    `
+      extend type Company @key(fields: "_id") {
+        _id: String! @external
+      }
 
-  extend type Customer @key(fields: "_id") {
-    _id: String! @external
+      extend type Customer @key(fields: "_id") {
+        _id: String! @external
+      }
+    `
+    : ''
   }
 
   type Board @key(fields: "_id") {

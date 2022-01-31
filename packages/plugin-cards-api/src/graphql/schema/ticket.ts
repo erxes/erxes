@@ -7,7 +7,7 @@ import {
   copyParams,
 } from './common';
 
-export const types = `
+export const types = (contactsAvailable) => `
   type TicketListItem {
     ${commonListTypes}
   }
@@ -15,8 +15,14 @@ export const types = `
   type Ticket @key(fields: "_id") {
     _id: String!
     source: String
-    companies: [Company]
-    customers: [Customer]
+    ${
+      contactsAvailable ?
+      `
+      companies: [Company]
+      customers: [Customer]
+      `
+      : ''
+    }
     ${commonTypes}
   }
 `;
