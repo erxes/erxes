@@ -92,7 +92,7 @@ const permissionQueries = {
     const modules: IModuleMap[] = [];
 
     for (const m of _.pairs(modulesMap)) {
-      modules.push({ name: m[0], description: m[1] });
+      modules.push({ name: m[0], description: m[1].description });
     }
 
     return modules;

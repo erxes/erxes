@@ -2,7 +2,6 @@ import { ApolloServer, gql } from 'apollo-server-express';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { buildSubgraphSchema } from '@apollo/federation';
 import * as dotenv from 'dotenv';
-import { HelpersApi } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
@@ -11,12 +10,6 @@ import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 dotenv.config();
 
 const { USE_BRAND_RESTRICTIONS } = process.env;
-
-const generateDataSources = () => {
-  return {
-    HelpersApi: new HelpersApi()
-  };
-};
 
 let apolloServer;
 
@@ -42,7 +35,6 @@ export const initApolloServer = async (_app, httpServer) => {
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    dataSources: generateDataSources,
     context: ({ req, res }) => {
       let user: any = null;
 

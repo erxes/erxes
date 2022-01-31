@@ -8,8 +8,8 @@
     "lib": ["es2015", "es6", "es7", "esnext.asynciterable"],
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "strict": true,
     "useUnknownInCatchVariables": false,
+    "strict": true,
     "baseUrl": ".",
     "paths": {
       "@erxes/api-utils/*": ["../../api-utils/*"]
