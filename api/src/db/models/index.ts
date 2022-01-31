@@ -2,7 +2,6 @@ import Brands from './Brands';
 import Configs from './Configs';
 import Conformities from './Conformities';
 import EmailDeliveries from './EmailDeliveries';
-import EmailTemplates from './EmailTemplates';
 import { Fields, FieldsGroups } from './Fields';
 import { Forms, FormSubmissions } from './Forms';
 import ImportHistory from './ImportHistory';
@@ -19,7 +18,6 @@ import { Structures, Departments, Units, Branches } from './Structure';
 export {
   EmailDeliveries,
   Users,
-  EmailTemplates,
   Brands,
   Forms,
   FormSubmissions,

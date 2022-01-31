@@ -18,11 +18,6 @@ import {
   types as EmailDelivery
 } from './emailDelivery';
 import {
-  mutations as EmailTemplateMutations,
-  queries as EmailTemplateQueries,
-  types as EmailTemplate
-} from './emailTemplate';
-import {
   fieldsGroupsMutations as FieldGroupMutations,
   fieldsGroupsQueries as FieldGroupQueries,
   fieldsGroupsTypes as FieldGroupTypes,
@@ -112,7 +107,6 @@ export let types = `
   ${UserTypes}
   ${InternalNoteTypes}
   ${BrandTypes}
-  ${EmailTemplate}
   ${EmailDelivery}
   ${TagTypes}
   ${FieldTypes}
@@ -133,7 +127,6 @@ export let types = `
 export let queries = `
   ${UserQueries}
   ${BrandQueries}
-  ${EmailTemplateQueries}
   ${EmailDeliveryQueries}
   ${FieldQueries}
   ${FormQueries}
@@ -156,7 +149,6 @@ export let mutations = `
   ${UserMutations}
   ${TagMutations}
   ${BrandMutations}
-  ${EmailTemplateMutations}
   ${InternalNoteMutations}
   ${SegmentMutations}
   ${FieldMutations}

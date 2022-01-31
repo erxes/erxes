@@ -1,7 +1,6 @@
 import brands from './brands';
 import configs from './configs';
 import emailDeliveries from './emailDelivery';
-import emailTemplates from './emailTemplates';
 import {
   fieldQueries as fields,
   fieldsGroupQueries as fieldsgroups
@@ -26,7 +25,6 @@ export default {
   ...users,
   ...brands,
   ...fields,
-  ...emailTemplates,
   ...emailDeliveries,
   ...forms,
   ...tags,

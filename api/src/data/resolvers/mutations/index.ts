@@ -1,7 +1,6 @@
 import brands from './brands';
 import configs from './configs';
 import conformity from './conformities';
-import emailTemplates from './emailTemplates';
 import {
   fieldMutations as fields,
   fieldsGroupsMutations as fieldsgroups
@@ -28,7 +27,6 @@ export default {
   ...internalNotes,
   ...segments,
   ...fields,
-  ...emailTemplates,
   ...forms,
   ...products,
   ...configs,
