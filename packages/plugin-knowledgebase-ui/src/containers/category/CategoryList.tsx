@@ -85,7 +85,7 @@ export default compose(
     {
       name: 'articlesCountQuery',
       options: ({ currentCategoryId }) => ({
-        variables: { categoryIds: [currentCategoryId] || '' }
+        variables: { categoryIds: [currentCategoryId] || [] }
       })
     }
   ),
