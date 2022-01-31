@@ -2,7 +2,7 @@ import { colors, dimensions, typography } from 'modules/common/styles';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { GroupWrapper } from 'modules/automations/components/forms/actions/styles';
+import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 
 const SegmentTitle = styled.h3`
   font-size: 12px;

@@ -1,4 +1,4 @@
-import { BoardHeader } from 'modules/automations/styles';
+import { BoardHeader } from '@erxes/ui-segments/src/styles';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import {
   ControlLabel,

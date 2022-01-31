@@ -15,7 +15,7 @@ import Select from 'react-select-plus';
 import Common from '../Common';
 import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
 import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
-import { GroupWrapper } from '../styles';
+import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
