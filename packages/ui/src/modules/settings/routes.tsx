@@ -1,6 +1,5 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-// import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
 // import CalendarRoutes from './calendars/routes';
 // import ChannelsRoutes from './channels/routes';
@@ -33,7 +32,6 @@ const routes = () => (
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <ScriptsRoutes key="ScriptsRoutes" />
     {/* <IntegrationsRoutes key="IntegrationsRoutes" /> */}
-    {/* <BoardRoutes key="BoardRoutes" /> */}
     <ProductService key="ProductService" />
     <General key="General" />
     <PropertiesRoutes key="PropertiesRoutes" />
