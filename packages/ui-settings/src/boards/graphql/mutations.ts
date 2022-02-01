@@ -30,8 +30,92 @@ const boardRemove = `
   }
 `;
 
+const commonPipelineParamsDef = `
+  $name: String!,
+  $boardId: String!,
+  $stages: JSON,
+  $type: String!,
+  $visibility: String!,
+  $memberIds: [String],
+  $bgColor: String,
+  $startDate: Date,
+  $endDate: Date,
+  $metric: String,
+  $hackScoringType: String,
+  $templateId: String,
+  $isCheckUser: Boolean
+  $excludeCheckUserIds: [String],
+  $numberConfig: String
+  $numberSize: String
+`;
+
+const commonPipelineParams = `
+  name: $name,
+  boardId: $boardId,
+  stages: $stages,
+  type: $type,
+  visibility: $visibility,
+  memberIds: $memberIds,
+  bgColor: $bgColor,
+  hackScoringType: $hackScoringType,
+  startDate: $startDate,
+  endDate: $endDate,
+  metric: $metric,
+  templateId: $templateId,
+  isCheckUser: $isCheckUser,
+  excludeCheckUserIds: $excludeCheckUserIds,
+  numberConfig: $numberConfig
+  numberSize: $numberSize
+`;
+
+const pipelineAdd = `
+  mutation pipelinesAdd(${commonPipelineParamsDef}) {
+    pipelinesAdd(${commonPipelineParams}) {
+      _id
+    }
+  }
+`;
+
+const pipelineEdit = `
+  mutation pipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
+    pipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+      _id
+    }
+  }
+`;
+
+const pipelineRemove = `
+  mutation pipelinesRemove($_id: String!) {
+    pipelinesRemove(_id: $_id)
+  }
+`;
+const pipelinesArchive = `
+  mutation pipelinesArchive($_id: String!) {
+    pipelinesArchive(_id: $_id)
+  }
+`;
+
+const pipelinesCopied = `
+  mutation pipelinesCopied($_id: String!) {
+    pipelinesCopied(_id: $_id)
+  }
+`;
+const pipelinesUpdateOrder = `
+  mutation pipelinesUpdateOrder($orders: [OrderItem]) {
+    pipelinesUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
 export default {
   boardAdd,
   boardEdit,
-  boardRemove
+  boardRemove,
+  pipelineAdd,
+  pipelineEdit,
+  pipelinesArchive,
+  pipelinesCopied,
+  pipelineRemove,
+  pipelinesUpdateOrder
 };
