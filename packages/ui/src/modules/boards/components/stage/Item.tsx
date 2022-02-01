@@ -2,7 +2,7 @@ import { IItem, IOptions } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import routerUtils from 'modules/common/utils/router';
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import { ITicket } from 'modules/tickets/types';
+import { ITicket } from '@erxes/ui-cards/src/tickets/types';
 import queryString from 'query-string';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

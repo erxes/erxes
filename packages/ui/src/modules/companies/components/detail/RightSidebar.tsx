@@ -6,7 +6,7 @@ import CustomerSection from 'modules/customers/components/common/CustomerSection
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
+import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
 import { pluginsOfCompanySidebar } from 'pluginUtils';
 import React from 'react';
 import { List } from '../../styles';

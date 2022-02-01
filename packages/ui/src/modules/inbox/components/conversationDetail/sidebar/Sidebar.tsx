@@ -49,7 +49,7 @@ const PortableTasks = asyncComponent(() =>
 
 const PortableTickets = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets'
+    /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
   )
 );
 

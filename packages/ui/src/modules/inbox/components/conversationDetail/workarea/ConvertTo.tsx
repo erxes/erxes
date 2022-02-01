@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
 import { IConversation, IMail, IMessage } from 'modules/inbox/types';
 import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
-import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
+import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';

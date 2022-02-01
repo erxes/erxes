@@ -2,7 +2,7 @@ import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import { ITicket } from 'modules/tickets/types';
+import { ITicket } from '@erxes/ui-cards/src/tickets/types';
 import React, { useState } from 'react';
 import { BoardItem, ItemContainer, LoadMore } from '../styles/rightMenu';
 import { IItem, IOptions } from '../types';

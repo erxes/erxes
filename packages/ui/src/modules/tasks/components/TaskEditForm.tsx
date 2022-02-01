@@ -10,7 +10,7 @@ import {
   IOptions
 } from 'modules/boards/types';
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
+import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
 import React from 'react';
 
 type Props = {
