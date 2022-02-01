@@ -1,7 +1,7 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SidebarListItem } from '../styles';
+import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 
 const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
@@ -10,10 +10,12 @@ const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   
   > button {
     padding: 10px 15px 10px 20px;
+
     i {
       color: ${colors.colorCoreYellow};
     }
   }
+
   a {
     padding: 10px 20px;
     margin-left: 0;
@@ -26,6 +28,7 @@ const StageList = styled.div`
   padding: 20px;
   margin-top: 10px;
   box-shadow: 0 2px 8px ${colors.shadowPrimary};
+
   ${LinkButton} {
     margin: 20px 0 0 30px;
     display: block;
@@ -39,14 +42,17 @@ const StageItemContainer = styled.div`
   background-color: ${colors.colorWhite};
   padding: 0;
   align-items: center;
+
   > *:not(button) {
     margin-right: 10px;
   }
+
   button {
     padding: 3px;
     font-size: 16px;
     margin: 0;
   }
+
   button:hover {
     color: ${colors.colorCoreRed};
   }
@@ -74,21 +80,51 @@ const Attributes = styled.ul`
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
+
   > div {
     padding: 0;
   }
+
   b {
     margin-bottom: ${dimensions.unitSpacing + 10}px;
     color: black;
   }
+
   li {
     color: ${colors.colorCoreGray};
     padding-bottom: ${dimensions.unitSpacing - 5}px;
     cursor: pointer;
     font-weight: 400;
     transition: all ease 0.3s;
+
     &:hover {
       color: ${colors.textPrimary};
+    }
+  }
+`;
+
+const HeaderContent = styled.div`
+  flex: 1;
+  textarea {
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
+`;
+
+const BoardHeader = styled(HeaderContent)`
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+
+    > div > span {
+      color: ${colors.colorSecondary};
+      font-weight: 500;
+      cursor: pointer;
+      margin-left: ${dimensions.unitSpacing}px;
     }
   }
 `;
@@ -99,5 +135,6 @@ export {
   StageItemContainer,
   SelectMemberStyled,
   PipelineCount,
-  Attributes
+  Attributes,
+  BoardHeader
 };
