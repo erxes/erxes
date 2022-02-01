@@ -11,6 +11,7 @@ import {
   LastConversationQueryResponse
 } from '../types';
 import { generateParams } from '../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 interface IRouteProps {
   queryParams: any;
@@ -74,13 +75,14 @@ class WithCurrentId extends React.Component<IProps> {
     return (
       <AppConsumer>
         {({ currentUser }) => {
+          currentUser= {} as IUser;
           const { queryParams } = this.props;
           const { _id } = queryParams;
 
-          // if (!currentUser) {
-          //   return null;
-          // }
-
+          if (!currentUser) {
+            return null;
+          }
+          
           if (!_id || !can('showConversations', currentUser)) {
             return (
               <Empty queryParams={queryParams} currentUser={currentUser} />

@@ -341,6 +341,7 @@ const WithConsumer = (props: Props) => {
   return (
     <AppConsumer>
       {({ currentUser }) => {
+        currentUser = {} as IUser;
         if (!currentUser) {
           return null;
         }
