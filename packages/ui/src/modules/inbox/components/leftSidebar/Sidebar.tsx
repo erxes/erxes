@@ -3,7 +3,7 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { ScrollContent } from 'modules/growthHacks/styles';
+// import { ScrollContent } from 'modules/growthHacks/styles';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
 import FilterToggler from 'modules/inbox/containers/leftSidebar/FilterToggler';
 import Resolver from 'modules/inbox/containers/Resolver';
@@ -169,7 +169,7 @@ class LeftSidebar extends React.Component<Props, State> {
         unmountOnExit={true}
       >
         <SidebarContent>
-          <ScrollContent>
+          {/* <ScrollContent> */}
             <FilterToggler
               groupText="Channels"
               toggleName="showChannels"
@@ -263,7 +263,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 treeView={true}
               />
             </FilterToggler>
-          </ScrollContent>
+          {/* </ScrollContent> */}
           <IntegrationModal />
         </SidebarContent>
       </RTG.CSSTransition>

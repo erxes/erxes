@@ -1,6 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { SimpleButton } from 'modules/common/styles/main';
-import { ScrollContent } from 'modules/growthHacks/styles';
+// import { ScrollContent } from 'modules/growthHacks/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -235,10 +235,6 @@ const SidebarContent = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  ${ScrollContent} {
-    padding: 10px 0;
-  }
 
   > button {
     text-align: left;

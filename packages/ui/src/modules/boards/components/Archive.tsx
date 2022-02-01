@@ -20,7 +20,7 @@ import SelectProducts from 'modules/settings/productService/containers/product/S
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
 import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
-import { HACKSTAGES } from 'modules/growthHacks/constants';
+// import { HACKSTAGES } from 'modules/growthHacks/constants';
 
 type Props = {
   options: IOptions;
@@ -190,7 +190,7 @@ function Archive(props: Props) {
           <Select
             placeholder="Choose a growth funnel"
             value={hackStages}
-            options={HACKSTAGES.map(hs => ({ value: hs, label: hs }))}
+            options={[].map(hs => ({ value: hs, label: hs }))} // HackStages
             name="hackStage"
             onChange={xs => setHackStages(xs.map(x => x.value))}
             multi={true}

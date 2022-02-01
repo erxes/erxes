@@ -6,7 +6,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { BoxContainer } from 'modules/growthHacks/components/home/styles';
+// import { BoxContainer } from 'modules/growthHacks/components/home/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import List from '../../common/components/List';
@@ -99,7 +99,8 @@ class TemplateList extends React.Component<Props> {
   }
 
   renderContent = props => {
-    return <BoxContainer>{this.renderRow(props)}</BoxContainer>;
+    // return <BoxContainer>{this.renderRow(props)}</BoxContainer>;
+    return <></>
   };
 
   renderButton = () => {
