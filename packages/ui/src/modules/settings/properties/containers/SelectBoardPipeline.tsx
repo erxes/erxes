@@ -5,7 +5,7 @@ import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
-import { mutations } from 'modules/settings/boards/graphql';
+import { mutations } from '@erxes/ui-settings/src/boards/graphql';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
