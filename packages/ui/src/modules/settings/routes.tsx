@@ -8,7 +8,6 @@ import ClientPortalRoutes from './clientPortal/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
-// import GrowthHackRoutes from './growthHacks/routes';
 import ImportHistory from './importHistory/routes';
 // import IntegrationsRoutes from './integrations/routes';
 import LogRoutes from './logs/routes';
@@ -43,7 +42,6 @@ const routes = () => (
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
-    {/* <GrowthHackRoutes key="GrowthHackRoutes" /> */}
     <WebhookRoutes key="WebhookRoutes" />
     {/* <CalendarRoutes key="CalendarRoutes" /> */}
     {/* <SkillsRoutes key="SkillsRoutes" /> */}
