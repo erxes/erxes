@@ -1,13 +1,7 @@
-import React from "react";
-import { PluginLayout } from "@erxes/ui/src/styles/main";
-import GeneralRoutes from "./generalRoutes";
+import React from 'react';
 
 const Settings = () => {
-  return (
-    <PluginLayout>
-      <GeneralRoutes />
-    </PluginLayout>
-  );
+  return <div>Ooooy Campaign settings</div>;
 };
 
 export default Settings;
