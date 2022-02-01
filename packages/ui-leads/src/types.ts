@@ -1,22 +1,23 @@
-import { QueryResponse } from '@erxes/ui/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  IConditionsRule,
+  QueryResponse
+} from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
-export interface IForm {
-  _id: string;
-  code?: string;
-}
-
-export interface ILeadIntegration {
-  _id: string;
-  name: string;
-  code: string;
-  kind: string;
-  brand: IBrand;
-  form: IForm;
-}
+// check duplication
+// export interface ILeadIntegration {
+//   _id: string;
+//   name: string;
+//   code: string;
+//   kind: string;
+//   brand: IBrand;
+//   form: IForm;
+// }
 
 export interface ICallout {
   title?: string;
@@ -59,6 +60,37 @@ export interface ILeadData {
   successImageSize?: string;
 }
 
+export interface IWebhookData {
+  script: string;
+  scriptEnabled: boolean;
+  token: string;
+}
+
+export interface ILeadIntegration extends IIntegration {
+  brand: IBrand;
+  tags: ITag[];
+  createdUser: IUser;
+}
+
+export type RemoveMutationVariables = {
+  _id: string;
+};
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
+};
+
+export type CopyMutationResponse = {
+  copyMutation: (params: { variables: { _id: string } }) => Promise<void>;
+};
+
+// query types
+export type LeadIntegrationsQueryResponse = {
+  integrations: ILeadIntegration[];
+} & QueryResponse;
+
 export type Counts = {
   [key: string]: number;
 };
@@ -71,20 +103,11 @@ export type IntegrationsCount = {
   byKind: Counts;
   byStatus: Counts;
 };
-export interface IWebhookData {
-  script: string;
-  scriptEnabled: boolean;
-  token: string;
-}
-
-export type LeadIntegrationsQueryResponse = {
-  integrations: ILeadIntegration[];
-} & QueryResponse;
-
-export type CountQueryResponse = {
-  integrationsTotalCount: IntegrationsCount;
-} & QueryResponse;
 
 export type TagCountQueryResponse = {
   [key: string]: number;
 };
+
+export type CountQueryResponse = {
+  integrationsTotalCount: IntegrationsCount;
+} & QueryResponse;
