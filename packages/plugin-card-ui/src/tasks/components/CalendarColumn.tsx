@@ -10,7 +10,7 @@ import { IDateColumn } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import options from '@erxes/ui-cards/src/tasks/options';
-import { ITask } from '../types';
+import { ITask } from '@erxes/ui-cards/src/tasks/types';
 import Task from '@erxes/ui-cards/src/tasks/components/TaskItem';
 
 type Props = {
