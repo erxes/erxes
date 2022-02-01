@@ -2,12 +2,12 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Task from 'modules/activityLogs/components/items/boardItems/Task';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import { mutations, queries } from 'modules/tasks/graphql';
+import { mutations, queries } from '@erxes/ui-cards/src/tasks/graphql';
 import {
   EditMutationResponse,
   RemoveMutationResponse,
   TaskDetailQueryResponse
-} from 'modules/tasks/types';
+} from '@erxes/ui-cards/src/tasks/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

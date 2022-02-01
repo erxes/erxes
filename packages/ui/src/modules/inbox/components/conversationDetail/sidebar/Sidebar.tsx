@@ -43,7 +43,7 @@ const PortableDeals = asyncComponent(() =>
 
 const PortableTasks = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks'
+    /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ '@erxes/ui-cards/src/tasks/components/PortableTasks'
   )
 );
 
