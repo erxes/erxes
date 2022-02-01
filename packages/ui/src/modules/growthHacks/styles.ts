@@ -1,10 +1,17 @@
 import { ColorButton } from 'modules/boards/styles/common';
 import { colors, dimensions } from 'modules/common/styles';
-import { FixedContent } from 'modules/deals/components/conversion/style';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const ScoreWrapper = styled.div``;
+
+// added from deals/component/conversation/style
+const FixedContent = styled.div`
+  position: relative;
+  padding-top: 10px;
+  width: 900px;
+  margin: 0 auto;
+`;
 
 const AddButton = `
   text-align: center;
