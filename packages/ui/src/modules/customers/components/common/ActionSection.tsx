@@ -13,7 +13,7 @@ import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
 import CustomerForm from 'modules/customers/containers/CustomerForm';
 import { Actions, MailBox, States } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
-import { Box } from 'modules/settings/growthHacks/styles';
+// import { Box } from 'modules/settings/growthHacks/styles';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import SmsForm from 'modules/settings/integrations/containers/telnyx/SmsForm';
 import React from 'react';
@@ -155,21 +155,22 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       return null;
     }
 
-    const onClick = () => {
-      this.setState({ customerState: type });
-      changeState(type);
-    };
+    // const onClick = () => {
+    //   this.setState({ customerState: type });
+    //   changeState(type);
+    // };
 
     return (
-      <Box
-        id="customerChangeStateBox"
-        key={index}
-        selected={this.state.customerState === type}
-        onClick={onClick}
-      >
-        <b>{type}</b>
-        <p>{__(desc)}</p>
-      </Box>
+      // <Box
+      //   id="customerChangeStateBox"
+      //   key={index}
+      //   selected={this.state.customerState === type}
+      //   onClick={onClick}
+      // >
+      //   <b>{type}</b>
+      //   <p>{__(desc)}</p>
+      // </Box>
+      <></>
     );
   }
 
