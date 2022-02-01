@@ -17,7 +17,6 @@ import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
-// import TaskRoutes from './modules/tasks/routes';
 import TutorialRoutes from './modules/tutorial/routes';
 import VideoCallRoutes from './modules/videoCall/routes';
 import ImportExportRoutes from './modules/importExport/routes';
@@ -94,7 +93,6 @@ const renderRoutes = currentUser => {
           {/* <LeadRoutes /> */}
           <SettingsRoutes />
           <TagsRoutes />
-          {/* <TaskRoutes /> */}
           {/* <GrowthHackRoutes /> */}
           <VideoCallRoutes />
           <TutorialRoutes />
