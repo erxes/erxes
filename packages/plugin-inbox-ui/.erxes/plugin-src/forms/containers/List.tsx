@@ -11,14 +11,14 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import List from '../components/List';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-leads/src/graphql';
 import {
   CopyMutationResponse,
   CountQueryResponse,
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from '../types';
+} from '@erxes/ui-leads/src/types';
 
 type Props = {
   queryParams: any;

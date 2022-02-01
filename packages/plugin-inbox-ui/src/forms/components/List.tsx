@@ -13,7 +13,7 @@ import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '@erxes/ui/src/tags/types';
-import { ILeadIntegration, IntegrationsCount } from '../types';
+import { ILeadIntegration, IntegrationsCount } from '@erxes/ui-leads/src/types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 
@@ -168,7 +168,7 @@ class List extends React.Component<Props, {}> {
             queryParams={queryParams}
           />
         }
-        leftSidebar={<Sidebar counts={counts || {}} />}
+        leftSidebar={<Sidebar counts={counts || {} as IntegrationsCount} />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

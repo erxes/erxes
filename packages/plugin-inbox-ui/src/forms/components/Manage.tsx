@@ -7,7 +7,7 @@ import { MarkdownWrapper } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
-import { ILeadIntegration } from '../types';
+import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 
 type Props = {
   integration: ILeadIntegration;

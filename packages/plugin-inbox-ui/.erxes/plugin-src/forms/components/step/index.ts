@@ -1,8 +1,8 @@
 import CallOut from './CallOut';
-import ChooseType from './ChooseType';
 import FormStep from './FormStep';
 import FullPreview from '@erxes/ui/src/components/step/FullPreview';
 import OptionStep from './OptionStep';
-import SuccessStep from './SuccessStep';
+import ChooseType from '@erxes/ui-leads/src/components/step/ChooseType';
+import SuccessStep from '@erxes/ui-leads/src/components/step/SuccessStep';
 
 export { ChooseType, CallOut, FormStep, SuccessStep, OptionStep, FullPreview };

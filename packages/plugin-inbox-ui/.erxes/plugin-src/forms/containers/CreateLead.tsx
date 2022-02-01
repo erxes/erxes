@@ -16,8 +16,8 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Lead from '../components/Lead';
-import { mutations } from '../graphql';
-import { ILeadData } from '../types';
+import { mutations } from '@erxes/ui-leads/src/graphql';
+import { ILeadData } from '@erxes/ui-leads/src/types';
 
 type Props = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;

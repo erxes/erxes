@@ -14,10 +14,8 @@ import { __, getEnv } from '@erxes/ui/src/utils';
 import { Capitalize } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ILeadIntegration } from '../types';
+import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 import Manage from './Manage';
-import { IForm } from '@erxes/ui-leads/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   integration: ILeadIntegration;

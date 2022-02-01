@@ -11,7 +11,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ILeadData, ILeadIntegration } from '../types';
+import { ILeadData, ILeadIntegration } from '@erxes/ui-leads/src/types';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { Content } from '@erxes/ui-settings/src/integrations/styles';
@@ -27,7 +27,6 @@ import {
 } from './step';
 import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import StyleSheetStep from './step/StyleSheetStep';
-import { IForm } from '@erxes/ui-leads/src/types';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -255,8 +254,8 @@ class Lead extends React.Component<Props, State> {
     const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to='/forms'>
-        <Button btnStyle='simple' icon='times-circle'>
+      <Link to="/forms">
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -268,7 +267,7 @@ class Lead extends React.Component<Props, State> {
 
         <Button
           disabled={isActionLoading}
-          btnStyle='success'
+          btnStyle="success"
           icon={isActionLoading ? undefined : 'check-circle'}
           onClick={this.handleSubmit}
         >
@@ -318,8 +317,8 @@ class Lead extends React.Component<Props, State> {
           <LeftContent>
             <Steps>
               <Step
-                img='/images/icons/erxes-04.svg'
-                title='Style'
+                img="/images/icons/erxes-04.svg"
+                title="Style"
                 onClick={this.onStepClick}
               >
                 <ChooseType
@@ -332,8 +331,8 @@ class Lead extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img='/images/icons/erxes-03.svg'
-                title='CallOut'
+                img="/images/icons/erxes-03.svg"
+                title="CallOut"
                 onClick={this.onStepClick}
               >
                 <CallOut
@@ -350,7 +349,7 @@ class Lead extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img='/images/icons/erxes-12.svg'
+                img="/images/icons/erxes-12.svg"
                 title={'Content'}
                 onClick={this.onStepClick}
               >
@@ -369,15 +368,15 @@ class Lead extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img='/images/icons/erxes-02.svg'
-                title='Rule'
+                img="/images/icons/erxes-02.svg"
+                title="Rule"
                 onClick={this.onStepClick}
               >
                 <ConditionsRule rules={rules || []} onChange={this.onChange} />
               </Step>
               <Step
-                img='/images/icons/erxes-06.svg'
-                title='Options'
+                img="/images/icons/erxes-06.svg"
+                title="Options"
                 onClick={this.onStepClick}
               >
                 <OptionStep
@@ -395,16 +394,16 @@ class Lead extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img='/images/icons/erxes-05.svg'
-                title='Advanced styling'
+                img="/images/icons/erxes-05.svg"
+                title="Advanced styling"
                 onClick={this.onStepClick}
               >
                 <StyleSheetStep css={css} onChange={this.onChange} />
               </Step>
 
               <Step
-                img='/images/icons/erxes-13.svg'
-                title='Confirmation'
+                img="/images/icons/erxes-13.svg"
+                title="Confirmation"
                 onClick={this.onStepClick}
                 noButton={true}
               >
