@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import ChooseType from 'modules/leads/components/step/ChooseType';
+import ChooseType from '@erxes/ui-leads/src/components/step/ChooseType';
 import React from 'react';
 
 describe('ChooseType component', () => {

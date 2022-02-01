@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import CommonPreview from 'modules/leads/components/step/preview/CommonPreview';
+import CommonPreview from '@erxes/ui/src/components/step/preview/CommonPreview';
 import React from 'react';
 
 describe('CommonPreview component', () => {

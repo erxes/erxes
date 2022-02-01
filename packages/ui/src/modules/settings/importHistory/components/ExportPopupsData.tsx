@@ -1,7 +1,7 @@
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __, getEnv } from 'modules/common/utils';
-import { ILeadIntegration } from 'modules/leads/types';
+import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 import React from 'react';
 import styled from 'styled-components';
 

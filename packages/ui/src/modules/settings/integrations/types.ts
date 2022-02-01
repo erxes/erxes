@@ -1,7 +1,11 @@
 import { QueryResponse } from 'modules/common/types';
 import { IProductCategory } from 'modules/settings/productService/types';
 import { IForm } from 'modules/forms/types';
-import { ILeadData, ILeadIntegration, IWebhookData } from 'modules/leads/types';
+import {
+  ILeadData,
+  ILeadIntegration,
+  IWebhookData
+} from '@erxes/ui-leads/src/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 

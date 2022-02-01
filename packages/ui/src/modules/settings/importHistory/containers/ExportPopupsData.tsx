@@ -4,7 +4,7 @@ import { queries } from '../graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ExportPopupsData from '../components/ExportPopupsData';
-import { ILeadIntegration } from 'modules/leads/types';
+import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 
 type AllLeadIntegrationsQueryResponse = {
   allLeadIntegrations: ILeadIntegration[];

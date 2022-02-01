@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import CalloutPreview from 'modules/leads/components/step/preview/CalloutPreview';
+import CalloutPreview from '@erxes/ui/src/components/step/preview/CalloutPreview';
 import React from 'react';
 
 describe('CalloutPreview component', () => {

@@ -13,7 +13,7 @@ import {
   PreviewBody,
   BodyContent,
   PrintButton
-} from 'modules/leads/components/step/preview/styles';
+} from '@erxes/ui/src/components/step/preview/styles';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FieldItem } from 'modules/forms/styles';
