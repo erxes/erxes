@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
+import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
 import { IConversation, IMail, IMessage } from 'modules/inbox/types';
 import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
 import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';

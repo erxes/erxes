@@ -3,7 +3,7 @@ import Box from 'modules/common/components/Box';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
-import PortableDeals from 'modules/deals/components/PortableDeals';
+import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';

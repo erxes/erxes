@@ -7,7 +7,7 @@ import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import { List } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
-import PortableDeals from 'modules/deals/components/PortableDeals';
+import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';

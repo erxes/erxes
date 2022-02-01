@@ -2,7 +2,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
-import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
+import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
 import { IFacebookComment } from 'modules/inbox/types';
 import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
 import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';

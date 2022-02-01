@@ -37,7 +37,7 @@ const ConversationCustomFieldsSection = asyncComponent(
 
 const PortableDeals = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals'
+    /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ '@erxes/ui-cards/src/deals/components/PortableDeals'
   )
 );
 

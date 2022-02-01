@@ -9,7 +9,7 @@ import {
   IItemParams,
   IOptions
 } from 'modules/boards/types';
-import PortableDeals from 'modules/deals/components/PortableDeals';
+import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 

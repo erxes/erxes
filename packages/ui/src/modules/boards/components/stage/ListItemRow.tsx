@@ -17,7 +17,7 @@ import { IOptions } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import PriorityIndicator from '../editForm/PriorityIndicator';
-import { IDeal } from 'modules/deals/types';
+import { IDeal } from '@erxes/ui-cards/src/deals/types';
 
 type Props = {
   stageId?: string;

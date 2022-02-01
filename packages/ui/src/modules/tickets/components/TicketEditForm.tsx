@@ -8,7 +8,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import PortableDeals from 'modules/deals/components/PortableDeals';
+import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
