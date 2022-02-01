@@ -47,7 +47,7 @@ export interface ISelectMessengerApps {
 }
 
 export interface IOnlineHour {
-  _id: string;
+  _id?: string;
   day: string;
   from: string;
   to: string;
