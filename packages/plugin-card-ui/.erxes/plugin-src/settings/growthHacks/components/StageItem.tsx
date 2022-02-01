@@ -5,7 +5,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { colors } from '@erxes/ui/src/styles';
 import { __ } from '@erxes/ui/src/utils';
-import { StageItemContainer } from '../../boards/styles';
+import { StageItemContainer } from '@erxes/ui-settings/src/boards/styles';
 import React from 'react';
 
 type Props = {

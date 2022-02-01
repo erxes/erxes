@@ -13,7 +13,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Pipelines from '../components/Pipelines';
 import { getWarningMessage } from '../constants';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-settings/src/boards/graphql';
 import {
   IOption,
   RemovePipelineMutationResponse,

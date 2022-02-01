@@ -5,7 +5,7 @@ import { PipelinesQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import mutations from '../../../settings/boards/graphql/mutations';
+import mutations from '@erxes/ui-settings/src/boards/graphql/mutations';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

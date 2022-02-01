@@ -11,7 +11,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import PipelineForm from '../components/PipelineForm';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-settings/src/boards/graphql';
 import { IOption } from '../types';
 
 type Props = {

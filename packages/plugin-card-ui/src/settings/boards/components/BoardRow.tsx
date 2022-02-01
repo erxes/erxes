@@ -7,7 +7,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BoardItem } from '../styles';
+import { BoardItem } from '@erxes/ui-settings/src/boards/styles';
 import BoardForm from './BoardForm';
 
 type Props = {

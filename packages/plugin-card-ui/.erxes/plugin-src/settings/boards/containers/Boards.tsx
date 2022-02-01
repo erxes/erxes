@@ -12,7 +12,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Boards from '../components/Boards';
 import { getWarningMessage } from '../constants';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-settings/src/boards/graphql';
 import { IOption, RemoveBoardMutationResponse } from '../types';
 
 type Props = {

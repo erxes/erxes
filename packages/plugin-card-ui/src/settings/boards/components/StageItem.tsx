@@ -4,7 +4,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { PROBABILITY } from '../constants';
-import { StageItemContainer } from '../styles';
+import { StageItemContainer } from '@erxes/ui-settings/src/boards/styles';
 
 type Props = {
   stage: IStage;

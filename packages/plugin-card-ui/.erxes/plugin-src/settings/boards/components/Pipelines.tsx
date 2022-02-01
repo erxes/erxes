@@ -18,7 +18,7 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
-import { PipelineCount } from '../styles';
+import { PipelineCount } from '@erxes/ui-settings/src/boards/styles';
 import PipelineRow from './PipelineRow';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 

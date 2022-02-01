@@ -12,7 +12,7 @@ import { colors } from '@erxes/ui/src/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import BoardNumberConfigs from '../../boards/components/numberConfig/BoardNumberConfigs';
-import { SelectMemberStyled } from '../../boards/styles';
+import { SelectMemberStyled } from '@erxes/ui-settings/src/boards/styles';
 import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';

@@ -11,7 +11,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Home from '../components/Home';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-settings/src/boards/graphql';
 import { IOption } from '../types';
 
 type HomeContainerProps = {

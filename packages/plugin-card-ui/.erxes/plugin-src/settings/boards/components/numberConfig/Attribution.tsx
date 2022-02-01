@@ -2,7 +2,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { Attributes } from '../../styles';
+import { Attributes } from '@erxes/ui-settings/src/boards/styles';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {

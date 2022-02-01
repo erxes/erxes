@@ -18,7 +18,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
-import { SelectMemberStyled } from '../styles';
+import { SelectMemberStyled } from '@erxes/ui-settings/src/boards/styles';
 import { IOption } from '../types';
 import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
 import Stages from './Stages';

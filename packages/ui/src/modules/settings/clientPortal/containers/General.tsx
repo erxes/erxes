@@ -7,7 +7,7 @@ import { TopicsQueryResponse } from '@erxes/ui-knowledgeBase/src/types';
 import React, { useEffect, useState } from 'react';
 import { graphql } from 'react-apollo';
 import knowledgeBaseQueries from '@erxes/ui-knowledgeBase/src/graphql/queries';
-import boardQueries from '../../boards/graphql/queries';
+import boardQueries from '@erxes/ui-settings/src/boards/graphql/queries';
 import General from '../components/forms/General';
 
 type Props = {
