@@ -34,6 +34,7 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
+    "@types/styled-components": "^3.0.0",
     "dayjs": "1.8.15",
     "erxes-ui": "0.0.86",
     "graphql": "0.12.3",
@@ -47,8 +48,8 @@
     "react-router-dom": "5.1.2",
     "react-select-plus": "^1.0.0-rc.3.patch12",
     "strip": "^3.0.0",
-    "styled-components": "3.2.6",
-    "styled-components-ts": "0.0.14",
+    "styled-components": "^3.2.6",
+    "styled-components-ts": "^0.0.14",
     "underscore.string": "^3.3.5"
   }
 }
