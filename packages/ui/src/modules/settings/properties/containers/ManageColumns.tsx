@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, getEnv, withProps } from 'modules/common/utils';
-import { queries } from 'modules/forms/graphql';
+import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';

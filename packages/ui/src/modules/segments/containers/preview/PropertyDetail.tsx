@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 
 import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from 'modules/forms/graphql';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import PropertyDetail from 'modules/segments/components/preview/PropertyDetail';
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';

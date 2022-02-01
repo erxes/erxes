@@ -16,7 +16,7 @@ import {
 } from '@erxes/ui/src/components/step/preview/styles';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { FieldItem } from 'modules/forms/styles';
+import { FieldItem } from '@erxes/ui-forms/src/forms/styles';
 import Select from 'react-select-plus';
 import Tip from 'modules/common/components/Tip';
 import Button from 'modules/common/components/Button';

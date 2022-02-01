@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 
 import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from 'modules/forms/graphql';
+import { queries as formQueries } from '@erxes/ui-forms/src//forms/graphql';
 import Form from '../components/Form';
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from 'modules/settings/properties/constants';
 import {

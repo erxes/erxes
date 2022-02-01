@@ -1,6 +1,6 @@
 import { QueryResponse } from 'modules/common/types';
 import { IProductCategory } from 'modules/settings/productService/types';
-import { IForm } from 'modules/forms/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
 import {
   ILeadData,
   ILeadIntegration,
