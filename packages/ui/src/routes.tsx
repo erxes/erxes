@@ -10,7 +10,6 @@ import { IUser } from './modules/auth/types';
 // import CompaniesRoutes from './modules/companies/routes';
 // import CustomersRoutes from './modules/customers/routes';
 // import DashboardRoutes from './modules/dashboard/routes';
-// import DealsRoutes from './modules/deals/routes';
 // import GrowthHackRoutes from './modules/growthHacks/routes';
 // import InboxRoutes from './modules/inbox/routes';
 // import LeadRoutes from './modules/leads/routes';
@@ -96,7 +95,6 @@ const renderRoutes = currentUser => {
           {/* <LeadRoutes /> */}
           <SettingsRoutes />
           <TagsRoutes />
-          {/* <DealsRoutes /> */}
           {/* <TicketRoutes /> */}
           {/* <TaskRoutes /> */}
           {/* <GrowthHackRoutes /> */}
