@@ -1,4 +1,4 @@
-import { IBoard, IPipeline } from 'modules/boards/types';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IOption } from 'modules/common/types';

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IItemParams } from 'modules/boards/types';
+import { IItemParams } from '@erxes/ui-cards/src/boards/types';
 import { withProps } from 'modules/common/utils';
 import React, { useEffect } from 'react';
 import { graphql } from 'react-apollo';

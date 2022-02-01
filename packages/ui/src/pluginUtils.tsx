@@ -4,7 +4,7 @@ declare var window;
 
 import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
-import { IItem } from 'modules/boards/types';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from 'modules/boards/graphql';
-import { BoardsQueryResponse } from 'modules/boards/types';
+import { queries } from '@erxes/ui-cards/src/boards/graphql';
+import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';

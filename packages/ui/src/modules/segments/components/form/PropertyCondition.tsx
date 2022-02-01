@@ -1,4 +1,4 @@
-import { IBoard } from 'modules/boards/types';
+import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Select from 'react-select-plus';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';

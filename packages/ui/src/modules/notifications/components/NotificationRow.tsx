@@ -14,7 +14,7 @@ import {
   CreatedUser,
   InfoSection
 } from './styles';
-import RoundedBackgroundIcon from 'modules/boards/components/RoundedBackgroundIcon';
+import RoundedBackgroundIcon from '@erxes/ui-cards/src/boards/components/RoundedBackgroundIcon';
 
 interface IProps extends IRouterProps {
   notification: INotification;

@@ -1,4 +1,4 @@
-import { PageHeader } from 'modules/boards/styles/header';
+import { PageHeader } from '@erxes/ui-cards/src/boards/styles/header';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';

@@ -1,4 +1,4 @@
-import { Content } from 'modules/boards/styles/item';
+import { Content } from '@erxes/ui-cards/src/boards/styles/item';
 import Attachment from 'modules/common/components/Attachment';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';

@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { TEXT_COLORS } from 'modules/boards/constants';
+import { TEXT_COLORS } from '@erxes/ui-cards/src/boards/constants';
 import { ControlLabel } from 'modules/common/components/form';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __, uploadHandler } from 'modules/common/utils';

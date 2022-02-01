@@ -1,4 +1,4 @@
-import { IBoard } from 'modules/boards/types';
+import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import CommonForm from 'modules/common/components/form/Form';

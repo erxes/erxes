@@ -15,9 +15,9 @@ import {
   Row,
   Title
 } from 'modules/activityLogs/styles';
-import { REMINDER_MINUTES } from 'modules/boards/constants';
-import { IItem } from 'modules/boards/types';
-import { selectOptions } from 'modules/boards/utils';
+import { REMINDER_MINUTES } from '@erxes/ui-cards/src/boards/constants';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
+import { selectOptions } from '@erxes/ui-cards/src/boards/utils';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';

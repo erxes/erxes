@@ -1,7 +1,10 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import compose from 'lodash.flowright';
-import { BoardsQueryResponse, IPipeline } from 'modules/boards/types';
+import {
+  BoardsQueryResponse,
+  IPipeline
+} from '@erxes/ui-cards/src/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgeBase/src/types';
 import React, { useEffect, useState } from 'react';

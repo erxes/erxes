@@ -1,4 +1,4 @@
-import { IBoard, IPipeline } from 'modules/boards/types';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import {
   ControlLabel,
   FormControl,
@@ -19,7 +19,7 @@ import {
   Features
 } from '../../styles';
 import { FlexContent } from 'modules/layout/styles';
-import BoardSelect from 'modules/boards/containers/BoardSelect';
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { __ } from 'modules/common/utils';
 import Toggle from 'modules/common/components/Toggle';
 

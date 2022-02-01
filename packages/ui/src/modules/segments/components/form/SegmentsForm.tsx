@@ -1,4 +1,4 @@
-import { IBoard } from 'modules/boards/types';
+import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';

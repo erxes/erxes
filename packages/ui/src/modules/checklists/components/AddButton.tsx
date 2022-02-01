@@ -1,4 +1,4 @@
-import { ColorButton } from 'modules/boards/styles/common';
+import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
