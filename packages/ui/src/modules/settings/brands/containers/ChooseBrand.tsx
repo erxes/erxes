@@ -6,7 +6,7 @@ import {
   AddIntegrationMutationResponse,
   EditIntegrationMutationResponse,
   IIntegration
-} from 'modules/settings/integrations/types';
+} from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ChooseBrand from '../components/ChooseBrand';

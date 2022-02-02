@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { IIntegration } from 'modules/settings/integrations/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { ModalFooter } from '../../../common/styles/main';
 import { __ } from '../../../common/utils';

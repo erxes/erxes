@@ -5,7 +5,7 @@ import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
 import { queries as integrationQueries } from '@erxes/ui-leads/src/graphql';
 
 import { isBoardKind } from 'modules/segments/utils';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import PropertyCondition from '../../components/form/PropertyCondition';
 

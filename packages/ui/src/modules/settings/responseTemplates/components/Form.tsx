@@ -3,7 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
+import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import React from 'react';
 import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';

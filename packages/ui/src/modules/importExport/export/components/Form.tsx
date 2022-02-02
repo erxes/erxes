@@ -17,14 +17,15 @@ import { Link } from 'react-router-dom';
 import ConfigsForm from './ConfigsForm';
 import queryString from 'query-string';
 import { Description, SubHeading } from 'modules/settings/styles';
-
 import {
   Content,
+  LeftContent
+} from '@erxes/ui-settings/src/integrations/styles';
+import {
   ImageWrapper,
-  LeftContent,
   MessengerPreview,
   TextWrapper
-} from 'modules/settings/integrations/styles';
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Spinner from 'modules/common/components/Spinner';
 
 type Props = {

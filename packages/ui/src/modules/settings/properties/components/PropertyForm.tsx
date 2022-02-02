@@ -7,7 +7,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { Row } from 'modules/settings/integrations/styles';
+import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { IField, IFieldGroup } from '../types';

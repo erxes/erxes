@@ -7,7 +7,7 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
+import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
 import React from 'react';
 import ManageIntegrations from '../containers/ManageIntegrations';
 import Sidebar from '../containers/Sidebar';

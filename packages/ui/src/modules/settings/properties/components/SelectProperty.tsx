@@ -3,7 +3,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps, IOption } from 'modules/common/types';
-import { LeftContent, Row } from 'modules/settings/integrations/styles';
+import { LeftContent, Row } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '../../../common/utils';

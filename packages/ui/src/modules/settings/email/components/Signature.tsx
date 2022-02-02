@@ -7,7 +7,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
-import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import { IEmailSignatureWithBrand } from '../types';
 

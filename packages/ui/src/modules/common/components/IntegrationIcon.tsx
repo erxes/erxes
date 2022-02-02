@@ -3,7 +3,7 @@ import { colors } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IIntegration } from '../../settings/integrations/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { darken } from '../styles/color';
 
 const RoundedBackground = styledTS<{ type: string; size?: number }>(

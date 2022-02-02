@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { QueryResponse } from 'modules/common/types';
-import { IIntegration } from 'modules/settings/integrations/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 export interface IChannel {
   _id: string;

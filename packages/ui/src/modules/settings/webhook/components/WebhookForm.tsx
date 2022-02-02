@@ -4,7 +4,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { Formgroup } from 'modules/common/components/form/styles';
 import { IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
-import { WEBHOOK_DOC_URL } from 'modules/settings/integrations/constants';
+import { WEBHOOK_DOC_URL } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import Select from 'react-select-plus';
 import CommonForm from '../../common/components/Form';

@@ -12,7 +12,7 @@ import { SegmentBackIcon } from '../styles';
 import Icon from 'modules/common/components/Icon';
 import PropertyList from 'modules/segments/containers/form/PropertyList';
 import { isBoardKind } from 'modules/segments/utils';
-import { IIntegration } from 'modules/settings/integrations/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   contentType: string;

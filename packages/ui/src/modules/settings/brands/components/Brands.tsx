@@ -8,7 +8,7 @@ import { Title } from 'modules/common/styles/main';
 import React from 'react';
 import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
-import IntegrationList from '../../integrations/containers/common/IntegrationList';
+import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
 import ManageIntegrations from '../containers/ManageIntegrations';
 import Sidebar from '../containers/Sidebar';
 import { IBrand } from '../types';
