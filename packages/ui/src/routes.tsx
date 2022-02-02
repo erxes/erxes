@@ -9,7 +9,6 @@ import { IUser } from './modules/auth/types';
 // import CalendarRoutes from './modules/calendar/routes';
 // import CustomersRoutes from './modules/customers/routes';
 // import DashboardRoutes from './modules/dashboard/routes';
-// import InboxRoutes from './modules/inbox/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
@@ -83,7 +82,6 @@ const renderRoutes = currentUser => {
       <>
         <MainLayout currentUser={currentUser} plugins={plugins}>
           <NotificationRoutes />
-          {/* <InboxRoutes /> */}
           <SegmentsRoutes />
           {/* <CustomersRoutes /> */}
           <SettingsRoutes />
