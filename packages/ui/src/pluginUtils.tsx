@@ -7,7 +7,7 @@ import { IUser } from 'modules/auth/types';
 import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { __ } from 'modules/common/utils';
 import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from 'modules/customers/types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
 import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';

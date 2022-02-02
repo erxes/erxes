@@ -6,7 +6,7 @@ import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { ActivityLogQueryResponse } from '../../../customers/types';
+import { ActivityLogQueryResponse } from '@erxes/ui/src/activityLogs/types';
 import { queries } from '../../graphql';
 
 type Props = {

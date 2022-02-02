@@ -3,7 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
-import SelectCustomers from '../../../customers/containers/common/SelectCustomers';
+import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import { IAttachment } from 'modules/common/types';
 import {
   COMPANY_BUSINESS_TYPES,

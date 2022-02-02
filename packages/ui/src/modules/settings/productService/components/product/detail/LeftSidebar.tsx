@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { TaggerSection } from 'modules/customers/components/common';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import Sidebar from 'modules/layout/components/Sidebar';
 import BasicInfo from 'modules/settings/productService/containers/product/detail/BasicInfo';
 import CustomFieldsSection from 'modules/settings/productService/containers/product/detail/CustomFieldsSection';

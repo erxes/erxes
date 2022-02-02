@@ -8,7 +8,7 @@ import { InfoWrapper } from 'modules/common/styles/main';
 import { IAttachment } from 'modules/common/types';
 import { __, Alert, confirm } from 'modules/common/utils';
 
-import { Action, Name } from 'modules/customers/styles';
+import { Action, Name } from '@erxes/ui-contacts/src/customers/styles';
 import Sidebar from 'modules/layout/components/Sidebar';
 import {
   FieldStyle,
