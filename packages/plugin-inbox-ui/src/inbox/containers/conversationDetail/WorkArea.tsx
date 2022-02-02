@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';
 import { NOTIFICATION_TYPE } from '../../constants';
-import { mutations, queries, subscriptions } from '../../graphql';
+import { mutations, queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
 import { isConversationMailKind } from '../../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';

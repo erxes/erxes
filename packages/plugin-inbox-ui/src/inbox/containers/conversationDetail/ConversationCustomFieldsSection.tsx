@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { mutations } from '../../graphql';
+import { mutations } from '@erxes/ui-inbox/src/graphql';
 import {
   EditCustomFieldsMutationVariables,
   EditMutationResponse,

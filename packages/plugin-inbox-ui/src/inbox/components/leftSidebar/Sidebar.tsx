@@ -7,7 +7,7 @@ import { CONVERSATION_STATUSES } from '../../constants';
 import FilterToggler from '../../containers/leftSidebar/FilterToggler';
 import Resolver from '../../containers/Resolver';
 import Tagger from '../../containers/Tagger';
-import { queries } from '../../graphql';
+import { queries } from '@erxes/ui-inbox/src/graphql';
 import { PopoverButton } from '../../styles';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';

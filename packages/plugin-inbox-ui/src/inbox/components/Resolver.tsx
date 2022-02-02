@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import { CONVERSATION_STATUSES } from '../constants';
 import React from 'react';
-import { IConversation } from '../types';
+import { IConversation } from '@erxes/ui-inbox/src/types';
 
 type Props = {
   conversations: IConversation[];

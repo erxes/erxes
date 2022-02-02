@@ -5,14 +5,14 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import AssignBox from '../components/assignBox/AssignBox';
-import { mutations } from '../graphql';
+import { mutations } from '@erxes/ui-inbox/src/graphql';
 import {
   AssignMutationResponse,
   AssignMutationVariables,
   IConversation,
   UnAssignMutationResponse,
   UnAssignMutationVariables
-} from '../types';
+} from '@erxes/ui-inbox/src/types';
 import { refetchSidebarConversationsOptions } from '../utils';
 
 type Props = {

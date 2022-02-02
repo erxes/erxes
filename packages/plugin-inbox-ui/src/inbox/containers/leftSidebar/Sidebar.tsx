@@ -9,7 +9,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '../../graphql';
+import { mutations } from '@erxes/ui-inbox/src/graphql';
 import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables

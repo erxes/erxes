@@ -2,8 +2,8 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import FacebookComment from '../../../components/conversationDetail/workarea/facebook/FacebookComment';
-import { mutations } from '../../../graphql';
-import { queries } from '../../../graphql';
+import { mutations } from '@erxes/ui-inbox/src/graphql';
+import { queries } from '@erxes/ui-inbox/src/graphql';
 import {
   IFacebookComment,
   ReplyFacebookCommentMutationResponse,

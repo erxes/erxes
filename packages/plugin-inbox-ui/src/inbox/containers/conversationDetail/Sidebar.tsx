@@ -4,7 +4,7 @@ import * as compose from "lodash.flowright";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 import { IUser } from "@erxes/ui/src/auth/types";
 import DumbSidebar from "../../components/conversationDetail/sidebar/Sidebar";
-import { queries } from "../../graphql";
+import { queries } from "@erxes/ui-inbox/src/graphql";
 import { queries as fieldQueries } from "@erxes/ui-settings/src/properties/graphql";
 import { InboxFieldsQueryResponse } from "@erxes/ui-settings/src/properties/types";
 import { IField } from "@erxes/ui/src/types";

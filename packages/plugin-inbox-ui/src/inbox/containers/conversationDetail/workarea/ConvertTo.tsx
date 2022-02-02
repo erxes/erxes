@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import ConvertTo from '../../../components/conversationDetail/workarea/ConvertTo';
-import { queries } from '../../../graphql';
+import { queries } from '@erxes/ui-inbox/src/graphql';
 import { IConversation, IMessage } from '@erxes/ui-inbox/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';

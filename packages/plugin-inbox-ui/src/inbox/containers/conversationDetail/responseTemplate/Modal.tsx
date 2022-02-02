@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { IAttachment } from '@erxes/ui/src/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import Modal from '../../../components/conversationDetail/workarea/responseTemplate/Modal';
-import { mutations, queries } from '../../../graphql';
+import { mutations, queries } from '@erxes/ui-inbox/src/graphql';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   SaveResponseTemplateMutationResponse,

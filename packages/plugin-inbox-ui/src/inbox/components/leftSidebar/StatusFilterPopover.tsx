@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, Alert, router } from '@erxes/ui/src/utils';
-import { queries } from '../../graphql';
+import { queries } from '@erxes/ui-inbox/src/graphql';
 import { PopoverButton } from '../../styles';
 import { generateParams } from '../../utils';
 import {

@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import ConversationDetail from '../../components/conversationDetail/ConversationDetail';
-import { mutations, queries, subscriptions } from '../../graphql';
+import { mutations, queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';

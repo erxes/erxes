@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 import ConversationList from '../../components/leftSidebar/ConversationList';
-import { queries, subscriptions } from '../../graphql';
+import { queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
 import { generateParams } from '../../utils';
 import React from 'react';
 import { graphql } from 'react-apollo';

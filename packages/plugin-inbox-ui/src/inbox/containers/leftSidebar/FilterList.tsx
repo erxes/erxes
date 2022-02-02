@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
-import { queries } from '../../graphql';
+import { queries } from '@erxes/ui-inbox/src/graphql';
 import { NoHeight } from '../../styles';
 import { generateParams } from '../../utils';
 import React from 'react';

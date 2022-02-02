@@ -5,7 +5,7 @@ import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
-import { queries } from '../../graphql';
+import { queries } from '@erxes/ui-inbox/src/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
