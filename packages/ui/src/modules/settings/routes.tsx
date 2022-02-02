@@ -17,7 +17,6 @@ import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 // import ResponseTemplatesRoutes from './responseTemplates/routes';
 import ScriptsRoutes from './scripts/routes';
-// import SkillsRoutes from './skills/routes';
 import StatusRoutes from './status/routes';
 import WebhookRoutes from './webhook/routes';
 import SmsDeliveryRoutes from './smsDeliveries/routes';
@@ -42,7 +41,6 @@ const routes = () => (
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <WebhookRoutes key="WebhookRoutes" />
     {/* <CalendarRoutes key="CalendarRoutes" /> */}
-    {/* <SkillsRoutes key="SkillsRoutes" /> */}
     <ClientPortalRoutes key="ClientPortalRoutes" />
     <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
   </React.Fragment>
