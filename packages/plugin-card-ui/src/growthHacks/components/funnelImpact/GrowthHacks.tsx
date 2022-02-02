@@ -4,7 +4,7 @@ import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import { GrowthRow, TableContainer } from '../../styles';
 import { IGrowthHack } from '../../types';
-import Participators from '@erxes/ui-inbox/src/components/workarea/Participators';
+import Participators from '@erxes/ui-inbox/src/components/conversationDetail/workarea/Participators';
 import React from 'react';
 
 type Props = {
