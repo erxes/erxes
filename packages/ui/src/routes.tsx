@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 // import CalendarRoutes from './modules/calendar/routes';
-// import CustomersRoutes from './modules/customers/routes';
 // import DashboardRoutes from './modules/dashboard/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
@@ -83,7 +82,6 @@ const renderRoutes = currentUser => {
         <MainLayout currentUser={currentUser} plugins={plugins}>
           <NotificationRoutes />
           <SegmentsRoutes />
-          {/* <CustomersRoutes /> */}
           <SettingsRoutes />
           <TagsRoutes />
           <VideoCallRoutes />
