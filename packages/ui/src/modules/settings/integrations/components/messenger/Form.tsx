@@ -8,7 +8,7 @@ import {
   StepWrapper
 } from 'modules/common/components/step/styles';
 import { __, Alert } from 'modules/common/utils';
-import { linkify } from 'modules/inbox/utils';
+import { linkify } from '@erxes/ui-inbox/src/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';

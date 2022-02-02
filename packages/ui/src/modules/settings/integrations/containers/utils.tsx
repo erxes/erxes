@@ -2,7 +2,7 @@ import { cleanIntegrationKind } from 'erxes-ui/lib/utils';
 import gql from 'graphql-tag';
 import juice from 'juice';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import { IEmail } from 'modules/inbox/types';
+import { IEmail } from '@erxes/ui-inbox/src/types';
 import sanitizeHtml from 'sanitize-html';
 import { queries } from '../graphql';
 

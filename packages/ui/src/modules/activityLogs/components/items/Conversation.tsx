@@ -16,14 +16,14 @@ import { formatText, getIconAndColor } from 'modules/activityLogs/utils';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __, renderFullName } from 'modules/common/utils';
-import Message from 'modules/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+import Message from '@erxes/ui-inbox/src/components/conversationDetail/workarea/conversation/messages/Message';
 import {
   Comment,
   PostContainer
-} from 'modules/inbox/components/conversationDetail/workarea/facebook/styles';
-import UserName from 'modules/inbox/components/conversationDetail/workarea/facebook/UserName';
-import MailConversation from 'modules/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import { IConversation, IFacebookComment, IMessage } from 'modules/inbox/types';
+} from '@erxes/ui-inbox/src/components/conversationDetail/workarea/facebook/styles';
+import UserName from '@erxes/ui-inbox/src/components/conversationDetail/workarea/facebook/UserName';
+import MailConversation from '@erxes/ui-inbox/src/components/conversationDetail/workarea/mail/MailConversation';
+import { IConversation, IFacebookComment, IMessage } from '@erxes/ui-inbox/src/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import xss from 'xss';

@@ -5,8 +5,8 @@ import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries as messageQueries } from 'modules/inbox/graphql';
-import { IMail, IMessage } from 'modules/inbox/types';
+import { queries as messageQueries } from '@erxes/ui-inbox/src/graphql';
+import { IMail, IMessage } from '@erxes/ui-inbox/src/types';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse

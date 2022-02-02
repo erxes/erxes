@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
-import { queries, subscriptions } from 'modules/inbox/graphql';
-import { UnreadConversationsTotalCountQueryResponse } from 'modules/inbox/types';
+import { queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
+import { UnreadConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import strip from 'strip';
