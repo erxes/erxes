@@ -2,7 +2,10 @@
   "name": "@erxes/ui-inbox",
   "version": "1.0.0",
   "dependencies": {
+    "graphql-tag": "^2.6.1",
+    "query-string": "^5.0.0",
     "react": "^16.14.0",
-    "styled-components": "^3.2.6"
+    "styled-components": "^3.2.6",
+    "styled-components-ts": "^0.0.14"
   }
 }
