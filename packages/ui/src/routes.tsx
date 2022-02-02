@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 // import CalendarRoutes from './modules/calendar/routes';
-// import CompaniesRoutes from './modules/companies/routes';
 // import CustomersRoutes from './modules/customers/routes';
 // import DashboardRoutes from './modules/dashboard/routes';
 // import InboxRoutes from './modules/inbox/routes';
@@ -86,8 +85,7 @@ const renderRoutes = currentUser => {
           <NotificationRoutes />
           {/* <InboxRoutes /> */}
           <SegmentsRoutes />
-          {/* <CustomersRoutes />
-          <CompaniesRoutes /> */}
+          {/* <CustomersRoutes /> */}
           <SettingsRoutes />
           <TagsRoutes />
           <VideoCallRoutes />
