@@ -4,7 +4,7 @@ import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-inbox/src/graphql';
-import { NoHeight } from '../../styles';
+import { NoHeight } from '@erxes/ui-inbox/src/styles';
 import { generateParams } from '@erxes/ui-inbox/src/utils';
 import React from 'react';
 

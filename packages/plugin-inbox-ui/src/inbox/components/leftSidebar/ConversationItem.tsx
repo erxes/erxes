@@ -6,7 +6,7 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { readFile, renderFullName } from '@erxes/ui/src/utils';
-import { CallLabel } from '../../styles';
+import { CallLabel } from '@erxes/ui-inbox/src/styles';
 import { cleanIntegrationKind } from '@erxes/ui-settings/src/integrations/containers/utils';
 import React from 'react';
 import strip from 'strip';

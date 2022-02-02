@@ -5,7 +5,7 @@ import { IAttachment } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
-import { ResponseTemplateStyled } from '../../../../styles';
+import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
 import React from 'react';

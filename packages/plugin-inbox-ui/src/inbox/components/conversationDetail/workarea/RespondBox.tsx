@@ -21,7 +21,7 @@ import {
   PreviewImg,
   RespondBoxStyled,
   SmallEditor
-} from '../../../styles';
+} from '@erxes/ui-inbox/src/styles';
 import ManageVideoRoom from '../../ManageRoom';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';

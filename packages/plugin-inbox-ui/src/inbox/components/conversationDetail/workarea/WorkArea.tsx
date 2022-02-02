@@ -10,7 +10,7 @@ import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
 import RespondBox from '../../../containers/conversationDetail/RespondBox';
 import Resolver from '../../../containers/Resolver';
 import Tagger from '../../../containers/Tagger';
-import { PopoverButton } from '../../../styles';
+import { PopoverButton } from '@erxes/ui-inbox/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   ContenFooter,
@@ -34,7 +34,7 @@ import {
 import TypingIndicator from './TypingIndicator';
 
 const Participators = asyncComponent(
-  () => import(/* webpackChunkName:"Inbox-Participators" */ './Participators'),
+  () => import(/* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/components/conversationDetail/workarea/Participators'),
   { height: '30px', width: '30px', round: true }
 );
 

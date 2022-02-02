@@ -13,7 +13,7 @@ import Date from './Date';
 import FacebookContent from './FacebookContent';
 import ReplyingMessage from './ReplyingMessage';
 import { ChildPost, Comment, FlexItem, Reply, ShowMore, User } from './styles';
-import UserName from './UserName';
+import UserName from '@erxes/ui-inbox/src/components/conversationDetail/workarea/facebook/UserName';
 
 const Container = styled.div`
   display: inline-block;

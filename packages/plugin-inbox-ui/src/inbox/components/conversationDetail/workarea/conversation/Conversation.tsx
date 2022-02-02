@@ -4,9 +4,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { IConversation, IMessage } from '@erxes/ui-inbox/src/types';
 import CallPro from '../callpro/Callpro';
-import MailConversation from '../mail/MailConversation';
+import MailConversation from '@erxes/ui-inbox/src/components/conversationDetail/workarea/mail/MailConversation';
 import AttachmentPreview from './AttachmentPreview';
-import Message from './messages/Message';
+import Message from '@erxes/ui-inbox/src/components/conversationDetail/workarea/conversation/messages/Message';
 
 type Props = {
   conversation: IConversation;
