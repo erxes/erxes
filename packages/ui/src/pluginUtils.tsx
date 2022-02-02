@@ -6,7 +6,7 @@ import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { __ } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
+import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';

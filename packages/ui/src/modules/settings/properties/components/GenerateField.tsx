@@ -9,7 +9,7 @@ import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES
-} from 'modules/companies/constants';
+} from '@erxes/ui/src/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput, ObjectList } from '../styles';
 import { IField } from '../types';

@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import { COMPANY_INFO } from 'modules/companies/constants';
+import { COMPANY_INFO } from '@erxes/ui/src/companies/constants';
 import { CUSTOMER_BASIC_INFO } from 'modules/customers/constants';
 import { PRODUCT_INFO } from '../productService/constants';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
