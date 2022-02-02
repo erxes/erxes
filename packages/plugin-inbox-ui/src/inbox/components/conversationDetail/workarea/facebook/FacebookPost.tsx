@@ -7,7 +7,7 @@ import Date from './Date';
 import FacebookContent from './FacebookContent';
 import { Counts, PostContainer, User } from './styles';
 import UserName from './UserName';
-import { IFacebookPost } from '../../../../types';
+import { IFacebookPost } from '@erxes/ui-inbox/src/types';
 
 type Props = {
   post: IFacebookPost;

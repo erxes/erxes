@@ -17,7 +17,7 @@ import {
   IMessage,
   MessagesQueryResponse,
   MessagesTotalCountQuery
-} from '../../types';
+} from '@erxes/ui-inbox/src/types';
 
 // messages limit
 let initialLimit = 10;

@@ -12,7 +12,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
 import { UsersQueryResponse } from '@erxes/ui-settings/src/general/types';
-import { AddMessageMutationVariables, IConversation } from '../../types';
+import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/types';
 
 type Props = {
   conversation: IConversation;

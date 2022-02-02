@@ -7,7 +7,7 @@ import Alert from '@erxes/ui/src/utils/Alert';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { queries } from '../../graphql';
-import { IConversation } from '../../types';
+import { IConversation } from '@erxes/ui-inbox/src/types';
 
 interface IAssignee {
   _id: string;

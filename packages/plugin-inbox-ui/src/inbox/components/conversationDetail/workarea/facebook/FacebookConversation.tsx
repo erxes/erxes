@@ -5,7 +5,7 @@ import FacebookComment from '../../../../containers/conversationDetail/facebook/
 import { SimpleMessage } from '../conversation/messages';
 import FacebookPost from './FacebookPost';
 import { ShowMore } from './styles';
-import { IMessage, IFacebookComment, IFacebookPost } from '../../../../types';
+import { IMessage, IFacebookComment, IFacebookPost } from '@erxes/ui-inbox/src/types';
 
 type Props = {
   commentCount: number;

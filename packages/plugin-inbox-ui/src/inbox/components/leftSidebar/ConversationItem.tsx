@@ -14,7 +14,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { IConversation } from '../../types';
+import { IConversation } from '@erxes/ui-inbox/src/types';
 import {
   AssigneeImg,
   CheckBox,

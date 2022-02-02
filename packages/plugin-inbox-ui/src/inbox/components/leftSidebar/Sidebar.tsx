@@ -15,7 +15,7 @@ import React from 'react';
 import RTG from 'react-transition-group';
 import { InboxManagementActionConsumer } from '../../containers/InboxCore';
 import { StatusFilterPopover } from '../../containers/leftSidebar';
-import { IConversation } from '../../types';
+import { IConversation } from '@erxes/ui-inbox/src/types';
 import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,

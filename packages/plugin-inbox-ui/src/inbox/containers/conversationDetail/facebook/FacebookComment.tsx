@@ -10,7 +10,7 @@ import {
   ReplyFaceBookCommentMutationVariables,
   ResolveFacebookCommentMutationVariables,
   ResolveFacebookCommentResponse
-} from '../../../types';
+} from '@erxes/ui-inbox/src/types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 

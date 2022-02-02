@@ -22,7 +22,7 @@ import {
   AddMessageMutationVariables,
   IConversation,
   IMessage
-} from '../../../types';
+} from '@erxes/ui-inbox/src/types';
 import Conversation from './conversation/Conversation';
 import {
   ActionBarLeft,

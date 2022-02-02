@@ -13,7 +13,7 @@ import { mutations } from '../../graphql';
 import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables
-} from '../../types';
+} from '@erxes/ui-inbox/src/types';
 import { getConfig, setConfig } from '../../utils';
 import { refetchSidebarConversationsOptions } from '../../utils';
 import { InboxManagementActionConsumer } from '../InboxCore';

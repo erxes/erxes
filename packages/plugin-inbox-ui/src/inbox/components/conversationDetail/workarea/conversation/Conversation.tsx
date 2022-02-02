@@ -2,7 +2,7 @@ import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { FacebookPost } from '../../../../containers/conversationDetail';
 import React from 'react';
 import styled from 'styled-components';
-import { IConversation, IMessage } from '../../../../types';
+import { IConversation, IMessage } from '@erxes/ui-inbox/src/types';
 import CallPro from '../callpro/Callpro';
 import MailConversation from '../mail/MailConversation';
 import AttachmentPreview from './AttachmentPreview';

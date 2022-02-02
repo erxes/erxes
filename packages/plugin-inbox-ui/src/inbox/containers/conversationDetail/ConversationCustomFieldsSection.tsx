@@ -6,7 +6,7 @@ import {
   EditCustomFieldsMutationVariables,
   EditMutationResponse,
   IConversation
-} from '../../types';
+} from '@erxes/ui-inbox/src/types';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';

@@ -11,8 +11,8 @@ import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
   IConversation
-} from '../../types';
-import { ConversationsTotalCountQueryResponse } from '../../types';
+} from '@erxes/ui-inbox/src/types';
+import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {

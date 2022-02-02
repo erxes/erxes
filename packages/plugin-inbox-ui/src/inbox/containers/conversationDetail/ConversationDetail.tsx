@@ -11,7 +11,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import {
   ConversationDetailQueryResponse,
   MarkAsReadMutationResponse
-} from '../../types';
+} from '@erxes/ui-inbox/src/types';
 
 type Props = {
   currentId: string;

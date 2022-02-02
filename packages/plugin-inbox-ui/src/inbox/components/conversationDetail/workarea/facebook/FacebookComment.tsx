@@ -8,7 +8,7 @@ import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketC
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
-import { IFacebookComment } from '../../../../types';
+import { IFacebookComment } from '@erxes/ui-inbox/src/types';
 import Date from './Date';
 import FacebookContent from './FacebookContent';
 import ReplyingMessage from './ReplyingMessage';
