@@ -5,7 +5,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, Alert, router } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-inbox/src/graphql';
 import { PopoverButton } from '../../styles';
-import { generateParams } from '../../utils';
+import { generateParams } from '@erxes/ui-inbox/src/utils';
 import {
   FieldStyle,
   SidebarCounter,

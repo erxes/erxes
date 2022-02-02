@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';
 import { NOTIFICATION_TYPE } from '../../constants';
 import { mutations, queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
-import { isConversationMailKind } from '../../utils';
+import { isConversationMailKind } from '@erxes/ui-inbox/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import strip from 'strip';

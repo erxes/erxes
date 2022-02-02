@@ -4,7 +4,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 import ConversationList from '../../components/leftSidebar/ConversationList';
 import { queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
-import { generateParams } from '../../utils';
+import { generateParams } from '@erxes/ui-inbox/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {

@@ -5,7 +5,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-inbox/src/graphql';
 import { NoHeight } from '../../styles';
-import { generateParams } from '../../utils';
+import { generateParams } from '@erxes/ui-inbox/src/utils';
 import React from 'react';
 
 type Props = {

@@ -10,7 +10,7 @@ import {
   ConvesationsQueryVariables,
   LastConversationQueryResponse
 } from '@erxes/ui-inbox/src/types';
-import { generateParams } from '../utils';
+import { generateParams } from '@erxes/ui-inbox/src/utils';
 
 interface IRouteProps {
   queryParams: any;

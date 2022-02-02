@@ -11,7 +11,7 @@ import {
   ChangeStatusMutationVariables,
   IConversation
 } from '@erxes/ui-inbox/src/types';
-import { refetchSidebarConversationsOptions } from '../utils';
+import { refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/utils';
 import { InboxManagementActionConsumer } from './InboxCore';
 
 type Props = {

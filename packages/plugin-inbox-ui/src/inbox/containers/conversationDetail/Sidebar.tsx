@@ -14,7 +14,7 @@ import Spinner from "@erxes/ui/src/components/Spinner";
 import { withProps } from "@erxes/ui/src/utils";
 import { ICustomer } from "@erxes/ui/src/customers/types";
 import { CustomerDetailQueryResponse, IConversation } from "@erxes/ui-inbox/src/types";
-import { getConfig } from "../../utils";
+import { getConfig } from "@erxes/ui-inbox/src/utils";
 
 type Props = {
   conversation: IConversation;

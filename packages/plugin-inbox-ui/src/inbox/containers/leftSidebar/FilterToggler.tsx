@@ -1,6 +1,6 @@
 import DumbToggler from '../../components/leftSidebar/FilterToggler';
 import React from 'react';
-import { getConfig, setConfig } from '../../utils';
+import { getConfig, setConfig } from '@erxes/ui-inbox/src/utils';
 
 type Props = {
   groupText: string;

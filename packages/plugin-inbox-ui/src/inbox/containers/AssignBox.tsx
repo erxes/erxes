@@ -13,7 +13,7 @@ import {
   UnAssignMutationResponse,
   UnAssignMutationVariables
 } from '@erxes/ui-inbox/src/types';
-import { refetchSidebarConversationsOptions } from '../utils';
+import { refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/utils';
 
 type Props = {
   targets: IConversation[];

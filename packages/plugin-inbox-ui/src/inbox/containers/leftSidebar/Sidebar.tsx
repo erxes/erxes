@@ -14,8 +14,7 @@ import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables
 } from '@erxes/ui-inbox/src/types';
-import { getConfig, setConfig } from '../../utils';
-import { refetchSidebarConversationsOptions } from '../../utils';
+import { getConfig, setConfig, refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/utils';
 import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {
