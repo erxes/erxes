@@ -10,7 +10,7 @@ import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import MemberAvatars from 'modules/settings/channels/components/MemberAvatars';
+import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
 import { ActionButtons } from 'modules/settings/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import ManageIntegrations from '../../integrations/containers/common/ManageIntegrations';
-import { integrationsListParams } from '../../integrations/containers/utils';
+import ManageIntegrations from '@erxes/ui-inbox/src/settings/integrations/containers/common/ManageIntegrations';
+import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import { queries as integQueries } from '../../integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';

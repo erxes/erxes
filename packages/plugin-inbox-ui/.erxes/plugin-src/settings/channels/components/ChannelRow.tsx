@@ -11,7 +11,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
-import MemberAvatars from './MemberAvatars';
+import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
 
 type Props = {
   channel: IChannel;
