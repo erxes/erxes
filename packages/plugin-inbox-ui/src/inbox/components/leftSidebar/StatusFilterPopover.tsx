@@ -3,9 +3,9 @@ import gql from 'graphql-tag';
 import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, Alert, router } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-inbox/src/graphql';
-import { PopoverButton } from '@erxes/ui-inbox/src/styles';
-import { generateParams } from '@erxes/ui-inbox/src/utils';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import {
   FieldStyle,
   SidebarCounter,

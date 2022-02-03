@@ -6,8 +6,8 @@ import { ICustomer } from '@erxes/ui/src/customers/types';
 import Date from './Date';
 import FacebookContent from './FacebookContent';
 import { Counts, PostContainer, User } from './styles';
-import UserName from '@erxes/ui-inbox/src/components/conversationDetail/workarea/facebook/UserName';
-import { IFacebookPost } from '@erxes/ui-inbox/src/types';
+import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
+import { IFacebookPost } from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   post: IFacebookPost;

@@ -3,8 +3,8 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';
 import { NOTIFICATION_TYPE } from '../../constants';
-import { mutations, queries, subscriptions } from '../../graphql';
-import { isConversationMailKind } from '../../utils';
+import { mutations, queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
+import { isConversationMailKind } from '@erxes/ui-inbox/src/inbox/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import strip from 'strip';
@@ -17,7 +17,7 @@ import {
   IMessage,
   MessagesQueryResponse,
   MessagesTotalCountQuery
-} from '../../types';
+} from '@erxes/ui-inbox/src/inbox/types';
 
 // messages limit
 let initialLimit = 10;

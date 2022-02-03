@@ -9,13 +9,12 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '../../graphql';
+import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables
-} from '../../types';
-import { getConfig, setConfig } from '../../utils';
-import { refetchSidebarConversationsOptions } from '../../utils';
+} from '@erxes/ui-inbox/src/inbox/types';
+import { getConfig, setConfig, refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
 import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {

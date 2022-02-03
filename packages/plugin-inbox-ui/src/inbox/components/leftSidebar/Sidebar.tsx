@@ -7,15 +7,15 @@ import { CONVERSATION_STATUSES } from '../../constants';
 import FilterToggler from '../../containers/leftSidebar/FilterToggler';
 import Resolver from '../../containers/Resolver';
 import Tagger from '../../containers/Tagger';
-import { queries } from '@erxes/ui-inbox/src/graphql';
-import { PopoverButton } from '@erxes/ui-inbox/src/styles';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 import React from 'react';
 import RTG from 'react-transition-group';
 import { InboxManagementActionConsumer } from '../../containers/InboxCore';
 import { StatusFilterPopover } from '../../containers/leftSidebar';
-import { IConversation } from '@erxes/ui-inbox/src/types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,

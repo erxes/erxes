@@ -21,13 +21,13 @@ import {
   PreviewImg,
   RespondBoxStyled,
   SmallEditor
-} from '../../../styles';
+} from '@erxes/ui-inbox/src/inbox/styles';
 import ManageVideoRoom from '../../ManageRoom';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { AddMessageMutationVariables, IConversation } from '../../../types';
+import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
 import { FacebookTaggedMessage } from './styles';
 

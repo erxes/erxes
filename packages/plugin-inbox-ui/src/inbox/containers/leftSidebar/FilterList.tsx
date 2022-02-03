@@ -3,9 +3,9 @@ import gql from 'graphql-tag';
 import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-inbox/src/graphql';
-import { NoHeight } from '@erxes/ui-inbox/src/styles';
-import { generateParams } from '@erxes/ui-inbox/src/utils';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { NoHeight } from '@erxes/ui-inbox/src/inbox/styles';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import React from 'react';
 
 type Props = {

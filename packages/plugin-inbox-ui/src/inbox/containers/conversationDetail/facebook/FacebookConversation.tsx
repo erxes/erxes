@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
 import FacebookConversation from '../../../components/conversationDetail/workarea/facebook/FacebookConversation';
-import { queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
+import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   FacebookCommentsCountQueryResponse,
   FacebookCommentsQueryResponse,
@@ -12,7 +12,7 @@ import {
   IFacebookComment,
   IFacebookPost,
   MessagesQueryResponse
-} from '@erxes/ui-inbox/src/types';
+} from '@erxes/ui-inbox/src/inbox/types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 

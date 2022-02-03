@@ -2,10 +2,10 @@ import * as React from 'react';
 
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import FacebookComment from '../../../../containers/conversationDetail/facebook/FacebookComment';
-import SimpleMessage  from '@erxes/ui-inbox/src/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
+import SimpleMessage  from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
 import FacebookPost from './FacebookPost'
 import { ShowMore } from './styles';
-import { IMessage, IFacebookComment, IFacebookPost } from '@erxes/ui-inbox/src/types';
+import { IMessage, IFacebookComment, IFacebookPost } from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   commentCount: number;

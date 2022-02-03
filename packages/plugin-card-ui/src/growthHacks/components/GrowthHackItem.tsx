@@ -10,7 +10,7 @@ import {
 import { Content } from '@erxes/ui-cards/src/boards/styles/stage';
 import { IOptions } from '@erxes/ui-cards/src/boards/types';
 import { renderPriority } from '@erxes/ui-cards/src/boards/utils';
-import Participators from '@erxes/ui-inbox/src/components/conversationDetail/workarea/Participators';
+import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import { ScoreAmount, Vote } from '../styles';

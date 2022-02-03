@@ -1,6 +1,6 @@
 import ConversationItem from '../../components/leftSidebar/ConversationItem';
 import React from 'react';
-import { IConversation } from '../../types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   conversation: IConversation;

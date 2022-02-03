@@ -8,7 +8,7 @@ import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketC
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
-import { IMessage, IConversation, IMail } from '../../../types';
+import { IMessage, IConversation, IMail } from '@erxes/ui-inbox/src/inbox/types';
 
 const Container = styled.div`
   display: inline-block;

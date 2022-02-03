@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import ResponseTemplate from '../../../components/conversationDetail/workarea/responseTemplate/ResponseTemplate';
-import { queries } from '../../../graphql';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import { queries as brandQuery } from '@erxes/ui/src/brands/graphql';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import {

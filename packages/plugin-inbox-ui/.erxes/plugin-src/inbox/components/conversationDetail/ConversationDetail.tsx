@@ -6,7 +6,7 @@ import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { MainContent, ContentBox } from '@erxes/ui/src/layout/styles';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import { IConversation } from '../../types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   currentConversation: IConversation;

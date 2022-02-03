@@ -5,14 +5,14 @@ import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
-import { queries } from '@erxes/ui-inbox/src/graphql';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
 import { UsersQueryResponse } from '@erxes/ui-settings/src/general/types';
-import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/types';
+import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   conversation: IConversation;

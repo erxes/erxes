@@ -5,13 +5,13 @@ import { CONVERSATION_STATUSES } from '../constants';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Resolver from '../components/Resolver';
-import { mutations } from '../graphql';
+import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ChangeStatusMutationResponse,
   ChangeStatusMutationVariables,
   IConversation
-} from '../types';
-import { refetchSidebarConversationsOptions } from '../utils';
+} from '@erxes/ui-inbox/src/inbox/types';
+import { refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
 import { InboxManagementActionConsumer } from './InboxCore';
 
 type Props = {

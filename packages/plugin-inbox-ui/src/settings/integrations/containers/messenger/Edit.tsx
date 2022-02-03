@@ -23,7 +23,7 @@ import { IMessengerData, IUiOptions,  } from '@erxes/ui-settings/src/integration
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { TopicsQueryResponse } from '@erxes/ui-inbox/src/types';
+import { TopicsQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import { UsersQueryResponse } from '@erxes/ui-settings/src/general/types';
 

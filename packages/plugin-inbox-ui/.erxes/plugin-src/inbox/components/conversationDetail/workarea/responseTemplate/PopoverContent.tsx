@@ -13,7 +13,7 @@ import {
   PopoverLoadMore,
   TemplateContent,
   TemplateTitle
-} from '../../../../styles';
+} from '@erxes/ui-inbox/src/inbox/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
 import React from 'react';

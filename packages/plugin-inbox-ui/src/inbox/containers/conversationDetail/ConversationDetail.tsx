@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import ConversationDetail from '../../components/conversationDetail/ConversationDetail';
-import { mutations, queries, subscriptions } from '@erxes/ui-inbox/src/graphql';
+import { mutations, queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -11,7 +11,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import {
   ConversationDetailQueryResponse,
   MarkAsReadMutationResponse
-} from '@erxes/ui-inbox/src/types';
+} from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   currentId: string;

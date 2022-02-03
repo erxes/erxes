@@ -5,15 +5,15 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import AssignBox from '../components/assignBox/AssignBox';
-import { mutations } from '@erxes/ui-inbox/src/graphql';
+import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   AssignMutationResponse,
   AssignMutationVariables,
   IConversation,
   UnAssignMutationResponse,
   UnAssignMutationVariables
-} from '@erxes/ui-inbox/src/types';
-import { refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/utils';
+} from '@erxes/ui-inbox/src/inbox/types';
+import { refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   targets: IConversation[];

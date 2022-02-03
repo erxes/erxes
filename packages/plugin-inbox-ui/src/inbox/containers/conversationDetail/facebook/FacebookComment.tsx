@@ -2,15 +2,15 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import FacebookComment from '../../../components/conversationDetail/workarea/facebook/FacebookComment';
-import { mutations } from '@erxes/ui-inbox/src/graphql';
-import { queries } from '@erxes/ui-inbox/src/graphql';
+import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   IFacebookComment,
   ReplyFacebookCommentMutationResponse,
   ReplyFaceBookCommentMutationVariables,
   ResolveFacebookCommentMutationVariables,
   ResolveFacebookCommentResponse
-} from '@erxes/ui-inbox/src/types';
+} from '@erxes/ui-inbox/src/inbox/types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 

@@ -4,7 +4,7 @@ import LoadMore from '@erxes/ui/src/components/LoadMore';
 import { __ } from '@erxes/ui/src/utils';
 import ConversationItem from '../../containers/leftSidebar/ConversationItem';
 import React from 'react';
-import { IConversation } from '../../types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { IntegrationModal } from './IntegrationModal';
 import { ConversationItems } from './styles';
 

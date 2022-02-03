@@ -8,12 +8,12 @@ import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketC
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
-import { IFacebookComment } from '@erxes/ui-inbox/src/types';
+import { IFacebookComment } from '@erxes/ui-inbox/src/inbox/types';
 import Date from './Date';
 import FacebookContent from './FacebookContent';
 import ReplyingMessage from './ReplyingMessage';
 import { ChildPost, Comment, FlexItem, Reply, ShowMore, User } from './styles';
-import UserName from '@erxes/ui-inbox/src/components/conversationDetail/workarea/facebook/UserName';
+import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
 
 const Container = styled.div`
   display: inline-block;

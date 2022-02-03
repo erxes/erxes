@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { mutations } from '../../graphql';
+import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   EditCustomFieldsMutationVariables,
   EditMutationResponse,
   IConversation
-} from '../../types';
+} from '@erxes/ui-inbox/src/inbox/types';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';

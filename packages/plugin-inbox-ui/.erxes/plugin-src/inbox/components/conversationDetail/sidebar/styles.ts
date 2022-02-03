@@ -27,14 +27,14 @@ import {
   Subject
 } from '@erxes/ui-settings/src/integrations/components/mail/styles';
 import styled from 'styled-components';
-import { CardItem } from '../workarea/conversation/messages/bot/styles';
+import { CardItem } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles';
 import {
   FormTable,
   MessageBody,
   MessageContent,
   MessageItem,
   UserInfo
-} from '../workarea/conversation/styles';
+} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
 import {
   AttachmentItem,
   AttachmentsContainer,
@@ -43,7 +43,7 @@ import {
   Meta,
   Reply,
   RightSide
-} from '../workarea/mail/style';
+} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/style';
 
 const FlexRow = styled(DateContainer)`
   display: flex;

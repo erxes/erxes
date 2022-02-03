@@ -3,16 +3,16 @@ import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 import ConversationList from '../../components/leftSidebar/ConversationList';
-import { queries, subscriptions } from '../../graphql';
-import { generateParams } from '../../utils';
+import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
   IConversation
-} from '../../types';
-import { ConversationsTotalCountQueryResponse } from '../../types';
+} from '@erxes/ui-inbox/src/inbox/types';
+import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {

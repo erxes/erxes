@@ -5,12 +5,12 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Empty from '../components/Empty';
 import InboxCore from '../components/InboxCore';
-import { queries } from '@erxes/ui-inbox/src/graphql';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ConvesationsQueryVariables,
   LastConversationQueryResponse
-} from '@erxes/ui-inbox/src/types';
-import { generateParams } from '@erxes/ui-inbox/src/utils';
+} from '@erxes/ui-inbox/src/inbox/types';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 
 interface IRouteProps {
   queryParams: any;

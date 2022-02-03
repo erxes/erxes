@@ -11,7 +11,7 @@ import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
-import { IConversation } from '@erxes/ui-inbox/src/types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
 const ActionSection = asyncComponent(() =>
   import(

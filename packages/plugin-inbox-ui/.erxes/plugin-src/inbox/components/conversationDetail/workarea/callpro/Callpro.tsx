@@ -1,4 +1,4 @@
-import { IConversation } from '../../../../types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import React from 'react';
 
 type Props = {

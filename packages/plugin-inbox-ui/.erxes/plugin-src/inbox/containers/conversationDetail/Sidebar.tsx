@@ -4,7 +4,7 @@ import * as compose from "lodash.flowright";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 import { IUser } from "@erxes/ui/src/auth/types";
 import DumbSidebar from "../../components/conversationDetail/sidebar/Sidebar";
-import { queries } from "../../graphql";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 import { queries as fieldQueries } from "@erxes/ui-settings/src/properties/graphql";
 import { InboxFieldsQueryResponse } from "@erxes/ui-settings/src/properties/types";
 import { IField } from "@erxes/ui/src/types";
@@ -13,9 +13,8 @@ import { graphql } from "react-apollo";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { withProps } from "@erxes/ui/src/utils";
 import { ICustomer } from "@erxes/ui/src/customers/types";
-import { CustomerDetailQueryResponse } from "../../types";
-import { IConversation } from "../../types";
-import { getConfig } from "../../utils";
+import { CustomerDetailQueryResponse, IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { getConfig } from "@erxes/ui-inbox/src/inbox/utils";
 
 type Props = {
   conversation: IConversation;

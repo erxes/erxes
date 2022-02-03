@@ -4,7 +4,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { InboxManagementActionConsumer } from '../../containers/InboxCore';
-import { IConversation } from '../../types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   targets: IConversation[];
