@@ -10,7 +10,7 @@ import Select from 'react-select-plus';
 import { IOnlineHour } from '@erxes/ui-settings/src/integrations/types';
 import { ToggleWrapper } from '../widgetPreview/styles';
 import OnlineHours from './OnlineHours';
-import { Description } from '../../../styles';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 
 type Props = {
   onChange: (

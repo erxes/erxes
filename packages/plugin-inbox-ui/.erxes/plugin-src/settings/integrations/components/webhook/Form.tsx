@@ -10,7 +10,7 @@ import React from 'react';
 import { WEBHOOK_DOC_URL } from '../../constants';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
-import { Description } from '../../styles';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

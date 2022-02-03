@@ -5,8 +5,8 @@ import Form from '../../components/mail/Form';
 import { mutations } from '@erxes/ui-settings/src/integrations/graphql';
 import * as React from 'react';
 import { withRouter } from 'react-router-dom';
-import { IntegrationTypes } from '../../types';
-import { getRefetchQueries } from '../utils';
+import { IntegrationTypes } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 
 type Props = {
   type?: string;

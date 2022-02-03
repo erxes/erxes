@@ -9,7 +9,7 @@ import { __, Alert } from '@erxes/ui/src/utils';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
-import { Description } from '../../../styles';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 
 type Props = {
   onChange: (

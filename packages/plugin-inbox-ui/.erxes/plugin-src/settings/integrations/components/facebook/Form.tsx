@@ -31,8 +31,8 @@ import {
   ImageWrapper,
   MessengerPreview,
   TextWrapper
-} from '../../styles';
-import { IPages } from '../../types';
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { IPages } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 type Props = {
   kind: string;

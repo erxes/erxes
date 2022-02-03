@@ -11,7 +11,7 @@ import Viber from '../../components/viber/Viber';
 import WebHookForm from '../../components/webhook/Form';
 import OutgoingWebHookFrom from '../../components/outgoing-webhook/Form';
 import Whatsapp from '../../components/whatsapp/Whatsapp';
-import { getRefetchQueries } from '../utils';
+import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 
 type Props = {
   type: string;

@@ -5,7 +5,7 @@ import { mutations } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { getRefetchQueries } from '../utils';
+import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 
 type Props = {
   type?: string;

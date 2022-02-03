@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import { IMessengerApps } from '../../../types';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import React from 'react';
 import {
   ContentBox,

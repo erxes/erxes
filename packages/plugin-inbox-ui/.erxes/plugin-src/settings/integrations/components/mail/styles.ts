@@ -1,6 +1,6 @@
 import { SelectWrapper } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { Attachment } from '../../../../inbox/styles';
+import { Attachment } from '@erxes/ui-inbox/src/inbox/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

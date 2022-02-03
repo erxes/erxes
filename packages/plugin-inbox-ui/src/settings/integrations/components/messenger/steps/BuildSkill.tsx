@@ -6,7 +6,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils';
-import { Description } from '../../../../integrations/styles';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import { ISkillData } from '@erxes/ui-settings/src/integrations/types';
 import {

@@ -19,7 +19,7 @@ import {
   SaveMessengerConfigsMutationResponse,
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables
-} from '../../types';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IMessengerData, IUiOptions } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';

@@ -8,7 +8,7 @@ import {
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { __, Alert } from '@erxes/ui/src/utils';
-import { linkify } from '../../../../inbox/utils';
+import { linkify } from '@erxes/ui-inbox/src/inbox/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
@@ -16,7 +16,7 @@ import {
   Content,
   LeftContent
 } from '@erxes/ui-settings/src/integrations/styles';
-import { MessengerPreview } from '../../../integrations/styles';
+import { MessengerPreview } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   IIntegration,
   IMessages,
@@ -24,7 +24,7 @@ import {
   ISkillData,
   IUiOptions
 } from '@erxes/ui-settings/src/integrations/types';
-import { IMessengerApps } from '../../../integrations/types';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import AddOns from '../../containers/messenger/AddOns';

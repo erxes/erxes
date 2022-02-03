@@ -10,7 +10,7 @@ import {
 import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import Twitter from '../../components/twitter/Twitter';
-import { getRefetchQueries } from '../utils';
+import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 
 type Props = {
   type?: string;

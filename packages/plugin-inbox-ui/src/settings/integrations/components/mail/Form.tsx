@@ -16,7 +16,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
-import { IExchangeForm, IImapForm, IntegrationTypes } from '../../types';
+import { IExchangeForm, IImapForm, IntegrationTypes } from '@erxes/ui-inbox/src/settings/integrations/types';
 import ExchangeForm from './ExchangeForm';
 import ImapForm from './ImapForm';
 import MailAuthForm from './MailAuthForm';

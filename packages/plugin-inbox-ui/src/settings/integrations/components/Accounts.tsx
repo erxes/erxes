@@ -11,8 +11,8 @@ import {
   AccountTitle,
   FacebookButton,
   GoogleButton
-} from '../styles';
-import { IAccount, IntegrationTypes } from '../types';
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { IAccount, IntegrationTypes } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 type Props = {
   onSelect: (accountId?: string) => void;

@@ -22,7 +22,7 @@ import Accounts from '../../containers/Accounts';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
 import { Content } from '@erxes/ui-settings/src/integrations/styles';
-import { ImageWrapper, MessengerPreview, TextWrapper } from '../../styles';
+import { ImageWrapper, MessengerPreview, TextWrapper } from '@erxes/ui-inbox/src/settings/integrations/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

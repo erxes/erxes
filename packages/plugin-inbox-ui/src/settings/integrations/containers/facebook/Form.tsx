@@ -10,8 +10,8 @@ import {
 } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { IPages } from '../../types';
-import { getRefetchQueries } from '../utils';
+import { IPages } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 
 type Props = {
   kind: string;

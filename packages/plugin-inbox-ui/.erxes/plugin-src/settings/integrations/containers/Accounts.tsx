@@ -15,7 +15,7 @@ import {
   AccountsQueryResponse,
   IntegrationTypes,
   RemoveAccountMutationResponse
-} from '../types';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 
 type Props = {
   kind: IntegrationTypes;

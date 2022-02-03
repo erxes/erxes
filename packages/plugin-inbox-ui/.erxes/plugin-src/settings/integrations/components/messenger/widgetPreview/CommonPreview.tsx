@@ -4,7 +4,7 @@ import {
   IMessagesItem,
   ISkillData
 } from '@erxes/ui-settings/src/integrations/types';
-import { IMessengerApps } from '../../../types';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import React from 'react';
 import GreetingContent from './GreetingContent';
 import { Launcher, WidgetPreviewStyled } from './styles';

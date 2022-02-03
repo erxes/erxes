@@ -11,11 +11,9 @@ import { graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import AddOns from '../../components/messenger/steps/AddOns';
 import {
-  ILeadMessengerApp,
   IMessengerApps,
-  IWebsiteMessengerApp
-} from '../../types';
-import { IntegrationsQueryResponse, ITopicMessengerApp } from '@erxes/ui-settings/src/integrations/types';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import {ILeadMessengerApp, IWebsiteMessengerApp, IntegrationsQueryResponse, ITopicMessengerApp} from  '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   selectedBrand?: string;
