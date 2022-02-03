@@ -7,7 +7,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __, getUserAvatar } from '@erxes/ui/src/utils';
 import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
-import { IArticle } from '../../types';
+import { IArticle } from '@erxes/ui-knowledgeBase/src/types';
 import {
   ActionButtons,
   ArticleColumn,

@@ -6,12 +6,12 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import KnowledgeList from '../../components/knowledge/KnowledgeList';
-import { mutations, queries } from '../../graphql';
+import { mutations, queries } from '@erxes/ui-knowledgeBase/src/graphql';
 import {
   RemoveTopicsMutation,
   TopicsQueryResponse,
   TopicsTotalCountQueryResponse
-} from '../../types';
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   queryParams: any;

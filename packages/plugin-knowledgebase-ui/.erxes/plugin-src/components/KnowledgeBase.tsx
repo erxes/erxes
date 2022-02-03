@@ -8,7 +8,7 @@ import React from 'react';
 import ArticleForm from '../containers/article/ArticleForm';
 import ArticleList from '../containers/article/ArticleList';
 import KnowledgeList from '../containers/knowledge/KnowledgeList';
-import { ICategory } from '../types';
+import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   queryParams: any;
@@ -18,10 +18,12 @@ type Props = {
 
 class KnowledgeBase extends React.Component<Props> {
   breadcrumb() {
-    const currentCategory = this.props.currentCategory || {
-      title: '',
-      firstTopic: { title: '' }
-    } as ICategory;
+    const currentCategory =
+      this.props.currentCategory ||
+      ({
+        title: '',
+        firstTopic: { title: '' }
+      } as ICategory);
     const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
     const list = [{ title: __('Knowledge Base'), link: '/knowledgeBase' }];
     const categoryLink = `/knowledgeBase?id=${currentCategory._id}`;

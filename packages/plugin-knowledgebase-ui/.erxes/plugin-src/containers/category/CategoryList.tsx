@@ -4,13 +4,13 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CategoryList from '../../components/category/CategoryList';
-import { mutations, queries } from '../../graphql';
+import { mutations, queries } from '@erxes/ui-knowledgeBase/src/graphql';
 import {
   ArticlesTotalCountQueryResponse,
   CategoriesQueryResponse,
   CategoriesTotalCountQueryResponse,
   RemoveCategoriesMutationResponse
-} from '../../types';
+} from '@erxes/ui-knowledgeBase/src/types';
 
 type Props = {
   currentCategoryId: string;
@@ -85,7 +85,7 @@ export default compose(
     {
       name: 'articlesCountQuery',
       options: ({ currentCategoryId }) => ({
-        variables: { categoryIds: [currentCategoryId] || '' }
+        variables: { categoryIds: [currentCategoryId] || [] }
       })
     }
   ),
