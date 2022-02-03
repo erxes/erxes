@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import BrandsRoutes from './brands/routes';
-// import CalendarRoutes from './calendars/routes';
 // import ChannelsRoutes from './channels/routes';
 import ClientPortalRoutes from './clientPortal/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
@@ -14,7 +13,6 @@ import PermissionRoutes from './permissions/routes';
 import ProductService from './productService/routes';
 import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
-// import ResponseTemplatesRoutes from './responseTemplates/routes';
 import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
 import WebhookRoutes from './webhook/routes';
@@ -25,7 +23,6 @@ const routes = () => (
     <MainRoutes key="MainRoutes" />
     {/* <ChannelsRoutes key="ChannelsRoutes" /> */}
     <BrandsRoutes key="BrandsRoutes" />
-    {/* <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" /> */}
     <ProfileRoutes key="profile" />
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <ScriptsRoutes key="ScriptsRoutes" />
