@@ -4,7 +4,7 @@ import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __, Alert } from 'modules/common/utils';
-import { IVideoCallData } from '@erxes/ui-inbox/src/types';
+import { IVideoCallData } from '@erxes/ui-inbox/src/inbox/types';
 import React, { useState } from 'react';
 import { mutations } from '../graphql';
 

@@ -4,12 +4,12 @@ import Conversation from 'modules/activityLogs/components/items/Conversation';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import { queries } from '@erxes/ui-inbox/src/graphql';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ConversationDetailQueryResponse,
   FacebookCommentsQueryResponse,
   MessagesQueryResponse
-} from '@erxes/ui-inbox/src/types';
+} from '@erxes/ui-inbox/src/inbox/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

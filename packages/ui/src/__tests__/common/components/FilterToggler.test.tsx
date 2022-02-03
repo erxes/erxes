@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import FilterToggler from '@erxes/ui-inbox/src/components/leftSidebar/FilterToggler';
+import FilterToggler from '@erxes/ui-inbox/src/inbox/components/leftSidebar/FilterToggler';
 
 describe('FilterToggler component', () => {
   const defaultProps = {

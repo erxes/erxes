@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import inboxQueries from '@erxes/ui-inbox/src/graphql/queries';
+import inboxQueries from '@erxes/ui-inbox/src/inbox/graphql/queries';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
