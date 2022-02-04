@@ -20,7 +20,7 @@ import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
-import { getServices, join, leave } from './serviceDiscovery';
+import { getService, getServices, join, leave } from './serviceDiscovery';
 
 const configs = require('../../src/configs').default;
 
@@ -127,6 +127,8 @@ const generateApolloServer = async (serviceDiscovery) => {
 
 async function startServer() {
   const serviceDiscovery = {
+    getServices,
+    getService,
     isAvailable: async (name) => {
       const serviceNames = await getServices();
 
@@ -171,7 +173,8 @@ async function startServer() {
       dbConnectionString: mongoUrl,
       segment: configs.segment,
       hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes
+      importTypes: configs.importTypes,
+      meta: configs.meta
     });
 
     if (configs.permissions) {

@@ -22,11 +22,14 @@ export let debug;
 
 export default {
   name: 'inbox',
-  graphql: {
-    typeDefs,
+  graphql: async (serviceDiscovery) => ({
+    typeDefs: await typeDefs(serviceDiscovery),
     resolvers,
-  },
+  }),
   hasSubscriptions: true,
+  meta: {
+    tagTypes: ['conversation']
+  },
   segment: {
     indexesTypeContentType: {
       conversation: 'conversations',

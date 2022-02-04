@@ -17,13 +17,28 @@ export const getServices = () => {
   return registry.services();
 }
 
+export const getService = async (name: string, config?: boolean) => {
+  const result = {
+    address: await registry.get(name),
+    config: {}
+  }
+
+  if (config) {
+    const value = await redis.get(`service:config:${name}`);
+    result.config = JSON.parse(value || '{}');
+  }
+
+  return result;
+}
+
 export const join = ({
   name,
   port,
   dbConnectionString,
   segment,
   hasSubscriptions = false,
-  importTypes
+  importTypes,
+  meta,
 }: {
   name: string;
   port: string;
@@ -31,14 +46,17 @@ export const join = ({
   segment?: any;
   hasSubscriptions?: boolean;
   importTypes?: any;
+  meta?: any
 }) => {
   redis.set(
     generateKey(name),
+
     JSON.stringify({
       dbConnectionString,
       segment,
       hasSubscriptions,
-      importTypes
+      importTypes,
+      meta
     })
   );
 

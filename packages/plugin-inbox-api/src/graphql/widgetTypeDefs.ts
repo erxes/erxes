@@ -1,6 +1,16 @@
-export const types = `
-  extend type Product @key(fields: "_id") {
-    _id: String! @external
+export const types = (isProductsAvailable) => `
+  ${
+   isProductsAvailable ?
+    `
+    extend type Product @key(fields: "_id") {
+      _id: String! @external
+    }
+
+    extend type ProductCategory @key(fields: "_id") {
+      _id: String! @external
+    }
+    `
+    : ''
   }
 
   extend type Field @key(fields: "_id") {
@@ -52,7 +62,13 @@ export const types = `
   }
 
   type BookingProduct {
-    product: Product
+    ${
+      isProductsAvailable ?
+      `
+        product: Product
+      ` : ''
+    }
+
     fields: [Field]
   }
 
@@ -69,7 +85,7 @@ export const types = `
   }
 `;
 
-export const queries = `
+export const queries = (isProductsAvailable) => `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetExportMessengerData(_id: String, integrationId: String!): String
@@ -80,7 +96,13 @@ export const queries = `
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
-  widgetsProductCategory(_id: String!): ProductCategory
+  ${
+    isProductsAvailable ? 
+    `
+      widgetsProductCategory(_id: String!): ProductCategory
+    ` : ''
+  }
+
   widgetsBookingProductWithFields(_id: String!): BookingProduct
 `;
 
