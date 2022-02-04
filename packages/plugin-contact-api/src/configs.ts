@@ -10,7 +10,7 @@ import {
   identifyCustomer,
   trackCustomEvent,
   trackViewPageEvent,
-  updateCustomerProperty
+  updateCustomerProperty,
 } from './events';
 
 export let graphqlPubsub;
@@ -25,7 +25,7 @@ export let es: {
 export let debug;
 
 export default {
-  name: 'contact',
+  name: 'contacts',
   permissions: {
     companies: {
       name: 'companies',
@@ -41,38 +41,38 @@ export default {
             'companiesMerge',
             'showCompanies',
             'showCompaniesMain',
-            'exportCompanies'
-          ]
+            'exportCompanies',
+          ],
         },
         {
           name: 'companiesAdd',
-          description: 'Add companies'
+          description: 'Add companies',
         },
         {
           name: 'companiesEdit',
-          description: 'Edit companies'
+          description: 'Edit companies',
         },
         {
           name: 'companiesRemove',
-          description: 'Remove companies'
+          description: 'Remove companies',
         },
         {
           name: 'companiesMerge',
-          description: 'Merge companies'
+          description: 'Merge companies',
         },
         {
           name: 'showCompanies',
-          description: 'Show companies'
+          description: 'Show companies',
         },
         {
           name: 'showCompaniesMain',
-          description: 'Show companies main'
+          description: 'Show companies main',
         },
         {
           name: 'exportCompanies',
-          description: 'Export companies to xls file'
-        }
-      ]
+          description: 'Export companies to xls file',
+        },
+      ],
     },
     customers: {
       name: 'customers',
@@ -88,62 +88,62 @@ export default {
             'customersMerge',
             'customersRemove',
             'exportCustomers',
-            'customersChangeState'
-          ]
+            'customersChangeState',
+          ],
         },
         {
           name: 'exportCustomers',
-          description: 'Export customers'
+          description: 'Export customers',
         },
         {
           name: 'showCustomers',
-          description: 'Show customers'
+          description: 'Show customers',
         },
         {
           name: 'customersAdd',
-          description: 'Add customer'
+          description: 'Add customer',
         },
         {
           name: 'customersEdit',
-          description: 'Edit customer'
+          description: 'Edit customer',
         },
         {
           name: 'customersMerge',
-          description: 'Merge customers'
+          description: 'Merge customers',
         },
         {
           name: 'customersRemove',
-          description: 'Remove customers'
+          description: 'Remove customers',
         },
         {
           name: 'customersChangeState',
-          description: 'Change customer state'
-        }
-      ]
+          description: 'Change customer state',
+        },
+      ],
     },
   },
   graphql: async (serviceDiscovery) => {
     return {
       typeDefs: await typeDefs(serviceDiscovery),
-      resolvers
-    }
+      resolvers,
+    };
   },
   importTypes: [],
   hasSubscriptions: false,
   segment: {
     indexesTypeContentType: {
       customer: 'customers',
-      company: 'companies'
+      company: 'companies',
     },
     contentTypes: ['customer', 'company'],
     esTypesMapQueue: 'contacts:segments:esTypesMap',
     initialSelectorQueue: 'contacts:segments:initialSelector',
     associationTypesQueue: 'contacts:segments:associationTypes',
   },
-  apolloServerContext: context => {
+  apolloServerContext: (context) => {
     context.dataLoaders = generateAllDataLoaders();
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     await apiConnect();
 
     const app = options.app;
@@ -162,7 +162,7 @@ export default {
 
           return res.json(response);
         },
-        res => res.json({ status: 'success' })
+        (res) => res.json({ status: 'success' })
       )
     );
 
@@ -175,7 +175,7 @@ export default {
           const response = await identifyCustomer(args);
           return res.json(response);
         },
-        res => res.json({})
+        (res) => res.json({})
       )
     );
 
@@ -186,7 +186,7 @@ export default {
           const response = await updateCustomerProperty(req.body);
           return res.json(response);
         },
-        res => res.json({})
+        (res) => res.json({})
       )
     );
 
@@ -195,5 +195,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
-  }
+  },
 };
