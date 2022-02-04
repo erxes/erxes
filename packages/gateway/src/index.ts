@@ -101,10 +101,10 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
 
   let subscriptionsLoaded = false;
   gateway.onSchemaLoadOrUpdate(async ({ apiSchema }) => {
-    if (subscriptionsLoaded) return;
+    if (subscriptionsLoaded) { return; }
 
     try {
-      await loadSubscriptions(apiSchema, wsServer);
+      // await loadSubscriptions(apiSchema, wsServer);
       subscriptionsLoaded = true;
     } catch (e) {
       console.error(e);

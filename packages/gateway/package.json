@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "license": "GNU General Public License v3.0 with Commons Clause",
   "scripts": {
-    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts",
+    "dev": "NODE_ENV=development nodemon src/index.ts",
+    "watchPlugins": "nodemon src/commands/watch-plugins.ts",
     "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "mongodb": "^3.7.3",
+    "node-watch": "^0.7.3",
     "nodejs-file-downloader": "^4.9.2",
     "ws": "^8.4.0"
   },
