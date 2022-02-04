@@ -4,7 +4,6 @@ import apiConnect from './apiCollections';
 import permissions from './permissions';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
-import { IMPORT_TYPES } from './constants';
 
 export let graphqlPubsub;
 
@@ -27,7 +26,6 @@ export default {
     };
   },
   hasSubscriptions: false,
-  importTypes: IMPORT_TYPES,
   segment: {},
 
   apolloServerContext: (context) => {},
