@@ -20,8 +20,9 @@ import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
-import configs from '../../src/configs';
 import { getServices, join, leave } from './serviceDiscovery';
+
+const configs = require('../../src/configs').default;
 
 const { MONGO_URL, PORT } = process.env;
 
@@ -115,7 +116,7 @@ const generateApolloServer = async (serviceDiscovery) => {
         user = JSON.parse(userJson);
       }
 
-      const context = { user };
+      const context = { user, docModifier: doc => doc };
 
       configs.apolloServerContext(context);
 
