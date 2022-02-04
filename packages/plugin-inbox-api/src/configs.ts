@@ -7,7 +7,6 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { conversationSchemaOptions } from './models/definitions/conversations';
 
 export let graphqlPubsub;
 
