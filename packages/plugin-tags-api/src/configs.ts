@@ -5,15 +5,12 @@ import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 
 export let debug;
-export let serviceDiscovery;
 
 export default {
   name: 'tags',
   graphql: async (sd) => {
-    serviceDiscovery = sd;
-
     return {
-      typeDefs: await typeDefs(serviceDiscovery),
+      typeDefs: await typeDefs(sd),
       resolvers
     }
   },

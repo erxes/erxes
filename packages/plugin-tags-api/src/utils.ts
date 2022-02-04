@@ -1,4 +1,3 @@
-import { serviceDiscovery } from "./configs";
 import { sendRPCMessage } from "./messageBroker";
 
 export const countDocuments = async (type: string, _ids: string[]) => {
