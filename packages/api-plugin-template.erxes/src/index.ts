@@ -21,7 +21,7 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import configs from '../../src/configs';
-import { getServices, join } from './serviceDiscovery';
+import { getServices, join, leave } from './serviceDiscovery';
 
 const { MONGO_URL, PORT } = process.env;
 
@@ -69,6 +69,25 @@ app.use((error, _req, res, _next) => {
 });
 
 const httpServer = http.createServer(app);
+
+// GRACEFULL SHUTDOWN
+process.stdin.resume(); // so the program will not close instantly
+
+// If the Node process ends, close the Mongoose connection
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  process.on(sig, () => {
+    // Stops the server from accepting new connections and finishes existing connections.
+    httpServer.close((error: Error | undefined) => {
+      if (error) {
+        console.error(error.message);
+
+        leave(configs.name, PORT || '').then(() => {
+          process.exit(1);
+        })
+      }
+    });
+  });
+});
 
 const generateApolloServer = async (serviceDiscovery) => {
   const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
