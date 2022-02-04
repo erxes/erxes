@@ -149,7 +149,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
 
   clientPortalRemove (_id: String!): JSON
   ${
-    contactAvailable
+    cardAvailable
       ? `
       clientPortalCreateCard(
         type: String!
