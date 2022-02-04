@@ -1,13 +1,13 @@
 import dotenv from 'dotenv';
-import path from "path";
-import fs from "fs";
-import Downloader from "nodejs-file-downloader";
-import redis, { getService, getServices } from "../../redis";
+import path from 'path';
+import fs from 'fs';
+import Downloader from 'nodejs-file-downloader';
+import redis, { getService, getServices } from '../../redis';
 
 const { NODE_ENV } = process.env;
 
 export default async function downloadPlugins(): Promise<void> {
-  const directory = path.join(__dirname, "./downloads");
+  const directory = path.join(__dirname, './downloads');
 
   if (!fs.existsSync(directory)) {
     await fs.promises.mkdir(directory, { recursive: true });
@@ -18,16 +18,16 @@ export default async function downloadPlugins(): Promise<void> {
   const serviceNames = await getServices();
 
   const allServices: any[] = await Promise.all(
-    serviceNames.map( async (serviceName) => {
-        const service: any = await getService(serviceName, true)
-        service.name = serviceName
-        return service;
+    serviceNames.map(async serviceName => {
+      const service: any = await getService(serviceName, true);
+      service.name = serviceName;
+      return service;
     })
   );
 
   const services = allServices.filter(service => service.meta.hasSubscriptions);
 
-  if(NODE_ENV !== 'development') {
+  if (NODE_ENV !== 'development') {
     try {
       await redis.disconnect();
     } catch (e) {}
@@ -35,19 +35,24 @@ export default async function downloadPlugins(): Promise<void> {
 
   await Promise.all(
     services.map(async (service, i) => {
-      const url =`${service.address}/subscriptionPlugin.ts`;
+      const url = `${service.address}/subscriptionPlugin.ts`;
       const fileName = `${service.name}.ts`;
       const downloader = new Downloader({
-        url ,
+        url,
         directory,
         cloneFiles: false,
-        fileName,
+        fileName
       });
       try {
         await downloader.download();
-        console.log(`${service.name} subscription plugin downloaded from ${url} to ${fileName}.`);
+        console.log(
+          `${service.name} subscription plugin downloaded from ${url} to ${fileName}.`
+        );
       } catch (e) {
-        console.error(`${service.name} subscription plugin download from ${url} to ${fileName} failed.`, e);
+        console.error(
+          `${service.name} subscription plugin download from ${url} to ${fileName} failed.`,
+          e
+        );
       }
     })
   );
@@ -55,7 +60,7 @@ export default async function downloadPlugins(): Promise<void> {
 
 async function clearDirectory(directory: string) {
   const files = await fs.promises.readdir(directory);
-  const unlinkPromises = files.map((file) =>
+  const unlinkPromises = files.map(file =>
     fs.promises.unlink(`${directory}/${file}`)
   );
   await Promise.all(unlinkPromises);

@@ -120,13 +120,13 @@ export default {
           description: 'Change customer state'
         }
       ]
-    },
+    }
   },
-  graphql: async (serviceDiscovery) => {
+  graphql: async serviceDiscovery => {
     return {
       typeDefs: await typeDefs(serviceDiscovery),
       resolvers
-    }
+    };
   },
   importTypes: [],
   hasSubscriptions: false,
@@ -138,7 +138,7 @@ export default {
     contentTypes: ['customer', 'company'],
     esTypesMapQueue: 'contacts:segments:esTypesMap',
     initialSelectorQueue: 'contacts:segments:initialSelector',
-    associationTypesQueue: 'contacts:segments:associationTypes',
+    associationTypesQueue: 'contacts:segments:associationTypes'
   },
   apolloServerContext: context => {
     context.dataLoaders = generateAllDataLoaders();

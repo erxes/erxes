@@ -1,5 +1,6 @@
 import { Segments } from '@erxes/api-utils/src/apiCollections';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
 import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';
 
 const getStageOptions = async pipelineId => {
@@ -43,7 +44,7 @@ const getPipelineLabelOptions = async pipelineId => {
 };
 
 export const generateFields = async args => {
-  const { contentType, pipelineId, segmentId } = args;
+  const { contentType, pipelineId, segmentId, usageType } = args;
 
   let schema: any;
   let fields: Array<{
@@ -69,6 +70,10 @@ export const generateFields = async args => {
     case 'ticket':
       schema = Tickets.schema;
       break;
+  }
+
+  if (usageType && usageType === 'import') {
+    fields = BOARD_ITEM_EXTENDED_FIELDS;
   }
 
   if (schema) {

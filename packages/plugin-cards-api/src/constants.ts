@@ -52,3 +52,30 @@ export const CLOSE_DATE_TYPES = {
     }
   ]
 };
+
+export const BOARD_ITEM_EXTENDED_FIELDS = [
+  {
+    _id: Math.random(),
+    name: 'boardName',
+    label: 'Board name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'pipelineName',
+    label: 'Pipeline name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'stageName',
+    label: 'Stage name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'assignedUserEmail',
+    label: 'Assigned user email',
+    type: 'string'
+  }
+];
