@@ -1,5 +1,3 @@
-import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-
 let client;
 
 export const initBroker = (cl) => {

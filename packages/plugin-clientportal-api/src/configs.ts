@@ -1,9 +1,10 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import apiConnect from './apiCollections';
-
+import permissions from './permissions';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
+import { IMPORT_TYPES } from './constants';
 
 export let graphqlPubsub;
 
@@ -18,11 +19,15 @@ export let debug;
 
 export default {
   name: 'clientportal',
-  graphql: {
-    typeDefs,
-    resolvers,
+  permissions,
+  graphql: async (serviceDiscovery) => {
+    return {
+      typeDefs: await typeDefs(serviceDiscovery),
+      resolvers,
+    };
   },
   hasSubscriptions: false,
+  importTypes: IMPORT_TYPES,
   segment: {},
 
   apolloServerContext: (context) => {},

@@ -1,21 +1,34 @@
-export const types = `
+export const types = (contactAvailable, cardAvailable) => `
+  ${
+    contactAvailable
+      ? `
+      extend type Customer @key(fields: "_id") {
+        _id: String! @external
+      }
+      extend type Company @key(fields: "_id") {
+        _id: String! @external
+      }
+    `
+      : ''
+  }
 
-  extend type Stage @key(fields: "_id") {
-    _id: String! @external
+  ${
+    cardAvailable
+      ? `
+     extend type Stage @key(fields: "_id") {
+      _id: String! @external
+    }
+    extend type Task @key(fields: "_id") {
+      _id: String! @external
+    }
+    extend type Ticket @key(fields: "_id") {
+      _id: String! @external
+    }
+     `
+      : ''
   }
-  extend type Task @key(fields: "_id") {
-    _id: String! @external
-  }
-  extend type Ticket @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type Customer @key(fields: "_id") {
-    _id: String! @external
-  }
-  extend type Company @key(fields: "_id") {
-    _id: String! @external
-  }
+  
+  
   type ClientPortal {
     _id: String!
     name: String!
@@ -82,19 +95,30 @@ export const types = `
   }
 `;
 
-export const queries = `
+export const queries = (cardAvailable) => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
-  clientPortalGetTaskStages(taskPublicPipelineId: String!): [Stage]
-  clientPortalGetTasks(stageId: String!): [Task]
-  clientPortalTickets(email: String!): [Ticket]
-  clientPortalTask(_id: String!): Task
-  clientPortalTicket(_id: String!): Ticket
+
+  ${
+    cardAvailable
+      ? `
+      clientPortalGetTaskStages(taskPublicPipelineId: String!): [Stage]
+      clientPortalGetTasks(stageId: String!): [Task]
+      clientPortalTickets(email: String!): [Ticket]
+      clientPortalTask(_id: String!): Task
+      clientPortalTicket(_id: String!): Ticket
+     `
+      : ''
+  }
+  
+  
+  
+  
 `;
 
-export const mutations = `
+export const mutations = (contactAvailable, cardAvailable) => `
   clientPortalConfigUpdate (
     _id: String
     name: String
@@ -124,26 +148,41 @@ export const mutations = `
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
+  ${
+    contactAvailable
+      ? `
+      clientPortalCreateCard(
+        type: String!
+        stageId: String!
+        subject: String!
+        description: String
+        email: String!
+        priority: String
+      ): Ticket
+      
+     `
+      : ''
+  }
 
-  clientPortalCreateCard(
-    type: String!
-    stageId: String!
-    subject: String!
-    description: String
-    email: String!
-    priority: String
-  ): Ticket
+  ${
+    contactAvailable
+      ? `
+      clientPortalCreateCustomer(
+        configId: String!
+        firstName: String!
+        lastName: String
+        email: String!
+      ): Customer
+    
+      clientPortalCreateCompany(
+        configId: String!
+        companyName: String!
+        email: String!
+      ): Company
+      
+     `
+      : ''
+  }
 
-  clientPortalCreateCustomer(
-    configId: String!
-    firstName: String!
-    lastName: String
-    email: String!
-  ): Customer
-
-  clientPortalCreateCompany(
-    configId: String!
-    companyName: String!
-    email: String!
-  ): Company
+ 
 `;
