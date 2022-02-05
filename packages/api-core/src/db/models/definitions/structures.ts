@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { attachmentSchema, ILink } from './common';
+import { ILink, attachmentSchema } from '@erxes/api-utils/src/types';
 import { field, schemaWrapper } from './utils';
 
 const commonSchemaFields = {

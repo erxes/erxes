@@ -8,7 +8,7 @@ import {
   Units,
   Users
 } from '../../../db/models';
-import { ILink } from '../../../db/models/definitions/common';
+import { ILink } from '@erxes/api-utils/src/types';
 import {
   IDetail,
   IEmailSignature,
