@@ -317,18 +317,18 @@ export const itemsEdit = async (
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  await sendNotifications(notificationDoc);
+  // await sendNotifications(notificationDoc);
 
-  putUpdateLog(
-    messageBroker,
-    {
-      type,
-      object: oldItem,
-      newData: extendedDoc,
-      updatedDocument: updatedItem
-    },
-    user
-  );
+  // putUpdateLog(
+  //   messageBroker,
+  //   {
+  //     type,
+  //     object: oldItem,
+  //     newData: extendedDoc,
+  //     updatedDocument: updatedItem
+  //   },
+  //   user
+  // );
 
   const oldStage = await Stages.getStage(oldItem.stageId);
 
@@ -387,14 +387,14 @@ export const itemsEdit = async (
     updatedItem.stageId
   );
 
-  await sendNotifications({
-    item: updatedItem,
-    user,
-    type: NOTIFICATION_TYPES.TASK_CHANGE,
-    content,
-    action,
-    contentType: type
-  });
+  // await sendNotifications({
+  //   item: updatedItem,
+  //   user,
+  //   type: NOTIFICATION_TYPES.TASK_CHANGE,
+  //   content,
+  //   action,
+  //   contentType: type
+  // });
 
   return updatedItem;
 };
