@@ -168,11 +168,7 @@ export const sendInternalNoteMessage = async (action, data): Promise<any> => {
 };
 
 export const sendConformityMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`conformities:${action}`, data);
-};
-
-export const sendConformityRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`conformities:rpc_queue:${action}`, data);
+  return client.sendRPCMessage(`conformities:${action}`, data);
 };
 
 export const sendFieldsGroupMessage = async (action, data): Promise<any> => {
@@ -185,6 +181,14 @@ export const sendEngageRPCMessage = async (action, data): Promise<any> => {
 
 export const sendFieldRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
+};
+
+export const findProducts = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
+};
+
+export const updateProducts = async (selector, modifier): Promise<any> => {
+  return client.sendRPCMessage(`products:rpc_queue:update`, { selector, modifier });
 };
 
 export const sendNotificationRPCMessage = async (

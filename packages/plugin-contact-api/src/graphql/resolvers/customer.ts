@@ -75,9 +75,11 @@ export default {
       mainTypeId: customer._id,
       relTypes: ['company']
     });
+
     const companies = await dataLoaders.company.loadMany(
       (companyIds || []).filter(x => x)
     );
+
     return (companies || []).filter(c => c).slice(0, 10);
   },
 

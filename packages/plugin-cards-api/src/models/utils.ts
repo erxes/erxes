@@ -12,7 +12,7 @@ import { validSearchText } from '@erxes/api-utils/src';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 
-import { Conformities, InternalNotes } from '../apiCollections';
+import { InternalNotes } from '../apiCollections';
 import { sendChecklistMessage, sendConformityMessage } from '../messageBroker';
 import { configReplacer } from '../utils';
 
@@ -247,11 +247,11 @@ export const getCompanyIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await Conformities.find({
+  const conformities = await sendConformityMessage('find', {
     mainType,
     mainTypeId,
     relType: 'company'
-  }).lean();
+  });
 
   return conformities.map(c => c.relTypeId);
 };
@@ -260,11 +260,11 @@ export const getCustomerIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await Conformities.find({
+  const conformities = await sendConformityMessage('find', {
     mainType,
     mainTypeId,
     relType: 'customer'
-  }).lean();
+  });
 
   return conformities.map(c => c.relTypeId);
 };

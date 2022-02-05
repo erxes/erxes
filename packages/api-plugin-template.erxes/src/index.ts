@@ -116,7 +116,7 @@ const generateApolloServer = async (serviceDiscovery) => {
         user = JSON.parse(userJson);
       }
 
-      const context = { user, docModifier: doc => doc };
+      const context = { user, docModifier: doc => doc, commonQuerySelector: {} };
 
       configs.apolloServerContext(context);
 

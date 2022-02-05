@@ -3,7 +3,6 @@ import sift from 'sift';
 import {
   Brands,
   Tags,
-  Products,
   Users,
   Channels,
   Integrations,
@@ -26,7 +25,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
+  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);
@@ -57,10 +56,6 @@ export const getDocumentList = async (
         break;
       }
 
-      case 'products': {
-        list = await Products.find().toArray();
-        break;
-      }
       case 'tags': {
         list = await Tags.find().toArray();
         break;

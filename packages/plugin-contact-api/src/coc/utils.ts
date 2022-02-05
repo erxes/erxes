@@ -1,12 +1,12 @@
 import * as _ from 'underscore';
-import { Conformities, Segments, Tags } from '../apiCollections';
+import { Segments, Tags } from '../apiCollections';
 import { companySchema } from '../models/definitions/companies';
 import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
 import { getDocumentList } from '../cacheUtils';
-import { fetchSegment } from '../messageBroker';
+import { fetchSegment, sendConformityMessage } from '../messageBroker';
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
 
 export interface ICountBy {
@@ -281,7 +281,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const relType = this.contentType === 'customers' ? 'customer' : 'company';
 
     if (conformityIsRelated) {
-      const relTypeIds = await Conformities.relatedConformity({
+      const relTypeIds = await sendConformityMessage('relatedConformity', {
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',
         relType
@@ -295,7 +295,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
 
     if (conformityIsSaved) {
-      const relTypeIds = await Conformities.savedConformity({
+      const relTypeIds = await sendConformityMessage('savedConformity', {
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',
         relTypes: [relType]

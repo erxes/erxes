@@ -5,7 +5,7 @@ import {
   IDescriptions,
   LogDesc
 } from '@erxes/api-utils/src/logDescHelper';
-import { Products, Forms } from './apiCollections';
+import { Forms } from './apiCollections';
 import { Boards, PipelineLabels, Pipelines, Stages } from './models';
 import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
@@ -159,15 +159,15 @@ const gatherDealFieldNames = async (
 
   options = await gatherBoardItemFieldNames(doc, options);
 
-  if (doc.productsData && doc.productsData.length > 0) {
-    options = await gatherNames({
-      collection: Products,
-      idFields: doc.productsData.map(p => p.productId),
-      foreignKey: 'productId',
-      prevList: options,
-      nameFields: ['name']
-    });
-  }
+  // if (doc.productsData && doc.productsData.length > 0) {
+  //   options = await gatherNames({
+  //     collection: Products,
+  //     idFields: doc.productsData.map(p => p.productId),
+  //     foreignKey: 'productId',
+  //     prevList: options,
+  //     nameFields: ['name']
+  //   });
+  // }
 
   return options;
 };
