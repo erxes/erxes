@@ -165,10 +165,6 @@ export const sendEngageMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
 };
 
-export const savedConformity = async (doc): Promise<any> => {
-  return client.sendRPCMessage('conformities:rpc_queue:savedConformity', doc);
-};
-
 export const prepareCustomFieldsData = async (doc): Promise<any> => {
   return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', {
     doc,

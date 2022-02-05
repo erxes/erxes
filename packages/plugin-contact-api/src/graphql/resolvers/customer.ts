@@ -1,9 +1,8 @@
-// import { Conformities } from '../../apiCollections';
 import { ICustomerDocument } from '../../models/definitions/customers';
 import { es } from '../../configs';
 import { IContext } from '@erxes/api-utils/src';
-import { savedConformity } from '../../messageBroker';
 import Customers from '../../models/Customers';
+import { sendConformityMessage } from '../../messageBroker';
 
 export default {
   __resolverReference({ _id }) {
@@ -69,8 +68,7 @@ export default {
   },
 
   async companies(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    // replaced by messageBroker / Conformities.savedConformity => savedConformity /
-    const companyIds = await savedConformity({
+    const companyIds = await sendConformityMessage('savedConformity', {
       mainType: 'customer',
       mainTypeId: customer._id,
       relTypes: ['company']
