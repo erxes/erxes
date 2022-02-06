@@ -9,7 +9,7 @@ import {
 } from '@erxes/ui-cards/src/boards/styles/item';
 import { IOptions } from '@erxes/ui-cards/src/boards/types';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Participators from '@erxes/ui-inbox/src/components/workarea/Participators';
+import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
 import React, { useEffect, useState } from 'react';
 import { IGrowthHack } from '../../types';
 
