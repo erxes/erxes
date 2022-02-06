@@ -5,7 +5,6 @@ import { filterXSS } from 'xss';
 import { connect } from '../db/connection';
 import { debugError, debugWorkers } from '../debuggers';
 import { initMemoryStorage } from '../inmemoryStorage';
-import userMiddleware from '../middlewares/userMiddleware';
 import { initBroker } from './messageBroker';
 
 // load environment variables
@@ -27,8 +26,6 @@ app.use(express.urlencoded());
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(userMiddleware);
-
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   console.error(error.stack);
@@ -41,9 +38,13 @@ const { PORT_WORKERS = 3700 } = process.env;
 app.listen(PORT_WORKERS, () => {
   initMemoryStorage();
 
-  initBroker(app).catch(e => {
-    debugError(`Error ocurred during message broker init ${e.message}`);
-  });
+  initBroker(app)
+    .catch(e => {
+      debugError(`Error ocurred during message broker init ${e.message}`);
+    })
+    .then(aa => {
+      console.log(aa);
+    });
 
   debugWorkers(`Workers server is now running on ${PORT_WORKERS}`);
 });

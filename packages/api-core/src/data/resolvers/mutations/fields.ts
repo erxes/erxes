@@ -5,7 +5,7 @@ import {
   IFieldGroup
 } from '../../../db/models/definitions/fields';
 import { IOrderInput } from '../../../db/models/Fields';
-import { getBoardsAndPipelines } from '../../modules/fields/utils';
+// import { getBoardsAndPipelines } from '../../modules/fields/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -178,9 +178,9 @@ const fieldsGroupsMutations = {
     doc: IFieldGroup,
     { user, docModifier }: IContext
   ) {
-    if (doc.boardsPipelines) {
-      doc = getBoardsAndPipelines(doc);
-    }
+    // if (doc.boardsPipelines) {
+    //   doc = getBoardsAndPipelines(doc);
+    // }
 
     const fieldGroup = await FieldsGroups.createGroup(
       docModifier({ ...doc, lastUpdatedUserId: user._id })
@@ -207,9 +207,9 @@ const fieldsGroupsMutations = {
     { _id, ...doc }: IFieldsGroupsEdit,
     { user }: IContext
   ) {
-    if (doc.boardsPipelines) {
-      doc = getBoardsAndPipelines(doc);
-    }
+    // if (doc.boardsPipelines) {
+    //   doc = getBoardsAndPipelines(doc);
+    // }
 
     return FieldsGroups.updateGroup(_id, {
       ...doc,

@@ -1,5 +1,5 @@
 import { Fields, FieldsGroups } from '../../../db/models';
-import { IFieldGroup } from '../../../db/models/definitions/fields';
+// import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
 import messageBroker from '../../../messageBroker';
 // import { findElk } from '../../resolvers/mutations/engageUtils';
@@ -49,36 +49,6 @@ const getFieldGroup = async (_id: string) => {
   });
 
   return response && { _id: response._id, ...response._source };
-};
-
-// Checking field names, all field names must be configured correctly
-export const checkFieldNames = async (
-  fields: string[],
-  columnConfig?: object
-) => {
-  const properties: any[] = [];
-
-  for (let fieldName of fields) {
-    if (!fieldName) {
-      continue;
-    }
-
-    fieldName = fieldName.trim();
-
-    const property: { [key: string]: any } = {};
-
-    if (columnConfig) {
-      fieldName = columnConfig[fieldName].value;
-    }
-
-    if (!property.type) {
-      throw new Error(`Bad column name ${fieldName}`);
-    }
-
-    properties.push(property);
-  }
-
-  return properties;
 };
 
 export const getFormFields = async (formId: string) => {
@@ -156,6 +126,7 @@ export const fieldsCombinedByContentType = async ({
   }> = [];
 
   if (serviceType) {
+    console.log(messageBroker());
     fields = await messageBroker().sendRPCMessage(
       `${serviceType}:rpc_queue:getFields`,
       {
@@ -195,23 +166,23 @@ export const fieldsCombinedByContentType = async ({
   return fields.filter(field => !(excludedNames || []).includes(field.name));
 };
 
-export const getBoardsAndPipelines = (doc: IFieldGroup) => {
-  const boardIds: string[] = [];
-  const pipelineIds: string[] = [];
+// export const getBoardsAndPipelines = (doc: IFieldGroup) => {
+//   const boardIds: string[] = [];
+//   const pipelineIds: string[] = [];
 
-  const boardsPipelines = doc.boardsPipelines || [];
+//   const boardsPipelines = doc.boardsPipelines || [];
 
-  for (const item of boardsPipelines) {
-    boardIds.push(item.boardId || '');
+//   for (const item of boardsPipelines) {
+//     boardIds.push(item.boardId || '');
 
-    const pipelines = item.pipelineIds || [];
+//     const pipelines = item.pipelineIds || [];
 
-    for (const pipelineId of pipelines) {
-      pipelineIds.push(pipelineId);
-    }
-  }
-  doc.boardIds = boardIds;
-  doc.pipelineIds = pipelineIds;
+//     for (const pipelineId of pipelines) {
+//       pipelineIds.push(pipelineId);
+//     }
+//   }
+//   doc.boardIds = boardIds;
+//   doc.pipelineIds = pipelineIds;
 
-  return doc;
-};
+//   return doc;
+// };

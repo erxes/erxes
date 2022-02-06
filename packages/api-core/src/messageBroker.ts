@@ -23,7 +23,7 @@ export const initBroker = async (server?) => {
   if (!['crons', 'workers'].includes(process.env.PROCESS_NAME || '')) {
     const { consumeQueue, consumeRPCQueue } = client;
 
-    consumeQueue('registerPermissions', async (permissions) => {
+    consumeQueue('registerPermissions', async permissions => {
       await registerModule(permissions);
     });
 
@@ -155,9 +155,12 @@ export const initBroker = async (server?) => {
       })
     );
   }
+
+  return client;
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
+  console.log(channel, message);
   return client.sendRPCMessage(channel, message);
 };
 

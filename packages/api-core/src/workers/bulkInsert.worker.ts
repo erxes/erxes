@@ -4,9 +4,9 @@ import { IUserDocument } from '../db/models/definitions/users';
 import { debugWorkers } from '../debuggers';
 import { connect } from './utils';
 import * as _ from 'underscore';
-import { prepareCoreDocs } from './coreUtils';
 import { MongoClient } from 'mongodb';
 import { getService } from '../inmemoryStorage';
+import messageBroker from './messageBroker';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -53,7 +53,7 @@ connect().then(async () => {
     scopeBrandIds,
     result,
     contentType,
-    serviceName,
+    serviceType,
     properties,
     importHistoryId,
     percentage,
@@ -64,7 +64,7 @@ connect().then(async () => {
     scopeBrandIds: string[];
     result: any;
     contentType: string;
-    serviceName: string;
+    serviceType: string;
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
     percentage: number;
@@ -77,15 +77,7 @@ connect().then(async () => {
   let db: any;
   let client: any;
 
-  bulkDoc = await prepareCoreDocs(
-    result,
-    properties,
-    contentType,
-    scopeBrandIds,
-    bulkDoc
-  );
-
-  const service = await getService(serviceName, true);
+  const service = await getService(serviceType, true);
 
   if (service) {
     try {
@@ -96,7 +88,26 @@ connect().then(async () => {
 
       // tslint:disable-next-line:no-eval
     } catch (e) {
-      debugWorkers(e);
+      debugWorkers('aaa', e);
+    }
+
+    try {
+      const broker = await messageBroker();
+      console.log(broker);
+
+      bulkDoc = await messageBroker().sendRPCMessage(
+        `cards:rpc_queue:getFields`,
+        {
+          result,
+          properties,
+          contentType,
+          user,
+          scopeBrandIds,
+          useElkSyncer
+        }
+      );
+    } catch (e) {
+      console.log(serviceType, 'xaxaxa', e);
     }
   }
 

@@ -236,9 +236,13 @@ httpServer.listen(PORT, () => {
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {
-    initBroker(app).catch(e => {
-      debugError(`Error ocurred during message broker init ${e.message}`);
-    });
+    initBroker(app)
+      .catch(e => {
+        debugError(`Error ocurred during message broker init ${e.message}`);
+      })
+      .then(aa => {
+        console.log(aa);
+      });
 
     initMemoryStorage();
 

@@ -5,18 +5,12 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
-import { checkFieldNames } from '../data/modules/fields/utils';
-import utils, {
+import {
   createAWS,
   getConfig,
   getS3FileInfo,
-  ISendNotification,
   uploadsFolderPath
 } from '../data/utils';
-import {
-  CUSTOMER_SELECT_OPTIONS,
-  NOTIFICATION_TYPES
-} from '../db/models/definitions/constants';
 import { default as ImportHistory } from '../db/models/ImportHistory';
 import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
@@ -26,6 +20,86 @@ import { graphqlPubsub } from '../pubsub';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
+const checkFieldNames = async (fields: string[], columnConfig?: object) => {
+  const properties: any[] = [];
+
+  for (let fieldName of fields) {
+    if (!fieldName) {
+      continue;
+    }
+
+    fieldName = fieldName.trim();
+
+    const property: { [key: string]: any } = {};
+
+    if (columnConfig) {
+      fieldName = columnConfig[fieldName].value;
+    }
+
+    property.name = fieldName;
+    property.type = 'basic';
+
+    if (fieldName === 'companiesPrimaryNames') {
+      property.name = 'companyIds';
+      property.type = 'companiesPrimaryNames';
+    }
+
+    if (fieldName === 'customersPrimaryEmails') {
+      property.name = 'customerIds';
+      property.type = 'customersPrimaryEmails';
+    }
+
+    if (fieldName === 'ownerEmail') {
+      property.name = 'ownerId';
+      property.type = 'ownerEmail';
+    }
+
+    if (fieldName === 'tag') {
+      property.name = 'tagIds';
+      property.type = 'tag';
+    }
+
+    if (fieldName === 'assignedUserEmail') {
+      property.name = 'assignedUserIds';
+      property.type = 'assignedUserEmail';
+    }
+
+    if (fieldName === 'boardName') {
+      property.name = 'boardId';
+      property.type = 'boardName';
+    }
+
+    if (fieldName === 'pipelineName') {
+      property.name = 'pipelineId';
+      property.type = 'pipelineName';
+    }
+
+    if (fieldName === 'stageName') {
+      property.name = 'stageId';
+      property.type = 'stageName';
+    }
+
+    if (fieldName === 'pronoun') {
+      property.name = 'pronoun';
+      property.type = 'pronoun';
+    }
+
+    if (fieldName === 'categoryCode') {
+      property.name = 'categoryCode';
+      property.type = 'categoryCode';
+    }
+
+    if (fieldName === 'vendorCode') {
+      property.name = 'vendorCode';
+      property.type = 'vendorCode';
+    }
+
+    properties.push(property);
+  }
+
+  return properties;
+};
+
 export const connect = () =>
   mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
 
@@ -34,32 +108,6 @@ dotenv.config();
 const WORKER_BULK_LIMIT = 300;
 
 const myWorker = new CustomWorker();
-
-export const IMPORT_CONTENT_TYPE = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  LEAD: 'lead',
-  PRODUCT: 'product',
-  DEAL: 'deal',
-  TASK: 'task',
-  TICKET: 'ticket'
-};
-
-export const generateUid = () => {
-  return (
-    '_' +
-    Math.random()
-      .toString(36)
-      .substr(2, 9)
-  );
-};
-export const generatePronoun = value => {
-  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(
-    sex => sex.label.toUpperCase() === value.toUpperCase()
-  );
-
-  return pronoun ? pronoun.value : '';
-};
 
 const getCsvInfo = (fileName: string, uploadType: string) => {
   return new Promise(async resolve => {
@@ -317,6 +365,8 @@ export const receiveImportCreate = async (content: any) => {
     associatedContentType
   } = content;
 
+  debugWorkers('adadada', contentTypes);
+
   const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
   const config: any = {};
@@ -349,6 +399,8 @@ export const receiveImportCreate = async (content: any) => {
 
     config[contentType.contentType] = { total: rows, properties, fileName };
   }
+
+  debugWorkers(config);
 
   await ImportHistory.updateOne(
     { _id: importHistoryId },
@@ -384,19 +436,19 @@ export const receiveImportCreate = async (content: any) => {
         $set: { status, percentage: 100 }
       });
 
-      const notifDoc: ISendNotification = {
-        title: `your ${updatedImportHistory.name} is done`,
-        action: ``,
-        createdUser: ``,
-        receivers: [user._id],
-        content: `your ${updatedImportHistory.name} import is done`,
-        link: `/settings/importHistories?${mainType}`,
-        notifType: NOTIFICATION_TYPES.IMPORT_DONE,
-        contentType: 'import',
-        contentTypeId: importHistoryId
-      };
+      // const notifDoc: ISendNotification = {
+      //   title: `your ${updatedImportHistory.name} is done`,
+      //   action: ``,
+      //   createdUser: ``,
+      //   receivers: [user._id],
+      //   content: `your ${updatedImportHistory.name} import is done`,
+      //   link: `/settings/importHistories?${mainType}`,
+      //   notifType: NOTIFICATION_TYPES.IMPORT_DONE,
+      //   contentType: 'import',
+      //   contentTypeId: importHistoryId
+      // };
 
-      await utils.sendNotification(notifDoc);
+      // await utils.sendNotification(notifDoc);
 
       graphqlPubsub.publish('importHistoryChanged', {});
     }
@@ -426,7 +478,6 @@ export const receiveImportCreate = async (content: any) => {
       scopeBrandIds,
       user,
       contentType,
-      type,
       serviceType,
       properties: config[contentType].properties,
       importHistoryId,
