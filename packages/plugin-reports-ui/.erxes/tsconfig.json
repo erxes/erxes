@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "plugin-src",
+    "baseUrl": "../src",
     "outDir": "build/dist",
     "moduleResolution": "node",
     "module": "esnext",
@@ -13,7 +13,7 @@
     ],
     "sourceMap": true,
     "jsx": "react",
-    "rootDir": "plugin-src",
+    "rootDir": "../src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -29,7 +29,7 @@
     "noUnusedLocals": true
   },
   "include": [
-    "plugin-src"
+    "../src"
   ],
   "exclude": [
     "node_modules",
