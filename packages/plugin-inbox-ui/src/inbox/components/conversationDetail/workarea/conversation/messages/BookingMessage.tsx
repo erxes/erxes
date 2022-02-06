@@ -46,6 +46,9 @@ export default class AppMessage extends React.Component<Props, {}> {
     const { isSameUser, message } = this.props;
     const { bookingWidgetData, createdAt } = message;
 
+    const localizedFormat = require("dayjs/plugin/localizedFormat");
+    dayjs.extend(localizedFormat);
+
     return (
       <>
         <FormMessage message={bookingWidgetData} />

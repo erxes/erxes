@@ -46,7 +46,8 @@ function GreetingContent(props: Props) {
     props.activeStep === 'addon'
       ? true
       : false;
-
+  const localizedFormat = require("dayjs/plugin/localizedFormat");
+  dayjs.extend(localizedFormat);
   return (
     <ErxesContent isTabbed={isTabbed}>
       <ContentBox>

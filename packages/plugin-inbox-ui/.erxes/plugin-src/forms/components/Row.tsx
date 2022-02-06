@@ -176,6 +176,9 @@ class Row extends React.Component<Props> {
     const labelStyle = integration.isActive ? 'success' : 'warning';
     const status = integration.isActive ? __('Active') : __('Archived');
 
+    const localizedFormat = require("dayjs/plugin/localizedFormat");
+    dayjs.extend(localizedFormat);
+
     return (
       <tr>
         <td>

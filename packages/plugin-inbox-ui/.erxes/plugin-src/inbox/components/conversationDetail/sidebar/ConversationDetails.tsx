@@ -91,6 +91,9 @@ class ConversationDetails extends React.Component<Props> {
     const { integration = {} as IIntegration, customer } = conversation;
     const { brand = {} as IBrand, channels = [] } = integration;
 
+    const localizedFormat = require("dayjs/plugin/localizedFormat");
+    dayjs.extend(localizedFormat);
+
     if (!fields || fields.length === 0) {
       return null;
     }

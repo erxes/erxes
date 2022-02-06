@@ -74,6 +74,9 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       message: { createdAt }
     } = this.props;
 
+    const localizedFormat = require("dayjs/plugin/localizedFormat");
+    dayjs.extend(localizedFormat);
+    
     return (
       <MessageItem staff={false} isBot={true}>
         {this.renderAvatar()}
