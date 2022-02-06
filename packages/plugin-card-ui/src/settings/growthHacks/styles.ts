@@ -1,6 +1,6 @@
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { BoxRoot, DateContainer } from '@erxes/ui/src/styles/main';
+import { DateContainer } from '@erxes/ui/src/styles/main';
 import { WhiteBoxRoot } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 
