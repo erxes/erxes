@@ -109,6 +109,8 @@ class ConversationItem extends React.Component<Props> {
     const isExistingCustomer = customer && customer._id;
     const isChecked = selectedIds.includes(conversation._id);
     const messageCount = conversation.messageCount || 0;
+    const relativeTime = require('dayjs/plugin/relativeTime');
+    dayjs.extend(relativeTime);
 
     const isRead =
       conversation.readUserIds &&

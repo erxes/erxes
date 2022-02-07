@@ -12,7 +12,7 @@ type Props = {
 export default class DateComponent extends React.Component<Props, {}> {
   render() {
     const { timestamp, type, permalink_url } = this.props;
-
+    
     if (!timestamp) {
       return null;
     }
