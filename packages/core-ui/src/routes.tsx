@@ -1,37 +1,35 @@
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import { pluginRouters, pluginsOfRoutes } from 'pluginUtils';
-import queryString from 'query-string';
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import AuthRoutes from './modules/auth/routes';
-import { IUser } from './modules/auth/types';
+import withCurrentUser from "modules/auth/containers/withCurrentUser";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import { pluginRouters, pluginsOfRoutes } from "pluginUtils";
+import queryString from "query-string";
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import AuthRoutes from "./modules/auth/routes";
+import { IUser } from "./modules/auth/types";
 // import CalendarRoutes from './modules/calendar/routes';
 // import DashboardRoutes from './modules/dashboard/routes';
 // import NotificationRoutes from './modules/notifications/routes';
-import SegmentsRoutes from './modules/segments/routes';
-import SettingsRoutes from './modules/settings/routes';
+import SettingsRoutes from "./modules/settings/routes";
 // import TagsRoutes from './modules/tags/routes';
-import TutorialRoutes from './modules/tutorial/routes';
+import TutorialRoutes from "./modules/tutorial/routes";
 // import VideoCallRoutes from './modules/videoCall/routes';
-import ImportExportRoutes from './modules/importExport/routes';
-// import BookingsRoutes from './modules/bookings/routes';
+import ImportExportRoutes from "./modules/importExport/routes";
 
 const MainLayout = asyncComponent(() =>
   import(
-    /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
+    /* webpackChunkName: "MainLayout" */ "modules/layout/containers/MainLayout"
   )
 );
 
 const Unsubscribe = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
+    /* webpackChunkName: "Unsubscribe" */ "modules/auth/containers/Unsubscribe"
   )
 );
 
 const UserConfirmation = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui-team/src/containers/UserConfirmation'
+    /* webpackChunkName: "Settings - UserConfirmation" */ "@erxes/ui-team/src/containers/UserConfirmation"
   )
 );
 
@@ -53,7 +51,7 @@ export const unsubscribe = ({ location }) => {
 //   return <Schedule slug={slug} />;
 // };
 
-const renderRoutes = currentUser => {
+const renderRoutes = (currentUser) => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
 
@@ -62,13 +60,13 @@ const renderRoutes = currentUser => {
     );
   };
 
-  if (!sessionStorage.getItem('sessioncode')) {
-    sessionStorage.setItem('sessioncode', Math.random().toString());
+  if (!sessionStorage.getItem("sessioncode")) {
+    sessionStorage.setItem("sessioncode", Math.random().toString());
   }
 
   const { pathname } = window.location;
 
-  if (pathname.search('/schedule/') === 0) {
+  if (pathname.search("/schedule/") === 0) {
     return null;
   }
 
@@ -80,16 +78,12 @@ const renderRoutes = currentUser => {
     return (
       <>
         <MainLayout currentUser={currentUser} plugins={plugins}>
-          {/* <NotificationRoutes /> */}
-          <SegmentsRoutes />
           <SettingsRoutes />
+
           {/* <TagsRoutes /> */}
           {/* <VideoCallRoutes /> */}
           <TutorialRoutes />
-          {/* <CalendarRoutes /> */}
-          {/* <DashboardRoutes /> */}
           <ImportExportRoutes />
-          {/* <BookingsRoutes /> */}
 
           {specialPluginRoutes}
           {pluginRoutes}

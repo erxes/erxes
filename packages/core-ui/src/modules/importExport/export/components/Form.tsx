@@ -10,7 +10,7 @@ import {
 } from 'modules/common/components/step/styles';
 import { getEnv, __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { SegmentsForm } from 'modules/segments/containers';
+import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
 import { IConfigColumn } from 'modules/settings/properties/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
