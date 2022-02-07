@@ -154,7 +154,7 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   renderAdditionalSidebar(refetchRequired: string) {
-    const { queryParams, currentUser = {} as IUser } = this.props;
+    const { queryParams, currentUser } = this.props;
 
     if (!currentUser) {
       return null;

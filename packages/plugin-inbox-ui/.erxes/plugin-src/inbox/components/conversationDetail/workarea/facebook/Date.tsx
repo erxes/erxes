@@ -13,9 +13,6 @@ export default class DateComponent extends React.Component<Props, {}> {
   render() {
     const { timestamp, type, permalink_url } = this.props;
     
-    const localizedFormat = require("dayjs/plugin/localizedFormat");
-    dayjs.extend(localizedFormat);
-
     if (!timestamp) {
       return null;
     }

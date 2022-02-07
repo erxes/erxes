@@ -75,7 +75,6 @@ class WithCurrentId extends React.Component<IProps> {
     return (
       <AppConsumer>
         {({ currentUser }) => {
-          currentUser= {} as IUser;
           const { queryParams } = this.props;
           const { _id } = queryParams;
 

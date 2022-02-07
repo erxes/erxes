@@ -121,8 +121,6 @@ class MailHeader extends React.Component<Props, State> {
   };
 
   renderRightSide(hasAttachments: boolean, createdAt: Date) {
-    const localizedFormat = require("dayjs/plugin/localizedFormat");
-    dayjs.extend(localizedFormat);
     return (
       <RightSide>
         <Date onClick={this.toggleDateFormat}>

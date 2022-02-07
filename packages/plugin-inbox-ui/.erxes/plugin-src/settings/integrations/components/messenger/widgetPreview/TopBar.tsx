@@ -64,9 +64,6 @@ class TopBar extends React.Component<Props> {
   renderServerInfo() {
     const { showChatPreview, timezone } = this.props;
     
-    const localizedFormat = require("dayjs/plugin/localizedFormat");
-    dayjs.extend(localizedFormat);
-
     if (!showChatPreview) {
       return null;
     }

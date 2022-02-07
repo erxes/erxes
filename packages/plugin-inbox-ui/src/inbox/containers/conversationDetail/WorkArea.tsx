@@ -340,7 +340,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
 const WithConsumer = (props: Props) => {
   return (
     <AppConsumer>
-      {({ currentUser = {} as IUser }) => {
+      {({ currentUser }) => {
         if (!currentUser) {
           return null;
         }
