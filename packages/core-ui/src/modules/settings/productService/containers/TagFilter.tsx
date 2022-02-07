@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import CountsByTag from 'modules/common/components/CountsByTag';
-import { TAG_TYPES } from 'modules/tags/constants';
-import { queries as tagQueries } from 'modules/tags/graphql';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { TagsQueryResponse } from '../../../tags/types';
+import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
 import { queries } from '../graphql';
 import { CountByTagsQueryResponse } from '../types';
 

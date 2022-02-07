@@ -11,7 +11,7 @@ import { IRouterProps } from 'modules/common/types';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
-import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Form from '../../containers/product/ProductForm';
