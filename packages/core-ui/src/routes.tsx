@@ -8,7 +8,6 @@ import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import NotificationRoutes from './modules/notifications/routes';
 import SettingsRoutes from './modules/settings/routes';
-import TagsRoutes from './modules/tags/routes';
 import TutorialRoutes from './modules/tutorial/routes';
 import VideoCallRoutes from './modules/videoCall/routes';
 import ImportExportRoutes from './modules/importExport/routes';
@@ -78,7 +77,6 @@ const renderRoutes = currentUser => {
         <MainLayout currentUser={currentUser} plugins={plugins}>
           <NotificationRoutes />
           <SettingsRoutes />
-          <TagsRoutes />
           <VideoCallRoutes />
           <TutorialRoutes />
           <ImportExportRoutes />
