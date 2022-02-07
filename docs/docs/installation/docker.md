@@ -120,7 +120,7 @@ Official Docker compose documentation: https://docs.docker.com/compose/install/
 3. Run the following command in your shell:
 
 ```bash
-mkdir elasticsearch-data && chown 1000:1000 elasticsearch-data
+mkdir elasticsearchData && chown 1000:1000 elasticsearchData
 ```
 
 - elasticsearch container migth fail to start due to permission
