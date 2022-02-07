@@ -167,7 +167,8 @@ const corsOptions = {
     'http://localhost:3008', // automations
     'http://localhost:3009', // inbox
     'http://localhost:3010', // team
-    'http://localhost:3011' // contacts
+    'http://localhost:3011', // contacts
+    'http://localhost:3012' // tags
   ]
 };
 
