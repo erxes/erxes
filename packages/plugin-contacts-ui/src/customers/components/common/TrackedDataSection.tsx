@@ -17,6 +17,9 @@ type Props = {
 
 class TrackedDataSection extends React.Component<Props> {
   renderCustomValue = (value: string) => {
+    const localizedFormat = require("dayjs/plugin/localizedFormat");
+    dayjs.extend(localizedFormat);
+
     if (isValidDate(value)) {
       return dayjs(value).format('lll');
     }
@@ -54,9 +57,12 @@ class TrackedDataSection extends React.Component<Props> {
       return null;
     }
 
-    const { isOnline, sessionCount, lastSeenAt } = customer;
+    let { isOnline, sessionCount, lastSeenAt } = customer;
 
     const trackedData = customer.trackedData || [];
+    
+    const localizedFormat = require("dayjs/plugin/localizedFormat");
+    lastSeenAt && dayjs.extend(localizedFormat);
 
     if (!trackedData) {
       return <EmptyState icon="chat" text="Empty" size="small" />;
