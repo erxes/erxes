@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import NotificationRoutes from './modules/notifications/routes';
-import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
 import TutorialRoutes from './modules/tutorial/routes';
@@ -78,7 +77,6 @@ const renderRoutes = currentUser => {
       <>
         <MainLayout currentUser={currentUser} plugins={plugins}>
           <NotificationRoutes />
-          <SegmentsRoutes />
           <SettingsRoutes />
           <TagsRoutes />
           <VideoCallRoutes />

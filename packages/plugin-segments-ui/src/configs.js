@@ -5,7 +5,7 @@ module.exports = {
     './routes': './src/routes.tsx'
   },
   routes: {
-    url: 'http://locarhost:3013/remoteEntry.js',
+    url: 'http://localhost:3013/remoteEntry.js',
     scope: 'segments',
     module: './routes'
   },
