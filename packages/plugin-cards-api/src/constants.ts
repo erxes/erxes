@@ -52,3 +52,27 @@ export const CLOSE_DATE_TYPES = {
     }
   ]
 };
+
+export const MODULE_NAMES = {
+  BOARD: 'board',
+  BOARD_DEAL: 'dealBoards',
+  BOARD_TASK: 'taskBoards',
+  BOARD_TICKET: 'ticketBoards',
+  BOARD_GH: 'growthHackBoards',
+  PIPELINE_DEAL: 'dealPipelines',
+  PIPELINE_TASK: 'taskPipelines',
+  PIPELINE_TICKET: 'ticketPipelines',
+  PIPELINE_GH: 'growthHackPipelines',
+  STAGE_DEAL: 'dealStages',
+  STAGE_TASK: 'taskStages',
+  STAGE_TICKET: 'ticketStages',
+  STAGE_GH: 'growthHackStages',
+  CHECKLIST: 'checklist',
+  CHECKLIST_ITEM: 'checkListItem',
+  DEAL: 'deal',
+  TICKET: 'ticket',
+  TASK: 'task',
+  PIPELINE_LABEL: 'pipelineLabel',
+  PIPELINE_TEMPLATE: 'pipelineTemplate',
+  GROWTH_HACK: 'growthHack'
+};

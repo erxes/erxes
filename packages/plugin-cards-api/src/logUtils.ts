@@ -1,4 +1,3 @@
-import { MODULE_NAMES } from '@erxes/api-utils/src';
 import {
   gatherNames,
   gatherUsernames,
@@ -14,11 +13,13 @@ import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplate
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
-  putDeleteLog as commonPutDeleteLog
+  putDeleteLog as commonPutDeleteLog,
+  putActivityLog as commonPutActivityLog,
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
 import messageBroker from './messageBroker';
+import { MODULE_NAMES } from './constants';
 
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
@@ -414,4 +415,15 @@ export const putCreateLog = async (logDoc, user) => {
     { ...logDoc, description, extraDesc },
     user
   );
+};
+
+
+export const putActivityLog = async (params: { action: string, data: any }) => {
+  // const { action, data } = params;
+
+  // if (['createBoardItemMovementLog'].includes(action)) {
+  //   await sendToWebhook(action, data.contentType, params);
+  // }
+
+  return commonPutActivityLog({ messageBroker: messageBroker(), ...params });
 };

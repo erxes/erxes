@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-// import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   getCollection,
   updateOrder,
@@ -25,6 +24,7 @@ import {
   sendInternalNoteMessage
 } from '../messageBroker';
 import { configReplacer } from '../utils';
+import { putActivityLog } from '../logUtils';
 
 export interface IOrderInput {
   _id: string;
@@ -59,10 +59,12 @@ const removeItems = async (type: string, stageIds: string[]) => {
   );
 
   const itemIds = items.map(i => i._id);
-  // await putActivityLog({
-  //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
-  //   data: { type, itemIds }
-  // });
+
+  await putActivityLog({
+    action: 'removeActivityLogs',
+    data: { type, itemIds }
+  });
+
   sendChecklistMessage('removeChecklists', { type, itemIds });
 
   sendConformityMessage('removeConformities', {

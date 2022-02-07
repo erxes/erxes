@@ -5,7 +5,7 @@ import {
   IPipelineTemplateStage
 } from '../../../models/definitions/pipelineTemplates';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { IContext, MODULE_NAMES } from '@erxes/api-utils/src';
+import { IContext } from '@erxes/api-utils/src';
 // import { registerOnboardHistory } from '../../utils';
 import { checkPermission } from '../../utils';
 
@@ -32,7 +32,7 @@ const pipelineTemplateMutations = {
 
     await putCreateLog(
       {
-        type: MODULE_NAMES.PIPELINE_TEMPLATE,
+        type: 'pipelineTemplate',
         newData: { ...doc, stages: pipelineTemplate.stages },
         object: pipelineTemplate
       },
@@ -61,7 +61,7 @@ const pipelineTemplateMutations = {
 
     await putUpdateLog(
       {
-        type: MODULE_NAMES.PIPELINE_TEMPLATE,
+        type: 'pipelineTemplate',
         newData: { ...doc, stages: updated.stages },
         object: pipelineTemplate,
         updatedDocument: updated
@@ -107,7 +107,7 @@ const pipelineTemplateMutations = {
     const removed = await PipelineTemplates.removePipelineTemplate(_id);
 
     await putDeleteLog(
-      { type: MODULE_NAMES.PIPELINE_TEMPLATE, object: pipelineTemplate },
+      { type: 'pipelineTemplate', object: pipelineTemplate },
       user
     );
 

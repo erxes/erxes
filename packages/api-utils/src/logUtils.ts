@@ -100,3 +100,27 @@ const putLog = async (
     extraDesc: JSON.stringify(params.extraDesc),
   });
 };
+
+export interface IActivityLogParams {
+  messageBroker;
+  action: string;
+  data: any;
+}
+
+export const putActivityLog = async (params: IActivityLogParams) => {
+  const { messageBroker, data } = params;
+  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+
+  try {
+    if (isAutomationsAvailable && data.target) {
+      messageBroker.sendMessage('automations', {
+        type: `${data.contentType}`,
+        targets: [data.target]
+      });
+    }
+
+    return messageBroker.sendMessage('putActivityLog', params);
+  } catch (e) {
+    return e.message;
+  }
+};
