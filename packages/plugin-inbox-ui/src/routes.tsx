@@ -7,6 +7,7 @@ import SkillSettings from './settings/skills/routes';
 import BookingSettings from './bookings/routes';
 import FormsSettings from './forms/routes';
 import ProductServiceSettings from '@erxes/ui-settings/src/productService/routes';
+import VideoCallRoutes from './videoCall/routes'
 
 const routes = () => {
   return (
@@ -19,6 +20,7 @@ const routes = () => {
       <BookingSettings />
       <FormsSettings />
       <ProductServiceSettings />
+      <VideoCallRoutes />
     </>
   );
 };
