@@ -8,7 +8,6 @@ const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPl
 const envs = require("dotenv").config({ path: "./.env" });
 
 const depNames = [
-  "@apollo/react-hooks",
   "apollo-cache-inmemory",
   "apollo-client",
   "apollo-link",
@@ -21,7 +20,6 @@ const depNames = [
   "dotenv",
   "graphql",
   "graphql-tag",
-  "i18n-react",
   "lodash",
   "lodash.flowright",
   "query-string",
@@ -32,7 +30,6 @@ const depNames = [
   "react-transition-group",
   "styled-components",
   "styled-components-ts",
-  "subscriptions-transport-ws",
   "validator",
 ];
 
