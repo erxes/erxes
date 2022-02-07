@@ -5,8 +5,8 @@ import { confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentsList from '../components/SegmentsList';
-import { mutations, queries } from '../graphql';
-import { RemoveMutationResponse, SegmentsQueryResponse } from '../types';
+import { mutations, queries } from '@erxes/ui-segments/src/graphql';
+import { RemoveMutationResponse, SegmentsQueryResponse } from '@erxes/ui-segments/src/types';
 
 type Props = {
   contentType: string;

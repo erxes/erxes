@@ -11,7 +11,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { EMPTY_SEGMENT_CONTENT } from '@erxes/ui-settings/src/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ISegment } from '../types';
+import { ISegment } from '@erxes/ui-segments/src/types';
 import Sidebar from './Sidebar';
 
 type Props = {

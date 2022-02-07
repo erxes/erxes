@@ -5,9 +5,9 @@ import { router, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Filter from '../components/SidebarFilter';
-import { queries } from '../graphql';
-import { Counts, SegmentsQueryResponse } from '../types';
+import Filter from '@erxes/ui-segments/src/components/SidebarFilter';
+import { queries } from '@erxes/ui-segments/src/graphql';
+import { Counts, SegmentsQueryResponse } from '@erxes/ui-segments/src/types';
 
 type Props = {
   contentType: string;

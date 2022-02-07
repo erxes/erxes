@@ -8,7 +8,7 @@ const SegmentsList = asyncComponent(() =>
 
 const SegmentsForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "SegmentsForm" */ './containers/form/SegmentsForm'
+    /* webpackChunkName: "SegmentsForm" */ '@erxes/ui-segments/src/containers/form/SegmentsForm'
   )
 );
 

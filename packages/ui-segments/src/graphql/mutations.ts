@@ -42,8 +42,14 @@ const segmentsEdit = `
   }
 `;
 
+const segmentsRemove = `
+  mutation segmentsRemove($_id: String!) {
+    segmentsRemove(_id: $_id)
+  }
+`;
 
 export default {
   segmentsAdd,
   segmentsEdit,
+  segmentsRemove
 };
