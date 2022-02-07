@@ -4,9 +4,9 @@ import {
   IChecklistItem,
 } from '../../../models/definitions/checklists';
 import { graphqlPubsub } from '../../../configs';
-// mport { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 
 interface IChecklistsEdit extends IChecklist {
   _id: string;
@@ -41,14 +41,14 @@ const checklistMutations = {
   async checklistsAdd(_root, args: IChecklist, { user }: IContext) {
     const checklist = await Checklists.createChecklist(args, user);
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.CHECKLIST,
-    //     newData: args,
-    //     object: checklist,
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: 'checklist',
+        newData: args,
+        object: checklist,
+      },
+      user
+    );
 
     checklistsChanged(checklist);
 
@@ -66,15 +66,15 @@ const checklistMutations = {
     const checklist = await Checklists.getChecklist(_id);
     const updated = await Checklists.updateChecklist(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.CHECKLIST,
-    //     object: checklist,
-    //     newData: doc,
-    //     updatedDocument: updated,
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: 'checklist',
+        object: checklist,
+        newData: doc,
+        updatedDocument: updated,
+      },
+      user
+    );
 
     checklistDetailChanged(_id);
 
@@ -88,10 +88,10 @@ const checklistMutations = {
     const checklist = await Checklists.getChecklist(_id);
     const removed = await Checklists.removeChecklist(_id);
 
-    // await putDeleteLog(
-    //   { type: MODULE_NAMES.CHECKLIST, object: checklist },
-    //   user
-    // );
+    await putDeleteLog(
+      { type: 'checklist', object: checklist },
+      user
+    );
 
     checklistsChanged(checklist);
 
@@ -104,14 +104,14 @@ const checklistMutations = {
   async checklistItemsAdd(_root, args: IChecklistItem, { user }: IContext) {
     const checklistItem = await ChecklistItems.createChecklistItem(args, user);
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.CHECKLIST_ITEM,
-    //     newData: args,
-    //     object: checklistItem,
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: 'checkListItem',
+        newData: args,
+        object: checklistItem,
+      },
+      user
+    );
 
     checklistDetailChanged(checklistItem.checklistId);
 
@@ -129,15 +129,15 @@ const checklistMutations = {
     const checklistItem = await ChecklistItems.getChecklistItem(_id);
     const updated = await ChecklistItems.updateChecklistItem(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.CHECKLIST_ITEM,
-    //     object: checklistItem,
-    //     newData: doc,
-    //     updatedDocument: updated,
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: 'checkListItem',
+        object: checklistItem,
+        newData: doc,
+        updatedDocument: updated,
+      },
+      user
+    );
 
     checklistDetailChanged(updated.checklistId);
 
@@ -155,10 +155,10 @@ const checklistMutations = {
     const checklistItem = await ChecklistItems.getChecklistItem(_id);
     const removed = await ChecklistItems.removeChecklistItem(_id);
 
-    // await putDeleteLog(
-    //   { type: MODULE_NAMES.CHECKLIST_ITEM, object: checklistItem },
-    //   user
-    // );
+    await putDeleteLog(
+      { type: 'checkListItem', object: checklistItem },
+      user
+    );
 
     checklistDetailChanged(checklistItem.checklistId);
 

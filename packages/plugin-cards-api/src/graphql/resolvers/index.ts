@@ -6,7 +6,8 @@ import {
   Deal,
   Task,
   Ticket,
-  GrowthHack
+  GrowthHack,
+  Checklist
 } from './customResolvers';
 import {
   Board as BoardMutations,
@@ -15,7 +16,8 @@ import {
   Ticket as TicketMutations,
   GrowthHack as GrowthHackMutations,
   PipelineTemplate as PipelineTemplateMutations,
-  PipelineLabel as PipelineLabelMutations
+  PipelineLabel as PipelineLabelMutations,
+  Checklists as ChecklistMutations
 } from './mutations';
 import {
   Board as BoardQueries,
@@ -24,7 +26,8 @@ import {
   Ticket as TicketQueries,
   GrowthHack as GrowthHackQueries,
   PipelineTemplate as PipelineTemplateQueries,
-  PipelineLabel as PipelineLabelQueries
+  PipelineLabel as PipelineLabelQueries,
+  CheckLists as ChecklistQueries
 } from './queries';
 
 const resolvers: any = {
@@ -36,6 +39,7 @@ const resolvers: any = {
   Task,
   Ticket,
   GrowthHack,
+  Checklist,
   Mutation: {
     ...BoardMutations,
     ...DealMutations,
@@ -43,7 +47,8 @@ const resolvers: any = {
     ...TicketMutations,
     ...GrowthHackMutations,
     ...PipelineTemplateMutations,
-    ...PipelineLabelMutations
+    ...PipelineLabelMutations,
+    ...ChecklistMutations,
   },
   Query: {
     ...BoardQueries,
@@ -52,7 +57,8 @@ const resolvers: any = {
     ...TicketQueries,
     ...GrowthHackQueries,
     ...PipelineTemplateQueries,
-    ...PipelineLabelQueries
+    ...PipelineLabelQueries,
+    ...ChecklistQueries
   }
 };
 

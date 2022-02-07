@@ -1,7 +1,5 @@
 import { IUserDocument } from '@erxes/common-types/src/users';
 
-import { RABBITMQ_QUEUES } from './constants';
-
 export interface ILogDataParams {
   type: string;
   description?: string;
@@ -31,13 +29,14 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const [automations, logger] = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations,logger');
+  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
 
-  // send to automations trigger
-  messageBroker.sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    type: `${params.type}`,
-    targets: [params.object]
-  });
+  if (isAutomationsAvailable) {
+    messageBroker.sendMessage('automations', {
+      type: `${params.type}`,
+      targets: [params.object]
+    });
+  }
 
   return putLog(
     messageBroker,
@@ -85,17 +84,19 @@ const putLog = async (
   params: IFinalLogParams,
   user: IUserDocument
 ) => {
-  try {
-    return messageBroker.sendMessage('putLog', {
-      ...params,
-      description: params.description ? `${params.description} ${params.action}d` : '',
-      createdBy: user._id,
-      unicode: user.username || user.email || user._id,
-      object: JSON.stringify(params.object),
-      newData: JSON.stringify(params.newData),
-      extraDesc: JSON.stringify(params.extraDesc),
-    });
-  } catch (e) {
-    return e.message;
+  const isLoggerAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'logger');
+ 
+  if (!isLoggerAvailable) {
+    return;
   }
+
+  return messageBroker.sendMessage('putLog', {
+    ...params,
+    description: params.description ? `${params.description} ${params.action}d` : '',
+    createdBy: user._id,
+    unicode: user.username || user.email || user._id,
+    object: JSON.stringify(params.object),
+    newData: JSON.stringify(params.newData),
+    extraDesc: JSON.stringify(params.extraDesc),
+  });
 };

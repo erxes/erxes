@@ -1,8 +1,8 @@
 import { Stages, Tasks, Tickets } from '@erxes/api-utils/src/apiCollections';
-import { Checklists } from './apiCollections';
 import { serviceDiscovery } from './configs';
 import { generateFields } from './fieldUtils';
 import { prepareImportDocs } from './importUtils';
+import { Checklists } from './models';
 import { generateConditionStageIds } from './utils';
 
 let client;

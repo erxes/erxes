@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-//import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 
 import {
   checklistItemSchema,

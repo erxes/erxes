@@ -6,8 +6,6 @@ const client = new MongoClient(url);
 const dbName = 'erxes';
 let db: Db;
 
-export let Checklists: any;
-export let ChecklistItems: any;
 export let Notifications: any;
 export let Forms: any;
 export let FormSubmissions: any;
@@ -21,8 +19,6 @@ export default async function connect() {
   await client.connect();
   db = client.db(dbName);
 
-  Checklists = await db.collection('checklists');
-  ChecklistItems = await db.collection('checklist_items');
   Notifications = await db.collection('notifications');
   Fields = await db.collection('form_fields');
   Forms = await db.collection('forms');
