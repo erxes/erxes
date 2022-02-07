@@ -4,8 +4,7 @@ import {
   IChecklistItem,
 } from '../../../models/definitions/checklists';
 import { graphqlPubsub } from '../../../configs';
-import { MODULE_NAMES } from '../../../models/definitions/constants';
-//mport { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+// mport { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
 
