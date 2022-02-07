@@ -46,7 +46,6 @@ function GreetingContent(props: Props) {
     props.activeStep === 'addon'
       ? true
       : false;
-
   return (
     <ErxesContent isTabbed={isTabbed}>
       <ContentBox>

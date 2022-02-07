@@ -30,31 +30,31 @@ type Props = {
 export default class SimpleMessage extends React.Component<Props, {}> {
   renderAvatar() {
     const { message, isSameUser } = this.props;
-
+    
     if (isSameUser) {
       return null;
     }
-
+    
     const user = message.user;
     const customer = message.customer;
     const props = user ? { user } : { customer };
-
+    
     return <NameCard.Avatar {...props} />;
   }
-
+  
   renderAttachment(hasAttachment: boolean) {
     const { message } = this.props;
     const { attachments } = message;
-
+    
     if (!hasAttachment) {
       return null;
     }
-
+    
     return attachments.map((attachment, index) => {
       return <Attachment key={index} attachment={attachment} simple={true} />;
     });
   }
-
+  
   renderVideoCallRequest() {
     return (
       <CallBox>
@@ -67,22 +67,22 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       </CallBox>
     );
   }
-
+  
   renderContent(hasAttachment: boolean) {
     const { message, renderContent, isStaff } = this.props;
 
     if (renderContent) {
       return renderContent();
     }
-
+    
     if (message.contentType === 'videoCall') {
       return <VideoCallMessage message={message} />;
     }
-
+    
     if (message.contentType === 'videoCallRequest') {
       return this.renderVideoCallRequest();
     }
-
+    
     if (!message.content) {
       return (
         <MessageContent staff={isStaff} internal={message.internal}>
@@ -90,24 +90,26 @@ export default class SimpleMessage extends React.Component<Props, {}> {
         </MessageContent>
       );
     }
-
+    
     return (
       <>
         <MessageContent staff={isStaff} internal={message.internal}>
           <span
             dangerouslySetInnerHTML={{ __html: xss(urlify(message.content)) }}
-          />
+            />
           {this.renderAttachment(hasAttachment)}
         </MessageContent>
       </>
     );
   }
-
+  
   render() {
     const { message, isStaff, isSameUser } = this.props;
     const messageDate = message.createdAt;
     const hasAttachment = message.attachments && message.attachments.length > 0;
-
+    const localizedFormat = require("dayjs/plugin/localizedFormat");
+    dayjs.extend(localizedFormat);
+    
     const classes = classNames({
       ...(this.props.classes || []),
       attachment: hasAttachment,

@@ -62,7 +62,7 @@ class DetailInfo extends React.Component<Props> {
   }
 
   render() {
-    const { company } = this.props;
+    const { company = {} as ICompany } = this.props;
 
     return (
       <SidebarList className="no-link">

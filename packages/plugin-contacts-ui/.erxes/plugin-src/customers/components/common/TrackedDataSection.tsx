@@ -57,7 +57,7 @@ class TrackedDataSection extends React.Component<Props> {
     const { isOnline, sessionCount, lastSeenAt } = customer;
 
     const trackedData = customer.trackedData || [];
-
+    
     if (!trackedData) {
       return <EmptyState icon="chat" text="Empty" size="small" />;
     }

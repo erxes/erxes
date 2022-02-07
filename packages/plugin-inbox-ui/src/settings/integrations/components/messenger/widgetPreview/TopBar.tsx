@@ -63,7 +63,7 @@ class TopBar extends React.Component<Props> {
 
   renderServerInfo() {
     const { showChatPreview, timezone } = this.props;
-
+    
     if (!showChatPreview) {
       return null;
     }
