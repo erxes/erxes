@@ -1,5 +1,6 @@
 import { Stages, Tasks, Tickets } from '@erxes/api-utils/src/apiCollections';
 import { Checklists } from './apiCollections';
+import { serviceDiscovery } from './configs';
 import { generateFields } from './fieldUtils';
 import { prepareImportDocs } from './importUtils';
 import { generateConditionStageIds } from './utils';
@@ -144,6 +145,10 @@ export const sendContactMessage = async (action, data): Promise<any> => {
 };
 
 export const sendContactRPCMessage = async (action, data): Promise<any> => {
+  if (!await serviceDiscovery.isAvailable('contacts')) {
+    return []
+  }
+
   return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
 };
 
@@ -184,6 +189,10 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const findProducts = async (action, data): Promise<any> => {
+  if (!await serviceDiscovery.isAvailable('products')) {
+    return [];
+  }
+
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
 };
 

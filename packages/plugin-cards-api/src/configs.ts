@@ -9,6 +9,7 @@ import { IMPORT_TYPES } from './constants';
 import permissions from './permissions';
 
 export let graphqlPubsub;
+export let serviceDiscovery;
 
 export let es: {
   client;
@@ -22,9 +23,11 @@ export let debug;
 export default {
   name: 'cards',
   permissions,
-  graphql: async (serviceDiscovery) => {
+  graphql: async (sd) => {
+    serviceDiscovery = sd;
+
     return {
-      typeDefs: await typeDefs(serviceDiscovery),
+      typeDefs: await typeDefs(sd),
       resolvers
     }
   },
