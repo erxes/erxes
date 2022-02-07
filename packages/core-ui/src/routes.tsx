@@ -8,12 +8,12 @@ import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 // import CalendarRoutes from './modules/calendar/routes';
 // import DashboardRoutes from './modules/dashboard/routes';
-import NotificationRoutes from './modules/notifications/routes';
+// import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
-import TagsRoutes from './modules/tags/routes';
+// import TagsRoutes from './modules/tags/routes';
 import TutorialRoutes from './modules/tutorial/routes';
-import VideoCallRoutes from './modules/videoCall/routes';
+// import VideoCallRoutes from './modules/videoCall/routes';
 import ImportExportRoutes from './modules/importExport/routes';
 // import BookingsRoutes from './modules/bookings/routes';
 
@@ -80,11 +80,11 @@ const renderRoutes = currentUser => {
     return (
       <>
         <MainLayout currentUser={currentUser} plugins={plugins}>
-          <NotificationRoutes />
+          {/* <NotificationRoutes /> */}
           <SegmentsRoutes />
           <SettingsRoutes />
-          <TagsRoutes />
-          <VideoCallRoutes />
+          {/* <TagsRoutes /> */}
+          {/* <VideoCallRoutes /> */}
           <TutorialRoutes />
           {/* <CalendarRoutes /> */}
           {/* <DashboardRoutes /> */}
