@@ -1,5 +1,5 @@
 import { QueryResponse } from '../types';
-
+import { IEmailDelivery } from 'modules/engage/types';
 export interface IActivityLogYearMonthDoc {
   year: React.ReactNode;
   month: React.ReactNode;
@@ -49,3 +49,12 @@ export type ActivityLogQueryResponse = {
   activityLogs: IActivityLog[];
   subscribeToMore: any;
 } & QueryResponse;
+
+export type EmailDeliveryDetailQueryResponse = {
+  emailDeliveryDetail: IEmailDelivery;
+  loading: boolean;
+};
+
+export type IActivityLogItemProps = {
+  activity: IActivityLog;
+};
