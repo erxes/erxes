@@ -6,8 +6,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
-// import CalendarRoutes from './modules/calendar/routes';
-// import DashboardRoutes from './modules/dashboard/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
@@ -15,7 +13,6 @@ import TagsRoutes from './modules/tags/routes';
 import TutorialRoutes from './modules/tutorial/routes';
 import VideoCallRoutes from './modules/videoCall/routes';
 import ImportExportRoutes from './modules/importExport/routes';
-// import BookingsRoutes from './modules/bookings/routes';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -86,10 +83,7 @@ const renderRoutes = currentUser => {
           <TagsRoutes />
           <VideoCallRoutes />
           <TutorialRoutes />
-          {/* <CalendarRoutes /> */}
-          {/* <DashboardRoutes /> */}
           <ImportExportRoutes />
-          {/* <BookingsRoutes /> */}
 
           {specialPluginRoutes}
           {pluginRoutes}
