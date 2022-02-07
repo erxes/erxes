@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import {
   Pipelines,
-  // Segments,
   Stages
 } from '../../../models';
 import { getCollection } from '../../../models/utils';
@@ -163,7 +162,7 @@ export const generateCommonFilters = async (
 
   const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
 
-  const filterIds: string[] = [];
+  let filterIds: string[] = [];
 
   if (assignedUserIds) {
     // Filter by assigned to no one
@@ -173,23 +172,25 @@ export const generateCommonFilters = async (
   }
 
   if (customerIds && type) {
-    // const relIds = await Conformities.filterConformity({
-    //   mainType: 'customer',
-    //   mainTypeIds: customerIds,
-    //   relType: type
-    // });
-    // filterIds = relIds;
+    const relIds = await sendConformityMessage('filterConformity', {
+      mainType: 'customer',
+      mainTypeIds: customerIds,
+      relType: type
+    });
+
+    filterIds = relIds;
   }
 
   if (companyIds && type) {
-    // const relIds = await Conformities.filterConformity({
-    //   mainType: 'company',
-    //   mainTypeIds: companyIds,
-    //   relType: type
-    // });
-    // filterIds = filterIds.length
-    //   ? filterIds.filter(id => relIds.includes(id))
-    //   : relIds;
+    const relIds = await sendConformityMessage('filterConformity', {
+      mainType: 'company',
+      mainTypeIds: companyIds,
+      relType: type
+    });
+
+    filterIds = filterIds.length
+      ? filterIds.filter(id => relIds.includes(id))
+      : relIds;
   }
 
   if (customerIds || companyIds) {
@@ -198,21 +199,23 @@ export const generateCommonFilters = async (
 
   if (conformityMainType && conformityMainTypeId) {
     if (conformityIsSaved) {
-      // const relIds = await Conformities.savedConformity({
-      //   mainType: conformityMainType,
-      //   mainTypeId: conformityMainTypeId,
-      //   relTypes: [type]
-      // });
-      // filter._id = contains(relIds || []);
+      const relIds = await sendConformityMessage('savedConformity', {
+        mainType: conformityMainType,
+        mainTypeId: conformityMainTypeId,
+        relTypes: [type]
+      });
+
+      filter._id = contains(relIds || []);
     }
 
     if (conformityIsRelated) {
-      // const relIds = await Conformities.relatedConformity({
-      //   mainType: conformityMainType,
-      //   mainTypeId: conformityMainTypeId,
-      //   relType: type
-      // });
-      // filter._id = contains(relIds);
+      const relIds = await sendConformityMessage('relatedConformity', {
+        mainType: conformityMainType,
+        mainTypeId: conformityMainTypeId,
+        relType: type
+      });
+
+      filter._id = contains(relIds);
     }
   }
 

@@ -261,16 +261,6 @@ const boardMutations = {
 
     const updated = await Pipelines.findOne({ _id });
 
-    const logDoc = {
-      type: `${pipeline.type}Pipelines`,
-      object: pipeline,
-      newData: { isActive: !status },
-      description: `"${pipeline.name}" has been ${
-        status === BOARD_STATUSES.ACTIVE ? 'archived' : 'unarchived'
-      }"`,
-      updatedDocument: updated
-    };
-
     await putUpdateLog(
       {
         type: `${pipeline.type}Pipelines`,
