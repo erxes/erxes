@@ -8,7 +8,6 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { IContext, MODULE_NAMES } from '@erxes/api-utils/src';
 // import { registerOnboardHistory } from '../../utils';
 import { checkPermission } from '../../utils';
-import messageBroker from '../../../messageBroker';
 
 interface IPipelineTemplatesEdit extends IPipelineTemplate {
   _id: string;
@@ -32,7 +31,6 @@ const pipelineTemplateMutations = {
     );
 
     await putCreateLog(
-      messageBroker,
       {
         type: MODULE_NAMES.PIPELINE_TEMPLATE,
         newData: { ...doc, stages: pipelineTemplate.stages },
@@ -62,7 +60,6 @@ const pipelineTemplateMutations = {
     );
 
     await putUpdateLog(
-      messageBroker,
       {
         type: MODULE_NAMES.PIPELINE_TEMPLATE,
         newData: { ...doc, stages: updated.stages },
@@ -110,7 +107,6 @@ const pipelineTemplateMutations = {
     const removed = await PipelineTemplates.removePipelineTemplate(_id);
 
     await putDeleteLog(
-      messageBroker,
       { type: MODULE_NAMES.PIPELINE_TEMPLATE, object: pipelineTemplate },
       user
     );

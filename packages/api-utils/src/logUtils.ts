@@ -22,52 +22,6 @@ export const LOG_ACTIONS = {
   DELETE: 'delete',
 };
 
-// interface ISubAfterMutations {
-//   [action: string]: {
-//     callBack: void;
-//   };
-// }
-// interface IAfterMutations {
-//   [type: string]: ISubAfterMutations[];
-// }
-
-// const callAfterMutations: IAfterMutations[] | {} = {};
-
-// export const callAfterMutation = async (
-//   params: IFinalLogParams,
-//   user: IUserDocument
-// ) => {
-//   if (!callAfterMutations) {
-//     return;
-//   }
-
-//   const { type, action } = params;
-
-//   // not used type in plugins
-//   if (!callAfterMutations[type]) {
-//     return;
-//   }
-
-//   // not used this type's action in plugins
-//   if (!callAfterMutations[type][action]) {
-//     return;
-//   }
-
-//   try {
-//     for (const handler of callAfterMutations[type][action]) {
-//       await handler({}, params, {
-//         user,
-//         models: allModels,
-//         memoryStorage,
-//         graphqlPubsub,
-//         messageBroker
-//       });
-//     }
-//   } catch (e) {
-//     throw new Error(e.message);
-//   }
-// };
-
 export type LogDesc = {
   [key: string]: any;
 } & { name: any };
@@ -77,13 +31,10 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  // first param takes all models inside an object
-  // await sendToWebhook({}, { action: LOG_ACTIONS.CREATE, type: params.type, params });
-
-  // call after mutation
+  const [automations, logger] = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations,logger');
 
   // send to automations trigger
-  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+  messageBroker.sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
     targets: [params.object]
   });
@@ -135,7 +86,7 @@ const putLog = async (
   user: IUserDocument
 ) => {
   try {
-    return messageBroker().sendMessage('putLog', {
+    return messageBroker.sendMessage('putLog', {
       ...params,
       description: params.description ? `${params.description} ${params.action}d` : '',
       createdBy: user._id,

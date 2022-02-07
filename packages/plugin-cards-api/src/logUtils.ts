@@ -18,6 +18,7 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
+import messageBroker from './messageBroker';
 
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
@@ -385,31 +386,31 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (messageBroker, logDoc, user) => {
+export const putDeleteLog = async (logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(logDoc);
 
   await commonPutDeleteLog(
-    messageBroker,
+    messageBroker(),
     { ...logDoc, description, extraDesc },
     user
   );
 };
 
-export const putUpdateLog = async (messageBroker, logDoc, user) => {
+export const putUpdateLog = async (logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(logDoc);
 
   await commonPutUpdateLog(
-    messageBroker,
+    messageBroker(),
     { ...logDoc, description, extraDesc },
     user
   );
 };
 
-export const putCreateLog = async (messageBroker, logDoc, user) => {
+export const putCreateLog = async (logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(logDoc);
 
   await commonPutCreateLog(
-    messageBroker,
+    messageBroker(),
     { ...logDoc, description, extraDesc },
     user
   );

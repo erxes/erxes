@@ -41,7 +41,7 @@ import {
   prepareBoardItemDoc,
   sendNotifications
 } from '../../utils';
-import messageBroker, { sendFieldRPCMessage } from '../../../messageBroker';
+import { sendFieldRPCMessage } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/common-types/src/users';
 // import { ACTIVITY_LOG_ACTIONS } from '../../constants';
 
@@ -136,7 +136,6 @@ export const itemsAdd = async (
     });
 
     await putCreateLog(
-      messageBroker,
       {
         type,
         newData: extendedDoc,
@@ -504,7 +503,6 @@ export const itemsChange = async (
   });
 
   await putUpdateLog(
-    messageBroker,
     {
       type,
       object: item,
@@ -554,7 +552,7 @@ export const itemsRemove = async (
 
   const removed = await item.remove();
 
-  await putDeleteLog(messageBroker, { type, object: item }, user);
+  await putDeleteLog({ type, object: item }, user);
 
   return removed;
 };

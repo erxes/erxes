@@ -2,7 +2,6 @@ import { PipelineLabels } from '../../../models';
 import { IPipelineLabel } from '../../../models/definitions/pipelineLabels';
 import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 import { IContext, MODULE_NAMES } from '@erxes/api-utils/src';
-import messageBroker from '../../../messageBroker';
 
 interface IPipelineLabelsEdit extends IPipelineLabel {
   _id: string;
@@ -23,7 +22,6 @@ const pipelineLabelMutations = {
     });
 
     await putCreateLog(
-      messageBroker,
       {
         type: MODULE_NAMES.PIPELINE_LABEL,
         newData: {
@@ -51,7 +49,6 @@ const pipelineLabelMutations = {
     const updated = await PipelineLabels.updatePipelineLabel(_id, doc);
 
     await putUpdateLog(
-      messageBroker,
       {
         type: MODULE_NAMES.PIPELINE_LABEL,
         newData: doc,
@@ -75,7 +72,6 @@ const pipelineLabelMutations = {
     const removed = await PipelineLabels.removePipelineLabel(_id);
 
     await putDeleteLog(
-      messageBroker,
       { type: MODULE_NAMES.PIPELINE_LABEL, object: pipelineLabel },
       user
     );

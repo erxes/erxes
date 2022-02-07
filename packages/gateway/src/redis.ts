@@ -32,4 +32,10 @@ export const getService = async (name: string, meta?: boolean) => {
   return result;
 }
 
+export const isAvailable = async (name) => {
+  const serviceNames = await getServices();
+
+  return serviceNames.includes(name);
+}
+
 export default redis;
