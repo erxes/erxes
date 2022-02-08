@@ -13,6 +13,7 @@ export interface IAttachment {
 export interface IChat {
   name: string;
   participantIds: string[];
+  userIds: string[];
 }
 
 export interface IChatMessage {
@@ -49,6 +50,7 @@ export const chatSchema = {
   visibility: { type: String, enum: VISIBILITIES.ALL },
   type: { type: String, enum: CHAT_TYPE.ALL },
   participantIds: { type: [String], label: 'User ids' },
+  adminIds: { type: [String], label: 'Admin user ids' },
   createdAt: { type: Date, label: 'Created at' },
   createdBy: { type: String, label: 'Created by' }
 };

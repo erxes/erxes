@@ -7,13 +7,41 @@ export const types = `
     createdAt: Date
   }
 
+  type ChatUser {
+    _id: String!
+    createdAt: Date
+    username: String
+    email: String
+    isActive: Boolean
+    details: UserDetailsType
+    links: JSON
+    status: String
+    emailSignatures: JSON
+    getNotificationByEmail: Boolean
+    groupIds: [String]
+    brandIds: [String]
+    isSubscribed: String
+    isShowNotification: Boolean
+    customFieldsData: JSON
+
+    brands: [Brand]
+    isOwner: Boolean
+    permissionActions: JSON
+    configs: JSON
+    configsConstants: [JSON]
+    onboardingHistory: OnboardingHistory
+    department: Department
+    score: Float
+    isAdmin: Boolean
+  }
+
   type Chat {
     _id: String!
     name: String
     description: String
     visibility: String
     lastMessage: ChatMessage
-    participantUsers: [User]
+    participantUsers: [ChatUser]
     createdUser: User
     createdAt: Date
   }
@@ -66,6 +94,7 @@ export const mutations = `
   
   chatMessageAdd(chatId: String!,attachments: [JSON], content: String!): ChatMessage
   chatMessageRemove(_id: String!): JSON
+  chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
 `;
 
 export const subscriptions = `

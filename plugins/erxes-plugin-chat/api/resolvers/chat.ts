@@ -19,9 +19,14 @@ const chatResolvers = [
     type: 'Chat',
     field: 'participantUsers',
     handler: async (chat, {}, { models }) => {
-      return models.Users.find({
+      const users = await models.Users.find({
         _id: { $in: chat.participantIds || [] }
-      });
+      }).lean();
+
+      return users.map(user => ({
+        ...user,
+        isAdmin: (chat.adminIds || []).includes(user._id)
+      }));
     }
   }
 ];
