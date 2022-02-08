@@ -2710,11 +2710,6 @@ error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-erxes-ui@0.0.86:
-  version "0.0.86"
-  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.86.tgz#d16c7be4f33b396a4100e2f24b8b1e62f0cb6db2"
-  integrity sha512-F4+toUlf+A0wSRBJzSYQDMlLwMFji5o8E+EZExkc6xtv+iWfjtxGYNNcFGwGQnf+8b6mt+5ROcrJy7TppPcKtQ==
-
 es-module-lexer@^0.9.0:
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/es-module-lexer/-/es-module-lexer-0.9.3.tgz#6f13db00cc38417137daf74366f535c8eb438f19"

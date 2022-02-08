@@ -36,7 +36,6 @@
   "dependencies": {
     "@types/styled-components": "^3.0.0",
     "dayjs": "1.8.15",
-    "erxes-ui": "0.0.86",
     "graphql": "0.12.3",
     "graphql-tag": "2.10.0",
     "lodash.flowright": "3.5.0",
