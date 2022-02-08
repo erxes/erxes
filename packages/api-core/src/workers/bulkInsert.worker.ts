@@ -91,24 +91,20 @@ connect().then(async () => {
       debugWorkers('aaa', e);
     }
 
-    try {
-      const broker = await messageBroker();
-      console.log(broker);
+    const broker = await messageBroker();
+    console.log(broker);
 
-      bulkDoc = await messageBroker().sendRPCMessage(
-        `cards:rpc_queue:getFields`,
-        {
-          result,
-          properties,
-          contentType,
-          user,
-          scopeBrandIds,
-          useElkSyncer
-        }
-      );
-    } catch (e) {
-      console.log(serviceType, 'xaxaxa', e);
-    }
+    bulkDoc = await messageBroker().sendRPCMessage(
+      `cards:rpc_queue:getFields`,
+      {
+        result,
+        properties,
+        contentType,
+        user,
+        scopeBrandIds,
+        useElkSyncer
+      }
+    );
   }
 
   const modifier: { $inc?; $push? } = {

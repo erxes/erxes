@@ -47,6 +47,7 @@ const dealQueries = {
       getExtraFields
     );
 
+    // @ts-ignore
     const dealProductIds = deals.flatMap(deal => {
       if (deal.productsData && deal.productsData.length > 0) {
         return deal.productsData.flatMap(pData => pData.productId || []);
