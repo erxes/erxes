@@ -1,4 +1,3 @@
-const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const path = require('path');
@@ -111,7 +110,7 @@ module.exports = {
               '@babel/preset-react',
               '@babel/preset-env'
             ],
-            plugins: [['@babel/transform-runtime'], 'lodash']
+            plugins: [['@babel/transform-runtime']]
           }
         }
       }
@@ -142,6 +141,5 @@ module.exports = {
       template: './src/index.html'
     }),
     // new BundleAnalyzerPlugin(),
-    new LodashModuleReplacementPlugin()
   ]
 };
