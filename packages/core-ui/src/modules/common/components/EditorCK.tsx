@@ -1,4 +1,4 @@
-import EditorCK from 'erxes-ui/lib/components/EditorCK';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
 
 export const getMentionedUserIds = EditorCK.getMentionedUserIds;
 

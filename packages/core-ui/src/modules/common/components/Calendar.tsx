@@ -1,3 +1,3 @@
-import Calendar from 'erxes-ui/lib/components/Calendar';
+import Calendar from '@erxes/ui/src/components/Calendar';
 
 export default Calendar;

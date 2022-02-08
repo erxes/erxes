@@ -1,4 +1,4 @@
-import FilterableListStyles from 'erxes-ui/lib/components/filterableList/styles';
+import FilterableListStyles from '@erxes/ui/src/components/filterableList/styles';
 
 const PopoverHeader = FilterableListStyles.PopoverHeader;
 const PopoverBody = FilterableListStyles.PopoverBody;

@@ -1,3 +1,3 @@
-import HeaderDescription from 'erxes-ui/lib/components/HeaderDescription';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 
 export default HeaderDescription;

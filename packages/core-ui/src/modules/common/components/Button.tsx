@@ -1,3 +1,3 @@
-import Button from 'erxes-ui/lib/components/Button';
+import Button from '@erxes/ui/src/components/Button';
 
 export default Button;

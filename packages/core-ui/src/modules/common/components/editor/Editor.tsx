@@ -1,4 +1,4 @@
-import Editor from 'erxes-ui/lib/components/editor/Editor';
+import Editor from '@erxes/ui/src/components/editor/Editor';
 
 export const ErxesEditor = Editor.ErxesEditor;
 

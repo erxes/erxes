@@ -1,3 +1,3 @@
-import Textarea from 'erxes-ui/lib/components/form/Textarea';
+import Textarea from '@erxes/ui/src/components/form/Textarea';
 
 export default Textarea;

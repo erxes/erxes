@@ -1,3 +1,3 @@
-import Chip from 'erxes-ui/lib/components/Chip';
+import Chip from '@erxes/ui/src/components/Chip';
 
 export default Chip;

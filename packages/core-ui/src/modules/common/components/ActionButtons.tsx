@@ -1,4 +1,4 @@
-import ActionButtons from 'erxes-ui/lib/components/ActionButtons';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 
 export const ActionButton = ActionButtons.ActionButton;
 

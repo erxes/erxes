@@ -1,3 +1,3 @@
-import ImageWithPreview from 'erxes-ui/lib/components/ImageWithPreview';
+import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
 
 export default ImageWithPreview;

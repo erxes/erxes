@@ -1,3 +1,3 @@
-import SortHandler from 'erxes-ui/lib/components/SortHandler';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
 
 export default SortHandler;

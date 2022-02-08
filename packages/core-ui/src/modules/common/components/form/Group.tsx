@@ -1,3 +1,3 @@
-import FormGroup from 'erxes-ui/lib/components/form/Group';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 
 export default FormGroup;

@@ -1,3 +1,3 @@
-import Filter from 'erxes-ui/lib/components/filter/Filter';
+import Filter from '@erxes/ui/src/components/filter/Filter';
 
 export default Filter;

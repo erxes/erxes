@@ -1,3 +1,3 @@
-import ConfirmDialog from 'erxes-ui/lib/components/ConfirmDialog';
+import ConfirmDialog from '@erxes/ui/src/components/ConfirmDialog';
 
 export default ConfirmDialog;

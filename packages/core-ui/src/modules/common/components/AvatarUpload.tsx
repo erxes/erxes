@@ -1,3 +1,3 @@
-import AvatarUpload from 'erxes-ui/lib/components/AvatarUpload';
+import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
 
 export default AvatarUpload;

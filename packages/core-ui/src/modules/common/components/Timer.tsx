@@ -1,4 +1,4 @@
-import Timer from 'erxes-ui/lib/components/Timer';
+import Timer from '@erxes/ui/src/components/Timer';
 
 export const STATUS_TYPES = Timer.STATUS_TYPES;
 

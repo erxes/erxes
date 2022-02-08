@@ -1,3 +1,3 @@
-import ModifiableSelect from 'erxes-ui/lib/components/ModifiableSelect';
+import ModifiableSelect from '@erxes/ui/src/components/ModifiableSelect';
 
 export default ModifiableSelect;

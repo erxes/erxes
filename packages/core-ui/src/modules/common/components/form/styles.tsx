@@ -4,6 +4,6 @@ import {
   Input,
   Label,
   SelectWrapper
-} from 'erxes-ui/lib/components/form/styles';
+} from '@erxes/ui/src/components/form/styles';
 
 export { Input, SelectWrapper, FormLabel, Label, Formgroup };
