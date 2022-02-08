@@ -3,13 +3,13 @@ export const CONVERSATION_STATUSES = {
   OPEN: 'open',
   CLOSED: 'closed',
   ENGAGE_VISITOR_AUTO: 'engageVisitorAuto',
-  ALL: ['new', 'open', 'closed', 'engageVisitorAuto']
+  ALL: ['new', 'open', 'closed', 'engageVisitorAuto'],
 };
 
 export const CONVERSATION_OPERATOR_STATUS = {
   BOT: 'bot',
   OPERATOR: 'operator',
-  ALL: ['bot', 'operator']
+  ALL: ['bot', 'operator'],
 };
 
 export const TAG_TYPES = {
@@ -25,36 +25,36 @@ export const TAG_TYPES = {
     'engageMessage',
     'company',
     'integration',
-    'product'
-  ]
+    'product',
+  ],
 };
 
 export const MESSENGER_KINDS = {
   CHAT: 'chat',
   NOTE: 'note',
   POST: 'post',
-  ALL: ['chat', 'note', 'post']
+  ALL: ['chat', 'note', 'post'],
 };
 
 export const SENT_AS_CHOICES = {
   BADGE: 'badge',
   SNIPPET: 'snippet',
   FULL_MESSAGE: 'fullMessage',
-  ALL: ['badge', 'snippet', 'fullMessage']
+  ALL: ['badge', 'snippet', 'fullMessage'],
 };
 
 export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   SMS: 'sms',
-  ALL: ['messenger', 'email', 'sms']
+  ALL: ['messenger', 'email', 'sms'],
 };
 
 export const ENGAGE_KINDS = {
   AUTO: 'auto',
   MANUAL: 'manual',
   VISITOR_AUTO: 'visitorAuto',
-  ALL: ['auto', 'manual', 'visitorAuto']
+  ALL: ['auto', 'manual', 'visitorAuto'],
 };
 
 export const LEAD_LOAD_TYPES = {
@@ -71,15 +71,15 @@ export const LEAD_LOAD_TYPES = {
     'embedded',
     'dropdown',
     'slideInLeft',
-    'slideInRight'
-  ]
+    'slideInRight',
+  ],
 };
 
 export const LEAD_SUCCESS_ACTIONS = {
   EMAIL: 'email',
   REDIRECT: 'redirect',
   ONPAGE: 'onPage',
-  ALL: ['', 'email', 'redirect', 'onPage']
+  ALL: ['', 'email', 'redirect', 'onPage'],
 };
 
 export const KIND_CHOICES = {
@@ -127,8 +127,8 @@ export const KIND_CHOICES = {
     'whatsapp',
     'telnyx',
     'webhook',
-    'booking'
-  ]
+    'booking',
+  ],
 };
 
 export const INTEGRATION_NAMES_MAP = {
@@ -155,14 +155,14 @@ export const INTEGRATION_NAMES_MAP = {
   'nylas-yahoo': 'Yahoo by Nylas',
   'twitter-dm': 'Twitter dm',
 
-  telnyx: 'SMS by Telnyx'
+  telnyx: 'SMS by Telnyx',
 };
 
 // messenger data availability constants
 export const MESSENGER_DATA_AVAILABILITY = {
   MANUAL: 'manual',
   AUTO: 'auto',
-  ALL: ['manual', 'auto']
+  ALL: ['manual', 'auto'],
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
@@ -199,14 +199,14 @@ export const ACTIVITY_CONTENT_TYPES = {
     'conversation',
     'segment',
     'email',
-    'brand'
-  ]
+    'brand',
+  ],
 };
 
 export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
-  ALL: ['draft', 'publish']
+  ALL: ['draft', 'publish'],
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -229,8 +229,8 @@ export const ACTIVITY_ACTIONS = {
     'moved',
     'convert',
     'assignee',
-    'tagged'
-  ]
+    'tagged',
+  ],
 };
 
 export const ACTIVITY_PERFORMER_TYPES = {
@@ -239,46 +239,46 @@ export const ACTIVITY_PERFORMER_TYPES = {
   CUSTOMER: 'CUSTOMER',
   DEAL: 'DEAL',
 
-  ALL: ['SYSTEM', 'USER', 'CUSTOMER', 'DEAL']
+  ALL: ['SYSTEM', 'USER', 'CUSTOMER', 'DEAL'],
 };
 
 export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
-  ALL: ['product', 'service']
+  ALL: ['product', 'service'],
 };
 
 export const PRODUCT_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',
-  ALL: ['active', 'deleted']
+  ALL: ['active', 'deleted'],
 };
 
 export const PRODUCT_CATEGORY_STATUSES = {
   ACTIVE: 'active',
   DISABLED: 'disabled',
   ARCHIVED: 'archived',
-  ALL: ['active', 'disabled', 'archived']
+  ALL: ['active', 'disabled', 'archived'],
 };
 
 export const PRODUCT_SUPPLY = {
   UNIQUE: 'unique',
   LIMITED: 'limited',
   UNLIMITED: 'unlimited',
-  ALL: ['unique', 'limited', 'unlimited']
+  ALL: ['unique', 'limited', 'unlimited'],
 };
 
 export const PIPELINE_VISIBLITIES = {
   PUBLIC: 'public',
   PRIVATE: 'private',
-  ALL: ['public', 'private']
+  ALL: ['public', 'private'],
 };
 
 export const HACK_SCORING_TYPES = {
   RICE: 'rice',
   ICE: 'ice',
   PIE: 'pie',
-  ALL: ['rice', 'ice', 'pie']
+  ALL: ['rice', 'ice', 'pie'],
 };
 
 export const FIELDS_GROUPS_CONTENT_TYPES = {
@@ -306,8 +306,8 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
     'visitor',
     'lead',
     'form',
-    'user'
-  ]
+    'user',
+  ],
 };
 
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
@@ -319,7 +319,7 @@ export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
   'opportunity',
   'customer',
   'evangelist',
-  'other'
+  'other',
 ];
 
 export const COMPANY_LIFECYCLE_STATE_TYPES = [
@@ -331,7 +331,7 @@ export const COMPANY_LIFECYCLE_STATE_TYPES = [
   'opportunity',
   'customer',
   'evangelist',
-  'other'
+  'other',
 ];
 
 export const COMPANY_BUSINESS_TYPES = [
@@ -345,7 +345,7 @@ export const COMPANY_BUSINESS_TYPES = [
   'Press',
   'Prospect',
   'Reseller',
-  'Other'
+  'Other',
 ];
 
 export const DEFAULT_COMPANY_INDUSTRY_TYPES = [
@@ -431,7 +431,7 @@ export const DEFAULT_COMPANY_INDUSTRY_TYPES = [
   'Retail',
   'Health',
   'Construction',
-  'Management'
+  'Management',
 ];
 
 export const COMPANY_INDUSTRY_TYPES = [...DEFAULT_COMPANY_INDUSTRY_TYPES];
@@ -463,19 +463,19 @@ export const PROBABILITY = {
     'Won',
     'Lost',
     'Done',
-    'Resolved'
-  ]
+    'Resolved',
+  ],
 };
 
 export const BOARD_STATUSES = {
   ACTIVE: 'active',
   ARCHIVED: 'archived',
-  ALL: ['active', 'archived']
+  ALL: ['active', 'archived'],
 };
 
 export const BOARD_STATUSES_OPTIONS = [
   { label: 'Active', value: 'active' },
-  { label: 'Archived', value: 'archived' }
+  { label: 'Archived', value: 'archived' },
 ];
 
 export const TIME_TRACK_TYPES = {
@@ -483,7 +483,7 @@ export const TIME_TRACK_TYPES = {
   STOPPED: 'stopped',
   PAUSED: 'paused',
   COMPLETED: 'completed',
-  ALL: ['started', 'stopped', 'paused', 'completed']
+  ALL: ['started', 'stopped', 'paused', 'completed'],
 };
 
 export const BOARD_TYPES = {
@@ -491,14 +491,14 @@ export const BOARD_TYPES = {
   TICKET: 'ticket',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
-  ALL: ['deal', 'ticket', 'task', 'growthHack']
+  ALL: ['deal', 'ticket', 'task', 'growthHack'],
 };
 
 export const MESSAGE_TYPES = {
   VIDEO_CALL: 'videoCall',
   VIDEO_CALL_REQUEST: 'videoCallRequest',
   TEXT: 'text',
-  ALL: ['videoCall', 'videoCallRequest', 'text']
+  ALL: ['videoCall', 'videoCallRequest', 'text'],
 };
 
 // module constants
@@ -564,15 +564,15 @@ export const NOTIFICATION_TYPES = {
     'taskDelete',
     'customerMention',
     'companyMention',
-    'plugin'
-  ]
+    'plugin',
+  ],
 };
 
 export const FORM_TYPES = {
   LEAD: 'lead',
   GROWTH_HACK: 'growthHack',
   BOOKING: 'booking',
-  ALL: ['lead', 'growthHack', 'booking']
+  ALL: ['lead', 'growthHack', 'booking'],
 };
 
 export const NOTIFICATION_CONTENT_TYPES = {
@@ -590,13 +590,13 @@ export const NOTIFICATION_CONTENT_TYPES = {
     'customer',
     'ticket',
     'channel',
-    'conversation'
-  ]
+    'conversation',
+  ],
 };
 
 const STATUSES = [
   { label: 'Active', value: 'Active' },
-  { label: 'Deleted', value: 'Deleted' }
+  { label: 'Deleted', value: 'Deleted' },
 ];
 
 export const COMPANY_SELECT_OPTIONS = {
@@ -609,33 +609,33 @@ export const COMPANY_SELECT_OPTIONS = {
     { label: 'Prospect', value: 'Prospect' },
     { label: 'Reseller', value: 'Reseller' },
     { label: 'Other', value: 'Other' },
-    { label: 'Unknown', value: '' }
+    { label: 'Unknown', value: '' },
   ],
   STATUSES,
   DO_NOT_DISTURB: [
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
-    { label: 'Unknown', value: '' }
-  ]
+    { label: 'Unknown', value: '' },
+  ],
 };
 
 export const CONVERSATION_SELECT_OPTIONS = {
   OPERATOR_STATUS: [
     { label: 'Operator', value: 'operator' },
-    { label: 'Bot', value: 'bot' }
+    { label: 'Bot', value: 'bot' },
   ],
   STATUS: [
     { label: 'New', value: 'new' },
     { label: 'Open', value: 'open' },
-    { label: 'Resolved', value: 'closed' }
-  ]
+    { label: 'Resolved', value: 'closed' },
+  ],
 };
 
 export const DEFAULT_SOCIAL_LINKS = [
   { label: 'Facebook', value: 'facebook' },
   { label: 'Twitter', value: 'twitter' },
   { label: 'Youtube', value: 'youtube' },
-  { label: 'Website', value: 'website' }
+  { label: 'Website', value: 'website' },
 ];
 
 export const SOCIAL_LINKS = [
@@ -675,14 +675,14 @@ export const SOCIAL_LINKS = [
   { label: 'Wattpad', value: 'wattpad' },
   { label: 'XING', value: 'xing' },
   { label: 'Yammer', value: 'yammer' },
-  { label: 'Yelp', value: 'yelp' }
+  { label: 'Yelp', value: 'yelp' },
 ];
 
 export const DEFAULT_SEX_CHOICES = [
   { label: 'Not known', value: 0 },
   { label: 'Male', value: 1 },
   { label: 'Female', value: 2 },
-  { label: 'Not applicable', value: 9 }
+  { label: 'Not applicable', value: 9 },
 ];
 
 export const CUSTOMER_SELECT_OPTIONS = {
@@ -700,7 +700,7 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'yo/yo', value: 19 },
     { label: 'ze/zir', value: 20 },
     { label: 've/vis', value: 21 },
-    { label: 'xe/xem', value: 22 }
+    { label: 'xe/xem', value: 22 },
   ],
   EMAIL_VALIDATION_STATUSES: [
     { label: 'Valid', value: 'valid' },
@@ -710,14 +710,14 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'Unknown', value: 'unknown' },
     { label: 'Disposable', value: 'disposable' },
     { label: 'Catch all', value: 'catchall' },
-    { label: 'Bad syntax', value: 'badsyntax' }
+    { label: 'Bad syntax', value: 'badsyntax' },
   ],
   PHONE_VALIDATION_STATUSES: [
     { label: 'Valid', value: 'valid' },
     { label: 'Invalid', value: 'invalid' },
     { label: 'Unknown', value: 'unknown' },
     { label: 'Can receive sms', value: 'receives_sms' },
-    { label: 'Unverifiable', value: 'unverifiable' }
+    { label: 'Unverifiable', value: 'unverifiable' },
   ],
   LEAD_STATUS_TYPES: [
     { label: 'New', value: 'new' },
@@ -725,33 +725,33 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'Working', value: 'inProgress' },
     { label: 'Bad Timing', value: 'badTiming' },
     { label: 'Unqualified', value: 'unqualified' },
-    { label: 'Unknown', value: '' }
+    { label: 'Unknown', value: '' },
   ],
   STATUSES,
   DO_NOT_DISTURB: [
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
-    { label: 'Unknown', value: '' }
+    { label: 'Unknown', value: '' },
   ],
   HAS_AUTHORITY: [
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
-    { label: 'Unknown', value: '' }
+    { label: 'Unknown', value: '' },
   ],
   STATE: [
     { label: 'Visitor', value: 'visitor' },
     { label: 'Lead', value: 'lead' },
-    { label: 'Customer', value: 'customer' }
-  ]
+    { label: 'Customer', value: 'customer' },
+  ],
 };
 
 export const DEFAULT_CONSTANT_VALUES = {
   sex_choices: DEFAULT_SEX_CHOICES,
-  company_industry_types: DEFAULT_COMPANY_INDUSTRY_TYPES.map(v => ({
+  company_industry_types: DEFAULT_COMPANY_INDUSTRY_TYPES.map((v) => ({
     label: v,
-    value: v
+    value: v,
   })),
-  social_links: DEFAULT_SOCIAL_LINKS
+  social_links: DEFAULT_SOCIAL_LINKS,
 };
 
 export const SEGMENT_STRING_OPERATORS = ['e', 'dne', 'c', 'dnc'];
@@ -760,7 +760,7 @@ export const SEGMENT_NUMBER_OPERATORS = [
   'numbere',
   'numberdne',
   'numberigt',
-  'numberilt'
+  'numberilt',
 ];
 export const SEGMENT_DATE_OPERATORS = [
   'dateigt',
@@ -770,7 +770,7 @@ export const SEGMENT_DATE_OPERATORS = [
   'wobd',
   'woad',
   'drlt',
-  'drgt'
+  'drgt',
 ];
 
 export const WEBHOOK_ACTIONS = [
@@ -794,40 +794,40 @@ export const WEBHOOK_ACTIONS = [
   {
     label: 'Ticket moved',
     action: 'createBoardItemMovementLog',
-    type: 'ticket'
+    type: 'ticket',
   },
   {
     label: 'Knowledge Base created',
     action: 'create',
-    type: 'knowledgeBaseArticle'
+    type: 'knowledgeBaseArticle',
   },
   {
     label: 'Knowledge Base updated',
     action: 'update',
-    type: 'knowledgeBaseArticle'
+    type: 'knowledgeBaseArticle',
   },
   {
     label: 'Knowledge Base deleted',
     action: 'delete',
-    type: 'knowledgeBaseArticle'
+    type: 'knowledgeBaseArticle',
   },
   { label: 'User messages', action: 'create', type: 'userMessages' },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
   {
     label: 'Customer create conversation',
     action: 'create',
-    type: 'conversation'
+    type: 'conversation',
   },
   {
     label: 'Campaign created',
     action: 'create',
-    type: 'engageMessages'
+    type: 'engageMessages',
   },
   {
     label: 'Form submission received',
     action: 'create',
-    type: 'popupSubmitted'
-  }
+    type: 'popupSubmitted',
+  },
 ];
 
 export const WEBHOOK_TYPES = {
@@ -853,18 +853,18 @@ export const WEBHOOK_TYPES = {
     'engageMessages',
     'deal',
     'task',
-    'ticket'
-  ]
+    'ticket',
+  ],
 };
 
 export const WEBHOOK_STATUS = {
   AVAILABLE: 'available',
   UNAVAILABLE: 'unavailable',
-  ALL: ['available', 'unavailable']
+  ALL: ['available', 'unavailable'],
 };
 
 export const REACTION_CHOICES = {
   LIKE: 'like',
   DISLIKE: 'disLike',
-  ALL: ['like', 'dislike']
+  ALL: ['like', 'dislike'],
 };

@@ -4,7 +4,7 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
+  copyParams,
 } from './common';
 
 export const types = (contactsAvailable) => `
@@ -12,7 +12,7 @@ export const types = (contactsAvailable) => `
     ${commonListTypes}
   }
     
-  type Ticket {
+  type Ticket @key(fields: "_id") {
     _id: String!
     source: String
     ${

@@ -1,9 +1,5 @@
-export const types = `
+export const types = (isProductsAvailable) => `
   extend type Form @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type ProductCategory @key(fields: "_id") {
     _id: String! @external
   }
 
@@ -56,7 +52,14 @@ export const types = `
     viewCount: Int
 
     categoryTree: JSON
-    mainProductCategory: ProductCategory
+
+    ${
+      isProductsAvailable ? 
+      `
+        mainProductCategory: ProductCategory
+      ` : ''
+    }
+
     navigationText: String
     bookingFormText: String
     productFieldIds: [String]

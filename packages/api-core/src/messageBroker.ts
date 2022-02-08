@@ -50,7 +50,7 @@ export const initBroker = async (server?) => {
       data: await Conformities.addConformity(doc)
     }));
 
-    consumeRPCQueue('conformities:rpc_queue:savedConformity', async doc => ({
+    consumeRPCQueue('conformities:savedConformity', async doc => ({
       status: 'success',
       data: await Conformities.savedConformity(doc)
     }));
@@ -70,7 +70,7 @@ export const initBroker = async (server?) => {
       data: await Conformities.removeConformity(doc)
     }));
 
-    consumeRPCQueue('conformities:rpc_queue:getConformities', async doc => ({
+    consumeRPCQueue('conformities:getConformities', async doc => ({
       status: 'success',
       data: await Conformities.getConformities(doc)
     }));

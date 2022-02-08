@@ -12,7 +12,7 @@ import {
   itemsEdit,
   itemsRemove
 } from './utils';
-import { Products } from '../../../apiCollections';
+import { findProducts, updateProducts } from '../../../messageBroker';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -109,18 +109,18 @@ const dealMutations = {
 
       const productIds = productsData.map(p => p.productId);
 
-      const products = await Products.find({
+      const products = await findProducts('find', {
         _id: { $in: productIds },
         supply: { $ne: 'unlimited' }
       });
 
       if (stage.probability === 'Won') {
-        await Products.updateMany(
+        await updateProducts(
           { _id: { $in: products.map(p => p._id) } },
           { $inc: { productCount: -1 } }
         );
       } else if (prevStage.probability === 'Won') {
-        await Products.updateMany(
+        await updateProducts(
           { _id: { $in: products.map(p => p._id) } },
           { $inc: { productCount: 1 } }
         );

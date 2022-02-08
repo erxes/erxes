@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { customFieldSchema, ICustomField, ILink } from './common';
+import { customFieldSchema, ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { IPermissionDocument } from './permissions';
 import { field, schemaHooksWrapper } from './utils';
 

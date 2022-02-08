@@ -14,7 +14,7 @@ import {
   getItemList,
   IArchiveArgs
 } from './utils';
-import { Products } from '../../../apiCollections';
+import { findProducts } from '../../../messageBroker';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -55,9 +55,9 @@ const dealQueries = {
       return [];
     });
 
-    const products = await Products.find({
+    const products = await findProducts('find', {
       _id: { $in: [...new Set(dealProductIds)] }
-    }).toArray();
+    });
 
     for (const deal of deals) {
       if (

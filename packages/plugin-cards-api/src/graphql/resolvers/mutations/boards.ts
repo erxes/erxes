@@ -11,7 +11,7 @@ import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../../configs';
 import { IContext } from '@erxes/api-utils/src';
 import { checkPermission } from '../../utils';
-import messageBroker, { sendFieldsGroupMessage } from '../../../messageBroker';
+import { sendFieldsGroupMessage } from '../../../messageBroker';
 import { FieldsGroups } from '../../../apiCollections';
 
 import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
@@ -66,7 +66,6 @@ const boardMutations = {
     const board = await Boards.createBoard(extendedDoc);
 
     putCreateLog(
-      messageBroker,
       {
         type: `${doc.type}Boards`,
         newData: extendedDoc,
@@ -88,7 +87,6 @@ const boardMutations = {
     const updated = await Boards.updateBoard(_id, doc);
 
     await putUpdateLog(
-      messageBroker,
       {
         type: `${doc.type}Boards`,
         newData: doc,
@@ -126,7 +124,6 @@ const boardMutations = {
     }
 
     await putDeleteLog(
-      messageBroker,
       { type: `${board.type}Boards`, object: board },
       user
     );
@@ -154,7 +151,6 @@ const boardMutations = {
     );
 
     putCreateLog(
-      messageBroker,
       {
         type: `${doc.type}Pipelines`,
         newData: doc,
@@ -185,7 +181,6 @@ const boardMutations = {
     const updated = await Pipelines.updatePipeline(_id, doc, stages);
 
     await putUpdateLog(
-      messageBroker,
       {
         type: `${doc.type}Pipelines`,
         newData: doc,
@@ -243,7 +238,6 @@ const boardMutations = {
     }
 
     await putDeleteLog(
-      messageBroker,
       { type: `${pipeline.type}Pipelines`, object: pipeline },
       user
     );
@@ -278,7 +272,6 @@ const boardMutations = {
     };
 
     await putUpdateLog(
-      messageBroker,
       {
         type: `${pipeline.type}Pipelines`,
         object: pipeline,
@@ -323,7 +316,6 @@ const boardMutations = {
     }
 
     await putUpdateLog(
-      messageBroker,
       { type: `${sourcePipeline.type}Pipelines`, object: copied },
       user
     );
@@ -348,7 +340,6 @@ const boardMutations = {
     const updated = await Stages.updateStage(_id, doc);
 
     await putUpdateLog(
-      messageBroker,
       {
         type: `${doc.type}Stages`,
         newData: doc,
@@ -372,7 +363,6 @@ const boardMutations = {
     const removed = await Stages.removeStage(_id);
 
     await putDeleteLog(
-      messageBroker,
       { type: `${stage.type}Stages`, object: stage },
       user
     );

@@ -7,7 +7,6 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { conversationSchemaOptions } from './models/definitions/conversations';
 
 export let graphqlPubsub;
 
@@ -22,11 +21,14 @@ export let debug;
 
 export default {
   name: 'inbox',
-  graphql: {
-    typeDefs,
+  graphql: async (serviceDiscovery) => ({
+    typeDefs: await typeDefs(serviceDiscovery),
     resolvers,
-  },
+  }),
   hasSubscriptions: true,
+  meta: {
+    tagTypes: ['conversation']
+  },
   segment: {
     indexesTypeContentType: {
       conversation: 'conversations',

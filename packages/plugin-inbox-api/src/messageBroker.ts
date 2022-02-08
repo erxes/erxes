@@ -125,6 +125,29 @@ export const initBroker = (cl) => {
     status: 'success',
     data: await generateFields(args)
   }));
+
+  consumeRPCQueue('inbox:rpc_queue:tag', async args => {
+    let data = {};
+
+    if (args.action === 'count') {
+      data = await Conversations.countDocuments({ tagIds: { $in: args._ids } });
+    }
+
+    if (args.action === 'tagObject') {
+      await Conversations.updateMany(
+        { _id: { $in: args.targetIds } },
+        { $set: { tagIds: args.tagIds } },
+        { multi: true }
+      );
+
+      data = await Conversations.find({ _id: { $in: args.targetIds } }).lean();
+    }
+
+    return {
+      status: 'success',
+      data
+    }
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
