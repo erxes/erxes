@@ -6,7 +6,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import { ISkillDocument } from '@erxes/ui-settings/src/skills/types';
 import React from 'react';
-import { IConversation } from '@erxes/ui-inbox/src/types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import LeftSidebar from './LeftSidebar';
 import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import InfoSection from './InfoSection';

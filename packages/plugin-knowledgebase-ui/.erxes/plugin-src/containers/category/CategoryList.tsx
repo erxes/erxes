@@ -4,13 +4,13 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CategoryList from '../../components/category/CategoryList';
-import { mutations, queries } from '@erxes/ui-knowledgeBase/src/graphql';
+import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
   ArticlesTotalCountQueryResponse,
   CategoriesQueryResponse,
   CategoriesTotalCountQueryResponse,
   RemoveCategoriesMutationResponse
-} from '@erxes/ui-knowledgeBase/src/types';
+} from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
   currentCategoryId: string;
