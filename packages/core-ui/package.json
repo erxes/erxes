@@ -26,7 +26,6 @@
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",
     "erxes-icon": "^1.2.1",
-    "erxes-ui": "^0.0.87",
     "graphql": "^15",
     "graphql-tag": "^2.6.1",
     "graphql-ws": "^5.5.5",
