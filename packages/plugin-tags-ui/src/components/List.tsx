@@ -8,7 +8,7 @@ import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { ITag } from '@erxes/ui/src/tags/types';
 import React from 'react';
-import FormComponent from './Form';
+import FormComponent from '@erxes/ui/src/tags/components/Form';
 import Row from './Row';
 import Sidebar from './Sidebar';
 
