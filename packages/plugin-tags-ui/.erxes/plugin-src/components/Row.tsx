@@ -13,7 +13,7 @@ import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import Form from './Form';
+import Form from '@erxes/ui/src/tags/components/Form';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
   padding-left: ${props => props.space * 20}px;
