@@ -13,15 +13,18 @@ import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
 
-import { connect, disconnect } from './connection';
+import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { initBroker } from './messageBroker';
 import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
-import configs from '../../src/configs';
-import { join, leave } from './serviceDiscovery';
+import { getService, getServices, join, leave } from './serviceDiscovery';
+
+const configs = require('../../src/configs').default;
+
+const { MONGO_URL, PORT } = process.env;
 
 export const app = express();
 
@@ -66,54 +69,74 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(msg);
 });
 
-const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
-
 const httpServer = http.createServer(app);
 
-async function tryToDisconnect() {
-  try {
-    await leave(configs.name, PORT || '');
-  } catch (e) {
-    console.error(e)
-  }
+// GRACEFULL SHUTDOWN
+process.stdin.resume(); // so the program will not close instantly
+
+// If the Node process ends, close the Mongoose connection
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  process.on(sig, () => {
+    // Stops the server from accepting new connections and finishes existing connections.
+    httpServer.close((error: Error | undefined) => {
+      if (error) {
+        console.error(error.message);
+
+        leave(configs.name, PORT || '').then(() => {
+          process.exit(1);
+        })
+      }
+    });
+  });
+});
+
+const generateApolloServer = async (serviceDiscovery) => {
+  const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
+
+  return new ApolloServer({
+    schema: buildSubgraphSchema([
+      {
+        typeDefs,
+        resolvers
+      }
+    ]),
+
+    // for graceful shutdown
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    context: ({ req }) => {
+      let user: any = null;
+
+      if (req.headers.user) {
+        if (Array.isArray(req.headers.user)) {
+          throw new Error(`Multiple user headers`);
+        }
+        const userJson = Buffer.from(req.headers.user, 'base64').toString(
+          'utf-8'
+        );
+        user = JSON.parse(userJson);
+      }
+
+      const context = { user, docModifier: doc => doc, commonQuerySelector: {} };
+
+      configs.apolloServerContext(context);
+
+      return context;
+    }
+  });
 }
 
-httpServer.on("close", async () => {
-  await tryToDisconnect();
-});
-
-const apolloServer = new ApolloServer({
-  schema: buildSubgraphSchema([
-    {
-      typeDefs: configs.graphql.typeDefs,
-      resolvers: configs.graphql.resolvers
-    }
-  ]),
-
-  // for graceful shutdown
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  context: ({ req }) => {
-    let user: any = null;
-
-    if (req.headers.user) {
-      if (Array.isArray(req.headers.user)) {
-        throw new Error(`Multiple user headers`);
-      }
-      const userJson = Buffer.from(req.headers.user, 'base64').toString(
-        'utf-8'
-      );
-      user = JSON.parse(userJson);
-    }
-
-    const context = { user };
-
-    configs.apolloServerContext(context);
-
-    return context;
-  }
-});
-
 async function startServer() {
+  const serviceDiscovery = {
+    getServices,
+    getService,
+    isAvailable: async (name) => {
+      const serviceNames = await getServices();
+
+      return serviceNames.includes(name);
+    }
+  }
+
+  const apolloServer = await generateApolloServer(serviceDiscovery);
   await apolloServer.start();
 
   apolloServer.applyMiddleware({ app, path: '/graphql' });
@@ -149,8 +172,14 @@ async function startServer() {
       port: PORT || '',
       dbConnectionString: mongoUrl,
       segment: configs.segment,
-      hasSubscriptions: configs.hasSubscriptions
+      hasSubscriptions: configs.hasSubscriptions,
+      importTypes: configs.importTypes,
+      meta: configs.meta
     });
+
+    if (configs.permissions) {
+      await messageBrokerClient.sendMessage('registerPermissions', configs.permissions);
+    }
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);
   } catch (e) {

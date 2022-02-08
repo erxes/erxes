@@ -17,10 +17,10 @@ export let debug;
 
 export default {
   name: 'notification',
-  graphql: {
+  graphql: () => ({
     typeDefs,
     resolvers,
-  },
+  }),
   hasSubscriptions: false,
   segment: {},
   apolloServerContext: (context) => {},

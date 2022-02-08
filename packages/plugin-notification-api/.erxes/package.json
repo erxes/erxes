@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/api-plugin-template",
+  "name": "@erxes/api-plugin-template.erxes",
   "version": "1.0.0",
   "scripts": {
     "start": "node dist",
