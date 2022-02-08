@@ -81,6 +81,7 @@ module.exports = {
           path.resolve(__dirname, "../ui-products/src"),
           path.resolve(__dirname, "../ui-cards/src"),
           path.resolve(__dirname, "../ui-knowledgeBase/src"),
+          path.resolve(__dirname, '../ui-calendar/src')
         ],
         use: {
           loader: "babel-loader",
