@@ -1,3 +1,3 @@
-import Uploader from 'erxes-ui/lib/components/Uploader';
+import Uploader from '@erxes/ui/src/components/Uploader';
 
 export default Uploader;

@@ -1,3 +1,3 @@
-import Sidebar from 'erxes-ui/lib/layout/components/Sidebar';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 
 export default Sidebar;

@@ -2,7 +2,7 @@ import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC
-} from 'erxes-ui/lib/products/types';
+} from '@erxes/ui-products/src/types';
 import { QueryResponse } from 'modules/common/types';
 
 export type IProductDoc = IProductDocC & {};

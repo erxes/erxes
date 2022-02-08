@@ -25,6 +25,7 @@
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
     "style-loader": "^3.3.0",
+    "terser-webpack-plugin": "^5.3.1",
     "timers-browserify": "^2.0.12",
     "typescript": "3.8.3",
     "watch-sync": "^0.3.1",
@@ -36,7 +37,6 @@
   "dependencies": {
     "@types/styled-components": "^3.0.0",
     "dayjs": "1.8.15",
-    "erxes-ui": "0.0.86",
     "graphql": "0.12.3",
     "graphql-tag": "2.10.0",
     "lodash.flowright": "3.5.0",

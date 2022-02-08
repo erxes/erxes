@@ -1,3 +1,3 @@
-import FilePreview from 'erxes-ui/lib/components/FilePreview';
+import FilePreview from '@erxes/ui/src/components/FilePreview';
 
 export default FilePreview;

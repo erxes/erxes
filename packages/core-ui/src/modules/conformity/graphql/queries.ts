@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from 'erxes-ui/lib/conformity/graphql/queries';
+} from '@erxes/ui-cards/src/conformity/graphql/queries';
 
 export { conformityQueryFields, conformityQueryFieldDefs };

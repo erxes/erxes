@@ -1,3 +1,3 @@
-import ProgressBar from 'erxes-ui/lib/components/ProgressBar';
+import ProgressBar from '@erxes/ui/src/components/ProgressBar';
 
 export default ProgressBar;

@@ -1,3 +1,3 @@
-import ConformityChooser from 'erxes-ui/lib/conformity/containers/ConformityChooser';
+import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
 
 export default ConformityChooser;

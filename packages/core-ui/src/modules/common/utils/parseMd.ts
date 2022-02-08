@@ -1,3 +1,3 @@
-import parseMarkdown from 'erxes-ui/lib/utils/parseMd';
+import parseMarkdown from '@erxes/ui/src/utils/parseMd';
 
 export default parseMarkdown;

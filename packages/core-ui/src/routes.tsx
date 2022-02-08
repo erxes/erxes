@@ -28,11 +28,11 @@ const UserConfirmation = asyncComponent(() =>
   )
 );
 
-// const Schedule = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "Calendar - Schedule" */ 'modules/calendar/components/scheduler/Index'
-//   )
-// );
+const Schedule = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
+  )
+);
 
 export const unsubscribe = ({ location }) => {
   const queryParams = queryString.parse(location.search);
@@ -40,11 +40,11 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-// const schedule = ({ match }) => {
-//   const slug = match.params.slug;
+const schedule = ({ match }) => {
+  const slug = match.params.slug;
 
-//   return <Schedule slug={slug} />;
-// };
+  return <Schedule slug={slug} />;
+};
 
 const renderRoutes = (currentUser) => {
   const userConfirmation = ({ location }) => {
@@ -115,12 +115,12 @@ const Routes = ({ currentUser }: { currentUser: IUser }) => (
         component={unsubscribe}
       />
 
-      {/* <Route
+      <Route
         key="/schedule"
         exact={true}
         path="/schedule/:slug"
         component={schedule}
-      /> */}
+      />
 
       {renderRoutes(currentUser)}
     </>

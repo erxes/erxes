@@ -1,3 +1,3 @@
-import AnimatedLoader from 'erxes-ui/lib/components/AnimatedLoader';
+import AnimatedLoader from '@erxes/ui/src/components/AnimatedLoader';
 
 export default AnimatedLoader;

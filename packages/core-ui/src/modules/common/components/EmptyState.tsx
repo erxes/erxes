@@ -1,3 +1,3 @@
-import EmptyState from 'erxes-ui/lib/components/EmptyState';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 export default EmptyState;

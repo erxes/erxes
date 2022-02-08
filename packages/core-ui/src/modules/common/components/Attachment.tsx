@@ -1,4 +1,4 @@
-import Attachment from 'erxes-ui/lib/components/Attachment';
+import Attachment from '@erxes/ui/src/components/Attachment';
 
 export const AttachmentWrapper = Attachment.AttachmentWrapper;
 export const Meta = Attachment.Meta;

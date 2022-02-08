@@ -1,3 +1,3 @@
-import ConditionsRule from 'erxes-ui/lib/components/rule/ConditionsRule';
+import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
 
 export default ConditionsRule;

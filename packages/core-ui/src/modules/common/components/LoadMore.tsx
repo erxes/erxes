@@ -1,3 +1,3 @@
-import LoadMore from 'erxes-ui/lib/components/LoadMore';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
 
 export default LoadMore;

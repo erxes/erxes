@@ -1,3 +1,3 @@
-import Icon from 'erxes-ui/lib/components/Icon';
+import Icon from '@erxes/ui/src/components/Icon';
 
 export default Icon;

@@ -1,3 +1,3 @@
-import DateFilter from 'erxes-ui/lib/components/DateFilter';
+import DateFilter from '@erxes/ui/src/components/DateFilter';
 
 export default DateFilter;

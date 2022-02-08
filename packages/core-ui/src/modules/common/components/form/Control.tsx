@@ -1,3 +1,3 @@
-import FormControl from 'erxes-ui/lib/components/form/Control';
+import FormControl from '@erxes/ui/src/components/form/Control';
 
 export default FormControl;

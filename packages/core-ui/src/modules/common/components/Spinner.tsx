@@ -1,3 +1,3 @@
-import Spinner from 'erxes-ui/lib/components/Spinner';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 export default Spinner;

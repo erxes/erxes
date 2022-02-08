@@ -1,3 +1,3 @@
-import DateControl from 'erxes-ui/lib/components/form/DateControl';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 
 export default DateControl;

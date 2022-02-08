@@ -1,5 +1,3 @@
-const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
-
 const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const path = require('path');
@@ -10,6 +8,7 @@ const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 //   .BundleAnalyzerPlugin;
 
 const TerserPlugin = require('terser-webpack-plugin');
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 const smp = new SpeedMeasurePlugin();
 
