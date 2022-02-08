@@ -6,10 +6,10 @@ import {
   IPipeline
 } from '@erxes/ui-cards/src/boards/types';
 import Spinner from 'modules/common/components/Spinner';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgeBase/src/types';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import React, { useEffect, useState } from 'react';
 import { graphql } from 'react-apollo';
-import knowledgeBaseQueries from '@erxes/ui-knowledgeBase/src/graphql/queries';
+import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
 import boardQueries from '@erxes/ui-settings/src/boards/graphql/queries';
 import General from '../components/forms/General';
 

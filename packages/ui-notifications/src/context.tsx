@@ -1,19 +1,17 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import { Alert, sendDesktopNotification } from 'modules/common/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { Alert, sendDesktopNotification } from '@erxes/ui/src/utils';
 import {
   INotification,
-  MarkAsReadMutationResponse
-} from 'modules/notifications/types';
+  MarkAsReadMutationResponse,
+  NotificationsCountQueryResponse,
+  NotificationsQueryResponse
+} from './types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import strip from 'strip';
 import { mutations, queries, subscriptions } from './graphql';
-import {
-  NotificationsCountQueryResponse,
-  NotificationsQueryResponse
-} from './types';
 
 interface IStore {
   notifications: INotification[];
@@ -115,7 +113,6 @@ class Provider extends React.Component<FinalProps> {
     const notifications = notificationsQuery.notifications || [];
     const isLoading = notificationsQuery.loading;
     const unreadCount = notificationCountQuery.notificationCounts || 0;
-
     return (
       <NotifContext.Provider
         value={{

@@ -65,6 +65,7 @@ export interface IUser extends IUserDoc {
     [key: string]: any;
   };
   isShowNotification?: boolean;
+  isSubscribed?: boolean
 }
 
 export type AllUsersQueryResponse = {

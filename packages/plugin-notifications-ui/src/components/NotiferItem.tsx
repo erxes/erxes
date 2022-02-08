@@ -3,7 +3,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import * as React from 'react';
 import RTG from 'react-transition-group';
 import styled from 'styled-components';
-import { Item } from './styles';
+import { Item } from '@erxes/ui-notifications/src/components/styles';
 
 const Close = styled.div`
   position: absolute;

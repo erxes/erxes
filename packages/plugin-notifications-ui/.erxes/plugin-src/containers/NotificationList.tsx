@@ -6,12 +6,12 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import NotificationList from '../components/NotificationList';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-notifications/src/graphql';
 import {
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse
-} from '../types';
+} from '@erxes/ui-notifications/src/types';
 
 type Props = {
   queryParams: IQueryParams;

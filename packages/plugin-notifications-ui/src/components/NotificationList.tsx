@@ -4,12 +4,12 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { __, Alert, router } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { INotification } from '../types';
+import { INotification } from '@erxes/ui-notifications/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import NotificationRow from './NotificationRow';
-import { NotifList } from './styles';
+import NotificationRow from '@erxes/ui-notifications/src/components/NotificationRow';
+import { NotifList } from '@erxes/ui-notifications/src/components/styles';
 
 type Props = {
   notifications: INotification[];
