@@ -4,6 +4,7 @@ const path = require('path');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
 
@@ -36,7 +37,31 @@ module.exports = {
     publicPath: `http://localhost:${port}/`
   },
 
-  optimization: { runtimeChunk: false, splitChunks: false },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+        terserOptions: {
+          parse: {
+            ecma: 8
+          },
+          compress: {
+            ecma: 5,
+            warnings: false,
+            comparisons: false,
+            inline: 2
+          },
+          mangle: true,
+          output: {
+            ecma: 5,
+            comments: false,
+            ascii_only: true
+          }
+        }
+      })
+    ]
+  },
 
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
