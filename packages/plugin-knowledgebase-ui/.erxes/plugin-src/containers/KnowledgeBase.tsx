@@ -7,13 +7,13 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import KnowledgeBaseComponent from '../components/KnowledgeBase';
-import { queries } from '@erxes/ui-knowledgeBase/src/graphql';
+import { queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
   ArticlesTotalCountQueryResponse,
   CategoryDetailQueryResponse,
   ICategory,
   LastCategoryQueryResponse
-} from '@erxes/ui-knowledgeBase/src/types';
+} from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
   queryParams: any;
