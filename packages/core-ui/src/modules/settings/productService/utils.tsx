@@ -1,4 +1,4 @@
-import { generateCategoryOptions } from 'erxes-ui/lib/utils';
+import { generateCategoryOptions } from '@erxes/ui/src/utils';
 import {
   PRODUCT_TYPE_CHOISES,
   PRODUCT_CATEGORIES_STATUS_FILTER

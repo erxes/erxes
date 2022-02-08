@@ -20,7 +20,7 @@ import {
   SidebarTitle,
   WhiteBox,
   WhiteBoxRoot
-} from 'erxes-ui/lib/layout/styles';
+} from '@erxes/ui/src/layout/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';

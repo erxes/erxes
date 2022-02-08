@@ -1,3 +1,3 @@
-import { AppConsumer, AppProvider } from 'erxes-ui/lib/appContext';
+import { AppConsumer, AppProvider } from '@erxes/ui/src/appContext';
 
 export { AppProvider, AppConsumer };

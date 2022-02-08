@@ -1,3 +1,3 @@
-import WithPermission from 'erxes-ui/lib/components/WithPermission';
+import WithPermission from '@erxes/ui/src/components/WithPermission';
 
 export default WithPermission;

@@ -1,7 +1,7 @@
 import {
   IFormProps as IFormPropsC,
   IAttachment as IAttachmentC
-} from 'erxes-ui/lib/types';
+} from '@erxes/ui/src/types';
 export interface IRouterProps {
   history: any;
   location: any;

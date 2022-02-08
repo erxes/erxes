@@ -1,4 +1,4 @@
-import { queries as productQueries } from 'erxes-ui/lib/products/graphql';
+import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 
 const productFields = productQueries.productFields;
 

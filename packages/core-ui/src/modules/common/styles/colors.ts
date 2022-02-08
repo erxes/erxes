@@ -1,3 +1,3 @@
-import colors from 'erxes-ui/lib/styles/colors';
+import colors from '@erxes/ui/src/styles/colors';
 
 export default colors;

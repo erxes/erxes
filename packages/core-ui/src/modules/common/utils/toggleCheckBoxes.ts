@@ -1,3 +1,3 @@
-import toggleCheckBoxes from 'erxes-ui/lib//utils/toggleCheckBoxes';
+import toggleCheckBoxes from '@erxes/ui/src//utils/toggleCheckBoxes';
 
 export default toggleCheckBoxes;

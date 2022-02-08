@@ -1,4 +1,4 @@
-import { mutations as productMutations } from 'erxes-ui/lib/products/graphql';
+import { mutations as productMutations } from '@erxes/ui-products/src/graphql';
 
 const productAdd = productMutations.productAdd;
 

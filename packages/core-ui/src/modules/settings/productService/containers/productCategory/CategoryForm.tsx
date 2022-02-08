@@ -1,3 +1,3 @@
-import CategoryForm from 'erxes-ui/lib/products/containers/CategoryForm';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
 
 export default CategoryForm;

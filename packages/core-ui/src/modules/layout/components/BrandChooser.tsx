@@ -6,7 +6,7 @@ import { IOption } from 'modules/common/types';
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
-import { __ } from 'erxes-ui/lib/utils/core';
+import { __ } from '@erxes/ui/src/utils/core';
 
 const Wrapper = styled.div`
   padding-right: ${dimensions.coreSpacing}px;

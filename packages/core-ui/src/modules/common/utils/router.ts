@@ -1,4 +1,4 @@
-import * as router from 'erxes-ui/lib/utils/router';
+import * as router from '@erxes/ui/src/utils/router';
 
 export const generatePaginationParams = router.generatePaginationParams;
 

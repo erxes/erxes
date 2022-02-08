@@ -1,3 +1,3 @@
-import GetConformity from 'erxes-ui/lib/conformity/containers/GetConformity';
+import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 
 export default GetConformity;
