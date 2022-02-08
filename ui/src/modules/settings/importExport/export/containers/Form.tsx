@@ -20,7 +20,7 @@ type Props = {
 };
 
 type FinalProps = {
-  fieldsQuery: FieldsCombinedByTypeQueryResponse;
+  fieldsQueryForExport: FieldsCombinedByTypeQueryResponse;
 } & Props;
 
 class FormContainer extends React.Component<
@@ -63,23 +63,25 @@ class FormContainer extends React.Component<
   }
 
   render() {
-    const { fieldsQuery } = this.props;
+    const { fieldsQueryForExport } = this.props;
     const { count, loading } = this.state;
 
-    if (!fieldsQuery || fieldsQuery.loading) {
+    if (!fieldsQueryForExport || fieldsQueryForExport.loading) {
       return <Spinner />;
     }
 
-    const columns = (fieldsQuery.fieldsCombinedByContentType || []).map(
-      field => {
-        return {
-          ...field,
-          _id: Math.random().toString(),
-          checked: false,
-          order: field.order || 0
-        };
-      }
-    ) as IConfigColumn[];
+    const columns = (
+      fieldsQueryForExport.fieldsCombinedByContentType || []
+    ).map(field => {
+      return {
+        ...field,
+        _id: Math.random().toString(),
+        checked: false,
+        order: field.order || 0
+      };
+    }) as IConfigColumn[];
+
+    console.log(columns);
 
     return (
       <Form
@@ -96,7 +98,7 @@ class FormContainer extends React.Component<
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
-      name: 'fieldsQuery',
+      name: 'fieldsQueryForExport',
       options: ({ contentType }) => {
         return {
           variables: {
@@ -104,7 +106,7 @@ export default withProps<Props>(
               ? 'customer'
               : contentType,
             usageType: 'export',
-            excludedNames: COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.IMPORT
+            excludedNames: COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.EXPORT
           }
         };
       }
