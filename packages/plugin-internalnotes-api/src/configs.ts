@@ -6,10 +6,14 @@ import { initMemoryStorage } from './inmemoryStorage';
 import apiConnect from './apiCollections';
 
 export let debug;
+export let graphqlPubsub;
+export let serviceDiscovery;
 
 export default {
   name: 'internalnotes',
   graphql: async (sd) => {
+    serviceDiscovery = sd;
+
     return {
       typeDefs: await typeDefs(sd),
       resolvers
@@ -24,6 +28,8 @@ export default {
     initBroker(options.messageBrokerClient);
 
     initMemoryStorage();
+
+    graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
   }
