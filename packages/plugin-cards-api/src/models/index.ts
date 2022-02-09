@@ -5,6 +5,7 @@ import Tickets from './Tickets';
 import GrowthHacks from './GrowthHacks';
 import PipelineLabels from './PipelineLabels';
 import PipelineTemplates from './PipelineTemplates';
+import { ChecklistItems, Checklists } from './Checklists';
 
 export {
   Boards,
@@ -15,5 +16,7 @@ export {
   Tickets,
   GrowthHacks,
   PipelineLabels,
-  PipelineTemplates
+  PipelineTemplates,
+  ChecklistItems,
+  Checklists,
 };

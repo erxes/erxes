@@ -3,7 +3,7 @@ import { Model, model } from 'mongoose';
 // import { sendToWebhook } from '../../data/utils';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
-import { Conformities, Fields, InternalNotes } from '../apiCollections';
+import { Fields, InternalNotes } from '../apiCollections';
 // import { EngageMessages } from '@erxes/plugin-engages-api/src/models';
 // import { Conversations } from '@erxes/plugin-inbox-api/src/models';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
@@ -19,7 +19,8 @@ import {
   engageChangeCustomer,
   prepareCustomFieldsData,
   removeCustomersConversations,
-  removeCustomersEngages
+  removeCustomersEngages,
+  sendConformityMessage
 } from '../messageBroker';
 
 interface IGetCustomerParams {
@@ -481,7 +482,7 @@ export const loadClass = () => {
         ACTIVITY_CONTENT_TYPES.CUSTOMER,
         customerIds
       );
-      await Conformities.removeConformities({
+      await sendConformityMessage('removeConformities', {
         mainType: 'customer',
         mainTypeIds: customerIds
       });
@@ -578,7 +579,7 @@ export const loadClass = () => {
       );
 
       // Updating every modules associated with customers
-      await Conformities.changeConformity({
+      await sendConformityMessage('changeConformity', {
         type: 'customer',
         newTypeId: customer._id,
         oldTypeIds: customerIds

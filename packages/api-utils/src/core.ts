@@ -262,3 +262,7 @@ export const getUniqueValue = async (
 
   return uniqueValue;
 };
+
+export const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};

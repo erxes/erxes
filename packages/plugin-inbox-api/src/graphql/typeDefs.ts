@@ -19,7 +19,7 @@ import {
 } from './messengerAppTypeDefs';
 
 import {
-  types as IntegrationTypes,
+  types as integrationTypes,
   queries as IntegrationQueries,
   mutations as IntegrationMutations
 } from './integrationTypeDefs';
@@ -31,40 +31,44 @@ import {
 } from './responseTemplateTypeDefs';
 
 import {
-  types as WidgetTypes,
-  queries as WidgetQueries,
+  types as widgetTypes,
+  queries as widgetQueries,
   mutations as WidgetMutations
 } from './widgetTypeDefs';
 
-const typeDefs = gql`
-  scalar JSON
-  scalar Date
+const typeDefs = async (serviceDiscovery) => {
+  const isProductsAvailable = await serviceDiscovery.isAvailable('products');
 
-  ${ConversationTypes}
-  ${MessengerAppTypes}
-  ${ChannelTypes}
-  ${IntegrationTypes}
-  ${ResponseTemplateTypes}
-  ${WidgetTypes}
-  
-  
-  extend type Query {
-    ${ConversationQueries}
-    ${MessengerAppQueries}
-    ${ChannelQueries}
-    ${IntegrationQueries}
-    ${ResponseTemplateQueries}
-    ${WidgetQueries}
-  }
+  return gql`
+    scalar JSON
+    scalar Date
 
-  extend type Mutation {
-    ${ConversationMutations}
-    ${MessengerAppMutations}
-    ${ChannelMutations}
-    ${IntegrationMutations}
-    ${ResponseTemplateMutations}
-    ${WidgetMutations}
-  }
-`;
+    ${ConversationTypes}
+    ${MessengerAppTypes}
+    ${ChannelTypes}
+    ${integrationTypes(isProductsAvailable)}
+    ${ResponseTemplateTypes}
+    ${widgetTypes(isProductsAvailable)}
+    
+    
+    extend type Query {
+      ${ConversationQueries}
+      ${MessengerAppQueries}
+      ${ChannelQueries}
+      ${IntegrationQueries}
+      ${ResponseTemplateQueries}
+      ${widgetQueries(isProductsAvailable)}
+    }
+
+    extend type Mutation {
+      ${ConversationMutations}
+      ${MessengerAppMutations}
+      ${ChannelMutations}
+      ${IntegrationMutations}
+      ${ResponseTemplateMutations}
+      ${WidgetMutations}
+    }
+  `
+};
 
 export default typeDefs;

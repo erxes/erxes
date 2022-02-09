@@ -17,8 +17,8 @@ import { IListParams } from './boards';
 import { Notifications, Segments } from '../../../apiCollections';
 import {
   fetchSegment,
-  sendConformityRPCMessage,
-  sendContactRPCMessage
+  sendContactRPCMessage,
+  sendConformityMessage
 } from '../../../messageBroker';
 
 export interface IArchiveArgs {
@@ -654,7 +654,7 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  const conformities = await sendConformityRPCMessage('getConformities', {
+  const conformities = await sendConformityMessage('getConformities', {
     mainType: type,
     mainTypeIds: ids,
     relTypes: ['company', 'customer']

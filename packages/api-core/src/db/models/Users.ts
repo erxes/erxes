@@ -1,3 +1,4 @@
+import { ILink } from '@erxes/api-utils/src/types';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
@@ -6,7 +7,6 @@ import * as sha256 from 'sha256';
 import { UsersGroups } from '.';
 import { userActionsMap } from '../../data/permissions/utils';
 import { set } from '../../inmemoryStorage';
-import { ILink } from './definitions/common';
 import {
   IDetail,
   IEmailSignature,

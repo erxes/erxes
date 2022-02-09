@@ -1,4 +1,4 @@
-import { Boards, PipelineLabels, Pipelines, Stages } from '../models';
+import { Boards, Checklists, PipelineLabels, Pipelines, Stages } from '../models';
 import * as apiCollections from '../apiCollections';
 import { getNewOrder } from '../models/utils';
 import { NOTIFICATION_TYPES } from '../models/definitions/constants';
@@ -14,7 +14,7 @@ import {
   sendNotification as sendNotificationC
 } from '@erxes/api-utils/src/requests';
 import memoryStorage from '../inmemoryStorage';
-import { Users, Checklists } from '../apiCollections';
+import { Users } from '../apiCollections';
 import {
   sendConformityMessage,
   sendNotificationRPCMessage

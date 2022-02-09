@@ -53,6 +53,7 @@ export const CLOSE_DATE_TYPES = {
   ]
 };
 
+<<<<<<< HEAD
 export const BOARD_ITEM_EXTENDED_FIELDS = [
   {
     _id: Math.random(),
@@ -79,3 +80,28 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     type: 'string'
   }
 ];
+=======
+export const MODULE_NAMES = {
+  BOARD: 'board',
+  BOARD_DEAL: 'dealBoards',
+  BOARD_TASK: 'taskBoards',
+  BOARD_TICKET: 'ticketBoards',
+  BOARD_GH: 'growthHackBoards',
+  PIPELINE_DEAL: 'dealPipelines',
+  PIPELINE_TASK: 'taskPipelines',
+  PIPELINE_TICKET: 'ticketPipelines',
+  PIPELINE_GH: 'growthHackPipelines',
+  STAGE_DEAL: 'dealStages',
+  STAGE_TASK: 'taskStages',
+  STAGE_TICKET: 'ticketStages',
+  STAGE_GH: 'growthHackStages',
+  CHECKLIST: 'checklist',
+  CHECKLIST_ITEM: 'checkListItem',
+  DEAL: 'deal',
+  TICKET: 'ticket',
+  TASK: 'task',
+  PIPELINE_LABEL: 'pipelineLabel',
+  PIPELINE_TEMPLATE: 'pipelineTemplate',
+  GROWTH_HACK: 'growthHack'
+};
+>>>>>>> de32a74de2cae6ebe056a0498831e371c5995802

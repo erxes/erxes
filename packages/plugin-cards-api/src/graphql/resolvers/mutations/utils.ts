@@ -27,7 +27,7 @@ import { ITaskDocument } from '../../../models/definitions/tasks';
 import { ITicket, ITicketDocument } from '../../../models/definitions/tickets';
 import { graphqlPubsub } from '../../../configs';
 import {
-  // putActivityLog,
+  putActivityLog,
   putCreateLog,
   putDeleteLog,
   putUpdateLog
@@ -41,9 +41,8 @@ import {
   prepareBoardItemDoc,
   sendNotifications
 } from '../../utils';
-import messageBroker, { sendFieldRPCMessage } from '../../../messageBroker';
+import { sendFieldRPCMessage } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/common-types/src/users';
-// import { ACTIVITY_LOG_ACTIONS } from '../../constants';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
@@ -136,7 +135,6 @@ export const itemsAdd = async (
     });
 
     await putCreateLog(
-      messageBroker,
       {
         type,
         newData: extendedDoc,
@@ -275,15 +273,15 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    // putActivityLog({
-    //   action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
-    //   data: {
-    //     item: updatedItem,
-    //     contentType: type,
-    //     action: activityAction,
-    //     userId: user._id
-    //   }
-    // });
+    putActivityLog({
+      action: 'createArchiveLog',
+      data: {
+        item: updatedItem,
+        contentType: type,
+        action: activityAction,
+        userId: user._id
+      }
+    });
 
     // order notification
     await changeItemStatus({
@@ -301,26 +299,25 @@ export const itemsEdit = async (
       doc.assignedUserIds
     );
 
-    // const activityContent = { addedUserIds, removedUserIds };
+    const activityContent = { addedUserIds, removedUserIds };
 
-    // putActivityLog({
-    //   action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
-    //   data: {
-    //     contentId: _id,
-    //     userId: user._id,
-    //     contentType: type,
-    //     content: activityContent
-    //   }
-    // });
+    putActivityLog({
+      action: 'createAssigneLog',
+      data: {
+        contentId: _id,
+        userId: user._id,
+        contentType: type,
+        content: activityContent
+      }
+    });
 
     notificationDoc.invitedUsers = addedUserIds;
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  await sendNotifications(notificationDoc);
+  // await sendNotifications(notificationDoc);
 
   putUpdateLog(
-    messageBroker,
     {
       type,
       object: oldItem,
@@ -387,20 +384,20 @@ export const itemsEdit = async (
     updatedItem.stageId
   );
 
-  await sendNotifications({
-    item: updatedItem,
-    user,
-    type: NOTIFICATION_TYPES.TASK_CHANGE,
-    content,
-    action,
-    contentType: type
-  });
+  // await sendNotifications({
+  //   item: updatedItem,
+  //   user,
+  //   type: NOTIFICATION_TYPES.TASK_CHANGE,
+  //   content,
+  //   action,
+  //   contentType: type
+  // });
 
   return updatedItem;
 };
 
 const itemMover = async (
-  _userId: string,
+  userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
   destinationStageId: string
@@ -426,22 +423,22 @@ const itemMover = async (
 
     const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
 
-    // const activityLogContent = {
-    //   oldStageId,
-    //   destinationStageId,
-    //   text: `${oldStage.name} to ${stage.name}`
-    // };
+    const activityLogContent = {
+      oldStageId,
+      destinationStageId,
+      text: `${oldStage.name} to ${stage.name}`
+    };
 
-    // await putActivityLog({
-    //   action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG,
-    //   data: {
-    //     item,
-    //     contentType,
-    //     userId,
-    //     activityLogContent,
-    //     link
-    //   }
-    // });
+    await putActivityLog({
+      action: 'createBoardItemMovementLog',
+      data: {
+        item,
+        contentType,
+        userId,
+        activityLogContent,
+        link
+      }
+    });
 
     await Notifications.update(
       { contentType, contentTypeId: item._id },
@@ -504,7 +501,6 @@ export const itemsChange = async (
   });
 
   await putUpdateLog(
-    messageBroker,
     {
       type,
       object: item,
@@ -554,7 +550,7 @@ export const itemsRemove = async (
 
   const removed = await item.remove();
 
-  await putDeleteLog(messageBroker, { type, object: item }, user);
+  await putDeleteLog({ type, object: item }, user);
 
   return removed;
 };
@@ -620,7 +616,7 @@ export const itemsArchive = async (
   stageId: string,
   type: string,
   proccessId: string,
-  _user: IUserDocument
+  user: IUserDocument
 ) => {
   const { collection } = getCollection(type);
 
@@ -640,15 +636,15 @@ export const itemsArchive = async (
   const stage = await Stages.getStage(stageId);
 
   for (const item of items) {
-    // await putActivityLog({
-    //   action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
-    //   data: {
-    //     item,
-    //     contentType: type,
-    //     action: 'archived',
-    //     userId: user._id
-    //   }
-    // });
+    await putActivityLog({
+      action: 'createArchiveLog',
+      data: {
+        item,
+        contentType: type,
+        action: 'archived',
+        userId: user._id
+      }
+    });
 
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {

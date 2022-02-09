@@ -21,8 +21,6 @@ export const MODULE_NAMES = {
   DEAL: 'deal',
   EMAIL_TEMPLATE: 'emailTemplate',
   IMPORT_HISTORY: 'importHistory',
-  PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'productCategory',
   RESPONSE_TEMPLATE: 'responseTemplate',
   CONVERSATION: 'conversation',
   TAG: 'tag',

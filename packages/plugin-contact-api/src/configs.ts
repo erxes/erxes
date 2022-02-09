@@ -25,7 +25,7 @@ export let es: {
 export let debug;
 
 export default {
-  name: 'contact',
+  name: 'contacts',
   permissions: {
     companies: {
       name: 'companies',

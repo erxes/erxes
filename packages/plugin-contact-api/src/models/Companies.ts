@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 // import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '@erxes/api-utils/src';
-import { Conformities, InternalNotes } from '../apiCollections';
+import { InternalNotes } from '../apiCollections';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import {
   companySchema,
@@ -9,7 +9,7 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { prepareCustomFieldsData } from '../messageBroker';
+import { prepareCustomFieldsData, sendConformityMessage } from '../messageBroker';
 // import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -299,7 +299,7 @@ export const loadClass = () => {
         companyIds
       );
 
-      await Conformities.removeConformities({
+      await sendConformityMessage('removeConformities', {
         mainType: 'company',
         mainTypeIds: companyIds
       });
@@ -381,7 +381,7 @@ export const loadClass = () => {
       });
 
       // Updating customer companies, deals, tasks, tickets
-      await Conformities.changeConformity({
+      await sendConformityMessage('changeConformity', {
         type: 'company',
         newTypeId: company._id,
         oldTypeIds: companyIds

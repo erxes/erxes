@@ -2,9 +2,10 @@ import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { IDealDocument } from '../../../models/definitions/deals';
 import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
-import { Fields, Products } from '../../../apiCollections';
+import { Fields } from '../../../apiCollections';
 import {
-  sendConformityRPCMessage,
+  findProducts,
+  sendConformityMessage,
   sendContactRPCMessage,
   sendNotificationRPCMessage
 } from '../../../messageBroker';
@@ -18,7 +19,7 @@ export const generateProducts = async productsData => {
       continue;
     }
 
-    const product = await Products.findOne({ _id: data.productId });
+    const product = await findProducts('findOne', { _id: data.productId });
 
     const { customFieldsData } = product;
 
@@ -71,7 +72,7 @@ export const generateAmounts = productsData => {
 
 export default {
   async companies(deal: IDealDocument) {
-    const companyIds = await sendConformityRPCMessage('savedConformity', {
+    const companyIds = await sendConformityMessage('savedConformity', {
       mainType: 'deal',
       mainTypeId: deal._id,
       relTypes: ['company']
@@ -83,7 +84,7 @@ export default {
   },
 
   async customers(deal: IDealDocument) {
-    const customerIds = await sendConformityRPCMessage('savedConformity', {
+    const customerIds = await sendConformityMessage('savedConformity', {
       mainType: 'deal',
       mainTypeId: deal._id,
       relTypes: ['customer']
@@ -133,6 +134,7 @@ export default {
   },
 
   hasNotified(deal: IDealDocument, _args, { user }: IContext) {
+    return false;
     return sendNotificationRPCMessage('checkIfRead', {
       userId: user._id,
       itemId: deal._id

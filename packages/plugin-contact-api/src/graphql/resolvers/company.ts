@@ -1,8 +1,7 @@
-// import { Conformities } from '../../apiCollections';
 import { ICompanyDocument } from '../../models/definitions/companies';
 import { IContext } from '@erxes/api-utils/src';
-import { savedConformity } from '../../messageBroker';
 import Companies from '../../models/Companies';
+import { sendConformityMessage } from '../../messageBroker';
 
 export default {
   __resolverReference({ _id }) {
@@ -14,12 +13,12 @@ export default {
     _,
     { dataLoaders: { customer } }: IContext
   ) {
-    // replaced by messageBroker / Conformities.savedConformity => savedConformity /
-    const customerIds = await savedConformity({
+    const customerIds = await sendConformityMessage('savedConformity', {
       mainType: 'company',
       mainTypeId: company._id,
       relTypes: ['customer']
     });
+
     const customers = await customer.loadMany(customerIds || []);
     return customers.filter(c => c);
   },

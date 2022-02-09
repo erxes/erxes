@@ -1,5 +1,5 @@
 import {
-  sendConformityRPCMessage,
+  sendConformityMessage,
   sendContactRPCMessage,
   sendNotificationRPCMessage
 } from '../../../messageBroker';
@@ -11,7 +11,7 @@ import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export default {
   async companies(ticket: ITicketDocument) {
-    const companyIds = await sendConformityRPCMessage('savedConformity', {
+    const companyIds = await sendConformityMessage('savedConformity', {
       mainType: 'ticket',
       mainTypeId: ticket._id,
       relTypes: ['company']
@@ -23,7 +23,7 @@ export default {
   },
 
   async customers(ticket: ITicketDocument) {
-    const customerIds = await sendConformityRPCMessage('savedConformity', {
+    const customerIds = await sendConformityMessage('savedConformity', {
       mainType: 'ticket',
       mainTypeId: ticket._id,
       relTypes: ['customer']

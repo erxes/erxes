@@ -1,11 +1,10 @@
-import { MODULE_NAMES } from '@erxes/api-utils/src';
 import {
   gatherNames,
   gatherUsernames,
   IDescriptions,
   LogDesc
 } from '@erxes/api-utils/src/logDescHelper';
-import { Products, Forms } from './apiCollections';
+import { Forms } from './apiCollections';
 import { Boards, PipelineLabels, Pipelines, Stages } from './models';
 import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
@@ -14,10 +13,13 @@ import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplate
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
-  putDeleteLog as commonPutDeleteLog
+  putDeleteLog as commonPutDeleteLog,
+  putActivityLog as commonPutActivityLog,
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
+import messageBroker from './messageBroker';
+import { MODULE_NAMES } from './constants';
 
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
@@ -159,15 +161,15 @@ const gatherDealFieldNames = async (
 
   options = await gatherBoardItemFieldNames(doc, options);
 
-  if (doc.productsData && doc.productsData.length > 0) {
-    options = await gatherNames({
-      collection: Products,
-      idFields: doc.productsData.map(p => p.productId),
-      foreignKey: 'productId',
-      prevList: options,
-      nameFields: ['name']
-    });
-  }
+  // if (doc.productsData && doc.productsData.length > 0) {
+  //   options = await gatherNames({
+  //     collection: Products,
+  //     idFields: doc.productsData.map(p => p.productId),
+  //     foreignKey: 'productId',
+  //     prevList: options,
+  //     nameFields: ['name']
+  //   });
+  // }
 
   return options;
 };
@@ -385,32 +387,43 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (messageBroker, logDoc, user) => {
+export const putDeleteLog = async (logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(logDoc);
 
   await commonPutDeleteLog(
-    messageBroker,
+    messageBroker(),
     { ...logDoc, description, extraDesc },
     user
   );
 };
 
-export const putUpdateLog = async (messageBroker, logDoc, user) => {
+export const putUpdateLog = async (logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(logDoc);
 
   await commonPutUpdateLog(
-    messageBroker,
+    messageBroker(),
     { ...logDoc, description, extraDesc },
     user
   );
 };
 
-export const putCreateLog = async (messageBroker, logDoc, user) => {
+export const putCreateLog = async (logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(logDoc);
 
   await commonPutCreateLog(
-    messageBroker,
+    messageBroker(),
     { ...logDoc, description, extraDesc },
     user
   );
+};
+
+
+export const putActivityLog = async (params: { action: string, data: any }) => {
+  // const { action, data } = params;
+
+  // if (['createBoardItemMovementLog'].includes(action)) {
+  //   await sendToWebhook(action, data.contentType, params);
+  // }
+
+  return commonPutActivityLog({ messageBroker: messageBroker(), ...params });
 };
