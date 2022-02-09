@@ -4,7 +4,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IRouterProps } from '@erxes/ui/src/types';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import { mutations } from '../../graphql';
+import { mutations } from '@erxes/ui-notifications/src/graphql';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { withRouter } from 'react-router-dom';
