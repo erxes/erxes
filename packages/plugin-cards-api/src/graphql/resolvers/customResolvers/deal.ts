@@ -7,7 +7,7 @@ import {
   findProducts,
   sendConformityMessage,
   sendContactRPCMessage,
-  sendNotificationRPCMessage
+  sendNotificationMessage,
 } from '../../../messageBroker';
 import { getDocument, getDocumentList } from '../../../cacheUtils';
 
@@ -134,11 +134,10 @@ export default {
   },
 
   hasNotified(deal: IDealDocument, _args, { user }: IContext) {
-    return false;
-    return sendNotificationRPCMessage('checkIfRead', {
+    return sendNotificationMessage('checkIfRead', {
       userId: user._id,
       itemId: deal._id
-    });
+    }, true, true);
   },
 
   labels(deal: IDealDocument) {

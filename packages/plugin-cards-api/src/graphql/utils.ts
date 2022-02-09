@@ -1,25 +1,17 @@
 import { Boards, Checklists, PipelineLabels, Pipelines, Stages } from '../models';
-import * as apiCollections from '../apiCollections';
 import { getNewOrder } from '../models/utils';
 import { NOTIFICATION_TYPES } from '../models/definitions/constants';
 import { IDealDocument } from '../models/definitions/deals';
 import { IGrowthHackDocument } from '../models/definitions/growthHacks';
 import { ITaskDocument } from '../models/definitions/tasks';
 import { ITicketDocument } from '../models/definitions/tickets';
-import { IUserDocument } from '@erxes/common-types/src/users';
 import { can, checkLogin } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
 import {
-  ISendNotification,
-  sendNotification as sendNotificationC
-} from '@erxes/api-utils/src/requests';
-import memoryStorage from '../inmemoryStorage';
-import { Users } from '../apiCollections';
-import {
   sendConformityMessage,
-  sendNotificationRPCMessage
+  sendNotificationMessage,
 } from '../messageBroker';
-import { graphqlPubsub } from '../configs';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IConformityAdd {
   mainType: string;
@@ -31,22 +23,8 @@ export interface IConformityAdd {
 /**
  * Send a notification
  */
-export const sendNotification = async (doc: ISendNotification) => {
-  await Users.updateMany(
-    { _id: { $in: doc.receivers } },
-    { $set: { isShowNotification: false } }
-  );
-
-  for (const userId of doc.receivers) {
-    graphqlPubsub.publish('userChanged', {
-      userChanged: { userId }
-    });
-  }
-
-  apiCollections.Notifications.createNotification = async (params, userId) =>
-    sendNotificationRPCMessage('createNotification', { params, userId });
-
-  return sendNotificationC(apiCollections, memoryStorage, graphqlPubsub, doc);
+export const sendNotification = (doc) => {
+  return sendNotificationMessage('send', doc);
 };
 
 export const notifiedUserIds = async (item: any) => {
@@ -121,7 +99,7 @@ export const sendNotifications = async ({
   };
 
   if (removedUsers && removedUsers.length > 0) {
-    await sendNotification({
+    sendNotification({
       ...notificationDoc,
       notifType:
         NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
@@ -132,7 +110,7 @@ export const sendNotifications = async ({
   }
 
   if (invitedUsers && invitedUsers.length > 0) {
-    await sendNotification({
+    sendNotification({
       ...notificationDoc,
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
       action: `invited you to the ${contentType}: `,
@@ -141,7 +119,7 @@ export const sendNotifications = async ({
     });
   }
 
-  await sendNotification({
+  sendNotification({
     ...notificationDoc
   });
 };

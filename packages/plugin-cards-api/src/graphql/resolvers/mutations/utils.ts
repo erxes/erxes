@@ -1,6 +1,5 @@
 import resolvers from '..';
 import { Boards, Pipelines, Stages } from '../../../models';
-import { Notifications } from '../../../apiCollections';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -41,8 +40,8 @@ import {
   prepareBoardItemDoc,
   sendNotifications
 } from '../../utils';
-import { sendFieldRPCMessage } from '../../../messageBroker';
-import { IUserDocument } from '@erxes/common-types/src/users';
+import { sendFieldRPCMessage, sendNotificationMessage } from '../../../messageBroker';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
@@ -125,7 +124,7 @@ export const itemsAdd = async (
   });
 
   if (user) {
-    await sendNotifications({
+    sendNotifications({
       item,
       user,
       type: NOTIFICATION_TYPES.DEAL_ADD,
@@ -315,7 +314,7 @@ export const itemsEdit = async (
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  // await sendNotifications(notificationDoc);
+  await sendNotifications(notificationDoc);
 
   putUpdateLog(
     {
@@ -384,14 +383,14 @@ export const itemsEdit = async (
     updatedItem.stageId
   );
 
-  // await sendNotifications({
-  //   item: updatedItem,
-  //   user,
-  //   type: NOTIFICATION_TYPES.TASK_CHANGE,
-  //   content,
-  //   action,
-  //   contentType: type
-  // });
+  await sendNotifications({
+    item: updatedItem,
+    user,
+    type: NOTIFICATION_TYPES.TASK_CHANGE,
+    content,
+    action,
+    contentType: type
+  });
 
   return updatedItem;
 };
@@ -440,11 +439,10 @@ const itemMover = async (
       }
     });
 
-    await Notifications.update(
-      { contentType, contentTypeId: item._id },
-      { $set: { link } },
-      { multi: true }
-    );
+    sendNotificationMessage('batchUpdate', {
+      selector: { contentType, contentTypeId: item._id },
+      modifier: { $set: { link } }
+    })
   }
 
   return { content, action };

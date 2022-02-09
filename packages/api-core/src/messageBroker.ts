@@ -3,10 +3,9 @@ import messageBroker from 'erxes-message-broker';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 import { Conformities, Forms, FieldsGroups, Fields } from './db/models';
-import { fieldsCombinedByContentType } from './data/modules/fields/utils';
-import { getSubServiceDomain } from './data/utils';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
 import { registerModule } from './data/permissions/utils';
+import { sendEmail, sendMobileNotification } from './data/utils';
 
 dotenv.config();
 
@@ -25,6 +24,14 @@ export const initBroker = async (server?) => {
 
     consumeQueue('registerPermissions', async (permissions) => {
       await registerModule(permissions);
+    });
+
+    consumeQueue('core:sendMobileNotification', async (doc) => {
+      await sendMobileNotification(doc);
+    });
+
+    consumeQueue('core:sendEmail', async (doc) => {
+      await sendEmail(doc);
     });
 
     consumeRPCQueue(
@@ -86,50 +93,6 @@ export const initBroker = async (server?) => {
         status: 'success',
         data: await Fields.prepareCustomFieldsData(doc)
       })
-    );
-
-    consumeRPCQueue(
-      'rpc_queue:engageUtils_savedConformity_to_api',
-      async (mainType, mainTypeId, relTypes) => {
-        const data = await Conformities.savedConformity({
-          mainType,
-          mainTypeId,
-          relTypes
-        });
-
-        return { data, status: 'success' };
-      }
-    );
-
-    consumeRPCQueue(
-      'rpc_queue:engageUtils_fetchSegment_to_api',
-      async (segment, options: any = {}) => {
-        const data = await fetchSegment({
-          segment,
-          options
-        });
-
-        return { data, status: 'success' };
-      }
-    );
-
-    consumeRPCQueue(
-      'rpc_queue:editorAttributeUtils_fieldsCombinedByContentType_to_api',
-      async contentType => {
-        const f = await fieldsCombinedByContentType({
-          contentType
-        });
-
-        return {
-          status: 'success',
-          data: f
-        };
-      }
-    );
-
-    consumeRPCQueue(
-      'rpc_queue:editorAttributeUtils_getSubServiceDomain_to_api',
-      name => ({ data: getSubServiceDomain(name), status: 'success' })
     );
 
     consumeRPCQueue('rpc_queue:fetchSegment', async ({ segment, options }) => {

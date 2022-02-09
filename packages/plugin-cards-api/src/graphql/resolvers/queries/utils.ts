@@ -9,16 +9,17 @@ import {
   IStageDocument
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import { IUserDocument } from '@erxes/common-types/src/users';
 import { CLOSE_DATE_TYPES } from '../../../constants';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
-import { Notifications, Segments } from '../../../apiCollections';
+import { Segments } from '../../../apiCollections';
 import {
   fetchSegment,
   sendContactRPCMessage,
-  sendConformityMessage
+  sendConformityMessage,
+  sendNotificationMessage
 } from '../../../messageBroker';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -772,10 +773,19 @@ export const getItemList = async (
 
   const updatedList: any[] = [];
 
-  const notifications = await Notifications.find(
-    { contentTypeId: { $in: ids }, isRead: false, receiver: user._id },
-    { contentTypeId: 1 }
-  ).toArray();
+  const notifications = await sendNotificationMessage(
+    "find",
+    {
+      selector: {
+        contentTypeId: { $in: ids },
+        isRead: false,
+        receiver: user._id,
+      },
+      fields: { contentTypeId: 1 },
+    },
+    true,
+    []
+  );
 
   for (const item of list) {
     const notification = notifications.find(n => n.contentTypeId === item._id);

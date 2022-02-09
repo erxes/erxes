@@ -1,3 +1,9 @@
+export const EMAIL_DELIVERY_STATUS = {
+  PENDING: 'pending',
+  RECEIVED: 'received',
+  ALL: ['pending', 'received'],
+};
+
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',

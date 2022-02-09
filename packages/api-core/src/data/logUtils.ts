@@ -9,7 +9,7 @@ import { IUserDocument } from '../db/models/definitions/users';
 import messageBroker from '../messageBroker';
 import { RABBITMQ_QUEUES } from './constants';
 
-import { registerOnboardHistory, sendToWebhook } from './utils';
+import { registerOnboardHistory } from './utils';
 
 export type LogDesc = {
   [key: string]: any;
@@ -59,24 +59,6 @@ interface IDescriptionParams {
   updatedDocument?: any;
 }
 
-const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete'
-};
-
-export const ACTIVITY_LOG_ACTIONS = {
-  ADD: 'add',
-  CREATE_ARCHIVE_LOG: 'createArchiveLog',
-  CREATE_ASSIGNE_LOG: 'createAssigneLog',
-  CREATE_COC_LOG: 'createCocLog',
-  CREATE_COC_LOGS: 'createCocLogs',
-  CREATE_SEGMENT_LOG: 'createSegmentLog',
-  CREATE_TAG_LOG: 'createTagLog',
-  REMOVE_ACTIVITY_LOG: 'removeActivityLog',
-  REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
-};
-
 const gatherDescriptions = async (
   _params: IDescriptionParams
 ): Promise<IDescriptions> => {
@@ -94,7 +76,7 @@ export const putCreateLog = async (
 ) => {
   await registerOnboardHistory({ type: `${params.type}Create`, user });
 
-  await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
+  // await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
@@ -113,7 +95,7 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
+  // await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
@@ -132,7 +114,7 @@ export const putDeleteLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
+  // await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,

@@ -1,5 +1,5 @@
-import { IUserDocument } from '@erxes/common-types/src/users';
-
+import * as _ from 'underscore';
+import { IUserDocument } from './types';
 export interface ILogDataParams {
   type: string;
   description?: string;
@@ -9,6 +9,77 @@ export interface ILogDataParams {
   updatedDocument?: any;
   extraParams?: any;
 }
+interface ILogNameParams {
+  collection: any;
+  idFields: string[];
+  foreignKey: string;
+  prevList?: LogDesc[];
+}
+
+export interface IDescriptions {
+  description?: string;
+  extraDesc?: LogDesc[];
+}
+interface ILogParams extends ILogNameParams {
+  nameFields: string[];
+}
+
+/**
+ * Finds name field from given collection
+ * @param params.collection Collection to find
+ * @param params.idFields Id fields saved in collection
+ * @param params.foreignKey Name of id fields
+ * @param params.prevList Array to save found id with name
+ * @param params.nameFields List of values to be mapped to id field
+ */
+ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
+  const {
+    collection,
+    idFields,
+    foreignKey,
+    prevList,
+    nameFields = []
+  } = params;
+
+  let options: LogDesc[] = [];
+
+  if (prevList && prevList.length > 0) {
+    options = prevList;
+  }
+
+  const uniqueIds = _.compact(_.uniq(idFields));
+
+  for (const id of uniqueIds) {
+    const item = await collection.findOne({ _id: id });
+    let name: string = `item with id "${id}" has been deleted`;
+
+    if (item) {
+      for (const n of nameFields) {
+        if (item[n]) {
+          name = item[n];
+        }
+      }
+    }
+
+    options.push({ [foreignKey]: id, name });
+  }
+
+  return options;
+};
+
+export const gatherUsernames = async (
+  params: ILogNameParams
+): Promise<LogDesc[]> => {
+  const { collection, idFields, foreignKey, prevList } = params;
+
+  return gatherNames({
+    collection,
+    idFields,
+    foreignKey,
+    prevList,
+    nameFields: ['email', 'username']
+  });
+};
 
 interface IFinalLogParams extends ILogDataParams {
   action: string;

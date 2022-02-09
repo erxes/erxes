@@ -1,10 +1,4 @@
-import {
-  gatherNames,
-  gatherUsernames,
-  IDescriptions,
-  LogDesc
-} from '@erxes/api-utils/src/logDescHelper';
-import { Forms } from './apiCollections';
+import { Forms, Users } from './apiCollections';
 import { Boards, PipelineLabels, Pipelines, Stages } from './models';
 import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
@@ -15,6 +9,10 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   putActivityLog as commonPutActivityLog,
+  LogDesc,
+  gatherNames,
+  gatherUsernames,
+  IDescriptions,
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
@@ -43,6 +41,7 @@ const gatherPipelineFieldNames = async (
 
   if (doc.userId) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: [doc.userId],
       foreignKey: 'userId',
       prevList: options
@@ -51,6 +50,7 @@ const gatherPipelineFieldNames = async (
 
   if (doc.excludeCheckUserIds && doc.excludeCheckUserIds.length > 0) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: doc.excludeCheckUserIds,
       foreignKey: 'excludeCheckUserIds',
       prevList: options
@@ -59,6 +59,7 @@ const gatherPipelineFieldNames = async (
 
   if (doc.memberIds && doc.memberIds.length > 0) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: doc.memberIds,
       foreignKey: 'memberIds',
       prevList: options
@@ -67,6 +68,7 @@ const gatherPipelineFieldNames = async (
 
   if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
       prevList: options
@@ -88,6 +90,7 @@ const gatherBoardItemFieldNames = async (
 
   if (doc.userId) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: [doc.userId],
       foreignKey: 'userId',
       prevList: options
@@ -96,6 +99,7 @@ const gatherBoardItemFieldNames = async (
 
   if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: doc.assignedUserIds,
       foreignKey: 'assignedUserIds',
       prevList: options
@@ -104,6 +108,7 @@ const gatherBoardItemFieldNames = async (
 
   if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
       prevList: options
@@ -140,6 +145,7 @@ const gatherBoardItemFieldNames = async (
 
   if (doc.modifiedBy) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: [doc.modifiedBy],
       foreignKey: 'modifiedBy',
       prevList: options
@@ -188,6 +194,7 @@ const gatherGHFieldNames = async (
 
   if (doc.votedUserIds && doc.votedUserIds.length > 0) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: doc.votedUserIds,
       foreignKey: 'votedUserIds',
       prevList: options
@@ -208,6 +215,7 @@ const gatherPipelineTemplateFieldNames = async (
   }
 
   options = await gatherUsernames({
+    collection: Users,
     idFields: [doc.createdBy || ''],
     foreignKey: 'createdBy',
     prevList: options
@@ -238,6 +246,7 @@ const gatherStageFieldNames = async (
 
   if (doc.userId) {
     options = await gatherUsernames({
+      collection: Users,
       idFields: [doc.userId],
       foreignKey: 'userId',
       prevList: options
@@ -278,6 +287,7 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
     case MODULE_NAMES.BOARD_TICKET:
       if (object.userId) {
         extraDesc = await gatherUsernames({
+          collection: Users,
           idFields: [object.userId],
           foreignKey: 'userId'
         });
@@ -324,6 +334,7 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
       const pipeline = await Pipelines.findOne({ _id: object.pipelineId });
 
       extraDesc = await gatherUsernames({
+        collection: Users,
         idFields: [object.createdBy],
         foreignKey: 'createdBy'
       });
