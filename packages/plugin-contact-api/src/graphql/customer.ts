@@ -2,7 +2,7 @@ import { conformityQueryFields } from './company';
 
 // TODO: remove customer's email and phone field after customCommand
 
-export const types = (tagsAvailable) => `
+export const types = tagsAvailable => `
   type CustomerConnectionChangedResponse {
     _id: String!
     status: String!
@@ -55,7 +55,7 @@ export const types = (tagsAvailable) => `
     links: JSON
     companies: [Company]
 
-    ${tagsAvailable ? 'getTags: [Tag]': '' }
+    ${tagsAvailable ? 'getTags: [Tag]' : ''}
     
     owner: User
     score: Float

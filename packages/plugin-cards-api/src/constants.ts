@@ -53,7 +53,6 @@ export const CLOSE_DATE_TYPES = {
   ]
 };
 
-<<<<<<< HEAD
 export const BOARD_ITEM_EXTENDED_FIELDS = [
   {
     _id: Math.random(),
@@ -80,7 +79,7 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     type: 'string'
   }
 ];
-=======
+
 export const MODULE_NAMES = {
   BOARD: 'board',
   BOARD_DEAL: 'dealBoards',
@@ -104,4 +103,3 @@ export const MODULE_NAMES = {
   PIPELINE_TEMPLATE: 'pipelineTemplate',
   GROWTH_HACK: 'growthHack'
 };
->>>>>>> de32a74de2cae6ebe056a0498831e371c5995802

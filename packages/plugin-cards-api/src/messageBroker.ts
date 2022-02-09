@@ -7,68 +7,59 @@ import { generateConditionStageIds } from './utils';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeRPCQueue('cards:rpc_queue:createTickets', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:createTickets', async args => ({
     status: 'success',
-    data: await Tickets.create(args),
+    data: await Tickets.create(args)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:createTasks', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:createTasks', async args => ({
     status: 'success',
-    data: await Tasks.create(args),
+    data: await Tasks.create(args)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:findTickets', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:findTickets', async args => ({
     status: 'success',
-    data: await Tickets.find(args),
+    data: await Tickets.find(args)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:findOneTickets', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:findOneTickets', async args => ({
     status: 'success',
-    data: await Tickets.findOne(args),
+    data: await Tickets.findOne(args)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:findStages', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:findStages', async args => ({
     status: 'success',
-    data: await Stages.find(args),
+    data: await Stages.find(args)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:findTasks', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:findTasks', async args => ({
     status: 'success',
-    data: await Tasks.find(args),
+    data: await Tasks.find(args)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:findOneTasks', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:findOneTasks', async args => ({
     status: 'success',
-    data: await Tasks.findOne(args),
+    data: await Tasks.findOne(args)
   }));
 
   consumeQueue('checklists:removeChecklists', async ({ type, itemIds }) => ({
     status: 'success',
-    data: await Checklists.removeChecklists(type, itemIds),
+    data: await Checklists.removeChecklists(type, itemIds)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:getFields', async (args) => ({
+  consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
     status: 'success',
-    data: await generateFields(args),
+    data: await generateFields(args)
   }));
 
-<<<<<<< HEAD
   consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
-=======
-  consumeRPCQueue('cards:rpc_queue:getFields', async (args) => ({
     status: 'success',
-    data: await generateFields(args),
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async (args) => ({
->>>>>>> de32a74de2cae6ebe056a0498831e371c5995802
-    status: 'success',
-    data: await prepareImportDocs(args),
+    data: await prepareImportDocs(args)
   }));
 
   // listen for rpc queue =========
@@ -79,14 +70,14 @@ export const initBroker = async (cl) => {
 
       const stageIds = await generateConditionStageIds({
         boardId: condition.boardId,
-        pipelineId: condition.pipelineId,
+        pipelineId: condition.pipelineId
       });
 
       if (stageIds.length > 0) {
         positive = {
           terms: {
-            stageId: stageIds,
-          },
+            stageId: stageIds
+          }
         };
       }
 
@@ -124,7 +115,7 @@ export const initBroker = async (cl) => {
       const stageIds = await generateConditionStageIds({
         boardId: segment.boardId,
         pipelineId: segment.pipelineId,
-        options,
+        options
       });
 
       if (stageIds.length > 0) {
@@ -149,8 +140,8 @@ export const sendContactMessage = async (action, data): Promise<any> => {
 };
 
 export const sendContactRPCMessage = async (action, data): Promise<any> => {
-  if (!await serviceDiscovery.isAvailable('contacts')) {
-    return []
+  if (!(await serviceDiscovery.isAvailable('contacts'))) {
+    return [];
   }
 
   return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
@@ -193,7 +184,7 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const findProducts = async (action, data): Promise<any> => {
-  if (!await serviceDiscovery.isAvailable('products')) {
+  if (!(await serviceDiscovery.isAvailable('products'))) {
     return [];
   }
 
@@ -201,7 +192,10 @@ export const findProducts = async (action, data): Promise<any> => {
 };
 
 export const updateProducts = async (selector, modifier): Promise<any> => {
-  return client.sendRPCMessage(`products:rpc_queue:update`, { selector, modifier });
+  return client.sendRPCMessage(`products:rpc_queue:update`, {
+    selector,
+    modifier
+  });
 };
 
 export const sendNotificationRPCMessage = async (
