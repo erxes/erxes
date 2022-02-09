@@ -9,7 +9,6 @@ import ImportHistory from './importHistory/routes';
 import LogRoutes from './logs/routes';
 import MainRoutes from './main/routes';
 import PermissionRoutes from './permissions/routes';
-import ProductService from './productService/routes';
 import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 import ScriptsRoutes from './scripts/routes';
@@ -24,7 +23,6 @@ const routes = () => (
     <ProfileRoutes key="profile" />
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <ScriptsRoutes key="ScriptsRoutes" />
-    <ProductService key="ProductService" />
     <General key="General" />
     <PropertiesRoutes key="PropertiesRoutes" />
     <ImportHistory key="ImportHistory" />
