@@ -1,6 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose';
 import { field } from './Logs';
-import { debugBase } from '../debuggers';
+import { debug } from '../configs';
 
 export interface ILocation {
   remoteAddress: string;
@@ -118,7 +118,7 @@ export const loadVisitorClass = () => {
 
       // log & quietly return instead of throwing an error
       if (!visitor) {
-        debugBase(
+        debug.info(
           `Visitor with Id ${doc.visitorId} not found while trying to update visitor.`
         );
 
