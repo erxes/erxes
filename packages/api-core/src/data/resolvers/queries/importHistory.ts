@@ -123,6 +123,20 @@ const importHistoryQueries = {
     //   case 'ticket':
     //     return Tasks.countDocuments({});
     // }
+  },
+
+  async importHistoryGetExportablePlugins() {
+    const services = await getServices();
+
+    const servicesimportTypes: any = [];
+
+    for (const serviceName of services) {
+      const service = await getService(serviceName, true);
+
+      servicesimportTypes.push(...service.meta.importTypes);
+    }
+
+    return servicesimportTypes;
   }
 };
 
