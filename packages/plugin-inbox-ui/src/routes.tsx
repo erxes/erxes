@@ -10,6 +10,7 @@ import ProductServiceSettings from '@erxes/ui-settings/src/productService/routes
 import VideoCallRoutes from './videoCall/routes'
 
 const routes = () => {
+  console.log('here is inbox route:::::::===============')
   return (
     <>
       <InboxRoutes />

@@ -1,6 +1,6 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { pluginRouters, pluginsOfRoutes } from 'pluginUtils';
+import { pluginRouters, pluginsOfRoutes } from './pluginUtils';
 import queryString from 'query-string';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
