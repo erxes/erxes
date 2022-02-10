@@ -100,6 +100,7 @@ module.exports = {
           path.resolve(__dirname, '../../ui-segments/src'),
           path.resolve(__dirname, '../../ui-inbox/src'),
           path.resolve(__dirname, '../../ui-products/src'),
+          path.resolve(__dirname, '../../ui-notifications/src'),
           path.resolve(__dirname, 'plugin-src')
         ],
         use: {

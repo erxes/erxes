@@ -14,7 +14,6 @@ const Home = asyncComponent(() =>
 );
 
 const team = ({ history, location }) => {
-  console.log('here')
   const queryParams = queryString.parse(location.search);
   return <Home queryParams={queryParams} history={history} />;
 };

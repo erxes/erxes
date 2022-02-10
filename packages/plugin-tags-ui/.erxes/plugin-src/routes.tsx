@@ -7,7 +7,6 @@ const List = asyncComponent(() =>
 );
 
 const tags = ({ match }) => {
-  console.log("route")
   return <List type={match.params.type} />;
 };
 
