@@ -459,14 +459,27 @@ class GeneralSettings extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
-        mainHead={<Header />}
+        mainHead={
+          <Header
+            title="System config"
+            description={
+              __(
+                'Set up your initial account settings so that things run smoothly in unison'
+              ) + '.'
+            }
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('General system config')}</Title>}
             right={actionButtons}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={
+          <Sidebar
+            item={{ url: '/settings/general', text: 'General system config' }}
+          />
+        }
         content={content}
       />
     );

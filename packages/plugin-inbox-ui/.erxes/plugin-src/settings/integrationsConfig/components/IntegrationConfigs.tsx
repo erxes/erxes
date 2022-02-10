@@ -227,14 +227,26 @@ class IntegrationConfigs extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
-        mainHead={<Header />}
+        mainHead={
+          <Header
+            title="Integrations config"
+            description="Set up your integrations config."
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Integrations config')}</Title>}
             right={actionButtons}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={
+          <Sidebar
+            item={{
+              url: '/settings/integration-configs',
+              text: 'Integrations config'
+            }}
+          />
+        }
         content={this.renderContent()}
       />
     );

@@ -17,11 +17,23 @@ function EngageConfigs() {
       header={
         <Wrapper.Header title={__('Campaign config')} breadcrumb={breadcrumb} />
       }
-      mainHead={<Header />}
+      mainHead={
+        <Header
+          title="Campaign config"
+          description="Set up your campaign config."
+        />
+      }
       actionBar={
         <Wrapper.ActionBar left={<Title>{__('Campaign config')}</Title>} />
       }
-      leftSidebar={<Sidebar />}
+      leftSidebar={
+        <Sidebar
+          item={{
+            url: '/settings/campaign-configs',
+            text: 'Campaign config'
+          }}
+        />
+      }
       content={<EngageSettingsContent />}
     />
   );
