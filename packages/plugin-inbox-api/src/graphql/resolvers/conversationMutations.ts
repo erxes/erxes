@@ -25,7 +25,6 @@ import {
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { IUserDocument } from '@erxes/common-types';
 import { debug } from '../../configs';
 import { sendMessage, sendRPCMessage } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
@@ -43,6 +42,7 @@ import { splitStr } from '@erxes/api-utils/src/core';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 // import { itemsAdd } from './boardUtils';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IConversationMessageAdd {
   conversationId: string;

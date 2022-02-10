@@ -95,6 +95,14 @@ export const initBroker = async (server?) => {
       })
     );
 
+    consumeRPCQueue(
+      'fields:rpc_queue:generateCustomFieldsData',
+      async ({ customData, contentType }) => ({
+        status: 'success',
+        data: await Fields.generateCustomFieldsData(customData, contentType)
+      })
+    );
+
     consumeRPCQueue('rpc_queue:fetchSegment', async ({ segment, options }) => {
       const data = await fetchSegment(segment, options);
       return { data, status: 'success' };

@@ -2,7 +2,6 @@ import { graphqlPubsub } from './configs';
 import { ConversationMessages, Conversations, Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { Configs, Customers, Users } from './apiCollections';
-import { getConfigs } from '@erxes/api-utils/src';
 import inmemoryStorage from './inmemoryStorage';
 
 const sendError = message => ({
@@ -132,10 +131,10 @@ export const receiveRpcMessage = async msg => {
     return sendSuccess({ _id: message._id });
   }
 
-  if (action === 'get-configs') {
-    const configs = await getConfigs({ Configs }, inmemoryStorage);
-    return sendSuccess({ configs });
-  }
+  // if (action === 'get-configs') {
+  //   const configs = await getConfigs({ Configs }, inmemoryStorage);
+  //   return sendSuccess({ configs });
+  // }
 
   if (action === 'getUserIds') {
     const users = await Users.find({}, { _id: 1 });

@@ -171,6 +171,16 @@ export const prepareCustomFieldsData = async (doc): Promise<any> => {
   });
 };
 
+export const generateCustomFieldsData = async (doc): Promise<any> => {
+  return client.sendRPCMessage('fields:rpc_queue:generateCustomFieldsData', {
+    doc,
+  });
+};
+
+export const sendFieldRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
+};
+
 export const findIntegrations = async (query, options?): Promise<any> => {
   return client.sendRPCMessage('rpc_queue:findIntegrations', {
     query,
