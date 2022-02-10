@@ -5,7 +5,7 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
-import { FlexItem } from '../../../companies/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import { GENDER_TYPES, LEAD_STATUS_TYPES } from '@erxes/ui/src/customers/constants';
 import { BooleanStatus, ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
 import { ICustomer } from '../../types';
@@ -44,10 +44,10 @@ function displayValue(customer, name) {
 
   if (name === 'firstName') {
     return (
-      <FlexItem>
+      <FlexContent>
         <NameCard.Avatar customer={customer} size={30} /> &emsp;
         {formatValue(customer.firstName)}
-      </FlexItem>
+      </FlexContent>
     );
   }
 

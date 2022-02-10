@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -10,7 +10,6 @@ import { mutations, queries } from '../graphql';
 import {
   CopyMutationResponse,
   IEngageMessage,
-  MutationVariables,
   RemoveMutationResponse,
   SetLiveManualMutationResponse,
   SetLiveMutationResponse,

@@ -1,5 +1,6 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { Amount, ContentColumn, ContentRow, Measure } from '../../styles';
+import { Amount, ContentColumn, Measure } from '../../styles';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { IProductData } from '../../types';
 import React from 'react';
 
@@ -106,7 +107,7 @@ class ProductTotal extends React.Component<Props, State> {
     }
 
     return (
-      <ContentRow>
+      <Flex>
         <FormControl
           value={parseFloat((totalKind.percent || 0).toFixed(3))}
           type="number"
@@ -117,7 +118,7 @@ class ProductTotal extends React.Component<Props, State> {
           onChange={this.onChangePercent}
         />
         <Measure>%</Measure>
-      </ContentRow>
+      </Flex>
     );
   }
 
@@ -129,7 +130,7 @@ class ProductTotal extends React.Component<Props, State> {
     }
 
     return (
-      <ContentRow>
+      <Flex>
         <FormControl
           value={totalKind.value ? parseFloat(totalKind.value).toFixed(3) : 0}
           type="number"
@@ -138,7 +139,7 @@ class ProductTotal extends React.Component<Props, State> {
           onChange={this.onChange}
         />
         <Measure>{currency}</Measure>
-      </ContentRow>
+      </Flex>
     );
   }
 
@@ -172,14 +173,14 @@ class ProductTotal extends React.Component<Props, State> {
 
   render() {
     return (
-      <ContentRow>
+      <Flex>
         <ContentColumn>{this.renderTotalPercent()}</ContentColumn>
         <ContentColumn flex="2">
           {this.renderTotalDiscount()}
           {this.renderTax()}
           {this.renderTotal()}
         </ContentColumn>
-      </ContentRow>
+      </Flex>
     );
   }
 }

@@ -1,7 +1,8 @@
 import {
   IAttachment,
   IConditionsRule,
-  QueryResponse
+  QueryResponse,
+  MutationVariables
 } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
@@ -72,13 +73,9 @@ export interface ILeadIntegration extends IIntegration {
   createdUser: IUser;
 }
 
-export type RemoveMutationVariables = {
-  _id: string;
-};
-
 export type RemoveMutationResponse = {
   removeMutation: (params: {
-    variables: RemoveMutationVariables;
+    variables: MutationVariables;
   }) => Promise<any>;
 };
 

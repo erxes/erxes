@@ -1,5 +1,6 @@
 import { dimensions, colors } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
+import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item'
 
 export const GroupWrapper = styled.div`
   border: 1px solid ${colors.colorSecondary};
@@ -14,18 +15,6 @@ export const GroupWrapper = styled.div`
     top: -${dimensions.unitSpacing - 5}px;
     right: -${dimensions.unitSpacing}px;
     background: ${colors.bgActive} !important;
-  }
-`;
-
-export const HeaderContent = styled.div`
-  flex: 1;
-  textarea {
-    border-bottom: none;
-    min-height: auto;
-    padding: 5px 0;
-    &:focus {
-      border-bottom: 1px solid ${colors.colorSecondary};
-    }
   }
 `;
 

@@ -2,10 +2,6 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const LabelWrapper = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
 const ColorChooserWrapper = styled.div`
   .twitter-picker {
     box-shadow: none !important;
@@ -140,7 +136,6 @@ const ButtonContainer = styled.div`
 `;
 
 export {
-  LabelWrapper,
   Title,
   Label,
   LabelList,

@@ -8,7 +8,7 @@ import { queries } from '@erxes/ui-team/src/graphql';
 import { __ } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import { ErrorContainer } from '../../styles';
+import { MenuFooter } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 
 export default function ListContainer() {
   const listQuery = useQuery(gql(queries.units));
@@ -20,9 +20,9 @@ export default function ListContainer() {
   if (listQuery.error) {
     return (
       <Box isOpen={true} title={__('Unit')} name="showUnit">
-        <ErrorContainer>
+        <MenuFooter>
           <ErrorMsg>{listQuery.error.message}</ErrorMsg>
-        </ErrorContainer>
+        </MenuFooter>
       </Box>
     );
   }

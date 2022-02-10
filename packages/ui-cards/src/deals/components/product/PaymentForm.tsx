@@ -9,12 +9,12 @@ import Select from 'react-select-plus';
 import { PAYMENT_TYPES } from '../../constants';
 import {
   ContentColumn,
-  ContentRow,
   ContentRowTitle,
   Divider,
   WrongLess
 } from '../../styles';
 import { IPaymentsData } from '../../types';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   total: { currency?: string; amount?: number };
@@ -130,7 +130,7 @@ class PaymentForm extends React.Component<Props, State> {
     };
 
     return (
-      <ContentRow key={type.name}>
+      <Flex key={type.name}>
         <ContentColumn>
           <ControlLabel>{__(type.title)}</ControlLabel>
         </ContentColumn>
@@ -159,7 +159,7 @@ class PaymentForm extends React.Component<Props, State> {
             options={selectConfigOptions(currencies, CURRENCIES)}
           />
         </ContentColumn>
-      </ContentRow>
+      </Flex>
     );
   }
 

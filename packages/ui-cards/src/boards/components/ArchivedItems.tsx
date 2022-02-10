@@ -3,7 +3,9 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { BoardItem, ItemContainer, LoadMore } from '../styles/rightMenu';
-import { IItem, IOptions, IDeal, ITicket } from '../types';
+import { IItem, IOptions } from '../types';
+import { ITicket } from '../../tickets/types';
+import { IDeal } from '../../deals/types';
 
 type ItemProps = {
   item: IDeal | IItem | ITicket;

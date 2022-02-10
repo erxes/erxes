@@ -18,12 +18,12 @@ import {
   TestEmailWrapper,
   VerifyCancel,
   VerifyCheck,
-  VerifyStatus,
 } from "../styles";
 import React from "react";
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from "../types";
 import Scheduler from "./Scheduler";
 import EditorCK from "../containers/EditorCK";
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 type EmailParams = {
   content: string;
@@ -146,7 +146,7 @@ class EmailForm extends React.Component<Props, State> {
     };
 
     const optionRenderer = (option) => (
-      <VerifyStatus>
+      <FlexContent>
         {!option.disabled ? (
           <Tip placement="auto" text="Email verified">
             <VerifyCheck>
@@ -161,7 +161,7 @@ class EmailForm extends React.Component<Props, State> {
           </Tip>
         )}
         {option.label}
-      </VerifyStatus>
+      </FlexContent>
     );
 
     return (

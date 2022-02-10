@@ -1,7 +1,8 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { ListCounter, ListWrapper } from '../styles';
+import { ListCounter } from '../styles';
+import { Wrapper } from '@erxes/ui/src/styles/main';
 import { TargetCount } from '../types';
 
 type Props<Target> = {
@@ -95,9 +96,9 @@ class Targets<
     const { targets } = this.props;
 
     return (
-      <ListWrapper>
+      <Wrapper>
         <SidebarList>{this.renderTarget(targets)}</SidebarList>
-      </ListWrapper>
+      </Wrapper>
     );
   }
 }

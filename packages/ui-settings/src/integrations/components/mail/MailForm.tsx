@@ -28,7 +28,6 @@ import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
   Attachments,
-  Column,
   ControlWrapper,
   EditorFooter,
   FileSize,
@@ -41,6 +40,7 @@ import {
   Uploading
 } from './styles';
 import { FlexRow, Subject } from './styles';
+import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
   emailTemplates: IEmailTemplate[];

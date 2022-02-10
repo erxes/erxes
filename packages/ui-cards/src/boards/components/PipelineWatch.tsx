@@ -1,4 +1,4 @@
-import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+import { IPipeline } from '../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import * as React from 'react';

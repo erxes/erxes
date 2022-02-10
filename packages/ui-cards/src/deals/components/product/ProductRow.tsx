@@ -1,7 +1,8 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-import { NameWrapper, RemoveRow, TypeBox } from '../../styles';
+import { RemoveRow, TypeBox } from '../../styles';
+import { FlexContent} from '@erxes/ui/src/activityLogs/styles';
 import { IProductData } from '../../types';
 import React from 'react';
 
@@ -78,10 +79,10 @@ function ProductRow(props: Props) {
         onClick={changeCurrent}
       >
         <td>
-          <NameWrapper>
+          <FlexContent>
             {renderType(product ? product.type : '')}
             {product ? product.name : __('Not selected')}
-          </NameWrapper>
+          </FlexContent>
         </td>
         <td>
           {quantity} <strong>{uom}</strong>

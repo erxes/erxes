@@ -1,7 +1,7 @@
 import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import { IItem, IItemParams, IOptions } from '../../types';
-import Checklists from '@erxes/ui-cards/src/checklists/containers/Checklists';
+import Checklists from '../../../checklists/containers/Checklists';
 import Button from '@erxes/ui/src/components/Button';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormGroup from '@erxes/ui/src/components/form/Group';

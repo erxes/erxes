@@ -6,7 +6,7 @@ import {
   ICompanyLinks as ICompanyLinksC
 } from '@erxes/ui/src/companies/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IActivityLog, IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 
 export type ICompanyLinks = ICompanyLinksC;
 
@@ -85,11 +85,6 @@ export type ListConfigQueryResponse = {
 
 export type DetailQueryResponse = {
   companyDetail: ICompany;
-  loading: boolean;
-};
-
-export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
   loading: boolean;
 };
 

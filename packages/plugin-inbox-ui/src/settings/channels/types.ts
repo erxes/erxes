@@ -1,5 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse, MutationVariables } from '@erxes/ui/src/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 export interface IChannel {
@@ -44,15 +44,5 @@ export type EditChannelMutationVariables = {
 export type EditChannelMutationResponse = {
   editMutation: (params: {
     variables: EditChannelMutationVariables;
-  }) => Promise<void>;
-};
-
-export type RemoveChannelMutationVariables = {
-  _id: string;
-};
-
-export type RemoveChannelMutationResponse = {
-  removeMutation: (params: {
-    variables: RemoveChannelMutationVariables;
   }) => Promise<void>;
 };

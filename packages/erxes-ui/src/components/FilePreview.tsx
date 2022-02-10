@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { rgba } from '../styles/ecolor';
 import colors from '../styles/colors';
+import { SelectOption } from '@erxes/ui-cards/src/boards/styles/item';
 
 const Wrapper = styled.a`
   border-radius: 4px;
@@ -60,12 +61,6 @@ const IconWrapper = styled.div`
   }
 `;
 
-const Name = styled.span`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
-
 type Props = {
   fileUrl: string;
   fileName?: string;
@@ -89,7 +84,7 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
           <Icon icon={icon} />
         </IconWrapper>
         <Content>
-          <Name>{fileName || fileUrl}</Name>
+          <SelectOption>{fileName || fileUrl}</SelectOption>
           <Icon icon="down-arrow" />
         </Content>
       </Wrapper>

@@ -197,10 +197,6 @@ export const SpaceContent = styled(Flex)`
   justify-content: space-between;
 `;
 
-export const FooterContent = styled.div`
-  flex: 1;
-`;
-
 export const LeftContainer = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   flex: 1;

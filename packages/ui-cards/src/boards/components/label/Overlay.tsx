@@ -7,11 +7,11 @@ import Popover from 'react-bootstrap/Popover';
 import Form from '../../containers/label/Form';
 import {
   ButtonContainer,
-  LabelWrapper,
   PipelineLabelList,
   Title
 } from '../../styles/label';
 import { IPipelineLabel } from '../../types';
+import { Wrapper } from '@erxes/ui/src/styles/main';
 
 type IOverlayProps = {
   selectedLabelIds: string[];
@@ -117,7 +117,7 @@ export default class Overlay extends React.Component<
 
     if (showForm) {
       return (
-        <LabelWrapper>
+        <Wrapper>
           <Form
             selectedLabelIds={selectedLabelIds}
             onSelectLabels={onSelectLabels}
@@ -128,7 +128,7 @@ export default class Overlay extends React.Component<
             toggleConfirm={toggleConfirm}
             onChangeRefresh={onChangeRefresh}
           />
-        </LabelWrapper>
+        </Wrapper>
       );
     }
 

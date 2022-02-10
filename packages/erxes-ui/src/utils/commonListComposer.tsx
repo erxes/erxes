@@ -4,12 +4,9 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { confirm, withProps } from '@erxes/ui/src/utils';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
+import { MutationVariables } from '@erxes/ui/src/types';
 
-interface IRemoveMutationVariables {
-  _id: string;
-}
-
-interface ICopyMutationVariables extends IRemoveMutationVariables {
+interface ICopyMutationVariables extends MutationVariables {
   [key: string]: any;
 }
 
@@ -39,7 +36,7 @@ function commonListComposer<ComponentProps>(options) {
     removeMutation: ({
       variables: { _id }
     }: {
-      variables: IRemoveMutationVariables;
+      variables: MutationVariables;
     }) => Promise<any>;
     copyMutation: ({
       variables: { _id, memberIds }

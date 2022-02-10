@@ -12,10 +12,6 @@ import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
 
-const RichEditorRight = styled.div`
-  float: right;
-`;
-
 const ResponseSuggestions = styled.ul`
   position: absolute;
   left: 0px;
@@ -355,7 +351,6 @@ export {
   ResponseSuggestions,
   ResponseSuggestionItem,
   EditorActions,
-  RichEditorRight,
   ResponseTemplateStyled,
   PopoverHeader,
   InlineHeader,

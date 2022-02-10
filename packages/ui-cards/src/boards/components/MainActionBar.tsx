@@ -25,7 +25,7 @@ import {
   stackByChart,
   groupByList,
   groupByGantt
-} from '@erxes/ui-cards/src/boards/constants';
+} from '../constants';
 import SelectType from './SelectType';
 
 type Props = {

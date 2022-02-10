@@ -3,11 +3,11 @@ import { roundToTwo } from '@erxes/ui/src/utils';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import { Flex } from '@erxes/ui/src/styles/main';
 import {
   AmountItem,
   Amounts,
   CalculatedAmount,
-  Factor,
   ScoreWrapper,
   Text
 } from '../styles';
@@ -78,34 +78,34 @@ class Score extends React.Component<Props> {
 
     if (scoringType === 'rice') {
       return (
-        <Factor>
+        <Flex>
           {this.renderInput('Reach', 'reach', reach)}
           {this.renderInput('Impact', 'impact', impact)}
           {this.renderInput('Confidence', 'confidence', confidence)}
           {this.renderInput('Effort', 'ease', ease)}
-        </Factor>
+        </Flex>
       );
     }
 
     if (scoringType === 'ice') {
       return (
-        <Factor>
+        <Flex>
           {this.renderInput('Impact', 'impact', impact)}
           {this.renderInput('Confidence', 'confidence', confidence)}
           {this.renderInput('Ease', 'ease', ease)}
-        </Factor>
+        </Flex>
       );
     }
 
     return (
-      <Factor>
+      <Flex>
         {this.renderInput('Potential', 'impact', impact)}
         {this.renderInput('Importance', 'confidence', confidence)}
         {this.renderInput('Ease', 'ease', ease)}
         <AmountItem>
           <Text>3</Text>
         </AmountItem>
-      </Factor>
+      </Flex>
     );
   };
 

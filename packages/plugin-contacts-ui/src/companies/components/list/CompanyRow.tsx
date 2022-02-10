@@ -6,7 +6,7 @@ import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
 import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
 import React from 'react';
-import { FlexItem } from '../../styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import { ICompany } from '../../types';
 
 type Props = {
@@ -37,10 +37,10 @@ function displayValue(company, name) {
 
   if (name === 'primaryName') {
     return (
-      <FlexItem>
+      <FlexContent>
         <NameCard.Avatar company={company} size={30} /> &emsp;
         {formatValue(company.primaryName)}
-      </FlexItem>
+      </FlexContent>
     );
   }
 

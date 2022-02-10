@@ -1,18 +1,18 @@
-import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
-import Details from '@erxes/ui-cards/src/boards/components/Details';
-import DueDateLabel from '@erxes/ui-cards/src/boards/components/DueDateLabel';
-import Labels from '@erxes/ui-cards/src/boards/components/label/Labels';
-import ItemFooter from '@erxes/ui-cards/src/boards/components/portable/ItemFooter';
-import EditForm from '@erxes/ui-cards/src/boards/containers/editForm/EditForm';
-import { ItemContainer } from '@erxes/ui-cards/src/boards/styles/common';
+import Assignees from '../../boards/components/Assignees';
+import Details from '../../boards/components/Details';
+import DueDateLabel from '../../boards/components/DueDateLabel';
+import Labels from '../../boards/components/label/Labels';
+import ItemFooter from '../../boards/components/portable/ItemFooter';
+import EditForm from '../../boards/containers/editForm/EditForm';
+import { ItemContainer } from '../../boards/styles/common';
 import {
   PriceContainer,
   Right,
   Status
-} from '@erxes/ui-cards/src/boards/styles/item';
-import { Content } from '@erxes/ui-cards/src/boards/styles/stage';
-import { IOptions } from '@erxes/ui-cards/src/boards/types';
-import { renderAmount, renderPriority } from '@erxes/ui-cards/src/boards/utils';
+} from '../../boards/styles/item';
+import { Content } from '../../boards/styles/stage';
+import { IOptions } from '../../boards/types';
+import { renderAmount, renderPriority } from '../../boards/utils';
 import { colors } from '@erxes/ui/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';

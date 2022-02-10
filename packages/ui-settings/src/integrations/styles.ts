@@ -147,10 +147,6 @@ const SpaceBetweenRow = styled.div`
   }
 `;
 
-const Column = styled.div`
-  flex: 1;
-`;
-
 const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom:${props =>
@@ -242,7 +238,6 @@ export {
   Attachments,
   FlexRow,
   Row,
-  Column,
   Subject,
   ToolBar,
   Content,
