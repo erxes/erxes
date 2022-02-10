@@ -4,7 +4,10 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { mutations, queries } from '../../integrations/graphql';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import IntegrationsConfig from '../components/IntegrationConfigs';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 
