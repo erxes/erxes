@@ -1,10 +1,12 @@
 import React from 'react';
-import Routes from './engages/routes';
+import EngageRoutes from './engages/routes';
+import EmailDeliveryRoutes from './settings/emailDelivery/routes';
 
 const routes = () => {
   return (
     <React.Fragment>
-      <Routes />
+      <EngageRoutes />
+      <EmailDeliveryRoutes />
     </React.Fragment>
   );
 };
