@@ -62,7 +62,7 @@ const Contacts = asyncComponent(() =>
 const DetailInfo = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui-contacts/src/customers/components/common/DetailInfo'
+      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui-contacts/src/companies/components/common/DetailInfo'
     ),
   { isBox: true }
 );

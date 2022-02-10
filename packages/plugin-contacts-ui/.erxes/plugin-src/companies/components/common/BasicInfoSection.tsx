@@ -2,7 +2,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICompany } from '../../types';
-import DetailInfo from './DetailInfo';
+import DetailInfo from '@erxes/ui-contacts/src/companies/components/common/DetailInfo';
 
 type Props = {
   company: ICompany;
