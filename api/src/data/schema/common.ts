@@ -25,6 +25,7 @@ export const types = `
 export const conformityQueryFields = `
   conformityMainType: String
   conformityMainTypeId: String
+  conformityRelType: String
   conformityIsRelated: Boolean
   conformityIsSaved: Boolean
 `;

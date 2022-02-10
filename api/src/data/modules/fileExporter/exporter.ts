@@ -7,6 +7,7 @@ import {
   Fields,
   FormSubmissions,
   Permissions,
+  Products,
   Segments,
   Tasks,
   Tickets,
@@ -314,6 +315,101 @@ const buildLeadFile = async (
   debugBase('End building an excel file for popups export');
 };
 
+const fillDealProductValue = async (
+  column,
+  item,
+  sheet,
+  columnNames,
+  rowIndex,
+  dealIds,
+  dealRowIndex
+) => {
+  const productsData = item.productsData;
+
+  if (productsData.length === 0) {
+    return;
+  }
+
+  if (dealIds.length === 0) {
+    dealIds.push(item._id);
+  } else if (!dealIds.includes(item._id)) {
+    dealIds.push(item._id);
+    rowIndex = dealRowIndex;
+  }
+
+  dealRowIndex = rowIndex;
+
+  for (const productData of productsData) {
+    let cellValue = '';
+    let product;
+
+    switch (column.name) {
+      case 'productsData.amount':
+        cellValue = productData.amount;
+        break;
+
+      case 'productsData.name':
+        product = await Products.getProduct({
+          _id: productData.productId
+        });
+
+        cellValue = product.name;
+        break;
+
+      case 'productsData.code':
+        product = await Products.getProduct({
+          _id: productData.productId
+        });
+
+        cellValue = product.code;
+        break;
+
+      case 'productsData.discount':
+        cellValue = productData.discount;
+        break;
+
+      case 'productsData.discountPercent':
+        cellValue = productData.discountPercent;
+        break;
+
+      case 'productsData.currency':
+        cellValue = productData.amount;
+        break;
+
+      case 'productsData.tax':
+        cellValue = productData.tax;
+        break;
+
+      case 'productsData.taxPercent':
+        cellValue = productData.taxPercent;
+        break;
+    }
+
+    if (cellValue) {
+      addCell(column, cellValue, sheet, columnNames, dealRowIndex);
+
+      dealRowIndex++;
+    }
+  }
+
+  return { rowIndex, dealRowIndex };
+};
+
+const filterHeaders = headers => {
+  const first = [] as any;
+  const others = [] as any;
+
+  for (const column of headers) {
+    if (column.name.startsWith('productsData')) {
+      first.push(column);
+    } else {
+      others.push(column);
+    }
+  }
+
+  return others.concat(first);
+};
+
 export const buildFile = async (
   query: any,
   user: IUserDocument
@@ -328,6 +424,8 @@ export const buildFile = async (
 
   const columnNames: string[] = [];
   let rowIndex: number = 1;
+  const dealIds: string[] = [];
+  let dealRowIndex: number = 0;
 
   if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
     await buildLeadFile(data, query.form, sheet, columnNames, rowIndex);
@@ -338,6 +436,10 @@ export const buildFile = async (
 
     if (configs) {
       headers = JSON.parse(configs);
+    }
+
+    if (type === MODULE_NAMES.DEAL) {
+      headers = filterHeaders(headers);
     }
 
     for (const item of data) {
@@ -373,10 +475,29 @@ export const buildFile = async (
               }
             }
           }
+        }
+        if (column.name.startsWith('productsData')) {
+          const indexes = await fillDealProductValue(
+            column,
+            item,
+            sheet,
+            columnNames,
+            rowIndex,
+            dealIds,
+            dealRowIndex
+          );
+
+          rowIndex = indexes?.rowIndex;
+          dealRowIndex = indexes?.dealRowIndex;
         } else {
+          let index = rowIndex;
+          if (type === MODULE_NAMES.DEAL) {
+            index = dealRowIndex === 0 ? rowIndex : dealRowIndex;
+          }
+
           const cellValue = await fillCellValue(column.name, item);
 
-          addCell(column, cellValue, sheet, columnNames, rowIndex);
+          addCell(column, cellValue, sheet, columnNames, index);
         }
       }
 
@@ -389,3 +510,61 @@ export const buildFile = async (
     response: await generateXlsx(workbook)
   };
 };
+
+// [
+//   {
+//     _id: '0.9085203296297069',
+//     name: 'name',
+//     label: 'Name',
+//     type: 'String',
+//     checked: true,
+//     order: 0
+//   },
+//   {
+//     _id: '0.34630985142840953',
+//     name: 'productsData.discount',
+//     label: 'Discount',
+//     type: 'Number',
+//     checked: true,
+//     order: 0
+//   },
+//   {
+//     _id: '0.4241546336784805',
+//     name: 'productsData.amount',
+//     label: 'Amount',
+//     type: 'Number',
+//     checked: true,
+//     order: 0
+//   },
+//   {
+//     _id: '0.05714234631170023',
+//     name: 'stageId',
+//     label: 'Stage',
+//     type: 'stage',
+//     checked: true,
+//     order: 0
+//   },
+//   {
+//     _id: '0.5302566309557204',
+//     name: 'modifiedBy',
+//     label: 'Modified by',
+//     type: 'user',
+//     selectOptions: [[Object]],
+//     checked: true,
+//     order: 0
+//   },
+//   {
+//     _id: '0.6107598719626994',
+//     name: 'productsData.name',
+//     label: 'Product Name',
+//     checked: true,
+//     order: 0
+//   },
+//   {
+//     _id: '0.5257280770849682',
+//     name: 'productsData.code',
+//     label: 'Product Code',
+//     checked: true,
+//     order: 0
+//   }
+// ];
