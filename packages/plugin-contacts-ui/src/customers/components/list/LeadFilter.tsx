@@ -32,7 +32,7 @@ function Leads({
   const data = (
     <SidebarList>
       {integrations.map(integration => {
-        const form = integration.form || {};
+        const form = integration.form || {} as any;
 
         return (
           <li key={integration._id}>

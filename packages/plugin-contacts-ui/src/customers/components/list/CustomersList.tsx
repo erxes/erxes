@@ -17,7 +17,7 @@ import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
 } from '@erxes/ui/src/customers/constants';
-import { queries } from '../../graphql';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -30,9 +30,9 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
 import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import CustomerForm from '../../containers/CustomerForm';
+import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
 import { ICustomer } from '../../types';
-import CustomersMerge from '../detail/CustomersMerge';
+import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 

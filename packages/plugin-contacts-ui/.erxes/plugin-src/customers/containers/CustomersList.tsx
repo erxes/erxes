@@ -10,7 +10,7 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { ListConfigQueryResponse } from '../../companies/types';
 import CustomersList from '../components/list/CustomersList';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-contacts/src/customers/graphql';
 import {
   RemoveMutationResponse,
   RemoveMutationVariables,

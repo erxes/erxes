@@ -4,7 +4,7 @@ import Segments from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
-import { queries as customerQueries } from '../../graphql';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {

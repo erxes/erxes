@@ -12,7 +12,7 @@ import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailFo
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICustomer } from '../../types';
-import InfoSection from '../common/InfoSection';
+import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
