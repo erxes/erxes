@@ -74,7 +74,6 @@
     "postcss-loader": "^4.1.0",
     "style-loader": "^3.3.0",
     "timers-browserify": "^2.0.12",
-    "ts-jest": "^23.0.1",
     "typescript": "3.4.1",
     "util": "^0.12.4",
     "webpack": "^5.65.0",
