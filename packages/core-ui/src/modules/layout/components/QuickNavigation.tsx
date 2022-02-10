@@ -20,7 +20,7 @@ import BrandChooser from './BrandChooser';
 
 const Signature = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature'
+    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
   )
 );
 
