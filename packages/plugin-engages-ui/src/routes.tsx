@@ -1,6 +1,6 @@
 import React from 'react';
 import EngageRoutes from './engages/routes';
-import EmailDeliveryRoutes from './settings/emailDelivery/routes';
+import EmailDeliveryRoutes from '@erxes/ui-settings/src/emailDelivery/routes';
 
 const routes = () => {
   return (
