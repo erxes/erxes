@@ -1,4 +1,4 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
+import { AppConsumer } from 'main/appContext';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
 import * as compose from 'lodash.flowright';

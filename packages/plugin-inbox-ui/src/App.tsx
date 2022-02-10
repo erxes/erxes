@@ -5,6 +5,7 @@ import { AppProvider } from '@erxes/ui/src/appContext';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 const App = () => {
+  console.log('in Appppppp')
   return (
     <PluginLayout>
       <AppProvider currentUser={{username: "anu"} as IUser}>

@@ -7,7 +7,7 @@ const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
 const configs = require("./plugin-src/configs");
-const { port = 3000 } = configs;
+const { port = 3009 } = configs;
 
 const exposes = {};
 
@@ -31,8 +31,8 @@ for (const name of depNames) {
 
 module.exports = {
   output: {
-    uniqueName: "kkkk",
     publicPath: `http://localhost:${port}/`,
+    filename: "[name].[contenthash].bundle.js",
   },
 
   optimization: {

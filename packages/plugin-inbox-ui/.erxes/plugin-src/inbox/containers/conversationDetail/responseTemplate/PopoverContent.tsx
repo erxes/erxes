@@ -12,7 +12,7 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 
-import { AppConsumer } from '@erxes/ui/src/appContext';
+import { AppConsumer } from 'main/appContext';
 
 type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;

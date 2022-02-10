@@ -45,8 +45,7 @@ module.exports = {
   },
 
   output: {
-    publicPath: "/",
-    filename: "./src/[name].tsx",
+    publicPath: `/`,
   },
 
   devServer: {
@@ -131,7 +130,6 @@ module.exports = {
       filename: "remoteEntry.js",
       remotes: {
         main: "main@http://localhost:3000/remoteEntry.js",
-        inbox: "inbox@http://localhost:3009/remoteEntry.js",
       },
       exposes: {
         QuickNavigation: "./src/modules/layout/components/QuickNavigation.tsx",
@@ -152,7 +150,6 @@ module.exports = {
           singleton: true,
           eager: true,
         },
-        // "./src/appContext.tsx": {},
       },
     }),
   ],
