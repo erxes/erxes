@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import BrandsRoutes from './brands/routes';
-import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import ImportHistory from './importHistory/routes';
@@ -28,7 +27,6 @@ const routes = () => (
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
-    <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <WebhookRoutes key="WebhookRoutes" />
     <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
   </React.Fragment>
