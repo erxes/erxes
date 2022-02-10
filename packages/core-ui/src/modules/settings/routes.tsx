@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import BrandsRoutes from './brands/routes';
-import ClientPortalRoutes from './clientPortal/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
@@ -31,7 +30,6 @@ const routes = () => (
     <LogRoutes key="LogRoutes" />
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <WebhookRoutes key="WebhookRoutes" />
-    <ClientPortalRoutes key="ClientPortalRoutes" />
     <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
   </React.Fragment>
 );
