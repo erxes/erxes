@@ -8,12 +8,13 @@ import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 
 type FinalProps = {
-  checkPremiumServiceQuery: any;
+  checkPremiumServiceQuery?: any;
+  item: any;
 };
 
 class SidebarContainer extends React.Component<FinalProps> {
   render() {
-    const { checkPremiumServiceQuery } = this.props;
+    const { checkPremiumServiceQuery, item } = this.props;
 
     if (checkPremiumServiceQuery.loading) {
       return <Spinner objective={true} />;
@@ -22,12 +23,13 @@ class SidebarContainer extends React.Component<FinalProps> {
     return (
       <SideBar
         isThemeEnabled={checkPremiumServiceQuery.configsCheckPremiumService}
+        item={item}
       />
     );
   }
 }
 
-export default withProps<{}>(
+export default withProps<FinalProps>(
   compose(
     graphql<{}>(gql(queries.configsCheckPremiumService), {
       name: 'checkPremiumServiceQuery',

@@ -5,7 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
-class Sidebar extends React.Component<{ isThemeEnabled?: boolean }> {
+class Sidebar extends React.Component<{ isThemeEnabled?: boolean; item: any }> {
   renderListItem(url: string, text: string) {
     return (
       <li>
@@ -20,15 +20,12 @@ class Sidebar extends React.Component<{ isThemeEnabled?: boolean }> {
   }
 
   render() {
+    const { item } = this.props;
+
     return (
       <LeftSidebar full={true} header={<SidebarHeader />}>
         <List id="SettingsSidebar">
-          {this.renderListItem('/settings/general', 'General system config')}
-          {this.renderListItem(
-            '/settings/integration-configs',
-            'Integrations config'
-          )}
-          {this.renderListItem('/settings/campaign-configs', 'Campaign config')}
+          {this.renderListItem(item.url, item.text)}
 
           {this.props.isThemeEnabled
             ? this.renderListItem('/settings/theme', 'Theme config')
