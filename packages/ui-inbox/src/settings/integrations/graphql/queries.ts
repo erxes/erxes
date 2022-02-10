@@ -112,12 +112,6 @@ const integrations = `
   }
 `;
 
-const engagesConfigDetail = `
-  query engagesConfigDetail {
-    engagesConfigDetail
-  }
-`;
-
 const fetchApi = `
   query integrationsFetchApi($path: String!, $params: JSON!) {
     integrationsFetchApi(path: $path, params: $params)
@@ -156,6 +150,5 @@ export default {
   integrationDetail,
   integrationTotalCount,
   integrations,
-  engagesConfigDetail,
   integrationGetLineWebhookUrl
 };
