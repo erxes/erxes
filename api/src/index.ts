@@ -170,7 +170,8 @@ const corsOptions = {
     'http://localhost:3011', // contacts
     'http://localhost:3012', // tags
     'http://localhost:3013', // segments
-    'http://localhost:3014' // notifications
+    'http://localhost:3014', // notifications
+    'http://localhost:3015' // clientPortal
   ]
 };
 
