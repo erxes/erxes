@@ -6,10 +6,11 @@ import SideBar from '../components/Sidebar';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
+import { SideBarItem } from '../types';
 
 type FinalProps = {
   checkPremiumServiceQuery?: any;
-  item: any;
+  item?: SideBarItem;
 };
 
 class SidebarContainer extends React.Component<FinalProps> {

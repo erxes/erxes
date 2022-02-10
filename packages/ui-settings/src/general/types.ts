@@ -12,3 +12,8 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type SideBarItem = {
+  url: string;
+  text: string;
+};
