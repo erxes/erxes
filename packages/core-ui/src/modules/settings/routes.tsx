@@ -12,7 +12,6 @@ import PropertiesRoutes from './properties/routes';
 import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
 import WebhookRoutes from './webhook/routes';
-import SmsDeliveryRoutes from './smsDeliveries/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -28,7 +27,6 @@ const routes = () => (
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
     <WebhookRoutes key="WebhookRoutes" />
-    <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
   </React.Fragment>
 );
 
