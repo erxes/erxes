@@ -1,5 +1,4 @@
-import { ICustomField } from '@erxes/api-utils/src/types';
-import { IUserDocument } from '@erxes/common-types/src/users';
+import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model, model } from 'mongoose';
 import { prepareCustomFieldsData } from '../messageBroker';
 import { IProduct, IProductCategory, IProductCategoryDocument, IProductDocument, productCategorySchema, productSchema, PRODUCT_STATUSES } from './definitions/products';
