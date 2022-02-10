@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import BrandsRoutes from './brands/routes';
-import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import ImportHistory from './importHistory/routes';
 import LogRoutes from './logs/routes';
@@ -16,7 +15,6 @@ const routes = () => (
     <MainRoutes key="MainRoutes" />
     <BrandsRoutes key="BrandsRoutes" />
     <ProfileRoutes key="profile" />
-    <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <General key="General" />
     <PropertiesRoutes key="PropertiesRoutes" />
     <ImportHistory key="ImportHistory" />
