@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-tags-api",
+  "name": "@erxes/plugin-internalnotes-api",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
