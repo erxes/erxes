@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as kbQueries } from '@erxes/ui-settings/src/general/graphql';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import Form from '../../components/messenger/Form';
 import {
   mutations,
@@ -19,13 +19,16 @@ import {
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse
 } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IMessengerData, IUiOptions,  } from '@erxes/ui-settings/src/integrations/types';
+import {
+  IMessengerData,
+  IUiOptions
+} from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { TopicsQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import { UsersQueryResponse } from '@erxes/ui-settings/src/general/types';
+import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 
 type Props = {
   integrationId: string;
