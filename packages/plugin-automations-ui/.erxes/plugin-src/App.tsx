@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import apolloClient from '@erxes/ui/src/apolloClient';
 import GeneralRoutes from './generalRoutes';
