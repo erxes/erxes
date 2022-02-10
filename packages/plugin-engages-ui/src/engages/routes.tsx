@@ -25,6 +25,12 @@ const EngageStats = asyncComponent(() =>
   )
 );
 
+const EngageConfigs = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Engage configs" */ '../settings/components/EngageConfigs'
+  )
+);
+
 const engageList = history => {
   return <MessageList history={history} />;
 };
@@ -47,23 +53,23 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key='/campaigns'
+        key="/campaigns"
         exact={true}
-        path='/campaigns'
+        path="/campaigns"
         component={engageList}
       />
 
       <Route
-        key='/campaigns/create'
+        key="/campaigns/create"
         exact={true}
-        path='/campaigns/create'
+        path="/campaigns/create"
         component={createForm}
       />
 
       <Route
-        key='/campaigns/edit'
+        key="/campaigns/edit"
         exact={true}
-        path='/campaigns/edit/:_id'
+        path="/campaigns/edit/:_id"
         component={editForm}
       />
 
@@ -72,6 +78,13 @@ const routes = () => {
         exact={true}
         path="/campaigns/show/:_id"
         component={statistic}
+      />
+
+      <Route
+        key="/settings/campaign-configs/"
+        exact={true}
+        path="/settings/campaign-configs/"
+        component={EngageConfigs}
       />
     </React.Fragment>
   );
