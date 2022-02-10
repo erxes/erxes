@@ -706,7 +706,7 @@ export const fieldsCombinedByContentType = async ({
     ];
   }
 
-  if (contentType === 'deal') {
+  if (contentType === 'deal' && !usageType) {
     const productOptions = await generateProductsOptions(
       'productsData.productId',
       'Product',
@@ -809,6 +809,15 @@ export const fieldsCombinedByContentType = async ({
         label: bucket.key
       });
     }
+  }
+
+  if (contentType === 'deal' && usageType === 'export') {
+    const extendFieldsDealExport = [
+      { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
+      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' }
+    ];
+
+    fields = [...fields, ...extendFieldsDealExport];
   }
 
   return fields.filter(field => !(excludedNames || []).includes(field.name));

@@ -135,6 +135,7 @@ interface ICommonListArgs {
   leadStatus?: string;
   conformityMainType?: string;
   conformityMainTypeId?: string;
+  conformityRelType?: string;
   conformityIsRelated?: boolean;
   conformityIsSaved?: boolean;
   source?: string;
@@ -271,6 +272,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       conformityMainType,
       conformityMainTypeId,
       conformityIsRelated,
+      conformityRelType,
       conformityIsSaved
     } = this.params;
 
@@ -278,7 +280,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       return;
     }
 
-    const relType = this.contentType === 'customers' ? 'customer' : 'company';
+    const relType = conformityRelType
+      ? conformityRelType
+      : this.contentType === 'customers'
+      ? 'customer'
+      : 'company';
 
     if (conformityIsRelated) {
       const relTypeIds = await Conformities.relatedConformity({
