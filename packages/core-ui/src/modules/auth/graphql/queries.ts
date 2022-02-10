@@ -1,4 +1,4 @@
-import { currentUser as currentUserQuery } from 'erxes-ui/lib/auth/graphql';
+import { currentUser as currentUserQuery } from '@erxes/ui/src/auth/graphql';
 
 const currentUser = currentUserQuery;
 export default { currentUser };

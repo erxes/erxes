@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { IRouterProps } from 'modules/common/types';
 import { bustIframe } from 'modules/common/utils';
-import { NotifProvider } from 'modules/notifications/context';
+import { NotifProvider } from '@erxes/ui-notifications/src/context';
 import Robot from 'modules/robot/containers/Robot';
 import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
 import React from 'react';

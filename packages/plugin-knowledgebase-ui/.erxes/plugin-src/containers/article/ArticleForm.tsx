@@ -6,11 +6,11 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ArticleForm from '../../components/article/ArticleForm';
-import { mutations, queries } from '@erxes/ui-knowledgeBase/src/graphql';
+import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
   IArticle,
   TopicsQueryResponse
-} from '@erxes/ui-knowledgeBase/src/types';
+} from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
   article: IArticle;

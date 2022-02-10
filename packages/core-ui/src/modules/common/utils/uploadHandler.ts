@@ -1,6 +1,6 @@
 import uploadHandler, {
   deleteHandler as uploadDeleteHandler
-} from 'erxes-ui/lib/utils/uploadHandler';
+} from '@erxes/ui/src/utils/uploadHandler';
 
 export const deleteHandler = uploadDeleteHandler;
 

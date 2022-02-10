@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import T from 'i18n-react';
 import { IUser } from './auth/types';
 import React from 'react';
-import { currentUser } from './auth/graphql';
 
 interface IState {
   currentUser?: IUser;
@@ -34,7 +33,7 @@ export class AppProvider extends React.Component<
 
     // initiliaze locale ======
     const currentLanguage = localStorage.getItem('currentLanguage') || 'en';
-    console.log('user', currentUser);
+
     this.state = {
       currentUser: props.currentUser,
       currentLanguage,
@@ -110,8 +109,7 @@ export class AppProvider extends React.Component<
       isRemovingImport,
       isDoneIndicatorAction
     } = this.state;
-    console.log('here userrend', currentUser)
-
+console.log('in app context', currentUser, AppConsumer)
     return (
       <AppContext.Provider
         value={{

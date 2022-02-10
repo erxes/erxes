@@ -5,7 +5,7 @@ import React from 'react';
 import {
   NotificationConfig,
   NotificationModule
-} from '../../../notifications/types';
+} from '@erxes/ui-notifications/src/types';
 import {
   Description,
   InlineItems,

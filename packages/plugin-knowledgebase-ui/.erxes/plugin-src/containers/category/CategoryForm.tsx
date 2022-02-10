@@ -5,11 +5,11 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CategoryForm from '../../components/category/CategoryForm';
-import { mutations, queries } from '@erxes/ui-knowledgeBase/src/graphql';
+import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
   ICategory,
   TopicsQueryResponse
-} from '@erxes/ui-knowledgeBase/src/types';
+} from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
   category: ICategory;

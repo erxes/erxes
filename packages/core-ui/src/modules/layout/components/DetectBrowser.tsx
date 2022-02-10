@@ -1,3 +1,3 @@
-import DetectBrowser from 'erxes-ui/lib/layout/components/DetectBrowser';
+import DetectBrowser from '@erxes/ui/src/layout/components/DetectBrowser';
 
 export default DetectBrowser;

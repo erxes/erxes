@@ -39,17 +39,3 @@ export const FieldStyle = styled.div`
   margin: 2px 0 0 5px;
 `;
 
-export const CreatedUser = styledTS<{ isList?: boolean }>(styled.div)`
-  font-weight: 600;
-  max-width: ${props => props.isList && '80%'};
-
-  span {
-    padding-left: ${dimensions.unitSpacing - 5}px;
-    font-weight: normal;
-  }
-`;
-
-export const AvatarSection = styled.div`
-  margin-right: ${dimensions.unitSpacing + 5}px;
-  position: relative;
-`;

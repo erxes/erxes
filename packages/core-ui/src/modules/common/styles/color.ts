@@ -1,4 +1,4 @@
-import * as color from 'erxes-ui/lib/styles/ecolor';
+import * as color from '@erxes/ui/src/styles/ecolor';
 
 const rgb = color.rgb;
 const rgba = color.rgba;

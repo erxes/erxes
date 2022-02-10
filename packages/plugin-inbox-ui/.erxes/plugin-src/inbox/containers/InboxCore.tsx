@@ -73,9 +73,11 @@ class WithCurrentId extends React.Component<IProps> {
   render() {
     return (
       <AppConsumer>
-        {({ currentUser }) => {
+        {(context) => {
+          console.log('inbox consumer all props:', context)
           const { queryParams } = this.props;
           const { _id } = queryParams;
+          const currentUser = {} as any;
 
           if (!currentUser) {
             return null;

@@ -6,7 +6,7 @@ import { onError } from 'apollo-link-error';
 import { createHttpLink } from 'apollo-link-http';
 // import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
-import { getEnv } from 'erxes-ui/lib/utils/core';
+import { getEnv } from '@erxes/ui/src/utils/core';
 import WebSocketLink from 'WebSocketLink';
 
 const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();

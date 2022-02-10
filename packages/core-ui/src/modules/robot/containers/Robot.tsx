@@ -1,4 +1,4 @@
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '@erxes/ui/src/appContext';
 import React from 'react';
 import Robot from '../components/Robot';
 

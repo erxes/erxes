@@ -1,4 +1,4 @@
-import { IOnboardingHistory as IOnboardingHistoryC } from 'erxes-ui/lib/auth/types';
+import { IOnboardingHistory as IOnboardingHistoryC } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from 'modules/common/types';
 
 export type IFeature = {

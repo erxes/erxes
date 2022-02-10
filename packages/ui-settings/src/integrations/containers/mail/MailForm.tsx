@@ -10,9 +10,12 @@ import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
-} from '@erxes/ui-settings/src/emailTemplates/containers/List';
+} from '@erxes/ui-settings/src/emailTemplates/types';
 import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
-import { mutations, queries } from '@erxes/ui-settings/src/integrations/graphql';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-settings/src/integrations/graphql';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import MailForm from '../../components/mail/MailForm';

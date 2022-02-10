@@ -1,3 +1,3 @@
-import CommonPortal from 'erxes-ui/lib/components/CommonPortal';
+import CommonPortal from '@erxes/ui/src/components/CommonPortal';
 
 export default CommonPortal;

@@ -22,7 +22,7 @@ import {
   TabContent,
   Title,
   TopHeader
-} from 'erxes-ui/lib/styles/main';
+} from '@erxes/ui/src/styles/main';
 
 export {
   BoxRoot,

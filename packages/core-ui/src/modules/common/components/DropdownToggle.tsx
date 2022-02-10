@@ -1,3 +1,3 @@
-import DropdownToggle from 'erxes-ui/lib/components/DropdownToggle';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 
 export default DropdownToggle;

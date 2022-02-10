@@ -1,3 +1,3 @@
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 export default ControlLabel;

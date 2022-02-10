@@ -1,3 +1,3 @@
-import CountsByTag from 'erxes-ui/lib/components/CountsByTag';
+import CountsByTag from '@erxes/ui/src/components/CountsByTag';
 
 export default CountsByTag;

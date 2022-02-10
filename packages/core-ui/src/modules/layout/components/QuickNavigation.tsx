@@ -7,7 +7,7 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import Widget from 'modules/notifications/containers/Widget';
+import Widget from '@erxes/ui-notifications/src/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import Version from 'modules/settings/status/containers/Version';
 import React from 'react';
@@ -20,7 +20,7 @@ import BrandChooser from './BrandChooser';
 
 const Signature = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature'
+    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
   )
 );
 

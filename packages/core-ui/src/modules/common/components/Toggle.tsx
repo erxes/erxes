@@ -1,3 +1,3 @@
-import Toggle from 'erxes-ui/lib/components/Toggle';
+import Toggle from '@erxes/ui/src/components/Toggle';
 
 export default Toggle;

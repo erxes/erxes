@@ -10,10 +10,10 @@ const filePath = (pathName) => {
   return resolve(__dirname, '..');
 }
 
-var watcher = watch('../packages', { recursive: true, filter: 'configs.js', delay: 1000 });
+var watcher = watch('../../packages', { recursive: true, filter: 'configs.js', delay: 1000 });
 
 watcher.on("change", function(evt, name) {
-  const pluginNames = fs.readdirSync(filePath('../packages'));
+  const pluginNames = fs.readdirSync(filePath('../../packages'));
   const pluginsConfigs = [];
 
   for (const pluginName of pluginNames) {
@@ -21,7 +21,7 @@ watcher.on("change", function(evt, name) {
       continue;
     }
 
-    var module = filePath(`../packages/${pluginName}/src/configs.js`);
+    var module = filePath(`../../packages/${pluginName}/src/configs.js`);
     delete require.cache[require.resolve(module)];
     var configs = require(module);
 

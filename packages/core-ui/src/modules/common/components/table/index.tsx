@@ -1,3 +1,3 @@
-import Table from 'erxes-ui/lib/components/table/index';
+import Table from '@erxes/ui/src/components/table/index';
 
 export default Table;

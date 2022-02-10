@@ -2,7 +2,7 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { AppConsumer } from 'appContext';
+import { AppConsumer } from '@erxes/ui/src/appContext';
 import { IUser } from 'modules/auth/types';
 import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { __ } from 'modules/common/utils';
@@ -133,6 +133,7 @@ const loadComponent = (scope, module) => {
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
     const Module = factory();
+    console.log('loadComponent=================', Module);
     return Module;
   };
 };
@@ -157,6 +158,19 @@ const System = props => {
       <Component />
     </React.Suspense>
   );
+};
+
+export const pluginRouters = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const pluginRoutes: any[] = [];
+
+  for (const plugin of plugins) {
+    if (plugin.routes) {
+      pluginRoutes.push(<System loadScript={true} system={plugin.routes} />);
+    }
+  }
+  console.log('plugin routers ==============================');
+  return pluginRoutes;
 };
 
 class Setting extends React.Component<any, any> {
@@ -216,19 +230,6 @@ export const pluginsSettingsNavigations = () => {
   }
 
   return navigationMenus;
-};
-
-export const pluginRouters = () => {
-  const plugins: any[] = (window as any).plugins || [];
-  const pluginRoutes: any[] = [];
-
-  for (const plugin of plugins) {
-    if (plugin.routes) {
-      pluginRoutes.push(<System loadScript={true} system={plugin.routes} />);
-    }
-  }
-
-  return pluginRoutes;
 };
 
 export const pluginNavigations = () => {

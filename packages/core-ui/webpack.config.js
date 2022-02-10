@@ -8,7 +8,6 @@ const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPl
 const envs = require("dotenv").config({ path: "./.env" });
 
 const depNames = [
-  "@apollo/react-hooks",
   "apollo-cache-inmemory",
   "apollo-client",
   "apollo-link",
@@ -21,7 +20,6 @@ const depNames = [
   "dotenv",
   "graphql",
   "graphql-tag",
-  "i18n-react",
   "lodash",
   "lodash.flowright",
   "query-string",
@@ -32,7 +30,6 @@ const depNames = [
   "react-transition-group",
   "styled-components",
   "styled-components-ts",
-  "subscriptions-transport-ws",
   "validator",
 ];
 
@@ -77,12 +74,15 @@ module.exports = {
           path.resolve(__dirname, "../erxes-ui/src"),
           path.resolve(__dirname, "../ui-settings/src"),
           path.resolve(__dirname, "../ui-contacts/src"),
+          path.resolve(__dirname, "../ui-segments/src"),
           path.resolve(__dirname, "../ui-forms/src"),
           path.resolve(__dirname, "../ui-inbox/src"),
           path.resolve(__dirname, "../ui-team/src"),
           path.resolve(__dirname, "../ui-products/src"),
           path.resolve(__dirname, "../ui-cards/src"),
           path.resolve(__dirname, "../ui-knowledgeBase/src"),
+          path.resolve(__dirname, "../ui-notifications/src"),
+          path.resolve(__dirname, '../ui-calendar/src')
         ],
         use: {
           loader: "babel-loader",

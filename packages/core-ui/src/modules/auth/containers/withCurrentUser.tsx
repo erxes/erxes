@@ -1,3 +1,3 @@
-import withCurrentUser from 'erxes-ui/lib/auth/containers/withCurrentUser';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 export default withCurrentUser;

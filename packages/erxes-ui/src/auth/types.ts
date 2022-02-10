@@ -64,6 +64,8 @@ export interface IUser extends IUserDoc {
   customFieldsData?: {
     [key: string]: any;
   };
+  isShowNotification?: boolean;
+  isSubscribed?: boolean
 }
 
 export type AllUsersQueryResponse = {

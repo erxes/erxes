@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { COMPANY_INFO } from '@erxes/ui/src/companies/constants';
 import { CUSTOMER_BASIC_INFO } from '@erxes/ui-contacts/src/customers/constants';
-import { PRODUCT_INFO } from '../productService/constants';
+import { PRODUCT_INFO } from '@erxes/ui-settings/src/productService/constants';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 import { IField } from './types';
 

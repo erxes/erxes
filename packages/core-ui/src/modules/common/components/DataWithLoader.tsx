@@ -1,3 +1,3 @@
-import DataWithLoader from 'erxes-ui/lib/components/DataWithLoader';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 
 export default DataWithLoader;

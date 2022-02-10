@@ -237,6 +237,19 @@ const SidebarList = styled.div`
   }
 `;
 
+// permissions common style
+const FilterWrapper = styled.div`
+  padding: 10px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: 1px solid ${colors.borderPrimary};
+
+  strong {
+    margin-right: 10px;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -253,5 +266,6 @@ export {
   SubItem,
   FilterContainer,
   NotWrappable,
-  SidebarList
+  SidebarList,
+  FilterWrapper
 };

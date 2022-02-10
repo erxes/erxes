@@ -1,3 +1,3 @@
-import ModalTrigger from 'erxes-ui/lib/components/ModalTrigger';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 export default ModalTrigger;

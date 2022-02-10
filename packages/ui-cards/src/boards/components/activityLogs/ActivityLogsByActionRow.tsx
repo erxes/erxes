@@ -4,13 +4,15 @@ import {
   ActivityList,
   InfoSection,
   DateType,
-  AvatarSection,
-  CreatedUser
 } from '../../styles/activityLogs';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { Link } from 'react-router-dom';
 import RoundedBackgroundIcon from '../RoundedBackgroundIcon';
 import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
+import {
+  AvatarSection,
+  CreatedUser
+} from '@erxes/ui-notifications/src/components/styles';
 
 type Props = {
   activityLog: any;

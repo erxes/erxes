@@ -3,11 +3,11 @@ import _ from 'lodash';
 
 import React from 'react';
 import { FormControl } from 'modules/common/components/form';
-import { OperatorList } from 'modules/segments/components/styles';
-import { __ } from 'erxes-ui';
+import { OperatorList } from '@erxes/ui-segments/src/components/styles';
+import { __ } from '@erxes/ui/src/utils';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { SubHeading } from 'modules/settings/styles';
-import { FormColumn, FormWrapper } from 'erxes-ui/lib/styles/main';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   columns: any[];

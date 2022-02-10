@@ -1,3 +1,3 @@
-import PageContent from 'erxes-ui/lib/layout/components/PageContent';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
 
 export default PageContent;

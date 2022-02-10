@@ -1,3 +1,3 @@
-import Tags from 'erxes-ui/lib/components/Tags';
+import Tags from '@erxes/ui/src/components/Tags';
 
 export default Tags;

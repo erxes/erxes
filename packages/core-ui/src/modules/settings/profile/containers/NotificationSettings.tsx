@@ -12,7 +12,7 @@ import {
   NotificationModulesQueryResponse,
   SaveNotificationConfigMutationResponse,
   SaveNotificationConfigMutationVariables
-} from '../../../notifications/types';
+} from '@erxes/ui-notifications/src/types';
 import NotificationSettings from '../components/NotificationSettings';
 
 type Props = {

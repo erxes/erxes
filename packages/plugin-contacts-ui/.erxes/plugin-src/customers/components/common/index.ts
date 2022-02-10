@@ -2,10 +2,10 @@ import ActionSection from '@erxes/ui-contacts/src/customers/components/common/Ac
 import BasicInfoSection from './BasicInfoSection';
 import CustomerSection from './CustomerSection';
 import DetailInfo from './DetailInfo';
-import DevicePropertiesSection from './DevicePropertiesSection';
-import InfoSection from './InfoSection';
-import TaggerSection from './TaggerSection';
-import TrackedDataSection from './TrackedDataSection';
+import DevicePropertiesSection from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
+import InfoSection from '@erxes/ui-contacts/src/customers/components/common//InfoSection';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common//TaggerSection';
+import TrackedDataSection from '@erxes/ui-contacts/src/customers/components/common//TrackedDataSection';
 
 export {
   BasicInfoSection,

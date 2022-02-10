@@ -136,7 +136,6 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   renderRows({ objects }: { objects: IUser[] }) {
-    console.log("objects",objects)
     return objects.map(object => {
       const onClick = () => this.onAvatarClick(object);
       const onChange = () => this.props.changeStatus(object._id);
@@ -204,11 +203,9 @@ class UserList extends React.Component<FinalProps, States> {
 const WithConsumer = (props: IProps & ICommonListProps & ICommonFormProps) => {
   return (
     <AppConsumer>
-      {({ currentUser }) => { 
-        console.log('userlist', currentUser)
-        return(
+      {({ currentUser }) => 
         <UserList {...props} currentUser={currentUser || ({} as IUser)} />
-      )}}
+      }
     </AppConsumer>
   );
 };

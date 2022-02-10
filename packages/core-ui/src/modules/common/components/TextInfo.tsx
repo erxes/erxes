@@ -1,3 +1,3 @@
-import TextInfo from 'erxes-ui/lib/components/TextInfo';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
 
 export default TextInfo;
