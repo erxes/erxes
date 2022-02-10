@@ -11,10 +11,10 @@ import React from 'react';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { ContentBox } from '../../styles';
-import { KEY_LABELS } from '../constants';
-import { IConfigsMap } from '../types';
-import Header from './Header';
-import Sidebar from '../containers/Sidebar';
+import { KEY_LABELS } from '@erxes/ui-settings/src/general/constants';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Header from '@erxes/ui-settings/src/general/components/Header';
+import Sidebar from '@erxes/ui-settings/src/general/containers/Sidebar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;

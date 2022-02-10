@@ -21,11 +21,11 @@ import {
   LOG_RETENTION_DURATION,
   MEASUREMENTS,
   SERVICE_TYPES
-} from '../constants';
-import { IConfigsMap } from '../types';
+} from '@erxes/ui-settings/src/general/constants';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import ActivateInstallation from './ActivateInstallation';
-import Header from './Header';
-import Sidebar from '../containers/Sidebar';
+import Header from '@erxes/ui-settings/src/general/components/Header';
+import Sidebar from '@erxes/ui-settings/src/general/containers/Sidebar';
 
 type Props = {
   currentLanguage: string;
@@ -353,6 +353,7 @@ class GeneralSettings extends React.Component<Props, State> {
             'GOOGLE_APPLICATION_CREDENTIALS_JSON',
             'Firebase config for notifications'
           )}
+          {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
         </CollapseContent>
 
         <CollapseContent title={__('Common mail config')}>

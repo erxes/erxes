@@ -9,7 +9,7 @@ import {
 import Info from 'modules/common/components/Info';
 import { Alert } from 'modules/common/utils';
 import React, { useEffect, useState } from 'react';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-settings/src/general/graphql';
 
 const ActivateInstallation = () => {
   const [token, setToken] = useState('');
