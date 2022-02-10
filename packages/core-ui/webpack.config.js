@@ -45,6 +45,7 @@ module.exports = {
 
   output: {
     publicPath: "/",
+    filename: "./src/[name].tsx",
   },
 
   devServer: {
@@ -81,7 +82,7 @@ module.exports = {
           path.resolve(__dirname, "../ui-cards/src"),
           path.resolve(__dirname, "../ui-knowledgeBase/src"),
           path.resolve(__dirname, "../ui-notifications/src"),
-          path.resolve(__dirname, '../ui-calendar/src')
+          path.resolve(__dirname, "../ui-calendar/src"),
         ],
         use: {
           loader: "babel-loader",
@@ -127,8 +128,12 @@ module.exports = {
     new ModuleFederationPlugin({
       name: "main",
       filename: "remoteEntry.js",
+      remotes: {
+        inbox: "inbox@http://localhost:3009/remoteEntry.js",
+      },
       exposes: {
         QuickNavigation: "./src/modules/layout/components/QuickNavigation.tsx",
+        "./appContext": "./src/appContext.tsx",
       },
       shared: {
         ...shared,
@@ -145,6 +150,7 @@ module.exports = {
           singleton: true,
           eager: true,
         },
+        // "./src/appContext.tsx": {},
       },
     }),
   ],
