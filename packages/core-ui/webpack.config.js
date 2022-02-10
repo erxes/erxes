@@ -30,7 +30,6 @@ const depNames = [
   "react-transition-group",
   "styled-components",
   "styled-components-ts",
-  "validator",
 ];
 
 const shared = {};
