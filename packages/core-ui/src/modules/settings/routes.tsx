@@ -11,7 +11,6 @@ import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
-import WebhookRoutes from './webhook/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -26,7 +25,6 @@ const routes = () => (
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
-    <WebhookRoutes key="WebhookRoutes" />
   </React.Fragment>
 );
 
