@@ -1,6 +1,3 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
-
 export type IConfigsMap = { [key: string]: any };
 
 export type IConfig = {
@@ -15,7 +12,3 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
-
-export type UsersQueryResponse = {
-  users: IUser[];
-} & QueryResponse;

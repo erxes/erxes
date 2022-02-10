@@ -1,8 +1,36 @@
+const configs = `
+  query configs {
+    configs {
+      _id
+      code
+      value
+    }
+  }
+`;
+
 const configsGetEnv = `
   query configsGetEnv {
     configsGetEnv {
       USE_BRAND_RESTRICTIONS
     }
+  }
+`;
+
+const configsConstants = `
+  query configsConstants {
+    configsConstants
+  }
+`;
+
+const checkActivateInstallation = `
+  query configsCheckActivateInstallation($hostname: String!) {
+    configsCheckActivateInstallation(hostname: $hostname)
+  }
+`;
+
+const configsCheckPremiumService = `
+  query configsCheckPremiumService($type: String!) {
+    configsCheckPremiumService(type: $type)
   }
 `;
 
@@ -12,43 +40,18 @@ const configsGetEmailTemplate = `
   }
 `;
 
-const categoryFields = `
-  _id
-  title
-  description
-  icon
-`;
-
-const knowledgeBaseTopics = `
-  query knowledgeBaseTopics($page: Int, $perPage: Int) {
-    knowledgeBaseTopics(page: $page, perPage: $perPage) {
-      _id
-      title
-      description
-      brand {
-        _id
-        name
-      }
-      categories {
-        ${categoryFields}
-      }
-      color
-      backgroundImage
-      languageCode
-      createdBy
-      createdDate
-      modifiedBy
-      modifiedDate
-
-      parentCategories {
-        ${categoryFields}
-      }
-    }
+const search = `
+  query search($value: String!) {
+    search(value: $value)
   }
 `;
 
 export default {
+  configs,
+  configsConstants,
   configsGetEnv,
+  checkActivateInstallation,
+  configsCheckPremiumService,
   configsGetEmailTemplate,
-  knowledgeBaseTopics
+  search
 };
