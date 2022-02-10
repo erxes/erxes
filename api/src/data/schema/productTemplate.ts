@@ -3,8 +3,8 @@ export const types = `
     _id: String!
     type: String
     title: String
-    discount: Int
-    totalAmount: Int
+    discount: Float
+    totalAmount: Float
     description: String
     templateItems: JSON
     templateItemsProduct: JSON
@@ -22,8 +22,8 @@ export const types = `
 const templateParams = `
   type: String
   title: String
-  discount: Int
-  totalAmount: Int
+  discount: Float
+  totalAmount: Float
   description: String
   templateItems: JSON
   status: String

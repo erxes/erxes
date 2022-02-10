@@ -22,7 +22,6 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-
   renderChangeStatusAction(_id: string, status: string) {
     const { changeStatus } = this.props;
     const isactive = status === PRODUCT_TEMPLATE_STATUSES.ACTIVE;
@@ -36,14 +35,14 @@ class Row extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__(tipText)} placement="top" >
+        <Tip text={__(tipText)} placement="top">
           <Button btnStyle="link" onClick={onClick}>
-            <Icon icon={isactive ? "archive-alt" : "redo"} />
+            <Icon icon={isactive ? 'archive-alt' : 'redo'} />
           </Button>
         </Tip>
       </WithPermission>
     );
-  };
+  }
 
   renderDuplicateTemplateAction(_id: string) {
     const { duplicateTemplate } = this.props;
@@ -63,10 +62,12 @@ class Row extends React.Component<Props> {
         </Tip>
       </WithPermission>
     );
-  };
+  }
 
   renderFormTrigger = (trigger: React.ReactNode, thisProps) => {
-    const modalContent = props => <Form {...props} productTemplate={thisProps.productTemplate} />;
+    const modalContent = props => (
+      <Form {...props} productTemplate={thisProps.productTemplate} />
+    );
 
     return (
       <ModalTrigger
@@ -74,13 +75,13 @@ class Row extends React.Component<Props> {
         content={modalContent}
         trigger={trigger}
         autoOpenKey="showProductModal"
-        size="lg" />
+        size="lg"
+      />
     );
   };
 
-  renderEditAction = (props) => {
-
-    console.log("render action print1");
+  renderEditAction = props => {
+    console.log('render action print1');
 
     const trigger = (
       // <WithPermission action="integrationsArchive">
@@ -88,11 +89,11 @@ class Row extends React.Component<Props> {
         <Tip text={__('Edit')} placement="top">
           <Icon icon="edit-3" />
         </Tip>
-      </Button >
+      </Button>
       // </WithPermission>
     );
 
-    console.log("render action print");
+    console.log('render action print');
 
     return this.renderFormTrigger(trigger, props);
   };
@@ -118,9 +119,9 @@ class Row extends React.Component<Props> {
     // };
 
     return (
-      <tr //onClick={onTrClick}
+      <tr // onClick={onTrClick}
       >
-        <td //onClick={onClick}        
+        <td // onClick={onClick}
         >
           <FormControl
             checked={isChecked}
@@ -130,10 +131,10 @@ class Row extends React.Component<Props> {
         </td>
         <td>{title}</td>
         <td>{description}</td>
+        <td>{templateItems.length}</td>
         <td>
-          {templateItems.length}
+          <Tags tags={tags} limit={2} />
         </td>
-        <td><Tags tags={tags} limit={2} /></td>
         <td>
           {this.renderEditAction(this.props)}
           {this.renderDuplicateTemplateAction(_id)}

@@ -50,7 +50,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>Name1</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -62,7 +62,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Content</ControlLabel>
+          <ControlLabel>Content1</ControlLabel>
           <EditorCK
             content={this.state.content}
             onChange={this.onEditorChange}
@@ -76,6 +76,8 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   };
 
   render() {
+    console.log('renderbutton: ', this.props);
+
     return (
       <CommonForm
         {...this.props}

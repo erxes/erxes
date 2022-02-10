@@ -19,7 +19,7 @@ export interface IProductTemplate {
   templateItems: IProductTemplateItem[];
   templateItemsProduct: any[];
   status: string;
-  tags: ITag[];    
+  tags: ITag[];
 }
 
 // query types
@@ -28,18 +28,30 @@ export type ProductTemplatesQueryResponse = {
   productTemplates: IProductTemplate[];
   loading: boolean;
   refetch: () => void;
-}
+};
 
 export type ProductTemplateTotalCountQueryResponse = {
   productTemplateTotalCount: number;
   loading: boolean;
   refetch: () => void;
-}
+};
+
+export type EmailTemplateTotalCountQueryResponse = {
+  emailTemplatesTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GrowthHacksTemplateTotalCountQueryResponse = {
+  pipelineTemplatesTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
 
 export type ProductTemplateDetailQueryResponse = {
   productTemplateDetail: IProductTemplate;
   loading: boolean;
-}
+};
 
 export type MutationVariables = {
   _id?: string;
@@ -82,8 +94,8 @@ export type ProductTemplatesDuplicateMutionResponse = {
 
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
-  loading: boolean;  
-}
+  loading: boolean;
+};
 
 export type CountByTagsQueryResponse = {
   productTemplateCountByTags: { [key: string]: number };

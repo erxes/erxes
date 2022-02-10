@@ -6,6 +6,7 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
+import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
 import {
   Actions,
   IframePreview,
@@ -16,6 +17,7 @@ import {
 import Form from './Form';
 
 type Props = {
+  queryParams: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonListProps;
 
@@ -97,7 +99,9 @@ class EmailTemplateList extends React.Component<Props> {
           />
         }
         renderForm={this.renderForm}
+        rightActionBar={true}
         renderContent={this.renderContent}
+        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         {...this.props}
       />
     );

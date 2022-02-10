@@ -7,6 +7,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
+import ActionBarDropDown from 'modules/settings/template/containers/actionBar/ActionBar';
 
 type Props = {
   title: string;
@@ -21,6 +22,9 @@ type Props = {
   renderFilter?: () => any;
   additionalButton?: React.ReactNode;
   emptyContent?: React.ReactNode;
+  leftSidebar?: any;
+  queryParams?: any;
+  rightActionBar?: any;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -43,7 +47,10 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       center,
       remove,
       additionalButton,
-      emptyContent
+      emptyContent,
+      leftSidebar,
+      rightActionBar,
+      queryParams
     } = this.props;
 
     const trigger = (
@@ -56,7 +63,12 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       return renderForm({ ...props, save });
     };
 
-    const actionBarRight = (
+    const actionBarRight = rightActionBar ? (
+      <>
+        {additionalButton}
+        <ActionBarDropDown queryParams={queryParams} />
+      </>
+    ) : (
       <>
         {additionalButton}
         <ModalTrigger
@@ -84,6 +96,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         mainHead={mainHead}
         footer={<Pagination count={totalCount} />}
         center={center}
+        leftSidebar={leftSidebar}
         content={
           <DataWithLoader
             data={renderContent({ objects, save, refetch, remove })}

@@ -2,13 +2,12 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyState from 'modules/common/components/EmptyState';
 import { FormControl } from 'modules/common/components/form';
-// import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { Count } from 'modules/common/styles/main';
-import { IRouterProps } from 'modules/common/types';
-import { __, Alert, confirm, router } from 'modules/common/utils';
+import { Alert, confirm } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
@@ -16,15 +15,14 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
-// import { Link } from 'react-router-dom';
-import Form from '../../containers/product/ProductForm';
+import ProductForm from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import Row from './ProductRow';
 import { IProductTemplate } from '../../types';
-// import { PROPERTY_GROUPS } from 'modules/settings/properties/constants';
-// import Row from './ProductRow';
+import { ICommonListProps } from 'modules/settings/common/types';
+import ActionBarDropDown from '../../containers/actionBar/ActionBar';
 
-interface IProps extends IRouterProps {
+type Props = {
   history: any;
   queryParams: any;
   productsCount: number;
@@ -41,13 +39,13 @@ interface IProps extends IRouterProps {
   products: IProductTemplate[];
   changeStatus: (_id: string, status: string) => void;
   duplicateTemplate: (_id: string) => void;
-}
+} & ICommonListProps;
 
 type State = {
   searchValue?: string;
 };
 
-class List extends React.Component<IProps, State> {
+class List extends React.Component<Props, State> {
   private timer?: NodeJS.Timer;
 
   constructor(props) {
@@ -59,7 +57,14 @@ class List extends React.Component<IProps, State> {
   }
 
   renderRow = () => {
-    const { history, toggleBulk, bulk, products, changeStatus, duplicateTemplate } = this.props;
+    const {
+      history,
+      toggleBulk,
+      bulk,
+      products,
+      changeStatus,
+      duplicateTemplate
+    } = this.props;
 
     return products.map(product => (
       <Row
@@ -120,8 +125,6 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
-
-
   render() {
     const {
       productsCount,
@@ -130,7 +133,7 @@ class List extends React.Component<IProps, State> {
       isAllSelected,
       history,
       bulk,
-      emptyBulk,
+      emptyBulk
     } = this.props;
 
     const breadcrumb = [
@@ -138,25 +141,19 @@ class List extends React.Component<IProps, State> {
       { title: __('Product & Service') }
     ];
 
-    const trigger = (
-      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
-        Products & Services
-      </div >
-    );
-
     const trigger1 = (
-      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
-        Import items
-      </div >
+      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>Import items</div>
     );
 
     const trigger2 = (
       <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
         Placeholder item
-      </div >
+      </div>
     );
 
-    const modalContent = props => <Form {...props} />;
+    const modalContent = props => <ProductForm {...props} />;
+
+    console.log('actionBarDropDown', ActionBarDropDown);
 
     let actionBarRight = (
       <BarItems>
@@ -194,25 +191,7 @@ class List extends React.Component<IProps, State> {
           </Dropdown.Menu>
         </Dropdown>
 
-        <Dropdown alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
-            <Button btnStyle="primary">
-              {__('Add new template')}
-              <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <ModalTrigger
-              title="Add new template"
-              trigger={trigger}
-              autoOpenKey="showProductModal"
-              content={modalContent}
-              size="lg"
-            />
-          </Dropdown.Menu>
-        </Dropdown>
-
-
+        <ActionBarDropDown queryParams={queryParams} />
       </BarItems>
     );
 
@@ -266,23 +245,8 @@ class List extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
-      // const mergeButton = (
-      //   <Button btnStyle="primary" size="small" icon="merge">
-      //     Merge
-      //   </Button>
-      // );
-
       actionBarRight = (
         <BarItems>
-          {/* {bulk.length === 2 && (
-            <ModalTrigger
-              title="Merge Product"
-              size="lg"
-              dialogClassName="modal-1000w"
-              trigger={mergeButton}
-              content={productsMerge}
-            />
-          )} */}
           <TaggerPopover
             type="productTemplate"
             successCallback={emptyBulk}
@@ -302,6 +266,8 @@ class List extends React.Component<IProps, State> {
       );
     }
 
+    console.log('queryParams - productList', queryParams);
+
     return (
       <Wrapper
         header={
@@ -310,9 +276,7 @@ class List extends React.Component<IProps, State> {
             breadcrumb={breadcrumb}
           />
         }
-        actionBar={
-          <Wrapper.ActionBar right={actionBarRight} />
-        }
+        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
         }

@@ -310,7 +310,7 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Email Template',
               '/images/icons/erxes-09.svg',
-              '/settings/email-templates',
+              '/settings/email_templates',
               'emailTemplateAll',
               ['showEmailTemplates', 'manageEmailTemplate']
             )}

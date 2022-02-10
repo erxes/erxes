@@ -13,8 +13,10 @@ import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
 import { Actions, Bottom, BoxItem, Created } from '../styles';
 import TemplateForm from './TemplateForm';
+import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
 
 type Props = {
+  queryParams: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
 } & ICommonListProps;
@@ -135,6 +137,8 @@ class TemplateList extends React.Component<Props> {
         additionalButton={this.renderButton()}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
+        rightActionBar={true}
+        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         {...this.props}
       />
     );

@@ -1,8 +1,8 @@
 const productTemplateParamsDef = `
   $type: String
   $title: String
-  $discount: Int
-  $totalAmount: Int
+  $discount: Float
+  $totalAmount: Float
   $description: String
   $templateItems: JSON
   $status: String

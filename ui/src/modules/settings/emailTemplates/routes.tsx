@@ -14,7 +14,7 @@ const emailTemplates = ({ location }) => {
 };
 
 const routes = () => (
-  <Route path="/settings/email-templates/" component={emailTemplates} />
+  <Route path="/settings/email_templates/" component={emailTemplates} />
 );
 
 export default routes;

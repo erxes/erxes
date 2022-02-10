@@ -18,7 +18,15 @@ import PaymentForm from './PaymentForm';
 import ProductItem from './ProductItem';
 import ProductTotal from './ProductTotal';
 import { IProductTemplate } from '../../../settings/template/types';
-import FormControl from 'erxes-ui/lib/components/form/Control';
+// import FormControl from 'erxes-ui/lib/components/form/Control';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import TemplateForm from 'modules/settings/template/containers/product/ProductForm';
+import {
+  MainStyleFormColumn as FormColumn,
+  MainStyleFormWrapper as FormWrapper
+} from 'erxes-ui';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -41,6 +49,7 @@ type State = {
   currentTab: string;
   changePayData: { [currency: string]: number };
   tempId: string;
+  saveAsTemplateStatus: boolean;
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -53,7 +62,8 @@ class ProductForm extends React.Component<Props, State> {
       tax: {},
       currentTab: 'products',
       changePayData: {},
-      tempId: ''
+      tempId: '',
+      saveAsTemplateStatus: false
     };
   }
 
@@ -70,7 +80,6 @@ class ProductForm extends React.Component<Props, State> {
   addProductItem = () => {
     const { productsData, onChangeProductsData, currencies } = this.props;
     const { tax, discount } = this.state;
-
     const currency = currencies ? currencies[0] : '';
 
     this.setState({ tempId: Math.random().toString() }, () => {
@@ -91,6 +100,8 @@ class ProductForm extends React.Component<Props, State> {
 
       onChangeProductsData(productsData);
     });
+
+    this.setState({ saveAsTemplateStatus: true });
   };
 
   addProductTemplateItem = (
@@ -105,30 +116,30 @@ class ProductForm extends React.Component<Props, State> {
     const { productsData, onChangeProductsData, currencies } = this.props;
     const { tax, discount } = this.state;
     const unitPrice = product ? product.unitPrice : 0;
-    const amount =
-      discountT && discountT > 0 ? (unitPrice / 100) * discountT : unitPrice;
-
+    const discountAmount =
+      discountT && discountT > 0 ? (unitPrice / 100) * discountT : 0;
     const currency = currencies ? currencies[0] : '';
 
-    this.setState({ tempId: Math.random().toString() }, () => {
-      productsData.push({
-        _id: this.state.tempId,
-        quantity: quantity ? quantity : 1,
-        unitPrice,
-        tax: 0,
-        taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
-        discount: discountT ? discountT : 0,
-        discountPercent: discount[currency]
-          ? discount[currency].percent || 0
-          : 0,
-        amount,
-        currency,
-        tickUsed: true,
-        product: product ? product : ({} as IProduct)
-      });
+    console.log('discount: ', discount);
 
-      onChangeProductsData(productsData);
+    // this.setState({ tempId: Math.random().toString() }, () => {
+    productsData.push({
+      _id: Math.random().toString(),
+      quantity: quantity ? quantity : 1,
+      unitPrice,
+      tax: 0,
+      taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
+      discount: discountAmount,
+      discountPercent: discountT || 0,
+      amount: unitPrice - discountAmount || 0,
+      currency,
+      tickUsed: true,
+      product: product ? product : ({} as IProduct)
     });
+
+    this.updateTotal(productsData);
+    onChangeProductsData(productsData);
+    // });
   };
 
   calculateAmount = (type: string, productData: IProductData) => {
@@ -158,14 +169,13 @@ class ProductForm extends React.Component<Props, State> {
     // }
   };
 
-  addProductTemplate = e => {
-    const templateId = e.target.value;
-    // alert(templateId);
+  addProductTemplate = id => {
+    const templateId = id;
 
     const productTemplates = this.props.productTemplates || [];
     const template = productTemplates.filter(p => p._id === templateId);
-
-    const templateItems = template[0].templateItemsProduct || [];
+    const templateItems =
+      template.length > 0 ? template[0].templateItemsProduct : [];
 
     console.log('templateItems');
     console.log(templateItems);
@@ -381,19 +391,49 @@ class ProductForm extends React.Component<Props, State> {
       <FormContainer>
         {this.renderContent()}
         <Add>
-          <Button
-            btnStyle="primary"
-            onClick={this.addProductItem}
-            icon="plus-circle"
-          >
-            Add Product / Service
-          </Button>
-
-          <FormControl
-            onChange={this.addProductTemplate}
-            componentClass="select"
-            options={comboProductTemplate}
-          />
+          <FormWrapper>
+            <FormColumn>
+              <Button
+                btnStyle="primary"
+                onClick={this.addProductItem}
+                icon="plus-circle"
+              >
+                Add Product / Service
+              </Button>
+            </FormColumn>
+            <FormColumn>
+              {/* <FormControl
+                onChange={this.addProductTemplate}
+                componentClass="select"
+                options={comboProductTemplate}
+              /> */}
+              <Dropdown>
+                <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
+                  <Button btnStyle="primary">
+                    {__('Add new template')}
+                    <Icon icon="angle-down" />
+                  </Button>
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  {comboProductTemplate.map(e => {
+                    return (
+                      <li
+                        style={{
+                          margin: '5px',
+                          borderBottom: '0.5px',
+                          cursor: 'pointer'
+                        }}
+                        key={Math.random()}
+                        onClick={this.addProductTemplate.bind(this, e.value)}
+                      >
+                        {e.label}
+                      </li>
+                    );
+                  })}
+                </Dropdown.Menu>
+              </Dropdown>
+            </FormColumn>
+          </FormWrapper>
         </Add>
 
         <FooterInfo>
@@ -424,6 +464,37 @@ class ProductForm extends React.Component<Props, State> {
 
   render() {
     const { currentTab } = this.state;
+    const trigger = (
+      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
+        Save as template
+      </div>
+    );
+    const productsData = this.props.productsData || [];
+    // const productTemplates = this.props.productTemplates;
+    console.log('productsData');
+    console.log(productsData);
+    const templateItems = [] as any[];
+
+    productsData.map(data => {
+      return templateItems.push({
+        _id: data._id,
+        categoryId: data.product ? data.product.categoryId : '',
+        itemId: data.product ? data.product._id : '',
+        unitPrice: data.unitPrice,
+        quantity: data.quantity,
+        discount: data.discount
+      });
+    });
+
+    const productTemplate = { discount: 0, totalAmount: 954403, templateItems };
+
+    // console.log("generated template", productTemplate);
+    // console.log("current templates", productTemplates);
+
+    const content = props => (
+      <TemplateForm {...props} items={productTemplate} />
+    );
+
     return (
       <>
         <Tabs grayBorder={true} full={true}>
@@ -446,6 +517,16 @@ class ProductForm extends React.Component<Props, State> {
         {this.renderTabContent()}
 
         <ModalFooter>
+          {this.state.saveAsTemplateStatus && (
+            <Button btnStyle="simple">
+              <ModalTrigger
+                title="Save as Template"
+                trigger={trigger}
+                size="lg"
+                content={content}
+              />
+            </Button>
+          )}
           <Button
             btnStyle="simple"
             onClick={this.props.closeModal}

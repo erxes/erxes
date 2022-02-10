@@ -13,6 +13,7 @@ import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';
 import Form from '../components/Form';
+import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -151,7 +152,8 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        center={true}
+        rightActionBar={true}
+        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         size="lg"
         {...this.props}
       />

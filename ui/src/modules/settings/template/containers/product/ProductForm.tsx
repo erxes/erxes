@@ -8,22 +8,25 @@ import * as compose from 'lodash.flowright';
 import { withProps } from 'erxes-ui/lib/utils/core';
 import { graphql } from '@apollo/react-hoc';
 import gql from 'graphql-tag';
-import { ProductCategoriesQueryResponse, ProductTemplatesQueryResponse } from '../../types'
-import { queries } from '../../graphql'
-// import { generatePaginationParams } from 'modules/common/utils/router';
+import {
+  ProductCategoriesQueryResponse,
+  ProductTemplatesQueryResponse
+} from '../../types';
+import { queries } from '../../graphql';
 
 type Props = {
   productTemplate?: IProductTemplate;
+  items?: IProductTemplate;
   closeModal: () => void;
   queryParams?: any;
 };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
-} & Props & ProductTemplatesQueryResponse;
+} & Props &
+  ProductTemplatesQueryResponse;
 
 class ProductFormContainer extends React.Component<FinalProps> {
-
   render() {
     const { productCategoriesQuery } = this.props;
 
@@ -42,13 +45,19 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
+      console.log('object');
+      console.log(object);
 
       values.discount = Number(values.discount);
       values.totalAmount = Number(values.totalAmount);
 
       return (
         <ButtonMutate
-          mutation={object ? mutations.productTemplatesEdit : mutations.productTemplatesAdd}
+          mutation={
+            object
+              ? mutations.productTemplatesEdit
+              : mutations.productTemplatesAdd
+          }
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
@@ -56,8 +65,9 @@ class ProductFormContainer extends React.Component<FinalProps> {
           type="submit"
           btnStyle="primary"
           uppercase={false}
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };
@@ -84,14 +94,15 @@ export default withProps<Props>(
         name: 'productCategoriesQuery'
       }
     ),
-    graphql<Props, ProductTemplatesQueryResponse, { page: number; perPage: number }>(
-      gql(queries.productTemplates),
-      {
-        name: 'productTemplatesQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
+    graphql<
+      Props,
+      ProductTemplatesQueryResponse,
+      { page: number; perPage: number }
+    >(gql(queries.productTemplates), {
+      name: 'productTemplatesQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    })
   )(ProductFormContainer)
 );

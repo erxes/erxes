@@ -137,7 +137,7 @@ class EmailTemplate extends React.Component<Props, State> {
           </PopoverBody>
           <PopoverFooter>
             <PopoverLinkWrapper>
-              <Link to="/settings/email-templates">
+              <Link to="/settings/email_templates">
                 <Icon icon="cog" />
                 {__('Manage email templates')}
               </Link>

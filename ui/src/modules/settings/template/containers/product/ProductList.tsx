@@ -54,14 +54,18 @@ class ProductListContainer extends React.Component<FinalProps> {
 
     const changeStatus = (_id: string, status: string) => {
       const isActive = status === PRODUCT_TEMPLATE_STATUSES.ACTIVE;
-      const message = isActive ?
-        "You are going to archive this product template. Are you sure?"
-        : "You are going to active this product template. Are you sure?";
+      const message = isActive
+        ? 'You are going to archive this product template. Are you sure?'
+        : 'You are going to active this product template. Are you sure?';
 
-      const statusAction = isActive ? PRODUCT_TEMPLATE_STATUSES.ARCHIVED : PRODUCT_TEMPLATE_STATUSES.ACTIVE;
+      const statusAction = isActive
+        ? PRODUCT_TEMPLATE_STATUSES.ARCHIVED
+        : PRODUCT_TEMPLATE_STATUSES.ACTIVE;
 
       confirm(message).then(() => {
-        productTemplatesChangeStatus({ variables: { _id, status: statusAction } })
+        productTemplatesChangeStatus({
+          variables: { _id, status: statusAction }
+        })
           .then(({ data }) => {
             const template = data.productTemplatesChangeStatus;
 
@@ -120,7 +124,8 @@ class ProductListContainer extends React.Component<FinalProps> {
       products,
       loading: productTemplatesQuery.loading,
       searchValue,
-      productsCount: productTemplateTotalCountQuery.productTemplateTotalCount || 0,
+      productsCount:
+        productTemplateTotalCountQuery.productTemplateTotalCount || 0,
       changeStatus,
       duplicateTemplate,
       remove
@@ -139,47 +144,56 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const options = () => ({
-  refetchQueries: [
-    'productTemplates'
-  ]
+  refetchQueries: ['productTemplates']
 });
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductTemplatesQueryResponse, { page: number; perPage: number }>(
-      gql(queries.productTemplates),
+    graphql<
+      Props,
+      ProductTemplatesQueryResponse,
+      { page: number; perPage: number }
+    >(gql(queries.productTemplates), {
+      name: 'productTemplatesQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          tag: queryParams.tag,
+          searchValue: queryParams.searchValue,
+          status: queryParams.status,
+          ...generatePaginationParams(queryParams)
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, ProductTemplateTotalCountQueryResponse>(
+      gql(queries.productTemplateTotalCount),
       {
-        name: 'productTemplatesQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            tag: queryParams.tag,
-            searchValue: queryParams.searchValue,
-            status: queryParams.status,
-            ...generatePaginationParams(queryParams)
-          },
+        name: 'productTemplateTotalCountQuery',
+        options: () => ({
           fetchPolicy: 'network-only'
         })
       }
     ),
-    graphql<Props, ProductTemplateTotalCountQueryResponse>(gql(queries.productTemplateTotalCount), {
-      name: 'productTemplateTotalCountQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, ProductTemplatesRemoveMutationResponse, { ids: string[] }>(gql(mutations.productTemplatesRemove), {
-      name: 'productTemplatesRemove',
-      options
-    }),
-    graphql<Props, ProductTemplatesChangeStatusMutionResponse>(gql(mutations.productTemplatesChangeStatus),
+    graphql<Props, ProductTemplatesRemoveMutationResponse, { ids: string[] }>(
+      gql(mutations.productTemplatesRemove),
+      {
+        name: 'productTemplatesRemove',
+        options
+      }
+    ),
+    graphql<Props, ProductTemplatesChangeStatusMutionResponse>(
+      gql(mutations.productTemplatesChangeStatus),
       {
         name: 'productTemplatesChangeStatus',
         options
-      }),
-    graphql<Props, ProductTemplatesDuplicateMutionResponse>(gql(mutations.productTemplatesDuplicate),
+      }
+    ),
+    graphql<Props, ProductTemplatesDuplicateMutionResponse>(
+      gql(mutations.productTemplatesDuplicate),
       {
         name: 'productTemplatesDuplicate',
         options
-      })
+      }
+    )
   )(ProductListContainer)
 );

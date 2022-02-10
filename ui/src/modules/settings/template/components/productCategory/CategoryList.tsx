@@ -11,29 +11,38 @@ import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 const TEMPLATE_TYPES = {
-  EMAILS: 'Emails',
-  CHAT_RESPONSES: 'Chat Responses',
-  GROWTH_HACKING: 'Growth Hacking',
-  PRODUCTS_SERVICES: 'Products & Services',
-  SEGMENTS: 'Segments',
-  SALES_PIPELINE: 'Sales Pipeline',
-  AUTOMATION: 'Automation'
+  email_templates: 'Emails',
+  response_templates: 'Chat Responses',
+  growth_hacking: 'Growth Hacking',
+  template: 'Products & Services',
+  segments: 'Segments',
+  sales_pipeline: 'Sales Pipeline',
+  automation: 'Automation'
 };
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
+  history?: any;
   queryParams: any;
   refetch?: any;
   types: any;
   loading: boolean;
 }
 
+const coming_soon = {
+  margin: '10px',
+  paddingLeft: '10px'
+};
+
+const coming_soon1 = {
+  margin: '10px',
+  color: 'brown'
+};
 class List extends React.Component<IProps> {
   isActive = (id: string) => {
     const { queryParams } = this.props;
-    const currentGroup = queryParams.type || '';
+    const currentGroup = queryParams ? queryParams.type : '';
 
     return currentGroup === id;
   };
@@ -46,16 +55,28 @@ class List extends React.Component<IProps> {
 
     for (const key of Object.keys(TEMPLATE_TYPES)) {
       const name = TEMPLATE_TYPES[key];
-      const count = types[key] || 0;
+      const condition =
+        key === 'segments' || key === 'sales_pipeline' || key === 'automation';
+      const count = condition ? (
+        <p style={coming_soon1}>Comging soon</p>
+      ) : (
+        types[key] || 0
+      );
+      const subroute =
+        key === 'response_templates'
+          ? 'response-templates'
+          : key === 'growth_hacking'
+          ? 'boards/growthHackTemplate'
+          : key;
+      const link = condition ? (
+        <p style={coming_soon}> {name} </p>
+      ) : (
+        <Link to={`/settings/${subroute}?type=${key}`}>{name}</Link>
+      );
 
       result.push(
-        <SidebarListItem
-          key={key}
-          isActive={this.isActive(key)}
-        >
-          <Link to={`?type=${key}`}>
-            {name}
-          </Link>
+        <SidebarListItem key={key} isActive={this.isActive(key)}>
+          {link}
           <SidebarCounter>{count}</SidebarCounter>
         </SidebarListItem>
       );
@@ -67,28 +88,22 @@ class List extends React.Component<IProps> {
   renderCategoryHeader() {
     return (
       <>
-        <TopHeader><SidebarHeader /></TopHeader>
-        <Section.Title>
-          {__('Types')}
-        </Section.Title>
+        <TopHeader>
+          <SidebarHeader />
+        </TopHeader>
+        <Section.Title>{__('Types')}</Section.Title>
       </>
     );
   }
 
   renderCategoryList() {
-    return (
-      <SidebarList>
-        {this.renderContent()}
-      </SidebarList>
-    );
+    return <SidebarList>{this.renderContent()}</SidebarList>;
   }
 
   render() {
     return (
       <Sidebar wide={true}>
-        <Section
-          maxHeight={488}
-        >
+        <Section maxHeight={488}>
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>

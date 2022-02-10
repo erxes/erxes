@@ -30,6 +30,7 @@ import { IProductCategory } from 'modules/settings/productService/types';
 type Props = {
   productTemplate?: IProductTemplate;
   productCategories?: IProductCategory[];
+  items?: IProductTemplate;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   type?: string;
@@ -39,13 +40,13 @@ type State = {
   items: IProductTemplateItem[];
   discount: number;
   totalAmount: number;
-}
+};
 class Form extends React.Component<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
-    const productTemplate = props.productTemplate || {} as IProductTemplate;
+    const productTemplate =
+      props.productTemplate || props.items || ({} as IProductTemplate);
     const { discount, totalAmount, templateItems } = productTemplate;
 
     this.state = {
@@ -60,26 +61,34 @@ class Form extends React.Component<Props, State> {
   onChangeItems = items => {
     this.setState({ items });
 
-    console.log("items");
+    console.log('items');
     console.log(items);
 
     let discount = 0 as number;
     let itemsAmount = 0 as number;
+    let itemsTotalAmount = 0 as number;
 
     items.forEach(item => {
-      discount += Number(item.discount);
-      itemsAmount += (Number(item.unitPrice) * Number(item.quantity));
+      itemsTotalAmount += Number(item.unitPrice) * Number(item.quantity);
+      itemsAmount +=
+        Number(item.unitPrice) *
+        Number(item.quantity) *
+        ((100 - Number(item.discount)) / 100);
     });
 
-    const totalAmount = itemsAmount * ((100 - discount) / 100);
+    const totalAmount = itemsAmount;
+    discount = 100 - (totalAmount * 100) / itemsTotalAmount || 0;
 
-    console.log("itemsAmount:" + itemsAmount, "totalAmount:" + totalAmount, "discount:" + discount);
+    console.log(
+      'itemsAmount:' + itemsAmount,
+      'totalAmount:' + totalAmount,
+      'discount:' + discount
+    );
 
     this.setState({ discount, totalAmount });
-
   };
 
-  onDiscount = (e) => {
+  onDiscount = e => {
     const discount = e.target.value as number;
     // const { items } = this.state;
     // const itemsCount = items.length;
@@ -96,7 +105,7 @@ class Form extends React.Component<Props, State> {
 
     // console.log("items on discount");
     // console.log(this.state.items);
-  }
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, productTemplate } = this.props;
@@ -104,8 +113,6 @@ class Form extends React.Component<Props, State> {
     const object = productTemplate || ({} as IProductTemplate);
 
     values.templateItems = this.state.items;
-
-
 
     if (productTemplate) {
       values._id = productTemplate._id;
@@ -125,8 +132,7 @@ class Form extends React.Component<Props, State> {
             required={true}
             componentClass="select"
             options={TYPE_CHOICES}
-          >
-          </FormControl>
+          />
         </FormGroup>
 
         <FlexContent>
@@ -198,11 +204,7 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            uppercase={false}
-          >
+          <Button btnStyle="simple" onClick={closeModal} uppercase={false}>
             Close
           </Button>
 
