@@ -38,6 +38,7 @@ export const types = `
   type Chat {
     _id: String!
     name: String
+    type: String
     description: String
     visibility: String
     lastMessage: ChatMessage
