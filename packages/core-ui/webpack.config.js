@@ -32,6 +32,7 @@ const depNames = [
   "styled-components-ts",
 ];
 
+const deps = require("./package.json").dependencies;
 const shared = {};
 
 for (const name of depNames) {
@@ -129,11 +130,12 @@ module.exports = {
       name: "main",
       filename: "remoteEntry.js",
       remotes: {
+        main: "main@http://localhost:3000/remoteEntry.js",
         inbox: "inbox@http://localhost:3009/remoteEntry.js",
       },
       exposes: {
         QuickNavigation: "./src/modules/layout/components/QuickNavigation.tsx",
-        "./appContext": "./src/appContext.tsx",
+        "./appContext": "./src/appContext",
       },
       shared: {
         ...shared,
@@ -142,11 +144,11 @@ module.exports = {
           singleton: true,
         },
         dayjs: {
-          requiredVersion: "1.8.15",
+          requiredVersion: deps["dayjs"],
           singleton: true,
         },
         react: {
-          requiredVersion: "16.14.0",
+          requiredVersion: deps["react"],
           singleton: true,
           eager: true,
         },

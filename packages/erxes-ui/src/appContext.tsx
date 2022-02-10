@@ -109,7 +109,7 @@ export class AppProvider extends React.Component<
       isRemovingImport,
       isDoneIndicatorAction
     } = this.state;
-console.log('in app context', currentUser, AppConsumer)
+
     return (
       <AppContext.Provider
         value={{
