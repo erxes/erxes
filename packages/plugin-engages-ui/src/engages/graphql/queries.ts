@@ -293,6 +293,12 @@ const engageEmailPercentages = `
   }
 `;
 
+const engagesConfigDetail = `
+  query engagesConfigDetail {
+    engagesConfigDetail
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -309,5 +315,6 @@ export default {
   statusCounts,
   tagCounts,
   verifiedEmails,
-  engageEmailPercentages
+  engageEmailPercentages,
+  engagesConfigDetail
 };
