@@ -12,7 +12,7 @@ import { ICustomer } from '../../types';
 import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import parse from 'ua-parser-js';
-import { renderFlag } from '../common/DevicePropertiesSection';
+import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
 import PrimaryEmail from '../common/PrimaryEmail';
 import PrimaryPhone from '../common/PrimaryPhone';
 

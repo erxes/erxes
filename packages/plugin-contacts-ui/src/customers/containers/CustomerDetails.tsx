@@ -8,7 +8,7 @@ import { InboxFieldsQueryResponse } from '@erxes/ui-settings/src/properties/type
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CustomerDetails from '../components/detail/CustomerDetails';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CustomerDetailQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
