@@ -30,6 +30,7 @@ for (const name of depNames) {
 
 module.exports = {
   output: {
+    uniqueName: configs.name,
     publicPath: `http://localhost:${port}/`,
   },
 
