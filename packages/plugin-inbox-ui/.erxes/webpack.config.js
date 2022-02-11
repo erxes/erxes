@@ -35,8 +35,31 @@ module.exports = {
     filename: "[name].[contenthash].bundle.js",
   },
 
-  optimization: { runtimeChunk: false, splitChunks: false },
-
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+        terserOptions: {
+          parse: {
+            ecma: 8,
+          },
+          compress: {
+            ecma: 5,
+            warnings: false,
+            comparisons: false,
+            inline: 2,
+          },
+          mangle: true,
+          output: {
+            ecma: 5,
+            comments: false,
+            ascii_only: true,
+          },
+        },
+      }),
+    ],
+  },
 
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
