@@ -132,7 +132,6 @@ module.exports = {
         main: "main@http://localhost:3000/remoteEntry.js",
       },
       exposes: {
-        QuickNavigation: "./src/modules/layout/components/QuickNavigation.tsx",
         "./appContext": "./src/appContext",
       },
       shared: {
@@ -150,6 +149,7 @@ module.exports = {
           singleton: true,
           eager: true,
         },
+        "./src/appContext": {},
       },
     }),
   ],
