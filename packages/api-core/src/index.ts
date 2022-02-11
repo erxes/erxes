@@ -9,7 +9,6 @@ import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import { initApolloServer } from './apolloClient';
-import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
 import { generateErrors } from './data/modules/import/generateErrors';
 import {
@@ -22,7 +21,7 @@ import {
 } from './data/utils';
 
 import { connect, mongoStatus } from './db/connection';
-import { Configs, Segments, Users } from './db/models';
+import { Configs, Users } from './db/models';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
@@ -111,29 +110,6 @@ app.get('/health', async (_req, res) => {
 
   res.end('ok');
 });
-
-// export board
-app.get(
-  '/file-export',
-  routeErrorHandling(async (req: any, res) => {
-    const { query, user } = req;
-    const { segment } = query;
-
-    const result = await buildFile(query, user);
-
-    res.attachment(`${result.name}.xlsx`);
-
-    if (segment) {
-      try {
-        Segments.removeSegment(segment);
-      } catch (e) {
-        console.log((e as Error).message);
-      }
-    }
-
-    return res.send(result.response);
-  })
-);
 
 app.get(
   '/template-export',

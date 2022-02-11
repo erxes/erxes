@@ -52,10 +52,6 @@ import {
   types as UserTypes
 } from './user';
 import {
-  queries as SmsDeliveryQueries,
-  types as SmsDeliveryTypes
-} from './smsDelivery';
-import {
   mutations as StructureMutations,
   queries as StructureQueries,
   types as StructureTypes
@@ -88,7 +84,6 @@ export let types = `
   ${ImportHistoryTypes}
   ${PermissionTypes}
   ${RobotTypes}
-  ${SmsDeliveryTypes}
   ${StructureTypes}
 `;
 
@@ -104,7 +99,6 @@ export let queries = `
   ${ImportHistoryQueries}
   ${PermissionQueries}
   ${RobotQueries}
-  ${SmsDeliveryQueries}
   ${StructureQueries}
 `;
 

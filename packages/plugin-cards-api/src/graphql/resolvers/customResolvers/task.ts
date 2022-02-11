@@ -1,9 +1,9 @@
 import {
   sendConformityMessage,
   sendContactRPCMessage,
-  sendNotificationRPCMessage
+  sendNotificationMessage,
 } from '../../../messageBroker';
-import { PipelineLabels, Pipelines, Stages, Tasks } from '../../../models';
+import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
@@ -69,10 +69,10 @@ export default {
   },
 
   hasNotified(task: ITaskDocument, _args, { user }: IContext) {
-    return sendNotificationRPCMessage('checkIfRead', {
+    return sendNotificationMessage('checkIfRead', {
       userId: user._id,
       itemId: task._id
-    });
+    }, true, true);
   },
 
   labels(task: ITaskDocument) {

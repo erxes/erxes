@@ -8,8 +8,8 @@ import {
   IChecklistItem,
   IChecklistItemDocument,
 } from './definitions/checklists';
-import { IUserDocument } from '@erxes/common-types';
 import { putActivityLog } from '../logUtils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;

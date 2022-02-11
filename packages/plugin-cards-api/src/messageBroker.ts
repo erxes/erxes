@@ -1,8 +1,7 @@
-import { Stages, Tasks, Tickets } from '@erxes/api-utils/src/apiCollections';
 import { serviceDiscovery } from './configs';
 import { generateFields } from './fieldUtils';
 import { prepareImportDocs } from './importUtils';
-import { Checklists } from './models';
+import { Checklists, Stages, Tasks, Tickets } from './models';
 import { generateConditionStageIds } from './utils';
 
 let client;
@@ -155,14 +154,6 @@ export const sendFormMessage = async (action, data): Promise<any> => {
   return client.sendMessage(`forms:${action}`, data);
 };
 
-export const sendChecklistMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`checklists:${action}`, data);
-};
-
-export const sendChecklistRPCMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`checklists:rpc_queue:${action}`, data);
-};
-
 export const sendInternalNoteMessage = async (action, data): Promise<any> => {
   return client.sendMessage(`internalNotes:${action}`, data);
 };
@@ -198,11 +189,21 @@ export const updateProducts = async (selector, modifier): Promise<any> => {
   });
 };
 
-export const sendNotificationRPCMessage = async (
+export const sendNotificationMessage = async (
   action,
-  data
+  data,
+  isRPC?: boolean,
+  defaultValue?
 ): Promise<any> => {
-  return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
+  if (isRPC) {
+    if (!await serviceDiscovery.isAvailable('notifications')) {
+      return defaultValue;
+    }
+
+    return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
+  }
+
+  return client.sendMessage(`notifications:${action}`, data);
 };
 
 export const sendToLog = (channel: string, data) =>

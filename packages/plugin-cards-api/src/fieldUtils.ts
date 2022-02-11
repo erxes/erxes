@@ -1,4 +1,4 @@
-import { Segments } from '@erxes/api-utils/src/apiCollections';
+import { Segments } from './apiCollections';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
 import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';

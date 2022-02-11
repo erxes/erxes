@@ -1,27 +1,55 @@
 import * as express from 'express';
 import { Document, Schema } from 'mongoose';
-
-import { IUserDocument } from '@erxes/common-types/src/users';
-
-export interface IBrandEmailConfig {
-  type?: string;
-  template?: string;
+export interface IEmailSignature {
+  brandId?: string;
+  signature?: string;
 }
 
-interface IBrandEmailConfigDocument extends IBrandEmailConfig, Document {}
+export interface IEmailSignatureDocument extends IEmailSignature, Document {}
 
-export interface IBrand {
-  code?: string;
-  name?: string;
+export interface IDetail {
+  avatar?: string;
+  fullName?: string;
+  shortName?: string;
+  position?: string;
+  location?: string;
   description?: string;
-  userId?: string;
-  emailConfig?: IBrandEmailConfig;
+  operatorPhone?: string;
 }
 
-export interface IBrandDocument extends IBrand, Document {
+export interface IDetailDocument extends IDetail, Document {}
+
+export interface ILink {
+  [key: string]: string;
+}
+
+export interface IUser {
+  createdAt?: Date;
+  code?: string;
+  username?: string;
+  password: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  registrationToken?: string;
+  registrationTokenExpires?: Date;
+  isOwner?: boolean;
+  email?: string;
+  getNotificationByEmail?: boolean;
+  emailSignatures?: IEmailSignature[];
+  starredConversationIds?: string[];
+  details?: IDetail;
+  links?: ILink;
+  isActive?: boolean;
+  brandIds?: string[];
+  groupIds?: string[];
+  deviceTokens?: string[];
+  doNotDisturb?: string;
+}
+
+export interface IUserDocument extends IUser, Document {
   _id: string;
-  emailConfig?: IBrandEmailConfigDocument;
-  createdAt: Date;
+  emailSignatures?: IEmailSignatureDocument[];
+  details?: IDetailDocument;
 }
 
 export interface IContext {
@@ -61,11 +89,6 @@ export interface IRule {
   condition: string;
   value: string;
 }
-
-export interface ILink {
-  [key: string]: string;
-}
-
 export interface IRuleDocument extends IRule, Document {
   _id: string;
 }

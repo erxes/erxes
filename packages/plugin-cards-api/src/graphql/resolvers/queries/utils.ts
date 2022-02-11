@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import {
   Pipelines,
-  // Segments,
   Stages
 } from '../../../models';
 import { getCollection } from '../../../models/utils';
@@ -10,16 +9,17 @@ import {
   IStageDocument
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import { IUserDocument } from '@erxes/common-types/src/users';
 import { CLOSE_DATE_TYPES } from '../../../constants';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
-import { Notifications, Segments } from '../../../apiCollections';
+import { Segments } from '../../../apiCollections';
 import {
   fetchSegment,
   sendContactRPCMessage,
-  sendConformityMessage
+  sendConformityMessage,
+  sendNotificationMessage
 } from '../../../messageBroker';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -163,7 +163,7 @@ export const generateCommonFilters = async (
 
   const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
 
-  const filterIds: string[] = [];
+  let filterIds: string[] = [];
 
   if (assignedUserIds) {
     // Filter by assigned to no one
@@ -173,23 +173,25 @@ export const generateCommonFilters = async (
   }
 
   if (customerIds && type) {
-    // const relIds = await Conformities.filterConformity({
-    //   mainType: 'customer',
-    //   mainTypeIds: customerIds,
-    //   relType: type
-    // });
-    // filterIds = relIds;
+    const relIds = await sendConformityMessage('filterConformity', {
+      mainType: 'customer',
+      mainTypeIds: customerIds,
+      relType: type
+    });
+
+    filterIds = relIds;
   }
 
   if (companyIds && type) {
-    // const relIds = await Conformities.filterConformity({
-    //   mainType: 'company',
-    //   mainTypeIds: companyIds,
-    //   relType: type
-    // });
-    // filterIds = filterIds.length
-    //   ? filterIds.filter(id => relIds.includes(id))
-    //   : relIds;
+    const relIds = await sendConformityMessage('filterConformity', {
+      mainType: 'company',
+      mainTypeIds: companyIds,
+      relType: type
+    });
+
+    filterIds = filterIds.length
+      ? filterIds.filter(id => relIds.includes(id))
+      : relIds;
   }
 
   if (customerIds || companyIds) {
@@ -198,21 +200,23 @@ export const generateCommonFilters = async (
 
   if (conformityMainType && conformityMainTypeId) {
     if (conformityIsSaved) {
-      // const relIds = await Conformities.savedConformity({
-      //   mainType: conformityMainType,
-      //   mainTypeId: conformityMainTypeId,
-      //   relTypes: [type]
-      // });
-      // filter._id = contains(relIds || []);
+      const relIds = await sendConformityMessage('savedConformity', {
+        mainType: conformityMainType,
+        mainTypeId: conformityMainTypeId,
+        relTypes: [type]
+      });
+
+      filter._id = contains(relIds || []);
     }
 
     if (conformityIsRelated) {
-      // const relIds = await Conformities.relatedConformity({
-      //   mainType: conformityMainType,
-      //   mainTypeId: conformityMainTypeId,
-      //   relType: type
-      // });
-      // filter._id = contains(relIds);
+      const relIds = await sendConformityMessage('relatedConformity', {
+        mainType: conformityMainType,
+        mainTypeId: conformityMainTypeId,
+        relType: type
+      });
+
+      filter._id = contains(relIds);
     }
   }
 
@@ -769,10 +773,19 @@ export const getItemList = async (
 
   const updatedList: any[] = [];
 
-  const notifications = await Notifications.find(
-    { contentTypeId: { $in: ids }, isRead: false, receiver: user._id },
-    { contentTypeId: 1 }
-  ).toArray();
+  const notifications = await sendNotificationMessage(
+    "find",
+    {
+      selector: {
+        contentTypeId: { $in: ids },
+        isRead: false,
+        receiver: user._id,
+      },
+      fields: { contentTypeId: 1 },
+    },
+    true,
+    []
+  );
 
   for (const item of list) {
     const notification = notifications.find(n => n.contentTypeId === item._id);

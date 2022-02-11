@@ -5,9 +5,9 @@ import {
   generateXlsx,
   getCustomFieldsData
 } from '@erxes/api-utils/src/exporter';
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import * as moment from 'moment';
-import { Segments, Users } from './apiCollections';
+import { Fields, Segments, Users } from './apiCollections';
 import { BOARD_BASIC_INFOS, MODULE_NAMES } from './constants';
 import { fetchSegment } from './messageBroker';
 import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';
@@ -236,7 +236,12 @@ export const buildFile = async (
     // Iterating through basic info columns
     for (const column of headers) {
       if (column.name.startsWith('customFieldsData')) {
-        const { field, value } = await getCustomFieldsData(item, column, type);
+        const { field, value } = await getCustomFieldsData(
+          Fields,
+          item,
+          column,
+          type
+        );
 
         if (field && value) {
           addCell(

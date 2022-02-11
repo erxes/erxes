@@ -1,37 +1,259 @@
 import * as AWS from 'aws-sdk';
-import utils from 'erxes-api-utils';
-import { IEmailParams as IEmailParamsC } from 'erxes-api-utils/lib/emails';
-import { ISendNotification as ISendNotificationC } from 'erxes-api-utils/lib/requests';
+import utils from '@erxes/api-utils/src';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import * as models from '../db/models';
-import { IUser, IUserDocument } from '../db/models/definitions/users';
+import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import { sendToWebhook as sendToWebhookC } from 'erxes-api-utils';
 import csvParser = require('csv-parser');
 import * as readline from 'readline';
 import * as _ from 'underscore';
+import { Configs, EmailDeliveries, OnboardingHistories, Users } from '../db/models';
+import * as Handlebars from 'handlebars';
+import * as nodemailer from 'nodemailer';
+import { EMAIL_DELIVERY_STATUS } from '../db/models/definitions/constants';
+export interface IEmailParams {
+  toEmails?: string[];
+  fromEmail?: string;
+  title?: string;
+  customHtml?: string;
+  customHtmlData?: any;
+  template?: { name?: string; data?: any };
+  attachments?: object[];
+  modifier?: (data: any, email: string) => void;
+}
 
-export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
+/**
+ * Read contents of a file
+ */
+export const readFile = (filename: string) => {
+  let folder = 'dist';
 
-export const initFirebase = (code: string): void => {
-  if (code.length === 0) {
+  if (process.env.NODE_ENV !== 'production') {
+    folder = 'src';
+  }
+
+  if (fs.existsSync('./build/api')) {
+    folder = 'build/api';
+  }
+
+  const filePath = `./${folder}/private/emailTemplates/${filename}.html`;
+
+  return fs.readFileSync(filePath, 'utf8');
+};
+
+/**
+ * Apply template
+ */
+const applyTemplate = async (data: any, templateName: string) => {
+  let template: any = await readFile(templateName);
+
+  template = Handlebars.compile(template.toString());
+
+  return template(data);
+};
+
+export const sendEmail = async (
+  params: IEmailParams
+) => {
+  const {
+    toEmails = [],
+    fromEmail,
+    title,
+    customHtml,
+    customHtmlData,
+    template = {},
+    modifier,
+    attachments,
+  } = params;
+
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const DEFAULT_EMAIL_SERVICE = await getConfig(
+    'DEFAULT_EMAIL_SERVICE',
+    'SES'
+  );
+  const defaultTemplate = await getConfig(
+    'COMPANY_EMAIL_TEMPLATE'
+  );
+  const defaultTemplateType = await getConfig(
+    'COMPANY_EMAIL_TEMPLATE_TYPE'
+  );
+  const COMPANY_EMAIL_FROM = await getConfig(
+    'COMPANY_EMAIL_FROM',
+    ''
+  );
+  const AWS_SES_CONFIG_SET = await getConfig(
+    'AWS_SES_CONFIG_SET',
+    ''
+  );
+  const AWS_SES_ACCESS_KEY_ID = await getConfig(
+    'AWS_SES_ACCESS_KEY_ID',
+    ''
+  );
+  const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
+    'AWS_SES_SECRET_ACCESS_KEY',
+    ''
+  );
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+
+  // do not send email it is running in test mode
+  if (NODE_ENV === 'test') {
     return;
   }
 
-  const codeString = code.trim();
+  // try to create transporter or throw configuration error
+  let transporter;
+
+  try {
+    transporter = await createTransporter({
+      ses: DEFAULT_EMAIL_SERVICE === 'SES',
+    });
+  } catch (e) {
+    return debugError(e.message);
+  }
+
+  const { data = {}, name } = template;
+
+  // for unsubscribe url
+  data.domain = MAIN_APP_DOMAIN;
+
+  for (const toEmail of toEmails) {
+    if (modifier) {
+      modifier(data, toEmail);
+    }
+
+    // generate email content by given template
+    let html;
+
+    if (name) {
+      html = await applyTemplate(data, name);
+    } else if (
+      !defaultTemplate ||
+      !defaultTemplateType ||
+      (defaultTemplateType && defaultTemplateType.toString() === 'simple')
+    ) {
+      html = await applyTemplate(data, 'base');
+    } else if (defaultTemplate) {
+      html = Handlebars.compile(defaultTemplate.toString())(data || {});
+    }
+
+    if (customHtml) {
+      html = Handlebars.compile(customHtml)(customHtmlData || {});
+    }
+
+    const mailOptions: any = {
+      from: fromEmail || COMPANY_EMAIL_FROM,
+      to: toEmail,
+      subject: title,
+      html,
+      attachments,
+    };
+
+    if (!mailOptions.from) {
+      throw new Error(`"From" email address is missing: ${mailOptions.from}`);
+    }
+
+    let headers: { [key: string]: string } = {};
+
+    if (
+      AWS_SES_ACCESS_KEY_ID.length > 0 &&
+      AWS_SES_SECRET_ACCESS_KEY.length > 0
+    ) {
+      const emailDelivery = await EmailDeliveries.create({
+        kind: 'transaction',
+        to: toEmail,
+        from: mailOptions.from,
+        subject: title,
+        body: html,
+        status: EMAIL_DELIVERY_STATUS.PENDING,
+      });
+
+      headers = {
+        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
+        EmailDeliveryId: emailDelivery._id,
+      };
+    } else {
+      headers['X-SES-CONFIGURATION-SET'] = 'erxes';
+    }
+
+    mailOptions.headers = headers;
+
+    return transporter.sendMail(mailOptions, (error, info) => {
+      debugError(error);
+      debugError(info);
+    });
+  }
+};
+
+/**
+ * Create default or ses transporter
+ */
+export const createTransporter = async ({ ses }) => {
+  if (ses) {
+    const AWS_SES_ACCESS_KEY_ID = await getConfig(
+      'AWS_SES_ACCESS_KEY_ID'
+    );
+    const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
+      'AWS_SES_SECRET_ACCESS_KEY'
+    );
+    const AWS_REGION = await getConfig('AWS_REGION');
+
+    AWS.config.update({
+      region: AWS_REGION,
+      accessKeyId: AWS_SES_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+    });
+
+    return nodemailer.createTransport({
+      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+    });
+  }
+
+  const MAIL_SERVICE = await getConfig('MAIL_SERVICE');
+  const MAIL_PORT = await getConfig('MAIL_PORT');
+  const MAIL_USER = await getConfig('MAIL_USER');
+  const MAIL_PASS = await getConfig('MAIL_PASS');
+  const MAIL_HOST = await getConfig('MAIL_HOST');
+
+  let auth;
+
+  if (MAIL_USER && MAIL_PASS) {
+    auth = {
+      user: MAIL_USER,
+      pass: MAIL_PASS,
+    };
+  }
+
+  return nodemailer.createTransport({
+    service: MAIL_SERVICE,
+    host: MAIL_HOST,
+    port: MAIL_PORT,
+    auth,
+  });
+};
+
+export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
+
+export const initFirebase = async (): Promise<void> => {
+  const config = await Configs.findOne({
+    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const codeString = config.value || 'value';
 
   if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      admin.initializeApp({
+      await admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
       });
     }
@@ -635,53 +857,6 @@ export const deleteFile = async (fileName: string): Promise<any> => {
 };
 
 /**
- * Read contents of a file
- */
-export const readFile = utils.readFile;
-
-/**
- * Create default or ses transporter
- */
-export const createTransporter = async ({ ses }) => {
-  return utils.createTransporter(models, memoryStorage, { ses });
-};
-
-export type IEmailParams = IEmailParamsC;
-
-/**
- * Send email
- */
-export const sendEmail = async (params: IEmailParams) => {
-  return utils.sendEmail(models, memoryStorage, params);
-};
-
-/**
- * Returns user's name or email
- */
-export const getUserDetail = (user: IUser) => {
-  return utils.getUserDetail(user);
-};
-
-export type ISendNotification = ISendNotificationC;
-/**
- * Send a notification
- */
-export const sendNotification = async (doc: ISendNotification) => {
-  await models.Users.updateMany(
-    { _id: { $in: doc.receivers } },
-    { $set: { isShowNotification: false } }
-  );
-
-  for (const userId of doc.receivers) {
-    graphqlPubsub.publish('userChanged', {
-      userChanged: { userId }
-    });
-  }
-
-  return utils.sendNotification(models, memoryStorage, graphqlPubsub, doc);
-};
-
-/**
  * Creates blank workbook
  */
 export const createXlsFile = async () => {
@@ -698,11 +873,6 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
   return workbook.outputAsync();
 };
 
-/**
- * Sends post request to specific url
- */
-export const sendRequest = utils.sendRequest;
-
 export const registerOnboardHistory = ({
   type,
   user
@@ -710,7 +880,7 @@ export const registerOnboardHistory = ({
   type: string;
   user: IUserDocument;
 }) =>
-  models.OnboardingHistories.getOrCreate({ type, user })
+  OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
       if (status === 'created') {
         graphqlPubsub.publish('onboardingChanged', {
@@ -733,86 +903,6 @@ export const authCookieOptions = (secure: boolean) => {
   return cookieOptions;
 };
 
-export const getEnv = utils.getEnv;
-
-/**
- * Send notification to mobile device from inbox conversations
- * @param {string} - title
- * @param {string} - body
- * @param {string} - customerId
- * @param {array} - receivers
- */
-export const sendMobileNotification = async ({
-  receivers,
-  title,
-  body,
-  customerId,
-  conversationId
-}: {
-  receivers: string[];
-  customerId?: string;
-  title: string;
-  body: string;
-  conversationId: string;
-}): Promise<void> => {
-  await utils.sendMobileNotification(models, {
-    receivers,
-    title,
-    body,
-    customerId,
-    conversationId
-  });
-};
-
-export const paginate = utils.paginate;
-
-/*
- * Converts given value to date or if value in valid date
- * then returns default value
- */
-export const fixDate = utils.fixDate;
-
-export const getDate = utils.getDate;
-
-export const getToday = utils.getToday;
-
-export const getNextMonth = utils.getNextMonth;
-
-/**
- * Send to webhook
- */
-
-export const sendToWebhook = async (
-  action: string,
-  type: string,
-  params: any
-) => {
-  await sendToWebhookC(models, { action, type, params });
-};
-
-export default {
-  sendEmail,
-  sendNotification,
-  sendMobileNotification,
-  readFile,
-  createTransporter,
-  sendToWebhook,
-  getImportCsvInfo,
-  getCsvHeadersInfo
-};
-
-export const cleanHtml = (content?: string) =>
-  strip(content || '').substring(0, 100);
-
-export const validSearchText = utils.validSearchText;
-
-export const regexSearchText = utils.regexSearchText;
-
-/**
- * Check user ids whether its added or removed from array of ids
- */
-export const checkUserIds = utils.checkUserIds;
-
 /*
  * Handle engage unsubscribe request
  */
@@ -831,7 +921,7 @@ export const handleUnsubscription = async (query: {
   // }
 
   if (uid) {
-    await models.Users.updateOne(
+    await Users.updateOne(
       { _id: uid },
       { $set: { isSubscribed: 'No' } }
     );
@@ -839,18 +929,59 @@ export const handleUnsubscription = async (query: {
 };
 
 export const getConfigs = async () => {
-  return utils.getConfigs(models, memoryStorage);
+  const configsCache = await memoryStorage().get('configs_erxes_api');
+
+  if (configsCache && configsCache !== '{}') {
+    return JSON.parse(configsCache);
+  }
+
+  const configsMap = {};
+  const configs = await Configs.find({});
+
+  for (const config of configs) {
+    configsMap[config.code] = config.value;
+  }
+
+  memoryStorage().set('configs_erxes_api', JSON.stringify(configsMap));
+
+  return configsMap;
 };
 
 export const getConfig = async (code, defaultValue?) => {
-  return utils.getConfig(models, memoryStorage, code, defaultValue);
+  const configs = await getConfigs();
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
 };
 
 export const resetConfigsCache = () => {
-  utils.resetConfigsCache(memoryStorage);
+  memoryStorage().set('configs_erxes_api', '');
 };
 
-export const frontendEnv = utils.frontendEnv;
+export const frontendEnv = ({
+  name,
+  req,
+  requestInfo
+}: {
+  name: string;
+  req?: any;
+  requestInfo?: any;
+}): string => {
+  const cookies = req ? req.cookies : requestInfo.cookies;
+  const keys = Object.keys(cookies);
+
+  const envs: { [key: string]: string } = {};
+
+  for (const key of keys) {
+    envs[key.replace('REACT_APP_', '')] = cookies[key];
+  }
+
+  return envs[name];
+};
+
 
 export const getSubServiceDomain = ({ name }: { name: string }): string => {
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
@@ -873,8 +1004,6 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
 
   return defaultMappings[name];
 };
-
-export const chunkArray = utils.chunkArray;
 
 /**
  * Create s3 stream for excel file
@@ -904,13 +1033,6 @@ export const getCoreDomain = () => {
     : 'http://localhost:3500';
 };
 
-/**
- * Escaping, special characters
- */
-export const escapeRegExp = (str: string) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
-
 export const routeErrorHandling = (fn, callback?: any) => {
   return async (req, res, next) => {
     try {
@@ -931,24 +1053,6 @@ export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
   return ELK_SYNCER === 'false' ? false : true;
-};
-
-/**
- * Splits text into chunks of strings limited by given character count
- * .{1,100}(\s|$)
- * . - matches any character (except for line terminators)
- * {1,100} - matches the previous token between 1 and 100 times, as many times as possible, giving back as needed (greedy)
- * (\s|$) - capturing group
- * \s - matches any whitespace character
- * $ - asserts position at the end of the string
- *
- * @param str text to be split
- * @param size character length of each chunk
- */
-export const splitStr = (str: string, size: number): string[] => {
-  const cleanStr = strip(str);
-
-  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };
 
 export const checkPremiumService = async type => {
@@ -995,4 +1099,87 @@ export const configReplacer = config => {
     .replace(/\{year}/g, now.getFullYear().toString())
     .replace(/\{month}/g, (now.getMonth() + 1).toString())
     .replace(/\{day}/g, now.getDate().toString());
+};
+
+/**
+ * Send notification to mobile device from inbox conversations
+ * @param {string} - title
+ * @param {string} - body
+ * @param {string} - customerId
+ * @param {array} - receivers
+ */
+export const sendMobileNotification = async (
+  {
+    receivers,
+    title,
+    body,
+    data
+  }: {
+    receivers: string[];
+    title: string;
+    body: string;
+    data?: any;
+  }
+): Promise<void> => {
+  if (!admin.apps.length) {
+    await initFirebase();
+  }
+
+  const transporter = admin.messaging();
+  const tokens: string[] = [];
+
+  if (receivers) {
+    tokens.push(
+      ...(await Users.find({ _id: { $in: receivers } }).distinct(
+        'deviceTokens'
+      ))
+    );
+  }
+
+//   if (customerId) {
+//     tokens.push(
+//       ...(await Customers.findOne({ _id: customerId }).distinct(
+//         'deviceTokens'
+//       ))
+//     );
+//   }
+
+  if (tokens.length > 0) {
+    // send notification
+    for (const token of tokens) {
+      try {
+        await transporter.send({
+          token,
+          notification: { title, body },
+          data: data || {}
+        });
+      } catch (e) {
+        throw new Error(e);
+      }
+    }
+  }
+};
+
+export const getEnv = utils.getEnv;
+export const paginate = utils.paginate;
+export const fixDate = utils.fixDate;
+export const getDate = utils.getDate;
+export const getToday = utils.getToday;
+export const getNextMonth = utils.getNextMonth;
+export const cleanHtml = utils.cleanHtml;
+export const validSearchText = utils.validSearchText;
+export const regexSearchText = utils.regexSearchText;
+export const checkUserIds = utils.checkUserIds;
+export const chunkArray = utils.chunkArray;
+export const splitStr = utils.splitStr;
+export const escapeRegExp = utils.escapeRegExp;
+export const getUserDetail = utils.getUserDetail;
+export const sendRequest = utils.sendRequest;
+
+export default {
+  sendEmail,
+  readFile,
+  createTransporter,
+  getImportCsvInfo,
+  getCsvHeadersInfo
 };

@@ -3,7 +3,7 @@ import { Model, model } from 'mongoose';
 // import { sendToWebhook } from '../../data/utils';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
-import { Fields, InternalNotes } from '../apiCollections';
+import { InternalNotes } from '../apiCollections';
 // import { EngageMessages } from '@erxes/plugin-engages-api/src/models';
 // import { Conversations } from '@erxes/plugin-inbox-api/src/models';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
@@ -20,7 +20,8 @@ import {
   prepareCustomFieldsData,
   removeCustomersConversations,
   removeCustomersEngages,
-  sendConformityMessage
+  sendConformityMessage,
+  sendFieldRPCMessage
 } from '../messageBroker';
 
 interface IGetCustomerParams {
@@ -729,7 +730,7 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await Fields.generateCustomFieldsData(customData, 'customer');
+      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
 
       return this.createCustomer({
         ...doc,
@@ -756,7 +757,7 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await Fields.generateCustomFieldsData(customData, 'customer');
+      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
 
       const modifier = {
         ...doc,

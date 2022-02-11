@@ -13,7 +13,6 @@ import {
 import robot from './robot';
 import segments from './segments';
 import users from './users';
-import smsDeliveries from './smsDeliveries';
 import structures from './structures';
 
 export default {
@@ -28,6 +27,5 @@ export default {
   ...permissions,
   ...usersGroups,
   ...robot,
-  ...smsDeliveries,
   ...structures
 };

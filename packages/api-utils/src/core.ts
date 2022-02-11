@@ -1,8 +1,7 @@
 import * as strip from 'strip';
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
-
-import { IUserDocument } from '@erxes/common-types/src/users';
+import { IUserDocument } from './types';
 
 export const getEnv = ({
   name,
@@ -18,60 +17,6 @@ export const getEnv = ({
   }
 
   return value || '';
-};
-
-export const getConfigs = async (models, memoryStorage) => {
-  const configsCache = await memoryStorage().get('configs_erxes_api');
-
-  if (configsCache && configsCache !== '{}') {
-    return JSON.parse(configsCache);
-  }
-
-  const configsMap = {};
-  const configs = await models.Configs.find({});
-
-  for (const config of configs) {
-    configsMap[config.code] = config.value;
-  }
-
-  memoryStorage().set('configs_erxes_api', JSON.stringify(configsMap));
-
-  return configsMap;
-};
-
-export const getConfig = async (models, memoryStorage, code, defaultValue?) => {
-  const configs = await getConfigs(models, memoryStorage);
-
-  if (!configs[code]) {
-    return defaultValue;
-  }
-
-  return configs[code];
-};
-
-export const resetConfigsCache = memoryStorage => {
-  memoryStorage().set('configs_erxes_api', '');
-};
-
-export const frontendEnv = ({
-  name,
-  req,
-  requestInfo
-}: {
-  name: string;
-  req?: any;
-  requestInfo?: any;
-}): string => {
-  const cookies = req ? req.cookies : requestInfo.cookies;
-  const keys = Object.keys(cookies);
-
-  const envs: { [key: string]: string } = {};
-
-  for (const key of keys) {
-    envs[key.replace('REACT_APP_', '')] = cookies[key];
-  }
-
-  return envs[name];
 };
 
 /**

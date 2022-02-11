@@ -1,7 +1,6 @@
 import moment = require('moment');
 import * as xlsxPopulate from 'xlsx-populate';
 import { IColumnLabel } from '.';
-import { Fields } from './apiCollections';
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -17,7 +16,7 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
   return workbook.outputAsync();
 };
 
-export const getCustomFieldsData = async (item, column, type) => {
+export const getCustomFieldsData = async (Fields, item, column, type) => {
   let field;
   let value;
 

@@ -1,7 +1,7 @@
 import {
   sendConformityMessage,
   sendContactRPCMessage,
-  sendNotificationRPCMessage
+  sendNotificationMessage,
 } from '../../../messageBroker';
 import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { ITicketDocument } from '../../../models/definitions/tickets';
@@ -65,10 +65,10 @@ export default {
   },
 
   hasNotified(ticket: ITicketDocument, _args, { user }: IContext) {
-    return sendNotificationRPCMessage('checkIfRead', {
+    return sendNotificationMessage('checkIfRead', {
       userId: user._id,
       itemId: ticket._id
-    });
+    }, true, true);
   },
 
   labels(ticket: ITicketDocument) {

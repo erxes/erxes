@@ -3,6 +3,7 @@ import resolvers from './graphql/resolvers';
 import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
+import { initBroker } from './messageBroker';
 
 export let graphqlPubsub;
 
@@ -16,7 +17,7 @@ export let es: {
 export let debug;
 
 export default {
-  name: 'notification',
+  name: 'notifications',
   graphql: () => ({
     typeDefs,
     resolvers,
@@ -26,6 +27,8 @@ export default {
   apolloServerContext: (context) => {},
   onServerInit: async (options) => {
     await apiConnect();
+
+    initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

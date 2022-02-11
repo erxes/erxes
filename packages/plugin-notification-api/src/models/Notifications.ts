@@ -1,3 +1,4 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model, model } from 'mongoose';
 import {
   configSchema,
@@ -6,7 +7,6 @@ import {
   INotificationDocument,
   notificationSchema,
 } from './definitions/notifications';
-import { IUserDocument } from '@erxes/common-types';
 
 export interface INotificationModel extends Model<INotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;

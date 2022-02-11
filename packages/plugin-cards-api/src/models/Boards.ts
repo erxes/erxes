@@ -19,12 +19,12 @@ import {
 import { BOARD_STATUSES } from './definitions/constants';
 import { getDuplicatedStages } from './PipelineTemplates';
 import {
-  sendChecklistMessage,
   sendConformityMessage,
   sendInternalNoteMessage
 } from '../messageBroker';
 import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
+import { Checklists } from '.';
 
 export interface IOrderInput {
   _id: string;
@@ -65,7 +65,7 @@ const removeItems = async (type: string, stageIds: string[]) => {
     data: { type, itemIds }
   });
 
-  sendChecklistMessage('removeChecklists', { type, itemIds });
+  await Checklists.removeChecklists(type, itemIds);
 
   sendConformityMessage('removeConformities', {
     mainType: type,

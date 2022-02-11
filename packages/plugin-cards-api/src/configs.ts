@@ -1,6 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
+import apiConnect, { Segments } from './apiCollections';
 
 import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
@@ -8,7 +8,6 @@ import { initMemoryStorage } from './inmemoryStorage';
 import { IMPORT_TYPES } from './constants';
 import permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { Segments } from '@erxes/api-utils/src/apiCollections';
 import { buildFile } from './exporter';
 
 export let graphqlPubsub;

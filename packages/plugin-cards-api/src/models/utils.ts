@@ -1,5 +1,6 @@
 import {
   Boards,
+  Checklists,
   Deals,
   GrowthHacks,
   Pipelines,
@@ -12,7 +13,7 @@ import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 
 import { InternalNotes } from '../apiCollections';
-import { sendChecklistMessage, sendConformityMessage } from '../messageBroker';
+import { sendConformityMessage } from '../messageBroker';
 import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
 
@@ -279,10 +280,7 @@ export const destroyBoardItemRelations = async (
     data: { contentTypeId }
   });
 
-  sendChecklistMessage('removeChecklists', {
-    type: contentType,
-    itemIds: [contentTypeId]
-  });
+  await Checklists.removeChecklists(contentType, [contentTypeId]);
 
   sendConformityMessage('removeConformity', {
     mainType: contentType,
