@@ -39,6 +39,7 @@ export const chatMessageSchema = {
   _id: { pkey: true },
   attachments: { type: [attachmentSchema], label: 'attachments' },
   chatId: { type: String, label: 'Connected chat' },
+  relatedId: { type: String, label: 'Related message' },
   isPinned: { type: Boolean, default: false, label: 'Has pinned' },
   content: { type: String, label: 'Content' },
   createdAt: { type: Date, label: 'Created at' },

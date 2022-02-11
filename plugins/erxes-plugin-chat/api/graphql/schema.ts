@@ -3,6 +3,7 @@ export const types = `
     _id: String!
     content: String
     isPinned: Boolean
+    relatedMessage: ChatMessage
     attachments: JSON
     createdUser: User
     createdAt: Date
@@ -94,7 +95,7 @@ export const mutations = `
   chatRemove(_id: String!): JSON
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   
-  chatMessageAdd(chatId: String!,attachments: [JSON], content: String): ChatMessage
+  chatMessageAdd(chatId: String!, relatedId: String, attachments: [JSON], content: String): ChatMessage
   chatMessageRemove(_id: String!): JSON
   chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
   chatMessageToggleIsPinned(_id: String!): Boolean
