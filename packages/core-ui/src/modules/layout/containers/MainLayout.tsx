@@ -14,7 +14,6 @@ const container = (props: Props) => {
   <AppProvider currentUser={props.currentUser} plugins={props.plugins}>
     <AppConsumer>
       {({ isShownIndicator, closeLoadingBar }) => {
-        console.log('in mainlayout===================')
         return (
         <MainLayout
           {...props}

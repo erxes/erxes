@@ -1,4 +1,4 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
+import { AppConsumer } from 'main/appContext';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
 import * as compose from 'lodash.flowright';
@@ -11,8 +11,11 @@ import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
-import { UsersQueryResponse } from '@erxes/ui-settings/src/general/types';
-import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import {
+  AddMessageMutationVariables,
+  IConversation
+} from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   conversation: IConversation;

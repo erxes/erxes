@@ -30,9 +30,9 @@ const depNames = [
   "react-transition-group",
   "styled-components",
   "styled-components-ts",
-  "validator",
 ];
 
+const deps = require("./package.json").dependencies;
 const shared = {};
 
 for (const name of depNames) {
@@ -45,7 +45,7 @@ module.exports = {
   },
 
   output: {
-    publicPath: "/",
+    publicPath: `/`,
   },
 
   devServer: {
@@ -82,7 +82,7 @@ module.exports = {
           path.resolve(__dirname, "../ui-cards/src"),
           path.resolve(__dirname, "../ui-knowledgeBase/src"),
           path.resolve(__dirname, "../ui-notifications/src"),
-          path.resolve(__dirname, '../ui-calendar/src')
+          path.resolve(__dirname, "../ui-calendar/src"),
         ],
         use: {
           loader: "babel-loader",
@@ -128,8 +128,12 @@ module.exports = {
     new ModuleFederationPlugin({
       name: "main",
       filename: "remoteEntry.js",
+      remotes: {
+        main: "main@http://localhost:3000/remoteEntry.js",
+      },
       exposes: {
         QuickNavigation: "./src/modules/layout/components/QuickNavigation.tsx",
+        "./appContext": "./src/appContext",
       },
       shared: {
         ...shared,
@@ -138,11 +142,11 @@ module.exports = {
           singleton: true,
         },
         dayjs: {
-          requiredVersion: "1.8.15",
+          requiredVersion: deps["dayjs"],
           singleton: true,
         },
         react: {
-          requiredVersion: "16.14.0",
+          requiredVersion: deps["react"],
           singleton: true,
           eager: true,
         },

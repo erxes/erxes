@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import { Alert, getCookie, setCookie, withProps } from 'modules/common/utils';
-import { queries as generalQueries } from 'modules/settings/general/graphql';
+import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import QuickNavigation from '../components/QuickNavigation';

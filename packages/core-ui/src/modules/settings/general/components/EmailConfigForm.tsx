@@ -8,7 +8,7 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import styled from 'styled-components';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-settings/src/general/graphql';
 
 type Props = {
   emailConfig: any;

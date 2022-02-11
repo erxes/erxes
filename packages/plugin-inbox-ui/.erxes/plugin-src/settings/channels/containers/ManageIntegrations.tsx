@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import ManageIntegrations from '@erxes/ui-inbox/src/settings/integrations/containers/common/ManageIntegrations';
 import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
-import { queries as integQueries } from '../../integrations/graphql';
+import { queries as integQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';

@@ -4,7 +4,7 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
-} from '@erxes/ui-settings/src/emailTemplates/containers/List';
+} from '@erxes/ui-settings/src/emailTemplates/types';
 import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
 import {
   AddIntegrationMutationResponse,

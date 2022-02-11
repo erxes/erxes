@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { commonListComposer } from '../../utils';
+import { commonListComposer } from '@erxes/ui/src/utils';
 import GroupList from '../components/GroupList';
 import { mutations, queries } from '../graphql';
 import {

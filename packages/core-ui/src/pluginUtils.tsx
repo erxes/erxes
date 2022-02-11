@@ -133,7 +133,7 @@ const loadComponent = (scope, module) => {
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
     const Module = factory();
-    console.log('loadComponent=================', Module);
+
     return Module;
   };
 };
@@ -166,10 +166,10 @@ export const pluginRouters = () => {
 
   for (const plugin of plugins) {
     if (plugin.routes) {
-      pluginRoutes.push(<System loadScript={true} system={plugin.routes} />);
+      pluginRoutes.push(<System key={Math.random()} loadScript={true} system={plugin.routes} />);
     }
   }
-  console.log('plugin routers ==============================');
+
   return pluginRoutes;
 };
 

@@ -1,4 +1,4 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
+import { AppConsumer } from 'main/appContext';
 import gql from 'graphql-tag';
 import { can, router as routerUtils } from '@erxes/ui/src/utils';
 import React from 'react';
@@ -73,11 +73,9 @@ class WithCurrentId extends React.Component<IProps> {
   render() {
     return (
       <AppConsumer>
-        {(context) => {
-          console.log('inbox consumer all props:', context)
+        {({ currentUser }) => {
           const { queryParams } = this.props;
           const { _id } = queryParams;
-          const currentUser = {} as any;
 
           if (!currentUser) {
             return null;

@@ -32,6 +32,12 @@ const CreateGmail = asyncComponent(() =>
   )
 );
 
+const IntegrationConfigs = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Integration configs" */ '../integrationsConfig/containers/IntegrationConfigs'
+  )
+);
+
 const createMessenger = ({ location }) => {
   return <CreateMessenger queryParams={queryString.parse(location.search)} />;
 };
@@ -75,51 +81,57 @@ const auth = ({ location }) => (
 const routes = () => (
   <React.Fragment>
     <Route
-      key='/settings/integrations/createMessenger'
+      key="/settings/integrations/createMessenger"
       exact={true}
-      path='/settings/integrations/createMessenger'
+      path="/settings/integrations/createMessenger"
       component={createMessenger}
     />
 
     <Route
-      key='/settings/integrations/editMessenger/:_id'
+      key="/settings/integrations/editMessenger/:_id"
       exact={true}
-      path='/settings/integrations/editMessenger/:_id'
+      path="/settings/integrations/editMessenger/:_id"
       component={editMessenger}
     />
 
     <Route
-      key='/settings/integrations/createFacebook'
+      key="/settings/integrations/createFacebook"
       exact={true}
-      path='/settings/integrations/createFacebook'
+      path="/settings/integrations/createFacebook"
       component={createFacebook}
     />
 
     <Route
-      key='/settings/integrations/createGmail'
+      key="/settings/integrations/createGmail"
       exact={true}
-      path='/settings/integrations/createGmail'
+      path="/settings/integrations/createGmail"
       component={createGmail}
     />
 
     <Route
-      key='/service/oauth/twitter_callback'
-      path='/service/oauth/twitter_callback'
+      key="/service/oauth/twitter_callback"
+      path="/service/oauth/twitter_callback"
       component={twitterCallback}
     />
 
     <Route
-      key='/settings/authorization'
+      key="/settings/authorization"
       exact={true}
-      path='/settings/authorization'
+      path="/settings/authorization"
       component={auth}
     />
 
     <Route
-      key='/settings/integrations'
+      key="/settings/integrations"
       exact={true}
-      path='/settings/integrations'
+      path="/settings/integrations"
       component={store}
+    />
+    <Route
+      key="/settings/integration-configs/"
+      exact={true}
+      path="/settings/integration-configs/"
+      component={IntegrationConfigs}
     />
   </React.Fragment>
 );

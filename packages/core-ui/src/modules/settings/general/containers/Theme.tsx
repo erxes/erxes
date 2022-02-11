@@ -5,8 +5,11 @@ import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ThemeSettings from '../components/ThemeSettings';
-import { mutations, queries } from '../graphql';
-import { ConfigsQueryResponse, IConfigsMap } from '../types';
+import { mutations, queries } from '@erxes/ui-settings/src/general/graphql';
+import {
+  ConfigsQueryResponse,
+  IConfigsMap
+} from '@erxes/ui-settings/src/general/types';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
