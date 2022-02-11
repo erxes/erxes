@@ -23,8 +23,8 @@ const chats = `
 `;
 
 const chatMessages = `
-  query chatMessages($chatId: String, $userIds: [String], $limit: Int, $skip: Int) {
-    chatMessages(chatId: $chatId, userIds: $userIds, limit: $limit, skip: $skip) {
+  query chatMessages($chatId: String, $limit: Int, $skip: Int) {
+    chatMessages(chatId: $chatId, limit: $limit, skip: $skip) {
       list {
         _id
         content

@@ -19,6 +19,7 @@ export interface IChat {
 export interface IChatMessage {
   chatId: string;
   content: string;
+  isPinned: boolean;
   attachments: IAttachment[];
 }
 
@@ -38,6 +39,7 @@ export const chatMessageSchema = {
   _id: { pkey: true },
   attachments: { type: [attachmentSchema], label: 'attachments' },
   chatId: { type: String, label: 'Connected chat' },
+  isPinned: { type: Boolean, default: false, label: 'Has pinned' },
   content: { type: String, label: 'Content' },
   createdAt: { type: Date, label: 'Created at' },
   createdBy: { type: String, label: 'Created by' }
@@ -49,6 +51,7 @@ export const chatSchema = {
   description: { type: String },
   visibility: { type: String, enum: VISIBILITIES.ALL },
   type: { type: String, enum: CHAT_TYPE.ALL },
+  isPinned: { type: Boolean, default: false, label: 'Has pinned' },
   participantIds: { type: [String], label: 'User ids' },
   adminIds: { type: [String], label: 'Admin user ids' },
   createdAt: { type: Date, label: 'Created at' },

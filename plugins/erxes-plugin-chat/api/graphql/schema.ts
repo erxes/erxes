@@ -2,6 +2,7 @@ export const types = `
   type ChatMessage {
     _id: String!
     content: String
+    isPinned: Boolean
     attachments: JSON
     createdUser: User
     createdAt: Date
@@ -82,7 +83,7 @@ export const queries = `
   chats(type: ChatType!, ${paginationParams}): ChatResponse
   chatDetail(_id: String!): Chat
   
-  chatMessages(chatId: String, userIds: [String], ${paginationParams}): ChatMessageResponse
+  chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse
 
   getChatIdByUserIds(userIds: [String]): String
 `;
@@ -96,6 +97,7 @@ export const mutations = `
   chatMessageAdd(chatId: String!,attachments: [JSON], content: String): ChatMessage
   chatMessageRemove(_id: String!): JSON
   chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
+  chatMessageToggleIsPinned(_id: String!): Boolean
 `;
 
 export const subscriptions = `

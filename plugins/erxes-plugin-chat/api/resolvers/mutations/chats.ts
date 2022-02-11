@@ -1,3 +1,4 @@
+import { IChatMessage } from '../../definitions';
 import { graphqlPubsub } from '../subscriptions/pubsub';
 
 const checkChatAdmin = async (Chats, userId) => {
@@ -98,6 +99,21 @@ const chatMutations = [
       await checkPermission('manageChats', user);
 
       return models.ChatMessages.removeChatMessage(models, _id);
+    }
+  },
+  {
+    name: 'chatMessageToggleIsPinned',
+    handler: async (_root, { _id }, { models, checkPermission, user }) => {
+      await checkPermission('manageChats', user);
+
+      const message: IChatMessage = await models.ChatMessages.findOne({ _id });
+
+      await models.ChatMessages.updateOne(
+        { _id },
+        { $set: { isPinned: !message.isPinned } }
+      );
+
+      return !message.isPinned;
     }
   },
   {
