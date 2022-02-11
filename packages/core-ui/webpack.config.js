@@ -45,7 +45,7 @@ module.exports = {
   },
 
   output: {
-    publicPath: `/`,
+    publicPath: "http://localhost:3000/",
     chunkFilename: "[id].[contenthash].js",
   },
 
