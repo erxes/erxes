@@ -16,6 +16,12 @@ const importHistoryGetTypes = `
   }
 `;
 
+const importHistoryGetExportablePlugins = `
+  query importHistoryGetExportablePlugins {
+    importHistoryGetExportablePlugins
+  }
+`;
+
 const importHistories = `
   query importHistories($type: String, $perPage: Int, $page: Int) {
     importHistories(type: $type, perPage: $perPage, page: $page) {
@@ -44,6 +50,7 @@ const importHistories = `
 `;
 
 export default {
+  importHistoryGetExportablePlugins,
   importHistoryGetTypes,
   importHistories,
   importHistoryGetColumns,

@@ -31,6 +31,7 @@ export const queries = `
   importHistoryPreviewExportCount(segmentId: String, contentType: String!): Int
   importHistoryGetColumns(attachmentName: String): JSON
   importHistoryGetDuplicatedHeaders(attachmentNames: [String]): JSON
+  importHistoryGetExportablePlugins: JSON
 `;
 
 export const mutations = `

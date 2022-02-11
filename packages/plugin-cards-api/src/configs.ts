@@ -7,6 +7,9 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
 import { IMPORT_TYPES } from './constants';
 import permissions from './permissions';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { Segments } from '@erxes/api-utils/src/apiCollections';
+import { buildFile } from './exporter';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -23,13 +26,13 @@ export let debug;
 export default {
   name: 'cards',
   permissions,
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
       resolvers
-    }
+    };
   },
   segment: {
     indexesTypeContentType: {
@@ -50,6 +53,30 @@ export default {
   },
   onServerInit: async options => {
     await apiConnect();
+
+    const app = options.app;
+
+    app.get(
+      '/file-export',
+      routeErrorHandling(async (req: any, res) => {
+        const { query, user } = req;
+        const { segment } = query;
+
+        const result = await buildFile(query, user);
+
+        res.attachment(`${result.name}.xlsx`);
+
+        if (segment) {
+          try {
+            Segments.removeSegment(segment);
+          } catch (e) {
+            console.log((e as Error).message);
+          }
+        }
+
+        return res.send(result.response);
+      })
+    );
 
     initBroker(options.messageBrokerClient);
 

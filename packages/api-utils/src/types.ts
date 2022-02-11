@@ -43,6 +43,10 @@ export interface IContext {
   dataLoaders: any;
 }
 
+export interface IColumnLabel {
+  name: string;
+  label: string;
+}
 export interface IFetchElkArgs {
   action: string;
   index: string;

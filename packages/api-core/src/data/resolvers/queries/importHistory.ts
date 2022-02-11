@@ -9,15 +9,15 @@ const importHistoryQueries = {
   async importHistoryGetTypes() {
     const services = await getServices();
 
-    const servicesimportTypes: any = [];
+    const servicesImportTypes: any = [];
 
     for (const serviceName of services) {
       const service = await getService(serviceName, true);
 
-      servicesimportTypes.push(...service.meta.importTypes);
+      servicesImportTypes.push(...service.meta.importTypes);
     }
 
-    return servicesimportTypes;
+    return servicesImportTypes;
   },
 
   /**
@@ -128,15 +128,15 @@ const importHistoryQueries = {
   async importHistoryGetExportablePlugins() {
     const services = await getServices();
 
-    const servicesimportTypes: any = [];
+    const servicesExportTypes: any = [];
 
     for (const serviceName of services) {
       const service = await getService(serviceName, true);
 
-      servicesimportTypes.push(...service.meta.importTypes);
+      servicesExportTypes.push(...service.meta.exportTypes);
     }
 
-    return servicesimportTypes;
+    return servicesExportTypes;
   }
 };
 

@@ -17,8 +17,6 @@ class TypeForm extends React.Component<Props> {
   renderSelected = selectedType => {
     const { contentTypes } = this.props;
 
-    console.log('xaxaxaxax', selectedType);
-
     contentTypes.find(contentType => {
       return contentType.contentType === selectedType;
     });

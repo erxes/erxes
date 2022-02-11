@@ -1,7 +1,40 @@
 export const IMPORT_TYPES = [
   {
-    text: 'Deals',
+    text: 'Deal',
     contentType: 'deal',
+    icon: 'signal-alt-3',
+    serviceType: 'cards'
+  },
+  {
+    text: 'Task',
+    contentType: 'task',
+    icon: 'signal-alt-3',
+    serviceType: 'cards'
+  },
+  {
+    text: 'Ticket',
+    contentType: 'ticket',
+    icon: 'signal-alt-3',
+    serviceType: 'cards'
+  }
+];
+
+export const EXPORT_TYPES = [
+  {
+    text: 'Deal',
+    contentType: 'deal',
+    icon: 'signal-alt-3',
+    serviceType: 'cards'
+  },
+  {
+    text: 'Task',
+    contentType: 'task',
+    icon: 'signal-alt-3',
+    serviceType: 'cards'
+  },
+  {
+    text: 'Ticket',
+    contentType: 'ticket',
     icon: 'signal-alt-3',
     serviceType: 'cards'
   }
@@ -78,6 +111,25 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     label: 'Assigned user email',
     type: 'string'
   }
+];
+
+export const BOARD_BASIC_INFOS = [
+  'userId',
+  'createdAt',
+  'order',
+  'name',
+  'closeDate',
+  'reminderMinute',
+  'isComplete',
+  'description',
+  'assignedUsers',
+  'watchedUserIds',
+  'labelIds',
+  'stageId',
+  'initialStageId',
+  'modifiedAt',
+  'modifiedBy',
+  'priority'
 ];
 
 export const MODULE_NAMES = {

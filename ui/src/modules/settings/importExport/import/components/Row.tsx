@@ -114,8 +114,6 @@ class Row extends React.Component<Props, {}> {
         return options;
       }
 
-      console.log(chosenField);
-
       options.forEach(option => {
         Object.keys(chosenField).forEach(key => {
           if (chosenField[key].value === option.value) {

@@ -48,6 +48,9 @@ import { IContext } from './types';
 import { ruleSchema } from './definitions/common';
 import { field, schemaWrapper } from './definitions/utils';
 
+import { createXlsFile, generateXlsx } from './exporter';
+import { IColumnLabel } from './types';
+
 export { EMAIL_DELIVERY_STATUS };
 export { getEnv }; // ({ name, defaultValue })
 export { getConfigs }; // (models, memoryStorage)
@@ -86,6 +89,7 @@ export {
   checkPermission,
   requireLogin,
   IContext,
+  IColumnLabel,
   MODULE_NAMES,
   CONTENT_TYPES,
   RABBITMQ_QUEUES,
@@ -123,5 +127,7 @@ export default {
   putDeleteLog,
   updateUserScore,
   getScoringConfig,
-  generateFieldsFromSchema
+  generateFieldsFromSchema,
+  createXlsFile,
+  generateXlsx
 };
