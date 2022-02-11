@@ -10,6 +10,16 @@ const checkChatAdmin = async (Chats, userId) => {
   }
 };
 
+const hasAdminLeft = (chat, userId) => {
+  const found = (chat.adminIds || []).indexOf(userId) !== -1;
+
+  if (found && (chat.adminIds || []).length === 1) {
+    throw new Error('You cannot remove you. There is no admin except you.');
+  }
+
+  return found;
+};
+
 const chatMutations = [
   {
     name: 'chatAdd',
@@ -19,6 +29,7 @@ const chatMutations = [
       { user, checkPermission, models }
     ) => {
       await checkPermission('manageChats', user);
+
       return models.Chats.createChat(
         models,
         {
@@ -100,11 +111,26 @@ const chatMutations = [
 
       await checkChatAdmin(models.Chats, user._id);
 
+      const chat = await models.Chats.getChat(models, _id);
+
+      if ((chat.participantIds || []).length === 1) {
+        await models.Chats.removeChat(models, _id);
+
+        return 'Chat removed';
+      }
+
+      hasAdminLeft(chat, user._id);
+
       await models.Chats.updateOne(
         { _id },
         type === 'add'
           ? { $addToSet: { participantIds: userIds } }
-          : { $pull: { participantIds: { $in: userIds } } }
+          : {
+              $pull: {
+                participantIds: { $in: userIds },
+                adminIds: { $in: userIds }
+              }
+            }
       );
 
       return 'Success';
@@ -130,11 +156,7 @@ const chatMutations = [
         throw new Error('Chat not found');
       }
 
-      const found = (chat.adminIds || []).indexOf(userId) !== -1;
-
-      if (found && (chat.adminIds || []).length === 1) {
-        throw new Error('You cannot remove you. There is no admin except you.');
-      }
+      const found = hasAdminLeft(chat, user._id);
 
       // if found, means remove or not found, means to become admin
       await models.Chats.updateOne(
