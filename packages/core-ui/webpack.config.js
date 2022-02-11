@@ -46,6 +46,7 @@ module.exports = {
 
   output: {
     publicPath: `/`,
+    chunkFilename: "[id].[contenthash].js",
   },
 
   devServer: {
@@ -126,11 +127,8 @@ module.exports = {
       inject: true,
     }),
     new ModuleFederationPlugin({
-      name: "main",
+      name: "coreui",
       filename: "remoteEntry.js",
-      remotes: {
-        main: "main@http://localhost:3000/remoteEntry.js",
-      },
       exposes: {
         "./appContext": "./src/appContext",
       },

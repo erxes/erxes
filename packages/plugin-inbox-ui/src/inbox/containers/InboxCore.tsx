@@ -1,4 +1,4 @@
-import { AppConsumer } from 'main/appContext';
+import { AppConsumer } from 'coreui/appContext';
 import gql from 'graphql-tag';
 import { can, router as routerUtils } from '@erxes/ui/src/utils';
 import React from 'react';

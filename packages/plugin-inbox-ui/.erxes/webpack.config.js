@@ -132,7 +132,7 @@ module.exports = {
       name: configs.name,
       filename: "remoteEntry.js",
       remotes: {
-        main: "main@http://localhost:3000/remoteEntry.js",
+        coreui: "coreui@http://localhost:3000/remoteEntry.js",
       },
       exposes,
       shared: {
