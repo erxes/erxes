@@ -1,11 +1,16 @@
-import { Products } from "./models";
+import { Products } from './models';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
+
+  consumeRPCQueue('products:rpc_queue:getProduct', async (selector) => ({
+    data: await Products.getProduct(selector),
+    status: 'success',
+  }));
 
   consumeRPCQueue('products:rpc_queue:findOne', async (selector) => ({
     data: await Products.findOne(selector),
@@ -17,10 +22,13 @@ export const initBroker = async cl => {
     status: 'success',
   }));
 
-  consumeRPCQueue('products:rpc_queue:update', async ({ selector, modifier }) => ({
-    data: await Products.updateMany(selector, modifier),
-    status: 'success',
-  }));
+  consumeRPCQueue(
+    'products:rpc_queue:update',
+    async ({ selector, modifier }) => ({
+      data: await Products.updateMany(selector, modifier),
+      status: 'success',
+    })
+  );
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
@@ -38,5 +46,8 @@ export const findTags = async (selector): Promise<any> => {
 };
 
 export const findCompanies = async (selector): Promise<any> => {
-  return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
+  return client.sendRPCMessage(
+    'contacts:rpc_queue:findActiveCompanies',
+    selector
+  );
 };

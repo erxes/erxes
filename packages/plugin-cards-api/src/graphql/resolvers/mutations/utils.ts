@@ -6,21 +6,21 @@ import {
   getCompanyIds,
   getCustomerIds,
   getItem,
-  getNewOrder
+  getNewOrder,
 } from '../../../models/utils';
 import {
   IItemCommonFields,
   IItemDragCommonFields,
-  IStageDocument
+  IStageDocument,
 } from '../../../models/definitions/boards';
 import {
   BOARD_STATUSES,
-  NOTIFICATION_TYPES
+  NOTIFICATION_TYPES,
 } from '../../../models/definitions/constants';
 import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
   IGrowthHack,
-  IGrowthHackDocument
+  IGrowthHackDocument,
 } from '../../../models/definitions/growthHacks';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { ITicket, ITicketDocument } from '../../../models/definitions/tickets';
@@ -29,7 +29,7 @@ import {
   putActivityLog,
   putCreateLog,
   putDeleteLog,
-  putUpdateLog
+  putUpdateLog,
 } from '../../../logUtils';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
@@ -38,9 +38,15 @@ import {
   createConformity,
   IBoardNotificationParams,
   prepareBoardItemDoc,
-  sendNotifications
+  sendNotifications,
 } from '../../utils';
-import { sendFieldRPCMessage, sendNotificationMessage } from '../../../messageBroker';
+import {
+  sendConformityMessage,
+  sendFieldRPCMessage,
+  sendNotificationMessage,
+  sendCoreMessage,
+  sendProductMessage,
+} from '../../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
@@ -102,8 +108,8 @@ export const itemsAdd = async (
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
-      aboveItemId: doc.aboveItemId
-    })
+      aboveItemId: doc.aboveItemId,
+    }),
   };
 
   if (extendedDoc.customFieldsData) {
@@ -120,7 +126,7 @@ export const itemsAdd = async (
     mainType: type,
     mainTypeId: item._id,
     companyIds: doc.companyIds,
-    customerIds: doc.customerIds
+    customerIds: doc.customerIds,
   });
 
   if (user) {
@@ -130,14 +136,14 @@ export const itemsAdd = async (
       type: NOTIFICATION_TYPES.DEAL_ADD,
       action: `invited you to the ${type}`,
       content: `'${item.name}'.`,
-      contentType: type
+      contentType: type,
     });
 
     await putCreateLog(
       {
         type,
         newData: extendedDoc,
-        object: item
+        object: item,
       },
       user
     );
@@ -153,9 +159,9 @@ export const itemsAdd = async (
       data: {
         item,
         aboveItemId: doc.aboveItemId,
-        destinationStageId: stage._id
-      }
-    }
+        destinationStageId: stage._id,
+      },
+    },
   });
 
   return item;
@@ -166,7 +172,7 @@ export const changeItemStatus = async ({
   item,
   status,
   proccessId,
-  stage
+  stage,
 }: {
   type: string;
   item: any;
@@ -182,9 +188,9 @@ export const changeItemStatus = async ({
         action: 'itemRemove',
         data: {
           item,
-          oldStageId: item.stageId
-        }
-      }
+          oldStageId: item.stageId,
+        },
+      },
     });
 
     return;
@@ -196,7 +202,7 @@ export const changeItemStatus = async ({
     .find({
       stageId: item.stageId,
       status: { $ne: BOARD_STATUSES.ARCHIVED },
-      order: { $lt: item.order }
+      order: { $lt: item.order },
     })
     .sort({ order: -1 })
     .limit(1);
@@ -206,14 +212,14 @@ export const changeItemStatus = async ({
   // maybe, recovered order includes to oldOrders
   await collection.updateOne(
     {
-      _id: item._id
+      _id: item._id,
     },
     {
       order: await getNewOrder({
         collection,
         stageId: item.stageId,
-        aboveItemId
-      })
+        aboveItemId,
+      }),
     }
   );
 
@@ -225,9 +231,9 @@ export const changeItemStatus = async ({
       data: {
         item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
-        destinationStageId: item.stageId
-      }
-    }
+        destinationStageId: item.stageId,
+      },
+    },
   });
 };
 
@@ -243,7 +249,7 @@ export const itemsEdit = async (
   const extendedDoc = {
     ...doc,
     modifiedAt: new Date(),
-    modifiedBy: user._id
+    modifiedBy: user._id,
   };
 
   if (extendedDoc.customFieldsData) {
@@ -264,7 +270,7 @@ export const itemsEdit = async (
     item: updatedItem,
     user,
     type: NOTIFICATION_TYPES.TASK_EDIT,
-    contentType: type
+    contentType: type,
   };
 
   const stage = await Stages.getStage(updatedItem.stageId);
@@ -278,8 +284,8 @@ export const itemsEdit = async (
         item: updatedItem,
         contentType: type,
         action: activityAction,
-        userId: user._id
-      }
+        userId: user._id,
+      },
     });
 
     // order notification
@@ -288,7 +294,7 @@ export const itemsEdit = async (
       item: updatedItem,
       status: activityAction,
       proccessId,
-      stage
+      stage,
     });
   }
 
@@ -306,8 +312,8 @@ export const itemsEdit = async (
         contentId: _id,
         userId: user._id,
         contentType: type,
-        content: activityContent
-      }
+        content: activityContent,
+      },
     });
 
     notificationDoc.invitedUsers = addedUserIds;
@@ -321,7 +327,7 @@ export const itemsEdit = async (
       type,
       object: oldItem,
       newData: extendedDoc,
-      updatedDocument: updatedItem
+      updatedDocument: updatedItem,
     },
     user
   );
@@ -336,9 +342,9 @@ export const itemsEdit = async (
         action: 'itemRemove',
         data: {
           item: oldItem,
-          oldStageId: oldStage._id
-        }
-      }
+          oldStageId: oldStage._id,
+        },
+      },
     });
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
@@ -348,12 +354,12 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(type, updatedItem))
+            ...(await itemResolver(type, updatedItem)),
           },
           aboveItemId: '',
-          destinationStageId: stage._id
-        }
-      }
+          destinationStageId: stage._id,
+        },
+      },
     });
   } else {
     graphqlPubsub.publish('pipelinesChanged', {
@@ -364,10 +370,10 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(type, updatedItem))
-          }
-        }
-      }
+            ...(await itemResolver(type, updatedItem)),
+          },
+        },
+      },
     });
   }
 
@@ -389,7 +395,7 @@ export const itemsEdit = async (
     type: NOTIFICATION_TYPES.TASK_CHANGE,
     content,
     action,
-    contentType: type
+    contentType: type,
   });
 
   return updatedItem;
@@ -425,7 +431,7 @@ const itemMover = async (
     const activityLogContent = {
       oldStageId,
       destinationStageId,
-      text: `${oldStage.name} to ${stage.name}`
+      text: `${oldStage.name} to ${stage.name}`,
     };
 
     await putActivityLog({
@@ -435,14 +441,14 @@ const itemMover = async (
         contentType,
         userId,
         activityLogContent,
-        link
-      }
+        link,
+      },
     });
 
     sendNotificationMessage('batchUpdate', {
       selector: { contentType, contentTypeId: item._id },
-      modifier: { $set: { link } }
-    })
+      modifier: { $set: { link } },
+    });
   }
 
   return { content, action };
@@ -460,7 +466,7 @@ export const itemsChange = async (
     itemId,
     aboveItemId,
     destinationStageId,
-    sourceStageId
+    sourceStageId,
   } = doc;
 
   const item = await getItem(type, { _id: itemId });
@@ -472,8 +478,8 @@ export const itemsChange = async (
     order: await getNewOrder({
       collection,
       stageId: destinationStageId,
-      aboveItemId
-    })
+      aboveItemId,
+    }),
   };
 
   if (item.stageId !== destinationStageId) {
@@ -495,7 +501,7 @@ export const itemsChange = async (
     type: NOTIFICATION_TYPES.DEAL_CHANGE,
     content,
     action,
-    contentType: type
+    contentType: type,
   });
 
   await putUpdateLog(
@@ -503,7 +509,7 @@ export const itemsChange = async (
       type,
       object: item,
       newData: extendedDoc,
-      updatedDocument: updatedItem
+      updatedDocument: updatedItem,
     },
     user
   );
@@ -520,9 +526,9 @@ export const itemsChange = async (
         item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
         destinationStageId,
-        oldStageId: sourceStageId
-      }
-    }
+        oldStageId: sourceStageId,
+      },
+    },
   });
 
   return item;
@@ -541,7 +547,7 @@ export const itemsRemove = async (
     type: `${type}Delete`,
     action: `deleted ${type}:`,
     content: `'${item.name}'`,
-    contentType: type
+    contentType: type,
   });
 
   await destroyBoardItemRelations(item._id, type);
@@ -579,14 +585,14 @@ export const itemsCopy = async (
     mainType: type,
     mainTypeId: clone._id,
     customerIds,
-    companyIds
+    companyIds,
   });
 
   await copyChecklists({
     contentType: type,
     contentTypeId: item._id,
     targetContentId: clone._id,
-    user
+    user,
   });
 
   // order notification
@@ -600,9 +606,9 @@ export const itemsCopy = async (
       data: {
         item: { ...clone._doc, ...(await itemResolver(type, clone)) },
         aboveItemId: _id,
-        destinationStageId: stage._id
-      }
-    }
+        destinationStageId: stage._id,
+      },
+    },
   });
 
   await publishHelperItemsConformities(clone, stage);
@@ -621,7 +627,7 @@ export const itemsArchive = async (
   const items = await collection
     .find({
       stageId,
-      status: { $ne: BOARD_STATUSES.ARCHIVED }
+      status: { $ne: BOARD_STATUSES.ARCHIVED },
     })
     .lean();
 
@@ -640,8 +646,8 @@ export const itemsArchive = async (
         item,
         contentType: type,
         action: 'archived',
-        userId: user._id
-      }
+        userId: user._id,
+      },
     });
 
     graphqlPubsub.publish('pipelinesChanged', {
@@ -651,9 +657,9 @@ export const itemsArchive = async (
         action: 'itemsRemove',
         data: {
           item,
-          destinationStageId: stage._id
-        }
-      }
+          destinationStageId: stage._id,
+        },
+      },
     });
   }
 
@@ -671,9 +677,134 @@ export const publishHelperItemsConformities = async (
       action: 'itemOfConformitiesUpdate',
       data: {
         item: {
-          ...item
-        }
-      }
-    }
+          ...item,
+        },
+      },
+    },
   });
+};
+
+const checkBookingConvert = async (productId: string) => {
+  const product = await sendProductMessage('getProduct', { _id: productId });
+
+  let dealUOM = await sendCoreMessage('find', { code: 'dealUOM' });
+
+  let dealCurrency = await sendCoreMessage('find', {
+    code: 'dealCurrency',
+  });
+
+  if (dealUOM.length > 0) {
+    dealUOM = dealUOM[0];
+  } else {
+    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
+  }
+
+  if (dealCurrency.length > 0) {
+    dealCurrency = dealCurrency[0];
+  } else {
+    throw new Error('Please choose currency from general settings!');
+  }
+
+  return {
+    product,
+    dealUOM,
+    dealCurrency,
+  };
+};
+
+export const conversationConvertToCard = async (args) => {
+  const {
+    conversation,
+    itemId,
+    type,
+    bookingProductId,
+    user,
+    itemName,
+    stageId,
+    _id,
+    docModifier,
+  } = args;
+
+  const { collection, update, create } = getCollection(type);
+  console.log('-----------------', conversation, type);
+  if (itemId) {
+    const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+    if (bookingProductId) {
+      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+        bookingProductId
+      );
+
+      oldItem.productsData.push({
+        productId: product._id,
+        unitPrice: product.unitPrice,
+        uom: dealUOM,
+        currency: dealCurrency,
+        quantity: product.productCount,
+      });
+    }
+
+    const doc = oldItem;
+
+    if (conversation.assignedUserId) {
+      const assignedUserIds = oldItem.assignedUserIds || [];
+      assignedUserIds.push(conversation.assignedUserId);
+
+      doc.assignedUserIds = assignedUserIds;
+    }
+
+    const sourceConversationIds: string[] = oldItem.sourceConversationIds || [];
+
+    sourceConversationIds.push(conversation._id);
+
+    doc.sourceConversationIds = sourceConversationIds;
+
+    const item = await update(oldItem._id, doc);
+
+    item.userId = user._id;
+
+    // await putActivityLog({
+    //   action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+    //   data: { item, contentType: type }
+    // });
+
+    if (conversation.customerId) {
+      await sendConformityMessage('addConformity', {
+        mainType: type,
+        mainTypeId: item._id,
+        relType: 'customer',
+        relTypeId: conversation.customerId,
+      });
+    }
+
+    return item._id;
+  } else {
+    const doc: any = {};
+
+    doc.name = itemName;
+    doc.stageId = stageId;
+    doc.sourceConversationIds = [_id];
+    doc.customerIds = [conversation.customerId];
+    doc.assignedUserIds = [conversation.assignedUserId];
+
+    if (bookingProductId) {
+      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+        bookingProductId
+      );
+
+      doc.productsData = [
+        {
+          productId: product._id,
+          unitPrice: product.unitPrice,
+          uom: dealUOM,
+          currency: dealCurrency,
+          quantity: product.productCount,
+        },
+      ];
+    }
+
+    const item = await itemsAdd(doc, type, create, user, docModifier);
+
+    return item._id;
+  }
 };

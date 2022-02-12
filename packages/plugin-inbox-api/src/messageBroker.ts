@@ -1,6 +1,6 @@
-import { generateFieldsFromSchema } from "@erxes/api-utils/src";
-import { ConversationMessages, Conversations, Integrations } from "./models";
-import { receiveRpcMessage } from "./receiveMessage";
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
+import { ConversationMessages, Conversations, Integrations } from './models';
+import { receiveRpcMessage } from './receiveMessage';
 
 let client;
 
@@ -20,7 +20,7 @@ const createConversationAndMessage = async (
     customerId,
     visitorId,
     integrationId,
-    content
+    content,
   });
 
   // create message
@@ -30,11 +30,11 @@ const createConversationAndMessage = async (
     userId,
     customerId,
     visitorId,
-    content
+    content,
   });
 };
 
-export const generateFields = async args => {
+export const generateFields = async (args) => {
   const schema: any = Conversations.schema;
 
   let fields: Array<{
@@ -58,7 +58,7 @@ export const generateFields = async args => {
     if (path.schema) {
       fields = [
         ...fields,
-        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+        ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
       ];
     }
   }
@@ -68,7 +68,7 @@ export const generateFields = async args => {
 
 export const initBroker = (cl) => {
   client = cl;
-  
+
   const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
@@ -98,22 +98,10 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue(
     'rpc_queue:integrations_to_api',
-    async data => await receiveRpcMessage(data)
+    async (data) => await receiveRpcMessage(data)
   );
 
-  consumeRPCQueue(
-    'inbox:rpc_queue:findIntegrations',
-    async ({ query, options }) => {
-      const integrations = await Integrations.findIntegrations(
-        query,
-        options
-      );
-
-      return { data: integrations, status: 'success' };
-    }
-  );
-
-  consumeQueue('inbox:removeCustomersConversations', async customerIds => {
+  consumeQueue('inbox:removeCustomersConversations', async (customerIds) => {
     await Conversations.removeCustomersConversations(customerIds);
   });
 
@@ -121,12 +109,12 @@ export const initBroker = (cl) => {
     await Conversations.changeCustomer(customerId, customerIds);
   });
 
-  consumeRPCQueue('inbox:rpc_queue:getFields', async args => ({
+  consumeRPCQueue('inbox:rpc_queue:getFields', async (args) => ({
     status: 'success',
-    data: await generateFields(args)
+    data: await generateFields(args),
   }));
 
-  consumeRPCQueue('inbox:rpc_queue:tag', async args => {
+  consumeRPCQueue('inbox:rpc_queue:tag', async (args) => {
     let data = {};
 
     if (args.action === 'count') {
@@ -145,9 +133,13 @@ export const initBroker = (cl) => {
 
     return {
       status: 'success',
-      data
-    }
+      data,
+    };
   });
+};
+
+export const sendCardMessage = async (action, data): Promise<any> => {
+  return client.sendMessage(`cards:rpc_queue:${action}`, data);
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -170,6 +162,10 @@ export const sendFormRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
 };
 
+export const sendCoreMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`core:rpc_queue:${action}`, data);
+};
+
 export const sendConformityMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`conformities:${action}`, data);
 };
@@ -182,11 +178,14 @@ export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage("rpc_queue:fetchSegment", {
+  sendRPCMessage('rpc_queue:fetchSegment', {
     segment,
     options,
   });
 
 export default function() {
   return client;
+}
+function checkBookingConvert(args: any) {
+  throw new Error('Function not implemented.');
 }

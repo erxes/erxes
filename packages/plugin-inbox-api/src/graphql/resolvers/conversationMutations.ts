@@ -10,7 +10,7 @@ import {
   Configs,
   // Conformities,
   Customers,
-  Products
+  Products,
 } from '../../apiCollections';
 
 // import { getCollection } from '../../../db/models/boardUtils';
@@ -26,7 +26,11 @@ import { IMessageDocument } from '../../models/definitions/conversationMessages'
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { debug } from '../../configs';
-import { sendMessage, sendRPCMessage } from '../../messageBroker';
+import {
+  sendCardMessage,
+  sendMessage,
+  sendRPCMessage,
+} from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
 // import {
@@ -35,7 +39,10 @@ import { graphqlPubsub } from '../../configs';
 //   putUpdateLog
 // } from '../../logUtils';
 
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin,
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
 import { splitStr } from '@erxes/api-utils/src/core';
 // import utils from '../../utils';
@@ -85,31 +92,28 @@ const sendConversationToIntegrations = async (
   if (type === 'facebook') {
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
 
-    const images: string[] = (doc.content.match(regex) || []).map(m =>
+    const images: string[] = (doc.content.match(regex) || []).map((m) =>
       m.replace(regex, '$1')
     );
 
-    images.forEach(img => {
+    images.forEach((img) => {
       doc.attachments.push({ type: 'image', url: img });
     });
 
     const content = strip(doc.content);
 
     try {
-      await sendRPCMessage(
-        'rpc_queue:api_to_integrations',
-        {
-          action,
-          type,
-          payload: JSON.stringify({
-            integrationId,
-            conversationId,
-            content: content.replace(/&amp;/g, '&'),
-            attachments: doc.attachments || [],
-            tag: facebookMessageTag
-          })
-        }
-      );
+      await sendRPCMessage('rpc_queue:api_to_integrations', {
+        action,
+        type,
+        payload: JSON.stringify({
+          integrationId,
+          conversationId,
+          content: content.replace(/&amp;/g, '&'),
+          attachments: doc.attachments || [],
+          tag: facebookMessageTag,
+        }),
+      });
     } catch (e) {
       throw new Error(
         `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
@@ -122,7 +126,7 @@ const sendConversationToIntegrations = async (
       conversationId,
       integrationId,
       content: strip(doc.content),
-      attachments: doc.attachments || []
+      attachments: doc.attachments || [],
     });
   }
 };
@@ -168,7 +172,7 @@ export const publishConversationsChanged = (
 ): string[] => {
   for (const _id of _ids) {
     graphqlPubsub.publish('conversationChanged', {
-      conversationChanged: { conversationId: _id, type }
+      conversationChanged: { conversationId: _id, type },
     });
   }
 
@@ -183,7 +187,7 @@ export const publishMessage = async (
   customerId?: string
 ) => {
   graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
+    conversationMessageInserted: message,
   });
 
   // widget is listening for this subscription to show notification
@@ -196,8 +200,8 @@ export const publishMessage = async (
     graphqlPubsub.publish('conversationAdminMessageInserted', {
       conversationAdminMessageInserted: {
         customerId,
-        unreadCount
-      }
+        unreadCount,
+      },
     });
   }
 };
@@ -207,7 +211,7 @@ const sendNotifications = async ({
   conversations,
   type,
   mobile,
-  messageContent
+  messageContent,
 }: {
   user: IUserDocument;
   conversations: IConversationDocument[];
@@ -227,7 +231,7 @@ const sendNotifications = async ({
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',
       contentType: 'conversation',
-      contentTypeId: conversation._id
+      contentTypeId: conversation._id,
     };
 
     switch (type) {
@@ -268,42 +272,13 @@ const sendNotifications = async ({
   }
 };
 
-const getConversationById = async selector => {
+const getConversationById = async (selector) => {
   const oldConversations = await Conversations.find(selector).lean();
   const oldConversationById = {};
   for (const conversation of oldConversations) {
     oldConversationById[conversation._id] = conversation;
   }
   return { oldConversationById, oldConversations };
-};
-
-// check booking convert
-const checkBookingConvert = async (productId: string) => {
-  const product = await Products.getProduct({ _id: productId });
-
-  let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
-
-  let dealCurrency = await Configs.find({
-    code: 'dealCurrency'
-  }).distinct('value');
-
-  if (dealUOM.length > 0) {
-    dealUOM = dealUOM[0];
-  } else {
-    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
-  }
-
-  if (dealCurrency.length > 0) {
-    dealCurrency = dealCurrency[0];
-  } else {
-    throw new Error('Please choose currency from general settings!');
-  }
-
-  return {
-    product,
-    dealUOM,
-    dealCurrency
-  };
 };
 
 const conversationMutations = {
@@ -319,7 +294,7 @@ const conversationMutations = {
       doc.conversationId
     );
     const integration = await Integrations.getIntegration({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
 
     await sendNotifications({
@@ -327,7 +302,7 @@ const conversationMutations = {
       conversations: [conversation],
       type: 'conversationAddMessage',
       mobile: true,
-      messageContent: doc.content
+      messageContent: doc.content,
     });
 
     // do not send internal message to third service integrations
@@ -403,19 +378,16 @@ const conversationMutations = {
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
       for (let i = 0; i < chunks.length; i++) {
-        await sendMessage(
-          'erxes-api:integrations-notification',
-          {
-            action: 'sendConversationSms',
-            payload: JSON.stringify({
-              conversationMessageId: `${message._id}-part${i + 1}`,
-              conversationId,
-              integrationId,
-              toPhone: customer.primaryPhone,
-              content: strip(chunks[i])
-            })
-          }
-        );
+        await sendMessage('erxes-api:integrations-notification', {
+          action: 'sendConversationSms',
+          payload: JSON.stringify({
+            conversationMessageId: `${message._id}-part${i + 1}`,
+            conversationId,
+            integrationId,
+            toPhone: customer.primaryPhone,
+            content: strip(chunks[i]),
+          }),
+        });
       }
     }
 
@@ -473,7 +445,7 @@ const conversationMutations = {
       doc.conversationId
     );
     const integration = await Integrations.getIntegration({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
 
     await sendNotifications({
@@ -481,7 +453,7 @@ const conversationMutations = {
       conversations: [conversation],
       type: 'conversationStateChange',
       mobile: true,
-      messageContent: doc.content
+      messageContent: doc.content,
     });
 
     const requestName = 'replyFacebookPost';
@@ -530,12 +502,12 @@ const conversationMutations = {
     _root,
     {
       conversationIds,
-      assignedUserId
+      assignedUserId,
     }: { conversationIds: string[]; assignedUserId: string },
     { user }: IContext
   ) {
     const { oldConversationById } = await getConversationById({
-      _id: { $in: conversationIds }
+      _id: { $in: conversationIds },
     });
 
     const conversations: IConversationDocument[] = await Conversations.assignUserConversation(
@@ -549,7 +521,7 @@ const conversationMutations = {
     await sendNotifications({
       user,
       conversations,
-      type: 'conversationAssigneeChange'
+      type: 'conversationAssigneeChange',
     });
 
     // for (const conversation of conversations) {
@@ -578,7 +550,7 @@ const conversationMutations = {
   ) {
     const {
       oldConversations,
-      oldConversationById
+      oldConversationById,
     } = await getConversationById({ _id: { $in: _ids } });
     const updatedConversations = await Conversations.unassignUserConversation(
       _ids
@@ -587,7 +559,7 @@ const conversationMutations = {
     await sendNotifications({
       user,
       conversations: oldConversations,
-      type: 'unassign'
+      type: 'unassign',
     });
 
     // notify graphl subscription
@@ -618,7 +590,7 @@ const conversationMutations = {
     { user }: IContext
   ) {
     const { oldConversationById } = await getConversationById({
-      _id: { $in: _ids }
+      _id: { $in: _ids },
     });
 
     await Conversations.changeStatusConversation(_ids, status, user._id);
@@ -627,13 +599,13 @@ const conversationMutations = {
     publishConversationsChanged(_ids, status);
 
     const updatedConversations = await Conversations.find({
-      _id: { $in: _ids }
+      _id: { $in: _ids },
     });
 
     await sendNotifications({
       user,
       conversations: updatedConversations,
-      type: 'conversationStateChange'
+      type: 'conversationStateChange',
     });
 
     // for (const conversation of updatedConversations) {
@@ -666,13 +638,13 @@ const conversationMutations = {
     const param = {
       status: CONVERSATION_STATUSES.CLOSED,
       closedUserId: user._id,
-      closedAt: new Date()
+      closedAt: new Date(),
     };
 
     const updated = await Conversations.resolveAllConversation(query, param);
 
     const updatedConversations = await Conversations.find({
-      _id: { $in: Object.keys(oldConversationById) }
+      _id: { $in: Object.keys(oldConversationById) },
     }).lean();
 
     // for (const conversation of updatedConversations) {
@@ -727,7 +699,7 @@ const conversationMutations = {
       const doc = {
         conversationId: _id,
         internal: false,
-        contentType: MESSAGE_TYPES.VIDEO_CALL
+        contentType: MESSAGE_TYPES.VIDEO_CALL,
       };
 
       message = await ConversationMessages.addMessage(doc, user._id);
@@ -735,7 +707,7 @@ const conversationMutations = {
       const videoCallData = await dataSources.IntegrationsAPI.createDailyVideoChatRoom(
         {
           erxesApiConversationId: _id,
-          erxesApiMessageId: message._id
+          erxesApiMessageId: message._id,
         }
       );
 
@@ -763,13 +735,13 @@ const conversationMutations = {
       botData: [
         {
           type: 'text',
-          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR
-        }
-      ]
+          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
+        },
+      ],
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
+      conversationMessageInserted: message,
     });
 
     return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
@@ -779,7 +751,7 @@ const conversationMutations = {
     _root,
     {
       conversationId,
-      recordingId
+      recordingId,
     }: { conversationId: string; recordingId: string },
     { dataSources }: IContext
   ) {
@@ -787,7 +759,7 @@ const conversationMutations = {
       const response = await dataSources.IntegrationsAPI.saveDailyRecordingInfo(
         {
           erxesApiConversationId: conversationId,
-          recordingId
+          recordingId,
         }
       );
 
@@ -799,117 +771,32 @@ const conversationMutations = {
     }
   },
 
-  // async conversationConvertToCard(
-  //   _root,
-  //   params: IConversationConvert,
-  //   { user, docModifier }: IContext
-  // ) {
-  //   const { _id, type, itemId, itemName, stageId, bookingProductId } = params;
+  async conversationConvertToCard(
+    _root,
+    params: IConversationConvert,
+    { user, docModifier }: IContext
+  ) {
+    const { _id, itemId, type, bookingProductId, itemName, stageId } = params;
 
-  //   const conversation = await Conversations.getConversation(_id);
-
-  //   const { collection, update, create } = getCollection(type);
-
-  //   if (itemId) {
-  //     const oldItem = await collection.findOne({ _id: itemId }).lean();
-
-  //     if (bookingProductId) {
-  //       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-  //         bookingProductId
-  //       );
-
-  //       oldItem.productsData.push({
-  //         productId: product._id,
-  //         unitPrice: product.unitPrice,
-  //         uom: dealUOM,
-  //         currency: dealCurrency,
-  //         quantity: product.productCount
-  //       });
-  //     }
-
-  //     const doc = oldItem;
-
-  //     if (conversation.assignedUserId) {
-  //       const assignedUserIds = oldItem.assignedUserIds || [];
-  //       assignedUserIds.push(conversation.assignedUserId);
-
-  //       doc.assignedUserIds = assignedUserIds;
-  //     }
-
-  //     const sourceConversationIds: string[] =
-  //       oldItem.sourceConversationIds || [];
-
-  //     sourceConversationIds.push(conversation._id);
-
-  //     doc.sourceConversationIds = sourceConversationIds;
-
-  //     const item = await update(oldItem._id, doc);
-
-  //     item.userId = user._id;
-
-  //     await putActivityLog({
-  //       action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-  //       data: { item, contentType: type }
-  //     });
-
-  //     const relTypeIds: string[] = [];
-
-  //     sourceConversationIds.forEach(async conversationId => {
-  //       const con = await Conversations.getConversation(conversationId);
-
-  //       if (con.customerId) {
-  //         relTypeIds.push(con.customerId);
-  //       }
-  //     });
-
-  //     if (conversation.customerId) {
-  //       await Conformities.addConformity({
-  //         mainType: type,
-  //         mainTypeId: item._id,
-  //         relType: 'customer',
-  //         relTypeId: conversation.customerId
-  //       });
-  //     }
-
-  //     return item._id;
-  //   } else {
-  //     const doc: any = {};
-
-  //     doc.name = itemName;
-  //     doc.stageId = stageId;
-  //     doc.sourceConversationIds = [_id];
-  //     doc.customerIds = [conversation.customerId];
-  //     doc.assignedUserIds = [conversation.assignedUserId];
-
-  //     if (bookingProductId) {
-  //       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-  //         bookingProductId
-  //       );
-
-  //       doc.productsData = [
-  //         {
-  //           productId: product._id,
-  //           unitPrice: product.unitPrice,
-  //           uom: dealUOM,
-  //           currency: dealCurrency,
-  //           quantity: product.productCount
-  //         }
-  //       ];
-  //     }
-
-  //     const item = await itemsAdd(doc, type, create, user, docModifier);
-
-  //     return item._id;
-  //   }
-  // },
-
+    const conversation = await Conversations.getConversation(_id);
+    return sendCardMessage('convertToCard', {
+      conversation,
+      type,
+      bookingProductId,
+      itemName,
+      stageId,
+      itemId,
+      user,
+      docModifier,
+    });
+  },
   async conversationEditCustomFields(
     _root,
     { _id, customFieldsData }: { _id: string; customFieldsData: any }
   ) {
     await Conversations.updateConversation(_id, { customFieldsData });
     return Conversations.getConversation(_id);
-  }
+  },
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
