@@ -370,10 +370,10 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(type, updatedItem)),
-          },
-        },
-      },
+            ...(await itemResolver(type, updatedItem))
+          }
+        }
+      }
     });
   }
 
@@ -395,7 +395,7 @@ export const itemsEdit = async (
     type: NOTIFICATION_TYPES.TASK_CHANGE,
     content,
     action,
-    contentType: type,
+    contentType: type
   });
 
   return updatedItem;
@@ -431,7 +431,7 @@ const itemMover = async (
     const activityLogContent = {
       oldStageId,
       destinationStageId,
-      text: `${oldStage.name} to ${stage.name}`,
+      text: `${oldStage.name} to ${stage.name}`
     };
 
     await putActivityLog({
@@ -441,13 +441,13 @@ const itemMover = async (
         contentType,
         userId,
         activityLogContent,
-        link,
-      },
+        link
+      }
     });
 
     sendNotificationMessage('batchUpdate', {
       selector: { contentType, contentTypeId: item._id },
-      modifier: { $set: { link } },
+      modifier: { $set: { link } }
     });
   }
 
@@ -478,7 +478,7 @@ export const itemsChange = async (
     order: await getNewOrder({
       collection,
       stageId: destinationStageId,
-      aboveItemId,
+      aboveItemId
     }),
   };
 
@@ -501,7 +501,7 @@ export const itemsChange = async (
     type: NOTIFICATION_TYPES.DEAL_CHANGE,
     content,
     action,
-    contentType: type,
+    contentType: type
   });
 
   await putUpdateLog(
@@ -509,7 +509,7 @@ export const itemsChange = async (
       type,
       object: item,
       newData: extendedDoc,
-      updatedDocument: updatedItem,
+      updatedDocument: updatedItem
     },
     user
   );
@@ -526,9 +526,9 @@ export const itemsChange = async (
         item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
         destinationStageId,
-        oldStageId: sourceStageId,
-      },
-    },
+        oldStageId: sourceStageId
+      }
+    }
   });
 
   return item;
@@ -678,9 +678,9 @@ export const publishHelperItemsConformities = async (
       data: {
         item: {
           ...item
-        },
-      },
-    },
+        }
+      }
+    }
   });
 };
 
@@ -690,7 +690,7 @@ const checkBookingConvert = async (productId: string) => {
   let dealUOM = await sendCoreMessage('find', { code: 'dealUOM' });
 
   let dealCurrency = await sendCoreMessage('find', {
-    code: 'dealCurrency',
+    code: 'dealCurrency'
   });
 
   if (dealUOM.length > 0) {
