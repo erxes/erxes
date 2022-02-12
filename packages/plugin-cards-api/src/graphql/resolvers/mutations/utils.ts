@@ -188,7 +188,7 @@ export const changeItemStatus = async ({
         action: 'itemRemove',
         data: {
           item,
-          oldStageId: item.stageId,
+          oldStageId: item.stageId
         }
       }
     });
@@ -285,7 +285,7 @@ export const itemsEdit = async (
         contentType: type,
         action: activityAction,
         userId: user._id
-      },
+      }
     });
 
     // order notification
@@ -313,7 +313,7 @@ export const itemsEdit = async (
         userId: user._id,
         contentType: type,
         content: activityContent
-      },
+      }
     });
 
     notificationDoc.invitedUsers = addedUserIds;
@@ -357,9 +357,9 @@ export const itemsEdit = async (
             ...(await itemResolver(type, updatedItem))
           },
           aboveItemId: '',
-          destinationStageId: stage._id,
-        },
-      },
+          destinationStageId: stage._id
+        }
+      }
     });
   } else {
     graphqlPubsub.publish('pipelinesChanged', {
@@ -466,7 +466,7 @@ export const itemsChange = async (
     itemId,
     aboveItemId,
     destinationStageId,
-    sourceStageId,
+    sourceStageId
   } = doc;
 
   const item = await getItem(type, { _id: itemId });
@@ -479,7 +479,7 @@ export const itemsChange = async (
       collection,
       stageId: destinationStageId,
       aboveItemId
-    }),
+    })
   };
 
   if (item.stageId !== destinationStageId) {
@@ -627,7 +627,7 @@ export const itemsArchive = async (
   const items = await collection
     .find({
       stageId,
-      status: { $ne: BOARD_STATUSES.ARCHIVED },
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
     })
     .lean();
 
@@ -647,7 +647,7 @@ export const itemsArchive = async (
         contentType: type,
         action: 'archived',
         userId: user._id
-      },
+      }
     });
 
     graphqlPubsub.publish('pipelinesChanged', {
@@ -658,8 +658,8 @@ export const itemsArchive = async (
         data: {
           item,
           destinationStageId: stage._id
-        },
-      },
+        }
+      }
     });
   }
 
