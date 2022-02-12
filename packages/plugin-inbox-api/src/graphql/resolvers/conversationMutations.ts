@@ -3,14 +3,14 @@ import * as _ from 'underscore';
 import {
   ConversationMessages,
   Conversations,
-  Integrations,
+  Integrations
 } from '../../models';
 
 import {
   Configs,
   // Conformities,
   Customers,
-  Products,
+  Products
 } from '../../apiCollections';
 
 // import { getCollection } from '../../../db/models/boardUtils';
@@ -19,7 +19,7 @@ import Messages from '../../models/ConversationMessages';
 
 import {
   KIND_CHOICES,
-  MESSAGE_TYPES,
+  MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
@@ -29,7 +29,7 @@ import { debug } from '../../configs';
 import {
   sendCardMessage,
   sendMessage,
-  sendRPCMessage,
+  sendRPCMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -41,7 +41,7 @@ import { graphqlPubsub } from '../../configs';
 
 import {
   checkPermission,
-  requireLogin,
+  requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
 import { splitStr } from '@erxes/api-utils/src/core';
@@ -96,7 +96,7 @@ const sendConversationToIntegrations = async (
       m.replace(regex, '$1')
     );
 
-    images.forEach((img) => {
+    images.forEach(img => {
       doc.attachments.push({ type: 'image', url: img });
     });
 
@@ -111,8 +111,8 @@ const sendConversationToIntegrations = async (
           conversationId,
           content: content.replace(/&amp;/g, '&'),
           attachments: doc.attachments || [],
-          tag: facebookMessageTag,
-        }),
+          tag: facebookMessageTag
+        })
       });
     } catch (e) {
       throw new Error(
@@ -126,7 +126,7 @@ const sendConversationToIntegrations = async (
       conversationId,
       integrationId,
       content: strip(doc.content),
-      attachments: doc.attachments || [],
+      attachments: doc.attachments || []
     });
   }
 };
@@ -172,7 +172,7 @@ export const publishConversationsChanged = (
 ): string[] => {
   for (const _id of _ids) {
     graphqlPubsub.publish('conversationChanged', {
-      conversationChanged: { conversationId: _id, type },
+      conversationChanged: { conversationId: _id, type }
     });
   }
 
@@ -187,7 +187,7 @@ export const publishMessage = async (
   customerId?: string
 ) => {
   graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message,
+    conversationMessageInserted: message
   });
 
   // widget is listening for this subscription to show notification
@@ -200,8 +200,8 @@ export const publishMessage = async (
     graphqlPubsub.publish('conversationAdminMessageInserted', {
       conversationAdminMessageInserted: {
         customerId,
-        unreadCount,
-      },
+        unreadCount
+      }
     });
   }
 };
@@ -231,7 +231,7 @@ const sendNotifications = async ({
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',
       contentType: 'conversation',
-      contentTypeId: conversation._id,
+      contentTypeId: conversation._id
     };
 
     switch (type) {
@@ -272,7 +272,7 @@ const sendNotifications = async ({
   }
 };
 
-const getConversationById = async (selector) => {
+const getConversationById = async selector => {
   const oldConversations = await Conversations.find(selector).lean();
   const oldConversationById = {};
   for (const conversation of oldConversations) {
@@ -294,7 +294,7 @@ const conversationMutations = {
       doc.conversationId
     );
     const integration = await Integrations.getIntegration({
-      _id: conversation.integrationId,
+      _id: conversation.integrationId
     });
 
     await sendNotifications({
@@ -385,8 +385,8 @@ const conversationMutations = {
             conversationId,
             integrationId,
             toPhone: customer.primaryPhone,
-            content: strip(chunks[i]),
-          }),
+            content: strip(chunks[i])
+          })
         });
       }
     }
@@ -445,7 +445,7 @@ const conversationMutations = {
       doc.conversationId
     );
     const integration = await Integrations.getIntegration({
-      _id: conversation.integrationId,
+      _id: conversation.integrationId
     });
 
     await sendNotifications({
@@ -502,12 +502,12 @@ const conversationMutations = {
     _root,
     {
       conversationIds,
-      assignedUserId,
+      assignedUserId
     }: { conversationIds: string[]; assignedUserId: string },
     { user }: IContext
   ) {
     const { oldConversationById } = await getConversationById({
-      _id: { $in: conversationIds },
+      _id: { $in: conversationIds }
     });
 
     const conversations: IConversationDocument[] = await Conversations.assignUserConversation(
@@ -521,7 +521,7 @@ const conversationMutations = {
     await sendNotifications({
       user,
       conversations,
-      type: 'conversationAssigneeChange',
+      type: 'conversationAssigneeChange'
     });
 
     // for (const conversation of conversations) {
@@ -550,7 +550,7 @@ const conversationMutations = {
   ) {
     const {
       oldConversations,
-      oldConversationById,
+      oldConversationById
     } = await getConversationById({ _id: { $in: _ids } });
     const updatedConversations = await Conversations.unassignUserConversation(
       _ids
@@ -559,7 +559,7 @@ const conversationMutations = {
     await sendNotifications({
       user,
       conversations: oldConversations,
-      type: 'unassign',
+      type: 'unassign'
     });
 
     // notify graphl subscription
@@ -590,7 +590,7 @@ const conversationMutations = {
     { user }: IContext
   ) {
     const { oldConversationById } = await getConversationById({
-      _id: { $in: _ids },
+      _id: { $in: _ids }
     });
 
     await Conversations.changeStatusConversation(_ids, status, user._id);
@@ -599,13 +599,13 @@ const conversationMutations = {
     publishConversationsChanged(_ids, status);
 
     const updatedConversations = await Conversations.find({
-      _id: { $in: _ids },
+      _id: { $in: _ids }
     });
 
     await sendNotifications({
       user,
       conversations: updatedConversations,
-      type: 'conversationStateChange',
+      type: 'conversationStateChange'
     });
 
     // for (const conversation of updatedConversations) {
@@ -638,13 +638,13 @@ const conversationMutations = {
     const param = {
       status: CONVERSATION_STATUSES.CLOSED,
       closedUserId: user._id,
-      closedAt: new Date(),
+      closedAt: new Date()
     };
 
     const updated = await Conversations.resolveAllConversation(query, param);
 
     const updatedConversations = await Conversations.find({
-      _id: { $in: Object.keys(oldConversationById) },
+      _id: { $in: Object.keys(oldConversationById) }
     }).lean();
 
     // for (const conversation of updatedConversations) {
@@ -699,7 +699,7 @@ const conversationMutations = {
       const doc = {
         conversationId: _id,
         internal: false,
-        contentType: MESSAGE_TYPES.VIDEO_CALL,
+        contentType: MESSAGE_TYPES.VIDEO_CALL
       };
 
       message = await ConversationMessages.addMessage(doc, user._id);
@@ -707,7 +707,7 @@ const conversationMutations = {
       const videoCallData = await dataSources.IntegrationsAPI.createDailyVideoChatRoom(
         {
           erxesApiConversationId: _id,
-          erxesApiMessageId: message._id,
+          erxesApiMessageId: message._id
         }
       );
 
@@ -735,13 +735,13 @@ const conversationMutations = {
       botData: [
         {
           type: 'text',
-          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
-        },
-      ],
+          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR
+        }
+      ]
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message,
+      conversationMessageInserted: message
     });
 
     return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
@@ -751,7 +751,7 @@ const conversationMutations = {
     _root,
     {
       conversationId,
-      recordingId,
+      recordingId
     }: { conversationId: string; recordingId: string },
     { dataSources }: IContext
   ) {
@@ -759,7 +759,7 @@ const conversationMutations = {
       const response = await dataSources.IntegrationsAPI.saveDailyRecordingInfo(
         {
           erxesApiConversationId: conversationId,
-          recordingId,
+          recordingId
         }
       );
 
@@ -787,7 +787,7 @@ const conversationMutations = {
       stageId,
       itemId,
       user,
-      docModifier,
+      docModifier
     });
   },
   async conversationEditCustomFields(
