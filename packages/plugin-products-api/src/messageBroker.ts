@@ -2,7 +2,7 @@ import { Products } from './models';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;
