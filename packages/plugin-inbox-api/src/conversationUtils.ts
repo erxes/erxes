@@ -90,7 +90,7 @@ export const countBySegment = async (
   counts: ICountBy
 ): Promise<ICountBy> => {
   // Count cocs by segments
-  //   let segments: ISegmentDocument[] = [];
+  // let segments: ISegmentDocument[] = [];
   let segments: any[] = [];
 
   segments = await Segments.find({ contentType: 'conversation' }).toArray();
@@ -178,20 +178,20 @@ export class CommonBuilder<IArgs extends IListArgs> {
     const userRelevanceQuery = [
       {
         regexp: {
-          userRelevance: `${this.user.code}..`,
-        },
+          userRelevance: `${this.user.code}..`
+        }
       },
       {
         bool: {
           must_not: [
             {
               exists: {
-                field: 'userRelevance',
-              },
-            },
-          ],
-        },
-      },
+                field: 'userRelevance'
+              }
+            }
+          ]
+        }
+      }
     ];
 
     this.positiveList = [{ bool: { should: userRelevanceQuery } }];
@@ -201,9 +201,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
     this.filterList = [
       {
         terms: {
-          'integrationId.keyword': this.integrationIds,
-        },
-      },
+          'integrationId.keyword': this.integrationIds
+        }
+      }
     ];
 
     // filter by status
@@ -212,7 +212,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
     } else {
       this.statusFilter([
         CONVERSATION_STATUSES.NEW,
-        CONVERSATION_STATUSES.OPEN,
+        CONVERSATION_STATUSES.OPEN
       ]);
     }
 
@@ -225,7 +225,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       { _id: 1 }
     );
 
-    this.activeIntegrationIds = activeIntegrations.map((integ) => integ._id);
+    this.activeIntegrationIds = activeIntegrations.map( integ => integ._id);
   }
 
   // filter by channel
@@ -239,25 +239,25 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        'integrationId.keyword': (channel.integrationIds || []).filter((id) =>
+        'integrationId.keyword': (channel.integrationIds || []).filter(id =>
           this.activeIntegrationIds.includes(id)
-        ),
-      },
+        )
+      }
     });
   }
 
   public integrationNotFound() {
     this.filterList.push({
       match: {
-        integrationId: 'integrationNotFound',
-      },
+        integrationId: 'integrationNotFound'
+      }
     });
   }
 
   // filter by brand
   public async brandFilter(brandId: string) {
     const integrations = await Integrations.findIntegrations({
-      brandId,
+      brandId
     }).select('_id');
 
     if (integrations.length === 0) {
@@ -277,8 +277,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        'integrationId.keyword': integrationIds,
-      },
+        'integrationId.keyword': integrationIds
+      }
     });
   }
 
@@ -289,11 +289,11 @@ export class CommonBuilder<IArgs extends IListArgs> {
         must_not: [
           {
             exists: {
-              field: 'assignedUserId',
-            },
-          },
-        ],
-      },
+              field: 'assignedUserId'
+            }
+          }
+        ]
+      }
     });
   }
 
@@ -304,16 +304,16 @@ export class CommonBuilder<IArgs extends IListArgs> {
         should: [
           {
             match: {
-              participatedUserIds: this.user._id,
-            },
+              participatedUserIds: this.user._id
+            }
           },
           {
             match: {
-              assignedUserId: this.user._id,
-            },
-          },
-        ],
-      },
+              assignedUserId: this.user._id
+            }
+          }
+        ]
+      }
     });
   }
 
@@ -321,8 +321,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public starredFilter() {
     this.filterList.push({
       terms: {
-        _id: this.user.starredConversationIds || [],
-      },
+        _id: this.user.starredConversationIds || []
+      }
     });
   }
 
@@ -330,8 +330,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public statusFilter(statusChoices: string[]) {
     this.filterList.push({
       terms: {
-        status: statusChoices,
-      },
+        status: statusChoices
+      }
     });
   }
 
@@ -339,8 +339,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public awaitingResponse() {
     this.filterList.push({
       match: {
-        isCustomerRespondedLast: true,
-      },
+        isCustomerRespondedLast: true
+      }
     });
   }
 
@@ -348,8 +348,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public tagFilter(tagId: string) {
     this.filterList.push({
       match: {
-        tagIds: tagId,
-      },
+        tagIds: tagId
+      }
     });
   }
 
@@ -359,17 +359,17 @@ export class CommonBuilder<IArgs extends IListArgs> {
         range: {
           createdAt: {
             gte: fixDate(startDate),
-            lte: fixDate(endDate),
-          },
-        },
+            lte: fixDate(endDate)
+          }
+        }
       },
       {
         range: {
           updatedAt: {
             gte: fixDate(startDate),
-            lte: fixDate(endDate),
-          },
-        },
+            lte: fixDate(endDate)
+          }
+        }
       }
     );
   }
@@ -377,13 +377,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
   // filter by integration type
   public async integrationTypeFilter(integrationType: string) {
     const integrations = await Integrations.findIntegrations({
-      kind: integrationType,
+      kind: integrationType
     });
 
     this.filterList.push({
       terms: {
-        'integrationId.keyword': _.pluck(integrations, '_id'),
-      },
+        'integrationId.keyword': _.pluck(integrations, '_id')
+      }
     });
   }
 
@@ -436,8 +436,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
       this.filterList.push({
         terms: {
-          'tagIds.keyword': tagIds,
-        },
+          'tagIds.keyword': tagIds
+        }
       });
     }
 
@@ -454,16 +454,16 @@ export class CommonBuilder<IArgs extends IListArgs> {
       query: {
         bool: {
           must: this.positiveList,
-          filter: this.filterList,
-        },
-      },
+          filter: this.filterList
+        }
+      }
     };
 
     const response = await es.fetchElk({
       action: 'count',
       index: 'conversations',
       body: queryOptions,
-      defaultValue: 0,
+      defaultValue: 0
     });
 
     return response.count;
