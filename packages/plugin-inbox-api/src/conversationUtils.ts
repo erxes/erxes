@@ -225,7 +225,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       { _id: 1 }
     );
 
-    this.activeIntegrationIds = activeIntegrations.map( integ => integ._id);
+    this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
   }
 
   // filter by channel
