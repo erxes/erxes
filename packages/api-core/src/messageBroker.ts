@@ -59,7 +59,7 @@ export const initBroker = async (server?) => {
 
     consumeQueue('forms:removeForm', async ({ formId }) => ({
       status: 'success',
-      data: await Forms.removeForm(formId),
+      data: await Forms.removeForm(formId)
     }));
 
     consumeQueue('conformities:addConformity', async doc => ({
@@ -132,7 +132,7 @@ export const initBroker = async (server?) => {
       'fieldsGroups:updateGroup',
       async ({ groupId, fieldsGroup }) => ({
         status: 'success',
-        data: await FieldsGroups.updateGroup(groupId, fieldsGroup),
+        data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
       })
     );
   }
