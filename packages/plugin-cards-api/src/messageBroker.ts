@@ -69,7 +69,7 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue('cards:rpc_queue:convertToCard', async (args) => ({
     status: 'success',
-    data: await conversationConvertToCard(args),
+    data: await conversationConvertToCard(args)
   }));
 
   // listen for rpc queue =========
@@ -150,7 +150,7 @@ export const sendContactMessage = async (action, data): Promise<any> => {
 };
 
 export const sendContactRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isAvailable('contacts'))) {
+  if (!await serviceDiscovery.isAvailable('contacts')) {
     return [];
   }
 
@@ -198,7 +198,7 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const findProducts = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isAvailable('products'))) {
+  if (!await serviceDiscovery.isAvailable('products')) {
     return [];
   }
 
@@ -208,7 +208,7 @@ export const findProducts = async (action, data): Promise<any> => {
 export const updateProducts = async (selector, modifier): Promise<any> => {
   return client.sendRPCMessage(`products:rpc_queue:update`, {
     selector,
-    modifier,
+    modifier
   });
 };
 
@@ -219,7 +219,7 @@ export const sendNotificationMessage = async (
   defaultValue?
 ): Promise<any> => {
   if (isRPC) {
-    if (!(await serviceDiscovery.isAvailable('notifications'))) {
+    if (!await serviceDiscovery.isAvailable('notifications')) {
       return defaultValue;
     }
 
