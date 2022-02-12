@@ -98,7 +98,7 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue(
     'rpc_queue:integrations_to_api',
-      async data => await receiveRpcMessage(data)
+     async data => await receiveRpcMessage(data)
   );
 
   consumeRPCQueue(
@@ -190,7 +190,7 @@ export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage('rpc_queue:fetchSegment', {
+  sendRPCMessage("rpc_queue:fetchSegment", {
     segment,
     options,
   });
@@ -198,6 +198,4 @@ export const fetchSegment = (segment, options?) =>
 export default function() {
   return client;
 }
-function checkBookingConvert(args: any) {
-  throw new Error('Function not implemented.');
-}
+
