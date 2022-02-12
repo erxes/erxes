@@ -302,7 +302,7 @@ const conversationMutations = {
       conversations: [conversation],
       type: 'conversationAddMessage',
       mobile: true,
-      messageContent: doc.content,
+      messageContent: doc.content
     });
 
     // do not send internal message to third service integrations
@@ -453,7 +453,7 @@ const conversationMutations = {
       conversations: [conversation],
       type: 'conversationStateChange',
       mobile: true,
-      messageContent: doc.content,
+      messageContent: doc.content
     });
 
     const requestName = 'replyFacebookPost';
@@ -796,7 +796,7 @@ const conversationMutations = {
   ) {
     await Conversations.updateConversation(_id, { customFieldsData });
     return Conversations.getConversation(_id);
-  },
+  }
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
