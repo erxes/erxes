@@ -6,21 +6,21 @@ import {
   getCompanyIds,
   getCustomerIds,
   getItem,
-  getNewOrder,
+  getNewOrder
 } from '../../../models/utils';
 import {
   IItemCommonFields,
   IItemDragCommonFields,
-  IStageDocument,
+  IStageDocument
 } from '../../../models/definitions/boards';
 import {
   BOARD_STATUSES,
-  NOTIFICATION_TYPES,
+  NOTIFICATION_TYPES
 } from '../../../models/definitions/constants';
 import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
   IGrowthHack,
-  IGrowthHackDocument,
+  IGrowthHackDocument
 } from '../../../models/definitions/growthHacks';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { ITicket, ITicketDocument } from '../../../models/definitions/tickets';
@@ -29,7 +29,7 @@ import {
   putActivityLog,
   putCreateLog,
   putDeleteLog,
-  putUpdateLog,
+  putUpdateLog
 } from '../../../logUtils';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
@@ -38,14 +38,14 @@ import {
   createConformity,
   IBoardNotificationParams,
   prepareBoardItemDoc,
-  sendNotifications,
+  sendNotifications
 } from '../../utils';
 import {
   sendConformityMessage,
   sendFieldRPCMessage,
   sendNotificationMessage,
   sendCoreMessage,
-  sendProductMessage,
+  sendProductMessage
 } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
@@ -108,8 +108,8 @@ export const itemsAdd = async (
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
-      aboveItemId: doc.aboveItemId,
-    }),
+      aboveItemId: doc.aboveItemId
+    })
   };
 
   if (extendedDoc.customFieldsData) {
@@ -126,7 +126,7 @@ export const itemsAdd = async (
     mainType: type,
     mainTypeId: item._id,
     companyIds: doc.companyIds,
-    customerIds: doc.customerIds,
+    customerIds: doc.customerIds
   });
 
   if (user) {
@@ -136,14 +136,14 @@ export const itemsAdd = async (
       type: NOTIFICATION_TYPES.DEAL_ADD,
       action: `invited you to the ${type}`,
       content: `'${item.name}'.`,
-      contentType: type,
+      contentType: type
     });
 
     await putCreateLog(
       {
         type,
         newData: extendedDoc,
-        object: item,
+        object: item
       },
       user
     );
@@ -159,9 +159,9 @@ export const itemsAdd = async (
       data: {
         item,
         aboveItemId: doc.aboveItemId,
-        destinationStageId: stage._id,
-      },
-    },
+        destinationStageId: stage._id
+      }
+    }
   });
 
   return item;
@@ -172,7 +172,7 @@ export const changeItemStatus = async ({
   item,
   status,
   proccessId,
-  stage,
+  stage
 }: {
   type: string;
   item: any;
@@ -189,8 +189,8 @@ export const changeItemStatus = async ({
         data: {
           item,
           oldStageId: item.stageId,
-        },
-      },
+        }
+      }
     });
 
     return;
@@ -202,7 +202,7 @@ export const changeItemStatus = async ({
     .find({
       stageId: item.stageId,
       status: { $ne: BOARD_STATUSES.ARCHIVED },
-      order: { $lt: item.order },
+      order: { $lt: item.order }
     })
     .sort({ order: -1 })
     .limit(1);
@@ -212,14 +212,14 @@ export const changeItemStatus = async ({
   // maybe, recovered order includes to oldOrders
   await collection.updateOne(
     {
-      _id: item._id,
+      _id: item._id
     },
     {
       order: await getNewOrder({
         collection,
         stageId: item.stageId,
-        aboveItemId,
-      }),
+        aboveItemId
+      })
     }
   );
 
@@ -231,9 +231,9 @@ export const changeItemStatus = async ({
       data: {
         item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
-        destinationStageId: item.stageId,
-      },
-    },
+        destinationStageId: item.stageId
+      }
+    }
   });
 };
 
@@ -249,7 +249,7 @@ export const itemsEdit = async (
   const extendedDoc = {
     ...doc,
     modifiedAt: new Date(),
-    modifiedBy: user._id,
+    modifiedBy: user._id
   };
 
   if (extendedDoc.customFieldsData) {
@@ -270,7 +270,7 @@ export const itemsEdit = async (
     item: updatedItem,
     user,
     type: NOTIFICATION_TYPES.TASK_EDIT,
-    contentType: type,
+    contentType: type
   };
 
   const stage = await Stages.getStage(updatedItem.stageId);
@@ -284,7 +284,7 @@ export const itemsEdit = async (
         item: updatedItem,
         contentType: type,
         action: activityAction,
-        userId: user._id,
+        userId: user._id
       },
     });
 
@@ -294,7 +294,7 @@ export const itemsEdit = async (
       item: updatedItem,
       status: activityAction,
       proccessId,
-      stage,
+      stage
     });
   }
 
@@ -312,7 +312,7 @@ export const itemsEdit = async (
         contentId: _id,
         userId: user._id,
         contentType: type,
-        content: activityContent,
+        content: activityContent
       },
     });
 
@@ -327,7 +327,7 @@ export const itemsEdit = async (
       type,
       object: oldItem,
       newData: extendedDoc,
-      updatedDocument: updatedItem,
+      updatedDocument: updatedItem
     },
     user
   );
@@ -342,9 +342,9 @@ export const itemsEdit = async (
         action: 'itemRemove',
         data: {
           item: oldItem,
-          oldStageId: oldStage._id,
-        },
-      },
+          oldStageId: oldStage._id
+        }
+      }
     });
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
@@ -354,7 +354,7 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(type, updatedItem)),
+            ...(await itemResolver(type, updatedItem))
           },
           aboveItemId: '',
           destinationStageId: stage._id,
@@ -547,7 +547,7 @@ export const itemsRemove = async (
     type: `${type}Delete`,
     action: `deleted ${type}:`,
     content: `'${item.name}'`,
-    contentType: type,
+    contentType: type
   });
 
   await destroyBoardItemRelations(item._id, type);
@@ -585,14 +585,14 @@ export const itemsCopy = async (
     mainType: type,
     mainTypeId: clone._id,
     customerIds,
-    companyIds,
+    companyIds
   });
 
   await copyChecklists({
     contentType: type,
     contentTypeId: item._id,
     targetContentId: clone._id,
-    user,
+    user
   });
 
   // order notification
@@ -606,9 +606,9 @@ export const itemsCopy = async (
       data: {
         item: { ...clone._doc, ...(await itemResolver(type, clone)) },
         aboveItemId: _id,
-        destinationStageId: stage._id,
-      },
-    },
+        destinationStageId: stage._id
+      }
+    }
   });
 
   await publishHelperItemsConformities(clone, stage);
@@ -646,7 +646,7 @@ export const itemsArchive = async (
         item,
         contentType: type,
         action: 'archived',
-        userId: user._id,
+        userId: user._id
       },
     });
 
@@ -657,7 +657,7 @@ export const itemsArchive = async (
         action: 'itemsRemove',
         data: {
           item,
-          destinationStageId: stage._id,
+          destinationStageId: stage._id
         },
       },
     });
@@ -677,7 +677,7 @@ export const publishHelperItemsConformities = async (
       action: 'itemOfConformitiesUpdate',
       data: {
         item: {
-          ...item,
+          ...item
         },
       },
     },
@@ -708,7 +708,7 @@ const checkBookingConvert = async (productId: string) => {
   return {
     product,
     dealUOM,
-    dealCurrency,
+    dealCurrency
   };
 };
 
@@ -722,11 +722,10 @@ export const conversationConvertToCard = async (args) => {
     itemName,
     stageId,
     _id,
-    docModifier,
+    docModifier
   } = args;
 
   const { collection, update, create } = getCollection(type);
-  console.log('-----------------', conversation, type);
   if (itemId) {
     const oldItem = await collection.findOne({ _id: itemId }).lean();
 
@@ -740,7 +739,7 @@ export const conversationConvertToCard = async (args) => {
         unitPrice: product.unitPrice,
         uom: dealUOM,
         currency: dealCurrency,
-        quantity: product.productCount,
+        quantity: product.productCount
       });
     }
 
@@ -773,7 +772,7 @@ export const conversationConvertToCard = async (args) => {
         mainType: type,
         mainTypeId: item._id,
         relType: 'customer',
-        relTypeId: conversation.customerId,
+        relTypeId: conversation.customerId
       });
     }
 
@@ -798,8 +797,8 @@ export const conversationConvertToCard = async (args) => {
           unitPrice: product.unitPrice,
           uom: dealUOM,
           currency: dealCurrency,
-          quantity: product.productCount,
-        },
+          quantity: product.productCount
+        }
       ];
     }
 
