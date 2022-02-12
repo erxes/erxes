@@ -4,26 +4,26 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { Configs, Customers, Users } from './apiCollections';
 import inmemoryStorage from './inmemoryStorage';
 
-const sendError = (message) => ({
+const sendError = message => ({
   status: 'error',
-  errorMessage: message,
+  errorMessage: message
 });
 
-const sendSuccess = (data) => ({
+const sendSuccess = data => ({
   status: 'success',
-  data,
+  data
 });
 
 /*
  * Handle requests from integrations api
  */
-export const receiveRpcMessage = async (msg) => {
+export const receiveRpcMessage = async msg => {
   const { action, metaInfo, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
     const integration = await Integrations.findOne({
-      _id: doc.integrationId,
+      _id: doc.integrationId
     });
 
     if (!integration) {
@@ -34,7 +34,7 @@ export const receiveRpcMessage = async (msg) => {
 
     let customer;
 
-    const getCustomer = async (selector) => Customers.findOne(selector).lean();
+    const getCustomer = async selector => Customers.findOne(selector).lean();
 
     if (primaryPhone) {
       customer = await getCustomer({ primaryPhone });
@@ -54,7 +54,7 @@ export const receiveRpcMessage = async (msg) => {
     } else {
       customer = await Customers.createCustomer({
         ...doc,
-        scopeBrandIds: integration.brandId,
+        scopeBrandIds: integration.brandId
       });
     }
 
@@ -75,7 +75,7 @@ export const receiveRpcMessage = async (msg) => {
     if (conversationId) {
       await Conversations.updateConversation(conversationId, {
         content,
-        assignedUserId,
+        assignedUserId
       });
 
       return sendSuccess({ _id: conversationId });
@@ -104,7 +104,7 @@ export const receiveRpcMessage = async (msg) => {
           : CONVERSATION_STATUSES.CLOSED,
 
       // Mark as unread
-      readUserIds: [],
+      readUserIds: []
     };
 
     if (message.content && metaInfo === 'replaceContent') {
@@ -121,11 +121,11 @@ export const receiveRpcMessage = async (msg) => {
     );
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message,
+      conversationClientMessageInserted: message
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message,
+      conversationMessageInserted: message
     });
 
     return sendSuccess({ _id: message._id });
@@ -141,14 +141,14 @@ export const receiveRpcMessage = async (msg) => {
 
   if (action === 'getUserIds') {
     const users = await Users.find({}, { _id: 1 });
-    return sendSuccess({ userIds: users.map((user) => user._id) });
+    return sendSuccess({ userIds: users.map(user => user._id) });
   }
 };
 
 /*
  * Integrations api notification
  */
-export const receiveIntegrationsNotification = async (msg) => {
+export const receiveIntegrationsNotification = async msg => {
   const { action } = msg;
 
   if (action === 'external-integration-entry-added') {
@@ -167,12 +167,6 @@ export const receiveIntegrationsNotification = async (msg) => {
 /**
  * Remove engage conversations
  */
-export const removeEngageConversations = async (_id) => {
+export const removeEngageConversations = async _id => {
   await Conversations.removeEngageConversations(_id);
 };
-function sendCoreMessages(
-  arg0: string,
-  arg1: { Configs: any; inmemoryStorage: () => any }
-) {
-  throw new Error('Function not implemented.');
-}
