@@ -20,7 +20,7 @@ const createConversationAndMessage = async (
     customerId,
     visitorId,
     integrationId,
-    content,
+    content
   });
 
   // create message
@@ -30,11 +30,11 @@ const createConversationAndMessage = async (
     userId,
     customerId,
     visitorId,
-    content,
+    content
   });
 };
 
-export const generateFields = async (args) => {
+export const generateFields = async args => {
   const schema: any = Conversations.schema;
 
   let fields: Array<{
@@ -58,7 +58,7 @@ export const generateFields = async (args) => {
     if (path.schema) {
       fields = [
         ...fields,
-        ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
       ];
     }
   }
@@ -98,10 +98,22 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue(
     'rpc_queue:integrations_to_api',
-    async (data) => await receiveRpcMessage(data)
+      async data => await receiveRpcMessage(data)
   );
 
-  consumeQueue('inbox:removeCustomersConversations', async (customerIds) => {
+  consumeRPCQueue(
+    'inbox:rpc_queue:findIntegrations',
+    async ({ query, options }) => {
+      const integrations = await Integrations.findIntegrations(
+        query,
+        options
+      );
+
+      return { data: integrations, status: 'success' };
+    }
+  );
+
+  consumeQueue('inbox:removeCustomersConversations', async customerIds => {
     await Conversations.removeCustomersConversations(customerIds);
   });
 
@@ -109,12 +121,12 @@ export const initBroker = (cl) => {
     await Conversations.changeCustomer(customerId, customerIds);
   });
 
-  consumeRPCQueue('inbox:rpc_queue:getFields', async (args) => ({
+  consumeRPCQueue('inbox:rpc_queue:getFields', async args => ({
     status: 'success',
-    data: await generateFields(args),
+    data: await generateFields(args)
   }));
 
-  consumeRPCQueue('inbox:rpc_queue:tag', async (args) => {
+  consumeRPCQueue('inbox:rpc_queue:tag', async args => {
     let data = {};
 
     if (args.action === 'count') {
@@ -133,13 +145,13 @@ export const initBroker = (cl) => {
 
     return {
       status: 'success',
-      data,
-    };
+      data
+    }
   });
 };
 
 export const sendCardMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`cards:rpc_queue:${action}`, data);
+  return client.sendRPCMessage(`cards:rpc_queue:${action}`, data);
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
