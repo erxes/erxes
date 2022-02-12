@@ -8,6 +8,7 @@ import React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
 import ActionBarDropDown from 'modules/settings/template/containers/actionBar/ActionBar';
+import { BarItems } from 'erxes-ui';
 
 type Props = {
   title: string;
@@ -24,6 +25,8 @@ type Props = {
   emptyContent?: React.ReactNode;
   leftSidebar?: any;
   queryParams?: any;
+  searchValue?: string;
+  history?: any;
   rightActionBar?: any;
 };
 
@@ -50,7 +53,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       emptyContent,
       leftSidebar,
       rightActionBar,
-      queryParams
+      queryParams,
+      history
     } = this.props;
 
     const trigger = (
@@ -64,10 +68,10 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     };
 
     const actionBarRight = rightActionBar ? (
-      <>
+      <BarItems>
         {additionalButton}
-        <ActionBarDropDown queryParams={queryParams} />
-      </>
+        <ActionBarDropDown queryParams={queryParams} history={history} />
+      </BarItems>
     ) : (
       <>
         {additionalButton}

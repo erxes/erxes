@@ -7,8 +7,10 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "Settings - List Scripts" */ './containers/List')
 );
 
-const scripts = ({ location }) => {
-  return <List queryParams={queryString.parse(location.search)} />;
+const scripts = ({ location, history }) => {
+  return (
+    <List queryParams={queryString.parse(location.search)} history={history} />
+  );
 };
 
 const routes = () => <Route path="/settings/scripts/" component={scripts} />;

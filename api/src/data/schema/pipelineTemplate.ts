@@ -18,6 +18,7 @@ export const types = `
     description: String
     type: String
     isDefinedByErxes: Boolean
+    status: String
     stages: [PipelineTemplateStage]
     createdBy: String
     createdAt: Date
@@ -32,7 +33,7 @@ const commonParams = `
 `;
 
 export const queries = `
-  pipelineTemplates(type: String!): [PipelineTemplate]
+  pipelineTemplates(type: String!, searchValue: String): [PipelineTemplate]
   pipelineTemplateDetail(_id: String!): PipelineTemplate
   pipelineTemplatesTotalCount: Int
 `;
@@ -42,4 +43,6 @@ export const mutations = `
   pipelineTemplatesEdit(_id: String!, ${commonParams}): PipelineTemplate
   pipelineTemplatesRemove(_id: String!): JSON
   pipelineTemplatesDuplicate(_id: String!): PipelineTemplate
+  pipelineTemplatesChangeStatus(_id: String!, status: String): PipelineTemplate
+
 `;

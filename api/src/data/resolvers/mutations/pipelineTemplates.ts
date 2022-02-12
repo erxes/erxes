@@ -74,6 +74,38 @@ const pipelineTemplateMutations = {
   },
 
   /**
+   * Changes a status
+   * @param {string} param2._id PipelineTemplate id
+   * @param {string} param2.status PipelineTemplate status
+   */
+  async pipelineTemplatesChangeStatus(
+    _root,
+    { _id, status }: IPipelineTemplatesEdit,
+    { user }: IContext
+  ) {
+    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
+
+    console.log('before', pipelineTemplate);
+
+    await PipelineTemplates.updateOne({ _id }, { $set: { status } });
+    const updated = await PipelineTemplates.findOne({ _id });
+
+    console.log('after', updated);
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.PIPELINE_TEMPLATE,
+        object: pipelineTemplate,
+        newData: { status },
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return updated;
+  },
+
+  /**
    * Duplicate pipeline template
    */
   async pipelineTemplatesDuplicate(

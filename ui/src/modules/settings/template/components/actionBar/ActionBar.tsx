@@ -1,6 +1,6 @@
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
@@ -9,17 +9,56 @@ import ProductForm from '../../containers/product/ProductForm';
 import EmailTemplateForm from 'modules/settings/emailTemplates/components/Form';
 import ResponseTemplateForm from 'modules/settings/responseTemplates/components/Form';
 import GrowthHacksTemplateForm from 'modules/settings/growthHacks/components/TemplateForm';
-
 import { IButtonMutateProps } from 'modules/common/types';
+import { FormControl } from 'modules/common/components/form';
+import { BarItems } from 'modules/layout/styles';
 
 type Props = {
   queryParams: any;
+  searchValue: string;
+  history: any;
   renderButtonEmailTemplates: (props: IButtonMutateProps) => JSX.Element;
   renderButtonResponseTemplates: (props: IButtonMutateProps) => JSX.Element;
   renderButtonGrowthHackTemplates: (props: IButtonMutateProps) => JSX.Element;
 };
 
-class ActionBar extends React.Component<Props> {
+type State = {
+  searchValue?: string;
+};
+class ActionBar extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      searchValue: this.props.searchValue
+    };
+  }
+
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
+    const { history } = this.props;
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
+  };
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
+
   render() {
     const triggerProduct = (
       <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
@@ -71,44 +110,55 @@ class ActionBar extends React.Component<Props> {
     };
 
     return (
-      <Dropdown alignRight={true}>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
-          <Button btnStyle="primary">
-            {__('Add new template')}
-            <Icon icon="angle-down" />
-          </Button>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <ModalTrigger
-            title="Add new template"
-            trigger={triggerEmail}
-            autoOpenKey="showProductModal"
-            content={modelContentEmail}
-            size="lg"
-          />
-          <ModalTrigger
-            title="Add new template"
-            trigger={triggerResponse}
-            autoOpenKey="showProductModal"
-            content={modelContentResponse}
-            size="lg"
-          />
-          <ModalTrigger
-            title="Add new template"
-            trigger={triggerGrowthHacking}
-            autoOpenKey="showProductModal"
-            content={modelContentGrowthHacks}
-            size="lg"
-          />
-          <ModalTrigger
-            title="Add new template"
-            trigger={triggerProduct}
-            autoOpenKey="showProductModal"
-            content={modalContent}
-            size="lg"
-          />
-        </Dropdown.Menu>
-      </Dropdown>
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__('Search')}
+          onChange={this.search}
+          value={this.state.searchValue}
+          autoFocus={true}
+          onFocus={this.moveCursorAtTheEnd}
+        />
+
+        <Dropdown alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
+            <Button btnStyle="primary">
+              {__('Add new template')}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <ModalTrigger
+              title="Add new template"
+              trigger={triggerEmail}
+              autoOpenKey="showProductModal"
+              content={modelContentEmail}
+              size="lg"
+            />
+            <ModalTrigger
+              title="Add new template"
+              trigger={triggerResponse}
+              autoOpenKey="showProductModal"
+              content={modelContentResponse}
+              size="lg"
+            />
+            <ModalTrigger
+              title="Add new template"
+              trigger={triggerGrowthHacking}
+              autoOpenKey="showProductModal"
+              content={modelContentGrowthHacks}
+              size="lg"
+            />
+            <ModalTrigger
+              title="Add new template"
+              trigger={triggerProduct}
+              autoOpenKey="showProductModal"
+              content={modalContent}
+              size="lg"
+            />
+          </Dropdown.Menu>
+        </Dropdown>
+      </BarItems>
     );
   }
 }

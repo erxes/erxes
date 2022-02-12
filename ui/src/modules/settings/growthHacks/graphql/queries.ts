@@ -1,6 +1,6 @@
 const pipelineTemplates = `
-  query pipelineTemplates($type: String!) {
-    pipelineTemplates(type: $type) {
+  query pipelineTemplates($type: String!, $searchValue: String) {
+    pipelineTemplates(type: $type, searchValue: $searchValue) {
       _id
       name
       description

@@ -2,6 +2,36 @@ import { PipelineTemplates } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { checkPermission } from '../boardUtils';
+import { escapeRegExp } from '../../utils';
+
+interface IListParams {
+  type: string;
+  searchValue: string;
+  status: string;
+}
+
+const generateFilter = (commonSelector, args: IListParams) => {
+  const { searchValue, type, status } = args;
+
+  const filter: any = commonSelector;
+
+  if (type) {
+    filter.type = type;
+  }
+
+  if (searchValue) {
+    filter.$or = [
+      { name: new RegExp(`.*${searchValue}.*`, 'i') },
+      { description: new RegExp(`.*${searchValue}.*`, 'i') }
+    ];
+  }
+
+  if (status) {
+    filter.status = { $in: [new RegExp(`.*${escapeRegExp(status)}.*`, 'i')] };
+  }
+
+  return filter;
+};
 
 const pipelineTemplateQueries = {
   /**
@@ -9,12 +39,14 @@ const pipelineTemplateQueries = {
    */
   async pipelineTemplates(
     _root,
-    { type }: { type: string },
-    { user }: IContext
+    args: IListParams,
+    { commonQuerySelector, user }: IContext
   ) {
-    await checkPermission(type, user, 'showTemplates');
+    await checkPermission(args.type, user, 'showTemplates');
 
-    return PipelineTemplates.find({ type });
+    const filter = generateFilter(commonQuerySelector, args);
+
+    return PipelineTemplates.find(filter);
   },
 
   /**

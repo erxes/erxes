@@ -1,4 +1,4 @@
-import HeaderDescription from 'modules/common/components/HeaderDescription';
+// import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -18,6 +18,7 @@ import Form from './Form';
 
 type Props = {
   queryParams: any;
+  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonListProps;
 
@@ -85,24 +86,26 @@ class EmailTemplateList extends React.Component<Props> {
           { title: __('Email templates') }
         ]}
         title={__('Email templates')}
-        leftActionBar={
-          <HeaderDescription
-            icon="/images/actions/22.svg"
-            title="Email templates"
-            description={`${__(
-              `It's all about thinking ahead for your customers`
-            )}.${__(
-              'Team members will be able to choose from email templates and send out one message to multiple recipients'
-            )}.${__(
-              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members'
-            )}`}
-          />
-        }
+        // leftActionBar={
+        //   <HeaderDescription
+        //     icon="/images/actions/22.svg"
+        //     title="Email templates"
+        //     description={`${__(
+        //       `It's all about thinking ahead for your customers`
+        //     )}.${__(
+        //       'Team members will be able to choose from email templates and send out one message to multiple recipients'
+        //     )}.${__(
+        //       'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members'
+        //     )}`}
+        //   />
+        // }
         renderForm={this.renderForm}
         rightActionBar={true}
         renderContent={this.renderContent}
         leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         {...this.props}
+        queryParams={this.props.queryParams}
+        history={this.props.history}
       />
     );
   }

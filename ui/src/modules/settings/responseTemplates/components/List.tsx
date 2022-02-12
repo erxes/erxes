@@ -1,6 +1,6 @@
 import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
+// import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Table from 'modules/common/components/table';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
@@ -19,6 +19,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams: any;
   history: any;
+  searchValue: string;
 } & ICommonListProps;
 
 type States = {
@@ -138,17 +139,17 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           { title: __('Response templates') }
         ]}
         title={__('Response templates')}
-        mainHead={
-          <HeaderDescription
-            icon="/images/actions/24.svg"
-            title="Response templates"
-            description={`${__(
-              'Make things easy for your team members and add in ready made response templates'
-            )}.${__(
-              'Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
-            )}`}
-          />
-        }
+        // leftActionBar={
+        //   <HeaderDescription
+        //     icon="/images/actions/24.svg"
+        //     title="Response templates"
+        //     description={`${__(
+        //       'Make things easy for your team members and add in ready made response templates'
+        //     )}.${__(
+        //       'Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
+        //     )}`}
+        //   />
+        // }
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}

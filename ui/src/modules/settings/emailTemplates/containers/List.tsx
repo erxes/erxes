@@ -23,6 +23,7 @@ export type EmailTemplatesQueryResponse = {
 
 type Props = {
   queryParams: any;
+  history: any;
 };
 
 export default commonListComposer<Props>({
@@ -36,7 +37,10 @@ export default commonListComposer<Props>({
     options: ({ queryParams }: { queryParams: any }) => {
       return {
         notifyOnNetworkStatusChange: true,
-        variables: generatePaginationParams(queryParams)
+        variables: {
+          searchValue: queryParams.searchValue,
+          ...generatePaginationParams(queryParams)
+        }
       };
     }
   }),

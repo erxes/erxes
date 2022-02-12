@@ -8,6 +8,7 @@ import Form from '../../components/actionBar/ActionBar';
 
 type Props = {
   queryParams: any;
+  history: any;
 };
 
 class ProductFormContainer extends React.Component<Props> {
@@ -87,8 +88,11 @@ class ProductFormContainer extends React.Component<Props> {
       );
     };
 
+    const searchValue = this.props.queryParams.searchValue || '';
+
     const updatedProps = {
       ...this.props,
+      searchValue,
       renderButtonEmailTemplates,
       renderButtonResponseTemplates,
       renderButtonGrowthHackTemplates

@@ -2,7 +2,6 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyState from 'modules/common/components/EmptyState';
 import { FormControl } from 'modules/common/components/form';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { Count } from 'modules/common/styles/main';
@@ -11,11 +10,7 @@ import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
 import React from 'react';
-import ProductForm from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import Row from './ProductRow';
 import { IProductTemplate } from '../../types';
@@ -141,58 +136,8 @@ class List extends React.Component<Props, State> {
       { title: __('Product & Service') }
     ];
 
-    const trigger1 = (
-      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>Import items</div>
-    );
-
-    const trigger2 = (
-      <div style={{ marginLeft: '15px', cursor: 'pointer' }}>
-        Placeholder item
-      </div>
-    );
-
-    const modalContent = props => <ProductForm {...props} />;
-
-    console.log('actionBarDropDown', ActionBarDropDown);
-
     let actionBarRight = (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-
-        <Dropdown alignRight={true} style={{ borderRadius: '5px' }}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
-            <Button btnStyle="simple">
-              {__('Manage')}
-              <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <ModalTrigger
-              title="Import items"
-              trigger={trigger1}
-              autoOpenKey="showProductModal"
-              content={modalContent}
-              size="lg"
-            />
-            <ModalTrigger
-              title="Place holder item"
-              trigger={trigger2}
-              autoOpenKey="showProductModal"
-              content={modalContent}
-              size="lg"
-            />
-          </Dropdown.Menu>
-        </Dropdown>
-
-        <ActionBarDropDown queryParams={queryParams} />
-      </BarItems>
+      <ActionBarDropDown queryParams={queryParams} history={history} />
     );
 
     let content = (

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
+// import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
@@ -14,12 +14,19 @@ import { ICommonListProps } from '../../common/types';
 import { Actions, Bottom, BoxItem, Created } from '../styles';
 import TemplateForm from './TemplateForm';
 import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
+import { PIPELINE_TEMPLATE_STATUSES } from '../constants';
 
 type Props = {
   queryParams: any;
+  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
+  changeStatus: (_id: string, status: string) => void;
 } & ICommonListProps;
+
+// type State = {
+//   tipText: string
+// }
 
 class TemplateList extends React.Component<Props> {
   renderForm = props => {
@@ -67,15 +74,46 @@ class TemplateList extends React.Component<Props> {
     );
   }
 
+  renderDisableAction(object) {
+    console.log('object disable:', object);
+
+    const { changeStatus } = this.props;
+    const _id = object._id;
+    const isActive = object.status === PIPELINE_TEMPLATE_STATUSES.ACTIVE;
+    console.log('isactive', isActive);
+    const icon = isActive ? 'archive-alt' : 'redo';
+
+    const status = isActive
+      ? PIPELINE_TEMPLATE_STATUSES.ARCHIVED
+      : PIPELINE_TEMPLATE_STATUSES.ACTIVE;
+
+    if (!changeStatus) {
+      return null;
+    }
+
+    const onClick = () => changeStatus(_id, status);
+
+    return (
+      <Tip text={__(status)}>
+        <div onClick={onClick}>
+          <Icon icon={icon} />
+        </div>
+      </Tip>
+    );
+  }
+
   renderActions = object => {
     if (object.isDefinedByErxes) {
       return <Actions>{this.renderDuplicateAction(object)}</Actions>;
     }
 
+    console.log('object actions:    ', object);
+
     return (
       <Actions>
         {this.renderEditAction(object)}
         {this.renderDuplicateAction(object)}
+        {this.renderDisableAction(object)}
         <Tip text="Remove">
           <div onClick={this.removeTemplate.bind(this, object)}>
             <Icon icon="trash" />
@@ -123,17 +161,17 @@ class TemplateList extends React.Component<Props> {
           { title: __('Growth Hacking Templates') }
         ]}
         title={__('Growth Hacking Templates')}
-        leftActionBar={
-          <HeaderDescription
-            icon="/images/actions/34.svg"
-            title="Growth Hacking Templates"
-            description={`${__(
-              'Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs'
-            )}.${__(
-              'Add in or delete boards and pipelines to keep business development on track and in check'
-            )}`}
-          />
-        }
+        // leftActionBar={
+        //   <HeaderDescription
+        //     icon="/images/actions/34.svg"
+        //     title="Growth Hacking Templates"
+        //     description={`${__(
+        //       'Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs'
+        //     )}.${__(
+        //       'Add in or delete boards and pipelines to keep business development on track and in check'
+        //     )}`}
+        //   />
+        // }
         additionalButton={this.renderButton()}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
