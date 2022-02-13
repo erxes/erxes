@@ -33,7 +33,7 @@ const commonParams = `
 `;
 
 export const queries = `
-  pipelineTemplates(type: String!, searchValue: String): [PipelineTemplate]
+  pipelineTemplates(type: String!, searchValue: String, status: String): [PipelineTemplate]
   pipelineTemplateDetail(_id: String!): PipelineTemplate
   pipelineTemplatesTotalCount: Int
 `;

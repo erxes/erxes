@@ -4,14 +4,14 @@ export const types = `
     name: String!
     brandId: String!
     content: String
-
+    status: String
     brand: Brand,
     files: JSON
   }
 `;
 
 export const queries = `
-  responseTemplates(page: Int, perPage: Int, searchValue: String, brandId: String): [ResponseTemplate]
+  responseTemplates(page: Int, perPage: Int, searchValue: String, brandId: String, status: String): [ResponseTemplate]
   responseTemplatesTotalCount(searchValue: String, brandId: String): Int
 `;
 
@@ -32,4 +32,6 @@ export const mutations = `
   ): ResponseTemplate
 
   responseTemplatesRemove(_id: String!): JSON
+  responseTemplatesChangeStatus(_id: String!, status: String): ResponseTemplate
+
 `;

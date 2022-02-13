@@ -52,8 +52,8 @@ class TemplateListContainer extends React.Component<Props> {
       : 'You are going to active this pipeline template. Are you sure?';
 
     const statusAction = isActive
-      ? PIPELINE_TEMPLATE_STATUSES.ARCHIVED
-      : PIPELINE_TEMPLATE_STATUSES.ACTIVE;
+      ? PIPELINE_TEMPLATE_STATUSES.ACTIVE
+      : PIPELINE_TEMPLATE_STATUSES.ARCHIVED;
 
     console.log('pipeline variables: ', _id, status);
 
@@ -69,6 +69,7 @@ class TemplateListContainer extends React.Component<Props> {
 
           if (template && template._id) {
             Alert.success(`Pipeline template has been ${statusAction}.`);
+            this.props.refetch();
           }
         })
         .catch(e => {
@@ -101,6 +102,7 @@ export default commonListComposer<Props>({
         notifyOnNetworkStatusChange: true,
         variables: {
           searchValue: queryParams.searchValue,
+          status: queryParams.status,
           type: 'growthHack',
           ...generatePaginationParams(queryParams)
         }

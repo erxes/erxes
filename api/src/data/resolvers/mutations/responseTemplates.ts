@@ -57,6 +57,38 @@ const responseTemplateMutations = {
   },
 
   /**
+   * Changes a status
+   * @param {string} param2._id PipelineTemplate id
+   * @param {string} param2.status PipelineTemplate status
+   */
+  async responseTemplatesChangeStatus(
+    _root,
+    { _id, status }: IResponseTemplatesEdit,
+    { user }: IContext
+  ) {
+    const responseTemplate = await ResponseTemplates.getResponseTemplate(_id);
+
+    console.log('before', responseTemplate);
+
+    await ResponseTemplates.updateOne({ _id }, { $set: { status } });
+    const updated = await ResponseTemplates.findOne({ _id });
+
+    console.log('after', updated);
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.PIPELINE_TEMPLATE,
+        object: responseTemplate,
+        newData: { status },
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return updated;
+  },
+
+  /**
    * Deletes a response template
    */
   async responseTemplatesRemove(

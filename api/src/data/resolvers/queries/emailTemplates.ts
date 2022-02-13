@@ -2,15 +2,17 @@ import { EmailTemplates } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
+import { escapeRegExp } from '../../utils';
 
 interface IListParams {
   page: number;
   perPage: number;
   searchValue: string;
+  status: string;
 }
 
 const generateFilter = (commonSelector, args: IListParams) => {
-  const { searchValue } = args;
+  const { searchValue, status } = args;
 
   const filter: any = commonSelector;
 
@@ -19,6 +21,10 @@ const generateFilter = (commonSelector, args: IListParams) => {
       { name: new RegExp(`.*${searchValue}.*`, 'i') },
       { content: new RegExp(`.*${searchValue}.*`, 'i') }
     ];
+  }
+
+  if (status) {
+    filter.status = { $in: [new RegExp(`.*${escapeRegExp(status)}.*`, 'i')] };
   }
 
   return filter;

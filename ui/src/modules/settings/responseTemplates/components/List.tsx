@@ -14,12 +14,15 @@ import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';
 import Form from '../components/Form';
 import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
+import { RESPONSE_TEMPLATE_STATUSES } from '../constants';
+import Tip from 'modules/common/components/Tip';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  changeStatus: (_id: string, status: string) => void;
   queryParams: any;
   history: any;
-  searchValue: string;
 } & ICommonListProps;
 
 type States = {
@@ -51,6 +54,34 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
+  renderDisableAction = object => {
+    console.log('object disable:', object);
+
+    const { changeStatus } = this.props;
+    const _id = object._id;
+    const isActive = object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+    console.log('isactive', isActive);
+    const icon = isActive ? 'archive-alt' : 'redo';
+
+    const status = isActive
+      ? RESPONSE_TEMPLATE_STATUSES.ARCHIVED
+      : RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+
+    if (!changeStatus) {
+      return null;
+    }
+
+    const onClick = () => changeStatus(_id, status);
+
+    return (
+      <Tip text={__(status)}>
+        <div onClick={onClick}>
+          <Icon icon={icon} />
+        </div>
+      </Tip>
+    );
+  };
+
   renderRows = ({ objects }) => {
     return objects.map((object, index) => {
       const brand = object.brand || {};
@@ -64,6 +95,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             object={object}
             size="lg"
             renderForm={this.renderForm}
+            additionalActions={this.renderDisableAction}
           />
         </tr>
       );

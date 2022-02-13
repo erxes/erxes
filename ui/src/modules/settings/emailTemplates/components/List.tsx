@@ -1,5 +1,4 @@
 // import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -15,16 +14,48 @@ import {
   Templates
 } from '../styles';
 import Form from './Form';
+import { EMAIL_TEMPLATE_STATUSES } from '../constants';
+import Tip from 'modules/common/components/Tip';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  changeStatus: (_id: string, status: string) => void;
 } & ICommonListProps;
 
 class EmailTemplateList extends React.Component<Props> {
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
+  };
+
+  renderDisableAction = object => {
+    console.log('object disable:', object);
+
+    const { changeStatus } = this.props;
+    const _id = object._id;
+    const isActive = object.status === EMAIL_TEMPLATE_STATUSES.ACTIVE;
+    console.log('isactive', isActive);
+    const icon = isActive ? 'archive-alt' : 'redo';
+
+    const status = isActive
+      ? EMAIL_TEMPLATE_STATUSES.ARCHIVED
+      : EMAIL_TEMPLATE_STATUSES.ACTIVE;
+
+    if (!changeStatus) {
+      return null;
+    }
+
+    const onClick = () => changeStatus(_id, status);
+
+    return (
+      <Tip text={__(status)}>
+        <div onClick={onClick}>
+          <Icon icon={icon} /> {status}
+        </div>
+      </Tip>
+    );
   };
 
   removeTemplate = object => {
@@ -62,6 +93,7 @@ class EmailTemplateList extends React.Component<Props> {
             <div onClick={this.removeTemplate.bind(this, object)}>
               <Icon icon="cancel-1" /> Delete
             </div>
+            {this.renderDisableAction(object)}
           </Actions>
           <IframePreview>
             <iframe title="content-iframe" srcDoc={object.content} />

@@ -60,7 +60,8 @@ class ProductListContainer extends React.Component<FinalProps> {
 // };
 
 // const options = () => ({
-//   refetchQueries: getRefetchQueries()
+//   refetchQueries: getRefetchQueries(),
+//   fetchPolicy: 'network-only'
 // });
 
 export default withProps<Props>(

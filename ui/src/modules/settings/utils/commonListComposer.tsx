@@ -62,6 +62,8 @@ function commonListComposer<ComponentProps>(options) {
 
     const objects = listQuery[label] || [];
 
+    console.log('objects on commonList', objects);
+
     // remove action
     const remove = id => {
       let message;

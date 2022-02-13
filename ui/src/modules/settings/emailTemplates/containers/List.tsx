@@ -1,10 +1,19 @@
 import gql from 'graphql-tag';
+import client from 'apolloClient';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { IEmailTemplate } from '../types';
+import { Alert, confirm } from 'modules/common/utils';
+import React from 'react';
+import { EMAIL_TEMPLATE_STATUSES } from '../constants';
+import {
+  ICommonFormProps,
+  ICommonListProps
+} from 'modules/settings/common/types';
+import { IButtonMutateProps } from 'modules/common/types';
 
 export type EmailTemplatesTotalCountQueryResponse = {
   emailTemplatesTotalCount: number;
@@ -21,10 +30,51 @@ export type EmailTemplatesQueryResponse = {
   refetch: () => void;
 };
 
-type Props = {
-  queryParams: any;
-  history: any;
-};
+type Props = ICommonListProps &
+  ICommonFormProps & {
+    queryParams: any;
+    history: any;
+    renderButton: (props: IButtonMutateProps) => JSX.Element;
+  };
+
+class EmailListContainer extends React.Component<Props> {
+  changeStatus = (_id: string, status: string) => {
+    const isActive = status === EMAIL_TEMPLATE_STATUSES.ACTIVE;
+    const message = isActive
+      ? 'You are going to archive this email template. Are you sure?'
+      : 'You are going to active this email template. Are you sure?';
+
+    const statusAction = isActive
+      ? EMAIL_TEMPLATE_STATUSES.ACTIVE
+      : EMAIL_TEMPLATE_STATUSES.ARCHIVED;
+
+    console.log('email variables: ', _id, status);
+
+    confirm(message).then(() => {
+      client
+        .mutate({
+          mutation: gql(mutations.emailTemplatesChangeStatus),
+          variables: { _id, status }
+        })
+        .then(({ data }) => {
+          console.log('email change:', data);
+          const template = data.emailTemplatesChangeStatus;
+
+          if (template && template._id) {
+            Alert.success(`Email template has been ${statusAction}.`);
+            this.props.refetch();
+          }
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
+  render() {
+    return <List {...this.props} changeStatus={this.changeStatus} />;
+  }
+}
 
 export default commonListComposer<Props>({
   text: 'email template',
@@ -39,6 +89,7 @@ export default commonListComposer<Props>({
         notifyOnNetworkStatusChange: true,
         variables: {
           searchValue: queryParams.searchValue,
+          status: queryParams.status,
           ...generatePaginationParams(queryParams)
         }
       };
@@ -61,5 +112,5 @@ export default commonListComposer<Props>({
     name: 'removeMutation'
   }),
 
-  ListComponent: List
+  ListComponent: EmailListContainer
 });
