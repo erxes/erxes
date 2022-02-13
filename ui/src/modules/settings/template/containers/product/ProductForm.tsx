@@ -30,8 +30,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
   render() {
     const { productCategoriesQuery } = this.props;
 
-    console.log(this.props);
-
     if (productCategoriesQuery.loading) {
       return null;
     }
@@ -45,9 +43,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
-      console.log('object');
-      console.log(object);
-
       values.discount = Number(values.discount);
       values.totalAmount = Number(values.totalAmount);
 

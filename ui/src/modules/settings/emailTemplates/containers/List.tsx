@@ -48,8 +48,6 @@ class EmailListContainer extends React.Component<Props> {
       ? EMAIL_TEMPLATE_STATUSES.ACTIVE
       : EMAIL_TEMPLATE_STATUSES.ARCHIVED;
 
-    console.log('email variables: ', _id, status);
-
     confirm(message).then(() => {
       client
         .mutate({
@@ -57,7 +55,6 @@ class EmailListContainer extends React.Component<Props> {
           variables: { _id, status }
         })
         .then(({ data }) => {
-          console.log('email change:', data);
           const template = data.emailTemplatesChangeStatus;
 
           if (template && template._id) {

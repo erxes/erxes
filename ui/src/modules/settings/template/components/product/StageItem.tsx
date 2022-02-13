@@ -6,10 +6,13 @@ import { generateCategoryOptions } from 'erxes-ui/lib/utils';
 import React from 'react';
 import { StageItemContainer } from '../../styles';
 import { IProductTemplateItem } from '../../types';
-import { IProduct, IProductCategory } from 'modules/settings/productService/types';
+import {
+  IProduct,
+  IProductCategory
+} from 'modules/settings/productService/types';
 import client from 'erxes-ui/lib/apolloClient';
 import gql from 'graphql-tag';
-import { queries } from '../../graphql'
+import { queries } from '../../graphql';
 
 type Props = {
   item: IProductTemplateItem;
@@ -25,14 +28,13 @@ type State = {
   unitPrice: number;
   quantity: number;
   discount: number;
-}
+};
 
 class StageItem extends React.Component<Props, State> {
-
   constructor(props) {
     super(props);
 
-    const item = props.item || {} as IProductTemplateItem;
+    const item = props.item || ({} as IProductTemplateItem);
     const { unitPrice, quantity, discount, categoryId } = item;
     const defaultCategoryId = categoryId ? categoryId : undefined;
 
@@ -48,47 +50,48 @@ class StageItem extends React.Component<Props, State> {
   }
 
   getProductByCategory = (categoryId?: string, isnew = true as boolean) => {
-
     if (!categoryId) {
       const { productCategories } = this.props;
-      const defaultCategory = productCategories ? productCategories[0] : {} as IProductCategory;
-      categoryId = defaultCategory._id || "";
+      const defaultCategory = productCategories
+        ? productCategories[0]
+        : ({} as IProductCategory);
+      categoryId = defaultCategory._id || '';
     }
 
-    client.query({
-      query: gql(queries.products),
-      fetchPolicy: 'network-only',
-      variables: { categoryId }
-    }).then((products) => {
-      const datas = products.data.products;
-      const tempArray: any[] = [{ lable: "", value: "" }];
+    client
+      .query({
+        query: gql(queries.products),
+        fetchPolicy: 'network-only',
+        variables: { categoryId }
+      })
+      .then(products => {
+        const datas = products.data.products;
+        const tempArray: any[] = [{ lable: '', value: '' }];
 
-      datas.forEach(data => {
-        tempArray.push({ label: data.name, value: data._id });
-      });
-
-      this.setState({
-        products: datas,
-        productsCombo: tempArray,
-
-      });
-
-      if (isnew) {
-        this.setState({
-          unitPrice: 0,
-          quantity: 0,
-          discount: 0
+        datas.forEach(data => {
+          tempArray.push({ label: data.name, value: data._id });
         });
-      }
 
-    });
-  }
+        this.setState({
+          products: datas,
+          productsCombo: tempArray
+        });
+
+        if (isnew) {
+          this.setState({
+            unitPrice: 0,
+            quantity: 0,
+            discount: 0
+          });
+        }
+      });
+  };
 
   onUnitPrice = (_id, e) => {
     const { onChange } = this.props;
 
     onChange(_id, 'unitPrice', e.target.value);
-  }
+  };
 
   onQuantity = (_id, e) => {
     const { onChange } = this.props;
@@ -96,7 +99,7 @@ class StageItem extends React.Component<Props, State> {
 
     this.setState({ quantity });
     onChange(_id, 'quantity', quantity);
-  }
+  };
 
   onDiscount = (_id, e) => {
     const { onChange } = this.props;
@@ -106,15 +109,15 @@ class StageItem extends React.Component<Props, State> {
       this.setState({ discount });
       onChange(_id, 'discount', discount);
     }
-
-  }
+  };
 
   onItem = (_id, e) => {
     const itemId = e.target.value;
     const { onChange } = this.props;
     const { products } = this.state;
-    const product = products.find(product => product._id === itemId) || {} as IProduct;
-    const { unitPrice } = product;
+    const productOne =
+      products.find(product => product._id === itemId) || ({} as IProduct);
+    const { unitPrice } = productOne;
 
     this.setState({
       unitPrice: unitPrice ? unitPrice : 0,
@@ -125,7 +128,7 @@ class StageItem extends React.Component<Props, State> {
     onChange(_id, 'unitPrice', unitPrice);
     onChange(_id, 'quantity', 1);
     onChange(_id, 'itemId', itemId);
-  }
+  };
 
   onCategory = (_id, e) => {
     const categoryId = e.target.value;
@@ -133,7 +136,7 @@ class StageItem extends React.Component<Props, State> {
 
     this.getProductByCategory(categoryId);
     onChange(_id, 'categoryId', categoryId);
-  }
+  };
 
   render() {
     const { item, remove, productCategories } = this.props;
@@ -141,7 +144,7 @@ class StageItem extends React.Component<Props, State> {
     const { unitPrice, quantity, productsCombo, discount } = this.state;
 
     return (
-      <StageItemContainer key={_id} >
+      <StageItemContainer key={_id}>
         <FormGroup>
           <ControlLabel required={true}>Category</ControlLabel>
           <FormControl
@@ -151,7 +154,6 @@ class StageItem extends React.Component<Props, State> {
             required={true}
           >
             {generateCategoryOptions(productCategories || [])}
-
           </FormControl>
         </FormGroup>
         <FormGroup>

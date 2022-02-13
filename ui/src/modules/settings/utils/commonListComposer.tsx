@@ -62,8 +62,6 @@ function commonListComposer<ComponentProps>(options) {
 
     const objects = listQuery[label] || [];
 
-    console.log('objects on commonList', objects);
-
     // remove action
     const remove = id => {
       let message;
@@ -150,8 +148,6 @@ function commonListComposer<ComponentProps>(options) {
     };
 
     const updatedProps = {
-      ...props,
-      refetch: listQuery.refetch,
       objects,
       totalCount,
       remove,

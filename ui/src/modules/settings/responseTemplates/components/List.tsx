@@ -14,7 +14,10 @@ import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';
 import Form from '../components/Form';
 import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
-import { RESPONSE_TEMPLATE_STATUSES } from '../constants';
+import {
+  RESPONSE_TEMPLATE_STATUSES,
+  RESPONSE_TEMPLATE_TIPTEXT
+} from '../constants';
 import Tip from 'modules/common/components/Tip';
 import Icon from 'modules/common/components/Icon';
 
@@ -55,17 +58,18 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   renderDisableAction = object => {
-    console.log('object disable:', object);
-
     const { changeStatus } = this.props;
     const _id = object._id;
     const isActive = object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
-    console.log('isactive', isActive);
     const icon = isActive ? 'archive-alt' : 'redo';
 
     const status = isActive
       ? RESPONSE_TEMPLATE_STATUSES.ARCHIVED
       : RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+
+    const text = isActive
+      ? RESPONSE_TEMPLATE_TIPTEXT.ARCHIVED
+      : RESPONSE_TEMPLATE_TIPTEXT.ACTIVE;
 
     if (!changeStatus) {
       return null;
@@ -74,7 +78,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     const onClick = () => changeStatus(_id, status);
 
     return (
-      <Tip text={__(status)}>
+      <Tip text={__(text)}>
         <div onClick={onClick}>
           <Icon icon={icon} />
         </div>

@@ -14,7 +14,7 @@ import {
   Templates
 } from '../styles';
 import Form from './Form';
-import { EMAIL_TEMPLATE_STATUSES } from '../constants';
+import { EMAIL_TEMPLATE_STATUSES, EMAIL_TEMPLATE_TIPTEXT } from '../constants';
 import Tip from 'modules/common/components/Tip';
 import Icon from 'modules/common/components/Icon';
 
@@ -31,17 +31,18 @@ class EmailTemplateList extends React.Component<Props> {
   };
 
   renderDisableAction = object => {
-    console.log('object disable:', object);
-
     const { changeStatus } = this.props;
     const _id = object._id;
     const isActive = object.status === EMAIL_TEMPLATE_STATUSES.ACTIVE;
-    console.log('isactive', isActive);
     const icon = isActive ? 'archive-alt' : 'redo';
 
     const status = isActive
       ? EMAIL_TEMPLATE_STATUSES.ARCHIVED
       : EMAIL_TEMPLATE_STATUSES.ACTIVE;
+
+    const text = isActive
+      ? EMAIL_TEMPLATE_TIPTEXT.ARCHIVED
+      : EMAIL_TEMPLATE_TIPTEXT.ACTIVE;
 
     if (!changeStatus) {
       return null;
@@ -50,9 +51,9 @@ class EmailTemplateList extends React.Component<Props> {
     const onClick = () => changeStatus(_id, status);
 
     return (
-      <Tip text={__(status)}>
+      <Tip text={__(text)}>
         <div onClick={onClick}>
-          <Icon icon={icon} /> {status}
+          <Icon icon={icon} /> {text}
         </div>
       </Tip>
     );

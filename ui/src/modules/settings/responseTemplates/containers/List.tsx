@@ -32,8 +32,6 @@ class ResponseListContainer extends React.Component<Props> {
       ? RESPONSE_TEMPLATE_STATUSES.ACTIVE
       : RESPONSE_TEMPLATE_STATUSES.ARCHIVED;
 
-    console.log('response variables: ', _id, status);
-
     confirm(message).then(() => {
       client
         .mutate({
@@ -41,7 +39,6 @@ class ResponseListContainer extends React.Component<Props> {
           variables: { _id, status }
         })
         .then(({ data }) => {
-          console.log('response change:', data);
           const template = data.responseTemplatesChangeStatus;
 
           if (template && template._id) {

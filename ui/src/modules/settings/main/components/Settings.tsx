@@ -90,13 +90,6 @@ const growthHackPermissions = [
   'growthHackStagesUpdateOrder',
   'growthHackStagesRemove'
 ];
-const growthHackTemplatePermissions = [
-  'growthHackTemplatesAdd',
-  'growthHackTemplatesEdit',
-  'growthHackTemplatesRemove',
-  'growthHackTemplatesDuplicate',
-  'showGrowthHackTemplates'
-];
 const teamPermissions = [
   'showUsers',
   'usersEdit',
@@ -292,27 +285,6 @@ class Settings extends React.PureComponent {
               '/settings/product-service',
               'productsAll',
               productPermissions
-            )}
-            {this.renderBox(
-              'Growth Hacking Templates',
-              '/images/icons/erxes-12.svg',
-              '/settings/boards/growthHackTemplate',
-              'growthHacksAll',
-              growthHackTemplatePermissions
-            )}
-            {this.renderBox(
-              'Response Template',
-              '/images/icons/erxes-10.svg',
-              '/settings/response-templates',
-              'responseTemplatesAll',
-              ['manageResponseTemplate', 'showResponseTemplates']
-            )}
-            {this.renderBox(
-              'Email Template',
-              '/images/icons/erxes-09.svg',
-              '/settings/email_templates',
-              'emailTemplateAll',
-              ['showEmailTemplates', 'manageEmailTemplate']
             )}
             {this.renderBox(
               'Outgoing webhooks',

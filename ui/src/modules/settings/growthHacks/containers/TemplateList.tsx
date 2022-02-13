@@ -55,8 +55,6 @@ class TemplateListContainer extends React.Component<Props> {
       ? PIPELINE_TEMPLATE_STATUSES.ACTIVE
       : PIPELINE_TEMPLATE_STATUSES.ARCHIVED;
 
-    console.log('pipeline variables: ', _id, status);
-
     confirm(message).then(() => {
       client
         .mutate({
@@ -64,7 +62,6 @@ class TemplateListContainer extends React.Component<Props> {
           variables: { _id, status }
         })
         .then(({ data }) => {
-          console.log('pipeline change:', data);
           const template = data.pipelineTemplatesChangeStatus;
 
           if (template && template._id) {

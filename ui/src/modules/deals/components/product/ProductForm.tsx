@@ -109,20 +109,13 @@ class ProductForm extends React.Component<Props, State> {
     discountT: number,
     quantity: number
   ) => {
-    console.log(product);
-    console.log(discountT, quantity);
-    console.log('addItem');
-
     const { productsData, onChangeProductsData, currencies } = this.props;
-    const { tax, discount } = this.state;
+    const { tax } = this.state;
     const unitPrice = product ? product.unitPrice : 0;
     const discountAmount =
       discountT && discountT > 0 ? (unitPrice / 100) * discountT : 0;
     const currency = currencies ? currencies[0] : '';
 
-    console.log('discount: ', discount);
-
-    // this.setState({ tempId: Math.random().toString() }, () => {
     productsData.push({
       _id: Math.random().toString(),
       quantity: quantity ? quantity : 1,
@@ -161,12 +154,6 @@ class ProductForm extends React.Component<Props, State> {
       productData.discount = 0;
       productData.amount = 0;
     }
-
-    // const { updateTotal } = this.props;
-
-    // if (updateTotal) {
-    //   this.updateTotal();
-    // }
   };
 
   addProductTemplate = id => {
@@ -177,11 +164,7 @@ class ProductForm extends React.Component<Props, State> {
     const templateItems =
       template.length > 0 ? template[0].templateItemsProduct : [];
 
-    console.log('templateItems');
-    console.log(templateItems);
-
     templateItems.forEach(item => {
-      console.log('foreach');
       this.addProductTemplateItem(item.product, item.discount, item.quantity);
     });
   };
@@ -470,9 +453,6 @@ class ProductForm extends React.Component<Props, State> {
       </div>
     );
     const productsData = this.props.productsData || [];
-    // const productTemplates = this.props.productTemplates;
-    console.log('productsData');
-    console.log(productsData);
     const templateItems = [] as any[];
 
     productsData.map(data => {
@@ -482,15 +462,23 @@ class ProductForm extends React.Component<Props, State> {
         itemId: data.product ? data.product._id : '',
         unitPrice: data.unitPrice,
         quantity: data.quantity,
-        discount: data.discount
+        discount: data.discountPercent
       });
     });
 
-    const productTemplate = { discount: 0, totalAmount: 954403, templateItems };
-
-    // console.log("generated template", productTemplate);
-    // console.log("current templates", productTemplates);
-
+    const currency = this.props.currencies ? this.props.currencies[0] : '';
+    const grandDiscount = this.state.discount;
+    const grandTotal = this.state.total;
+    const discountValue =
+      grandDiscount[currency] && grandDiscount[currency].percent
+        ? grandDiscount[currency].percent || 0
+        : 0;
+    const totalValue = grandTotal[currency] ? grandTotal[currency] : 0;
+    const productTemplate = {
+      discount: Number(discountValue.toFixed(3)),
+      totalAmount: totalValue,
+      templateItems
+    };
     const content = props => (
       <TemplateForm {...props} items={productTemplate} />
     );

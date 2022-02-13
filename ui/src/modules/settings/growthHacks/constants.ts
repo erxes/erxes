@@ -1,6 +1,6 @@
-export const TEMPLATE_STATUS_CHOISES = {
-  active: 'Active',
-  archived: 'Archived'
+export const PIPELINE_TEMPLATE_TIPTEXT = {
+  ACTIVE: 'Active',
+  ARCHIVED: 'Archive'
 };
 
 export const PIPELINE_TEMPLATE_STATUSES = {

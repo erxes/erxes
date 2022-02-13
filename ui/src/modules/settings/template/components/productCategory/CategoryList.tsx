@@ -51,8 +51,6 @@ class List extends React.Component<IProps> {
     const result: React.ReactNode[] = [];
     const { types } = this.props;
 
-    console.log(types);
-
     for (const key of Object.keys(TEMPLATE_TYPES)) {
       const name = TEMPLATE_TYPES[key];
       const condition =

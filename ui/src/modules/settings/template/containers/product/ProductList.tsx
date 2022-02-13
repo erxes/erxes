@@ -80,9 +80,6 @@ class ProductListContainer extends React.Component<FinalProps> {
     };
 
     const duplicateTemplate = (_id: string) => {
-      // const message = "You are going to duplicate this product template. Are you sure?";
-
-      // confirm(message).then(() => {
       productTemplatesDuplicate({ variables: { _id } })
         .then(({ data }) => {
           const template = data.productTemplatesChangeStatus;
@@ -94,7 +91,6 @@ class ProductListContainer extends React.Component<FinalProps> {
         .catch((error: Error) => {
           Alert.error(error.message);
         });
-      // });
     };
 
     // remove action

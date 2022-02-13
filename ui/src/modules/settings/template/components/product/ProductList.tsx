@@ -211,8 +211,6 @@ class List extends React.Component<Props, State> {
       );
     }
 
-    console.log('queryParams - productList', queryParams);
-
     return (
       <Wrapper
         header={

@@ -1,6 +1,5 @@
 import { FormControl } from 'modules/common/components/form';
 import Tags from 'modules/common/components/Tags';
-// import TextInfo from 'modules/common/components/TextInfo';
 import React from 'react';
 import { IProductTemplate } from '../../types';
 import WithPermission from 'modules/common/components/WithPermission';
@@ -81,8 +80,6 @@ class Row extends React.Component<Props> {
   };
 
   renderEditAction = props => {
-    console.log('render action print1');
-
     const trigger = (
       // <WithPermission action="integrationsArchive">
       <Button btnStyle="link">
@@ -92,8 +89,6 @@ class Row extends React.Component<Props> {
       </Button>
       // </WithPermission>
     );
-
-    console.log('render action print');
 
     return this.renderFormTrigger(trigger, props);
   };
@@ -110,19 +105,9 @@ class Row extends React.Component<Props> {
       }
     };
 
-    // const onClick = e => {
-    //   e.stopPropagation();
-    // };
-
-    // const onTrClick = () => {
-    //   history.push(`/settings/product-service/details/${productTemplate._id}`);
-    // };
-
     return (
-      <tr // onClick={onTrClick}
-      >
-        <td // onClick={onClick}
-        >
+      <tr>
+        <td>
           <FormControl
             checked={isChecked}
             componentClass="checkbox"

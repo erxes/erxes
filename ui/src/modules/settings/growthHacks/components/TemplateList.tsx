@@ -14,7 +14,10 @@ import { ICommonListProps } from '../../common/types';
 import { Actions, Bottom, BoxItem, Created } from '../styles';
 import TemplateForm from './TemplateForm';
 import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
-import { PIPELINE_TEMPLATE_STATUSES } from '../constants';
+import {
+  PIPELINE_TEMPLATE_STATUSES,
+  PIPELINE_TEMPLATE_TIPTEXT
+} from '../constants';
 
 type Props = {
   queryParams: any;
@@ -75,17 +78,17 @@ class TemplateList extends React.Component<Props> {
   }
 
   renderDisableAction(object) {
-    console.log('object disable:', object);
-
     const { changeStatus } = this.props;
     const _id = object._id;
     const isActive = object.status === PIPELINE_TEMPLATE_STATUSES.ACTIVE;
-    console.log('isactive', isActive);
     const icon = isActive ? 'archive-alt' : 'redo';
-
     const status = isActive
       ? PIPELINE_TEMPLATE_STATUSES.ARCHIVED
       : PIPELINE_TEMPLATE_STATUSES.ACTIVE;
+
+    const text = isActive
+      ? PIPELINE_TEMPLATE_TIPTEXT.ARCHIVED
+      : PIPELINE_TEMPLATE_TIPTEXT.ACTIVE;
 
     if (!changeStatus) {
       return null;
@@ -94,7 +97,7 @@ class TemplateList extends React.Component<Props> {
     const onClick = () => changeStatus(_id, status);
 
     return (
-      <Tip text={__(status)}>
+      <Tip text={__(text)}>
         <div onClick={onClick}>
           <Icon icon={icon} />
         </div>
@@ -106,8 +109,6 @@ class TemplateList extends React.Component<Props> {
     if (object.isDefinedByErxes) {
       return <Actions>{this.renderDuplicateAction(object)}</Actions>;
     }
-
-    console.log('object actions:    ', object);
 
     return (
       <Actions>
@@ -161,17 +162,6 @@ class TemplateList extends React.Component<Props> {
           { title: __('Growth Hacking Templates') }
         ]}
         title={__('Growth Hacking Templates')}
-        // leftActionBar={
-        //   <HeaderDescription
-        //     icon="/images/actions/34.svg"
-        //     title="Growth Hacking Templates"
-        //     description={`${__(
-        //       'Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs'
-        //     )}.${__(
-        //       'Add in or delete boards and pipelines to keep business development on track and in check'
-        //     )}`}
-        //   />
-        // }
         additionalButton={this.renderButton()}
         renderForm={this.renderForm}
         renderContent={this.renderContent}

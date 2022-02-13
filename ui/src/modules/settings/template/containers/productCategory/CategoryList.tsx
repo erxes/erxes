@@ -55,15 +55,6 @@ class ProductListContainer extends React.Component<FinalProps> {
   }
 }
 
-// const getRefetchQueries = () => {
-//   return ['productTemplateTotalCount'];
-// };
-
-// const options = () => ({
-//   refetchQueries: getRefetchQueries(),
-//   fetchPolicy: 'network-only'
-// });
-
 export default withProps<Props>(
   compose(
     graphql<Props, ProductTemplateTotalCountQueryResponse, {}>(

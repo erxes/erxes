@@ -29,13 +29,13 @@ export const PRODUCT_TEMPLATE_STATUSES = {
   ACTIVE: 'active',
   ARCHIVED: 'archived',
   ALL: ['active', 'archived']
-}
+};
 
-export const TYPE_CHOICES = [    
+export const TYPE_CHOICES = [
   { value: 'productService', label: 'Product & Service' },
   { value: 'email', label: 'Email' },
   { value: 'chatResponse', label: 'Chat Response' },
-  { value: 'growthHacking', label: 'Growth Hacking' },
+  { value: 'growthHacking', label: 'Growth Hacking' }
 ];
 
 const COMMON_VALUES = {
