@@ -33,7 +33,7 @@
     "@types/react-transition-group": "^2.0.14",
     "@types/ws": "^5.1.2",
     "add-graphql-subscriptions": "^1.0.1",
-    "ajv": "^6.10.2",
+    "ajv": "^6.12.3",
     "apollo-cache-inmemory": "^1.1.5",
     "apollo-client": "^2.3.7",
     "apollo-link": "^1.0.7",
