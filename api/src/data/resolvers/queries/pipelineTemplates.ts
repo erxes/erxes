@@ -44,11 +44,7 @@ const pipelineTemplateQueries = {
   ) {
     await checkPermission(args.type, user, 'showTemplates');
 
-    console.log('args: ', args);
-
     const filter = generateFilter(commonQuerySelector, args);
-
-    console.log(filter);
 
     return PipelineTemplates.find(filter);
   },

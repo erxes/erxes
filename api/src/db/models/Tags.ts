@@ -178,8 +178,6 @@ export const loadClass = () => {
     ) {
       const collection = getCollection(type);
 
-      console.log(collection);
-
       const prevTagsCount = await Tags.find({
         _id: { $in: tagIds },
         type
@@ -188,9 +186,6 @@ export const loadClass = () => {
       if (prevTagsCount !== tagIds.length) {
         throw new Error('Tag not found.');
       }
-      console.log({ _id: { $in: targetIds } },
-        { $set: { tagIds } },
-        { multi: true });
 
       await collection.updateMany(
         { _id: { $in: targetIds } },

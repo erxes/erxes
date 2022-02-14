@@ -85,12 +85,8 @@ const pipelineTemplateMutations = {
   ) {
     const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
 
-    console.log('before', pipelineTemplate);
-
     await PipelineTemplates.updateOne({ _id }, { $set: { status } });
     const updated = await PipelineTemplates.findOne({ _id });
-
-    console.log('after', updated);
 
     await putUpdateLog(
       {

@@ -68,12 +68,8 @@ const responseTemplateMutations = {
   ) {
     const responseTemplate = await ResponseTemplates.getResponseTemplate(_id);
 
-    console.log('before', responseTemplate);
-
     await ResponseTemplates.updateOne({ _id }, { $set: { status } });
     const updated = await ResponseTemplates.findOne({ _id });
-
-    console.log('after', updated);
 
     await putUpdateLog(
       {
