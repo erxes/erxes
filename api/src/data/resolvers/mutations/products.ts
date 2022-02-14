@@ -102,8 +102,6 @@ const productMutations = {
       docModifier(doc)
     );
 
-    Products
-
     await putCreateLog(
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
