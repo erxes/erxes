@@ -99,12 +99,19 @@ const chatQueries = [
         filter.isPinned = isPinned;
       }
 
+      const list = await models.ChatMessages.find(filter)
+        .sort({ createdAt: 1 })
+        .skip(skip || 0)
+        .limit(limit || 20);
+
+      for (const message of list) {
+        message.seenList = seenList.filter(
+          s => s.lastSeenMessageId === message._id
+        );
+      }
+
       return {
-        list: await models.ChatMessages.find(filter)
-          .sort({ createdAt: 1 })
-          .skip(skip || 0)
-          .limit(limit || 20),
-        seenList,
+        list,
         totalCount: await models.ChatMessages.find(filter).countDocuments()
       };
     }
