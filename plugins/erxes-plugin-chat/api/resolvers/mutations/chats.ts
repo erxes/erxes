@@ -1,9 +1,10 @@
-import { IChatMessage } from '../../definitions';
+import { CHAT_TYPE, IChatMessage } from '../../definitions';
 import { graphqlPubsub } from '../subscriptions/pubsub';
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
-    adminIds: { $in: [userId] }
+    adminIds: { $in: [userId] },
+    type: CHAT_TYPE.GROUP
   });
 
   if (!found) {

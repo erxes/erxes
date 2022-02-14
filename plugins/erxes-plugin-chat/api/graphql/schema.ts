@@ -89,7 +89,7 @@ const paginationParams = `
 `;
 
 export const queries = `
-  chats(type: ChatType!, ${paginationParams}): ChatResponse
+  chats(type: ChatType, ${paginationParams}): ChatResponse
   chatDetail(_id: String!): Chat
   
   chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse
@@ -98,8 +98,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  chatAdd(name: String!, type: ChatType!, , description: String, visibility: ChatVisibilityType, participantIds: [String]): Chat
-  chatEdit(_id: String!, name: String!, description: String, visibility: ChatVisibilityType): Chat
+  chatAdd(name: String, type: ChatType!, , description: String, visibility: ChatVisibilityType, participantIds: [String]): Chat
+  chatEdit(_id: String!, name: String, description: String, visibility: ChatVisibilityType): Chat
   chatRemove(_id: String!): JSON
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   

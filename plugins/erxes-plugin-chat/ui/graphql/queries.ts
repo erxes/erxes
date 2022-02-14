@@ -1,5 +1,5 @@
 const chats = `
-  query chats($type: ChatType!, $limit: Int, $skip: Int) {
+  query chats($type: ChatType, $limit: Int, $skip: Int) {
     chats(type: $type, limit: $limit, skip: $skip) {
       list {
         _id

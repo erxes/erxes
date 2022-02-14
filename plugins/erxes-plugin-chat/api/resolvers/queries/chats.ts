@@ -7,7 +7,13 @@ const chatQueries = [
       { models, checkPermission, user }
     ) => {
       await checkPermission('showChats', user);
-      const filter: any = { type, participantIds: { $in: [user._id] } };
+
+      const filter: any = { participantIds: { $in: [user._id] } };
+
+      if (type) {
+        filter.type = type;
+      }
+
       return {
         list: await models.Chats.find(filter)
           .sort({ createdAt: -1 })
@@ -133,7 +139,6 @@ const chatQueries = [
 
       if (!chat) {
         chat = await models.Chats.createChat(models, {
-          name: 'Direct chat',
           participantIds,
           type: 'direct'
         });
