@@ -3,8 +3,7 @@ import { graphqlPubsub } from '../subscriptions/pubsub';
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
-    adminIds: { $in: [userId] },
-    type: CHAT_TYPE.GROUP
+    adminIds: { $in: [userId] }
   });
 
   if (!found) {
@@ -36,9 +35,10 @@ const chatMutations = [
         models,
         {
           ...doc,
-          participantIds: participantIds.includes(user._id)
-            ? participantIds
-            : (participantIds || []).concat(user._id),
+          participantIds:
+            participantIds && participantIds.includes(user._id)
+              ? participantIds
+              : (participantIds || []).concat(user._id),
           adminIds: [user._id]
         },
         user._id
@@ -67,7 +67,9 @@ const chatMutations = [
         throw new Error('Chat not found');
       }
 
-      await checkChatAdmin(models.Chats, user._id);
+      if (chat.type === CHAT_TYPE.GROUP) {
+        await checkChatAdmin(models.Chats, user._id);
+      }
 
       return models.Chats.removeChat(models, _id);
     }
