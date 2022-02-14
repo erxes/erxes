@@ -36,7 +36,7 @@ const emailTemplateQueries = {
    */
   emailTemplates(_root, args: IListParams, { commonQuerySelector }: IContext) {
     const filter = generateFilter(commonQuerySelector, args);
-    return paginate(EmailTemplates.find(filter));
+    return paginate(EmailTemplates.find(filter), args);
   },
 
   /**

@@ -48,6 +48,7 @@ import {
   Pipelines,
   ProductCategories,
   Products,
+  ProductTemplates,
   ResponseTemplates,
   Scripts,
   Segments,
@@ -351,6 +352,51 @@ export const pipelineTemplateFactory = (params: ITemplateInput = {}) => {
   });
 
   return pipelineTemplate.save();
+};
+
+interface IProductTemplateInput {
+  title?: string;
+  discount?: number;
+  totalAmount?: number;
+  description?: string;
+  templateItems?: any[];
+  tagIds?: string[];
+  status?: string;
+}
+
+export const productTemplateFactory = async (
+  params: IProductTemplateInput = {}
+) => {
+  const prouctTemplate = new ProductTemplates({
+    type: 'productService',
+    title: await getUniqueValue(
+      ProductTemplates,
+      'title',
+      params.title || faker.random.word()
+    ),
+    discount: params.discount || faker.random.number(),
+    totalAmount: params.totalAmount || faker.random.number(),
+    description: params.description || faker.random.word(),
+    templateItems: params.templateItems || [
+      {
+        _id: Math.random().toString(),
+
+        categoryId: Math.random().toString(),
+
+        itemId: Math.random().toString(),
+
+        unitPrice: faker.random.number(),
+
+        quantity: 1,
+
+        discount: 0
+      }
+    ],
+    tagIds: params.tagIds || [faker.random.uuid()],
+    status: params.title || 'active'
+  });
+
+  return prouctTemplate.save();
 };
 
 interface ILabelInput {
