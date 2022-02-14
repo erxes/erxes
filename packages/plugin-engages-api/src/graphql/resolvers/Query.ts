@@ -1,4 +1,4 @@
-import { IUserDocument } from '@erxes/common-types';
+import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
 import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '@erxes/api-utils/src/types';
 import {
