@@ -1,5 +1,5 @@
 import { Document, model, Model, Schema } from 'mongoose';
-import { debugError } from '../debuggers';
+import { debug } from '../configs';
 import { compareObjects } from '../utils';
 
 /**
@@ -87,8 +87,9 @@ export const schema = new Schema({
 export const loadLogClass = () => {
   class Log {
     public static createLog(doc: ILogDoc) {
-      const { object, newData } = doc;
+      const { object='{}', newData } = doc;
       const logDoc = { ...doc };
+
       let oldData;
       let parsedNewData;
 
@@ -99,7 +100,7 @@ export const loadLogClass = () => {
           parsedNewData = JSON.parse(newData);
         }
       } catch (e) {
-        debugError(`JSON parsing error: ${e.message}`);
+        debug.error(`JSON parsing error: ${e.message}`);
         oldData = JSON.parse(object.replace('\n', ''));
       }
 
@@ -126,7 +127,7 @@ export const loadLogClass = () => {
               logDoc.unchangedData = JSON.stringify(comparison.unchanged);
               logDoc.removedData = JSON.stringify(comparison.removed);
             } catch (e) {
-              debugError(`object comparison error: ${e.message}`);
+              debug.error(`object comparison error: ${e.message}`);
             }
           }
 

@@ -1,21 +1,13 @@
-import * as dotenv from 'dotenv';
-import messageBroker from 'erxes-message-broker';
-import { debugBase } from './debuggers';
-import ActivityLogs from './models/ActivityLogs';
-import Logs from './models/Logs';
-import Visitors from './models/Visitors';
-import { receivePutLogCommand, sendToApi } from './utils';
-
-dotenv.config();
+import { debug } from "./configs";
+import ActivityLogs from "./models/ActivityLogs";
+import Logs from "./models/Logs";
+import Visitors from "./models/Visitors";
+import { receivePutLogCommand, sendToApi } from "./utils";
 
 let client;
 
-export const initBroker = async server => {
-  client = await messageBroker({
-    name: 'logger',
-    server,
-    envs: process.env
-  });
+export const initBroker = async (cl) => {
+  client = cl;
 
   const { consumeQueue } = client;
 
@@ -45,7 +37,7 @@ export const initBroker = async server => {
   });
 
   consumeQueue('putActivityLog', async parsedObject => {
-    debugBase(parsedObject);
+    debug.info(parsedObject);
 
     const { data, action } = parsedObject;
 

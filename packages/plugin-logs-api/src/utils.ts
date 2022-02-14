@@ -1,4 +1,4 @@
-import { debugBase, debugError } from './debuggers';
+import { debug } from './configs';
 import Logs from './models/Logs';
 import messageBroker from './messageBroker';
 
@@ -13,10 +13,10 @@ export const sendToApi = (channel: string, data) =>
  * @todo Improve object array comparison part
  */
 const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
-  const changedItems = [];
-  const unchangedItems = [];
-  const addedItems = [];
-  let removedItems = [];
+  const changedItems: any[] = [];
+  const unchangedItems: any[] = [];
+  const addedItems: any[] = [];
+  let removedItems: any[] = [];
 
   if (oldArray.length > 0 && newArray.length === 0) {
     removedItems = oldArray;
@@ -151,7 +151,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
   const removedFields = {};
   // exclude field names not stored in db
   const nonSchemaNames = ['uid', 'length'];
-  let fieldNames: string[] = [];
+  let fieldNames: any[] = [];
 
   if (newData && !isObjectEmpty(newData)) {
     fieldNames = Object.getOwnPropertyNames(newData);
@@ -246,7 +246,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
 };
 
 export const receivePutLogCommand = async params => {
-  debugBase(params);
+  debug.info(params);
 
   const {
     createdBy,
@@ -270,20 +270,4 @@ export const receivePutLogCommand = async params => {
     description,
     extraDesc
   });
-};
-
-export const routeErrorHandling = (fn, callback?: any) => {
-  return async (req, res, next) => {
-    try {
-      await fn(req, res, next);
-    } catch (e) {
-      debugError(e.message);
-
-      if (callback) {
-        return callback(res, e);
-      }
-
-      return next(e);
-    }
-  };
 };
