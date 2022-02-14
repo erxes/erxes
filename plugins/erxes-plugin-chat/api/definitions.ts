@@ -46,6 +46,12 @@ export const chatMessageSchema = {
   createdBy: { type: String, label: 'Created by' }
 };
 
+const seenSchema = {
+  userId: String,
+  seenDate: Date,
+  lastSeenMessageId: String
+};
+
 export const chatSchema = {
   _id: { pkey: true },
   name: { type: String },
@@ -55,6 +61,7 @@ export const chatSchema = {
   isPinned: { type: Boolean, default: false, label: 'Has pinned' },
   participantIds: { type: [String], label: 'User ids' },
   adminIds: { type: [String], label: 'Admin user ids' },
+  seenInfos: { type: [seenSchema], label: 'Seen info', default: [] },
   createdAt: { type: Date, label: 'Created at' },
   createdBy: { type: String, label: 'Created by' }
 };

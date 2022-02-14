@@ -37,12 +37,20 @@ export const types = `
     isAdmin: Boolean
   }
 
+  type SeenInfo {
+    user: User
+    lastSeenMessageId: String
+    seenDate: Date
+  }
+  
+
   type Chat {
     _id: String!
     name: String
     type: String
     description: String
     visibility: String
+    isSeen: Boolean
     lastMessage: ChatMessage
     participantUsers: [ChatUser]
     createdUser: User
@@ -56,6 +64,7 @@ export const types = `
 
   type ChatMessageResponse {
     list: [ChatMessage]
+    seenList: [SeenInfo]
     totalCount: Int
   }
 

@@ -21,6 +21,7 @@ const chatQueries = [
     name: 'chatDetail',
     handler: async (_root, { _id }, { models, checkPermission, user }) => {
       await checkPermission('showChats', user);
+
       return models.Chats.findOne({ _id });
     }
   },
@@ -33,6 +34,65 @@ const chatQueries = [
     ) => {
       await checkPermission('showChats', user);
 
+      const lastMessage = await models.ChatMessages.findOne({
+        chatId
+      }).sort({
+        createdAt: -1
+      });
+
+      if (lastMessage) {
+        const chat = await models.Chats.getChat(models, chatId);
+
+        const seenInfos = chat.seenInfos || [];
+
+        let seenInfo = seenInfos.find(info => info.userId === user._id);
+
+        let updated = false;
+
+        if (!seenInfo) {
+          seenInfo = {
+            userId: user._id,
+            lastSeenMessageId: lastMessage._id,
+            seenDate: new Date()
+          };
+
+          seenInfos.push(seenInfo);
+
+          updated = true;
+        } else {
+          // if not new message, don't update info`s
+          if (seenInfo.lastSeenMessageId !== lastMessage._id) {
+            seenInfo.lastSeenMessageId = lastMessage._id;
+            seenInfo.seenDate = new Date();
+
+            updated = true;
+          }
+        }
+
+        if (updated) {
+          await models.Chats.updateOne(
+            { _id: chat._id },
+            { $set: { seenInfos } }
+          );
+        }
+      }
+
+      const chat = await models.Chats.getChat(models, chatId);
+
+      const seenList = [];
+
+      for (const info of chat.seenInfos || []) {
+        const user = await models.Users.findOne({ _id: info.userId });
+
+        if (user) {
+          seenList.push({
+            user,
+            seenDate: info.seenDate,
+            lastSeenMessageId: info.lastSeenMessageId
+          });
+        }
+      }
+
       const filter: { chatId: string; isPinned?: boolean } = { chatId };
 
       if (isPinned !== undefined) {
@@ -44,6 +104,7 @@ const chatQueries = [
           .sort({ createdAt: 1 })
           .skip(skip || 0)
           .limit(limit || 20),
+        seenList,
         totalCount: await models.ChatMessages.find(filter).countDocuments()
       };
     }
