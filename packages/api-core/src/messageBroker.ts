@@ -125,6 +125,11 @@ export const initBroker = async (server?) => {
         data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
       })
     );
+
+    consumeRPCQueue('rpc_queue:Fields.find', (query) =>
+      Fields.find(query).lean()
+    );
+
   }
 
   return client;

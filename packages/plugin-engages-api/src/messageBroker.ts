@@ -1,8 +1,8 @@
 import { debugBase } from './debuggers';
-import { Logs } from './models';
+import { EngageMessages, Logs } from './models';
 import { sendBulkSms, start } from './sender';
 
-let client;
+export let client;
 
 export const initBroker = async cl => {
   client = cl;
@@ -65,6 +65,14 @@ export const findRPCintegrations = async (data): Promise<any> => {
     'rpc_queue:engageUtils_findIntegrations_to_api',
     data
   );
+};
+
+
+export const findIntegrations = async (query, options?): Promise<any> => {
+  return client.sendRPCMessage('rpc_queue:findIntegrations', {
+    query,
+    options,
+  });
 };
 
 export const saveRPCconformity = async (

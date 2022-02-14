@@ -12,7 +12,8 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
-      "@erxes/api-utils/*": ["../../api-utils/*"]
+      "@erxes/api-utils/*": ["../../api-utils/*"],
+      "@packages/*" : ["../../*"]
     },
   },
   "exclude": ["node_modules", "dist"],

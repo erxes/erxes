@@ -1,6 +1,6 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
-import { MODULE_NAMES } from '@erxes/api-utils/src/constants';
+import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
