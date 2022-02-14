@@ -117,6 +117,11 @@ export default function General(props: Props) {
     edit({ _id: exm._id, name, description, features });
   };
 
+  ICON_OPTIONS.unshift({
+    value: '',
+    label: 'Icon сонгоно уу'
+  });
+
   return (
     <GeneralWrapper>
       <TeamPortal>
