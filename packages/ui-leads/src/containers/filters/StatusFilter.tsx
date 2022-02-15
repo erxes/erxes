@@ -1,6 +1,6 @@
 import StatusFilter from '../../components/StatusFilter';
 import React from 'react';
-import { Counts } from '../../types';
+import { Counts } from '@erxes/ui/src/types';
 
 type Props = {
   counts: Counts;

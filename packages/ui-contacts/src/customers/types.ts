@@ -7,7 +7,7 @@ import {
   IUrlVisits as IUrlVisitsC,
   IVisitorContact as IVisitorContactC
 } from '@erxes/ui/src/customers/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse, Counts } from '@erxes/ui/src/types';
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
@@ -105,17 +105,13 @@ export type MainQueryResponse = {
   customersMain: { list: ICustomer[]; totalCount: number };
 } & QueryResponse;
 
-type CountResponse = {
-  [key: string]: number;
-};
-
 type CustomerCounts = {
-  byBrand: CountResponse;
-  byForm: CountResponse;
-  byIntegrationType: CountResponse;
-  byLeadStatus: CountResponse;
-  bySegment: CountResponse;
-  byTag: CountResponse;
+  byBrand: Counts;
+  byForm: Counts;
+  byIntegrationType: Counts;
+  byLeadStatus: Counts;
+  bySegment: Counts;
+  byTag: Counts;
 };
 
 export type CustomersQueryResponse = CustomersQueryResponseC;

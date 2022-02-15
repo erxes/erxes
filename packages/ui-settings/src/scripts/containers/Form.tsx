@@ -5,7 +5,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
-import { IntegrationsQueryResponse } from '@erxes/ui-settings/src/integrations/types';
+import { IntegrationsQueryResponse } from '../../integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';

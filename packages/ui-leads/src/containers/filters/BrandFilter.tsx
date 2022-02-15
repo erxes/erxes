@@ -6,7 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import { Counts } from '../../types';
+import { Counts } from '@erxes/ui/src/types';
 
 type Props = {
   counts: Counts;

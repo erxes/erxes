@@ -4,12 +4,11 @@ import { mutations, queries } from '../../graphql';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import NoteForm from '../../components/forms/NoteForm';
-import { IFormProps } from '@erxes/ui/src/types';
+import { IFormProps, MutationVariables } from '@erxes/ui/src/types';
 import { withProps, Alert, confirm } from '@erxes/ui/src/utils';
 import {
   AddNoteMutationResponse,
   IAutomationNote,
-  RemoveNoteMutationVariables,
   RemoveNoteMutationResponse,
   EditNoteMutationResponse,
   IAutomationNoteDoc
@@ -91,7 +90,7 @@ const NoteFormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, RemoveNoteMutationResponse, RemoveNoteMutationVariables>(
+    graphql<Props, RemoveNoteMutationResponse, MutationVariables>(
       gql(mutations.automationsRemoveNote),
       {
         name: 'automationsRemoveNote',

@@ -8,7 +8,8 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import From from '../components/ProductForm';
 import { mutations, queries } from '../graphql';
-import { IProduct, ProductCategoriesQueryResponse } from '../types';
+import { IProduct } from '../types';
+import { ProductCategoriesQueryResponse } from '@erxes/ui-settings/src/productService/types';
 
 type Props = {
   product?: IProduct;

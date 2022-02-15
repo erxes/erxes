@@ -390,6 +390,10 @@ const StepFormWrapper = styled.div`
   padding: 20px;
 `;
 
+const ListWrapper = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 const RadioContainer = styled.div`
   border-bottom: 1px dotted ${colors.borderPrimary};
 
@@ -417,6 +421,11 @@ const SelectMessageType = styled.div`
   width: 300px;
   white-space: normal;
   color: ${colors.colorCoreGray};
+`;
+
+const VerifyStatus = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const VerifyCancel = styled.div`
@@ -614,9 +623,11 @@ export {
   WidgetPreview,
   EditorContainer,
   StepFormWrapper,
+  ListWrapper,
   RadioContainer,
   CustomerCounts,
   SelectMessageType,
+  VerifyStatus,
   VerifyCancel,
   VerifyCheck,
   RightSection,

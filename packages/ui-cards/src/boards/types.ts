@@ -4,8 +4,6 @@ import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IAttachment, QueryResponse, MutationVariables } from '@erxes/ui/src/types';
 import { ISavedConformity } from '../conformity/types';
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import { IPaymentsData } from '../deals/types'
-
 
 export interface IOptions {
   EditForm: any;
@@ -419,10 +417,6 @@ export type ActivityLogsByActionQueryResponse = {
 export type Item = {
   name: string;
   color: string;
-};
-
-export type Assignee = {
-  [key: string]: number;
 };
 
 // ticket comment mutation

@@ -1,23 +1,8 @@
-// import { PageHeader } from '@erxes/ui/src/boards/styles/header';
+import { PageHeader } from '@erxes/ui-cards/src/boards/styles/header';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { Contents, MainContent } from '@erxes/ui/src/layout/styles';
-
-export const PageHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 5px ${dimensions.coreSpacing}px 2px;
-  background: ${colors.colorWhite};
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-  min-height: 50px;
-  z-index: 2;
-  @media (max-width: 768px) {
-    min-height: auto;
-    flex-direction: column;
-  }
-`;
 
 const Header = styled(PageHeader)`
 min-height: auto;
@@ -159,23 +144,6 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
       width: 35px;
     }
   }
-`;
-
-export const BoardContainer = styled(Contents)`
-  margin: 0;
-  position: unset;
-  > div {
-    padding-left: 20px;
-  }
-`;
-
-export const BoardContent = styledTS<{
-  bgColor?: string;
-  transparent?: boolean;
-}>(styled(MainContent))`
-  margin: 0;
-  background-color: ${({ bgColor, transparent }) =>
-    transparent ? 'transparent' : bgColor || colors.colorSecondary};
 `;
 
 export { Title, RightActions, Dashboards, Create, Header, SelectMemberStyled, ActionButtons, SidebarListItem };

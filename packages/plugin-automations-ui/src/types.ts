@@ -1,4 +1,4 @@
-import { QueryResponse, MutationVariables } from '@erxes/ui/src/types';
+import { QueryResponse, MutationVariables, Counts } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export type IAction = {
@@ -152,10 +152,6 @@ export type DetailQueryResponse = {
 export type AutomationHistoriesQueryResponse = {
   automationHistories: IAutomationHistory[];
   loading: boolean;
-};
-
-export type Counts = {
-  [key: string]: number;
 };
 
 export type AutomationsCount = {

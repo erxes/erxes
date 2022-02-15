@@ -5,7 +5,8 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import Date from './Date';
 import FacebookContent from './FacebookContent';
-import { Counts, PostContainer, User } from './styles';
+import { Counts, User } from './styles';
+import { PostContainer } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';;
 import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
 import { IFacebookPost } from '@erxes/ui-inbox/src/inbox/types';
 

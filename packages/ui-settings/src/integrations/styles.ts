@@ -19,13 +19,6 @@ const ControlWrapper = styled.div`
   position: relative;
 `;
 
-const LeftSection = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 5px 10px 0 0;
-`;
-
 const MailEditorWrapper = styled.div`
   position: relative;
   background: ${colors.colorWhite};
@@ -244,7 +237,6 @@ export {
   LeftContent,
   MailEditorWrapper,
   ControlWrapper,
-  LeftSection,
   Resipients,
   Uploading,
   SpaceBetweenRow,

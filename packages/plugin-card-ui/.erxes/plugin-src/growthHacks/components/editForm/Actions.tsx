@@ -13,7 +13,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import { IGrowthHack } from '../../types';
 import React from 'react';
-import { HACKSTAGES } from '../../constants';
+import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
 import Vote from '../../containers/Vote';
 
 type Props = {

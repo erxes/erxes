@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IRouterProps, Counts } from '@erxes/ui/src/types';
 import { router, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Filter from '../components/SidebarFilter';
 import { queries } from '../graphql';
-import { Counts, SegmentsQueryResponse } from '../types';
+import { SegmentsQueryResponse } from '../types';
 
 type Props = {
   contentType: string;

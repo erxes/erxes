@@ -7,13 +7,13 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IntegrationsCountQueryResponse } from '@erxes/ui-settings/src/integrations/types';
+import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import DumbChannels from '../components/Channels';
 import Empty from '../components/Empty';
 import { queries } from '../graphql';
 import {
   ChannelDetailQueryResponse,
   ChannelsGetLastQueryResponse,
-  IChannel
 } from '../types';
 
 type Props = {

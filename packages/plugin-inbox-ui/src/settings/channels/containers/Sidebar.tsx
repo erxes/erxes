@@ -12,9 +12,9 @@ import Sidebar from '../components/Sidebar';
 import { mutations, queries } from '../graphql';
 import {
   ChannelsCountQueryResponse,
-  ChannelsQueryResponse
 } from '../types';
 import { RemovePipelineLabelMutationResponse } from '@erxes/ui-cards/src/boards/types'
+import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
 
 type Props = {
   queryParams: any;

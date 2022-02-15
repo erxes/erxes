@@ -2,7 +2,8 @@ import {
   IAttachment,
   IConditionsRule,
   QueryResponse,
-  MutationVariables
+  MutationVariables,
+  Counts
 } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
@@ -88,10 +89,6 @@ export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration[];
 } & QueryResponse;
 
-export type Counts = {
-  [key: string]: number;
-};
-
 export type IntegrationsCount = {
   total: number;
   byTag: Counts;
@@ -99,10 +96,6 @@ export type IntegrationsCount = {
   byBrand: Counts;
   byKind: Counts;
   byStatus: Counts;
-};
-
-export type TagCountQueryResponse = {
-  [key: string]: number;
 };
 
 export type CountQueryResponse = {

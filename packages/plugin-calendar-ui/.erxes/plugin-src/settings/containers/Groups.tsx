@@ -3,11 +3,11 @@ import * as compose from 'lodash.flowright';
 import { queries as calendarQueries } from '../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
 import { __, Alert, confirm, getEnv, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { getWarningMessage } from '../../calendar/utils';
+import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import { INTEGRATIONS } from '../constants';
 import Groups from '../components/Groups';
 import { mutations, queries } from '../graphql';
@@ -18,8 +18,7 @@ import {
   IGroup,
   RemoveCalendarMutationResponse,
   RemoveCalendarMutationVariables,
-  RemoveGroupMutationResponse,
-  RemoveGroupMutationVariables
+  RemoveGroupMutationResponse
 } from '../types';
 
 type Props = {
@@ -244,7 +243,7 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, RemoveGroupMutationResponse, RemoveGroupMutationVariables>(
+    graphql<Props, RemoveGroupMutationResponse, MutationVariables>(
       gql(mutations.groupRemove),
       {
         name: 'removeMutation'

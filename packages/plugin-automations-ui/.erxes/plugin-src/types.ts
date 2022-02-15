@@ -1,4 +1,4 @@
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse, MutationVariables, Counts } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export type IAction = {
@@ -94,10 +94,6 @@ export type RemoveMutationVariables = {
   automationIds: string[];
 };
 
-export type RemoveNoteMutationVariables = {
-  _id: string;
-};
-
 export type RemoveMutationResponse = {
   automationsRemove: (params: {
     variables: RemoveMutationVariables;
@@ -118,7 +114,7 @@ export type AddNoteMutationResponse = {
 
 export type RemoveNoteMutationResponse = {
   automationsRemoveNote: (params: {
-    variables: RemoveNoteMutationVariables;
+    variables: MutationVariables;
   }) => Promise<any>;
 };
 
@@ -156,10 +152,6 @@ export type DetailQueryResponse = {
 export type AutomationHistoriesQueryResponse = {
   automationHistories: IAutomationHistory[];
   loading: boolean;
-};
-
-export type Counts = {
-  [key: string]: number;
 };
 
 export type AutomationsCount = {

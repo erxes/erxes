@@ -1,4 +1,4 @@
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse, MutationVariables } from '@erxes/ui/src/types';
 
 // queries
 export interface ICalendar {
@@ -83,13 +83,9 @@ export type EditGroupMutationResponse = {
   }) => Promise<void>;
 };
 
-export type RemoveGroupMutationVariables = {
-  _id: string;
-};
-
 export type RemoveGroupMutationResponse = {
   removeMutation: (params: {
-    variables: RemoveGroupMutationVariables;
+    variables: MutationVariables;
     refetchQueries?: string[];
   }) => Promise<void>;
 };
@@ -129,13 +125,9 @@ export type EditBoardMutationResponse = {
   }) => Promise<void>;
 };
 
-export type RemoveBoardMutationVariables = {
-  _id: string;
-};
-
 export type RemoveBoardMutationResponse = {
   removeMutation: (params: {
-    variables: RemoveBoardMutationVariables;
+    variables: MutationVariables;
     refetchQueries: string[];
   }) => Promise<void>;
 };

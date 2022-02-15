@@ -6,8 +6,8 @@ import Toggle from 'modules/common/components/Toggle';
 import { __, Alert, confirm } from 'modules/common/utils';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import PropertyForm from '../containers/PropertyForm';
-import PropertyGroupForm from '../containers/PropertyGroupForm';
+import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
 import ControlLabel from 'modules/common/components/form/Label';
 import {
   CollapseRow,

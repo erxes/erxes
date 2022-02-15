@@ -220,10 +220,6 @@ export type EngageMessageCounts = {
   visitoryAuto: number;
 };
 
-export type TagCountQueryResponse = {
-  [key: string]: number;
-};
-
 export type CountQueryResponse = {
   engageMessageCounts: EngageMessageCounts;
 };
@@ -238,10 +234,6 @@ export type TagAdd = (params: {
   doc: { name: string; description: string };
 }) => void;
 export type SegmentAdd = (params: { doc: ISegmentDoc }) => void;
-
-export type TargetCount = {
-  [key: string]: number;
-};
 
 export type IEmailFormProps = {
   onChange: (

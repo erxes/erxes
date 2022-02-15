@@ -371,10 +371,6 @@ const WeekCol = styledTS<{ isCurrent?: boolean }>(styled.div)`
   }
 `;
 
-const CommonWrapper = styled.div`
-  padding: 10px 20px;
-`;
-
 const SidebarHeading = styled.h4`
   font-size: 14px;
   font-weight: 500;
@@ -510,7 +506,6 @@ export {
   WeekHours,
   WeekData,
   AddEventBtn,
-  CommonWrapper,
   CalendarItem,
   EventWrapper,
   Indicator,

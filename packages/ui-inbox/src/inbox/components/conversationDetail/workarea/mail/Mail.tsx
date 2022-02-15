@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import { cleanHtml } from '@erxes/ui-settings/src/integrations/containers/utils';
+import { cleanHtml } from '../../../../../settings/integrations/containers/utils';
 import React from 'react';
 import { IMessage } from '../../../../types';
 import Attachments from './Attachments';
