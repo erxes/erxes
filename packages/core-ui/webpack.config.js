@@ -131,6 +131,7 @@ module.exports = {
       filename: "remoteEntry.js",
       exposes: {
         "./appContext": "./src/appContext",
+        "./utils": "./src/modules/common/utils",
       },
       shared: {
         ...shared,
@@ -148,6 +149,7 @@ module.exports = {
           eager: true,
         },
         "./src/appContext": {},
+        "./src/modules/common/utils": {},
       },
     }),
   ],
