@@ -25,10 +25,10 @@ export let debug;
 
 export default {
   name: 'engages',
-  graphql: {
+  graphql: async (serviceDiscovery) => ({
     typeDefs,
     resolvers,
-  },
+  }),
   segment: { schemas: [] },
   hasSubscriptions: false,
   apolloServerContext: (context) => {

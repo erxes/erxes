@@ -1,4 +1,4 @@
-import { gatherNames, LogDesc } from '@erxes/api-utils/src/logDescHelper';
+import { gatherNames, LogDesc } from '@erxes/api-utils/src/logUtils';
 
 import {
   IEngageMessage,

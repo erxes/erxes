@@ -3,16 +3,15 @@ import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';
 // import { fetchElk } from '../../../elasticsearch';
 // import { get, removeKey, set } from '../../../inmemoryStorage';
 // import { fetchSegment } from '../../modules/segments/queryBuilder';
-import { IUserDocument } from '@erxes/common-types';
-import { ICustomerDocument } from '@erxes/common-types/src/customers';
+import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
+import { ICustomerDocument } from "@packages/plugin-contact-api/src/models/definitions/customers";
 import { chunkArray } from '@erxes/api-utils/src/core';
 // import { CONTENT_TYPES } from '@erxes/api-utils/src/constants';
-import { findIntegrations } from '@erxes/api-utils/src/apiCollections';
 import { IEngageMessage, IEngageMessageDocument } from './models/definitions/engages';
 import { EngageMessages } from './models';
 import { Users, Customers, Segments } from './apiCollections';
 import { isUsingElk } from './utils';
-import messageBroker from './messageBroker';
+import messageBroker, { findIntegrations } from './messageBroker';
 // import EditorAttributeUtil from './editorAttributeUtils';
 
 interface IEngageParams {

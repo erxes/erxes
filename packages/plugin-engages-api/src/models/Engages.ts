@@ -1,13 +1,15 @@
 import { Model, model } from 'mongoose';
 
-import { IUserDocument, IBrowserInfo } from '@erxes/common-types';
-import { ICustomerDocument } from '@erxes/common-types/src/customers';
+import { IBrowserInfo } from "@packages/api-utils/src/definitions/common";
+import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
+import { ICustomerDocument } from "@packages/plugin-contact-api/src/models/definitions/customers";
 import { ConversationMessages } from '../apiCollections';
 // import { findUser, findElk } from '../engageUtils';
 import { findUser } from '../engageUtils';
 import {
   removeEngageConversations,
-  createRPCconversationAndMessage
+  createRPCconversationAndMessage,
+  client as msgBrokerClient
 } from '../messageBroker';
 import { MESSAGE_KINDS } from '../constants';
 // import { checkCustomerExists } from '../engageUtils';
@@ -340,7 +342,7 @@ export const loadClass = () => {
         // conversations
         if (hasPassedAllRules) {
           // replace keys in content
-          const replacedContent = await new EditorAttributeUtil().replaceAttributes(
+          const replacedContent = await new EditorAttributeUtil(msgBrokerClient).replaceAttributes(
             {
               content: messenger.content,
               customer,
