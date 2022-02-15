@@ -1,6 +1,6 @@
-import { withFilter } from "graphql-subscriptions";
+var { withFilter } = require("graphql-subscriptions");
 
-export default {
+module.exports = {
   name: "inbox",
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
@@ -31,10 +31,10 @@ export default {
        */
       conversationMessageInserted: {
         resolve(
-          payload: any,
-          args: any,
-          { dataSources: { gatewayDataSource } }: any,
-          info: any
+          payload,
+          args,
+          { dataSources: { gatewayDataSource } },
+          info
         ) {
           return gatewayDataSource.queryAndMergeMissingConversationMessageData({
             payload,
@@ -91,10 +91,10 @@ export default {
        */
       conversationClientMessageInserted: {
         resolve(
-          payload: any,
-          args: any,
-          { dataSources: { gatewayDataSource } }: any,
-          info: any
+          payload,
+          args,
+          { dataSources: { gatewayDataSource } },
+          info
         ) {
           return gatewayDataSource.queryAndMergeMissingConversationMessageData({
             payload,

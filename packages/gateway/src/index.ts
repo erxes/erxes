@@ -107,7 +107,7 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
     }
 
     try {
-      // await loadSubscriptions(apiSchema, wsServer);
+      await loadSubscriptions(apiSchema, wsServer);
       subscriptionsLoaded = true;
     } catch (e) {
       console.error(e);

@@ -40,9 +40,9 @@ app.get('/health', async (_req, res) => {
 });
 
 if (configs.hasSubscriptions) {
-  app.get('/subscriptionPlugin.ts', async (req, res) => {
+  app.get('/subscriptionPlugin.js', async (req, res) => {
     res.sendFile(
-      path.join(__dirname, '../../src/graphql/subscriptionPlugin.ts')
+      path.join(__dirname, '../../src/graphql/subscriptionPlugin.js')
     );
   });
 }

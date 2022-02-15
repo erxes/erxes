@@ -1,6 +1,6 @@
-import { withFilter } from 'graphql-subscriptions';
+var { withFilter } = require('graphql-subscriptions');
 
-export default {
+module.exports = {
   name: 'cards',
   typeDefs: `
       pipelinesChanged(_id: String!): PipelineChangeResponse
