@@ -98,7 +98,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  chatAdd(name: String, type: ChatType!, , description: String, visibility: ChatVisibilityType, participantIds: [String]): Chat
+  chatAdd(name: String, type: ChatType!, description: String, visibility: ChatVisibilityType, participantIds: [String]): Chat
   chatEdit(_id: String!, name: String, description: String, visibility: ChatVisibilityType): Chat
   chatRemove(_id: String!): JSON
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String

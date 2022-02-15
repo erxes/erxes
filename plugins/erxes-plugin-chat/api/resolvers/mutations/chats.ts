@@ -1,5 +1,7 @@
+import { sendNotification } from 'erxes-api-utils';
 import { CHAT_TYPE, IChatMessage } from '../../definitions';
 import { graphqlPubsub } from '../subscriptions/pubsub';
+import { sendMobileNotification } from '../../utils';
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
@@ -27,22 +29,45 @@ const chatMutations = [
     handler: async (
       _root,
       { participantIds, ...doc },
-      { user, checkPermission, models }
+      { user, checkPermission, models, memoryStorage }
     ) => {
       await checkPermission('manageChats', user);
 
-      return models.Chats.createChat(
+      const allParticipantIds =
+        participantIds && participantIds.includes(user._id)
+          ? participantIds
+          : (participantIds || []).concat(user._id);
+
+      const chat = await models.Chats.createChat(
         models,
         {
           ...doc,
-          participantIds:
-            participantIds && participantIds.includes(user._id)
-              ? participantIds
-              : (participantIds || []).concat(user._id),
+          participantIds: allParticipantIds,
           adminIds: [user._id]
         },
         user._id
       );
+
+      sendNotification(models, memoryStorage, graphqlPubsub, {
+        notifType: 'plugin',
+        title: doc.name || doc.description,
+        content: doc.description,
+        action: `${doc.type} ${doc.contentType} created`,
+        link: `/erxes-plugin-chat/home`,
+        createdUser: user,
+        // exclude current user
+        contentType: 'chat',
+        contentTypeId: chat._id,
+        receivers: allParticipantIds
+      });
+
+      sendMobileNotification(models, {
+        title: doc.title,
+        body: doc.description,
+        receivers: allParticipantIds
+      });
+
+      return chat;
     }
   },
   {
@@ -53,6 +78,7 @@ const chatMutations = [
       { models, checkPermission, user }
     ) => {
       await checkPermission('manageChats', user);
+
       return models.Chats.updateChat(models, _id, doc);
     }
   },
