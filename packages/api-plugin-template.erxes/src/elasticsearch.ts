@@ -1,10 +1,8 @@
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import * as elasticsearch from 'elasticsearch';
-import * as telemetry from 'erxes-telemetry';
 import { debugError } from './debuggers';
 
 const {
-  NODE_ENV,
   ELASTICSEARCH_URL = 'http://localhost:9200'
 } = process.env;
 
@@ -17,13 +15,6 @@ export const getMappings = async (index: string) => {
 };
 
 export const getIndexPrefix = () => {
-  if (
-    ELASTICSEARCH_URL === 'https://elasticsearch.erxes.io' &&
-    NODE_ENV === 'production'
-  ) {
-    return `${telemetry.getMachineId().toString()}__`;
-  }
-
   return 'erxes__';
 };
 

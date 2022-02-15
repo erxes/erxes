@@ -2,10 +2,10 @@
   "name": "@erxes/api-plugin-template",
   "version": "1.0.0",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon src/index.ts",
-    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json",
-    "test": "jest --coverage --forceExit --runInBand",
-    "start": "cd .erxes/dist/plugin-[name]-api/.erxes && node src"
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/main/.erxes && node src"
   },
   "dependencies": {
     "@apollo/federation": "^0.33.8",
@@ -43,6 +43,8 @@
     "ts-node": "^8.0.3",
     "uuid-by-string": "^3.0.5",
     "clerq": "0.5.0",
+    "xlsx-populate": "^1.20.1",
+    "strip": "^3.0.0",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
