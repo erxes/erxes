@@ -1,5 +1,4 @@
 import watch from 'node-watch';
-import fs from 'fs-extra';
 import fse from 'fs-extra';
 import { resolve } from "path";
 
@@ -15,7 +14,7 @@ const templatePath = filePath('../../api-plugin-template.erxes');
 const watcher = watch(templatePath, { recursive: true, delay: 1000 });
 
 const onChange = () => {
-  const pluginNames = fs.readdirSync(filePath('../..'));
+  const pluginNames = fse.readdirSync(filePath('../..'));
 
   for (const pluginName of pluginNames) {
     if (pluginName.startsWith('plugin-') && pluginName.endsWith('api')) {
