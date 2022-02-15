@@ -1,4 +1,4 @@
-import { AppConsumer } from 'main/appContext';
+import { AppConsumer } from 'coreui/appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';

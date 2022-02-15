@@ -7,9 +7,9 @@ import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
+import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
 import { IBrand } from '../types';
-import BrandForm from './BrandForm';
 import BrandRow from './BrandRow';
 
 type Props = {

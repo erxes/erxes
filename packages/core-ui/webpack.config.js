@@ -45,7 +45,8 @@ module.exports = {
   },
 
   output: {
-    publicPath: `/`,
+    publicPath: "http://localhost:3000/",
+    chunkFilename: "[id].[contenthash].js",
   },
 
   devServer: {
@@ -126,14 +127,11 @@ module.exports = {
       inject: true,
     }),
     new ModuleFederationPlugin({
-      name: "main",
+      name: "coreui",
       filename: "remoteEntry.js",
-      remotes: {
-        main: "main@http://localhost:3000/remoteEntry.js",
-      },
       exposes: {
-        QuickNavigation: "./src/modules/layout/components/QuickNavigation.tsx",
         "./appContext": "./src/appContext",
+        "./utils": "./src/modules/common/utils",
       },
       shared: {
         ...shared,
@@ -150,6 +148,8 @@ module.exports = {
           singleton: true,
           eager: true,
         },
+        "./src/appContext": {},
+        "./src/modules/common/utils": {},
       },
     }),
   ],

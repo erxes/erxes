@@ -2,7 +2,6 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { AppConsumer } from '@erxes/ui/src/appContext';
 import { IUser } from 'modules/auth/types';
 import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { __ } from 'modules/common/utils';
@@ -13,6 +12,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import pluginModules from './plugins';
 import { ISubNav } from 'modules/layout/components/Navigation';
+import { AppConsumer } from 'appContext';
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];

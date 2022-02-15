@@ -8,7 +8,7 @@ import CURRENCIES from 'modules/common/constants/currencies';
 import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import EmailConfigForm from 'modules/settings/general/components/EmailConfigForm';
+import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';

@@ -1,4 +1,4 @@
-import { AppConsumer } from 'main/appContext';
+import { AppConsumer } from 'coreui/appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';
@@ -285,7 +285,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       refetchMessages: messagesQuery.refetch,
       typingInfo
     };
-    console.log(conversationMessages)
+ 
     return <DumbWorkArea {...updatedProps} />;
   }
 }

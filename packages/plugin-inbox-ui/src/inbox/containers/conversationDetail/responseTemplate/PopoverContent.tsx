@@ -12,7 +12,7 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 
-import { AppConsumer } from 'main/appContext';
+import { AppConsumer } from 'coreui/appContext';
 
 type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
