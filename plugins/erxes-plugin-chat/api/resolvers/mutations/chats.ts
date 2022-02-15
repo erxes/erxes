@@ -162,7 +162,8 @@ const chatMutations = [
         return 'Chat removed';
       }
 
-      if (type === 'remove') {
+      // while user is removing himself or herself
+      if (type === 'remove' && (userIds || []).indexOf(user._id) !== -1) {
         hasAdminLeft(chat, user._id);
       }
 
