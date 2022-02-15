@@ -81,11 +81,11 @@ export class AppProvider extends React.Component<
   }
 
   setLocale = (currentLanguage: string): void => {
-    // if (currentLanguage !== 'mn') {
-    //   import(`dayjs/locale/${currentLanguage}`)
-    //     .then(() => dayjs.locale(currentLanguage))
-    //     .catch(_ => dayjs.locale('en'));
-    // }
+    if (currentLanguage !== 'mn') {
+      import(`dayjs/locale/${currentLanguage}`)
+        .then(() => dayjs.locale(currentLanguage))
+        .catch(_ => dayjs.locale('en'));
+    }
     import(`../../core-ui/src/locales/${currentLanguage}.json`)
       .then(data => {
         const translations = data.default;
