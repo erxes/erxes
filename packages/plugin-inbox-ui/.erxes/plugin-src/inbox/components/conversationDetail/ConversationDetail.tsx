@@ -49,7 +49,7 @@ export default class ConversationDetail extends React.Component<Props> {
 
   renderContent() {
     const { loading, currentConversation } = this.props;
-
+console.log(currentConversation)
     if (currentConversation) {
       return <WorkArea {...this.props} />;
     }
