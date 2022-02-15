@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { Alert, withProps } from 'modules/common/utils';
 import ManageIntegrations from '@erxes/ui-inbox/src/settings/integrations/containers/common/ManageIntegrations';
-import { integrationsListParams } from '@erxes/ui-settings/src/integrations/containers/utils';
+import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import { queries as integQueries } from '@erxes/ui-settings/src/integrations/graphql';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';

@@ -1,3 +1,4 @@
+import { MutationVariables } from '@erxes/ui/src/types';
 // mutations
 export type AddBoardMutationVariables = {
   name: string;
@@ -20,45 +21,30 @@ export type EditBoardMutationResponse = {
   }) => Promise<void>;
 };
 
-export type RemoveBoardMutationVariables = {
-  _id: string;
-};
-
 export type RemoveBoardMutationResponse = {
   removeMutation: (params: {
-    variables: RemoveBoardMutationVariables;
+    variables: MutationVariables;
     refetchQueries: string[];
   }) => Promise<void>;
 };
 
-export type CopiedPipelineMutationVariables = {
-  _id: string;
-};
-
 export type CopiedPipelineMutationResponse = {
   copiedPipelineMutation: (params: {
-    variables: CopiedPipelineMutationVariables;
+    variables: MutationVariables;
     refetchQueries: any[];
   }) => Promise<void>;
-};
-export type ArchivePipelineMutationVariables = {
-  _id: string;
 };
 
 export type ArchivePipelineMutationResponse = {
   archivePipelineMutation: (params: {
-    variables: ArchivePipelineMutationVariables;
+    variables: MutationVariables;
     refetchQueries: any[];
   }) => Promise<void>;
 };
 
-export type RemovePipelineMutationVariables = {
-  _id: string;
-};
-
 export type RemovePipelineMutationResponse = {
   removePipelineMutation: (params: {
-    variables: RemovePipelineMutationVariables;
+    variables: MutationVariables;
     refetchQueries: any[];
   }) => Promise<void>;
 };

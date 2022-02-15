@@ -16,8 +16,6 @@ import dayjs from 'dayjs';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import Tags from '@erxes/ui/src/components/Tags';
 import Manage from './Manage';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { IForm } from '@erxes/ui-leads/src/types';
 
 type Props = {
   isChecked: boolean;

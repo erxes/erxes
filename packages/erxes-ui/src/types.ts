@@ -1,4 +1,5 @@
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IUser } from './auth/types';
+import { IActivityLogForMonth } from './activityLogs/types';
 
 export interface IRouterProps {
   history: any;
@@ -167,4 +168,17 @@ export type QueryResponse = {
   loading: boolean;
   refetch: () => Promise<any>;
   error?: string;
+};
+
+export type MutationVariables = {
+  _id: string;
+};
+
+export type ActivityLogQueryResponse = {
+  activityLogs: IActivityLogForMonth[];
+  loading: boolean;
+};
+
+export type Counts = {
+  [key: string]: number;
 };

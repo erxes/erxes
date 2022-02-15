@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IBrandDoc } from '@erxes/ui/src/brands/types';
-import { IChannelDoc } from '../../types';
+import { IChannelDoc } from '@erxes/ui-settings/src/channels/types';
 import ManageIntegrations from '../../components/common/ManageIntegrations';
 import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';

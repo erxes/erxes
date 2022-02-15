@@ -1,5 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse, MutationVariables } from '@erxes/ui/src/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import {
@@ -43,13 +43,9 @@ export type BookingIntegrationDetailQueryResponse = {
 } & QueryResponse;
 
 // mutation types
-export type RemoveMutationVariables = {
-  _id: string;
-};
-
 export type RemoveMutationResponse = {
   removeMutation: (params: {
-    variables: RemoveMutationVariables;
+    variables: MutationVariables;
   }) => Promise<any>;
 };
 

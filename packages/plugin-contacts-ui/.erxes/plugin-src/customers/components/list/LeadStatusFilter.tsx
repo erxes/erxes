@@ -8,7 +8,7 @@ import { __, router } from '@erxes/ui/src/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { LEAD_STATUS_TYPES } from '@erxes/ui/src/customers/constants';
-import { leadStatusChoices } from '@erxes/ui/src/customers/utils';
+import { leadStatusChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };

@@ -1,5 +1,4 @@
 import { QueryResponse, IAttachment } from '@erxes/ui/src/types';
-import { IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
 import { IUser, IUserDetails, IUserDoc, IUserLinks } from '@erxes/ui/src/auth/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
@@ -45,11 +44,6 @@ export type EditMutationResponse = {
   usersEdit: (params: {
     variables: { _id: string } & IUserDoc;
   }) => Promise<any>;
-};
-
-export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
-  loading: boolean;
 };
 
 export type UserConverationsQueryResponse = {

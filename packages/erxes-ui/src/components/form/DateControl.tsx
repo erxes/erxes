@@ -1,6 +1,6 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import React from 'react';
-import { FlexWrapper } from './styles';
+import { Column } from '@erxes/ui/src/styles/main'
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLElement>) => void;
@@ -65,10 +65,10 @@ class DateControl extends React.Component<Props> {
     };
 
     return (
-      <FlexWrapper>
+      <Column>
         <Datetime {...attributes} />
         {errorMessage}
-      </FlexWrapper>
+      </Column>
     );
   }
 }

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Checkbox,
-  FlexWrapper,
   FormLabel,
   Input,
   Radio,
@@ -9,6 +8,7 @@ import {
   SelectWrapper,
   Progress
 } from './styles';
+import { Column } from '@erxes/ui/src/styles/main';
 import Textarea from './Textarea';
 import ProgressBar from '../ProgressBar';
 
@@ -119,7 +119,7 @@ class FormControl extends React.Component<Props> {
     if (elementType === 'select') {
       if (props.options) {
         return (
-          <FlexWrapper>
+          <Column>
             <SelectWrapper hasError={errorMessage}>
               <Select {...attributes}>
                 {props.options.map((option, index) => {
@@ -132,17 +132,17 @@ class FormControl extends React.Component<Props> {
               </Select>
             </SelectWrapper>
             {errorMessage}
-          </FlexWrapper>
+          </Column>
         );
       }
 
       return (
-        <FlexWrapper>
+        <Column>
           <SelectWrapper hasError={errorMessage}>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
           {errorMessage}
-        </FlexWrapper>
+        </Column>
       );
     }
 
@@ -190,18 +190,18 @@ class FormControl extends React.Component<Props> {
 
     if (elementType === 'textarea') {
       return (
-        <FlexWrapper>
+        <Column>
           <Textarea {...props} hasError={errorMessage} />
           {errorMessage}
-        </FlexWrapper>
+        </Column>
       );
     }
 
     return (
-      <FlexWrapper>
+      <Column>
         <Input {...attributes} />
         {errorMessage}
-      </FlexWrapper>
+      </Column>
     );
   }
 }

@@ -1,8 +1,8 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
-import { ISavedConformity } from '@erxes/ui-cards/src/conformity/types';
+import { IAttachment, QueryResponse, MutationVariables } from '@erxes/ui/src/types';
+import { ISavedConformity } from '../conformity/types';
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 
 export interface IOptions {
@@ -287,10 +287,6 @@ export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
 
 export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
 
-export type RemoveVariables = {
-  _id: string;
-};
-
 export type UpdateTimeVariables = {
   _id: string;
   status: string;
@@ -298,7 +294,7 @@ export type UpdateTimeVariables = {
   startDate?: string;
 };
 
-export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
+export type RemoveMutation = ({ variables: MutationVariables }) => Promise<any>;
 
 export type UpdateTimeTrackMutation = ({
   variables: UpdateTimeVariables
@@ -312,10 +308,6 @@ export type CopyVariables = {
 export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
-  fetchMore: any;
-} & QueryResponse;
-
-export type RelatedItemsQueryResponse = {
   fetchMore: any;
 } & QueryResponse;
 
@@ -342,13 +334,9 @@ export type EditPipelineLabelMutationResponse = ({
   variables: EditMutationVariables
 }) => Promise<any>;
 
-export type RemovePipelineLabelMutationVariables = {
-  _id: string;
-};
-
 export type RemovePipelineLabelMutationResponse = {
   removeMutation: (params: {
-    variables: RemovePipelineLabelMutationVariables;
+    variables: MutationVariables;
   }) => Promise<void>;
 };
 
@@ -431,10 +419,6 @@ export type Item = {
   color: string;
 };
 
-export type Assignee = {
-  [key: string]: number;
-};
-
 // ticket comment mutation
 export type TicketCommentAddMutationVariables = {
   ticketId: string;
@@ -447,22 +431,3 @@ export type TicketCommentAddMutationResponse = {
     variables: TicketCommentAddMutationVariables;
   }) => Promise<any>;
 };
-
-// deal
-
-export interface IPaymentsData {
-  [key: string]: {
-    currency?: string;
-    amount?: number;
-  };
-}
-
-export interface IDeal extends IItem {
-  products?: any;
-  paymentsData?: IPaymentsData;
-}
-
-// ticket
-export interface ITicket extends IItem {
-  source?: string;
-}

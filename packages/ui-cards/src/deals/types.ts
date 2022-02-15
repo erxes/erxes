@@ -1,5 +1,4 @@
-import { IItem, IItemParams } from '@erxes/ui-cards/src/boards/types';
-import { IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
+import { IItem, IItemParams } from '../boards/types';
 import { IProduct } from '@erxes/ui-settings/src/productService/types';
 
 export interface IQueryParams {
@@ -48,11 +47,6 @@ export interface IPaymentsData {
 export type DealsTotalAmountsQueryResponse = {
   dealsTotalAmounts: IDealTotalAmount[];
   refetch: () => void;
-};
-
-export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
-  loading: boolean;
 };
 
 export interface IDeal extends IItem {

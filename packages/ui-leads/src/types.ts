@@ -1,7 +1,9 @@
 import {
   IAttachment,
   IConditionsRule,
-  QueryResponse
+  QueryResponse,
+  MutationVariables,
+  Counts
 } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
@@ -72,13 +74,9 @@ export interface ILeadIntegration extends IIntegration {
   createdUser: IUser;
 }
 
-export type RemoveMutationVariables = {
-  _id: string;
-};
-
 export type RemoveMutationResponse = {
   removeMutation: (params: {
-    variables: RemoveMutationVariables;
+    variables: MutationVariables;
   }) => Promise<any>;
 };
 
@@ -91,10 +89,6 @@ export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration[];
 } & QueryResponse;
 
-export type Counts = {
-  [key: string]: number;
-};
-
 export type IntegrationsCount = {
   total: number;
   byTag: Counts;
@@ -102,10 +96,6 @@ export type IntegrationsCount = {
   byBrand: Counts;
   byKind: Counts;
   byStatus: Counts;
-};
-
-export type TagCountQueryResponse = {
-  [key: string]: number;
 };
 
 export type CountQueryResponse = {

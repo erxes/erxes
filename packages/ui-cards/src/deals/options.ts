@@ -1,4 +1,4 @@
-import { toArray } from '@erxes/ui-cards/src/boards/utils';
+import { toArray } from '../boards/utils';
 import DealEditForm from './components/DealEditForm';
 import DealItem from './components/DealItem';
 import { mutations, queries } from './graphql';

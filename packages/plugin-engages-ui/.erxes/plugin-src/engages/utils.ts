@@ -1,5 +1,5 @@
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { TargetCount } from './types';
+import { Counts } from '@erxes/ui/src/types';
 
 export const generateListQueryVariables = ({ queryParams }) => ({
   ...generatePaginationParams(queryParams),
@@ -32,7 +32,7 @@ export const generateEmailTemplateParams = emailTemplates => {
  * @param ids - customer ids
  * @param countValues - customer counts
  */
-export const sumCounts = (ids: string[], countValues: TargetCount): number => {
+export const sumCounts = (ids: string[], countValues: Counts): number => {
   let sum = 0;
 
   for (const id of ids) {

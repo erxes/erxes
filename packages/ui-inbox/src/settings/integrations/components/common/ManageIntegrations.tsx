@@ -8,7 +8,7 @@ import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
 import { CenterContent, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { IBrandDoc } from '@erxes/ui/src/brands/types';
-import { IChannelDoc } from '../../types';
+import { IChannelDoc } from '@erxes/ui-settings/src/channels/types';
 import React from 'react';
 import { BrandName, IntegrationName } from '../../styles';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';

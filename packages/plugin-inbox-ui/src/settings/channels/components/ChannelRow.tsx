@@ -9,8 +9,8 @@ import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ChannelForm from '../containers/ChannelForm';
-import { IChannel } from '../types';
+import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
+import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
 
 type Props = {

@@ -15,7 +15,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { CenterContent } from '@erxes/ui/src/styles/main';
 import { Link } from 'react-router-dom';
-import { PopoverLinkWrapper } from '../styles';
+import { PopoverLinkWrapper } from '@erxes/ui-settings/src/integrations/components/mail/styles';
 import { SearchInput } from '../../store/styles';
 
 type Props = {

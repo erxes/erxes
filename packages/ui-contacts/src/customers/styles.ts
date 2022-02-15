@@ -112,10 +112,6 @@ const CustomerState = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
-const TabContent = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
 const ClickableRow = styled.span`
   cursor: pointer;
 
@@ -311,7 +307,6 @@ export {
   Name,
   NameContainer,
   CustomerState,
-  TabContent,
   ClickableRow,
   BooleanStatus,
   UserHeader,

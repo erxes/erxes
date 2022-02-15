@@ -11,7 +11,7 @@ import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/container
 import React from 'react';
 import ManageIntegrations from '../containers/ManageIntegrations';
 import Sidebar from '../containers/Sidebar';
-import { IChannel } from '../types';
+import { IChannel } from '@erxes/ui-settings/src/channels/types';
 
 type Props = {
   integrationsCount: number;

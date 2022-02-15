@@ -1,10 +1,4 @@
-import { IItem, IItemParams } from '@erxes/ui-cards/src/boards/types';
-import { IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
-
-export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
-  loading: boolean;
-};
+import { IItem, IItemParams } from '../boards/types';
 
 export interface ITicket extends IItem {
   source?: string;

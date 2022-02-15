@@ -140,12 +140,6 @@ const FormWrapper = styledTS<{ add?: boolean }>(styled.form)`
   margin-top: ${props => !props.add && '-5px'};
 `;
 
-const PopoverContent = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
-const ClosePopover = styled.span``;
-
 export {
   ChecklistTitleWrapper,
   ChecklistTitle,
@@ -154,7 +148,5 @@ export {
   ChecklistItem,
   ChecklistText,
   FormControlWrapper,
-  FormWrapper,
-  PopoverContent,
-  ClosePopover
+  FormWrapper
 };

@@ -15,10 +15,10 @@ import {
   IProduct,
   IProductDoc,
   ProductAddMutationResponse,
-  ProductCategoriesQueryResponse,
   ProductsQueryResponse
 } from '../types';
 import ProductForm from './ProductForm';
+import { ProductCategoriesQueryResponse } from '@erxes/ui-settings/src/productService/types';
 
 type Props = {
   data: { name: string; products: IProduct[] };

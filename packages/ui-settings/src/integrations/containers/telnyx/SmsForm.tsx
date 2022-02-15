@@ -6,7 +6,7 @@ import { mutations, queries } from '@erxes/ui-settings/src/integrations/graphql'
 import {
   IntegrationsQueryResponse,
   SendSmsMutationResponse
-} from '@erxes/ui-settings/src/integrations/types';
+} from '../../types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import SmsForm from '../../components/telnyx/SmsForm';

@@ -1,5 +1,5 @@
-import PortableItems from '@erxes/ui-cards/src/boards/components/portable/Items';
-import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
+import PortableItems from '../../boards/components/portable/Items';
+import GetConformity from '../../conformity/containers/GetConformity';
 import React from 'react';
 import options from '../options';
 

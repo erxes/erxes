@@ -5,10 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IBoard, IPipeline, IStage } from '../types';
 import { selectOptions } from '../utils';
-
-export const FormContainer = styled.div`
-  padding-right: 20px;
-`;
+import { FormContainer } from '../styles/common';
 
 type Props = {
   boards: IBoard[];

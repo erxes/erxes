@@ -5,7 +5,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { TabTitle } from '@erxes/ui/src/components/tabs';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
-import LeadState from '../../containers/LeadState';
+import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
