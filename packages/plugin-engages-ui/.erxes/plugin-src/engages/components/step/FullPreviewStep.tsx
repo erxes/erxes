@@ -1,11 +1,17 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { DesktopPreviewContent, MobilePreviewContent } from '../../styles';
 
-import {DesktopPreview, FlexItem, FullPreview, MobilePreview, TabletPreview} from '@erxes/ui/src/components/step/style'
-import {PreviewContainer} from '@erxes/ui/src/components/step/preview/styles'
+import {
+  DesktopPreview,
+  FlexItem,
+  FullPreview,
+  MobilePreview,
+  TabletPreview
+} from '@erxes/ui/src/components/step/style';
+import { PreviewContainer } from '@erxes/ui/src/components/step/preview/styles';
 
 import React from 'react';
 

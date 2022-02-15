@@ -7,7 +7,7 @@ import Label from '@erxes/ui/src/components/Label';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '../constants';
 import React from 'react';
 import s from 'underscore.string';

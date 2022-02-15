@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { METHODS } from '../constants';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';

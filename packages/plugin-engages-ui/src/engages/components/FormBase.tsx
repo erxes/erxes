@@ -1,5 +1,5 @@
 import { IBreadCrumbItem } from '@erxes/ui/src/types';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import React from 'react';
 import { MESSAGE_KINDS, METHODS } from '../constants';
 import { IEngageMessageDoc } from '../types';
