@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IRouterProps, Counts } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { withProps } from '@erxes/ui/src/utils';
 import Sidebar from '../components/Sidebar';
 import { queries } from '../graphql';
-import { CountQueryResponse, TagCountQueryResponse } from '../types';
+import { CountQueryResponse } from '../types';
 import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
 import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
 
@@ -19,7 +19,7 @@ type FinalProps = {
   kindCountsQuery: CountQueryResponse;
   statusCountsQuery: CountQueryResponse;
   tagsQuery: TagsQueryResponse;
-  tagCountsQuery: TagCountQueryResponse;
+  tagCountsQuery: Counts;
 } & IRouterProps;
 
 const SidebarContainer = (props: FinalProps) => {
@@ -57,7 +57,7 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, TagCountQueryResponse, { type: string }>(
+    graphql<Props, Counts, { type: string }>(
       gql(tagQueries.tags),
       {
         name: 'tagsQuery',

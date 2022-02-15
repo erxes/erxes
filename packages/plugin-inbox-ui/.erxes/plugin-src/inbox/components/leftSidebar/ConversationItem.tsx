@@ -7,7 +7,7 @@ import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { readFile, renderFullName } from '@erxes/ui/src/utils';
 import { CallLabel } from '@erxes/ui-inbox/src/inbox/styles';
-import { cleanIntegrationKind } from '@erxes/ui-settings/src/integrations/containers/utils';
+import { cleanIntegrationKind } from '@erxes/ui/src/utils';
 import React from 'react';
 import strip from 'strip';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -109,8 +109,6 @@ class ConversationItem extends React.Component<Props> {
     const isExistingCustomer = customer && customer._id;
     const isChecked = selectedIds.includes(conversation._id);
     const messageCount = conversation.messageCount || 0;
-    const relativeTime = require('dayjs/plugin/relativeTime');
-    dayjs.extend(relativeTime);
 
     const isRead =
       conversation.readUserIds &&

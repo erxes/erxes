@@ -1,4 +1,4 @@
-import { toArray } from '@erxes/ui-cards/src/boards/utils';
+import { toArray } from '../boards/utils';
 import TaskEditForm from './components/TaskEditForm';
 import TaskItem from './components/TaskItem';
 import { mutations, queries } from './graphql';

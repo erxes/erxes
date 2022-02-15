@@ -285,7 +285,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       refetchMessages: messagesQuery.refetch,
       typingInfo
     };
-    console.log(conversationMessages)
+ 
     return <DumbWorkArea {...updatedProps} />;
   }
 }

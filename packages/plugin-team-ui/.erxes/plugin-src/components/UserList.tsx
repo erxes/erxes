@@ -15,8 +15,8 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ICommonFormProps, ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import UserForm from '../containers/UserForm';
-import UserResetPasswordForm from '../containers/UserResetPasswordForm';
+import UserForm from '@erxes/ui-team/src/containers/UserForm';
+import UserResetPasswordForm from '@erxes/ui-team/src/containers/UserResetPasswordForm';
 import { UserAvatar } from '../styles';
 
 type IProps = {

@@ -11,7 +11,6 @@ import {
   ActionButton,
   AddressContainer,
   Addresses,
-  AddressItem,
   Date,
   Details,
   From,
@@ -20,6 +19,7 @@ import {
   Title
 } from './style';
 import { IMessage, IMail } from '../../../../types';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   message: IMessage;
@@ -147,10 +147,10 @@ class MailHeader extends React.Component<Props, State> {
     ));
 
     return (
-      <AddressItem>
+      <Flex>
         <Title>{title}</Title>
         <Addresses>{emails}</Addresses>
-      </AddressItem>
+      </Flex>
     );
   }
 
@@ -187,10 +187,10 @@ class MailHeader extends React.Component<Props, State> {
     }
 
     return (
-      <AddressItem>
+      <Flex>
         <Title>{__('Subject')}:</Title>
         <Addresses>{subject}</Addresses>
-      </AddressItem>
+      </Flex>
     );
   };
 

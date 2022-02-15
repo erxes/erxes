@@ -12,8 +12,9 @@ import { IFacebookComment } from '@erxes/ui-inbox/src/inbox/types';
 import Date from './Date';
 import FacebookContent from './FacebookContent';
 import ReplyingMessage from './ReplyingMessage';
-import { ChildPost, Comment, FlexItem, Reply, ShowMore, User } from './styles';
+import { ChildPost, FlexItem, Reply, ShowMore, User } from './styles';
 import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
+import { Comment } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 
 const Container = styled.div`
   display: inline-block;

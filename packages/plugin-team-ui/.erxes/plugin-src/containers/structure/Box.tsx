@@ -9,7 +9,7 @@ import Box from '@erxes/ui/src/components/Box';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { __ } from '@erxes/ui/src/utils';
-import { ErrorContainer } from '../../styles';
+import { MenuFooter } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 
 export default function BoxContainer() {
   const { data, loading, error, refetch } = useQuery(
@@ -26,9 +26,9 @@ export default function BoxContainer() {
   if (error) {
     return (
       <Box isOpen={true} title={__('Structure')} name="showStructure">
-        <ErrorContainer>
+        <MenuFooter>
           <ErrorMsg>{error.message}</ErrorMsg>
-        </ErrorContainer>
+        </MenuFooter>
       </Box>
     );
   }

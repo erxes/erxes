@@ -413,6 +413,14 @@ const PluginLayout = styled(Flex)`
   padding-top: ${dimensions.headerSpacing}px;
 `;
 
+const Column = styled.div`
+  flex: 1;
+`;
+
+const Wrapper = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -449,5 +457,7 @@ export {
   FlexCenter,
   EllipsisContent,
   CustomerName,
-  PluginLayout
+  PluginLayout,
+  Column,
+  Wrapper
 };

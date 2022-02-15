@@ -2,12 +2,6 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { IItem, IItemParams } from '@erxes/ui-cards/src/boards/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IField } from '@erxes/ui/src/types';
-import { IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
-
-export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
-  loading: boolean;
-};
 
 export interface IGrowthHack extends IItem {
   hackStages?: string[];

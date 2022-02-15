@@ -4,7 +4,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as kbQueries } from '@erxes/ui-settings/src/general/graphql';
-import { TopicsQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql, withApollo } from 'react-apollo';

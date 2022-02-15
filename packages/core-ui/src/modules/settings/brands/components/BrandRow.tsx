@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
-import BrandForm from 'modules/settings/brands/components/BrandForm';
+import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { __ } from '../../../common/utils';

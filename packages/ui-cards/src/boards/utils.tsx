@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
-import { Amount } from '@erxes/ui-cards/src/boards/styles/stage';
+import { Amount } from './styles/stage';
 import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';

@@ -1,4 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
 import styled, { css } from 'styled-components';
@@ -184,15 +185,11 @@ const From = styled.span`
   font-size: 95%;
 `;
 
-const AddressItem = styled.div`
-  display: flex;
-`;
-
 const AddressContainer = styledTS<{ isExpanded?: boolean }>(styled.div)`
   ${props =>
     !props.isExpanded &&
     css`
-      ${AddressItem} {
+      ${Flex} {
         margin-right: 5px;
       }
 
@@ -232,7 +229,6 @@ export {
   ActionButton,
   From,
   AddressContainer,
-  AddressItem,
   Title,
   Addresses
 };

@@ -10,8 +10,8 @@ import { mutations, queries } from '../graphql';
 import {
   EditChannelMutationResponse,
   EditChannelMutationVariables,
-  IChannelDoc
 } from '../types';
+import { IChannelDoc } from '@erxes/ui-settings/src/channels/types';
 
 type Props = {
   currentChannel: IChannelDoc;

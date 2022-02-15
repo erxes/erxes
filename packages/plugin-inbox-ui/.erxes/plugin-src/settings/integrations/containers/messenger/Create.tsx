@@ -2,10 +2,10 @@ import gql from 'graphql-tag';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
+import { queries as kbQueries } from '@erxes/ui-knowledgeBase/src/graphql';
 import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
 import Form from '../../components/messenger/Form';
-import { integrationsListParams } from '@erxes/ui-settings/src/integrations/containers/utils';
+import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import {
   mutations,
   queries
@@ -29,7 +29,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { TopicsQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
   queryParams: any;

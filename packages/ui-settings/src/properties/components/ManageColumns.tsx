@@ -7,6 +7,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { IConfigColumn } from '../types';
+import { Footer } from '@erxes/ui-cards/src/boards/styles/item'
 
 const Header = styled.div`
   display: flex;
@@ -21,11 +22,6 @@ const Header = styled.div`
     padding: 5px 20px 5px 30px;
     font-weight: bold;
   }
-`;
-
-const Footer = styled.div`
-  text-align: right;
-  margin-top: 20px;
 `;
 
 const Child = styled.div`

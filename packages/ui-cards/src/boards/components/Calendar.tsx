@@ -1,4 +1,4 @@
-import MainActionBar from '@erxes/ui-cards/src/boards/containers/MainActionBar';
+import MainActionBar from '../containers/MainActionBar';
 import {
   BoardContainer,
   BoardContent,

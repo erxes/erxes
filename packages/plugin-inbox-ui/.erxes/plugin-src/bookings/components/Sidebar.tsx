@@ -3,7 +3,8 @@ import React from 'react';
 import BrandFilter from '@erxes/ui-leads/src/containers/filters/BrandFilter';
 import StatusFilter from '@erxes/ui-leads/src/containers/filters/StatusFilter';
 import TagFilter from '@erxes/ui-leads/src/containers/filters/TagFilter';
-import { Counts, IntegrationsCount } from '@erxes/ui-leads/src/types';
+import { IntegrationsCount } from '@erxes/ui-leads/src/types';
+import { Counts } from '@erxes/ui/src/types';
 
 type Props = {
   counts: {

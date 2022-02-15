@@ -8,7 +8,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { __, Alert, uploadHandler } from '@erxes/ui/src/utils';
 import { Meta } from './styles';
-import { FileName } from './styles';
+import { FileName } from '@erxes/ui-inbox/src/inbox/styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
@@ -28,7 +28,6 @@ import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
   Attachments,
-  Column,
   ControlWrapper,
   EditorFooter,
   FileSize,
@@ -41,6 +40,7 @@ import {
   Uploading
 } from './styles';
 import { FlexRow, Subject } from './styles';
+import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
   emailTemplates: IEmailTemplate[];

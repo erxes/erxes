@@ -2,13 +2,18 @@ import { PluginLayout } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import GeneralRoutes from './generalRoutes';
 import { AppProvider } from 'coreui/appContext';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 const App = () => {
-  console.log('in Appppppp')
+  const currentUser = {
+    _id: "1",
+    username: "anu",
+    isOwner: true,
+    email: "anu.b@nmma.co"
+  };
+
   return (
     <PluginLayout>
-      <AppProvider currentUser={{username: "anu"} as IUser}>
+      <AppProvider currentUser={currentUser}>
         <GeneralRoutes />
       </AppProvider>
     </PluginLayout>

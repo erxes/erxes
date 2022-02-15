@@ -11,7 +11,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import { EMPTY_IMPORT_CONTENT } from '@erxes/ui-settings/src/constants';
 import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
-import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
+import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
 import React from 'react';
 import ExportPopupsData from '../containers/ExportPopupsData';
 import { IImportHistory } from '../types';

@@ -7,7 +7,7 @@ import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import {
   AddMutationResponse,
-  AddMutationVariables,
+  ISegmentWithConditionDoc,
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse
 } from '@erxes/ui-segments/src/types';
@@ -138,7 +138,7 @@ export default withProps<Props>(
     graphql<Props, HeadSegmentsQueryResponse>(gql(queries.headSegments), {
       name: 'headSegmentsQuery'
     }),
-    graphql<Props, AddMutationResponse, AddMutationVariables>(
+    graphql<Props, AddMutationResponse, ISegmentWithConditionDoc>(
       gql(mutations.segmentsAdd),
       { name: 'segmentsAdd' }
     ),

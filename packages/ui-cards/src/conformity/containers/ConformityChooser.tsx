@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import ItemChooser from '@erxes/ui-cards/src/boards/components/portable/ItemChooser';
+import ItemChooser from '../../boards/components/portable/ItemChooser';
 import Chooser, { CommonProps } from '@erxes/ui/src/components/Chooser';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations } from '../graphql';

@@ -2,7 +2,7 @@ import { AppConsumer } from 'coreui/appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IRouterProps, MutationVariables } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import inboxQueries from '@erxes/ui-inbox/src/inbox/graphql/queries';
 import React from 'react';
@@ -12,10 +12,9 @@ import Sidebar from '../components/Sidebar';
 import { mutations, queries } from '../graphql';
 import {
   ChannelsCountQueryResponse,
-  ChannelsQueryResponse,
-  RemoveChannelMutationResponse,
-  RemoveChannelMutationVariables
 } from '../types';
+import { RemovePipelineLabelMutationResponse } from '@erxes/ui-cards/src/boards/types'
+import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
 
 type Props = {
   queryParams: any;
@@ -28,7 +27,7 @@ type FinalProps = {
   channelsCountQuery: ChannelsCountQueryResponse;
 } & Props &
   IRouterProps &
-  RemoveChannelMutationResponse;
+  RemovePipelineLabelMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
   const {
@@ -150,8 +149,8 @@ const WithProps = withProps<Props>(
     }),
     graphql<
       Props,
-      RemoveChannelMutationResponse,
-      RemoveChannelMutationVariables
+      RemovePipelineLabelMutationResponse,
+      MutationVariables
     >(gql(mutations.channelRemove), {
       name: 'removeMutation',
       options: ({ queryParams, currentChannelId, currentUserId }: Props) => ({

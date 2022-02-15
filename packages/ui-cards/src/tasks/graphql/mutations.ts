@@ -4,7 +4,7 @@ import {
   commonFields,
   commonMutationParams,
   commonMutationVariables
-} from '@erxes/ui-cards/src/boards/graphql/mutations';
+} from '../../boards/graphql/mutations';
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
 const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;

@@ -1,3 +1,5 @@
+import { MutationVariables } from '@erxes/ui/src/types';
+
 export interface IDashboard {
   _id: string;
   name: string;
@@ -34,10 +36,6 @@ export type DashboardDetailsQueryResponse = {
   loading: boolean;
 };
 
-export type DashboardRemoveMutationVariables = {
-  _id: string;
-};
-
 export type EditDashboardItemMutationVariables = {
   _id: string;
   layout: string;
@@ -67,6 +65,6 @@ export type EditDashboardItemMutationResponse = {
 
 export type RemoveDashboardMutationResponse = {
   removeDashboardMutation: (params: {
-    variables: DashboardRemoveMutationVariables;
+    variables: MutationVariables;
   }) => Promise<any>;
 };

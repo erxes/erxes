@@ -38,10 +38,6 @@ const ArticleTitle = styled.h5`
   }
 `;
 
-const ArticleColumn = styled.div`
-  flex: 1;
-`;
-
 const ArticleMeta = styled.div`
   font-size: 11px;
   color: ${colors.colorCoreGray};
@@ -104,7 +100,6 @@ export {
   ActionButtons,
   RowArticle,
   ArticleTitle,
-  ArticleColumn,
   ArticleMeta,
   AuthorName,
   ReactionCounts,

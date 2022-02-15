@@ -11,7 +11,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Boards from '../components/Boards';
-import { getWarningMessage } from '../constants';
+import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import { mutations, queries } from '@erxes/ui-settings/src/boards/graphql';
 import { IOption, RemoveBoardMutationResponse } from '../types';
 

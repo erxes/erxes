@@ -26,7 +26,7 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { TopicsQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 

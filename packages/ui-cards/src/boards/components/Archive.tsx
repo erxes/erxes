@@ -21,7 +21,7 @@ import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
+import { HACKSTAGES } from '../constants';
 
 type Props = {
   options: IOptions;

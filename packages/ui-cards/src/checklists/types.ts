@@ -1,3 +1,5 @@
+import { MutationVariables } from '@erxes/ui/src/types';
+
 export interface IChecklistDoc {
   contentType: string;
   contentTypeId: string;
@@ -37,12 +39,8 @@ export type EditMutationResponse = ({
   variables: EditMutationVariables
 }) => Promise<any>;
 
-export type RemoveMutationVariables = {
-  _id: string;
-};
-
 export type RemoveMutationResponse = ({
-  variables: RemoveMutationVariables
+  variables: MutationVariables
 }) => Promise<any>;
 
 // checklists items
@@ -76,12 +74,4 @@ export type EditItemMutationVariables = {
 
 export type EditItemMutationResponse = ({
   variables: EditItemMutationVariables
-}) => Promise<any>;
-
-export type RemoveItemMutationVariables = {
-  _id: string;
-};
-
-export type RemoveItemMutationResponse = ({
-  variables: RemoveItemMutationVariables
 }) => Promise<any>;

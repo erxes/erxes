@@ -1,16 +1,16 @@
-import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
-import Left from '@erxes/ui-cards/src/boards/components/editForm/Left';
-import Sidebar from '@erxes/ui-cards/src/boards/components/editForm/Sidebar';
-import Top from '@erxes/ui-cards/src/boards/components/editForm/Top';
+import EditForm from '../../boards/components/editForm/EditForm';
+import Left from '../../boards/components/editForm/Left';
+import Sidebar from '../../boards/components/editForm/Sidebar';
+import Top from '../../boards/components/editForm/Top';
 import { Flex } from '@erxes/ui/src/styles/main';
 import {
   IEditFormContent,
   IItem,
   IItemParams,
   IOptions
-} from '@erxes/ui-cards/src/boards/types';
-import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
-import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
+} from '../../boards/types';
+import PortableDeals from '../../deals/components/PortableDeals';
+import PortableTickets from '../../tickets/components/PortableTickets';
 import React from 'react';
 
 type Props = {
