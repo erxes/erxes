@@ -19,8 +19,6 @@ const hasAdminLeft = (chat, userId) => {
   if (found && (chat.adminIds || []).length === 1) {
     throw new Error('You cannot remove you. There is no admin except you.');
   }
-
-  return found;
 };
 
 const chatMutations = [
@@ -164,7 +162,9 @@ const chatMutations = [
         return 'Chat removed';
       }
 
-      hasAdminLeft(chat, user._id);
+      if (type === 'remove') {
+        hasAdminLeft(chat, user._id);
+      }
 
       await models.Chats.updateOne(
         { _id },
@@ -201,9 +201,15 @@ const chatMutations = [
         throw new Error('Chat not found');
       }
 
-      const found = hasAdminLeft(chat, user._id);
+      const found = (chat.adminIds || []).indexOf(userId) !== -1;
 
-      // if found, means remove or not found, means to become admin
+      // while removing
+      if (found) {
+        hasAdminLeft(chat, user._id);
+      }
+
+      // if found, means remove
+      // if not found, means to become admin
       await models.Chats.updateOne(
         { _id },
         found
