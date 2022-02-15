@@ -16,6 +16,7 @@ import {
 } from '@erxes/ui-inbox/src/inbox/types';
 import { getConfig, setConfig, refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
 import { InboxManagementActionConsumer } from '../InboxCore';
+import ErrorBoundary from "@erxes/ui/src/errorBoundary";
 
 type Props = {
   queryParams: any;
@@ -95,7 +96,7 @@ class Sidebar extends React.Component<FinalProps> {
       );
     };
 
-    return <Bulk content={content} />;
+    return <ErrorBoundary><Bulk content={content} /></ErrorBoundary>;
   }
 }
 

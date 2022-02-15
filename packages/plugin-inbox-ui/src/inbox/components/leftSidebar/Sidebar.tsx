@@ -291,12 +291,12 @@ class LeftSidebar extends React.Component<Props, State> {
         </InboxManagementActionConsumer>
         <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
           <ConversationList
-            currentUser={currentUser}
-            currentConversationId={currentConversationId}
-            history={history}
-            queryParams={queryParams}
-            toggleRowCheckbox={toggleBulk}
-            selectedConversations={bulk}
+            // currentUser={currentUser}
+            // currentConversationId={currentConversationId}
+            // history={history}
+            // queryParams={queryParams}
+            // toggleRowCheckbox={toggleBulk}
+            // selectedConversations={bulk}
           />
         </Sidebar>
       </LeftContent>

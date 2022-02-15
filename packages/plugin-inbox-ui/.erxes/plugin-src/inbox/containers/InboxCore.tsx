@@ -11,6 +11,7 @@ import {
   LastConversationQueryResponse
 } from '@erxes/ui-inbox/src/inbox/types';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import ErrorBoundary from "@erxes/ui/src/errorBoundary";
 
 interface IRouteProps {
   queryParams: any;
@@ -72,6 +73,7 @@ class WithCurrentId extends React.Component<IProps> {
 
   render() {
     return (
+      <ErrorBoundary>
       <AppConsumer>
         {({ currentUser }) => {
           const { queryParams } = this.props;
@@ -98,6 +100,7 @@ class WithCurrentId extends React.Component<IProps> {
           );
         }}
       </AppConsumer>
+      </ErrorBoundary>
     );
   }
 }
