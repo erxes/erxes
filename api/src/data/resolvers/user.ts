@@ -5,7 +5,7 @@ import {
   Users
 } from '../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
-import { IUser, IUserDocument } from '../../db/models/definitions/users';
+import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
 import { getConfigs } from '../utils';
 import { getDocumentList } from './mutations/cacheUtils';
