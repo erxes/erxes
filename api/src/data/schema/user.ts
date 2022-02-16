@@ -63,6 +63,7 @@ export const types = `
     onboardingHistory: OnboardingHistory
     department: Department
     score: Float
+    leaderBoardPosition: Int
   }
 
   type UserConversationListResponse {
