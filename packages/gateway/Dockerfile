@@ -1,0 +1,7 @@
+FROM node:12.19-alpine
+WORKDIR /erxes-gateway
+RUN chown -R node:node /erxes-gateway \
+ && apk add --no-cache tzdata
+COPY --chown=node:node . /erxes-gateway
+USER node
+ENTRYPOINT ["node", "--max_old_space_size=8192", "dist"]

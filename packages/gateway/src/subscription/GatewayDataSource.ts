@@ -2,7 +2,7 @@ const { GatewayDataSource } = require("esm")(module)(
   "federation-subscription-tools"
 );
 
-import { ApolloServer, gql } from "apollo-server-express";
+import { gql } from "apollo-server-express";
 import { DocumentNode, GraphQLResolveInfo } from "graphql";
 import merge from "lodash/merge";
 

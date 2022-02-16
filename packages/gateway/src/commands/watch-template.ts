@@ -22,7 +22,7 @@ const onChange = () => {
       try {
         fse.copySync(templatePath, filePath(`../../${pluginName}/.erxes`), { overwrite: true });
         console.log(`successfully updated ${pluginName}`)
-      } catch (e: any) {
+      } catch (e) {
         console.log(e.message)
       }
     }

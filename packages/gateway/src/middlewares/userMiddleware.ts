@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 import redis from '../redis';
 import { Users } from '../db';
 
-export default async function userMiddleware(req: Request & { user?: any }, res: Response, next: NextFunction) {
+export default async function userMiddleware(req: Request & { user?: any }, _res: Response, next: NextFunction) {
   const erxesCoreToken = req.headers['erxes-core-token'];
   const url = req.headers['erxes-core-website-url'];
 
@@ -55,7 +55,7 @@ export default async function userMiddleware(req: Request & { user?: any }, res:
 
   const token = req.cookies['auth-token'];
 
-  if(!token) return next();
+  if(!token) { return next(); }
 
   try {
     // verify user token and retrieve stored user information

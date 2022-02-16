@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import Downloader from 'nodejs-file-downloader';
@@ -34,7 +33,7 @@ export default async function downloadPlugins(): Promise<void> {
   }
 
   await Promise.all(
-    services.map(async (service, i) => {
+    services.map(async (service) => {
       const url = `${service.address}/subscriptionPlugin.js`;
       const fileName = `${service.name}.js`;
       const downloader = new Downloader({

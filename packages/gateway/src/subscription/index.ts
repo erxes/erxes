@@ -44,7 +44,7 @@ export async function loadSubscriptions(
     {
       execute,
       subscribe,
-      context: (ctx, msg: SubscribeMessage, args: ExecutionArgs) => {
+      context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         // Instantiate and initialize the GatewayDataSource subclass
         const gatewayDataSource = new GatewayDataSource(
           `http://localhost:${process.env.PORT}/graphql`
@@ -90,7 +90,7 @@ export async function loadSubscriptions(
         // Ready execution arguments
         return args;
       },
-      onClose: async (ctx, code: number, reason: string) => {
+      onClose: async (ctx) => {
         await markClientInactive(ctx);
       },
     },
