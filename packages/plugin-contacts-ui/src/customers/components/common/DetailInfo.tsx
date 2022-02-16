@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { GENDER_TYPES } from '@erxes/ui/src/customers/constants';
 import { ICustomer } from '../../types';
 import {
