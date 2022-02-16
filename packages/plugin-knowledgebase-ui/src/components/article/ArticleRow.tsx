@@ -4,7 +4,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, getUserAvatar } from '@erxes/ui/src/utils';
+import { __, getUserAvatar } from 'coreui/utils';
 import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
 import { IArticle } from '@erxes/ui-knowledgeBase/src/types';

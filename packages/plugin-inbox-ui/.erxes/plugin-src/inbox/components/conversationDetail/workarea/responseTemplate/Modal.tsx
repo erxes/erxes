@@ -5,7 +5,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { SaveResponseTemplateMutationVariables } from '../../../../../settings/responseTemplates/types';
 import React from 'react';

@@ -6,7 +6,7 @@ import {
   FormGroup
 } from '@erxes/ui/src/components/form';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';

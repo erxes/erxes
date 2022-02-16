@@ -9,7 +9,7 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import { __, Alert, confirm, router } from 'coreui/utils';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
 import { queries } from '@erxes/ui/src/companies/graphql';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';

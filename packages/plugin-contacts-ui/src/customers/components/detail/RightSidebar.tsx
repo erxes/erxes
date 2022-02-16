@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import colors from '@erxes/ui/src/styles/colors';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
 import { List } from '../../../companies/styles';
 import { ICustomer } from '../../types';
@@ -81,7 +81,6 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
         <PortableTasks mainType="customer" mainTypeId={customer._id} />
-        {pluginsOfCustomerSidebar(customer)}
         {this.renderOther()}
       </Sidebar>
     );

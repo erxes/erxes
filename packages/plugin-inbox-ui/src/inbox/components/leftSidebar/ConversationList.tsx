@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import ConversationItem from '../../containers/leftSidebar/ConversationItem';
 import React from 'react';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';

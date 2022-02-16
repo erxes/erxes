@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import AssignBox from '../../containers/AssignBox';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';

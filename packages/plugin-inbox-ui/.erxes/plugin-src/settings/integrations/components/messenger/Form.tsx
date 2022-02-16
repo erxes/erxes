@@ -7,7 +7,7 @@ import {
   Preview,
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { linkify } from '@erxes/ui-inbox/src/inbox/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IBrand } from '@erxes/ui/src/brands/types';

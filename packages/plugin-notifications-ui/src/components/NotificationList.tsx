@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { __, Alert, router } from '@erxes/ui/src/utils';
+import { __, Alert, router } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { INotification } from '@erxes/ui-notifications/src/types';
 import React from 'react';

@@ -24,7 +24,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import { __, Alert, confirm, router } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';

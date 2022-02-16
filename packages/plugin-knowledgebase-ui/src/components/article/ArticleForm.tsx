@@ -12,7 +12,7 @@ import {
   IFormProps,
   IOption
 } from '@erxes/ui/src/types';
-import { extractAttachment, __ } from '@erxes/ui/src/utils';
+import { extractAttachment, __ } from 'coreui/utils';
 import { articleReactions } from '../../icons.constant';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
 import { FlexContent } from '@erxes/ui/src/layout/styles';

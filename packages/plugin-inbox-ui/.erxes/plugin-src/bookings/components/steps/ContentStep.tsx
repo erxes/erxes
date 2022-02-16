@@ -9,7 +9,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { extractAttachment, __ } from '@erxes/ui/src/utils';
+import { extractAttachment, __ } from 'coreui/utils';
 import Select from 'react-select-plus';
 import SelectProductCategory from '../../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';

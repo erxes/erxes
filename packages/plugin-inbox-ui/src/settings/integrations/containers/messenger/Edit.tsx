@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, withProps } from '@erxes/ui/src/utils';
+import { __, Alert, withProps } from 'coreui/utils';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import Form from '../../components/messenger/Form';
 import {
