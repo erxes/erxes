@@ -6,7 +6,7 @@ import { Indicator } from '@erxes/ui/src/components/step/styles';
 import { StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import React from 'react';

@@ -1,7 +1,7 @@
 import React from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Label from '@erxes/ui/src/components/Label';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
 import WithPermission from '@erxes/ui/src/components/WithPermission';

@@ -12,7 +12,7 @@ import {
   LeftContent
 } from '@erxes/ui-settings/src/integrations/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from 'coreui/utils';
 import { IBookingIntegration, IBooking } from '../types';
 import {
   IStyle,
