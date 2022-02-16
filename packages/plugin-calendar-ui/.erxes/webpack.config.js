@@ -27,7 +27,8 @@ const shared = {};
 
 for (const name of depNames) {
   shared[name] = {
-    singleton: true
+    singleton: true,
+    requiredVersion: deps[name]
   };
 }
 
@@ -124,7 +125,9 @@ module.exports = {
     new ModuleFederationPlugin({
       name: configs.name,
       filename: 'remoteEntry.js',
-      remotes: {},
+      remotes: {
+        coreui: "coreui@http://localhost:3000/remoteEntry.js"
+      },
       exposes,
       shared: {
         ...shared,
