@@ -6,7 +6,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { __, Alert, readFile, uploadHandler } from '@erxes/ui/src/utils';
+import { __, Alert, readFile, uploadHandler } from 'coreui/utils';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
 import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {

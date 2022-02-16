@@ -1,7 +1,7 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Sidebar from '../containers/leftSidebar/Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
