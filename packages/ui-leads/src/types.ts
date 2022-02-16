@@ -11,16 +11,6 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
-// check duplication
-// export interface ILeadIntegration {
-//   _id: string;
-//   name: string;
-//   code: string;
-//   kind: string;
-//   brand: IBrand;
-//   form: IForm;
-// }
-
 export interface ICallout {
   title?: string;
   body?: string;
