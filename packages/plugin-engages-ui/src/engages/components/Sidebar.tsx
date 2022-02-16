@@ -1,5 +1,5 @@
 import CountsByTag from '@erxes/ui/src/components/CountsByTag';
-import { __, router } from '@erxes/ui/src/utils';
+import { __, router } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   FieldStyle,

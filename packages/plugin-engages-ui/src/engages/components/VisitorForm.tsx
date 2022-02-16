@@ -7,7 +7,7 @@ import {
   StepWrapper,
   TitleContainer
 } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { MESSAGE_KINDS, METHODS } from '../constants';
 import {
   IEngageMessage,
