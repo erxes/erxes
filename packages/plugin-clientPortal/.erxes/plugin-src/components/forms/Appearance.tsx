@@ -17,7 +17,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   styles?: Styles;
