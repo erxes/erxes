@@ -507,6 +507,10 @@ const MoreItemRecent = styled.div`
   i, a {
     transition: none !important;
   }
+
+  a.active:before {
+    content: none;
+  }
 `;
 
 const MoreMenuWrapper = styledTS<{ visible: boolean }>(styled.div)`
