@@ -9,7 +9,7 @@ export default {
   checklistsChanged: {
     resolve(
       payload: any,
-      args: any,
+      _args: any,
       { dataSources: { gatewayDataSource } }: any,
       info: any
     ) {
@@ -42,7 +42,7 @@ export default {
   checklistDetailChanged: {
     resolve(
       payload: any,
-      args: any,
+      _args: any,
       { dataSources: { gatewayDataSource } }: any,
       info: any
     ) {

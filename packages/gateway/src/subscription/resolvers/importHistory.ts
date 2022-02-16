@@ -9,7 +9,7 @@ export default {
   importHistoryChanged: {
     resolve(
       payload: any,
-      args: any,
+      _args: any,
       { dataSources: { gatewayDataSource } }: any,
       info: any
     ) {

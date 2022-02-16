@@ -1,6 +1,5 @@
 import { Context } from "graphql-ws";
 import { Extra } from "graphql-ws/lib/use/ws";
-import { WebSocket } from "ws";
 import pubsub from "./pubsub";
 import redis from "../redis";
 import { Customers, ConversationMessages, Conversations } from "../db";
@@ -10,7 +9,7 @@ export async function markClientActive(
 ) {
   const messengerDataJson: string | null | undefined = ctx.connectionParams
     ?.messengerDataJson as (string | null | undefined);
-  const socket: WebSocket & { messengerData?: any } = ctx.extra.socket;
+  const socket: any = ctx.extra.socket;
 
   /*
     Clear previous one. It could be from previous different client. 
@@ -18,7 +17,7 @@ export async function markClientActive(
   */
   socket.messengerData = undefined;
 
-  if (!messengerDataJson) return;
+  if (!messengerDataJson) { return; }
 
   try {
     socket.messengerData = JSON.parse(messengerDataJson);
@@ -27,7 +26,7 @@ export async function markClientActive(
   }
 
   // no messengerData
-  if (!socket.messengerData) return;
+  if (!socket.messengerData) { return; }
 
   const customerId = socket.messengerData.customerId;
   const visitorId = socket.messengerData.visitorId;
@@ -66,8 +65,8 @@ export async function markClientActive(
 export async function markClientInactive(
   ctx: Context<Extra & Partial<Record<PropertyKey, never>>>
 ) {
-  const socket: WebSocket & { messengerData?: any } = ctx.extra.socket;
-  if (!socket.messengerData) return;
+  const socket: any = ctx.extra.socket;
+  if (!socket.messengerData) { return; }
 
   const messengerData = socket.messengerData;
 
@@ -116,7 +115,7 @@ export async function markClientInactive(
       `customer_last_status_${customerId}`
     );
 
-    if (customerLastStatus === "left") return;
+    if (customerLastStatus === "left") { return; }
 
     redis.set(`customer_last_status_${customerId}`, "left");
 
