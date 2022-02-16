@@ -1,5 +1,5 @@
 import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Stage from '../../../containers/conversion/Stage';
 import * as React from 'react';
 import { HeadRow, TableView } from '../style';

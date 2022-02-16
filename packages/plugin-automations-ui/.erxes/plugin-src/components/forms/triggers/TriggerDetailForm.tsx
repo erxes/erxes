@@ -6,7 +6,7 @@ import {
   TriggerTabs,
   ScrolledContent
 } from '../../../styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import ReEnrollmentContainer from '../../../containers/forms/triggers/ReEnrollment';
 

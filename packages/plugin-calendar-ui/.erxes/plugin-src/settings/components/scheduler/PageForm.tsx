@@ -11,7 +11,7 @@ import {
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   Content,

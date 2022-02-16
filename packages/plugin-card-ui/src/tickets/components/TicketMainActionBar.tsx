@@ -1,7 +1,7 @@
 import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
 import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import { IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import React from 'react';

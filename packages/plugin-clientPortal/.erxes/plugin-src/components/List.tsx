@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
 import { StyledUrl } from '../styles';
 import { ClientPortalConfig } from '../types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   configs: ClientPortalConfig[];

@@ -3,7 +3,7 @@ import {
   IAutomationHistory,
   IAutomationHistoryAction
 } from '../../types';
-import { __, renderFullName } from '@erxes/ui/src/utils';
+import { __, renderFullName } from 'coreui/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import EmptyState from '@erxes/ui/src/components/EmptyState';

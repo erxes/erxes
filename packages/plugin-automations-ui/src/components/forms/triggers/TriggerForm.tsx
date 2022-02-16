@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __, confirm } from '@erxes/ui/src/utils';
+import { __, confirm } from 'coreui/utils';
 import { TRIGGERS } from '../../../constants';
 import {
   TypeBox,

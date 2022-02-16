@@ -7,7 +7,7 @@ import {
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { additionalField } from '../../../types';

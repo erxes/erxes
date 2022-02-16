@@ -3,7 +3,7 @@ import { CONFIG_TYPES } from '../constants';
 import { ClientPortalConfig } from '../types';
 import Form from './Form';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   config: ClientPortalConfig;
