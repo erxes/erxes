@@ -13,7 +13,7 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import { __, getEnv } from '@erxes/ui/src/utils';
+import { __, getEnv } from 'coreui/utils';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';

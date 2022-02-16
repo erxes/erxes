@@ -10,7 +10,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { icons } from '../../icons.constant';
 import { ICategory, ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   currentTopicId: string;
