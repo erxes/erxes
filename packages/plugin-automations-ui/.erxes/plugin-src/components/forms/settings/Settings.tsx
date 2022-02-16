@@ -8,7 +8,7 @@ import {
 } from '../../../styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import OnlineHours from '../../OnlineHours';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';

@@ -1,4 +1,4 @@
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
 import RTG from 'react-transition-group';

@@ -8,7 +8,7 @@ import { ITrigger } from '../../../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ISegment } from '@erxes/ui-segments/src/types';
 import React from 'react';
 import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
