@@ -4,6 +4,7 @@ import { IProductTemplateDocument } from '../db/models/definitions/productTempla
 import * as faker from 'faker';
 
 import './setup.ts';
+import { Exception } from 'handlebars';
 
 describe('Test product template model', () => {
   let productTemplate: IProductTemplateDocument;
@@ -56,7 +57,7 @@ describe('Test product template model', () => {
     );
   });
 
-  test('Update pipeline template', async () => {
+  test('Update product template', async () => {
     const title = 'Updated name';
     const description = 'Updated description';
     const discount = 5;
@@ -93,12 +94,20 @@ describe('Test product template model', () => {
     expect(updated.totalAmount).toEqual(totalAmount);
   });
 
-  test('Remove productTemplate template', async () => {
+  test('Remove product template', async () => {
     const isDeleted = await ProductTemplates.removeProductTemplate([
       productTemplate._id
     ]);
 
     expect(isDeleted).toBeTruthy();
+  });
+
+  test('Duplicate product template', async () => {
+    try {
+      await ProductTemplates.checkDuplication(productTemplate.title);
+    } catch (e) {
+      expect(e.message).toBe('Title must be unique');
+    }
   });
 
   test(`Remove product Error('product template not found')`, async () => {

@@ -65,7 +65,7 @@ const productTemplateQueries = {
     return ProductTemplates.find().countDocuments();
   },
 
-  productTemplateDetail(_root, { _id }: { _id: string }) {
+  async productTemplateDetail(_root, { _id }: { _id: string }) {
     return ProductTemplates.findOne({ _id }).lean();
   },
   async productTemplateCountByTags() {

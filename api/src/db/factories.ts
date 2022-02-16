@@ -393,7 +393,7 @@ export const productTemplateFactory = async (
       }
     ],
     tagIds: params.tagIds || [faker.random.uuid()],
-    status: params.title || 'active'
+    status: params.status || 'active'
   });
 
   return prouctTemplate.save();

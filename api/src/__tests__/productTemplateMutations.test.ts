@@ -40,6 +40,7 @@ describe('ProductTemplates mutations', async () => {
     totalAmount
     description
     templateItems 
+    status
   `;
 
   const args = {
@@ -87,6 +88,49 @@ describe('ProductTemplates mutations', async () => {
     expect(created.discount).toBe(args.discount);
     expect(created.totalAmount).toBe(args.totalAmount);
     expect(created.templateItems.length).toBe(args.templateItems.length);
+  });
+
+  test('Duplicate productTemplate', async () => {
+    const mutation = `
+    mutation productTemplatesDuplicate($_id: String!) {
+      productTemplatesDuplicate(_id: $_id) {
+        ${commonReturn}
+      }
+    }
+    `;
+
+    const duplicated = await graphqlRequest(
+      mutation,
+      'productTemplatesDuplicate',
+      { _id: productTemplate._id }
+    );
+
+    expect(duplicated.title).toBe(productTemplate.title + ' copied');
+    expect(duplicated.description).toBe(productTemplate.description);
+    expect(duplicated.discount).toBe(productTemplate.discount);
+    expect(duplicated.totalAmount).toBe(productTemplate.totalAmount);
+    expect(duplicated.templateItems.length).toBe(
+      productTemplate.templateItems.length
+    );
+  });
+
+  test('Change status productTemplate', async () => {
+    const mutation = `
+    mutation productTemplatesChangeStatus($_id: String!, $status: String) {
+      productTemplatesChangeStatus(_id: $_id, status: $status) {
+        ${commonReturn}
+      }
+    }
+    `;
+
+    const changed = await graphqlRequest(
+      mutation,
+      'productTemplatesChangeStatus',
+      { _id: productTemplate._id, status: 'new status' }
+    );
+
+    expect(changed.title).toBe(productTemplate.title);
+    expect(changed.status).toBe('new status');
   });
 
   test('Edit productTemplate', async () => {

@@ -35,6 +35,7 @@ export interface IProductTemplateModel extends Model<IProductTemplateDocument> {
     _ids: string,
     doc: IProductTemplate
   ): Promise<IProductTemplateDocument>;
+  checkDuplication(title: string): Promise<void>;
   removeProductTemplate(ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
@@ -54,7 +55,7 @@ export const loadProductTemplateClass = () => {
       return productTemplate;
     }
 
-    static async checkDuplication(title: string) {
+    public static async checkDuplication(title: string) {
       const productTemplate = await ProductTemplates.findOne({ title });
 
       if (productTemplate) {
