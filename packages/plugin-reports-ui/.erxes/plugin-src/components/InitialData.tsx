@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { Title } from '@erxes/ui/src/styles/main';
-import { __, getEnv } from '@erxes/ui/src/utils';
+import { __, getEnv } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
