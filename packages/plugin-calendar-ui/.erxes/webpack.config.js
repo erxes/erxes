@@ -28,7 +28,6 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true,
-    requiredVersion: deps[name]
   };
 }
 
@@ -134,7 +133,11 @@ module.exports = {
         '@erxes/ui': {
           requiredVersion: '1.0.0',
           singleton: true
-        }
+        },
+        dayjs: {
+          requiredVersion: deps["dayjs"],
+          singleton: true,
+        },
       }
     }),
     new HtmlWebPackPlugin({
