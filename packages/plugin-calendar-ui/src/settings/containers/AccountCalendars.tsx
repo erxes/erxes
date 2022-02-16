@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { queries as calendarQueries } from '../../calendar/graphql';
 import Info from '@erxes/ui/src/components/Info';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { __, Alert, withProps } from '@erxes/ui/src/utils';
+import { __, Alert, withProps } from 'coreui/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui-settings/src/integrations/graphql';
