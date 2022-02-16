@@ -3,7 +3,7 @@ import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IFormProps } from '@erxes/ui/src/types';
-import { __, confirm } from '@erxes/ui/src/utils';
+import { __, confirm } from 'coreui/utils';
 import React from 'react';
 import {
   AccountBox,

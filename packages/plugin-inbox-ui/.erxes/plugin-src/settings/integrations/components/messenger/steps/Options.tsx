@@ -5,7 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
