@@ -75,8 +75,8 @@ class Robot extends React.Component<Props, State> {
           timeout={2600}
           classNames="robot"
         >
-          <Bot onClick={this.changeContent} collapsed={collapsed}>
-            <BotWrapper collapsed={collapsed}>
+          <Bot onClick={this.changeContent}>
+            <BotWrapper>
               <span>
                 <img src="/images/erxes-bot.svg" alt="assistant robot" />
               </span>

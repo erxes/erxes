@@ -2,6 +2,7 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
+import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { __ } from 'modules/common/utils';
@@ -12,7 +13,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import pluginModules from './plugins';
 import { ISubNav } from 'modules/layout/components/Navigation';
-import { AppConsumer } from 'appContext';
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -133,7 +133,6 @@ const loadComponent = (scope, module) => {
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
     const Module = factory();
-
     return Module;
   };
 };
@@ -158,19 +157,6 @@ const System = props => {
       <Component />
     </React.Suspense>
   );
-};
-
-export const pluginRouters = () => {
-  const plugins: any[] = (window as any).plugins || [];
-  const pluginRoutes: any[] = [];
-
-  for (const plugin of plugins) {
-    if (plugin.routes) {
-      pluginRoutes.push(<System key={Math.random()} loadScript={true} system={plugin.routes} />);
-    }
-  }
-
-  return pluginRoutes;
 };
 
 class Setting extends React.Component<any, any> {
@@ -204,7 +190,7 @@ class Setting extends React.Component<any, any> {
     return (
       <div onClick={this.load}>
         {this.renderComponent()}
-
+        {this.props.to}
         {this.props.text}
       </div>
     );
@@ -223,6 +209,8 @@ export const pluginsSettingsNavigations = () => {
             scope={menu.scope}
             component={menu.component}
             text={menu.text}
+            to={menu.to}
+            image={menu.image}
           />
         );
       }
@@ -230,6 +218,19 @@ export const pluginsSettingsNavigations = () => {
   }
 
   return navigationMenus;
+};
+
+export const pluginRouters = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const pluginRoutes: any[] = [];
+
+  for (const plugin of plugins) {
+    if (plugin.routes) {
+      pluginRoutes.push(<System loadScript={true} system={plugin.routes} />);
+    }
+  }
+
+  return pluginRoutes;
 };
 
 export const pluginNavigations = () => {

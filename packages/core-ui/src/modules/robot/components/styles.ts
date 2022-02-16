@@ -31,14 +31,14 @@ const Greeting = styled(SubContent)`
   }
 `;
 
-const Bot = styledTS<{ collapsed: boolean }>(styled.div)`
+const Bot = styled.div`
   position: fixed;
   bottom: 0px;
-  width: ${props => (props.collapsed ? '160px' : '70px')};
+  width: ${dimensions.headerSpacing * 2 - 1}px;
   padding: 10px 0;
   text-align: center;
   z-index: 15;
-  display: ${props => props.collapsed && 'flex'};
+  display: flex;
   align-items: center;
 
   &:hover {
@@ -46,28 +46,26 @@ const Bot = styledTS<{ collapsed: boolean }>(styled.div)`
   }
 `;
 
-const BotWrapper = styledTS<{ collapsed: boolean }>(styled.div)`
-  background: ${props => props.collapsed && 'rgba(0,0,0,0.13)'};
+const BotWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: ${props => !props.collapsed && 'center'};
-  padding: ${props => props.collapsed && ' 0px 10px 0px 0px'};
+  justify-content: center;
   color: ${colors.colorWhite};
   border-radius: ${dimensions.coreSpacing}px;
-  margin: 0px 0px ${dimensions.unitSpacing}px ${props =>
-  props.collapsed ? dimensions.unitSpacing + 5 : 0}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  width: ${dimensions.headerSpacing * 2 - 1}px;
 
   > span {
-    margin-right: ${props => props.collapsed && dimensions.unitSpacing - 2}px;
     padding: ${dimensions.unitSpacing - 6}px;
     background: ${colors.colorSecondary};
-    border-radius: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px ${
-  dimensions.coreSpacing
-}px 2px;
+    width: ${dimensions.headerSpacing + 10}px;
+    height: ${dimensions.headerSpacing + 10}px;
+    border-radius: ${dimensions.coreSpacing + 5}px
+      ${dimensions.coreSpacing + 5}px ${dimensions.coreSpacing + 5}px 2px;
     transition: all 0.3s ease-in 0s;
 
     img {
-      width: 38px;
+      width: 50px;
     }
   }
 `;
