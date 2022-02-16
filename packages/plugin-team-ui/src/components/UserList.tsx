@@ -10,7 +10,7 @@ import TextInfo from '@erxes/ui/src/components/TextInfo';
 import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import { Link } from 'react-router-dom';

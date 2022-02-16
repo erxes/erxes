@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import UserList from '../containers/UserList';
 import Sidebar from './Sidebar';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
