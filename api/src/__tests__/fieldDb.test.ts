@@ -532,6 +532,7 @@ describe('Fields groups', () => {
     });
 
     const doc = [
+      { field: '' },
       { field: field1._id, value: '000' },
       { field: field2._id, value: '00001' },
       { field: field3._id, value: { lat: 0, lng: 1 } }
