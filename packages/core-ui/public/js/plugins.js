@@ -61,6 +61,52 @@ window.plugins = [
     ],
   },
   {
+    name: "contacts",
+    port: 3011,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3011/remoteEntry.js",
+      scope: "contacts",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Contacts",
+        url: "/contacts/customer",
+        icon: "icon-users",
+        location: "mainNavigation",
+      },
+    ],
+  },
+  {
+    name: "engages",
+    port: 3001,
+    exposes: {
+      "./routes": "./src/routes.tsx",
+      "./settings": "./src/Settings.tsx",
+    },
+    routes: {
+      url: "http://localhost:3001/remoteEntry.js",
+      scope: "engages",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Campaigns",
+        url: "/campaigns",
+        icon: "icon-megaphone",
+        location: "mainNavigation",
+      },
+      {
+        text: "Campaigns settings",
+        icon: "icon-megaphone",
+        location: "settings",
+        scope: "engages",
+        component: "./settings",
+      },
+    ],
+  },
+  {
     name: "automations",
     port: 3008,
     exposes: { "./routes": "./src/routes.tsx" },
@@ -124,52 +170,6 @@ window.plugins = [
         url: "/growthHack",
         icon: "icon-idea",
         location: "mainNavigation",
-      },
-    ],
-  },
-  {
-    name: "contacts",
-    port: 3011,
-    exposes: { "./routes": "./src/routes.tsx" },
-    routes: {
-      url: "http://localhost:3011/remoteEntry.js",
-      scope: "contacts",
-      module: "./routes",
-    },
-    menus: [
-      {
-        text: "Contacts",
-        url: "/contacts/customer",
-        icon: "icon-users",
-        location: "mainNavigation",
-      },
-    ],
-  },
-  {
-    name: "engages",
-    port: 3001,
-    exposes: {
-      "./routes": "./src/routes.tsx",
-      "./settings": "./src/Settings.tsx",
-    },
-    routes: {
-      url: "http://localhost:3001/remoteEntry.js",
-      scope: "engages",
-      module: "./routes",
-    },
-    menus: [
-      {
-        text: "Campaigns",
-        url: "/campaigns",
-        icon: "icon-megaphone",
-        location: "mainNavigation",
-      },
-      {
-        text: "Campaigns settings",
-        icon: "icon-megaphone",
-        location: "settings",
-        scope: "engages",
-        component: "./settings",
       },
     ],
   },
