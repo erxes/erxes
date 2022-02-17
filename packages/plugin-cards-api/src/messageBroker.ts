@@ -3,6 +3,7 @@ import { generateFields } from './fieldUtils';
 import { prepareImportDocs } from './importUtils';
 import { Checklists, Stages, Tasks, Tickets } from './models';
 import { generateConditionStageIds } from './utils';
+import { getSchemaLabels } from './logUtils';
 
 let client;
 
@@ -124,6 +125,11 @@ export const initBroker = async cl => {
       return { data: { positive }, status: 'success' };
     }
   );
+
+  consumeRPCQueue('cards:rpc_queue:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type)
+  }));
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

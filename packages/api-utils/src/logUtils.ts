@@ -24,6 +24,11 @@ interface ILogParams extends ILogNameParams {
   nameFields: string[];
 }
 
+interface INameLabel {
+  name: string;
+  label: string;
+}
+
 /**
  * Finds name field from given collection
  * @param params.collection Collection to find
@@ -194,4 +199,21 @@ export const putActivityLog = async (params: IActivityLogParams) => {
   } catch (e) {
     return e.message;
   }
+};
+
+/**
+ * Creates field name-label mapping list from given object
+ */
+ export const buildLabelList = (obj = {}): INameLabel[] => {
+  const list: INameLabel[] = [];
+  const fieldNames: string[] = Object.getOwnPropertyNames(obj);
+
+  for (const name of fieldNames) {
+    const field: any = obj[name];
+    const label: string = field && field.label ? field.label : "";
+
+    list.push({ name, label });
+  }
+
+  return list;
 };

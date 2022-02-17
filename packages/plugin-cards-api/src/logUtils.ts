@@ -1,9 +1,18 @@
 import { Forms, Users } from './apiCollections';
 import { Boards, PipelineLabels, Pipelines, Stages } from './models';
-import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
-import { IDealDocument } from './models/definitions/deals';
-import { IGrowthHackDocument } from './models/definitions/growthHacks';
-import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
+import {
+  IPipelineDocument,
+  IStageDocument,
+  attachmentSchema,
+  boardSchema,
+  pipelineSchema,
+  stageSchema as boardStageSchema
+} from './models/definitions/boards';
+import { checklistSchema, checklistItemSchema } from './models/definitions/checklists';
+import { IDealDocument, dealSchema, productDataSchema } from './models/definitions/deals';
+import { IGrowthHackDocument, growthHackSchema } from './models/definitions/growthHacks';
+import { IPipelineTemplateDocument, pipelineTemplateSchema, stageSchema } from './models/definitions/pipelineTemplates';
+import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
@@ -13,11 +22,97 @@ import {
   gatherNames,
   gatherUsernames,
   IDescriptions,
+  buildLabelList
 } from '@erxes/api-utils/src/logUtils';
-import { ITaskDocument } from './models/definitions/tasks';
-import { ITicketDocument } from './models/definitions/tickets';
+import { ITaskDocument, taskSchema } from './models/definitions/tasks';
+import { ITicketDocument, ticketSchema } from './models/definitions/tickets';
 import messageBroker from './messageBroker';
 import { MODULE_NAMES } from './constants';
+
+interface ISchemaMap {
+  name: string;
+  schemas: any[];
+}
+
+interface INameLabel {
+  name: string;
+  label: string;
+}
+
+const LOG_MAPPINGS: ISchemaMap[] = [
+  {
+    name: MODULE_NAMES.BOARD_DEAL,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.BOARD_TASK,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.BOARD_TICKET,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_DEAL,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TASK,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TICKET,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.CHECKLIST,
+    schemas: [checklistSchema],
+  },
+  {
+    name: MODULE_NAMES.CHECKLIST_ITEM,
+    schemas: [checklistItemSchema],
+  },
+  {
+    name: MODULE_NAMES.DEAL,
+    schemas: [dealSchema, productDataSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_LABEL,
+    schemas: [pipelineLabelSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TEMPLATE,
+    schemas: [pipelineTemplateSchema, stageSchema],
+  },
+  {
+    name: MODULE_NAMES.TASK,
+    schemas: [taskSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.GROWTH_HACK,
+    schemas: [growthHackSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.TICKET,
+    schemas: [ticketSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_DEAL,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_TASK,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_TICKET,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_GH,
+    schemas: [boardStageSchema],
+  },
+];
 
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
@@ -428,7 +523,6 @@ export const putCreateLog = async (logDoc, user) => {
   );
 };
 
-
 export const putActivityLog = async (params: { action: string, data: any }) => {
   // const { action, data } = params;
 
@@ -437,4 +531,38 @@ export const putActivityLog = async (params: { action: string, data: any }) => {
   // }
 
   return commonPutActivityLog({ messageBroker: messageBroker(), ...params });
+};
+
+export const getSchemaLabels = (type: string) => {
+  let fieldNames: INameLabel[] = [];
+
+  const found: ISchemaMap | undefined = LOG_MAPPINGS.find(
+    (m) => m.name === type
+  );
+
+  if (found) {
+    const schemas: any = found.schemas || [];
+
+    for (const schema of schemas) {
+      // schema comes as either mongoose schema or plain object
+      const names: string[] = Object.getOwnPropertyNames(
+        schema.obj || schema
+      );
+
+      for (const name of names) {
+        const field: any = schema.obj ? schema.obj[name] : schema[name];
+
+        if (field && field.label) {
+          fieldNames.push({ name, label: field.label });
+        }
+
+        // nested object field names
+        if (typeof field === "object" && field.type && field.type.obj) {
+          fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
+        }
+      }
+    } // end schema for loop
+  } // end schema name mapping
+
+  return fieldNames;
 };
