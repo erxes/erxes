@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-apollo';
 import Select from 'react-select-plus';

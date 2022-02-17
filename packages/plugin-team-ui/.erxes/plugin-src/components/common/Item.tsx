@@ -6,7 +6,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { SideList } from '../../styles';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import { IRouterProps } from '@erxes/ui/src/types';

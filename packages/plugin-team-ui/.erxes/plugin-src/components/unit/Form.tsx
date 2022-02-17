@@ -6,7 +6,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { generateTree } from '../../utils';
 import { IDepartment, IUnit } from '@erxes/ui-team/src/types';
 import SelectStructureMembers from '../SelectStructureMembers';
