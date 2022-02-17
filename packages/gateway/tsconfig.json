@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "strict": true
+    "strict": false
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
