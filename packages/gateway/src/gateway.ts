@@ -32,7 +32,7 @@ async function getConfiguredServices(): Promise<ServiceEndpointDefinition[]> {
     })
   );
 
-  services.push({ name: "api", url: `${process.env.API_DOMAIN}/graphql` });
+  // services.push({ name: "api", url: `${process.env.API_DOMAIN}/graphql` });
 
   return services;
 }
