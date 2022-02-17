@@ -11,7 +11,8 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "strict": false
+    "useUnknownInCatchVariables": false,
+    "strict": true
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
