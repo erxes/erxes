@@ -14,12 +14,11 @@ type Props = {
 
 type FinalProps = {
   segmentsQuery: SegmentsQueryResponse;
-  segmentsGetTypesQuery: any;
 } & Props &
   RemoveMutationResponse;
 
 const SegmentListContainer = (props: FinalProps) => {
-  const { segmentsQuery, removeMutation, segmentsGetTypesQuery } = props;
+  const { segmentsQuery, removeMutation } = props;
 
   const removeSegment = segmentId => {
     confirm().then(() => {
@@ -39,7 +38,6 @@ const SegmentListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    types: segmentsGetTypesQuery.segmentsGetTypes || [],
     loading: segmentsQuery.loading,
     segments: segmentsQuery.segments || [],
     removeSegment
@@ -60,10 +58,6 @@ export default withProps<Props>(
         })
       }
     ),
-
-    graphql(gql(queries.segmentsGetTypes), {
-      name: 'segmentsGetTypesQuery'
-    }),
 
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.segmentsRemove),

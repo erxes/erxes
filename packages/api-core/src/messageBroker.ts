@@ -6,6 +6,7 @@ import { Conformities, Forms, FieldsGroups, Fields } from './db/models';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
+import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 
 dotenv.config();
 
@@ -126,8 +127,21 @@ export const initBroker = async (server?) => {
       })
     );
 
-    consumeRPCQueue('rpc_queue:Fields.find', (query) =>
-      Fields.find(query).lean()
+    consumeRPCQueue("rpc_queue:Fields.find", async ({query, projection }) => {
+      return ({
+        status: "success",
+        data: await Fields.find(query, projection).lean(),
+      });
+    });
+
+    consumeRPCQueue(
+      "rpc_queue:fieldsCombinedByContentType",
+      async (arg) => {
+        return ({
+          status: "success",
+          data: await fieldsCombinedByContentType(arg),
+        });
+      }
     );
 
   }

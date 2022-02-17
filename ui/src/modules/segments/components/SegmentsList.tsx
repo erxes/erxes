@@ -15,7 +15,6 @@ import { ISegment } from '../types';
 import Sidebar from './Sidebar';
 
 type Props = {
-  types: Array<{ name: string; description: string }>;
   contentType?: string;
   segments: ISegment[];
   loading: boolean;
@@ -74,7 +73,7 @@ class SegmentsList extends React.Component<Props> {
   }
 
   render() {
-    const { types, contentType, loading, segments } = this.props;
+    const { contentType, loading, segments } = this.props;
     const parentSegments: ISegment[] = [];
 
     segments.forEach(segment => {
@@ -123,7 +122,7 @@ class SegmentsList extends React.Component<Props> {
             }
           />
         }
-        leftSidebar={<Sidebar types={types} />}
+        leftSidebar={<Sidebar />}
       />
     );
   }

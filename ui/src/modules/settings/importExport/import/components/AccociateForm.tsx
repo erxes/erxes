@@ -2,11 +2,10 @@ import React from 'react';
 import { ControlLabel, FormControl, FormGroup, __ } from 'erxes-ui';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { SubHeading } from 'modules/settings/styles';
-import { IImportHistoryContentType } from '../../types';
 
 type Props = {
   duplicatedHeaders: string[];
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: string[];
   onChangeAssociateHeader: (value: string) => void;
   onChangeAssociateContentType: (value: string) => void;
 };
@@ -62,10 +61,7 @@ class AccociateForm extends React.Component<Props, {}> {
               >
                 <option />
                 {this.props.contentTypes.map(contentType => (
-                  <option
-                    key={contentType.contentType}
-                    value={contentType.contentType}
-                  >
+                  <option key={contentType} value={contentType}>
                     {contentType}
                   </option>
                 ))}

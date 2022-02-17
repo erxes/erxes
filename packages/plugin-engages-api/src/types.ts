@@ -1,4 +1,5 @@
 import { IShortMessage } from './models/definitions/engages';
+import { Document } from 'mongoose';
 
 interface IIntegration {
   _id: string;

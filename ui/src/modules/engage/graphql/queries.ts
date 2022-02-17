@@ -22,16 +22,6 @@ const tagFields = `
   colorCode
 `;
 
-const userFields = `
-  _id
-  email
-  details {
-    avatar
-    fullName
-    position
-  }
-`;
-
 const commonFields = `
   _id
   title
@@ -47,9 +37,7 @@ const commonFields = `
   messenger
   email
 
-  createdUser {
-    ${userFields}
-  }
+  createdUser
 
   brand {
     _id
@@ -61,7 +49,13 @@ const commonFields = `
   runCount
 
   fromUser {
-    ${userFields}
+    _id
+    email
+    details {
+      avatar
+      fullName
+      position
+    }
   }
   shortMessage {
     from
@@ -123,13 +117,6 @@ export const engageDetailFields = `
   segments {
     contentType
   }
-  logs {
-    _id
-    createdAt
-    engageMessageId
-    message
-    type
-  }
 `;
 
 const engageMessageStats = `
@@ -137,8 +124,11 @@ const engageMessageStats = `
     engageMessageDetail(_id: $_id){
       ${engageDetailFields}
       stats
+      logs
 
-      fromIntegration
+      fromIntegration {
+        name
+      }
     }
   }
 `;

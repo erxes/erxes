@@ -11,6 +11,7 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
+    "useUnknownInCatchVariables": false,
     "strict": true
   },
   "include": ["./src/**/*.ts"],

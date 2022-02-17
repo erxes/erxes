@@ -105,6 +105,12 @@ function FieldChoices(props: Props) {
         text={__('Company Phone')}
         icon="phone"
       />
+      <FieldChoice
+        {...props}
+        type="map"
+        text={__('Map/Location')}
+        icon="map-marker"
+      />
       <FieldChoice {...props} type="html" text={__('HTML')} icon="code" />
     </Options>
   );

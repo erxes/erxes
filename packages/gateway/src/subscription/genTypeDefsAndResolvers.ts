@@ -11,8 +11,10 @@ import { DocumentNode } from "graphql";
 export default async function genTypeDefsAndResolvers(): Promise<{
   typeDefs: DocumentNode;
   resolvers: any;
-}> {
+} | null> {
   const plugins = await getPluginConfigs(NODE_ENV === "development");
+
+  if(!plugins?.length) return null;
 
   const typeDefs = genTypeDefs(plugins);
   const resolvers = genResolvers(plugins);
