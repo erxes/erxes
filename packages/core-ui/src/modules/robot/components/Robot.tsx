@@ -9,7 +9,6 @@ import { __ } from 'modules/common/utils';
 
 type Props = {
   currentUser: IUser;
-  collapsed: boolean;
 };
 
 type State = {
@@ -64,8 +63,6 @@ class Robot extends React.Component<Props, State> {
   };
 
   render() {
-    const { collapsed } = this.props;
-
     return (
       <>
         {this.renderContent()}
@@ -80,7 +77,6 @@ class Robot extends React.Component<Props, State> {
               <span>
                 <img src="/images/erxes-bot.svg" alt="assistant robot" />
               </span>
-              {collapsed && <>{__('Need Help')}?</>}
             </BotWrapper>
           </Bot>
         </RTG.CSSTransition>

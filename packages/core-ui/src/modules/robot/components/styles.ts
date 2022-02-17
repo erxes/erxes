@@ -50,16 +50,15 @@ const BotWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${colors.colorWhite};
-  border-radius: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  flex-direction: column;
+  color: ${colors.textPrimary};
   width: ${dimensions.headerSpacing * 2 - 1}px;
 
   > span {
     padding: ${dimensions.unitSpacing - 6}px;
     background: ${colors.colorSecondary};
-    width: ${dimensions.headerSpacing + 10}px;
-    height: ${dimensions.headerSpacing + 10}px;
+    width: ${dimensions.headerSpacing + dimensions.coreSpacing}px;
+    height: ${dimensions.headerSpacing + dimensions.unitSpacing}px;
     border-radius: ${dimensions.coreSpacing + 5}px
       ${dimensions.coreSpacing + 5}px ${dimensions.coreSpacing + 5}px 2px;
     transition: all 0.3s ease-in 0s;

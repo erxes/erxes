@@ -54,6 +54,10 @@ class Navigation extends React.Component<IProps, State> {
     };
   }
 
+  setWrapperRef = (node) => {
+    this.wrapperRef = node;
+  }
+
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside);
   }
@@ -62,21 +66,17 @@ class Navigation extends React.Component<IProps, State> {
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
 
-  setWrapperRef = (node) => {
-    this.wrapperRef = node;
-  }
-
-  handleClickOutside = (event) => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.setState({ showMenu: false });
-    }
-  }
-
   componentWillReceiveProps = (nextProps) => {
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
       setBadge(unreadCount, __('Team Inbox').toString());
+    }
+  }
+
+  handleClickOutside = (event) => {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ showMenu: false });
     }
   }
 
@@ -162,6 +162,7 @@ class Navigation extends React.Component<IProps, State> {
     childrens?: ISubNav[],
     label?: React.ReactNode
   ) => {
+    console.log(url)
     const item = (
       <NavItem>
         {this.renderMenuItem({icon, url, text, label})}
@@ -215,25 +216,6 @@ class Navigation extends React.Component<IProps, State> {
     );
   };
 
-  renderMainNav() {
-    const Navs = pluginNavigations().slice(0, 4);
-
-    return Navs.map((nav, index) => {
-      const { icon, text, url, permission } = nav;
-
-      return (
-        <React.Fragment key={index}>
-          {this.renderNavItem(
-            permission,
-            __(text),
-            url,
-            icon,
-          )} 
-        </React.Fragment>
-      )
-    });
-  }
-
   renderMore() {
     const { showMenu } = this.state;
 
@@ -256,6 +238,7 @@ class Navigation extends React.Component<IProps, State> {
   }
 
   render() {
+    const Navs = pluginNavigations().slice(0, 4);
     const logo = 'logo-dark.png';
     const thLogo = getThemeItem('logo');
 
@@ -269,17 +252,22 @@ class Navigation extends React.Component<IProps, State> {
         </NavLink>
 
         <Nav id="navigation">
-          {this.renderMainNav()}
+          {Navs.map(nav => 
+            this.renderNavItem(
+              nav.permission,
+              nav.text,
+              nav.url,
+              nav.icon,
+            )   
+          )}
 
           {pluginsOfNavigations(this.renderNavItem)}
 
-          <NavItem>
-            {this.renderMenuItem({
-              text: 'Settings',
-              url: '/settings',
-              icon: 'icon-settings'
-            })}
-          </NavItem>
+          {this.renderMenuItem({
+            text: 'Settings',
+            url: '/settings',
+            icon: 'icon-settings'
+          })}
 
           {this.renderMore()}
 

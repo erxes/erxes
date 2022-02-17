@@ -22,16 +22,7 @@ interface IProps extends IRouterProps {
   closeLoadingBar: () => void;
 }
 
-class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
-  constructor(props) {
-    super(props);
-    const hasWideNav = localStorage.getItem('navigation');
-
-    this.state = {
-      isCollapsed: hasWideNav ? (hasWideNav === 'true' ? true : false) : false
-    };
-  }
-
+class MainLayout extends React.Component<IProps> {
   componentDidMount() {
     const { history, currentUser } = this.props;
 
@@ -67,12 +58,6 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
     bustIframe();
   }
 
-  onCollapseNavigation = () => {
-    this.setState({ isCollapsed: !this.state.isCollapsed }, () => {
-      localStorage.setItem('navigation', this.state.isCollapsed.toString());
-    });
-  };
-
   getLastImport = () => {
     return localStorage.getItem('erxes_import_data') || '';
   };
@@ -91,7 +76,6 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
 
   render() {
     const { currentUser, children, isShownIndicator, history } = this.props;
-    const { isCollapsed } = this.state;
 
     if (history.location.pathname.startsWith('/videoCall')) {
       return children;
@@ -105,12 +89,10 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
           {currentUser && (
             <Navigation
               currentUser={currentUser}
-              collapsed={isCollapsed}
-              onCollapseNavigation={this.onCollapseNavigation}
             />
           )}
 
-          <MainWrapper collapsed={isCollapsed}>
+          <MainWrapper>
             <NotifProvider currentUser={currentUser}>
               <MainBar />
             </NotifProvider>
@@ -120,7 +102,7 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
           <DetectBrowser />
         </Layout>
 
-        <Robot collapsed={isCollapsed} />
+        <Robot />
       </>
     );
   }

@@ -10,9 +10,7 @@ import { sendDesktopNotification, withProps } from '../../common/utils';
 import Navigation from '../components/Navigation';
 
 type Props = {
-  collapsed: boolean;
   currentUser: IUser;
-  onCollapseNavigation: () => void;
 };
 
 type FinalProps = {

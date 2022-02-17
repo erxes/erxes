@@ -420,37 +420,6 @@ const DropNav = styled.a`
   }
 `;
 
-const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
-  background: ${props =>
-    !props.collapsed ? colors.colorPrimaryDark : colors.colorWhite};
-  position: absolute;
-  top: 12px;
-  z-index: 999;
-  right: -12px;
-  cursor: pointer;
-  height: ${dimensions.coreSpacing + 5}px;
-  width: ${dimensions.coreSpacing + 5}px;
-  border-radius: ${dimensions.headerSpacing}px;
-  text-align: center;
-  transition: all 0.3s;
-
-  > i {
-    color: ${props =>
-      props.collapsed ? colors.colorPrimaryDark : colors.colorWhite};
-    line-height: ${dimensions.coreSpacing + 5}px;
-    transition: all ease 0.3s;
-  }
-
-  &:hover {
-    width: 30px;
-    right: -15px;
-
-    > i {
-      float: ${props => (props.collapsed ? 'left' : 'right')};
-    }
-  }
-`;
-
 const SmallLabel = styled.div`
   position: absolute;
   text-transform: uppercase;
@@ -459,25 +428,6 @@ const SmallLabel = styled.div`
   color: ${colors.colorCoreTeal};
   right: ${dimensions.unitSpacing - 5}px;
   top: 3px;
-`;
-
-const NewStyle = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: ${dimensions.unitSpacing - 6}px ${dimensions.unitSpacing - 4}px;
-  position: absolute;
-  width: ${dimensions.coreSpacing + 12}px;
-  height: ${dimensions.coreSpacing - 4}px;
-  left: ${dimensions.headerSpacingWide - 7}px;
-  top: ${dimensions.unitSpacing - 7}px;
-  border-radius: ${dimensions.unitSpacing - 6}px;
-  color: rgba(255, 255, 255, 0.95);
-  font-size: ${dimensions.unitSpacing}px;
-  line-height: ${dimensions.unitSpacing + 6}px;
-  letter-spacing: 0.4px;
-  background-color: ${colors.colorCoreTeal};
 `;
 
 const MoreMenus = styled.div`
@@ -530,19 +480,10 @@ const MoreMenuWrapper = styledTS<{ visible: boolean }>(styled.div)`
 
 const MoreSearch = styled.div`
   display: flex;
-  flex-direction: row;
   align-items: center;
-  padding: 4px 4px 4px 8px;
-  position: static;
-  width: 370px;
-  height: ${dimensions.coreSpacing + 6}px;
-  left: ${dimensions.coreSpacing}px;
-  top: ${dimensions.coreSpacing}px;
+  padding: 0 ${dimensions.unitSpacing}px;
   background: ${colors.bgActive};
   border-radius: ${dimensions.headerSpacingWide - 1}px;
-  order: 0;
-  align-self: stretch;
-  flex-grow: 0;
   color: ${colors.colorCoreGray};
   margin-bottom: ${dimensions.coreSpacing}px;
 
@@ -558,9 +499,10 @@ const MoreSearch = styled.div`
 `;
 
 const StoreItem = styled(NavItem)`
-  bottom:${dimensions.headerSpacingWide}px;
-  position: relative;
-  transition: all 0.3s ease;
+  bottom:${dimensions.headerSpacingWide + dimensions.unitSpacing}px;
+  left: 0;
+  right: 0;
+  position: absolute;
 `;
 
 export {
@@ -571,7 +513,6 @@ export {
   MoreTitle,
   MoreMenus,
   MoreItemRecent,
-  NewStyle,
   MainWrapper,
   HeightedWrapper,
   Contents,
@@ -608,6 +549,5 @@ export {
   SubNavTitle,
   SubNavItem,
   DropNav,
-  ExpandIcon,
   SmallLabel
 };
