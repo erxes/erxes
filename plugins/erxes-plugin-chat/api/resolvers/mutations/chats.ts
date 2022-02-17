@@ -50,7 +50,7 @@ const chatMutations = [
         notifType: 'plugin',
         title: doc.name || doc.description,
         content: doc.description,
-        action: `${doc.type} ${doc.contentType} created`,
+        action: `${doc.type} chat created`,
         link: `/erxes-plugin-chat/home`,
         createdUser: user,
         // exclude current user
