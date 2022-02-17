@@ -7,7 +7,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import {
   DetailQueryResponse,
   IProduct
-} from '@erxes/ui-settings/src/productService/types';
+} from '../../../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ProductDetails from '../../../components/product/detail/ProductDetails';

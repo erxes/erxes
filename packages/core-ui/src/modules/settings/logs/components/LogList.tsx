@@ -8,7 +8,7 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { FilterItem, FilterWrapper } from 'modules/settings/permissions/styles';
+import { FilterItem, FilterWrapper } from '@erxes/ui-settings/src/permissions/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import Select from 'react-select-plus';

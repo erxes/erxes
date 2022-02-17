@@ -1,7 +1,7 @@
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
-import { IButtonMutateProps } from 'modules/common/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';

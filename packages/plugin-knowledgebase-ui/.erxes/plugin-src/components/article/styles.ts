@@ -97,7 +97,6 @@ const ReactionItem = styled(ReactionCount)`
 `;
 
 export {
-  ActionButtons,
   RowArticle,
   ArticleTitle,
   ArticleMeta,

@@ -10,7 +10,7 @@ import { ISelectedOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import PortableDeals from '../../deals/components/PortableDeals';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { Capitalize } from '@erxes/ui-settings/src/styles';
+import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 import PortableTasks from '../../tasks/components/PortableTasks';
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';

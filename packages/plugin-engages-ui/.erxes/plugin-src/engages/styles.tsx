@@ -3,6 +3,7 @@ import { BoxRoot } from "@erxes/ui/src/styles/main";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
+import { LogoContainer } from '@erxes/ui-settings/src/styles';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
@@ -77,57 +78,6 @@ const Messenger = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-`;
-
-const LogoContainer = styled.div`
-  color: ${colors.colorWhite};
-  line-height: 56px;
-  text-align: center;
-  border-radius: 28px;
-  width: 56px;
-  height: 56px;
-  cursor: pointer;
-  box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
-  background-image: url("/images/erxes.png");
-  background-color: ${colors.colorPrimary};
-  background-position: center;
-  background-size: 20px;
-  background-repeat: no-repeat;
-  margin-top: ${dimensions.unitSpacing}px;
-  position: relative;
-  float: right;
-  display: table;
-
-  span {
-    position: absolute;
-    width: ${coreSpace};
-    height: ${coreSpace};
-    background: ${colors.colorCoreRed};
-    display: block;
-    right: -2px;
-    top: -5px;
-    color: ${colors.colorWhite};
-    border-radius: ${dimensions.unitSpacing}px;
-    text-align: center;
-    line-height: ${coreSpace};
-    font-size: ${dimensions.unitSpacing}px;
-  }
-
-  input[type="file"] {
-    display: none;
-  }
-
-  label {
-    display: block;
-    margin: 0;
-    visibility: hidden;
-    border-radius: 50%;
-  }
-
-  &:hover label {
-    visibility: visible;
-    cursor: pointer;
-  }
 `;
 
 const LauncherContainer = styled(LogoContainer)`

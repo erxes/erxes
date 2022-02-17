@@ -2,10 +2,7 @@ import colors from 'modules/common/styles/colors';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-
-const Wrapper = styled.div`
-  display: flex;
-`;
+import { Flex } from '@erxes/ui/src/styles/main';
 
 const Round = styledTS<{ active?: boolean }>(styled.div)`
 	width: 8px;
@@ -31,11 +28,11 @@ function Indicator(props: Props) {
   const { totalStep, activeStep } = props;
 
   return (
-    <Wrapper>
+    <Flex>
       {Array.from(Array(totalStep)).map((item, index) => (
         <Round key={index} active={index === activeStep} />
       ))}
-    </Wrapper>
+    </Flex>
   );
 }
 

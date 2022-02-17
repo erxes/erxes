@@ -1,37 +1,8 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { ActionButtons, SidebarListItem } from '../styles';
-
-const FilterWrapper = styled.div`
-  padding: 10px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
-
-  strong {
-    margin-right: 10px;
-  }
-`;
-
-const FilterItem = styled(DateContainer)`
-  position: relative;
-  float: left;
-  min-width: 200px;
-  margin-right: 20px;
-  z-index: 100;
-`;
-
-const NotWrappable = styled.div`
-  white-space: nowrap;
-`;
-
-const Capitalize = styled.span`
-  text-transform: capitalize;
-  font-weight: 500;
-`;
+import { SidebarListItem } from '../styles';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 const StepItem = styled.div`
   box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 5px 0;
@@ -102,10 +73,6 @@ const SidebarItem = styled(SidebarListItem)`
 `;
 
 export {
-  FilterWrapper,
-  FilterItem,
-  NotWrappable,
-  Capitalize,
   StepItem,
   StepHeader,
   StepBody,

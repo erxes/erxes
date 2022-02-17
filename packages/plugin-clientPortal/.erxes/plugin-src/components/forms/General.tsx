@@ -21,6 +21,7 @@ import { FlexContent } from '@erxes/ui/src/layout/styles';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { __ } from '@erxes/ui/src/utils';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import { ISelectedOption } from '@erxes/ui/src/types';
 
 type Props = {
   topics: ITopic[];
@@ -29,11 +30,6 @@ type Props = {
   fetchPipelines: (boardId: string) => void;
   handleFormChange: (name: string, value: string) => void;
 } & ClientPortalConfig;
-
-type OptionItem = {
-  label: string;
-  value: string;
-};
 
 type ControlItem = {
   required?: boolean;
@@ -193,7 +189,7 @@ function General({
   const renderTaskPipelines = () => {
     const renderSelect = (
       options: IBoard[] | IPipeline[],
-      handleSelect: (args: OptionItem) => void,
+      handleSelect: (args: ISelectedOption) => void,
       value?: string
     ) => {
       return (
@@ -205,12 +201,12 @@ function General({
       );
     };
 
-    const handleSelectBoard = (option: OptionItem) => {
+    const handleSelectBoard = (option: ISelectedOption) => {
       fetchPipelines(option.value);
       handleFormChange('taskPublicBoardId', option.value);
     };
 
-    const handleSelecPipeline = (option: OptionItem) => {
+    const handleSelecPipeline = (option: ISelectedOption) => {
       handleFormChange('taskPublicPipelineId', option.value);
     };
 

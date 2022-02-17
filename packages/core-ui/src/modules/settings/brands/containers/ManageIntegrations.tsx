@@ -9,8 +9,9 @@ import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
-import { BrandsManageIntegrationsMutationResponse, IBrandDoc } from '../types';
+import { BrandsManageIntegrationsMutationResponse } from '../types';
 import ChooseBrand from './ChooseBrand';
+import { IBrandDoc } from '@erxes/ui/src/brands/types';
 
 type Props = {
   currentBrand: IBrandDoc;

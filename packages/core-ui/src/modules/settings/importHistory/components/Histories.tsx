@@ -5,7 +5,7 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
-import { IRouterProps } from 'modules/common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { __, getEnv } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';

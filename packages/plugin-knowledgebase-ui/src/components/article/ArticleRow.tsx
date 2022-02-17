@@ -9,7 +9,6 @@ import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
 import { IArticle } from '@erxes/ui-knowledgeBase/src/types';
 import {
-  ActionButtons,
   ArticleMeta,
   ArticleTitle,
   AuthorName,
@@ -17,6 +16,7 @@ import {
   ReactionCounts,
   RowArticle
 } from './styles';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {

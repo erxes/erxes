@@ -11,7 +11,7 @@ import Label from '@erxes/ui/src/components/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
 import dayjs from 'dayjs';
-import { Capitalize } from '@erxes/ui-settings/src/styles';
+import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 
 type Props = {
   pipeline: IPipeline;

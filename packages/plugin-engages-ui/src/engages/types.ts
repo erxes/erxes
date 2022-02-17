@@ -1,5 +1,5 @@
 import { IConditionsRule, QueryResponse } from '@erxes/ui/src/types';
-import { IAttachment } from '@erxes/ui/src/types';
+import { IAttachment, MutationVariables } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
@@ -137,10 +137,6 @@ export interface IEngageMessage extends IEngageMessageDoc {
 }
 
 // mutation types
-export type MutationVariables = {
-  _id: string;
-};
-
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };

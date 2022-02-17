@@ -43,7 +43,7 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
     const { OwnerDescription } = require('modules/auth/components/OwnerSetup');
     const OwnerSetup = require('modules/auth/containers/OwnerSetup').default;
     const Routes = require('./routes').default;
-    const AuthLayout = require('modules/layout/components/AuthLayout').default;
+    const AuthLayout = require('@erxes/ui/src/layout/components/AuthLayout').default;
 
     let body = <Routes />;
 

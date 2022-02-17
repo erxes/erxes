@@ -20,7 +20,7 @@ import {
 import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
 
 type Props = {
   queryParams: any;

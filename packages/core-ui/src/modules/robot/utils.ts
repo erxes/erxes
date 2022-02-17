@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { roundToTwo, __ } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 
 type Options = {
   _id: string;
@@ -16,14 +16,6 @@ export const getCurrentUserName = (user: IUser) => {
   }
 
   return user.details.shortName || user.details.fullName || '';
-};
-
-export const calculatePercentage = (total: number, done: number) => {
-  if (total > 0) {
-    return roundToTwo((done * 100) / total);
-  }
-
-  return 0;
 };
 
 export const orderArray = (array, order) => {

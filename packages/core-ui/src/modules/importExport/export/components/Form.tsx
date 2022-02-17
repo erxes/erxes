@@ -11,12 +11,12 @@ import {
 import { getEnv, __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
-import { IConfigColumn } from 'modules/settings/properties/types';
+import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ConfigsForm from './ConfigsForm';
 import queryString from 'query-string';
-import { Description, SubHeading } from 'modules/settings/styles';
+import { SubHeading } from '@erxes/ui-settings/src/styles';
 import {
   Content,
   LeftContent
@@ -27,6 +27,7 @@ import {
   TextWrapper
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Spinner from 'modules/common/components/Spinner';
+import { Description } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   contentType: string;

@@ -8,7 +8,7 @@ import { __, router } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
+import { ActionButtons, SidebarListItem } from '../../../styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';

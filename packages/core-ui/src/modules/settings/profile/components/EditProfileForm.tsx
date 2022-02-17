@@ -1,4 +1,4 @@
-import UserCommonInfos from 'modules/auth/components/UserCommonInfos';
+import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import Form from 'modules/common/components/form/Form';

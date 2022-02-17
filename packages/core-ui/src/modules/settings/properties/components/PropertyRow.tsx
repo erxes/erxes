@@ -17,8 +17,9 @@ import {
   PropertyTableHeader,
   RowField,
   PropertyTableRow
-} from '../styles';
-import { IField, IFieldGroup } from '../types';
+} from '@erxes/ui-settings/src/properties/styles';
+import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import SortableList from 'modules/common/components/SortableList';
 
 type Props = {

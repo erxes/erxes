@@ -7,17 +7,18 @@ import {
   Container,
   Greeting,
   NavButton,
-  ProgressText,
   RestartButton,
   SetupList,
   SubContent,
   Text
 } from './styles';
-import { calculatePercentage, getCurrentUserName } from 'modules/robot/utils';
+import { getCurrentUserName } from 'modules/robot/utils';
+import { calculatePercentage } from '@erxes/ui/src/customers/utils';
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import SetupDetail from '../containers/SetupDetail';
 import ProgressBar from 'modules/common/components/ProgressBar';
+import { Description } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   currentRoute?: string;
@@ -118,10 +119,10 @@ class Setup extends React.Component<Props, State> {
     return (
       <div>
         <ProgressBar percentage={percentage} color="#3B85F4" height="8px" />
-        <ProgressText>
+        <Description>
           {percentage}
           {__('% done -')} {text}
-        </ProgressText>
+        </Description>
       </div>
     );
   };

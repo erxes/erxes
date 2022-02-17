@@ -20,7 +20,7 @@ import {
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { queries } from '../graphql';
 import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
 
 type Props = {
   history: any;

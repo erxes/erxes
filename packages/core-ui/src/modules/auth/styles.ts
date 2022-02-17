@@ -48,19 +48,6 @@ const Links = styled.div`
   text-align: center;
 `;
 
-const ProfileWrapper = styled.div`
-  display: flex;
-`;
-
-const ProfileColumn = styled.div`
-  flex: 1;
-  padding-right: 40px;
-
-  &:last-of-type {
-    padding: 0;
-  }
-`;
-
 const ColumnTitle = styled.h4`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightMedium};
@@ -70,4 +57,4 @@ const ColumnTitle = styled.h4`
   margin: ${dimensions.coreSpacing}px 0;
 `;
 
-export { AuthBox, Links, ProfileWrapper, ProfileColumn, ColumnTitle };
+export { AuthBox, Links, ColumnTitle };

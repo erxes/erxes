@@ -4,7 +4,7 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { __, router } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FilterItem, FilterWrapper } from '../../styles';
+import { FilterItem, FilterWrapper } from '../../permissions/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { ISmsDelivery } from '../types';

@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as queriesInbox } from '@erxes/ui-inbox/src/inbox/graphql';
 import React from 'react';
@@ -10,11 +11,10 @@ import { withRouter } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { mutations, queries } from '../graphql';
 import {
-  BrandRemoveMutationResponse,
-  BrandRemoveMutationVariables,
-  BrandsCountQueryResponse,
-  BrandsQueryResponse
+  BrandRemoveMutationResponse
 } from '../types';
+import { BrandsQueryResponse, BrandsCountQueryResponse } from '@erxes/ui/src/brands/types';
+import { MutationVariables } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
@@ -131,7 +131,7 @@ export default withProps<Props>(
     graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
       name: 'brandsCountQuery'
     }),
-    graphql<Props, BrandRemoveMutationResponse, BrandRemoveMutationVariables>(
+    graphql<Props, BrandRemoveMutationResponse, MutationVariables>(
       gql(mutations.brandRemove),
       {
         name: 'removeMutation',

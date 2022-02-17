@@ -7,12 +7,10 @@ import {
   NotificationModule
 } from '@erxes/ui-notifications/src/types';
 import {
-  Description,
   InlineItems,
-  ModuleBox,
-  SubHeading,
-  SubItem
+  ModuleBox
 } from '../../styles';
+import { Description, SubHeading, SubItem } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   modules: NotificationModule[];
