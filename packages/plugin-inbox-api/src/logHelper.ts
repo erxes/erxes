@@ -1,4 +1,4 @@
-import { gatherNames, LogDesc } from "@erxes/api-utils/src/logDescHelper";
+import { gatherNames, LogDesc } from "@erxes/api-utils/src/logUtils";
 import { Brands, Forms, Tags, Users } from "./apiCollections";
 import { Integrations } from "./models";
 import { IChannelDocument } from "./models/definitions/channels";

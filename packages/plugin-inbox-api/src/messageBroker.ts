@@ -2,7 +2,7 @@ import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 import { ConversationMessages, Conversations, Integrations } from "./models";
 import { receiveRpcMessage } from "./receiveMessage";
 
-let client;
+export let client;
 
 const createConversationAndMessage = async (
   userId,

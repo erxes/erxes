@@ -46,7 +46,9 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '@erxes/api-utils/src';
 
-// import EditorAttributeUtil from '../../editorAttributeUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import { client as msgBrokerClient } from '../../messageBroker';
+import { getService } from '../../redis';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -438,13 +440,13 @@ const integrationMutations = {
       });
     }
 
-//     const replacedContent = await new EditorAttributeUtil().replaceAttributes({
-//       content: body,
-//       user,
-//       customer: customer || undefined
-//     });
+    const apiService = await getService("api");
 
-    const replacedContent = '';
+    const replacedContent = await new EditorAttributeUtil(msgBrokerClient, apiService.address).replaceAttributes({
+      content: body,
+      user,
+      customer: customer || undefined
+    });
 
     doc.body = replacedContent || '';
 
