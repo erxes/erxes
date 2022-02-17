@@ -19,11 +19,13 @@ type Props = ICommonListProps &
     queryParams: any;
     history: any;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
+    listQuery: any;
   };
 
 class ResponseListContainer extends React.Component<Props> {
   changeStatus = (_id: string, status: string) => {
-    const isActive = status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+    const isActive =
+      status === null || status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
     const message = isActive
       ? 'You are going to archive this response template. Are you sure?'
       : 'You are going to active this response template. Are you sure?';
@@ -43,7 +45,7 @@ class ResponseListContainer extends React.Component<Props> {
 
           if (template && template._id) {
             Alert.success(`Response template has been ${statusAction}.`);
-            this.props.refetch();
+            this.props.listQuery.refetch();
           }
         })
         .catch(e => {

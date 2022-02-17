@@ -27,10 +27,6 @@ type Props = {
   changeStatus: (_id: string, status: string) => void;
 } & ICommonListProps;
 
-// type State = {
-//   tipText: string
-// }
-
 class TemplateList extends React.Component<Props> {
   renderForm = props => {
     return <TemplateForm {...props} renderButton={this.props.renderButton} />;
@@ -80,7 +76,9 @@ class TemplateList extends React.Component<Props> {
   renderDisableAction(object) {
     const { changeStatus } = this.props;
     const _id = object._id;
-    const isActive = object.status === PIPELINE_TEMPLATE_STATUSES.ACTIVE;
+    const isActive =
+      object.status === null ||
+      object.status === PIPELINE_TEMPLATE_STATUSES.ACTIVE;
     const icon = isActive ? 'archive-alt' : 'redo';
     const status = isActive
       ? PIPELINE_TEMPLATE_STATUSES.ARCHIVED

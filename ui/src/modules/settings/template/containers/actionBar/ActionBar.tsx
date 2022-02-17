@@ -29,6 +29,7 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
+          refetchQueries={['emailTemplates']}
           type="submit"
           btnStyle="primary"
           uppercase={false}
@@ -54,11 +55,12 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
+          refetchQueries={['responseTemplates']}
           type="submit"
           btnStyle="primary"
           uppercase={false}
           confirmationUpdate={confirmationUpdate}
-          successMessage={`You successfully added a ${name}`}
+          successMessage={`You successfully added response a ${name}`}
         />
       );
     };
@@ -79,20 +81,18 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
+          refetchQueries={['pipelineTemplates']}
           type="submit"
           btnStyle="primary"
           uppercase={false}
           confirmationUpdate={confirmationUpdate}
-          successMessage={`You successfully added a ${name}`}
+          successMessage={`You successfully added pipeline a ${name}`}
         />
       );
     };
 
-    const searchValue = this.props.queryParams.searchValue || '';
-
     const updatedProps = {
       ...this.props,
-      searchValue,
       renderButtonEmailTemplates,
       renderButtonResponseTemplates,
       renderButtonGrowthHackTemplates

@@ -15,7 +15,6 @@ import { BarItems } from 'modules/layout/styles';
 
 type Props = {
   queryParams: any;
-  searchValue: string;
   history: any;
   renderButtonEmailTemplates: (props: IButtonMutateProps) => JSX.Element;
   renderButtonResponseTemplates: (props: IButtonMutateProps) => JSX.Element;
@@ -32,7 +31,7 @@ class ActionBar extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: ''
     };
   }
 

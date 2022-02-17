@@ -1,6 +1,5 @@
 import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
-// import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Table from 'modules/common/components/table';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
@@ -38,12 +37,13 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   constructor(props) {
     super(props);
 
-    const {
-      queryParams: { searchValue }
-    } = props;
+    const { queryParams } = props;
+
+    const searchValue =
+      queryParams && queryParams.searchValue ? queryParams.searchValue : '';
 
     this.state = {
-      searchValue: searchValue || ''
+      searchValue
     };
   }
 
@@ -60,7 +60,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   renderDisableAction = object => {
     const { changeStatus } = this.props;
     const _id = object._id;
-    const isActive = object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+    const isActive =
+      object.status === null ||
+      object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
     const icon = isActive ? 'archive-alt' : 'redo';
 
     const status = isActive
@@ -119,7 +121,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   renderFilter = () => {
-    const { brandId } = this.props.queryParams;
+    const brandId =
+      this.props.queryParams && this.props.queryParams.brandId
+        ? this.props.queryParams
+        : '';
 
     return (
       <FilterContainer>
@@ -175,17 +180,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           { title: __('Response templates') }
         ]}
         title={__('Response templates')}
-        // leftActionBar={
-        //   <HeaderDescription
-        //     icon="/images/actions/24.svg"
-        //     title="Response templates"
-        //     description={`${__(
-        //       'Make things easy for your team members and add in ready made response templates'
-        //     )}.${__(
-        //       'Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
-        //     )}`}
-        //   />
-        // }
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}

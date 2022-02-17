@@ -1,4 +1,3 @@
-// import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -33,7 +32,9 @@ class EmailTemplateList extends React.Component<Props> {
   renderDisableAction = object => {
     const { changeStatus } = this.props;
     const _id = object._id;
-    const isActive = object.status === EMAIL_TEMPLATE_STATUSES.ACTIVE;
+    const isActive =
+      object.status === null ||
+      object.status === EMAIL_TEMPLATE_STATUSES.ACTIVE;
     const icon = isActive ? 'archive-alt' : 'redo';
 
     const status = isActive
@@ -119,19 +120,6 @@ class EmailTemplateList extends React.Component<Props> {
           { title: __('Email templates') }
         ]}
         title={__('Email templates')}
-        // leftActionBar={
-        //   <HeaderDescription
-        //     icon="/images/actions/22.svg"
-        //     title="Email templates"
-        //     description={`${__(
-        //       `It's all about thinking ahead for your customers`
-        //     )}.${__(
-        //       'Team members will be able to choose from email templates and send out one message to multiple recipients'
-        //     )}.${__(
-        //       'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members'
-        //     )}`}
-        //   />
-        // }
         renderForm={this.renderForm}
         rightActionBar={true}
         renderContent={this.renderContent}
