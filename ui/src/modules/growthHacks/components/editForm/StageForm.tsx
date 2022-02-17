@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import colors from 'modules/common/styles/colors';
 import { IFormSubmission } from 'modules/forms/types';
 import { IGrowthHack } from 'modules/growthHacks/types';
+import { IConfig } from 'modules/settings/general/types';
 import GenerateField from 'modules/settings/properties/components/GenerateField';
 import React from 'react';
 import styled from 'styled-components';
@@ -29,6 +30,7 @@ const CurrentStage = styled.div`
 
 type Props = {
   item: IGrowthHack;
+  configs: IConfig[];
   onChangeExtraField: (name: 'formSubmissions', value: any) => void;
   save: (doc: IFormSubmission) => void;
 };
@@ -37,6 +39,7 @@ class StageForm extends React.Component<Props> {
   renderFormFields() {
     const {
       item: { formFields = [], formSubmissions, formId },
+      configs,
       onChangeExtraField
     } = this.props;
 
@@ -54,6 +57,7 @@ class StageForm extends React.Component<Props> {
         defaultValue={formSubmissions[field._id]}
         key={field._id}
         field={field}
+        configs={configs}
         onValueChange={onChangeFormField}
       />
     ));

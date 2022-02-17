@@ -9,6 +9,7 @@ import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
+import { Recipient, Recipients } from 'modules/engage/styles';
 import { ContentBox } from 'modules/settings/styles';
 import React from 'react';
 import { IConfigsMap } from '../types';
@@ -106,14 +107,16 @@ class EngageSettingsContent extends React.Component<Props, State> {
       <>
         <h4>{__('Verified emails')}:</h4>
 
-        {verifiedEmails.map((email, index) => (
-          <div key={index}>
-            {email}
-            <span onClick={this.onRemoveVerifiedEmail.bind(this, email)}>
-              <Icon icon="times" />
-            </span>
-          </div>
-        ))}
+        <Recipients>
+          {verifiedEmails.map((email, index) => (
+            <Recipient key={index}>
+              {email}
+              <span onClick={this.onRemoveVerifiedEmail.bind(this, email)}>
+                <Icon icon="times" />
+              </span>
+            </Recipient>
+          ))}
+        </Recipients>
       </>
     );
   };

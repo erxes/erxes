@@ -1,6 +1,6 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { pluginRouters, pluginsOfRoutes } from 'pluginUtils';
+import { pluginsOfRoutes } from 'pluginUtils';
 import queryString from 'query-string';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -11,6 +11,7 @@ import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
 import DashboardRoutes from './modules/dashboard/routes';
 import DealsRoutes from './modules/deals/routes';
+import EngageRoutes from './modules/engage/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
@@ -26,7 +27,6 @@ import VideoCallRoutes from './modules/videoCall/routes';
 import AutomationsRoutes from './modules/automations/routes';
 import ImportExportRoutes from './modules/settings/importExport/routes';
 import BookingsRoutes from './modules/bookings/routes';
-import EngageRoutes from './modules/engage/routes';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -96,6 +96,7 @@ const renderRoutes = currentUser => {
           <SegmentsRoutes />
           <CustomersRoutes />
           <CompaniesRoutes />
+          <EngageRoutes />
           <KnowledgeBaseRoutes />
           <LeadRoutes />
           <SettingsRoutes />
@@ -111,11 +112,9 @@ const renderRoutes = currentUser => {
           <AutomationsRoutes />
           <ImportExportRoutes />
           <BookingsRoutes />
-          <EngageRoutes />
 
           {specialPluginRoutes}
           {pluginRoutes}
-          {pluginRouters()}
 
           <Route
             key="/confirmation"
