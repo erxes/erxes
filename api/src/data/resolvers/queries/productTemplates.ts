@@ -52,8 +52,7 @@ const productTemplateQueries = {
       ProductTemplates.find(filter)
         .sort('createdAt')
         .lean(),
-      args.page,
-      args.perPage
+      args
     );
   },
 

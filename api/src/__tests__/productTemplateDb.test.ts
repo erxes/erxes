@@ -4,7 +4,6 @@ import { IProductTemplateDocument } from '../db/models/definitions/productTempla
 import * as faker from 'faker';
 
 import './setup.ts';
-import { Exception } from 'handlebars';
 
 describe('Test product template model', () => {
   let productTemplate: IProductTemplateDocument;

@@ -56,7 +56,8 @@ describe('Response template db', () => {
         name: _responseTemplate.name,
         content: _responseTemplate.content,
         brandId: _responseTemplate.brandId,
-        files: _responseTemplate.files
+        files: _responseTemplate.files,
+        status: _responseTemplate.status
       }
     );
 

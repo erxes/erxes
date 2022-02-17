@@ -17,20 +17,46 @@ describe('productTemplateQueries', () => {
     await productTemplateFactory();
 
     const qry = `
-      query productTemplates {
-        productTemplates {
+      query productTemplates($page: Int, $perPage: Int, $status: String, $searchValue: String, $tag: String) {
+        productTemplates(page: $page, perPage: $perPage, status: $status, searchValue: $searchValue, tag: $tag) {
           _id
           title
           discount
           totalAmount
           description
+          templateItems
+          templateItemsProduct
+          tags {
+            _id
+          }
         }
       }
     `;
 
-    const response = await graphqlRequest(qry, 'productTemplates');
+    const responseStatus = await graphqlRequest(qry, 'productTemplates', {
+      status: 'active'
+    });
 
-    expect(response.length).toBe(3);
+    expect(responseStatus.length).toBe(3);
+
+    const responseSearchValue = await graphqlRequest(qry, 'productTemplates', {
+      searchValue: 'fake value'
+    });
+
+    expect(responseSearchValue.length).toBe(0);
+
+    const responseTag = await graphqlRequest(qry, 'productTemplates', {
+      tag: 'fake value'
+    });
+
+    expect(responseTag.length).toBe(0);
+
+    const responsePagination = await graphqlRequest(qry, 'productTemplates', {
+      page: 2,
+      perPage: 2
+    });
+
+    expect(responsePagination.length).toBe(1);
   });
 
   test('Product templateDetail', async () => {

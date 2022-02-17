@@ -76,6 +76,10 @@ describe('Test tags model', () => {
     Tags.tagObject({ type: 'integration', tagIds: [], targetIds: [] });
   });
 
+  test('Attach productTemplate tag', async () => {
+    Tags.tagObject({ type: 'productTemplate', targetIds: [], tagIds: [] });
+  });
+
   test('Attach product tag', async () => {
     Tags.tagObject({ type: 'product', targetIds: [], tagIds: [] });
   });

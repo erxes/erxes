@@ -22,8 +22,8 @@ describe('emailTemplateQueries', () => {
     };
 
     const qry = `
-      query emailTemplates($page: Int $perPage: Int) {
-        emailTemplates(page: $page perPage: $perPage) {
+      query emailTemplates($page: Int $perPage: Int $searchValue: String $status: String) {
+        emailTemplates(page: $page perPage: $perPage searchValue: $searchValue status: $status) {
           _id
         }
       }
@@ -32,6 +32,18 @@ describe('emailTemplateQueries', () => {
     const response = await graphqlRequest(qry, 'emailTemplates', args);
 
     expect(response.length).toBe(2);
+
+    const responseSearchValue = await graphqlRequest(qry, 'emailTemplates', {
+      searchValue: 'fake value'
+    });
+
+    expect(responseSearchValue.length).toBe(0);
+
+    const responseStatus = await graphqlRequest(qry, 'emailTemplates', {
+      status: 'active'
+    });
+
+    expect(responseStatus.length).toBe(3);
   });
 
   test('Get email template total count', async () => {

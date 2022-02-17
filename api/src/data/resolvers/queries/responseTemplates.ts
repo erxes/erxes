@@ -27,7 +27,11 @@ const generateFilter = (commonSelector, args: IListParams) => {
   }
 
   if (status) {
-    filter.status = { $in: [new RegExp(`.*${escapeRegExp(status)}.*`, 'i')] };
+    const elseActive = status === 'active' ? [null, undefined] : [];
+
+    filter.status = {
+      $in: [...elseActive, new RegExp(`.*${escapeRegExp(status)}.*`, 'i')]
+    };
   }
 
   return filter;
