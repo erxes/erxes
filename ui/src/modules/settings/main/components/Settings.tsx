@@ -90,13 +90,6 @@ const growthHackPermissions = [
   'growthHackStagesUpdateOrder',
   'growthHackStagesRemove'
 ];
-const growthHackTemplatePermissions = [
-  'growthHackTemplatesAdd',
-  'growthHackTemplatesEdit',
-  'growthHackTemplatesRemove',
-  'growthHackTemplatesDuplicate',
-  'showGrowthHackTemplates'
-];
 const teamPermissions = [
   'showUsers',
   'usersEdit',
@@ -305,13 +298,6 @@ class Settings extends React.PureComponent {
               '/settings/template',
               '',
               templatePermissions
-            )}
-            {this.renderBox(
-              'Growth Hacking Templates',
-              '/images/icons/erxes-12.svg',
-              '/settings/boards/growthHackTemplate',
-              'growthHacksAll',
-              growthHackTemplatePermissions
             )}
           </div>
         </Row>
