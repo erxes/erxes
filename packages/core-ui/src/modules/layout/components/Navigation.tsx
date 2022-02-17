@@ -108,10 +108,10 @@ class Navigation extends React.Component<IProps, State> {
   };
 
   onSearch = (value: string) => {
-    const filteredValue = m => m.text.toLowerCase().includes(value);
+    const filteredValue = val => val.text.toLowerCase().includes(value);
 
     this.setState({
-      moreMenus: this.state.moreMenus.filter(filteredValue),
+      moreMenus: pluginNavigations().slice(4).filter(filteredValue),
     });
   };
 
@@ -162,7 +162,7 @@ class Navigation extends React.Component<IProps, State> {
     childrens?: ISubNav[],
     label?: React.ReactNode
   ) => {
-    console.log(url)
+ 
     const item = (
       <NavItem>
         {this.renderMenuItem({icon, url, text, label})}

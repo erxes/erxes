@@ -226,7 +226,7 @@ export const pluginRouters = () => {
 
   for (const plugin of plugins) {
     if (plugin.routes) {
-      pluginRoutes.push(<System loadScript={true} system={plugin.routes} />);
+      pluginRoutes.push(<System key={Math.random()} loadScript={true} system={plugin.routes} />);
     }
   }
 
