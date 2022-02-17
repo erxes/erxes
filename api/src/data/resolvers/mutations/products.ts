@@ -51,6 +51,8 @@ const productMutations = {
     { _id, ...doc }: IProductsEdit,
     { user }: IContext
   ) {
+    console.log('doc: ', doc);
+
     const product = await Products.getProduct({ _id });
     const updated = await Products.updateProduct(_id, doc);
 

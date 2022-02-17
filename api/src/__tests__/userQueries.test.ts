@@ -166,6 +166,7 @@ describe('userQueries', () => {
           permissionActions
           configs
           configsConstants
+          leaderBoardPosition
           onboardingHistory { _id }
         }
       }
