@@ -210,31 +210,3 @@ export const NOTIFICATION_MODULES = [
     ],
   },
 ];
-
-export const MAPPED_MODULE_NAMES = [
-  {
-    SERVICE_NAME: 'cards',
-    MODULE_NAMES: [
-      'dealBoards',
-      'taskBoards',
-      'ticketBoards',
-      'growthHackBoards',
-      'dealPipelines',
-      'taskPipelines',
-      'ticketPipelines',
-      'growthHackPipelines',
-      'dealStages',
-      'taskStages',
-      'ticketStages',
-      'growthHackStages',
-      'deal',
-      'task',
-      'ticket',
-      'growthHack',
-      'pipelineLabel',
-      'pipelineTemplate',
-      'checklist',
-      'checkListItem'
-    ],
-  },
-];
