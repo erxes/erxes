@@ -22,7 +22,8 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from './definitions/engages';
-import EditorAttributeUtil from '../editorAttributeUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+
 import { getService } from '../redis';
 interface ICheckRulesParams {
   rules: IRule[];

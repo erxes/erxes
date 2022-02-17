@@ -1,8 +1,8 @@
-import { IBrandDocument } from "@packages/api-core/src/db/models/definitions/brands";
-import { IUser } from "@packages/api-core/src/db/models/definitions/users";
-import { ICustomer } from "@packages/plugin-contact-api/src/models/definitions/customers";
+import { IBrandDocument } from "../../api-core/src/db/models/definitions/brands";
+import { IUser } from "../../api-core/src/db/models/definitions/users";
+import { ICustomer } from "../../plugin-contact-api/src/models/definitions/customers";
 
-import * as _ from "underscore";
+import * as _ from "lodash";
 import { URL } from "url";
 
 export interface IReplacer {
@@ -143,7 +143,7 @@ export default class EditorAttributeUtil {
       customer.customFieldsData = [];
     }
 
-    const existingItemsByFieldId = _.indexBy(
+    const existingItemsByFieldId = _.keyBy(
       customer.customFieldsData,
       "field"
     );
@@ -212,7 +212,7 @@ export default class EditorAttributeUtil {
         value: await this.getCustomerName(customer),
       });
 
-      const customerFileFieldsById = _.indexBy(
+      const customerFileFieldsById = _.keyBy(
         await this.msgBrokerClient.sendRPCMessage("rpc_queue:Fields.find", {
           query: {
             type: "file",
