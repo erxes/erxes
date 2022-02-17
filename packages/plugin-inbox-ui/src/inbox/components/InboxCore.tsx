@@ -5,7 +5,7 @@ import Header from '@erxes/ui/src/layout/components/Header';
 import { Contents, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 const Sidebar = asyncComponent(() =>
   import(

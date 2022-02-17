@@ -19,7 +19,7 @@ import {
 } from '../../styles';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ISelectedOption } from '@erxes/ui/src/types';
 

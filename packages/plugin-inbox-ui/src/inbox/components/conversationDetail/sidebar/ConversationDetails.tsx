@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import IntegrationIcon from '@erxes/ui-settings/src/integrations/components/IntegrationIcon';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {
   FieldStyle,

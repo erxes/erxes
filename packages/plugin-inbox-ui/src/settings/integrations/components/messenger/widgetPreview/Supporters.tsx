@@ -1,5 +1,4 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { getUserAvatar } from '@erxes/ui/src/utils';
 import React from 'react';
 import {
   ErxesStaffProfile,
@@ -7,7 +6,7 @@ import {
   StateSpan,
   Supporters as SupporterStyled
 } from './styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __, getUserAvatar } from 'coreui/utils';
 
 type Props = {
   showChatPreview?: boolean;

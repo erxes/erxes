@@ -2,7 +2,7 @@ import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations, queries } from '@erxes/ui/src/companies/graphql';
+import { mutations, queries } from '../../graphql';
 import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -96,14 +96,14 @@ const generateOptions = () => ({
 export default withProps<Props>(
   compose(
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
-      gql((mutations || {} as any).companiesRemove),
+      gql(mutations.companiesRemove),
       {
         name: 'companiesRemove',
         options: generateOptions
       }
     ),
     graphql<{}, MergeMutationResponse, MergeMutationVariables>(
-      gql((mutations || {} as any).companiesMerge),
+      gql(mutations.companiesMerge),
       {
         name: 'companiesMerge',
         options: generateOptions

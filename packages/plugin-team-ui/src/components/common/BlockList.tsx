@@ -3,7 +3,7 @@ import React from 'react';
 import Box from '@erxes/ui/src/components/Box';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {

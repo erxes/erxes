@@ -2,7 +2,7 @@ import React from 'react';
 import { SidebarCounter } from '@erxes/ui/src/layout/styles';
 import { IStructure } from '@erxes/ui-team/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { __, readFile } from '@erxes/ui/src/utils';
+import { __, readFile } from 'coreui/utils';
 import Box from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
 import { StructureList } from '../../styles';

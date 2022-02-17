@@ -5,7 +5,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
 import Tags from '@erxes/ui/src/components/Tags';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { __, getUserAvatar } from '@erxes/ui/src/utils';
+import { __, getUserAvatar } from 'coreui/utils';
 import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
 import RespondBox from '../../../containers/conversationDetail/RespondBox';
 import Resolver from '../../../containers/Resolver';

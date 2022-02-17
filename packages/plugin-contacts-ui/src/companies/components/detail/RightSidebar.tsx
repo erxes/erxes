@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import Box from '@erxes/ui/src/components/Box';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import CustomerSection from '../../../customers/components/common/CustomerSection';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';

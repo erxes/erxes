@@ -2,7 +2,7 @@ import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { __, Alert, router } from '@erxes/ui/src/utils';
+import { __, Alert, router } from 'coreui/utils';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';

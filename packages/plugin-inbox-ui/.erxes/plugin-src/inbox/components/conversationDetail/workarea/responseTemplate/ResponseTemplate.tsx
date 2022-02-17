@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
 import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';

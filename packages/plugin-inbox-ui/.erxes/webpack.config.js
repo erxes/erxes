@@ -141,6 +141,10 @@ module.exports = {
           requiredVersion: "1.0.0",
           singleton: true,
         },
+        dayjs: {
+          requiredVersion: deps['dayjs'],
+          singleton: true
+        }
       },
     }),
     new HtmlWebPackPlugin({

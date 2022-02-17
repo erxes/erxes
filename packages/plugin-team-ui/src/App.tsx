@@ -1,18 +1,17 @@
 import React from 'react';
 import GeneralRoutes from './generalRoutes';
 import { PluginLayout } from '@erxes/ui/src/styles/main';
-import { AppProvider } from '@erxes/ui/src/appContext';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { AppProvider } from 'coreui/appContext';
+import {dummyUser} from '@erxes/ui/src/constants/dummy-data'
 
 const App = () => {
   return (
-    <PluginLayout>
-      <AppProvider currentUser={{} as IUser}>
+    <AppProvider currentUser={dummyUser}>
+      <PluginLayout>
         <GeneralRoutes />
-      </AppProvider>
-    </PluginLayout>
+      </PluginLayout>
+    </AppProvider>
   );
 };
 
 export default App;
-

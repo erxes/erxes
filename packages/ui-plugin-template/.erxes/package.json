@@ -59,7 +59,7 @@
     "react-bootstrap": "1.0.0-beta.14",
     "react-dom": "16.11.0",
     "react-router-dom": "5.1.2",
-    "react-select-plus": "^1.0.0-rc.3.patch12",
+    "react-select-plus": "^1.0.0-rc.5",
     "react-transition-group": "2.5.1",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",

@@ -3,7 +3,7 @@ import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { TabTitle } from '@erxes/ui/src/components/tabs';
-import { __, renderFullName } from '@erxes/ui/src/utils';
+import { __, renderFullName } from 'coreui/utils';
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
 import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';

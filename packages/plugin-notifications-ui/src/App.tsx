@@ -1,16 +1,15 @@
 import React from "react";
-import { ApolloProvider } from "react-apollo";
-import apolloClient from "@erxes/ui/src/apolloClient";
 import GeneralRoutes from "./generalRoutes";
 import { PluginLayout } from "@erxes/ui/src/styles/main";
+import { AppProvider } from 'coreui/appContext';
 
 const App = () => {
   return (
-    <ApolloProvider client={apolloClient}>
+    <AppProvider>
       <PluginLayout>
         <GeneralRoutes />
       </PluginLayout>
-    </ApolloProvider>
+    </AppProvider>
   );
 };
 

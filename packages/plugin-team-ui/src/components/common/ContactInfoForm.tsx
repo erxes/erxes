@@ -2,7 +2,7 @@ import React from 'react';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {

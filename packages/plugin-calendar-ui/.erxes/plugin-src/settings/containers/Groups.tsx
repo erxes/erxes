@@ -4,7 +4,7 @@ import { queries as calendarQueries } from '../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
-import { __, Alert, confirm, getEnv, withProps } from '@erxes/ui/src/utils';
+import { __, Alert, confirm, getEnv, withProps } from 'coreui/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
