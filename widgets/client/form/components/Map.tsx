@@ -1,6 +1,5 @@
-import { createCustomEqual } from 'fast-equals';
 import * as React from 'react';
-import { isLatLngLiteral } from '@googlemaps/typescript-guards';
+import * as fe from 'fast-equals';
 
 interface IMapProps extends google.maps.MapOptions {
 	style: { [key: string]: string };
@@ -36,38 +35,23 @@ const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
 	);
 };
 
-const deepCompareEqualsForMaps = createCustomEqual(
-	deepEqual => (a: any, b: any) => {
-		if (
-			isLatLngLiteral(a) ||
-			a instanceof google.maps.LatLng ||
-			isLatLngLiteral(b) ||
-			b instanceof google.maps.LatLng
-		) {
-			return new google.maps.LatLng(a).equals(new google.maps.LatLng(b));
-		}
+const useDeepCompareMemoize = (value: any) => {
+  const ref = React.useRef(() => {
+    throw new Error('Cannot call an event handler while rendering.');
+  });
 
-		return deepEqual(a, b);
-	}
-);
+  if (!fe.deepEqual(value, ref.current)) {
+    ref.current = value;
+  }
 
-function useDeepCompareMemoize(value: any) {
-	const ref = React.useRef(() => {
-		throw new Error('Cannot call an event handler while rendering.');
-	});
+  return ref.current;
+};
 
-	if (!deepCompareEqualsForMaps(value, ref.current)) {
-		ref.current = value;
-	}
-
-	return ref.current;
-}
-
-function useDeepCompareEffectForMaps(
-	callback: React.EffectCallback,
-	dependencies: any[]
-) {
-	React.useEffect(callback, dependencies.map(useDeepCompareMemoize));
-}
+const useDeepCompareEffectForMaps = (
+  callback: React.EffectCallback,
+  dependencies: any[]
+) => {
+  React.useEffect(callback, dependencies.map(useDeepCompareMemoize));
+};
 
 export default Map;

@@ -19,9 +19,10 @@ import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IConfig } from 'modules/settings/general/types';
-import { Alert } from 'erxes-ui';
+import { Alert, colors } from 'erxes-ui';
 import Map from './Map';
 import { loadMapApi } from '../utils';
+import Marker from './Marker';
 
 declare const navigator: any;
 
@@ -68,7 +69,6 @@ export default class GenerateField extends React.Component<Props, State> {
     });
 
     const onSuccess = (position: { coords: any }) => {
-      console.log('pos:', position);
       const coordinates = position.coords;
 
       this.setState({
@@ -387,55 +387,63 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMap(attrs) {
-    // const { field } = this.props;
-    console.log(attrs);
-    // const { currentLocation = { lat: 0.0, lng: 0.0 } } = this.state;
+    const { field, onValueChange } = this.props;
+    const { locationOptions = [] } = field;
+    const { value } = attrs;
 
-    // const { locationOptions = [] } = field;
+    let {
+      currentLocation = { lat: 0.0, lng: 0.0, description: '' }
+    } = this.state;
 
-    // const dragend = e => {
-    // 	const location = e.target.getLatLng();
-    // 	if (onValueChange) {
-    // 		onValueChange({ _id: field._id, value: location });
-    // 	}
-    // };
+    const onChange = e => {
+      if (onValueChange) {
+        onValueChange({ _id: field._id, value: e });
+      }
+    };
 
-    // const { value } = attrs;
-    // let centerCoordinates: [number, number] = [0, 0];
-
-    // if (currentLocation) {
-    // 	centerCoordinates = [currentLocation.lat, currentLocation.lng];
-    // }
-
-    // if (value && value.length !== 0) {
-    // 	centerCoordinates = value;
-    // }
-
-    // let zoom = 10;
-
-    // if (centerCoordinates[0] === 0 && centerCoordinates[1] === 0) {
-    // 	zoom = 2;
-    // }
+    if (value && value.length !== 0) {
+      currentLocation = value;
+    }
 
     console.log('mapScriptLoaded: ', this.state.mapScriptLoaded);
 
-    // const render = (status: Status) => {
-    // 	if (status === Status.LOADING) {
-    // 		return <Spinner />;
-    // 	} else if (status === Status.FAILURE) {
-    // 		return <div>Error refresh page</div>;
-    // 	}
-    // };
-
     return (
-      <div style={{ width: '100%', height: 200 }}>
-        {this.state.mapScriptLoaded && (
-          <Map mapTypeControl={true} mapType={'roadmap'} />
+      <div style={{ width: '100%', height: 250 }}>
+        {this.state.mapScriptLoaded ? (
+          <Map
+            center={currentLocation}
+            streetViewControl={false}
+            zoom={8}
+            style={{ width: '100%', height: '100%' }}
+          >
+            {locationOptions.length > 0 ? (
+              locationOptions.map((option, index) => (
+                <Marker
+                  color={colors.colorSecondary}
+                  key={index}
+                  position={option}
+                  content={option.description}
+                  draggable={false}
+                  onChange={onChange}
+                />
+              ))
+            ) : (
+              <Marker
+                color={colors.colorSecondary}
+                position={currentLocation}
+                content={__('Select your location')}
+                draggable={true}
+                onChange={onChange}
+              />
+            )}
+          </Map>
+        ) : (
+          <label>
+            Google Maps Api has not loaded yet, please reload the page
+          </label>
         )}
       </div>
     );
-
-    // return <div>map goes here</div>
   }
 
   /**

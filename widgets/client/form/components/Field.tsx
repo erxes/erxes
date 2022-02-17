@@ -388,8 +388,6 @@ export default class Field extends React.Component<Props, State> {
 			currentLocation = { lat: selectedOption.lat, lng: selectedOption.lng };
 		}
 
-		console.log("selectedOption", selectedOption);
-
 		return (
 			<div style={{ height: '250px', width: '100%' }}>
 				{this.state.mapScriptLoaded && (
