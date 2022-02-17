@@ -443,3 +443,24 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
 
   return false;
 }
+
+export const loadMapApi = (locale?: string) => {
+  const { GOOGLE_MAP_API_KEY } = getEnv();
+ 
+  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAP_API_KEY}&libraries=geometry,places&language=${locale || 'en'}&v=quarterly`;
+  const scripts: any = document.getElementsByTagName('script');
+  // Go through existing script tags, and return google maps api tag when found.
+  for (const script of scripts) {
+      if (script.src.indexOf(mapsURL) === 0) {
+          return script;
+      }
+  }
+
+  const googleMapScript = document.createElement('script');
+  googleMapScript.src = mapsURL;
+  googleMapScript.async = true;
+  googleMapScript.defer = true;
+  window.document.body.appendChild(googleMapScript);
+
+  return googleMapScript;
+};

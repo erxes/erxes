@@ -52,6 +52,7 @@ const createIframe = (setting: Setting) => {
     iframe.style.width = '100%';
     iframe.style.margin = '0 auto';
     iframe.style.height = '100%';
+    iframe.allowFullscreen = true;
   }
 
   iframe.src = generateIntegrationUrl('form');

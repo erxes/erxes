@@ -11,7 +11,7 @@
         "target": "es6",
         "skipLibCheck": true,
         "outDir": "dist",
-        "strict": true
+        "strict": true,
     },
     "include": [
         "server/*.ts"

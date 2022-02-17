@@ -18,12 +18,12 @@ import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { MapContainer, Marker, CircleMarker, Popup } from 'react-leaflet';
-import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
-import { FullscreenControl } from 'react-leaflet-fullscreen';
-import 'react-leaflet-fullscreen/dist/styles.css';
 import { IConfig } from 'modules/settings/general/types';
 import { Alert } from 'erxes-ui';
+import Map from './Map';
+import { loadMapApi } from '../utils';
+
+declare const navigator: any;
 
 type Props = {
   field: IField;
@@ -39,6 +39,7 @@ type State = {
   errorCounter: number;
   currentLocation?: ILocationOption;
   googleMapApiKey: string;
+  mapScriptLoaded: boolean;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
@@ -50,12 +51,24 @@ export default class GenerateField extends React.Component<Props, State> {
     this.state = {
       errorCounter: 0,
       ...this.generateState(props),
-      googleMapApiKey: config ? config.value : ''
+      googleMapApiKey: config ? config.value : '',
+      mapScriptLoaded: false
     };
   }
 
   componentDidMount() {
+    if (this.props.field.type !== 'map') {
+      return;
+    }
+
+    const googleMapScript = loadMapApi(this.state.googleMapApiKey);
+
+    googleMapScript.addEventListener('load', () => {
+      this.setState({ mapScriptLoaded: true });
+    });
+
     const onSuccess = (position: { coords: any }) => {
+      console.log('pos:', position);
       const coordinates = position.coords;
 
       this.setState({
@@ -374,63 +387,55 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMap(attrs) {
-    const { field, onValueChange } = this.props;
+    // const { field } = this.props;
+    console.log(attrs);
+    // const { currentLocation = { lat: 0.0, lng: 0.0 } } = this.state;
 
-    const { currentLocation, googleMapApiKey } = this.state;
+    // const { locationOptions = [] } = field;
 
-    const { locationOptions = [] } = field;
+    // const dragend = e => {
+    // 	const location = e.target.getLatLng();
+    // 	if (onValueChange) {
+    // 		onValueChange({ _id: field._id, value: location });
+    // 	}
+    // };
 
-    const dragend = e => {
-      const location = e.target.getLatLng();
-      if (onValueChange) {
-        onValueChange({ _id: field._id, value: location });
-      }
-    };
+    // const { value } = attrs;
+    // let centerCoordinates: [number, number] = [0, 0];
 
-    const { value } = attrs;
-    let centerCoordinates: [number, number] = [0, 0];
+    // if (currentLocation) {
+    // 	centerCoordinates = [currentLocation.lat, currentLocation.lng];
+    // }
 
-    if (currentLocation) {
-      centerCoordinates = [currentLocation.lat, currentLocation.lng];
-    }
+    // if (value && value.length !== 0) {
+    // 	centerCoordinates = value;
+    // }
 
-    if (value && value.length !== 0) {
-      centerCoordinates = value;
-    }
+    // let zoom = 10;
 
-    let zoom = 10;
+    // if (centerCoordinates[0] === 0 && centerCoordinates[1] === 0) {
+    // 	zoom = 2;
+    // }
 
-    if (centerCoordinates[0] === 0 && centerCoordinates[1] === 0) {
-      zoom = 2;
-    }
+    console.log('mapScriptLoaded: ', this.state.mapScriptLoaded);
+
+    // const render = (status: Status) => {
+    // 	if (status === Status.LOADING) {
+    // 		return <Spinner />;
+    // 	} else if (status === Status.FAILURE) {
+    // 		return <div>Error refresh page</div>;
+    // 	}
+    // };
 
     return (
-      <MapContainer
-        style={{ width: '100%', aspectRatio: '1/1' }}
-        zoom={zoom}
-        center={centerCoordinates}
-      >
-        <ReactLeafletGoogleLayer
-          apiKey={googleMapApiKey}
-          useGoogMapsLoader={true}
-        />
-        <FullscreenControl />
-
-        {locationOptions.map((option, index) => (
-          <div key={index}>
-            <CircleMarker key={index} center={[option.lat, option.lng]}>
-              <Popup>{option.description}</Popup>
-            </CircleMarker>
-          </div>
-        ))}
-
-        <Marker
-          draggable={true}
-          position={centerCoordinates}
-          eventHandlers={{ dragend }}
-        />
-      </MapContainer>
+      <div style={{ width: '100%', height: 200 }}>
+        {this.state.mapScriptLoaded && (
+          <Map mapTypeControl={true} mapType={'roadmap'} />
+        )}
+      </div>
     );
+
+    // return <div>map goes here</div>
   }
 
   /**
