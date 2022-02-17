@@ -55,23 +55,12 @@ export function runReplacersOn(
 
 export default class EditorAttributeUtil {
   private _possibleCustomerFields?: ICustomerField[];
-  private _API_DOMAIN?: string;
+  private API_DOMAIN: string;
   private msgBrokerClient: any;
 
-  constructor(msgBrokerClient: any) {
+  constructor(msgBrokerClient: any, API_DOMAIN: string) {
     this.msgBrokerClient = msgBrokerClient;
-  }
-
-  async getApiDomain(): Promise<string> {
-    if (!this._API_DOMAIN) {
-      this._API_DOMAIN = await this.getSubServiceDomain({ name: "API_DOMAIN" });
-    }
-
-    if (!this._API_DOMAIN) {
-      throw new Error("Cannot acquire API_DOMAIN");
-    }
-
-    return this._API_DOMAIN;
+    this.API_DOMAIN = API_DOMAIN;
   }
 
   async fileToFileLink(url?: string, name?: string): Promise<string> {
@@ -83,20 +72,12 @@ export default class EditorAttributeUtil {
     if (isValidURL(url) || url.includes("/")) {
       href = url;
     } else {
-      const API_DOMAIN = await this.getApiDomain();
       const key = url;
       const uriName = name ? encodeURIComponent(name) : url;
-      href = `${API_DOMAIN}/read-file?key=${key}&name=${uriName}`;
+      href = `${this.API_DOMAIN}/read-file?key=${key}&name=${uriName}`;
     }
 
     return `<a target="_blank" download href="${href}">${name || url}</a>`;
-  }
-
-  async getSubServiceDomain(name) {
-    return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_getSubServiceDomain_to_api",
-      name
-    );
   }
 
   async customFieldsDataItemToFileLink(
@@ -114,18 +95,12 @@ export default class EditorAttributeUtil {
     return this.fileToFileLink(value.url, value.name);
   }
 
-  async fieldsCombinedByContentType(contentType): Promise<any> {
-    return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_fieldsCombinedByContentType_to_api",
-      contentType
-    );
-  }
-
   async getPossibleCustomerFields(): Promise<ICustomerField[]> {
     if (!this._possibleCustomerFields) {
-      this._possibleCustomerFields = await this.fieldsCombinedByContentType({
-        contentType: "customer",
-      });
+      this._possibleCustomerFields = await this.msgBrokerClient.sendRPCMessage(
+        "rpc_queue:fieldsCombinedByContentType",
+        { contentType: "customer" }
+      );
     }
 
     if (!this._possibleCustomerFields) {
@@ -239,8 +214,10 @@ export default class EditorAttributeUtil {
 
       const customerFileFieldsById = _.indexBy(
         await this.msgBrokerClient.sendRPCMessage("rpc_queue:Fields.find", {
-          type: "file",
-          contentType: "customer",
+          query: {
+            type: "file",
+            contentType: "customer",
+          },
         }),
         "_id"
       );
@@ -341,10 +318,15 @@ export default class EditorAttributeUtil {
           .join(","),
       });
 
-      const fieldMetaDatas = await this.msgBrokerClient.sendRPCMessage("rpc_queue:Fields.find", {
-        contentType: item.contentType,
-        isDefinedByErxes: false,
-      });
+      const fieldMetaDatas = await this.msgBrokerClient.sendRPCMessage(
+        "rpc_queue:Fields.find",
+        {
+          query: {
+            contentType: item.contentType,
+            isDefinedByErxes: false,
+          },
+        }
+      );
 
       for (const fieldMetaData of fieldMetaDatas) {
         const customFieldsData = item.customFieldsData || [];
