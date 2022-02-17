@@ -162,7 +162,7 @@ class Navigation extends React.Component<IProps, State> {
     childrens?: ISubNav[],
     label?: React.ReactNode
   ) => {
- 
+
     const item = (
       <NavItem>
         {this.renderMenuItem({icon, url, text, label})}
@@ -253,12 +253,7 @@ class Navigation extends React.Component<IProps, State> {
 
         <Nav id="navigation">
           {Navs.map(nav => 
-            this.renderNavItem(
-              nav.permission,
-              nav.text,
-              nav.url,
-              nav.icon,
-            )   
+            this.renderMenuItem(nav)   
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}

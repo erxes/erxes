@@ -16,18 +16,21 @@ window.plugins = [
         text: "Team Inbox",
         url: "/inbox",
         icon: "icon-comment-1",
+        permission: "showConversations",
         location: "mainNavigation",
       },
       {
         text: "Bookings",
         url: "/bookings",
         icon: "icon-paste",
+        permission: "showIntegrations",
         location: "mainNavigation",
       },
       {
         text: "Forms",
         url: "/forms",
         icon: "icon-head-1",
+        permission: "showForms",
         location: "mainNavigation",
       },
       {
@@ -35,6 +38,7 @@ window.plugins = [
         icon: "icon-file-info-alt",
         location: "settings",
         scope: "inbox",
+        permission: "getSkills",
         component: "./settings",
       },
       {
@@ -42,6 +46,7 @@ window.plugins = [
         icon: "icon-layer-group",
         location: "settings",
         scope: "inbox",
+        permission: "showChannels",
         component: "./settings",
       },
       {
@@ -49,6 +54,7 @@ window.plugins = [
         icon: "icon-puzzle-piece",
         location: "settings",
         scope: "inbox",
+        permission: "showIntegrations",
         component: "./settings",
       },
       {
@@ -56,6 +62,7 @@ window.plugins = [
         icon: "icon-files-landscapes",
         location: "settings",
         scope: "inbox",
+        permission: "showResponseTemplates",
         component: "./settings",
       },
     ],
@@ -74,6 +81,7 @@ window.plugins = [
         text: "Contacts",
         url: "/contacts/customer",
         icon: "icon-users",
+        permission: "showCustomers",
         location: "mainNavigation",
       },
     ],
@@ -95,6 +103,7 @@ window.plugins = [
         text: "Campaigns",
         url: "/campaigns",
         icon: "icon-megaphone",
+        permission: "showEngagesMessages",
         location: "mainNavigation",
       },
       {
@@ -169,6 +178,7 @@ window.plugins = [
         text: "Growth Hacking",
         url: "/growthHack",
         icon: "icon-idea",
+        permission: "showGrowthHacks",
         location: "mainNavigation",
       },
     ],
