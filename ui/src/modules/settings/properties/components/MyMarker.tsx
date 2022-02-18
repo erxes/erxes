@@ -4,12 +4,11 @@ import { Pin } from '../styles';
 import { ILocationOption } from '../types';
 
 type Props = {
-  color?: string;
   lat: number;
   lng: number;
   description?: any;
+  color?: string;
   onChange?: (selectedOption: ILocationOption) => void;
-  selectedOption?: ILocationOption;
 };
 
 class Marker extends React.Component<Props> {
@@ -21,14 +20,8 @@ class Marker extends React.Component<Props> {
   };
 
   render() {
-    const { description, selectedOption, lat, lng } = this.props;
-    let backgroundColor = this.props.color || '#0008ff';
-
-    if (selectedOption) {
-      if (selectedOption.lat === lat && selectedOption.lng === lng) {
-        backgroundColor = '#ff4000';
-      }
-    }
+    const { description } = this.props;
+    const backgroundColor = this.props.color || '#0008ff';
 
     return (
       <Tip text={description} placement="top">
