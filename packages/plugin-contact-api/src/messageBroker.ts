@@ -135,6 +135,10 @@ export const initBroker = (cl) => {
 
     return { data: { negative }, status: 'success' };
   });
+
+  consumeRPCQueue('contacts:getCustomerName', async (customer) => {
+    return { data: Customers.getCustomerName(customer), status: 'success' };
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

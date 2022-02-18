@@ -498,7 +498,7 @@ export const putDeleteLog = async (logDoc, user) => {
 
   await commonPutDeleteLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc },
+    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
   );
 };
@@ -508,7 +508,7 @@ export const putUpdateLog = async (logDoc, user) => {
 
   await commonPutUpdateLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc },
+    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
   );
 };
@@ -518,7 +518,7 @@ export const putCreateLog = async (logDoc, user) => {
 
   await commonPutCreateLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc },
+    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
   );
 };

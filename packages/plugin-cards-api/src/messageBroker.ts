@@ -1,5 +1,6 @@
 import { serviceDiscovery } from './configs';
 import { generateFields } from './fieldUtils';
+import { generateAmounts, generateProducts } from './graphql/resolvers/customResolvers/deal';
 import { prepareImportDocs } from './importUtils';
 import { Checklists, Stages, Tasks, Tickets } from './models';
 import { generateConditionStageIds } from './utils';
@@ -130,6 +131,14 @@ export const initBroker = async cl => {
     status: 'success',
     data: getSchemaLabels(type)
   }));
+  
+  consumeRPCQueue('cards:deals:generateAmounts', async (productsData) => {
+    return { data: generateAmounts(productsData), status: 'success' };
+  });
+
+  consumeRPCQueue('cards:deals:generateProducts', async (productsData) => {
+    return { data: await generateProducts(productsData), status: 'success' };
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

@@ -160,8 +160,8 @@ const putLog = async (
   params: IFinalLogParams,
   user: IUserDocument
 ) => {
-  const isLoggerAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'logger');
- 
+  const isLoggerAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'logs');
+
   if (!isLoggerAvailable) {
     return;
   }

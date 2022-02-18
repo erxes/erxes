@@ -1,16 +1,16 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-// import ActivityLogQueries from './activityLogQueries';
+import ActivityLogQueries from './activityLogQueries';
 import LogQueries from './logQueries';
-// import ActivityLog from './activityLog';
-// import ActivityLogByAction from './activityLogByAction';
+import ActivityLog from './activityLog';
+import ActivityLogByAction from './activityLogByAction';
 
 const resolvers: any = {
   ...customScalars,
-  // ActivityLog,
-  // ActivityLogByAction,
+  ActivityLog,
+  ActivityLogByAction,
   Query: {
     ...LogQueries,
-    // ...ActivityLogQueries,
+    ...ActivityLogQueries,
   },
 };
 
