@@ -1,110 +1,118 @@
-// export default {
-//   async createdByDetail(activityLog: IActivityLog) {
-//     const user = await getDocument('users', { _id: activityLog.createdBy });
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { ITagDocument } from '@erxes/plugin-tags-api/src/models/definitions/tags';
 
-//     if (user) {
-//       return { type: 'user', content: user };
-//     }
+import { Deals, Tasks, Tickets, GrowthHacks, Stages, Companies, Customers } from '../../apiCollections';
+import { getDocumentList, getDocument } from '../../cacheUtils';
+import { ACTIVITY_ACTIONS, IActivityLog } from "../../models/ActivityLogs";
+import { getContentTypeDetail } from './activityLogByAction';
 
-//     const integration = await getDocument('integrations', {
-//       _id: activityLog.createdBy
-//     });
+export default {
+  async createdByDetail(activityLog: IActivityLog) {
+    const user = await getDocument('users', { _id: activityLog.createdBy });
 
-//     if (integration) {
-//       const brand = await getDocument('brands', { _id: integration.brandId });
-//       return { type: 'brand', content: brand };
-//     }
+    if (user) {
+      return { type: 'user', content: user };
+    }
 
-//     return;
-//   },
+    const integration = await getDocument('integrations', {
+      _id: activityLog.createdBy
+    });
 
-//   contentTypeDetail(activityLog: IActivityLog) {
-//     return getContentTypeDetail(activityLog);
-//   },
+    if (integration) {
+      const brand = await getDocument('brands', { _id: integration.brandId });
+      return { type: 'brand', content: brand };
+    }
 
-//   async contentDetail(activityLog: IActivityLog) {
-//     const { action, content, contentType, contentId } = activityLog;
+    return;
+  },
 
-//     if (action === ACTIVITY_ACTIONS.MOVED) {
-//       let item = {};
+  contentTypeDetail(activityLog: IActivityLog) {
+    return getContentTypeDetail(activityLog);
+  },
 
-//       switch (contentType) {
-//         case 'deal':
-//           item = await Deals.getDeal(contentId);
-//           break;
-//         case 'task':
-//           item = await Tasks.getTask(contentId);
-//           break;
-//         case 'growthHack':
-//           item = await GrowthHacks.getGrowthHack(contentId);
-//           break;
-//         case 'ticket':
-//           item = await Tickets.getTicket(contentId);
-//           break;
-//       }
+  async contentDetail(activityLog: IActivityLog) {
+    const { action, content, contentType, contentId } = activityLog;
 
-//       const { oldStageId, destinationStageId } = content;
+    if (action === ACTIVITY_ACTIONS.MOVED) {
+      let item = {};
 
-//       const destinationStage = await Stages.findOne({
-//         _id: destinationStageId
-//       }).lean();
-//       const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
+      switch (contentType) {
+        case 'deal':
+          item = await Deals.getDeal(contentId);
+          break;
+        case 'task':
+          item = await Tasks.getTask(contentId);
+          break;
+        case 'growthHack':
+          item = await GrowthHacks.getGrowthHack(contentId);
+          break;
+        case 'ticket':
+          item = await Tickets.getTicket(contentId);
+          break;
+      }
 
-//       if (destinationStage && oldStage) {
-//         return {
-//           destinationStage: destinationStage.name,
-//           oldStage: oldStage.name,
-//           item
-//         };
-//       }
+      const { oldStageId, destinationStageId } = content;
 
-//       return {
-//         text: content.text
-//       };
-//     }
+      const destinationStage = await Stages.findOne({
+        _id: destinationStageId
+      }).lean();
+      const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
-//     if (action === ACTIVITY_ACTIONS.MERGE) {
-//       let result = {};
+      if (destinationStage && oldStage) {
+        return {
+          destinationStage: destinationStage.name,
+          oldStage: oldStage.name,
+          item
+        };
+      }
 
-//       switch (contentType) {
-//         case 'company':
-//           result = await Companies.find({
-//             _id: { $in: activityLog.content }
-//           }).lean();
-//           break;
-//         case 'customer':
-//           result = await Customers.find({
-//             _id: { $in: activityLog.content }
-//           }).lean();
-//           break;
-//       }
+      return {
+        text: content.text
+      };
+    }
 
-//       return result;
-//     }
+    if (action === ACTIVITY_ACTIONS.MERGE) {
+      let result = {};
 
-//     if (action === ACTIVITY_ACTIONS.ASSIGNEE) {
-//       let addedUsers: IUserDocument[] = [];
-//       let removedUsers: IUserDocument[] = [];
+      switch (contentType) {
+        case 'company':
+          result = await Companies.find({
+            _id: { $in: activityLog.content }
+          }).lean();
+          break;
+        case 'customer':
+          result = await Customers.find({
+            _id: { $in: activityLog.content }
+          }).lean();
+          break;
+      }
 
-//       if (content) {
-//         addedUsers = await getDocumentList('users', {
-//           _id: { $in: content.addedUserIds }
-//         });
-//         removedUsers = await getDocumentList('users', {
-//           _id: { $in: content.removedUserIds }
-//         });
-//       }
+      return result;
+    }
 
-//       return { addedUsers, removedUsers };
-//     }
+    if (action === ACTIVITY_ACTIONS.ASSIGNEE) {
+      let addedUsers: IUserDocument[] = [];
+      let removedUsers: IUserDocument[] = [];
 
-//     if (action === ACTIVITY_ACTIONS.TAGGED) {
-//       let tags: ITagDocument[] = [];
-//       if (content) {
-//         tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
-//       }
+      if (content) {
+        addedUsers = await getDocumentList('users', {
+          _id: { $in: content.addedUserIds }
+        });
+        removedUsers = await getDocumentList('users', {
+          _id: { $in: content.removedUserIds }
+        });
+      }
 
-//       return { tags };
-//     }
-//   }
-// };
+      return { addedUsers, removedUsers };
+    }
+
+    if (action === ACTIVITY_ACTIONS.TAGGED) {
+      let tags: ITagDocument[] = [];
+      if (content) {
+        tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
+      }
+
+      return { tags };
+    }
+  }
+};

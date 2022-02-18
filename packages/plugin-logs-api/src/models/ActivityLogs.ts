@@ -1,450 +1,455 @@
-// import * as Random from 'meteor-random';
-// import { Document, Model, model, Schema } from 'mongoose';
-// import { field } from './Logs';
+import * as Random from 'meteor-random';
+import { Document, Model, model, Schema } from 'mongoose';
 
-// const ACTIVITY_ACTIONS = {
-//   CREATE: 'create',
-//   UPDATE: 'update',
-//   DELETE: 'delete',
-//   MERGE: 'merge',
-//   SEND: 'send',
-//   MOVED: 'moved',
-//   CONVERT: 'convert',
-//   ASSIGNEE: 'assignee',
+import { field } from './Logs';
 
-//   ALL: [
-//     'create',
-//     'update',
-//     'delete',
-//     'merge',
-//     'send',
-//     'moved',
-//     'convert',
-//     'assignee'
-//   ]
-// };
+export const ACTIVITY_ACTIONS = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  MERGE: 'merge',
+  SEND: 'send',
+  MOVED: 'moved',
+  CONVERT: 'convert',
+  ASSIGNEE: 'assignee',
+  TAGGED: 'tagged',
 
-// export interface IActivityLogInput {
-//   action: string;
-//   content?: any;
-//   contentType: string;
-//   contentId: string;
-//   createdBy: string;
-// }
+  ALL: [
+    'create',
+    'update',
+    'delete',
+    'merge',
+    'send',
+    'moved',
+    'convert',
+    'assignee',
+    'tagged'
+  ]
+};
 
-// export interface IActivityLog {
-//   action: string;
-//   content?: any;
-//   contentType: string;
-//   contentId: string;
-//   createdBy: string;
-// }
+export interface IActivityLogInput {
+  action: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
+}
 
-// export interface IActivityLogDocument extends IActivityLog, Document {
-//   _id: string;
-//   createdAt: Date;
-// }
+export interface IActivityLog {
+  action: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
+}
 
-// export const activityLogSchema = new Schema({
-//   _id: { type: String, default: () => Random.id() },
-//   contentId: field({ type: String, index: true }),
-//   contentType: field({ type: String, index: true }),
-//   action: field({ type: String, index: true }),
-//   content: Schema.Types.Mixed,
-//   createdBy: field({ type: String }),
-//   createdAt: field({
-//     type: Date,
-//     required: true,
-//     default: Date.now
-//   })
-// });
+export interface IActivityLogDocument extends IActivityLog, Document {
+  _id: string;
+  createdAt: Date;
+}
 
-// interface IAssigneeParams {
-//   contentId: string;
-//   userId: string;
-//   contentType: string;
-//   content: object;
-// }
+console.log(field, typeof field)
 
-// interface ITagParams {
-//   contentId: string;
-//   userId: string;
-//   contentType: string;
-//   content: object;
-// }
+export const activityLogSchema = new Schema({
+  _id: { type: String, default: () => Random.id() },
+  contentId: field({ type: String, index: true }),
+  contentType: field({ type: String, index: true }),
+  action: field({ type: String, index: true }),
+  content: Schema.Types.Mixed,
+  createdBy: field({ type: String }),
+  createdAt: field({
+    type: Date,
+    required: true,
+    default: Date.now
+  })
+});
 
-// interface IChecklistParams {
-//   item: any;
-//   contentType: string;
-//   action: string;
-// }
+interface IAssigneeParams {
+  contentId: string;
+  userId: string;
+  contentType: string;
+  content: object;
+}
 
-// interface IArchiveParams {
-//   item: any;
-//   contentType: string;
-//   action: string;
-//   userId: string;
-// }
+interface ITagParams {
+  contentId: string;
+  userId: string;
+  contentType: string;
+  content: object;
+}
 
-// export interface IActivityLogModel extends Model<IActivityLogDocument> {
-//   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
-//   addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument[]>;
-//   removeActivityLog(contentId: string): void;
-//   removeActivityLogs(
-//     contentType: string,
-//     contentIds: string[]
-//   ): Promise<{ n: number; ok: number }>;
+interface IChecklistParams {
+  item: any;
+  contentType: string;
+  action: string;
+}
 
-//   createSegmentLog(
-//     segment: any,
-//     contentIds: string[],
-//     type: string,
-//     maxBulk?: number
-//   );
-//   createLogFromWidget(type: string, payload): Promise<IActivityLogDocument>;
-//   createCocLog(params: {
-//     coc: any;
-//     contentType: string;
-//   }): Promise<IActivityLogDocument>;
-//   createCocLogs(params: {
-//     cocs: any;
-//     contentType: string;
-//   }): Promise<IActivityLogDocument[]>;
-//   createBoardItemsLog(params: {
-//     items: any[];
-//     contentType: string;
-//   }): Promise<IActivityLogDocument[]>;
-//   createBoardItemLog(params: {
-//     item: any;
-//     contentType: string;
-//   }): Promise<IActivityLogDocument>;
-//   createBoardItemMovementLog(
-//     item: any,
-//     type: string,
-//     userId: string,
-//     content: object
-//   ): Promise<IActivityLogDocument>;
-//   createAssigneLog(params: IAssigneeParams): Promise<IActivityLogDocument>;
-//   createTagLog(params: ITagParams): Promise<IActivityLogDocument>;
-//   createChecklistLog(params: IChecklistParams): Promise<IActivityLogDocument>;
+interface IArchiveParams {
+  item: any;
+  contentType: string;
+  action: string;
+  userId: string;
+}
 
-//   createArchiveLog(params: IArchiveParams): Promise<IActivityLogDocument>;
-// }
+export interface IActivityLogModel extends Model<IActivityLogDocument> {
+  addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
+  addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument[]>;
+  removeActivityLog(contentId: string): void;
+  removeActivityLogs(
+    contentType: string,
+    contentIds: string[]
+  ): Promise<{ n: number; ok: number }>;
 
-// export const loadClass = () => {
-//   class ActivityLog {
-//     public static addActivityLog(doc: IActivityLogInput) {
-//       return ActivityLogs.create(doc);
-//     }
+  createSegmentLog(
+    segment: any,
+    contentIds: string[],
+    type: string,
+    maxBulk?: number
+  );
+  createLogFromWidget(type: string, payload): Promise<IActivityLogDocument>;
+  createCocLog(params: {
+    coc: any;
+    contentType: string;
+  }): Promise<IActivityLogDocument>;
+  createCocLogs(params: {
+    cocs: any;
+    contentType: string;
+  }): Promise<IActivityLogDocument[]>;
+  createBoardItemsLog(params: {
+    items: any[];
+    contentType: string;
+  }): Promise<IActivityLogDocument[]>;
+  createBoardItemLog(params: {
+    item: any;
+    contentType: string;
+  }): Promise<IActivityLogDocument>;
+  createBoardItemMovementLog(
+    item: any,
+    type: string,
+    userId: string,
+    content: object
+  ): Promise<IActivityLogDocument>;
+  createAssigneLog(params: IAssigneeParams): Promise<IActivityLogDocument>;
+  createTagLog(params: ITagParams): Promise<IActivityLogDocument>;
+  createChecklistLog(params: IChecklistParams): Promise<IActivityLogDocument>;
 
-//     public static addActivityLogs(docs: IActivityLogInput[]) {
-//       return ActivityLogs.insertMany(docs);
-//     }
+  createArchiveLog(params: IArchiveParams): Promise<IActivityLogDocument>;
+}
 
-//     public static async removeActivityLog(contentId: IActivityLogInput) {
-//       await ActivityLogs.deleteMany({ contentId });
-//     }
+export const loadClass = () => {
+  class ActivityLog {
+    public static addActivityLog(doc: IActivityLogInput) {
+      return ActivityLogs.create(doc);
+    }
 
-//     /**
-//      * Remove internal notes
-//      */
-//     public static async removeActivityLogs(
-//       contentType: string,
-//       contentIds: string[]
-//     ) {
-//       // Removing every activity logs of contentType
-//       return ActivityLogs.deleteMany({
-//         contentType,
-//         contentId: { $in: contentIds }
-//       });
-//     }
+    public static addActivityLogs(docs: IActivityLogInput[]) {
+      return ActivityLogs.insertMany(docs);
+    }
 
-//     public static async createAssigneLog({
-//       contentId,
-//       userId,
-//       contentType,
-//       content
-//     }: IAssigneeParams) {
-//       return ActivityLogs.addActivityLog({
-//         contentType,
-//         contentId,
-//         action: 'assignee',
-//         content,
-//         createdBy: userId || ''
-//       });
-//     }
+    public static async removeActivityLog(contentId: IActivityLogInput) {
+      await ActivityLogs.deleteMany({ contentId });
+    }
 
-//     public static async createTagLog({
-//       contentId,
-//       userId,
-//       contentType,
-//       content
-//     }: ITagParams) {
-//       return ActivityLogs.addActivityLog({
-//         contentType,
-//         contentId,
-//         action: 'tagged',
-//         content,
-//         createdBy: userId || ''
-//       });
-//     }
+    /**
+     * Remove internal notes
+     */
+    public static async removeActivityLogs(
+      contentType: string,
+      contentIds: string[]
+    ) {
+      // Removing every activity logs of contentType
+      return ActivityLogs.deleteMany({
+        contentType,
+        contentId: { $in: contentIds }
+      });
+    }
 
-//     public static createBoardItemsLog({
-//       items,
-//       contentType
-//     }: {
-//       items: any[];
-//       contentType: string;
-//     }) {
-//       const docs: IActivityLogInput[] = [];
+    public static async createAssigneLog({
+      contentId,
+      userId,
+      contentType,
+      content
+    }: IAssigneeParams) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId,
+        action: 'assignee',
+        content,
+        createdBy: userId || ''
+      });
+    }
 
-//       for (const item of items) {
-//         let action = ACTIVITY_ACTIONS.CREATE;
-//         let content = '';
+    public static async createTagLog({
+      contentId,
+      userId,
+      contentType,
+      content
+    }: ITagParams) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId,
+        action: 'tagged',
+        content,
+        createdBy: userId || ''
+      });
+    }
 
-//         const sourceIds = item.sourceConversationIds;
+    public static createBoardItemsLog({
+      items,
+      contentType
+    }: {
+      items: any[];
+      contentType: string;
+    }) {
+      const docs: IActivityLogInput[] = [];
 
-//         if (sourceIds && sourceIds.length > 0) {
-//           action = ACTIVITY_ACTIONS.CONVERT;
-//           content = sourceIds.slice(-1)[0];
-//         }
+      for (const item of items) {
+        let action = ACTIVITY_ACTIONS.CREATE;
+        let content = '';
 
-//         docs.push({
-//           contentType,
-//           action,
-//           content,
-//           contentId: item._id,
-//           createdBy: item.userId || ''
-//         });
-//       }
+        const sourceIds = item.sourceConversationIds;
 
-//       return ActivityLogs.addActivityLogs(docs);
-//     }
+        if (sourceIds && sourceIds.length > 0) {
+          action = ACTIVITY_ACTIONS.CONVERT;
+          content = sourceIds.slice(-1)[0];
+        }
 
-//     public static createBoardItemLog({
-//       item,
-//       contentType
-//     }: {
-//       item: any;
-//       contentType: string;
-//     }) {
-//       let action = ACTIVITY_ACTIONS.CREATE;
-//       let content = '';
+        docs.push({
+          contentType,
+          action,
+          content,
+          contentId: item._id,
+          createdBy: item.userId || ''
+        });
+      }
 
-//       const sourceIds = item.sourceConversationIds;
+      return ActivityLogs.addActivityLogs(docs);
+    }
 
-//       if (sourceIds && sourceIds.length > 0) {
-//         action = ACTIVITY_ACTIONS.CONVERT;
-//         content = sourceIds.slice(-1)[0];
-//       }
+    public static createBoardItemLog({
+      item,
+      contentType
+    }: {
+      item: any;
+      contentType: string;
+    }) {
+      let action = ACTIVITY_ACTIONS.CREATE;
+      let content = '';
 
-//       return ActivityLogs.addActivityLog({
-//         contentType,
-//         contentId: item._id,
-//         action,
-//         createdBy: item.userId || '',
-//         content
-//       });
-//     }
+      const sourceIds = item.sourceConversationIds;
 
-//     public static createBoardItemMovementLog(
-//       item: any,
-//       contentType: string,
-//       userId: string,
-//       content: object
-//     ) {
-//       return ActivityLogs.addActivityLog({
-//         contentType,
-//         contentId: item._id,
-//         action: ACTIVITY_ACTIONS.MOVED,
-//         createdBy: userId,
-//         content
-//       });
-//     }
+      if (sourceIds && sourceIds.length > 0) {
+        action = ACTIVITY_ACTIONS.CONVERT;
+        content = sourceIds.slice(-1)[0];
+      }
 
-//     public static async createLogFromWidget(type: string, payload) {
-//       switch (type) {
-//         case 'create-customer':
-//           return ActivityLogs.createCocLog({
-//             coc: payload,
-//             contentType: 'customer'
-//           });
-//         case 'create-company':
-//           return ActivityLogs.createCocLog({
-//             coc: payload,
-//             contentType: 'company'
-//           });
-//       }
-//     }
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId: item._id,
+        action,
+        createdBy: item.userId || '',
+        content
+      });
+    }
 
-//     public static createCocLogs({
-//       cocs,
-//       contentType
-//     }: {
-//       cocs: any;
-//       contentType: string;
-//     }) {
-//       const docs: IActivityLogInput[] = [];
+    public static createBoardItemMovementLog(
+      item: any,
+      contentType: string,
+      userId: string,
+      content: object
+    ) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId: item._id,
+        action: ACTIVITY_ACTIONS.MOVED,
+        createdBy: userId,
+        content
+      });
+    }
 
-//       for (const coc of cocs) {
-//         let action = ACTIVITY_ACTIONS.CREATE;
-//         let content = '';
+    public static async createLogFromWidget(type: string, payload) {
+      switch (type) {
+        case 'create-customer':
+          return ActivityLogs.createCocLog({
+            coc: payload,
+            contentType: 'customer'
+          });
+        case 'create-company':
+          return ActivityLogs.createCocLog({
+            coc: payload,
+            contentType: 'company'
+          });
+      }
+    }
 
-//         if (coc.mergedIds && coc.mergedIds.length > 0) {
-//           action = ACTIVITY_ACTIONS.MERGE;
-//           content = coc.mergedIds;
-//         }
+    public static createCocLogs({
+      cocs,
+      contentType
+    }: {
+      cocs: any;
+      contentType: string;
+    }) {
+      const docs: IActivityLogInput[] = [];
 
-//         docs.push({
-//           action,
-//           content,
-//           contentType,
-//           contentId: coc._id,
-//           createdBy: coc.ownerId || coc.integrationId
-//         });
-//       }
+      for (const coc of cocs) {
+        let action = ACTIVITY_ACTIONS.CREATE;
+        let content = '';
 
-//       return ActivityLogs.addActivityLogs(docs);
-//     }
+        if (coc.mergedIds && coc.mergedIds.length > 0) {
+          action = ACTIVITY_ACTIONS.MERGE;
+          content = coc.mergedIds;
+        }
 
-//     public static createCocLog({
-//       coc,
-//       contentType
-//     }: {
-//       coc: any;
-//       contentType: string;
-//     }) {
-//       let action = ACTIVITY_ACTIONS.CREATE;
-//       let content = '';
+        docs.push({
+          action,
+          content,
+          contentType,
+          contentId: coc._id,
+          createdBy: coc.ownerId || coc.integrationId
+        });
+      }
 
-//       if (coc.mergedIds && coc.mergedIds.length > 0) {
-//         action = ACTIVITY_ACTIONS.MERGE;
-//         content = coc.mergedIds;
-//       }
+      return ActivityLogs.addActivityLogs(docs);
+    }
 
-//       return ActivityLogs.addActivityLog({
-//         contentType,
-//         content,
-//         contentId: coc._id,
-//         action,
-//         createdBy: coc.ownerId || coc.integrationId
-//       });
-//     }
+    public static createCocLog({
+      coc,
+      contentType
+    }: {
+      coc: any;
+      contentType: string;
+    }) {
+      let action = ACTIVITY_ACTIONS.CREATE;
+      let content = '';
 
-//     /**
-//      * Create a customer or company segment logs
-//      */
-//     public static async createSegmentLog(
-//       segment: any,
-//       contentIds: string[] = [],
-//       type: string,
-//       maxBulk: number = 10000
-//     ) {
-//       const foundSegments = await ActivityLogs.find(
-//         {
-//           contentType: type,
-//           action: 'segment',
-//           contentId: { $in: contentIds },
-//           'content.id': segment._id
-//         },
-//         { contentId: 1 }
-//       );
+      if (coc.mergedIds && coc.mergedIds.length > 0) {
+        action = ACTIVITY_ACTIONS.MERGE;
+        content = coc.mergedIds;
+      }
 
-//       const foundContentIds = foundSegments.map(s => s.contentId);
+      return ActivityLogs.addActivityLog({
+        contentType,
+        content,
+        contentId: coc._id,
+        action,
+        createdBy: coc.ownerId || coc.integrationId
+      });
+    }
 
-//       const diffContentIds = contentIds.filter(
-//         x => !foundContentIds.includes(x)
-//       );
+    /**
+     * Create a customer or company segment logs
+     */
+    public static async createSegmentLog(
+      segment: any,
+      contentIds: string[] = [],
+      type: string,
+      maxBulk: number = 10000
+    ) {
+      const foundSegments = await ActivityLogs.find(
+        {
+          contentType: type,
+          action: 'segment',
+          contentId: { $in: contentIds },
+          'content.id': segment._id
+        },
+        { contentId: 1 }
+      );
 
-//       let bulkOpt: Array<{
-//         contentType: string;
-//         contentId: string;
-//         action: string;
-//         content: {};
-//       }> = [];
+      const foundContentIds = foundSegments.map(s => s.contentId);
 
-//       let bulkCounter = 0;
+      const diffContentIds = contentIds.filter(
+        x => !foundContentIds.includes(x)
+      );
 
-//       for (const contentId of diffContentIds) {
-//         bulkCounter = bulkCounter + 1;
+      let bulkOpt: Array<{
+        contentType: string;
+        contentId: string;
+        action: string;
+        content: {};
+      }> = [];
 
-//         const doc = {
-//           contentType: type,
-//           contentId,
-//           action: 'segment',
-//           content: {
-//             id: segment._id,
-//             content: segment.name
-//           }
-//         };
+      let bulkCounter = 0;
 
-//         bulkOpt.push(doc);
+      for (const contentId of diffContentIds) {
+        bulkCounter = bulkCounter + 1;
 
-//         if (bulkCounter === maxBulk) {
-//           await ActivityLogs.insertMany(bulkOpt);
-//           bulkOpt = [];
-//           bulkCounter = 0;
-//         }
-//       }
+        const doc = {
+          contentType: type,
+          contentId,
+          action: 'segment',
+          content: {
+            id: segment._id,
+            content: segment.name
+          }
+        };
 
-//       if (bulkOpt.length === 0) {
-//         return;
-//       }
+        bulkOpt.push(doc);
 
-//       return ActivityLogs.insertMany(bulkOpt);
-//     }
+        if (bulkCounter === maxBulk) {
+          await ActivityLogs.insertMany(bulkOpt);
+          bulkOpt = [];
+          bulkCounter = 0;
+        }
+      }
 
-//     public static async createArchiveLog({
-//       item,
-//       contentType,
-//       action,
-//       userId
-//     }: IArchiveParams) {
-//       return ActivityLogs.addActivityLog({
-//         contentType,
-//         contentId: item._id,
-//         action: 'archive',
-//         content: action,
-//         createdBy: userId
-//       });
-//     }
+      if (bulkOpt.length === 0) {
+        return;
+      }
 
-//     public static async createChecklistLog({
-//       item,
-//       contentType,
-//       action
-//     }: IChecklistParams) {
-//       if (action === 'delete') {
-//         await ActivityLogs.updateMany(
-//           { 'content._id': item._id },
-//           { $set: { 'content.name': item.title || item.content } }
-//         );
-//       }
+      return ActivityLogs.insertMany(bulkOpt);
+    }
 
-//       return ActivityLogs.addActivityLog({
-//         contentType,
-//         contentId: item.contentTypeId || item.checklistId,
-//         action,
-//         content: {
-//           _id: item._id,
-//           name: item.title || item.content
-//         },
-//         createdBy: item.createdUserId || ''
-//       });
-//     }
-//   }
+    public static async createArchiveLog({
+      item,
+      contentType,
+      action,
+      userId
+    }: IArchiveParams) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId: item._id,
+        action: 'archive',
+        content: action,
+        createdBy: userId
+      });
+    }
 
-//   activityLogSchema.loadClass(ActivityLog);
+    public static async createChecklistLog({
+      item,
+      contentType,
+      action
+    }: IChecklistParams) {
+      if (action === 'delete') {
+        await ActivityLogs.updateMany(
+          { 'content._id': item._id },
+          { $set: { 'content.name': item.title || item.content } }
+        );
+      }
 
-//   return activityLogSchema;
-// };
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId: item.contentTypeId || item.checklistId,
+        action,
+        content: {
+          _id: item._id,
+          name: item.title || item.content
+        },
+        createdBy: item.createdUserId || ''
+      });
+    }
+  }
 
-// loadClass();
+  activityLogSchema.loadClass(ActivityLog);
 
-// // tslint:disable-next-line
-// const ActivityLogs = model<IActivityLogDocument, IActivityLogModel>(
-//   'activity_logs',
-//   activityLogSchema
-// );
+  return activityLogSchema;
+};
 
-// export default ActivityLogs;
+loadClass();
+
+// tslint:disable-next-line
+const ActivityLogs = model<IActivityLogDocument, IActivityLogModel>(
+  'activity_logs',
+  activityLogSchema
+);
+
+export default ActivityLogs;

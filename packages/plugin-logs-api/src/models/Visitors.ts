@@ -1,174 +1,175 @@
-// import { Document, model, Model, Schema } from 'mongoose';
-// import { field } from './Logs';
-// import { debug } from '../configs';
+import { Document, model, Model, Schema } from 'mongoose';
+import { field } from './Logs';
+import { debug } from '../configs';
 
-// export interface ILocation {
-//   remoteAddress: string;
-//   country: string;
-//   countryCode: string;
-//   city: string;
-//   region: string;
-//   hostname: string;
-//   language: string;
-//   userAgent: string;
-// }
 
-// export interface ILocationDocument extends ILocation, Document {}
+export interface ILocation {
+  remoteAddress: string;
+  country: string;
+  countryCode: string;
+  city: string;
+  region: string;
+  hostname: string;
+  language: string;
+  userAgent: string;
+}
 
-// export interface IVistiorDoc {
-//   visitorId: string;
-//   integrationId?: string;
-//   location?: ILocationDocument;
-//   isOnline?: boolean;
-//   lastSeenAt?: Date;
-//   sessionCount?: number;
-// }
+export interface ILocationDocument extends ILocation, Document {}
 
-// export const locationSchema = new Schema(
-//   {
-//     remoteAddress: field({
-//       type: String,
-//       label: 'Remote address',
-//       optional: true
-//     }),
-//     country: field({ type: String, label: 'Country', optional: true }),
-//     countryCode: field({ type: String, label: 'Country code', optional: true }),
-//     city: field({ type: String, label: 'City', optional: true }),
-//     region: field({ type: String, label: 'Region', optional: true }),
-//     hostname: field({ type: String, label: 'Host name', optional: true }),
-//     language: field({ type: String, label: 'Language', optional: true }),
-//     userAgent: field({ type: String, label: 'User agent', optional: true })
-//   },
-//   { _id: false }
-// );
+export interface IVistiorDoc {
+  visitorId: string;
+  integrationId?: string;
+  location?: ILocationDocument;
+  isOnline?: boolean;
+  lastSeenAt?: Date;
+  sessionCount?: number;
+}
 
-// export interface IVisitorDocument extends IVistiorDoc, Document {}
+export const locationSchema = new Schema(
+  {
+    remoteAddress: field({
+      type: String,
+      label: 'Remote address',
+      optional: true
+    }),
+    country: field({ type: String, label: 'Country', optional: true }),
+    countryCode: field({ type: String, label: 'Country code', optional: true }),
+    city: field({ type: String, label: 'City', optional: true }),
+    region: field({ type: String, label: 'Region', optional: true }),
+    hostname: field({ type: String, label: 'Host name', optional: true }),
+    language: field({ type: String, label: 'Language', optional: true }),
+    userAgent: field({ type: String, label: 'User agent', optional: true })
+  },
+  { _id: false }
+);
 
-// export interface IVisitorModel extends Model<IVisitorDocument> {
-//   createOrUpdateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
-//   updateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
-//   removeVisitorLog(visitorId: string): void;
-//   getVisitorLog(visitorId: string): Promise<IVisitorDocument>;
-// }
+export interface IVisitorDocument extends IVistiorDoc, Document {}
 
-// export const schema = new Schema({
-//   integrationId: field({
-//     type: String,
-//     optional: true,
-//     label: 'Integration'
-//   }),
-//   visitorId: field({
-//     type: String,
-//     label: 'visitorId from finger print',
-//     optional: true,
-//     index: { unique: true }
-//   }),
+export interface IVisitorModel extends Model<IVisitorDocument> {
+  createOrUpdateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
+  updateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
+  removeVisitorLog(visitorId: string): void;
+  getVisitorLog(visitorId: string): Promise<IVisitorDocument>;
+}
 
-//   location: field({
-//     type: locationSchema,
-//     optional: true,
-//     label: 'Location'
-//   }),
+export const schema = new Schema({
+  integrationId: field({
+    type: String,
+    optional: true,
+    label: 'Integration'
+  }),
+  visitorId: field({
+    type: String,
+    label: 'visitorId from finger print',
+    optional: true,
+    index: { unique: true }
+  }),
 
-//   isOnline: field({
-//     type: Boolean,
-//     label: 'Is online',
-//     optional: true
-//   }),
-//   lastSeenAt: field({
-//     type: Date,
-//     label: 'Last seen at',
-//     optional: true
-//   }),
-//   sessionCount: field({
-//     type: Number,
-//     label: 'Session count',
-//     optional: true
-//   }),
-//   scopeBrandIds: field({
-//     type: [String],
-//     label: 'Related brands',
-//     optional: true
-//   }),
-//   createdAt: field({ type: Date, default: Date.now })
-// });
+  location: field({
+    type: locationSchema,
+    optional: true,
+    label: 'Location'
+  }),
 
-// export const loadVisitorClass = () => {
-//   class Visitor {
-//     public static async createOrUpdateVisitorLog(doc: IVistiorDoc) {
-//       const visitor = await Visitors.findOne({ visitorId: doc.visitorId });
+  isOnline: field({
+    type: Boolean,
+    label: 'Is online',
+    optional: true
+  }),
+  lastSeenAt: field({
+    type: Date,
+    label: 'Last seen at',
+    optional: true
+  }),
+  sessionCount: field({
+    type: Number,
+    label: 'Session count',
+    optional: true
+  }),
+  scopeBrandIds: field({
+    type: [String],
+    label: 'Related brands',
+    optional: true
+  }),
+  createdAt: field({ type: Date, default: Date.now })
+});
 
-//       if (visitor) {
-//         await Visitors.updateOne({ _id: visitor._id }, { $set: doc });
+export const loadVisitorClass = () => {
+  class Visitor {
+    public static async createOrUpdateVisitorLog(doc: IVistiorDoc) {
+      const visitor = await Visitors.findOne({ visitorId: doc.visitorId });
 
-//         return Visitors.findOne({ visitorId: doc.visitorId });
-//       }
+      if (visitor) {
+        await Visitors.updateOne({ _id: visitor._id }, { $set: doc });
 
-//       return Visitors.create({
-//         ...doc,
-//         sessionCount: 1,
-//         lastSeenAt: new Date()
-//       });
-//     }
+        return Visitors.findOne({ visitorId: doc.visitorId });
+      }
 
-//     public static async updateVisitorLog(doc: IVistiorDoc) {
-//       const now = new Date();
+      return Visitors.create({
+        ...doc,
+        sessionCount: 1,
+        lastSeenAt: new Date()
+      });
+    }
 
-//       const visitor = await Visitors.getVisitorLog(doc.visitorId);
+    public static async updateVisitorLog(doc: IVistiorDoc) {
+      const now = new Date();
 
-//       // log & quietly return instead of throwing an error
-//       if (!visitor) {
-//         debug.info(
-//           `Visitor with Id ${doc.visitorId} not found while trying to update visitor.`
-//         );
+      const visitor = await Visitors.getVisitorLog(doc.visitorId);
 
-//         return;
-//       }
+      // log & quietly return instead of throwing an error
+      if (!visitor) {
+        debug.info(
+          `Visitor with Id ${doc.visitorId} not found while trying to update visitor.`
+        );
 
-//       delete doc.integrationId;
+        return;
+      }
 
-//       const query: any = {
-//         $set: {
-//           lastSeenAt: now,
-//           ...doc
-//         }
-//       };
+      delete doc.integrationId;
 
-//       // Preventing session count to increase on page every refresh
-//       // Close your web site tab and reopen it after 6 seconds then it will increase
-//       // session count by 1
-//       if (
-//         visitor.lastSeenAt &&
-//         now.getTime() - visitor.lastSeenAt.getTime() > 6 * 1000
-//       ) {
-//         // update session count
-//         query.$inc = { sessionCount: 1 };
-//       }
+      const query: any = {
+        $set: {
+          lastSeenAt: now,
+          ...doc
+        }
+      };
 
-//       // update
-//       await Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, query);
+      // Preventing session count to increase on page every refresh
+      // Close your web site tab and reopen it after 6 seconds then it will increase
+      // session count by 1
+      if (
+        visitor.lastSeenAt &&
+        now.getTime() - visitor.lastSeenAt.getTime() > 6 * 1000
+      ) {
+        // update session count
+        query.$inc = { sessionCount: 1 };
+      }
 
-//       // updated customer
-//       return Visitors.findOne({ visitorId: doc.visitorId });
-//     }
+      // update
+      await Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, query);
 
-//     public static getVisitorLog(visitorId: string) {
-//       return Visitors.findOne({ visitorId }).lean();
-//     }
+      // updated customer
+      return Visitors.findOne({ visitorId: doc.visitorId });
+    }
 
-//     public static removeVisitorLog(visitorId: string) {
-//       return Visitors.deleteOne({ visitorId });
-//     }
-//   }
+    public static getVisitorLog(visitorId: string) {
+      return Visitors.findOne({ visitorId }).lean();
+    }
 
-//   schema.loadClass(Visitor);
+    public static removeVisitorLog(visitorId: string) {
+      return Visitors.deleteOne({ visitorId });
+    }
+  }
 
-//   return schema;
-// };
+  schema.loadClass(Visitor);
 
-// loadVisitorClass();
+  return schema;
+};
 
-// // tslint:disable-next-line
-// const Visitors = model<IVisitorDocument, IVisitorModel>('visitors', schema);
+loadVisitorClass();
 
-// export default Visitors;
+// tslint:disable-next-line
+const Visitors = model<IVisitorDocument, IVisitorModel>('visitors', schema);
+
+export default Visitors;

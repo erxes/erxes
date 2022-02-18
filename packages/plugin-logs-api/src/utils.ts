@@ -1,6 +1,8 @@
 import { debug } from './configs';
 import Logs from './models/Logs';
+import ActivityLogs from './models/ActivityLogs';
 import messageBroker from './messageBroker';
+import { IFilter } from './graphql/resolvers/logQueries';
 
 export const sendToApi = (channel: string, data) =>
   messageBroker().sendMessage(channel, data);
@@ -24,7 +26,7 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
 
   for (const elem of oldArray) {
     if (typeof elem !== 'object') {
-      const found = newArray.find(el => el === elem);
+      const found = newArray.find((el) => el === elem);
 
       /**
        * If removedItems contains the pushing value, then it caused the following error
@@ -39,7 +41,7 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
   newArray.forEach((elem, index) => {
     // primary data types
     if (typeof elem !== 'object') {
-      const found = oldArray.find(el => el === elem);
+      const found = oldArray.find((el) => el === elem);
 
       if (found) {
         unchangedItems.push(elem);
@@ -77,7 +79,7 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
     unchanged: unchangedItems,
     changed: changedItems,
     added: addedItems,
-    removed: removedItems
+    removed: removedItems,
   };
 };
 
@@ -85,13 +87,13 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
  * Shorthand empty value checker
  * @param val Value to check
  */
-const isNull = val => val === null || val === undefined || val === '';
+const isNull = (val) => val === null || val === undefined || val === '';
 
 /**
  * Shorthand empty object checker
  * @param obj Object to check
  */
-const isObjectEmpty = obj => {
+const isObjectEmpty = (obj) => {
   return (
     typeof obj === 'object' &&
     obj &&
@@ -156,7 +158,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
   if (newData && !isObjectEmpty(newData)) {
     fieldNames = Object.getOwnPropertyNames(newData);
     // split
-    fieldNames = fieldNames.map<string>(n => {
+    fieldNames = fieldNames.map<string>((n) => {
       if (!nonSchemaNames.includes(n)) {
         return n;
       }
@@ -241,11 +243,11 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
     changed: changedFields,
     unchanged: unchangedFields,
     added: addedFields,
-    removed: removedFields
+    removed: removedFields,
   };
 };
 
-export const receivePutLogCommand = async params => {
+export const receivePutLogCommand = async (params) => {
   debug.info(params);
 
   const {
@@ -256,7 +258,7 @@ export const receivePutLogCommand = async params => {
     description,
     object,
     newData,
-    extraDesc
+    extraDesc,
   } = params;
 
   return Logs.createLog({
@@ -268,6 +270,75 @@ export const receivePutLogCommand = async params => {
     unicode,
     createdAt: new Date(),
     description,
-    extraDesc
+    extraDesc,
   });
+};
+
+export const fetchActivityLogs = async (params) => {
+  const filter: {
+    contentType?: string;
+    contentId?: any;
+    action?: string;
+    perPage?: number;
+    page?: number;
+  } = params;
+
+  if (filter.page && filter.perPage) {
+    const perPage = filter.perPage || 20;
+    const page = filter.page || 1;
+
+    delete filter.perPage;
+    delete filter.page;
+
+    return {
+      activityLogs: await ActivityLogs.find(filter)
+        .sort({
+          createdAt: -1,
+        })
+        .skip(perPage * (page - 1))
+        .limit(perPage),
+      totalCount: await ActivityLogs.countDocuments(filter),
+    };
+  }
+
+  return await ActivityLogs.find(filter).sort({ createdAt: -1 });
+};
+
+export const fetchLogs = async (params) => {
+  const { start, end, userId, action, page, perPage, type, desc } = params;
+  const filter: IFilter = {};
+
+  // filter by date
+  if (start && end) {
+    filter.createdAt = { $gte: new Date(start), $lte: new Date(end) };
+  } else if (start) {
+    filter.createdAt = { $gte: new Date(start) };
+  } else if (end) {
+    filter.createdAt = { $lte: new Date(end) };
+  }
+
+  if (userId) {
+    filter.createdBy = userId;
+  }
+  if (action) {
+    filter.action = action;
+  }
+  if (type) {
+    filter.type = type;
+  }
+  if (desc) {
+    filter.description = { $regex: desc, $options: '$i' };
+  }
+
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
+
+  const logs = await Logs.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(_limit)
+    .skip((_page - 1) * _limit);
+
+  const logsCount = await Logs.countDocuments(filter);
+
+  return { logs, totalCount: logsCount };
 };
