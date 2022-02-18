@@ -112,7 +112,7 @@ const updateCustomFieldsCache = ({
 };
 
 const loadMapApi = (mapKey: string) => {
-  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${mapKey}&libraries=geometry,places&language=en&v=quarterly`;
+  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${mapKey}&libraries=geometry,places&language=en&v=quarterly&callback=mapCallback`;
   const scripts: any = document.getElementsByTagName('script');
 
   for (const script of scripts) {

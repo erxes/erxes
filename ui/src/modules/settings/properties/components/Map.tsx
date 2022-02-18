@@ -3,14 +3,22 @@ import React from 'react';
 
 interface IMapProps extends google.maps.MapOptions {
   style: { [key: string]: string };
+  mapKey: string;
 }
 
-const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
+const Map: React.FC<IMapProps> = ({ children, style, mapKey, ...options }) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const [map, setMap] = React.useState<google.maps.Map | undefined>(undefined);
+  const [isMapLoaded, setMapLoaded] = React.useState(false);
+
+  (window as any).mapCallback = () => {
+    console.log('mapLoaded');
+    setMapLoaded(true);
+  };
 
   React.useEffect(() => {
-    if (ref.current && !map) {
+    if (ref.current && !map && isMapLoaded) {
+      console.log('MAP INIT');
       setMap(new (window as any).google.maps.Map(ref.current, {}));
     }
   }, [ref, map]);

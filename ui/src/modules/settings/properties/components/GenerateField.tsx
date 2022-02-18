@@ -21,8 +21,8 @@ import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IConfig } from 'modules/settings/general/types';
 import { Alert, colors } from 'erxes-ui';
 import Map from './Map';
-import { loadMapApi } from '../utils';
 import Marker from './Marker';
+import { loadMapApi } from '../utils';
 
 declare const navigator: any;
 
@@ -57,15 +57,13 @@ export default class GenerateField extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (this.props.field.type !== 'map') {
       return;
     }
 
-    const googleMapScript = loadMapApi(this.state.googleMapApiKey);
-
-    googleMapScript.addEventListener('load', () => {
-      this.setState({ mapScriptLoaded: true });
+    loadMapApi(this.state.googleMapApiKey).then(() => {
+      console.log('llllllllllllllllllllllllllllllllllllll');
     });
 
     const onSuccess = (position: { coords: any }) => {
@@ -409,39 +407,34 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <div style={{ width: '100%', height: 250 }}>
-        {this.state.mapScriptLoaded ? (
-          <Map
-            center={currentLocation}
-            streetViewControl={false}
-            zoom={8}
-            style={{ width: '100%', height: '100%' }}
-          >
-            {locationOptions.length > 0 ? (
-              locationOptions.map((option, index) => (
-                <Marker
-                  color={colors.colorSecondary}
-                  key={index}
-                  position={option}
-                  content={option.description}
-                  draggable={false}
-                  onChange={onChange}
-                />
-              ))
-            ) : (
+        <Map
+          mapKey={this.state.googleMapApiKey}
+          center={currentLocation}
+          streetViewControl={false}
+          zoom={8}
+          style={{ width: '100%', height: '100%' }}
+        >
+          {locationOptions.length > 0 ? (
+            locationOptions.map((option, index) => (
               <Marker
                 color={colors.colorSecondary}
-                position={currentLocation}
-                content={__('Select your location')}
-                draggable={true}
+                key={index}
+                position={option}
+                content={option.description}
+                draggable={false}
                 onChange={onChange}
               />
-            )}
-          </Map>
-        ) : (
-          <label>
-            Google Maps Api has not loaded yet, please reload the page
-          </label>
-        )}
+            ))
+          ) : (
+            <Marker
+              color={colors.colorSecondary}
+              position={currentLocation}
+              content={__('Select your location')}
+              draggable={true}
+              onChange={onChange}
+            />
+          )}
+        </Map>
       </div>
     );
   }
