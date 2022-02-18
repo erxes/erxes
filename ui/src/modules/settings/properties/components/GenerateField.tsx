@@ -20,9 +20,8 @@ import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IConfig } from 'modules/settings/general/types';
 import { Alert, colors } from 'erxes-ui';
-import Map from './Map';
-import Marker from './Marker';
-import { loadMapApi } from '../utils';
+import GoogleMapReact from 'google-map-react';
+import Marker from './MyMarker';
 
 declare const navigator: any;
 
@@ -38,9 +37,9 @@ type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
-  currentLocation?: ILocationOption;
+  currentLocation: ILocationOption;
   googleMapApiKey: string;
-  mapScriptLoaded: boolean;
+  isMapDraggable: boolean;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
@@ -53,7 +52,8 @@ export default class GenerateField extends React.Component<Props, State> {
       errorCounter: 0,
       ...this.generateState(props),
       googleMapApiKey: config ? config.value : '',
-      mapScriptLoaded: false
+      currentLocation: { lat: 0.0, lng: 0.0 },
+      isMapDraggable: true
     };
   }
 
@@ -61,10 +61,6 @@ export default class GenerateField extends React.Component<Props, State> {
     if (this.props.field.type !== 'map') {
       return;
     }
-
-    loadMapApi(this.state.googleMapApiKey).then(() => {
-      console.log('llllllllllllllllllllllllllllllllllllll');
-    });
 
     const onSuccess = (position: { coords: any }) => {
       const coordinates = position.coords;
@@ -399,42 +395,84 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     };
 
+    const onClick = e => {
+      console.log('click: ', e);
+    };
+
+    const onMarkerInteraction = (
+      _childKey: any,
+      _childProps: any,
+      mouse: any
+    ) => {
+      // this.setState({
+      //   isMapDraggable: false,
+      //   currentLocation: { lat: mouse.lat, lng: mouse.lng }
+      // });
+      console.log(mouse);
+    };
+
+    // const onMarkerInteractionMouseUp = (
+    //   _childKey: any,
+    //   _childProps: any,
+    //   mouse: any
+    // ) => {
+    //   const location = { lat: mouse.lat, lng: mouse.lng };
+
+    //   this.setState({
+    //     currentLocation: location,
+    //     isMapDraggable: true
+    //   });
+
+    //   this.onLocationChange(location);
+    // };
+
     if (value && value.length !== 0) {
       currentLocation = value;
     }
 
-    console.log('mapScriptLoaded: ', this.state.mapScriptLoaded);
-
     return (
       <div style={{ width: '100%', height: 250 }}>
-        <Map
-          mapKey={this.state.googleMapApiKey}
+        <GoogleMapReact
+          onClick={onClick}
+          bootstrapURLKeys={{ key: this.state.googleMapApiKey }}
+          draggable={true}
           center={currentLocation}
-          streetViewControl={false}
-          zoom={8}
-          style={{ width: '100%', height: '100%' }}
+          defaultZoom={8}
+          options={{
+            controlSize: 30,
+            zoomControl: true,
+            mapTypeControl: true,
+            scaleControl: true,
+            streetViewControl: false,
+            rotateControl: false,
+            fullscreenControl: true
+          }}
+          onChildMouseDown={onMarkerInteraction}
+          // onChildMouseUp={onMarkerInteractionMouseUp}
+          // onChildMouseMove={onMarkerInteraction}
+          yesIWantToUseGoogleMapApiInternals={true}
         >
           {locationOptions.length > 0 ? (
             locationOptions.map((option, index) => (
               <Marker
-                color={colors.colorSecondary}
                 key={index}
-                position={option}
-                content={option.description}
-                draggable={false}
                 onChange={onChange}
+                lat={option.lat}
+                lng={option.lng}
+                description={option.description}
+                color={colors.colorSecondary}
               />
             ))
           ) : (
             <Marker
-              color={colors.colorSecondary}
-              position={currentLocation}
-              content={__('Select your location')}
-              draggable={true}
               onChange={onChange}
+              lat={currentLocation.lat}
+              lng={currentLocation.lng}
+              description={'Your location'}
+              color={colors.colorSecondary}
             />
           )}
-        </Map>
+        </GoogleMapReact>
       </div>
     );
   }
