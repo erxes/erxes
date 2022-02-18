@@ -173,21 +173,21 @@ export default class EditorAttributeUtil {
 
   async getCustomerName(customer) {
     return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_getCustomerName_to_api",
+      "contacts:getCustomerName",
       customer
     );
   }
 
   async generateAmounts(productsData) {
     return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_generateAmounts_to_api",
+      "cards:deals:generateAmounts",
       productsData
     );
   }
 
   async generateProducts(productsData): Promise<any> {
     return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_generateProducts_to_api",
+      "cards:deals:generateProducts",
       productsData
     );
   }
