@@ -11,8 +11,11 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
-    "strict": true
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@erxes/api-utils/*": ["../api-utils/*"]
+    },
   },
-  "include": ["./src/**/*.ts", "typings.d.ts", "../packages/plugin-contact-api/src/verifierUtils.ts"],
   "exclude": ["node_modules", "dist"]
 }
