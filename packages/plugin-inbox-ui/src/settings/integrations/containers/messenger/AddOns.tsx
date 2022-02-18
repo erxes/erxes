@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import { queries as kbQueries } from '@erxes/ui-settings/src/general/graphql';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
@@ -42,7 +42,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      topics,
+      topics: topics as any,
       leads
     };
 
