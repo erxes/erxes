@@ -97,7 +97,7 @@ const main = async () => {
   console.log("Moving node_modules ....");
 
   if (type === "plugin") {
-    await execute(() => fse.move("../node_modules", "./.erxes/node_modules"));
+    await execute(() => fse.move("../node_modules", "./.erxes/dist/node_modules"));
   } else {
     await execute(() => fse.move("../node_modules", "./dist/node_modules"));
   }
