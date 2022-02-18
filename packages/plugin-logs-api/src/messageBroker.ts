@@ -129,6 +129,10 @@ export const getDbSchemaLabels = async (serviceName: string, type: string) => {
   return client.sendRPCMessage(`${serviceName}:rpc_queue:getSchemaLabels`, { type })
 };
 
+export const sendConformityMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`conformities:${action}`, data);
+};
+
 export default function() {
   return client;
 }

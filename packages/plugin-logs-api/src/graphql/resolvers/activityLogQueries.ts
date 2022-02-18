@@ -4,17 +4,17 @@ import { ACTIVITY_CONTENT_TYPES } from '@erxes/api-utils/src/constants';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 
 import {
-  Conformities,
   Conversations,
   EmailDeliveries,
   InternalNotes,
-  Stages,
+  // Stages,
   Tasks
 } from '../../apiCollections';
 // import { getCollection } from '../../../db/models/boardUtils';
 import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
+import { sendConformityMessage } from '../../messageBroker';
 
 export interface IListArgs {
   contentType: string;
@@ -39,14 +39,14 @@ const activityLogQueries = {
 
     let activities: IActivityLogDocument[] = [];
 
-    const relatedItemIds = await Conformities.savedConformity({
+    const relatedItemIds = await sendConformityMessage('savedConformity', {
       mainType: contentType,
       mainTypeId: contentId,
       relTypes:
         contentType !== 'task' ? ['deal', 'ticket'] : ['deal', 'ticket', 'task']
     });
 
-    const relatedTaskIds = await Conformities.savedConformity({
+    const relatedTaskIds = await sendConformityMessage('savedConformity', {
       mainType: contentType,
       mainTypeId: contentId,
       relTypes: ['task']
@@ -81,7 +81,7 @@ const activityLogQueries = {
       collectItems(
         await Conversations.find({
           $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-        }).lean(),
+        }).toArray(),
         'conversation'
       );
 
@@ -96,7 +96,7 @@ const activityLogQueries = {
             }
           );
           collectItems(
-            await Conversations.find({ _id: { $in: conversationIds } }).lean(),
+            await Conversations.find({ _id: { $in: conversationIds } }).toArray(),
             'comment'
           );
         } catch (e) {
@@ -122,7 +122,7 @@ const activityLogQueries = {
           .sort({
             createdAt: -1
           })
-          .lean(),
+          .toArray(),
         'note'
       );
     };
@@ -161,7 +161,7 @@ const activityLogQueries = {
             .sort({
               closeDate: 1
             })
-            .lean(),
+            .toArray(),
           'taskDetail'
         );
       }
@@ -172,7 +172,7 @@ const activityLogQueries = {
 
       if (Array.isArray(contentIds)) {
         collectItems(
-          await Conversations.find({ _id: { $in: contentIds } }).lean(),
+          await Conversations.find({ _id: { $in: contentIds } }).toArray(),
           'conversation'
         );
       }
@@ -180,7 +180,7 @@ const activityLogQueries = {
 
     const collectEmailDeliveries = async () => {
       await collectItems(
-        await EmailDeliveries.find({ customerId: contentId }).lean(),
+        await EmailDeliveries.find({ customerId: contentId }).toArray(),
         'email'
       );
     };

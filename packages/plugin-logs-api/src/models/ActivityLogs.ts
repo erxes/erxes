@@ -48,8 +48,6 @@ export interface IActivityLogDocument extends IActivityLog, Document {
   createdAt: Date;
 }
 
-console.log(field, typeof field)
-
 export const activityLogSchema = new Schema({
   _id: { type: String, default: () => Random.id() },
   contentId: field({ type: String, index: true }),
