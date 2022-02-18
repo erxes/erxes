@@ -72,7 +72,7 @@ function ProductSection({
   ) => {
     return (
       <ModalTrigger
-        title="Manage Product & Service2"
+        title="Manage Product & Service"
         size="lg"
         dialogClassName="modal-1000w"
         trigger={trigger}
