@@ -87,3 +87,12 @@ export const urlify = (text: string) => {
 };
 
 export const hasAnyActivity = activityLogsUtils.hasAnyActivity;
+
+// ui-engage ruu oruulah
+
+export const generateEmailTemplateParams = emailTemplates => {
+  return emailTemplates.map(template => ({
+    value: template._id,
+    label: template.name
+  }));
+};

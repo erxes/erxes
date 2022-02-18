@@ -68,6 +68,7 @@
     "html-webpack-plugin": "^5.5.0",
     "interpolate-html-plugin": "^4.0.0",
     "json-loader": "^0.5.7",
+    "leaflet": "^1.7.1",
     "node-watch": "^0.7.2",
     "path-browserify": "^1.0.1",
     "postcss": "^8.2.1",

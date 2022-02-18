@@ -24,6 +24,7 @@ import {
 
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
+import EmailTemplate from './emailTemplate/EmailTemplate';
 import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
@@ -41,6 +42,7 @@ import {
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { Column } from '@erxes/ui/src/styles/main';
+import { generateEmailTemplateParams } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   emailTemplates: IEmailTemplate[];
@@ -106,7 +108,7 @@ class MailForm extends React.Component<Props, State> {
     const cc = replyAll ? formatObj(mailData.cc || []) : '';
     const bcc = replyAll ? formatObj(mailData.bcc || []) : '';
 
-    const [from] = mailData.from || ([] as IEmail[]);
+    const [from] = mailData.from || [{}] as IEmail[];
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
     const fromId = this.getIntegrationId(
@@ -803,7 +805,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { isReply, toggleReply } = this.props;
+    const { isReply, toggleReply, totalCount, fetchMoreEmailTemplates, emailTemplates } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -829,6 +831,13 @@ class MailForm extends React.Component<Props, State> {
               icon: 'trash-alt',
               onClick: toggleReply
             })}
+
+            <EmailTemplate
+              onSelect={this.templateChange}
+              totalCount={totalCount}
+              fetchMoreEmailTemplates={fetchMoreEmailTemplates}
+              targets={generateEmailTemplateParams(emailTemplates || [])}
+            />
           </ToolBar>
           {this.state.isUploading ? (
             <Uploading>

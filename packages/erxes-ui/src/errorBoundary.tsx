@@ -17,9 +17,6 @@ class ErrorBoundary extends React.Component<{}, { error; errorInfo }> {
   }
 
   render() {
-    // let eroor = this.state.errorInfo.componentStack;
-    // let infoo = eroor.toString();
-
     if (this.state.errorInfo) {
       // Error path
       Alert.error(this.state.error.toString(), 10000);

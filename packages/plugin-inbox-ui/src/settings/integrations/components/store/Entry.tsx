@@ -10,7 +10,7 @@ import IntegrationForm from '../../containers/common/IntegrationForm';
 import LineForm from '../../containers/line/Form';
 import TelnyxForm from '../../containers/telnyx/TelnyxForm';
 import Twitter from '../../containers/twitter/Twitter';
-import { Box, IntegrationItem, Ribbon, Type } from './styles';
+import { Box, IntegrationItem, Ribbon, Type } from '@erxes/ui-settings/src/integrations/components/store/styles';
 
 type TotalCount = {
   messenger: number;

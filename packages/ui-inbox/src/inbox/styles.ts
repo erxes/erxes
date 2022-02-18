@@ -345,6 +345,20 @@ const CallLabel = styledTS<{ type: string }>(styled.span)`
   color: ${props => (props.type === 'answered' ? 'green' : 'red')};
 `;
 
+// ui-engage ruu oruulah
+
+const RowTitle = styled.div`
+  > a {
+    color: ${colors.textPrimary};
+  }
+
+  &:hover {
+    text-decoration: underline;
+    color: ${colors.colorBlack};
+    cursor: pointer;
+  }
+`;
+
 export {
   PopoverButton,
   RespondBoxStyled,
@@ -372,5 +386,6 @@ export {
   NoHeight,
   SmallEditor,
   CallLabel,
-  MailRespondBox
+  MailRespondBox,
+  RowTitle
 };
