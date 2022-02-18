@@ -391,6 +391,7 @@ function Booking(props: Props) {
             skip={true}
             carousel={state.carousel}
             formData={state.formData}
+            configs={configs}
             successImage={state.successImage}
             successImgSize={state.successImageSize}
           />
