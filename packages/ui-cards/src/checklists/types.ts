@@ -1,5 +1,3 @@
-import { MutationVariables } from '@erxes/ui/src/types';
-
 export interface IChecklistDoc {
   contentType: string;
   contentTypeId: string;
