@@ -17,6 +17,7 @@
     "react-leaflet-google-layer": "^2.0.4",
     "react-router-dom": "5.1.2",
     "react-select-plus": "1.0.0-rc.5",
+    "leaflet": "^1.7.1",
     "sanitize-html": "^1.20.1",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
