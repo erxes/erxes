@@ -295,6 +295,9 @@ services:
       timeout: 2s
       retries: 200
     command: ["--replSet", "rs0", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $mongo_user
+      MONGO_INITDB_ROOT_PASSWORD: $mongo_password
     # All erxes database will be saved into mounted directory below. <<IF YOU DELETE THIS MOUNTED DIRECTORY ALL OF YOUR ERXES DATA WILL BE LOST SO BE CAUTIOUS>>
     volumes:
       - ./data/db:/data/db
