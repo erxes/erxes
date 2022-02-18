@@ -57,10 +57,12 @@ export default class EditorAttributeUtil {
   private _possibleCustomerFields?: ICustomerField[];
   private API_DOMAIN: string;
   private msgBrokerClient: any;
+  private availableServices: Set<string>;
 
-  constructor(msgBrokerClient: any, API_DOMAIN: string) {
+  constructor(msgBrokerClient: any, API_DOMAIN: string, availableServices: string[]) {
     this.msgBrokerClient = msgBrokerClient;
     this.API_DOMAIN = API_DOMAIN;
+    this.availableServices = new Set(availableServices);
   }
 
   async fileToFileLink(url?: string, name?: string): Promise<string> {
@@ -172,6 +174,9 @@ export default class EditorAttributeUtil {
   }
 
   async getCustomerName(customer) {
+    if(!this.availableServices.has("contacts")) {
+      throw new Error("Contacts service is not running.");
+    }
     return this.msgBrokerClient.sendRPCMessage(
       "contacts:getCustomerName",
       customer
@@ -179,6 +184,9 @@ export default class EditorAttributeUtil {
   }
 
   async generateAmounts(productsData) {
+    if(!this.availableServices.has("cards")) {
+      throw new Error("Cards service is not running.");
+    }
     return this.msgBrokerClient.sendRPCMessage(
       "cards:deals:generateAmounts",
       productsData
@@ -186,6 +194,10 @@ export default class EditorAttributeUtil {
   }
 
   async generateProducts(productsData): Promise<any> {
+    if(!this.availableServices.has("cards")) {
+      throw new Error("Cards service is not running.");
+    }
+
     return this.msgBrokerClient.sendRPCMessage(
       "cards:deals:generateProducts",
       productsData
