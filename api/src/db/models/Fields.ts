@@ -377,6 +377,10 @@ export const loadFieldClass = () => {
       for (const customFieldData of customFieldsData || []) {
         const field = await Fields.findById(customFieldData.field);
 
+        if (!field) {
+          continue;
+        }
+
         try {
           await Fields.clean(customFieldData.field, customFieldData.value);
         } catch (e) {
