@@ -18,7 +18,6 @@ import PaymentForm from './PaymentForm';
 import ProductItem from './ProductItem';
 import ProductTotal from './ProductTotal';
 import { IProductTemplate } from '../../../settings/template/types';
-// import FormControl from 'erxes-ui/lib/components/form/Control';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import TemplateForm from 'modules/settings/template/containers/product/ProductForm';
 import {
@@ -69,12 +68,6 @@ class ProductForm extends React.Component<Props, State> {
 
   componentDidMount() {
     this.updateTotal();
-
-    // initial product item
-
-    // if (this.props.productsData.length === 0) {
-    //   this.addProductItem();
-    // }
   }
 
   addProductItem = () => {
@@ -385,11 +378,6 @@ class ProductForm extends React.Component<Props, State> {
               </Button>
             </FormColumn>
             <FormColumn>
-              {/* <FormControl
-                onChange={this.addProductTemplate}
-                componentClass="select"
-                options={comboProductTemplate}
-              /> */}
               <Dropdown>
                 <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
                   <Button btnStyle="primary">

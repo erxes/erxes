@@ -50,7 +50,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name1</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -62,7 +62,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Content1</ControlLabel>
+          <ControlLabel>Content</ControlLabel>
           <EditorCK
             content={this.state.content}
             onChange={this.onEditorChange}

@@ -48,7 +48,6 @@ class ProductItem extends React.Component<Props, State> {
       categoryId: '',
       currentProduct: props.currentProduct
     };
-
   }
 
   componentDidMount = () => {
@@ -177,7 +176,7 @@ class ProductItem extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title="Choose product & service1"
+        title="Choose product & service"
         trigger={this.renderProductServiceTrigger(productData.product)}
         size="lg"
         content={content}

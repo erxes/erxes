@@ -54,7 +54,6 @@ class ActionBar extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
     e.target.value = tmpValue;
   }
 
