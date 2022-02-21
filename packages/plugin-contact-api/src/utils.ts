@@ -1,5 +1,4 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
-import { ACTIVITY_ACTIONS } from '@erxes/api-utils/src/constants';
 
 import { debug } from './configs';
 import Customers from './models/Customers';
@@ -157,7 +156,7 @@ export const getEnv = ({
 export const getContentItem = async (activityLog) => {
   const { action, contentType, content } = activityLog;
 
-  if (action === ACTIVITY_ACTIONS.MERGE) {
+  if (action === 'merge') {
     let result = {};
 
     switch (contentType) {

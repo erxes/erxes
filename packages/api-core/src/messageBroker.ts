@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
-import { ACTIVITY_ACTIONS } from '@erxes/api-utils/src/constants';
 
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
@@ -150,7 +149,7 @@ export const initBroker = async (server?) => {
     consumeRPCQueue('core:rpc_queue:getActivityContent', async (data) => {
       const { action, content } = data;
 
-      if (action === ACTIVITY_ACTIONS.ASSIGNEE) {
+      if (action === 'assignee') {
         let addedUsers: IUserDocument[] = [];
         let removedUsers: IUserDocument[] = [];
 

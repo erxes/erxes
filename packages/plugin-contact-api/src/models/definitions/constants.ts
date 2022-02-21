@@ -1,37 +1,7 @@
 export const ACTIVITY_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  USER: 'user',
-  DEAL: 'deal',
-  TICKET: 'ticket',
-  TASK: 'task',
-  GROWTH_HACK: 'growthHack',
-  SMS: 'sms',
-  CAMPAIGN: 'campaign',
-  INTERNAL_NOTE: 'internal_note',
-  CHECKLIST: 'checklist',
-  CONVERSATION: 'conversation',
-  SEGMENT: 'segment',
-  EMAIL: 'email',
-  BRAND: 'brand',
-
-  ALL: [
-    'customer',
-    'company',
-    'user',
-    'deal',
-    'ticket',
-    'task',
-    'growthHack',
-    'sms',
-    'campaign',
-    'internal_note',
-    'checklist',
-    'conversation',
-    'segment',
-    'email',
-    'brand'
-  ]
+  ALL: ['customer', 'company']
 };
 
 const STATUSES = [

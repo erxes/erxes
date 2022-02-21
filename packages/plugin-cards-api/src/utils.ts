@@ -10,7 +10,6 @@ import {
   Checklists,
   ChecklistItems
 } from './models';
-import { ACTIVITY_ACTIONS } from './models/definitions/constants';
 import { sendConformityMessage, sendInboxRPCMessage } from './messageBroker';
 import { getCollection } from './models/utils';
 
@@ -64,7 +63,7 @@ export const getContentItem = async (activityLog) => {
 
   const type = contentType && typeof contentType === 'string' ? contentType.split(':')[1] : '';
 
-  if (action === ACTIVITY_ACTIONS.MOVED) {
+  if (action === 'moved') {
     let item = {};
 
     switch (type) {

@@ -1,6 +1,5 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
-import { ACTIVITY_CONTENT_TYPES } from '@erxes/api-utils/src/constants';
 
 import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
@@ -45,7 +44,7 @@ const activityLogQueries = {
     const collectCampaigns = async () => {
       const resp = await fetchActivityLogs({
         contentId,
-        contentType: ACTIVITY_CONTENT_TYPES.CAMPAIGN
+        contentType: 'campaign-email'
       });
 
       collectItems(resp.activityLogs);
@@ -55,7 +54,7 @@ const activityLogQueries = {
       const resp = await fetchActivityLogs(
         {
           contentId,
-          contentType: ACTIVITY_CONTENT_TYPES.SMS
+          contentType: 'campaign-sms'
         },
       );
 
@@ -73,9 +72,9 @@ const activityLogQueries = {
         activities = activities.concat(pluginResponse);
       }
     } else {
-      if (activityType === ACTIVITY_CONTENT_TYPES.SMS) {
+      if (activityType === 'campaign-sms') {
         await collectSms();
-      } else if (activityType === ACTIVITY_CONTENT_TYPES.CAMPAIGN) {
+      } else if (activityType === 'campaign-email') {
         await collectCampaigns();
       } else {
         collectItems(await collectServiceItems(activityType, { contentId, contentType }));
