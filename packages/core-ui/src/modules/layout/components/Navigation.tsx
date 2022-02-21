@@ -253,7 +253,12 @@ class Navigation extends React.Component<IProps, State> {
 
         <Nav id="navigation">
           {Navs.map(nav => 
-            this.renderMenuItem(nav)   
+            this.renderNavItem(
+              nav.permission,
+              nav.text,
+              nav.url,
+              nav.icon,
+            )   
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}
