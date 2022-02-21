@@ -52,7 +52,7 @@ export const initBroker = async (server?) => {
       data: await Forms.removeForm(formId)
     }));
 
-    consumeQueue('conformities:addConformity', async doc => ({
+    consumeRPCQueue('conformities:addConformity', async doc => ({
       status: 'success',
       data: await Conformities.addConformity(doc)
     }));
