@@ -14,6 +14,21 @@ import {
 } from '../styles';
 
 const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
+const permissionActions = [
+  'managePermissions',
+  'showPermissions',
+  'showPermissionModules',
+  'showPermissionActions',
+  'exportPermissions'
+];
+const teamPermissions = [
+  'showUsers',
+  'usersEdit',
+  'usersInvite',
+  'usersSetActiveStatus',
+  'exportUsers'
+];
+
 class Settings extends React.PureComponent {
   renderBox(
     name: string,
@@ -59,6 +74,32 @@ class Settings extends React.PureComponent {
               '/settings/general',
               'generalSettingsAll',
               ['manageGeneralSettings', 'showGeneralSettings']
+            )}
+            {this.renderBox(
+              'Permissions',
+              '/images/icons/erxes-02.svg',
+              '/settings/permissions',
+              'permissionsAll',
+              permissionActions
+            )}
+            {this.renderBox(
+              'Status',
+              '/images/icons/erxes-06.svg',
+              '/settings/status',
+              ''
+            )}
+            {this.renderBox(
+              'Logs',
+              '/images/icons/erxes-33.png',
+              '/settings/logs',
+              'viewLogs'
+            )}
+            {this.renderBox(
+              'Team Members',
+              '/images/icons/erxes-23.svg',
+              '/settings/team',
+              'usersAll',
+              teamPermissions
             )}
             {this.renderBox(
               'Brands',
