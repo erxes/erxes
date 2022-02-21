@@ -16,6 +16,7 @@ import { graphql } from 'react-apollo';
 import ResponseList from '../components/ResponseList';
 import { FieldsQueryResponse } from 'modules/settings/properties/types';
 import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
+
 type Props = {
   queryParams: any;
 };
