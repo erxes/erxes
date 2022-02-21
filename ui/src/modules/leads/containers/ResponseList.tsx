@@ -29,28 +29,6 @@ type FinalProps = {
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
-  // componentDidMount() {
-  //   const { history } = this.props;
-
-  //   const shouldRefetchList = routerUtils.getParam(history, 'popUpRefetchList');
-
-  //   if (shouldRefetchList) {
-  //     this.refetch();
-  //   }
-  // }
-
-  // componentDidUpdate(prevProps) {
-  //   if (this.props.queryParams.page !== prevProps.queryParams.page) {
-  //     this.props.integrationsQuery.refetch();
-  //   }
-  // }
-
-  // refetch = () => {
-  //   const { integrationsQuery } = this.props;
-
-  //   integrationsQuery.refetch();
-  // };
-
   render() {
     const {
       integrationDetailQuery,
