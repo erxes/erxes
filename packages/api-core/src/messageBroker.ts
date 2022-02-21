@@ -222,7 +222,6 @@ export const initBroker = async (server?) => {
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
-  console.log(channel, message);
   return client.sendRPCMessage(channel, message);
 };
 
