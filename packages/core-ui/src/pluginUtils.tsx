@@ -2,17 +2,17 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { AppConsumer } from 'appContext';
-import { IUser } from 'modules/auth/types';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { __ } from 'modules/common/utils';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import pluginModules from './plugins';
-import { ISubNav } from 'modules/layout/components/Navigation';
+import { AppConsumer } from "appContext";
+import { IUser } from "modules/auth/types";
+import { IItem } from "@erxes/ui-cards/src/boards/types";
+import { __ } from "modules/common/utils";
+import { ICompany } from "@erxes/ui/src/companies/types";
+import { ICustomer } from "@erxes/ui/src/customers/types";
+import { Divider, Row, RowTitle } from "modules/settings/main/styles";
+import React from "react";
+import { Route } from "react-router-dom";
+import pluginModules from "./plugins";
+import { ISubNav } from "modules/layout/components/Navigation";
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -25,7 +25,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
 
     plugins.push({
       name: pluginName,
-      ...plugin
+      ...plugin,
     });
 
     if (plugin.response) {
@@ -51,14 +51,14 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
     }
   }
 
-  localStorage.setItem('plugins_properties', JSON.stringify(properties));
+  localStorage.setItem("plugins_properties", JSON.stringify(properties));
 
   return { plugins, pluginRoutes, specialPluginRoutes };
 };
 
 const PluginsWrapper = ({
   itemName,
-  callBack
+  callBack,
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
@@ -66,7 +66,7 @@ const PluginsWrapper = ({
   return (
     <AppConsumer>
       {({ plugins }) =>
-        plugins.map(plugin => {
+        plugins.map((plugin) => {
           const item = plugin[itemName];
 
           if (!item) {
@@ -80,7 +80,7 @@ const PluginsWrapper = ({
   );
 };
 
-const useDynamicScript = args => {
+const useDynamicScript = (args) => {
   const [ready, setReady] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
 
@@ -89,10 +89,10 @@ const useDynamicScript = args => {
       return;
     }
 
-    const element = document.createElement('script');
+    const element = document.createElement("script");
 
     element.src = args.url;
-    element.type = 'text/javascript';
+    element.type = "text/javascript";
     element.async = true;
 
     setReady(false);
@@ -119,14 +119,14 @@ const useDynamicScript = args => {
 
   return {
     ready,
-    failed
+    failed,
   };
 };
 
 const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__('default');
+    await __webpack_init_sharing__("default");
 
     const container = window[scope]; // or get the container somewhere else
     // Initialize the container, it may provide shared modules
@@ -137,10 +137,29 @@ const loadComponent = (scope, module) => {
   };
 };
 
-const System = props => {
+const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
+  return (
+    <PluginsWrapper
+      itemName={itemName}
+      callBack={(_plugin, section) => {
+        const Component = section.section;
+        return (
+          <Component
+            key={Math.random()}
+            companyId={object._id}
+            mainType={type}
+            mainTypeId={object._id}
+          />
+        );
+      }}
+    />
+  );
+};
+
+const System = (props) => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url
+      url: props.system && props.system.url,
     });
 
     if (!props.system || !ready || failed) {
@@ -159,7 +178,7 @@ const System = props => {
   );
 };
 
-class Setting extends React.Component<any, any> {
+class SettingsBox extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
@@ -203,9 +222,9 @@ export const pluginsSettingsNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === 'settings') {
+      if (menu.location === "settings") {
         navigationMenus.push(
-          <Setting
+          <SettingsBox
             scope={menu.scope}
             component={menu.component}
             text={menu.text}
@@ -226,7 +245,9 @@ export const pluginRouters = () => {
 
   for (const plugin of plugins) {
     if (plugin.routes) {
-      pluginRoutes.push(<System key={Math.random()} loadScript={true} system={plugin.routes} />);
+      pluginRoutes.push(
+        <System key={Math.random()} loadScript={true} system={plugin.routes} />
+      );
     }
   }
 
@@ -239,7 +260,7 @@ export const pluginNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === 'mainNavigation') {
+      if (menu.location === "mainNavigation") {
         navigationMenus.push(menu);
       }
     }
@@ -260,7 +281,7 @@ export const pluginsOfNavigations = (
 ) => {
   return (
     <PluginsWrapper
-      itemName={'menu'}
+      itemName={"menu"}
       callBack={(plugin, menu) => {
         return renderNavItem(
           menu.permission,
@@ -285,7 +306,7 @@ const renderSettings = (
 ) => {
   let hasPluginsSettings = false;
 
-  const pluginsBoxs = plugins.map(plugin => {
+  const pluginsBoxs = plugins.map((plugin) => {
     const item = plugin.settings;
 
     if (!item) {
@@ -294,6 +315,7 @@ const renderSettings = (
 
     hasPluginsSettings = true;
     const pluginSettings: React.ReactNode[] = [];
+
     for (const perSettings of plugin.settings) {
       pluginSettings.push(
         <span key={Math.random()}>
@@ -318,8 +340,8 @@ const renderSettings = (
     <>
       <Divider />
       <Row>
-        <RowTitle>{__('Plugins Settings')}</RowTitle>
-        <div id={'PluginsSettings'}>{pluginsBoxs}</div>
+        <RowTitle>{__("Plugins Settings")}</RowTitle>
+        <div id={"PluginsSettings"}>{pluginsBoxs}</div>
       </Row>
     </>
   );
@@ -342,60 +364,19 @@ export const pluginsOfSettings = (
 };
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
-  return (
-    <PluginsWrapper
-      itemName={'customerRightSidebarSection'}
-      callBack={(_plugin, section) => {
-        const Component = section.section;
-        return (
-          <Component
-            key={Math.random()}
-            customerId={customer._id}
-            mainType={'customer'}
-            mainTypeId={customer._id}
-          />
-        );
-      }}
-    />
+  return renderPlguginSidebar(
+    "customerRightSidebarSection",
+    "customer",
+    customer
   );
 };
 
 export const pluginsOfCompanySidebar = (company: ICompany) => {
-  return (
-    <PluginsWrapper
-      itemName={'companyRightSidebarSection'}
-      callBack={(_plugin, section) => {
-        const Component = section.section;
-        return (
-          <Component
-            key={Math.random()}
-            companyId={company._id}
-            mainType={'company'}
-            mainTypeId={company._id}
-          />
-        );
-      }}
-    />
-  );
+  return renderPlguginSidebar("companyRightSidebarSection", "company", company);
 };
 
 export const pluginsOfItemSidebar = (item: IItem, type: string) => {
-  return (
-    <PluginsWrapper
-      itemName={`${type}RightSidebarSection`}
-      callBack={(_plugin, section) => {
-        const Component = section.section;
-        return (
-          <Component
-            key={Math.random()}
-            itemId={item._id}
-            mainType={type}
-            mainTypeId={item._id}
-          />
-        );
-      }}
-    />
-  );
+  return renderPlguginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
 export const pluginsOfPaymentForm = (
@@ -403,7 +384,7 @@ export const pluginsOfPaymentForm = (
 ) => {
   return (
     <PluginsWrapper
-      itemName={'payments'}
+      itemName={"payments"}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
         for (const perPayment of payments) {
