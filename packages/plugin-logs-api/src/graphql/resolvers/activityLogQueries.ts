@@ -1,20 +1,11 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
 import { ACTIVITY_CONTENT_TYPES } from '@erxes/api-utils/src/constants';
-import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 
-import {
-  Conversations,
-  EmailDeliveries,
-  InternalNotes,
-  // Stages,
-  Tasks
-} from '../../apiCollections';
-// import { getCollection } from '../../../db/models/boardUtils';
 import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
-import { sendConformityMessage } from '../../messageBroker';
+import { sendConformityMessage, collectServiceItems, getCardContentIds, getInternalNotes } from '../../messageBroker';
 
 export interface IListArgs {
   contentType: string;
@@ -34,7 +25,7 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(_root, doc: IListArgs, { dataSources, user }: IContext) {
+  async activityLogs(_root, doc: IListArgs, { user }: IContext) {
     const { contentType, contentId, activityType } = doc;
 
     let activities: IActivityLogDocument[] = [];
@@ -46,12 +37,6 @@ const activityLogQueries = {
         contentType !== 'task' ? ['deal', 'ticket'] : ['deal', 'ticket', 'task']
     });
 
-    const relatedTaskIds = await sendConformityMessage('savedConformity', {
-      mainType: contentType,
-      mainTypeId: contentId,
-      relTypes: ['task']
-    });
-
     const collectItems = (items: any, type?: string) => {
       (items || []).map(item => {
         let result: IActivityLogDocument = {} as any;
@@ -60,129 +45,35 @@ const activityLogQueries = {
           result = item;
         }
 
-        if (type && type !== 'taskDetail') {
-          result._id = item._id;
-          result.contentType = type;
-          result.contentId = contentId;
-          result.createdAt = item.createdAt;
-        }
-
-        if (type === 'taskDetail') {
-          result._id = item._id;
-          result.contentType = type;
-          result.createdAt = item.closeDate || item.createdAt;
-        }
-
         activities.push(result);
       });
     };
 
-    const collectConversations = async () => {
-      collectItems(
-        await Conversations.find({
-          $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-        }).toArray(),
-        'conversation'
-      );
-
-      if (contentType === 'customer') {
-        let conversationIds;
-
-        try {
-          conversationIds = await dataSources.IntegrationsAPI.fetchApi(
-            '/facebook/get-customer-posts',
-            {
-              customerId: contentId
-            }
-          );
-          collectItems(
-            await Conversations.find({ _id: { $in: conversationIds } }).toArray(),
-            'comment'
-          );
-        } catch (e) {
-          debugExternalApi(e);
-        }
-      }
-    };
-
     // this also fetches campaign & sms logs, don't fetch them in default switch case
     const collectActivityLogs = async () => {
-      collectItems(
-        await fetchActivityLogs(
-          {
-            contentId: { $in: [...relatedItemIds, contentId] }
-          },
-        )
-      );
-    };
+      const resp = await fetchActivityLogs({ contentId: { $in: [...relatedItemIds, contentId] } });
 
-    const collectInternalNotes = async () => {
-      collectItems(
-        await InternalNotes.find({ contentTypeId: contentId })
-          .sort({
-            createdAt: -1
-          })
-          .toArray(),
-        'note'
-      );
+      collectItems(resp.activityLogs);
     };
 
     const collectCampaigns = async () => {
-      collectItems(
-        await fetchActivityLogs(
-          {
-            contentId,
-            contentType: ACTIVITY_CONTENT_TYPES.CAMPAIGN
-          },
-        )
-      );
+      const resp = await fetchActivityLogs({
+        contentId,
+        contentType: ACTIVITY_CONTENT_TYPES.CAMPAIGN
+      });
+
+      collectItems(resp.activityLogs);
     };
 
     const collectSms = async () => {
-      collectItems(
-        await fetchActivityLogs(
-          {
-            contentId,
-            contentType: ACTIVITY_CONTENT_TYPES.SMS
-          },
-        )
+      const resp = await fetchActivityLogs(
+        {
+          contentId,
+          contentType: ACTIVITY_CONTENT_TYPES.SMS
+        },
       );
-    };
 
-    const collectTasks = async () => {
-      if (contentType !== 'task') {
-        collectItems(
-          await Tasks.find({
-            $and: [
-              { _id: { $in: relatedTaskIds } },
-              { status: { $ne: 'archived' } }
-            ]
-          })
-            .sort({
-              closeDate: 1
-            })
-            .toArray(),
-          'taskDetail'
-        );
-      }
-
-      const contentIds = activities
-        .filter(activity => activity.action === 'convert')
-        .map(activity => activity.content);
-
-      if (Array.isArray(contentIds)) {
-        collectItems(
-          await Conversations.find({ _id: { $in: contentIds } }).toArray(),
-          'conversation'
-        );
-      }
-    };
-
-    const collectEmailDeliveries = async () => {
-      await collectItems(
-        await EmailDeliveries.find({ customerId: contentId }).toArray(),
-        'email'
-      );
+      collectItems(resp.activityLogs);
     };
 
     if (activityType && activityType.startsWith('plugin')) {
@@ -197,22 +88,6 @@ const activityLogQueries = {
       }
     } else {
       switch (activityType) {
-        case ACTIVITY_CONTENT_TYPES.CONVERSATION:
-          await collectConversations();
-          break;
-
-        case ACTIVITY_CONTENT_TYPES.INTERNAL_NOTE:
-          await collectInternalNotes();
-          break;
-
-        case ACTIVITY_CONTENT_TYPES.TASK:
-          await collectTasks();
-          break;
-
-        case ACTIVITY_CONTENT_TYPES.EMAIL:
-          await collectEmailDeliveries();
-          break;
-
         case ACTIVITY_CONTENT_TYPES.SMS:
           await collectSms();
           break;
@@ -222,11 +97,8 @@ const activityLogQueries = {
           break;
 
         default:
-          await collectConversations();
+          await collectServiceItems(activityType, { contentId, contentType });
           await collectActivityLogs();
-          await collectInternalNotes();
-          await collectTasks();
-          await collectEmailDeliveries();
 
           break;
       }
@@ -263,42 +135,35 @@ const activityLogQueries = {
 
     const perPageForAction = perPage / actionArr.length;
 
-    // const stageIds = await Stages.find({ pipelineId }).distinct('_id');
-
-    // const { collection } = getCollection(contentType);
-
-    // const contentIds = await collection
-    //   .find({ stageId: { $in: stageIds } })
-    //   .distinct('_id');
+    const contentIds = await getCardContentIds({ pipelineId, contentType });
 
     actionArr = actionArr.filter(a => a !== 'delete' && a !== 'addNote');
 
-    // if (actionArr.length > 0) {
-    //   const { activityLogs, totalCount } = await fetchLogs(
-    //     {
-    //       contentType,
-    //       contentId: { $in: contentIds },
-    //       action: { $in: actionArr },
-    //       perPage: perPageForAction * 3,
-    //       page
-    //     },
-    //     'activityLogs'
-    //   );
+    if (actionArr.length > 0) {
+      const { activityLogs, totalCount } = await fetchActivityLogs(
+        {
+          contentType,
+          contentId: { $in: contentIds },
+          action: { $in: actionArr },
+          perPage: perPageForAction * 3,
+          page
+        }
+      );
 
-    //   for (const log of activityLogs) {
-    //     allActivityLogs.push({
-    //       _id: log._id,
-    //       action: log.action,
-    //       createdAt: log.createdAt,
-    //       createdBy: log.createdBy,
-    //       contentType: log.contentType,
-    //       contentId: log.contentId,
-    //       content: log.content
-    //     });
-    //   }
+      for (const log of activityLogs) {
+        allActivityLogs.push({
+          _id: log._id,
+          action: log.action,
+          createdAt: log.createdAt,
+          createdBy: log.createdBy,
+          contentType: log.contentType,
+          contentId: log.contentId,
+          content: log.content
+        });
+      }
 
-    //   allTotalCount += totalCount;
-    // }
+      allTotalCount += totalCount;
+    }
 
     if (action.includes('delete')) {
       const { logs, totalCount } = await fetchLogs(
@@ -325,34 +190,24 @@ const activityLogQueries = {
       allTotalCount += totalCount;
     }
 
-    // if (action.includes('addNote')) {
-    //   const filter = {
-    //     contentTypeId: { $in: contentIds }
-    //   };
+    if (action.includes('addNote')) {
+      const { internalNotes, totalCount } =
+        await getInternalNotes({ contentTypeIds: contentIds, page, perPageForAction });
 
-    //   const internalNotes = await InternalNotes.find(filter)
-    //     .sort({
-    //       createdAt: -1
-    //     })
-    //     .skip(perPageForAction * (page - 1))
-    //     .limit(perPageForAction);
+      for (const note of internalNotes) {
+        allActivityLogs.push({
+          _id: note._id,
+          action: 'addNote',
+          contentType: note.contentType,
+          contentId: note.contentTypeId,
+          createdAt: note.createdAt,
+          createdBy: note.createdUserId,
+          content: note.content
+        });
+      }
 
-    //   for (const note of internalNotes) {
-    //     allActivityLogs.push({
-    //       _id: note._id,
-    //       action: 'addNote',
-    //       contentType: note.contentType,
-    //       contentId: note.contentTypeId,
-    //       createdAt: note.createdAt,
-    //       createdBy: note.createdUserId,
-    //       content: note.content
-    //     });
-    //   }
-
-    //   const totalCount = await InternalNotes.countDocuments(filter);
-
-    //   allTotalCount += totalCount;
-    // }
+      allTotalCount += totalCount;
+    }
 
     return {
       activityLogs: allActivityLogs,

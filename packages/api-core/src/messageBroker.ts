@@ -1,12 +1,15 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
+import { ACTIVITY_ACTIONS } from '@erxes/api-utils/src/constants';
+
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import { Conformities, Forms, FieldsGroups, Fields } from './db/models';
+import { Conformities, Forms, FieldsGroups, Fields, Users, Brands, EmailDeliveries } from './db/models';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
+import { IUserDocument } from './db/models/definitions/users';
 
 dotenv.config();
 
@@ -144,6 +147,75 @@ export const initBroker = async (server?) => {
       }
     );
 
+    consumeRPCQueue('core:rpc_queue:getActivityContent', async (data) => {
+      const { action, content } = data;
+
+      if (action === ACTIVITY_ACTIONS.ASSIGNEE) {
+        let addedUsers: IUserDocument[] = [];
+        let removedUsers: IUserDocument[] = [];
+
+        if (content) {
+          // addedUsers = await getDocumentList('users', {
+          //   _id: { $in: content.addedUserIds },
+          // });
+          addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
+
+          removedUsers = await Users.find({ _id: { $in: content.removedUserIds } });
+        }
+    
+        return {
+          data: { addedUsers, removedUsers },
+          status: 'success'
+        };
+      }
+
+      return {
+        status: 'error',
+        data: 'wrong activity action'
+      };
+    });
+
+    consumeRPCQueue('core:rpc_queue:createdByDetail', async ({ activityLog }) => {
+      const user = await Users.findOne({ _id: activityLog && activityLog.createdBy });
+
+      if (user) {
+        return { type: 'user', content: user };
+      }
+
+      const integration = await sendRPCMessage('inbox:rpc_queue:getIntegration', { _id: activityLog.createdBy });
+
+      if (integration) {
+        const brand = await Brands.findOne({ _id: integration.brandId });
+
+        return { type: 'brand', content: brand };
+      }
+
+      return null;
+    });
+
+    consumeRPCQueue('core:rpc_queue:collectItems', async ({ contentId }) => {
+      const deliveries = await EmailDeliveries.find({ customerId: contentId }).lean();
+      const results: any[] = [];
+
+      for (const d of deliveries) {
+        results.push({
+          _id: d._id,
+          contentType: 'email',
+          contentId,
+          createdAt: d.createdAt,
+        });
+      }
+
+      return {
+        status: 'success',
+        data: results
+      };
+    });
+
+    consumeRPCQueue('core:rpc_queue:findOneUser', async (query) => ({
+      status: 'success',
+      data: await Users.findOne(query)
+    }));
   }
 
   return client;

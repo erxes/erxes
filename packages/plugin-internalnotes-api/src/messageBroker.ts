@@ -6,7 +6,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = cl;
+  const { consumeQueue, consumeRPCQueue } = cl;
 
   consumeQueue('internalNotes:batchUpdate', async (contentType, oldContentTypeIds, newContentTypeId) => {
     // Updating every internal notes of company
@@ -17,6 +17,38 @@ export const initBroker = async cl => {
       },
       { contentTypeId: newContentTypeId }
     );
+  });
+
+  consumeRPCQueue('internalnotes:rpc_queue:collectItems', async ({ contentId }) => {
+    const notes = await InternalNotes.find({ contentTypeId: contentId }).sort({ createdAt: -1 });
+    const results: any[] = [];
+
+    for (const note of notes) {
+      results.push({
+        _id: note._id,
+        contentType: 'note',
+        contentId,
+        createdAt: note.createdAt,
+      });
+    }
+
+    return {
+      status: 'success',
+      data: results
+    };
+  });
+
+  consumeRPCQueue('internalnotes:rpc_queue:getInternalNotes', async ({ contentTypeIds, perPageForAction, page }) => {
+    const filter = { contentTypeId: { $in: contentTypeIds } };
+
+    const internalNotes = await InternalNotes.find(filter)
+      .sort({
+        createdAt: -1
+      })
+      .skip(perPageForAction * (page - 1))
+      .limit(perPageForAction);
+
+    return { internalNotes, totalCount: await InternalNotes.countDocuments(filter) };
   });
 };
 

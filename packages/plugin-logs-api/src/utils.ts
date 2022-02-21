@@ -1,6 +1,6 @@
 import { debug } from './configs';
 import Logs from './models/Logs';
-import ActivityLogs from './models/ActivityLogs';
+import ActivityLogs, { IActivityLogDocument } from './models/ActivityLogs';
 import messageBroker from './messageBroker';
 import { IFilter } from './graphql/resolvers/logQueries';
 
@@ -274,7 +274,12 @@ export const receivePutLogCommand = async (params) => {
   });
 };
 
-export const fetchActivityLogs = async (params) => {
+interface IActivityLogList {
+  activityLogs: IActivityLogDocument[];
+  totalCount: number;
+}
+
+export const fetchActivityLogs = async (params): Promise<IActivityLogList> => {
   const filter: {
     contentType?: string;
     contentId?: any;
@@ -301,7 +306,10 @@ export const fetchActivityLogs = async (params) => {
     };
   }
 
-  return await ActivityLogs.find(filter).sort({ createdAt: -1 });
+  return {
+    activityLogs: await ActivityLogs.find(filter).sort({ createdAt: -1 }).lean(),
+    totalCount: await ActivityLogs.countDocuments(filter),
+  }
 };
 
 export const fetchLogs = async (params) => {

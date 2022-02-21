@@ -35,3 +35,27 @@ export const ACTIVITY_CONTENT_TYPES = {
     'brand',
   ],
 };
+
+export const ACTIVITY_ACTIONS = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  MERGE: 'merge',
+  SEND: 'send',
+  MOVED: 'moved',
+  CONVERT: 'convert',
+  ASSIGNEE: 'assignee',
+  TAGGED: 'tagged',
+
+  ALL: [
+    'create',
+    'update',
+    'delete',
+    'merge',
+    'send',
+    'moved',
+    'convert',
+    'assignee',
+    'tagged'
+  ]
+};

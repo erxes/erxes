@@ -3,7 +3,13 @@ import { generateFields } from './fieldUtils';
 import { generateAmounts, generateProducts } from './graphql/resolvers/customResolvers/deal';
 import { prepareImportDocs } from './importUtils';
 import { Checklists, Stages, Tasks, Tickets } from './models';
-import { generateConditionStageIds } from './utils';
+import {
+  generateConditionStageIds,
+  getContentItem,
+  getContentTypeDetail,
+  collectTasks,
+  getCardContentIds
+} from './utils';
 import { getSchemaLabels } from './logUtils';
 
 let client;
@@ -131,7 +137,33 @@ export const initBroker = async cl => {
     status: 'success',
     data: getSchemaLabels(type)
   }));
-  
+
+  consumeRPCQueue('cards:rpc_queue:getActivityContent', async (data) => {
+    return {
+      status: 'success',
+      data: await getContentItem(data)
+    }
+  });
+
+  consumeRPCQueue('cards:rpc_queue:getContentTypeDetail', async (data) => {
+    const { activityLog = {} } = data;
+
+    return {
+      status: 'success',
+      data: await getContentTypeDetail(activityLog)
+    }    
+  });
+
+  consumeRPCQueue(`cards:rpc_queue:collectItems`, async (data) => ({
+    status: 'success',
+    data: await collectTasks(data)
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:getCardContentIds', async (data) => ({
+    status: 'success',
+    data: await getCardContentIds(data)
+  }));
+
   consumeRPCQueue('cards:deals:generateAmounts', async (productsData) => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
@@ -187,6 +219,10 @@ export const sendEngageRPCMessage = async (action, data): Promise<any> => {
 
 export const sendFieldRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
+};
+
+export const sendInboxRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`inbox:rpc_queue:${action}`, data);
 };
 
 export const findProducts = async (action, data): Promise<any> => {
