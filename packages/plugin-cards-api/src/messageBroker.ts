@@ -3,6 +3,7 @@ import { generateFields } from './fieldUtils';
 import { prepareImportDocs } from './importUtils';
 import { Checklists, Stages, Tasks, Tickets } from './models';
 import { generateConditionStageIds } from './utils';
+import { conversationConvertToCard } from './models/utils';
 
 let client;
 
@@ -124,6 +125,11 @@ export const initBroker = async cl => {
       return { data: { positive }, status: 'success' };
     }
   );
+
+  consumeRPCQueue('cards:rpc_queue:conversationConvert', async args => ({
+    status: 'success',
+    data: await conversationConvertToCard(args)
+  }));
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -172,6 +178,13 @@ export const sendEngageRPCMessage = async (action, data): Promise<any> => {
 
 export const sendFieldRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
+};
+
+export const sendConversationRPCMessage = async (
+  action,
+  data
+): Promise<any> => {
+  return client.sendRPCMessage(`inbox:rpc_queue:${action}`, data);
 };
 
 export const findProducts = async (action, data): Promise<any> => {

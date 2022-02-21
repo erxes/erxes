@@ -2,7 +2,13 @@ import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import { Conformities, Forms, FieldsGroups, Fields } from './db/models';
+import {
+  Conformities,
+  Forms,
+  FieldsGroups,
+  Fields,
+  Configs
+} from './db/models';
 import { fetchSegment } from './data/modules/segments/queryBuilder';
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
@@ -130,6 +136,10 @@ export const initBroker = async (server?) => {
       Fields.find(query).lean()
     );
 
+    consumeRPCQueue('configs:rpc_queue:getConfigs', async args => ({
+      status: 'success',
+      data: await Configs.find(args).distinct('value')
+    }));
   }
 
   return client;

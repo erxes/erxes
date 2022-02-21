@@ -148,6 +148,14 @@ export const initBroker = (cl) => {
       data
     }
   });
+
+  consumeRPCQueue(
+    'inbox:rpc_queue:getConversation',
+    async ({ conversationId }) => ({
+      status: 'success',
+      data: await Conversations.findOne({ _id: conversationId })
+    })
+  );
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -176,6 +184,18 @@ export const sendConformityMessage = async (action, data): Promise<any> => {
 
 export const sendEngageMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
+};
+
+export const sendCardsMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`cards:rpc_queue:${action}`, data);
+};
+
+export const sendProductMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
+};
+
+export const sendConfigMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
 };
 
 export const sendToLog = (channel: string, data) =>
