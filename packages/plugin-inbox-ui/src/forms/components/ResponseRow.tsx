@@ -1,13 +1,5 @@
-// import dayjs from 'dayjs';
-// import FormControl from '@erxes/ui/src/components/form/Control';
-// import Icon from '@erxes/ui/src/components/Icon';
-// import Label from '@erxes/ui/src/components/Label';
-// import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
-// import { DateWrapper } from '@erxes/ui/src/styles/main';
-
 import { IFormResponse } from '@erxes/ui-forms/src/forms/types';
-
 import React from 'react';
 
 type Props = {

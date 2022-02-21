@@ -14,6 +14,7 @@ import {
   IMessengerApps,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import {ILeadMessengerApp, IWebsiteMessengerApp, IntegrationsQueryResponse, ITopicMessengerApp} from  '@erxes/ui-settings/src/integrations/types';
+import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
   selectedBrand?: string;
@@ -42,7 +43,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      topics: topics as any,
+      topics: topics as ITopic[],
       leads
     };
 

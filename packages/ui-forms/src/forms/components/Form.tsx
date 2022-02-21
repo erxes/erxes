@@ -3,6 +3,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { __ } from '@erxes/ui/src/utils';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IField } from '@erxes/ui/src/types';
 import { Description } from '@erxes/ui-settings/src/styles';
 import React from 'react';
@@ -25,6 +26,8 @@ type Props = {
   hideOptionalFields?: boolean;
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
+  configs: IConfig[];
+  color?: string;
 };
 
 type State = {
@@ -108,7 +111,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>{__('Form title')}</ControlLabel>
           <FormControl
             required={true}
-            name='title'
+            name="title"
             value={title}
             onChange={onChangeField}
           />
@@ -117,8 +120,8 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
-            componentClass='textarea'
-            name='desc'
+            componentClass="textarea"
+            name="desc"
             value={desc}
             onChange={onChangeField}
           />
@@ -127,7 +130,7 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Number of pages')}</ControlLabel>
           <FormControl
-            name='numberOfPages'
+            name="numberOfPages"
             value={numberOfPages}
             onChange={onChangeField}
             type={'number'}
@@ -138,7 +141,7 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Form button text')}</ControlLabel>
           <FormControl
-            name='buttonText'
+            name="buttonText"
             value={buttonText}
             onChange={onChangeField}
           />
@@ -214,7 +217,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderPreviewWrapper } = this.props;
+    const { renderPreviewWrapper, configs } = this.props;
     const {
       currentMode,
       currentField,
@@ -231,6 +234,7 @@ class Form extends React.Component<Props, State> {
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
           currentPage={this.state.currentPage}
+          configs={configs}
         />
       );
     };
@@ -250,6 +254,7 @@ class Form extends React.Component<Props, State> {
             mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
+            configs={configs}
             numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}

@@ -12,7 +12,6 @@ import {
   ConversationDetailQueryResponse,
   MarkAsReadMutationResponse
 } from '@erxes/ui-inbox/src/inbox/types';
-import ErrorBoundary from "@erxes/ui/src/errorBoundary";
 
 type Props = {
   currentId: string;
@@ -131,7 +130,7 @@ class DetailContainer extends React.Component<FinalProps> {
       loading
     };
 
-    return <ErrorBoundary><ConversationDetail {...updatedProps} /></ErrorBoundary>;
+    return <ConversationDetail {...updatedProps} />;
   }
 }
 

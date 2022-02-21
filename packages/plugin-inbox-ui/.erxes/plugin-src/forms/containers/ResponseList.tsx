@@ -14,8 +14,6 @@ import { graphql } from 'react-apollo';
 import ResponseList from '../components/ResponseList';
 import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
-import { IField } from '@erxes/ui/src/types';
-import { IFormResponse } from '@erxes/ui-forms/src/forms/types';
 
 type Props = {
   queryParams: any;
@@ -30,27 +28,6 @@ type FinalProps = {
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
-  // componentDidMount() {
-  //   const { history } = this.props;
-
-  //   const shouldRefetchList = routerUtils.getParam(history, 'popUpRefetchList');
-
-  //   if (shouldRefetchList) {
-  //     this.refetch();
-  //   }
-  // }
-
-  // componentDidUpdate(prevProps) {
-  //   if (this.props.queryParams.page !== prevProps.queryParams.page) {
-  //     this.props.integrationsQuery.refetch();
-  //   }
-  // }
-
-  // refetch = () => {
-  //   const { integrationsQuery } = this.props;
-
-  //   integrationsQuery.refetch();
-  // };
 
   render() {
     const {

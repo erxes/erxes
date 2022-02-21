@@ -20,16 +20,7 @@ class ErrorBoundary extends React.Component<{}, { error; errorInfo }> {
     if (this.state.errorInfo) {
       // Error path
       Alert.error(this.state.error.toString(), 10000);
-      return (
-          <div>
-          <h5>Error occured.</h5>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
-            {this.state.error && this.state.error.toString()}
-            <br />
-            {this.state.errorInfo.componentStack}
-          </details>
-        </div>
-      );
+      return <div></div>
     }
     // Normally, just render children
     return this.props.children;
