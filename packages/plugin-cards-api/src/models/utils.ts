@@ -13,9 +13,13 @@ import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 
 import { InternalNotes } from '../apiCollections';
-import { sendConformityMessage } from '../messageBroker';
+import {
+  sendConformityMessage,
+  sendConversationRPCMessage
+} from '../messageBroker';
 import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
+import { itemsAdd } from '../graphql/resolvers/mutations/utils';
 
 interface ISetOrderParam {
   collection: any;
@@ -417,4 +421,114 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
   });
 
   return item;
+};
+
+export const conversationConvertToCard = async args => {
+  const {
+    _id,
+    type,
+    itemId,
+    itemName,
+    stageId,
+    bookingProductId,
+    conversation,
+    checkBookingConvert,
+    user,
+    docModifier
+  } = args;
+
+  const { collection, create, update } = getCollection(type);
+
+  if (itemId) {
+    const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+    if (bookingProductId) {
+      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+        bookingProductId
+      );
+
+      oldItem.productsData.push({
+        productId: product._id,
+        unitPrice: product.unitPrice,
+        uom: dealUOM,
+        currency: dealCurrency,
+        quantity: product.productCount
+      });
+    }
+
+    const doc = oldItem;
+
+    if (conversation.assignedUserId) {
+      const assignedUserIds = oldItem.assignedUserIds || [];
+      assignedUserIds.push(conversation.assignedUserId);
+
+      doc.assignedUserIds = assignedUserIds;
+    }
+
+    const sourceConversationIds: string[] = oldItem.sourceConversationIds || [];
+
+    sourceConversationIds.push(conversation._id);
+
+    doc.sourceConversationIds = sourceConversationIds;
+
+    const item = await update(oldItem._id, doc);
+
+    item.userId = user._id;
+
+    // await putActivityLog({
+    //   action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+    //   data: { item, contentType: type }
+    // });
+
+    const relTypeIds: string[] = [];
+
+    sourceConversationIds.forEach(async conversationId => {
+      const con = await sendConversationRPCMessage('getConversation', {
+        conversationId
+      });
+
+      if (con.customerId) {
+        relTypeIds.push(con.customerId);
+      }
+    });
+
+    if (conversation.customerId) {
+      await sendConformityMessage('addConformity', {
+        mainType: type,
+        mainTypeId: item._id,
+        relType: 'customer',
+        relTypeId: conversation.customerId
+      });
+    }
+
+    return item._id;
+  } else {
+    const doc: any = {};
+
+    doc.name = itemName;
+    doc.stageId = stageId;
+    doc.sourceConversationIds = [_id];
+    doc.customerIds = [conversation.customerId];
+    doc.assignedUserIds = [conversation.assignedUserId];
+
+    if (bookingProductId) {
+      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+        bookingProductId
+      );
+
+      doc.productsData = [
+        {
+          productId: product._id,
+          unitPrice: product.unitPrice,
+          uom: dealUOM,
+          currency: dealCurrency,
+          quantity: product.productCount
+        }
+      ];
+    }
+
+    const item = await itemsAdd(doc, type, create, user, docModifier);
+
+    return item._id;
+  }
 };
