@@ -3,30 +3,28 @@ import * as _ from 'underscore';
 import {
   ConversationMessages,
   Conversations,
-  Integrations,
+  Integrations
 } from '../../models';
-
-import {
-  Configs,
-  // Conformities,
-  Customers,
-  Products
-} from '../../apiCollections';
-
-// import { getCollection } from '../../../db/models/boardUtils';
 
 import Messages from '../../models/ConversationMessages';
 
 import {
   KIND_CHOICES,
-  MESSAGE_TYPES,
+  MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { debug } from '../../configs';
-import { sendMessage, sendRPCMessage } from '../../messageBroker';
+import {
+  sendMessage,
+  sendRPCMessage,
+  sendCardsMessage,
+  sendContactRPCMessage,
+  sendProductMessage,
+  sendConfigMessage
+} from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
 // import {
@@ -35,7 +33,10 @@ import { graphqlPubsub } from '../../configs';
 //   putUpdateLog
 // } from '../../logUtils';
 
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
 import { splitStr } from '@erxes/api-utils/src/core';
 // import utils from '../../utils';
@@ -96,20 +97,17 @@ const sendConversationToIntegrations = async (
     const content = strip(doc.content);
 
     try {
-      await sendRPCMessage(
-        'rpc_queue:api_to_integrations',
-        {
-          action,
-          type,
-          payload: JSON.stringify({
-            integrationId,
-            conversationId,
-            content: content.replace(/&amp;/g, '&'),
-            attachments: doc.attachments || [],
-            tag: facebookMessageTag
-          })
-        }
-      );
+      await sendRPCMessage('rpc_queue:api_to_integrations', {
+        action,
+        type,
+        payload: JSON.stringify({
+          integrationId,
+          conversationId,
+          content: content.replace(/&amp;/g, '&'),
+          attachments: doc.attachments || [],
+          tag: facebookMessageTag
+        })
+      });
     } catch (e) {
       throw new Error(
         `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
@@ -249,22 +247,24 @@ const sendNotifications = async ({
         break;
     }
 
+    // Todo uncomment
     // await utils.sendNotification(doc);
 
-    // if (mobile) {
-    //   // send mobile notification ======
-    //   try {
-    //     await utils.sendMobileNotification({
-    //       title: doc.title,
-    //       body: strip(doc.content),
-    //       receivers: conversationNotifReceivers(conversation, user._id, false),
-    //       customerId: conversation.customerId,
-    //       conversationId: conversation._id
-    //     });
-    //   } catch (e) {
-    //     debugError(`Failed to send mobile notification: ${e.message}`);
-    //   }
-    // }
+    if (mobile) {
+      // send mobile notification ======
+      try {
+        await sendRPCMessage('core:sendMobileNotification', {
+          title: doc.title,
+          body: strip(doc.content),
+          receivers: conversationNotifReceivers(conversation, user._id, false),
+          customerId: conversation.customerId,
+          conversationId: conversation._id
+        });
+      } catch (e) {
+        // Todo uncomment
+        // debugError(`Failed to send mobile notification: ${e.message}`);
+      }
+    }
   }
 };
 
@@ -279,13 +279,16 @@ const getConversationById = async selector => {
 
 // check booking convert
 const checkBookingConvert = async (productId: string) => {
-  const product = await Products.getProduct({ _id: productId });
+  const product = await sendProductMessage('findOne', { _id: productId });
 
-  let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
+  // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
+  let dealUOM = await sendConfigMessage('getConfigs', {
+    code: 'dealUOM'
+  });
 
-  let dealCurrency = await Configs.find({
+  let dealCurrency = await sendConfigMessage('getConfigs', {
     code: 'dealCurrency'
-  }).distinct('value');
+  });
 
   if (dealUOM.length > 0) {
     dealUOM = dealUOM[0];
@@ -345,21 +348,23 @@ const conversationMutations = {
     const conversationId = conversation.id;
     const facebookMessageTag = doc.facebookMessageTag;
 
-    const customer = await Customers.findOne({ _id: conversation.customerId });
+    const customer = await sendContactRPCMessage('findCustomer', {
+      _id: conversation.customerId
+    });
 
     // if conversation's integration kind is form then send reply to
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    // if (kind === KIND_CHOICES.LEAD && email) {
-    //   utils.sendEmail({
-    //     toEmails: [email],
-    //     title: 'Reply',
-    //     template: {
-    //       data: doc.content
-    //     }
-    //   });
-    // }
+    if (kind === KIND_CHOICES.LEAD && email) {
+      await sendRPCMessage('core:sendEmail', {
+        toEmails: [email],
+        title: 'Reply',
+        template: {
+          data: doc.content
+        }
+      });
+    }
 
     let requestName;
     let type;
@@ -403,19 +408,16 @@ const conversationMutations = {
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
       for (let i = 0; i < chunks.length; i++) {
-        await sendMessage(
-          'erxes-api:integrations-notification',
-          {
-            action: 'sendConversationSms',
-            payload: JSON.stringify({
-              conversationMessageId: `${message._id}-part${i + 1}`,
-              conversationId,
-              integrationId,
-              toPhone: customer.primaryPhone,
-              content: strip(chunks[i])
-            })
-          }
-        );
+        await sendMessage('erxes-api:integrations-notification', {
+          action: 'sendConversationSms',
+          payload: JSON.stringify({
+            conversationMessageId: `${message._id}-part${i + 1}`,
+            conversationId,
+            integrationId,
+            toPhone: customer.primaryPhone,
+            content: strip(chunks[i])
+          })
+        });
       }
     }
 
@@ -799,109 +801,25 @@ const conversationMutations = {
     }
   },
 
-  // async conversationConvertToCard(
-  //   _root,
-  //   params: IConversationConvert,
-  //   { user, docModifier }: IContext
-  // ) {
-  //   const { _id, type, itemId, itemName, stageId, bookingProductId } = params;
+  async conversationConvertToCard(
+    _root,
+    params: IConversationConvert,
+    { user, docModifier }: IContext
+  ) {
+    const { _id } = params;
 
-  //   const conversation = await Conversations.getConversation(_id);
+    const conversation = await Conversations.getConversation(_id);
 
-  //   const { collection, update, create } = getCollection(type);
+    const args = {
+      ...params,
+      conversation,
+      checkBookingConvert,
+      user,
+      docModifier
+    };
 
-  //   if (itemId) {
-  //     const oldItem = await collection.findOne({ _id: itemId }).lean();
-
-  //     if (bookingProductId) {
-  //       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-  //         bookingProductId
-  //       );
-
-  //       oldItem.productsData.push({
-  //         productId: product._id,
-  //         unitPrice: product.unitPrice,
-  //         uom: dealUOM,
-  //         currency: dealCurrency,
-  //         quantity: product.productCount
-  //       });
-  //     }
-
-  //     const doc = oldItem;
-
-  //     if (conversation.assignedUserId) {
-  //       const assignedUserIds = oldItem.assignedUserIds || [];
-  //       assignedUserIds.push(conversation.assignedUserId);
-
-  //       doc.assignedUserIds = assignedUserIds;
-  //     }
-
-  //     const sourceConversationIds: string[] =
-  //       oldItem.sourceConversationIds || [];
-
-  //     sourceConversationIds.push(conversation._id);
-
-  //     doc.sourceConversationIds = sourceConversationIds;
-
-  //     const item = await update(oldItem._id, doc);
-
-  //     item.userId = user._id;
-
-  //     await putActivityLog({
-  //       action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-  //       data: { item, contentType: type }
-  //     });
-
-  //     const relTypeIds: string[] = [];
-
-  //     sourceConversationIds.forEach(async conversationId => {
-  //       const con = await Conversations.getConversation(conversationId);
-
-  //       if (con.customerId) {
-  //         relTypeIds.push(con.customerId);
-  //       }
-  //     });
-
-  //     if (conversation.customerId) {
-  //       await Conformities.addConformity({
-  //         mainType: type,
-  //         mainTypeId: item._id,
-  //         relType: 'customer',
-  //         relTypeId: conversation.customerId
-  //       });
-  //     }
-
-  //     return item._id;
-  //   } else {
-  //     const doc: any = {};
-
-  //     doc.name = itemName;
-  //     doc.stageId = stageId;
-  //     doc.sourceConversationIds = [_id];
-  //     doc.customerIds = [conversation.customerId];
-  //     doc.assignedUserIds = [conversation.assignedUserId];
-
-  //     if (bookingProductId) {
-  //       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-  //         bookingProductId
-  //       );
-
-  //       doc.productsData = [
-  //         {
-  //           productId: product._id,
-  //           unitPrice: product.unitPrice,
-  //           uom: dealUOM,
-  //           currency: dealCurrency,
-  //           quantity: product.productCount
-  //         }
-  //       ];
-  //     }
-
-  //     const item = await itemsAdd(doc, type, create, user, docModifier);
-
-  //     return item._id;
-  //   }
-  // },
+    return sendCardsMessage('conversationConvert', args);
+  },
 
   async conversationEditCustomFields(
     _root,
