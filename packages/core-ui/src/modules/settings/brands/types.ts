@@ -1,6 +1,5 @@
 import { IBrand as IBrandC } from '@erxes/ui/src/brands/types';
-import { QueryResponse } from 'modules/common/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { MutationVariables } from '@erxes/ui/src/types';
 
 export type IBrand = IBrandC & { emailConfig: any };
 
@@ -10,30 +9,9 @@ export interface IChooseBrand {
   brandId: string;
 }
 
-export interface IBrandDoc extends IBrand {
-  integrations: IIntegration[];
-}
-
 export interface IBrandsCount {
   brandsTotalCount: number;
 }
-
-// queries
-export type BrandsQueryResponse = {
-  brands: IBrand[];
-} & QueryResponse;
-
-export type BrandDetailQueryResponse = {
-  brandDetail: IBrand;
-} & QueryResponse;
-
-export type BrandsGetLastQueryResponse = {
-  brandsGetLast: IBrand;
-} & QueryResponse;
-
-export type BrandsCountQueryResponse = {
-  brandsTotalCount: number;
-} & QueryResponse;
 
 // mutation
 
@@ -48,13 +26,9 @@ export type BrandsManageIntegrationsMutationResponse = {
   }) => Promise<void>;
 };
 
-export type BrandRemoveMutationVariables = {
-  _id: string;
-};
-
 export type BrandRemoveMutationResponse = {
   removeMutation: (params: {
-    variables: BrandRemoveMutationVariables;
+    variables: MutationVariables;
   }) => Promise<void>;
 };
 

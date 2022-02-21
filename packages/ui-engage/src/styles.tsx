@@ -1,8 +1,8 @@
 import { colors, dimensions } from "@erxes/ui/src/styles";
-import { BoxRoot } from "@erxes/ui/src/styles/main";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
+import { BoxRoot } from '@erxes/ui/src/styles/main';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
@@ -25,22 +25,15 @@ const HelperText = styled.div`
   line-height: 16px;
 `;
 
-const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
+const FlexContainer = styledTS<{ direction?: string }> (styled.div)`
   display: flex;
-  flex-direction: ${(props) => props.direction};
+  flex-direction: ${props => props.direction};
 `;
 
 const Title = styled.h3`
   font-size: 12px;
   margin: 0;
   text-transform: uppercase;
-`;
-
-const FormWrapper = styled.div`
-  padding: ${coreSpace};
-  flex: 1;
-  min-height: 100%;
-  height: 100%;
 `;
 
 const PreviewContent = styledTS<{
@@ -67,16 +60,6 @@ const PreviewContent = styledTS<{
     }
     return null;
   }};
-`;
-
-const Messenger = styled.div`
-  position: absolute;
-  right: ${coreSpace};
-  bottom: ${coreSpace};
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
 `;
 
 const LogoContainer = styled.div`
@@ -181,16 +164,12 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
   }
 `;
 
-const MessengerPreview = styled(WebPreview)`
-  min-height: 500px;
-`;
-
 const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;
-  background-color: ${(props) =>
-    props.chosen ? colors.borderPrimary : "transparent"};
+  background-color: ${props =>
+    props.chosen ? colors.borderPrimary : 'transparent'};
 
   a {
     outline: none;
@@ -240,10 +219,6 @@ const Half = styled.div`
   &:last-of-type {
     border: none;
   }
-`;
-
-const FlexItemCentered = styled(FlexContainer)`
-  justify-content: center;
 `;
 
 const Box = styled(BoxRoot)`
@@ -305,7 +280,7 @@ const BoxContent = styled.div`
 
 const BoxHeader = styled.div`
   position: relative;
-  background-image: url("/images/patterns/bg-2.png");
+  background-image: url('/images/patterns/bg-2.png');
   background-repeat: repeat;
   background-position: 0 0;
   height: 90px;
@@ -338,60 +313,14 @@ const SelectMonth = styled.div`
   }
 `;
 
-const DateTimePicker = styled.div`
-  margin-top: ${coreSpace};
-
-  .rdtCounters {
-    padding-left: 15px;
-  }
-
-  .rdtOpen .rdtPicker {
-    border:none;
-
-    table {
-      width: inherit;
-    }
-  }
-
-  .rdtCounterSeparator {
-    line-height: inherit;
-    padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
-  }
-
-  .rdtTime {
-    margin-left: -${dimensions.coreSpacing}px;
-  }
-
-  .rdtCounter {
-    position: relative;
-    height: ${dimensions.coreSpacing + 10}px
-    color: ${rgba(colors.colorCoreDarkGray, 0.8)};
-    background: ${colors.bgLight};
-    border: 1px solid ${colors.borderPrimary};
-
-    .rdtBtn {
-      line-height: ${dimensions.unitSpacing}px;
-      position: absolute;
-      right: 0;
-      font-size: ${dimensions.unitSpacing}px;
-      color: ${colors.colorCoreGray};
-      padding: 2px 3px 0 0;
-    }
-
-    .rdtCount {
-      height: ${dimensions.unitSpacing}px;
-      font-size: inherit;
-      margin: 3px 0 0 -${dimensions.unitSpacing - 5}px;
-    }
-  }
+const EditorContainer = styled.div`
+  padding: ${coreSpace};
+  flex: 1;
+  overflow-y: auto;
 `;
 
 const StepFormWrapper = styled.div`
   padding: 20px;
-`;
-
-const ListWrapper = styled.div`
-  padding: ${dimensions.coreSpacing}px;
 `;
 
 const RadioContainer = styled.div`
@@ -410,22 +339,11 @@ const CustomerCounts = styled.div`
   }
 `;
 
-const EditorContainer = styled.div`
-  padding: ${coreSpace};
-  flex: 1;
-  overflow-y: auto;
-`;
-
 const SelectMessageType = styled.div`
   margin: 20px 20px 0 20px;
   width: 300px;
   white-space: normal;
   color: ${colors.colorCoreGray};
-`;
-
-const VerifyStatus = styled.div`
-  display: flex;
-  align-items: center;
 `;
 
 const VerifyCancel = styled.div`
@@ -512,7 +430,7 @@ const Shell = styled.div`
     list-style: none;
     background: #141414;
     color: #45d40c;
-    font: 0.8em "Andale Mono", Consolas, "Courier New";
+    font: 0.8em 'Andale Mono', Consolas, 'Courier New';
     line-height: 1.6em;
 
     -webkit-border-bottom-right-radius: 3px;
@@ -524,7 +442,7 @@ const Shell = styled.div`
   }
 
   .shell-body li:before {
-    content: "$";
+    content: '$';
     position: absolute;
     left: 0;
     top: 0;
@@ -540,15 +458,15 @@ const Shell = styled.div`
 const DesktopPreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   width: 70%;
   margin: 0 auto;
-  background: ${(props) => !props.templateId && colors.colorWhite}
-  padding: ${(props) => !props.templateId && `${dimensions.coreSpacing}px`}
+  background: ${props => !props.templateId && colors.colorWhite}
+  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
 `;
 
 const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   height: 100%;
   overflow: auto;
-  background: ${(props) => !props.templateId && colors.colorWhite}
-  padding: ${(props) => !props.templateId && `${dimensions.coreSpacing}px`}
+  background: ${props => !props.templateId && colors.colorWhite}
+  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
   overflow-x: hidden;
 `;
 
@@ -575,68 +493,37 @@ const InfoWrapper = styled.div`
   padding: 15px 20px;
 `;
 
-const FlexRow = styled.div`
-  display: flex;
-  align-items: center;
-
-  > label {
-    margin: 2px ${dimensions.unitSpacing}px 2px 0;
-    color: ${colors.colorCoreGray};
-    align-self: baseline;
-  }
-`;
-
-const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-bottom:${(props) =>
-    !props.noBorder && `1px solid ${colors.borderPrimary}`};
-
-  input {
-    height: ${dimensions.coreSpacing}px;
-    border-bottom: 0;
-  }
-`;
-
 export {
   RowTitle,
   HelperText,
   FlexContainer,
-  FormWrapper,
-  WebPreview,
+  LauncherContainer,
   PreviewContent,
-  Messenger,
-  MessengerPreview,
+  WebPreview,
+  WidgetPreview,
   ListCounter,
-  Recipients,
   Recipient,
+  Recipients,
   Half,
   Title,
-  FlexItemCentered,
-  ChooseBox,
   Box,
+  ChooseBox,
   BoxContent,
   BoxHeader,
   IconContainer,
-  DateTimePicker,
   SelectMonth,
-  LauncherContainer,
-  WidgetPreview,
   EditorContainer,
   StepFormWrapper,
-  ListWrapper,
   RadioContainer,
   CustomerCounts,
   SelectMessageType,
-  VerifyStatus,
   VerifyCancel,
   VerifyCheck,
   RightSection,
+  Shell,
   DesktopPreviewContent,
   MobilePreviewContent,
-  Shell,
   TestEmailWrapper,
   Disabled,
-  InfoWrapper,
-  FlexRow,
-  Subject,
+  InfoWrapper
 };

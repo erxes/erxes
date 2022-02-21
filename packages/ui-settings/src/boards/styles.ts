@@ -1,7 +1,7 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
+import { SidebarListItem } from '../styles';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item'
 

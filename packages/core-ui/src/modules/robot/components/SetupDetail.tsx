@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IFeature } from '../types';
-import { calculatePercentage } from '../utils';
+import { calculatePercentage } from '@erxes/ui/src/customers/utils';
 import { Title } from './styles';
 import VideoPopup from './VideoPopup';
 

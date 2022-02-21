@@ -3,7 +3,8 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import ButtonMutate from '../../common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from '../../common/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import SignIn from '../components/SignIn';
 import { mutations } from '../graphql';
 

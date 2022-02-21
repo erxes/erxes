@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { QueryResponse } from 'modules/common/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IImportHistory {
   _id: string;

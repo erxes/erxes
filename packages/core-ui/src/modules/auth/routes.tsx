@@ -4,7 +4,7 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
 const AuthLayout = asyncComponent(() =>
-  import(/* webpackChunkName: "AuthLayout" */ '../layout/components/AuthLayout')
+  import(/* webpackChunkName: "AuthLayout" */ '@erxes/ui/src/layout/components/AuthLayout')
 );
 
 const ForgotPassword = asyncComponent(() =>

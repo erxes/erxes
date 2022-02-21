@@ -1,7 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from 'modules/common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, router, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';

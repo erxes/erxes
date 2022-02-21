@@ -8,18 +8,18 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, Alert } from 'coreui/utils';
-import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '../constants';
+import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import s from 'underscore.string';
 import {
   Disabled,
   HelperText,
   RowTitle,
-} from '../styles'; 
-import { IEngageMessage, IEngageMessenger } from '../types';
+} from '@erxes/ui-engage/src/styles'; 
+import { IEngageMessage, IEngageMessenger } from '@erxes/ui-engage/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { ISegment } from '@erxes/ui-segments/src/types';
-import { Capitalize } from '@erxes/ui-settings/src/styles';
+import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 
 type Props = {
   message: any;

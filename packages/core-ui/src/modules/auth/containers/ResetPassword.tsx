@@ -4,7 +4,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import ResetPassword from '../components/ResetPassword';
 import { mutations } from '../graphql';
 import {

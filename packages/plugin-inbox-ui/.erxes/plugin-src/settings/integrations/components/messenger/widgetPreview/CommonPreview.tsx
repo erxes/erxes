@@ -1,5 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { WebPreview } from '@erxes/ui/src/components/step/preview/styles';
+import { WebPreview } from '@erxes/ui-engage/src/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   IMessagesItem,

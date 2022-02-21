@@ -12,7 +12,7 @@ import { FileName } from '@erxes/ui-inbox/src/inbox/styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { IIntegration } from '../../types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import {
@@ -23,7 +23,8 @@ import {
 } from '../../containers/utils';
 
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
+import { IEmailTemplate } from '../../../emailTemplates/types';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import EmailTemplate from './emailTemplate/EmailTemplate';
 import MailChooser from './MailChooser';
 import {
@@ -42,7 +43,6 @@ import {
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { Column } from '@erxes/ui/src/styles/main';
-import { generateEmailTemplateParams } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   emailTemplates: IEmailTemplate[];
@@ -805,7 +805,13 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { isReply, toggleReply, totalCount, fetchMoreEmailTemplates, emailTemplates } = this.props;
+    const {
+      isReply,
+      emailTemplates,
+      toggleReply,
+      totalCount,
+      fetchMoreEmailTemplates
+    } = this.props;
 
     const inputProps = {
       type: 'file',

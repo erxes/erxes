@@ -3,6 +3,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 const Header = styled(PageHeader)`
 min-height: auto;
@@ -91,23 +92,6 @@ position: relative;
   z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
-const ActionButtons = styled.div`
-  display: flex;
-  overflow: hidden;
-  align-items: center;
-  transition: all 0.3s ease;
-  width: 0;
-
-  * {
-    padding: 0;
-    margin-left: ${dimensions.unitSpacing}px;
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-`;
-
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -146,4 +130,4 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
-export { Title, RightActions, Dashboards, Create, Header, SelectMemberStyled, ActionButtons, SidebarListItem };
+export { Title, RightActions, Dashboards, Create, Header, SelectMemberStyled, SidebarListItem };

@@ -2,13 +2,13 @@ import React from 'react';
 import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
 import Filter from '@erxes/ui/src/components/filter/Filter';
 import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
-import { IBreadCrumbItem, ISubMenuItem } from '@erxes/ui/src/types';
+import { IBreadCrumbItem } from '@erxes/ui/src/types';
 import { __, setTitle } from '@erxes/ui/src/utils/core';
 import { PageHeader } from '../styles';
 
 type Props = {
   breadcrumb?: IBreadCrumbItem[];
-  submenu?: ISubMenuItem[];
+  submenu?: IBreadCrumbItem[];
   queryParams?: any;
   title: string;
   additionalMenuItem?: React.ReactNode;

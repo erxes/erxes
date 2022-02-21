@@ -2,7 +2,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IButtonMutateProps, Counts } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
-import { CustomerCounts, RadioContainer } from '../../styles';
+import { CustomerCounts, RadioContainer } from '@erxes/ui-engage/src/styles';
 import React from 'react';
 import Targets from '../Targets';
 import { ISegmentDoc } from '@erxes/ui-segments/src/types';

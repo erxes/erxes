@@ -7,7 +7,7 @@ import {
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
 import { IChannel } from '../channels/types';
-import { IProductCategory } from '@erxes/ui-settings/src/productService/types';
+import { IProductCategory } from '../productService/types';
 
 export interface IMessengerApp {
   _id: string;
@@ -210,13 +210,6 @@ export type EditIntegrationMutationResponse = {
 export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
 } & QueryResponse;
-
-export interface IIntegrationWithPhone {
-  _id: string;
-  name: string;
-  phoneNumber: string;
-  isActive: boolean;
-}
 
 export type SendSmsMutationResponse = ({
   variables: SendSmsMutationVariables

@@ -7,7 +7,7 @@ import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
   SMS_DELIVERY_STATUSES,
-} from "../constants";
+} from "@erxes/ui-engage/src/constants";
 import {
   FlexContainer,
   InfoWrapper,
@@ -16,10 +16,9 @@ import {
   RightSection,
   Shell,
   Title,
-  FlexRow,
-  Subject,
-} from "../styles";
-import { IEngageMessage, IEngageSmsStats, IEngageStats } from "../types";
+} from "@erxes/ui-engage/src/styles";
+import { FlexRow, Subject } from '@erxes/ui-settings/src/integrations/components/mail/styles';
+import { IEngageMessage, IEngageSmsStats, IEngageStats } from "@erxes/ui-engage/src/types";
 import StatItem from "./EngageStatItem";
 
 type Props = {

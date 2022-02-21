@@ -3,7 +3,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import FormBase from '../components/FormBase';
 import VisitorForm from '../components/VisitorForm';
-import { IEngageMessage, IEngageMessageDoc } from '../types';
+import { IEngageMessage, IEngageMessageDoc } from '@erxes/ui-engage/src/types';
 import withFormMutations from './withFormMutations';
 
 type Props = {

@@ -21,8 +21,8 @@ import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/constants';
 import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
 
 type Props = {
   queryParams: any;

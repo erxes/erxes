@@ -6,7 +6,7 @@ import { FormControl } from 'modules/common/components/form';
 import { OperatorList } from '@erxes/ui-segments/src/components/styles';
 import { __ } from '@erxes/ui/src/utils';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { SubHeading } from 'modules/settings/styles';
+import { SubHeading } from '@erxes/ui-settings/src/styles';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {

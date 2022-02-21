@@ -104,6 +104,8 @@ module.exports = smp.wrap({
           path.resolve(__dirname, "../../ui-settings/src"),
           path.resolve(__dirname, "../../ui-segments/src"),
           path.resolve(__dirname, "../../ui-contacts/src"),
+          path.resolve(__dirname, "../../ui-engage/src"),
+          path.resolve(__dirname, "../../ui-inbox/src"),
         ],
         use: {
           loader: "babel-loader",

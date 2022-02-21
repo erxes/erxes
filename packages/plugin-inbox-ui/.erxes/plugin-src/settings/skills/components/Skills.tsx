@@ -7,7 +7,7 @@ import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { NotWrappable } from '@erxes/ui-settings/src/styles';
+import { NotWrappable } from '@erxes/ui-settings/src/permissions/styles';
 import React from 'react';
 import SkillTypes from '../containers/SkillTypes';
 import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';

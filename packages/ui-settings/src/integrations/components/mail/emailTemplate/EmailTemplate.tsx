@@ -16,7 +16,7 @@ import Popover from 'react-bootstrap/Popover';
 import { CenterContent } from '@erxes/ui/src/styles/main';
 import { Link } from 'react-router-dom';
 import { PopoverLinkWrapper } from '@erxes/ui-settings/src/integrations/components/mail/styles';
-import { SearchInput } from '../../store/styles';
+import { SearchInput } from '../../../styles';
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;

@@ -37,11 +37,6 @@ export interface IBreadCrumbItem {
   link?: string;
 }
 
-export interface ISubMenuItem {
-  title: string;
-  link?: string;
-}
-
 export interface IQueryParams {
   [key: string]: string;
 }

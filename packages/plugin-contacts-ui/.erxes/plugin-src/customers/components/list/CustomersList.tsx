@@ -25,6 +25,7 @@ import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, Alert, confirm, router } from 'coreui/utils';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
@@ -436,6 +437,8 @@ class CustomersList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
+          <Widget customers={bulk} emptyBulk={emptyBulk} />
+
           <TaggerPopover
             type="customer"
             successCallback={this.afterTag}

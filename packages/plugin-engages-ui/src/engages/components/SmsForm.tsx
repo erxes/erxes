@@ -14,7 +14,7 @@ import {
   IEngageScheduleDate,
   IEngageSms,
   IIntegrationWithPhone
-} from '../types';
+} from '@erxes/ui-engage/src/types';
 import Scheduler from './Scheduler';
 import SmsPreview from './SmsPreview';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
