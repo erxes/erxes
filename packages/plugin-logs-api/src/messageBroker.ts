@@ -160,7 +160,7 @@ export const collectServiceItems = async (contentType, data) => {
     return [];
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:collectItems`, data);
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:activityLog:collectItems`, data);
 };
 
 export const getCardContentIds = async (data) => {

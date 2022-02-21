@@ -174,7 +174,7 @@ export const initBroker = async (server?) => {
       };
     });
 
-    consumeRPCQueue('core:rpc_queue:createdByDetail', async ({ activityLog }) => {
+    consumeRPCQueue('core:rpc_queue:activityLog:createdByDetail', async ({ activityLog }) => {
       const user = await Users.findOne({ _id: activityLog && activityLog.createdBy });
 
       if (user) {
@@ -192,7 +192,7 @@ export const initBroker = async (server?) => {
       return null;
     });
 
-    consumeRPCQueue('core:rpc_queue:collectItems', async ({ contentId }) => {
+    consumeRPCQueue('core:rpc_queue:activityLog:collectItems', async ({ contentId }) => {
       const deliveries = await EmailDeliveries.find({ customerId: contentId }).lean();
       const results: any[] = [];
 

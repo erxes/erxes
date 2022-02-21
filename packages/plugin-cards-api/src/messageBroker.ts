@@ -154,7 +154,7 @@ export const initBroker = async cl => {
     }    
   });
 
-  consumeRPCQueue(`cards:rpc_queue:collectItems`, async (data) => ({
+  consumeRPCQueue(`cards:rpc_queue:activityLog:collectItems`, async (data) => ({
     status: 'success',
     data: await collectTasks(data)
   }));
