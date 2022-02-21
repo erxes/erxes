@@ -217,9 +217,6 @@ httpServer.listen(PORT, () => {
       .catch(e => {
         debugError(`Error ocurred during message broker init ${e.message}`);
       })
-      .then(aa => {
-        console.log(aa);
-      });
 
     initMemoryStorage();
 

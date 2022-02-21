@@ -42,9 +42,6 @@ app.listen(PORT_WORKERS, () => {
     .catch(e => {
       debugError(`Error ocurred during message broker init ${e.message}`);
     })
-    .then(aa => {
-      console.log(aa);
-    });
 
   debugWorkers(`Workers server is now running on ${PORT_WORKERS}`);
 });

@@ -19,8 +19,6 @@ export const initBroker = async server => {
     envs: process.env
   });
 
-  console.log(client);
-
   const { consumeQueue, consumeRPCQueue } = client;
 
   // listen for rpc queue =========
@@ -67,6 +65,5 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export default function() {
-  console.log('adjksaljdlkasjkl', client);
   return client;
 }
