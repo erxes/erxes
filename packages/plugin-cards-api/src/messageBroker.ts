@@ -1,3 +1,5 @@
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+
 import { serviceDiscovery } from './configs';
 import { generateFields } from './fieldUtils';
 import { generateAmounts, generateProducts } from './graphql/resolvers/customResolvers/deal';
@@ -10,7 +12,8 @@ import {
   collectTasks,
   getCardContentIds
 } from './utils';
-import { getSchemaLabels } from './logUtils';
+
+import { LOG_MAPPINGS } from './logUtils';
 
 let client;
 
@@ -133,9 +136,9 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('cards:rpc_queue:getSchemaLabels', async ({ type }) => ({
+  consumeRPCQueue('cards:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
-    data: getSchemaLabels(type)
+    data: getSchemaLabels(type, LOG_MAPPINGS)
   }));
 
   consumeRPCQueue('cards:rpc_queue:getActivityContent', async (data) => {
