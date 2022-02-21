@@ -14,8 +14,8 @@ import {
   SetLiveManualMutationResponse,
   SetLiveMutationResponse,
   SetPauseMutationResponse
-} from '../types';
-import { crudMutationsOptions } from '../utils';
+} from '@erxes/ui-engage/src/types';
+import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   isChecked: boolean;

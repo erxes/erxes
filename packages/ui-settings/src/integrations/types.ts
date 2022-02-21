@@ -211,13 +211,6 @@ export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
 } & QueryResponse;
 
-export interface IIntegrationWithPhone {
-  _id: string;
-  name: string;
-  phoneNumber: string;
-  isActive: boolean;
-}
-
 export type SendSmsMutationResponse = ({
   variables: SendSmsMutationVariables
 }) => Promise<any>;

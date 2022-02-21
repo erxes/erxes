@@ -5,7 +5,7 @@ import {
   IEngageEmail,
   IEngageMessenger,
   IEngageScheduleDate
-} from '../../types';
+} from '@erxes/ui-engage/src/types';
 import MessengerForm from '../MessengerForm';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';

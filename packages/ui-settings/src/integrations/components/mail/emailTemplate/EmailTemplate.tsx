@@ -8,7 +8,7 @@ import {
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import { ResponseTemplateStyled as EmailTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -16,7 +16,7 @@ import Popover from 'react-bootstrap/Popover';
 import { CenterContent } from '@erxes/ui/src/styles/main';
 import { Link } from 'react-router-dom';
 import { PopoverLinkWrapper } from '@erxes/ui-settings/src/integrations/components/mail/styles';
-import { SearchInput } from '../../store/styles';
+import { SearchInput } from '../../../styles';
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;

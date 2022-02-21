@@ -14,8 +14,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import MessageListRow from "../containers/MessageListRow";
 import Sidebar from "../containers/Sidebar";
-import { ChooseBox, FlexContainer } from "../styles";
-import { IEngageMessage } from "../types";
+import { ChooseBox, FlexContainer } from "@erxes/ui-engage/src/styles";
+import { IEngageMessage } from "@erxes/ui-engage/src/types";
 import PercentItem, { ItemWrapper } from "./PercentItem";
 
 type Props = {

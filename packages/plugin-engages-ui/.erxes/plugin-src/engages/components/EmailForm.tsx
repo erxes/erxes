@@ -12,16 +12,16 @@ import Uploader from "@erxes/ui/src/components/Uploader";
 import { ISelectedOption } from "@erxes/ui/src/types";
 import { __ } from "coreui/utils";
 import { IUser } from "@erxes/ui/src/auth/types";
-import { generateEmailTemplateParams } from "../utils";
+import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
 import {
   EditorContainer,
   TestEmailWrapper,
   VerifyCancel,
   VerifyCheck,
-  VerifyStatus,
-} from "../styles";
+} from "@erxes/ui-engage/src/styles";
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import React from "react";
-import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from "../types";
+import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from "@erxes/ui-engage/src/types";
 import Scheduler from "./Scheduler";
 import EditorCK from "../containers/EditorCK";
 
@@ -146,7 +146,7 @@ class EmailForm extends React.Component<Props, State> {
     };
 
     const optionRenderer = (option) => (
-      <VerifyStatus>
+      <FlexContent>
         {!option.disabled ? (
           <Tip placement="auto" text="Email verified">
             <VerifyCheck>
@@ -161,7 +161,7 @@ class EmailForm extends React.Component<Props, State> {
           </Tip>
         )}
         {option.label}
-      </VerifyStatus>
+      </FlexContent>
     );
 
     return (

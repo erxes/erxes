@@ -12,6 +12,7 @@ import WithPermission from '@erxes/ui/src/components/WithPermission';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 import { __, getEnv } from 'coreui/utils';
+import { RowTitle } from '@erxes/ui-engage/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ILeadIntegration } from '@erxes/ui-leads/src/types';
@@ -183,7 +184,13 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{integration.name}</td>
+        <td>
+          <RowTitle>
+            <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
+              {integration.name}
+            </Link>
+          </RowTitle>
+        </td>
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>

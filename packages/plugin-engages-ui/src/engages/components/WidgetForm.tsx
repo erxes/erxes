@@ -17,9 +17,9 @@ import Select from 'react-select-plus';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import MessengerPreview from '../containers/MessengerPreview';
-import { Half, Recipient, Recipients } from '../styles';
-import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
-import { generateEmailTemplateParams } from '../utils';
+import { Half, Recipient, Recipients } from '@erxes/ui-engage/src/styles';
+import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '@erxes/ui-engage/src/types';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   customers: ICustomer[];

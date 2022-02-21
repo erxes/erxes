@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom';
 import { withProps } from '@erxes/ui/src/utils';
 import Sidebar from '../components/Sidebar';
 import { queries } from '../graphql';
-import { CountQueryResponse } from '../types';
+import { CountQueryResponse } from '@erxes/ui-engage/src/types';
 import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
 import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
 

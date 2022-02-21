@@ -8,7 +8,7 @@ import {
   PreviewContent,
   WebPreview,
   WidgetPreview
-} from '../styles';
+} from '@erxes/ui-engage/src/styles';
 
 type Props = {
   content?: string;

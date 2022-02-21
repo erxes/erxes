@@ -7,7 +7,7 @@ import {
   METHODS,
   SMS_DELIVERY_STATUSES
 } from '../constants';
-import { Box, BoxContent, BoxHeader, IconContainer } from '../styles';
+import { Box, BoxContent, BoxHeader, IconContainer } from '@erxes/ui-engage/src/styles';
 
 type Props = {
   count: number;

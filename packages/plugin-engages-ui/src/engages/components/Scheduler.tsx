@@ -6,8 +6,8 @@ import { DateContainer } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import { SCHEDULE_TYPES } from '../constants';
 import React from 'react';
-import { SelectMonth } from '../styles';
-import { IEngageScheduleDate } from '../types';
+import { SelectMonth } from '@erxes/ui-engage/src/styles';
+import { IEngageScheduleDate } from '@erxes/ui-engage/src/types';
 
 type Props = {
   scheduleDate: IEngageScheduleDate;

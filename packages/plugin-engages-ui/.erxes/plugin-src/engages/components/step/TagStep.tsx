@@ -1,6 +1,6 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { IButtonMutateProps,Counts } from '@erxes/ui/src/types';
-import { TagAdd } from '../../types';
+import { TagAdd } from '@erxes/ui-engage/src/types';
 import React from 'react';
 import Common from './Common';
 import TagsForm from './forms/TagsForm';

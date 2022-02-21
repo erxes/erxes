@@ -1,15 +1,13 @@
-import { IConditionsRule, QueryResponse } from '@erxes/ui/src/types';
-import { IAttachment, MutationVariables } from '@erxes/ui/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { IConditionsRule } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import {
-  ISegment,
-  ISegmentCondition,
-  ISegmentDoc
-} from '@erxes/ui-segments/src/types';
+import { IAttachment } from '@erxes/ui/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { ISegment, ISegmentCondition } from '@erxes/ui-segments/src/types';
 import { ITag } from '@erxes/ui/src/tags/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { MutationVariables } from '@erxes/ui/src/types';
 
 export type IEngageScheduleDate = {
   type: string;
@@ -17,6 +15,7 @@ export type IEngageScheduleDate = {
   day: string;
   dateTime: string;
 } | null;
+
 
 export interface IEngageMessenger {
   brandId: string;
@@ -64,14 +63,6 @@ export interface IEngageSmsStats {
   delivery_unconfirmed: number;
   webhook_delivered: number;
   error?: number;
-}
-
-export interface IDeliveryReport {
-  _id: string;
-  engageMessageId: string;
-  customerId: string;
-  status: string;
-  createdAt: string;
 }
 
 export interface IEmailDelivery {
@@ -147,10 +138,6 @@ export type SetPauseMutationResponse = {
 
 export type SetLiveMutationResponse = {
   setLiveMutation: (params: { variables: MutationVariables }) => Promise<void>;
-};
-
-export type CopyMutationResponse = {
-  copyMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
 
 export type SetLiveManualMutationResponse = {
@@ -229,7 +216,6 @@ export type AddMutationResponse = {
 export type TagAdd = (params: {
   doc: { name: string; description: string };
 }) => void;
-export type SegmentAdd = (params: { doc: ISegmentDoc }) => void;
 
 export type IEmailFormProps = {
   onChange: (
@@ -247,13 +233,13 @@ export type IEmailFormProps = {
   isSaved?: boolean;
 };
 
-export type EngageConfigQueryResponse = {
-  engagesConfigDetail: Array<{ code: string; value: string }>;
-} & QueryResponse;
-
 export interface IIntegrationWithPhone {
   _id: string;
   name: string;
   phoneNumber: string;
   isActive: boolean;
 }
+
+export type CopyMutationResponse = {
+  copyMutation: (params: { variables: MutationVariables }) => Promise<void>;
+};

@@ -1,14 +1,9 @@
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-<<<<<<< HEAD
-import { __ } from '@erxes/ui/src/utils';
 import { SidebarListItem } from '../styles';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
-=======
 import { __ } from 'coreui/utils';
-import { ActionButtons, SidebarListItem } from '../styles';
->>>>>>> 47bf24c5397c2a1c06f45b3fe8f1c548f12bf2d0
 import React from 'react';
 import { Link } from 'react-router-dom';
 import DashbaordForm from '../containers/DashboardForm';

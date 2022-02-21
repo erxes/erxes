@@ -5,7 +5,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import MessageForm from '../components/MessageForm';
 import { queries } from '../graphql';
-import { EngageMessageDetailQueryResponse } from '../types';
+import { EngageMessageDetailQueryResponse } from '@erxes/ui-engage/src/types';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 
 type Props = {

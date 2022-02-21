@@ -7,7 +7,7 @@ import { MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import React from 'react';
 import EditorCK from '../containers/EditorCK';
 import MessengerPreview from '../containers/MessengerPreview';
-import { IEngageMessenger, IEngageScheduleDate } from '../types';
+import { IEngageMessenger, IEngageScheduleDate } from '@erxes/ui-engage/src/types';
 import Scheduler from './Scheduler';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import { IBrand } from '@erxes/ui/src/brands/types';

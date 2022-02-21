@@ -15,8 +15,8 @@ import {
   Disabled,
   HelperText,
   RowTitle,
-} from '../styles'; 
-import { IEngageMessage, IEngageMessenger } from '../types';
+} from '@erxes/ui-engage/src/styles'; 
+import { IEngageMessage, IEngageMessenger } from '@erxes/ui-engage/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { ISegment } from '@erxes/ui-segments/src/types';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';

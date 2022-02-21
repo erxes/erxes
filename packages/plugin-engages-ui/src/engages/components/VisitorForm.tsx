@@ -14,7 +14,7 @@ import {
   IEngageMessageDoc,
   IEngageMessenger,
   IEngageScheduleDate
-} from '../types';
+} from '@erxes/ui-engage/src/types';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
