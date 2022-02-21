@@ -88,11 +88,7 @@ const main = async () => {
 
   console.log("Yarn build ....");
 
-  if (type === "gateway") {
-    await execCommand("tsc -p tsconfig.prod.json");
-  } else {
-    await execCommand("yarn build");
-  }
+  await execCommand("yarn build");
 
   console.log("Moving node_modules ....");
 
