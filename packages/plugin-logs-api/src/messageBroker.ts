@@ -152,10 +152,6 @@ export const getContentTypeDetail = async (activityLog: IActivityLogDocument) =>
   return client.sendRPCMessage('cards:rpc_queue:getContentTypeDetail', { activityLog });
 };
 
-export const sendConformityMessage = async (action: string, data): Promise<any> => {
-  return client.sendRPCMessage(`conformities:${action}`, data);
-};
-
 export const collectServiceItems = async (contentType, data) => {
   const [serviceName] = contentType.split(':');
   const available = await serviceDiscovery.isAvailable(serviceName);

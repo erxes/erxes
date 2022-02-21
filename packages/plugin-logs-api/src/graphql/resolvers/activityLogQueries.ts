@@ -5,7 +5,7 @@ import { ACTIVITY_CONTENT_TYPES } from '@erxes/api-utils/src/constants';
 import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
-import { sendConformityMessage, collectServiceItems, getCardContentIds, getInternalNotes } from '../../messageBroker';
+import { collectServiceItems, getCardContentIds, getInternalNotes } from '../../messageBroker';
 
 export interface IListArgs {
   contentType: string;
@@ -30,13 +30,6 @@ const activityLogQueries = {
 
     let activities: IActivityLogDocument[] = [];
 
-    const relatedItemIds = await sendConformityMessage('savedConformity', {
-      mainType: contentType,
-      mainTypeId: contentId,
-      relTypes:
-        contentType !== 'task' ? ['deal', 'ticket'] : ['deal', 'ticket', 'task']
-    });
-
     const collectItems = (items: any, type?: string) => {
       (items || []).map(item => {
         let result: IActivityLogDocument = {} as any;
@@ -47,13 +40,6 @@ const activityLogQueries = {
 
         activities.push(result);
       });
-    };
-
-    // this also fetches campaign & sms logs, don't fetch them in default switch case
-    const collectActivityLogs = async () => {
-      const resp = await fetchActivityLogs({ contentId: { $in: [...relatedItemIds, contentId] } });
-
-      collectItems(resp.activityLogs);
     };
 
     const collectCampaigns = async () => {
@@ -87,20 +73,12 @@ const activityLogQueries = {
         activities = activities.concat(pluginResponse);
       }
     } else {
-      switch (activityType) {
-        case ACTIVITY_CONTENT_TYPES.SMS:
-          await collectSms();
-          break;
-
-        case ACTIVITY_CONTENT_TYPES.CAMPAIGN:
-          await collectCampaigns();
-          break;
-
-        default:
-          await collectServiceItems(activityType, { contentId, contentType });
-          await collectActivityLogs();
-
-          break;
+      if (activityType === ACTIVITY_CONTENT_TYPES.SMS) {
+        await collectSms();
+      } else if (activityType === ACTIVITY_CONTENT_TYPES.CAMPAIGN) {
+        await collectCampaigns();
+      } else {
+        collectItems(await collectServiceItems(activityType, { contentId, contentType }));
       }
     }
 
