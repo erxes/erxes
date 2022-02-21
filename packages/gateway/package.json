@@ -24,7 +24,7 @@
     "graphql": "^15.8.0",
     "graphql-redis-subscriptions": "^2.4.2",
     "graphql-subscriptions": "^2.0.0",
-    "graphql-ws": "^5.5.5",
+    "graphql-ws": "5.5.5",
     "http-proxy-middleware": "^2.0.1",
     "ioredis": "^4.28.2",
     "jsonwebtoken": "^8.5.1",

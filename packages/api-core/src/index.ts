@@ -233,7 +233,7 @@ httpServer.listen(PORT, () => {
   });
 
   join({ 
-    name: "api",
+    name: "api-core",
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,

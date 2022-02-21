@@ -1,7 +1,8 @@
 import * as Redis from 'ioredis';
 import * as ServiceRegistry from 'clerq';
 
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, NODE_ENV } = process.env;
+const isDev = NODE_ENV === 'development';
 
 const redis = new Redis({
   host: REDIS_HOST,
@@ -60,11 +61,11 @@ export const join = ({
     })
   );
 
-  return registry.up(name, `http://localhost:${port}`);
+  return registry.up(name, `http://${isDev ? 'localhost': name}:${port}`);
 };
 
 export const leave = async (name, port) => {
-  await registry.down(name, `http://localhost:${port}`);
+  await registry.down(name, `http:/${isDev ? 'localhost': name}:${port}`);
 
   return redis.del(generateKey(name));
 };
