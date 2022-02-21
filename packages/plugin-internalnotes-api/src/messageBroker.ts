@@ -19,7 +19,7 @@ export const initBroker = async cl => {
     );
   });
 
-  consumeRPCQueue('internalnotes:rpc_queue:collectItems', async ({ contentId }) => {
+  consumeRPCQueue('internalnotes:rpc_queue:activityLog:collectItems', async ({ contentId }) => {
     const notes = await InternalNotes.find({ contentTypeId: contentId }).sort({ createdAt: -1 });
     const results: any[] = [];
 

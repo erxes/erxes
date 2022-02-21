@@ -1,9 +1,15 @@
-import { IActivityLogDocument } from "../../models/ActivityLogs";
-import messageBroker, { getActivityContentItem, getContentTypeDetail } from '../../messageBroker';
+import { IActivityLogDocument } from '../../models/ActivityLogs';
+import messageBroker, {
+  getActivityContentItem,
+  getContentTypeDetail,
+} from '../../messageBroker';
 
 export default {
   async createdByDetail(activityLog: IActivityLogDocument) {
-    const detail = await messageBroker().sendRPCMessage('core:rpc_queue:createdByDetail', { activityLog });
+    const detail = await messageBroker().sendRPCMessage(
+      'core:rpc_queue:activityLog:createdByDetail',
+      { activityLog }
+    );
 
     return detail;
   },
@@ -16,5 +22,5 @@ export default {
     const response = await getActivityContentItem(activityLog);
 
     return response;
-  }
+  },
 };

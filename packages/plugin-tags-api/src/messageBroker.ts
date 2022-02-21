@@ -1,5 +1,3 @@
-import { ACTIVITY_ACTIONS } from '@erxes/api-utils/src/constants';
-
 import { Tags } from "./models";
 import { ITagDocument } from "./models/definitions/tags";
 
@@ -18,7 +16,7 @@ export const initBroker = async cl => {
   consumeRPCQueue('tags:rpc_queue:getActivityContent', async (data) => {
     const { action, content } = data;
 
-    if (action === ACTIVITY_ACTIONS.TAGGED) {
+    if (action === 'tagged') {
       let tags: ITagDocument[] = [];
 
       if (content) {

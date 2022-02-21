@@ -21,8 +21,7 @@ import {
   LogDesc,
   gatherNames,
   gatherUsernames,
-  IDescriptions,
-  buildLabelList
+  IDescriptions
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument, taskSchema } from './models/definitions/tasks';
 import { ITicketDocument, ticketSchema } from './models/definitions/tickets';
@@ -34,12 +33,7 @@ interface ISchemaMap {
   schemas: any[];
 }
 
-interface INameLabel {
-  name: string;
-  label: string;
-}
-
-const LOG_MAPPINGS: ISchemaMap[] = [
+export const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.BOARD_DEAL,
     schemas: [attachmentSchema, boardSchema],
@@ -531,38 +525,4 @@ export const putActivityLog = async (params: { action: string, data: any }) => {
   // }
 
   return commonPutActivityLog({ messageBroker: messageBroker(), ...params });
-};
-
-export const getSchemaLabels = (type: string) => {
-  let fieldNames: INameLabel[] = [];
-
-  const found: ISchemaMap | undefined = LOG_MAPPINGS.find(
-    (m) => m.name === type
-  );
-
-  if (found) {
-    const schemas: any = found.schemas || [];
-
-    for (const schema of schemas) {
-      // schema comes as either mongoose schema or plain object
-      const names: string[] = Object.getOwnPropertyNames(
-        schema.obj || schema
-      );
-
-      for (const name of names) {
-        const field: any = schema.obj ? schema.obj[name] : schema[name];
-
-        if (field && field.label) {
-          fieldNames.push({ name, label: field.label });
-        }
-
-        // nested object field names
-        if (typeof field === "object" && field.type && field.type.obj) {
-          fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
-        }
-      }
-    } // end schema for loop
-  } // end schema name mapping
-
-  return fieldNames;
 };

@@ -1,5 +1,6 @@
 import * as _ from 'underscore';
 import { IUserDocument } from './types';
+
 export interface ILogDataParams {
   type: string;
   description?: string;
@@ -9,6 +10,7 @@ export interface ILogDataParams {
   updatedDocument?: any;
   extraParams?: any;
 }
+
 interface ILogNameParams {
   collection: any;
   idFields: string[];
@@ -20,6 +22,7 @@ export interface IDescriptions {
   description?: string;
   extraDesc?: LogDesc[];
 }
+
 interface ILogParams extends ILogNameParams {
   nameFields: string[];
 }
@@ -27,6 +30,11 @@ interface ILogParams extends ILogNameParams {
 interface INameLabel {
   name: string;
   label: string;
+}
+
+interface ISchemaMap {
+  name: string;
+  schemas: any[];
 }
 
 /**
@@ -204,7 +212,7 @@ export const putActivityLog = async (params: IActivityLogParams) => {
 /**
  * Creates field name-label mapping list from given object
  */
- export const buildLabelList = (obj = {}): INameLabel[] => {
+const buildLabelList = (obj = {}): INameLabel[] => {
   const list: INameLabel[] = [];
   const fieldNames: string[] = Object.getOwnPropertyNames(obj);
 
@@ -216,4 +224,38 @@ export const putActivityLog = async (params: IActivityLogParams) => {
   }
 
   return list;
+};
+
+export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
+  let fieldNames: INameLabel[] = [];
+
+  const found: ISchemaMap | undefined = schemaMappings.find(
+    (m) => m.name === type
+  );
+
+  if (found) {
+    const schemas: any = found.schemas || [];
+
+    for (const schema of schemas) {
+      // schema comes as either mongoose schema or plain object
+      const names: string[] = Object.getOwnPropertyNames(
+        schema.obj || schema
+      );
+
+      for (const name of names) {
+        const field: any = schema.obj ? schema.obj[name] : schema[name];
+
+        if (field && field.label) {
+          fieldNames.push({ name, label: field.label });
+        }
+
+        // nested object field names
+        if (typeof field === "object" && field.type && field.type.obj) {
+          fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
+        }
+      }
+    } // end schema for loop
+  } // end schema name mapping
+
+  return fieldNames;
 };

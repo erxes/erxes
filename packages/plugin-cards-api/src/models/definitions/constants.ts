@@ -166,71 +166,18 @@ export const MESSENGER_DATA_AVAILABILITY = {
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  USER: 'user',
   DEAL: 'deal',
   TICKET: 'ticket',
   TASK: 'task',
-  PRODUCT: 'product',
   GROWTH_HACK: 'growthHack',
-  SMS: 'sms',
-  CAMPAIGN: 'campaign',
-  INTERNAL_NOTE: 'internal_note',
-  CHECKLIST: 'checklist',
-  CONVERSATION: 'conversation',
-  SEGMENT: 'segment',
-  EMAIL: 'email',
-  BRAND: 'brand',
 
-  ALL: [
-    'customer',
-    'company',
-    'user',
-    'deal',
-    'ticket',
-    'task',
-    'product',
-    'growthHack',
-    'sms',
-    'campaign',
-    'internal_note',
-    'checklist',
-    'conversation',
-    'segment',
-    'email',
-    'brand',
-  ],
+  ALL: ['deal', 'ticket', 'task', 'growthHack'],
 };
 
 export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
   ALL: ['draft', 'publish'],
-};
-
-export const ACTIVITY_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
-  MERGE: 'merge',
-  SEND: 'send',
-  MOVED: 'moved',
-  CONVERT: 'convert',
-  ASSIGNEE: 'assignee',
-  TAGGED: 'tagged',
-
-  ALL: [
-    'create',
-    'update',
-    'delete',
-    'merge',
-    'send',
-    'moved',
-    'convert',
-    'assignee',
-    'tagged',
-  ],
 };
 
 export const ACTIVITY_PERFORMER_TYPES = {

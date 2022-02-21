@@ -137,7 +137,7 @@ export const getDbSchemaLabels = async (serviceName: string, type: string) => {
     return [];
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:getSchemaLabels`, { type })
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:logs:getSchemaLabels`, { type })
 };
 
 export const getActivityContentItem = async (activityLog: IActivityLogDocument) => {
@@ -160,7 +160,7 @@ export const collectServiceItems = async (contentType, data) => {
     return [];
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:collectItems`, data);
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:activityLog:collectItems`, data);
 };
 
 export const getCardContentIds = async (data) => {

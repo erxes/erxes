@@ -3,7 +3,7 @@ import { Document, Model, model, Schema } from 'mongoose';
 
 import { field } from './Logs';
 
-export const ACTIVITY_ACTIONS = {
+const ACTIVITY_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete',
