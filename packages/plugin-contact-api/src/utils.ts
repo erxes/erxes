@@ -28,6 +28,10 @@ export const findCustomer = async doc => {
     customer = await Customers.findOne({ code: doc.customerCode });
   }
 
+  if (!customer && doc._id) {
+    customer = await Customers.findOne({ _id: doc._id });
+  }
+
   return customer;
 };
 
@@ -130,7 +134,6 @@ export const generateFields = async args => {
 
   return fields;
 };
-
 
 export const getEnv = ({
   name,
