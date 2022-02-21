@@ -51,7 +51,7 @@ const main = async () => {
     fse.copy("../api-utils", "../../dist/api-utils", { overwrite: true })
   );
 
-  if (type === "plugin") {
+  if (type !== "gateway") {
     await execute(() =>
       fse.copy("../api-plugin-template", "../../dist/api-plugin-template", {
         overwrite: true,
@@ -88,11 +88,7 @@ const main = async () => {
 
   console.log("Yarn build ....");
 
-  if (type === "gateway") {
-    await execCommand("tsc -p tsconfig.prod.json");
-  } else {
-    await execCommand("yarn build");
-  }
+  await execCommand("yarn build");
 
   console.log("Moving node_modules ....");
 
