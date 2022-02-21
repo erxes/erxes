@@ -1,6 +1,6 @@
 import EmailForm from '../../containers/EmailForm';
 import React from 'react';
-import { METHODS } from '../../constants';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEngageEmail,
   IEngageMessenger,

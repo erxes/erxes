@@ -2,7 +2,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import { CAMPAIGN_TARGET_TYPES } from '../../constants';
+import { CAMPAIGN_TARGET_TYPES } from '@erxes/ui-engage/src/constants';
 import { SelectMessageType } from '@erxes/ui-engage/src/styles';
 import React from 'react';
 import BrandStep from '../../containers/BrandStep';

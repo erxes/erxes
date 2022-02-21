@@ -16,8 +16,8 @@ import {
   MESSENGER_KINDS,
   METHODS,
   SENT_AS_CHOICES
-} from '../constants';
-import { mutations, queries } from '../graphql';
+} from '@erxes/ui-engage/src/constants';
+import { mutations, queries } from '@erxes/ui-engage/src/graphql';
 import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
 
 type Props = {

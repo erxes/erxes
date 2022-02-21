@@ -8,7 +8,7 @@ import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { METHODS } from '../constants';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
