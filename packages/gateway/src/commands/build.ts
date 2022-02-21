@@ -51,7 +51,7 @@ const main = async () => {
     fse.copy("../api-utils", "../../dist/api-utils", { overwrite: true })
   );
 
-  if (type === "plugin") {
+  if (type !== "gateway") {
     await execute(() =>
       fse.copy("../api-plugin-template", "../../dist/api-plugin-template", {
         overwrite: true,

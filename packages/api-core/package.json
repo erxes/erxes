@@ -44,6 +44,7 @@
     "apollo-datasource-rest": "^0.5.1",
     "node-schedule": "^1.2.5",
     "erxes-telemetry": "^1.0.4",
+    "erxes-api-utils": "^0.0.34",
     "validator": "^9.0.0"
   }
 }
