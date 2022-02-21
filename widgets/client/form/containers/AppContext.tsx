@@ -148,7 +148,8 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       isPopupVisible: false,
       isCalloutVisible: false,
-      isFormVisible: false
+      isFormVisible: false,
+      currentStatus: { status: 'INITIAL' }
     });
 
     // Increasing view count
