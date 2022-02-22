@@ -176,7 +176,6 @@ const putLog = async (
 
   return messageBroker.sendMessage('putLog', {
     ...params,
-    description: params.description ? `${params.description} ${params.action}d` : '',
     createdBy: user._id,
     unicode: user.username || user.email || user._id,
     object: JSON.stringify(params.object),

@@ -39,7 +39,4 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
-  meta: {
-    logs: { providesActivityLog: false }
-  }
 };

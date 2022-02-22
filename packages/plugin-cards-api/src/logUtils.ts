@@ -108,6 +108,12 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
 ];
 
+export const LOG_ACTIONS = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+};
+
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
 const gatherPipelineFieldNames = async (
@@ -488,7 +494,7 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 };
 
 export const putDeleteLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(logDoc);
+  const { description, extraDesc } = await gatherDescriptions({ ...logDoc, action: LOG_ACTIONS.DELETE });
 
   await commonPutDeleteLog(
     messageBroker(),
@@ -498,7 +504,7 @@ export const putDeleteLog = async (logDoc, user) => {
 };
 
 export const putUpdateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(logDoc);
+  const { description, extraDesc } = await gatherDescriptions({ ...logDoc, action: LOG_ACTIONS.UPDATE });
 
   await commonPutUpdateLog(
     messageBroker(),
@@ -508,7 +514,7 @@ export const putUpdateLog = async (logDoc, user) => {
 };
 
 export const putCreateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(logDoc);
+  const { description, extraDesc } = await gatherDescriptions({ ...logDoc, action: LOG_ACTIONS.CREATE });
 
   await commonPutCreateLog(
     messageBroker(),

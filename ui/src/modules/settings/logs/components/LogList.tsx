@@ -47,48 +47,63 @@ const actionOptions = [
 // module names are saved exactly as these values in backend
 // consider both ends when changing
 const moduleOptions = [
-  { value: 'board', label: 'Boards' },
-  { value: 'dealBoards', label: 'Deal boards' },
-  { value: 'taskBoards', label: 'Task boards' },
-  { value: 'ticketBoards', label: 'Ticket boards' },
-  { value: 'growthHackBoards', label: 'Growth hack boards' },
-  { value: 'dealPipelines', label: 'Deal pipelines' },
-  { value: 'taskPipelines', label: 'Task pipelines' },
-  { value: 'ticketPipelines', label: 'Ticket pipelines' },
-  { value: 'growthHackPipelines', label: 'Growth hack pipelines' },
-  { value: 'checklist', label: 'Checklists' },
-  { value: 'checkListItem', label: 'Checklist items' },
-  { value: 'brand', label: 'Brands' },
-  { value: 'channel', label: 'Channels' },
-  { value: 'company', label: 'Companies' },
-  { value: 'customer', label: 'Customers' },
-  { value: 'deal', label: 'Deals' },
+  // cards plugin
+  { value: 'cards:board', label: 'Boards' },
+  { value: 'cards:dealBoards', label: 'Deal boards' },
+  { value: 'cards:taskBoards', label: 'Task boards' },
+  { value: 'cards:ticketBoards', label: 'Ticket boards' },
+  { value: 'cards:growthHackBoards', label: 'Growth hack boards' },
+  { value: 'cards:dealPipelines', label: 'Deal pipelines' },
+  { value: 'cards:taskPipelines', label: 'Task pipelines' },
+  { value: 'cards:ticketPipelines', label: 'Ticket pipelines' },
+  { value: 'cards:growthHackPipelines', label: 'Growth hack pipelines' },
+  { value: 'cards:checklist', label: 'Checklists' },
+  { value: 'cards:checkListItem', label: 'Checklist items' },
+  { value: 'cards:deal', label: 'Deals' },
+  { value: 'cards:task', label: 'Tasks' },
+  { value: 'cards:ticket', label: 'Tickets' },
+  { value: 'cards:pipelineLabel', label: 'Pipeline labels' },
+  { value: 'cards:pipelineTemplate', label: 'Pipeline templates' },
+  { value: 'cards:growthHack', label: 'Growth hacks' },
+  { value: 'cards:dealStages', label: 'Deal stages' },
+  { value: 'cards:taskStages', label: 'Task stages' },
+  { value: 'cards:ticketStages', label: 'Ticket stages' },
+  { value: 'cards:growthHackStages', label: 'Growth hack stages' },
+  // contacts plugin
+  { value: 'contacts:company', label: 'Companies' },
+  { value: 'contacts:customer', label: 'Customers' },
+  // api-core plugin
+  { value: 'api-core:brand', label: 'Brands' },
+  { value: 'api-core:permission', label: 'Permissions' },
+  { value: 'api-core:user', label: 'Users' },
+  { value: 'api-core:segment', label: 'Segments' },
+  { value: 'api-core:userGroup', label: 'User groups' },
+  // inbox plugin
+  { value: 'inbox:channel', label: 'Channels' },
+  { value: 'inbox:integration', label: 'Integrations' },
+  { value: 'inbox:responseTemplate', label: 'Response templates' },
+  // knowledgebase plugin
+  { value: 'knowledgebase:knowledgeBaseTopic', label: 'Knowledgebase topics' },
+  {
+    value: 'knowledgebase:knowledgeBaseCategory',
+    label: 'Knowledgebase categories'
+  },
+  {
+    value: 'knowledgebase:knowledgeBaseArticle',
+    label: 'Knowledgebase articles'
+  },
+  // internalnotes plugin
+  { value: 'internalnotes:internalNote', label: 'Internal notes' },
+  // tags plugin
+  { value: 'tags:tag', label: 'Tags' },
+  // products plugin
+  { value: 'products:product', label: 'Products' },
+  { value: 'products:product-category', label: 'Product categories' },
+  // others
   { value: 'emailTemplate', label: 'Email templates' },
   { value: 'importHistory', label: 'Import histories' },
-  { value: 'product', label: 'Products' },
-  { value: 'product-category', label: 'Product categories' },
-  { value: 'responseTemplate', label: 'Response templates' },
-  { value: 'tag', label: 'Tags' },
-  { value: 'task', label: 'Tasks' },
-  { value: 'ticket', label: 'Tickets' },
-  { value: 'permission', label: 'Permissions' },
-  { value: 'user', label: 'Users' },
-  { value: 'knowledgeBaseTopic', label: 'Knowledgebase topics' },
-  { value: 'knowledgeBaseCategory', label: 'Knowledgebase categories' },
-  { value: 'knowledgeBaseArticle', label: 'Knowledgebase articles' },
-  { value: 'userGroup', label: 'User groups' },
-  { value: 'internalNote', label: 'Internal notes' },
-  { value: 'pipelineLabel', label: 'Pipeline labels' },
-  { value: 'pipelineTemplate', label: 'Pipeline templates' },
-  { value: 'growthHack', label: 'Growth hacks' },
-  { value: 'integration', label: 'Integrations' },
-  { value: 'segment', label: 'Segments' },
-  { value: 'engage', label: 'Campaigns' },
-  { value: 'script', label: 'Scripts' },
-  { value: 'dealStages', label: 'Deal stages' },
-  { value: 'taskStages', label: 'Task stages' },
-  { value: 'ticketStages', label: 'Ticket stages' },
-  { value: 'growthHackStages', label: 'Growth hack stages' }
+  { value: 'engages:engage', label: 'Campaigns' },
+  { value: 'script', label: 'Scripts' }
 ];
 
 const breadcrumb = [
