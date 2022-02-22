@@ -15,7 +15,7 @@ window.plugins = [
       {
         text: "Team Inbox",
         url: "/inbox",
-        icon: "icon-comments",
+        icon: "icon-chat",
         location: "mainNavigation",
         permission: "showConversations",
       },

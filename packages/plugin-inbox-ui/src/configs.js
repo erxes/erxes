@@ -14,7 +14,7 @@ module.exports = {
     {
       text: "Team Inbox",
       url: "/inbox",
-      icon: "icon-comments",
+      icon: "icon-chat",
       location: "mainNavigation",
       permission: "showConversations",
     },
@@ -40,11 +40,11 @@ module.exports = {
       scope: "inbox",
       component: "./settings",
       permissions: [
-        'getSkillTypes',
-        'getSkill',
-        'getSkills',
-        'manageSkills',
-        'manageSkillTypes'
+        "getSkillTypes",
+        "getSkill",
+        "getSkills",
+        "manageSkills",
+        "manageSkillTypes",
       ],
     },
     {
@@ -54,7 +54,7 @@ module.exports = {
       location: "settings",
       scope: "inbox",
       component: "./settings",
-      permissions: ['showChannels', 'manageChannels'],
+      permissions: ["showChannels", "manageChannels"],
     },
     {
       text: "Integrations",
@@ -64,16 +64,16 @@ module.exports = {
       scope: "inbox",
       component: "./settings",
       permissions: [
-        'showIntegrations',
-        'integrationsCreateMessengerIntegration',
-        'integrationsEditMessengerIntegration',
-        'integrationsSaveMessengerAppearanceData',
-        'integrationsSaveMessengerConfigs',
-        'integrationsCreateLeadIntegration',
-        'integrationsEditLeadIntegration',
-        'integrationsRemove',
-        'integrationsArchive',
-        'integrationsEdit'
+        "showIntegrations",
+        "integrationsCreateMessengerIntegration",
+        "integrationsEditMessengerIntegration",
+        "integrationsSaveMessengerAppearanceData",
+        "integrationsSaveMessengerConfigs",
+        "integrationsCreateLeadIntegration",
+        "integrationsEditLeadIntegration",
+        "integrationsRemove",
+        "integrationsArchive",
+        "integrationsEdit",
       ],
     },
     {
@@ -83,7 +83,7 @@ module.exports = {
       location: "settings",
       scope: "inbox",
       component: "./settings",
-      permissions: ['manageResponseTemplate', 'showResponseTemplates'],
+      permissions: ["manageResponseTemplate", "showResponseTemplates"],
     },
   ],
 };
