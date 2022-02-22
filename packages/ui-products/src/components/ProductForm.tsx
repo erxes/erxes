@@ -25,7 +25,7 @@ import {
 } from '@erxes/ui/src/utils';
 import { TYPES, PRODUCT_SUPPLY } from '../constants';
 import CategoryForm from '../containers/CategoryForm';
-import { Row } from '../styles';
+import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import { IProduct, IProductCategory } from '../types';
 
 type Props = {

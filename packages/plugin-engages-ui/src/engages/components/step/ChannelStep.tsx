@@ -1,8 +1,8 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { colors } from '@erxes/ui/src/styles';
 import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import { METHODS } from '../../constants';
+import { __ } from 'coreui/utils';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import styled from 'styled-components';
 

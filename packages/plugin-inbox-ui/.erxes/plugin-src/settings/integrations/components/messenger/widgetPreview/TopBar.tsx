@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IMessagesItem } from '@erxes/ui-settings/src/integrations/types';

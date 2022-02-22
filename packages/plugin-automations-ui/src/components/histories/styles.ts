@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { dimensions, colors } from '@erxes/ui/src/styles';
-import { FilterItem } from '@erxes/ui-settings/src/styles';
+import { FilterItem } from '@erxes/ui-settings/src/permissions/styles';
 
 export const HistoriesWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;

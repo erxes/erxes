@@ -2,7 +2,7 @@ import { MESSAGE_KINDS } from '../constants';
 import React from 'react';
 import AutoAndManualForm from '../containers/AutoAndManualForm';
 import VisitorForm from '../containers/VisitorForm';
-import { IEngageScheduleDate } from '../types';
+import { IEngageScheduleDate } from '@erxes/ui-engage/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 
 type Props = {

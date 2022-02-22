@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { IVideoCallData } from '@erxes/ui-inbox/src/inbox/types';
 import React, { useState } from 'react';
 import { mutations } from '../graphql';

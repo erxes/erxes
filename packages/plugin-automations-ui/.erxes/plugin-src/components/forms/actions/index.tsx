@@ -4,7 +4,7 @@ import SetProperty from '../../../containers/forms/actions/subForms/SetProperty'
 import { IAction } from '../../../types';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';

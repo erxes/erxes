@@ -1,18 +1,5 @@
-import { GENDER_TYPES, LEAD_STATUS_TYPES } from './constants';
+import { GENDER_TYPES } from './constants';
 import { roundToTwo, __ } from '@erxes/ui/src/utils';
-
-export const leadStatusChoices = __ => {
-  const options: Array<{ value: string; label: string }> = [];
-
-  for (const key of Object.keys(LEAD_STATUS_TYPES)) {
-    options.push({
-      value: key,
-      label: __(LEAD_STATUS_TYPES[key])
-    });
-  }
-
-  return options;
-};
 
 export const genderChoices = __ => {
   const options: Array<{ value: string; label: string }> = [];

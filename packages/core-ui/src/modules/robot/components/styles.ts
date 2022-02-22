@@ -175,11 +175,6 @@ const BackDrop = styled.div`
   animation-timing-function: linear;
 `;
 
-const ProgressText = styled.div`
-  color: ${colors.colorCoreGray};
-  font-size: 12px;
-`;
-
 const Container = styled.div`
   width: 280px;
   p {
@@ -257,7 +252,6 @@ export {
   BotWrapper,
   CompletedTaskWrapper,
   CompletedTaskName,
-  ProgressText,
   RestartButton,
   Container,
   SetupList,

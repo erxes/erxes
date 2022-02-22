@@ -22,6 +22,7 @@
     "css-loader": "^6.3.0",
     "html-webpack-plugin": "^5.3.2",
     "interpolate-html-plugin": "^4.0.0",
+    "json-loader": "^0.5.7",
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
     "style-loader": "^3.3.0",
@@ -37,7 +38,6 @@
   "dependencies": {
     "@types/styled-components": "^3.0.0",
     "dayjs": "1.8.15",
-    "graphql": "0.12.3",
     "graphql-tag": "2.10.0",
     "lodash.flowright": "3.5.0",
     "query-string": "5.0.0",
@@ -46,10 +46,8 @@
     "react-bootstrap": "1.0.0-beta.14",
     "react-dom": "16.11.0",
     "react-router-dom": "5.1.2",
-    "react-select-plus": "^1.0.0-rc.3.patch12",
-    "strip": "^3.0.0",
+    "react-select-plus": "^1.0.0-rc.5",
     "styled-components": "^3.2.6",
-    "styled-components-ts": "^0.0.14",
-    "underscore.string": "^3.3.5"
+    "styled-components-ts": "^0.0.14"
   }
 }

@@ -4,7 +4,6 @@ import queryString from 'query-string';
 import { queries } from './graphql';
 import { IConversation } from './types';
 import * as activityLogsUtils from '@erxes/ui/src/activityLogs/utils';
-import { LEAD_STATUS_TYPES } from '@erxes/ui/src/customers/constants';
 
 export const generateParams = queryParams => ({
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
@@ -88,16 +87,3 @@ export const urlify = (text: string) => {
 };
 
 export const hasAnyActivity = activityLogsUtils.hasAnyActivity;
-
-export const leadStatusChoices = __ => {
-  const options: Array<{ value: string; label: string }> = [];
-
-  for (const key of Object.keys(LEAD_STATUS_TYPES)) {
-    options.push({
-      value: key,
-      label: __(LEAD_STATUS_TYPES[key])
-    });
-  }
-
-  return options;
-};

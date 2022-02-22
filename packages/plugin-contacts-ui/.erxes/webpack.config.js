@@ -102,6 +102,8 @@ module.exports = {
           path.resolve(__dirname, '../../ui-cards/src'),
           path.resolve(__dirname, '../../ui-products/src'),
           path.resolve(__dirname, '../../ui-contacts/src'),
+          path.resolve(__dirname, '../../ui-inbox/src'),
+          path.resolve(__dirname, '../../ui-engage/src'),
           path.resolve(__dirname, 'plugin-src')
         ],
         use: {
@@ -129,14 +131,20 @@ module.exports = {
     new ModuleFederationPlugin({
       name: configs.name,
       filename: 'remoteEntry.js',
-      remotes: {},
+      remotes: {
+        coreui: "coreui@http://localhost:3000/remoteEntry.js"
+      },
       exposes,
       shared: {
         ...shared,
         '@erxes/ui': {
           requiredVersion: '1.0.0',
           singleton: true
-        }
+        },
+        dayjs: {
+          requiredVersion: deps["dayjs"],
+          singleton: true,
+        },
       }
     }),
     new HtmlWebPackPlugin({

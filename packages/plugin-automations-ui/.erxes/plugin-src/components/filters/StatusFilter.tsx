@@ -1,12 +1,11 @@
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
+import { IRouterProps, Counts } from '@erxes/ui/src/types';
+import { __, router } from 'coreui/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { statusFilters } from '../../constants';
-import { Counts } from '../../types';
 
 interface IProps extends IRouterProps {
   counts: Counts;

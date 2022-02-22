@@ -6,7 +6,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { __, Alert, readFile, uploadHandler } from '@erxes/ui/src/utils';
+import { __, Alert, readFile, uploadHandler } from 'coreui/utils';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
 import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {
@@ -22,7 +22,7 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from '@erxes/ui-inbox/src/inbox/styles';
-import ManageVideoRoom from '../../ManageRoom';
+import ManageVideoRoom from '../../../../videoCall/containers/ManageRoom';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';

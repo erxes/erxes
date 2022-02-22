@@ -3,11 +3,12 @@ import { AreaChart, Area, BarChart, Bar, LineChart, Line } from 'recharts';
 import React from 'react';
 import { getColors } from '../../utils';
 import MainChart from './MainChart';
-import { Item, Assignee } from '../../types';
+import { Item } from '../../types';
+import { Counts } from '@erxes/ui/src/types';
 
 type Props = {
   items: Item[];
-  assignees: Assignee[];
+  assignees: Counts[];
   chartType: string;
 };
 

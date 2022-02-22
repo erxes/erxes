@@ -3,8 +3,8 @@ import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import { queries as kbQueries } from '@erxes/ui-settings/src/general/graphql';
-import { TopicsQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql, withApollo } from 'react-apollo';
@@ -14,6 +14,7 @@ import {
   IMessengerApps,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import {ILeadMessengerApp, IWebsiteMessengerApp, IntegrationsQueryResponse, ITopicMessengerApp} from  '@erxes/ui-settings/src/integrations/types';
+import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
   selectedBrand?: string;
@@ -42,7 +43,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      topics,
+      topics: topics as ITopic[],
       leads
     };
 

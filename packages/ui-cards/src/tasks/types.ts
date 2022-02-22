@@ -1,5 +1,4 @@
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
+import { IItem } from '../boards/types';
 
 export type ITask = IItem;
 
@@ -19,11 +18,6 @@ export type EditMutationResponse = ({
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
-};
-
-export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
-  loading: boolean;
 };
 
 export type TaskDetailQueryResponse = {

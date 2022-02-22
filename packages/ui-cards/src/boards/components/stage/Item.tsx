@@ -1,4 +1,6 @@
-import { IItem, IOptions, IDeal, ITicket } from '../../types';
+import { IItem, IOptions } from '../../types';
+import { ITicket } from '../../../tickets/types';
+import { IDeal } from '../../../deals/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import queryString from 'query-string';

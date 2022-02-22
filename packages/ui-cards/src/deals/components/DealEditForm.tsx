@@ -1,21 +1,21 @@
-import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
-import Left from '@erxes/ui-cards/src/boards/components/editForm/Left';
-import Sidebar from '@erxes/ui-cards/src/boards/components/editForm/Sidebar';
-import Top from '@erxes/ui-cards/src/boards/components/editForm/Top';
+import EditForm from '../../boards/components/editForm/EditForm';
+import Left from '../../boards/components/editForm/Left';
+import Sidebar from '../../boards/components/editForm/Sidebar';
+import Top from '../../boards/components/editForm/Top';
 import { Flex } from '@erxes/ui/src/styles/main';
 import {
   HeaderContentSmall
-} from '@erxes/ui-cards/src/boards/styles/item';
+} from '../../boards/styles/item';
 import {
   IEditFormContent,
   IItem,
   IOptions
-} from '@erxes/ui-cards/src/boards/types';
+} from '../../boards/types';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ProductSection from './ProductSection';
 import { IProduct } from '@erxes/ui-products/src/types';
-import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
-import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
+import PortableTasks from '../../tasks/components/PortableTasks';
+import PortableTickets from '../../tickets/components/PortableTickets';
 import { pluginsOfItemSidebar } from '@erxes/ui/src/pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';

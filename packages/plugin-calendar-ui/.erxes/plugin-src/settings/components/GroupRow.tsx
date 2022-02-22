@@ -2,7 +2,7 @@ import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import AccountCalendars from '../containers/AccountCalendars';

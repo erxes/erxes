@@ -1,26 +1,25 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from 'modules/common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Properties from '../components/Properties';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
 import { mutations, queries } from '../graphql';
 import {
-  FieldsGroupsQueryResponse,
   FieldsGroupsRemoveMutationResponse,
   FieldsGroupsUpdateVisibleMutationResponse,
   FieldsRemoveMutationResponse,
   FieldsUpdateVisibleMutationResponse,
   FieldsUpdateOrderMutationResponse,
   FieldsUpdateOrderMutationVariables,
-  GroupsUpdateOrderMutationResponse,
-  GroupsUpdateOrderMutationVariables
+  GroupsUpdateOrderMutationResponse
 } from '../types';
-import { updateCustomFieldsCache } from '../utils';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
+import { updateCustomFieldsCache } from '@erxes/ui-settings/src/properties/utils';
 import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
@@ -234,7 +233,7 @@ export default withProps<Props>(
     graphql<
       Props,
       GroupsUpdateOrderMutationResponse,
-      GroupsUpdateOrderMutationVariables
+      FieldsUpdateOrderMutationVariables
     >(gql(mutations.groupsUpdateOrder), {
       name: 'groupsUpdateOrder',
       options

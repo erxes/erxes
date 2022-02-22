@@ -2,17 +2,17 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { AppConsumer } from "appContext";
 import { IUser } from "modules/auth/types";
 import { IItem } from "@erxes/ui-cards/src/boards/types";
 import { __ } from "modules/common/utils";
 import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
-import { Divider, Row, RowTitle } from "modules/settings/main/styles";
+import { Divider, Row, RowTitle } from "@erxes/ui-settings/src/main/styles";
 import React from "react";
 import { Route } from "react-router-dom";
 import pluginModules from "./plugins";
 import { ISubNav } from "modules/layout/components/Navigation";
+import { AppConsumer } from "appContext";
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];

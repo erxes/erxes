@@ -12,7 +12,8 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { mutations } from '../graphql';
 import { Divider, StepBody, StepHeader, StepItem } from '../styles';
-import { IActions, IModule, IUserGroup } from '../types';
+import { IActions, IModule } from '../types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import {
   correctValue,
   filterActions,

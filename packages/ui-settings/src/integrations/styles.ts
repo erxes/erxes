@@ -19,13 +19,6 @@ const ControlWrapper = styled.div`
   position: relative;
 `;
 
-const LeftSection = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 5px 10px 0 0;
-`;
-
 const MailEditorWrapper = styled.div`
   position: relative;
   background: ${colors.colorWhite};
@@ -147,10 +140,6 @@ const SpaceBetweenRow = styled.div`
   }
 `;
 
-const Column = styled.div`
-  flex: 1;
-`;
-
 const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom:${props =>
@@ -238,18 +227,41 @@ const Row = styled.div`
   }
 `;
 
+const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
+  position: relative;
+
+  input {
+    border: 1px solid ${colors.borderPrimary};
+    padding: 20px 20px 20px 30px;
+    border-radius: 5px;
+    width: ${props => (props.isInPopover ? '250px' : '500px')};
+    margin:  ${props => props.isInPopover && '5px 5px 0'};
+    background: ${colors.colorWhite};
+
+    @media (max-width: 1300px) {
+      min-width: 260px;
+    }
+  }
+
+  i {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 15px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
 export {
   Attachments,
   FlexRow,
   Row,
-  Column,
   Subject,
   ToolBar,
   Content,
   LeftContent,
   MailEditorWrapper,
   ControlWrapper,
-  LeftSection,
   Resipients,
   Uploading,
   SpaceBetweenRow,
@@ -257,5 +269,6 @@ export {
   FileSize,
   ShowReplyButtonWrapper,
   ShowReplies,
-  PopoverLinkWrapper
+  PopoverLinkWrapper,
+  SearchInput
 };

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
@@ -17,7 +17,6 @@ import {
   CountQueryResponse,
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
 } from '@erxes/ui-leads/src/types';
 
 type Props = {
@@ -185,7 +184,7 @@ export default withProps<Props>(
         };
       }
     }),
-    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
+    graphql<Props, RemoveMutationResponse, MutationVariables>(
       gql(mutations.integrationRemove),
       {
         name: 'removeMutation'

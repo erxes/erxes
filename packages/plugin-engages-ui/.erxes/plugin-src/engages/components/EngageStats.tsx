@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import Attachment from "@erxes/ui/src/components/Attachment";
-import { __ } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import React from "react";
 import {
@@ -16,10 +16,9 @@ import {
   RightSection,
   Shell,
   Title,
-  FlexRow,
-  Subject,
-} from "../styles";
-import { IEngageMessage, IEngageSmsStats, IEngageStats } from "../types";
+} from "@erxes/ui-engage/src/styles";
+import { FlexRow, Subject } from '@erxes/ui-settings/src/integrations/components/mail/styles';
+import { IEngageMessage, IEngageSmsStats, IEngageStats } from "@erxes/ui-engage/src/types";
 import StatItem from "./EngageStatItem";
 
 type Props = {

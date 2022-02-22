@@ -12,7 +12,6 @@ import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import {
   Amount,
   ContentColumn,
-  ContentRow,
   ItemRow,
   ItemText,
   Measure,
@@ -23,6 +22,7 @@ import {
 import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 import ProductRow from './ProductRow';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   uom: string[];
@@ -242,7 +242,7 @@ class ProductItem extends React.Component<Props, State> {
     ) {
       return (
         <ProductItemContainer key={productData._id}>
-          <ContentRow>
+          <Flex>
             <ProductSettings>
               <ItemRow>
                 <ItemText>{__('Tick paid or used')}:</ItemText>
@@ -343,9 +343,9 @@ class ProductItem extends React.Component<Props, State> {
               <ItemRow>
                 <ItemText>{__('Discount')}:</ItemText>
                 <ContentColumn flex="3">
-                  <ContentRow>
+                  <Flex>
                     <ContentColumn>
-                      <ContentRow>
+                      <Flex>
                         <FormControl
                           value={productData.discountPercent || ''}
                           type="number"
@@ -356,10 +356,10 @@ class ProductItem extends React.Component<Props, State> {
                           onChange={this.onChange}
                         />
                         <Measure>%</Measure>
-                      </ContentRow>
+                      </Flex>
                     </ContentColumn>
                     <ContentColumn flex="2">
-                      <ContentRow>
+                      <Flex>
                         <FormControl
                           value={productData.discount || ''}
                           type="number"
@@ -368,18 +368,18 @@ class ProductItem extends React.Component<Props, State> {
                           onChange={this.onChange}
                         />
                         <Measure>{productData.currency}</Measure>
-                      </ContentRow>
+                      </Flex>
                     </ContentColumn>
-                  </ContentRow>
+                  </Flex>
                 </ContentColumn>
               </ItemRow>
 
               <ItemRow>
                 <ItemText>{__('Tax')}:</ItemText>
                 <ContentColumn flex="3">
-                  <ContentRow>
+                  <Flex>
                     <ContentColumn>
-                      <ContentRow>
+                      <Flex>
                         <FormControl
                           defaultValue={productData.taxPercent || ''}
                           type="number"
@@ -390,7 +390,7 @@ class ProductItem extends React.Component<Props, State> {
                           onChange={this.onChange}
                         />
                         <Measure>%</Measure>
-                      </ContentRow>
+                      </Flex>
                     </ContentColumn>
                     <ContentColumn flex="2">
                       <Amount>
@@ -398,11 +398,11 @@ class ProductItem extends React.Component<Props, State> {
                         <b>{productData.currency}</b>
                       </Amount>
                     </ContentColumn>
-                  </ContentRow>
+                  </Flex>
                 </ContentColumn>
               </ItemRow>
             </ContentColumn>
-          </ContentRow>
+          </Flex>
         </ProductItemContainer>
       );
     }

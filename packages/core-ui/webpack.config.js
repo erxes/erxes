@@ -74,6 +74,7 @@ module.exports = {
           path.resolve(__dirname, "src"),
           path.resolve(__dirname, "../erxes-ui/src"),
           path.resolve(__dirname, "../ui-settings/src"),
+          path.resolve(__dirname, "../ui-engage/src"),
           path.resolve(__dirname, "../ui-contacts/src"),
           path.resolve(__dirname, "../ui-segments/src"),
           path.resolve(__dirname, "../ui-forms/src"),
@@ -131,6 +132,7 @@ module.exports = {
       filename: "remoteEntry.js",
       exposes: {
         "./appContext": "./src/appContext",
+        "./utils": "./src/modules/common/utils",
       },
       shared: {
         ...shared,
@@ -148,6 +150,7 @@ module.exports = {
           eager: true,
         },
         "./src/appContext": {},
+        "./src/modules/common/utils": {},
       },
     }),
   ],

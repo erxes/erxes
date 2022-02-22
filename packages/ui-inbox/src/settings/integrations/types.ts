@@ -3,12 +3,10 @@ import {
   IIntegration,
   ITopic,
   IUiOptions,
-  QueryVariables,
   IMessengerData,
   IWebsite,
   ILead
 } from '@erxes/ui-settings/src/integrations/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IPages {
   id: string;
@@ -61,12 +59,6 @@ export type IntegrationTypes =
   | 'smooch-viber'
   | 'smooch-line'
   | 'smooch-twilio';
-
-export type IntegrationsQueryResponse = {
-  integrations: IIntegration[];
-  loading: boolean;
-  refetch: (variables?: QueryVariables) => Promise<any>;
-};
 
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
@@ -150,16 +142,3 @@ export type CommonFieldsEditResponse = {
     };
   }) => Promise<any>;
 };
-
-export interface IChannel {
-  _id: string;
-  name: string;
-  description?: string;
-  integrationIds: string[];
-  memberIds: string[];
-  members: IUser[];
-}
-
-export interface IChannelDoc extends IChannel {
-  integrations: IIntegration[];
-}

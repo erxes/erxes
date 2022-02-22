@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { router as routerUtils } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';

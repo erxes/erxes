@@ -16,7 +16,7 @@ import {
 } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { cleanIntegrationKind } from '../../containers/utils';
+import { cleanIntegrationKind } from '@erxes/ui/src/utils';
 import { queries } from '../../graphql/index';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
 import {

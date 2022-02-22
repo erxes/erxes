@@ -11,7 +11,7 @@ import {
   Row,
   RowTitle,
   Divider,
-} from "../styles";
+} from "@erxes/ui-settings/src/main/styles";
 
 const breadcrumb = [{ title: __("Settings"), link: "/settings" }];
 const permissionActions = [

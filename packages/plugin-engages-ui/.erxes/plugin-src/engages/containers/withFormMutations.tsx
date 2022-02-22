@@ -12,8 +12,8 @@ import {
   WithFormAddMutationResponse,
   WithFormEditMutationResponse,
   WithFormMutationVariables
-} from '../types';
-import { crudMutationsOptions } from '../utils';
+} from '@erxes/ui-engage/src/types';
+import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
 import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
 
 type Props = {

@@ -1,4 +1,4 @@
-import { ItemsWrapper } from '@erxes/ui-cards/src/boards/styles/item';
+import { ItemsWrapper } from '../../styles/item';
 import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';

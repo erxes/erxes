@@ -3,7 +3,7 @@ import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IProduct } from '@erxes/ui-settings/src/productService/types';
+import { IProduct } from '../../../types';
 import React from 'react';
 import LeftSidebar from './LeftSidebar';
 

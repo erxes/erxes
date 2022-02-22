@@ -1,5 +1,5 @@
 import CountsByTag from '@erxes/ui/src/components/CountsByTag';
-import { __, router } from '@erxes/ui/src/utils';
+import { __, router } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   FieldStyle,
@@ -8,7 +8,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MESSAGE_KIND_FILTERS, statusFilters } from '../constants';
+import { MESSAGE_KIND_FILTERS, statusFilters } from '@erxes/ui-engage/src/constants';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 const { Section } = Wrapper.Sidebar;

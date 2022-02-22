@@ -3,7 +3,7 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
+import SidebarHeader from '../../common/components/SidebarHeader';
 
 class Sidebar extends React.Component<{ isThemeEnabled?: boolean; item: any }> {
   renderListItem(url: string, text: string) {

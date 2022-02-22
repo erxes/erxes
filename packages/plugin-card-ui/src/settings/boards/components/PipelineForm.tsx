@@ -8,7 +8,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { colors } from '@erxes/ui/src/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';

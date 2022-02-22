@@ -1,7 +1,7 @@
 import client from '@erxes/ui/src/apolloClient'; // will check
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
+import { queries } from '../graphql';
 import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';

@@ -32,9 +32,4 @@ const List = styled(SidebarList)`
   }
 `;
 
-const FlexItem = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-export { CompanyLogo, List, FlexItem };
+export { CompanyLogo, List };

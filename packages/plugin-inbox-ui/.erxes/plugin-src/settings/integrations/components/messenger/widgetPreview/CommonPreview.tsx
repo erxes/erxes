@@ -1,4 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
+import { WebPreview } from '@erxes/ui-engage/src/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   IMessagesItem,
@@ -81,7 +82,7 @@ class CommonPreview extends React.Component<Props> {
     const { logoPreviewStyle, logoPreviewUrl, color } = this.props;
 
     return (
-      <div>
+      <WebPreview>
         <WidgetPreviewStyled>
           <TopBar {...this.props} />
           {this.renderContent()}
@@ -96,7 +97,7 @@ class CommonPreview extends React.Component<Props> {
             logoPreviewStyle
           )}
         />
-      </div>
+      </WebPreview>
     );
   }
 }

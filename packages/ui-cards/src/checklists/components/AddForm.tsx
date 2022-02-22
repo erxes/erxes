@@ -1,4 +1,4 @@
-import { FormFooter } from '@erxes/ui-cards/src/boards/styles/item';
+import { FormFooter } from '../../boards/styles/item';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';

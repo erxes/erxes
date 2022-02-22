@@ -2,11 +2,11 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations, queries } from '@erxes/ui-settings/src/integrations/graphql';
+import { mutations, queries } from '../../graphql';
 import {
   IntegrationsQueryResponse,
   SendSmsMutationResponse
-} from '@erxes/ui-settings/src/integrations/types';
+} from '../../types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import SmsForm from '../../components/telnyx/SmsForm';

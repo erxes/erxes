@@ -7,7 +7,7 @@ import * as routerUtils from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { getWarningMessage } from '../../calendar/utils';
+import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import Boards from '../components/Boards';
 import { mutations, queries } from '../graphql';
 import { BoardsQueryResponse, RemoveBoardMutationResponse } from '../types';

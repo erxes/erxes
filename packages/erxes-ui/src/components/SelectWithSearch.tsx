@@ -9,6 +9,7 @@ import colors from '../styles/colors';
 import { IOption } from '../types';
 import { __, confirm, readFile, withProps } from '../utils';
 import Icon from './Icon';
+import { SelectOption } from '@erxes/ui-cards/src/boards/styles/item';
 
 export const SelectValue = styled.div`
   display: flex;
@@ -21,12 +22,6 @@ export const SelectValue = styled.div`
     position: absolute;
     left: 0;
   }
-`;
-
-export const SelectOption = styled.div`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 `;
 
 export const Avatar = styled.img`

@@ -9,13 +9,13 @@ import { withRouter } from 'react-router-dom';
 import { withProps } from '@erxes/ui/src/utils';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import MessageList from '../components/MessageList';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-engage/src/graphql';
 import {
   EngageMessagesQueryResponse,
   EngageMessagesTotalCountQueryResponse,
   ListQueryVariables
-} from '../types';
-import { generateListQueryVariables } from '../utils';
+} from '@erxes/ui-engage/src/types';
+import { generateListQueryVariables } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   type: string;

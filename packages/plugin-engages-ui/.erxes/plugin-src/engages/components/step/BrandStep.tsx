@@ -1,6 +1,6 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { TargetCount } from '../../types';
+import { Counts } from '@erxes/ui/src/types';
 import React from 'react';
 import Common from './Common';
 import BrandForm from './forms/BrandForm';
@@ -10,7 +10,7 @@ type Props = {
   brandIds: string[];
   brands: IBrand[];
   messageType: string;
-  targetCount: TargetCount;
+  targetCount: Counts;
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;

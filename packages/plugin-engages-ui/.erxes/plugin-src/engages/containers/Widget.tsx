@@ -4,7 +4,7 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { AddMutationResponse, IEngageMessageDoc } from '../types';
+import { AddMutationResponse, IEngageMessageDoc } from '@erxes/ui-engage/src/types';
 import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import { EmailTemplatesQueryResponse } from '@erxes/ui-settings/src/emailTemplates/types';
@@ -18,7 +18,7 @@ import {
   SENT_AS_CHOICES
 } from '../constants';
 import { mutations, queries } from '../graphql';
-import { crudMutationsOptions } from '../utils';
+import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   customers: ICustomer[];

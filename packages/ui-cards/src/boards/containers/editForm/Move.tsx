@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
+import { queries as boardQueries } from '../../graphql';
 import {
   IOptions,
   IPipeline,
   StagesQueryResponse
-} from '@erxes/ui-cards/src/boards/types';
+} from '../../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';

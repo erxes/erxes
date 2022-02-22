@@ -2,7 +2,7 @@ import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
+import { __, router } from 'coreui/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';

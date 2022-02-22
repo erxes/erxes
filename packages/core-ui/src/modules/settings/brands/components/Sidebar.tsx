@@ -4,7 +4,7 @@ import LoadMore from 'modules/common/components/LoadMore';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Spinner from 'modules/common/components/Spinner';
 import { TopHeader } from 'modules/common/styles/main';
-import { IButtonMutateProps } from 'modules/common/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import BrandForm from '@erxes/ui/src/brands/components/BrandForm';

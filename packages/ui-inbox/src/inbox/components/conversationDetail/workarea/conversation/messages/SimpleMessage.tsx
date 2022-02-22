@@ -107,8 +107,6 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     const { message, isStaff, isSameUser } = this.props;
     const messageDate = message.createdAt;
     const hasAttachment = message.attachments && message.attachments.length > 0;
-    const localizedFormat = require("dayjs/plugin/localizedFormat");
-    dayjs.extend(localizedFormat);
     
     const classes = classNames({
       ...(this.props.classes || []),

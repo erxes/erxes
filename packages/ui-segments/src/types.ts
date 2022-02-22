@@ -1,9 +1,5 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 
-export type Counts = {
-  [key: string]: number;
-};
-
 export interface IEvent {
   name: string;
   attributeNames: string[];
@@ -106,13 +102,6 @@ export type SegmentDetailQueryResponse = {
 } & QueryResponse;
 
 // mutation types
-export type AddMutationVariables = {
-  name: string;
-  description: string;
-  subOf: string;
-  color: string;
-  conditions: ISegmentCondition[];
-};
 
 export type IField = {
   selectOptions?: Array<{ label: string; value: string | number }>;
@@ -126,12 +115,12 @@ export type IField = {
 };
 
 export type AddMutationResponse = {
-  segmentsAdd: (params: { variables: AddMutationVariables }) => Promise<any>;
+  segmentsAdd: (params: { variables: ISegmentWithConditionDoc }) => Promise<any>;
 };
 
 export type EditMutationResponse = {
   segmentsEdit: (params: {
-    variables: { _id: string; doc: AddMutationVariables };
+    variables: { _id: string; doc: ISegmentWithConditionDoc };
   }) => Promise<any>;
 };
 

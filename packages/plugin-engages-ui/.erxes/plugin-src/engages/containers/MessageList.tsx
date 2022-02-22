@@ -14,8 +14,8 @@ import {
   EngageMessagesQueryResponse,
   EngageMessagesTotalCountQueryResponse,
   ListQueryVariables
-} from '../types';
-import { generateListQueryVariables } from '../utils';
+} from '@erxes/ui-engage/src/types';
+import { generateListQueryVariables } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   type: string;

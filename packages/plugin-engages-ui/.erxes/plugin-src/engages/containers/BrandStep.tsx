@@ -10,7 +10,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import BrandStep from '../components/step/BrandStep';
 import { queries } from '../graphql';
-import { sumCounts } from '../utils';
+import { sumCounts } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   messageType: string;

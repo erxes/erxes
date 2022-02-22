@@ -3,7 +3,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Table from '@erxes/ui/src/components/table';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
+import { __, router } from 'coreui/utils';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { FilterContainer } from '@erxes/ui-settings/src/styles';

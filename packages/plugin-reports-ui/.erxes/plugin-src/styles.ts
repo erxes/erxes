@@ -1,23 +1,9 @@
-// import { PageHeader } from '@erxes/ui/src/boards/styles/header';
+import { PageHeader } from '@erxes/ui-cards/src/boards/styles/header';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { Contents, MainContent } from '@erxes/ui/src/layout/styles';
-
-export const PageHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 5px ${dimensions.coreSpacing}px 2px;
-  background: ${colors.colorWhite};
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-  min-height: 50px;
-  z-index: 2;
-  @media (max-width: 768px) {
-    min-height: auto;
-    flex-direction: column;
-  }
-`;
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 const Header = styled(PageHeader)`
 min-height: auto;
@@ -106,23 +92,6 @@ position: relative;
   z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
-const ActionButtons = styled.div`
-  display: flex;
-  overflow: hidden;
-  align-items: center;
-  transition: all 0.3s ease;
-  width: 0;
-
-  * {
-    padding: 0;
-    margin-left: ${dimensions.unitSpacing}px;
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-`;
-
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -161,21 +130,4 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
-export const BoardContainer = styled(Contents)`
-  margin: 0;
-  position: unset;
-  > div {
-    padding-left: 20px;
-  }
-`;
-
-export const BoardContent = styledTS<{
-  bgColor?: string;
-  transparent?: boolean;
-}>(styled(MainContent))`
-  margin: 0;
-  background-color: ${({ bgColor, transparent }) =>
-    transparent ? 'transparent' : bgColor || colors.colorSecondary};
-`;
-
-export { Title, RightActions, Dashboards, Create, Header, SelectMemberStyled, ActionButtons, SidebarListItem };
+export { Title, RightActions, Dashboards, Create, Header, SelectMemberStyled, SidebarListItem };

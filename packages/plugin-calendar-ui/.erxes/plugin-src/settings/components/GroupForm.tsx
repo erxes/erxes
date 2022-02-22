@@ -4,7 +4,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';

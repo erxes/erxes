@@ -8,7 +8,7 @@ import {
   StageTitle,
   GroupTitle,
   ColumnLastChild
-} from '@erxes/ui-cards/src/boards/styles/stage';
+} from '../../styles/stage';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -19,7 +19,7 @@ import { IItem, IOptions } from '../../types';
 import Table from '@erxes/ui/src/components/table';
 import ListItemRow from './ListItemRow';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import Item from '@erxes/ui-cards/src/boards/components/stage/Item';
+import Item from './Item';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';

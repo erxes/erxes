@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrolledContent } from '../../../styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IAction } from '../../../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';

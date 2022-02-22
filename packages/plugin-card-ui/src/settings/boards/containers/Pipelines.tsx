@@ -7,21 +7,18 @@ import {
 } from '@erxes/ui-cards/src/boards/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
+import { __, Alert, confirm, withProps } from 'coreui/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Pipelines from '../components/Pipelines';
-import { getWarningMessage } from '../constants';
+import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import { mutations, queries } from '@erxes/ui-settings/src/boards/graphql';
 import {
   IOption,
   RemovePipelineMutationResponse,
-  RemovePipelineMutationVariables,
   ArchivePipelineMutationResponse,
-  ArchivePipelineMutationVariables,
   CopiedPipelineMutationResponse,
-  CopiedPipelineMutationVariables,
   UpdateOrderPipelineMutationResponse,
   UpdateOrderPipelineMutationVariables
 } from '../types';
@@ -244,21 +241,21 @@ export default withProps<Props>(
     graphql<
       Props,
       RemovePipelineMutationResponse,
-      RemovePipelineMutationVariables
+      MutationVariables
     >(gql(mutations?.pipelineRemove), {
       name: 'removePipelineMutation'
     }),
     graphql<
       Props,
       ArchivePipelineMutationResponse,
-      ArchivePipelineMutationVariables
+      MutationVariables
     >(gql(mutations?.pipelinesArchive), {
       name: 'archivePipelineMutation'
     }),
     graphql<
       Props,
       CopiedPipelineMutationResponse,
-      CopiedPipelineMutationVariables
+      MutationVariables
     >(gql(mutations?.pipelinesCopied), {
       name: 'copiedPipelineMutation'
     }),

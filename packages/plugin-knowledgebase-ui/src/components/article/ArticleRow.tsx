@@ -4,13 +4,11 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, getUserAvatar } from '@erxes/ui/src/utils';
+import { __, getUserAvatar } from 'coreui/utils';
 import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
 import { IArticle } from '@erxes/ui-knowledgeBase/src/types';
 import {
-  ActionButtons,
-  ArticleColumn,
   ArticleMeta,
   ArticleTitle,
   AuthorName,
@@ -18,6 +16,8 @@ import {
   ReactionCounts,
   RowArticle
 } from './styles';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
   article: IArticle;
@@ -88,7 +88,7 @@ const ArticleRow = (props: Props) => {
 
   return (
     <RowArticle>
-      <ArticleColumn>
+      <Column>
         {renderEditAction(title)}
         <p>{article.summary}</p>
         <ArticleMeta>
@@ -107,7 +107,7 @@ const ArticleRow = (props: Props) => {
           {dayjs(article.createdDate).format('ll')}
           <ReactionCounts>{renderReactions()}</ReactionCounts>
         </ArticleMeta>
-      </ArticleColumn>
+      </Column>
       <ActionButtons>
         {renderEditAction('')}
         <Tip text={__('Delete')}>

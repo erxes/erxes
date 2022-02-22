@@ -6,7 +6,7 @@ import { IAction } from '../../../../types';
 import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';

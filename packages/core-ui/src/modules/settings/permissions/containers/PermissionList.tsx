@@ -7,15 +7,14 @@ import { graphql } from 'react-apollo';
 import PermissionList from '../components/PermissionList';
 import { mutations, queries } from '../graphql';
 import {
-  IUserGroup,
   PermissionActionsQueryResponse,
   PermissionModulesQueryResponse,
   PermissionRemoveMutationResponse,
   PermissionsFixMutationResponse,
   PermissionsQueryResponse,
-  PermissionTotalCountQueryResponse,
-  UsersGroupsQueryResponse
+  PermissionTotalCountQueryResponse
 } from '../types';
+import { IUserGroup, UsersGroupsQueryResponse } from '@erxes/ui-settings/src/permissions/types';
 
 type FinalProps = {
   can: (action: string) => boolean;

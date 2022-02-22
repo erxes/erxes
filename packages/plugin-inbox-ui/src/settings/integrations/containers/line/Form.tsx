@@ -2,7 +2,7 @@ import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { Alert } from '@erxes/ui/src/utils';
 import Line from '../../components/line/Line';
 import {

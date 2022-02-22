@@ -10,7 +10,7 @@ import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import { sumCounts } from '../utils';
+import { sumCounts } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   tagIds: string[];

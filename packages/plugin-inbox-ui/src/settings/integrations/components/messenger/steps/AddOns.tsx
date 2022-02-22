@@ -7,7 +7,7 @@ import {
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { Options } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import {
@@ -15,9 +15,9 @@ import {
   IWebsite,
   IWebsiteMessengerApp,
   IIntegration,
-  ITopic,
   ITopicMessengerApp
 } from '@erxes/ui-settings/src/integrations/types';
+import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';

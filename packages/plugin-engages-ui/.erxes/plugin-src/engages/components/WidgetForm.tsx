@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { METHODS } from '../constants';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
@@ -17,9 +17,9 @@ import Select from 'react-select-plus';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import MessengerPreview from '../containers/MessengerPreview';
-import { Half, Recipient, Recipients } from '../styles';
-import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
-import { generateEmailTemplateParams } from '../utils';
+import { Half, Recipient, Recipients } from '@erxes/ui-engage/src/styles';
+import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '@erxes/ui-engage/src/types';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   customers: ICustomer[];

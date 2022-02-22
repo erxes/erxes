@@ -6,11 +6,11 @@ import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from '@erxes/ui-forms/src//forms/graphql';
 import Form from '../components/Form';
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from 'modules/settings/properties/constants';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/properties/constants';
 import {
   FieldsCombinedByTypeQueryResponse,
   IConfigColumn
-} from 'modules/settings/properties/types';
+} from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';

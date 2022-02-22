@@ -3,7 +3,7 @@ import React from 'react';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import FormSubmit from '../../../containers/forms/triggers/subForms/FormSubmit';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   closeModal: () => void;
