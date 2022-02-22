@@ -198,9 +198,9 @@ class Navigation extends React.Component<IProps, State> {
   renderMore = () => {
     const { showMenu } = this.state;
 
-    // if (pluginNavigations().length <= 4) {
-    //   return null;
-    // }
+    if (pluginNavigations().length <= 4) {
+      return null;
+    }
 
     return (
       <NavItem>
