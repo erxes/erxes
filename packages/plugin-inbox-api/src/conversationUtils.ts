@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Channels, Conversations, Integrations } from './models';
+import { Channels, Integrations } from './models';
 import { Tags, Segments } from './apiCollections';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
@@ -90,7 +90,7 @@ export const countBySegment = async (
   counts: ICountBy
 ): Promise<ICountBy> => {
   // Count cocs by segments
-  // let segments: ISegmentDocument[] = [];
+//   let segments: ISegmentDocument[] = [];
   let segments: any[] = [];
 
   segments = await Segments.find({ contentType: 'conversation' }).toArray();
