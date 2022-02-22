@@ -1,5 +1,5 @@
 import React from "react";
-import Alert from "./utils/Alert";
+import { __, Alert } from "./utils";
 
 class ErrorBoundary extends React.Component<{}, { error; errorInfo }> {
   constructor(props) {
@@ -13,16 +13,13 @@ class ErrorBoundary extends React.Component<{}, { error; errorInfo }> {
       error: error,
       errorInfo: errorInfo,
     });
-    // You can also log error messages to an error reporting service here
   }
 
   render() {
     if (this.state.errorInfo) {
-      // Error path
-      Alert.error(this.state.error.toString(), 10000);
+      Alert.error(__(this.state.error.toString()), 10000);
       return <div></div>
     }
-    // Normally, just render children
     return this.props.children;
   }
 }
