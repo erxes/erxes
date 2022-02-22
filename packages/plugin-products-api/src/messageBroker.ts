@@ -22,9 +22,7 @@ export const initBroker = async cl => {
     status: 'success',
   }));
 
-  consumeRPCQueue(
-    'products:rpc_queue:update',
-    async ({ selector, modifier }) => ({
+  consumeRPCQueue('products:rpc_queue:update', async ({ selector, modifier }) => ({
       data: await Products.updateMany(selector, modifier),
       status: 'success',
     })
@@ -46,8 +44,5 @@ export const findTags = async (selector): Promise<any> => {
 };
 
 export const findCompanies = async (selector): Promise<any> => {
-  return client.sendRPCMessage(
-    'contacts:rpc_queue:findActiveCompanies',
-    selector
-  );
+  return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
 };
