@@ -8,8 +8,10 @@ import {
   IConversation
 } from '@erxes/ui-inbox/src/inbox/types';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
+import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { renderWithProps } from '@erxes/ui/src/utils';
@@ -22,11 +24,12 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & Props &
   EditMutationResponse;
 
 const ConversationCustomFieldsSection = (props: FinalProps) => {
-  const { loading, conversation, fieldsGroupsQuery, editCustomFields } = props;
+  const { loading, conversation, fieldsGroupsQuery, configsQuery, editCustomFields } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -55,7 +58,8 @@ const ConversationCustomFieldsSection = (props: FinalProps) => {
     loading,
     isDetail: false,
     customFieldsData: conversation.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
+    configs: configsQuery.configs || []
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -77,6 +81,9 @@ export default (props: Props) => {
           })
         }
       ),
+      graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+        name: 'configsQuery'
+      }),
       graphql<Props, EditMutationResponse, EditCustomFieldsMutationVariables>(
         gql(mutations.editCustomFields),
         {

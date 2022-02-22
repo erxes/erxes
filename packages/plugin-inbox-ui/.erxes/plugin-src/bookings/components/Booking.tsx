@@ -32,11 +32,13 @@ import { IForm, IFormData } from '@erxes/ui-forms/src/forms/types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { IAttachment } from '@erxes/ui/src/types';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
 
 type Props = {
   integration?: IBookingIntegration;
   queryParams?: any;
   history: any;
+  configs: IConfig[];
   save: (params: {
     name: string;
     brandId: string;
@@ -84,7 +86,8 @@ function Booking(props: Props) {
     afterFormDbSave,
     isReadyToSaveForm,
     emailTemplates,
-    productFields
+    productFields,
+    configs
   } = props;
 
   const integration = props.integration || ({} as IBookingIntegration);
@@ -388,6 +391,7 @@ function Booking(props: Props) {
             skip={true}
             carousel={state.carousel}
             formData={state.formData}
+            configs={configs}
             successImage={state.successImage}
             successImgSize={state.successImageSize}
           />

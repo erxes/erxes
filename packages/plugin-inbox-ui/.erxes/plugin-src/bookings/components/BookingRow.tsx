@@ -33,13 +33,13 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
   const form = integration.form || ({} as any);
 
   const createdUser = form.createdUser || {
-    _id: '',
+    _id: "",
     details: {
-      fullName: ''
-    }
+      fullName: "",
+    },
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(integration, e.target.checked);
     }
@@ -48,9 +48,9 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
   const manageAction = () => {
     return (
       <Link to={`/bookings/edit/${integration._id}`}>
-        <Button id='skill-edit-skill' btnStyle='link'>
-          <Tip text={__('Manage')} placement='bottom'>
-            <Icon icon='edit-3' />
+        <Button id="skill-edit-skill" btnStyle="link">
+          <Tip text={__("Manage")} placement="bottom">
+            <Icon icon="edit-3" />
           </Tip>
         </Button>
       </Link>
@@ -61,13 +61,13 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     const onClick = () => remove(integration._id);
 
     return (
-      <WithPermission action='integrationsRemove'>
-        <Tip text={__('Delete')} placement='top'>
+      <WithPermission action="integrationsRemove">
+        <Tip text={__("Delete")} placement="top">
           <Button
-            id='integrationDelete'
-            btnStyle='link'
+            id="integrationDelete"
+            btnStyle="link"
             onClick={onClick}
-            icon='times-circle'
+            icon="times-circle"
           />
         </Tip>
       </WithPermission>
@@ -82,9 +82,9 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     }
 
     return (
-      <WithPermission action='integrationsArchive'>
-        <Tip text={__('Archive')} placement='top'>
-          <Button btnStyle='link' onClick={onClick} icon='archive-alt' />
+      <WithPermission action="integrationsArchive">
+        <Tip text={__("Archive")} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
     );
@@ -98,9 +98,9 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     }
 
     return (
-      <WithPermission action='integrationsArchive'>
-        <Tip text={__('Unarchive')} placement='top'>
-          <Button btnStyle='link' onClick={onClick} icon='redo' />
+      <WithPermission action="integrationsArchive">
+        <Tip text={__("Unarchive")} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="redo" />
         </Tip>
       </WithPermission>
     );
@@ -108,19 +108,19 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
 
   const renderEditAction = () => {
     const trigger = (
-      <Button btnStyle='link'>
-        <Tip text={__('Install code')} placement='top'>
-          <Icon icon='code' />
+      <Button btnStyle="link">
+        <Tip text={__("Install code")} placement="top">
+          <Icon icon="code" />
         </Tip>
       </Button>
     );
 
-    const content = props => <Manage integration={integration} {...props} />;
+    const content = (props) => <Manage integration={integration} {...props} />;
 
     return (
       <ModalTrigger
         title={`Install code of ${bookingData.name}`}
-        size='lg'
+        size="lg"
         trigger={trigger}
         content={content}
         isAnimate={true}
@@ -128,15 +128,15 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
     );
   };
 
-  const labelStyle = integration.isActive ? 'success' : 'warning';
-  const status = integration.isActive ? __('Active') : __('Archived');
+  const labelStyle = integration.isActive ? "success" : "warning";
+  const status = integration.isActive ? __("Active") : __("Archived");
 
   return (
     <tr>
       <td>
         <FormControl
           checked={isChecked}
-          componentClass='checkbox'
+          componentClass="checkbox"
           onChange={onChange}
         />
       </td>
@@ -166,8 +166,8 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
         </div>
       </td>
       <td>
-        <Icon icon='calender' />{' '}
-        <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
+        <Icon icon="calender" />{" "}
+        <DateWrapper>{dayjs(form.createdDate).format("ll")}</DateWrapper>
       </td>
 
       <td>

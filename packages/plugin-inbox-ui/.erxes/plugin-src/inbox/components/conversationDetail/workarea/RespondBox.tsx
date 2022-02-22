@@ -22,7 +22,7 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from '@erxes/ui-inbox/src/inbox/styles';
-import ManageVideoRoom from '../../ManageRoom';
+import ManageVideoRoom from '../../../../videoCall/containers/ManageRoom';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';

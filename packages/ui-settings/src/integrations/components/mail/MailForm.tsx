@@ -108,7 +108,7 @@ class MailForm extends React.Component<Props, State> {
     const cc = replyAll ? formatObj(mailData.cc || []) : '';
     const bcc = replyAll ? formatObj(mailData.bcc || []) : '';
 
-    const [from] = mailData.from || ([] as IEmail[]);
+    const [from] = mailData.from || [{}] as IEmail[];
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
     const fromId = this.getIntegrationId(

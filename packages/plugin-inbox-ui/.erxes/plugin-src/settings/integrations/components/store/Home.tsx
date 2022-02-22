@@ -9,7 +9,7 @@ import React from 'react';
 import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
 import Row from './Row';
 import Sidebar from './Sidebar';
-import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
+import { Content, FullHeight, IntegrationWrapper, SearchInput } from '@erxes/ui-settings/src/integrations/components/store/styles';
 import { Title } from '@erxes/ui/src/styles/main';
 
 type Props = {

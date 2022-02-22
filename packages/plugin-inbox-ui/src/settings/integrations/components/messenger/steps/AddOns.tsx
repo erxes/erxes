@@ -15,9 +15,9 @@ import {
   IWebsite,
   IWebsiteMessengerApp,
   IIntegration,
-  ITopic,
   ITopicMessengerApp
 } from '@erxes/ui-settings/src/integrations/types';
+import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
