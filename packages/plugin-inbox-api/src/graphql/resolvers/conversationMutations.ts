@@ -260,8 +260,7 @@ const sendNotifications = async ({
           conversationId: conversation._id
         });
       } catch (e) {
-        // Todo uncomment
-        // debugError(`Failed to send mobile notification: ${e.message}`);
+        debug.error(`Failed to send mobile notification: ${e.message}`);
       }
     }
   }
