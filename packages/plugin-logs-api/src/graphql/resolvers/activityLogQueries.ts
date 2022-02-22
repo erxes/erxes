@@ -3,8 +3,8 @@ import { IContext } from '@erxes/api-utils/src/types';
 
 import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
-import { fetchActivityLogs, fetchLogs } from '../../utils';
-import { collectServiceItems, getCardContentIds, getInternalNotes } from '../../messageBroker';
+import { fetchActivityLogs, fetchLogs, findActivityLogs } from '../../utils';
+import { getCardContentIds, getInternalNotes } from '../../messageBroker';
 
 export interface IListArgs {
   contentType: string;
@@ -25,8 +25,7 @@ const activityLogQueries = {
    * Get activity log list
    */
   async activityLogs(_root, doc: IListArgs, { user }: IContext) {
-    const { contentType, contentId, activityType } = doc;
-
+    const { activityType } = doc;
     let activities: IActivityLogDocument[] = [];
 
     const collectItems = (items: any, type?: string) => {
@@ -41,26 +40,6 @@ const activityLogQueries = {
       });
     };
 
-    const collectCampaigns = async () => {
-      const resp = await fetchActivityLogs({
-        contentId,
-        contentType: 'campaign-email'
-      });
-
-      collectItems(resp.activityLogs);
-    };
-
-    const collectSms = async () => {
-      const resp = await fetchActivityLogs(
-        {
-          contentId,
-          contentType: 'campaign-sms'
-        },
-      );
-
-      collectItems(resp.activityLogs);
-    };
-
     if (activityType && activityType.startsWith('plugin')) {
       const pluginResponse = await collectPluginContent(
         doc,
@@ -68,17 +47,12 @@ const activityLogQueries = {
         activities,
         collectItems
       );
+
       if (pluginResponse) {
         activities = activities.concat(pluginResponse);
       }
     } else {
-      if (activityType === 'campaign-sms') {
-        await collectSms();
-      } else if (activityType === 'campaign-email') {
-        await collectCampaigns();
-      } else {
-        collectItems(await collectServiceItems(activityType, { contentId, contentType }));
-      }
+      await findActivityLogs(doc, collectItems);
     }
 
     activities.sort((a, b) => {
