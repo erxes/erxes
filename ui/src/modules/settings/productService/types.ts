@@ -45,7 +45,10 @@ export type AddMutationResponse = {
 };
 
 export type EditMutationResponse = {
-  editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
+  editMutation: (mutation: {
+    variables: MutationVariables;
+    refetchQueries: any[];
+  }) => Promise<any>;
 };
 
 export type ProductRemoveMutationResponse = {

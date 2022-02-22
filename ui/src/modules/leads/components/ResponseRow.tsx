@@ -1,13 +1,5 @@
-// import dayjs from 'dayjs';
-// import FormControl from 'modules/common/components/form/Control';
-// import Icon from 'modules/common/components/Icon';
-// import Label from 'modules/common/components/Label';
-// import Tags from 'modules/common/components/Tags';
 import TextInfo from 'modules/common/components/TextInfo';
-// import { DateWrapper } from 'modules/common/styles/main';
-
 import { IFormResponse } from 'modules/forms/types';
-
 import React from 'react';
 
 type Props = {
