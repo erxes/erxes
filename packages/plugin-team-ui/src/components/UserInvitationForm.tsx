@@ -7,7 +7,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter, LinkButton } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';

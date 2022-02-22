@@ -10,7 +10,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __, extractAttachment } from '@erxes/ui/src/utils';
+import { __, extractAttachment } from 'coreui/utils';
 import { IGrowthHack, IGrowthHackParams } from '../../types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';

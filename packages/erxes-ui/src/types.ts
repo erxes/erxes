@@ -1,4 +1,5 @@
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IUser } from './auth/types';
+import { IActivityLogForMonth } from './activityLogs/types';
 
 export interface IRouterProps {
   history: any;
@@ -36,11 +37,6 @@ export interface IBreadCrumbItem {
   link?: string;
 }
 
-export interface ISubMenuItem {
-  title: string;
-  link?: string;
-}
-
 export interface IQueryParams {
   [key: string]: string;
 }
@@ -71,6 +67,12 @@ export interface IFieldLogic {
   __typename?: string;
 }
 
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
+}
+
 export interface IField {
   _id: string;
   key?: string;
@@ -82,6 +84,7 @@ export interface IField {
   content?: string;
   description?: string;
   options?: string[];
+  locationOptions?: ILocationOption[];
   isRequired?: boolean;
   order?: React.ReactNode;
   canHide?: boolean;
@@ -167,4 +170,17 @@ export type QueryResponse = {
   loading: boolean;
   refetch: () => Promise<any>;
   error?: string;
+};
+
+export type MutationVariables = {
+  _id: string;
+};
+
+export type ActivityLogQueryResponse = {
+  activityLogs: IActivityLogForMonth[];
+  loading: boolean;
+};
+
+export type Counts = {
+  [key: string]: number;
 };

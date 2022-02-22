@@ -102,6 +102,8 @@ module.exports = {
           path.resolve(__dirname, "../../ui-segments/src"),
           path.resolve(__dirname, "../../ui-contacts/src"),
           path.resolve(__dirname, "../../ui-team/src"),
+          path.resolve(__dirname, "../../ui-inbox/src"),
+          path.resolve(__dirname, "../../ui-engage/src"),
           path.resolve(__dirname, "plugin-src"),
         ],
         use: {
@@ -129,7 +131,9 @@ module.exports = {
     new ModuleFederationPlugin({
       name: configs.name,
       filename: "remoteEntry.js",
-      remotes: {},
+      remotes: {
+        coreui: "coreui@http://localhost:3000/remoteEntry.js"
+      },
       exposes,
       shared: {
         ...shared,

@@ -7,8 +7,8 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import ChannelForm from '../containers/ChannelForm';
-import { IChannel } from '../types';
+import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
+import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import ChannelRow from './ChannelRow';
 
 type Props = {

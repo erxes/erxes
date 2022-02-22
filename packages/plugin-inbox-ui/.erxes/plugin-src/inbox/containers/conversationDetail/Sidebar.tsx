@@ -13,7 +13,8 @@ import { graphql } from "react-apollo";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { withProps } from "@erxes/ui/src/utils";
 import { ICustomer } from "@erxes/ui/src/customers/types";
-import { CustomerDetailQueryResponse, IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { CustomerDetailQueryResponse } from "@erxes/ui-contacts/src/customers/types";
 import { getConfig } from "@erxes/ui-inbox/src/inbox/utils";
 
 type Props = {

@@ -7,7 +7,7 @@ import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import {
   AddMutationResponse,
-  AddMutationVariables,
+  ISegmentWithConditionDoc,
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse
 } from '@erxes/ui-segments/src/types';
@@ -15,8 +15,8 @@ import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/proper
 import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentStep from '../components/step/SegmentStep';
-import { mutations, queries } from '../graphql';
-import { sumCounts } from '../utils';
+import { mutations, queries } from '@erxes/ui-engage/src/graphql';
+import { sumCounts } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   segmentIds: string[];
@@ -138,7 +138,7 @@ export default withProps<Props>(
     graphql<Props, HeadSegmentsQueryResponse>(gql(queries.headSegments), {
       name: 'headSegmentsQuery'
     }),
-    graphql<Props, AddMutationResponse, AddMutationVariables>(
+    graphql<Props, AddMutationResponse, ISegmentWithConditionDoc>(
       gql(mutations.segmentsAdd),
       { name: 'segmentsAdd' }
     ),

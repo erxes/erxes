@@ -82,10 +82,50 @@ const forms = `
   }
 `;
 
+const formSubmissions = `
+query formSubmissions(
+  $tagId: String
+  $formId: String
+  $contentTypeIds: [String]
+  $filters: [SubmissionFilter]
+) {
+  formSubmissions(
+    tagId: $tagId
+    formId: $formId
+    contentTypeIds: $contentTypeIds
+    filters: $filters
+  ) {
+    contentTypeId
+    customerId
+    createdAt
+    customer {
+      primaryEmail
+      primaryPhone
+      lastName
+      firstName
+    }
+    createdAt
+    submissions {
+      formFieldId
+      value
+      submittedAt
+    }
+  }
+}
+`;
+
+const formSubmissionTotalCount = `
+  query formSubmissionsTotalCount($integrationId: String!) {
+    formSubmissionsTotalCount(integrationId: $integrationId)
+  }
+`;
+
 export default {
   fieldsDefaultColumnsConfig,
   fieldsCombinedByContentType,
   fields,
   formDetail,
-  forms
+  forms,
+  formSubmissions,
+  formSubmissionTotalCount
 };

@@ -9,7 +9,7 @@ import {
   EditItemMutationResponse,
   EditItemMutationVariables,
   IChecklistItem,
-  RemoveItemMutationResponse
+  RemoveMutationResponse
 } from '../types';
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
 
 type FinalProps = {
   editItemMutation: EditItemMutationResponse;
-  removeItemMutation: RemoveItemMutationResponse;
+  removeItemMutation: RemoveMutationResponse;
 } & Props;
 
 class ItemContainer extends React.Component<FinalProps> {
@@ -77,7 +77,7 @@ export default withProps<Props>(
         options
       }
     ),
-    graphql<Props, RemoveItemMutationResponse, { _id: string }>(
+    graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.checklistItemsRemove),
       {
         name: 'removeItemMutation',

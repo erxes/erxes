@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
 import styled from 'styled-components';
-import { SubHeading } from 'modules/settings/styles';
+import { SubHeading } from '@erxes/ui-settings/src/styles';
 
 const Box = styled(BoxRoot)`
   width: 320px;

@@ -1,4 +1,4 @@
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
 import RTG from 'react-transition-group';
@@ -8,7 +8,6 @@ import Form from '@erxes/ui/src/components/form/Form';
 import { IAction, IAutomation, ITrigger, IAutomationNote } from '../../types';
 import {
   Container,
-  CenterFlexRow,
   BackButton,
   Title,
   RightDrawerContainer,
@@ -52,6 +51,7 @@ import TemplateForm from '../../containers/forms/TemplateForm';
 import Histories from '../../components/histories/Wrapper';
 import Confirmation from '../../containers/forms/Confirmation';
 import { TRIGGER_TYPES } from '../../constants';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -671,7 +671,7 @@ class AutomationForm extends React.Component<Props, State> {
     const { isActionTab, name } = this.state;
 
     return (
-      <CenterFlexRow>
+      <FlexContent>
         <Link to={`/automations`}>
           <BackButton>
             <Icon icon="angle-left" size={20} />
@@ -703,7 +703,7 @@ class AutomationForm extends React.Component<Props, State> {
             </TabTitle>
           </Tabs>
         </CenterBar>
-      </CenterFlexRow>
+      </FlexContent>
     );
   }
 

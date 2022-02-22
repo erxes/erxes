@@ -303,10 +303,6 @@ const Error = styled.label`
   font-size: 12px;
 `;
 
-const FlexWrapper = styled.span`
-  flex: 1;
-`;
-
 const Progress = styled.div`
   width: 100%;
   margin-bottom: ${dimensions.unitSpacing}px;
@@ -335,7 +331,6 @@ export {
   FormLabel,
   Label,
   Formgroup,
-  FlexWrapper,
   Error,
   Progress
 };

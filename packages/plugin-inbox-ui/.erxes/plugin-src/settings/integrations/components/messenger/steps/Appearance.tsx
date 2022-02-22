@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import { TEXT_COLORS } from '@erxes/ui-cards/src/boards/constants';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __, uploadHandler } from '@erxes/ui/src/utils';
+import { __, uploadHandler } from 'coreui/utils';
 import {
   BackgroundSelector,
   SubItem,

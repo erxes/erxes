@@ -5,8 +5,9 @@ import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Capitalize } from '../styles';
-import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
+import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
+import { IActions, IModule, IPermissionDocument } from '../types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import { filterActions } from './utils';
 
 type Props = {

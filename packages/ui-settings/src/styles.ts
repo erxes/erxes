@@ -2,6 +2,7 @@ import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DateContainer } from '@erxes/ui/src/styles/main';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -129,19 +130,6 @@ const WidgetBackgrounds = styled.div`
   flex-wrap: wrap;
 `;
 
-const Capitalize = styled.span`
-  text-transform: capitalize;
-  font-weight: 500;
-`;
-
-const FilterItem = styled(DateContainer)`
-  position: relative;
-  float: left;
-  min-width: 200px;
-  margin-right: 20px;
-  z-index: 100;
-`;
-
 const FlexItem = styled(DateContainer)`
   flex: 1;
   margin: 0;
@@ -225,10 +213,6 @@ const FilterContainer = styled.div`
   z-index: 2;
 `;
 
-const NotWrappable = styled.div`
-  white-space: nowrap;
-`;
-
 const SidebarList = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 
@@ -237,23 +221,61 @@ const SidebarList = styled.div`
   }
 `;
 
-// permissions common style
-const FilterWrapper = styled.div`
-  padding: 10px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
-
-  strong {
-    margin-right: 10px;
-  }
-`;
-
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
   max-width: 640px;
   margin: 0 auto;
+`;
+
+const LogoContainer = styled.div`
+  color: ${colors.colorWhite};
+  line-height: 56px;
+  text-align: center;
+  border-radius: 28px;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
+  background-image: url("/images/erxes.png");
+  background-color: ${colors.colorPrimary};
+  background-position: center;
+  background-size: 20px;
+  background-repeat: no-repeat;
+  margin-top: ${dimensions.unitSpacing}px;
+  position: relative;
+  float: right;
+  display: table;
+
+  span {
+    position: absolute;
+    width: ${coreSpace};
+    height: ${coreSpace};
+    background: ${colors.colorCoreRed};
+    display: block;
+    right: -2px;
+    top: -5px;
+    color: ${colors.colorWhite};
+    border-radius: ${dimensions.unitSpacing}px;
+    text-align: center;
+    line-height: ${coreSpace};
+    font-size: ${dimensions.unitSpacing}px;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  label {
+    display: block;
+    margin: 0;
+    visibility: hidden;
+    border-radius: 50%;
+  }
+
+  &:hover label {
+    visibility: visible;
+    cursor: pointer;
+  }
 `;
 
 export {
@@ -265,14 +287,11 @@ export {
   FlexRow,
   SubHeading,
   WidgetBackgrounds,
-  Capitalize,
   SidebarListItem,
-  FilterItem,
   BackgroundSelector,
   SubItem,
   FilterContainer,
-  NotWrappable,
   SidebarList,
-  FilterWrapper,
-  ContentBox
+  ContentBox,
+  LogoContainer
 };

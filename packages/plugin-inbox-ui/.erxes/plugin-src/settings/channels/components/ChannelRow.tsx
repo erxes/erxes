@@ -4,13 +4,13 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ChannelForm from '../containers/ChannelForm';
-import { IChannel } from '../types';
+import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
+import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
 
 type Props = {

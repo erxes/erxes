@@ -4,8 +4,8 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import EmailForm from '../components/EmailForm';
-import { mutations, queries } from '../graphql';
-import { EngageVerifiedEmailsQueryResponse, IEmailFormProps } from '../types';
+import { mutations, queries } from '@erxes/ui-engage/src/graphql';
+import { EngageVerifiedEmailsQueryResponse, IEmailFormProps } from '@erxes/ui-engage/src/types';
 
 type FinalProps = {
   engageVerifiedEmailsQuery: EngageVerifiedEmailsQueryResponse;

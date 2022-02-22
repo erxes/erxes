@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
-import { QueryResponse } from 'modules/common/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { IUserGroup } from'@erxes/ui-settings/src/permissions/types';
 
 export interface IPermission {
   module: string;
@@ -68,23 +69,10 @@ export type PermissionsFixMutationResponse = {
   fixPermissionsMutation: () => Promise<any>;
 };
 
-export interface IUserGroup {
-  _id: string;
-  name?: string;
-  description?: string;
-  memberIds?: string[];
-  members?: IUser[];
-}
-
 export interface IUserGroupDocument extends IUserGroup {
   _id: string;
   objects: IUserGroup[];
 }
-
-export type UsersGroupsQueryResponse = {
-  usersGroups: IUserGroup[];
-  loading: boolean;
-};
 
 export type UsersGroupsTotalCountQueryResponse = {
   usersGroupsTotalCount: number;

@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { IRouterProps } from 'modules/common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { bustIframe } from 'modules/common/utils';
 import { NotifProvider } from '@erxes/ui-notifications/src/context';
 import Robot from 'modules/robot/containers/Robot';

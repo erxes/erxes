@@ -2,7 +2,7 @@
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import { SimpleButton } from '@erxes/ui/src/styles/main';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';

@@ -6,7 +6,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ITag } from '@erxes/ui/src/tags/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';

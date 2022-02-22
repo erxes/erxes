@@ -1,5 +1,6 @@
 import { Input } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { darken } from '@erxes/ui/src/styles/ecolor';
 import { highlight } from '@erxes/ui/src/utils/animations';
 import styled from 'styled-components';
@@ -31,16 +32,12 @@ const ProductItemContainer = styled.div`
   }
 `;
 
-const ContentRow = styled.div`
-  display: flex;
-`;
-
-const ItemRow = styled(ContentRow)`
+const ItemRow = styled(Flex)`
   margin-bottom: 5px;
   align-items: center;
 `;
 
-const ContentRowTitle = styled(ContentRow)`
+const ContentRowTitle = styled(Flex)`
   text-align: center;
   margin-top: ${dimensions.coreSpacing}px;
 `;
@@ -197,11 +194,6 @@ const ProductTableWrapper = styled.div`
   }
 `;
 
-const NameWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const RemoveRow = styled.div`
   color: ${colors.colorCoreRed};
 
@@ -245,7 +237,6 @@ export {
   ItemText,
   Amount,
   ProductItemContainer,
-  ContentRow,
   ContentRowTitle,
   ItemRow,
   ContentColumn,
@@ -254,7 +245,6 @@ export {
   WrongLess,
   ProductTableWrapper,
   TypeBox,
-  NameWrapper,
   ProductSettings,
   RemoveRow
 };

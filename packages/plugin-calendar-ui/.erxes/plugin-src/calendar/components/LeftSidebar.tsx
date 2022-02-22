@@ -10,7 +10,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { STORAGE_CALENDAR_IDS } from '../constants';
 import EventForm from '../containers/EventForm';
-import { CalendarItem, CommonWrapper, SidebarHeading } from '../styles';
+import { CalendarItem, SidebarHeading } from '../styles';
+import { MenuFooter } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 import { IAccount, INylasCalendar } from '../types';
 import BoardChooser from './BoardChooser';
 
@@ -164,7 +165,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
     if (accounts.length === 0) {
       return (
-        <CommonWrapper>
+        <MenuFooter>
           <Link
             to={`/settings/calendars?boardId=${
               currentBoard ? currentBoard._id : ''
@@ -174,7 +175,7 @@ class LeftSidebar extends React.Component<Props, State> {
               Connect account
             </Button>
           </Link>
-        </CommonWrapper>
+        </MenuFooter>
       );
     }
 
@@ -214,7 +215,7 @@ class LeftSidebar extends React.Component<Props, State> {
     const disabled = this.props.accounts.length === 0;
 
     return (
-      <CommonWrapper>
+      <MenuFooter>
         <Button
           btnStyle={!disabled ? 'success' : 'simple'}
           onClick={this.onHideModal}
@@ -229,7 +230,7 @@ class LeftSidebar extends React.Component<Props, State> {
           isPopupVisible={this.state.isPopupVisible}
           onHideModal={this.onHideModal}
         />
-      </CommonWrapper>
+      </MenuFooter>
     );
   }
 

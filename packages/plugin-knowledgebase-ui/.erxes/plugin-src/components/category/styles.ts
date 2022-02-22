@@ -71,4 +71,4 @@ const CategoryItem = styledTS<{
   }
 `;
 
-export { Categories, CategoryItem, ActionButtons };
+export { Categories, CategoryItem };

@@ -10,7 +10,7 @@ import {
   IFormProps,
   IRouterProps
 } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import * as React from 'react';
 import { withRouter } from 'react-router-dom';

@@ -17,7 +17,7 @@ import {
   IEngageMessageDoc,
   IEngageScheduleDate,
   IIntegrationWithPhone
-} from '../types';
+} from '@erxes/ui-engage/src/types';
 import withFormMutations from './withFormMutations';
 
 type Props = {

@@ -1,23 +1,15 @@
 import {
   IAttachment,
   IConditionsRule,
-  QueryResponse
+  QueryResponse,
+  MutationVariables,
+  Counts
 } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
-
-// check duplication
-// export interface ILeadIntegration {
-//   _id: string;
-//   name: string;
-//   code: string;
-//   kind: string;
-//   brand: IBrand;
-//   form: IForm;
-// }
 
 export interface ICallout {
   title?: string;
@@ -72,13 +64,9 @@ export interface ILeadIntegration extends IIntegration {
   createdUser: IUser;
 }
 
-export type RemoveMutationVariables = {
-  _id: string;
-};
-
 export type RemoveMutationResponse = {
   removeMutation: (params: {
-    variables: RemoveMutationVariables;
+    variables: MutationVariables;
   }) => Promise<any>;
 };
 
@@ -91,10 +79,6 @@ export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration[];
 } & QueryResponse;
 
-export type Counts = {
-  [key: string]: number;
-};
-
 export type IntegrationsCount = {
   total: number;
   byTag: Counts;
@@ -102,10 +86,6 @@ export type IntegrationsCount = {
   byBrand: Counts;
   byKind: Counts;
   byStatus: Counts;
-};
-
-export type TagCountQueryResponse = {
-  [key: string]: number;
 };
 
 export type CountQueryResponse = {

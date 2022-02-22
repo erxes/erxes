@@ -7,11 +7,11 @@ import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   mutations as engageMutations,
   queries as engageQueries
-} from '../../engages/graphql';
+} from '@erxes/ui-engage/src/graphql';
 import {
   EngageConfigQueryResponse,
   EngageVerifiedEmailsQueryResponse
-} from '../../engages/types';
+} from '@erxes/ui-engage/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

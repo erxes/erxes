@@ -1,11 +1,11 @@
 import EmailForm from '../../containers/EmailForm';
 import React from 'react';
-import { METHODS } from '../../constants';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEngageEmail,
   IEngageMessenger,
   IEngageScheduleDate
-} from '../../types';
+} from '@erxes/ui-engage/src/types';
 import MessengerForm from '../MessengerForm';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';

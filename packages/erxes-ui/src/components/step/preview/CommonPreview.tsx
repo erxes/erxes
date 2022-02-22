@@ -1,12 +1,14 @@
 import Button from '../../Button';
 import { readFile } from '../../../utils';
+import {
+  LauncherContainer,
+  WebPreview,
+  WidgetPreview
+} from '@erxes/ui-engage/src/styles';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import styled from 'styled-components';
 import {
-  LauncherContainer,
-  WebPreview,
-  WidgetPreview,
   BodyContent,
   CallOutBody,
   CenterContainer,

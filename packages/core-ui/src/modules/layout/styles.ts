@@ -101,11 +101,6 @@ const Authlayout = styled.div`
   }
 `;
 
-const AuthContent = styled.div`
-  margin: auto;
-  position: relative;
-`;
-
 const AuthDescription = styled.div`
   margin: 20px 0;
 
@@ -144,23 +139,6 @@ const AuthDescription = styled.div`
   .not-found {
     margin-top: 0;
   }
-`;
-
-const MobileRecommend = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  font-size: 12px;
-  background: linear-gradient(
-    to right,
-    ${colors.colorSecondary},
-    ${colors.colorCoreTeal}
-  );
-  color: ${colors.colorWhite};
-  transition: all ease 0.3s;
-  padding: 15px ${dimensions.coreSpacing}px;
-  box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
 `;
 
 const PasswordWithEye = styled.div`
@@ -534,10 +512,8 @@ export {
   WhiteBoxRoot,
   WhiteBox,
   Authlayout,
-  AuthContent,
   AuthDescription,
   SectionBodyItem,
-  MobileRecommend,
   FieldStyle,
   PasswordWithEye,
   LeftNavigation,

@@ -4,12 +4,12 @@ import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IOption, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
+import { __, router } from 'coreui/utils';
 import queryString from 'query-string';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { HACKSTAGES } from '../constants';
+import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
 import options from '../options';
 
 interface IProps extends IRouterProps {

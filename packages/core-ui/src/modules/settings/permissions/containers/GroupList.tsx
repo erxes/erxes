@@ -7,10 +7,10 @@ import {
   UsersGroupsAddMutation,
   UsersGroupsCopyMutation,
   UsersGroupsEditMutation,
-  UsersGroupsQueryResponse,
   UsersGroupsRemoveMutation,
   UsersGroupsTotalCountQueryResponse
 } from '../types';
+import { UsersGroupsQueryResponse } from '@erxes/ui-settings/src/permissions/types';
 
 type Props = {
   queryParams: any;

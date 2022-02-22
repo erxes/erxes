@@ -6,7 +6,7 @@ import { Indicator } from '@erxes/ui/src/components/step/styles';
 import { StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import React from 'react';
@@ -27,12 +27,14 @@ import {
 } from './step';
 import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import StyleSheetStep from './step/StyleSheetStep';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
 
 type Props = {
   integration?: ILeadIntegration;
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
+  configs: IConfig[];
   emailTemplates?: IEmailTemplate[];
   afterFormDbSave: (formId: string) => void;
   save: (params: {
@@ -305,7 +307,7 @@ class Lead extends React.Component<Props, State> {
       successPreviewStyle
     } = this.state;
 
-    const { integration, emailTemplates } = this.props;
+    const { integration, emailTemplates, configs } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
@@ -452,6 +454,7 @@ class Lead extends React.Component<Props, State> {
               calloutImgSize={calloutImgSize}
               successImgSize={successImageSize}
               successImage={successImage}
+              configs={configs}
             />
           </PreviewWrapper>
         </Content>

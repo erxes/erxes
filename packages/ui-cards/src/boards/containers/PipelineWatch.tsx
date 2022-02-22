@@ -4,7 +4,7 @@ import {
   IPipeline,
   WatchMutation,
   WatchVariables
-} from '@erxes/ui-cards/src/boards/types';
+} from '../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import * as React from 'react';
 import { graphql } from 'react-apollo';

@@ -6,7 +6,8 @@ import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { __ } from '../../../common/utils';
-import { ActionButtons, SidebarListItem } from '../../styles';
+import { SidebarListItem } from '../../styles';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { IBrand } from '../types';
 
 type Props = {

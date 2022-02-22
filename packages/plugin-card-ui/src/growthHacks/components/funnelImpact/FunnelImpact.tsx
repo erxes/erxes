@@ -4,8 +4,8 @@ import {
   BoardContent
 } from '@erxes/ui-cards/src/boards/styles/common';
 import { colors } from '@erxes/ui/src/styles';
-import { __ } from '@erxes/ui/src/utils';
-import { HACKSTAGES } from '../../constants';
+import { __ } from 'coreui/utils';
+import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
 import FunnelGroup from '../../containers/FunnelGroup';
 import { FixedContainer, ScrollContent } from '../../styles';
 import Header from '@erxes/ui/src/layout/components/Header';

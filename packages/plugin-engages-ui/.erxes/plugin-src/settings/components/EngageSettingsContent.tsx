@@ -8,7 +8,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from 'coreui/utils';
 import { Recipient, Recipients } from '../../engages/styles';
 import { ContentBox } from '@erxes/ui-settings/src/styles';
 import React from 'react';

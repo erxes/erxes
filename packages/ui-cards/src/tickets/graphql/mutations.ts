@@ -4,7 +4,7 @@ import {
   commonFields,
   commonMutationParams,
   commonMutationVariables
-} from '@erxes/ui-cards/src/boards/graphql/mutations';
+} from '../../boards/graphql/mutations';
 import { ticketFields } from './queries';
 
 const ticketMutationVariables = `

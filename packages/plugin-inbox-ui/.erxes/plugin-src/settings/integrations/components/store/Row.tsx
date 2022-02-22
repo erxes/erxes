@@ -4,7 +4,7 @@ import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
 import Entry from './Entry';
-import { CollapsibleContent, IntegrationRow } from './styles';
+import { CollapsibleContent, IntegrationRow } from '@erxes/ui-settings/src/integrations/components/store/styles';
 
 type Props = {
   integrations: any[];

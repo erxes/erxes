@@ -1,5 +1,5 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Sidebar from '../containers/Sidebar';

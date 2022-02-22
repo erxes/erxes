@@ -1,12 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
-export const HACKSTAGES = [
-  'Awareness',
-  'Acquisition',
-  'Activation',
-  'Retention',
-  'Revenue',
-  'Referrals'
-];
+import { __ } from 'coreui/utils';
 
 export const GROWTHHACK_STATES = [
   __('All'),

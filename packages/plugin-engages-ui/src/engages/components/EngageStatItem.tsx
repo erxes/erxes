@@ -6,8 +6,8 @@ import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
   SMS_DELIVERY_STATUSES
-} from '../constants';
-import { Box, BoxContent, BoxHeader, IconContainer } from '../styles';
+} from '@erxes/ui-engage/src/constants';
+import { Box, BoxContent, BoxHeader, IconContainer } from '@erxes/ui-engage/src/styles';
 
 type Props = {
   count: number;

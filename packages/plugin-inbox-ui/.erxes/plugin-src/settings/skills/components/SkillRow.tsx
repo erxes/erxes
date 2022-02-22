@@ -3,7 +3,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 import SkillForm from './SkillForm';

@@ -6,8 +6,8 @@ import Toggle from 'modules/common/components/Toggle';
 import { __, Alert, confirm } from 'modules/common/utils';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import PropertyForm from '../containers/PropertyForm';
-import PropertyGroupForm from '../containers/PropertyGroupForm';
+import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
 import ControlLabel from 'modules/common/components/form/Label';
 import {
   CollapseRow,
@@ -17,8 +17,9 @@ import {
   PropertyTableHeader,
   RowField,
   PropertyTableRow
-} from '../styles';
-import { IField, IFieldGroup } from '../types';
+} from '@erxes/ui-settings/src/properties/styles';
+import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
 import SortableList from 'modules/common/components/SortableList';
 
 type Props = {

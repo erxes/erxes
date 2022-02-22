@@ -1,4 +1,4 @@
-import { AppConsumer } from '../appContext';
+import { AppConsumer } from 'coreui/appContext';
 import { IUser } from '@erxes/ui/src/auth/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
@@ -10,13 +10,13 @@ import TextInfo from '@erxes/ui/src/components/TextInfo';
 import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ICommonFormProps, ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import UserForm from '../containers/UserForm';
-import UserResetPasswordForm from '../containers/UserResetPasswordForm';
+import UserForm from '@erxes/ui-team/src/containers/UserForm';
+import UserResetPasswordForm from '@erxes/ui-team/src/containers/UserResetPasswordForm';
 import { UserAvatar } from '../styles';
 
 type IProps = {

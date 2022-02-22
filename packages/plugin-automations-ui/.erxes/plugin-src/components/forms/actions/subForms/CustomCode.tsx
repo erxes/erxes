@@ -2,7 +2,7 @@ import React from 'react';
 import { IAction } from '../../../../types';
 import Common from '../Common';
 import { BoardHeader, DrawerDetail } from '../../../../styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';

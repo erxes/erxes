@@ -1,4 +1,4 @@
-import { ISubMenuItem } from '../../types';
+import { IBreadCrumbItem } from '../../types';
 import { __ } from '../../utils/core';
 import React from 'react';
 import styled from 'styled-components';
@@ -21,7 +21,7 @@ function Submenu({
   items,
   additionalMenuItem
 }: {
-  items?: ISubMenuItem[];
+  items?: IBreadCrumbItem[];
   additionalMenuItem?: React.ReactNode;
 }) {
   

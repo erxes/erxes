@@ -27,7 +27,7 @@ const shared = {};
 
 for (const name of depNames) {
   shared[name] = {
-    singleton: true
+    singleton: true,
   };
 }
 
@@ -88,11 +88,16 @@ module.exports = {
         use: ['style-loader', 'css-loader', 'postcss-loader']
       },
       {
+        test: /\.json$/,
+        loader: "json-loader",
+      },
+      {
         test: /\.(ts|tsx|js|jsx)$/,
         exclude: /node_modules/,
         include: [
           path.resolve(__dirname, 'src'),
           path.resolve(__dirname, '../../erxes-ui/src'),
+          path.resolve(__dirname, '../../core-ui/src'),
           path.resolve(__dirname, '../../ui-cards/src'),
           path.resolve(__dirname, '../../ui-contacts/src'),
           path.resolve(__dirname, '../../ui-forms/src'),
@@ -128,14 +133,20 @@ module.exports = {
     new ModuleFederationPlugin({
       name: configs.name,
       filename: 'remoteEntry.js',
-      remotes: {},
+      remotes: {
+        coreui: "coreui@http://localhost:3000/remoteEntry.js"
+      },
       exposes,
       shared: {
         ...shared,
         '@erxes/ui': {
           requiredVersion: '1.0.0',
           singleton: true
-        }
+        },
+        dayjs: {
+          requiredVersion: deps["dayjs"],
+          singleton: true,
+        },
       }
     }),
     new HtmlWebPackPlugin({

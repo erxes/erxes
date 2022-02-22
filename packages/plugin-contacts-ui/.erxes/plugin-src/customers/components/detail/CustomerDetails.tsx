@@ -3,10 +3,11 @@ import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { TabTitle } from '@erxes/ui/src/components/tabs';
-import { __, renderFullName } from '@erxes/ui/src/utils';
+import { __, renderFullName } from 'coreui/utils';
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
-import LeadState from '../../containers/LeadState';
+import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
 import { IField } from '@erxes/ui/src/types';
@@ -61,7 +62,22 @@ class CustomerDetails extends React.Component<Props> {
   };
 
   renderExtraTabs = () => {
-    return <>{this.renderEmailTab()}</>;
+    const triggerMessenger = (
+      <TabTitle>
+        <Icon icon="comment-plus" /> {__('New message')}
+      </TabTitle>
+    );
+
+    return (
+      <>
+        <Widget
+          customers={[this.props.customer]}
+          modalTrigger={triggerMessenger}
+          channelType="messenger"
+        />
+        {this.renderEmailTab()}
+      </>
+    );
   };
 
   render() {

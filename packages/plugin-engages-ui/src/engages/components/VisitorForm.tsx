@@ -7,14 +7,14 @@ import {
   StepWrapper,
   TitleContainer
 } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
-import { MESSAGE_KINDS, METHODS } from '../constants';
+import { __ } from 'coreui/utils';
+import { MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
   IEngageScheduleDate
-} from '../types';
+} from '@erxes/ui-engage/src/types';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';

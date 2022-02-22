@@ -4,7 +4,7 @@ import { Notes } from '../../styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFormProps } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
-import { __, renderUserFullName } from '@erxes/ui/src/utils';
+import { __, renderUserFullName } from 'coreui/utils';
 import { IAutomationNote } from '../../types';
 import { CustomerName, EllipsisContent } from '@erxes/ui/src/styles/main';
 import {MainInfo} from '../../styles';

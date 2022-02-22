@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { TriggerTabs, ScrolledContent } from '../../../styles';
 import Icon from '@erxes/ui/src/components/Icon';

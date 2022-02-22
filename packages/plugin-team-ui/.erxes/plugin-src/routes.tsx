@@ -5,7 +5,7 @@ import { Route } from 'react-router-dom';
 
 const UserDetail = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetailForm'
+    /* webpackChunkName: "Settings - UserDetail" */ '@erxes/ui-team/src/containers/UserDetailForm'
   )
 );
 

@@ -8,7 +8,7 @@ import { Attributes } from '../styles';
 import { IStage } from '@erxes/ui-cards/src/boards/types';
 import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
 import gql from 'graphql-tag';
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from 'coreui/utils';
 
 type Props = {
   config: any;

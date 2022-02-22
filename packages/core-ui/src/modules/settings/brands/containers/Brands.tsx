@@ -6,11 +6,11 @@ import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../../common/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import DumbBrands from '../components/Brands';
 import Empty from '../components/Empty';
 import { queries } from '../graphql';
-import { BrandDetailQueryResponse, BrandsGetLastQueryResponse } from '../types';
+import { BrandDetailQueryResponse, BrandsGetLastQueryResponse } from '@erxes/ui/src/brands/types';
 
 type Props = {
   currentBrandId: string;

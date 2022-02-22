@@ -6,6 +6,7 @@ import {
   EmailTemplatesTotalCountQueryResponse
 } from '@erxes/ui-settings/src/emailTemplates/types';
 import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables
@@ -17,11 +18,13 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Lead from '../components/Lead';
 import { mutations } from '@erxes/ui-leads/src/graphql';
+import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 
 type Props = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse;
@@ -47,7 +50,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
+    const { addIntegrationMutation, history, emailTemplatesQuery, configsQuery } = this.props;
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
@@ -104,7 +107,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || []
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      configs: configsQuery.configs || []
     };
 
     return <Lead {...updatedProps} />;
@@ -131,6 +135,9 @@ export default withProps<Props>(
   compose(
     graphql(gql(templatesQuery.totalCount), {
       name: 'emailTemplatesTotalCountQuery'
+    }),
+    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+      name: 'configsQuery'
     }),
     graphql<
       {},

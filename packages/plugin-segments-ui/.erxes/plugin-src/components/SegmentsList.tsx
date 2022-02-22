@@ -6,7 +6,7 @@ import Label from '@erxes/ui/src/components/Label';
 import Table from '@erxes/ui/src/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import { Title } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { EMPTY_SEGMENT_CONTENT } from '@erxes/ui-settings/src/constants';
 import React from 'react';

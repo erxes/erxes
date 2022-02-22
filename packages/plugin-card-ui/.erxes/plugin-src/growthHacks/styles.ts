@@ -52,10 +52,6 @@ const Amounts = styled.div`
   padding: 40px 30px;
 `;
 
-const Factor = styled.div`
-  display: flex;
-`;
-
 export interface IAmountItem {
   type?: string;
 }
@@ -314,7 +310,6 @@ export {
   Amounts,
   Text,
   AmountItem,
-  Factor,
   ScoreAmount,
   ContentContainer,
   LeftContent,

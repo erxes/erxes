@@ -1,5 +1,5 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { StepFormWrapper } from '../../../styles';
+import { StepFormWrapper } from '@erxes/ui-engage/src/styles';
 import TagForm from '@erxes/ui/src/tags/components/Form';
 import { ITag } from '@erxes/ui/src/tags/types';
 import React from 'react';

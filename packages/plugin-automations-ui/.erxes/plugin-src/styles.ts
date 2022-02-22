@@ -6,6 +6,7 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
 import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
 import { dimensions, colors } from '@erxes/ui/src/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -224,12 +225,7 @@ export const ConditionContaier = styled.div`
   }
 `;
 
-export const CenterFlexRow = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-export const Title = styled(CenterFlexRow)`
+export const Title = styled(FlexContent)`
   transition: all ease 0.3s;
   padding: 0 ${dimensions.unitSpacing}px;
   border-radius: 4px;
@@ -312,7 +308,7 @@ export const TypeBoxContainer = styled.div`
   }
 `;
 
-export const TypeBox = styled(CenterFlexRow)`
+export const TypeBox = styled(FlexContent)`
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing - 5}px;
   padding: ${dimensions.unitSpacing - 4}px ${dimensions.coreSpacing}px;

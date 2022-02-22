@@ -5,7 +5,7 @@ import {
   IItemParams,
   IOptions,
   SaveMutation
-} from '@erxes/ui-cards/src/boards/types';
+} from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';

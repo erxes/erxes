@@ -11,7 +11,8 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import ChooseBrand from '../components/ChooseBrand';
 import { mutations, queries } from '../graphql';
-import { BrandsQueryResponse, IChooseBrand } from '../types';
+import { IChooseBrand } from '../types';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 
 type Variables = {
   name: string;

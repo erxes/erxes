@@ -5,7 +5,7 @@ import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import React from 'react';
-import { IEngageMessageDoc } from '../types';
+import { IEngageMessageDoc } from '@erxes/ui-engage/src/types';
 import WidgetForm from './WidgetForm';
 
 type Props = {

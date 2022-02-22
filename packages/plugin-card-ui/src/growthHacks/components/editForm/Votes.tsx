@@ -1,5 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';

@@ -10,7 +10,8 @@ import {
   numberTypeChoices,
   stringTypeChoices
 } from '../constants';
-import { DateWrapper, LogicItem, LogicRow, RowFill, RowSmall } from '../styles';
+import { DateWrapper, LogicItem, LogicRow, RowSmall } from '../styles';
+import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
   onChangeLogic: (
@@ -146,7 +147,7 @@ function FieldLogic(props: Props) {
   return (
     <LogicItem>
       <LogicRow>
-        <RowFill>
+        <Column>
           <FormGroup>
             <FormControl
               componentClass="select"
@@ -172,9 +173,9 @@ function FieldLogic(props: Props) {
                 onChange={onChangeLogicOperator}
               />
             </RowSmall>
-            <RowFill>{renderLogicValue()}</RowFill>
+            <Column>{renderLogicValue()}</Column>
           </LogicRow>
-        </RowFill>
+        </Column>
         <Button onClick={remove} btnStyle="danger" icon="times" />
       </LogicRow>
     </LogicItem>

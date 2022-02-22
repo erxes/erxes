@@ -1,5 +1,6 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IField } from '@erxes/ui/src/types';
+import { ICustomer } from '@erxes/ui/src/customers/types'
 
 interface IFormCommonFIelds {
   title?: string;
@@ -14,6 +15,7 @@ export interface IForm extends IFormCommonFIelds {
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;
+  fields?: IField[];
 }
 
 export interface IFormSubmission {
@@ -100,3 +102,27 @@ export interface IFormSubmissionParams {
 export type SaveFormSubmissionMutation = ({
   variables: IFormSubmissionParams
 }) => Promise<any>;
+
+export type ISubmission = {
+  formFieldId: string;
+  value: string;
+  submittedAt?: Date;
+};
+
+export type IFormResponse = {
+  contentTypeId: string;
+  customerId: string;
+  createdAt: Date;
+  customer: ICustomer;
+  submissions: ISubmission[];
+};
+
+export type FormSubmissionsQueryResponse = {
+  formSubmissions: IFormResponse[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type FormSubmissionsTotalCountQueryResponse = {
+  formSubmissionsTotalCount: number;
+};
