@@ -13,7 +13,8 @@ describe('FullPreviewStep component', () => {
       title: 'Title',
       btnText: 'Save',
       desc: 'desc'
-    }
+    },
+    configs: [{ _id: 'string', code: 'string', value: 'any' }]
   };
 
   test('renders shallow successfully', () => {

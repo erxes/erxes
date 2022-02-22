@@ -10,20 +10,23 @@ import {
   queries as ActivityLogQueries,
 } from './activityLogTypeDefs';
 
-const typeDefs = gql`
-  scalar JSON
-  scalar Date
+const typeDefs = async(_serviceDiscovery) => {
+  return gql`
+    scalar JSON
+    scalar Date
 
-  ${LogTypes}
-  ${ActivityLogTypes}
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
 
-  extend type Query {
-    ${LogQueries}
-    ${ActivityLogQueries}
-  }
+    ${LogTypes}
+    ${ActivityLogTypes}
 
-  extend type Mutation {
-  }
-`;
+    extend type Query {
+      ${LogQueries}
+      ${ActivityLogQueries}
+    }
+  `;
+}
 
 export default typeDefs;

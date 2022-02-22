@@ -1,8 +1,8 @@
-import { IBrandDocument } from "@packages/api-core/src/db/models/definitions/brands";
-import { IUser } from "@packages/api-core/src/db/models/definitions/users";
-import { ICustomer } from "@packages/plugin-contact-api/src/models/definitions/customers";
+import { IBrandDocument } from "../../api-core/src/db/models/definitions/brands";
+import { IUser } from "../../api-core/src/db/models/definitions/users";
+import { ICustomer } from "../../plugin-contact-api/src/models/definitions/customers";
 
-import * as _ from "underscore";
+import * as _ from "lodash";
 import { URL } from "url";
 
 export interface IReplacer {
@@ -55,23 +55,14 @@ export function runReplacersOn(
 
 export default class EditorAttributeUtil {
   private _possibleCustomerFields?: ICustomerField[];
-  private _API_DOMAIN?: string;
+  private API_DOMAIN: string;
   private msgBrokerClient: any;
+  private availableServices: Set<string>;
 
-  constructor(msgBrokerClient: any) {
+  constructor(msgBrokerClient: any, API_DOMAIN: string, availableServices: string[]) {
     this.msgBrokerClient = msgBrokerClient;
-  }
-
-  async getApiDomain(): Promise<string> {
-    if (!this._API_DOMAIN) {
-      this._API_DOMAIN = await this.getSubServiceDomain({ name: "API_DOMAIN" });
-    }
-
-    if (!this._API_DOMAIN) {
-      throw new Error("Cannot acquire API_DOMAIN");
-    }
-
-    return this._API_DOMAIN;
+    this.API_DOMAIN = API_DOMAIN;
+    this.availableServices = new Set(availableServices);
   }
 
   async fileToFileLink(url?: string, name?: string): Promise<string> {
@@ -83,20 +74,12 @@ export default class EditorAttributeUtil {
     if (isValidURL(url) || url.includes("/")) {
       href = url;
     } else {
-      const API_DOMAIN = await this.getApiDomain();
       const key = url;
       const uriName = name ? encodeURIComponent(name) : url;
-      href = `${API_DOMAIN}/read-file?key=${key}&name=${uriName}`;
+      href = `${this.API_DOMAIN}/read-file?key=${key}&name=${uriName}`;
     }
 
     return `<a target="_blank" download href="${href}">${name || url}</a>`;
-  }
-
-  async getSubServiceDomain(name) {
-    return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_getSubServiceDomain_to_api",
-      name
-    );
   }
 
   async customFieldsDataItemToFileLink(
@@ -114,18 +97,12 @@ export default class EditorAttributeUtil {
     return this.fileToFileLink(value.url, value.name);
   }
 
-  async fieldsCombinedByContentType(contentType): Promise<any> {
-    return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_fieldsCombinedByContentType_to_api",
-      contentType
-    );
-  }
-
   async getPossibleCustomerFields(): Promise<ICustomerField[]> {
     if (!this._possibleCustomerFields) {
-      this._possibleCustomerFields = await this.fieldsCombinedByContentType({
-        contentType: "customer",
-      });
+      this._possibleCustomerFields = await this.msgBrokerClient.sendRPCMessage(
+        "rpc_queue:fieldsCombinedByContentType",
+        { contentType: "customer" }
+      );
     }
 
     if (!this._possibleCustomerFields) {
@@ -168,7 +145,7 @@ export default class EditorAttributeUtil {
       customer.customFieldsData = [];
     }
 
-    const existingItemsByFieldId = _.indexBy(
+    const existingItemsByFieldId = _.keyBy(
       customer.customFieldsData,
       "field"
     );
@@ -197,22 +174,32 @@ export default class EditorAttributeUtil {
   }
 
   async getCustomerName(customer) {
+    if(!this.availableServices.has("contacts")) {
+      throw new Error("Contacts service is not running.");
+    }
     return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_getCustomerName_to_api",
+      "contacts:getCustomerName",
       customer
     );
   }
 
   async generateAmounts(productsData) {
+    if(!this.availableServices.has("cards")) {
+      throw new Error("Cards service is not running.");
+    }
     return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_generateAmounts_to_api",
+      "cards:deals:generateAmounts",
       productsData
     );
   }
 
   async generateProducts(productsData): Promise<any> {
+    if(!this.availableServices.has("cards")) {
+      throw new Error("Cards service is not running.");
+    }
+
     return this.msgBrokerClient.sendRPCMessage(
-      "rpc_queue:editorAttributeUtils_generateProducts_to_api",
+      "cards:deals:generateProducts",
       productsData
     );
   }
@@ -237,10 +224,12 @@ export default class EditorAttributeUtil {
         value: await this.getCustomerName(customer),
       });
 
-      const customerFileFieldsById = _.indexBy(
+      const customerFileFieldsById = _.keyBy(
         await this.msgBrokerClient.sendRPCMessage("rpc_queue:Fields.find", {
-          type: "file",
-          contentType: "customer",
+          query: {
+            type: "file",
+            contentType: "customer",
+          },
         }),
         "_id"
       );
@@ -341,10 +330,15 @@ export default class EditorAttributeUtil {
           .join(","),
       });
 
-      const fieldMetaDatas = await this.msgBrokerClient.sendRPCMessage("rpc_queue:Fields.find", {
-        contentType: item.contentType,
-        isDefinedByErxes: false,
-      });
+      const fieldMetaDatas = await this.msgBrokerClient.sendRPCMessage(
+        "rpc_queue:Fields.find",
+        {
+          query: {
+            contentType: item.contentType,
+            isDefinedByErxes: false,
+          },
+        }
+      );
 
       for (const fieldMetaData of fieldMetaDatas) {
         const customFieldsData = item.customFieldsData || [];

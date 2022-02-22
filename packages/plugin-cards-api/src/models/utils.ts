@@ -15,7 +15,7 @@ import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 import { InternalNotes } from '../apiCollections';
 import {
   sendConformityMessage,
-  sendConversationRPCMessage
+  sendInboxRPCMessage
 } from '../messageBroker';
 import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
@@ -483,7 +483,7 @@ export const conversationConvertToCard = async args => {
     const relTypeIds: string[] = [];
 
     sourceConversationIds.forEach(async conversationId => {
-      const con = await sendConversationRPCMessage('getConversation', {
+      const con = await sendInboxRPCMessage('getConversation', {
         conversationId
       });
 

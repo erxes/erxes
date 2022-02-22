@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import Sidebar from 'modules/layout/components/Sidebar';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 import {
   EditMutationResponse,
   IProduct
@@ -9,6 +10,7 @@ import {
 import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../../../../common/utils';
@@ -22,11 +24,18 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & Props &
   EditMutationResponse;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  const { loading, product, editMutation, fieldsGroupsQuery } = props;
+  const {
+    loading,
+    product,
+    editMutation,
+    fieldsGroupsQuery,
+    configsQuery
+  } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -55,7 +64,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     customFieldsData: product.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
-    isDetail: true
+    isDetail: true,
+    configs: configsQuery.configs || []
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -79,6 +89,9 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+      name: 'configsQuery'
+    }),
     graphql<Props, EditMutationResponse, IProduct>(gql(mutations.productEdit), {
       name: 'editMutation',
       options

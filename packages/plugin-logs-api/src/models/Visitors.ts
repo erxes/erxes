@@ -2,6 +2,7 @@ import { Document, model, Model, Schema } from 'mongoose';
 import { field } from './Logs';
 import { debug } from '../configs';
 
+
 export interface ILocation {
   remoteAddress: string;
   country: string;

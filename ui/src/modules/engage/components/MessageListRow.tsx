@@ -247,15 +247,8 @@ class Row extends React.Component<Props> {
     const {
       brand = { name: '' },
       scheduleDate,
-      totalCustomersCount = 0,
-      createdUser
+      totalCustomersCount = 0
     } = message;
-
-    let createdBy = createdUser && createdUser.email;
-
-    if (createdUser.details) {
-      createdBy = createdUser.details.fullName;
-    }
 
     return (
       <tr key={message._id}>
@@ -289,7 +282,7 @@ class Row extends React.Component<Props> {
         </td>
 
         <td className="text-normal">
-          <Capitalize>{createdBy || '-'}</Capitalize>
+          <Capitalize>{message.createdUser || '-'}</Capitalize>
         </td>
         <td>
           <Icon icon="calender" />{' '}

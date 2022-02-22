@@ -1,110 +1,26 @@
+import { IActivityLogDocument } from '../../models/ActivityLogs';
+import messageBroker, {
+  getActivityContentItem,
+  getContentTypeDetail,
+} from '../../messageBroker';
+
 export default {
-  async createdByDetail(activityLog: IActivityLog) {
-    const user = await getDocument('users', { _id: activityLog.createdBy });
+  async createdByDetail(activityLog: IActivityLogDocument) {
+    const detail = await messageBroker().sendRPCMessage(
+      'core:rpc_queue:activityLog:createdByDetail',
+      { activityLog }
+    );
 
-    if (user) {
-      return { type: 'user', content: user };
-    }
-
-    const integration = await getDocument('integrations', {
-      _id: activityLog.createdBy
-    });
-
-    if (integration) {
-      const brand = await getDocument('brands', { _id: integration.brandId });
-      return { type: 'brand', content: brand };
-    }
-
-    return;
+    return detail;
   },
 
-  contentTypeDetail(activityLog: IActivityLog) {
+  contentTypeDetail(activityLog: IActivityLogDocument) {
     return getContentTypeDetail(activityLog);
   },
 
-  async contentDetail(activityLog: IActivityLog) {
-    const { action, content, contentType, contentId } = activityLog;
+  async contentDetail(activityLog: IActivityLogDocument) {
+    const response = await getActivityContentItem(activityLog);
 
-    if (action === ACTIVITY_ACTIONS.MOVED) {
-      let item = {};
-
-      switch (contentType) {
-        case 'deal':
-          item = await Deals.getDeal(contentId);
-          break;
-        case 'task':
-          item = await Tasks.getTask(contentId);
-          break;
-        case 'growthHack':
-          item = await GrowthHacks.getGrowthHack(contentId);
-          break;
-        case 'ticket':
-          item = await Tickets.getTicket(contentId);
-          break;
-      }
-
-      const { oldStageId, destinationStageId } = content;
-
-      const destinationStage = await Stages.findOne({
-        _id: destinationStageId
-      }).lean();
-      const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
-
-      if (destinationStage && oldStage) {
-        return {
-          destinationStage: destinationStage.name,
-          oldStage: oldStage.name,
-          item
-        };
-      }
-
-      return {
-        text: content.text
-      };
-    }
-
-    if (action === ACTIVITY_ACTIONS.MERGE) {
-      let result = {};
-
-      switch (contentType) {
-        case 'company':
-          result = await Companies.find({
-            _id: { $in: activityLog.content }
-          }).lean();
-          break;
-        case 'customer':
-          result = await Customers.find({
-            _id: { $in: activityLog.content }
-          }).lean();
-          break;
-      }
-
-      return result;
-    }
-
-    if (action === ACTIVITY_ACTIONS.ASSIGNEE) {
-      let addedUsers: IUserDocument[] = [];
-      let removedUsers: IUserDocument[] = [];
-
-      if (content) {
-        addedUsers = await getDocumentList('users', {
-          _id: { $in: content.addedUserIds }
-        });
-        removedUsers = await getDocumentList('users', {
-          _id: { $in: content.removedUserIds }
-        });
-      }
-
-      return { addedUsers, removedUsers };
-    }
-
-    if (action === ACTIVITY_ACTIONS.TAGGED) {
-      let tags: ITagDocument[] = [];
-      if (content) {
-        tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
-      }
-
-      return { tags };
-    }
-  }
+    return response;
+  },
 };

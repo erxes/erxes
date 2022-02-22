@@ -22,7 +22,9 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from './definitions/engages';
-import EditorAttributeUtil from '../editorAttributeUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+
+import { getService, getServices } from '../redis';
 interface ICheckRulesParams {
   rules: IRule[];
   browserInfo: IBrowserInfo;
@@ -341,8 +343,9 @@ export const loadClass = () => {
         // if given visitor is matched with given condition then create
         // conversations
         if (hasPassedAllRules) {
+          const apiService = await getService("api");
           // replace keys in content
-          const replacedContent = await new EditorAttributeUtil(msgBrokerClient).replaceAttributes(
+          const replacedContent = await new EditorAttributeUtil(msgBrokerClient, apiService.address, await getServices()).replaceAttributes(
             {
               content: messenger.content,
               customer,

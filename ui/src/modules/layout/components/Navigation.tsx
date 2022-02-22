@@ -1,7 +1,7 @@
 import Label from 'modules/common/components/Label';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __, getEnv, setBadge, readFile } from 'modules/common/utils';
-import { pluginNavigations, pluginsOfNavigations } from 'pluginUtils';
+import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
@@ -131,7 +131,7 @@ class Navigation extends React.Component<IProps> {
     permission: string,
     text: string,
     url: string,
-    icon?: string,
+    icon: string,
     childrens?: ISubNav[],
     label?: React.ReactNode
   ) => {
@@ -407,9 +407,6 @@ class Navigation extends React.Component<IProps> {
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}
-          {pluginNavigations().map(nav =>
-            this.renderNavItem('', nav.text, nav.url, nav.icon)
-          )}
         </Nav>
       </LeftNavigation>
     );

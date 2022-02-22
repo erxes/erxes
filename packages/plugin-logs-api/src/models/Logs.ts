@@ -51,7 +51,7 @@ export const schema = new Schema({
   createdBy: field({ type: String, label: 'Performer of the action' }),
   type: field({
     type: String,
-    label: 'Module name which has been changed'
+    label: 'Service & module name which has been changed, i.e cards:deal'
   }),
   action: field({
     type: String,

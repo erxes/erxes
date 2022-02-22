@@ -6,6 +6,7 @@ import Tip from 'modules/common/components/Tip';
 import Button from 'modules/common/components/Button';
 import WithPermission from 'modules/common/components/WithPermission';
 import TextInfo from 'modules/common/components/TextInfo';
+import { RowTitle } from 'modules/engage/styles';
 import { Link } from 'react-router-dom';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import { IBookingIntegration } from '../types';
@@ -139,7 +140,13 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
           onChange={onChange}
         />
       </td>
-      <td>{integration.name}</td>
+      <td>
+        <RowTitle>
+          <Link to={`/bookings/edit/${integration._id}`}>
+            {integration.name}
+          </Link>
+        </RowTitle>
+      </td>
       <td>
         <TextInfo>{integration.brand && integration.brand.name}</TextInfo>
       </td>

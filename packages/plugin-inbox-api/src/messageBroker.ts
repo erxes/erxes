@@ -1,8 +1,8 @@
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 import { ConversationMessages, Conversations, Integrations } from "./models";
-import { receiveRpcMessage } from "./receiveMessage";
+import { receiveRpcMessage, collectConversations } from "./receiveMessage";
 
-let client;
+export let client;
 
 const createConversationAndMessage = async (
   userId,
@@ -156,6 +156,19 @@ export const initBroker = (cl) => {
       data: await Conversations.findOne({ _id: conversationId })
     })
   );
+  consumeRPCQueue('inbox:rpc_queue:getIntegration', async (data) => {
+    const { _id } = data;
+
+    return {
+      status: 'success',
+      data: await Integrations.findOne({ _id })
+    }
+  });
+
+  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async (data) => ({
+    data: await collectConversations(data),
+    status: 'success'
+  }));
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

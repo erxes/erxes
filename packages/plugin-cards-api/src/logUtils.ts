@@ -1,9 +1,18 @@
 import { Forms, Users } from './apiCollections';
 import { Boards, PipelineLabels, Pipelines, Stages } from './models';
-import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
-import { IDealDocument } from './models/definitions/deals';
-import { IGrowthHackDocument } from './models/definitions/growthHacks';
-import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
+import {
+  IPipelineDocument,
+  IStageDocument,
+  attachmentSchema,
+  boardSchema,
+  pipelineSchema,
+  stageSchema as boardStageSchema
+} from './models/definitions/boards';
+import { checklistSchema, checklistItemSchema } from './models/definitions/checklists';
+import { IDealDocument, dealSchema, productDataSchema } from './models/definitions/deals';
+import { IGrowthHackDocument, growthHackSchema } from './models/definitions/growthHacks';
+import { IPipelineTemplateDocument, pipelineTemplateSchema, stageSchema } from './models/definitions/pipelineTemplates';
+import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
@@ -12,12 +21,92 @@ import {
   LogDesc,
   gatherNames,
   gatherUsernames,
-  IDescriptions,
+  IDescriptions
 } from '@erxes/api-utils/src/logUtils';
-import { ITaskDocument } from './models/definitions/tasks';
-import { ITicketDocument } from './models/definitions/tickets';
+import { ITaskDocument, taskSchema } from './models/definitions/tasks';
+import { ITicketDocument, ticketSchema } from './models/definitions/tickets';
 import messageBroker from './messageBroker';
 import { MODULE_NAMES } from './constants';
+
+interface ISchemaMap {
+  name: string;
+  schemas: any[];
+}
+
+export const LOG_MAPPINGS: ISchemaMap[] = [
+  {
+    name: MODULE_NAMES.BOARD_DEAL,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.BOARD_TASK,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.BOARD_TICKET,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_DEAL,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TASK,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TICKET,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.CHECKLIST,
+    schemas: [checklistSchema],
+  },
+  {
+    name: MODULE_NAMES.CHECKLIST_ITEM,
+    schemas: [checklistItemSchema],
+  },
+  {
+    name: MODULE_NAMES.DEAL,
+    schemas: [dealSchema, productDataSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_LABEL,
+    schemas: [pipelineLabelSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TEMPLATE,
+    schemas: [pipelineTemplateSchema, stageSchema],
+  },
+  {
+    name: MODULE_NAMES.TASK,
+    schemas: [taskSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.GROWTH_HACK,
+    schemas: [growthHackSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.TICKET,
+    schemas: [ticketSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_DEAL,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_TASK,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_TICKET,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_GH,
+    schemas: [boardStageSchema],
+  },
+];
 
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
@@ -403,7 +492,7 @@ export const putDeleteLog = async (logDoc, user) => {
 
   await commonPutDeleteLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc },
+    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
   );
 };
@@ -413,7 +502,7 @@ export const putUpdateLog = async (logDoc, user) => {
 
   await commonPutUpdateLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc },
+    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
   );
 };
@@ -423,11 +512,10 @@ export const putCreateLog = async (logDoc, user) => {
 
   await commonPutCreateLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc },
+    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
   );
 };
-
 
 export const putActivityLog = async (params: { action: string, data: any }) => {
   // const { action, data } = params;

@@ -3,6 +3,7 @@ import Tip from 'modules/common/components/Tip';
 import React from 'react';
 import Task from '../containers/items/boardItems/Task';
 import Conversation from '../containers/items/Conversation';
+import Email from '../containers/items/Email';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
 import { formatText, getIconAndColor } from '../utils';
@@ -48,6 +49,11 @@ const activityItem = (activity: IActivityLog) => {
       );
     case 'taskDetail':
       return renderDetail('task', <Task taskId={_id} />);
+    case 'email':
+      return renderDetail(
+        'email',
+        <Email emailType="email" emailId={_id} activity={activity} />
+      );
     case 'comment':
       return renderDetail(
         'conversation',

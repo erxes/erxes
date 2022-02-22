@@ -5,18 +5,19 @@ import { IAttachment } from 'modules/common/types';
 
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
+import { isBoardKind } from 'modules/segments/utils';
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from 'modules/settings/properties/constants';
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import MapColumn from '../components/MapColumn';
+import { BOARD_ITEM_EXTENDED_FIELDS } from '../constants';
 import { queries } from '../graphql';
 
 type Props = {
   contentType: string;
   attachments: IAttachment[];
   columnWithChosenField: any;
-  serviceType?: string;
   onChangeColumn: (column, value, contentType) => void;
 };
 
@@ -48,10 +49,17 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
       return <Spinner />;
     }
 
-    const fields = [
+    let fields: any = [];
+
+    if (isBoardKind(contentType)) {
+      fields = BOARD_ITEM_EXTENDED_FIELDS;
+    }
+
+    fields = [
+      ...fields,
       ...(fieldsQuery.fieldsCombinedByContentType || []).map(item => {
         return {
-          value: item.name || item._id || item.value,
+          value: item.name || item._id,
           label: item.label || item.title,
           type: (item.type || '').toLowerCase()
         };
@@ -76,10 +84,9 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, serviceType }) => {
+      options: ({ contentType }) => {
         return {
           variables: {
-            serviceType,
             contentType: ['lead', 'visitor'].includes(contentType)
               ? 'customer'
               : contentType,

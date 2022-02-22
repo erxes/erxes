@@ -1,6 +1,6 @@
 import Companies from './models/Companies';
 import Customers from './models/Customers';
-import { findCompany, findCustomer, generateFields } from './utils';
+import { findCompany, findCustomer, generateFields, getContentItem } from './utils';
 
 let client;
 
@@ -134,6 +134,17 @@ export const initBroker = (cl) => {
     };
 
     return { data: { negative }, status: 'success' };
+  });
+
+  consumeRPCQueue('contacts:getCustomerName', async (customer) => {
+    return { data: Customers.getCustomerName(customer), status: 'success' };
+  });
+
+  consumeRPCQueue('contacts:rpc_queue:getContentItem', async (data) => {
+    return {
+      status: 'success',
+      data: await getContentItem(data)
+    }
   });
 };
 

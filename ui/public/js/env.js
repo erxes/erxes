@@ -1,1 +1,2 @@
-window.env = {};
+window.env = {
+}

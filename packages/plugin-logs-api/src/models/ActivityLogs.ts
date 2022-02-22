@@ -1,5 +1,6 @@
 import * as Random from 'meteor-random';
 import { Document, Model, model, Schema } from 'mongoose';
+
 import { field } from './Logs';
 
 const ACTIVITY_ACTIONS = {
@@ -11,6 +12,7 @@ const ACTIVITY_ACTIONS = {
   MOVED: 'moved',
   CONVERT: 'convert',
   ASSIGNEE: 'assignee',
+  TAGGED: 'tagged',
 
   ALL: [
     'create',
@@ -20,7 +22,8 @@ const ACTIVITY_ACTIONS = {
     'send',
     'moved',
     'convert',
-    'assignee'
+    'assignee',
+    'tagged'
   ]
 };
 

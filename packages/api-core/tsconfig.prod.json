@@ -7,11 +7,5 @@
     "inlineSources": false,
     "strictNullChecks": false
   },
-  "include": [
-    "./src/**/*.ts",
-    "./src/**/*.js",
-    "typings.d.ts",
-    "../plugins/**/api"
-  ],
   "exclude": ["node_modules", "dist", "src/__tests__"]
 }

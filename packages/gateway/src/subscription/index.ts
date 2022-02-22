@@ -28,7 +28,10 @@ export async function loadSubscriptions(
   wsServer: ws.Server
 ) {
 
-  const { typeDefs, resolvers } = await genTypeDefsAndResolvers();
+  const typeDefsResolvers = await genTypeDefsAndResolvers();
+  if(!typeDefsResolvers) return;
+
+  const { typeDefs, resolvers } = typeDefsResolvers;
 
   const schema = makeSubscriptionSchema({ gatewaySchema, typeDefs, resolvers });
 

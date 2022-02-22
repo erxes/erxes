@@ -1,5 +1,6 @@
-import { debug } from './configs';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+
+import { debug } from './configs';
 import Customers from './models/Customers';
 import Companies from './models/Companies';
 
@@ -153,4 +154,27 @@ export const getEnv = ({
   }
 
   return value || '';
+};
+
+export const getContentItem = async (activityLog) => {
+  const { action, contentType, content } = activityLog;
+
+  if (action === 'merge') {
+    let result = {};
+
+    switch (contentType) {
+      case 'company':
+        result = await Companies.find({ _id: { $in: content } }).lean();
+        break;
+      case 'customer':
+        result = await Customers.find({ _id: { $in: content } }).lean();
+        break;
+      default:
+        break;
+    }
+
+    return result;
+  }
+
+  return null;
 };

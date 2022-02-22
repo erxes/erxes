@@ -26,6 +26,7 @@ import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
+import { join, leave } from './serviceDiscovery';
 
 import init from './startup';
 
@@ -216,9 +217,6 @@ httpServer.listen(PORT, () => {
       .catch(e => {
         debugError(`Error ocurred during message broker init ${e.message}`);
       })
-      .then(aa => {
-        console.log(aa);
-      });
 
     initMemoryStorage();
 
@@ -234,28 +232,60 @@ httpServer.listen(PORT, () => {
       });
   });
 
+  join({ 
+    name: "api-core",
+    port: PORT,
+    dbConnectionString: MONGO_URL,
+    hasSubscriptions: false,
+  })
+
   debugInit(`GraphQL Server is now running on ${PORT}`);
 });
 
 // GRACEFULL SHUTDOWN
 process.stdin.resume(); // so the program will not close instantly
 
-// If the Node process ends, close the Mongoose connection
-if (NODE_ENV === 'production') {
-  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
-    process.on(sig, () => {
+
+async function closeMongooose() {
+  try {
+    await mongoose.connection.close();
+    console.log('Mongoose connection disconnected');
+  } catch  (e) { 
+    console.error(e); 
+  }
+}
+
+async function leaveServiceDiscovery() {
+  try {
+    await leave("api", PORT);
+    console.log('Left from service discovery');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function closeHttpServer() {
+  try {
+    await new Promise<void>((resolve, reject) => {
       // Stops the server from accepting new connections and finishes existing connections.
       httpServer.close((error: Error | undefined) => {
-        if (error) {
-          console.error(error.message);
-          process.exit(1);
+        if(error) {
+          return reject(error);
         }
-
-        mongoose.connection.close(() => {
-          console.log('Mongoose connection disconnected');
-          process.exit(0);
-        });
-      });
+        resolve();
+      })
     });
-  });
+  } catch (e) {
+    console.error(e);
+  }
 }
+
+// If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  process.on(sig, async () => {
+    await closeHttpServer();
+    await closeMongooose();
+    await leaveServiceDiscovery();
+    process.exit(0);
+  });
+});

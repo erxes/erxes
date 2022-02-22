@@ -1,4 +1,5 @@
 import { __ } from 'modules/common/utils';
+import { pluginsOfAutomationActions } from '../../pluginUtils';
 
 export const ACTIONS = [
   {
@@ -69,7 +70,8 @@ export const ACTIONS = [
     label: __('External communications'),
     description: __('Send email, SMS or in-app messenger messages to Contacts'),
     isAvailable: false
-  }
+  },
+  ...pluginsOfAutomationActions()
 ];
 
 export const TRIGGERS = [
