@@ -18,8 +18,6 @@ export default function getTypeDefs(plugins: any[]): DocumentNode {
 
       userChanged(userId: String): JSON
 
-      checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-      checklistDetailChanged(_id: String!): Checklist
       calendarEventUpdated: JSON
   }
 `;
