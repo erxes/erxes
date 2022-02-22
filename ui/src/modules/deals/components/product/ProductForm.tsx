@@ -156,9 +156,6 @@ class ProductForm extends React.Component<Props, State> {
         p => p.product !== product && p.productId !== product._id
       );
 
-      console.log('other: ', other);
-      console.log('updated: ', updated);
-
       productsData.splice(0, productsData.length);
       const updatedProductsData = [...updated, ...other];
 
@@ -207,8 +204,6 @@ class ProductForm extends React.Component<Props, State> {
           (p.productId === templateItem.product._id ||
             p.product === templateItem.product)
       );
-
-      console.log('oldTemplateData', oldTemplateData);
 
       if (oldTemplateData.length === 0) {
         return this.addProductTemplateItem(
