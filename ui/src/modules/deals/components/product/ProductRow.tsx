@@ -1,7 +1,12 @@
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { NameWrapper, RemoveRow, TypeBox } from 'modules/deals/styles';
+import {
+  NameWrapper,
+  RemoveRow,
+  TypeBox,
+  TemplateBox
+} from 'modules/deals/styles';
 import { IProductData } from 'modules/deals/types';
 import React from 'react';
 
@@ -10,7 +15,9 @@ type Props = {
   children: React.ReactNode;
   activeProduct?: string;
   onRemove: () => void;
+  onRemoveTemplate: () => void;
   changeCurrentProduct: (productId: string) => void;
+  templateInfo: any;
 };
 
 function ProductRow(props: Props) {
@@ -37,9 +44,33 @@ function ProductRow(props: Props) {
       );
     }
 
+    if (type === 'noTemplate') {
+      return '';
+    }
+
+    if (type === 'templateItem') {
+      return (
+        <Tip text={__('Product')} placement="left">
+          <TemplateBox>
+            <Icon icon="box" />
+          </TemplateBox>
+        </Tip>
+      );
+    }
+
     if (type === 'product') {
       return (
         <Tip text={__('Product')} placement="left">
+          <TypeBox color="#3B85F4">
+            <Icon icon="box" />
+          </TypeBox>
+        </Tip>
+      );
+    }
+
+    if (type === 'template') {
+      return (
+        <Tip text={__('ProductTemplate')} placement="left">
           <TypeBox color="#3B85F4">
             <Icon icon="box" />
           </TypeBox>
@@ -56,6 +87,28 @@ function ProductRow(props: Props) {
     );
   };
 
+  const renderTemplateRow = (templateInfo: string) => {
+    if (templateInfo) {
+      return (
+        <tr>
+          <td colSpan={6}>
+            <NameWrapper>
+              {renderType(templateInfo ? 'template' : 'noTemplate')}{' '}
+              {templateInfo}
+            </NameWrapper>
+          </td>
+          <td>
+            <RemoveRow>
+              <Icon onClick={props.onRemoveTemplate} icon="times-circle" />
+            </RemoveRow>
+          </td>
+        </tr>
+      );
+    }
+
+    return '';
+  };
+
   const {
     product,
     quantity,
@@ -64,14 +117,15 @@ function ProductRow(props: Props) {
     tax,
     amount,
     uom,
-    _id
+    _id,
+    templateId
   } = props.productData;
   const id = product ? product._id : _id;
-
   const changeCurrent = () => props.changeCurrentProduct(id);
 
   return (
     <>
+      {renderTemplateRow(props.templateInfo)}
       <tr
         id={id}
         className={props.activeProduct === id ? 'active' : ''}
@@ -79,7 +133,13 @@ function ProductRow(props: Props) {
       >
         <td>
           <NameWrapper>
-            {renderType(product ? product.type : '')}
+            {renderType(
+              templateId && product
+                ? 'templateItem'
+                : product
+                ? product.type
+                : ''
+            )}
             {product ? product.name : __('Not selected')}
           </NameWrapper>
         </td>

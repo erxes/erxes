@@ -36,6 +36,7 @@ export interface IProductData {
   amount: number;
   tickUsed: boolean;
   assignUserId?: string;
+  templateId?: string;
 }
 
 export interface IPaymentsData {

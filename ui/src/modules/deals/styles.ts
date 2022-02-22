@@ -5,6 +5,13 @@ import { highlight } from 'modules/common/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
+const ProductTemplate = {
+  margin: '5px',
+  padding: '15px',
+  borderbottom: '0.5px',
+  cursor: 'pointer'
+};
+
 const FormContainer = styled.div`
   margin-top: 20px;
 
@@ -223,6 +230,18 @@ const TypeBox = styledTS<{ color: string }>(styled.div)`
   flex-shrink: 0;
 `;
 
+const TemplateBox = styled.div`
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: white;
+  line-height: 28px;
+  text-align: center;
+  margin-right: 10px;
+  font-size: 14px;
+  flex-shrink: 0;
+`;
+
 const ProductSettings = styled.div`
   flex: 1;
   border-right: 1px solid ${colors.borderPrimary};
@@ -254,7 +273,9 @@ export {
   WrongLess,
   ProductTableWrapper,
   TypeBox,
+  TemplateBox,
   NameWrapper,
   ProductSettings,
-  RemoveRow
+  RemoveRow,
+  ProductTemplate
 };

@@ -98,6 +98,8 @@ export default class DealEditForm extends React.Component<Props, State> {
     const amount: any = {};
     const filteredProductsData: any = [];
 
+    console.log('productsData on DealEditForm: ', productsData);
+
     productsData.forEach(data => {
       // products
       if (data.product) {

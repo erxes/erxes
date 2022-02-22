@@ -11,7 +11,8 @@ import {
   Add,
   FooterInfo,
   FormContainer,
-  ProductTableWrapper
+  ProductTableWrapper,
+  ProductTemplate
 } from '../../styles';
 import { IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
@@ -21,6 +22,7 @@ import { IProductTemplate } from '../../../settings/template/types';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import TemplateForm from 'modules/settings/template/containers/product/ProductForm';
 import {
+  FormControl,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper
 } from 'erxes-ui';
@@ -49,11 +51,17 @@ type State = {
   changePayData: { [currency: string]: number };
   tempId: string;
   saveAsTemplateStatus: boolean;
+  comboProductTemplate: any;
 };
 
 class ProductForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
+    const comboProductTemplate = this.props.productTemplates.map(data => ({
+      label: data.title,
+      value: data._id
+    }));
 
     this.state = {
       total: {},
@@ -62,7 +70,8 @@ class ProductForm extends React.Component<Props, State> {
       currentTab: 'products',
       changePayData: {},
       tempId: '',
-      saveAsTemplateStatus: false
+      saveAsTemplateStatus: false,
+      comboProductTemplate
     };
   }
 
@@ -98,34 +107,68 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   addProductTemplateItem = (
+    templateId: string,
     product: IProduct,
     discountT: number,
-    quantity: number
+    quantity: number,
+    oldTemplateData?: IProductData[]
   ) => {
     const { productsData, onChangeProductsData, currencies } = this.props;
     const { tax } = this.state;
     const unitPrice = product ? product.unitPrice : 0;
+    const totalAmount = unitPrice * quantity;
     const discountAmount =
-      discountT && discountT > 0 ? (unitPrice / 100) * discountT : 0;
+      discountT && discountT > 0 ? (totalAmount / 100) * discountT : 0;
     const currency = currencies ? currencies[0] : '';
 
-    productsData.push({
-      _id: Math.random().toString(),
-      quantity: quantity ? quantity : 1,
-      unitPrice,
-      tax: 0,
-      taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
-      discount: discountAmount,
-      discountPercent: discountT || 0,
-      amount: unitPrice - discountAmount || 0,
-      currency,
-      tickUsed: true,
-      product: product ? product : ({} as IProduct)
-    });
+    if (!oldTemplateData) {
+      productsData.push({
+        _id: Math.random().toString(),
+        quantity: quantity ? quantity : 1,
+        unitPrice,
+        tax: 0,
+        taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
+        discount: discountAmount,
+        discountPercent: discountT || 0,
+        amount: totalAmount - discountAmount || 0,
+        currency,
+        tickUsed: true,
+        product: product ? product : ({} as IProduct),
+        templateId
+      });
+    } else {
+      const updated = oldTemplateData.map(data => ({
+        _id: data._id,
+        quantity: Number(data.quantity) + Number(quantity),
+        unitPrice: data.unitPrice,
+        tax: data.tax,
+        taxPercent: data.taxPercent,
+        discount: Number(data.discount) + Number(discountAmount),
+        discountPercent: data.discountPercent,
+        amount: Number(data.amount) + (totalAmount - discountAmount),
+        currency: data.currency,
+        tickUsed: data.tickUsed,
+        product: data.product,
+        templateId: data.templateId
+      }));
+
+      const other = productsData.filter(
+        p => p.product !== product && p.productId !== product._id
+      );
+
+      console.log('other: ', other);
+      console.log('updated: ', updated);
+
+      productsData.splice(0, productsData.length);
+      const updatedProductsData = [...updated, ...other];
+
+      updatedProductsData.forEach(updatedProductData => {
+        productsData.push(updatedProductData);
+      });
+    }
 
     this.updateTotal(productsData);
     onChangeProductsData(productsData);
-    // });
   };
 
   calculateAmount = (type: string, productData: IProductData) => {
@@ -157,18 +200,66 @@ class ProductForm extends React.Component<Props, State> {
     const templateItems =
       template.length > 0 ? template[0].templateItemsProduct : [];
 
-    templateItems.forEach(item => {
-      this.addProductTemplateItem(item.product, item.discount, item.quantity);
+    templateItems.map(templateItem => {
+      const oldTemplateData = this.props.productsData.filter(
+        p =>
+          p.templateId === templateId &&
+          (p.productId === templateItem.product._id ||
+            p.product === templateItem.product)
+      );
+
+      console.log('oldTemplateData', oldTemplateData);
+
+      if (oldTemplateData.length === 0) {
+        return this.addProductTemplateItem(
+          templateId,
+          templateItem.product,
+          templateItem.discount,
+          templateItem.quantity
+        );
+      } else {
+        return this.addProductTemplateItem(
+          templateId,
+          templateItem.product,
+          templateItem.discount,
+          templateItem.quantity,
+          oldTemplateData
+        );
+      }
     });
+  };
+
+  onChangeTemplates = e => {
+    const filteredTemplates = this.props.productTemplates.filter(p =>
+      p.title.includes(e.target.value)
+    );
+    const filteredCombo = filteredTemplates.map(data => ({
+      label: data.title,
+      value: data._id
+    }));
+
+    this.setState({ comboProductTemplate: filteredCombo });
   };
 
   removeProductItem = productId => {
     const { productsData, onChangeProductsData } = this.props;
-
     const removedProductsData = productsData.filter(p => p._id !== productId);
 
     onChangeProductsData(removedProductsData);
+    this.updateTotal(removedProductsData);
 
+    const bool = removedProductsData.length > 0 ? true : false;
+
+    this.setState({ saveAsTemplateStatus: bool });
+  };
+
+  removeTemplateItems = templateId => {
+    const { productsData, onChangeProductsData } = this.props;
+    const removedProductsData = productsData.filter(
+      p => p.templateId !== templateId
+    );
+
+    onChangeProductsData(removedProductsData);
     this.updateTotal(removedProductsData);
   };
 
@@ -220,6 +311,7 @@ class ProductForm extends React.Component<Props, State> {
 
   renderContent() {
     const { productsData, onChangeProductsData, currentProduct } = this.props;
+    let templateInfoId = '';
 
     if (productsData.length === 0) {
       return (
@@ -242,19 +334,38 @@ class ProductForm extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody id="products">
-            {productsData.map(productData => (
-              <ProductItem
-                key={productData._id}
-                productData={productData}
-                removeProductItem={this.removeProductItem}
-                productsData={productsData}
-                onChangeProductsData={onChangeProductsData}
-                updateTotal={this.updateTotal}
-                uom={this.props.uom}
-                currencies={this.props.currencies}
-                currentProduct={currentProduct}
-              />
-            ))}
+            {productsData.map(productData => {
+              let templateInfo;
+              const templateId = productData.templateId;
+
+              if (
+                templateId &&
+                (templateInfoId === '' || templateInfoId !== templateId)
+              ) {
+                const template = this.props.productTemplates.filter(
+                  p => p._id === templateId
+                );
+
+                templateInfo = template[0].title;
+                templateInfoId = templateId;
+              }
+
+              return (
+                <ProductItem
+                  key={productData._id}
+                  productData={productData}
+                  removeProductItem={this.removeProductItem}
+                  removeTemplateItems={this.removeTemplateItems}
+                  productsData={productsData}
+                  onChangeProductsData={onChangeProductsData}
+                  updateTotal={this.updateTotal}
+                  uom={this.props.uom}
+                  currencies={this.props.currencies}
+                  currentProduct={currentProduct}
+                  templateInfo={templateInfo}
+                />
+              );
+            })}
           </tbody>
         </Table>
       </ProductTableWrapper>
@@ -338,7 +449,6 @@ class ProductForm extends React.Component<Props, State> {
 
   renderTabContent() {
     const { total, tax, discount, currentTab } = this.state;
-    const productTemplates = this.props.productTemplates || [];
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
@@ -354,14 +464,6 @@ class ProductForm extends React.Component<Props, State> {
         />
       );
     }
-
-    const comboProductTemplate: any[] = [{ value: '', label: '' }];
-    productTemplates.forEach(productTemplate => {
-      comboProductTemplate.push({
-        value: productTemplate._id,
-        label: productTemplate.title
-      });
-    });
 
     return (
       <FormContainer>
@@ -385,15 +487,16 @@ class ProductForm extends React.Component<Props, State> {
                     <Icon icon="angle-down" />
                   </Button>
                 </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {comboProductTemplate.map(e => {
+                <Dropdown.Menu style={ProductTemplate}>
+                  <FormControl
+                    autoFocus={true}
+                    onChange={this.onChangeTemplates}
+                    placeholder={'Search template'}
+                  />
+                  {this.state.comboProductTemplate.map(e => {
                     return (
                       <li
-                        style={{
-                          margin: '5px',
-                          borderBottom: '0.5px',
-                          cursor: 'pointer'
-                        }}
+                        // style={ProductTemplate}
                         key={Math.random()}
                         onClick={this.addProductTemplate.bind(this, e.value)}
                       >
@@ -441,18 +544,15 @@ class ProductForm extends React.Component<Props, State> {
       </div>
     );
     const productsData = this.props.productsData || [];
-    const templateItems = [] as any[];
 
-    productsData.map(data => {
-      return templateItems.push({
-        _id: data._id,
-        categoryId: data.product ? data.product.categoryId : '',
-        itemId: data.product ? data.product._id : '',
-        unitPrice: data.unitPrice,
-        quantity: data.quantity,
-        discount: data.discountPercent
-      });
-    });
+    const templateItems = productsData.map(data => ({
+      _id: data._id,
+      categoryId: data.product ? data.product.categoryId : '',
+      itemId: data.product ? data.product._id : '',
+      unitPrice: data.unitPrice,
+      quantity: data.quantity,
+      discount: data.discountPercent
+    }));
 
     const currency = this.props.currencies ? this.props.currencies[0] : '';
     const grandDiscount = this.state.discount;
