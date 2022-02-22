@@ -68,7 +68,7 @@ export const generateFields = async args => {
 
 export const initBroker = (cl) => {
   client = cl;
- 
+    
   const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
