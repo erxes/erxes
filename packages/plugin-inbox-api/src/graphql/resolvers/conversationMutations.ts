@@ -20,10 +20,10 @@ import { debug } from '../../configs';
 import {
   sendMessage,
   sendRPCMessage,
-  sendCardsMessage,
+  sendCardsRPCMessage,
   sendContactRPCMessage,
-  sendProductMessage,
-  sendConfigMessage
+  sendProductRPCMessage,
+  sendConfigRPCMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -277,14 +277,14 @@ const getConversationById = async selector => {
 
 // check booking convert
 const checkBookingConvert = async (productId: string) => {
-  const product = await sendProductMessage('findOne', { _id: productId });
+  const product = await sendProductRPCMessage('findOne', { _id: productId });
 
   // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
-  let dealUOM = await sendConfigMessage('getConfigs', {
+  let dealUOM = await sendConfigRPCMessage('getConfigs', {
     code: 'dealUOM'
   });
 
-  let dealCurrency = await sendConfigMessage('getConfigs', {
+  let dealCurrency = await sendConfigRPCMessage('getConfigs', {
     code: 'dealCurrency'
   });
 
@@ -816,7 +816,7 @@ const conversationMutations = {
       docModifier
     };
 
-    return sendCardsMessage('conversationConvert', args);
+    return sendCardsRPCMessage('conversationConvert', args);
   },
 
   async conversationEditCustomFields(

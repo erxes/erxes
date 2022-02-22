@@ -199,15 +199,15 @@ export const sendEngageMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
 };
 
-export const sendCardsMessage = async (action, data): Promise<any> => {
+export const sendCardsRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`cards:rpc_queue:${action}`, data);
 };
 
-export const sendProductMessage = async (action, data): Promise<any> => {
+export const sendProductRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
 };
 
-export const sendConfigMessage = async (action, data): Promise<any> => {
+export const sendConfigRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
 };
 
