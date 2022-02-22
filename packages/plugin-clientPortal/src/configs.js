@@ -12,9 +12,11 @@ module.exports = {
   menus: [
     {
       text: 'Client Portal',
-      url: '/settings/client-portal',
-      icon: 'icon-car',
-      location: 'mainNavigation'
+      to: '/settings/client-portal',
+      image: '/images/icons/erxes-32.png',
+      location: "settings",
+      scope: "clientPortal",
+      permission: "New",
     }
   ]
 };

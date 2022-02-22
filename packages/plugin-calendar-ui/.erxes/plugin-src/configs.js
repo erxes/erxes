@@ -15,14 +15,26 @@ module.exports = {
       text: 'Calendar',
       url: '/calendar',
       icon: 'icon-calendar-alt',
-      location: 'mainNavigation'
+      location: 'mainNavigation',
+      permission: 'showCalendars',
     },
     {
       text: 'Calendar settings',
-      icon: 'icon-calendar-alt',
+      to: '/settings/calendars',
+      image: '/images/icons/erxes-21.svg',
       location: 'settings',
       scope: 'calendar',
-      component: './settings'
+      component: './settings',
+      permissions: [
+        'calendarsAdd',
+        'calendarsEdit',
+        'calendarsRemove',
+        'showCalendars',
+        'showCalendarGroups',
+        'calendarGroupsAdd',
+        'calendarGroupsEdit',
+        'calendarGroupsRemove'
+      ],
     }
   ]
 };

@@ -2,8 +2,7 @@ module.exports = {
     name: "dashboard",
     port: 3007,
     exposes: {
-      "./routes": "./src/routes.tsx",
-      // "./settings": "./src/Settings.tsx",
+      "./routes": "./src/routes.tsx"
     },
     routes: {
       url: "http://localhost:3007/remoteEntry.js",
@@ -12,10 +11,11 @@ module.exports = {
     },
     menus: [
       {
-        text: "Dashboard",
+        text: "Reports",
         url: "/dashboard",
         icon: "icon-dashboard",
         location: "mainNavigation",
+        permission: "showDashboards",
       },
     ],
   };

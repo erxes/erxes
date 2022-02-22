@@ -12,9 +12,10 @@ module.exports = {
   menus: [
     {
       text: 'Tags',
-      url: '/tags',
-      icon: 'icon-book-open',
-      location: 'mainNavigation'
+      url: '/tags/conversation',
+      icon: 'icon-tag-alt',
+      location: 'mainNavigation',
+      permission: 'showTags',
     }
   ]
 };

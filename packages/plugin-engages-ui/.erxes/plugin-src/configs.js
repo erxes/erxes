@@ -15,7 +15,8 @@ module.exports = {
       text: 'Campaigns',
       url: '/campaigns',
       icon: 'icon-megaphone',
-      location: 'mainNavigation'
+      location: 'mainNavigation',
+      permission: 'showEngagesMessages',
     },
     {
       text: 'Campaigns settings',

@@ -3,7 +3,6 @@ module.exports = {
   port: 3011,
   exposes: {
     "./routes": "./src/routes.tsx",
-    // "./settings": "./src/Settings.tsx",
   },
   routes: {
     url: "http://localhost:3011/remoteEntry.js",
@@ -16,6 +15,7 @@ module.exports = {
       url: "/contacts/customer",
       icon: "icon-users",
       location: "mainNavigation",
+      permission: "showCustomers",
     },
   ],
 };
