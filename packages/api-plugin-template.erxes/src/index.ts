@@ -74,19 +74,37 @@ const httpServer = http.createServer(app);
 // GRACEFULL SHUTDOWN
 process.stdin.resume(); // so the program will not close instantly
 
+async function closeHttpServer() {
+  try {
+    await new Promise<void>((resolve, reject) => {
+      // Stops the server from accepting new connections and finishes existing connections.
+      httpServer.close((error: Error | undefined) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve();
+      });
+    })
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function leaveServiceDiscovery() {
+  try {
+    await leave(configs.name, PORT || '');
+    console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 // If the Node process ends, close the Mongoose connection
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
-  process.on(sig, () => {
-    // Stops the server from accepting new connections and finishes existing connections.
-    httpServer.close((error: Error | undefined) => {
-      if (error) {
-        console.error(error.message);
-
-        leave(configs.name, PORT || '').then(() => {
-          process.exit(1);
-        })
-      }
-    });
+  process.on(sig, async () => {
+    await closeHttpServer();
+    await leaveServiceDiscovery();
+    process.exit(0);
   });
 });
 
