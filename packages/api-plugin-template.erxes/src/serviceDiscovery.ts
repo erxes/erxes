@@ -1,5 +1,7 @@
 import * as Redis from 'ioredis';
 import * as ServiceRegistry from 'clerq';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, NODE_ENV } = process.env;
 const isDev = NODE_ENV === 'development';
@@ -65,7 +67,7 @@ export const join = ({
 };
 
 export const leave = async (name, port) => {
-  await registry.down(name, `http:/${isDev ? 'localhost': `plugin-${name}-api`}:${port}`);
+  await registry.down(name, `http://${isDev ? 'localhost': `plugin-${name}-api`}:${port}`);
 
   return redis.del(generateKey(name));
 };
