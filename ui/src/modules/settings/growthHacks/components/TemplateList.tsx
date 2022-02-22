@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
-// import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
