@@ -60,7 +60,7 @@ export const schema = new Schema({
   ipAddress: field({ type: String, optional: true, label: 'IP address' }),
   objectId: field({ type: String, label: 'Collection row id' }),
   unicode: field({ type: String, label: 'Performer username' }),
-  description: field({ type: String, label: 'Description' }),
+  description: field({ type: String, label: 'Description', optional: true, default: '' }),
   // restore db from these if disaster happens
   oldData: field({
     type: String,

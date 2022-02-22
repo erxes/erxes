@@ -1,18 +1,19 @@
 import { Forms, Users } from './apiCollections';
-import { Boards, PipelineLabels, Pipelines, Stages } from './models';
 import {
-  IPipelineDocument,
-  IStageDocument,
-  attachmentSchema,
-  boardSchema,
-  pipelineSchema,
-  stageSchema as boardStageSchema
-} from './models/definitions/boards';
-import { checklistSchema, checklistItemSchema } from './models/definitions/checklists';
-import { IDealDocument, dealSchema, productDataSchema } from './models/definitions/deals';
-import { IGrowthHackDocument, growthHackSchema } from './models/definitions/growthHacks';
-import { IPipelineTemplateDocument, pipelineTemplateSchema, stageSchema } from './models/definitions/pipelineTemplates';
-import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
+  Boards,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Deals,
+  Tasks,
+  Tickets,
+  Checklists,
+  GrowthHacks,
+} from './models';
+import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
+import { IDealDocument } from './models/definitions/deals';
+import { IGrowthHackDocument } from './models/definitions/growthHacks';
+import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
@@ -21,92 +22,13 @@ import {
   LogDesc,
   gatherNames,
   gatherUsernames,
-  IDescriptions
+  IDescriptions,
 } from '@erxes/api-utils/src/logUtils';
-import { ITaskDocument, taskSchema } from './models/definitions/tasks';
-import { ITicketDocument, ticketSchema } from './models/definitions/tickets';
+import { ITaskDocument } from './models/definitions/tasks';
+import { ITicketDocument } from './models/definitions/tickets';
 import messageBroker from './messageBroker';
 import { MODULE_NAMES } from './constants';
-
-interface ISchemaMap {
-  name: string;
-  schemas: any[];
-}
-
-export const LOG_MAPPINGS: ISchemaMap[] = [
-  {
-    name: MODULE_NAMES.BOARD_DEAL,
-    schemas: [attachmentSchema, boardSchema],
-  },
-  {
-    name: MODULE_NAMES.BOARD_TASK,
-    schemas: [attachmentSchema, boardSchema],
-  },
-  {
-    name: MODULE_NAMES.BOARD_TICKET,
-    schemas: [attachmentSchema, boardSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_DEAL,
-    schemas: [pipelineSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_TASK,
-    schemas: [pipelineSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_TICKET,
-    schemas: [pipelineSchema],
-  },
-  {
-    name: MODULE_NAMES.CHECKLIST,
-    schemas: [checklistSchema],
-  },
-  {
-    name: MODULE_NAMES.CHECKLIST_ITEM,
-    schemas: [checklistItemSchema],
-  },
-  {
-    name: MODULE_NAMES.DEAL,
-    schemas: [dealSchema, productDataSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_LABEL,
-    schemas: [pipelineLabelSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_TEMPLATE,
-    schemas: [pipelineTemplateSchema, stageSchema],
-  },
-  {
-    name: MODULE_NAMES.TASK,
-    schemas: [taskSchema, attachmentSchema],
-  },
-  {
-    name: MODULE_NAMES.GROWTH_HACK,
-    schemas: [growthHackSchema, attachmentSchema],
-  },
-  {
-    name: MODULE_NAMES.TICKET,
-    schemas: [ticketSchema, attachmentSchema],
-  },
-  {
-    name: MODULE_NAMES.STAGE_DEAL,
-    schemas: [boardStageSchema],
-  },
-  {
-    name: MODULE_NAMES.STAGE_TASK,
-    schemas: [boardStageSchema],
-  },
-  {
-    name: MODULE_NAMES.STAGE_TICKET,
-    schemas: [boardStageSchema],
-  },
-  {
-    name: MODULE_NAMES.STAGE_GH,
-    schemas: [boardStageSchema],
-  },
-];
+import { ACTIVITY_CONTENT_TYPES } from './models/definitions/constants';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -131,7 +53,7 @@ const gatherPipelineFieldNames = async (
     idFields: [doc.boardId],
     foreignKey: 'boardId',
     nameFields: ['name'],
-    prevList: options
+    prevList: options,
   });
 
   if (doc.userId) {
@@ -139,7 +61,7 @@ const gatherPipelineFieldNames = async (
       collection: Users,
       idFields: [doc.userId],
       foreignKey: 'userId',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -148,7 +70,7 @@ const gatherPipelineFieldNames = async (
       collection: Users,
       idFields: doc.excludeCheckUserIds,
       foreignKey: 'excludeCheckUserIds',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -157,7 +79,7 @@ const gatherPipelineFieldNames = async (
       collection: Users,
       idFields: doc.memberIds,
       foreignKey: 'memberIds',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -166,7 +88,7 @@ const gatherPipelineFieldNames = async (
       collection: Users,
       idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -188,7 +110,7 @@ const gatherBoardItemFieldNames = async (
       collection: Users,
       idFields: [doc.userId],
       foreignKey: 'userId',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -197,7 +119,7 @@ const gatherBoardItemFieldNames = async (
       collection: Users,
       idFields: doc.assignedUserIds,
       foreignKey: 'assignedUserIds',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -206,7 +128,7 @@ const gatherBoardItemFieldNames = async (
       collection: Users,
       idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -216,7 +138,7 @@ const gatherBoardItemFieldNames = async (
       idFields: doc.labelIds,
       foreignKey: 'labelIds',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
     });
   }
 
@@ -225,7 +147,7 @@ const gatherBoardItemFieldNames = async (
     idFields: [doc.stageId],
     foreignKey: 'stageId',
     prevList: options,
-    nameFields: ['name']
+    nameFields: ['name'],
   });
 
   if (doc.initialStageId) {
@@ -234,7 +156,7 @@ const gatherBoardItemFieldNames = async (
       idFields: [doc.initialStageId],
       foreignKey: 'initialStageId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
     });
   }
 
@@ -243,7 +165,7 @@ const gatherBoardItemFieldNames = async (
       collection: Users,
       idFields: [doc.modifiedBy],
       foreignKey: 'modifiedBy',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -292,7 +214,7 @@ const gatherGHFieldNames = async (
       collection: Users,
       idFields: doc.votedUserIds,
       foreignKey: 'votedUserIds',
-      prevList: options
+      prevList: options,
     });
   }
 
@@ -313,16 +235,16 @@ const gatherPipelineTemplateFieldNames = async (
     collection: Users,
     idFields: [doc.createdBy || ''],
     foreignKey: 'createdBy',
-    prevList: options
+    prevList: options,
   });
 
   if (doc.stages && doc.stages.length > 0) {
     options = await gatherNames({
       collection: Forms,
-      idFields: doc.stages.map(s => s.formId),
+      idFields: doc.stages.map((s) => s.formId),
       foreignKey: 'formId',
       prevList: options,
-      nameFields: ['title']
+      nameFields: ['title'],
     });
   }
 
@@ -344,7 +266,7 @@ const gatherStageFieldNames = async (
       collection: Users,
       idFields: [doc.userId],
       foreignKey: 'userId',
-      prevList: options
+      prevList: options,
     });
   }
   if (doc.pipelineId) {
@@ -353,7 +275,7 @@ const gatherStageFieldNames = async (
       idFields: [doc.pipelineId],
       foreignKey: 'pipelineId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
     });
   }
   if (doc.formId) {
@@ -362,11 +284,46 @@ const gatherStageFieldNames = async (
       idFields: [doc.formId],
       foreignKey: 'formId',
       prevList: options,
-      nameFields: ['title']
+      nameFields: ['title'],
     });
   }
 
   return options;
+};
+
+interface IContentTypeParams {
+  contentType: string;
+  contentTypeId: string;
+}
+
+const findItemName = async ({
+  contentType,
+  contentTypeId,
+}: IContentTypeParams): Promise<string> => {
+  let item: any;
+  let name: string = '';
+
+  if (contentType === ACTIVITY_CONTENT_TYPES.DEAL) {
+    item = await Deals.findOne({ _id: contentTypeId });
+  }
+
+  if (contentType === ACTIVITY_CONTENT_TYPES.TASK) {
+    item = await Tasks.findOne({ _id: contentTypeId });
+  }
+
+  if (contentType === ACTIVITY_CONTENT_TYPES.TICKET) {
+    item = await Tickets.findOne({ _id: contentTypeId });
+  }
+
+  if (contentType === ACTIVITY_CONTENT_TYPES.GROWTH_HACK) {
+    item = await GrowthHacks.getGrowthHack(contentTypeId);
+  }
+
+  if (item && item.name) {
+    name = item.name;
+  }
+
+  return name;
 };
 
 const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
@@ -384,7 +341,7 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
         extraDesc = await gatherUsernames({
           collection: Users,
           idFields: [object.userId],
-          foreignKey: 'userId'
+          foreignKey: 'userId',
         });
       }
 
@@ -431,7 +388,7 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
       extraDesc = await gatherUsernames({
         collection: Users,
         idFields: [object.createdBy],
-        foreignKey: 'createdBy'
+        foreignKey: 'createdBy',
       });
 
       if (pipeline) {
@@ -486,6 +443,60 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
       break;
 
+    case MODULE_NAMES.CHECKLIST:
+      const itemName = await findItemName({
+        contentType: object.contentType,
+        contentTypeId: object.contentTypeId,
+      });
+
+      extraDesc = await gatherUsernames({
+        collection: Users,
+        idFields: [object.createdUserId],
+        foreignKey: 'createdUserId',
+      });
+
+      extraDesc.push({ contentTypeId: object.contentTypeId, name: itemName });
+
+      if (action === LOG_ACTIONS.CREATE) {
+        description = `"${
+          object.title
+        }" has been created in ${object.contentType.toUpperCase()} "${itemName}"`;
+      }
+      if (action === LOG_ACTIONS.UPDATE) {
+        description = `"${
+          object.title
+        }" saved in ${object.contentType.toUpperCase()} "${itemName}" has been edited`;
+      }
+      if (action === LOG_ACTIONS.DELETE) {
+        description = `"${
+          object.title
+        }" from ${object.contentType.toUpperCase()} "${itemName}" has been removed`;
+      }
+
+      break;
+    case MODULE_NAMES.CHECKLIST_ITEM:
+      const checklist = await Checklists.getChecklist(object.checklistId);
+
+      extraDesc = await gatherUsernames({
+        collection: Users,
+        idFields: [object.createdUserId],
+        foreignKey: 'createdUserid',
+      });
+
+      extraDesc.push({ checklistId: checklist._id, name: checklist.title });
+
+      if (action === LOG_ACTIONS.CREATE) {
+        description = `"${object.content}" has been added to "${checklist.title}"`;
+      }
+      if (action === LOG_ACTIONS.UPDATE) {
+        description = `"${object.content}" has been edited /checked/`;
+      }
+      if (action === LOG_ACTIONS.DELETE) {
+        description = `"${object.content}" has been removed from "${checklist.title}"`;
+      }
+
+      break;
+
     default:
       break;
   }
@@ -494,7 +505,10 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 };
 
 export const putDeleteLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({ ...logDoc, action: LOG_ACTIONS.DELETE });
+  const { description, extraDesc } = await gatherDescriptions({
+    ...logDoc,
+    action: LOG_ACTIONS.DELETE,
+  });
 
   await commonPutDeleteLog(
     messageBroker(),
@@ -504,7 +518,10 @@ export const putDeleteLog = async (logDoc, user) => {
 };
 
 export const putUpdateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({ ...logDoc, action: LOG_ACTIONS.UPDATE });
+  const { description, extraDesc } = await gatherDescriptions({
+    ...logDoc,
+    action: LOG_ACTIONS.UPDATE,
+  });
 
   await commonPutUpdateLog(
     messageBroker(),
@@ -514,7 +531,10 @@ export const putUpdateLog = async (logDoc, user) => {
 };
 
 export const putCreateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({ ...logDoc, action: LOG_ACTIONS.CREATE });
+  const { description, extraDesc } = await gatherDescriptions({
+    ...logDoc,
+    action: LOG_ACTIONS.CREATE,
+  });
 
   await commonPutCreateLog(
     messageBroker(),
@@ -523,7 +543,7 @@ export const putCreateLog = async (logDoc, user) => {
   );
 };
 
-export const putActivityLog = async (params: { action: string, data: any }) => {
+export const putActivityLog = async (params: { action: string; data: any }) => {
   // const { action, data } = params;
 
   // if (['createBoardItemMovementLog'].includes(action)) {

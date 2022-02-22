@@ -24,7 +24,11 @@ export const initBroker = async (cl) => {
   const { consumeQueue } = client;
 
   consumeQueue('putLog', async data => {
-    await receivePutLogCommand(data);
+    try {
+      await receivePutLogCommand(data);
+    } catch (e) {
+      throw new Error(`Error occurred when receiving putLog message: ${e}`);
+    }
   });
 
   consumeQueue('visitor:createOrUpdate', async data => {
