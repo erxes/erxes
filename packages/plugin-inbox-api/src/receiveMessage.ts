@@ -1,8 +1,7 @@
 import { graphqlPubsub } from './configs';
 import { ConversationMessages, Conversations, Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { Configs, Customers, Users } from './apiCollections';
-import inmemoryStorage from './inmemoryStorage';
+import { Customers, Users } from './apiCollections';
 
 const sendError = message => ({
   status: 'error',
@@ -131,13 +130,10 @@ export const receiveRpcMessage = async msg => {
     return sendSuccess({ _id: message._id });
   }
 
-  if (action === 'get-configs') {
-    const configs = await sendCoreMessages('getConfigs', {
-      Configs,
-      inmemoryStorage,
-    });
-    return sendSuccess({ configs });
-  }
+  // if (action === 'get-configs') {
+  //   const configs = await getConfigs({ Configs }, inmemoryStorage);
+  //   return sendSuccess({ configs });
+  // }
 
   if (action === 'getUserIds') {
     const users = await Users.find({}, { _id: 1 });
@@ -169,4 +165,41 @@ export const receiveIntegrationsNotification = async msg => {
  */
 export const removeEngageConversations = async _id => {
   await Conversations.removeEngageConversations(_id);
+};
+
+export const collectConversations = async ({ contentId, contentType }) => {
+  const results: any[] = [];
+  const conversations = await Conversations.find({
+    $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
+  }).lean();
+
+  for (const c of conversations) {
+    results.push({
+      _id: c._id,
+      contentType: 'conversation',
+      contentId,
+      createdAt: c.createdAt,
+    });
+  }
+
+  // if (contentType === 'customer') {
+    // let conversationIds;
+
+    // try {
+    //   conversationIds = await dataSources.IntegrationsAPI.fetchApi(
+    //     '/facebook/get-customer-posts',
+    //     {
+    //       customerId: contentId
+    //     }
+    //   );
+    //   collectItems(
+    //     await Conversations.find({ _id: { $in: conversationIds } }).toArray(),
+    //     'comment'
+    //   );
+    // } catch (e) {
+    //   debugExternalApi(e);
+    // }
+  // }
+  
+  return results;
 };
