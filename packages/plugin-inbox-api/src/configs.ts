@@ -27,7 +27,8 @@ export default {
   }),
   hasSubscriptions: true,
   meta: {
-    tagTypes: ['conversation']
+    tagTypes: ['conversation'],
+    logs: { providesActivityLog: true }
   },
   segment: {
     indexesTypeContentType: {

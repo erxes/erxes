@@ -104,8 +104,9 @@ export const getService = async (name: string, meta?: boolean) => {
 
   if (meta) {
     const value = await redis.get(`service:config:${name}`);
+    const parsedConfig = JSON.parse(value || '{}');
 
-    result.meta = JSON.parse(value || '{}');
+    result.meta = parsedConfig && parsedConfig.meta;
   }
 
   return result;

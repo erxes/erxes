@@ -47,6 +47,9 @@ export default {
   },
   hasSubscriptions: true,
   importTypes: IMPORT_TYPES,
+  meta: {
+    logs: { providesActivityLog: true }
+  },
   apolloServerContext: context => {
     return context;
   },

@@ -353,24 +353,21 @@ export const fetchLogs = async (params) => {
   return { logs, totalCount: logsCount };
 };
 
-export const findActivityLogs = async (params: IListArgs, callback) => {
-  const service = await getService(configs.name, true);
-  let localActivityLogContentTypes: string[] = [];
+export const findActivityLogs = async (params: IListArgs) => {
+  const { activityType } = params;
+  const serviceName = activityType.split(':')[0];
 
-  if (service.meta && service.meta.meta && service.meta.meta.localActivityLogContentTypes) {
-    localActivityLogContentTypes = service.meta.meta.localActivityLogContentTypes;
-  }
+  const { meta = {} } = await getService(serviceName, true);
 
   let list: any[] = [];
-  const { activityType } = params;
 
-  if (localActivityLogContentTypes.includes(activityType)) {
+  if (meta.logs && meta.logs.providesActivityLog === true) {
+    list = await collectServiceItems(activityType, params);
+  } else {
     const result = await fetchActivityLogs(params);
 
     list = result.activityLogs;
-  } else {
-    list = await collectServiceItems(activityType, params);
   }
 
-  callback(list);
+  return list;
 };

@@ -40,6 +40,6 @@ export default {
     es = options.elasticsearch;
   },
   meta: {
-    localActivityLogContentTypes: ['campaign-email', 'campaign-sms']
+    logs: { providesActivityLog: false }
   }
 };

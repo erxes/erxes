@@ -32,5 +32,8 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+  },
+  meta: {
+    logs: { providesActivityLog: true }
   }
 };

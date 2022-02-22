@@ -52,7 +52,7 @@ const activityLogQueries = {
         activities = activities.concat(pluginResponse);
       }
     } else {
-      await findActivityLogs(doc, collectItems);
+      collectItems(await findActivityLogs(doc));
     }
 
     activities.sort((a, b) => {
