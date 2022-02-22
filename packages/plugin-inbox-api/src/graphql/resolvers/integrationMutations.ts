@@ -1,21 +1,17 @@
 import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 
-import {
-  Channels,
-  Integrations
-} from '../../models';
+import { Channels, Integrations } from '../../models';
 
 import {
-  Customers,
   EmailDeliveries,
   Fields,
-  Forms,
+  Forms
 } from '../../apiCollections';
 
 import {
-//   ACTIVITY_ACTIONS,
-//   ACTIVITY_CONTENT_TYPES,
+  //   ACTIVITY_ACTIONS,
+  //   ACTIVITY_CONTENT_TYPES,
   KIND_CHOICES
 } from '../../models/definitions/constants';
 
@@ -31,7 +27,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import { sendMessage } from '../../messageBroker';
+import { sendMessage, sendContactRPCMessage } from '../../messageBroker';
 
 // import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 // import {
@@ -68,7 +64,7 @@ interface ISmsParams {
 const createIntegration = async (
   doc: IIntegration,
   integration: IIntegrationDocument,
-//   user: IUserDocument,
+  //   user: IUserDocument,
   user,
   type: string
 ) => {
@@ -79,18 +75,21 @@ const createIntegration = async (
     );
   }
 
-//   await putCreateLog(
-//     {
-//       type: MODULE_NAMES.INTEGRATION,
-//       newData: { ...doc, createdUserId: user._id, isActive: true },
-//       object: integration
-//     },
-//     user
-//   );
+  //   await putCreateLog(
+  //     {
+  //       type: MODULE_NAMES.INTEGRATION,
+  //       newData: { ...doc, createdUserId: user._id, isActive: true },
+  //       object: integration
+  //     },
+  //     user
+  //   );
 
   telemetry.trackCli('integration_created', { type });
 
-  sendMessage('registerOnboardHistory', { type: `${type}IntegrationCreated`, user });
+  sendMessage('registerOnboardHistory', {
+    type: `${type}IntegrationCreated`,
+    user
+  });
 
   return integration;
 };
@@ -98,7 +97,7 @@ const createIntegration = async (
 const editIntegration = async (
   fields: IIntegration,
   integration: IIntegrationDocument,
-//   user: IUserDocument,
+  //   user: IUserDocument,
   user,
   updated: IIntegrationDocument
 ) => {
@@ -114,15 +113,15 @@ const editIntegration = async (
     );
   }
 
-//   await putUpdateLog(
-//     {
-//       type: MODULE_NAMES.INTEGRATION,
-//       object: integration,
-//       newData: fields,
-//       updatedDocument: updated
-//     },
-//     user
-//   );
+  //   await putUpdateLog(
+  //     {
+  //       type: MODULE_NAMES.INTEGRATION,
+  //       object: integration,
+  //       newData: fields,
+  //       updatedDocument: updated
+  //     },
+  //     user
+  //   );
 
   return updated;
 };
@@ -272,14 +271,14 @@ const integrationMutations = {
 
       telemetry.trackCli('integration_created', { type: doc.kind });
 
-//       await putCreateLog(
-//         {
-//           type: MODULE_NAMES.INTEGRATION,
-//           newData: { ...doc, createdUserId: user._id, isActive: true },
-//           object: integration
-//         },
-//         user
-//       );
+      //       await putCreateLog(
+      //         {
+      //           type: MODULE_NAMES.INTEGRATION,
+      //           newData: { ...doc, createdUserId: user._id, isActive: true },
+      //           object: integration
+      //         },
+      //         user
+      //       );
     } catch (e) {
       await Integrations.deleteOne({ _id: integration._id });
       throw new Error(e);
@@ -321,15 +320,15 @@ const integrationMutations = {
       );
     }
 
-//     await putUpdateLog(
-//       {
-//         type: MODULE_NAMES.INTEGRATION,
-//         object: { name: integration.name, brandId: integration.brandId },
-//         newData: { name, brandId },
-//         updatedDocument: updated
-//       },
-//       user
-//     );
+    //     await putUpdateLog(
+    //       {
+    //         type: MODULE_NAMES.INTEGRATION,
+    //         object: { name: integration.name, brandId: integration.brandId },
+    //         newData: { name, brandId },
+    //         updatedDocument: updated
+    //       },
+    //       user
+    //     );
 
     return updated;
   },
@@ -373,10 +372,10 @@ const integrationMutations = {
         });
       }
 
-//       await putDeleteLog(
-//         { type: MODULE_NAMES.INTEGRATION, object: integration },
-//         user
-//       );
+      //       await putDeleteLog(
+      //         { type: MODULE_NAMES.INTEGRATION, object: integration },
+      //         user
+      //       );
 
       return Integrations.removeIntegration(_id);
     } catch (e) {
@@ -390,15 +389,15 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-//       const { erxesApiIds } = await messageBroker().sendRPCMessage(
-//         RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
-//         {
-//           action: 'remove-account',
-//           data: { _id }
-//         }
-//       );
+      //       const { erxesApiIds } = await messageBroker().sendRPCMessage(
+      //         RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
+      //         {
+      //           action: 'remove-account',
+      //           data: { _id }
+      //         }
+      //       );
 
-      const { erxesApiIds } = { erxesApiIds: [] }
+      const { erxesApiIds } = { erxesApiIds: [] };
 
       for (const id of erxesApiIds) {
         await Integrations.removeIntegration(id);
@@ -429,20 +428,24 @@ const integrationMutations = {
       ? { _id: customerId }
       : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
 
-    customer = await Customers.findOne(selector);
+    customer = await sendContactRPCMessage('findCustomer', selector);
 
     if (!customer) {
       const [primaryEmail] = doc.to;
 
-      customer = await Customers.createCustomer({
+      customer = await sendContactRPCMessage('create_customer', {
         state: 'lead',
         primaryEmail
       });
     }
 
-    const apiService = await getService("api");
+    const apiService = await getService('api');
 
-    const replacedContent = await new EditorAttributeUtil(msgBrokerClient, apiService.address, await getServices()).replaceAttributes({
+    const replacedContent = await new EditorAttributeUtil(
+      msgBrokerClient,
+      apiService.address,
+      await getServices()
+    ).replaceAttributes({
       content: body,
       user,
       customer: customer || undefined
@@ -460,9 +463,9 @@ const integrationMutations = {
       throw e;
     }
 
-    const customerIds = await Customers.find({
+    const customerIds = await sendContactRPCMessage("getCustomerIds", {
       primaryEmail: { $in: doc.to }
-    }).distinct('_id');
+    })
 
     doc.userId = user._id;
 
@@ -484,30 +487,30 @@ const integrationMutations = {
 
     const updated = await Integrations.findOne({ _id });
 
-//     await putUpdateLog(
-//       {
-//         type: MODULE_NAMES.INTEGRATION,
-//         object: integration,
-//         newData: { isActive: !status },
-//         description: `"${integration.name}" has been ${
-//           status === true ? 'archived' : 'unarchived'
-//         }.`,
-//         updatedDocument: updated
-//       },
-//       user
-//     );
+    //     await putUpdateLog(
+    //       {
+    //         type: MODULE_NAMES.INTEGRATION,
+    //         object: integration,
+    //         newData: { isActive: !status },
+    //         description: `"${integration.name}" has been ${
+    //           status === true ? 'archived' : 'unarchived'
+    //         }.`,
+    //         updatedDocument: updated
+    //       },
+    //       user
+    //     );
 
     return updated;
   },
 
   async integrationsRepair(_root, { _id }: { _id: string }) {
-//     await messageBroker().sendRPCMessage(
-//       RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
-//       {
-//         action: 'repair-integrations',
-//         data: { _id }
-//       }
-//     );
+    //     await messageBroker().sendRPCMessage(
+    //       RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
+    //       {
+    //         action: 'repair-integrations',
+    //         data: { _id }
+    //       }
+    //     );
 
     return 'success';
   },
@@ -525,7 +528,9 @@ const integrationMutations = {
     args: ISmsParams,
     { dataSources, user }: IContext
   ) {
-    const customer = await Customers.findOne({ primaryPhone: args.to });
+    const customer = await sendContactRPCMessage('findCustomer', {
+      primaryPhone: args.to
+    });
 
     if (!customer) {
       throw new Error(`Customer not found with primary phone "${args.to}"`);
@@ -617,18 +622,21 @@ const integrationMutations = {
 
     await Fields.insertMany(fields);
 
-//     await putCreateLog(
-//       {
-//         type: MODULE_NAMES.INTEGRATION,
-//         newData: { ...doc, createdUserId: user._id, isActive: true },
-//         object: copiedIntegration
-//       },
-//       user
-//     );
+    //     await putCreateLog(
+    //       {
+    //         type: MODULE_NAMES.INTEGRATION,
+    //         newData: { ...doc, createdUserId: user._id, isActive: true },
+    //         object: copiedIntegration
+    //       },
+    //       user
+    //     );
 
     telemetry.trackCli('integration_created', { type: 'lead' });
 
-    sendMessage('registerOnboardHistory', { type: 'leadIntegrationCreate', user });
+    sendMessage('registerOnboardHistory', {
+      type: 'leadIntegrationCreate',
+      user
+    });
 
     return copiedIntegration;
   },

@@ -33,6 +33,10 @@ export const findCustomer = async doc => {
     customer = await Customers.findOne({ _id: doc._id });
   }
 
+  if (!customer) {
+    customer = await Customers.findOne(doc);
+  }
+
   return customer;
 };
 
