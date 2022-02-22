@@ -22,7 +22,7 @@ export default {
     typeDefs,
     resolvers,
   }),
-  hasSubscriptions: false,
+  hasSubscriptions: true,
   segment: {},
   apolloServerContext: (context) => {},
   onServerInit: async (options) => {
