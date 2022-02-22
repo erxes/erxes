@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { IField, IRouterProps } from '@erxes/ui/src/types';
@@ -20,6 +21,7 @@ import {
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
+import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -36,6 +38,7 @@ type Props = {
 type FinalProps = {
   fieldsQuery: FieldsQueryResponse;
   formDetailQuery: FormDetailQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & Props &
   EditFormMutationResponse &
   RemoveFieldMutationResponse &
@@ -64,15 +67,20 @@ class EditFormContainer extends React.Component<FinalProps> {
       fieldsBulkAddAndEditMutation,
       fieldsQuery,
       formDetailQuery,
+      configsQuery,
       showMessage
     } = this.props;
 
-    if (fieldsQuery.loading || formDetailQuery.loading) {
+    if (
+      fieldsQuery.loading ||
+      formDetailQuery.loading ||
+      configsQuery.loading
+    ) {
       return false;
     }
 
     const dbFields = fieldsQuery.fields || [];
-    const form = formDetailQuery.formDetail || ({} as IForm);
+    const form = formDetailQuery.formDetail || {};
 
     const saveForm = doc => {
       const { title, desc, buttonText, type, numberOfPages } = doc;
@@ -183,7 +191,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       ...this.props,
       fields: dbFields.map(field => ({ ...field })),
       saveForm,
-      form
+      form: form as IForm,
+      configs: configsQuery.configs || []
     };
 
     return <Form {...updatedProps} />;
@@ -219,6 +228,9 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+      name: 'configsQuery'
+    }),
     graphql<
       Props,
       FieldsBulkAddAndEditMutationResponse,
