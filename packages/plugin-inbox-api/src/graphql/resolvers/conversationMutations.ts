@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 import {
   ConversationMessages,
   Conversations,
-  Integrations
+  Integrations,
 } from '../../models';
 
 import {
@@ -19,7 +19,7 @@ import Messages from '../../models/ConversationMessages';
 
 import {
   KIND_CHOICES,
-  MESSAGE_TYPES
+  MESSAGE_TYPES,
 } from '../../models/definitions/constants';
 
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
@@ -39,10 +39,7 @@ import { graphqlPubsub } from '../../configs';
 //   putUpdateLog
 // } from '../../logUtils';
 
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
 import { splitStr } from '@erxes/api-utils/src/core';
 // import utils from '../../utils';
@@ -92,7 +89,7 @@ const sendConversationToIntegrations = async (
   if (type === 'facebook') {
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
 
-    const images: string[] = (doc.content.match(regex) || []).map((m) =>
+    const images: string[] = (doc.content.match(regex) || []).map(m =>
       m.replace(regex, '$1')
     );
 
@@ -211,7 +208,7 @@ const sendNotifications = async ({
   conversations,
   type,
   mobile,
-  messageContent,
+  messageContent
 }: {
   user: IUserDocument;
   conversations: IConversationDocument[];
