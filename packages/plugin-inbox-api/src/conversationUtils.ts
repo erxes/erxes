@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import { Channels, Integrations } from './models';
-import { Tags, Segments } from './apiCollections';
+import { Segments } from './apiCollections';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
@@ -13,7 +13,7 @@ import { fixDate } from '@erxes/api-utils/src';
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
 
 import { debug } from './configs';
-import { fetchSegment } from './messageBroker';
+import { fetchSegment, sendTagRPCMessage } from './messageBroker';
 
 export interface ICountBy {
   [index: string]: number;
@@ -58,7 +58,7 @@ const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
 
 // Count converstaion by tag
 const countByTags = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const tags = await Tags.find({ type: 'conversation' }).select('_id');
+  const tags = await sendTagRPCMessage('find', { type: 'conversation' })
 
   for (const tag of tags) {
     await qb.buildAllQueries();

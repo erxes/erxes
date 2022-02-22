@@ -1,10 +1,10 @@
 import * as _ from 'underscore';
 import { Channels, Integrations } from './models';
-import { Tags, Segments } from './apiCollections';
+import { Segments } from './apiCollections';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { getDocumentList } from './cacheUtils';
-import { fetchSegment } from './messageBroker';
+import { fetchSegment, sendTagRPCMessage } from './messageBroker';
 
 interface IIn {
   $in: string[];
@@ -295,7 +295,7 @@ export default class Builder {
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
-    const tags = await Tags.find({ _id: { $in: tagIds } });
+    const tags = await sendTagRPCMessage('find', { _id: { $in: tagIds } });
 
     for (const tag of tags) {
       ids.push(tag._id);

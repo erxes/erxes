@@ -211,6 +211,10 @@ export const sendConfigRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
 };
 
+export const sendTagRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`tags:rpc_queue:${action}`, data);
+}
+
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
