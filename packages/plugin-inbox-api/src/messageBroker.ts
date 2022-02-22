@@ -1,6 +1,6 @@
-import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import { ConversationMessages, Conversations, Integrations } from './models';
-import { receiveRpcMessage } from './receiveMessage';
+import { generateFieldsFromSchema } from "@erxes/api-utils/src";
+import { ConversationMessages, Conversations, Integrations } from "./models";
+import { receiveRpcMessage } from "./receiveMessage";
 
 let client;
 
@@ -68,7 +68,7 @@ export const generateFields = async args => {
 
 export const initBroker = (cl) => {
   client = cl;
-
+ 
   const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
@@ -98,7 +98,7 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue(
     'rpc_queue:integrations_to_api',
-     async data => await receiveRpcMessage(data)
+    async data => await receiveRpcMessage(data)
   );
 
   consumeRPCQueue(
