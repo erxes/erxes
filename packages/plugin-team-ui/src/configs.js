@@ -12,10 +12,19 @@ module.exports = {
     },
     menus: [
       {
-        text: "Team",
-        url: "/settings/team",
-        icon: "icon-puzzle-piece",
-        location: "mainNavigation",
+        text: 'Team Members',
+        to: '/settings/team',
+        image: '/images/icons/erxes-23.svg',
+        location: "settings",
+        scope: "team",
+        component: "./settings",
+        permissions: [
+          'showUsers',
+          'usersEdit',
+          'usersInvite',
+          'usersSetActiveStatus',
+          'exportUsers'
+        ],
       },
     ],
   };

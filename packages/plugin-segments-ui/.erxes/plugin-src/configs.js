@@ -12,9 +12,10 @@ module.exports = {
   menus: [
     {
       text: 'Segments',
-      url: '/segments',
+      url: '/segments/customer',
       icon: 'icon-chart-pie-alt',
-      location: 'mainNavigation'
+      location: 'mainNavigation',
+      permission: 'showSegments',
     }
   ]
 };

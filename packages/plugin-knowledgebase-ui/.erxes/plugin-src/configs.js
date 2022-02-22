@@ -2,8 +2,7 @@ module.exports = {
   name: "knowledgeBase",
   port: 3004,
   exposes: {
-    "./routes": "./src/routes.tsx",
-    // "./settings": "./src/Settings.tsx",
+    "./routes": "./src/routes.tsx"
   },
   routes: {
     url: "http://localhost:3004/remoteEntry.js",
@@ -12,10 +11,11 @@ module.exports = {
   },
   menus: [
     {
-      text: "Knowledge Base",
-      url: "/knowledgeBase",
-      icon: "icon-book-open",
+      text: 'Knowledge Base',
+      url: '/knowledgeBase',
+      icon: 'icon-book-open',
       location: "mainNavigation",
-    },
+      permission: "showConversatshowKnowledgeBaseions",
+    }
   ],
 };

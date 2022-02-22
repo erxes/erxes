@@ -14,7 +14,7 @@ module.exports = {
       text: "notifications",
       url: "/notifications",
       icon: "icon-book-open",
-      location: "mainNavigation",
+      location: "topNavigation",
     },
   ],
 };

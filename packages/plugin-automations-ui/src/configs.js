@@ -14,8 +14,9 @@ module.exports = {
     {
       text: "Automations",
       url: "/automations",
-      icon: "icon-circular",
       location: "mainNavigation",
+      icon: "icon-circular",
+      permission: "showAutomations",
     },
   ],
 };
