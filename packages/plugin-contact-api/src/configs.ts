@@ -129,7 +129,7 @@ export default {
     };
   },
   importTypes: [],
-  hasSubscriptions: false,
+  hasSubscriptions: true,
   segment: {
     indexesTypeContentType: {
       customer: 'customers',
