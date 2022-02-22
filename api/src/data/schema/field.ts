@@ -98,6 +98,7 @@ const fieldsCommonFields = `
   text: String
   description: String
   options: [String]
+  locationOptions: [LocationOptionInput]
   isRequired: Boolean
   order: Int
   groupId: String

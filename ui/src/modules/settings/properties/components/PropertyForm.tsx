@@ -7,6 +7,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import LocationOptions from 'modules/forms/components/LocationOptions';
 import { Row } from 'modules/settings/integrations/styles';
 import React from 'react';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
@@ -23,6 +24,7 @@ type Props = {
 
 type State = {
   options: any[];
+  locationOptions: any[];
   type: string;
   hasOptions: boolean;
   add: boolean;
@@ -35,11 +37,12 @@ class PropertyForm extends React.Component<Props, State> {
     let doc = {
       options: [],
       type: '',
+      locationOptions: [],
       hasOptions: false
     };
 
     if (props.field) {
-      const { type, options } = props.field;
+      const { type, options, locationOptions } = props.field;
 
       doc = {
         ...doc,
@@ -55,7 +58,17 @@ class PropertyForm extends React.Component<Props, State> {
         doc = {
           type,
           hasOptions: true,
-          options: Object.assign([], options || [])
+          options: Object.assign([], options || []),
+          locationOptions: []
+        };
+      }
+
+      if (type === 'map') {
+        doc = {
+          type,
+          hasOptions: false,
+          options: [],
+          locationOptions: Object.assign([], locationOptions || [])
         };
       }
     }
@@ -85,12 +98,17 @@ class PropertyForm extends React.Component<Props, State> {
       ...finalValues,
       type: this.state.type,
       options: this.state.options,
+      locationOptions: this.state.locationOptions,
       contentType: type
     };
   };
 
   onChangeOption = options => {
     this.setState({ options });
+  };
+
+  onChangeLocationOption = locationOptions => {
+    this.setState({ locationOptions });
   };
 
   onRemoveOption = options => {
@@ -126,6 +144,23 @@ class PropertyForm extends React.Component<Props, State> {
         options={this.state.options}
         onChangeOption={this.onChangeOption}
       />
+    );
+  };
+
+  renderLocationOptions = () => {
+    if (this.state.type !== 'map') {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+
+        <LocationOptions
+          locationOptions={this.state.locationOptions || []}
+          onChange={this.onChangeLocationOption}
+        />
+      </FormGroup>
     );
   };
 
@@ -223,6 +258,7 @@ class PropertyForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
+        {this.renderLocationOptions()}
 
         <FormGroup>
           <ControlLabel>Validation:</ControlLabel>

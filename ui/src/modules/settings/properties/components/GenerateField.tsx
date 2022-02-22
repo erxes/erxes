@@ -11,7 +11,12 @@ import {
   COUNTRIES
 } from 'modules/companies/constants';
 import React from 'react';
-import { LogicIndicator, SelectInput, ObjectList } from '../styles';
+import {
+  LogicIndicator,
+  SelectInput,
+  ObjectList,
+  MapContainer
+} from '../styles';
 import { IField, ILocationOption } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
@@ -19,15 +24,12 @@ import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IConfig } from 'modules/settings/general/types';
-import { Alert, colors } from 'erxes-ui';
-import GoogleMapReact from 'google-map-react';
-import Marker from './MyMarker';
-
-declare const navigator: any;
+import Map from './Map';
 
 type Props = {
   field: IField;
   configs: IConfig[];
+  currentLocation: ILocationOption;
   onValueChange?: (data: { _id: string; value: any }) => void;
   defaultValue?: any;
   hasLogic?: boolean;
@@ -39,7 +41,6 @@ type State = {
   errorCounter: number;
   currentLocation: ILocationOption;
   googleMapApiKey: string;
-  isMapDraggable: boolean;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
@@ -52,44 +53,8 @@ export default class GenerateField extends React.Component<Props, State> {
       errorCounter: 0,
       ...this.generateState(props),
       googleMapApiKey: config ? config.value : '',
-      currentLocation: { lat: 0.0, lng: 0.0 },
-      isMapDraggable: true
+      currentLocation: props.currentLocation
     };
-  }
-
-  async componentDidMount() {
-    if (this.props.field.type !== 'map') {
-      return;
-    }
-
-    const onSuccess = (position: { coords: any }) => {
-      const coordinates = position.coords;
-
-      this.setState({
-        currentLocation: {
-          lat: coordinates.latitude,
-          lng: coordinates.longitude
-        }
-      });
-    };
-
-    const onError = (err: { code: any; message: any }) => {
-      return Alert.error(`${err.code}): ${err.message}`);
-    };
-
-    if (navigator.geolocation) {
-      navigator.permissions.query({ name: 'geolocation' }).then(result => {
-        if (result.state === 'granted') {
-          navigator.geolocation.getCurrentPosition(onSuccess);
-        } else if (result.state === 'prompt') {
-          navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          });
-        }
-      });
-    }
   }
 
   generateState = props => {
@@ -107,6 +72,10 @@ export default class GenerateField extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (nextProps.defaultValue !== this.props.defaultValue) {
       this.setState(this.generateState(nextProps));
+    }
+
+    if (nextProps.currentLocation !== this.props.currentLocation) {
+      this.setState({ currentLocation: nextProps.currentLocation });
     }
   }
 
@@ -385,95 +354,37 @@ export default class GenerateField extends React.Component<Props, State> {
     const { locationOptions = [] } = field;
     const { value } = attrs;
 
-    let {
-      currentLocation = { lat: 0.0, lng: 0.0, description: '' }
-    } = this.state;
+    let { currentLocation } = this.state;
 
-    const onChange = e => {
+    const onChangeMarker = e => {
       if (onValueChange) {
         onValueChange({ _id: field._id, value: e });
       }
     };
-
-    const onClick = e => {
-      console.log('click: ', e);
-    };
-
-    const onMarkerInteraction = (
-      _childKey: any,
-      _childProps: any,
-      mouse: any
-    ) => {
-      // this.setState({
-      //   isMapDraggable: false,
-      //   currentLocation: { lat: mouse.lat, lng: mouse.lng }
-      // });
-      console.log(mouse);
-    };
-
-    // const onMarkerInteractionMouseUp = (
-    //   _childKey: any,
-    //   _childProps: any,
-    //   mouse: any
-    // ) => {
-    //   const location = { lat: mouse.lat, lng: mouse.lng };
-
-    //   this.setState({
-    //     currentLocation: location,
-    //     isMapDraggable: true
-    //   });
-
-    //   this.onLocationChange(location);
-    // };
 
     if (value && value.length !== 0) {
       currentLocation = value;
     }
 
     return (
-      <div style={{ width: '100%', height: 250 }}>
-        <GoogleMapReact
-          onClick={onClick}
-          bootstrapURLKeys={{ key: this.state.googleMapApiKey }}
-          draggable={true}
+      <MapContainer>
+        <Map
           center={currentLocation}
-          defaultZoom={8}
-          options={{
+          googleMapApiKey={this.state.googleMapApiKey}
+          defaultZoom={7}
+          locationOptions={locationOptions}
+          mapControlOptions={{
             controlSize: 30,
             zoomControl: true,
             mapTypeControl: true,
-            scaleControl: true,
+            scaleControl: false,
             streetViewControl: false,
             rotateControl: false,
             fullscreenControl: true
           }}
-          onChildMouseDown={onMarkerInteraction}
-          // onChildMouseUp={onMarkerInteractionMouseUp}
-          // onChildMouseMove={onMarkerInteraction}
-          yesIWantToUseGoogleMapApiInternals={true}
-        >
-          {locationOptions.length > 0 ? (
-            locationOptions.map((option, index) => (
-              <Marker
-                key={index}
-                onChange={onChange}
-                lat={option.lat}
-                lng={option.lng}
-                description={option.description}
-                color={colors.colorSecondary}
-              />
-            ))
-          ) : (
-            <Marker
-              onChange={onChange}
-              lat={currentLocation.lat}
-              lng={currentLocation.lng}
-              description={'Your location'}
-              color={colors.colorSecondary}
-            />
-          )}
-        </GoogleMapReact>
-      </div>
+          onChangeMarker={onChangeMarker}
+        />
+      </MapContainer>
     );
   }
 

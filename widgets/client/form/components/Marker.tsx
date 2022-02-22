@@ -100,4 +100,3 @@ const Marker: React.FC<IMarkerProps> = ({
 };
 
 export default Marker;
-// [END maps_react_map_marker_component]

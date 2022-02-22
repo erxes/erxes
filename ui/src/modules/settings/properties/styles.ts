@@ -242,6 +242,11 @@ const Pin = styled.div`
   }
 `;
 
+const MapContainer = styled.div`
+  width: 100%;
+  height: 250px;
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -257,5 +262,6 @@ export {
   RowField,
   FlexRow,
   ObjectList,
-  Pin
+  Pin,
+  MapContainer
 };

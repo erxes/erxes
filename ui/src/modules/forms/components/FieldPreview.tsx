@@ -27,7 +27,12 @@ class FieldPreview extends React.Component<Props, {}> {
         selectType={field.type === 'select' || field.type === 'multiSelect'}
         onClick={onClickItem}
       >
-        <GenerateField field={field} hasLogic={hasLogic} configs={configs} />
+        <GenerateField
+          field={field}
+          hasLogic={hasLogic}
+          configs={configs}
+          currentLocation={{ lat: 0, lng: 0 }}
+        />
       </FieldItem>
     );
   }

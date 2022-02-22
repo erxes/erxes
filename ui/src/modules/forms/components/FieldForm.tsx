@@ -94,6 +94,10 @@ class FieldForm extends React.Component<Props, State> {
     });
   };
 
+  onChangeLocation = options => {
+    this.setFieldAttrChanges('locationOptions', options);
+  };
+
   onPropertyChange = (selectedField: IField) => {
     const { field, group } = this.state;
 
@@ -224,10 +228,9 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
-
         <LocationOptions
-          currentField={field}
-          onFieldChange={this.onFieldChange}
+          locationOptions={field.locationOptions || []}
+          onChange={this.onChangeLocation}
         />
       </FormGroup>
     );

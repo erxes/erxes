@@ -1,19 +1,20 @@
+import { FormGroup } from 'erxes-ui';
 import Icon from 'modules/common/components/Icon';
-import { IField } from 'modules/settings/properties/types';
+import { ILocationOption } from 'modules/settings/properties/types';
 import { LinkButton } from 'modules/settings/team/styles';
 import React, { useEffect, useState } from 'react';
 import LocationOption from './LocationOption';
 
 type Props = {
-  onFieldChange: (name: string, value: any) => void;
-  currentField: IField;
+  onChange: (value: ILocationOption[]) => void;
+  locationOptions: ILocationOption[];
 };
 
 function LocationOptions(props: Props) {
-  const { currentField, onFieldChange } = props;
+  const { locationOptions, onChange } = props;
 
   const [options, setOptions] = useState(
-    (currentField.locationOptions || []).map(({ description, lat, lng }) => {
+    (locationOptions || []).map(({ description, lat, lng }) => {
       return {
         description,
         lat,
@@ -23,8 +24,8 @@ function LocationOptions(props: Props) {
   );
 
   useEffect(() => {
-    onFieldChange('locationOptions', options);
-  }, [options, onFieldChange]);
+    onChange(options);
+  }, [options, onChange]);
 
   const onChangeOption = (option, index) => {
     // find current editing one
@@ -36,7 +37,7 @@ function LocationOptions(props: Props) {
     }
 
     setOptions(options);
-    onFieldChange('locationOptions', options);
+    onChange(options);
   };
 
   const addOption = () => {
@@ -65,10 +66,11 @@ function LocationOptions(props: Props) {
           index={index}
         />
       ))}
-
-      <LinkButton onClick={addOption}>
-        <Icon icon="plus-1" /> Add option
-      </LinkButton>
+      <FormGroup>
+        <LinkButton onClick={addOption}>
+          <Icon icon="plus-1" /> Add option
+        </LinkButton>
+      </FormGroup>
     </>
   );
 }

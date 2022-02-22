@@ -59,6 +59,7 @@ class StageForm extends React.Component<Props> {
         field={field}
         configs={configs}
         onValueChange={onChangeFormField}
+        currentLocation={{ lat: 0, lng: 0 }}
       />
     ));
   }
