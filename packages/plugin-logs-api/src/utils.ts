@@ -4,7 +4,6 @@ import ActivityLogs, { IActivityLogDocument } from './models/ActivityLogs';
 import messageBroker, { collectServiceItems } from './messageBroker';
 import { IFilter } from './graphql/resolvers/logQueries';
 import { getService } from './inmemoryStorage';
-import { IListArgs } from './graphql/resolvers/activityLogQueries';
 
 export const sendToApi = (channel: string, data) =>
   messageBroker().sendMessage(channel, data);
@@ -353,20 +352,17 @@ export const fetchLogs = async (params) => {
   return { logs, totalCount: logsCount };
 };
 
-export const findActivityLogs = async (params: IListArgs) => {
-  const { activityType } = params;
-  const serviceName = activityType.split(':')[0];
+export const findActivityLogs = async (params) => {
+  const { contentType } = params;
+  const serviceName = contentType.split(':')[0];
 
   const { meta = {} } = await getService(serviceName, true);
 
-  let list: any[] = [];
+  const activityLogs = await fetchActivityLogs(params);
+  let list: any[] = activityLogs.activityLogs || [];
 
   if (meta.logs && meta.logs.providesActivityLog === true) {
-    list = await collectServiceItems(activityType, params);
-  } else {
-    const result = await fetchActivityLogs(params);
-
-    list = result.activityLogs;
+    list = list.concat(await collectServiceItems(contentType, params));
   }
 
   return list;

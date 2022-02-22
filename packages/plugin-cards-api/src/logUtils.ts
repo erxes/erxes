@@ -544,11 +544,13 @@ export const putCreateLog = async (logDoc, user) => {
 };
 
 export const putActivityLog = async (params: { action: string; data: any }) => {
-  // const { action, data } = params;
+  const { data } = params;
 
   // if (['createBoardItemMovementLog'].includes(action)) {
   //   await sendToWebhook(action, data.contentType, params);
   // }
 
-  return commonPutActivityLog({ messageBroker: messageBroker(), ...params });
+  const updatedParams = { ...params, data: { ...data, contentType: `cards:${data.contentType}` } };
+
+  return commonPutActivityLog({ messageBroker: messageBroker(), ...updatedParams });
 };

@@ -25,7 +25,7 @@ const activityLogQueries = {
    * Get activity log list
    */
   async activityLogs(_root, doc: IListArgs, { user }: IContext) {
-    const { activityType } = doc;
+    const { activityType, contentId, contentType } = doc;
     let activities: IActivityLogDocument[] = [];
 
     const collectItems = (items: any, type?: string) => {
@@ -52,7 +52,7 @@ const activityLogQueries = {
         activities = activities.concat(pluginResponse);
       }
     } else {
-      collectItems(await findActivityLogs(doc));
+      collectItems(await findActivityLogs({ contentId, contentType }));
     }
 
     activities.sort((a, b) => {
