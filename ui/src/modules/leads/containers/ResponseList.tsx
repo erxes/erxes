@@ -16,6 +16,7 @@ import { graphql } from 'react-apollo';
 import ResponseList from '../components/ResponseList';
 import { FieldsQueryResponse } from 'modules/settings/properties/types';
 import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
+
 type Props = {
   queryParams: any;
 };
@@ -29,28 +30,6 @@ type FinalProps = {
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
-  // componentDidMount() {
-  //   const { history } = this.props;
-
-  //   const shouldRefetchList = routerUtils.getParam(history, 'popUpRefetchList');
-
-  //   if (shouldRefetchList) {
-  //     this.refetch();
-  //   }
-  // }
-
-  // componentDidUpdate(prevProps) {
-  //   if (this.props.queryParams.page !== prevProps.queryParams.page) {
-  //     this.props.integrationsQuery.refetch();
-  //   }
-  // }
-
-  // refetch = () => {
-  //   const { integrationsQuery } = this.props;
-
-  //   integrationsQuery.refetch();
-  // };
-
   render() {
     const {
       integrationDetailQuery,
