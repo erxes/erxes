@@ -24,6 +24,11 @@ export const initBroker = (cl) => {
     data: await findCompany(doc),
   }));
 
+  consumeRPCQueue('contacts:rpc_queue:getCustomerIds', async (selector) => ({
+    status: 'success',
+    data: await Customers.find(selector).distinct("_id")
+  }))
+
   consumeRPCQueue(
     'contacts:rpc_queue:findActiveCustomers',
     async ({ selector, fields }) => ({
