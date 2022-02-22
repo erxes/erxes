@@ -39,4 +39,7 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
+  meta: {
+    localActivityLogContentTypes: ['campaign-email', 'campaign-sms']
+  }
 };

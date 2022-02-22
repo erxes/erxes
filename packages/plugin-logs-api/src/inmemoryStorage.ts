@@ -1,4 +1,7 @@
+import * as Redis from 'ioredis';
+import * as ServiceRegistry from 'clerq';
 import memoryStorage from 'erxes-inmemory-storage';
+
 import { debug } from './configs';
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
@@ -80,3 +83,30 @@ export const get = async (key: string, defaultValue?: any) => {
 export default function() {
   return client;
 }
+
+const redis = new Redis({
+  host: REDIS_HOST,
+  port: parseInt(REDIS_PORT || '6379', 10),
+  password: REDIS_PASSWORD
+});
+
+const registry = new ServiceRegistry(redis, {});
+
+export const getServices = () => {
+  return registry.services();
+};
+
+export const getService = async (name: string, meta?: boolean) => {
+  const result: { address: string; meta: any } = {
+    address: await registry.get(name),
+    meta: {}
+  };
+
+  if (meta) {
+    const value = await redis.get(`service:config:${name}`);
+
+    result.meta = JSON.parse(value || '{}');
+  }
+
+  return result;
+};
