@@ -82,6 +82,9 @@ export default class GenerateField extends React.Component<Props, State> {
   renderSelect(options: string[] = [], attrs = {}) {
     return (
       <FormControl componentClass="select" {...attrs}>
+        <option key={''} value="">
+          Choose option
+        </option>
         {options.map((option, index) => (
           <option key={index} value={option}>
             {option}
