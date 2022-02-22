@@ -19,6 +19,7 @@ import { mutations } from '../../../graphql';
 
 type Props = {
   product: IProduct;
+  refetchQueries: any[];
   loading?: boolean;
 };
 
@@ -34,7 +35,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     product,
     editMutation,
     fieldsGroupsQuery,
-    configsQuery
+    configsQuery,
+    refetchQueries
   } = props;
 
   if (fieldsGroupsQuery.loading) {
@@ -49,7 +51,8 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
+      refetchQueries
     })
       .then(() => {
         callback();
