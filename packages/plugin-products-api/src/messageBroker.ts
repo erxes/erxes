@@ -1,4 +1,4 @@
-import { Products } from './models';
+import { Products } from "./models";
 
 let client;
 
@@ -23,10 +23,9 @@ export const initBroker = async cl => {
   }));
 
   consumeRPCQueue('products:rpc_queue:update', async ({ selector, modifier }) => ({
-      data: await Products.updateMany(selector, modifier),
-      status: 'success',
-    })
-  );
+    data: await Products.updateMany(selector, modifier),
+    status: 'success',
+  }));
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
