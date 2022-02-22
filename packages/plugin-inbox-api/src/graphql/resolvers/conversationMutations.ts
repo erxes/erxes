@@ -247,13 +247,12 @@ const sendNotifications = async ({
         break;
     }
 
-    // Todo uncomment
-    // await utils.sendNotification(doc);
+    await sendMessage('notifications:send', doc)
 
     if (mobile) {
       // send mobile notification ======
       try {
-        await sendRPCMessage('core:sendMobileNotification', {
+        await sendMessage('core:sendMobileNotification', {
           title: doc.title,
           body: strip(doc.content),
           receivers: conversationNotifReceivers(conversation, user._id, false),
