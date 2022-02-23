@@ -1,8 +1,7 @@
 import { Channels, Integrations } from '../../models';
-import { Tags } from '../../apiCollections';
 import {
   INTEGRATION_NAMES_MAP,
-  KIND_CHOICES,
+  KIND_CHOICES
 } from '../../models/definitions/constants';
 
 import {
@@ -10,7 +9,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import messageBroker from '../../messageBroker';
+import messageBroker, { sendTagRPCMessage } from '../../messageBroker';
 import { IContext } from '@erxes/api-utils/src';
 import { paginate } from '@erxes/api-utils/src';
 import { getDocumentList } from '../../cacheUtils';
@@ -63,7 +62,7 @@ const generateFilterQuery = async ({
 
   // filtering integrations by tag
   if (tag) {
-    const object = await Tags.findOne({ _id: tag });
+    const object = await sendTagRPCMessage('findOne', { _id: tag });
 
     query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
   }
@@ -187,7 +186,7 @@ const integrationQueries = {
     };
 
     // Counting integrations by tag
-    const tags = await Tags.find({ type: 'integration' }).toArray();
+    const tags = await sendTagRPCMessage('find', { type: 'integration' });
 
     for (const tag of tags) {
       const countQueryResult = await count({ tagIds: tag._id, ...qry });
@@ -266,13 +265,10 @@ const integrationQueries = {
   },
 
   async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
-    return messageBroker().sendRPCMessage(
-      'rpc_queue:api_to_integrations',
-      {
-        action: 'line-webhook',
-        data: { _id }
-      }
-    );
+    return messageBroker().sendRPCMessage('rpc_queue:api_to_integrations', {
+      action: 'line-webhook',
+      data: { _id }
+    });
   }
 };
 

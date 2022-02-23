@@ -1,6 +1,7 @@
-import { generateFieldsFromSchema } from "@erxes/api-utils/src";
-import { ConversationMessages, Conversations, Integrations } from "./models";
-import { receiveRpcMessage, collectConversations } from "./receiveMessage";
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
+import { publishConversationsChanged } from './graphql/resolvers/conversationMutations';
+import { ConversationMessages, Conversations, Integrations } from './models';
+import { receiveRpcMessage, collectConversations } from './receiveMessage';
 
 export let client;
 
@@ -68,7 +69,7 @@ export const generateFields = async args => {
 
 export const initBroker = (cl) => {
   client = cl;
-  
+
   const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
@@ -104,10 +105,7 @@ export const initBroker = (cl) => {
   consumeRPCQueue(
     'inbox:rpc_queue:findIntegrations',
     async ({ query, options }) => {
-      const integrations = await Integrations.findIntegrations(
-        query,
-        options
-      );
+      const integrations = await Integrations.findIntegrations(query, options);
 
       return { data: integrations, status: 'success' };
     }
@@ -156,16 +154,16 @@ export const initBroker = (cl) => {
       data: await Conversations.findOne({ _id: conversationId })
     })
   );
-  consumeRPCQueue('inbox:rpc_queue:getIntegration', async (data) => {
+  consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
     const { _id } = data;
 
     return {
       status: 'success',
       data: await Integrations.findOne({ _id })
-    }
+    };
   });
 
-  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async (data) => ({
+  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async data => ({
     data: await collectConversations(data),
     status: 'success'
   }));
@@ -207,21 +205,17 @@ export const sendProductRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
 };
 
-export const sendConfigRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
-};
-
 export const sendTagRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`tags:rpc_queue:${action}`, data);
-}
+};
 
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage("rpc_queue:fetchSegment", {
+  sendRPCMessage('rpc_queue:fetchSegment', {
     segment,
-    options,
+    options
   });
 
 export default function() {

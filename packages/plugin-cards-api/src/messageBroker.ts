@@ -2,7 +2,10 @@ import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
 import { serviceDiscovery } from './configs';
 import { generateFields } from './fieldUtils';
-import { generateAmounts, generateProducts } from './graphql/resolvers/customResolvers/deal';
+import {
+  generateAmounts,
+  generateProducts
+} from './graphql/resolvers/customResolvers/deal';
 import { prepareImportDocs } from './importUtils';
 import { Checklists, Stages, Tasks, Tickets } from './models';
 import { conversationConvertToCard } from './models/utils';
@@ -141,43 +144,43 @@ export const initBroker = async cl => {
     status: 'success',
     data: await conversationConvertToCard(args)
   }));
-  
+
   consumeRPCQueue('cards:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(type, LOG_MAPPINGS)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:getActivityContent', async (data) => {
+  consumeRPCQueue('cards:rpc_queue:getActivityContent', async data => {
     return {
       status: 'success',
       data: await getContentItem(data)
-    }
+    };
   });
 
-  consumeRPCQueue('cards:rpc_queue:getContentTypeDetail', async (data) => {
+  consumeRPCQueue('cards:rpc_queue:getContentTypeDetail', async data => {
     const { activityLog = {} } = data;
 
     return {
       status: 'success',
       data: await getContentTypeDetail(activityLog)
-    }    
+    };
   });
 
-  consumeRPCQueue(`cards:rpc_queue:activityLog:collectItems`, async (data) => ({
+  consumeRPCQueue(`cards:rpc_queue:activityLog:collectItems`, async data => ({
     status: 'success',
     data: await collectTasks(data)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:getCardContentIds', async (data) => ({
+  consumeRPCQueue('cards:rpc_queue:getCardContentIds', async data => ({
     status: 'success',
     data: await getCardContentIds(data)
   }));
 
-  consumeRPCQueue('cards:deals:generateAmounts', async (productsData) => {
+  consumeRPCQueue('cards:deals:generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:deals:generateProducts', async (productsData) => {
+  consumeRPCQueue('cards:deals:generateProducts', async productsData => {
     return { data: await generateProducts(productsData), status: 'success' };
   });
 };
@@ -249,6 +252,14 @@ export const updateProducts = async (selector, modifier): Promise<any> => {
   });
 };
 
+export const sendProductRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
+};
+
+export const sendConfigRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
+};
+
 export const sendNotificationMessage = async (
   action,
   data,
@@ -256,7 +267,7 @@ export const sendNotificationMessage = async (
   defaultValue?
 ): Promise<any> => {
   if (isRPC) {
-    if (!await serviceDiscovery.isAvailable('notifications')) {
+    if (!(await serviceDiscovery.isAvailable('notifications'))) {
       return defaultValue;
     }
 
