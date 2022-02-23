@@ -5,7 +5,7 @@ on:
     branches:
       - '**'
     paths:
-      - 'packages/plugin-*-ui'
+      - 'packages/plugin-card-ui'
 
 jobs:
   ui:
