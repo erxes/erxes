@@ -1,3 +1,29 @@
+export const getIsSeen = async (models, chat, user) => {
+  const lastMessage = await models.ChatMessages.findOne({
+    chatId: chat._id
+  }).sort({
+    createdAt: -1
+  });
+
+  if (!lastMessage) {
+    return true;
+  }
+
+  const seenInfos = chat.seenInfos || [];
+
+  const seenInfo = seenInfos.find(info => info.userId === user._id);
+
+  if (!seenInfo) {
+    return false;
+  }
+
+  if (seenInfo.lastSeenMessageId.toString() !== lastMessage._id.toString()) {
+    return false;
+  }
+
+  return true;
+};
+
 const chatResolvers = [
   {
     type: 'Chat',
@@ -20,29 +46,7 @@ const chatResolvers = [
     type: 'Chat',
     field: 'isSeen',
     handler: async (chat, {}, { models, user }) => {
-      const lastMessage = await models.ChatMessages.findOne({
-        chatId: chat._id
-      }).sort({
-        createdAt: -1
-      });
-
-      if (!lastMessage) {
-        return true;
-      }
-
-      const seenInfos = chat.seenInfos || [];
-
-      const seenInfo = seenInfos.find(info => info.userId === user._id);
-
-      if (!seenInfo) {
-        return false;
-      }
-
-      if (seenInfo.lastSeenMessageId !== lastMessage._id) {
-        return false;
-      }
-
-      return true;
+      return getIsSeen(models, chat, user);
     }
   },
   {

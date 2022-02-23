@@ -1,3 +1,5 @@
+import { getIsSeen } from '../chat';
+
 const chatQueries = [
   {
     name: 'chats',
@@ -66,7 +68,6 @@ const chatQueries = [
 
           updated = true;
         } else {
-          // if not new message, don't update info`s
           if (seenInfo.lastSeenMessageId !== lastMessage._id) {
             seenInfo.lastSeenMessageId = lastMessage._id;
             seenInfo.seenDate = new Date();
@@ -145,6 +146,26 @@ const chatQueries = [
       }
 
       return chat._id;
+    }
+  },
+  {
+    name: 'getUnreadChatCount',
+    handler: async (_root, {}, { models, user }) => {
+      const chats = await models.Chats.find({
+        participantIds: { $in: user._id }
+      });
+
+      let unreadCount = 0;
+
+      for (const chat of chats) {
+        const isSeen = await getIsSeen(models, chat, user);
+
+        if (!isSeen) {
+          unreadCount++;
+        }
+      }
+
+      return unreadCount;
     }
   }
 ];

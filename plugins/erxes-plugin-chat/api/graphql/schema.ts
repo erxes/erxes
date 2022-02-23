@@ -91,9 +91,8 @@ const paginationParams = `
 export const queries = `
   chats(type: ChatType, ${paginationParams}): ChatResponse
   chatDetail(_id: String!): Chat
-  
+  getUnreadChatCount: Int
   chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse
-
   getChatIdByUserIds(userIds: [String]): String
 `;
 
