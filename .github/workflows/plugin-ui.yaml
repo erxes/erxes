@@ -27,12 +27,5 @@ jobs:
           yarn install --frozen-lockfile --production
           yarn build
 
-      # - name: Build docker image
-      #   if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-      #   env:
-      #     BASE_IMAGE: erxes/erxes:base-1.18-alpine
-      #   run: |
-      #     cd ui
-      #     echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      #     DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
-      #     docker push erxes/erxes:${GITHUB_REF#refs/heads/}
+      - name: Deploy
+        run: aws s3 sync ./YOUR-BUILD-DIR s3://YOUR-BUCKET-NAME
