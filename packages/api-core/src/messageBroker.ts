@@ -195,7 +195,7 @@ export const initBroker = async (server?) => {
         });
 
         if (user) {
-          return { type: 'user', content: user };
+          return { data: { type: 'user', content: user }, status: 'success' };
         }
 
         const integration = await sendRPCMessage(
@@ -206,10 +206,10 @@ export const initBroker = async (server?) => {
         if (integration) {
           const brand = await Brands.findOne({ _id: integration.brandId });
 
-          return { type: 'brand', content: brand };
+          return { data: { type: 'brand', content: brand }, status: 'success' };
         }
 
-        return null;
+        return { data: 'not found', status: 'error' };
       }
     );
 
