@@ -1,25 +1,25 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import Table from '@erxes/ui/src/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
-import { Alert } from '@erxes/ui/src/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { FlexItem, FlexRow } from '../../styles';
-import React from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import List from '../../common/components/List';
-import RowActions from '../../common/components/RowActions';
-import { ICommonFormProps, ICommonListProps } from '../../common/types';
-import { FilterContainer } from '../../styles';
-import { IWebhook } from '../types';
-import WebhookAddForm from './WebhookForm';
+import { AppConsumer } from "coreui/appContext";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import Icon from "@erxes/ui/src/components/Icon";
+import Table from "@erxes/ui/src/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { router } from "@erxes/ui/src/utils";
+import { __ } from "@erxes/ui/src/utils";
+import { Alert } from "@erxes/ui/src/utils";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { FlexItem, FlexRow } from "../../styles";
+import React from "react";
+import CopyToClipboard from "react-copy-to-clipboard";
+import List from "../../common/components/List";
+import RowActions from "../../common/components/RowActions";
+import { ICommonFormProps, ICommonListProps } from "../../common/types";
+import { FilterContainer } from "../../styles";
+import { IWebhook } from "../types";
+import WebhookAddForm from "./WebhookForm";
 
 type IProps = {
   refetchQueries: any;
@@ -41,20 +41,20 @@ class WebhookList extends React.Component<FinalProps, States> {
     super(props);
 
     const {
-      queryParams: { searchValue }
+      queryParams: { searchValue },
     } = props;
 
     this.state = {
-      searchValue: searchValue || ''
+      searchValue: searchValue || "",
     };
   }
 
-  renderForm = props => {
+  renderForm = (props) => {
     return <WebhookAddForm {...props} renderButton={this.props.renderButton} />;
   };
 
   renderRows({ objects }: { objects: IWebhook[] }) {
-    return objects.map(object => {
+    return objects.map((object) => {
       return (
         <tr key={object._id}>
           <td>{object.url}</td>
@@ -71,15 +71,15 @@ class WebhookList extends React.Component<FinalProps, States> {
     });
   }
 
-  renderResetPassword = object => {
+  renderResetPassword = (object) => {
     const onCopy = () => {
-      Alert.success('Copied');
+      Alert.success("Copied");
     };
 
     return (
       <CopyToClipboard text={object.token} onCopy={onCopy}>
         <Button btnStyle="link">
-          <Tip text={__('Copy token')} placement="top">
+          <Tip text={__("Copy token")} placement="top">
             <Icon icon="copy" size={15} />
           </Tip>
         </Button>
@@ -87,7 +87,7 @@ class WebhookList extends React.Component<FinalProps, States> {
     );
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -104,15 +104,15 @@ class WebhookList extends React.Component<FinalProps, States> {
   renderBrandChooser() {
     const { history, queryParams } = this.props;
 
-    const onSelect = brandIds => {
+    const onSelect = (brandIds) => {
       router.setParams(history, { brandIds });
     };
 
     return (
       <FlexItem>
-        <ControlLabel>{__('Brand')}</ControlLabel>
+        <ControlLabel>{__("Brand")}</ControlLabel>
         <SelectBrands
-          label={__('Choose brands')}
+          label={__("Choose brands")}
           onSelect={onSelect}
           initialValue={queryParams.brandIds}
           name="selectedBrands"
@@ -126,7 +126,7 @@ class WebhookList extends React.Component<FinalProps, States> {
 
     const env = configsEnvQuery.configsGetEnv || {};
 
-    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
+    if (env.USE_BRAND_RESTRICTIONS !== "true") {
       return null;
     }
 
@@ -137,14 +137,14 @@ class WebhookList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderContent = props => {
+  renderContent = (props) => {
     return (
       <Table>
         <thead>
           <tr>
-            <th>{__('Enpoint')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Enpoint")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(this.props)}</tbody>
@@ -154,27 +154,27 @@ class WebhookList extends React.Component<FinalProps, States> {
 
   breadcrumb() {
     return [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Webhooks') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Webhooks") },
     ];
   }
 
   render() {
     return (
       <List
-        formTitle={__('Add Webhook')}
+        formTitle={__("Add Webhook")}
         size="lg"
         breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Webhooks') }
+          { title: __("Settings"), link: "/settings" },
+          { title: __("Webhooks") },
         ]}
-        title={__('Webhooks')}
+        title={__("Webhooks")}
         mainHead={
           <HeaderDescription
             icon="/images/actions/21.svg"
-            title={__('Outgoing webhooks')}
+            title={__("Outgoing webhooks")}
             description={__(
-              'Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time'
+              "Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time"
             )}
           />
         }
