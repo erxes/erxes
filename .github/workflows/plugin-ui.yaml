@@ -22,9 +22,8 @@ jobs:
 
       - name: Build
         run: |
-          pwd
-          cd packages/plugin-card-ui
           yarn install --frozen-lockfile --production
+          cd packages/plugin-card-ui
           yarn build
 
       - name: Deploy
