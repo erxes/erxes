@@ -6,6 +6,7 @@ on:
       - '**'
     paths:
       - 'packages/plugin-card-ui'
+      - '.github/workflows/plugin-ui.yaml'
 
 jobs:
   ui:
