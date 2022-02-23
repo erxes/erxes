@@ -1,0 +1,34 @@
+name: Plugin UI CI
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/plugin-*-ui'
+
+jobs:
+  ui:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Use Node.js 12.19.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.19.x
+
+      - name: Build
+        run: |
+          cd packages/plugin-card-ui
+          yarn install --frozen-lockfile --production
+          yarn build
+
+      # - name: Build docker image
+      #   if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      #   env:
+      #     BASE_IMAGE: erxes/erxes:base-1.18-alpine
+      #   run: |
+      #     cd ui
+      #     echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      #     DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
+      #     docker push erxes/erxes:${GITHUB_REF#refs/heads/}
