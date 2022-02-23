@@ -10,6 +10,15 @@ export default function getTypeDefs(plugins: any[]): DocumentNode {
     type Subscription {
 
       ${pluginTypeDefs}
+
+      activityLogsChanged: Boolean
+      importHistoryChanged(_id: String!): ImportHistory
+
+      onboardingChanged(userId: String!): OnboardingNotification
+
+      userChanged(userId: String): JSON
+
+      calendarEventUpdated: JSON
   }
 `;
 }

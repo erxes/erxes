@@ -1,3 +1,28 @@
+import {
+  attachmentSchema,
+  boardSchema,
+  pipelineSchema,
+  stageSchema as boardStageSchema,
+} from './models/definitions/boards';
+import {
+  checklistSchema,
+  checklistItemSchema,
+} from './models/definitions/checklists';
+import {
+  dealSchema,
+  productDataSchema,
+} from './models/definitions/deals';
+import {
+  growthHackSchema,
+} from './models/definitions/growthHacks';
+import {
+  pipelineTemplateSchema,
+  stageSchema,
+} from './models/definitions/pipelineTemplates';
+import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
+import { taskSchema } from './models/definitions/tasks';
+import { ticketSchema } from './models/definitions/tickets';
+
 export const IMPORT_TYPES = [
   {
     text: 'Deal',
@@ -155,3 +180,83 @@ export const MODULE_NAMES = {
   PIPELINE_TEMPLATE: 'pipelineTemplate',
   GROWTH_HACK: 'growthHack'
 };
+
+interface ISchemaMap {
+  name: string;
+  schemas: any[];
+}
+
+export const LOG_MAPPINGS: ISchemaMap[] = [
+  {
+    name: MODULE_NAMES.BOARD_DEAL,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.BOARD_TASK,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.BOARD_TICKET,
+    schemas: [attachmentSchema, boardSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_DEAL,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TASK,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TICKET,
+    schemas: [pipelineSchema],
+  },
+  {
+    name: MODULE_NAMES.CHECKLIST,
+    schemas: [checklistSchema],
+  },
+  {
+    name: MODULE_NAMES.CHECKLIST_ITEM,
+    schemas: [checklistItemSchema],
+  },
+  {
+    name: MODULE_NAMES.DEAL,
+    schemas: [dealSchema, productDataSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_LABEL,
+    schemas: [pipelineLabelSchema],
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_TEMPLATE,
+    schemas: [pipelineTemplateSchema, stageSchema],
+  },
+  {
+    name: MODULE_NAMES.TASK,
+    schemas: [taskSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.GROWTH_HACK,
+    schemas: [growthHackSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.TICKET,
+    schemas: [ticketSchema, attachmentSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_DEAL,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_TASK,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_TICKET,
+    schemas: [boardStageSchema],
+  },
+  {
+    name: MODULE_NAMES.STAGE_GH,
+    schemas: [boardStageSchema],
+  },
+];

@@ -163,25 +163,25 @@ export const collectTasks = async ({ contentType, contentId }) => {
     });
   }
 
-  const contentIds = items
-    .filter(activity => activity.action === 'convert')
-    .map(activity => activity.content);
+  // const contentIds = items
+  //   .filter(activity => activity.action === 'convert')
+  //   .map(activity => activity.content);
 
-  const conversations = await sendInboxRPCMessage(
-    'getIntegrations',
-    { query: { _id: { $in: contentIds } } }
-  ) || [];
+  // const conversations = await sendInboxRPCMessage(
+  //   'findIntegrations',
+  //   { query: { _id: { $in: contentIds } } }
+  // ) || [];
 
-  if (Array.isArray(contentIds) && conversations.length > 0) {
-    for (const c of conversations) {
-      items.push({
-        _id: c._id,
-        contentType: 'conversation',
-        contentId,
-        createdAt: c.createdAt
-      });
-    }
-  }
+  // if (Array.isArray(contentIds) && conversations.length > 0) {
+  //   for (const c of conversations) {
+  //     items.push({
+  //       _id: c._id,
+  //       contentType: 'conversation',
+  //       contentId,
+  //       createdAt: c.createdAt
+  //     });
+  //   }
+  // }
 
   return items;
 }

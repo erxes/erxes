@@ -14,7 +14,7 @@ import {
   getCardContentIds
 } from './utils';
 
-import { LOG_MAPPINGS } from './logUtils';
+import { LOG_MAPPINGS } from './constants';
 
 let client;
 
