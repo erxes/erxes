@@ -13,6 +13,11 @@ export const initBroker = async cl => {
     status: 'success',
   }));
 
+  consumeRPCQueue('tags:rpc_queue:findOne', async (selector) => ({
+    data: await Tags.findOne(selector).lean(),
+    status: 'success',
+  }));
+
   consumeRPCQueue('tags:rpc_queue:getActivityContent', async (data) => {
     const { action, content } = data;
 
