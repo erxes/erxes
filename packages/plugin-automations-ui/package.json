@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-automations-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "start": "cd .erxes && yarn start",
+    "build": "cd .erxes && yarn build",
+    "tsc": "cd .erxes && yarn tsc"
+  },
+  "dependencies": {
+    "jsplumb": "^2.15.6",
+    "prismjs": "^1.26.0",
+    "react-simple-code-editor": "^0.11.0"
+  }
+}

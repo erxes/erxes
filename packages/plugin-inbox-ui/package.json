@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-inbox-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "start": "cd .erxes && yarn start",
+    "build": "cd .erxes && yarn build",
+    "tsc": "cd .erxes && yarn tsc"
+  },
+  "dependencies": {
+    "bat-draft-js-mention-plugin": "^2.0.1",
+    "fuzzysearch-highlight": "^1.0.3",
+    "react-to-print": "^2.13.0"
+  }
+}
