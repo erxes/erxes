@@ -41,7 +41,6 @@ import { IContext } from '@erxes/api-utils/src';
 import { splitStr } from '@erxes/api-utils/src/core';
 // import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
-// import { itemsAdd } from './boardUtils';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 

@@ -7,10 +7,8 @@ import {
 } from '../../models';
 
 import {
-  Customers,
   Fields,
   Forms,
-  Products,
   Users
 } from '../../apiCollections';
 
@@ -55,7 +53,7 @@ import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendConformityMessage, sendContactMessage, sendContactRPCMessage, sendFormRPCMessage, sendMessage, sendToLog } from '../../messageBroker';
+import { sendConformityMessage, sendContactMessage, sendContactRPCMessage, sendFormRPCMessage, sendMessage, sendProductRPCMessage, sendToLog } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
@@ -121,6 +119,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
     }
   }
 
+// ! will check
   // knowledgebase app =======
 //   const kbApp = await getMessengerApps('knowledgebase', integration._id);
 
@@ -714,6 +713,8 @@ const widgetMutations = {
       });
     }
 
+    // ! will check
+
 //     if (!HAS_BOTENDPOINT_URL && customerId) {
 //       try {
 //         sendMobileNotification({
@@ -828,12 +829,13 @@ const widgetMutations = {
     const attachments = args.attachments || [];
 
     // do not use Customers.getCustomer() because it throws error if not found
-    const customer = await Customers.findOne({ _id: customerId });
+    const customer = await sendContactRPCMessage('findCustomer',  { _id: customerId })
     const form = await Forms.getForm(formId || '');
 
     let finalContent = content;
 
     if (customer && form) {
+      // ! will check
 //       const replacedContent = await new EditorAttributeUtil().replaceAttributes(
 //         {
 //           content,
@@ -857,6 +859,7 @@ const widgetMutations = {
       });
     }
 
+    // ! will check
 //     await sendEmail({
 //       toEmails,
 //       fromEmail,
@@ -1041,7 +1044,7 @@ const widgetMutations = {
   ) {
     const { submissions, productId } = args;
 
-    const product = await Products.getProduct({ _id: productId });
+    const product = await sendProductRPCMessage('findOne', { _id: productId });
 
     return createFormConversation(
       args,
