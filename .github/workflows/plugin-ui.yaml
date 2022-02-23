@@ -22,7 +22,7 @@ jobs:
 
       - name: Build
         run: |
-          yarn install --frozen-lockfile --production
+          yarn install --frozen-lockfile
           cd packages/plugin-card-ui
           yarn build
 
