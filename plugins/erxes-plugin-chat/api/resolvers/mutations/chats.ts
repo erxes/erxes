@@ -114,7 +114,7 @@ const chatMutations = [
       );
 
       graphqlPubsub.publish('chatMessageInserted', {
-        chatMessageInserted: created
+        userId: user._id
       });
 
       return created;

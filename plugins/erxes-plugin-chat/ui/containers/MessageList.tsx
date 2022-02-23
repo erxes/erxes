@@ -2,11 +2,12 @@ import React from 'react';
 import { useQuery, useSubscription } from 'react-apollo';
 import gql from 'graphql-tag';
 import Spinner from 'erxes-ui/lib/components/Spinner';
+import { withCurrentUser } from 'erxes-ui';
 
 import MessageList from '../components/MessageList';
 import { queries, subscriptions } from '../graphql';
 
-export default function MessageListContainer({ chatId }) {
+function MessageListContainer({ chatId, currentUser }) {
   const chatMessagesQuery = useQuery(gql(queries.chatMessages), {
     variables: {
       chatId
@@ -17,10 +18,12 @@ export default function MessageListContainer({ chatId }) {
     gql(subscriptions.chatMessageInserted),
     {
       variables: {
-        chatId
+        userId: currentUser._id
       }
     }
   );
+
+  console.log('chatMessageSubscription: ', chatMessageSubscription);
 
   if (chatMessageSubscription.data) {
     chatMessagesQuery.refetch({ chatId });
@@ -36,3 +39,5 @@ export default function MessageListContainer({ chatId }) {
 
   return <MessageList messages={chatMessagesQuery.data.chatMessages.list} />;
 }
+
+export default withCurrentUser(MessageListContainer);

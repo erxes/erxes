@@ -2,7 +2,7 @@ const chatSubscriptions = [
   {
     name: 'chatMessageInserted',
     handler: async (payload, variables) => {
-      return payload.chatMessageInserted.chatId === variables.chatId;
+      return payload.userId === variables.userId;
     }
   }
 ];

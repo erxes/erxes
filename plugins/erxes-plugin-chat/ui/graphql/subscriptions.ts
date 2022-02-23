@@ -1,6 +1,6 @@
 const chatMessageInserted = `
-  subscription chatMessageInserted($chatId: String!) {
-    chatMessageInserted(chatId: $chatId) {
+  subscription chatMessageInserted($userId: String!) {
+    chatMessageInserted(userId: $userId) {
       _id
     }
   }
