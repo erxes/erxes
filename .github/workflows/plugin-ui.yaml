@@ -20,7 +20,7 @@ jobs:
 
       - name: Build
         run: |
-          ls
+          ls -la
           cd packages/plugin-card-ui
           yarn install --frozen-lockfile --production
           yarn build
