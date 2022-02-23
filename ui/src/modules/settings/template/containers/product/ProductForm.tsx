@@ -8,10 +8,10 @@ import * as compose from 'lodash.flowright';
 import { withProps } from 'erxes-ui/lib/utils/core';
 import { graphql } from '@apollo/react-hoc';
 import gql from 'graphql-tag';
-import {
-  ProductCategoriesQueryResponse,
-  ProductTemplatesQueryResponse
-} from '../../types';
+import { ProductTemplatesQueryResponse } from '../../types';
+
+import { ProductsQueryResponse } from 'modules/settings/productService/types';
+
 import { queries } from '../../graphql';
 
 type Props = {
@@ -22,19 +22,19 @@ type Props = {
 };
 
 type FinalProps = {
-  productCategoriesQuery: ProductCategoriesQueryResponse;
+  productsQuery: ProductsQueryResponse;
 } & Props &
   ProductTemplatesQueryResponse;
 
 class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { productCategoriesQuery } = this.props;
+    const { productsQuery } = this.props;
 
-    if (productCategoriesQuery.loading) {
+    if (productsQuery.loading) {
       return null;
     }
 
-    const productCategories = productCategoriesQuery.productCategories || [];
+    const products = productsQuery.products || [];
 
     const renderButton = ({
       name,
@@ -69,7 +69,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      productCategories,
+      products,
       renderButton
     };
 
@@ -83,12 +83,9 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductCategoriesQueryResponse>(
-      gql(queries.productCategories),
-      {
-        name: 'productCategoriesQuery'
-      }
-    ),
+    graphql<Props, ProductsQueryResponse>(gql(queries.products), {
+      name: 'productsQuery'
+    }),
     graphql<
       Props,
       ProductTemplatesQueryResponse,

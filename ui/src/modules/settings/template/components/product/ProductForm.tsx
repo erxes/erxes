@@ -16,11 +16,11 @@ import {
 import { TYPE_CHOICES } from '../../constants';
 
 import Stages from './Stages';
-import { IProductCategory } from 'modules/settings/productService/types';
+import { IProduct } from 'modules/settings/productService/types';
 
 type Props = {
   productTemplate?: IProductTemplate;
-  productCategories?: IProductCategory[];
+  products: IProduct[];
   items?: IProductTemplate;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
@@ -90,7 +90,6 @@ class Form extends React.Component<Props, State> {
       values._id = productTemplate._id;
     }
 
-    const { productCategories } = this.props;
     const { discount, totalAmount } = this.state;
 
     return (
@@ -169,8 +168,8 @@ class Form extends React.Component<Props, State> {
             <Stages
               type="productTemplate"
               items={this.state.items}
-              productCategories={productCategories}
               onChangeItems={this.onChangeItems}
+              products={this.props.products}
             />
           </div>
         </FormGroup>

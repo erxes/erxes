@@ -5,13 +5,13 @@ import { __ } from 'modules/common/utils';
 import { LinkButton } from 'modules/settings/team/styles';
 import React from 'react';
 import StageItem from './StageItem';
-import { IProductCategory } from 'modules/settings/productService/types';
+import { IProduct } from 'modules/settings/productService/types';
 
 type Props = {
   onChangeItems: (items: IProductTemplateItem[]) => void;
-  productCategories?: IProductCategory[];
   items: any;
   type?: string;
+  products: IProduct[];
 };
 
 class Stages extends React.Component<Props, {}> {
@@ -35,8 +35,8 @@ class Stages extends React.Component<Props, {}> {
 
     items.push({
       _id: Math.random().toString(),
-      categoryId: "",
-      itemId: "",
+      categoryId: '',
+      itemId: '',
       unitPrice: 0,
       quantity: 0,
       discount: 0
@@ -53,16 +53,16 @@ class Stages extends React.Component<Props, {}> {
   };
 
   render() {
-    const { type, productCategories } = this.props;
+    const { type } = this.props;
     const Item = StageItem;
 
     const child = item => (
       <Item
         item={item}
         type={type}
-        productCategories={productCategories}
         onChange={this.onChange}
         remove={this.remove}
+        products={this.props.products}
       />
     );
 

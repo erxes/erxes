@@ -2,32 +2,30 @@ import Button from 'modules/common/components/Button';
 import { ControlLabel } from 'modules/common/components/form';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'erxes-ui/lib/components/form/Group';
-import { generateCategoryOptions } from 'erxes-ui/lib/utils';
 import React from 'react';
 import { StageItemContainer } from '../../styles';
 import { IProductTemplateItem } from '../../types';
-import {
-  IProduct,
-  IProductCategory
-} from 'modules/settings/productService/types';
-import client from 'erxes-ui/lib/apolloClient';
-import gql from 'graphql-tag';
-import { queries } from '../../graphql';
+import { IProduct } from 'modules/settings/productService/types';
+import Icon from 'modules/common/components/Icon';
+import { ProductButton, ContentColumn, ItemText } from 'modules/deals/styles';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import ProductChooser from 'modules/deals/containers/product/ProductChooser';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   item: IProductTemplateItem;
-  productCategories?: IProductCategory[];
   type?: string;
   remove: (itemId: string) => void;
   onChange: (itemId: string, name: string, value: any) => void;
+  products: IProduct[];
 };
 
 type State = {
-  productsCombo: any[];
-  products: IProduct[];
+  currentProduct?: IProduct;
   unitPrice: number;
   quantity: number;
   discount: number;
+  categoryId: string;
 };
 
 class StageItem extends React.Component<Props, State> {
@@ -35,57 +33,19 @@ class StageItem extends React.Component<Props, State> {
     super(props);
 
     const item = props.item || ({} as IProductTemplateItem);
-    const { unitPrice, quantity, discount, categoryId } = item;
-    const defaultCategoryId = categoryId ? categoryId : undefined;
+    const { unitPrice, quantity, discount, categoryId, itemId } = item;
+    const { products } = props;
 
     this.state = {
-      productsCombo: [],
-      products: [],
+      currentProduct: itemId
+        ? products.find(product => product._id === itemId)
+        : null,
       unitPrice: unitPrice ? unitPrice : 0,
       quantity: quantity ? quantity : 0,
-      discount: discount ? discount : 0
+      discount: discount ? discount : 0,
+      categoryId: categoryId ? categoryId : ''
     };
-
-    this.getProductByCategory(defaultCategoryId, false);
   }
-
-  getProductByCategory = (categoryId?: string, isnew = true as boolean) => {
-    if (!categoryId) {
-      const { productCategories } = this.props;
-      const defaultCategory = productCategories
-        ? productCategories[0]
-        : ({} as IProductCategory);
-      categoryId = defaultCategory._id || '';
-    }
-
-    client
-      .query({
-        query: gql(queries.products),
-        fetchPolicy: 'network-only',
-        variables: { categoryId }
-      })
-      .then(products => {
-        const datas = products.data.products;
-        const tempArray: any[] = [{ lable: '', value: '' }];
-
-        datas.forEach(data => {
-          tempArray.push({ label: data.name, value: data._id });
-        });
-
-        this.setState({
-          products: datas,
-          productsCombo: tempArray
-        });
-
-        if (isnew) {
-          this.setState({
-            unitPrice: 0,
-            quantity: 0,
-            discount: 0
-          });
-        }
-      });
-  };
 
   onUnitPrice = (_id, e) => {
     const { onChange } = this.props;
@@ -111,60 +71,87 @@ class StageItem extends React.Component<Props, State> {
     }
   };
 
-  onItem = (_id, e) => {
-    const itemId = e.target.value;
-    const { onChange } = this.props;
-    const { products } = this.state;
-    const productOne =
-      products.find(product => product._id === itemId) || ({} as IProduct);
-    const { unitPrice } = productOne;
+  renderProductServiceTrigger(product?: IProduct) {
+    let content = (
+      <div>
+        {__('Choose Product')} <Icon icon="plus-circle" />
+      </div>
+    );
 
-    this.setState({
-      unitPrice: unitPrice ? unitPrice : 0,
-      quantity: 1,
-      discount: 0
-    });
+    // if product selected
+    if (product) {
+      content = (
+        <div>
+          {product.name} <Icon icon="pen-1" />
+        </div>
+      );
+    }
 
-    onChange(_id, 'unitPrice', unitPrice);
-    onChange(_id, 'quantity', 1);
-    onChange(_id, 'itemId', itemId);
+    return <ProductButton>{content}</ProductButton>;
+  }
+
+  onChangeCategory = (categoryId: string) => {
+    this.setState({ categoryId });
   };
 
-  onCategory = (_id, e) => {
-    const categoryId = e.target.value;
-    const { onChange } = this.props;
+  renderProductModal = (currentProduct?: IProduct) => {
+    const productOnChange = (products: IProduct[]) => {
+      const product = products && products.length === 1 ? products[0] : null;
+      const itemId = product ? product._id : '';
+      const { onChange } = this.props;
+      const unitPrice = product ? product.unitPrice : 0;
+      const { _id } = this.props.item;
 
-    this.getProductByCategory(categoryId);
-    onChange(_id, 'categoryId', categoryId);
+      this.setState({
+        currentProduct: product || undefined,
+        unitPrice,
+        quantity: 1,
+        discount: 0
+      });
+
+      onChange(_id, 'unitPrice', unitPrice);
+      onChange(_id, 'quantity', 1);
+      onChange(_id, 'itemId', itemId);
+      onChange(_id, 'categoryId', product ? product.categoryId : '');
+    };
+
+    const content = props => (
+      <ProductChooser
+        {...props}
+        onSelect={productOnChange}
+        onChangeCategory={this.onChangeCategory}
+        categoryId={this.state.categoryId}
+        data={{
+          name: 'Product',
+          products: currentProduct ? [currentProduct] : []
+        }}
+        limit={1}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose product & service"
+        trigger={this.renderProductServiceTrigger(currentProduct)}
+        size="lg"
+        content={content}
+      />
+    );
   };
 
   render() {
-    const { item, remove, productCategories } = this.props;
-    const { _id, categoryId, itemId } = item;
-    const { unitPrice, quantity, productsCombo, discount } = this.state;
+    const { item, remove } = this.props;
+    const { _id } = item;
+    const { unitPrice, quantity, discount, currentProduct } = this.state;
 
     return (
       <StageItemContainer key={_id}>
         <FormGroup>
-          <ControlLabel required={true}>Category</ControlLabel>
-          <FormControl
-            componentClass="select"
-            defaultValue={categoryId}
-            onChange={this.onCategory.bind(this, _id)}
-            required={true}
-          >
-            {generateCategoryOptions(productCategories || [])}
-          </FormControl>
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>Item</ControlLabel>
-          <FormControl
-            value={itemId}
-            onChange={this.onItem.bind(this, _id)}
-            required={true}
-            componentClass="select"
-            options={productsCombo}
-          />
+          <ItemText>{__('Choose Product')}:</ItemText>
+
+          <ContentColumn flex="3">
+            {this.renderProductModal(currentProduct)}
+          </ContentColumn>
         </FormGroup>
         <FormGroup>
           <ControlLabel>Unit price</ControlLabel>
