@@ -19,6 +19,7 @@ jobs:
           node-version: 12.19.x
 
       - name: Build
+        uses: actions/checkout@v2
         run: |
           cd packages/plugin-card-ui
           yarn install --frozen-lockfile --production
