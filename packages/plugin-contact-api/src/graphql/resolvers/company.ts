@@ -4,7 +4,7 @@ import Companies from '../../models/Companies';
 import { sendConformityMessage } from '../../messageBroker';
 
 export default {
-  __resolverReference({ _id }) {
+  __resolveReference({ _id }) {
     return Companies.findOne({ _id });
   },
 
