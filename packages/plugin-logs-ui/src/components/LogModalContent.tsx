@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
-import TextInfo from 'modules/common/components/TextInfo';
-import colors from 'modules/common/styles/colors';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import colors from '@erxes/ui/src/styles/colors';
 import React from 'react';
 import { LogBox } from '../styles';
 import { ILog, ILogDesc } from '../types';
 import { flattenObject, isObjectEmpty } from '../utils';
-import Icon from 'modules/common/components/Icon';
+import Icon from '@erxes/ui/src/components/Icon';
 
 // field names used to show properly formatted date values
 const DATE_FIELD_NAMES = [

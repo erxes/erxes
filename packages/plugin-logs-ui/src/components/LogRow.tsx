@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import AsyncComponent from 'modules/common/components/AsyncComponent';
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import TextInfo from 'modules/common/components/TextInfo';
-import { __ } from 'modules/common/utils';
+import AsyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import { __ } from '@erxes/ui/src/utils';
 import * as React from 'react';
 import { ILog } from '../types';
 

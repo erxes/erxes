@@ -242,7 +242,7 @@ export const pluginsSettingsNavigations = () => {
 export const pluginRouters = () => {
   const plugins: any[] = (window as any).plugins || [];
   const pluginRoutes: any[] = [];
-
+  console.log(plugins);
   for (const plugin of plugins) {
     if (plugin.routes) {
       pluginRoutes.push(

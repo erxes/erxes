@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { generatePaginationParams } from 'modules/common/utils/router';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import LogList from '../components/LogList';

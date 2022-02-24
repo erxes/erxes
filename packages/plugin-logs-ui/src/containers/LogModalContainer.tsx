@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import LogModal from '../components/LogModalContent';
