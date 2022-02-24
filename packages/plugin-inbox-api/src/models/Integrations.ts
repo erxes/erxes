@@ -1,16 +1,10 @@
 import * as momentTz from 'moment-timezone';
 import { Model, model, Query } from 'mongoose';
 
-import {
-  ConversationMessages,
-  Conversations,
-} from '.';
+import { ConversationMessages, Conversations } from '.';
 
-import {
-  Brands,
-  Customers,
-  Forms
-} from '../apiCollections';
+import { Brands, Forms } from '../apiCollections';
+import { sendContactMessage, sendContactRPCMessage } from '../messageBroker';
 
 import { KIND_CHOICES } from './definitions/constants';
 import {
@@ -402,10 +396,13 @@ export const loadClass = () => {
       await Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
-      const customers = await Customers.find({ integrationId: _id });
+      const customers = await sendContactRPCMessage('getCustomers', {
+        integrationId: _id
+      });
+
       const customerIds = customers.map(cus => cus._id);
 
-      await Customers.removeCustomers(customerIds);
+      await sendContactMessage('removeCustomers', customerIds);
 
       // Remove form
       if (integration.formId) {

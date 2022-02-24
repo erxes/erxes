@@ -303,7 +303,7 @@ const boardQueries = {
       .find({ stageId: { $in: stageIds } })
       .distinct('assignedUserIds');
 
-    return Users.find({ _id: { $in: assignedUserIds } }).lean();
+    return assignedUserIds.map(userId => ({ __typename: "User", _id: userId}));
   },
 
   /**

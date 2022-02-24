@@ -209,6 +209,10 @@ export const sendProductRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
 };
 
+export const sendProductCategoryRPCMessage = async (action, data): Promise<any> => {
+  return client.sendRPCMessage(`productCategories:rpc_queue:${action}`, data);
+};
+
 export const sendConfigRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
 };
