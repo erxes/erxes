@@ -5,7 +5,7 @@ on:
     branches:
       - '**'
     paths:
-      - 'packages/plugin-card-ui/*'
+      - 'packages/plugin-card-ui/**'
       - '.github/workflows/plugin-ui.yaml'
 
 jobs:
