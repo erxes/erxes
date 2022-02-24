@@ -1,21 +1,24 @@
-const webpack = require('webpack');
+const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
+const TerserPlugin = require("terser-webpack-plugin");
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+//   .BundleAnalyzerPlugin;
 
 const configs = require("./plugin-src/configs");
-const { port=3000 } = configs;
+const { port = 3000 } = configs;
 
 const exposes = {};
 
 for (const expose of Object.keys(configs.exposes || {})) {
-  exposes[expose] = configs.exposes[expose].replace('src', 'plugin-src')
+  exposes[expose] = configs.exposes[expose].replace("src", "plugin-src");
 }
 
-// replace accordingly './.env' with the path of your .env file 
-require('dotenv').config({ path: './.env' }); 
+// replace accordingly './.env' with the path of your .env file
+require("dotenv").config({ path: "./.env" });
 
 const deps = require("./package.json").dependencies;
 const depNames = Object.keys(deps);
@@ -24,23 +27,46 @@ const shared = {};
 
 for (const name of depNames) {
   shared[name] = {
-    singleton: true
-  }
+    singleton: true,
+  };
 }
 
 module.exports = {
   output: {
-    uniqueName: configs.name,
     publicPath: `http://localhost:${port}/`,
   },
 
-  optimization: { runtimeChunk: false, splitChunks: false },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+        terserOptions: {
+          parse: {
+            ecma: 8,
+          },
+          compress: {
+            ecma: 5,
+            warnings: false,
+            comparisons: false,
+            inline: 2,
+          },
+          mangle: true,
+          output: {
+            ecma: 5,
+            comments: false,
+            ascii_only: true,
+          },
+        },
+      }),
+    ],
+  },
 
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     fallback: {
-      timers: require.resolve('timers-browserify')
-    }
+      timers: require.resolve("timers-browserify"),
+    },
   },
 
   devServer: {
@@ -61,9 +87,9 @@ module.exports = {
         test: /\.(css|s[ac]ss)$/i,
         use: ["style-loader", "css-loader", "postcss-loader"],
       },
-      { 
-        test: /\.json$/, 
-        loader: "json-loader"
+      {
+        test: /\.json$/,
+        loader: "json-loader",
       },
       {
         test: /\.(ts|tsx|js|jsx)$/,
@@ -71,7 +97,16 @@ module.exports = {
         include: [
           path.resolve(__dirname, "src"),
           path.resolve(__dirname, "../../erxes-ui/src"),
-          path.resolve(__dirname, "plugin-src")
+          path.resolve(__dirname, "../../core-ui/src"),
+          path.resolve(__dirname, "../../ui-cards/src"),
+          path.resolve(__dirname, "../../ui-contacts/src"),
+          path.resolve(__dirname, "../../ui-forms/src"),
+          path.resolve(__dirname, "../../ui-settings/src"),
+          path.resolve(__dirname, "../../ui-segments/src"),
+          path.resolve(__dirname, "../../ui-inbox/src"),
+          path.resolve(__dirname, "../../ui-products/src"),
+          path.resolve(__dirname, "../../ui-notifications/src"),
+          path.resolve(__dirname, "plugin-src"),
         ],
         use: {
           loader: "babel-loader",
@@ -98,18 +133,25 @@ module.exports = {
     new ModuleFederationPlugin({
       name: configs.name,
       filename: "remoteEntry.js",
-      remotes: {},
+      remotes: {
+        coreui: "coreui@http://localhost:3000/remoteEntry.js",
+      },
       exposes,
       shared: {
         ...shared,
         "@erxes/ui": {
           requiredVersion: "1.0.0",
-          singleton: true
-        }
+          singleton: true,
+        },
+        dayjs: {
+          requiredVersion: deps["dayjs"],
+          singleton: true,
+        },
       },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
+    // new BundleAnalyzerPlugin()
   ],
 };
