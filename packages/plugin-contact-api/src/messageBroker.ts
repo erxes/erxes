@@ -24,6 +24,11 @@ export const initBroker = (cl) => {
     data: await findCompany(doc),
   }));
 
+  consumeRPCQueue('contacts:rpc_queue:getCustomers', async (doc) => ({
+    status: 'success',
+    data: await Customers.find(doc),
+  }));
+
   consumeRPCQueue('contacts:rpc_queue:getCustomerIds', async (selector) => ({
     status: 'success',
     data: await Customers.find(selector).distinct("_id")
@@ -62,6 +67,11 @@ export const initBroker = (cl) => {
       data: await Customers.updateCustomer(_id, doc),
     })
   );
+
+  consumeQueue('contacts:removeCustomers', async (doc) => ({
+    status: 'success',
+    data: await Customers.removeCustomers(doc)
+  }));
 
   consumeRPCQueue('contacts:rpc_queue:updateCompany', async ({ _id, doc }) => ({
     status: 'success',
