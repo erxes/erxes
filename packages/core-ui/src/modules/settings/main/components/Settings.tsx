@@ -95,12 +95,6 @@ class Settings extends React.PureComponent {
               ""
             )}
             {this.renderBox(
-              "Logs",
-              "/images/icons/erxes-33.png",
-              "/settings/logs",
-              "viewLogs"
-            )}
-            {this.renderBox(
               "Team Members",
               "/images/icons/erxes-23.svg",
               "/settings/team",
