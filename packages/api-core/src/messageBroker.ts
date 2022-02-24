@@ -138,10 +138,10 @@ export const initBroker = async (server?) => {
       })
     );
 
-    consumeRPCQueue('rpc_queue:Fields.find', async ({ query, projection }) => {
+    consumeRPCQueue('rpc_queue:Fields.find', async ({ query, projection, sort }) => {
       return {
         status: 'success',
-        data: await Fields.find(query, projection).lean()
+        data: await Fields.find(query, projection).sort(sort).lean()
       };
     });
 
