@@ -1,7 +1,6 @@
 import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { IGrowthHackDocument } from '../../../models/definitions/growthHacks';
 import { boardId } from '../../utils';
-import { getDocument, getDocumentList } from '../../../cacheUtils';
 import { IContext } from '@erxes/api-utils/src';
 import { Fields, FormSubmissions } from '../../../apiCollections';
 
@@ -41,15 +40,11 @@ export default {
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
-    return getDocumentList('users', {
-      _id: { $in: growthHack.assignedUserIds || [] }
-    });
+    return (growthHack.assignedUserIds || []).map(_id => ({ __typename: "User", _id }));
   },
 
   votedUsers(growthHack: IGrowthHackDocument) {
-    return getDocumentList('users', {
-      _id: { $in: growthHack.votedUserIds || [] }
-    });
+    return (growthHack.votedUserIds || []).map(votedUserId => ({ __typename: "User", _id: votedUserId }));
   },
 
   isVoted(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
@@ -100,6 +95,6 @@ export default {
   },
 
   createdUser(growthHack: IGrowthHackDocument) {
-    return getDocument('users', { _id: growthHack.userId });
+    return { __typename: "User", _id: growthHack.userId };
   }
 };

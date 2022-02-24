@@ -18,8 +18,7 @@ export default {
   },
 
   async getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    const tags = await dataLoaders.tag.loadMany(customer.tagIds || []);
-    return tags.filter(tag => tag);
+    return (customer.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
   },
 
   async urlVisits(customer: ICustomerDocument) {
@@ -81,9 +80,7 @@ export default {
     return (companies || []).filter(c => c).slice(0, 10);
   },
 
-  async owner(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return (
-      (customer.ownerId && dataLoaders.user.load(customer.ownerId)) || null
-    );
+  async owner(customer: ICustomerDocument) {
+    return { __typename: "Customer", _id: customer.ownerId };
   }
 };

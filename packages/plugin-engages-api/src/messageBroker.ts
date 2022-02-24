@@ -1,6 +1,7 @@
 import { debugBase } from './debuggers';
 import { EngageMessages, Logs } from './models';
 import { sendBulkSms, start } from './sender';
+import { serviceDiscovery } from './configs';
 
 export let client;
 
@@ -134,6 +135,16 @@ export const fetchSegment = async (
     segment,
     options
   );
+};
+
+export const findMongoDocuments = async (serviceName: string, data: any) => {
+  const available = await serviceDiscovery.isAvailable(serviceName);
+
+  if (!available) {
+    return [];
+  }
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
 };
 
 export const removeEngageConversations = async (_id): Promise<any> => {

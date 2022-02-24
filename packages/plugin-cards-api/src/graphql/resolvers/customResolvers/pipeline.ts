@@ -5,7 +5,6 @@ import {
   PIPELINE_VISIBLITIES
 } from '../../../models/definitions/constants';
 import { IContext } from '@erxes/api-utils/src';
-import { getDocument, getDocumentList } from '../../../cacheUtils';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
@@ -15,12 +14,12 @@ import {
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
-    return getDocument('users', { _id: pipeline.userId });
+    return { __typename: "User", _id: pipeline.userId };
   },
 
   members(pipeline: IPipelineDocument, {}) {
-    if (pipeline.visibility === PIPELINE_VISIBLITIES.PRIVATE) {
-      return getDocumentList('users', { _id: { $in: pipeline.memberIds } });
+    if (pipeline.visibility === PIPELINE_VISIBLITIES.PRIVATE && pipeline.memberIds) {
+      return pipeline.memberIds.map(memberId => ({ __typename: "User", _id : memberId }));
     }
 
     return [];

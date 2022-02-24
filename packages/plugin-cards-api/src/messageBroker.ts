@@ -275,6 +275,16 @@ export const fetchSegment = (segment, options?) =>
     options
   });
 
+export const findMongoDocuments = async (serviceName: string, data: any) => {
+  const available = await serviceDiscovery.isAvailable(serviceName);
+
+  if (!available) {
+    return [];
+  }
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
+};
+
 export default function() {
   return client;
 }
