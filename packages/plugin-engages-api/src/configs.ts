@@ -13,6 +13,7 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 
 export let graphqlPubsub;
+export let serviceDiscovery;
 
 export let es: {
   client;
@@ -25,10 +26,14 @@ export let debug;
 
 export default {
   name: 'engages',
-  graphql: async (serviceDiscovery) => ({
-    typeDefs,
-    resolvers,
-  }),
+  graphql: async (sd) => {
+    serviceDiscovery = sd;
+
+    return {
+      typeDefs,
+      resolvers,
+    }
+  },
   segment: { schemas: [] },
   hasSubscriptions: false,
   apolloServerContext: (context) => {

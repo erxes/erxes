@@ -18,8 +18,14 @@ import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { IUserDocument } from './db/models/definitions/users';
+import * as models from './db/models/index';
 
 dotenv.config();
+
+interface IMongoFindParams {
+  query: any;
+  name: string;
+}
 
 let client;
 
@@ -241,6 +247,17 @@ export const initBroker = async (server?) => {
       status: 'success',
       data: await Users.findOne(query)
     }));
+
+    consumeRPCQueue('core:rpc_queue:findMongoDocuments', async (data: IMongoFindParams) => {
+      const { query, name } = data;
+
+      const collection = models[name];
+
+      return {
+        status: 'success',
+        data: collection ? await collection.find(query) : null
+      }
+    });
   }
 
   return client;

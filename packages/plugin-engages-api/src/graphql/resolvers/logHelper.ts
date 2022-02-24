@@ -1,10 +1,10 @@
 import { gatherNames, LogDesc } from '@erxes/api-utils/src/logUtils';
+import { findMongoDocuments } from '../../messageBroker';
 
 import {
   IEngageMessage,
   IEngageMessageDocument
 } from '../../models/definitions/engages';
-import { Segments, Users, EmailTemplates, Brands, Tags } from '../../apiCollections';
 
 const gatherEngageFieldNames = async (
   doc: IEngageMessageDocument | IEngageMessage,
@@ -16,73 +16,72 @@ const gatherEngageFieldNames = async (
     options = prevList;
   }
 
+  const generateOptions = (ids: string[], collectionName: string) => ({
+    query: { _id : { $in: ids } },
+    name: collectionName
+  });
+
   if (doc.segmentIds && doc.segmentIds.length > 0) {
     options = await gatherNames({
-      collection: Segments,
-      idFields: doc.segmentIds,
       foreignKey: 'segmentIds',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: await findMongoDocuments('api-core', generateOptions(doc.segmentIds, 'Segments'))
     });
   }
 
   if (doc.brandIds && doc.brandIds.length > 0) {
     options = await gatherNames({
-      collection: Brands,
-      idFields: doc.brandIds,
       foreignKey: 'brandIds',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: await findMongoDocuments('api-core', generateOptions(doc.brandIds, 'Brands'))
     });
   }
 
   if (doc.customerTagIds && doc.customerTagIds.length > 0) {
     options = await gatherNames({
-      collection: Tags,
-      idFields: doc.customerTagIds,
       foreignKey: 'customerTagIds',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: await findMongoDocuments('tags', generateOptions(doc.customerTagIds, 'Tags'))
     });
   }
 
   if (doc.fromUserId) {
     options = await gatherNames({
-      collection: Users,
-      idFields: [doc.fromUserId],
       foreignKey: 'fromUserId',
       prevList: options,
-      nameFields: ['email', 'username']
+      nameFields: ['email', 'username'],
+      items: await findMongoDocuments('api-core', generateOptions([doc.fromUserId], 'Users'))
     });
   }
 
   if (doc.messenger && doc.messenger.brandId) {
     options = await gatherNames({
-      collection: Brands,
-      idFields: [doc.messenger.brandId],
       foreignKey: 'brandId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: await findMongoDocuments('api-core', generateOptions([doc.messenger.brandId], 'Brands'))
     });
   }
 
   if (doc.createdBy) {
     options = await gatherNames({
-      collection: Users,
-      idFields: [doc.createdBy],
       foreignKey: 'createdBy',
       prevList: options,
-      nameFields: ['email', 'username']
+      nameFields: ['email', 'username'],
+      items: await findMongoDocuments('api-core', generateOptions([doc.createdBy], 'Users'))
     });
   }
 
   if (doc.email && doc.email.templateId) {
     options = await gatherNames({
-      collection: EmailTemplates,
-      idFields: [doc.email.templateId],
       foreignKey: 'email.templateId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      // EmailTemplates is not yet included in any plugins
+      items: await findMongoDocuments('', generateOptions([doc.email.templateId], 'EmailTemplates'))
     });
   }
 

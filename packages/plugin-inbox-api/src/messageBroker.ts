@@ -1,6 +1,8 @@
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
+
 import { ConversationMessages, Conversations, Integrations } from "./models";
 import { receiveRpcMessage, collectConversations } from "./receiveMessage";
+import { serviceDiscovery } from './configs';
 
 export let client;
 
@@ -223,6 +225,16 @@ export const fetchSegment = (segment, options?) =>
     segment,
     options,
   });
+
+export const findMongoDocuments = async (serviceName: string, data: any) => {
+  const available = await serviceDiscovery.isAvailable(serviceName);
+
+  if (!available) {
+    return [];
+  }
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
+};
 
 export default function() {
   return client;
