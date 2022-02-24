@@ -37,4 +37,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 cp packages/plugin-card-ui/package.json packages/plugin-card-ui s3://plugin-uis
+          aws s3 cp packages/plugin-card-ui/package.json s3://plugin-uis
