@@ -140,7 +140,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const options = () => ({
-  refetchQueries: ['productTemplates']
+  refetchQueries: ['productTemplates', 'productTemplateTotalCount']
 });
 
 export default withProps<Props>(

@@ -162,7 +162,7 @@ const productTemplateMutations = {
 
     for (const productTemplate of productTemplates) {
       await putDeleteLog(
-        { type: MODULE_NAMES.PRODUCT, object: productTemplate },
+        { type: MODULE_NAMES.PRODUCT_TEMPLATE, object: productTemplate },
         user
       );
     }

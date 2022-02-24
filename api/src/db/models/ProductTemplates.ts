@@ -5,6 +5,7 @@ import {
   productTemplateSchema
 } from './definitions/productTemplates';
 import { validSearchText } from '../../data/utils';
+import Deals from './Deals';
 
 export const fillSearchTextItem = (
   doc: IProductTemplate,
@@ -35,6 +36,7 @@ export interface IProductTemplateModel extends Model<IProductTemplateDocument> {
     _ids: string,
     doc: IProductTemplate
   ): Promise<IProductTemplateDocument>;
+  checkUsedOnDeal(_ids: string[]): Promise<void>;
   checkDuplication(title: string): Promise<void>;
   removeProductTemplate(ids: string[]): Promise<{ n: number; ok: number }>;
 }
@@ -60,6 +62,18 @@ export const loadProductTemplateClass = () => {
 
       if (productTemplate) {
         throw new Error('Title must be unique');
+      }
+    }
+
+    public static async checkUsedOnDeal(_ids: string[]) {
+      const deal = await Deals.findOne({
+        'productsData.templateId': { $in: _ids }
+      });
+
+      if (deal) {
+        throw new Error(
+          `You cannnot remove it, because it was used in ${deal.name}`
+        );
       }
     }
     /**
@@ -97,6 +111,7 @@ export const loadProductTemplateClass = () => {
      * remove Product Template
      */
     public static async removeProductTemplate(_ids: string[]) {
+      await this.checkUsedOnDeal(_ids);
       return ProductTemplates.deleteMany({ _id: { $in: _ids } });
     }
   }

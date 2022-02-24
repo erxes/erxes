@@ -29,7 +29,7 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
-          refetchQueries={['emailTemplates']}
+          refetchQueries={['emailTemplates', 'emailTemplatesTotalCount']}
           type="submit"
           btnStyle="primary"
           uppercase={false}
@@ -55,7 +55,7 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
-          refetchQueries={['responseTemplates']}
+          refetchQueries={['responseTemplates', 'responseTemplatesTotalCount']}
           type="submit"
           btnStyle="primary"
           uppercase={false}
@@ -81,7 +81,7 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
-          refetchQueries={['pipelineTemplates']}
+          refetchQueries={['pipelineTemplates', 'pipelineTemplatesTotalCount']}
           type="submit"
           btnStyle="primary"
           uppercase={false}

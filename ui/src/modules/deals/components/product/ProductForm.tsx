@@ -341,8 +341,8 @@ class ProductForm extends React.Component<Props, State> {
                   p => p._id === templateId
                 );
 
-                templateInfo = template[0].title;
-                templateInfoId = templateId;
+                templateInfo = template.length > 0 ? template[0].title : '';
+                templateInfoId = templateInfo ? templateId : '';
               }
 
               return (

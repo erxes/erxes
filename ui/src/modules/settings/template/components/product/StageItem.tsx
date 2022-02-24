@@ -74,7 +74,7 @@ class StageItem extends React.Component<Props, State> {
   renderProductServiceTrigger(product?: IProduct) {
     let content = (
       <div>
-        {__('Choose Product')} <Icon icon="plus-circle" />
+        {__('Product & service ')} <Icon icon="plus-circle" />
       </div>
     );
 

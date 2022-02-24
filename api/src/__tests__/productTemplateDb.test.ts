@@ -1,16 +1,44 @@
-import { productTemplateFactory } from '../db/factories';
+import {
+  productTemplateFactory,
+  boardFactory,
+  dealFactory,
+  pipelineFactory,
+  pipelineLabelFactory,
+  stageFactory,
+  userFactory
+} from '../db/factories';
 import { ProductTemplates } from '../db/models';
 import { IProductTemplateDocument } from '../db/models/definitions/productTemplates';
+import { IDealDocument } from '../db/models/definitions/deals';
 import * as faker from 'faker';
 
 import './setup.ts';
 
 describe('Test product template model', () => {
   let productTemplate: IProductTemplateDocument;
+  let productTemplateCheckUsed: IProductTemplateDocument;
+  let deal: IDealDocument;
 
   beforeEach(async () => {
     // Creating test data
     productTemplate = await productTemplateFactory();
+    productTemplateCheckUsed = await productTemplateFactory();
+    const board = await boardFactory();
+    const pipeline = await pipelineFactory({ boardId: board._id });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const user = await userFactory({});
+    const secondUser = await userFactory({});
+    const label = await pipelineLabelFactory({});
+    deal = await dealFactory({
+      initialStageId: stage._id,
+      stageId: stage._id,
+      userId: user._id,
+      modifiedBy: user._id,
+      labelIds: [label._id],
+      assignedUserIds: [user._id],
+      watchedUserIds: [secondUser._id],
+      productsData: [{ templateId: productTemplateCheckUsed._id }]
+    });
   });
 
   afterEach(async () => {
@@ -99,6 +127,16 @@ describe('Test product template model', () => {
     ]);
 
     expect(isDeleted).toBeTruthy();
+  });
+
+  test('Used product template', async () => {
+    try {
+      await ProductTemplates.checkUsedOnDeal([productTemplateCheckUsed._id]);
+    } catch (e) {
+      expect(e.message).toBe(
+        `You cannnot remove it, because it was used in ${deal.name}`
+      );
+    }
   });
 
   test('Duplicate product template', async () => {
