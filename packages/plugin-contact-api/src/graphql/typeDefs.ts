@@ -18,6 +18,20 @@ const typeDefs = async (serviceDiscovery) =>  {
   return gql`
     scalar JSON
     scalar Date
+      
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
+  
+    ${
+      tagsAvailable ? 
+      `
+        extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }
+      ` : ''
+    }
+
 
     ${customerTypes(tagsAvailable)}
     ${companyTypes(tagsAvailable)}
