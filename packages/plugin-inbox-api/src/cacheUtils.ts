@@ -1,20 +1,11 @@
 import sift from 'sift';
 
-import {
-  Brands,
-  Tags,
-  Products,
-  Users
-} from './apiCollections';
+import { Brands, Users } from './apiCollections';
 
-import {
-  Channels,
-  Integrations,
-  MessengerApps,
-} from './models';
-
+import { Channels, Integrations, MessengerApps } from './models';
 
 import { get, set } from './inmemoryStorage';
+import { sendProductRPCMessage, sendTagRPCMessage } from './messageBroker';
 
 export const getDocument = async (
   type: 'users' | 'integrations' | 'brands' | 'channels',
@@ -62,11 +53,11 @@ export const getDocumentList = async (
       }
 
       case 'products': {
-        list = await Products.find().toArray();
+        list = await sendProductRPCMessage('find', {});
         break;
       }
       case 'tags': {
-        list = await Tags.find().toArray();
+        list = await sendTagRPCMessage('find', {});
         break;
       }
     }

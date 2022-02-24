@@ -10,7 +10,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import messageBroker from '../../messageBroker';
+import { sendRPCMessage } from '../../messageBroker';
 import { IContext } from '@erxes/api-utils/src';
 import { paginate } from '@erxes/api-utils/src';
 import { getDocumentList } from '../../cacheUtils';
@@ -266,7 +266,7 @@ const integrationQueries = {
   },
 
   async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
-    return messageBroker().sendRPCMessage(
+    return sendRPCMessage(
       'rpc_queue:api_to_integrations',
       {
         action: 'line-webhook',

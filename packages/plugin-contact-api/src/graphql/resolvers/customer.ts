@@ -5,7 +5,7 @@ import Customers from '../../models/Customers';
 import { sendConformityMessage } from '../../messageBroker';
 
 export default {
-  __resolverReference({ _id }) {
+  __resolveReference({ _id }) {
     return Customers.findOne({ _id });
   },
 

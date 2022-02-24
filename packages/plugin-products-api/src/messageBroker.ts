@@ -1,4 +1,4 @@
-import { Products } from "./models";
+import { ProductCategories, Products } from "./models";
 
 let client;
 
@@ -9,6 +9,11 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('products:rpc_queue:findOne', async (selector) => ({
     data: await Products.findOne(selector),
+    status: 'success',
+  }));
+
+  consumeRPCQueue('productCategories:rpc_queue:findOne', async (selector) => ({
+    data: await ProductCategories.findOne(selector),
     status: 'success',
   }));
 

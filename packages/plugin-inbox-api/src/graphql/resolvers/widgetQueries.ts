@@ -2,21 +2,14 @@ import * as momentTz from 'moment-timezone';
 import {
   ConversationMessages,
   Conversations,
-  Integrations,
+  Integrations
 } from '../../models';
 
-import {
-  Fields,
-  ProductCategories,
-  Products,
-  Users
-} from '../../apiCollections';
+import { Fields, Users } from '../../apiCollections';
 
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
-import {
-  getOrCreateEngageMessage,
-} from '../../widgetUtils';
+import { getOrCreateEngageMessage } from '../../widgetUtils';
 
 import { getDocument, getDocumentList } from '../../cacheUtils';
 import * as fs from 'fs';
@@ -26,6 +19,10 @@ import * as moment from 'moment';
 
 import { IContext } from '@erxes/api-utils/src';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
+import {
+  sendProductCategoryRPCMessage,
+  sendProductRPCMessage
+} from '../../messageBroker';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -319,11 +316,13 @@ export default {
   },
 
   async widgetsProductCategory(_root, { _id }: { _id: string }) {
-    return ProductCategories.findOne({ _id });
+    return sendProductCategoryRPCMessage('findOne', { _id });
   },
 
   async widgetsBookingProductWithFields(_root, { _id }: { _id: string }) {
-    const product = await Products.getProduct({ _id });
+    const product = await sendProductRPCMessage('findOne', {
+      _id
+    });
 
     const fields = await Fields.find({ contentType: 'product' }).sort({
       order: 1

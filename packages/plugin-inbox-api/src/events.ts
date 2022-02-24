@@ -1,5 +1,5 @@
 import * as getUuid from 'uuid-by-string';
-import { Customers, Fields } from './apiCollections';
+import { Fields } from './apiCollections';
 import { debug } from './configs';
 import { es } from './configs';
 import { sendContactRPCMessage } from './messageBroker';
@@ -200,10 +200,10 @@ export const trackCustomEvent = (args: {
 
 export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
   // get or create customer
-  let customer = await sendContactRPCMessage('getWidgetCustomer', args)
+  let customer = await sendContactRPCMessage('getWidgetCustomer', args);
 
   if (!customer) {
-    customer = await Customers.createCustomer({
+    customer = await sendContactRPCMessage('create_customer', {
       primaryEmail: args.email,
       code: args.code,
       primaryPhone: args.phone
@@ -238,7 +238,9 @@ export const updateCustomerProperty = async ({
       'code'
     ].includes(name)
   ) {
-    const customer = await Customers.findOne({ _id: customerId });
+    const customer = await sendContactRPCMessage('findCustomer', {
+      _id: customerId
+    });
 
     if (customer) {
       const prev = {};
@@ -249,7 +251,10 @@ export const updateCustomerProperty = async ({
     }
   }
 
-  await Customers.updateOne({ _id: customerId }, { $set: modifier });
+  await await sendContactRPCMessage('updateCustomer', {
+    _id: customerId,
+    doc: modifier
+  });
 
   return { status: 'ok' };
 };

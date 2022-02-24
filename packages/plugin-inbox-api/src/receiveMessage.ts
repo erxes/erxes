@@ -1,7 +1,8 @@
 import { graphqlPubsub } from './configs';
 import { ConversationMessages, Conversations, Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { Customers, Users } from './apiCollections';
+import { Users } from './apiCollections';
+import { sendContactRPCMessage } from './messageBroker';
 
 const sendError = message => ({
   status: 'error',
@@ -33,13 +34,17 @@ export const receiveRpcMessage = async msg => {
 
     let customer;
 
-    const getCustomer = async selector => Customers.findOne(selector).lean();
+    const getCustomer = async selector =>
+      sendContactRPCMessage('findCustomer', selector);
 
     if (primaryPhone) {
       customer = await getCustomer({ primaryPhone });
 
       if (customer) {
-        await Customers.updateCustomer(customer._id, doc);
+        await sendContactRPCMessage('updateCustomer', {
+          _id: customer._id,
+          doc
+        });
         return sendSuccess({ _id: customer._id });
       }
     }
@@ -51,7 +56,7 @@ export const receiveRpcMessage = async msg => {
     if (customer) {
       return sendSuccess({ _id: customer._id });
     } else {
-      customer = await Customers.createCustomer({
+      customer = await sendContactRPCMessage('create_customer', {
         ...doc,
         scopeBrandIds: integration.brandId
       });
@@ -178,28 +183,28 @@ export const collectConversations = async ({ contentId, contentType }) => {
       _id: c._id,
       contentType: 'conversation',
       contentId,
-      createdAt: c.createdAt,
+      createdAt: c.createdAt
     });
   }
 
   // if (contentType === 'customer') {
-    // let conversationIds;
+  // let conversationIds;
 
-    // try {
-    //   conversationIds = await dataSources.IntegrationsAPI.fetchApi(
-    //     '/facebook/get-customer-posts',
-    //     {
-    //       customerId: contentId
-    //     }
-    //   );
-    //   collectItems(
-    //     await Conversations.find({ _id: { $in: conversationIds } }).toArray(),
-    //     'comment'
-    //   );
-    // } catch (e) {
-    //   debugExternalApi(e);
-    // }
+  // try {
+  //   conversationIds = await dataSources.IntegrationsAPI.fetchApi(
+  //     '/facebook/get-customer-posts',
+  //     {
+  //       customerId: contentId
+  //     }
+  //   );
+  //   collectItems(
+  //     await Conversations.find({ _id: { $in: conversationIds } }).toArray(),
+  //     'comment'
+  //   );
+  // } catch (e) {
+  //   debugExternalApi(e);
   // }
-  
+  // }
+
   return results;
 };
