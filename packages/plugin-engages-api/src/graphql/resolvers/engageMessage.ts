@@ -42,9 +42,12 @@ export default {
 
   brand(engageMessage: IEngageMessageDocument) {
     const { messenger } = engageMessage;
+
     if (messenger && messenger.brandId) {
       return { __typename: 'Brand', _id: messenger.brandId };
     }
+
+    return null;
   },
 
   stats(engageMessage: IEngageMessageDocument) {
@@ -78,6 +81,6 @@ export default {
   },
   
   logs(engageMessage: IEngageMessageDocument) {
-    return Logs.find({ engageMessageId: engageMessage._id });
+    return Logs.find({ engageMessageId: engageMessage._id }).lean();
   }
 };
