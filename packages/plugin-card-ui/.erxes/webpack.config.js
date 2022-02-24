@@ -33,7 +33,7 @@ for (const name of depNames) {
 
 module.exports = {
   output: {
-    publicPath: 'https://plugin-uis.s3.us-west-2.amazonaws.com/plugin-card-ui',
+    publicPath: `http://localhost:${port}/`,
   },
 
   optimization: {
