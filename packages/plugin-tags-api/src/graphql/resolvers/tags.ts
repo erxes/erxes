@@ -1,3 +1,4 @@
+import { Tags } from '../../models';
 import { ITagDocument } from '../../models/definitions/tags';
 import { countDocuments } from '../../utils';
 
@@ -8,6 +9,10 @@ const getCount = async (tag: ITagDocument) => {
 };
 
 export default {
+  __resolveReference({ _id }) {
+    return Tags.findOne({ _id });
+  },
+  
   async totalObjectCount(tag: ITagDocument) {
     if (tag.relatedIds && tag.relatedIds.length > 0) {
       const tagIds = tag.relatedIds.concat(tag._id);
