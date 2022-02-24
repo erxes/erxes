@@ -44,5 +44,4 @@ export const mutations = `
   pipelineTemplatesRemove(_id: String!): JSON
   pipelineTemplatesDuplicate(_id: String!): PipelineTemplate
   pipelineTemplatesChangeStatus(_id: String!, status: String): PipelineTemplate
-
 `;
