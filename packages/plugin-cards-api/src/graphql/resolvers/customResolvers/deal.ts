@@ -9,7 +9,6 @@ import {
   sendContactRPCMessage,
   sendNotificationMessage,
 } from '../../../messageBroker';
-import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export const generateProducts = async productsData => {
   const products: any = [];
@@ -78,9 +77,11 @@ export default {
       relTypes: ['company']
     });
 
-    return sendContactRPCMessage('findActiveCompanies', {
+    const activeCompanies = await sendContactRPCMessage('findActiveCompanies', {
       selector: { _id: { $in: companyIds } }
     });
+
+    return (activeCompanies || []).map(c => ({ __typename: "Company", _id: c._id }));
   },
 
   async customers(deal: IDealDocument) {
@@ -90,9 +91,11 @@ export default {
       relTypes: ['customer']
     });
 
-    return sendContactRPCMessage('findActiveCustomers', {
+    const activeCustomers = await sendContactRPCMessage('findActiveCustomers', {
       selector: { _id: { $in: customerIds } }
     });
+
+    return (activeCustomers || []).map(c => ({ __typename: "Customer", _id: c._id }));
   },
 
   async products(deal: IDealDocument) {
@@ -104,9 +107,7 @@ export default {
   },
 
   assignedUsers(deal: IDealDocument) {
-    return getDocumentList('users', {
-      _id: { $in: deal.assignedUserIds || [] }
-    });
+    return (deal.assignedUserIds || []).map( _id => ({ __typename: "User", _id }));
   },
 
   async pipeline(deal: IDealDocument) {
@@ -145,6 +146,6 @@ export default {
   },
 
   createdUser(deal: IDealDocument) {
-    return getDocument('users', { _id: deal.userId });
+    return { __typename: "User", _id: deal.userId };
   }
 };
