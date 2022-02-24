@@ -80,9 +80,9 @@ const ButtonStyled = styledTS<{
       cursor: pointer;
       text-decoration: none;
       color: ${types[props.btnStyle].color &&
-      darken(types[props.btnStyle].color, 35)};
+        darken(types[props.btnStyle].color, 35)};
       background: ${props.btnStyle !== "link" &&
-      `${darken(types[props.btnStyle].background, 20)}`};
+        `${darken(types[props.btnStyle].background, 20)}`};
     }
 
     &:active,

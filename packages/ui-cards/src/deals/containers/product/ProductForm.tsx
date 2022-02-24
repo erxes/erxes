@@ -1,8 +1,8 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import { IProduct } from '@erxes/ui-products/src/types';
-import React from 'react';
-import ProductForm from '../../components/product/ProductForm';
-import { IPaymentsData, IProductData } from '../../types';
+import { AppConsumer } from "@erxes/ui/src/appContext";
+import { IProduct } from "@erxes/ui-products/src/types";
+import React from "react";
+import ProductForm from "../../components/product/ProductForm";
+import { IPaymentsData, IProductData } from "../../types";
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -20,6 +20,7 @@ export default class ProductFormContainer extends React.Component<Props> {
     return (
       <AppConsumer>
         {({ currentUser }) => {
+          console.log(currentUser, "aaaaaa");
           if (!currentUser) {
             return;
           }
@@ -29,7 +30,7 @@ export default class ProductFormContainer extends React.Component<Props> {
           const extendedProps = {
             ...this.props,
             uom: configs.dealUOM || [],
-            currencies: configs.dealCurrency || []
+            currencies: configs.dealCurrency || [],
           };
 
           return <ProductForm {...extendedProps} />;

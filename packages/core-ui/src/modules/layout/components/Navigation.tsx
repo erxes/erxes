@@ -1,8 +1,8 @@
-import WithPermission from 'modules/common/components/WithPermission';
-import { __, setBadge, readFile } from 'modules/common/utils';
-import { pluginNavigations, pluginsOfNavigations } from 'pluginUtils';
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import WithPermission from "modules/common/components/WithPermission";
+import { __, setBadge, readFile } from "modules/common/utils";
+import { pluginNavigations, pluginsOfNavigations } from "pluginUtils";
+import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   LeftNavigation,
   NavIcon,
@@ -16,12 +16,12 @@ import {
   MoreItemRecent,
   MoreMenus,
   MoreTitle,
-  NavMenuItem
-} from '../styles';
-import Tip from 'modules/common/components/Tip';
-import { getThemeItem } from 'utils';
-import Icon from 'modules/common/components/Icon';
-import FormControl from 'modules/common/components/form/Control';
+  NavMenuItem,
+} from "../styles";
+import Tip from "modules/common/components/Tip";
+import { getThemeItem } from "utils";
+import Icon from "modules/common/components/Icon";
+import FormControl from "modules/common/components/form/Control";
 
 export interface ISubNav {
   permission: string;
@@ -42,59 +42,39 @@ type State = {
 };
 
 class Navigation extends React.Component<IProps, State> {
-  private wrapperRef: any;
-
   constructor(props) {
     super(props);
 
     this.state = {
       showMenu: false,
       moreMenus: pluginNavigations().slice(4) || [],
-      searchText: ''
+      searchText: "",
     };
-  }
-
-  setWrapperRef = (node) => {
-    this.wrapperRef = node;
-  }
-
-  componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside);
   }
 
   componentWillReceiveProps = (nextProps) => {
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __('Team Inbox').toString());
+      setBadge(unreadCount, __("Team Inbox").toString());
     }
-  }
+  };
 
-  handleClickOutside = (event) => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.setState({ showMenu: false });
-    }
-  }
-
-  getLink = url => {
-    const storageValue = window.localStorage.getItem('pagination:perPage');
+  getLink = (url) => {
+    const storageValue = window.localStorage.getItem("pagination:perPage");
 
     let parsedStorageValue;
 
     try {
-      parsedStorageValue = JSON.parse(storageValue || '');
+      parsedStorageValue = JSON.parse(storageValue || "");
     } catch {
       parsedStorageValue = {};
     }
 
-    if (url.includes('?')) {
-      const pathname = url.split('?')[0];
+    if (url.includes("?")) {
+      const pathname = url.split("?")[0];
 
-      if (!url.includes('perPage') && parsedStorageValue[pathname]) {
+      if (!url.includes("perPage") && parsedStorageValue[pathname]) {
         return `${url}&perPage=${parsedStorageValue[pathname]}`;
       }
       return url;
@@ -108,10 +88,12 @@ class Navigation extends React.Component<IProps, State> {
   };
 
   onSearch = (value: string) => {
-    const filteredValue = val => val.text.toLowerCase().includes(value);
+    const filteredValue = (val) => val.text.toLowerCase().includes(value);
 
     this.setState({
-      moreMenus: pluginNavigations().slice(4).filter(filteredValue),
+      moreMenus: pluginNavigations()
+        .slice(4)
+        .filter(filteredValue),
     });
   };
 
@@ -162,10 +144,9 @@ class Navigation extends React.Component<IProps, State> {
     childrens?: ISubNav[],
     label?: React.ReactNode
   ) => {
-
     const item = (
       <NavItem>
-        {this.renderMenuItem({icon, url, text, label})}
+        {this.renderMenuItem({ icon, url, text, label })}
         {this.renderChildren(url, text, childrens)}
       </NavItem>
     );
@@ -191,35 +172,33 @@ class Navigation extends React.Component<IProps, State> {
     const { showMenu, moreMenus } = this.state;
 
     return (
-      <div ref={this.setWrapperRef}>
-        <MoreMenuWrapper visible={showMenu}>
-          <MoreSearch>
-            <Icon icon="search-1" size={15} />
-            <FormControl
-              onChange={(e: any) =>
-                this.onSearch(e.target.value.trim().toLowerCase())
-              }
-              type="text"
-              placeholder="Find plugins"
-            />
-          </MoreSearch>
-          <MoreTitle>{__('Other added plugins')}</MoreTitle>
-          <MoreMenus>
-            {moreMenus.map((menu, index) => (
-              <MoreItemRecent key={index}>
-                {this.renderMenuItem(menu)}
-              </MoreItemRecent>
-            ))}
-          </MoreMenus>
-        </MoreMenuWrapper>
-      </div>
+      <MoreMenuWrapper visible={showMenu}>
+        <MoreSearch>
+          <Icon icon="search-1" size={15} />
+          <FormControl
+            onChange={(e: any) =>
+              this.onSearch(e.target.value.trim().toLowerCase())
+            }
+            type="text"
+            placeholder="Find plugins"
+          />
+        </MoreSearch>
+        <MoreTitle>{__("Other added plugins")}</MoreTitle>
+        <MoreMenus>
+          {moreMenus.map((menu, index) => (
+            <MoreItemRecent key={index}>
+              {this.renderMenuItem(menu)}
+            </MoreItemRecent>
+          ))}
+        </MoreMenus>
+      </MoreMenuWrapper>
     );
   };
 
-  renderMore() {
+  renderMore = () => {
     const { showMenu } = this.state;
 
-    if(pluginNavigations().length <= 4 ) {
+    if (pluginNavigations().length <= 4) {
       return null;
     }
 
@@ -228,19 +207,19 @@ class Navigation extends React.Component<IProps, State> {
         <NavMenuItem>
           <a onClick={() => this.setState({ showMenu: !showMenu })}>
             <NavIcon className="icon-ellipsis-h" />
-            <label>{__('More')}</label>
+            <label>{__("More")}</label>
           </a>
         </NavMenuItem>
 
         {this.renderMorePlugins()}
       </NavItem>
     );
-  }
+  };
 
   render() {
     const Navs = pluginNavigations().slice(0, 4);
-    const logo = 'logo-dark.png';
-    const thLogo = getThemeItem('logo');
+    const logo = "logo-dark.png";
+    const thLogo = getThemeItem("logo");
 
     return (
       <LeftNavigation>
@@ -252,30 +231,25 @@ class Navigation extends React.Component<IProps, State> {
         </NavLink>
 
         <Nav id="navigation">
-          {Navs.map(nav => 
-            this.renderNavItem(
-              nav.permission,
-              nav.text,
-              nav.url,
-              nav.icon,
-            )   
+          {Navs.map((nav) =>
+            this.renderNavItem(nav.permission, nav.text, nav.url, nav.icon)
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}
 
           {this.renderMenuItem({
-            text: 'Settings',
-            url: '/settings',
-            icon: 'icon-settings'
+            text: "Settings",
+            url: "/settings",
+            icon: "icon-settings",
           })}
 
           {this.renderMore()}
 
           <StoreItem>
             {this.renderMenuItem({
-              text: 'Store',
-              url: '/store',
-              icon: 'icon-store'
+              text: "Store",
+              url: "/store",
+              icon: "icon-store",
             })}
           </StoreItem>
         </Nav>

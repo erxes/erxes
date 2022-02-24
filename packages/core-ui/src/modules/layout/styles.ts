@@ -444,7 +444,7 @@ const MoreItemRecent = styled.div`
 const MoreMenuWrapper = styledTS<{ visible: boolean }>(styled.div)`
   position: absolute;
   visibility: ${props => (props.visible ? 'visible' : 'hidden')};
-  padding:${dimensions.coreSpacing}px;
+  padding:${dimensions.coreSpacing}px  5px 20px 20px;
   width: ${dimensions.headerSpacingWide * 6}px;
   height: ${dimensions.headerSpacingWide * 4 + dimensions.coreSpacing}px;
   overflow-y: auto;

@@ -1,24 +1,24 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Header from '@erxes/ui/src/layout/components/Header';
-import { Contents, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import React from 'react';
-import { __ } from 'coreui/utils';
+import { IUser } from "@erxes/ui/src/auth/types";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Header from "@erxes/ui/src/layout/components/Header";
+import { Contents, HeightedWrapper } from "@erxes/ui/src/layout/styles";
+import MailForm from "@erxes/ui-settings/src/integrations/containers/mail/MailForm";
+import React from "react";
+import { __ } from "coreui/utils";
 
 const Sidebar = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar" */ '../containers/leftSidebar/Sidebar'
+    /* webpackChunkName:"Inbox-Sidebar" */ "../containers/leftSidebar/Sidebar"
   )
 );
 
 const ConversationDetail = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-ConversationDetail" */ '../containers/conversationDetail/ConversationDetail'
+      /* webpackChunkName:"Inbox-ConversationDetail" */ "../containers/conversationDetail/ConversationDetail"
     ),
-  { height: 'auto', width: '100%', color: '#fff', margin: '10px 10px 10px 0' }
+  { height: "auto", width: "100%", color: "#fff", margin: "10px 10px 10px 0" }
 );
 
 type Props = {
@@ -28,18 +28,18 @@ type Props = {
 };
 
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
-  const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
+  const menuInbox = [{ title: "Team Inbox", link: "/inbox/index" }];
 
   const content = () => <MailForm isReply={false} clearOnSubmit={true} />;
 
   const sendEmail = (
     <ModalTrigger
-      dialogClassName='middle'
-      title='Send an Email'
-      trigger={<span>{__('Send an Email')}</span>}
-      size='lg'
+      dialogClassName="middle"
+      title="Send an Email"
+      trigger={<span>{__("Send an Email")}</span>}
+      size="lg"
       content={content}
-      paddingContent='less-padding'
+      paddingContent="less-padding"
       enforceFocus={false}
     />
   );
@@ -47,7 +47,7 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
   return (
     <HeightedWrapper>
       <Header
-        title={'Conversation'}
+        title={"Conversation"}
         queryParams={queryParams}
         submenu={menuInbox}
         additionalMenuItem={sendEmail}

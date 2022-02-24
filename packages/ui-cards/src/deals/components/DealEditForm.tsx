@@ -1,24 +1,18 @@
-import EditForm from '../../boards/components/editForm/EditForm';
-import Left from '../../boards/components/editForm/Left';
-import Sidebar from '../../boards/components/editForm/Sidebar';
-import Top from '../../boards/components/editForm/Top';
-import { Flex } from '@erxes/ui/src/styles/main';
-import {
-  HeaderContentSmall
-} from '../../boards/styles/item';
-import {
-  IEditFormContent,
-  IItem,
-  IOptions
-} from '../../boards/types';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ProductSection from './ProductSection';
-import { IProduct } from '@erxes/ui-products/src/types';
-import PortableTasks from '../../tasks/components/PortableTasks';
-import PortableTickets from '../../tickets/components/PortableTickets';
-import { pluginsOfItemSidebar } from '@erxes/ui/src/pluginUtils';
-import React from 'react';
-import { IDeal, IDealParams, IPaymentsData } from '../types';
+import EditForm from "../../boards/components/editForm/EditForm";
+import Left from "../../boards/components/editForm/Left";
+import Sidebar from "../../boards/components/editForm/Sidebar";
+import Top from "../../boards/components/editForm/Top";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { HeaderContentSmall } from "../../boards/styles/item";
+import { IEditFormContent, IItem, IOptions } from "../../boards/types";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import ProductSection from "./ProductSection";
+import { IProduct } from "@erxes/ui-products/src/types";
+import PortableTasks from "../../tasks/components/PortableTasks";
+import PortableTickets from "../../tickets/components/PortableTickets";
+import { pluginsOfItemSidebar } from "@erxes/ui/src/pluginUtils";
+import React from "react";
+import { IDeal, IDealParams, IPaymentsData } from "../types";
 
 type Props = {
   options: IOptions;
@@ -34,7 +28,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent
+      timeSpent,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -58,12 +52,12 @@ export default class DealEditForm extends React.Component<Props, State> {
 
     this.state = {
       amount: item.amount || {},
-      productsData: item.products ? item.products.map(p => ({ ...p })) : [],
+      productsData: item.products ? item.products.map((p) => ({ ...p })) : [],
       // collecting data for ItemCounter component
-      products: item.products ? item.products.map(p => p.product) : [],
+      products: item.products ? item.products.map((p) => p.product) : [],
       paymentsData: item.paymentsData,
       changePayData: {},
-      refresh: false
+      refresh: false,
     };
   }
 
@@ -77,7 +71,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     return (
       <HeaderContentSmall>
         <ControlLabel>Amount</ControlLabel>
-        {Object.keys(amount).map(key => (
+        {Object.keys(amount).map((key) => (
           <p key={key}>
             {amount[key].toLocaleString()} {key}
           </p>
@@ -92,7 +86,7 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   onChangeRefresh = () => {
     this.setState({
-      refresh: !this.state.refresh
+      refresh: !this.state.refresh,
     });
   };
 
@@ -103,7 +97,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     const amount: any = {};
     const filteredProductsData: any = [];
 
-    productsData.forEach(data => {
+    productsData.forEach((data) => {
       // products
       if (data.product) {
         if (data.currency) {
@@ -121,7 +115,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    Object.keys(paymentsData || {}).forEach(key => {
+    Object.keys(paymentsData || {}).forEach((key) => {
       const perData = paymentsData[key];
 
       if (!perData.currency || !perData.amount || perData.amount === 0) {
@@ -132,7 +126,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     this.setState(
       { productsData: filteredProductsData, products, amount, paymentsData },
       () => {
-        saveItem({ productsData, paymentsData }, updatedItem => {
+        saveItem({ productsData, paymentsData }, (updatedItem) => {
           this.setState({ updatedItem });
         });
       }
@@ -159,10 +153,10 @@ export default class DealEditForm extends React.Component<Props, State> {
   renderProductSection = () => {
     const { products, productsData, paymentsData } = this.state;
 
-    const pDataChange = pData => this.onChangeField('productsData', pData);
-    const prsChange = prs => this.onChangeField('products', prs);
-    const payDataChange = payData =>
-      this.onChangeField('paymentsData', payData);
+    const pDataChange = (pData) => this.onChangeField("productsData", pData);
+    const prsChange = (prs) => this.onChangeField("products", prs);
+    const payDataChange = (payData) =>
+      this.onChangeField("paymentsData", payData);
 
     return (
       <ProductSection
@@ -183,7 +177,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
-        {pluginsOfItemSidebar(item, 'deal')}
+        {pluginsOfItemSidebar(item, "deal")}
       </>
     );
   };
@@ -192,7 +186,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     saveItem,
     onChangeStage,
     copy,
-    remove
+    remove,
   }: IEditFormContent) => {
     const {
       item,
@@ -200,7 +194,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       onUpdate,
       addItem,
       sendToBoard,
-      updateTimeTrack
+      updateTimeTrack,
     } = this.props;
 
     return (
@@ -248,9 +242,9 @@ export default class DealEditForm extends React.Component<Props, State> {
       sidebar: this.renderProductSection,
       formContent: this.renderFormContent,
       beforePopupClose: this.beforePopupClose,
-      refresh: this.state.refresh
+      refresh: this.state.refresh,
     };
-
+    console.log("hii");
     return <EditForm {...extendedProps} />;
   }
 }
