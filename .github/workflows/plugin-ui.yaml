@@ -22,11 +22,11 @@ jobs:
 
       - name: Build
         run: |
-          # yarn install --frozen-lockfile
+          yarn install --frozen-lockfile
           cp -r packages/ui-plugin-template/.erxes packages/plugin-card-ui/.erxes
           cd packages/plugin-card-ui
-          # yarn install-deps
-          # yarn build
+          yarn install-deps
+          yarn build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -37,4 +37,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-card-ui s3://plugin-uis/plugin-card-ui
+          aws s3 sync packages/plugin-card-ui/.erxes/dist s3://plugin-uis/plugin-card-ui
