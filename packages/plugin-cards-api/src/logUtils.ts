@@ -1,4 +1,3 @@
-import { Forms, Users } from './apiCollections';
 import {
   Boards,
   PipelineLabels,
@@ -26,7 +25,7 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
-import messageBroker from './messageBroker';
+import messageBroker, { findMongoDocuments } from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { ACTIVITY_CONTENT_TYPES } from './models/definitions/constants';
 
@@ -37,6 +36,10 @@ export const LOG_ACTIONS = {
 };
 
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
+
+const findUsers = async (ids: string[]) => {
+  return await findMongoDocuments('api-core', { query: { _id: { $in: ids } }, name: 'Users' })
+};
 
 const gatherPipelineFieldNames = async (
   doc: IPipelineDocument,
@@ -49,46 +52,41 @@ const gatherPipelineFieldNames = async (
   }
 
   options = await gatherNames({
-    collection: Boards,
-    idFields: [doc.boardId],
     foreignKey: 'boardId',
     nameFields: ['name'],
     prevList: options,
+    items: await Boards.find({ _id: doc.boardId }).lean()
   });
 
   if (doc.userId) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: [doc.userId],
       foreignKey: 'userId',
       prevList: options,
+      items: await findUsers([doc.userId])
     });
   }
 
   if (doc.excludeCheckUserIds && doc.excludeCheckUserIds.length > 0) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: doc.excludeCheckUserIds,
       foreignKey: 'excludeCheckUserIds',
       prevList: options,
+      items: await findUsers(doc.excludeCheckUserIds)
     });
   }
 
   if (doc.memberIds && doc.memberIds.length > 0) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: doc.memberIds,
       foreignKey: 'memberIds',
       prevList: options,
+      items: await findUsers(doc.memberIds)
     });
   }
 
   if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
       prevList: options,
+      items: await findUsers(doc.watchedUserIds)
     });
   }
 
@@ -107,65 +105,58 @@ const gatherBoardItemFieldNames = async (
 
   if (doc.userId) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: [doc.userId],
       foreignKey: 'userId',
       prevList: options,
+      items: await findUsers([doc.userId])
     });
   }
 
   if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: doc.assignedUserIds,
       foreignKey: 'assignedUserIds',
       prevList: options,
+      items: await findUsers(doc.assignedUserIds)
     });
   }
 
   if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
       prevList: options,
+      items: await findUsers(doc.watchedUserIds)
     });
   }
 
   if (doc.labelIds && doc.labelIds.length > 0) {
     options = await gatherNames({
-      collection: PipelineLabels,
-      idFields: doc.labelIds,
       foreignKey: 'labelIds',
       prevList: options,
       nameFields: ['name'],
+      items: await PipelineLabels.find({ _id: { $in: doc.labelIds} }).lean()
     });
   }
 
   options = await gatherNames({
-    collection: Stages,
-    idFields: [doc.stageId],
     foreignKey: 'stageId',
     prevList: options,
     nameFields: ['name'],
+    items: await Stages.find({ _id: doc.stageId })
   });
 
   if (doc.initialStageId) {
     options = await gatherNames({
-      collection: Stages,
-      idFields: [doc.initialStageId],
       foreignKey: 'initialStageId',
       prevList: options,
       nameFields: ['name'],
+      items: await Stages.find({ _id: doc.initialStageId })
     });
   }
 
   if (doc.modifiedBy) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: [doc.modifiedBy],
       foreignKey: 'modifiedBy',
       prevList: options,
+      items: await findUsers([doc.modifiedBy])
     });
   }
 
@@ -211,10 +202,9 @@ const gatherGHFieldNames = async (
 
   if (doc.votedUserIds && doc.votedUserIds.length > 0) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: doc.votedUserIds,
       foreignKey: 'votedUserIds',
       prevList: options,
+      items: await findUsers(doc.votedUserIds)
     });
   }
 
@@ -232,19 +222,20 @@ const gatherPipelineTemplateFieldNames = async (
   }
 
   options = await gatherUsernames({
-    collection: Users,
-    idFields: [doc.createdBy || ''],
     foreignKey: 'createdBy',
     prevList: options,
+    items: await findUsers([doc.createdBy || ''])
   });
 
   if (doc.stages && doc.stages.length > 0) {
     options = await gatherNames({
-      collection: Forms,
-      idFields: doc.stages.map((s) => s.formId),
       foreignKey: 'formId',
       prevList: options,
       nameFields: ['title'],
+      items: await findMongoDocuments(
+        'api-core',
+        { query: { _id: { $in: doc.stages.map((s) => s.formId) } }, name: 'Forms' }
+      )
     });
   }
 
@@ -263,28 +254,28 @@ const gatherStageFieldNames = async (
 
   if (doc.userId) {
     options = await gatherUsernames({
-      collection: Users,
-      idFields: [doc.userId],
       foreignKey: 'userId',
       prevList: options,
+      items: await findUsers([doc.userId])
     });
   }
   if (doc.pipelineId) {
     options = await gatherNames({
-      collection: Pipelines,
-      idFields: [doc.pipelineId],
       foreignKey: 'pipelineId',
       prevList: options,
       nameFields: ['name'],
+      items: await Pipelines.find({ _id: doc.pipelineId })
     });
   }
   if (doc.formId) {
     options = await gatherNames({
-      collection: Forms,
-      idFields: [doc.formId],
       foreignKey: 'formId',
       prevList: options,
       nameFields: ['title'],
+      items: await findMongoDocuments(
+        'api-core',
+        { query: { _id: { $in: [doc.formId] } }, name: 'Forms' }
+      )
     });
   }
 
@@ -339,9 +330,8 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
     case MODULE_NAMES.BOARD_TICKET:
       if (object.userId) {
         extraDesc = await gatherUsernames({
-          collection: Users,
-          idFields: [object.userId],
           foreignKey: 'userId',
+          items: await findUsers([object.userId])
         });
       }
 
@@ -386,9 +376,8 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
       const pipeline = await Pipelines.findOne({ _id: object.pipelineId });
 
       extraDesc = await gatherUsernames({
-        collection: Users,
-        idFields: [object.createdBy],
         foreignKey: 'createdBy',
+        items: await findUsers([object.createdBy])
       });
 
       if (pipeline) {
@@ -450,9 +439,8 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
       });
 
       extraDesc = await gatherUsernames({
-        collection: Users,
-        idFields: [object.createdUserId],
         foreignKey: 'createdUserId',
+        items: await findUsers([object.createdUserId])
       });
 
       extraDesc.push({ contentTypeId: object.contentTypeId, name: itemName });
@@ -478,9 +466,8 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
       const checklist = await Checklists.getChecklist(object.checklistId);
 
       extraDesc = await gatherUsernames({
-        collection: Users,
-        idFields: [object.createdUserId],
         foreignKey: 'createdUserid',
+        items: await findUsers([object.createdUserId])
       });
 
       extraDesc.push({ checklistId: checklist._id, name: checklist.title });

@@ -12,10 +12,9 @@ export interface ILogDataParams {
 }
 
 interface ILogNameParams {
-  collection: any;
-  idFields: string[];
   foreignKey: string;
   prevList?: LogDesc[];
+  items: any[]
 }
 
 export interface IDescriptions {
@@ -39,19 +38,17 @@ interface ISchemaMap {
 
 /**
  * Finds name field from given collection
- * @param params.collection Collection to find
- * @param params.idFields Id fields saved in collection
  * @param params.foreignKey Name of id fields
  * @param params.prevList Array to save found id with name
  * @param params.nameFields List of values to be mapped to id field
+ * @param params.items Mongodb document list
  */
  export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   const {
-    collection,
-    idFields,
     foreignKey,
     prevList,
-    nameFields = []
+    nameFields = [],
+    items = []
   } = params;
 
   let options: LogDesc[] = [];
@@ -60,21 +57,16 @@ interface ISchemaMap {
     options = prevList;
   }
 
-  const uniqueIds = _.compact(_.uniq(idFields));
+  for (const item of items) {
+    let name: string = `item with id "${item._id}" has been deleted`;
 
-  for (const id of uniqueIds) {
-    const item = await collection.findOne({ _id: id });
-    let name: string = `item with id "${id}" has been deleted`;
-
-    if (item) {
-      for (const n of nameFields) {
-        if (item[n]) {
-          name = item[n];
-        }
+    for (const n of nameFields) {
+      if (item[n]) {
+        name = item[n];
       }
     }
 
-    options.push({ [foreignKey]: id, name });
+    options.push({ [foreignKey]: item._id, name });
   }
 
   return options;
@@ -83,14 +75,13 @@ interface ISchemaMap {
 export const gatherUsernames = async (
   params: ILogNameParams
 ): Promise<LogDesc[]> => {
-  const { collection, idFields, foreignKey, prevList } = params;
+  const { foreignKey, prevList, items } = params;
 
   return gatherNames({
-    collection,
-    idFields,
     foreignKey,
     prevList,
-    nameFields: ['email', 'username']
+    nameFields: ['email', 'username'],
+    items
   });
 };
 
