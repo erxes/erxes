@@ -36,4 +36,4 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        run: aws s3 sync ./packages/plugin-card-ui/src/tickets/routes.tsx s3://plugin-uis
+        run: aws s3 sync ./packages/plugin-card-ui/package.json s3://plugin-uis
