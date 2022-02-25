@@ -1,9 +1,10 @@
-import Companies from '../../models/Companies';
-import { ICompany } from '../../models/definitions/companies';
-// import { MODULE_NAMES } from '../../constants';
-// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
+
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import Companies from '../../models/Companies';
+import { ICompany } from '../../models/definitions/companies';
+import { MODULE_NAMES } from '../../constants';
 
 interface ICompaniesEdit extends ICompany {
   _id: string;
@@ -16,14 +17,14 @@ const companyMutations = {
   async companiesAdd(_root, doc: ICompany, { user, docModifier }: IContext) {
     const company = await Companies.createCompany(docModifier(doc), user);
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.COMPANY,
-    //     newData: doc,
-    //     object: company
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.COMPANY,
+        newData: doc,
+        object: company
+      },
+      user
+    );
 
     return company;
   },
@@ -39,15 +40,15 @@ const companyMutations = {
     const company = await Companies.getCompany(_id);
     const updated = await Companies.updateCompany(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.COMPANY,
-    //     object: company,
-    //     newData: doc,
-    //     updatedDocument: updated
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.COMPANY,
+        object: company,
+        newData: doc,
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -64,9 +65,9 @@ const companyMutations = {
 
     await Companies.removeCompanies(companyIds);
 
-    // for (const company of companies) {
-    //   await putDeleteLog({ type: MODULE_NAMES.COMPANY, object: company }, user);
-    // }
+    for (const company of companies) {
+      await putDeleteLog({ type: MODULE_NAMES.COMPANY, object: company }, user);
+    }
 
     return companyIds;
   },

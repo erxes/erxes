@@ -1,6 +1,7 @@
 import Companies from './models/Companies';
 import Customers from './models/Customers';
 import { findCompany, findCustomer, generateFields, getContentItem } from './utils';
+import { serviceDiscovery } from './configs';
 
 let client;
 
@@ -208,10 +209,26 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const findIntegrations = async (query, options?): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:findIntegrations', {
+  const isAvailable = await serviceDiscovery.isAvailable('inbox');
+
+  if (!isAvailable) {
+    return [];
+  }
+
+  return client.sendRPCMessage('inbox:rpc_queue:findIntegrations', {
     query,
     options,
   });
+};
+
+export const findTags = async (query): Promise<any> => {
+  const isAvailable = await serviceDiscovery.isAvailable('tags');
+
+  if (!isAvailable) {
+    return [];
+  }
+
+  return client.sendRPCMessage('tags:rpc_queue:find', query);
 };
 
 export const sendToLog = (channel: string, data) =>

@@ -14,6 +14,7 @@ import {
 } from './events';
 
 export let graphqlPubsub;
+export let serviceDiscovery;
 
 export let es: {
   client;
@@ -122,9 +123,11 @@ export default {
       ]
     }
   },
-  graphql: async serviceDiscovery => {
+  graphql: async sd => {
+    serviceDiscovery = sd;
+
     return {
-      typeDefs: await typeDefs(serviceDiscovery),
+      typeDefs: await typeDefs(sd),
       resolvers
     };
   },
