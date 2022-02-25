@@ -65,7 +65,7 @@ const boardMutations = {
 
     const board = await Boards.createBoard(extendedDoc);
 
-    putCreateLog(
+    await putCreateLog(
       {
         type: `${doc.type}Boards`,
         newData: extendedDoc,
@@ -150,7 +150,7 @@ const boardMutations = {
       stages
     );
 
-    putCreateLog(
+    await putCreateLog(
       {
         type: `${doc.type}Pipelines`,
         newData: doc,
