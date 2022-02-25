@@ -15,7 +15,9 @@ import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 import { InternalNotes } from '../apiCollections';
 import {
   sendConformityMessage,
-  sendInboxRPCMessage
+  sendInboxRPCMessage,
+  sendProductRPCMessage,
+  sendConfigRPCMessage
 } from '../messageBroker';
 import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
@@ -423,6 +425,38 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
   return item;
 };
 
+// check booking convert
+const checkBookingConvert = async (productId: string) => {
+  const product = await sendProductRPCMessage('findOne', { _id: productId });
+
+  // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
+  let dealUOM = await sendConfigRPCMessage('getConfigs', {
+    code: 'dealUOM'
+  });
+
+  let dealCurrency = await sendConfigRPCMessage('getConfigs', {
+    code: 'dealCurrency'
+  });
+
+  if (dealUOM.length > 0) {
+    dealUOM = dealUOM[0];
+  } else {
+    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
+  }
+
+  if (dealCurrency.length > 0) {
+    dealCurrency = dealCurrency[0];
+  } else {
+    throw new Error('Please choose currency from general settings!');
+  }
+
+  return {
+    product,
+    dealUOM,
+    dealCurrency
+  };
+};
+
 export const conversationConvertToCard = async args => {
   const {
     _id,
@@ -432,7 +466,6 @@ export const conversationConvertToCard = async args => {
     stageId,
     bookingProductId,
     conversation,
-    checkBookingConvert,
     user,
     docModifier
   } = args;

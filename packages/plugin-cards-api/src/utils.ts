@@ -105,11 +105,11 @@ export const getContentItem = async (activityLog) => {
 };
 
 export const getContentTypeDetail = async (activityLog) => {
-  const { contentType, contentId, content } = activityLog;
+  const { contentType = '', contentId, content } = activityLog;
   let item = {};
 
   try {
-    switch (contentType) {
+    switch (contentType.split(':')[1]) {
       case "deal":
         item = await Deals.getDeal(contentId);
         break;
