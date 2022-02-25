@@ -110,8 +110,10 @@ const dealMutations = {
       const productIds = productsData.map(p => p.productId);
 
       const products = await findProducts('find', {
-        _id: { $in: productIds },
-        supply: { $ne: 'unlimited' }
+        query: {
+          _id: { $in: productIds },
+          supply: { $ne: 'unlimited' }
+        }
       });
 
       if (stage.probability === 'Won') {

@@ -12,13 +12,25 @@ export const initBroker = async cl => {
     status: 'success',
   }));
 
+  consumeRPCQueue(
+    'productCategories:rpc_queue:find',
+    async ({ query, sort, reg }) => ({
+      data: reg
+        ? await ProductCategories.find({
+            order: { $regex: new RegExp(reg.value) }
+          }).sort(sort)
+        : await ProductCategories.find(query),
+      status: 'success'
+    })
+  );
+
   consumeRPCQueue('productCategories:rpc_queue:findOne', async (selector) => ({
     data: await ProductCategories.findOne(selector),
     status: 'success',
   }));
 
-  consumeRPCQueue('products:rpc_queue:find', async (selector) => ({
-    data: await Products.find(selector),
+  consumeRPCQueue('products:rpc_queue:find', async ({ query, sort }) => ({
+    data: await Products.find(query).sort(sort),
     status: 'success',
   }));
 

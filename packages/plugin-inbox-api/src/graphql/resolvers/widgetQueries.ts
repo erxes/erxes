@@ -19,10 +19,7 @@ import * as moment from 'moment';
 
 import { IContext } from '@erxes/api-utils/src';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import {
-  sendProductCategoryRPCMessage,
-  sendProductRPCMessage
-} from '../../messageBroker';
+import { sendRPCMessage } from '../../messageBroker';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -316,21 +313,33 @@ export default {
   },
 
   async widgetsProductCategory(_root, { _id }: { _id: string }) {
-    return sendProductCategoryRPCMessage('findOne', { _id });
+    return {
+      __typename: 'ProductCategory',
+      _id
+    };
   },
 
   async widgetsBookingProductWithFields(_root, { _id }: { _id: string }) {
-    const product = await sendProductRPCMessage('findOne', {
-      _id
-    });
-
-    const fields = await Fields.find({ contentType: 'product' }).sort({
-      order: 1
+    const fields = await sendRPCMessage('rpc_queue:Fields.find', {
+      query: {
+        contentType: 'product'
+      },
+      sort: {
+        order: 1
+      }
     });
 
     return {
-      fields,
-      product
+      fields: fields.map(field => {
+        return {
+          __typename: 'Field',
+          _id: field._id
+        };
+      }),
+      product: {
+        __typename: 'Product',
+        _id
+      }
     };
   }
 };

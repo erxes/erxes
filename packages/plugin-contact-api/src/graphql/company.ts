@@ -8,22 +8,6 @@ export const conformityQueryFields = `
 `;
 
 export const types = (tagsAvailable) => `
-  extend type Form @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  ${
-    tagsAvailable ? 
-    `
-      extend type Tag @key(fields: "_id") {
-        _id: String! @external
-      }
-    ` : ''
-  }
-
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
 
   type Company @key(fields: "_id") {
     _id: String!

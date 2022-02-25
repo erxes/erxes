@@ -24,16 +24,13 @@ export default {
   },
 
   async getTags(
-    company: ICompanyDocument,
-    _,
-    { dataLoaders: { tag } }: IContext
+    company: ICompanyDocument
   ) {
-    const tags = await tag.loadMany(company.tagIds || []);
-    return tags.filter(t => t);
+    return (company.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
   },
 
-  owner(company: ICompanyDocument, _, { dataLoaders: { user } }: IContext) {
-    return (company.ownerId && user.load(company.ownerId)) || null;
+  owner(company: ICompanyDocument) {
+    return { __typename: "User", _id: company.ownerId };
   },
 
   parentCompany(

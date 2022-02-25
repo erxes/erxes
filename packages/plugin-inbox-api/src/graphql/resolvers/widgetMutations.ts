@@ -6,11 +6,7 @@ import {
   Integrations
 } from '../../models';
 
-import {
-  Fields,
-  Forms,
-  Users
-} from '../../apiCollections';
+import { Fields, Forms, Users } from '../../apiCollections';
 
 // import {
 //   IVisitorContactInfoParams
@@ -38,26 +34,32 @@ import { debug } from '../../configs';
 import { get, set } from '../../inmemoryStorage';
 import { graphqlPubsub } from '../../configs';
 
-import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../models/definitions/constants';
+import {
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES
+} from '../../models/definitions/constants';
 
 import { IContext, sendRequest } from '@erxes/api-utils/src';
-
-// import {
-//   sendEmail,
-//   sendMobileNotification,
-//   sendRequest,
-//   sendToWebhook
-// } from '../../utils';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendConformityMessage, sendContactMessage, sendContactRPCMessage, sendFormRPCMessage, sendMessage, sendProductRPCMessage, sendToLog } from '../../messageBroker';
+import {
+  sendConformityMessage,
+  sendContactMessage,
+  sendContactRPCMessage,
+  sendFormRPCMessage,
+  sendMessage,
+  sendProductRPCMessage,
+  sendToLog,
+  client as msgBrokerClient
+} from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import { getService, getServices } from '../../redis';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
-// import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -69,25 +71,34 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-const pConversationClientMessageInserted = async (message) => {
-  const conversation = await Conversations.findOne({
-    _id: message.conversationId,
-  }, { integrationId: 1 });
+const pConversationClientMessageInserted = async message => {
+  const conversation = await Conversations.findOne(
+    {
+      _id: message.conversationId
+    },
+    { integrationId: 1 }
+  );
 
   let integration;
 
   if (conversation) {
-    integration = await Integrations.findOne({
-      _id: conversation.integrationId,
-    }, { _id: 1 });
+    integration = await Integrations.findOne(
+      {
+        _id: conversation.integrationId
+      },
+      { _id: 1 }
+    );
   }
 
   let channelMemberIds: string[] = [];
 
   if (integration) {
-    const channels = await Channels.find({
-      integrationIds: { $in: [integration._id] },
-    }, { _id: 1 });
+    const channels = await Channels.find(
+      {
+        integrationIds: { $in: [integration._id] }
+      },
+      { _id: 1 }
+    );
 
     for (const channel of channels) {
       channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
@@ -100,7 +111,7 @@ const pConversationClientMessageInserted = async (message) => {
     integration,
     channelMemberIds
   });
-}
+};
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
@@ -119,14 +130,10 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
     }
   }
 
-// ! will check
   // knowledgebase app =======
-//   const kbApp = await getMessengerApps('knowledgebase', integration._id);
+  const kbApp = await getMessengerApps('knowledgebase', integration._id);
 
-//   const topicId =
-//     kbApp && kbApp.credentials
-//       ? (kbApp.credentials as IKnowledgebaseCredentials).topicId
-//       : null;
+  const topicId = kbApp && kbApp.credentials ? kbApp.credentials.topicId : null;
 
   // lead app ==========
   const leadApps = await getMessengerApps('lead', integration._id, false);
@@ -145,7 +152,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   return {
     ...(messengerData || {}),
     messages: messagesByLanguage,
-//     knowledgeBaseTopicId: topicId,
+    knowledgeBaseTopicId: topicId,
     websiteApps,
     formCodes
   };
@@ -161,12 +168,12 @@ const createFormConversation = async (
   args: {
     integrationId: string;
     formId: string;
-//     submissions: ISubmission[];
+    //     submissions: ISubmission[];
     submissions: any[];
     browserInfo: any;
     cachedCustomerId?: string;
   },
-//   generateContent: (form: IFormDocument) => string,
+  //   generateContent: (form: IFormDocument) => string,
   generateContent: (form) => string,
   generateConvData: () => {
     conversation?: any;
@@ -228,7 +235,7 @@ const createFormConversation = async (
       conversationId: conversation._id
     };
 
-//     await sendToWebhook('create', 'popupSubmitted', formData);
+    //     await sendToWebhook('create', 'popupSubmitted', formData);
   }
 
   return {
@@ -266,7 +273,10 @@ const widgetMutations = {
     if (integ.createdUserId) {
       const user = await Users.findOne({ _id: integ.createdUserId });
 
-      sendMessage('registerOnboardHistory', { type: 'leadIntegrationInstalled', user });
+      sendMessage('registerOnboardHistory', {
+        type: 'leadIntegrationInstalled',
+        user
+      });
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
@@ -292,7 +302,7 @@ const widgetMutations = {
     args: {
       integrationId: string;
       formId: string;
-//       submissions: ISubmission[];
+      //       submissions: ISubmission[];
       submissions: any[];
       browserInfo: any;
       cachedCustomerId?: string;
@@ -400,7 +410,10 @@ const widgetMutations = {
             doc,
             customData
           })
-        : await sendContactRPCMessage('createMessengerCustomer', { doc, customData });
+        : await sendContactRPCMessage('createMessengerCustomer', {
+            doc,
+            customData
+          });
     }
 
     if (visitorId) {
@@ -618,7 +631,9 @@ const widgetMutations = {
     );
 
     // mark customer as active
-    sendContactMessage('markCustomerAsActive', { customerId: conversation.customerId });
+    sendContactMessage('markCustomerAsActive', {
+      customerId: conversation.customerId
+    });
 
     await pConversationClientMessageInserted(msg);
 
@@ -713,23 +728,21 @@ const widgetMutations = {
       });
     }
 
-    // ! will check
+    if (!HAS_BOTENDPOINT_URL && customerId) {
+      try {
+        await sendMessage('core:sendMobileNotification', {
+          title: 'You have a new message',
+          body: conversationContent,
+          customerId,
+          conversationId: conversation._id,
+          receivers: conversationNotifReceivers(conversation, customerId)
+        });
+      } catch (e) {
+        debug.error(`Failed to send mobile notification: ${e.message}`);
+      }
+    }
 
-//     if (!HAS_BOTENDPOINT_URL && customerId) {
-//       try {
-//         sendMobileNotification({
-//           title: 'You have a new message',
-//           body: conversationContent,
-//           customerId,
-//           conversationId: conversation._id,
-//           receivers: conversationNotifReceivers(conversation, customerId)
-//         });
-//       } catch (e) {
-//         debug.error(`Failed to send mobile notification: ${e.message}`);
-//       }
-//     }
-
-//     await sendToWebhook('create', 'customerMessages', msg);
+    // await sendToWebhook('create', 'customerMessages', msg);
 
     return msg;
   },
@@ -754,7 +767,6 @@ const widgetMutations = {
     return args.conversationId;
   },
 
-//   async widgetsSaveCustomerGetNotified(_root, args: IVisitorContactInfoParams) {
   async widgetsSaveCustomerGetNotified(_root, args) {
     const { visitorId, customerId } = args;
 
@@ -762,7 +774,10 @@ const widgetMutations = {
       const customer = await createVisitor(visitorId);
       args.customerId = customer._id;
 
-      await ConversationMessages.updateVisitorEngageMessages(visitorId, customer._id);
+      await ConversationMessages.updateVisitorEngageMessages(
+        visitorId,
+        customer._id
+      );
       await Conversations.updateMany(
         {
           visitorId
@@ -770,7 +785,7 @@ const widgetMutations = {
         { $set: { customerId: customer._id, visitorId: '' } }
       );
     }
-    
+
     return sendContactRPCMessage('saveVisitorContactInfo', args);
   },
 
@@ -829,21 +844,25 @@ const widgetMutations = {
     const attachments = args.attachments || [];
 
     // do not use Customers.getCustomer() because it throws error if not found
-    const customer = await sendContactRPCMessage('findCustomer',  { _id: customerId })
+    const customer = await sendContactRPCMessage('findCustomer', {
+      _id: customerId
+    });
     const form = await Forms.getForm(formId || '');
 
     let finalContent = content;
 
     if (customer && form) {
-      // ! will check
-//       const replacedContent = await new EditorAttributeUtil().replaceAttributes(
-//         {
-//           content,
-//           customer,
-//           user: await Users.getUser(form.createdUserId)
-//         }
-//       );
-      const replacedContent = '';
+      const apiService = await getService('api');
+
+      const replacedContent = await new EditorAttributeUtil(
+        msgBrokerClient,
+        apiService.address,
+        await getServices()
+      ).replaceAttributes({
+        content,
+        customer,
+        user: await Users.getUser(form.createdUserId)
+      });
 
       finalContent = replacedContent || '';
     }
@@ -859,14 +878,13 @@ const widgetMutations = {
       });
     }
 
-    // ! will check
-//     await sendEmail({
-//       toEmails,
-//       fromEmail,
-//       title,
-//       template: { data: { content: finalContent } },
-//       attachments: mailAttachment
-//     });
+    await sendMessage('core:sendEmail', {
+      toEmails,
+      fromEmail,
+      title,
+      template: { data: { content: finalContent } },
+      attachments: mailAttachment
+    });
   },
 
   async widgetBotRequest(
@@ -1035,7 +1053,7 @@ const widgetMutations = {
     args: {
       integrationId: string;
       formId: string;
-//       submissions: ISubmission[];
+      //       submissions: ISubmission[];
       submissions: any[];
       browserInfo: any;
       cachedCustomerId?: string;
