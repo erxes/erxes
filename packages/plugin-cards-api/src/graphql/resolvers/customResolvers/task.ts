@@ -7,7 +7,6 @@ import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
-import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export default {
   async companies(task: ITaskDocument) {
@@ -17,13 +16,15 @@ export default {
       relTypes: ['company']
     });
 
-    return sendContactRPCMessage('findActiveCompanies', {
+    const activeCompanies = await sendContactRPCMessage('findActiveCompanies', {
       selector: { _id: { $in: companyIds } }
     });
+
+    return (activeCompanies || []).map(({_id }) => ({ __typename: "Company", _id }));
   },
 
   createdUser(task: ITaskDocument) {
-    return getDocument('users', { _id: task.userId });
+    return { __typename: "User", _id: task.userId };
   },
 
   async customers(task: ITaskDocument) {
@@ -33,15 +34,15 @@ export default {
       relTypes: ['customer']
     });
 
-    return sendContactRPCMessage('findActiveCustomers', {
+    const customers =  await sendContactRPCMessage('findActiveCustomers', {
       selector: { _id: { $in: customerIds } }
     });
+
+    return (customers || []).map(({ _id }) => ({ __typename: "Customer", _id }))
   },
 
   assignedUsers(task: ITaskDocument) {
-    return getDocumentList('users', {
-      _id: { $in: task.assignedUserIds || [] }
-    });
+    return (task.assignedUserIds || []).map(_id => ({ __typename: "User", _id }));
   },
 
   async pipeline(task: ITaskDocument) {

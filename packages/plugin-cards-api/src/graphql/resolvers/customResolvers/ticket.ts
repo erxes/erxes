@@ -7,7 +7,6 @@ import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { ITicketDocument } from '../../../models/definitions/tickets';
 import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
-import { getDocument, getDocumentList } from '../../../cacheUtils';
 
 export default {
   async companies(ticket: ITicketDocument) {
@@ -17,9 +16,11 @@ export default {
       relTypes: ['company']
     });
 
-    return sendContactRPCMessage('findActiveCompanies', {
+    const companies = await sendContactRPCMessage('findActiveCompanies', {
       selector: { _id: { $in: companyIds } }
     });
+
+    return (companies || []).map(({ _id }) => ({ __typename: "Company", _id }));
   },
 
   async customers(ticket: ITicketDocument) {
@@ -29,15 +30,15 @@ export default {
       relTypes: ['customer']
     });
 
-    return sendContactRPCMessage('findActiveCustomers', {
+    const customers = await sendContactRPCMessage('findActiveCustomers', {
       selector: { _id: { $in: customerIds } }
     });
+
+    return (customers || []).map(({ _id }) => ({ __typename: "Customer", _id }));
   },
 
   assignedUsers(ticket: ITicketDocument) {
-    return getDocumentList('users', {
-      _id: { $in: ticket.assignedUserIds || [] }
-    });
+    return (ticket.assignedUserIds || []).map(_id => ({ __typename: "User", _id }));
   },
 
   async pipeline(ticket: ITicketDocument) {
@@ -76,6 +77,6 @@ export default {
   },
 
   createdUser(ticket: ITicketDocument) {
-    return getDocument('users', { _id: ticket.userId });
+    return { __typename: "User", _id: ticket.userId };
   }
 };

@@ -1,10 +1,15 @@
 import { gatherNames, LogDesc } from "@erxes/api-utils/src/logUtils";
-import { Brands, Forms, Tags, Users } from "./apiCollections";
 import { Integrations } from "./models";
 import { IChannelDocument } from "./models/definitions/channels";
 import { IIntegrationDocument } from "./models/definitions/integrations";
+import { findMongoDocuments } from "./messageBroker";
 
-const userFields = { collection: Users, nameFields: ['email', 'username'] };
+const findFromCore = async (ids: string[], collectionName: string) => {
+  return await findMongoDocuments(
+    'api-core',
+    { query: { _id: { $in: ids } }, name: collectionName }
+  );
+}
 
 const gatherIntegrationFieldNames = async (
   doc: IIntegrationDocument,
@@ -18,40 +23,39 @@ const gatherIntegrationFieldNames = async (
 
   if (doc.createdUserId) {
     options = await gatherNames({
-      ...userFields,
-      idFields: [doc.createdUserId],
+      nameFields: ['email', 'username'],
       foreignKey: 'createdUserId',
       prevList: options,
+      items: await findFromCore([doc.createdUserId], 'Users')
     });
   }
 
   if (doc.brandId) {
     options = await gatherNames({
-      collection: Brands,
-      idFields: [doc.brandId],
       foreignKey: 'brandId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: await findFromCore([doc.brandId], 'Brands')
     });
   }
 
   if (doc.tagIds && doc.tagIds.length > 0) {
     options = await gatherNames({
-      collection: Tags,
-      idFields: doc.tagIds,
       foreignKey: 'tagIds',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: await findMongoDocuments(
+        'tags', { name: 'Tags', query: { _id: { $in: doc.tagIds } } }
+      )
     });
   }
 
   if (doc.formId) {
     options = await gatherNames({
-      collection: Forms,
-      idFields: [doc.formId],
       foreignKey: 'formId',
       prevList: options,
-      nameFields: ['title']
+      nameFields: ['title'],
+      items: await findFromCore([doc.formId], 'Forms')
     });
   }
 
@@ -70,29 +74,28 @@ export const gatherChannelFieldNames = async (
 
   if (doc.userId) {
     options = await gatherNames({
-      ...userFields,
-      idFields: [doc.userId],
+      nameFields: ['userId'],
       foreignKey: 'userId',
-      prevList: options
+      prevList: options,
+      items: await findFromCore([doc.userId], 'Users')
     });
   }
 
   if (doc.memberIds && doc.memberIds.length > 0) {
     options = await gatherNames({
-      ...userFields,
-      idFields: doc.memberIds,
+      nameFields: ['memberIds'],
       foreignKey: 'memberIds',
-      prevList: options
+      prevList: options,
+      items: await findFromCore(doc.memberIds, 'Users')
     });
   }
 
   if (doc.integrationIds && doc.integrationIds.length > 0) {
     options = await gatherNames({
-      collection: Integrations,
-      idFields: doc.integrationIds,
       foreignKey: 'integrationIds',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: await Integrations.findIntegrations({ _id: { $in: doc.integrationIds } })
     });
   }
 

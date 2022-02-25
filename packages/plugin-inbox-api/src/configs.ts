@@ -9,6 +9,7 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 
 export let graphqlPubsub;
+export let serviceDiscovery;
 
 export let es: {
   client;
@@ -21,10 +22,14 @@ export let debug;
 
 export default {
   name: 'inbox',
-  graphql: async (serviceDiscovery) => ({
-    typeDefs: await typeDefs(serviceDiscovery),
-    resolvers,
-  }),
+  graphql: async (sd) => {
+    serviceDiscovery = sd;
+
+    return {
+      typeDefs: await typeDefs(sd),
+      resolvers,
+    }
+  },
   hasSubscriptions: true,
   meta: {
     tagTypes: ['conversation'],
