@@ -74,16 +74,10 @@ export const initBroker = (cl) => {
   const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
-    'rpc_queue:engagePluginApi_to_api',
-    async (
-      userId,
-      status,
-      customerId,
-      visitorId,
-      integrationId,
-      content,
-      engageData
-    ) => {
+    'inbox:rpc_queue:createConversationAndMessage',
+    async (doc) => {
+      const { userId, status, customerId, visitorId, integrationId, content, engageData } = doc;
+
       const data = await createConversationAndMessage(
         userId,
         status,
@@ -158,6 +152,7 @@ export const initBroker = (cl) => {
       data: await Conversations.findOne({ _id: conversationId })
     })
   );
+
   consumeRPCQueue('inbox:rpc_queue:getIntegration', async (data) => {
     const { _id } = data;
 
@@ -171,6 +166,17 @@ export const initBroker = (cl) => {
     data: await collectConversations(data),
     status: 'success'
   }));
+
+  consumeRPCQueue('inbox:rpc_queue:updateConversationMessage', async (data) => {
+    const { filter, updateDoc } = data;
+
+    const updated = await ConversationMessages.updateOne(filter, { $set: updateDoc });
+
+    return {
+      data: updated,
+      status: 'success'
+    }
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

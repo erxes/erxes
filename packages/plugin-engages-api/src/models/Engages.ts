@@ -3,17 +3,15 @@ import { Model, model } from 'mongoose';
 import { IBrowserInfo } from "@packages/api-utils/src/definitions/common";
 import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
 import { ICustomerDocument } from "@packages/plugin-contact-api/src/models/definitions/customers";
-import { ConversationMessages } from '../apiCollections';
-// import { findUser, findElk } from '../engageUtils';
 import { findUser } from '../engageUtils';
-import {
+import messageBroker, {
   removeEngageConversations,
-  createRPCconversationAndMessage,
-  client as msgBrokerClient
+  createConversationAndMessage,
+  updateConversationMessage
 } from '../messageBroker';
 import { MESSAGE_KINDS } from '../constants';
 // import { checkCustomerExists } from '../engageUtils';
-// import { isUsingElk } from '../utils';
+import { isUsingElk, getEditorAttributeUtil } from '../utils';
 
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '../constants';
 import { IEngageData, IMessageDocument } from '../types';
@@ -22,9 +20,7 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from './definitions/engages';
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
-import { getService, getServices } from '../redis';
 interface ICheckRulesParams {
   rules: IRule[];
   browserInfo: IBrowserInfo;
@@ -343,9 +339,10 @@ export const loadClass = () => {
         // if given visitor is matched with given condition then create
         // conversations
         if (hasPassedAllRules) {
-          const apiService = await getService("api");
+          const editorAttributeUtil = await getEditorAttributeUtil();
+
           // replace keys in content
-          const replacedContent = await new EditorAttributeUtil(msgBrokerClient, apiService.address, await getServices()).replaceAttributes(
+          const replacedContent = await editorAttributeUtil.replaceAttributes(
             {
               content: messenger.content,
               customer,
@@ -444,7 +441,8 @@ export const loadClass = () => {
       const query = customerId
         ? { customerId, 'engageData.messageId': engageData.messageId }
         : { visitorId, 'engageData.messageId': engageData.messageId };
-      prevMessage = await ConversationMessages.findOne(query);
+
+      prevMessage = await messageBroker().sendRPCMessage('inbox:rpc_queue:findMongoDocuments', query);
 
       if (prevMessage) {
         if (
@@ -469,9 +467,7 @@ export const loadClass = () => {
         //   });
         // }
 
-        messages = await ConversationMessages.find({
-          conversationId
-        });
+        messages = await messageBroker().sendRPCMessage('inbox:rpc_queue:findMongoDocuments', { conversationId });
 
         // leave conversations with responses alone
         if (messages.length > 1) {
@@ -479,23 +475,24 @@ export const loadClass = () => {
         }
 
         // mark as unread again && reset engageData
-        await ConversationMessages.updateOne(
-          { _id: prevMessage._id },
-          { $set: { engageData, isCustomerRead: false } }
-        );
+        await updateConversationMessage({
+          filter: { _id: prevMessage._id },
+          updateDoc: { engageData, isCustomerRead: false }
+        });
+
         return null;
       }
 
       // create conversation and message replaced by messagebroker
-      return createRPCconversationAndMessage(
-        user._id,
-        'engageVisitorAuto',
+      return await createConversationAndMessage({
+        userId: user._id,
+        status: 'engageVisitorAuto',
         customerId,
         visitorId,
         integrationId,
         replacedContent,
         engageData
-      );
+      });
     }
 
     /*

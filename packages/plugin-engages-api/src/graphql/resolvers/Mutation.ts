@@ -246,7 +246,7 @@ const engageMutations = {
 
     const attributeUtil = await getEditorAttributeUtil();
 
-    const replacedContent = attributeUtil.replaceAttributes({
+    const replacedContent = await attributeUtil.replaceAttributes({
       content,
       customer,
       user: targetUser,
