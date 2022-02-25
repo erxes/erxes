@@ -1,7 +1,9 @@
 import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
 import { IContext } from "@erxes/api-utils/src/types";
+
 import { ProductCategories, Products } from "../../../models";
 import { IProduct, IProductCategory, IProductDocument } from "../../../models/definitions/products";
+import { putCreateLog, putDeleteLog, putUpdateLog, MODULE_NAMES } from '../../../logUtils';
 
 interface IProductsEdit extends IProduct {
   _id: string;
@@ -19,18 +21,18 @@ const productMutations = {
   async productsAdd(_root, doc: IProduct, { user, docModifier }: IContext) {
     const product = await Products.createProduct(docModifier(doc));
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.PRODUCT,
-    //     newData: {
-    //       ...doc,
-    //       categoryId: product.categoryId,
-    //       customFieldsData: product.customFieldsData
-    //     },
-    //     object: product
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.PRODUCT,
+        newData: {
+          ...doc,
+          categoryId: product.categoryId,
+          customFieldsData: product.customFieldsData
+        },
+        object: product
+      },
+      user
+    );
 
     return product;
   },
@@ -48,15 +50,15 @@ const productMutations = {
     const product = await Products.getProduct({ _id });
     const updated = await Products.updateProduct(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.PRODUCT,
-    //     object: product,
-    //     newData: { ...doc, customFieldsData: updated.customFieldsData },
-    //     updatedDocument: updated
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.PRODUCT,
+        object: product,
+        newData: { ...doc, customFieldsData: updated.customFieldsData },
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -76,9 +78,9 @@ const productMutations = {
 
     const response = await Products.removeProducts(productIds);
 
-    // for (const product of products) {
-    //   await putDeleteLog({ type: MODULE_NAMES.PRODUCT, object: product }, user);
-    // }
+    for (const product of products) {
+      await putDeleteLog({ type: MODULE_NAMES.PRODUCT, object: product }, user);
+    }
 
     return response;
   },
@@ -96,14 +98,14 @@ const productMutations = {
       docModifier(doc)
     );
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.PRODUCT_CATEGORY,
-    //     newData: { ...doc, order: productCategory.order },
-    //     object: productCategory
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.PRODUCT_CATEGORY,
+        newData: { ...doc, order: productCategory.order },
+        object: productCategory
+      },
+      user
+    );
 
     return productCategory;
   },
@@ -121,15 +123,15 @@ const productMutations = {
     const productCategory = await ProductCategories.getProductCatogery({ _id });
     const updated = await ProductCategories.updateProductCategory(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.PRODUCT_CATEGORY,
-    //     object: productCategory,
-    //     newData: doc,
-    //     updatedDocument: updated
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.PRODUCT_CATEGORY,
+        object: productCategory,
+        newData: doc,
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -146,10 +148,10 @@ const productMutations = {
     const productCategory = await ProductCategories.getProductCatogery({ _id });
     const removed = await ProductCategories.removeProductCategory(_id);
 
-    // await putDeleteLog(
-    //   { type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory },
-    //   user
-    // );
+    await putDeleteLog(
+      { type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory },
+      user
+    );
 
     return removed;
   },
