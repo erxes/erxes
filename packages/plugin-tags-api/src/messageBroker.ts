@@ -14,7 +14,7 @@ export const initBroker = async cl => {
   }));
 
   consumeRPCQueue('tags:rpc_queue:findOne', async (selector) => ({
-    data: await Tags.findOne(selector).lean(),
+    data: await models.Tags.findOne(selector).lean(),
     status: 'success',
   }));
 
