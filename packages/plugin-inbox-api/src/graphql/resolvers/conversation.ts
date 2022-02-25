@@ -16,7 +16,7 @@ export default {
   },
 
   customer(conversation: IConversationDocument) {
-    return conversation.customerId && { __type: 'Customer', _id: conversation.customerId }
+    return conversation.customerId && { __typename: 'Customer', _id: conversation.customerId }
   },
 
   integration(conversation: IConversationDocument) {
@@ -24,15 +24,15 @@ export default {
   },
 
   user(conversation: IConversationDocument) {
-    return conversation.userId && { __type: 'User', _id: conversation.userId }
+    return conversation.userId && { __typename: 'User', _id: conversation.userId }
   },
 
   assignedUser(conversation: IConversationDocument) {
-    return conversation.assignedUserId && { __type: 'User', _id: conversation.assignedUserId }
+    return conversation.assignedUserId && { __typename: 'User', _id: conversation.assignedUserId }
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return (conv.participatedUserIds || []).map((_id) => ({ __type: 'User', _id }))
+    return (conv.participatedUserIds || []).map((_id) => ({ __typename: 'User', _id }))
   },
 
   participatorCount(conv: IConversationDocument) {
@@ -111,7 +111,7 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return (conv.tagIds || []).map((_id) => ({ __type: 'Tag', _id }));
+    return (conv.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
   },
 
   async videoCallData(
