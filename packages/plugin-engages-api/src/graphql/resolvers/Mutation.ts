@@ -1,23 +1,21 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
-import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src/logUtils';
+
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
-
 import { EngageMessages } from '../../models';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import messageBroker from '../../messageBroker';
 import { gatherDescriptions } from './logHelper';
-import { updateConfigs, createTransporter } from '../../utils';
+import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
-
-// import { Customers, Users } from '../../apiCollections';
-// import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
 }
+
+const MODULE_ENGAGE = 'engage';
 
 interface ITestEmailParams {
   from: string;
@@ -65,7 +63,7 @@ const engageMutations = {
     await send(engageMessage);
 
     const logDoc = {
-      type: MODULE_NAMES.ENGAGE,
+      type: MODULE_ENGAGE,
       newData: {
         ...doc,
         ...emptyCustomers,
@@ -106,7 +104,7 @@ const engageMutations = {
     }
 
     const logDoc = {
-      type: MODULE_NAMES.ENGAGE,
+      type: MODULE_ENGAGE,
       object: { ...engageMessage.toObject(), ...emptyCustomers },
       newData: { ...updated.toObject(), ...emptyCustomers },
       updatedDocument: updated,
@@ -140,7 +138,7 @@ const engageMutations = {
     const removed = await EngageMessages.removeEngageMessage(_id);
 
     const logDoc = {
-      type: MODULE_NAMES.ENGAGE,
+      type: MODULE_ENGAGE,
       object: { ...engageMessage.toObject(), ...emptyCustomers }
     };
 
@@ -189,7 +187,7 @@ const engageMutations = {
     await putUpdateLog(
       messageBroker,
       {
-        type: MODULE_NAMES.ENGAGE,
+        type: MODULE_ENGAGE,
         newData: {
           isLive: true,
           isDraft: false,
@@ -239,14 +237,20 @@ const engageMutations = {
         'Email content, title, from address or to address is missing'
       );
     }
-    // const customer = await Customers.findOne({ primaryEmail: to });
-    // const targetUser = await Users.findOne({ email: to });
 
-    // const replacedContent = await new EditorAttributeUtil().replaceAttributes({
-    //   content,
-    //   customer,
-    //   user: targetUser,
-    // });
+    const customer = await messageBroker().sendRPCMessage(
+      'contacts:rpc_queue:findCustomer',
+      { customerPrimaryEmail: to }
+    );
+    const targetUser = await messageBroker().sendRPCMessage('core:rpc_queue:findOneUser', { email: to });
+
+    const attributeUtil = await getEditorAttributeUtil();
+
+    const replacedContent = await attributeUtil.replaceAttributes({
+      content,
+      customer,
+      user: targetUser,
+    });
 
     const transporter = await createTransporter();
 
@@ -255,8 +259,7 @@ const engageMutations = {
       to,
       subject: title,
       html: content,
-      // content: replacedContent
-      content
+      content: replacedContent
     });
 
     return JSON.stringify(response);
@@ -294,7 +297,7 @@ const engageMutations = {
     await putCreateLog(
       messageBroker,
       {
-        type: MODULE_NAMES.ENGAGE,
+        type: MODULE_ENGAGE,
         newData: {
           ...doc,
           ...emptyCustomers,

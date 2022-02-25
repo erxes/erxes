@@ -1,10 +1,14 @@
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
+
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+
 import { SES_DELIVERY_STATUSES } from './constants';
 import { debugBase, debugError } from './debuggers';
 import messageBroker from './messageBroker';
 import Configs, { ISESConfig } from './models/Configs';
 import { DeliveryReports, Stats } from './models/index';
+import { getServices, getService } from './redis';
 import { getApi } from './trackers/engageTracker';
 import { ICampaign, ICustomer } from './types';
 
@@ -306,4 +310,12 @@ export const setCampaignCount = async (campaign: ICampaign) => {
       validCustomersCount: campaign.validCustomersCount
     }
   });
+};
+
+export const getEditorAttributeUtil = async () => {
+  const apiCore = await getService('api-core');
+  const services = await getServices();
+  const editor = await new EditorAttributeUtil(messageBroker(), apiCore.address, services);
+
+  return editor;
 };

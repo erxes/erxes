@@ -57,7 +57,9 @@ const dealQueries = {
     });
 
     const products = await findProducts('find', {
-      _id: { $in: [...new Set(dealProductIds)] }
+      query: {
+        _id: { $in: [...new Set(dealProductIds)] }
+      }
     });
 
     for (const deal of deals) {
@@ -200,8 +202,8 @@ const dealQueries = {
   }
 };
 
-moduleRequireLogin(dealQueries);
+// moduleRequireLogin(dealQueries);
 
-checkPermission(dealQueries, 'deals', 'showDeals', []);
+// checkPermission(dealQueries, 'deals', 'showDeals', []);
 
 export default dealQueries;
